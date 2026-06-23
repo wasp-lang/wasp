@@ -366,7 +366,7 @@ Sometimes you want to include **extra fields** in your signup process, like firs
 For this to happen:
 
 - you need to define the fields that you want saved in the database,
-- you need to customize the `SignupForm` (in the case of [Email](./email.md) or [Username & Password](./username-and-pass.md) auth)
+- you need to add matching fields to your signup UI (in the case of [Email](./email.md) or [Username & Password](./username-and-pass.md) auth)
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
@@ -476,110 +476,49 @@ Now that we defined the fields, Wasp knows how to:
 1. Validate the data sent from the client
 2. Save the data to the database
 
-Next, let's see how to customize [Auth UI](../auth/ui) to include those fields.
+Next, let's see how to add those fields to the copied [Auth UI](../auth/ui).
 
-### 2. Customizing the Signup Component
+### 2. Add Fields To Signup UI
 
-:::tip Using Custom Signup Component
+If you copied the drop-in Auth UI from the [Auth UI docs](../auth/ui), add the extra fields to the local signup component you now own.
 
-If you are not using Wasp's Auth UI, you can skip this section. Just make sure to include the extra fields in your custom signup form.
+```tsx title="src/auth/DropInAuthForms.tsx" auto-js
+import { signup, useSignupForm } from "wasp/client/auth"
 
-Read more about using the signup actions for:
+type SignupFields = {
+  email: string
+  password: string
+  address: string
+}
 
-- [Email auth](./email/create-your-own-ui.md)
-- [Username & password auth](./username-and-pass/create-your-own-ui.md)
-  :::
+export function SignupPage() {
+  const form = useSignupForm<SignupFields>({
+    identityField: "email",
+    initialFields: { address: "" },
+    async submit(fields) {
+      await signup(fields)
+    },
+    validate(fields) {
+      if (!fields.address.trim()) {
+        return { fieldErrors: { address: "Address is required" } }
+      }
+      return null
+    },
+  })
 
-If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
-
-#### Using a List of Extra Fields
-
-When you pass in a list of extra fields to the `SignupForm`, they are added to the form one by one, in the order you pass them in.
-
-Inside the list, there can be either **objects** or **render functions** (you can combine them):
-
-1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
-2. Render functions can be used to render any UI you want, but they require a bit more code. The render functions receive the `react-hook-form` object and the form state object as arguments.
-
-```tsx title="src/SignupPage.tsx" auto-js
-import {
-  SignupForm,
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from "wasp/client/auth"
-
-export const SignupPage = () => {
   return (
-    <SignupForm
-      additionalFields={[
-        /* The address field is defined using an object */
-        {
-          name: "address",
-          label: "Address",
-          type: "input",
-          validations: {
-            required: "Address is required",
-          },
-        },
-        /* The phone number is defined using a render function */
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register("phoneNumber", {
-                  required: "Phone number is required",
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
+    <form onSubmit={(event) => void form.submit(event)}>
+      <input {...form.getFieldProps("email")} type="email" />
+      <input {...form.getFieldProps("password")} type="password" />
+      <input {...form.getFieldProps("address")} />
+      {form.fieldErrors.address && <p>{form.fieldErrors.address}</p>}
+      <button disabled={form.isSubmitting}>Sign up</button>
+    </form>
   )
 }
 ```
 
-<small>
-  Read more about the extra fields in the [API Reference](#signupform-customization).
-</small>
-
-#### Using a Single Render Function
-
-Instead of passing in a list of extra fields, you can pass in a render function which will receive the `react-hook-form` object and the form state object as arguments. What ever the render function returns, will be rendered below the default fields.
-
-```tsx title="src/SignupPage.tsx" auto-js
-import { SignupForm, FormItemGroup } from "wasp/client/auth"
-
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={(form, state) => {
-        const username = form.watch("username")
-        return (
-          username && (
-            <FormItemGroup>
-              Hello there <strong>{username}</strong> 👋
-            </FormItemGroup>
-          )
-        )
-      }}
-    />
-  )
-}
-```
-
-<small>
-  Read more about the render function in the [API Reference](#signupform-customization).
-</small>
+The important part is that the field name you submit from the client matches the key you defined in `userSignupFields`.
 
 ## API Reference
 
@@ -643,95 +582,3 @@ If the value that the function received is invalid, the function should throw an
 <small>
   \* We exclude the `password` field from this object to prevent it from being saved as plain text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
-
-### `SignupForm` Customization
-
-To customize the `SignupForm` component, you need to pass in the `additionalFields` prop. It can be either a list of extra fields or a render function.
-
-```tsx title="src/SignupPage.tsx" auto-js
-import {
-  SignupForm,
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-} from "wasp/client/auth"
-
-export const SignupPage = () => {
-  return (
-    <SignupForm
-      additionalFields={[
-        {
-          name: "address",
-          label: "Address",
-          type: "input",
-          validations: {
-            required: "Address is required",
-          },
-        },
-        (form, state) => {
-          return (
-            <FormItemGroup>
-              <FormLabel>Phone Number</FormLabel>
-              <FormInput
-                {...form.register("phoneNumber", {
-                  required: "Phone number is required",
-                })}
-                disabled={state.isLoading}
-              />
-              {form.formState.errors.phoneNumber && (
-                <FormError>
-                  {form.formState.errors.phoneNumber.message}
-                </FormError>
-              )}
-            </FormItemGroup>
-          )
-        },
-      ]}
-    />
-  )
-}
-```
-
-The extra fields can be either **objects** or **render functions** (you can combine them):
-
-1. Objects are a simple way to describe new fields you need, but a bit less flexible than render functions.
-
-   The objects have the following properties:
-
-   - `name` <Required />
-     - the name of the field
-
-   - `label` <Required />
-
-     - the label of the field (used in the UI)
-
-   - `type` <Required />
-
-     - the type of the field, which can be `input` or `textarea`
-
-   - `validations`
-     - an object with the validation rules for the field. The keys are the validation names, and the values are the validation error messages. Read more about the available validation rules in the [react-hook-form docs](https://react-hook-form.com/api/useform/register#register).
-
-2. Render functions receive the `react-hook-form` object and the form state as arguments, and they can use them to render arbitrary UI elements.
-
-   The render function has the following signature:
-
-   ```ts
-   type AdditionalSignupFieldRenderFn = (
-      hookForm: UseFormReturn,
-      formState: FormState
-    ) => React.ReactNode
-   ```
-
-   - `form` <Required />
-
-     The `react-hook-form` object, read more about it in the [react-hook-form docs](https://react-hook-form.com/api/useform). You need to use the `form.register` function to register your fields
-
-   - `state` <Required />
-
-     The form state object, which has the following properties:
-
-     - `isLoading: boolean`
-
-       Whether the form is currently submitting

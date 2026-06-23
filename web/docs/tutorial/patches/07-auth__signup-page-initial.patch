@@ -1,16 +1,47 @@
 diff --git a/src/SignupPage.tsx b/src/SignupPage.tsx
 new file mode 100644
-index 0000000..15710ec
+index 0000000..d6f7a22
 --- /dev/null
 +++ b/src/SignupPage.tsx
-@@ -0,0 +1,14 @@
-+import { Link } from "react-router";
-+import { SignupForm } from "wasp/client/auth";
+@@ -0,0 +1,52 @@
++import { Link, useNavigate } from "react-router";
++import {
++  login,
++  signup,
++  useSignupForm,
++  type ErrorMessage,
++} from "wasp/client/auth";
 +
 +export const SignupPage = () => {
++  const navigate = useNavigate();
++  const form = useSignupForm({
++    identityField: "username",
++    async submit(fields) {
++      await signup(fields);
++      await login(fields);
++    },
++    onSuccess() {
++      navigate("/");
++    },
++  });
++
 +  return (
 +    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-+      <SignupForm />
++      <form onSubmit={(event) => void form.submit(event)}>
++        {form.errorMessage && <p>{formatError(form.errorMessage)}</p>}
++        <h1>Sign up</h1>
++        <input {...form.getFieldProps("username")} placeholder="Username" />
++        <br />
++        <input
++          {...form.getFieldProps("password")}
++          placeholder="Password"
++          type="password"
++        />
++        <br />
++        <button type="submit" disabled={form.isSubmitting}>
++          Sign up
++        </button>
++      </form>
 +      <br />
 +      <span>
 +        I already have an account (<Link to="/login">go to login</Link>).
@@ -18,3 +49,7 @@ index 0000000..15710ec
 +    </div>
 +  );
 +};
++
++function formatError(errorMessage: ErrorMessage) {
++  return [errorMessage.title, errorMessage.description].filter(Boolean).join(": ");
++}

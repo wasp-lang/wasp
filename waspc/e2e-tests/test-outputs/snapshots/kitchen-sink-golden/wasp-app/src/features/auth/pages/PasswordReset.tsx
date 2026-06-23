@@ -1,14 +1,13 @@
 import { Link } from "wasp/client/router";
 
-import { ResetPasswordForm } from "wasp/client/auth";
 import { FeatureContainer } from "../../../components/FeatureContainer";
-import { customisationProps } from "./auth-ui";
+import { ResetPasswordForm } from "./AuthForms";
 
 export function PasswordReset() {
   return (
-    <FeatureContainer>
-      <div className="mx-auto max-w-sm">
-        <ResetPasswordForm {...customisationProps} />
+      <FeatureContainer>
+        <div className="mx-auto max-w-sm">
+        <ResetPasswordForm />
         <br />
         <span className="text-sm font-medium text-gray-900">
           If everything is okay,{" "}

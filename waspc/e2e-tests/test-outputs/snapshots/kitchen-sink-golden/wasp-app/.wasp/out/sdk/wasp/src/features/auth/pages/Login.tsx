@@ -1,15 +1,13 @@
 import { Link } from "wasp/client/router";
 
-import { LoginForm } from "wasp/client/auth";
-
 import { FeatureContainer } from "../../../components/FeatureContainer";
-import { customisationProps } from "./auth-ui";
+import { LoginForm } from "./AuthForms";
 
 const Login = () => {
   return (
     <FeatureContainer>
       <div className="mx-auto max-w-sm">
-        <LoginForm {...customisationProps} />
+        <LoginForm />
         <br />
         <span className="text-sm font-medium text-gray-900">
           Don't have an account yet?{" "}

@@ -1,5 +1,5 @@
-import { ForgotPasswordForm } from "wasp/client/auth";
 import { AuthLayout } from "../AuthLayout";
+import { ForgotPasswordForm } from "./AuthForms";
 
 export function RequestPasswordResetPage() {
   return (

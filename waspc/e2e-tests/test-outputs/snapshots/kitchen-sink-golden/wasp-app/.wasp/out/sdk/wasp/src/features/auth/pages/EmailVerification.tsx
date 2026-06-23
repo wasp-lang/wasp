@@ -1,14 +1,13 @@
 import { Link } from "wasp/client/router";
 
-import { VerifyEmailForm } from "wasp/client/auth";
 import { FeatureContainer } from "../../../components/FeatureContainer";
-import { customisationProps } from "./auth-ui";
+import { VerifyEmailForm } from "./AuthForms";
 
 export function EmailVerification() {
   return (
-    <FeatureContainer>
-      <div className="mx-auto max-w-sm">
-        <VerifyEmailForm {...customisationProps} />
+      <FeatureContainer>
+        <div className="mx-auto max-w-sm">
+        <VerifyEmailForm />
         <br />
         <span className="text-sm font-medium text-gray-900">
           If everything is okay,{" "}

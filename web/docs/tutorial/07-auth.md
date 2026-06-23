@@ -127,13 +127,36 @@ Here's the React code for the pages you've just imported:
 <TutorialAction id="login-page-initial" action="APPLY_PATCH">
 
 ```tsx title="src/LoginPage.tsx" auto-js
-import { Link } from "react-router";
-import { LoginForm } from "wasp/client/auth";
+import { Link, useNavigate } from "react-router";
+import { login, useLoginForm, type ErrorMessage } from "wasp/client/auth";
 
 export const LoginPage = () => {
+  const navigate = useNavigate();
+  const form = useLoginForm({
+    identityField: "username",
+    submit: login,
+    onSuccess() {
+      navigate("/");
+    },
+  });
+
   return (
     <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-      <LoginForm />
+      <form onSubmit={(event) => void form.submit(event)}>
+        {form.errorMessage && <p>{formatError(form.errorMessage)}</p>}
+        <h1>Log in</h1>
+        <input {...form.getFieldProps("username")} placeholder="Username" />
+        <br />
+        <input
+          {...form.getFieldProps("password")}
+          placeholder="Password"
+          type="password"
+        />
+        <br />
+        <button type="submit" disabled={form.isSubmitting}>
+          Log in
+        </button>
+      </form>
       <br />
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
@@ -141,6 +164,10 @@ export const LoginPage = () => {
     </div>
   );
 };
+
+function formatError(errorMessage: ErrorMessage) {
+  return [errorMessage.title, errorMessage.description].filter(Boolean).join(": ");
+}
 ```
 </TutorialAction>
 
@@ -149,13 +176,44 @@ The signup page is very similar to the login page:
 <TutorialAction id="signup-page-initial" action="APPLY_PATCH">
 
 ```tsx title="src/SignupPage.tsx" auto-js
-import { Link } from "react-router";
-import { SignupForm } from "wasp/client/auth";
+import { Link, useNavigate } from "react-router";
+import {
+  login,
+  signup,
+  useSignupForm,
+  type ErrorMessage,
+} from "wasp/client/auth";
 
 export const SignupPage = () => {
+  const navigate = useNavigate();
+  const form = useSignupForm({
+    identityField: "username",
+    async submit(fields) {
+      await signup(fields);
+      await login(fields);
+    },
+    onSuccess() {
+      navigate("/");
+    },
+  });
+
   return (
     <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-      <SignupForm />
+      <form onSubmit={(event) => void form.submit(event)}>
+        {form.errorMessage && <p>{formatError(form.errorMessage)}</p>}
+        <h1>Sign up</h1>
+        <input {...form.getFieldProps("username")} placeholder="Username" />
+        <br />
+        <input
+          {...form.getFieldProps("password")}
+          placeholder="Password"
+          type="password"
+        />
+        <br />
+        <button type="submit" disabled={form.isSubmitting}>
+          Sign up
+        </button>
+      </form>
       <br />
       <span>
         I already have an account (<Link to="/login">go to login</Link>).
@@ -163,6 +221,10 @@ export const SignupPage = () => {
     </div>
   );
 };
+
+function formatError(errorMessage: ErrorMessage) {
+  return [errorMessage.title, errorMessage.description].filter(Boolean).join(": ");
+}
 ```
 </TutorialAction>
 

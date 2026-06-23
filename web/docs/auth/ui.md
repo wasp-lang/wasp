@@ -4,9 +4,9 @@ title: Auth UI
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
 
-To make using authentication in your app as easy as possible, Wasp provides auth actions, hooks, provider URLs, provider icons, and copy-paste Auth UI examples. This enables you to quickly get the login, signup, password reset, and email verification flows in your app while keeping the markup and styling in your codebase.
+To make using authentication in your app as easy as possible, Wasp provides auth actions, hooks, provider URLs, provider icons, generated provider metadata, and copy-paste Auth UI examples. This enables you to quickly get the login, signup, password reset, and email verification flows in your app while keeping the markup and styling in your codebase.
 
-Below we cover the available component imports and copy-paste examples.
+Below we cover drop-in Auth UI examples you can copy into your app.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
@@ -18,7 +18,7 @@ Remember that if you need a more custom approach, you can always [create your ow
 
 ## Overview
 
-You can copy the drop-in examples below, or use the component imports if you are maintaining an app that already uses them.
+You can copy the drop-in examples below into your app and keep customizing from there.
 
 Based on the authentication providers you enabled in your `main.wasp.ts` file, `wasp/client/auth` exposes the corresponding actions, hooks, provider URLs, and provider icons. For example, if you enabled e-mail authentication:
 
@@ -69,259 +69,11 @@ You can include the Google and Github provider buttons to get this:
 
 ![Auth UI](/img/authui/multiple_providers.png)
 
-Let's first go through the available component imports, then the copy-paste Auth UI examples.
-
-## Auth Components
-
-The following components are available for you to use in your app:
-
-- [Login form](#login-form)
-- [Signup form](#signup-form)
-- [Forgot password form](#forgot-password-form)
-- [Reset password form](#reset-password-form)
-- [Verify email form](#verify-email-form)
-
-### Login Form
-
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
-
-![Login form](/img/authui/login.png)
-
-You can use the `LoginForm` component to build your login page:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { LoginPage } from "./src/LoginPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("LoginRoute", "/login", page(LoginPage)),
-  ],
-})
-```
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/LoginPage.jsx"
-    import { LoginForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function LoginPage() {
-      return <LoginForm />
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function LoginPage() {
-      return <LoginForm />
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-It will automatically show the correct authentication providers based on your `main.wasp.ts` file.
-
-### Signup Form
-
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
-
-![Signup form](/img/authui/signup.png)
-
-You can use the `SignupForm` component to build your signup page:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { SignupPage } from "./src/SignupPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("SignupRoute", "/signup", page(SignupPage)),
-  ],
-})
-```
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/SignupPage.jsx"
-    import { SignupForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function SignupPage() {
-      return <SignupForm />
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/SignupPage.tsx"
-    import { SignupForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function SignupPage() {
-      return <SignupForm />
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-It will automatically show the correct authentication providers based on your `main.wasp.ts` file.
-
-Read more about customizing the signup process like adding additional fields or extra UI in the [Auth Overview](../auth/overview#customizing-the-signup-process) section.
-
-### Forgot Password Form
-
-Used with <EmailPill /> authentication.
-
-If users forget their password, they can use this form to reset it.
-
-![Forgot password form](/img/authui/forgot_password.png)
-
-You can use the `ForgotPasswordForm` component to build your own forgot password page:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route(
-      "RequestPasswordResetRoute",
-      "/request-password-reset",
-      page(ForgotPasswordPage)
-    ),
-  ],
-})
-```
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/ForgotPasswordPage.jsx"
-    import { ForgotPasswordForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function ForgotPasswordPage() {
-      return <ForgotPasswordForm />
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/ForgotPasswordPage.tsx"
-    import { ForgotPasswordForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function ForgotPasswordPage() {
-      return <ForgotPasswordForm />
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### Reset Password Form
-
-Used with <EmailPill /> authentication.
-
-After users click on the link in the email they receive after submitting the forgot password form, they will be redirected to this form where they can reset their password.
-
-![Reset password form](/img/authui/reset_password.png)
-
-You can use the `ResetPasswordForm` component to build your reset password page:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("PasswordResetRoute", "/password-reset", page(ResetPasswordPage)),
-  ],
-})
-```
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/ResetPasswordPage.jsx"
-    import { ResetPasswordForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function ResetPasswordPage() {
-      return <ResetPasswordForm />
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/ResetPasswordPage.tsx"
-    import { ResetPasswordForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function ResetPasswordPage() {
-      return <ResetPasswordForm />
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### Verify Email Form
-
-Used with <EmailPill /> authentication.
-
-After users sign up, they will receive an email with a link to this form where they can verify their email.
-
-![Verify email form](/img/authui/email_verification.png)
-
-You can use the `VerifyEmailForm` component to build your email verification page:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("EmailVerificationRoute", "/email-verification", page(VerifyEmailPage)),
-  ],
-})
-```
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/VerifyEmailPage.jsx"
-    import { VerifyEmailForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function VerifyEmailPage() {
-      return <VerifyEmailForm />
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/VerifyEmailPage.tsx"
-    import { VerifyEmailForm } from "wasp/client/auth"
-
-    // Use it like this
-    export function VerifyEmailPage() {
-      return <VerifyEmailForm />
-    }
-    ```
-  </TabItem>
-</Tabs>
-
 ## Drop-In Custom Auth UI
 
-Copy one of these examples into your app to get Auth UI with explicit markup and styling you own. The hooks from `wasp/client/auth` own form fields, loading state, field errors, global errors, success messages, and disabled state. These examples do not use Wasp Auth UI CSS, so use the Tailwind version or copy the plain CSS version into your app.
+Copy one of these examples into your app to get Auth UI with explicit markup and styling you own. The hooks from `wasp/client/auth` own form fields, loading state, field errors, global errors, success messages, and disabled state. The generated `enabledOAuthProviders` and `passwordAuthIdentityField` values keep the copied UI in sync with your `main.wasp.ts` auth methods.
 
-The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth providers you have not enabled, or add other enabled providers by importing their sign-in URL and icon primitive from `wasp/client/auth` (`DiscordIcon`, `GoogleIcon`, `GitHubIcon`, `KeycloakIcon`, `MicrosoftIcon`, or `SlackIcon`). They assume no custom `userSignupFields`; if you configured custom signup fields, add them to `initialFields` and render matching inputs with `form.getFieldProps`.
+The examples below assume no custom `userSignupFields`; if you configured custom signup fields, add them to `initialFields` and render matching inputs with `form.getFieldProps`.
 
 Use the same routes that you configured in `main.wasp.ts` for login, signup, password reset, and e-mail verification. If your auth config uses a custom `onAuthSucceededRedirectTo`, set the local `onAuthSucceededRedirectTo` constant in the examples to the same path.
 
@@ -329,15 +81,14 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
   <TabItem value="tailwind" label="Tailwind">
     ```tsx title="src/auth/DropInAuthForms.tsx" auto-js
     import {
-      githubSignInUrl,
-      googleSignInUrl,
+      enabledOAuthProviders,
       login,
+      passwordAuthIdentityField,
+      providerIconById,
       requestPasswordReset,
       resetPassword,
       signup,
       verifyEmail,
-      GitHubIcon,
-      GoogleIcon,
       useForgotPasswordForm,
       useLoginForm,
       useOAuthProviderActions,
@@ -345,26 +96,21 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
       useSignupForm,
       useVerifyEmail,
       type ErrorMessage,
-      type OAuthProvider,
     } from "wasp/client/auth"
     import type { ComponentPropsWithoutRef, ReactNode } from "react"
     import { useLocation, useNavigate } from "react-router"
 
-    const oauthProviders: OAuthProvider[] = [
-      { id: "google", label: "Google", href: googleSignInUrl },
-      { id: "github", label: "GitHub", href: githubSignInUrl },
-    ]
-
-    const providerIcons = {
-      google: GoogleIcon,
-      github: GitHubIcon,
-    }
     const onAuthSucceededRedirectTo = "/"
+    const hasOAuthProviders = enabledOAuthProviders.length > 0
+    const identityField = passwordAuthIdentityField ?? "email"
+    const identityLabel = identityField === "email" ? "E-mail" : "Username"
+    const identityType = identityField === "email" ? "email" : "text"
+    const identityAutoComplete = identityField === "email" ? "email" : "username"
 
     export function LoginPage() {
       const navigate = useNavigate()
       const form = useLoginForm({
-        identityField: "email",
+        identityField,
         submit: login,
         onSuccess() {
           navigate(onAuthSucceededRedirectTo)
@@ -377,15 +123,19 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
             errorMessage={form.errorMessage}
             successMessage={form.successMessage}
           />
-          <OAuthButtons action="Log in" />
-          <AuthDivider />
+          {hasOAuthProviders && (
+            <>
+              <OAuthButtons action="Log in" />
+              <AuthDivider />
+            </>
+          )}
           <form className="mt-6 space-y-6" onSubmit={(event) => void form.submit(event)}>
             <Field
-              {...form.getFieldProps("email")}
-              label="E-mail"
-              type="email"
-              autoComplete="email"
-              error={form.fieldErrors.email}
+              {...form.getFieldProps(identityField)}
+              label={identityLabel}
+              type={identityType}
+              autoComplete={identityAutoComplete}
+              error={form.fieldErrors[identityField]}
             />
             <Field
               {...form.getFieldProps("password")}
@@ -405,8 +155,10 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
 
     export function SignupPage() {
       const form = useSignupForm({
-        identityField: "email",
-        submit: signup,
+        identityField,
+        async submit(fields) {
+          await signup(fields)
+        },
         resetOnSuccess: true,
         successMessage:
           "You've signed up successfully! Check your email for the confirmation link.",
@@ -418,15 +170,19 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
             errorMessage={form.errorMessage}
             successMessage={form.successMessage}
           />
-          <OAuthButtons action="Sign up" />
-          <AuthDivider />
+          {hasOAuthProviders && (
+            <>
+              <OAuthButtons action="Sign up" />
+              <AuthDivider />
+            </>
+          )}
           <form className="mt-6 space-y-6" onSubmit={(event) => void form.submit(event)}>
             <Field
-              {...form.getFieldProps("email")}
-              label="E-mail"
-              type="email"
-              autoComplete="email"
-              error={form.fieldErrors.email}
+              {...form.getFieldProps(identityField)}
+              label={identityLabel}
+              type={identityType}
+              autoComplete={identityAutoComplete}
+              error={form.fieldErrors[identityField]}
             />
             <Field
               {...form.getFieldProps("password")}
@@ -537,10 +293,7 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
 
     function OAuthButtons({ action }: { action: "Log in" | "Sign up" }) {
       const socialAuth = useOAuthProviderActions({
-        providers: oauthProviders.map((provider) => ({
-          ...provider,
-          start: redirectToProvider,
-        })),
+        providers: enabledOAuthProviders,
       })
 
       return (
@@ -549,7 +302,10 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
           <AuthNotice errorMessage={socialAuth.errorMessage} />
           <div className="mt-2 grid grid-cols-2 gap-4">
             {socialAuth.providers.map((provider) => {
-              const ProviderIcon = providerIcons[provider.id as keyof typeof providerIcons]
+              const ProviderIcon = providerIconById[provider.id]
+              if (!ProviderIcon) {
+                return null
+              }
               return (
                 <a
                   key={provider.id}
@@ -564,12 +320,6 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
           </div>
         </div>
       )
-    }
-
-    function redirectToProvider(provider: OAuthProvider) {
-      if (provider.href) {
-        window.location.href = provider.href
-      }
     }
 
     function AuthDivider() {
@@ -662,15 +412,14 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
   <TabItem value="css" label="Plain CSS">
     ```tsx title="src/auth/DropInAuthForms.tsx" auto-js
     import {
-      githubSignInUrl,
-      googleSignInUrl,
+      enabledOAuthProviders,
       login,
+      passwordAuthIdentityField,
+      providerIconById,
       requestPasswordReset,
       resetPassword,
       signup,
       verifyEmail,
-      GitHubIcon,
-      GoogleIcon,
       useForgotPasswordForm,
       useLoginForm,
       useOAuthProviderActions,
@@ -678,27 +427,22 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
       useSignupForm,
       useVerifyEmail,
       type ErrorMessage,
-      type OAuthProvider,
     } from "wasp/client/auth"
     import type { ComponentPropsWithoutRef, ReactNode } from "react"
     import { useLocation, useNavigate } from "react-router"
     import "./DropInAuthForms.css"
 
-    const oauthProviders: OAuthProvider[] = [
-      { id: "google", label: "Google", href: googleSignInUrl },
-      { id: "github", label: "GitHub", href: githubSignInUrl },
-    ]
-
-    const providerIcons = {
-      google: GoogleIcon,
-      github: GitHubIcon,
-    }
     const onAuthSucceededRedirectTo = "/"
+    const hasOAuthProviders = enabledOAuthProviders.length > 0
+    const identityField = passwordAuthIdentityField ?? "email"
+    const identityLabel = identityField === "email" ? "E-mail" : "Username"
+    const identityType = identityField === "email" ? "email" : "text"
+    const identityAutoComplete = identityField === "email" ? "email" : "username"
 
     export function LoginPage() {
       const navigate = useNavigate()
       const form = useLoginForm({
-        identityField: "email",
+        identityField,
         submit: login,
         onSuccess() {
           navigate(onAuthSucceededRedirectTo)
@@ -711,15 +455,19 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
             errorMessage={form.errorMessage}
             successMessage={form.successMessage}
           />
-          <OAuthButtons action="Log in" />
-          <AuthDivider />
+          {hasOAuthProviders && (
+            <>
+              <OAuthButtons action="Log in" />
+              <AuthDivider />
+            </>
+          )}
           <form className="auth-form" onSubmit={(event) => void form.submit(event)}>
             <Field
-              {...form.getFieldProps("email")}
-              label="E-mail"
-              type="email"
-              autoComplete="email"
-              error={form.fieldErrors.email}
+              {...form.getFieldProps(identityField)}
+              label={identityLabel}
+              type={identityType}
+              autoComplete={identityAutoComplete}
+              error={form.fieldErrors[identityField]}
             />
             <Field
               {...form.getFieldProps("password")}
@@ -739,8 +487,10 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
 
     export function SignupPage() {
       const form = useSignupForm({
-        identityField: "email",
-        submit: signup,
+        identityField,
+        async submit(fields) {
+          await signup(fields)
+        },
         resetOnSuccess: true,
         successMessage:
           "You've signed up successfully! Check your email for the confirmation link.",
@@ -752,15 +502,19 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
             errorMessage={form.errorMessage}
             successMessage={form.successMessage}
           />
-          <OAuthButtons action="Sign up" />
-          <AuthDivider />
+          {hasOAuthProviders && (
+            <>
+              <OAuthButtons action="Sign up" />
+              <AuthDivider />
+            </>
+          )}
           <form className="auth-form" onSubmit={(event) => void form.submit(event)}>
             <Field
-              {...form.getFieldProps("email")}
-              label="E-mail"
-              type="email"
-              autoComplete="email"
-              error={form.fieldErrors.email}
+              {...form.getFieldProps(identityField)}
+              label={identityLabel}
+              type={identityType}
+              autoComplete={identityAutoComplete}
+              error={form.fieldErrors[identityField]}
             />
             <Field
               {...form.getFieldProps("password")}
@@ -871,10 +625,7 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
 
     function OAuthButtons({ action }: { action: "Log in" | "Sign up" }) {
       const socialAuth = useOAuthProviderActions({
-        providers: oauthProviders.map((provider) => ({
-          ...provider,
-          start: redirectToProvider,
-        })),
+        providers: enabledOAuthProviders,
       })
 
       return (
@@ -883,7 +634,10 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
           <AuthNotice errorMessage={socialAuth.errorMessage} />
           <div className="auth-social-buttons">
             {socialAuth.providers.map((provider) => {
-              const ProviderIcon = providerIcons[provider.id as keyof typeof providerIcons]
+              const ProviderIcon = providerIconById[provider.id]
+              if (!ProviderIcon) {
+                return null
+              }
               return (
                 <a
                   key={provider.id}
@@ -898,12 +652,6 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
           </div>
         </div>
       )
-    }
-
-    function redirectToProvider(provider: OAuthProvider) {
-      if (provider.href) {
-        window.location.href = provider.href
-      }
     }
 
     function AuthDivider() {
@@ -1159,220 +907,8 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
   </TabItem>
 </Tabs>
 
-## Component Customization 💅🏻
+## Customization
 
-You customize the component imports by passing props to them.
+The copied examples are regular app code. To customize colors, spacing, logos, or social button layout, edit the Tailwind classes or CSS directly.
 
-Props you can pass to all of the forms:
-
-1. `appearance` - customize the form colors (via design tokens)
-2. `logo` - path to your logo
-3. `socialLayout` - layout of the social buttons, which can be `vertical` or `horizontal`
-
-### 1. Customizing the Colors
-
-We use CSS variables in our styling so you can customize the styles by overriding the default theme tokens.
-
-:::info List of all available tokens
-
-See the [list of all available tokens](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/sdk/wasp/auth/forms/types.ts) which you can override.
-
-:::
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/appearance.js"
-    export const authAppearance = {
-      colors: {
-        brand: "#5969b8", // blue
-        brandAccent: "#de5998", // pink
-        submitButtonText: "white",
-      },
-    }
-    ```
-
-    ```jsx title="src/LoginPage.jsx"
-    import { LoginForm } from "wasp/client/auth"
-    import { authAppearance } from "./appearance"
-
-    export function LoginPage() {
-      return (
-        <LoginForm
-          // Pass the appearance object to the form
-          appearance={authAppearance}
-        />
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/appearance.ts"
-    import type { CustomizationOptions } from "wasp/client/auth"
-
-    export const authAppearance: CustomizationOptions["appearance"] = {
-      colors: {
-        brand: "#5969b8", // blue
-        brandAccent: "#de5998", // pink
-        submitButtonText: "white",
-      },
-    }
-    ```
-
-    ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from "wasp/client/auth"
-    import { authAppearance } from "./appearance"
-
-    export function LoginPage() {
-      return (
-        <LoginForm
-          // Pass the appearance object to the form
-          appearance={authAppearance}
-        />
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-We recommend defining your appearance in a separate file and importing it into your components.
-
-### 2. Using Your Logo
-
-You can add your logo to the Auth UI by passing the `logo` prop to any of the components.
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/LoginPage.jsx"
-    import { LoginForm } from "wasp/client/auth"
-    import Logo from "./logo.png"
-
-    export function LoginPage() {
-      return (
-        <LoginForm
-          // Pass in the path to your logo
-          logo={Logo}
-        />
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from "wasp/client/auth"
-    import Logo from "./logo.png"
-
-    export function LoginPage() {
-      return (
-        <LoginForm
-          // Pass in the path to your logo
-          logo={Logo}
-        />
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### 3. Social Buttons Layout
-
-You can change the layout of the social buttons by passing the `socialLayout` prop to any of the components. It can be either `vertical` or `horizontal` (default).
-
-If we pass in `vertical`:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/LoginPage.jsx"
-    import { LoginForm } from "wasp/client/auth"
-
-    export function LoginPage() {
-      return (
-        <LoginForm
-          // Pass in the socialLayout prop
-          socialLayout="vertical"
-        />
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from "wasp/client/auth"
-
-    export function LoginPage() {
-      return (
-        <LoginForm
-          // Pass in the socialLayout prop
-          socialLayout="vertical"
-        />
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-We get this:
-
-![Vertical social buttons](/img/authui/vertical_social_buttons.png)
-
-### Let's Put Everything Together 🪄
-
-If we provide the logo and custom colors:
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/appearance.js"
-    export const appearance = {
-      colors: {
-        brand: "#5969b8", // blue
-        brandAccent: "#de5998", // pink
-        submitButtonText: "white",
-      },
-    }
-    ```
-
-    ```jsx title="src/LoginPage.jsx"
-    import { LoginForm } from "wasp/client/auth"
-
-    import { authAppearance } from "./appearance"
-    import todoLogo from "./todoLogo.png"
-
-    export function LoginPage() {
-      return <LoginForm appearance={authAppearance} logo={todoLogo} />
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/appearance.ts"
-    import type { CustomizationOptions } from "wasp/client/auth"
-
-    export const appearance: CustomizationOptions["appearance"] = {
-      colors: {
-        brand: "#5969b8", // blue
-        brandAccent: "#de5998", // pink
-        submitButtonText: "white",
-      },
-    }
-    ```
-
-    ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from "wasp/client/auth"
-
-    import { authAppearance } from "./appearance"
-    import todoLogo from "./todoLogo.png"
-
-    export function LoginPage() {
-      return <LoginForm appearance={authAppearance} logo={todoLogo} />
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-We get a form looking like this:
-
-<div style={{ textAlign: 'center' }}>
-  <img src="/img/authui/custom_login.gif" alt="Custom login form" />
-</div>
+When you change auth methods in `main.wasp.ts`, Wasp regenerates the `wasp/client/auth` metadata used by the copied UI. For example, adding `google` or `gitHub` updates `enabledOAuthProviders`, so the provider buttons appear without editing the form component.

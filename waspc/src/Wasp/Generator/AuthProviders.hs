@@ -81,5 +81,7 @@ getEnabledAuthProvidersJson auth =
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
       "isMicrosoftAuthEnabled" .= AS.Auth.isMicrosoftAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+      "isAnyPasswordBasedAuthEnabled" .= (AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth),
+      "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
     ]

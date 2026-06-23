@@ -3,31 +3,33 @@ title: Create your own UI
 title-llm: Create your own UI for Social Auth
 ---
 
-[Auth UI](../ui.md) is a common name for all high-level auth forms that come with Wasp.
+[Auth UI](../ui.md) is a common name for the drop-in auth form examples Wasp provides.
 
-These include fully functional auto-generated login and signup forms with working social login buttons.
-If you're looking for the fastest way to get your auth up and running, that's where you should look.
+These include fully functional login and signup examples with working social login buttons. If you're looking for the fastest way to get your auth up and running, that's where you should look.
 
 The UI helpers described below are lower-level and are useful for creating your custom login links.
 
-Wasp provides sign-in buttons and URLs for each of the supported social login providers.
+Wasp provides sign-in URLs and generated provider metadata for each enabled social login provider.
 
 ```tsx title="src/LoginPage.tsx" auto-js
 import {
-  GoogleSignInButton,
-  googleSignInUrl,
-  GitHubSignInButton,
-  githubSignInUrl,
+  enabledOAuthProviders,
+  providerIconById,
 } from "wasp/client/auth";
 
 export const LoginPage = () => {
   return (
     <>
-      <GoogleSignInButton />
-      <GitHubSignInButton />
-      {/* or */}
-      <a href={googleSignInUrl}>Sign in with Google</a>
-      <a href={githubSignInUrl}>Sign in with GitHub</a>
+      {enabledOAuthProviders.map((provider) => {
+        const ProviderIcon = providerIconById[provider.id]
+
+        return (
+          <a key={provider.id} href={provider.href}>
+            {ProviderIcon && <ProviderIcon />}
+            Sign in with {provider.label}
+          </a>
+        )
+      })}
     </>
   );
 };

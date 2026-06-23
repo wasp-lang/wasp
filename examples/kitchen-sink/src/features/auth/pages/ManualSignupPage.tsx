@@ -1,17 +1,10 @@
-import { useState } from "react";
-import {
-  FormError,
-  FormInput,
-  FormItemGroup,
-  FormLabel,
-  signup,
-} from "wasp/client/auth";
-// Missing SubmitButton export
-// import { SubmitButton } from 'wasp/client/auth'
+import { useState, type PropsWithChildren } from "react";
+import { signup } from "wasp/client/auth";
 import { useForm } from "react-hook-form";
 import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
+import { Input } from "../../../components/Input";
 
 export const ManualSignupPage = () => {
   const {
@@ -66,26 +59,29 @@ export const ManualSignupPage = () => {
               <span data-testid="message">{message.text}</span>
             </Alert>
           )}
-          <FormItemGroup>
-            <FormLabel>E-mail</FormLabel>
-            <FormInput type="email" {...register("email")} />
-            <FormError>{errors.email?.message}</FormError>
-          </FormItemGroup>
-          <FormItemGroup>
-            <FormLabel>Password</FormLabel>
-            <FormInput type="password" {...register("password")} />
-            <FormError>{errors.password?.message}</FormError>
-          </FormItemGroup>
-          <FormItemGroup>
-            <FormLabel>Address</FormLabel>
-            <FormInput {...register("address")} />
-            <FormError>{errors.address?.message}</FormError>
-          </FormItemGroup>
-          <FormItemGroup>
+          <FieldError message={errors.email?.message}>
+            <Input type="email" label="E-mail" {...register("email")} />
+          </FieldError>
+          <FieldError message={errors.password?.message}>
+            <Input type="password" label="Password" {...register("password")} />
+          </FieldError>
+          <FieldError message={errors.address?.message}>
+            <Input label="Address" {...register("address")} />
+          </FieldError>
+          <div className="space-y-1">
             <Button type="submit">Sign up</Button>
-          </FormItemGroup>
+          </div>
         </form>
       </div>
     </FeatureContainer>
   );
 };
+
+function FieldError({ children, message }: PropsWithChildren<{ message?: string }>) {
+  return (
+    <div className="space-y-1">
+      {children}
+      {message && <p className="text-sm font-medium text-red-600">{message}</p>}
+    </div>
+  );
+}

@@ -302,10 +302,13 @@ spec: [
       {
         head: "src/auth/LoginPage.tsx",
         language: "tsx",
-        source: `import { LoginForm } from "wasp/client/auth";
+        source: `import { enabledOAuthProviders, providerIconById } from "wasp/client/auth";
 
 export default function LoginPage() {
-  return <LoginForm />; // ready-made, themable, drop-in
+  return enabledOAuthProviders.map((provider) => {
+    const ProviderIcon = providerIconById[provider.id];
+    return <a href={provider.href}>{ProviderIcon && <ProviderIcon />} {provider.label}</a>;
+  });
 }`,
       },
       {
