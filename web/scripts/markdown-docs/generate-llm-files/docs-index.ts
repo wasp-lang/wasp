@@ -227,7 +227,7 @@ function remarkRewriteBuiltDoc(): (tree: MdastRoot) => void {
 }
 
 /**
- * Each built Markdown file starts with a header pointing at the docs index
+ * Each built Markdown file starts with a header pointing at the docs index.
  * It is redundant inside the concatenated index, so we drop it.
  */
 function dropIndexHeader(tree: MdastRoot): void {
