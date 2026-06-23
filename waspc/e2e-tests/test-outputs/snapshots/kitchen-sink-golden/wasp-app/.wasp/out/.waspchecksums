@@ -1619,6 +1619,13 @@
     [
         [
             "file",
+            "sdk/wasp/src/features/operations/cacheInvalidation.test.ts"
+        ],
+        "ded2b0b5e027e412384d980aaa416dae0eca051db46dde26822789cffab6b4e4"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/features/operations/components/Todo.test.tsx"
         ],
         "8a4223a98785ccf0dea743346df26ec7bcac792d21c736920a6c2f2b0c9517a1"
