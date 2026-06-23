@@ -98,7 +98,7 @@ const Tasks = ({ tasks }: { tasks: NonEmptyArray<TaskWithUser> }) => {
   return (
     <div>
       {tasks.map((task, idx) => (
-        <TaskView task={task} key={idx} />
+        <TaskView task={task} key={task.id} />
       ))}
     </div>
   );

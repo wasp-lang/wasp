@@ -55,7 +55,7 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   return (
     <div>
       {tasks.map((task, idx) => (
-        <TaskView task={task} key={idx} />
+        <TaskView task={task} key={task.id} />
       ))}
     </div>
   );
