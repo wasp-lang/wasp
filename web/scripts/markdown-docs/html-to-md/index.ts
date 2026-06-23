@@ -12,6 +12,11 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
  */
 
 const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
+const MARKDOWN_DOCS_INDEX_HEADER = `\
+> Fetch the complete documentation index at: https://wasp.sh/llms.txt
+------
+
+`;
 
 generateMarkdownFiles().catch((err) => {
   console.error("Failed to generate Markdown files:", err);
@@ -28,9 +33,11 @@ async function generateMarkdownFiles(): Promise<void> {
     const html = await fs.readFile(htmlFileAbsPath, "utf8");
 
     const markdown = htmlToMarkdown(html);
+    const markdownWithIndex = MARKDOWN_DOCS_INDEX_HEADER + markdown;
+
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
-    await fs.writeFile(markdownFileAbsPath, markdown, "utf8");
+    await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
     generatedDocs++;
   }
 
