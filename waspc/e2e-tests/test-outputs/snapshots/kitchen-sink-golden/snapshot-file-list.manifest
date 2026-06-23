@@ -89,7 +89,6 @@ wasp-app/.wasp/out/sdk/wasp/client/auth/discord.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/email.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/github.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/google.ts
-wasp-app/.wasp/out/sdk/wasp/client/auth/headless.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/microsoft.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/slack.ts
@@ -381,10 +380,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/auth/google.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/google.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/google.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/google.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/headless.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/headless.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/headless.js
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/headless.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.js

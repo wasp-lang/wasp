@@ -319,9 +319,9 @@ export default app({
 
 ## Drop-In Custom Auth UI
 
-Copy one of these examples into your app to get Auth UI with explicit markup and styling you own. The hooks from `wasp/client/auth/headless` own form fields, loading state, field errors, global errors, success messages, and disabled state. This headless import does not import the compatibility component CSS, so use the Tailwind version or copy the plain CSS version into your app.
+Copy one of these examples into your app to get Auth UI with explicit markup and styling you own. The hooks from `wasp/client/auth` own form fields, loading state, field errors, global errors, success messages, and disabled state. These examples do not use Wasp Auth UI CSS, so use the Tailwind version or copy the plain CSS version into your app.
 
-The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth providers you have not enabled, or add other enabled providers by importing their sign-in URL and icon primitive from `wasp/client/auth/headless` (`DiscordIcon`, `GoogleIcon`, `GitHubIcon`, `KeycloakIcon`, `MicrosoftIcon`, or `SlackIcon`). They assume no custom `userSignupFields`; if you configured custom signup fields, add them to `initialFields` and render matching inputs with `form.getFieldProps`.
+The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth providers you have not enabled, or add other enabled providers by importing their sign-in URL and icon primitive from `wasp/client/auth` (`DiscordIcon`, `GoogleIcon`, `GitHubIcon`, `KeycloakIcon`, `MicrosoftIcon`, or `SlackIcon`). They assume no custom `userSignupFields`; if you configured custom signup fields, add them to `initialFields` and render matching inputs with `form.getFieldProps`.
 
 Use the same routes that you configured in `main.wasp.ts` for login, signup, password reset, and e-mail verification. If your auth config uses a custom `onAuthSucceededRedirectTo`, set the local `onAuthSucceededRedirectTo` constant in the examples to the same path.
 
@@ -346,7 +346,7 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
       useVerifyEmail,
       type ErrorMessage,
       type OAuthProvider,
-    } from "wasp/client/auth/headless"
+    } from "wasp/client/auth"
     import type { ComponentPropsWithoutRef, ReactNode } from "react"
     import { useLocation, useNavigate } from "react-router"
 
@@ -679,7 +679,7 @@ Use the same routes that you configured in `main.wasp.ts` for login, signup, pas
       useVerifyEmail,
       type ErrorMessage,
       type OAuthProvider,
-    } from "wasp/client/auth/headless"
+    } from "wasp/client/auth"
     import type { ComponentPropsWithoutRef, ReactNode } from "react"
     import { useLocation, useNavigate } from "react-router"
     import "./DropInAuthForms.css"
