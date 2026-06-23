@@ -115,7 +115,7 @@ describe("email auth", () => {
       events,
       identity: await createEmailIdentity({
         isEmailVerified: false,
-        passwordResetSentAt: now.toISOString(),
+        emailVerificationSentAt: now.toISOString(),
       }),
     });
 
@@ -134,6 +134,32 @@ describe("email auth", () => {
     expect(events).toEqual(["findIdentity:test@example.com"]);
   });
 
+  it("should not throttle duplicate unverified signup by password reset timestamp", async () => {
+    const events: string[] = [];
+    const adapters = await createSignupAdapters({
+      events,
+      identity: await createEmailIdentity({
+        isEmailVerified: false,
+        emailVerificationSentAt: null,
+        passwordResetSentAt: now.toISOString(),
+      }),
+    });
+
+    await expect(
+      signupWithEmail({
+        fields: { email: "test@example.com", password: "password123" },
+        request: { requestId: "req-id" },
+        isEmailAutoVerified: false,
+        adapters,
+      }),
+    ).resolves.toEqual({ success: true });
+
+    expect(events).toContain("deleteUser:auth-id");
+    expect(events).toContain(
+      "sendVerificationEmail:test@example.com:https://example.com/verify",
+    );
+  });
+
   it("should replace duplicate unverified signup and send verification email", async () => {
     const events: string[] = [];
     let savedProviderData = "";
@@ -144,7 +170,7 @@ describe("email auth", () => {
       },
       identity: await createEmailIdentity({
         isEmailVerified: false,
-        passwordResetSentAt: null,
+        emailVerificationSentAt: null,
       }),
     });
 
@@ -354,9 +380,11 @@ async function createSignupAdapters({
 }
 
 async function createEmailIdentity({
+  emailVerificationSentAt = null,
   isEmailVerified,
   passwordResetSentAt = null,
 }: {
+  emailVerificationSentAt?: string | null;
   isEmailVerified: boolean;
   passwordResetSentAt?: string | null;
 }): Promise<AuthIdentity<"email">> {
@@ -367,7 +395,7 @@ async function createEmailIdentity({
     providerData: await sanitizeAndSerializeProviderData<"email">({
       hashedPassword: "password123",
       isEmailVerified,
-      emailVerificationSentAt: null,
+      emailVerificationSentAt,
       passwordResetSentAt,
     }),
   };

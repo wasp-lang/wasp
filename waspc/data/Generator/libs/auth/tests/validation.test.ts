@@ -24,6 +24,13 @@ describe("validation", () => {
     );
   });
 
+  it("should reject email with extra text", () => {
+    expectValidationError(
+      () => ensureValidEmail({ email: "test@example.com nope" }),
+      "email must be a valid email",
+    );
+  });
+
   it("should accept valid username", () => {
     expect(() => ensureValidUsername({ username: "miho" })).not.toThrow();
   });

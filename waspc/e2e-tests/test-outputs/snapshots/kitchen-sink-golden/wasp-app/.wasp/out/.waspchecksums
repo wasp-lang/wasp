@@ -32,7 +32,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "3244f610163feacb3eb622729935dcbda5981cfba8348c5fc02fe417a407b079"
+        "29fdb3083c37f337f05fa008c54ea17fd79856b53f13dc405e78a13dd0ea30be"
     ],
     [
         [
@@ -506,9 +506,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/auth/headless.ts"
+        ],
+        "feec2bbfb6083de736e42fc5c99cffeac38d5cde0966a854ff6d9367e94b60f8"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "1bc0450e3535e489228b2a1f0b94df4c752cca7b7d31e025888bdf7fa15922e0"
+        "af0644afa4a55b546bf12ee35c99f58f4d072c09ddc2c3d1357cda2306d86124"
     ],
     [
         [

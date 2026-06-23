@@ -6,7 +6,7 @@ import {
 } from "../providerData";
 import { getEmailSignupCredentials } from "./credentials";
 import { throwEmailDeliveryFailed, throwEmailResendTooSoon } from "./errors";
-import { getEmailResendStatus } from "./resend";
+import { getEmailVerificationResendStatus } from "./resend";
 import type { EmailSignupArgs, EmailSignupResult } from "./types";
 
 export async function signupWithEmail<
@@ -42,8 +42,8 @@ export async function signupWithEmail<
       return { success: true };
     }
 
-    const { isResendAllowed, timeLeft } = getEmailResendStatus({
-      sentAt: providerData.passwordResetSentAt,
+    const { isResendAllowed, timeLeft } = getEmailVerificationResendStatus({
+      providerData,
       clock: adapters.clock,
     });
     if (!isResendAllowed) {

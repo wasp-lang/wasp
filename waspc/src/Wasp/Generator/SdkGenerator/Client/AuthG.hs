@@ -25,6 +25,7 @@ genClientAuth spec =
     Just auth ->
       sequence
         [ genAuthIndex auth,
+          genAuthHeadless auth,
           genAuthUi auth
         ]
         <++> genAuthEmail auth
@@ -52,6 +53,15 @@ genAuthUi auth =
   return $
     mkTmplFdWithData
       (clientAuthDirInSdkTemplatesDir </> [relfile|ui.ts|])
+      tmplData
+  where
+    tmplData = AuthProviders.getEnabledAuthProvidersJson auth
+
+genAuthHeadless :: AS.Auth.Auth -> Generator FileDraft
+genAuthHeadless auth =
+  return $
+    mkTmplFdWithData
+      (clientAuthDirInSdkTemplatesDir </> [relfile|headless.ts|])
       tmplData
   where
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth

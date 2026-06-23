@@ -64,16 +64,22 @@ export function useOAuthProviderActions({
   }
 
   function getProviderAction(provider: OAuthProvider): OAuthProviderAction {
-    const shouldHandleClick = Boolean(provider.start || onProviderSelected);
+    const shouldStartOnClick = Boolean(provider.start || onProviderSelected);
+    const shouldPreventLinkNavigation = Boolean(provider.start || !provider.href);
     const isProviderLoading = activeProviderId === provider.id;
 
-    function onClick(
-      event: MouseEvent<HTMLButtonElement> | MouseEvent<HTMLAnchorElement>,
-    ) {
-      if (shouldHandleClick) {
+    function onButtonClick(event: MouseEvent<HTMLButtonElement>) {
+      event.preventDefault();
+      void startProvider(provider);
+    }
+
+    function onLinkClick(event: MouseEvent<HTMLAnchorElement>) {
+      if (isLoading || shouldPreventLinkNavigation) {
         event.preventDefault();
       }
-      void startProvider(provider);
+      if (shouldStartOnClick) {
+        void startProvider(provider);
+      }
     }
 
     return {
@@ -86,7 +92,7 @@ export function useOAuthProviderActions({
           type: "button",
           disabled: isLoading,
           "aria-busy": isProviderLoading || undefined,
-          onClick,
+          onClick: onButtonClick,
         };
       },
       getLinkProps() {
@@ -94,7 +100,7 @@ export function useOAuthProviderActions({
           href: provider.href,
           "aria-busy": isProviderLoading || undefined,
           ...(isLoading ? { "aria-disabled": true } : {}),
-          ...(shouldHandleClick ? { onClick } : {}),
+          ...(shouldStartOnClick ? { onClick: onLinkClick } : {}),
         };
       },
     };

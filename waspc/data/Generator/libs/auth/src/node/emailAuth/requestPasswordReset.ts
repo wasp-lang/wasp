@@ -2,7 +2,7 @@ import type { ProviderIdFor } from "../authService/types";
 import { createProviderId, getProviderDataWithPassword } from "../providerData";
 import { getPasswordResetRequestFields } from "./credentials";
 import { throwEmailDeliveryFailed, throwEmailResendTooSoon } from "./errors";
-import { getEmailResendStatus } from "./resend";
+import { getPasswordResetResendStatus } from "./resend";
 import type {
   EmailPasswordResetRequestArgs,
   EmailPasswordResetRequestResult,
@@ -24,8 +24,8 @@ export async function requestPasswordReset({
   const providerData = getProviderDataWithPassword<"email">(
     authIdentity.providerData,
   );
-  const { isResendAllowed, timeLeft } = getEmailResendStatus({
-    sentAt: providerData.passwordResetSentAt,
+  const { isResendAllowed, timeLeft } = getPasswordResetResendStatus({
+    providerData,
     clock: adapters.clock,
   });
   if (!isResendAllowed) {

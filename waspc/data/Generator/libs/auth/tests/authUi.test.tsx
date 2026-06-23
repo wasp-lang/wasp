@@ -2,6 +2,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { MouseEvent } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   useForgotPasswordForm,
@@ -207,6 +208,30 @@ describe("headless auth UI", () => {
       ).not.toBeDisabled(),
     );
   });
+
+  it("should allow OAuth links with selection callbacks to keep native navigation", async () => {
+    const onProviderSelected = vi.fn();
+    const onPreventDefault = vi.fn();
+
+    render(
+      <OAuthProviderLinkProbe
+        providers={[
+          { id: "google", label: "Google", href: "https://example.com/auth" },
+        ]}
+        onPreventDefault={onPreventDefault}
+        onProviderSelected={onProviderSelected}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Click link" }));
+
+    expect(onPreventDefault).not.toHaveBeenCalled();
+    expect(onProviderSelected).toHaveBeenCalledWith({
+      id: "google",
+      label: "Google",
+      href: "https://example.com/auth",
+    });
+  });
 });
 
 function LoginForm({
@@ -359,6 +384,36 @@ function OAuthProviders({ providers }: { providers: OAuthProvider[] }) {
         </button>
       ))}
     </div>
+  );
+}
+
+function OAuthProviderLinkProbe({
+  onPreventDefault,
+  onProviderSelected,
+  providers,
+}: {
+  onPreventDefault: () => void;
+  onProviderSelected: (provider: OAuthProvider) => void;
+  providers: OAuthProvider[];
+}) {
+  const oauth = useOAuthProviderActions({ providers, onProviderSelected });
+  const provider = oauth.providers[0];
+  if (!provider) {
+    return null;
+  }
+  const linkProps = provider.getLinkProps();
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        linkProps.onClick?.({
+          preventDefault: onPreventDefault,
+        } as unknown as MouseEvent<HTMLAnchorElement>);
+      }}
+    >
+      Click link
+    </button>
   );
 }
 

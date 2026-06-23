@@ -1,4 +1,31 @@
 import type { Clock } from "../authService/runtime";
+import type { EmailProviderData } from "../providerData";
+
+export function getEmailVerificationResendStatus({
+  providerData,
+  clock,
+}: {
+  providerData: EmailProviderData;
+  clock: Clock;
+}) {
+  return getEmailResendStatus({
+    sentAt: providerData.emailVerificationSentAt,
+    clock,
+  });
+}
+
+export function getPasswordResetResendStatus({
+  providerData,
+  clock,
+}: {
+  providerData: EmailProviderData;
+  clock: Clock;
+}) {
+  return getEmailResendStatus({
+    sentAt: providerData.passwordResetSentAt,
+    clock,
+  });
+}
 
 export function getEmailResendStatus({
   sentAt,

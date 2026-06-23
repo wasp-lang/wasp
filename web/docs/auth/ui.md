@@ -319,9 +319,11 @@ export default app({
 
 ## Drop-In Custom Auth UI
 
-Copy one of these examples into your app to get Auth UI with explicit markup and styling you own. The hooks from `wasp/client/auth` own form fields, loading state, field errors, global errors, success messages, and disabled state. No Auth UI CSS is imported from Wasp, so use the Tailwind version or copy the plain CSS version into your app.
+Copy one of these examples into your app to get Auth UI with explicit markup and styling you own. The hooks from `wasp/client/auth/headless` own form fields, loading state, field errors, global errors, success messages, and disabled state. This headless import does not import the compatibility component CSS, so use the Tailwind version or copy the plain CSS version into your app.
 
-The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth providers you have not enabled, or add other enabled providers by importing their sign-in URL and icon primitive from `wasp/client/auth` (`DiscordIcon`, `GoogleIcon`, `GitHubIcon`, `KeycloakIcon`, `MicrosoftIcon`, or `SlackIcon`). For username and password auth, change `identityField` to `"username"` and call the username auth `login` and `signup` actions instead.
+The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth providers you have not enabled, or add other enabled providers by importing their sign-in URL and icon primitive from `wasp/client/auth/headless` (`DiscordIcon`, `GoogleIcon`, `GitHubIcon`, `KeycloakIcon`, `MicrosoftIcon`, or `SlackIcon`). They assume no custom `userSignupFields`; if you configured custom signup fields, add them to `initialFields` and render matching inputs with `form.getFieldProps`.
+
+Use the same routes that you configured in `main.wasp.ts` for login, signup, password reset, and e-mail verification. If your auth config uses a custom `onAuthSucceededRedirectTo`, set the local `onAuthSucceededRedirectTo` constant in the examples to the same path.
 
 <Tabs groupId="drop-in-auth-ui">
   <TabItem value="tailwind" label="Tailwind">
@@ -344,7 +346,7 @@ The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth
       useVerifyEmail,
       type ErrorMessage,
       type OAuthProvider,
-    } from "wasp/client/auth"
+    } from "wasp/client/auth/headless"
     import type { ComponentPropsWithoutRef, ReactNode } from "react"
     import { useLocation, useNavigate } from "react-router"
 
@@ -357,6 +359,7 @@ The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth
       google: GoogleIcon,
       github: GitHubIcon,
     }
+    const onAuthSucceededRedirectTo = "/"
 
     export function LoginPage() {
       const navigate = useNavigate()
@@ -364,7 +367,7 @@ The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth
         identityField: "email",
         submit: login,
         onSuccess() {
-          navigate("/")
+          navigate(onAuthSucceededRedirectTo)
         },
       })
 
@@ -676,7 +679,7 @@ The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth
       useVerifyEmail,
       type ErrorMessage,
       type OAuthProvider,
-    } from "wasp/client/auth"
+    } from "wasp/client/auth/headless"
     import type { ComponentPropsWithoutRef, ReactNode } from "react"
     import { useLocation, useNavigate } from "react-router"
     import "./DropInAuthForms.css"
@@ -690,6 +693,7 @@ The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth
       google: GoogleIcon,
       github: GitHubIcon,
     }
+    const onAuthSucceededRedirectTo = "/"
 
     export function LoginPage() {
       const navigate = useNavigate()
@@ -697,7 +701,7 @@ The examples below assume e-mail auth plus Google and GitHub OAuth. Remove OAuth
         identityField: "email",
         submit: login,
         onSuccess() {
-          navigate("/")
+          navigate(onAuthSucceededRedirectTo)
         },
       })
 
@@ -1336,7 +1340,7 @@ If we provide the logo and custom colors:
     import todoLogo from "./todoLogo.png"
 
     export function LoginPage() {
-      return <LoginForm appearance={appearance} logo={todoLogo} />
+      return <LoginForm appearance={authAppearance} logo={todoLogo} />
     }
     ```
   </TabItem>
@@ -1361,7 +1365,7 @@ If we provide the logo and custom colors:
     import todoLogo from "./todoLogo.png"
 
     export function LoginPage() {
-      return <LoginForm appearance={appearance} logo={todoLogo} />
+      return <LoginForm appearance={authAppearance} logo={todoLogo} />
     }
     ```
   </TabItem>
