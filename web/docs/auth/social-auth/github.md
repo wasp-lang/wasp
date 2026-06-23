@@ -133,6 +133,112 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 <SocialLoginClientPages />
 
+### 7. Common GitHub UI Helper Examples
+
+The default `LoginForm` and `SignupForm` cover the full auth flow, but most apps need a few additional patterns: a standalone "Sign in with GitHub" button, a way to read the current user, a sign-out button, and protected pages. This section shows the minimal working patterns for each.
+
+:::info Where these helpers come from
+
+All of the imports below come from `wasp/client/auth`, which is a single entry point for both the form components and the React hooks. The full reference lives in the [Auth UI docs](../../auth/ui).
+
+:::
+
+#### Standalone "Sign in with GitHub" button
+
+If you don't want the full `LoginForm` (with email/password fields, etc.) and just want a single "Continue with GitHub" button, use the `signIn` helper directly:
+
+```tsx title="src/components/GitHubSignInButton.tsx"
+import { signIn } from 'wasp/client/auth'
+
+export function GitHubSignInButton() {
+  return (
+    <button
+      onClick={() => signIn({ method: 'gitHub' })}
+      className="..."
+    >
+      Continue with GitHub
+    </button>
+  )
+}
+```
+
+`signIn({ method: 'gitHub' })` triggers the same OAuth flow the `LoginForm` uses, so the same `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` env vars and the same callback URL apply.
+
+#### Reading the current user (client-side)
+
+Use the `useAuth()` hook to read the logged-in user and the loading state:
+
+```tsx title="src/components/HeaderUserMenu.tsx"
+import { useAuth } from 'wasp/client/auth'
+
+export function HeaderUserMenu() {
+  const { data: user, isLoading } = useAuth()
+
+  if (isLoading) return <span>Loading…</span>
+  if (!user) return <a href="/login">Sign in</a>
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* GitHub login always populates the user's `identities` array. */}
+      <img
+        src={user.identities[0]?.providerUserId
+          ? `https://avatars.githubusercontent.com/u/${user.identities[0].providerUserId}`
+          : '/default-avatar.png'}
+        alt={user.username ?? 'User avatar'}
+        className="h-8 w-8 rounded-full"
+      />
+      <span>{user.username ?? user.email}</span>
+    </div>
+  )
+}
+```
+
+The `user` object is fully typed (it matches your `User` Prisma model), and `user.identities` is the array of linked social providers — for a GitHub-only app, the first identity will always be the GitHub identity with a `providerUserId` you can use to build the GitHub avatar URL.
+
+#### Sign out
+
+There is no `signOut` import — sign-out is a method on the auth state returned by `useAuth()`:
+
+```tsx title="src/components/SignOutButton.tsx"
+import { useAuth } from 'wasp/client/auth'
+
+export function SignOutButton() {
+  const { data: user, logout } = useAuth()
+  if (!user) return null
+
+  return (
+    <button onClick={logout} className="...">
+      Sign out
+    </button>
+  )
+}
+```
+
+`logout()` clears the session cookie and redirects to `/login` (or to the path you set in `onAuthFailedRedirectTo`).
+
+#### Protected page (redirect if not signed in)
+
+The simplest pattern is a route-level guard that uses the same `useAuth()` hook:
+
+```tsx title="src/pages/DashboardPage.tsx"
+import { useAuth } from 'wasp/client/auth'
+import { Redirect } from 'react-router-dom'
+
+export function DashboardPage() {
+  const { data: user, isLoading } = useAuth()
+
+  // While we're checking the session, show a placeholder.
+  if (isLoading) return <FullPageSpinner />
+
+  // Not signed in → bounce to /login.
+  if (!user) return <Redirect to="/login" />
+
+  return <Dashboard user={user} />
+}
+```
+
+For server-side protection (e.g. on a query or action), see the [auth overview](../../auth/overview#accessing-the-logged-in-user) — `context.user` is `undefined` for unauthenticated requests.
+
 ### Conclusion
 
 Yay, we've successfully set up GitHub Auth! 🎉
