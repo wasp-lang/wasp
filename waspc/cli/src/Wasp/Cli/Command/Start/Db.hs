@@ -176,7 +176,17 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
             CommandError
               "Port already in use"
               ( printf
-                  "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
+                  (unlines
+                    [ "Wasp can't run the PostgreSQL dev database for you since port %d is already in use."
+                    , ""
+                    , "To free the port, find the process that's listening on it and stop it:"
+                    , "  - On macOS / Linux:  lsof -i :%d   (then `kill <PID>`)"
+                    , "  - On Windows:         netstat -ano | findstr :%d   (then `taskkill /PID <PID> /F`)"
+                    , ""
+                    , "Once the port is free, re-run `wasp start db`."
+                    ])
+                  Dev.Postgres.defaultDevPort
+                  Dev.Postgres.defaultDevPort
                   Dev.Postgres.defaultDevPort
               )
 
