@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { SITE_ROOT_DIR } from "../site-root";
+import { SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
 import { htmlToMarkdown } from "./convert";
 import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
@@ -13,7 +13,7 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
 const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
 const MARKDOWN_DOCS_INDEX_HEADER = `\
-> Fetch the complete documentation index at: https://wasp.sh/llms.txt
+> Fetch the complete documentation index at: ${WASP_BASE_URL}/llms.txt
 ------
 
 `;

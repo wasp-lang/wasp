@@ -9,8 +9,7 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
-import { getSiteRoot } from "../site-root";
-import { WASP_BASE_URL } from "./constants";
+import { SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
 import { loadPermalinkMaps, PermalinkMap } from "./permalinks";
 import {
   isSidebarCategory,
@@ -21,8 +20,7 @@ import {
   ResolvedSidebarLink,
 } from "./resolved-sidebars";
 
-const SITE_ROOT = getSiteRoot();
-const BUILD_DIR = path.join(SITE_ROOT, "build");
+const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
 
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 // A typedoc package's index page, e.g. "api/@wasp.sh/spec/index". We list these
@@ -62,8 +60,8 @@ export interface IndexDoc {
   markdown: string;
 }
 
-const sidebarsByWaspVersion = loadResolvedSidebarsByWaspVersion(SITE_ROOT);
-const permalinkMapsByWaspVersion = loadPermalinkMaps(SITE_ROOT);
+const sidebarsByWaspVersion = loadResolvedSidebarsByWaspVersion(SITE_ROOT_DIR);
+const permalinkMapsByWaspVersion = loadPermalinkMaps(SITE_ROOT_DIR);
 
 /**
  * Builds the nested index of a Wasp version's docs, guides, and API packages from the
