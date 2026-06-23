@@ -12,8 +12,8 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
  */
 
 const MARKDOWN_DOCS_INDEX_HEADER = `\
-> Fetch the complete documentation index at: ${WASP_BASE_URL}/llms.txt
-------
+> Fetch the complete documentation index at: ${WASP_BASE_URL}> Fetch the complete documentation index at: https://wasp.sh/llms.txt
+---
 
 `;
 
