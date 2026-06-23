@@ -742,7 +742,7 @@ export interface EmailSender {
  * `"Dummy"` logs emails to the console instead of sending them, which is
  * convenient during development, but not allowed in production.
  */
-export type EmailSenderProviderName = "SMTP" | "SendGrid" | "Mailgun" | "Dummy";
+export type EmailSenderProviderName = "SMTP" | "SendGrid" | "Mailgun" | "Resend" | "Dummy";
 
 /**
  * Sender identity used in outgoing emails.
