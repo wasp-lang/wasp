@@ -1,6 +1,6 @@
 import { QueryObserver } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { config } from "wasp/client";
 import {
   createTask,
@@ -14,21 +14,17 @@ import { serialize } from "wasp/core/serialization";
 // Regression test for https://github.com/wasp-lang/wasp/issues/3009
 //
 // When an action declares `entities: [X]` and a query also depends on `X`, the
-// query is supposed to be up to date by the time the action's promise resolves.
-// `useAuth()` is just a special case of this: its `auth/me` query depends on the
-// `User` entity, so an action that updates `User` (e.g. "complete profile")
-// should leave the cached auth user fresh once it resolves.
+// query must be up to date by the time the action's promise resolves.
 //
-// The bug: `registerActionDone` fires `queryClient.invalidateQueries(...)` for
-// the affected queries but does NOT await the triggered refetches
-// (see client/operations/internal/resources.js, `invalidateQueriesUsing`). So
-// `await someAction()` returns while the refetch is still in flight, and code
-// that runs right after (a redirect, a `user.x` check) sees stale data.
+// This guards the fix in client/operations/internal/resources.js: if
+// `invalidateQueriesUsing` stopped awaiting the refetches it triggers,
+// `await someAction()` would resolve while the refetch was still in flight, and
+// code running right after (a redirect, a `user.x` check) would see stale data.
 //
 // We assert SYNCHRONOUSLY right after `await createTask(...)` that the
 // `getTasks` cache already reflects the update. A `waitFor(...)` would pass even
-// with the bug, because the refetch does eventually land. The whole point of the
-// bug is the timing, so the assertion must not wait.
+// with the bug, because the refetch does eventually land. The point is the
+// timing, so the assertion must not wait.
 
 const { server } = mockServer();
 
@@ -38,17 +34,23 @@ type FakeTask = { id: number; description: string; isDone: boolean };
 
 let tasksOnServer: FakeTask[] = [];
 
+const apiUrlPattern = new RegExp(
+  "^" + config.apiUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+);
+
 beforeAll(async () => {
   // `mockServer()` (called above) already wires up server.listen/resetHandlers/
-  // close via beforeAll/afterEach/afterAll, so we only need to add our handler.
+  // close via beforeAll/afterEach/afterAll.
   initializeQueryClient();
   await queryClientInitialized;
+});
 
+beforeEach(() => {
+  // `mockServer()`'s afterEach calls `server.resetHandlers()`, so the handler
+  // has to be (re)registered before each test rather than once in `beforeAll`.
+  //
   // One handler for every operation POST. `getTasks` returns the current server
   // state; any other operation (i.e. `createTask`) just acknowledges.
-  const apiUrlPattern = new RegExp(
-    "^" + config.apiUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-  );
   server.use(
     http.post(apiUrlPattern, ({ request }) => {
       const { pathname } = new URL(request.url);
