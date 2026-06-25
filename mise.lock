@@ -57,38 +57,6 @@ url = "https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install
 checksum = "sha256:96854db86ba3ac90dd1a94ec2960311b3885da6d91ed7641f06d84c8e2eebdec"
 url = "https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install-3.12.1.0-x86_64-windows.zip"
 
-[[tools.flyctl]]
-version = "0.3.164"
-backend = "aqua:superfly/flyctl"
-
-[tools.flyctl."platforms.linux-arm64"]
-checksum = "sha256:57e3a052b7028c8363713ce036325e08f98e0ae2e82a5dbabaacbe8f8c2f72fb"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_Linux_arm64.tar.gz"
-
-[tools.flyctl."platforms.linux-arm64-musl"]
-checksum = "sha256:57e3a052b7028c8363713ce036325e08f98e0ae2e82a5dbabaacbe8f8c2f72fb"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_Linux_arm64.tar.gz"
-
-[tools.flyctl."platforms.linux-x64"]
-checksum = "sha256:a4f0c4b9c25006e899a6b466c1a0b9eb4fda9bc61285dde03ededf973574fccf"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_Linux_x86_64.tar.gz"
-
-[tools.flyctl."platforms.linux-x64-musl"]
-checksum = "sha256:a4f0c4b9c25006e899a6b466c1a0b9eb4fda9bc61285dde03ededf973574fccf"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_Linux_x86_64.tar.gz"
-
-[tools.flyctl."platforms.macos-arm64"]
-checksum = "sha256:1bf3e2a1abc326518a9627476c679caaf6d3db65bff47adb4ebb152e0c51f81c"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_macOS_arm64.tar.gz"
-
-[tools.flyctl."platforms.macos-x64"]
-checksum = "sha256:ac131169ef86226aec01bd4fa8e4fc558ea0e4526b5854eb6716c6aeb8d7a3a5"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_macOS_x86_64.tar.gz"
-
-[tools.flyctl."platforms.windows-x64"]
-checksum = "sha256:cd75060185a037c63bd5708ff3d339b8a4aeba91b7ac941f5933c413c5b92fe9"
-url = "https://github.com/superfly/flyctl/releases/download/v0.3.164/flyctl_0.3.164_Windows_x86_64.zip"
-
 [[tools."github:tfausak/cabal-gild"]]
 version = "1.5.0.1"
 backend = "github:tfausak/cabal-gild"
@@ -192,49 +160,3 @@ url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848990"
 [tools.ormolu."platforms.windows-x64"]
 url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Windows.zip"
 url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124853921"
-
-[[tools.railway]]
-version = "4.11.1"
-backend = "github:railwayapp/cli"
-
-[tools.railway."platforms.linux-arm64"]
-checksum = "sha256:145e673ec49cfd8b593efdc2c26bf8772d450cc9c560927983e15206e40dd6ad"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316454898"
-provenance = "github-attestations"
-
-[tools.railway."platforms.linux-arm64-musl"]
-checksum = "sha256:145e673ec49cfd8b593efdc2c26bf8772d450cc9c560927983e15206e40dd6ad"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316454898"
-provenance = "github-attestations"
-
-[tools.railway."platforms.linux-x64"]
-checksum = "sha256:33ef15134eb1e1c29455d29ced8952ca591b3ae5111f49593a32a1ee6bea66cb"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316454852"
-provenance = "github-attestations"
-
-[tools.railway."platforms.linux-x64-musl"]
-checksum = "sha256:14626084a974fbcf4537444c92f48883d355bf29a27eb8fe5a160ac0721e5841"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316455046"
-provenance = "github-attestations"
-
-[tools.railway."platforms.macos-arm64"]
-checksum = "sha256:1ed0ba2459cbefd21fdd343fc03e974d7ae4517d2d2a25662df03b84227d9f76"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316454951"
-provenance = "github-attestations"
-
-[tools.railway."platforms.macos-x64"]
-checksum = "sha256:fde71448d00bc21f3dd43f996bee50f92527e22bf3ac1fa7de99e53b9bcc1e36"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316454828"
-provenance = "github-attestations"
-
-[tools.railway."platforms.windows-x64"]
-checksum = "sha256:eb4085a97f3c92e99f2b09a153cc6ef76893bd045f7efdb0bcbacc66d7794541"
-url = "https://github.com/railwayapp/cli/releases/download/v4.11.1/railway-v4.11.1-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/railwayapp/cli/releases/assets/316455373"
-provenance = "github-attestations"

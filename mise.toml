@@ -1,11 +1,9 @@
 min_version = "2026.6.11"
 
 [tools]
-"flyctl" = "0.3.164"
 "github:tfausak/cabal-gild" = "1.5.0.1"
 "cabal" = "3.12.1.0"
 "ormolu" = "0.7.2.0"
-"railway" = "4.11.1"
 
 # The `mise-ghcup` plugin declares `aqua:ghcup` as a dependency specifically
 # instead of just `ghcup` to avoid conflicts, so we need to declare it like that
