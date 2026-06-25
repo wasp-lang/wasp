@@ -40,6 +40,11 @@ jobs:
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: wasp-cli install
 
+      - name: Install Fly CLI
+        # NOTE: We tell users to install the latest version of Fly CLI,
+        # so we use it here too.
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+
       - name: Deploy app to Fly
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
@@ -49,14 +54,12 @@ jobs:
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
-          # - We tell users to install the latest version of Fly CLI, so we use
-          # it here too.
           # - The `yes` command is necessary because the `fly launch` command
           # prompts for confirmation.
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | mise x flyctl@latest -- wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
@@ -88,14 +91,12 @@ jobs:
     if: always()
 
     steps:
-      # NOTE: We use our pinned Fly version because we don't want the changes in
-      # the Fly CLI to affect our cleanup procedure. `fly destroy` isn't a part
-      # of Wasp, we're just incidentally using the same tool Wasp uses.
-
-      - uses: actions/checkout@v6
+      - uses: superfly/flyctl-actions/setup-flyctl@v1
         with:
-          persist-credentials: false
-      - uses: ./.github/actions/setup-env
+          # NOTE: We pinned the Fly version because we don't want the changes in the
+          # Fly CLI to affect our cleanup procedure. `fly destroy` isn't a part
+          # of Wasp, we're just incidentally using the same tool Wasp uses.
+          version: v0.3.164
 
       - name: Clean up test apps
         run: |
@@ -122,18 +123,19 @@ jobs:
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: wasp-cli install
 
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@4.11.1
+
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
-          # - We tell users to install the latest version of Railway CLI, so we
-          # use it here too.
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          mise x railway@latest -- wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
+          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
@@ -192,15 +194,11 @@ jobs:
     # want to always clean them up.
     if: always()
     steps:
-      # NOTE: We use our pinned Railway version because we don't want the
-      # changes in the Railway CLI to affect our cleanup procedure. `railway
-      # delete` isn't a part of Wasp, we're just incidentally using the same
-      # tool Wasp uses.
-
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/setup-env
+      - name: Install Railway CLI
+        # NOTE: We pinned the Railway version because we don't want the changes in the
+        # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
+        # of Wasp, we're just incidentally using the same tool Wasp uses.
+        run: npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
         run: railway delete --yes --project "$APP_PREFIX" || true
