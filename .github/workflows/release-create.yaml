@@ -25,7 +25,7 @@ jobs:
 
   # In the following jobs we don't want to pick up the CI caches, avoiding a
   # potential cache poisoning attack that is not observable in the stored
-  # artifacts. So we exceptionally don't use our `setup-env` actions. See
+  # artifacts. So we exceptionally don't use our `setup-tools` actions. See
   # https://docs.zizmor.sh/audits/#cache-poisoning for more details.
 
   create-release:

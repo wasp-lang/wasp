@@ -1,4 +1,4 @@
-name: Setup environment and dev tools
+name: Setup dev tools
 description: >
   This action sets up our Mise-defined dev tools and environment for use in
   actions. It also sets up caches for package manager dependencies.
