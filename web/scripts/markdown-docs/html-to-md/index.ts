@@ -1,17 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { SITE_ROOT_DIR } from "../site-root";
+import { WEB_PROJECT_ROOT_DIR } from "../site-root";
 import { htmlToMarkdown } from "./convert";
 import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
-/**
- * Post-build step: turn the rendered HTML for docs, blog, and resources pages
- * into Markdown served alongside the HTML. Because `trailingSlash` is false,
- * Docusaurus emits `<route>.html` files, so we write `<route>.md` next to each.
- */
-
-const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
+const BUILD_DIR = path.join(WEB_PROJECT_ROOT_DIR, "build");
 const MARKDOWN_DOCS_INDEX_HEADER = `\
 > Fetch the complete documentation index at: https://wasp.sh/llms.txt
 ---
@@ -23,6 +17,10 @@ generateMarkdownFiles().catch((err) => {
   process.exit(1);
 });
 
+/**
+ * Turns the rendered HTML for docs, blog, and resources pages into Markdown
+ * served alongside the HTML.
+ */
 async function generateMarkdownFiles(): Promise<void> {
   console.log("Generating markdown files from built HTML...");
 
@@ -30,12 +28,13 @@ async function generateMarkdownFiles(): Promise<void> {
   let generatedDocs = 0;
   for (const htmlFileRelPath of htmlFilesRelPaths) {
     const htmlFileAbsPath = path.join(BUILD_DIR, htmlFileRelPath);
-    const html = await fs.readFile(htmlFileAbsPath, "utf8");
+    const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
+    console.log("Generating: ", markdownFileAbsPath);
+
+    const html = await fs.readFile(htmlFileAbsPath, "utf8");
     const markdown = htmlToMarkdown(html);
     const markdownWithIndex = MARKDOWN_DOCS_INDEX_HEADER + markdown;
-
-    const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
     await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
     generatedDocs++;
