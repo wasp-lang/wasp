@@ -1,11 +1,3 @@
-/**
- * Cloudflare Pages Function: https://developers.cloudflare.com/pages/functions/middleware/
- *
- * Content negotiation for LLMs: when a client asks for Markdown via the `Accept`
- * header, serve the pre-generated `.md` sibling of the requested docs page instead
- * of the HTML.
- */
-
 import { isValidMarkdownDocsRoute } from "../scripts/markdown-docs/html-to-md/markdown-routes";
 
 interface CloudflarePagesContext {
@@ -13,39 +5,61 @@ interface CloudflarePagesContext {
   next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
 }
 
+/**
+ * Cloudflare middleware: https://developers.cloudflare.com/pages/functions/middleware/
+ *
+ * Handles markdown content negotiation for markdown docs.
+ * When a client asks for Markdown via the `Accept` header,
+ * serve the pre-generated `.md` sibling of the requested page
+ * instead of the HTML.
+ */
 export const onRequest = async (
   context: CloudflarePagesContext,
 ): Promise<Response> => {
   const { request, next } = context;
-
   const url = new URL(request.url);
-  if (
-    isAlreadyMarkdownRoute(url.pathname) ||
-    !isValidMarkdownDocsRoute(url.pathname)
-  ) {
+
+  const isMarkdownContentNegotiationRoute =
+    isValidMarkdownDocsRoute(url.pathname) ||
+    !isSpecifcFileTypeRoute(url.pathname);
+  if (!isMarkdownContentNegotiationRoute) {
     return next();
   }
 
-  // Content negotiation starts here. Return with `Vary` header.
+  let contentNegotiationResponse: Response | undefined;
   if (!wantsMarkdownContent(request)) {
-    return fallbackToHtmlResponse(next);
+    contentNegotiationResponse = await next();
+  } else {
+    const markdownPathname = generateMarkdownPathname(url.pathname);
+    const markdownUrl = new URL(markdownPathname, url.origin);
+    const markdownRequest = new Request(markdownUrl, request);
+
+    contentNegotiationResponse = await next(markdownRequest);
+
+    if (!contentNegotiationResponse.ok) {
+      console.error("Markdown response failed", {
+        status: contentNegotiationResponse.status,
+        statusText: contentNegotiationResponse.statusText,
+        pathname: markdownPathname,
+        body: await contentNegotiationResponse.clone().text(),
+      });
+    }
   }
-
-  const markdownPathname = generateMarkdownPathname(url.pathname);
-  const markdownUrl = new URL(markdownPathname, url.origin);
-  const markdownResponse = await next(new Request(markdownUrl, request));
-
-  if (!markdownResponse.ok) {
-    return fallbackToHtmlResponse(next);
-  }
-
-  markdownResponse.headers.set("Content-Type", "text/markdown; charset=utf-8");
-  markdownResponse.headers.set("Vary", "Accept");
-  return markdownResponse;
+  // A response whose return content was influenced by a request
+  // must include the reason in the `Vary` HTTP header.
+  // For us, that is the `Accept` header.
+  contentNegotiationResponse.headers.set("Vary", "Accept");
+  return contentNegotiationResponse;
 };
 
-function isAlreadyMarkdownRoute(pathname: string): boolean {
-  return pathname.endsWith(".md");
+/**
+ * Ture if the last path segmenet includes a dot.
+ *
+ * @example "/docs.md"
+ * @example "/docs.html"
+ */
+function isSpecifcFileTypeRoute(pathname: string): boolean {
+  return pathname.split("/").at(-1)!.includes(".");
 }
 
 function wantsMarkdownContent(request: Request): boolean {
@@ -53,18 +67,11 @@ function wantsMarkdownContent(request: Request): boolean {
     return false;
   }
   const acceptHeader = request.headers.get("Accept") ?? "";
-  // We don't really want to bother with order of formats and their q-values.
-  // Requesting `text/markdown` is a deliberate choice, so we assume priority.
+  // We don't really want to bother with format priorities (order of formats or q-values).
+  // Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
   return acceptHeader.includes("text/markdown");
 }
 
-async function fallbackToHtmlResponse(next: CloudflarePagesContext["next"]) {
-  const htmlResponse = await next();
-  htmlResponse.headers.set("Vary", "Accept");
-  return htmlResponse;
-}
-
 function generateMarkdownPathname(pathname: string): string {
-  // This middleware runs before trailing slash stripping happens.
   return pathname.replace(/\/+$/, "") + ".md";
 }

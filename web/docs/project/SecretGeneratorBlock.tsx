@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "../../scripts/markdown-docs/html-to-md/convert";
 import styles from "./SecretGeneratorBlock.module.css";
 
 interface Props {
@@ -10,7 +11,7 @@ export function SecretGeneratorBlock({
 }: Props) {
   const [secret, setSecret] = useState<string | null>(null);
 
-  const generate = () => {
+  const generateSecret = () => {
     const bytes = crypto.getRandomValues(new Uint8Array(32));
     const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
       "",
@@ -18,22 +19,26 @@ export function SecretGeneratorBlock({
     setSecret(hex);
   };
 
-  const copy = () => {
+  const copySecret = () => {
     if (secret) navigator.clipboard?.writeText(secret).catch(() => {});
   };
 
   if (!secret) {
     return (
-      <button onClick={generate} className={styles.generateBtn} type="button">
+      <button
+        onClick={generateSecret}
+        className={`${styles.generateBtn} ${SKIP_IN_MARKDOWN_DOCS_CLASS}`}
+        type="button"
+      >
         {buttonLabel}
       </button>
     );
   }
 
   return (
-    <span className={styles.container}>
+    <div className={styles.container}>
       <button
-        onClick={copy}
+        onClick={copySecret}
         className={styles.iconBtn}
         type="button"
         title="Copy secret"
@@ -42,14 +47,14 @@ export function SecretGeneratorBlock({
       </button>
       <code className={styles.secret}>{secret}</code>
       <button
-        onClick={generate}
+        onClick={generateSecret}
         className={styles.iconBtn}
         type="button"
         title="Regenerate secret"
       >
         <RefreshIcon />
       </button>
-    </span>
+    </div>
   );
 }
 
