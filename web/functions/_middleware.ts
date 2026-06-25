@@ -30,15 +30,19 @@ export const onRequest = async (
   if (!wantsMarkdownContent(request)) {
     contentNegotiationResponse = await next();
   } else {
-    const markdownUrl = new URL(
-      generateMarkdownPathname(url.pathname),
-      url.origin,
-    );
-    contentNegotiationResponse = await next(new Request(markdownUrl, request));
+    const markdownPathname = generateMarkdownPathname(url.pathname);
+    const markdownUrl = new URL(markdownPathname, url.origin);
+    const markdownRequest = new Request(markdownUrl, request);
+
+    contentNegotiationResponse = await next(markdownRequest);
+
     if (!contentNegotiationResponse.ok) {
-      console.log(
-        `Markdown response failed with ${contentNegotiationResponse.status}: ${await contentNegotiationResponse.text()}`,
-      );
+      console.error("Markdown response failed", {
+        status: contentNegotiationResponse.status,
+        statusText: contentNegotiationResponse.statusText,
+        pathname: markdownPathname,
+        body: await contentNegotiationResponse.clone().text(),
+      });
     }
   }
   // A response whose return content was influenced by a request

@@ -147,9 +147,9 @@ function findLastCheckedWithVersionsNote(
 
 function findMarkdownContentContainer(root: hast.Root): hast.Element {
   for (const selector of MARKDOWN_CONTENT_CONTAINER_SELECTORS) {
-    const containerElement = hastSelect.select(selector, root);
-    if (containerElement) {
-      return containerElement;
+    const markdownContentContainer = hastSelect.select(selector, root);
+    if (markdownContentContainer) {
+      return markdownContentContainer;
     }
   }
   throw Error(
@@ -158,16 +158,14 @@ function findMarkdownContentContainer(root: hast.Root): hast.Element {
 }
 
 function isSkippableElement(element: hast.Element): boolean {
-  // Skipping Docusaurus components.
   const isDocusaurusHashLink =
     element.tagName === "a" && hasClass(element, "hash-link");
 
-  // Skipping our custom components.
-  const hasSkipClass = getClassNames(element).includes(
+  const hasSkipInMarkdownDcosClass = getClassNames(element).includes(
     SKIP_IN_MARKDOWN_DOCS_CLASS,
   );
 
-  return isDocusaurusHashLink || hasSkipClass;
+  return isDocusaurusHashLink || hasSkipInMarkdownDcosClass;
 }
 
 /**
@@ -209,6 +207,11 @@ function docusaurusCodeBlockToMdast(codeBlock: hast.Element): mdast.Code {
     .map((line) => hastTextContent(line))
     .join("\n")
     .replace(/\s+$/, "");
+
+  if (!codeText) {
+    throw new Error("Empty or missing code block content.");
+  }
+
   return {
     type: "code",
     lang: Boolean(codeLanguage) ? codeLanguage : undefined,
@@ -318,10 +321,8 @@ function detectAdmonitionCustomTitle(admonition: hast.Element): string | null {
 }
 
 /**
- * Converts tabs to Markdown. All panels are present in the DOM, so we keep every
- * variant and label it with its tab title. The one exception is the
- * JavaScript/TypeScript code switcher: it shows the same snippet twice, so we
- * keep only the TypeScript variant.
+ * Converts Docusaurus tabs to markdown.
+ * For JavaScript/TypeScript code switcher, we only keep the TypeScript variant.
  *
  * @example
  * Target HTML:
