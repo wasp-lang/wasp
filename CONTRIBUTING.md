@@ -53,3 +53,34 @@ Please make sure to **base your feature branches and PRs on the `release` branch
 If you'd like to write a blog post about Wasp, please contact us via [Discord](https://discord.gg/zKFDFrsHa9) to discuss the topic and the details.
 
 Happy hacking!
+
+# Policies
+
+These are some general policies that we follow when it comes to contributions. They are not meant to be strict or exhaustive, but rather to give you a sense of what we value and expect. If you are linked here from a PR, it means that we think your contribution could be improved in some way, and following these guidelines is the best way to do it.
+
+## AIs and LLMs
+
+**You are free to use AI/LLM tools and agents, but every contribution must come from a human. The human must have read it, run it, understand it, and they must stand behind the contribution.** AIs can generate code faster that we can review it, and they're not always right. Everything that lands in Wasp becomes ours to maintain, so we hold a high bar for what makes it in.
+
+We also have agents; and because we work on Wasp every day, we can generally prompt them faster and better than an outside contributor can, and review them more easily. Therefore, just asking your agent for code and then sending it to us without review is not a good use of our time, nor your tokens.
+
+By just seeing a PR, we can't definitively know whether a human has supervised it. So **your job is to convince us that your contribution is worth it, by communicating clearly and demonstrating understanding and care**. This might not necessarily be about the immediate measurable qualities of the work; but about trust that it is going to save us time also in the long run. Tell-tale signs of an automatically generated PR will make it hard for us to trust it, and will likely lead to it being closed.
+
+> [!NOTE]
+> We will close PRs that we think don't clear these bars, simply to protect our time. If you think we misjudged yours, tell us and we'll gladly take another look. We're all human in the end, even if AI-assisted.
+
+We're genuinely happy to mentor newcomers and help them improve. But we're not happy to see drive-by PRs that the author can't explain or won't follow up on. If you open one, be ready to respond to review, answer questions, and address feedback.
+
+Before you open a PR, make sure you (the human) do these:
+
+- **Understand both the code change and its motivation.** You should be able to explain what it does and why.
+- **Test it locally in a real context.** Depending on the type of change, that might mean compiling Haskell code, creating real-looking tests, and/or running it in an actual Wasp app and manually clicking buttons.
+- **Review it thoroughly, and make changes as needed.** The code might be correct, but is it clear? Does it use tools or abstraction that we already have in the code?
+- **Communicate clearly that you've done the above, and what you found.** Fill out the [pull request template](./.github/pull_request_template.md), do not remove it, and represent your changes and process honestly.
+
+Please don't do the following:
+
+- **Don't set autonomous tools to do work on the Wasp repo without oversight.** A bunch of slop PRs might get your account blocked and/or reported to GitHub.
+- **Don't send LLM output that you haven't reviewed and understood.** Especially, don't just copy-paste messages back and forth between an LLM and a PR. Understand what is being said or asked.
+- **Don't send code you haven't run locally, in a relevant context.** Don't have your AI hand-craft files that just make it look right.
+- **Don't hand-edit generated files, such as E2E snapshots.** This rule is already explained in our [CLAUDE.md](./CLAUDE.md), but lots of slop PRs do not seem to have read it.
