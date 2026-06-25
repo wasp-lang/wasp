@@ -9,7 +9,7 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
-import { BUILD_DIR, SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
+import { BUILD_DIR, WASP_BASE_URL, WEB_PROJECT_ROOT_DIR } from "../constants";
 import { loadPermalinkMaps, PermalinkMap } from "./permalinks";
 import {
   isSidebarCategory,
@@ -58,8 +58,9 @@ export interface IndexDoc {
   markdown: string;
 }
 
-const sidebarsByWaspVersion = loadResolvedSidebarsByWaspVersion(SITE_ROOT_DIR);
-const permalinkMapsByWaspVersion = loadPermalinkMaps(SITE_ROOT_DIR);
+const sidebarsByWaspVersion =
+  loadResolvedSidebarsByWaspVersion(WEB_PROJECT_ROOT_DIR);
+const permalinkMapsByWaspVersion = loadPermalinkMaps(WEB_PROJECT_ROOT_DIR);
 
 /**
  * Builds the nested index of a Wasp version's docs, guides, and API packages from the

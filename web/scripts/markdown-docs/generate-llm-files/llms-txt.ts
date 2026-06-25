@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { glob } from "glob";
 import path from "path";
 
-import { BUILD_DIR, SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
+import { BUILD_DIR, WASP_BASE_URL, WEB_PROJECT_ROOT_DIR } from "../constants";
 
 const LLMS_TXT_INTRO = `# Wasp
 
@@ -71,7 +71,7 @@ async function buildPostsIndexSection(
   sectionTitle: string,
   routeBasePath: string,
 ): Promise<string> {
-  const postsDir = path.join(SITE_ROOT_DIR, routeBasePath);
+  const postsDir = path.join(WEB_PROJECT_ROOT_DIR, routeBasePath);
   const postsFileNames = await glob("*.{md,mdx}", {
     cwd: postsDir,
     nodir: true,
