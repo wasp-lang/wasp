@@ -21,16 +21,13 @@ import {
 } from "./resolved-sidebars";
 
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
-// A typedoc package's index page, e.g. "api/@wasp.sh/spec/index". We list these
-// (the package overview) in the API section instead of every symbol page.
-const API_PACKAGE_INDEX_REG_EXP = /^api\/(.+)\/index$/;
 
 export interface MarkdownDocsIndex {
   sections: IndexSection[];
 }
 
 /**
- * Esentially, the sidebar of `Docs`, `Guides` or `API`.
+ * A sidebar, e.g.: `Docs`, `Guides` or `API`.
  */
 export interface IndexSection {
   title: string;
@@ -40,7 +37,7 @@ export interface IndexSection {
 export type IndexItem = IndexCategory | IndexDoc;
 
 /**
- * A sidebar category, e.g. `Authentication` or `Authentication / Email`.
+ * A sidebar category, e.g.: `Authentication` or `Authentication / Email`.
  */
 export interface IndexCategory {
   type: "category";
@@ -49,7 +46,7 @@ export interface IndexCategory {
 }
 
 /**
- * An idividual item of some sidebar category, e.g. `Authentication / Email / Overview`.
+ * An idividual item of some sidebar category, e.g.: `Authentication / Email / Overview`.
  */
 export interface IndexDoc {
   type: "doc";
@@ -63,8 +60,10 @@ const sidebarsByWaspVersion =
 const permalinkMapsByWaspVersion = loadPermalinkMaps(WEB_PROJECT_ROOT_DIR);
 
 /**
- * Builds the nested index of a Wasp version's docs, guides, and API packages from the
- * resolved sidebars and the generated Markdown docs.
+ * Builds a markdown docs index for a specific Wasp version.
+ *
+ * It crawls the resolved sidebar and permalink map for that Wasp version,
+ * and connects the found routes to their generated markdown files.
  */
 export async function buildMarkdownDocsIndex(
   waspVersion: string,
@@ -91,7 +90,9 @@ export async function buildMarkdownDocsIndex(
       title: "API",
       items: await buildApiSectionItems(permalinkMap),
     },
-  ].filter((section) => section.items.length > 0);
+  ]
+    // Some sections can be empty in old Wasp versions. Like `API` and `Guides`.
+    .filter((section) => section.items.length > 0);
 
   return {
     sections: indexSections,
@@ -158,14 +159,30 @@ async function buildApiSectionItems(
 ): Promise<IndexSection["items"]> {
   const items: IndexItem[] = [];
   for (const [docId, permalink] of permalinkMap) {
-    const match = docId.match(API_PACKAGE_INDEX_REG_EXP);
-    if (match) {
-      items.push(
-        await resolveIndexDoc(stripTrailingSlash(permalink), match[1]),
-      );
+    const path = extractApiDocsPackageIndexPagePath(docId);
+    if (path) {
+      items.push(await resolveIndexDoc(stripTrailingSlash(permalink), path));
     }
   }
   return items;
+}
+
+/**
+ * Tries to extract the path to the index page of some package's API docs.
+ *
+ * @example "api/@wasp.sh/spec/index" -> "@wasp.sh/spec"
+ */
+function extractApiDocsPackageIndexPagePath(docId: string): string | null {
+  const API_DOCS_PACKAGE_INDEX_PAGE_PATTERN = /^api\/(.+)\/index$/;
+  const match = docId.match(API_DOCS_PACKAGE_INDEX_PAGE_PATTERN);
+
+  if (!match) {
+    return null;
+  }
+
+  const [_fullMatch, apiDocsPackageIndexPagePath] = match;
+
+  return apiDocsPackageIndexPagePath;
 }
 
 const markdownDocumentByRouteCache = new Map<
