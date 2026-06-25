@@ -25,10 +25,11 @@ describe("RefObject input types", () => {
 
   test("should accept functions at reference use sites", () => {
     const component = () => null;
-    const operation = async (_args: { id: string }) => null;
+    const operation = async (_args: { id: string }) => {};
     const object = { field: () => "" };
-    const hook = async () => null;
-    const setup = () => null;
+    const hook = async () => {};
+    const emailHook = async () => ({ subject: "", text: "", html: "" });
+    const setup = () => {};
     const middleware = () => null;
 
     assertType<WaspSpec.Page>({ kind: "page", component });
@@ -69,7 +70,7 @@ describe("RefObject input types", () => {
       userSignupFields: object,
     });
     assertType<WaspSpec.EmailFlowConfig>({
-      getEmailContentFn: hook,
+      getEmailContentFn: emailHook,
       clientRoute: "EmailRoute",
     });
     assertType<WaspSpec.Server>({

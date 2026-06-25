@@ -1,6 +1,28 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RequireOneOrNone } from "type-fest";
-import type { AnyFunction, AnyObject } from "../../typeUtils.js";
+import type {
+  AnyObject,
+  ServerSetupFn,
+  ClientSetupFn,
+  MiddlewareConfigFn,
+  DbSeedFn,
+  PrismaSetupFn,
+  GetEmailContentFn,
+  OAuthConfigFn,
+  OnBeforeSignupFn,
+  OnAfterSignupFn,
+  OnBeforeOAuthRedirectFn,
+  OnBeforeLoginFn,
+  OnAfterLoginFn,
+  OnAfterEmailVerifiedFn,
+  ActionFn,
+  QueryFn,
+  ApiFn,
+  JobFn,
+  WebSocketFn,
+  PageComponent,
+  CrudOverrideFn,
+} from "../../typeUtils.js";
 import type { RefObject } from "../refObject.js";
 import { FromRegister } from "./register.js";
 
@@ -175,7 +197,7 @@ interface AuthHooks {
    *
    * @category Hooks
    */
-  onBeforeSignup?: Reference<AnyFunction>;
+  onBeforeSignup?: Reference<OnBeforeSignupFn>;
   /**
    * Called after the user is created. Receives `providerId`, the created
    * `user`, and, for social auth, `oauth` fields including tokens and the
@@ -183,9 +205,9 @@ interface AuthHooks {
    *
    * @category Hooks
    */
-  onAfterSignup?: Reference<AnyFunction>;
+  onAfterSignup?: Reference<OnAfterSignupFn>;
   /** Called once, after the user verifies their email. Receives `email` and `user`. */
-  onAfterEmailVerified?: Reference<AnyFunction>;
+  onAfterEmailVerified?: Reference<OnAfterEmailVerifiedFn>;
   /**
    * Called before redirecting the user to the OAuth provider. Receives the
    * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
@@ -193,14 +215,14 @@ interface AuthHooks {
    *
    * @category Hooks
    */
-  onBeforeOAuthRedirect?: Reference<AnyFunction>;
+  onBeforeOAuthRedirect?: Reference<OnBeforeOAuthRedirectFn>;
   /**
    * Called before the user is logged in. Receives `providerId` and `user`.
    * Throw from this hook to reject a login based on custom criteria.
    *
    * @category Hooks
    */
-  onBeforeLogin?: Reference<AnyFunction>;
+  onBeforeLogin?: Reference<OnBeforeLoginFn>;
   /**
    * Called after a successful login. Receives `providerId`, `user`, and, for
    * social auth, `oauth` fields including tokens and the unique OAuth request
@@ -208,7 +230,7 @@ interface AuthHooks {
    *
    * @category Hooks
    */
-  onAfterLogin?: Reference<AnyFunction>;
+  onAfterLogin?: Reference<OnAfterLoginFn>;
 }
 
 /**
@@ -327,7 +349,7 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
    * }
    * ```
    */
-  configFn?: Reference<AnyFunction>;
+  configFn?: Reference<OAuthConfigFn>;
 }
 
 /**
@@ -447,7 +469,7 @@ export interface EmailFlowConfig {
    * })
    * ```
    */
-  getEmailContentFn?: Reference<AnyFunction>;
+  getEmailContentFn?: Reference<GetEmailContentFn>;
   /**
    * Name of the route that handles the link sent in the email (e.g.
    * `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
@@ -505,14 +527,14 @@ export interface Server {
    * }
    * ```
    */
-  setupFn?: Reference<AnyFunction>;
+  setupFn?: Reference<ServerSetupFn>;
   /**
    * Function that customizes the global Express middleware stack. Affects
    * all operations and APIs.
    *
    * See [Configuring Middleware](https://wasp.sh/docs/advanced/middleware-config).
    */
-  middlewareConfigFn?: Reference<AnyFunction>;
+  middlewareConfigFn?: Reference<MiddlewareConfigFn>;
   /**
    * Zod schema used to validate user-defined server environment variables on
    * startup. Wasp merges it with built-in validation for Wasp-defined env vars
@@ -594,7 +616,7 @@ export interface Client {
    * }
    * ```
    */
-  rootComponent?: Reference<AnyFunction>;
+  rootComponent?: Reference<PageComponent>;
   /**
    * Async function Wasp calls once while initializing the client app. Wasp
    * awaits it before rendering the app. It receives no arguments, and its
@@ -608,7 +630,7 @@ export interface Client {
    * }
    * ```
    */
-  setupFn?: Reference<AnyFunction>;
+  setupFn?: Reference<ClientSetupFn>;
   /**
    *
    * If you need to serve the client from a subdirectory, you can use the
@@ -677,7 +699,7 @@ export interface Db {
    *
    * See [Seeding the Database](https://wasp.sh/docs/data-model/databases#seeding-the-database).
    */
-  seeds?: Reference<AnyFunction>[];
+  seeds?: Reference<DbSeedFn>[];
   /**
    * Function that sets up and returns a configured Prisma Client instance.
    * Use this to add Prisma logging or client extensions.
@@ -699,7 +721,7 @@ export interface Db {
    * }
    * ```
    */
-  prismaSetupFn?: Reference<AnyFunction>;
+  prismaSetupFn?: Reference<PrismaSetupFn>;
 }
 
 /**
@@ -783,7 +805,7 @@ export interface WebSocket {
    *
    * See [the `websocketFn` docs](https://wasp.sh/docs/advanced/web-sockets#websocketfn).
    */
-  fn: Reference<AnyFunction>;
+  fn: Reference<WebSocketFn>;
   /**
    * If `true` (the default), the client connects to the WebSocket server as
    * soon as the app loads. Set to `false` to connect manually via
@@ -846,7 +868,7 @@ export type SpecElement =
  */
 export interface Page extends BaseSpecElement<"page"> {
   /** React component rendered for this page. */
-  component: Reference<AnyFunction>;
+  component: Reference<PageComponent>;
   /**
    * If `true`, only authenticated users can access this page. Unauthenticated
    * visitors are redirected to {@link Auth.onAuthFailedRedirectTo}.
@@ -945,7 +967,7 @@ export interface Query extends BaseSpecElement<"query"> {
    * docs](https://wasp.sh/docs/data-model/operations/queries#implementing-queries)
    * for details on the implementation and its context.
    */
-  fn: Reference<AnyFunction>;
+  fn: Reference<QueryFn>;
   /**
    * A list of entities you wish to use inside your Query.
    *
@@ -978,7 +1000,7 @@ export interface Action extends BaseSpecElement<"action"> {
    * docs](https://wasp.sh/docs/data-model/operations/actions#implementing-actions)
    * for details on the implementation and its context.
    */
-  fn: Reference<AnyFunction>;
+  fn: Reference<ActionFn>;
   /**
    * A list of entities you wish to use inside your Action.
    *
@@ -1013,13 +1035,13 @@ export interface Api extends BaseSpecElement<"api"> {
   /** Express path of the endpoint (e.g. `"/webhooks/stripe"`). */
   path: string;
   /** Reference to the API's NodeJS implementation. */
-  fn: Reference<AnyFunction>;
+  fn: Reference<ApiFn>;
   /**
    * Reference to an Express middleware config function for this endpoint only.
    *
    * See [Configuring API middleware](https://wasp.sh/docs/advanced/middleware-config#2-customize-api-specific-middleware).
    */
-  middlewareConfigFn?: Reference<AnyFunction>;
+  middlewareConfigFn?: Reference<MiddlewareConfigFn>;
   /**
    * Entities the handler operates on. Wasp injects a Prisma delegate for
    * each one into the handler's `context.entities`.
@@ -1046,7 +1068,7 @@ export interface Api extends BaseSpecElement<"api"> {
  */
 export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
-  middlewareConfigFn: Reference<AnyFunction>;
+  middlewareConfigFn: Reference<MiddlewareConfigFn>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
   path: string;
 }
@@ -1074,7 +1096,7 @@ export interface Job extends BaseSpecElement<"job"> {
    *
    * See [Jobs documentation](https://wasp.sh/docs/advanced/jobs#worker-api) for more details.
    */
-  fn: Reference<AnyFunction>;
+  fn: Reference<JobFn>;
   /**
    * Executor backing this job.
    *
@@ -1234,7 +1256,7 @@ export interface CrudOperationOptions {
    * the default `create` and `update` implementations pass client-sent data to
    * Prisma.
    */
-  overrideFn?: Reference<AnyFunction>;
+  overrideFn?: Reference<CrudOverrideFn>;
 }
 
 /**
