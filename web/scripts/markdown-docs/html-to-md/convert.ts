@@ -12,7 +12,7 @@ import { unified } from "unified";
 import { EXIT, SKIP, visit } from "unist-util-visit";
 
 /**
- * CSS class used to indicate HTML content we skip when rendering markdown docs.
+ * CSS class used to indicate HTML content we skip when generating markdown docs.
  */
 export const SKIP_IN_MARKDOWN_DOCS_CLASS = "skip-in-markdown-docs";
 
@@ -25,7 +25,7 @@ export const SKIP_IN_MARKDOWN_DOCS_CLASS = "skip-in-markdown-docs";
  */
 const markdownProcessor = unified()
   .use(rehypeParse)
-  .use(rehypeSelectAndCleanDocusaurusContent)
+  .use(rehypeReduceDocusaurusPageToMarkdownContent)
   .use(rehypeRemark, {
     handlers: {
       div(state, element: hast.Element) {
@@ -82,19 +82,22 @@ const MARKDOWN_CONTENT_CONTAINER_SELECTORS = [
 ];
 
 /**
- * Reduces the parsed page to just its content container and drops
- * unnecessary nodes that would otherwise leak into the Markdown.
+ * Reduces the parsed Docusaurus page to just its markdown content container.
+ * Drops unnecessary nodes that would otherwise leak into the markdown.
+ * E.g., comments.
  */
-function rehypeSelectAndCleanDocusaurusContent(): (root: hast.Root) => void {
+function rehypeReduceDocusaurusPageToMarkdownContent(): (
+  root: hast.Root,
+) => void {
   return (root: hast.Root): void => {
-    const contentContainer = findContentContainer(root);
-    const lastCheckedWithBanner = findLastCheckedWithVersionsNote(
+    const markdownContentContainer = findMarkdownContentContainer(root);
+    const lastCheckedWithVersionsNote = findLastCheckedWithVersionsNote(
       root,
-      contentContainer,
+      markdownContentContainer,
     );
-    root.children = lastCheckedWithBanner
-      ? [lastCheckedWithBanner, contentContainer]
-      : [contentContainer];
+    root.children = lastCheckedWithVersionsNote
+      ? [lastCheckedWithVersionsNote, markdownContentContainer]
+      : [markdownContentContainer];
 
     visit(root, (node, index, parent) => {
       // React injects empty `<!-- -->` comments around dynamic values.
@@ -142,7 +145,7 @@ function findLastCheckedWithVersionsNote(
   return lastCheckWithVersionsNote;
 }
 
-function findContentContainer(root: hast.Root): hast.Element {
+function findMarkdownContentContainer(root: hast.Root): hast.Element {
   for (const selector of MARKDOWN_CONTENT_CONTAINER_SELECTORS) {
     const containerElement = hastSelect.select(selector, root);
     if (containerElement) {

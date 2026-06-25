@@ -41,8 +41,9 @@ export const onRequest = async (
       );
     }
   }
-  // All responses, whose return content was influenced by a request,
+  // A response whose return content was influenced by a request
   // must include the reason in the `Vary` HTTP header.
+  // For us, that is the `Accept` header.
   contentNegotiationResponse.headers.set("Vary", "Accept");
   return contentNegotiationResponse;
 };
@@ -62,8 +63,8 @@ function wantsMarkdownContent(request: Request): boolean {
     return false;
   }
   const acceptHeader = request.headers.get("Accept") ?? "";
-  // We don't really want to bother with order of formats and their q-values.
-  // Requesting `text/markdown` is a deliberate choice, so we assume priority.
+  // We don't really want to bother with format priorities (order of formats or q-values).
+  // Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
   return acceptHeader.includes("text/markdown");
 }
 
