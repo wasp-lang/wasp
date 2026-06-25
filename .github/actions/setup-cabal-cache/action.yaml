@@ -44,10 +44,19 @@ runs:
     - name: Cache Cabal dependencies
       uses: actions/cache@v5
       with:
-        path: |
+        path:
+          # While commonly cached, we've decided not to cache:
+          #
+          # - `./dist-newstyle`: Our internal code builds quite fast, and
+          #   changes often enough that a cache would need to be invalidated on
+          #   every run, and make our cache much bigger.
+          #
+          # We do cache the Cabal store and index files, which is where the
+          # actual built packages are stored, as it is the most expensive part
+          # of the build, and easily reusable.
+          |
           ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
           ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}
-          ${{ inputs.cabal-project-dir }}/dist-newstyle
         key: >
           ${{
             format(
@@ -78,4 +87,5 @@ runs:
 
     - name: Update Cabal package index
       shell: bash
+      working-directory: ${{ inputs.cabal-project-dir }}
       run: cabal update

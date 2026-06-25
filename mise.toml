@@ -21,6 +21,7 @@ min_version = "2026.6.11"
 # we use above.
 "mise-ghcup:hls" = "2.12.0.0"
 
+# This should be equal to Wasp's lowest supported Node version.
 # Keep in sync with:
 # - The compiler (Wasp.Node.Version).
 # - The docs: /docs/introduction/quick-start.md ("Requirements" section).

@@ -27,8 +27,8 @@ runs:
     - name: Cache npm dependencies
       uses: actions/setup-node@v6
       with:
-        # We don't specify a Node version here, so it won't install any new one
-        # and just use the one from Mise.
+        # We don't specify a node-version here because we already have it
+        # installed. We will only use this step to setup the npm cache.
         cache: npm
         package-manager-cache: true
 

@@ -28,17 +28,17 @@ jobs:
           - macos-15-intel
           - macos-15 # Apple Silicon
           - windows-latest
-        node-version:
-          - "latest"
+        extra-tools:
+          - node@latest
+
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
         # Ubuntu 22.04.
         include:
-          - os: ubuntu-22.04
-            # Default means to use the repo's default Node.js version, which is
-            # our minimum supported version (from /mise.toml).
-            node-version: "default"
+          - # No extra tool here, so we use our default Node.js version, which
+            # comes from mise and is equal to our lowest supported one.
+            os: ubuntu-22.04
 
     steps:
       - # For waspc parser tests, we need to make sure git doesn't convert line
@@ -84,7 +84,7 @@ jobs:
       - name: Run `waspc` e2e tests
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
-          NODE_TOOL: ${{ matrix.node-version == 'default' && 'node' || format('node@{0}', matrix.node-version) }}
+          EXTRA_TOOLS: ${{ matrix.extra-tools }}
         shell: bash
         run: |
-          mise x "$NODE_TOOL" -- bash ./run test:waspc:e2e
+          mise x "${EXTRA_TOOLS[@]}" -- bash ./run test:waspc:e2e
