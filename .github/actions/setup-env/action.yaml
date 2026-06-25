@@ -1,15 +1,7 @@
 name: Setup environment and dev tools
-description: |
+description: >
   This action sets up our Mise-defined dev tools and environment for use in
   actions. It also sets up caches for package manager dependencies.
-
-inputs:
-  cabal-project-dir:
-    description: |
-      The working directory for the action.
-      The default is /waspc.
-    required: false
-    default: "waspc"
 
 runs:
   using: composite
@@ -21,18 +13,15 @@ runs:
         bootstrap: true
         bootstrap_args: --update --yes
 
-    - # `cabal.project` sets `with-compiler: x.y.z`, so Cabal resolves the bare
-      # program name `ghc-x.y.z` on PATH. On Windows, that hits Mise's shim,
-      # which Cabal can't determine the version of, and the build fails. We
-      # override `with-compiler` with the absolute path to the real `ghc.exe` so
-      # Cabal probes the actual binary instead of the shim. Using forward
-      # slashes keeps Cabal's config parser happy.
+    - # Cabal inspects the version of the GHC binary to determine which compiler
+      # to use. On Windows, Mise shims GHC in a way that Cabal cannot detect, so
+      # we'll point it to the real GHC binary.
       name: Pin Cabal to the real GHC binary (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
-      working-directory: ${{ inputs.cabal-project-dir }}
+      working-directory: waspc
       run: |
-        $ghc = (mise which ghc) -replace '\\', '/'
+        $ghc = (mise which ghc) -replace '\\', '/' # Convert to Unix-style path for Cabal
         "with-compiler: $ghc" | Set-Content -Path cabal.project.local -Encoding ascii
 
     - name: Cache npm dependencies
@@ -43,43 +32,7 @@ runs:
         cache: npm
         package-manager-cache: true
 
-    - name: Probe environment
-      id: probe
-      shell: bash
-      run: |
-        set -euxo pipefail
-
-        echo "GHC_VERSION=$(mise tool ghc --requested)" >> $GITHUB_OUTPUT
-
-        # Detect the libc so the Cabal cache key keeps glibc and musl builds
-        # apart.
-        ldd_version="$(ldd --version 2>&1 || true)"
-        case "$ldd_version" in
-          *musl*) libc=musl ;;
-          *) libc=default ;;
-        esac
-        echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
-
-        # The first run of `cabal path` has some extra messages telling you that
-        # it's creating the store, so we run the command once to get rid of it.
-        cabal path 2>&1 >/dev/null
-        echo "CABAL_STORE=$(cabal path --store-dir)" >> $GITHUB_OUTPUT
-        echo "CABAL_INDEX=$(cabal path --remote-repo-cache)" >> $GITHUB_OUTPUT
-
-    # Based on the official recipe for Cabal caching:
-    # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
     - name: Cache Cabal dependencies
-      uses: actions/cache@v5
+      uses: ./.github/actions/setup-cabal-cache
       with:
-        path: |
-          ${{ steps.probe.outputs.CABAL_STORE }}
-          ${{ steps.probe.outputs.CABAL_INDEX }}
-          ${{ inputs.cabal-project-dir }}/dist-newstyle
-        key: |
-          cabal-v2-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
-        restore-keys: |
-          cabal-v2-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-
-
-    - name: Update Cabal package index
-      shell: bash
-      run: cabal update
+        cabal-project-dir: waspc
