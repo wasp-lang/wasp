@@ -5,6 +5,7 @@
 
 module Analyzer.EvaluatorTest where
 
+import qualified Analyzer.TestUtil as TestUtil
 import qualified Data.Aeson as Aeson
 import Data.Data (Data)
 import Data.List.Split (splitOn)
@@ -12,10 +13,11 @@ import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import Test.Hspec
 import Text.Read (readMaybe)
+import qualified Wasp.Analyzer.AST as AST
+import Wasp.Analyzer.Ctx (Ctx, WithCtx (..))
 import Wasp.Analyzer.Evaluator
 import qualified Wasp.Analyzer.Evaluator.Evaluation as E
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
-import Wasp.Analyzer.Parser (parseStatements)
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeChecker (typeCheck)
 import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
@@ -30,6 +32,14 @@ import Wasp.AppSpec.JSON (JSON (..))
 fromRight :: (Show a) => Either a b -> b
 fromRight (Right x) = x
 fromRight (Left e) = error $ show e
+
+-- | The AST source regions are irrelevant to evaluation, so we wrap all nodes
+-- built by hand in a single dummy context.
+dummyCtx :: Ctx
+dummyCtx = TestUtil.ctx (1, 1) (1, 1)
+
+wctx :: a -> WithCtx a
+wctx = WithCtx dummyCtx
 
 ------- Simple -------
 
@@ -152,8 +162,8 @@ instance IsDecl AllJson
 
 makeDeclType ''AllJson
 
-eval :: TD.TypeDefinitions -> [String] -> Either EvaluationError [Decl]
-eval typeDefs source = evaluate typeDefs . fromRight . typeCheck typeDefs . fromRight . parseStatements $ unlines source
+eval :: TD.TypeDefinitions -> AST.AST -> Either EvaluationError [Decl]
+eval typeDefs = evaluate typeDefs . fromRight . typeCheck typeDefs
 
 spec_Evaluator :: Spec
 spec_Evaluator = do
@@ -161,18 +171,36 @@ spec_Evaluator = do
     describe "evaluate" $ do
       it "Evaluates a simple declaration" $ do
         let typeDefs = TD.addDeclType @Simple $ TD.empty
-        let decls = eval typeDefs ["simple Test \"hello wasp\""]
-        fmap takeDecls decls
+        -- simple Test "hello wasp"
+        let ast = AST.AST [wctx $ AST.Decl "simple" "Test" (wctx $ AST.StringLiteral "hello wasp")]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right [("Test", Simple "hello wasp")]
       it "Evaluates a declaration with a dictionary" $ do
         let typeDefs = TD.addDeclType @Fields $ TD.empty
-        let decls = eval typeDefs ["fields Test { a: \"hello wasp\", b: 3.14 }"]
-        fmap takeDecls decls
+        -- fields Test { a: "hello wasp", b: 3.14 }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "fields" "Test" $
+                      wctx $
+                        AST.Dict
+                          [ ("a", wctx $ AST.StringLiteral "hello wasp"),
+                            ("b", wctx $ AST.DoubleLiteral 3.14)
+                          ]
+                ]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right [("Test", Fields {a = "hello wasp", b = Just 3.14})]
       it "Evaluates a declaration with missing optional fields" $ do
         let typeDefs = TD.addDeclType @Fields $ TD.empty
-        let decls = eval typeDefs ["fields Test { a: \"hello wasp\" }"]
-        fmap takeDecls decls
+        -- fields Test { a: "hello wasp" }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "fields" "Test" $
+                      wctx $
+                        AST.Dict [("a", wctx $ AST.StringLiteral "hello wasp")]
+                ]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right [("Test", Fields {a = "hello wasp", b = Nothing})]
       it "Evaluates a complicated example" $ do
         let typeDefs =
@@ -180,12 +208,35 @@ spec_Evaluator = do
                 TD.addEnumType @BusinessType $
                   TD.addDeclType @Person $
                     TD.empty
-        let source =
-              [ "person Tim { name: \"Tim Stocker\", age: 40 }",
-                "person John { name: \"John Cashier\", age: 23 }",
-                "business Grocer { employees: [Tim, John], businessType: Store, worth: 115 }"
-              ]
-        fmap takeDecls (eval typeDefs source)
+        -- person Tim { name: "Tim Stocker", age: 40 }
+        -- person John { name: "John Cashier", age: 23 }
+        -- business Grocer { employees: [Tim, John], businessType: Store, worth: 115 }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "person" "Tim" $
+                      wctx $
+                        AST.Dict
+                          [ ("name", wctx $ AST.StringLiteral "Tim Stocker"),
+                            ("age", wctx $ AST.IntegerLiteral 40)
+                          ],
+                  wctx $
+                    AST.Decl "person" "John" $
+                      wctx $
+                        AST.Dict
+                          [ ("name", wctx $ AST.StringLiteral "John Cashier"),
+                            ("age", wctx $ AST.IntegerLiteral 23)
+                          ],
+                  wctx $
+                    AST.Decl "business" "Grocer" $
+                      wctx $
+                        AST.Dict
+                          [ ("employees", wctx $ AST.List [wctx $ AST.Var "Tim", wctx $ AST.Var "John"]),
+                            ("businessType", wctx $ AST.Var "Store"),
+                            ("worth", wctx $ AST.IntegerLiteral 115)
+                          ]
+                ]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right
             [ ( "Grocer",
                 Business
@@ -198,14 +249,27 @@ spec_Evaluator = do
             ]
       it "Evaluates ExtImports and JSON" $ do
         let typeDefs = TD.addDeclType @Special $ TD.empty
-        let source =
-              [ "special Test {",
-                "  imps: [import { field } from \"@src/main.js\", import main from \"@src/main.js\"],",
-                "  json: {=json { \"key\": 1 } json=}",
-                "}"
-              ]
-
-        fmap takeDecls (eval typeDefs source)
+        -- special Test {
+        --   imps: [import { field } from "@src/main.js", import main from "@src/main.js"],
+        --   json: {=json { "key": 1 } json=}
+        -- }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "special" "Test" $
+                      wctx $
+                        AST.Dict
+                          [ ( "imps",
+                              wctx $
+                                AST.List
+                                  [ wctx $ AST.ExtImport (AST.ExtImportField "field") "@src/main.js",
+                                    wctx $ AST.ExtImport (AST.ExtImportModule "main") "@src/main.js"
+                                  ]
+                            ),
+                            ("json", wctx $ AST.Quoter "json" "{ \"key\": 1 }")
+                          ]
+                ]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right
             [ ( "Test",
                 Special
@@ -218,16 +282,27 @@ spec_Evaluator = do
 
       it "Evaluates JSON quoters and they show correctly" $ do
         let typeDefs = TD.addDeclType @AllJson $ TD.empty
-        let source =
-              [ "allJson Test {",
-                "  objectValue: {=json { \"key\": 1 } json=},",
-                "  arrayValue: {=json [1, 2, 3] json=},",
-                "  stringValue: {=json \"hello\" json=},",
-                "  nullValue: {=json null json=},",
-                "  booleanValue: {=json false json=},",
-                "}"
-              ]
-        let allJson = case takeDecls <$> eval typeDefs source of
+        -- allJson Test {
+        --   objectValue: {=json { "key": 1 } json=},
+        --   arrayValue: {=json [1, 2, 3] json=},
+        --   stringValue: {=json "hello" json=},
+        --   nullValue: {=json null json=},
+        --   booleanValue: {=json false json=},
+        -- }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "allJson" "Test" $
+                      wctx $
+                        AST.Dict
+                          [ ("objectValue", wctx $ AST.Quoter "json" "{ \"key\": 1 }"),
+                            ("arrayValue", wctx $ AST.Quoter "json" "[1, 2, 3]"),
+                            ("stringValue", wctx $ AST.Quoter "json" "\"hello\""),
+                            ("nullValue", wctx $ AST.Quoter "json" "null"),
+                            ("booleanValue", wctx $ AST.Quoter "json" "false")
+                          ]
+                ]
+        let allJson = case takeDecls <$> eval typeDefs ast of
               Right [(_, aj)] -> aj
               other -> error $ "Couldn't deconstroct value: " ++ show other
         show (objectValue allJson) `shouldBe` "{\"key\":1}"
@@ -238,20 +313,54 @@ spec_Evaluator = do
 
       it "Evaluates a declaration with a field that has custom evaluation" $ do
         let typeDefs = TD.addDeclType @Custom $ TD.empty
-        let decls = eval typeDefs ["custom Test { version: \"1.2.3\" }"]
-        fmap takeDecls decls
+        -- custom Test { version: "1.2.3" }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "custom" "Test" $
+                      wctx $
+                        AST.Dict [("version", wctx $ AST.StringLiteral "1.2.3")]
+                ]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right [("Test", Custom {version = SemanticVersion 1 2 3})]
 
       it "Evaluates a declaration with fields that are tuples" $ do
         let typeDefs = TD.addDeclType @Tuples $ TD.empty
-        let source =
-              [ "tuples Tuples {",
-                "  pair: (\"foo\", 1),",
-                "  triple: (\"foo\", 1, 2),",
-                "  quadruple: (\"foo\", 1, 2, [true, false])",
-                "}"
-              ]
-        fmap takeDecls (eval typeDefs source)
+        -- tuples Tuples {
+        --   pair: ("foo", 1),
+        --   triple: ("foo", 1, 2),
+        --   quadruple: ("foo", 1, 2, [true, false])
+        -- }
+        let ast =
+              AST.AST
+                [ wctx $
+                    AST.Decl "tuples" "Tuples" $
+                      wctx $
+                        AST.Dict
+                          [ ( "pair",
+                              wctx $ AST.Tuple (wctx $ AST.StringLiteral "foo", wctx $ AST.IntegerLiteral 1, [])
+                            ),
+                            ( "triple",
+                              wctx $
+                                AST.Tuple
+                                  ( wctx $ AST.StringLiteral "foo",
+                                    wctx $ AST.IntegerLiteral 1,
+                                    [wctx $ AST.IntegerLiteral 2]
+                                  )
+                            ),
+                            ( "quadruple",
+                              wctx $
+                                AST.Tuple
+                                  ( wctx $ AST.StringLiteral "foo",
+                                    wctx $ AST.IntegerLiteral 1,
+                                    [ wctx $ AST.IntegerLiteral 2,
+                                      wctx $ AST.List [wctx $ AST.BoolLiteral True, wctx $ AST.BoolLiteral False]
+                                    ]
+                                  )
+                            )
+                          ]
+                ]
+        fmap takeDecls (eval typeDefs ast)
           `shouldBe` Right
             [ ( "Tuples",
                 Tuples

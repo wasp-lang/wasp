@@ -39,8 +39,9 @@ import Control.Monad (foldM)
 import qualified Data.HashMap.Strict as M
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
 import Data.Maybe (fromJust)
-import Wasp.Analyzer.Parser (AST)
-import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.AST (AST)
+import qualified Wasp.Analyzer.AST as P
+import qualified Wasp.Analyzer.Ctx as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Monad

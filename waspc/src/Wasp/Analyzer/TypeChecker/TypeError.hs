@@ -9,8 +9,8 @@ module Wasp.Analyzer.TypeChecker.TypeError
 where
 
 import Data.List (intercalate)
+import Wasp.Analyzer.Ctx (Ctx)
 import Wasp.Analyzer.ErrorMessage
-import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, second3)

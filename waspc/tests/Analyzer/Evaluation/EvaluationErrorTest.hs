@@ -3,8 +3,8 @@ module Analyzer.Evaluation.EvaluationErrorTest where
 import Analyzer.TestUtil (ctx)
 import Data.List (intercalate)
 import Test.Hspec
+import Wasp.Analyzer.Ctx (Ctx)
 import Wasp.Analyzer.Evaluator.EvaluationError
-import Wasp.Analyzer.Parser.Ctx
 import Wasp.Analyzer.Type (Type (..))
 
 ctx1 :: Ctx

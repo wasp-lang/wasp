@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Wasp.Analyzer.Parser.Ctx
+module Wasp.Analyzer.Ctx
   ( WithCtx (..),
     withCtx,
     Ctx (..),
@@ -11,8 +11,8 @@ module Wasp.Analyzer.Parser.Ctx
   )
 where
 
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
-import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
+import Wasp.Analyzer.SourcePosition (SourcePosition)
+import Wasp.Analyzer.SourceRegion (SourceRegion (..))
 
 data WithCtx a = WithCtx Ctx a
   deriving (Eq, Show, Functor)
