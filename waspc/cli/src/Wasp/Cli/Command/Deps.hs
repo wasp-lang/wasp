@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
@@ -13,6 +14,8 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
@@ -39,13 +42,16 @@ depsMessage appSpec =
     ]
       ++ printDeps
         "Server dependencies:"
-        ( N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
+        ( filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
       ++ [""]
       ++ printDeps
         "Server devDependencies:"
-        ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
+        ( filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
+  where
+    waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.waspLibs
+    filterOutWaspLibDeps = filter ((`Set.notMember` waspLibPackageNames) . Npm.Dependency.name)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =

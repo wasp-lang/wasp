@@ -8,7 +8,7 @@ import { auth } from "./lucia.js";
 import type { Session } from "lucia";
 import { createInvalidCredentialsError } from "./utils.js";
 
-import { prisma } from 'wasp/server';
+import { prisma } from '../server/index.js';
 import { createAuthUserData } from "../server/auth/user.js";
 
 // PRIVATE API

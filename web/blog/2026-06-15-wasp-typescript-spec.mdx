@@ -1,0 +1,249 @@
+---
+title: "Wasp now lets you write your full-stack logic as a spec in TypeScript"
+authors: [martinsos]
+image: /img/wasp-typescript-spec/banner.webp
+tags: [wasp, typescript, fullstack, update]
+keywords: ["wasp typescript spec", "wasp ts spec", "typescript full-stack framework", "full-stack typescript", "wasp dsl to typescript", "spec driven development", "react node framework", "wasp framework", "full stack logic", "app specification", "wasp.sh spec", "batteries-included framework", "file-based routing typescript", "full stack modules"]
+description: "Wasp drops its custom DSL and replaces it with a TypeScript-native way to define your full-stack app: the TypeScript Spec. Here's what it is, how it works, and what it unlocks."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+
+<ImgWithCaption
+    alt="Wasp's new TypeScript Spec: a main.wasp.ts file defining the whole app — title, wasp version, auth, and a spec list with route/page/query calls — all in TypeScript"
+    source="img/wasp-typescript-spec/banner.webp"
+/>
+
+[Wasp](/) is an opinionated, **batteries-included** full-stack JS/TS web app framework, built around the concept of an explicit spec for defining full-stack features of your app.
+
+Today is a big day: we dropped our custom spec language and replaced it with a new, TypeScript-native way to define your full-stack app at a high level: the [TypeScript Spec](/docs/general/spec)!
+
+{/* truncate */}
+
+Read on for the why and the what, or if you want to try it out right now, go to [the quick start guide](/docs/quick-start).
+
+## Quick recap of the last 5 years
+
+Wasp is an opinionated, **batteries-included**, **truly full-stack, spec-driven** JS/TS web app framework, in spirit similar to RoR/Laravel/Django/Meteor, but reimagined from scratch for modern JS.
+
+**“Truly full-stack”** because Wasp covers frontend, backend, and the database; Wasp’s goal is to capture the web app development end-to-end, in its entirety, as one cohesive whole.
+
+**“Spec-driven”** because of Wasp’s unique, central concept of the **spec** (specification). It's in the name: Web App SPecification == Wasp.
+
+Spec is a dedicated logic layer where you define your app at the full-stack level, that ties all parts of the stack together, and then you implement it all in the underlying technologies you are used to: React, Node, Prisma, … .
+It is the place where you are not writing frontend, backend, or database logic, you are writing "full-stack" logic.
+
+So far, the spec layer in Wasp was implemented as a standalone language (DSL), with our own custom compiler and tooling. [Turns out that was more trouble than it was worth](/blog/2026/05/13/new-language-for-web-dev-was-a-mistake), and it started blocking us in further growing Wasp into what we want it to become, so by popular demand, we switched to spec in TypeScript!
+
+Read on to learn more about it, how it works and what it unlocks.
+
+## The Wasp TypeScript Spec
+
+You write the [Wasp TypeScript Spec (TS Spec)](/docs/general/spec) in `*.wasp.ts` files by constructing the `app` spec object.
+
+You do so by using the spec constructors from `@wasp.sh/spec`: `page`, `route`, `query`, `job`, `api`, … . That is your "vocabulary" that you use to specify the parts of your web app, and then compose them all together into one big `app` spec object.
+
+```tsx
+import { app, page, query, route } from "@wasp.sh/spec";
+import { MainPage } from "./src/MainPage" with { type: "ref" }; // React
+import { getTasks } from "./src/tasks" with { type: "ref" }; // Node.js
+
+export default app({
+  wasp: { version: "^0.24.0" },
+  title: "ToDo App",
+  auth: {
+    userEntity: "User",
+    methods: { google: {}, gitHub: {}, email: {} },
+    onAuthFailedRedirectTo: "/login"
+  },
+  spec: [
+    route("RootRoute", "/", page(MainPage, {
+      authRequired: true
+    })),
+    query(getTasks, { entities: ["Task"] })
+  ]
+});
+```
+
+Wasp takes the spec and the rest of your code (React, Node.js, `schema.prisma`, …), and builds them into a full-stack app.
+
+In the example above, this app will have:
+
+- Full-stack auth working out of the box (supporting Google, GitHub, or email & password auth).
+- The `src/MainPage.tsx` React component mounted as the home page at `/`.
+- The `getTasks` function from `src/tasks.ts` made callable from the client (e.g. from `MainPage.tsx`) via RPC, either directly or via TanStack Query.
+
+> 💡 If you used the old Wasp DSL, you might be thinking at this point "hey this looks the same as before, maybe even a bit more verbose". True, but this is where the similarities stop, and exciting new possibilities start: read on.
+
+While writing the spec, you are just writing TypeScript.  
+You can use third-party libraries, you can split the spec into multiple TypeScript files, you can define your own helper functions, use for loops, read from the disk, inspect env vars, you can organize your app vertically by features together with their spec, launch a rocket, … .  
+The only thing Wasp requires from you is that you export an `app` spec object from the `main.wasp.ts` file.
+
+```tsx title="main.wasp.ts"
+import { readFile } from "fs/promises";
+import { app, page, route } from "@wasp.sh/spec";
+
+import { authSpec } from "./src/auth/auth.wasp";
+import { cardsSpec } from "./src/cards/cards.wasp";
+
+import MainPage from "./src/cards/MainPage" with { type: "ref" };
+import Layout from "./src/Layout" with { type: "ref" };
+
+export default app({
+  name: "waspello", // A Trello clone app made with Wasp!
+  wasp: { version: "^0.24.0" },
+  title: (await readFile("appTitle.txt", "utf-8")).trim(), // Reading from disk.
+  auth: {
+    userEntity: "User",
+    methods: {
+      usernameAndPassword: {},
+      google: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+  client: {
+    rootComponent: Layout,
+  },
+  spec: [
+    route("MainRoute", "/", page(MainPage, { authRequired: true })),
+    // Parts of specification extracted into their own files.
+    authSpec,
+    cardsSpec,
+  ],
+});
+```
+
+```tsx title="src/cards/cards.wasp.ts"
+// A specification for the "cards" functionality.
+
+import { action, query, type Spec } from "@wasp.sh/spec";
+
+import { withFields } from "../utils.wasp"; // Custom helper function.
+
+import { createCard, updateCard } from "./cards" with { type: "ref" };
+import {
+  createList,
+  createListCopy,
+  deleteList,
+  getListsAndCards,
+  updateList,
+} from "./lists" with { type: "ref" };
+
+export const cardsSpec: Spec = [
+  ...withFields({ entities: ["List"] }, [
+    action(createList),
+    action(updateList),
+  ]),
+  ...withFields({ entities: ["Card"] }, [
+    action(createCard),
+    action(updateCard),
+  ]),
+  ...withFields({ entities: ["List", "Card"] }, [
+    query(getListsAndCards),
+    action(deleteList, { entities: ["Log"] }),
+    action(createListCopy),
+  ]),
+];
+```
+
+Those `with { type: ref }` imports you might have noticed in the code examples above?  
+That is how you connect the spec with the implementation (currently React, Node.js, Prisma), how you connect the full-stack "story" with the specific parts of the stack.  
+A bit of bundler magic happens there: `with { type: ref }` imports don't actually get evaluated, so no importing really happens, but instead they get transformed into objects that "reference" the import for later evaluation, that you then pass to the spec. You can even construct these directly as objects, inline, if you wish (useful if you are creating them dynamically): `ref({ import: "getTasks", from: "./src/queries" })`.
+
+```tsx
+// Ref import
+import { getTasks } from "./src/tasks" with { type: "ref" };
+// gets transformed by bundler into
+const getTasks = ref({ import: "getTasks", from: "./src/tasks" });
+// where `ref` comes from
+import { ref } from "@wasp.sh/spec";
+```
+
+That's it really! Wasp gives you the building blocks, and you do what you want with them, with the full power of TypeScript behind you.
+
+## Do ~~not~~ try this at home: implementing file-based routing in TS Spec
+
+An example of what is uniquely doable with Wasp's new TypeScript Spec (and wasn't possible with the old DSL): implementing file-based routing.
+
+By default, Wasp doesn't come with file-based routing: instead, you define your routes explicitly in the spec:
+
+```tsx
+// ...
+  route("MainRoute", "/", page(Main, { authRequired: true })),
+  route("SignupRoute", "/signup", page(SignupPage)),
+  route("LoginRoute", "/login", page(LoginPage)),
+// ...
+```
+
+But, let's say you want file-based routing nevertheless. With the new TypeScript spec you can do that in Wasp!
+
+You could create, let's say, a `fileRouter.wasp.ts` that exports a helper function that reads the contents of the `src/` dir and based on dirs and files produces an array of `route` and `page` spec objects.
+
+For example, a file at path `src/pages/(auth)/report/[id].tsx` could result in
+
+```tsx
+route("ReportRoute", "/report/:id", page(ReportPage, { authRequired: true }))
+```
+
+Import that function in your `main.wasp.ts` and add its output to the `app.spec` array, and that is it, you implemented your own custom file-based routing! What does this make Wasp: a meta-meta-framework?
+
+If you are interested in the exact implementation, stay tuned: we will be publishing it as a separate post soon. If you implement it on your own in the meantime though, please share it with us, we would love to see how you did it!
+
+## Why spec(ification) at all?
+
+We mentioned the "spec" so many times in this article, but why should you care about it?
+
+Why do we at Wasp care about it so much that we have spent years making and remaking the whole web framework around this idea, when every other "normal" JS web framework out there is focusing on data fetching, hydration strategies, tight integration with the UI library, … ?
+
+All web frameworks, by definition, capture the domain/essence of what a web app is, give it structure, introduce their concepts, and then let you fill in the gaps, effectively separating the **specification** (what you want) from the **implementation** (how you want it).
+This lets you focus on the details of your business logic, what your app is really about (essential complexity), and implement it exactly how you want it, while the framework handles the rest of the details for you (accidental complexity) as you specified it.
+
+What we are doing with the spec(ification) at Wasp though, is making that specification a **first-class citizen** in your app.
+
+It's not convention based (e.g. magic names, dir structure, …), it's not implicit, it's not tied up in the runtime of the underlying stack.
+Instead, it is **explicit, malleable, programmable, standalone, stack-agnostic, extendable**. It has its own Turing-complete logic layer (thank you TypeScript), and just as you could write frontend or backend logic so far, now you can also write "app"/"full-stack" logic next to it. That logic has its own standalone runtime and can affect how the rest of the code is used and generated.
+
+This means you can organize your spec as you want, you can reuse it, **share/distribute** it.
+
+Right now the Wasp spec comes with a predefined "vocabulary": `route`, `query`, `job`, … , but we are excited about the idea of **"extensible spec"**: being able to add your own "words" to it.
+
+Or, imagine being able to take the whole **vertical slice of your app, truly full-stack** (fe, be, db, env, even infra), and making it a reusable, distributable unit with a defined interface (in spec) that can then be used and configured from anybody's spec. We are working on this currently under the working name of [Full Stack Modules](https://github.com/wasp-lang/wasp/issues/2873) (FSMs).
+
+Additionally, although now implemented in TypeScript, spec is standalone and therefore also **stack and language agnostic**. We could support writing (additional) backend logic in Python, Go or Rust in the future, you would just specify them in the spec (e.g. as queries and actions). We could add other frontend libraries next to React and spec wouldn’t change.
+
+**To summarize**: we are doing the "spec" because we are excited about what gets unlocked when you make full-stack logic a "first-class" citizen in a batteries-included web framework.
+
+## Spec and AI
+
+Per design, as a full-stack, batteries-included framework, Wasp is in a position to work great with AI, due to the same reasons as Ruby on Rails, Laravel and others: less code to write, stronger constraints, clear best practices, one cohesive codebase, ... .
+
+Wasp's spec, however, brings additional promise of serving as a central place where one can easily get a high-level overview of the app and the intention behind it, before getting lost in the implementation. Not just for AI, but also for you, especially if leaning harder into the "vibes".
+
+Spec-driven approach to AI engineering is a popular method these days, with tools like [OpenSpec](https://github.com/Fission-AI/OpenSpec/) or [GitHub Spec Kit](https://github.com/github/spec-kit), where you write down the specification in Markdown files.  
+Wasp's spec takes this a level further: your spec is an actual, compiled part of your app, not Markdown files that drift with time. It is though much more constrained in what it can express at the moment, but we are excited to see how it evolves (e.g. once we make it extensible).
+
+Finally, there is the possibility of [Full Stack Modules](https://github.com/wasp-lang/wasp/issues/2873), that Wasp spec unlocks: imagine being able to have truly full-stack pieces that you can test in isolation, reuse / distribute, and know they work? This means you can give AI bigger building blocks than normal, and ensure some things just can't get messed up: if I am using a Stripe payments full-stack module, AI can't just mess it up by accident.
+
+## Spec and you
+
+If you find all this interesting, we would love to hear from you (you can find us in our [Discord server](https://discord.com/invite/rzdnErX)). This is the first iteration of the new TypeScript spec and any feedback helps us improve it: what you liked, what you didn't, what you would like to see in the future, anything goes.
+
+You can try Wasp quickly by running `npm i -g @wasp.sh/wasp-cli@latest`, then `wasp new`, and then just follow the instructions, or go to our [docs](/docs) for detailed instructions and a tutorial.
+
+If you are wondering why some part of Wasp is the way it is or how we plan to evolve it, you might find some answers quickly in our [GitHub issues](https://github.com/wasp-lang/wasp/issues): we capture all our future ideas and plans there in the open (all ready for Cloudflare to slop-fork us, and then some). For a more high-level overview, there is [Wasp Roadmap](https://github.com/orgs/wasp-lang/projects/5).
+
+## What's next?
+
+Wasp works as it is: we know of people selling startups made with Wasp, building internal apps in Fortune 500 companies, using it in banks. But we are still keeping Wasp in Beta till we fully flesh out the spec side of the story and also bring all the parts of it to the level we are satisfied with.
+
+There are a couple of main categories of improvements we are chasing at the moment:
+
+1. **Spec**: Further improving TS Spec design (e.g. bring data models into it), Full Stack Modules, spec extensibility, …
+2. **Wasp 1.0**: Refurbishing core parts of Wasp (Auth, Operations, Jobs, Db, Routing/rendering, …) to bring them up to speed with the rest of Wasp, tightening our deployment/production features, …
+3. **Width**: Explore adding support for other ORMs (e.g. Drizzle), other frontend libraries (e.g. Svelte, Vue), better support for mobile, maybe even add some infra as code and also support for other backend languages, …
+
+As mentioned above, you can find much more detail on all of these in our [GitHub issues](https://github.com/wasp-lang/wasp/issues) and on the [Wasp Roadmap](https://github.com/orgs/wasp-lang/projects/5).
+
+## Credits
+
+Big thanks to everybody who put in the time and effort to help us deliver the TS Spec and supported us on the way! Special thanks to [@Reikon95](https://github.com/Reikon95), [@Genyus](https://github.com/Genyus), [@devagrawal09](https://github.com/devagrawal09), [@AlemTuzlak](https://github.com/AlemTuzlak), and the whole Wasp community, especially the amazing people on our Discord server.

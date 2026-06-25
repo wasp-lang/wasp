@@ -1,5 +1,5 @@
 
-import { config } from 'wasp/client'
+import { config } from '../../client/index.js'
 import { SocialButton } from '../forms/internal/social/SocialButton'
 import * as SocialIcons from '../forms/internal/social/SocialIcons'
 

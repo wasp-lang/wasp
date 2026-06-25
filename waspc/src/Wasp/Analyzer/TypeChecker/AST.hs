@@ -10,8 +10,8 @@ module Wasp.Analyzer.TypeChecker.AST
   )
 where
 
-import Wasp.Analyzer.Parser (ExtImportName (..), Identifier)
-import Wasp.Analyzer.Parser.Ctx (WithCtx (..), withCtx)
+import Wasp.Analyzer.AST (ExtImportName (..), Identifier)
+import Wasp.Analyzer.Ctx (WithCtx (..), withCtx)
 import Wasp.Analyzer.Type
 
 newtype TypedAST = TypedAST {typedStmts :: [WithCtx TypedStmt]} deriving (Eq, Show)

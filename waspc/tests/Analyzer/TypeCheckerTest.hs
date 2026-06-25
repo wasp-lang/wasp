@@ -1,10 +1,10 @@
 module Analyzer.TypeCheckerTest where
 
 import Analyzer.TestUtil (ctx)
-import Data.Either (fromRight, isRight)
+import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Hspec
-import qualified Wasp.Analyzer.Parser as P
+import qualified Wasp.Analyzer.AST as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker
 import qualified Wasp.Analyzer.TypeDefinitions as TD
@@ -19,12 +19,14 @@ spec_TypeChecker = do
         ctx4 = ctx (2, 12) (2, 20)
         ctx5 = ctx (2, 20) (2, 25)
         ctx6 = ctx (3, 3) (3, 18)
+        ctx7 = ctx (3, 11) (3, 30)
         wctx1 = WithCtx ctx1
         wctx2 = WithCtx ctx2
         wctx3 = WithCtx ctx3
         wctx4 = WithCtx ctx4
         wctx5 = WithCtx ctx5
         wctx6 = WithCtx ctx6
+        wctx7 = WithCtx ctx7
 
     describe "typeCheck" $ do
       it "Type checks a simple, well-typed example" $ do
@@ -66,9 +68,23 @@ spec_TypeChecker = do
                   TypeCoercionError (wctx2 $ IntegerLiteral 5) StringType ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Properly hoists declarations" $ do
-        let mAst = P.parseStatements "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
-        mAst `shouldSatisfy` isRight
-        let ast = fromRight (error "Impossible, this should have been checked in the previous step") mAst
+        -- Equivalent to parsing:
+        --   llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }
+        -- The "Head" declaration references "Tail", which is defined after it.
+        let ast =
+              P.AST
+                [ wctx1 $
+                    P.Decl "llnode" "Head" $
+                      wctx2 $
+                        P.Dict
+                          [ ("value", wctx3 $ P.IntegerLiteral 2),
+                            ("next", wctx4 $ P.Var "Tail")
+                          ],
+                  wctx5 $
+                    P.Decl "llnode" "Tail" $
+                      wctx6 $
+                        P.Dict [("value", wctx7 $ P.IntegerLiteral 3)]
+                ]
         let llnodeArgType =
               DictType $
                 H.fromList

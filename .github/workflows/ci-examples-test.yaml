@@ -39,6 +39,10 @@ jobs:
         working-directory: examples/${{ matrix.example }}
         run: wasp-cli compile
 
+      - name: Run client tests for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: wasp-cli test client run --passWithNoTests
+
       - name: Setup project environment for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         run: |

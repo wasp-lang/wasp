@@ -7,6 +7,7 @@ import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
+import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -65,7 +66,7 @@ e2eTests = do
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
       ]
-  testTrees <-
+  shellTestTrees <-
     mapM
       testTreeFromTest
       [ -- general Wasp commads
@@ -99,10 +100,12 @@ e2eTests = do
         waspDbMigrateDevTest,
         waspSpecEntityTypesTest
       ]
+  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
 
   return $
     testGroup
       "E2E tests"
       [ testGroup "Snapshot Tests" snapshotTestTrees,
-        testGroup "Tests" testTrees
+        testGroup "Shell tests" shellTestTrees,
+        testGroup "Tests" [sdkPackageExportsTestTree]
       ]

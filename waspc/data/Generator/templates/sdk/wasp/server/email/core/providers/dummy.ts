@@ -1,7 +1,7 @@
 import { getDefaultFromField } from "../helpers.js";
 import { DummyEmailProvider, EmailSender } from "../types";
 
-import { colorize } from "wasp/universal/ansiColors";
+import { colorize } from "../../../../universal/ansiColors.js";
 
 // PRIVATE API
 export function initDummyEmailSender(

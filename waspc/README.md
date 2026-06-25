@@ -216,7 +216,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `src/` -> main source code, library
 - `cli/src/` -> rest of the source code, cli, uses library
 - `cli/exe/` -> thin executable wrapper around cli library code
-- `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
+- `tests/`, `e2e-tests/`, `cli/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
 - `libs/` -> internal npm packages (WaspLibs) that are bundled with Wasp and copied into generated apps (see [WaspLibs](#wasplibs) for more details)
 - `packages/` -> TypeScript packages used by Wasp compiler (see [TypeScript Packages](#typescript-packages) for more details)
@@ -271,7 +271,6 @@ To run tests:
 - To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
 - To run Wasp CLI tests only, you can do `./run test:cli`.
-- To run Wasp LS tests only, you can do `./run test:waspls`.
 - To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
 - To run examples e2e tests, you can do `./run test:examples`.
 - To run starter templates e2e tests, you can do `./run test:starters`.
@@ -451,9 +450,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 
 #### Determining next version
 
-`waspc` follows typical SemVer versioning scheme, so `major.minor.patch`.
-There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
-So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
+`waspc` follows typical SemVer versioning scheme, so `major.minor.patch`. While we are not 1.0 yet, we follow the SemVer convention of keeping `major` at 0, and bumping `minor` on breaking changes instead.
 
 #### Test releases (e.g. Release Candidate)
 

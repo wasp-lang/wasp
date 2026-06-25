@@ -30,6 +30,16 @@ spec_JsImportTest = do
       let jsImport = makeValueJsImport testRelativeImportPath (JsImportModule "test")
       applyJsImportAlias (Just "alias") jsImport
         `shouldBe` jsImport {_importAlias = Just "alias"}
+  describe "getJsImportPathStringFromPath" $ do
+    it "adds ./ to non-parent relative import paths" $ do
+      getJsImportPathStringFromPath testRelativeImportPath
+        `shouldBe` generatedImportPathForRelativeImportPath
+    it "keeps parent relative import paths unchanged" $ do
+      getJsImportPathStringFromPath testParentRelativeImportPath
+        `shouldBe` generatedImportPathForParentRelativeImportPath
+    it "keeps raw import names unchanged" $ do
+      getJsImportPathStringFromPath testRawImportPath
+        `shouldBe` generatedImportPathForRawImportPath
   describe "getJsImportStmtAndIdentifier" $ do
     describe "generates import statement and identifier from" $ do
       it "module import" $ do
@@ -96,8 +106,19 @@ spec_JsImportTest = do
 
     generatedImportPathForRelativeImportPath = "./src/folder/test.js"
 
+    testParentRelativeImportPath :: JsImportPath
+    testParentRelativeImportPath = RelativeImportPath [SP.relfileP|../src/folder/test.js|]
+
+    generatedImportPathForParentRelativeImportPath = "../src/folder/test.js"
+
     testModuleImportPath :: JsImportPath
     testModuleImportPath = ModuleImportPath [SP.relfileP|wasp/server/api|]
 
     generatedImportPathForModuleImportPath :: String
     generatedImportPathForModuleImportPath = "wasp/server/api"
+
+    testRawImportPath :: JsImportPath
+    testRawImportPath = RawImportName "/@wasp/routes.tsx"
+
+    generatedImportPathForRawImportPath :: String
+    generatedImportPathForRawImportPath = "/@wasp/routes.tsx"
