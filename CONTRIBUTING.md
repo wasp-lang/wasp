@@ -53,3 +53,13 @@ Please make sure to **base your feature branches and PRs on the `release` branch
 If you'd like to write a blog post about Wasp, please contact us via [Discord](https://discord.gg/zKFDFrsHa9) to discuss the topic and the details.
 
 Happy hacking!
+
+# Policies
+
+These are some general policies that we follow when it comes to contributions. They are not meant to be strict or exhaustive, but rather to give you a sense of what we value and expect. If you are linked here from a PR, it means that we think your contribution could be improved in some way, and following these guidelines is the best way to do it.
+
+## AIs and LLMs
+
+**You are free to use AI/LLM tools and agents. But the standard remains the same: you must own and stand behind every line of code and every decision in your PR, exactly as if no AI was involved.** That means you've read it, run it, understood it, and you can explain and defend it under review.
+
+Everything that lands in Wasp becomes ours to maintain, so the bar is the same regardless of how the code was written. If a PR shows clear signs that no human supervised it, we'll close it to protect our time. If you think we got that wrong, just tell us and we'll take another look.
