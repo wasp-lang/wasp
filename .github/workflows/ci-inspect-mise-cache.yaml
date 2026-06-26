@@ -21,22 +21,27 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - name: macos-x64
-            runner: macos-15-intel
-            key: mise-v1-macos-x64-macos15-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e
-          - name: windows-x64
-            runner: windows-2025
-            key: mise-v1-windows-x64-win25-vs2026-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e
-          - name: linux-x64
+          - key: mise-v1-linux-x64-self-hosted
             runner: ubuntu-latest
-            key: mise-v1-linux-x64-self-hosted-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e
+          - key: mise-v1-windows-x64-win25-vs2026
+            runner: windows-latest
+          - key: mise-v1-linux-x64-musl-self-hosted
+            runner: ubuntu-latest
+          - key: mise-v1-macos-x64-macos15
+            runner: macos-latest
+          - key: mise-v1-macos-arm64-macos15
+            runner: macos-latest
+          - key: mise-v1-linux-x64-ubuntu24
+            runner: ubuntu-latest
+          - key: mise-v1-linux-x64-ubuntu22
+            runner: ubuntu-latest
 
     runs-on: ${{ matrix.target.runner }}
-    name: Inspect mise cache (${{ matrix.target.name }})
+    name: Inspect mise cache (${{ matrix.target.key }})
 
     steps:
       - name: Restore mise cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           key: ${{ matrix.target.key }}
           # The cache stores `jdx/mise-action`'s data dir with absolute paths,
@@ -96,6 +101,6 @@ jobs:
       - name: Upload cache as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: mise-cache-dump-${{ matrix.target.name }}
+          name: mise-cache-dump-${{ matrix.target.key }}
           path: ${{ runner.temp }}/dump
           if-no-files-found: error
