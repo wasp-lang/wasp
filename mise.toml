@@ -27,7 +27,7 @@ min_version = "2026.6.14"
 "node" = "24.14.1"
 
 [plugins]
-"vfox:mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
+"vfox:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
