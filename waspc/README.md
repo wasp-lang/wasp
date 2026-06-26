@@ -50,11 +50,24 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Setup
 
-#### mise
+#### Dev tooling
 
-We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. code formatters).
+We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
 
-Install it by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
+Run `mise install` from the root of the repo to install all the required tools.
+
+Then, depending on [how you set up mise](https://mise.jdx.dev/getting-started.html#activate-mise), you can use the tools in two main ways:
+
+- If you use `mise activate` or `mise activate --shims`, you can run the tools and our scripts directly, e.g. `ghc`, `cabal`, `node`, `npm`, `./run build`, etc.
+
+- You can run `mise en` to go into a shell with all the tools available, à la `nix-shell` or `virtualenv`. In that shell, you can run the tools and our scripts directly, e.g. `ghc`, `cabal`, `node`, `npm`, `./run build`, etc.
+
+- For one-off commands, you can use the `mise exec` (or `mise x`) to run a specific command with the tools available, e.g. `mise x -- ghc --version`, `mise x -- node --version`, `mise x -- ./run build`, etc.
+
+You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
+
+> [!NOTE]
+> There are no hard dependencies on mise for development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](../mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keep them up-to-date as we upgrade them.
 
 ### Build
 
