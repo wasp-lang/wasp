@@ -3,7 +3,7 @@ import path from "path";
 
 import { WEB_PROJECT_ROOT_DIR } from "../site-root";
 import { htmlToMarkdown } from "./convert";
-import { isValidMarkdownDocsRoute } from "./markdown-routes";
+import { isHtmlFileAValidMarkdownDocsCandidate } from "./markdown-routes";
 
 const BUILD_DIR = path.join(WEB_PROJECT_ROOT_DIR, "build");
 const MARKDOWN_DOCS_INDEX_HEADER = `\
@@ -51,28 +51,10 @@ async function findConvertibleHtmlFiles(): Promise<string[]> {
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: BUILD_DIR,
   })) {
-    if (isValidMarkdownDocsRoute(toRoute(htmlFileRelPath))) {
+    if (isHtmlFileAValidMarkdownDocsCandidate(htmlFileRelPath)) {
       htmlFileRelPaths.push(htmlFileRelPath);
     }
   }
 
   return htmlFileRelPaths;
-}
-
-/**
- * Maps a build-relative HTML path to its route.
- *
- * @example "docs/tutorial/create.html" → "/docs/tutorial/create"
- * @example "docs.html" → "/docs"
- * @example "blog/2025/12/31/post.html" → "/blog/2025-12-31/post"
- */
-function toRoute(htmlFileRelPath: string): string {
-  return (
-    "/" +
-    htmlFileRelPath
-      .replace(/\\/g, "/")
-      .replace(/\.html$/, "")
-      // "YYYY/MM/DD" → "YYYY-MM-DD"
-      .replace(/(\d{4})\/(\d{2})\/(\d{2})/g, "$1-$2-$3")
-  );
 }
