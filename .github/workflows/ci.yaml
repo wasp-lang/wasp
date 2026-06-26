@@ -39,6 +39,11 @@ concurrency:
 # by zizmor separately, so it is moderately safe to ignore the warnings here.
 
 jobs:
+  formatting: # zizmor: ignore[excessive-permissions]
+    uses: ./.github/workflows/ci-formatting.yaml
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+
   inspect-mise-cache: # zizmor: ignore[excessive-permissions]
+    needs: formatting
     uses: ./.github/workflows/ci-inspect-mise-cache.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
