@@ -51,7 +51,7 @@ jobs:
           # list here; the bundle step below discovers where it landed. This
           # input is still required, so we list the usual default.
           path: ~/.local/share/mise
-          fail-on-cache-miss: true
+          fail-on-cache-miss: false
 
       - name: Bundle restored cache contents
         shell: bash
