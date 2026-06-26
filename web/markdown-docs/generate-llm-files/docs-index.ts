@@ -9,12 +9,11 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
-import { BUILD_DIR, WASP_BASE_URL, WEB_PROJECT_ROOT_DIR } from "../constants";
-import { loadPermalinkMaps, PermalinkMap } from "./permalinks";
+import type { MarkdownDocsContext, VersionedMarkdownDocs } from "./context";
+import { PermalinkMap } from "./permalinks";
 import {
   isSidebarCategory,
   isSidebarLink,
-  loadResolvedSidebarsByWaspVersion,
   ResolvedSidebarCategory,
   type ResolvedSidebarItem,
   ResolvedSidebarLink,
@@ -55,10 +54,6 @@ export interface IndexDoc {
   markdown: string;
 }
 
-const sidebarsByWaspVersion =
-  loadResolvedSidebarsByWaspVersion(WEB_PROJECT_ROOT_DIR);
-const permalinkMapsByWaspVersion = loadPermalinkMaps(WEB_PROJECT_ROOT_DIR);
-
 /**
  * Builds a markdown docs index for a specific Wasp version.
  *
@@ -66,29 +61,23 @@ const permalinkMapsByWaspVersion = loadPermalinkMaps(WEB_PROJECT_ROOT_DIR);
  * and connects the found routes to their generated markdown files.
  */
 export async function buildMarkdownDocsIndex(
-  waspVersion: string,
+  context: MarkdownDocsContext,
+  versionDocs: VersionedMarkdownDocs,
 ): Promise<MarkdownDocsIndex> {
-  const sidebars = sidebarsByWaspVersion.get(waspVersion);
-  if (!sidebars) {
-    throw Error(`Resolved sidebars are missing a Wasp version: ${waspVersion}`);
-  }
-  const permalinkMap = permalinkMapsByWaspVersion.get(waspVersion);
-  if (!permalinkMap) {
-    throw Error(`Permalink maps are missing a Wasp version: ${waspVersion}`);
-  }
+  const { sidebars: sidebars, permalinkMap } = versionDocs;
 
   const indexSections: IndexSection[] = [
     {
       title: "Docs",
-      items: await buildSectionItems(sidebars["docs"]),
+      items: await buildSectionItems(context, sidebars["docs"]),
     },
     {
       title: "Guides",
-      items: await buildSectionItems(sidebars["guides"]),
+      items: await buildSectionItems(context, sidebars["guides"]),
     },
     {
       title: "API",
-      items: await buildApiSectionItems(permalinkMap),
+      items: await buildApiSectionItems(context, permalinkMap),
     },
   ]
     // Some sections can be empty in old Wasp versions. Like `API` and `Guides`.
@@ -100,12 +89,13 @@ export async function buildMarkdownDocsIndex(
 }
 
 async function buildSectionItems(
+  context: MarkdownDocsContext,
   sidebarItems: ResolvedSidebarItem[],
 ): Promise<IndexItem[]> {
   const indexItems: IndexItem[] = [];
   for (const sidebarItem of sidebarItems) {
     if (isSidebarLink(sidebarItem)) {
-      const indexDoc = await resolveSidebarLink(sidebarItem);
+      const indexDoc = await resolveSidebarLink(context, sidebarItem);
       if (indexDoc) {
         indexItems.push(indexDoc);
       }
@@ -113,7 +103,7 @@ async function buildSectionItems(
       if (SIDEBAR_CATEGORIES_TO_IGNORE.includes(sidebarItem.label)) {
         continue;
       }
-      const indexCategory = await resolveSidebarCategory(sidebarItem);
+      const indexCategory = await resolveSidebarCategory(context, sidebarItem);
       if (indexCategory) {
         indexItems.push(indexCategory);
       }
@@ -123,21 +113,27 @@ async function buildSectionItems(
 }
 
 async function resolveSidebarLink(
+  context: MarkdownDocsContext,
   sidebarLink: ResolvedSidebarLink,
 ): Promise<IndexDoc | null> {
   if (!sidebarLink.href.startsWith("/")) {
     return null;
   }
   return resolveIndexDoc(
+    context,
     stripTrailingSlash(sidebarLink.href),
     sidebarLink.label,
   );
 }
 
 async function resolveSidebarCategory(
+  context: MarkdownDocsContext,
   sidebarCategory: ResolvedSidebarCategory,
 ): Promise<IndexCategory | null> {
-  const sidebarCategoryItems = await buildSectionItems(sidebarCategory.items);
+  const sidebarCategoryItems = await buildSectionItems(
+    context,
+    sidebarCategory.items,
+  );
 
   if (sidebarCategoryItems.length === 0) {
     return null;
@@ -155,13 +151,16 @@ async function resolveSidebarCategory(
  * page (its overview, which itself links to every symbol).
  */
 async function buildApiSectionItems(
+  context: MarkdownDocsContext,
   permalinkMap: PermalinkMap,
 ): Promise<IndexSection["items"]> {
   const items: IndexItem[] = [];
   for (const [docId, permalink] of permalinkMap) {
     const path = extractApiDocsPackageIndexPagePath(docId);
     if (path) {
-      items.push(await resolveIndexDoc(stripTrailingSlash(permalink), path));
+      items.push(
+        await resolveIndexDoc(context, stripTrailingSlash(permalink), path),
+      );
     }
   }
   return items;
@@ -191,20 +190,21 @@ const markdownDocumentByRouteCache = new Map<
 >();
 
 async function resolveIndexDoc(
+  context: MarkdownDocsContext,
   route: string,
   title: string,
 ): Promise<IndexDoc> {
   let markdownDocument = markdownDocumentByRouteCache.get(route);
   if (!markdownDocument) {
-    const markdownFilePath = path.join(BUILD_DIR, route + ".md");
+    const markdownFilePath = path.join(context.outDir, route + ".md");
     if (!existsSync(markdownFilePath)) {
       throw Error(`Missing Markdown file for a document: ${markdownFilePath}`);
     }
 
     const markdown = await fs.readFile(markdownFilePath, "utf8");
     markdownDocument = {
-      url: WASP_BASE_URL + route + ".md",
-      markdown: processBuiltMarkdown(markdown),
+      url: context.baseUrl + route + ".md",
+      markdown: processBuiltMarkdown(context.baseUrl, markdown),
     };
     markdownDocumentByRouteCache.set(route, markdownDocument);
   }
@@ -216,37 +216,54 @@ async function resolveIndexDoc(
  * replaces it), nest the remaining headings one level deeper, and turn links
  * into full URLs so the file stands on its own.
  */
-function processBuiltMarkdown(markdown: string): string {
-  return String(builtMarkdownProcessor.processSync(markdown)).trim();
+function processBuiltMarkdown(baseUrl: string, markdown: string): string {
+  return String(
+    getBuiltMarkdownProcessor(baseUrl).processSync(markdown),
+  ).trim();
 }
 
-const builtMarkdownProcessor = unified()
-  .use(remarkParse)
-  .use(remarkGfm)
-  .use(remarkDirective)
-  .use(remarkRewriteBuiltDoc)
-  .use(remarkStringify, {
-    bullet: "-",
-    emphasis: "*",
-    strong: "*",
-    fence: "`",
-    fences: true,
-    rule: "-",
-    listItemIndent: "one",
-  });
+const builtMarkdownProcessorByBaseUrl = new Map<
+  string,
+  ReturnType<typeof createBuiltMarkdownProcessor>
+>();
 
-function remarkRewriteBuiltDoc(): (tree: MdastRoot) => void {
-  return (tree: MdastRoot): void => {
-    dropIndexHeader(tree);
-    dropTitleHeading(tree);
-    nestHeadingsDeeper(tree);
-    makeRootRelativeUrlsAbsolute(tree);
-  };
+function getBuiltMarkdownProcessor(baseUrl: string) {
+  let processor = builtMarkdownProcessorByBaseUrl.get(baseUrl);
+  if (!processor) {
+    processor = createBuiltMarkdownProcessor(baseUrl);
+    builtMarkdownProcessorByBaseUrl.set(baseUrl, processor);
+  }
+  return processor;
+}
+
+function createBuiltMarkdownProcessor(baseUrl: string) {
+  return unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkDirective)
+    .use(() => (tree: MdastRoot) => rewriteBuiltDoc(baseUrl, tree))
+    .use(remarkStringify, {
+      bullet: "-",
+      emphasis: "*",
+      strong: "*",
+      fence: "`",
+      fences: true,
+      rule: "-",
+      listItemIndent: "one",
+    });
+}
+
+function rewriteBuiltDoc(baseUrl: string, tree: MdastRoot): void {
+  dropIndexHeader(tree);
+  dropTitleHeading(tree);
+  nestHeadingsDeeper(tree);
+  makeRootRelativeUrlsAbsolute(baseUrl, tree);
 }
 
 /**
- * Each built Markdown file starts with a header pointing at the docs index.
- * It is redundant inside the concatenated index, so we drop it.
+ * Each built Markdown file starts with a header pointing at the docs index
+ * (a blockquote followed by a thematic break). It is redundant inside the
+ * concatenated index, so we drop it.
  */
 function dropIndexHeader(tree: MdastRoot): void {
   const [first, second] = tree.children;
@@ -270,7 +287,7 @@ function nestHeadingsDeeper(tree: MdastRoot): void {
   });
 }
 
-function makeRootRelativeUrlsAbsolute(tree: MdastRoot): void {
+function makeRootRelativeUrlsAbsolute(baseUrl: string, tree: MdastRoot): void {
   visit(tree, (node: MdastNodes) => {
     const hasRootRelativeUrl =
       (node.type === "link" ||
@@ -278,7 +295,7 @@ function makeRootRelativeUrlsAbsolute(tree: MdastRoot): void {
         node.type === "definition") &&
       node.url.startsWith("/");
     if (hasRootRelativeUrl) {
-      node.url = WASP_BASE_URL + node.url;
+      node.url = baseUrl + node.url;
     }
   });
 }

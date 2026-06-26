@@ -1,6 +1,7 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
+import { markdownDocsDocusaurusPlugin } from "./markdown-docs/docusaurus-plugin";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
@@ -266,7 +267,6 @@ const config: Config = {
   scripts: getScripts(),
   plugins: [
     "plugin-image-zoom",
-
     [
       "@docusaurus/plugin-content-blog",
       {
@@ -285,8 +285,7 @@ const config: Config = {
         onUntruncatedBlogPosts: "throw",
       },
     ],
-
-    async function tailwindPlugin(context, options) {
+    async function tailwindPlugin(_context, _options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -297,7 +296,6 @@ const config: Config = {
         },
       };
     },
-
     [
       "docusaurus-plugin-typedoc",
       {
@@ -318,6 +316,7 @@ const config: Config = {
         // https://typedoc.org/documents/Options.Package_Options.html.
       },
     ],
+    markdownDocsDocusaurusPlugin,
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {

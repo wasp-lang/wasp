@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { glob } from "glob";
 import path from "path";
 
-import { BUILD_DIR, WASP_BASE_URL, WEB_PROJECT_ROOT_DIR } from "../constants";
+import type { MarkdownDocsContext } from "./context";
 
 const LLMS_TXT_INTRO = `# Wasp
 
@@ -18,16 +18,18 @@ const LLMS_TXT_RESOURCES = `## Other Resources
 `;
 
 export async function generateLlmsTxtFile(
-  waspVersions: string[],
+  context: MarkdownDocsContext,
 ): Promise<void> {
-  const llmFilesIndexSection = buildLlmFilesIndexSection(waspVersions);
+  const llmFilesIndexSection = buildLlmFilesIndexSection(context);
   const llmFullFilesSection = `## Full Concatenated Documentation Files
-Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}/llms-full-{version}.txt`;
+Use the same URL pattern as the versioned documentation maps: ${context.baseUrl}/llms-full-{version}.txt`;
   const blogPostsIndexSection = await buildPostsIndexSection(
+    context,
     "Blogposts",
     "blog",
   );
   const resourcesIndexSection = await buildPostsIndexSection(
+    context,
     "Resources",
     "resources",
   );
@@ -42,7 +44,7 @@ Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}/l
   ]
     .map((content) => content.trimEnd())
     .join("\n\n");
-  const llmsTxtAbsPath = path.join(BUILD_DIR, "llms.txt");
+  const llmsTxtAbsPath = path.join(context.outDir, "llms.txt");
 
   await fs.writeFile(llmsTxtAbsPath, llmsTxtContent, "utf8");
   console.log("Generated: llms.txt");
@@ -68,10 +70,11 @@ interface PostReference {
  * ```
  */
 async function buildPostsIndexSection(
+  context: MarkdownDocsContext,
   sectionTitle: string,
   routeBasePath: string,
 ): Promise<string> {
-  const postsDir = path.join(WEB_PROJECT_ROOT_DIR, routeBasePath);
+  const postsDir = path.join(context.projectRoot, routeBasePath);
   const postsFileNames = await glob("*.{md,mdx}", {
     cwd: postsDir,
     nodir: true,
@@ -86,7 +89,7 @@ async function buildPostsIndexSection(
 
   const postReferences: PostReference[] = [];
   for (const postFileName of postsFileNames) {
-    const url = generatePostUrl(routeBasePath, postFileName);
+    const url = generatePostUrl(context, routeBasePath, postFileName);
 
     const postAbsFilePath = path.join(postsDir, postFileName);
     const postFrontMatter = fm<{ [key: string]: string | undefined }>(
@@ -111,16 +114,23 @@ async function buildPostsIndexSection(
   return section;
 }
 
-function generatePostUrl(routeBasePath: string, postFileName: string): string {
+function generatePostUrl(
+  context: MarkdownDocsContext,
+  routeBasePath: string,
+  postFileName: string,
+): string {
   const baseName = postFileName.replace(/\.(mdx|md)$/, "");
 
   const [year, month, day, ...slugParts] = baseName.split("-");
   const slug = slugParts.join("-");
 
-  return `${WASP_BASE_URL}/${routeBasePath}/${year}/${month}/${day}/${slug}.md`;
+  return `${context.baseUrl}/${routeBasePath}/${year}/${month}/${day}/${slug}.md`;
 }
 
-function buildLlmFilesIndexSection(waspVersions: string[]): string {
+function buildLlmFilesIndexSection(context: MarkdownDocsContext): string {
+  const waspVersions = context.versionedMarkdownDocs.map(
+    (version) => version.waspVersion,
+  );
   const latestWaspVersion = waspVersions[0];
 
   let llmFilesIndexSection = `## Documentation Maps by Version\n*IMPORTANT:* You should run \`wasp version\` to get the installed Wasp CLI version before choosing the correct link.\n`;
@@ -129,7 +139,7 @@ function buildLlmFilesIndexSection(waspVersions: string[]): string {
       waspVersion === latestWaspVersion
         ? `${waspVersion} (latest)`
         : waspVersion;
-    llmFilesIndexSection += `- [${waspVersionLabel}](${WASP_BASE_URL}/llms-${waspVersion}.txt)\n`;
+    llmFilesIndexSection += `- [${waspVersionLabel}](${context.baseUrl}/llms-${waspVersion}.txt)\n`;
   }
   return llmFilesIndexSection;
 }
