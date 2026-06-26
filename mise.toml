@@ -73,3 +73,7 @@ experimental = true # Needed for backend plugins (mise-ghcup) to work.
 # The Node backend has a knack for compiling from source on Alpine even when
 # there's a pre-built binary available. So we explicitly tell it not to do that.
 compile = false
+
+# We don't want `npm i -g` to be intercepted by Mise, it causes issues on the CI
+# when installing the deploy CLIs.
+npm_shim = false
