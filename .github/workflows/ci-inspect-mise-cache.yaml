@@ -43,7 +43,9 @@ jobs:
       - name: Restore mise cache
         uses: actions/cache/restore@v6
         with:
-          key: ${{ matrix.target.key }}
+          key: ${{ matrix.target.key }}-invalid
+          restore-keys: |
+            ${{ matrix.target.key }}
           # The cache stores `jdx/mise-action`'s data dir with absolute paths,
           # so it is restored to its original location regardless of what we
           # list here; the bundle step below discovers where it landed. This
