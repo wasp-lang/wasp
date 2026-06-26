@@ -1,7 +1,8 @@
+import type { LoadedVersion } from "@docusaurus/plugin-content-docs";
 import fs from "fs/promises";
 import path from "path";
 
-import type { MarkdownDocsContext, VersionedMarkdownDocs } from "./context";
+import type { LllmDocsContext } from "../context";
 import {
   type IndexItem,
   type MarkdownDocsIndex,
@@ -12,15 +13,15 @@ import {
  * Generates all `llm-{waspVersion}.txt` and `llm-full-{waspVersion}.txt` files.
  */
 export async function generateVersionedLlmFiles(
-  context: MarkdownDocsContext,
-  versionedMarkdownDocs: VersionedMarkdownDocs,
+  context: LllmDocsContext,
+  loadedVersion: LoadedVersion,
 ): Promise<void> {
-  const { waspVersion } = versionedMarkdownDocs;
+  const waspVersion = loadedVersion.versionName;
   console.log(`Processing Wasp version ${waspVersion}:`);
 
   const markdownDocsIndex = await buildMarkdownDocsIndex(
     context,
-    versionedMarkdownDocs,
+    loadedVersion,
   );
 
   await generateVersionedLlmsTxt(context, waspVersion, markdownDocsIndex);
@@ -42,7 +43,7 @@ export async function generateVersionedLlmFiles(
 }
 
 async function generateVersionedLlmsTxt(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
   waspVersion: string,
   markdownDocsIndex: MarkdownDocsIndex,
 ): Promise<void> {
@@ -104,7 +105,7 @@ function buildLlmsFullTxtBody(
 const LLMS_FULL_TXT_HEADER_DIVIDER = "\n---\n\n";
 
 async function generateVersionedLlmsFullTxt(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
   waspVersion: string,
   llmsFullTxtContent: string,
 ): Promise<void> {
@@ -118,7 +119,7 @@ async function generateVersionedLlmsFullTxt(
 }
 
 async function generateLatestVersionLlmsFullTxt(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
   waspVersion: string,
   llmsFullTxtContent: string,
 ): Promise<void> {
@@ -132,7 +133,7 @@ async function generateLatestVersionLlmsFullTxt(
 }
 
 function buildLatestVersionFullDocsHeader(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
   waspVersion: string,
 ): string {
   return [
@@ -146,10 +147,10 @@ function buildFullDocsHeader(waspVersion: string): string {
   return `# Wasp ${waspVersion} Full Documentation\n`;
 }
 
-function buildFullDocsIndexSection(context: MarkdownDocsContext): string {
+function buildFullDocsIndexSection(context: LllmDocsContext): string {
   const { baseUrl } = context;
-  const waspVersions = context.versionedMarkdownDocs.map(
-    (version) => version.waspVersion,
+  const waspVersions = context.loadedVersions.map(
+    (version) => version.versionName,
   );
   const latestWaspVersion = waspVersions[0];
   let section = `## Full Documentation by Version\n`;

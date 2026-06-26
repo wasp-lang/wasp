@@ -1,3 +1,7 @@
+import type {
+  DocMetadata,
+  LoadedVersion,
+} from "@docusaurus/plugin-content-docs";
 import { existsSync } from "fs";
 import fs from "fs/promises";
 import type { Heading, Nodes as MdastNodes, Root as MdastRoot } from "mdast";
@@ -9,15 +13,7 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
-import type { MarkdownDocsContext, VersionedMarkdownDocs } from "./context";
-import { PermalinkMap } from "./permalinks";
-import {
-  isSidebarCategory,
-  isSidebarLink,
-  ResolvedSidebarCategory,
-  type ResolvedSidebarItem,
-  ResolvedSidebarLink,
-} from "./resolved-sidebars";
+import type { LllmDocsContext } from "../context";
 
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
@@ -54,30 +50,46 @@ export interface IndexDoc {
   markdown: string;
 }
 
+type LoadedSidebarItem = LoadedVersion["sidebars"][string][number];
+type DocsById = Map<DocMetadata["id"], DocMetadata>;
+
 /**
- * Builds a markdown docs index for a specific Wasp version.
+ * Builds a markdown docs index for a single docs version, straight from the
+ * docs plugin's in-memory content.
  *
- * It crawls the resolved sidebar and permalink map for that Wasp version,
- * and connects the found routes to their generated markdown files.
+ * `Docs` and `Guides` follow their sidebars (categories become titles, docs
+ * become links/content). `API` is listed separately: it is large and verbose,
+ * so we surface only each package's index page (its overview, which itself
+ * links to every symbol).
  */
 export async function buildMarkdownDocsIndex(
-  context: MarkdownDocsContext,
-  versionDocs: VersionedMarkdownDocs,
+  context: LllmDocsContext,
+  loadedVersion: LoadedVersion,
 ): Promise<MarkdownDocsIndex> {
-  const { sidebars: sidebars, permalinkMap } = versionDocs;
+  const docsById: DocsById = new Map(
+    loadedVersion.docs.map((doc) => [doc.id, doc]),
+  );
 
   const indexSections: IndexSection[] = [
     {
       title: "Docs",
-      items: await buildSectionItems(context, sidebars["docs"]),
+      items: await buildSidebarItems(
+        context,
+        loadedVersion.sidebars["docs"] ?? [],
+        docsById,
+      ),
     },
     {
       title: "Guides",
-      items: await buildSectionItems(context, sidebars["guides"]),
+      items: await buildSidebarItems(
+        context,
+        loadedVersion.sidebars["guides"] ?? [],
+        docsById,
+      ),
     },
     {
       title: "API",
-      items: await buildApiSectionItems(context, permalinkMap),
+      items: await buildApiSectionItems(context, loadedVersion.docs),
     },
   ]
     // Some sections can be empty in old Wasp versions. Like `API` and `Guides`.
@@ -88,78 +100,80 @@ export async function buildMarkdownDocsIndex(
   };
 }
 
-async function buildSectionItems(
-  context: MarkdownDocsContext,
-  sidebarItems: ResolvedSidebarItem[],
+async function buildSidebarItems(
+  context: LllmDocsContext,
+  sidebarItems: LoadedSidebarItem[],
+  docsById: DocsById,
 ): Promise<IndexItem[]> {
   const indexItems: IndexItem[] = [];
   for (const sidebarItem of sidebarItems) {
-    if (isSidebarLink(sidebarItem)) {
-      const indexDoc = await resolveSidebarLink(context, sidebarItem);
-      if (indexDoc) {
-        indexItems.push(indexDoc);
-      }
-    } else if (isSidebarCategory(sidebarItem)) {
-      if (SIDEBAR_CATEGORIES_TO_IGNORE.includes(sidebarItem.label)) {
-        continue;
-      }
-      const indexCategory = await resolveSidebarCategory(context, sidebarItem);
-      if (indexCategory) {
-        indexItems.push(indexCategory);
-      }
+    const indexItem = await resolveSidebarItem(context, sidebarItem, docsById);
+    if (indexItem) {
+      indexItems.push(indexItem);
     }
   }
   return indexItems;
 }
 
-async function resolveSidebarLink(
-  context: MarkdownDocsContext,
-  sidebarLink: ResolvedSidebarLink,
-): Promise<IndexDoc | null> {
-  if (!sidebarLink.href.startsWith("/")) {
-    return null;
-  }
-  return resolveIndexDoc(
-    context,
-    stripTrailingSlash(sidebarLink.href),
-    sidebarLink.label,
-  );
-}
-
-async function resolveSidebarCategory(
-  context: MarkdownDocsContext,
-  sidebarCategory: ResolvedSidebarCategory,
-): Promise<IndexCategory | null> {
-  const sidebarCategoryItems = await buildSectionItems(
-    context,
-    sidebarCategory.items,
-  );
-
-  if (sidebarCategoryItems.length === 0) {
-    return null;
-  }
-
-  return {
-    type: "category",
-    label: sidebarCategory.label,
-    items: sidebarCategoryItems,
-  };
-}
-
 /**
- * The API reference is large and verbose, so we list only each package's index
- * page (its overview, which itself links to every symbol).
+ * Docusaurus keeps sidebar doc entries as bare `{ type: "doc", id }`, so we
+ * join each against the version's docs to recover its permalink and label.
  */
+async function resolveSidebarItem(
+  context: LllmDocsContext,
+  sidebarItem: LoadedSidebarItem,
+  docsById: DocsById,
+): Promise<IndexItem | null> {
+  if (sidebarItem.type === "category") {
+    if (SIDEBAR_CATEGORIES_TO_IGNORE.includes(sidebarItem.label)) {
+      return null;
+    }
+    const items = await buildSidebarItems(context, sidebarItem.items, docsById);
+    if (items.length === 0) {
+      return null;
+    }
+    return { type: "category", label: sidebarItem.label, items };
+  }
+
+  if (sidebarItem.type === "link") {
+    if (!sidebarItem.href.startsWith("/")) {
+      return null;
+    }
+    return resolveIndexDoc(
+      context,
+      stripTrailingSlash(sidebarItem.href),
+      sidebarItem.label,
+    );
+  }
+
+  if (sidebarItem.type === "doc" || sidebarItem.type === "ref") {
+    const doc = docsById.get(sidebarItem.id);
+    if (!doc) {
+      return null;
+    }
+    const label =
+      sidebarItem.label ?? doc.frontMatter.sidebar_label ?? doc.title;
+    return resolveIndexDoc(context, stripTrailingSlash(doc.permalink), label);
+  }
+
+  // `html` and any future item types have no doc route, so we drop them.
+  return null;
+}
+
 async function buildApiSectionItems(
-  context: MarkdownDocsContext,
-  permalinkMap: PermalinkMap,
-): Promise<IndexSection["items"]> {
+  context: LllmDocsContext,
+  docs: DocMetadata[],
+): Promise<IndexItem[]> {
   const items: IndexItem[] = [];
-  for (const [docId, permalink] of permalinkMap) {
-    const path = extractApiDocsPackageIndexPagePath(docId);
-    if (path) {
+  for (const doc of docs) {
+    const packagePath = extractApiDocsPackageIndexPagePath(doc.id);
+    if (packagePath) {
       items.push(
-        await resolveIndexDoc(context, stripTrailingSlash(permalink), path),
+        await resolveIndexDoc(
+          context,
+          stripTrailingSlash(doc.permalink),
+          packagePath,
+        ),
       );
     }
   }
@@ -190,7 +204,7 @@ const markdownDocumentByRouteCache = new Map<
 >();
 
 async function resolveIndexDoc(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
   route: string,
   title: string,
 ): Promise<IndexDoc> {

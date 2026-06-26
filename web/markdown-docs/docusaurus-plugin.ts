@@ -1,22 +1,29 @@
-import type {
-  LoadedContent,
-  LoadedVersion,
-} from "@docusaurus/plugin-content-docs";
-import type { LoadContext, Plugin } from "@docusaurus/types";
+import type { BlogContent } from "@docusaurus/plugin-content-blog";
+import type { LoadedContent } from "@docusaurus/plugin-content-docs";
+import type { Plugin } from "@docusaurus/types";
 
+import type { PostCollection } from "./context";
 import { generateLlmFiles } from "./generate-llm-files";
-import type { VersionedMarkdownDocs } from "./generate-llm-files/context";
-import { permalinkMapFromLoadedVersion } from "./generate-llm-files/permalinks";
-import { resolveSidebarsForDocsLoadedVersions } from "./generate-llm-files/resolved-sidebars";
 import { generateMarkdownFilesForValidHtmlFiles } from "./html-to-md";
 
 const DOCUSAURUS_DOCS_PLUGIN_NAME = "docusaurus-plugin-content-docs";
+const DOCUSAURUS_BLOG_PLUGIN_NAME = "docusaurus-plugin-content-blog";
+
+/**
+ * Blog-plugin instances whose posts are listed in `llms.txt`.
+ * The plugin id matches the `id` set in the Docusaurus config.
+ */
+const POST_COLLECTIONS: { pluginId: string; sectionTitle: string }[] = [
+  { pluginId: "blog", sectionTitle: "Blog posts" },
+  { pluginId: "resources", sectionTitle: "Resources posts" },
+];
 
 /**
  * A Docusaurus plugin which generates markdown variant of docs and `llm*.txt` files.
  */
-export function markdownDocsDocusaurusPlugin(context: LoadContext): Plugin {
+export function markdownDocsDocusaurusPlugin(): Plugin {
   let docsLoadedContent: LoadedContent | undefined;
+  let blogContentByPluginId: { [pluginId: string]: BlogContent } | undefined;
 
   return {
     name: "wasp-markdown-docs",
@@ -30,10 +37,14 @@ export function markdownDocsDocusaurusPlugin(context: LoadContext): Plugin {
           `wasp-markdown-docs: could not find content for "${DOCUSAURUS_DOCS_PLUGIN_NAME}.default".`,
         );
       }
+
+      blogContentByPluginId = allContent[DOCUSAURUS_BLOG_PLUGIN_NAME] as
+        | { [pluginId: string]: BlogContent }
+        | undefined;
     },
 
     async postBuild({ outDir, siteConfig }) {
-      if (!docsLoadedContent) {
+      if (!docsLoadedContent || !blogContentByPluginId) {
         throw Error(
           "wasp-markdown-docs: allContentLoaded did not run before postBuild.",
         );
@@ -49,32 +60,34 @@ export function markdownDocsDocusaurusPlugin(context: LoadContext): Plugin {
 
       await generateLlmFiles({
         baseUrl,
-        projectRoot: context.siteDir,
         outDir,
         latestWaspVersion: loadedVersions[0].versionName,
-        versionedMarkdownDocs: collectVersionedMarkdownDocs(loadedVersions),
+        loadedVersions,
+        postCollections: collectPostCollections(baseUrl, blogContentByPluginId),
       });
     },
   };
 }
 
-function collectVersionedMarkdownDocs(
-  loadedVersions: LoadedVersion[],
-): VersionedMarkdownDocs[] {
-  const versionedMarkdownDocs: VersionedMarkdownDocs[] = [];
+function collectPostCollections(
+  baseUrl: string,
+  blogContentByPluginId: { [pluginId: string]: BlogContent },
+): PostCollection[] {
+  return POST_COLLECTIONS.map(({ pluginId, sectionTitle }) => {
+    const blogContent = blogContentByPluginId?.[pluginId];
+    if (!blogContent) {
+      throw Error(
+        `wasp-markdown-docs: could not find content for "${DOCUSAURUS_BLOG_PLUGIN_NAME}.${pluginId}".`,
+      );
+    }
 
-  for (const loadedVersion of loadedVersions) {
-    const sidebars = resolveSidebarsForDocsLoadedVersions(loadedVersion);
-    const permalinkMap = permalinkMapFromLoadedVersion(loadedVersion);
+    const posts = blogContent.blogPosts.map((blogPost) => ({
+      title: blogPost.metadata.title,
+      url: baseUrl + blogPost.metadata.permalink + ".md",
+    }));
 
-    versionedMarkdownDocs.push({
-      waspVersion: loadedVersion.versionName,
-      permalinkMap,
-      sidebars,
-    });
-  }
-
-  return versionedMarkdownDocs;
+    return { sectionTitle, posts };
+  });
 }
 
 function stripTrailingSlash(value: string): string {

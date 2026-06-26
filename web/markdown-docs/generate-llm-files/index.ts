@@ -1,4 +1,4 @@
-import type { MarkdownDocsContext } from "./context";
+import type { LllmDocsContext } from "../context";
 import { generateLlmsTxtFile } from "./llms-txt";
 import { generateVersionedLlmFiles } from "./versioned-llm-files";
 
@@ -9,13 +9,13 @@ import { generateVersionedLlmFiles } from "./versioned-llm-files";
  * - llms-full-{waspVersion}.txt - that Wasp version docs and guides concatenated together
  */
 export async function generateLlmFiles(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
 ): Promise<void> {
   console.log("Starting LLM file generation...");
 
   await generateLlmsTxtFile(context);
-  for (const markdownDocs of context.versionedMarkdownDocs) {
-    await generateVersionedLlmFiles(context, markdownDocs);
+  for (const loadedVersion of context.loadedVersions) {
+    await generateVersionedLlmFiles(context, loadedVersion);
   }
 
   console.log("LLM files generation completed successfully.");

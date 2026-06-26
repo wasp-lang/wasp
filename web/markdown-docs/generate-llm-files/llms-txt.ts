@@ -1,9 +1,7 @@
-import fm from "front-matter";
 import fs from "fs/promises";
-import { glob } from "glob";
 import path from "path";
 
-import type { MarkdownDocsContext } from "./context";
+import type { LllmDocsContext, PostCollection } from "../context";
 
 const LLMS_TXT_INTRO = `# Wasp
 
@@ -11,36 +9,26 @@ const LLMS_TXT_INTRO = `# Wasp
 > It handles auth, database, routing, deployment, and more out of the box,
 > letting you build production-ready apps faster with less boilerplate.`;
 
-const LLMS_TXT_RESOURCES = `## Other Resources
+const LLMS_TXT_OTHER_RESOURCES = `## Other Resources
 - [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
 - [Open SaaS - Free, Open-Source SaaS Boilerplate built on Wasp](https://opensaas.sh)
 - [Wasp GitHub](https://github.com/wasp-lang/wasp)
 `;
 
 export async function generateLlmsTxtFile(
-  context: MarkdownDocsContext,
+  context: LllmDocsContext,
 ): Promise<void> {
   const llmFilesIndexSection = buildLlmFilesIndexSection(context);
   const llmFullFilesSection = `## Full Concatenated Documentation Files
 Use the same URL pattern as the versioned documentation maps: ${context.baseUrl}/llms-full-{version}.txt`;
-  const blogPostsIndexSection = await buildPostsIndexSection(
-    context,
-    "Blogposts",
-    "blog",
-  );
-  const resourcesIndexSection = await buildPostsIndexSection(
-    context,
-    "Resources",
-    "resources",
-  );
+  const postIndexSections = context.postCollections.map(buildPostsIndexSection);
 
   const llmsTxtContent = [
     LLMS_TXT_INTRO,
     llmFilesIndexSection,
     llmFullFilesSection,
-    blogPostsIndexSection,
-    resourcesIndexSection,
-    LLMS_TXT_RESOURCES,
+    ...postIndexSections,
+    LLMS_TXT_OTHER_RESOURCES,
   ]
     .map((content) => content.trimEnd())
     .join("\n\n");
@@ -50,86 +38,9 @@ Use the same URL pattern as the versioned documentation maps: ${context.baseUrl}
   console.log("Generated: llms.txt");
 }
 
-interface PostReference {
-  title: string;
-  url: string;
-}
-
-/**
- * Generates a posts index section for a date-based content plugin.
- * Blog and resources share the `YYYY-MM-DD-slug.md(x)` naming and
- * `/<routeBasePath>/YYYY/MM/DD/slug` routing.
- *
- * @example
- * Rendered output:
- * ```md
- * ## Blogposts
- * - [Wasp Launch Week #12 - TS Spec aka MeTSamorphosis 🐛🦋](https://wasp.sh/blog/2026/06/05/wasp-launch-week-12-ts-spec)
- * - [How To Build A SaaS with AI. Without Getting Stuck.](https://wasp.sh/blog/2026/06/03/build-a-saas-with-ai-without-getting-stuck)
- * ...
- * ```
- */
-async function buildPostsIndexSection(
-  context: MarkdownDocsContext,
-  sectionTitle: string,
-  routeBasePath: string,
-): Promise<string> {
-  const postsDir = path.join(context.projectRoot, routeBasePath);
-  const postsFileNames = await glob("*.{md,mdx}", {
-    cwd: postsDir,
-    nodir: true,
-    ignore: ["_*.md", "_*.mdx", "CLAUDE.md"], // Ignore markdown partials.
-  });
-
-  if (postsFileNames.length === 0) {
-    return "";
-  }
-  // Assumes we use the `YYYY-MM-DD-slug.md(x)` naming convention.
-  postsFileNames.sort((a, b) => b.localeCompare(a));
-
-  const postReferences: PostReference[] = [];
-  for (const postFileName of postsFileNames) {
-    const url = generatePostUrl(context, routeBasePath, postFileName);
-
-    const postAbsFilePath = path.join(postsDir, postFileName);
-    const postFrontMatter = fm<{ [key: string]: string | undefined }>(
-      await fs.readFile(postAbsFilePath, "utf8"),
-    );
-    const title = postFrontMatter.attributes.title;
-
-    if (!title) {
-      throw Error(`A post has no title: ${postFileName}`);
-    }
-
-    postReferences.push({
-      title,
-      url,
-    });
-  }
-
-  let section = `## ${sectionTitle}\n`;
-  for (const postReference of postReferences) {
-    section += `- [${postReference.title}](${postReference.url})\n`;
-  }
-  return section;
-}
-
-function generatePostUrl(
-  context: MarkdownDocsContext,
-  routeBasePath: string,
-  postFileName: string,
-): string {
-  const baseName = postFileName.replace(/\.(mdx|md)$/, "");
-
-  const [year, month, day, ...slugParts] = baseName.split("-");
-  const slug = slugParts.join("-");
-
-  return `${context.baseUrl}/${routeBasePath}/${year}/${month}/${day}/${slug}.md`;
-}
-
-function buildLlmFilesIndexSection(context: MarkdownDocsContext): string {
-  const waspVersions = context.versionedMarkdownDocs.map(
-    (version) => version.waspVersion,
+function buildLlmFilesIndexSection(context: LllmDocsContext): string {
+  const waspVersions = context.loadedVersions.map(
+    (version) => version.versionName,
   );
   const latestWaspVersion = waspVersions[0];
 
@@ -142,4 +53,23 @@ function buildLlmFilesIndexSection(context: MarkdownDocsContext): string {
     llmFilesIndexSection += `- [${waspVersionLabel}](${context.baseUrl}/llms-${waspVersion}.txt)\n`;
   }
   return llmFilesIndexSection;
+}
+
+/**
+ * Builds a posts index section from a {@link PostCollection}.
+ *
+ * @example
+ * ```md
+ * ## Blogposts
+ * - [Wasp Launch Week #12 - TS Spec aka MeTSamorphosis 🐛🦋](https://wasp.sh/blog/2026/06/05/wasp-launch-week-12-ts-spec.md)
+ * - [How To Build A SaaS with AI. Without Getting Stuck.](https://wasp.sh/blog/2026/06/03/build-a-saas-with-ai-without-getting-stuck.md)
+ * ...
+ * ```
+ */
+function buildPostsIndexSection(postCollection: PostCollection): string {
+  let section = `## ${postCollection.sectionTitle}\n`;
+  for (const post of postCollection.posts) {
+    section += `- [${post.title}](${post.url})\n`;
+  }
+  return section;
 }
