@@ -13,17 +13,6 @@ runs:
         bootstrap: true
         bootstrap_args: --update --yes
 
-    - # Cabal inspects the version of the GHC binary to determine which compiler
-      # to use. On Windows, Mise shims GHC in a way that Cabal cannot detect, so
-      # we'll point it to the real GHC binary.
-      name: Pin Cabal to the real GHC binary (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      working-directory: waspc
-      run: |
-        $ghc = (mise which ghc) -replace '\\', '/' # Convert to Unix-style path for Cabal
-        "with-compiler: $ghc" | Set-Content -Path cabal.project.local -Encoding ascii
-
     - name: Cache npm dependencies
       uses: actions/setup-node@v6
       with:
