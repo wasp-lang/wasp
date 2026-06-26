@@ -101,6 +101,9 @@ backend = "mise-ghcup:hls"
 version = "24.14.1"
 backend = "core:node"
 
+[tools.node.options]
+compile = "false"
+
 [tools.node."platforms.linux-arm64"]
 checksum = "sha256:734ff04fa7f8ed2e8a78d40cacf5ac3fc4515dac2858757cbab313eb483ba8a2"
 url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-linux-arm64.tar.gz"
