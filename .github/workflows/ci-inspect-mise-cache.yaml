@@ -1,0 +1,101 @@
+name: "Inspect mise caches"
+
+# Debug helper: restores specific mise caches (saved by jdx/mise-action) and
+# re-uploads their contents as artifacts so we can download and inspect them.
+# `jdx/mise-action` caches a single directory (its `miseDir()`) per platform,
+# keyed by the runner image (`macos15`, `win25`, `self-hosted`, ...), so each
+# cache must be restored on a runner of the matching OS family.
+#
+# We never trigger this workflow directly; it is called from `ci.yaml`.
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  inspect:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: macos-x64
+            runner: macos-15-intel
+            key: mise-v1-macos-x64-macos15-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e
+          - name: windows-x64
+            runner: windows-2025
+            key: mise-v1-windows-x64-win25-vs2026-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e
+          - name: linux-x64
+            runner: ubuntu-latest
+            key: mise-v1-linux-x64-self-hosted-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e
+
+    runs-on: ${{ matrix.target.runner }}
+    name: Inspect mise cache (${{ matrix.target.name }})
+
+    steps:
+      - name: Restore mise cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ matrix.target.key }}
+          # The cache stores `jdx/mise-action`'s data dir with absolute paths,
+          # so it is restored to its original location regardless of what we
+          # list here; the bundle step below discovers where it landed. This
+          # input is still required, so we list the usual default.
+          path: ~/.local/share/mise
+          fail-on-cache-miss: true
+
+      - name: Bundle restored cache contents
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Convert Windows-style paths to POSIX for Git Bash on Windows runners.
+          norm() { if command -v cygpath >/dev/null 2>&1; then cygpath -u "$1"; else printf '%s' "$1"; fi; }
+
+          # `jdx/mise-action`'s `miseDir()` resolution order, plus a filesystem
+          # search as a fallback (e.g. when a self-hosted cache restored under a
+          # different home directory).
+          candidates=()
+          [ -n "${MISE_DATA_DIR:-}" ] && candidates+=("$(norm "$MISE_DATA_DIR")")
+          [ -n "${XDG_DATA_HOME:-}" ] && candidates+=("$(norm "$XDG_DATA_HOME")/mise")
+          [ -n "${LOCALAPPDATA:-}" ] && candidates+=("$(norm "$LOCALAPPDATA")/mise")
+          candidates+=("$HOME/.local/share/mise")
+          for root in "$HOME" /home /Users /root /opt; do
+            [ -d "$root" ] || continue
+            while IFS= read -r d; do candidates+=("$d"); done \
+              < <(find "$root" -maxdepth 7 -type d -name mise -not -path '*/node_modules/*' 2>/dev/null)
+          done
+
+          found=()
+          declare -A seen=()
+          for c in "${candidates[@]}"; do
+            [ -n "$c" ] && [ -d "$c" ] || continue
+            rp=$(cd "$c" && pwd)
+            [ -n "${seen[$rp]:-}" ] && continue
+            seen[$rp]=1
+            found+=("$rp")
+          done
+
+          if [ "${#found[@]}" -eq 0 ]; then
+            echo "No mise data directory found after restore." >&2
+            exit 1
+          fi
+
+          echo "Found mise dirs:"
+          printf '  %s\n' "${found[@]}"
+
+          dump="$(norm "$RUNNER_TEMP")/dump"
+          mkdir -p "$dump"
+          # Preserve absolute paths so the dump mirrors the restored layout.
+          tar -cPzf "$dump/mise-cache.tgz" "${found[@]}"
+          tar -tPzvf "$dump/mise-cache.tgz" > "$dump/file-listing.txt"
+          echo "Archived $(wc -l < "$dump/file-listing.txt") entries."
+
+      - name: Upload cache as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: mise-cache-dump-${{ matrix.target.name }}
+          path: ${{ runner.temp }}/dump
+          if-no-files-found: error

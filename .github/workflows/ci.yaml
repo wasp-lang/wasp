@@ -100,3 +100,7 @@ jobs:
   actions-check: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-actions-check.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
+
+  inspect-mise-cache: # zizmor: ignore[excessive-permissions]
+    uses: ./.github/workflows/ci-inspect-mise-cache.yaml
+    secrets: inherit # zizmor: ignore[secrets-inherit]
