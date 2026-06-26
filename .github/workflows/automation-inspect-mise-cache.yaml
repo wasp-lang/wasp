@@ -1,0 +1,73 @@
+name: "Automation - Inspect mise cache"
+
+# One-off helper workflow to download a specific mise cache (saved by
+# jdx/mise-action) and re-upload its contents as a workflow artifact, so we can
+# download and inspect it locally.
+
+on:
+  workflow_dispatch:
+    inputs:
+      cache-key:
+        description: "Exact cache key to restore"
+        required: true
+        default: "mise-v1-macos-x64-macos15-d0aec125fb3244539cee50338e5e91a2c46ca6cd2fc334a32cf675a93e370ed3-b210cf62f6fd90882f2221bce0c8708975d42a746168951ca4a7ec78a8505e7e"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  inspect-mise-cache:
+    # macOS runner because the cache was saved on macOS; cache restores only
+    # work within the same OS family unless cross-OS archiving was enabled.
+    runs-on: macos-15
+
+    steps:
+      - name: Restore mise cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ inputs.cache-key }}
+          # The restored tarball is extracted to its original absolute paths
+          # regardless of what we list here, but the input is required. These
+          # are the directories jdx/mise-action caches.
+          path: |
+            ~/.local/share/mise
+            ~/.local/state/mise
+            ~/.cache/mise
+          fail-on-cache-miss: true
+
+      - name: Bundle restored cache contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dump"
+          paths=(
+            "$HOME/.local/share/mise"
+            "$HOME/.local/state/mise"
+            "$HOME/.cache/mise"
+          )
+          existing=()
+          for p in "${paths[@]}"; do
+            if [ -e "$p" ]; then
+              echo "Including: $p"
+              existing+=("$p")
+            else
+              echo "Skipping (not present): $p"
+            fi
+          done
+          if [ "${#existing[@]}" -eq 0 ]; then
+            echo "No mise cache directories were restored." >&2
+            exit 1
+          fi
+          # Preserve symlinks/permissions by tarring instead of copying.
+          tar -czf "$RUNNER_TEMP/dump/mise-cache.tgz" -C "$HOME" \
+            $(for p in "${existing[@]}"; do echo "${p#"$HOME"/}"; done)
+          tar -tzvf "$RUNNER_TEMP/dump/mise-cache.tgz" > "$RUNNER_TEMP/dump/file-listing.txt"
+          echo "Archived $(wc -l < "$RUNNER_TEMP/dump/file-listing.txt") entries."
+
+      - name: Upload cache as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: mise-cache-dump
+          path: ${{ runner.temp }}/dump
+          if-no-files-found: error
