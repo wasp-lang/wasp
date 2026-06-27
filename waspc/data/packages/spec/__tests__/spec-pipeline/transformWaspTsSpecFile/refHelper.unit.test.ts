@@ -168,6 +168,46 @@ describe("transformRefHelper", () => {
       transformRefHelper(`export { ref } from "@wasp.sh/spec";`),
     ).toThrow(SpecUserError);
   });
+
+  test("rewrites a public waspImport import and call", () => {
+    expect(
+      transformRefHelper(
+        [
+          `import { waspImport } from "@wasp.sh/spec";`,
+          `const routes = await waspImport("./routes.wasp.ts");`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toBe(
+      [
+        ``,
+        `const routes = await import("./routes.wasp.ts");`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("rewrites a mixed ref and waspImport import", () => {
+    expect(
+      transformRefHelper(
+        [
+          `import { ref, waspImport } from "@wasp.sh/spec";`,
+          `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
+          `const routes = await waspImport("./routes.wasp.ts");`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toBe(
+      [
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `const ref = _waspMakeRef("/path/main.wasp.ts");`,
+        ``,
+        `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `const routes = await import("./routes.wasp.ts");`,
+        ``,
+      ].join("\n"),
+    );
+  });
 });
 
 function transformRefHelper(sourceText: string): string {

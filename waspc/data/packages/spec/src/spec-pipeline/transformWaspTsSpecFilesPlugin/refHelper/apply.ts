@@ -12,11 +12,16 @@ export function applyTransformRefHelperPlan_mutate(
   {
     refHelperLocalNames,
     removals,
-    safeMakeRefHelperName: safeMakeRefHelperName,
+    safeMakeRefHelperName,
+    waspImportCalls,
   }: Plan,
 ): void {
   for (const removal of removals) {
     magicString.remove(removal.start, removal.end);
+  }
+
+  for (const call of waspImportCalls) {
+    magicString.overwrite(call.start, call.end, "import");
   }
 
   if (refHelperLocalNames.length === 0) {

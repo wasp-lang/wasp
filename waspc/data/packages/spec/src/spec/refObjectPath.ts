@@ -1,5 +1,5 @@
 import { realpathSync } from "node:fs";
-import * as path from "node:path/posix"; // Module paths are always `/`-delimited
+import * as path from "node:path"; // Use native path module
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -109,7 +109,8 @@ function getPathInsideRoot(
 function toAppSpecExtImportPath(
   srcRelativePath: string,
 ): AppSpec.ExtImport["path"] {
-  return path.join("@src", srcRelativePath) as AppSpec.ExtImport["path"];
+  // Module paths are always `/`-delimited, so we convert backslashes to forward slashes.
+  return ("@src/" + srcRelativePath.replace(/\\/g, "/")) as AppSpec.ExtImport["path"];
 }
 
 function isValidSrcRelativeFilePath(srcRelativePath: string): boolean {

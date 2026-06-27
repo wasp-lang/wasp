@@ -1,4 +1,5 @@
 import type { ESTree as t } from "rolldown/utils";
+import { walk } from "estree-walker";
 import {
   getStringValue,
   getTopLevelBindings,
@@ -18,6 +19,8 @@ export type Plan = {
   /** Source ranges to delete */
   removals: SourceRange[];
   safeMakeRefHelperName: string;
+  /** Source ranges of waspImport calls to rewrite */
+  waspImportCalls: SourceRange[];
 };
 
 type SourceRange = { start: number; end: number };
@@ -31,14 +34,21 @@ export function planTransformRefHelper(ast: t.Program): Plan | null {
     return null;
   }
 
-  const removals = refHelperImportDeclarations.flatMap(
-    planRefSpecifierRemovals,
+  const removals = mergeRanges(
+    refHelperImportDeclarations.flatMap(planSpecifierRemovals),
   );
 
   const refHelperLocalNames = refHelperImportDeclarations.flatMap(
     (declaration) =>
       declaration.specifiers
         .filter(isRefHelperImportSpecifier)
+        .map((specifier) => getStringValue(specifier.local)),
+  );
+
+  const waspImportLocalNames = refHelperImportDeclarations.flatMap(
+    (declaration) =>
+      declaration.specifiers
+        .filter(isWaspImportSpecifier)
         .map((specifier) => getStringValue(specifier.local)),
   );
 
@@ -49,10 +59,16 @@ export function planTransformRefHelper(ast: t.Program): Plan | null {
     scope,
   );
 
+  const waspImportCalls = findWaspImportCalls(
+    ast,
+    new Set(waspImportLocalNames),
+  );
+
   return {
     refHelperLocalNames,
     removals,
     safeMakeRefHelperName,
+    waspImportCalls,
   };
 }
 
@@ -66,19 +82,21 @@ function isRefHelperImportDeclaration(
   );
 }
 
-// We want to remove all `ref` specifiers, with two caveats:
-// - If `ref` is the only specifier in its import declaration, we remove the
+// We want to remove all `ref` and `waspImport` specifiers, with two caveats:
+// - If they are the only specifiers in their import declaration, we remove the
 //   whole declaration.
 // - If there are multiple specifiers, we need to extend the range a bit to also
 //   remove the comma next to it, as a leftover comma would cause a SyntaxError.
-function planRefSpecifierRemovals(
+function planSpecifierRemovals(
   importDeclaration: t.ImportDeclaration,
 ): SourceRange[] {
   const specifiersCount = importDeclaration.specifiers.length;
 
   const specifiersToRemove = importDeclaration.specifiers
     .map((node, position) => ({ node, position }))
-    .filter(({ node }) => isRefHelperImportSpecifier(node));
+    .filter(
+      ({ node }) => isRefHelperImportSpecifier(node) || isWaspImportSpecifier(node),
+    );
 
   if (specifiersToRemove.length === 0) return [];
   if (specifiersToRemove.length === specifiersCount) return [importDeclaration];
@@ -110,4 +128,64 @@ function isRefHelperImportSpecifier(
     node.importKind === "value" &&
     getStringValue(node.imported) === PUBLIC_REF_HELPER_IMPORT_NAME
   );
+}
+
+// Check if it is the waspImport specifier
+function isWaspImportSpecifier(
+  node: t.ImportDeclarationSpecifier,
+): node is t.ImportSpecifier {
+  return (
+    node.type === "ImportSpecifier" &&
+    node.importKind === "value" &&
+    getStringValue(node.imported) === "waspImport"
+  );
+}
+
+function mergeRanges(ranges: SourceRange[]): SourceRange[] {
+  if (ranges.length === 0) return [];
+  const sorted = [...ranges].sort((a, b) => a.start - b.start);
+  const first = sorted[0];
+  if (!first) return [];
+  const merged: SourceRange[] = [first];
+  for (let i = 1; i < sorted.length; i++) {
+    const last = merged[merged.length - 1];
+    const current = sorted[i];
+    if (!last || !current) continue;
+    if (current.start <= last.end) {
+      last.end = Math.max(last.end, current.end);
+    } else {
+      merged.push(current);
+    }
+  }
+  return merged;
+}
+
+function findWaspImportCalls(
+  ast: t.Program,
+  localNames: ReadonlySet<string>,
+): SourceRange[] {
+  if (localNames.size === 0) return [];
+  const calls: SourceRange[] = [];
+  walk(
+    // @ts-expect-error - AST types mismatch
+    ast,
+    {
+      enter(node) {
+        if (
+          node.type === "CallExpression" &&
+          node.callee.type === "Identifier" &&
+          localNames.has(node.callee.name)
+        ) {
+          const callee = node.callee as any;
+          if (typeof callee.start === "number" && typeof callee.end === "number") {
+            calls.push({
+              start: callee.start,
+              end: callee.end,
+            });
+          }
+        }
+      },
+    },
+  );
+  return calls;
 }

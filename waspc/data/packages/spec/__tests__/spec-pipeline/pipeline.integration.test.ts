@@ -192,8 +192,9 @@ function scaffoldProject({
       writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
 
       cp.execSync("npm i", { cwd: projectRootDir, stdio: "inherit" });
+      const entitiesArg = process.platform === "win32" ? "[]" : "'[]'";
       cp.execSync(
-        "npx @wasp.sh/spec analyze main.wasp.ts tsconfig.json . result.json '[]'",
+        `npx @wasp.sh/spec analyze main.wasp.ts tsconfig.json . result.json ${entitiesArg}`,
         { cwd: projectRootDir, stdio: "inherit" },
       );
 

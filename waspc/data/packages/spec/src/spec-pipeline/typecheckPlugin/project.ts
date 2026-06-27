@@ -90,21 +90,31 @@ function overlayOverriddenFilesOnHost_mutate(
   host: ts.CompilerHost,
   overriddenFiles: ReadonlyMap<string, string>,
 ) {
+  const normalizedOverriddenFiles = new Map<string, string>();
+  for (const [key, value] of overriddenFiles.entries()) {
+    normalizedOverriddenFiles.set(key.replace(/\\/g, "/"), value);
+  }
+
   const fsGetSourceFile = host.getSourceFile.bind(host);
   host.getSourceFile = (fileName, languageVersionOrOptions, ...rest) => {
-    const source = overriddenFiles.get(fileName);
+    const normalizedFileName = fileName.replace(/\\/g, "/");
+    const source = normalizedOverriddenFiles.get(normalizedFileName);
     return source !== undefined
       ? ts.createSourceFile(fileName, source, languageVersionOrOptions, true)
       : fsGetSourceFile(fileName, languageVersionOrOptions, ...rest);
   };
 
   const fsFileExists = host.fileExists.bind(host);
-  host.fileExists = (fileName) =>
-    overriddenFiles.has(fileName) || fsFileExists(fileName);
+  host.fileExists = (fileName) => {
+    const normalizedFileName = fileName.replace(/\\/g, "/");
+    return normalizedOverriddenFiles.has(normalizedFileName) || fsFileExists(fileName);
+  };
 
   const fsReadFile = host.readFile.bind(host);
-  host.readFile = (fileName) =>
-    overriddenFiles.get(fileName) ?? fsReadFile(fileName);
+  host.readFile = (fileName) => {
+    const normalizedFileName = fileName.replace(/\\/g, "/");
+    return normalizedOverriddenFiles.get(normalizedFileName) ?? fsReadFile(fileName);
+  };
 }
 
 function formatConfigError(diagnostic: ts.Diagnostic, cwd: string): string {
