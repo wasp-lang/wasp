@@ -70,7 +70,7 @@ function buildLlmsTxtBody(
       lines.push(`- [${item.title}](${item.url})`);
     } else {
       const headingHashes = "#".repeat(3 + depth);
-      lines.push(`\n${headingHashes} ${item.label}`);
+      lines.push(`\n${headingHashes} ${item.title}`);
       buildLlmsTxtBody(lines, item.items, depth + 1);
     }
   }
@@ -96,7 +96,7 @@ function buildLlmsFullTxtBody(
       const heading = [...breadcrumb, item.title].join(" / ");
       body += `## ${heading}\n\n${item.markdown}\n\n`;
     } else {
-      body += buildLlmsFullTxtBody(item.items, [...breadcrumb, item.label]);
+      body += buildLlmsFullTxtBody(item.items, [...breadcrumb, item.title]);
     }
   }
   return body;

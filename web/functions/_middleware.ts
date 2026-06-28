@@ -1,4 +1,4 @@
-import { isValidMarkdownDocsRoute } from "../markdown-docs/html-to-md/markdown-routes";
+import { isValidMarkdownDocsRoute } from "../llm-files/html-to-md/markdown-routes";
 
 interface CloudflarePagesContext {
   request: Request;

@@ -4,6 +4,7 @@ import type { Plugin } from "@docusaurus/types";
 
 import type { PostCollection } from "./context";
 import { generateLlmFiles } from "./generate-llm-files";
+import { stripTrailingSlash } from "./helpers";
 import { generateMarkdownFilesForValidHtmlFiles } from "./html-to-md";
 
 const DOCUSAURUS_DOCS_PLUGIN_NAME = "docusaurus-plugin-content-docs";
@@ -21,12 +22,12 @@ const POST_COLLECTIONS: { pluginId: string; sectionTitle: string }[] = [
 /**
  * A Docusaurus plugin which generates markdown variant of docs and `llm*.txt` files.
  */
-export function markdownDocsDocusaurusPlugin(): Plugin {
+export function docusaurusPluginWaspLlmFiles(): Plugin {
   let docsLoadedContent: LoadedContent | undefined;
   let blogContentByPluginId: { [pluginId: string]: BlogContent } | undefined;
 
   return {
-    name: "wasp-markdown-docs",
+    name: "wasp-llm-files",
 
     allContentLoaded({ allContent }) {
       docsLoadedContent = allContent[DOCUSAURUS_DOCS_PLUGIN_NAME]?.default as
@@ -34,7 +35,7 @@ export function markdownDocsDocusaurusPlugin(): Plugin {
         | undefined;
       if (!docsLoadedContent) {
         throw Error(
-          `wasp-markdown-docs: could not find content for "${DOCUSAURUS_DOCS_PLUGIN_NAME}.default".`,
+          `wasp-llm-files: could not find content for "${DOCUSAURUS_DOCS_PLUGIN_NAME}.default".`,
         );
       }
 
@@ -46,7 +47,7 @@ export function markdownDocsDocusaurusPlugin(): Plugin {
     async postBuild({ outDir, siteConfig }) {
       if (!docsLoadedContent || !blogContentByPluginId) {
         throw Error(
-          "wasp-markdown-docs: allContentLoaded did not run before postBuild.",
+          "wasp-llm-files: allContentLoaded did not run before postBuild.",
         );
       }
 
@@ -77,7 +78,7 @@ function collectPostCollections(
     const blogContent = blogContentByPluginId?.[pluginId];
     if (!blogContent) {
       throw Error(
-        `wasp-markdown-docs: could not find content for "${DOCUSAURUS_BLOG_PLUGIN_NAME}.${pluginId}".`,
+        `wasp-llm-files: could not find content for "${DOCUSAURUS_BLOG_PLUGIN_NAME}.${pluginId}".`,
       );
     }
 
@@ -88,8 +89,4 @@ function collectPostCollections(
 
     return { sectionTitle, posts };
   });
-}
-
-function stripTrailingSlash(value: string): string {
-  return value.replace(/\/+$/, "");
 }

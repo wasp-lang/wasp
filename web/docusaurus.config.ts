@@ -1,7 +1,7 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
-import { markdownDocsDocusaurusPlugin } from "./markdown-docs/docusaurus-plugin";
+import { docusaurusPluginWaspLlmFiles } from "./llm-files/docusaurus-plugin";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
@@ -316,7 +316,7 @@ const config: Config = {
         // https://typedoc.org/documents/Options.Package_Options.html.
       },
     ],
-    markdownDocsDocusaurusPlugin,
+    docusaurusPluginWaspLlmFiles,
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
