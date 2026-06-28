@@ -1,5 +1,6 @@
 ---
 title: Fly.io
+title-llm: Automated Deployment to Fly.io with Wasp CLI
 ---
 
 import { Required } from '@site/src/components/Tag';

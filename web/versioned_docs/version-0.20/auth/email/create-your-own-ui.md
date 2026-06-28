@@ -1,5 +1,6 @@
 ---
 title: Create your own UI
+title-llm: Create your own UI for Email Auth
 ---
 
 import { Required } from '@site/src/components/Tag'
