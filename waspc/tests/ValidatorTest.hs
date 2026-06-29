@@ -61,6 +61,17 @@ spec_Validator = do
       V.eqJust True <-- Just False ~> ["Expected True but got False."]
       V.eqJust True <-- Nothing ~> ["Missing value, expected True."]
 
+    specify "containsAllJust" $ do
+      V.containsAllJust ["a", "b"] <-- Just ["a", "b"] ~> []
+      V.containsAllJust ["a", "b"] <-- Just ["a", "b", "c"] ~> []
+      V.containsAllJust ["a", "b"] <-- Just ["b", "a"] ~> []
+      V.containsAllJust ["a", "b"]
+        <-- Just ["a"]
+        ~> ["Expected to contain all of [\"a\",\"b\"] but got [\"a\"]."]
+      V.containsAllJust ["a", "b"]
+        <-- Nothing
+        ~> ["Missing value, expected to contain all of [\"a\",\"b\"]."]
+
     specify "combined usage" $ do
       let mockData = Map.fromList [("database", "mysql")] :: Map.Map String String
           validator =
