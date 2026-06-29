@@ -54,7 +54,10 @@ runs:
           |
           ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
           ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}
-        key: >
+        key:
+          # The `v2` prefix is used so we don't mix with an older cache that
+          # didn't have a good glibc/musl detection.
+          >
           ${{
             format(
               'cabal-v2-{0}-{1}-{2}-{3}-{4}-{5}',
