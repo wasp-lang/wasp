@@ -21,7 +21,7 @@ export const onRequest = async (
 
   const isMarkdownContentNegotiationRoute =
     isRouteWithMarkdownVariant(url.pathname) &&
-    !isSpecifcFileTypeRoute(url.pathname);
+    !isSpecificFileTypeRoute(url.pathname);
   if (!isMarkdownContentNegotiationRoute) {
     return next();
   }
@@ -33,7 +33,7 @@ export const onRequest = async (
     contentNegotiationResponse = await next();
   }
   // A response whose return content was influenced by a request, must include
-  // the reason in the `Vary` HTTP header. For us, that is the `Accept` header.
+  // the reason why in the `Vary` HTTP header. For us, that is the `Accept` header.
   // This ensures a cache will keep separate cached responses for different `Accept` values.
   contentNegotiationResponse.headers.set("Vary", "Accept");
 
@@ -46,7 +46,7 @@ export const onRequest = async (
  * @example "/docs.md"
  * @example "/docs.html"
  */
-function isSpecifcFileTypeRoute(pathname: string): boolean {
+function isSpecificFileTypeRoute(pathname: string): boolean {
   return pathname.split("/").at(-1)!.includes(".");
 }
 
