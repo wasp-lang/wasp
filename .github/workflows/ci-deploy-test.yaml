@@ -42,8 +42,13 @@ jobs:
 
       - name: Install Railway CLI
         run: |
+          export RAILWAY_HOME="$HOME/.railway"
           bash <(curl -fsSL railway.com/install.sh)
-          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
+
+          # This is usually done by a line in the Bash profile, but the CI
+          # doesn't honor it.
+          echo "RAILWAY_HOME=$RAILWAY_HOME" >> "$GITHUB_ENV"
+          echo "$RAILWAY_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
