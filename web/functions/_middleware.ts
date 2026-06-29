@@ -1,4 +1,4 @@
-import { isValidMarkdownDocsRoute } from "../scripts/markdown-docs/html-to-md/markdown-routes";
+import { isRouteWithMarkdownVariant } from "../scripts/markdown-docs/html-to-md/markdown-routes";
 
 interface CloudflarePagesContext {
   request: Request;
@@ -20,40 +20,28 @@ export const onRequest = async (
   const url = new URL(request.url);
 
   const isMarkdownContentNegotiationRoute =
-    isValidMarkdownDocsRoute(url.pathname) ||
+    isRouteWithMarkdownVariant(url.pathname) &&
     !isSpecifcFileTypeRoute(url.pathname);
   if (!isMarkdownContentNegotiationRoute) {
     return next();
   }
 
   let contentNegotiationResponse: Response | undefined;
-  if (!wantsMarkdownContent(request)) {
-    contentNegotiationResponse = await next();
+  if (acceptsMarkdownContent(request)) {
+    contentNegotiationResponse = await fetchMarkdownVariant(context);
   } else {
-    const markdownPathname = generateMarkdownPathname(url.pathname);
-    const markdownUrl = new URL(markdownPathname, url.origin);
-    const markdownRequest = new Request(markdownUrl, request);
-
-    contentNegotiationResponse = await next(markdownRequest);
-
-    if (!contentNegotiationResponse.ok) {
-      console.error("Markdown response failed", {
-        status: contentNegotiationResponse.status,
-        statusText: contentNegotiationResponse.statusText,
-        pathname: markdownPathname,
-        body: await contentNegotiationResponse.clone().text(),
-      });
-    }
+    contentNegotiationResponse = await next();
   }
-  // A response whose return content was influenced by a request
-  // must include the reason in the `Vary` HTTP header.
-  // For us, that is the `Accept` header.
+  // A response whose return content was influenced by a request, must include
+  // the reason in the `Vary` HTTP header. For us, that is the `Accept` header.
+  // This ensures a cache will keep separate cached responses for different `Accept` values.
   contentNegotiationResponse.headers.set("Vary", "Accept");
+
   return contentNegotiationResponse;
 };
 
 /**
- * Ture if the last path segmenet includes a dot.
+ * True if the last path segmenet includes a dot.
  *
  * @example "/docs.md"
  * @example "/docs.html"
@@ -62,7 +50,7 @@ function isSpecifcFileTypeRoute(pathname: string): boolean {
   return pathname.split("/").at(-1)!.includes(".");
 }
 
-function wantsMarkdownContent(request: Request): boolean {
+function acceptsMarkdownContent(request: Request): boolean {
   if (request.method !== "GET") {
     return false;
   }
@@ -70,6 +58,29 @@ function wantsMarkdownContent(request: Request): boolean {
   // We don't really want to bother with format priorities (order of formats or q-values).
   // Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
   return acceptHeader.includes("text/markdown");
+}
+
+async function fetchMarkdownVariant(
+  context: CloudflarePagesContext,
+): Promise<Response> {
+  const { request, next } = context;
+  const url = new URL(request.url);
+
+  const markdownPathname = generateMarkdownPathname(url.pathname);
+  const markdownUrl = new URL(markdownPathname, url.origin);
+  const markdownRequest = new Request(markdownUrl, request);
+  const markdownResponse = await next(markdownRequest);
+
+  if (!markdownResponse.ok) {
+    console.error("Markdown response failed", {
+      status: markdownResponse.status,
+      statusText: markdownResponse.statusText,
+      pathname: markdownPathname,
+      body: await markdownResponse.clone().text(),
+    });
+  }
+
+  return markdownResponse;
 }
 
 function generateMarkdownPathname(pathname: string): string {
