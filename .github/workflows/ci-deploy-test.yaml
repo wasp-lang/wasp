@@ -128,8 +128,6 @@ jobs:
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
-        env:
-          MISE_DEBUG: 1
         run: |
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
