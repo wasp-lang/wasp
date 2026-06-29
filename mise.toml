@@ -3,7 +3,7 @@ min_version = "2026.6.14"
 [tools]
 "aqua:ghcup" = "0.2.6.1"
 
-"cabal" = "3.12.1.0"
+cabal = "3.12.1.0"
 
 # Keep in sync with:
 # - /waspc/cabal.project
@@ -26,7 +26,7 @@ min_version = "2026.6.14"
 
 "github:tfausak/cabal-gild" = "1.5.0.1"
 
-"ormolu" = "0.7.2.0"
+ormolu = "0.7.2.0"
 
 [plugins]
 "vfox:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
