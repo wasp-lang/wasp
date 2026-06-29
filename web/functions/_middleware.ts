@@ -6,12 +6,11 @@ interface CloudflarePagesContext {
 }
 
 /**
- * Cloudflare middleware: https://developers.cloudflare.com/pages/functions/middleware/
+ * Middleware entry function which handles markdown content negotiation for markdown docs.
+ * When a client asks for Markdown variant of content via the `Accept` header,
+ * serve the pre-generated `.md` sibling of the requested page instead of the HTML.
  *
- * Handles markdown content negotiation for markdown docs.
- * When a client asks for Markdown via the `Accept` header,
- * serve the pre-generated `.md` sibling of the requested page
- * instead of the HTML.
+ * @see {@link https://developers.cloudflare.com/pages/functions/middleware/ Cloudflare middleware}
  */
 export const onRequest = async (
   context: CloudflarePagesContext,
