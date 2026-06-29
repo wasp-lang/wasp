@@ -22,10 +22,7 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ -- The user is free to add more globs (e.g. for shared helpers or
-      -- libraries used by their `.wasp.ts` files), so we only require that the
-      -- Wasp-specific entries are present.
-      V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
+    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where
