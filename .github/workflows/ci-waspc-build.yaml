@@ -68,6 +68,25 @@ jobs:
               apt-get update -y
               apt-get install -y curl
 
+          - name: linux-x86_64-static
+            runner: ubuntu-latest
+            # We pin the `alpine` version to a specific one we have tested,
+            # since newer releases might have different versions of the
+            # libraries we depend on.
+            container: alpine:3.23
+            skip-node-install: true
+            static: true
+
+          - name: macos-x86_64
+            runner: macos-15-intel
+            # macOS's syscalls are private and change between versions, so we
+            # can't statically link the binary.
+            static: false
+
+          - name: macos-aarch64
+            runner: macos-15 # By default an Apple Silicon-based runner.
+            static: false # Check the comment above for why we can't statically link on macOS
+
     runs-on: ${{ matrix.env.runner }}
     container:
       # Zizmor can't follow the matrix to see which container is used so it
