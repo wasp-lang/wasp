@@ -20,6 +20,13 @@ generateMarkdownFiles().catch((err) => {
 /**
  * Turns the rendered HTML for docs, blog, and resources pages into Markdown
  * served alongside the HTML.
+ *
+ * We opted out for HTML -> MD (instead of MDX -> MD) approach because:
+ * - It is more stable. HTML -> MD is a very matrue pipeline, MDX is a newer concept.
+ * - It is less of a maintenance burden. MDX -> MD requires handling each MDX
+ *     feature (e.g. a component) preemptively. HTML -> MD only requires handling
+ *     non-MD compliant content (e.g. code block titles).
+ * - It is more future proof. HTML and Markdown are not prone to changes.
  */
 async function generateMarkdownFiles(): Promise<void> {
   console.log("Generating markdown files from built HTML...");
