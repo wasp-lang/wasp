@@ -12,10 +12,8 @@ Whenever you start a Wasp app, you are starting two processes.
 
 - **The server process** - An Express server that implements your app's backend.
 
-  During development, this is an Express server controlled by a
-  [`nodemon`](https://www.npmjs.com/package/nodemon) process that takes care of
-  hot reloading and restarts. In production, it's a regular Express server run
-  using Node.
+  During development, Wasp rebuilds and restarts the Express server when server
+  code changes. In production, it's a regular Express server run using Node.
 
 Check [the introduction](/introduction/introduction.md) for a more in-depth explanation of Wasp's runtime architecture.
 

@@ -1,6 +1,10 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
+    ServerProcessCommandQueue,
+    newServerProcessCommandQueue,
+    requestServerRefresh,
+    requestServerStop,
     Wasp.Generator.Test.testWebApp,
     GeneratedAppDir,
   )
@@ -26,6 +30,7 @@ import Wasp.Generator.Monad
   )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
+import Wasp.Generator.ServerGenerator.Start (ServerProcessCommandQueue, newServerProcessCommandQueue, requestServerRefresh, requestServerStop)
 import Wasp.Generator.Setup (runSetup)
 import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
 import qualified Wasp.Generator.Start

@@ -53,13 +53,16 @@ start = do
     -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    serverProcessCommandQueue <- Wasp.Generator.newServerProcessCommandQueue
+    let refreshServer = Wasp.Generator.requestServerRefresh serverProcessCommandQueue
+    let stopServer = Wasp.Generator.requestServerStop serverProcessCommandQueue
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar refreshServer stopServer
+    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir serverProcessCommandQueue (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
-    --    code. On any change, Wasp is recompiled (and generated app is re-generated).
-    -- 2. start web app in dev mode, which will then also watch for changes but in the generated
-    --    code, and will also react to them by restarting the web app.
+    --    code. On any change, Wasp is recompiled (and generated app is re-generated), and the
+    --    server is refreshed after a successful recompilation or stopped after a failed one.
+    -- 2. start web app in dev mode and manage the server process.
     -- Both of these should run forever, unless some super serious error happens.
     watchWaspProjectSource `race` startGeneratedWebApp
 

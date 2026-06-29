@@ -4,6 +4,7 @@ module Wasp.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
     runNodeCommandAsJobWithExtraEnv,
+    runManagedNodeCommandAsJob,
   )
 where
 
@@ -18,10 +19,10 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
-import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Job as J
+import qualified Wasp.Job.Process.Managed as Managed
 import qualified Wasp.Node.Version as NodeVersion
 
 -- TODO:
@@ -30,7 +31,8 @@ import qualified Wasp.Node.Version as NodeVersion
 
 -- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
 --   Returns exit code of the process once it finishes, and also sends it to the channel.
---   Makes sure to terminate the process (or process group on *nix) if exception occurs.
+--   Makes sure to terminate the process tree if exception occurs.
+--   If Wasp must keep running after cancelling this job, use 'runManagedNodeCommandAsJob'.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan =
   bracket
@@ -77,30 +79,28 @@ runProcessAsJob process jobType chan =
 
       return exitCode
 
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
-      return $ ExitFailure 1
+      Managed.stopProcessTree processHandle
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
+runNodeCommandAsJobWithExtraEnv = runNodeCommandAsJobWithExtraEnvAndConfig id
+
+-- | Runs a Node command whose lifecycle is owned by Wasp.
+--   Use for long-running child processes that Wasp can stop while Wasp itself keeps running.
+runManagedNodeCommandAsJob :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runManagedNodeCommandAsJob = runNodeCommandAsJobWithExtraEnvAndConfig Managed.configureCreateProcess
+
+runNodeCommandAsJobWithExtraEnvAndConfig :: (P.CreateProcess -> P.CreateProcess) -> [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithExtraEnvAndConfig configureProcess extraEnvVars fromDir command args jobType chan =
   NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
     NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     NodeVersion.VersionCheckSuccess -> do
       envVars <- getAllEnvVars
-      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+      let nodeCommandProcess = configureProcess (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
       runProcessAsJob nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env

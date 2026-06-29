@@ -33,12 +33,16 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
+-- After successful recompilation, it refreshes the server. After failed recompilation,
+-- it stops the server.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
+  IO () ->
+  IO () ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
+watch waspProjectDir outDir ongoingCompilationResultMVar refreshServer stopServer = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
@@ -75,6 +79,15 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
           currentTime <- getCurrentTime
           (warnings, errors) <- recompile
           updateOngoingCompilationResultMVar (warnings, errors)
+          if null errors
+            then do
+              cliSendMessage $ Msg.Start "Updating server..."
+              refreshServer
+            else do
+              cliSendMessage $
+                Msg.Failure "Recompilation on file change failed." $
+                  show (length errors) ++ " errors found"
+              stopServer
           listenForEvents chan currentTime
 
     updateOngoingCompilationResultMVar :: ([CompileWarning], [CompileError]) -> IO ()
@@ -116,14 +129,6 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
       (warnings, errors) <- compileIO waspProjectDir outDir
 
       printCompilationResult (warnings, errors)
-      if null errors
-        then
-          cliSendMessage $
-            Msg.Success "Recompilation on file change succeeded."
-        else
-          cliSendMessage $
-            Msg.Failure "Recompilation on file change failed." $
-              show (length errors) ++ " errors found"
 
       return (warnings, errors)
 
