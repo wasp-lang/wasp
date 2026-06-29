@@ -124,7 +124,9 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: bash <(curl -fsSL railway.com/install.sh)
+        run: |
+          bash <(curl -fsSL railway.com/install.sh)
+          source "$HOME/.railway/env"
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
