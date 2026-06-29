@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   test:
-    name: Test waspc (${{ matrix.os }}, node-${{ matrix.node-version }})
+    name: Test waspc (${{ matrix.os }}, ${{ matrix.extra-tools || 'default' }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
