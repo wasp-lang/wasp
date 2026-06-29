@@ -126,7 +126,7 @@ jobs:
       - name: Install Railway CLI
         run: |
           bash <(curl -fsSL railway.com/install.sh)
-          source "$HOME/.railway/env"
+          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
