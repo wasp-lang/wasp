@@ -27,7 +27,6 @@ runs:
       shell: bash
       run: |
         set -euxo pipefail
-
         # Detect the libc so the Cabal cache key keeps glibc and musl builds
         # apart.
         ldd_version="$(ldd --version 2>&1 || true)"
