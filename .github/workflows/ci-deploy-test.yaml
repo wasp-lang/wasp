@@ -41,17 +41,12 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: |
-          export RAILWAY_HOME="$HOME/.railway"
-          bash <(curl -fsSL railway.com/install.sh)
-
-          # This is usually done by a line in the Bash profile, but the CI
-          # doesn't honor it.
-          echo "RAILWAY_HOME=$RAILWAY_HOME" >> "$GITHUB_ENV"
-          echo "$RAILWAY_HOME/bin" >> "$GITHUB_PATH"
+        run: npm install -g @railway/cli@4.11.1
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
+        env:
+          MISE_DEBUG: 1
         run: |
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
@@ -126,7 +121,7 @@ jobs:
         # NOTE: We pinned the Railway version because we don't want the changes in the
         # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
         # of Wasp, we're just incidentally using the same tool Wasp uses.
-        run: npm i -g npm:@railway/cli@4.23.0
+        run: npm install -g @railway/cli@4.23.0
 
       - name: Clean up test project
         run: railway delete --yes --project "$APP_PREFIX" || true
