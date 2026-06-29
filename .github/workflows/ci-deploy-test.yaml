@@ -124,8 +124,6 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        # NOTE: We tell users to install the latest version of Railway CLI, so
-        # we use it here too.
         run: mise use -g github:railwayapp/cli@4.11.1
 
       - name: Deploy app to Railway
