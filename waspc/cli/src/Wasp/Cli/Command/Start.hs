@@ -54,9 +54,9 @@ start = do
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     serverProcessCommandQueue <- Wasp.Generator.newServerProcessCommandQueue
-    let refreshServer = Wasp.Generator.requestServerRefresh serverProcessCommandQueue
+    let updateServer = Wasp.Generator.requestServerUpdate serverProcessCommandQueue
     let stopServer = Wasp.Generator.requestServerStop serverProcessCommandQueue
-    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar refreshServer stopServer
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar updateServer stopServer
     let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir serverProcessCommandQueue (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...

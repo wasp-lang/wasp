@@ -6,15 +6,19 @@ module Wasp.Cli.Common
   )
 where
 
+import System.IO (hFlush, stdout)
 import qualified Wasp.Util.Terminal as Term
 
 data CliTemplatesDir
 
 waspSays :: String -> IO ()
-waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
+waspSays what = printAndFlush $ Term.applyStyles [Term.Yellow] what
 
 waspWarns :: String -> IO ()
-waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
+waspWarns what = printAndFlush $ Term.applyStyles [Term.Magenta] what
 
 waspScreams :: String -> IO ()
-waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what
+waspScreams what = printAndFlush $ Term.applyStyles [Term.Red] what
+
+printAndFlush :: String -> IO ()
+printAndFlush what = putStrLn what >> hFlush stdout

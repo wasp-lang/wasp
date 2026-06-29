@@ -1,7 +1,8 @@
 module Wasp.Generator.ServerGenerator.Start
   ( ServerProcessCommandQueue,
+    ServerUpdateImpact (..),
     newServerProcessCommandQueue,
-    requestServerRefresh,
+    requestServerUpdate,
     requestServerStop,
     startServer,
   )
@@ -30,14 +31,18 @@ data ServerProcessCommandRequest = ServerProcessCommandRequest
   }
 
 data ServerProcessCommand
-  = RefreshServer
+  = UpdateServer ServerUpdateImpact
   | StopServer
+
+data ServerUpdateImpact
+  = ServerMayBeAffected
+  | ServerUnaffected
 
 newServerProcessCommandQueue :: IO ServerProcessCommandQueue
 newServerProcessCommandQueue = ServerProcessCommandQueue <$> newChan
 
-requestServerRefresh :: ServerProcessCommandQueue -> IO ()
-requestServerRefresh = requestServerProcessCommand RefreshServer
+requestServerUpdate :: ServerProcessCommandQueue -> ServerUpdateImpact -> IO ()
+requestServerUpdate serverProcessCommandQueue serverUpdateImpact = requestServerProcessCommand (UpdateServer serverUpdateImpact) serverProcessCommandQueue
 
 requestServerStop :: ServerProcessCommandQueue -> IO ()
 requestServerStop = requestServerProcessCommand StopServer
@@ -83,12 +88,28 @@ confirmServerProcessCommand :: ServerProcessCommandRequest -> IO ()
 confirmServerProcessCommand request = putMVar (serverProcessCommandDone request) ()
 
 runServerProcessCommand :: ServerRootDirAbs -> IORef ServerProcessState -> Chan J.JobMessage -> ServerProcessCommand -> IO ()
-runServerProcessCommand serverDir serverState jobMessages RefreshServer = refreshServerProcess serverDir serverState jobMessages
+runServerProcessCommand serverDir serverState jobMessages (UpdateServer serverUpdateImpact) = updateServerProcess serverDir serverState jobMessages serverUpdateImpact
 runServerProcessCommand _ serverState _ StopServer = stopRunningServerProcess serverState
+
+updateServerProcess :: ServerRootDirAbs -> IORef ServerProcessState -> Chan J.JobMessage -> ServerUpdateImpact -> IO ()
+updateServerProcess serverDir serverState jobMessages serverUpdateImpact = do
+  currentServerProcess <- syncServerProcessState serverState
+  if serverRefreshNeeded serverUpdateImpact currentServerProcess
+    then refreshServerProcessWithState serverDir serverState jobMessages currentServerProcess
+    else return ()
+
+serverRefreshNeeded :: ServerUpdateImpact -> ServerProcessState -> Bool
+serverRefreshNeeded ServerMayBeAffected _ = True
+serverRefreshNeeded ServerUnaffected ServerNotRunning = True
+serverRefreshNeeded ServerUnaffected (ServerRunning _) = False
 
 refreshServerProcess :: ServerRootDirAbs -> IORef ServerProcessState -> Chan J.JobMessage -> IO ()
 refreshServerProcess serverDir serverState jobMessages = do
   currentServerProcess <- syncServerProcessState serverState
+  refreshServerProcessWithState serverDir serverState jobMessages currentServerProcess
+
+refreshServerProcessWithState :: ServerRootDirAbs -> IORef ServerProcessState -> Chan J.JobMessage -> ServerProcessState -> IO ()
+refreshServerProcessWithState serverDir serverState jobMessages currentServerProcess = do
   bundleSucceeded <- buildServerBundle serverDir jobMessages
   if bundleSucceeded
     then do

@@ -75,9 +75,9 @@ parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
     -- Filip: We no longer want separation between client and server code
     -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
     -- For now, as we'd like (expect):
-    --   - Nodemon watches all files in the user's source folder (client files
-    --   included), but tsc only compiles the server files (I think because it
-    --   knows that the others aren't used). I am not yet sure how it knows this.
+    --   - Wasp watches all files in the user's source folder (client files
+    --   included), but only server-capable source changes should refresh the
+    --   server process.
     --   - Vite also only triggers on client files. I am not sure how it knows
     --   about the difference either.
     -- todo (filip): investigate

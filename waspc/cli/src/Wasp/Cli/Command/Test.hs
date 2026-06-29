@@ -40,7 +40,7 @@ watchAndTest testRunner = do
 
   watchOrStartResult <- liftIO $ do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar (return ()) (return ())
+    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar (const $ return ()) (return ())
 
     -- Vitest must run from the root of the project because Vite won't resolve
     -- files outside of the project root (in this case, user src/ dir which the

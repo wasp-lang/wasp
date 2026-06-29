@@ -7,7 +7,6 @@ import Control.Concurrent (MVar, threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
-import Control.Monad (unless)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
@@ -16,7 +15,8 @@ import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
-import qualified Wasp.Generator.Common as Wasp.Generator
+import Wasp.Generator (ServerUpdateImpact (..))
+import qualified Wasp.Generator.Common as GeneratorCommon
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
@@ -33,20 +33,21 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
--- After successful recompilation, it refreshes the server. After failed recompilation,
--- it stops the server.
+-- After successful recompilation, it refreshes the server if the change may affect it.
+-- After failed recompilation, it stops the server.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
+  Path' Abs (Dir GeneratorCommon.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
-  IO () ->
+  (ServerUpdateImpact -> IO ()) ->
   IO () ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar refreshServer stopServer = FSN.withManager $ \mgr -> do
+watch waspProjectDir outDir ongoingCompilationResultMVar updateServer stopServer = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
-  listenForEvents chan =<< getCurrentTime
+  startListeningTime <- getCurrentTime
+  listenForEvents chan startListeningTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
       FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
@@ -75,20 +76,69 @@ watch waspProjectDir outDir ongoingCompilationResultMVar refreshServer stopServe
           listenForEvents chan lastCompileTime
         else do
           -- Recompile, but only after a 1s period of no new events.
-          waitUntilNoNewEvents chan lastCompileTime 1
+          sourceChangeEvents <- collectEventsUntilQuiet chan lastCompileTime 1 [event]
           currentTime <- getCurrentTime
           (warnings, errors) <- recompile
           updateOngoingCompilationResultMVar (warnings, errors)
-          if null errors
-            then do
-              cliSendMessage $ Msg.Start "Updating server..."
-              refreshServer
-            else do
-              cliSendMessage $
-                Msg.Failure "Recompilation on file change failed." $
-                  show (length errors) ++ " errors found"
-              stopServer
+          handleRecompileResult sourceChangeEvents errors
           listenForEvents chan currentTime
+
+    handleRecompileResult :: [FSN.Event] -> [CompileError] -> IO ()
+    handleRecompileResult sourceChangeEvents errors =
+      if null errors
+        then do
+          let updateImpact = serverUpdateImpact sourceChangeEvents
+          case updateImpact of
+            ServerMayBeAffected -> cliSendMessage $ Msg.Start "Updating server..."
+            ServerUnaffected -> return ()
+          updateServer updateImpact
+        else do
+          cliSendMessage $
+            Msg.Failure "Recompilation on file change failed." $
+              show (length errors) ++ " errors found"
+          stopServer
+
+    serverUpdateImpact :: [FSN.Event] -> ServerUpdateImpact
+    serverUpdateImpact sourceChangeEvents =
+      if any serverMayBeAffectedBy sourceChangeEvents
+        then ServerMayBeAffected
+        else ServerUnaffected
+
+    serverMayBeAffectedBy :: FSN.Event -> Bool
+    serverMayBeAffectedBy event =
+      case FP.splitDirectories $ FP.makeRelative (SP.fromAbsDir waspProjectDir) (FSN.eventPath event) of
+        [] -> False
+        [srcDir]
+          | srcDir == srcDirName -> False
+        srcDir : _
+          | srcDir == srcDirName -> FP.takeExtension (FSN.eventPath event) `elem` serverSourceExtensions
+        [filename] -> topLevelFileMayAffectServer filename
+        _ -> False
+
+    srcDirName :: FilePath
+    srcDirName = FP.dropTrailingPathSeparator $ SP.fromRelDir srcDirInWaspProjectDir
+
+    topLevelFileMayAffectServer :: FilePath -> Bool
+    topLevelFileMayAffectServer filename =
+      filename `elem` serverTopLevelFiles
+        || FP.takeExtension filename `elem` serverSourceExtensions
+
+    serverTopLevelFiles :: [FilePath]
+    serverTopLevelFiles =
+      [ "main.wasp",
+        "main.wasp.ts",
+        ".env",
+        ".env.server",
+        "schema.prisma",
+        "package.json",
+        "tsconfig.json",
+        "tsconfig.src.json",
+        "tsconfig.wasp.json",
+        ".waspignore"
+      ]
+
+    serverSourceExtensions :: [String]
+    serverSourceExtensions = [".ts", ".mts", ".js", ".mjs", ".json"]
 
     updateOngoingCompilationResultMVar :: ([CompileWarning], [CompileError]) -> IO ()
     updateOngoingCompilationResultMVar (warnings, errors) =
@@ -106,15 +156,16 @@ watch waspProjectDir outDir ongoingCompilationResultMVar refreshServer stopServe
     -- Consumes any new events during an active timer window and then restarts wait.
     -- If a stale event comes in during an active timer window, we immediately
     -- return control to the caller.
-    waitUntilNoNewEvents :: Chan FSN.Event -> UTCTime -> Int -> IO ()
-    waitUntilNoNewEvents chan lastCompileTime secondsToDelay = do
+    collectEventsUntilQuiet :: Chan FSN.Event -> UTCTime -> Int -> [FSN.Event] -> IO [FSN.Event]
+    collectEventsUntilQuiet chan lastCompileTime secondsToDelay events = do
       eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
       case eventOrDelay of
         Left event ->
-          unless (isStaleEvent event lastCompileTime) $
-            -- We have a new event, restart waiting process.
-            waitUntilNoNewEvents chan lastCompileTime secondsToDelay
-        Right () -> return ()
+          if isStaleEvent event lastCompileTime
+            then return $ reverse events
+            else -- We have a new event, restart waiting process.
+              collectEventsUntilQuiet chan lastCompileTime secondsToDelay $ event : events
+        Right () -> return $ reverse events
 
     isStaleEvent :: FSN.Event -> UTCTime -> Bool
     isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
