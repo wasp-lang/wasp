@@ -9,9 +9,9 @@ name: "Automation - Evict caches"
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+      - closed
 
 concurrency:
   group: "automation-cache-evict"
