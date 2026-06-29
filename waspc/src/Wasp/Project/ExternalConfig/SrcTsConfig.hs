@@ -49,6 +49,9 @@ srcTsConfigValidator =
           V.inField ("strict", T.strict) $ V.eqJust True,
           V.inField ("esModuleInterop", T.esModuleInterop) $ V.eqJust True,
           V.inField ("lib", T.lib) $ V.eqJust ["dom", "dom.iterable", "esnext"],
+          -- TypeScript 6 no longer auto-includes @types/* packages, so we
+          -- require `react` and `node` to be listed explicitly for user code.
+          V.inField ("types", T.types) $ V.containsAllJust ["react", "node"],
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           -- Wasp internally uses TypeScript's project references to compile the
           -- code. Referenced projects may not disable emit, so we must specify an

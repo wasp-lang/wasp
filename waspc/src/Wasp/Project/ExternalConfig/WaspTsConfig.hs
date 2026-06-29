@@ -29,7 +29,7 @@ waspTsConfigValidator =
     compilerOptionsValidator :: V.Validator T.CompilerOptions
     compilerOptionsValidator =
       V.all
-        [ V.inField ("target", T.target) $ V.eqJust "ES2022",
+        [ V.inField ("target", T.target) $ V.eqJust "ES2025",
           V.inField ("module", T._module) $ V.eqJust "esnext",
           V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
           V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
@@ -39,5 +39,8 @@ waspTsConfigValidator =
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
-          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"]
+          V.inField ("lib", T.lib) $ V.eqJust ["ES2025"],
+          -- TypeScript 6 no longer auto-includes @types/* packages, so we
+          -- require `node` to be listed explicitly for the Wasp spec files.
+          V.inField ("types", T.types) $ V.containsAllJust ["node"]
         ]

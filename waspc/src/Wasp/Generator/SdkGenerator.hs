@@ -236,7 +236,7 @@ npmDepsForSdk spec =
             ("@types/react-dom", show reactDomTypesVersionRange),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^7.0.0")
+            ("@tsconfig/vite-react", "^8.0.0")
           ],
       N.peerDependencies = Npm.Dependency.fromList []
     }

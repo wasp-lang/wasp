@@ -23,13 +23,13 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@tsconfig/vite-react": "^7.0.0",
+    "@tsconfig/vite-react": "^8.0.0",
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "exports": {
     "./auth": "./dist/auth/index.js",

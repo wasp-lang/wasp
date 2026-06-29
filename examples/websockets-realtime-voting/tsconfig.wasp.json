@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "skipLibCheck": true,
-    "target": "ES2022",
+    "target": "ES2025",
     "isolatedModules": true,
     "moduleDetection": "force",
 
@@ -15,7 +15,8 @@
     "allowJs": true,
     "noEmit": true,
 
-    "lib": ["ES2023"]
+    "lib": ["ES2025"],
+    "types": ["node"]
   },
   "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
 }
