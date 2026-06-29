@@ -18,7 +18,6 @@
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^24.0.0",
-    "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
     "typescript": "5.9.3"
@@ -28,19 +27,14 @@
     "node": ">=24.14.1"
   },
   "name": "@wasp.sh/generated-server",
-  "nodemonConfig": {
-    "delay": "1000"
-  },
   "prisma": {},
   "private": true,
   "scripts": {
     "bundle": "tsc --build && rollup --config --silent",
-    "bundle-and-start": "npm run bundle && npm run start",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
     "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
-    "start-production": "NODE_ENV=production npm run start",
-    "watch": "nodemon --exec 'npm run bundle-and-start || exit 1'"
+    "start-production": "NODE_ENV=production npm run start"
   },
   "type": "module",
   "version": "0.0.0"

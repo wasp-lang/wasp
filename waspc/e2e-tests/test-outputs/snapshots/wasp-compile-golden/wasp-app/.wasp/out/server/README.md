@@ -1,1 +1,1 @@
-`npm start` to run server in development mode (it reloads on changes).
+Wasp runs this server during development and refreshes it when needed.

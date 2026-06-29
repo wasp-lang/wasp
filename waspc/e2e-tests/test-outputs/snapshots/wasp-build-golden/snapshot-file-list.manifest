@@ -407,7 +407,6 @@ wasp-app/.wasp/out/sdk/wasp/vite-env.d.ts
 wasp-app/.wasp/out/server/.gitignore
 wasp-app/.wasp/out/server/.npmrc
 wasp-app/.wasp/out/server/README.md
-wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/app.js
