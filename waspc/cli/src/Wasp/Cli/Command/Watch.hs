@@ -15,7 +15,7 @@ import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Generator (ServerUpdateImpact (..))
+import Wasp.Generator (ServerChangeImpact (..))
 import qualified Wasp.Generator.Common as GeneratorCommon
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
@@ -33,13 +33,13 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
 -- stores the result (warnings, errors) of the latest (re)compile whenever it
 -- happens. If there is already something in the MVar, it will get overwritten.
--- After successful recompilation, it refreshes the server if the change may affect it.
+-- After successful recompilation, it requests a server update with source-change impact.
 -- After failed recompilation, it stops the server.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratorCommon.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
-  (ServerUpdateImpact -> IO ()) ->
+  (ServerChangeImpact -> IO ()) ->
   IO () ->
   IO ()
 watch waspProjectDir outDir ongoingCompilationResultMVar updateServer stopServer = FSN.withManager $ \mgr -> do
@@ -87,19 +87,19 @@ watch waspProjectDir outDir ongoingCompilationResultMVar updateServer stopServer
     handleRecompileResult sourceChangeEvents errors =
       if null errors
         then do
-          let updateImpact = serverUpdateImpact sourceChangeEvents
-          case updateImpact of
+          let changeImpact = serverChangeImpact sourceChangeEvents
+          case changeImpact of
             ServerMayBeAffected -> cliSendMessage $ Msg.Start "Updating server..."
             ServerUnaffected -> return ()
-          updateServer updateImpact
+          updateServer changeImpact
         else do
           cliSendMessage $
             Msg.Failure "Recompilation on file change failed." $
               show (length errors) ++ " errors found"
           stopServer
 
-    serverUpdateImpact :: [FSN.Event] -> ServerUpdateImpact
-    serverUpdateImpact sourceChangeEvents =
+    serverChangeImpact :: [FSN.Event] -> ServerChangeImpact
+    serverChangeImpact sourceChangeEvents =
       if any serverMayBeAffectedBy sourceChangeEvents
         then ServerMayBeAffected
         else ServerUnaffected

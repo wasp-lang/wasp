@@ -76,7 +76,7 @@ parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
     -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
     -- For now, as we'd like (expect):
     --   - Wasp watches all files in the user's source folder (client files
-    --   included), but only server-capable source changes should refresh the
+    --   included), but only server-affecting source changes should update the
     --   server process.
     --   - Vite also only triggers on client files. I am not sure how it knows
     --   about the difference either.

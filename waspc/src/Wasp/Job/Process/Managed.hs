@@ -1,6 +1,6 @@
 module Wasp.Job.Process.Managed
-  ( configureCreateProcess,
-    stopProcessTree,
+  ( configureManagedCreateProcess,
+    stopManagedProcessTree,
   )
 where
 
@@ -9,15 +9,15 @@ import qualified System.Process as P
 import System.Timeout (timeout)
 
 -- | Configure a child process whose lifecycle is owned by Wasp while Wasp keeps running.
-configureCreateProcess :: P.CreateProcess -> P.CreateProcess
-configureCreateProcess process =
+configureManagedCreateProcess :: P.CreateProcess -> P.CreateProcess
+configureManagedCreateProcess process =
   if supportsProcessGroups
     then process {P.create_group = True}
     else process
 
--- | Stop a process and its subprocesses, waiting until the OS releases its resources.
-stopProcessTree :: P.ProcessHandle -> IO ()
-stopProcessTree processHandle = do
+-- | Stop a managed process and its subprocesses, waiting until the OS releases its resources.
+stopManagedProcessTree :: P.ProcessHandle -> IO ()
+stopManagedProcessTree processHandle = do
   processExitCode <- P.getProcessExitCode processHandle
   case processExitCode of
     Just _ -> return ()

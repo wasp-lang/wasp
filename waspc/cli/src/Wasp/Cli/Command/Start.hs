@@ -61,7 +61,7 @@ start = do
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated), and the
-    --    server is refreshed after a successful recompilation or stopped after a failed one.
+    --    server is updated after a successful recompilation or stopped after a failed one.
     -- 2. start web app in dev mode and manage the server process.
     -- Both of these should run forever, unless some super serious error happens.
     watchWaspProjectSource `race` startGeneratedWebApp

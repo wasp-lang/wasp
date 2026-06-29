@@ -2,7 +2,7 @@ module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
     ServerProcessCommandQueue,
-    ServerUpdateImpact (..),
+    ServerChangeImpact (..),
     newServerProcessCommandQueue,
     requestServerUpdate,
     requestServerStop,
@@ -31,7 +31,7 @@ import Wasp.Generator.Monad
   )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
-import Wasp.Generator.ServerGenerator.Start (ServerProcessCommandQueue, ServerUpdateImpact (..), newServerProcessCommandQueue, requestServerStop, requestServerUpdate)
+import Wasp.Generator.ServerGenerator.Start (ServerChangeImpact (..), ServerProcessCommandQueue, newServerProcessCommandQueue, requestServerStop, requestServerUpdate)
 import Wasp.Generator.Setup (runSetup)
 import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
 import qualified Wasp.Generator.Start
