@@ -41,7 +41,9 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: mise use -g npm:@railway/cli@4.11.1
+        # NOTE: We tell users to install the latest version of Railway CLI, so
+        # we use it here too.
+        run: mise use -g github:railwayapp/cli
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -121,7 +123,7 @@ jobs:
         # NOTE: We pinned the Railway version because we don't want the changes in the
         # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
         # of Wasp, we're just incidentally using the same tool Wasp uses.
-        run: mise use -g npm:@railway/cli@4.23.0
+        run: mise use -g github:railwayapp/cli@4.23.0
 
       - name: Clean up test project
         run: railway delete --yes --project "$APP_PREFIX" || true
