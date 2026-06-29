@@ -32,9 +32,17 @@ spec_WaspTsConfig = do
       assertReturnsValidationErrorMentioningField "compilerOptions" $
         validTsConfig {T.compilerOptions = Nothing}
 
+    it "returns an error when include is missing a required glob" $
+      assertReturnsValidationErrorMentioningField "include" $
+        validTsConfig {T.include = Just ["**/*.wasp.ts"]}
+
     it "returns an error when include is wrong" $
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["src"]}
+
+    it "returns no errors when include has the required globs plus extra ones" $
+      validate (validTsConfig {T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec", "lib/**/*.ts"]})
+        `shouldBe` []
 
     it "returns an error when types is missing the required node entry" $
       assertReturnsValidationErrorMentioningField "types" $

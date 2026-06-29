@@ -22,7 +22,7 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.eqJust ["**/*.wasp.ts", ".wasp/out/types/spec"],
+    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where
@@ -42,5 +42,5 @@ waspTsConfigValidator =
           V.inField ("lib", T.lib) $ V.eqJust ["ES2025"],
           -- TypeScript 6 no longer auto-includes @types/* packages, so we
           -- require `node` to be listed explicitly for the Wasp spec files.
-          V.inField ("types", T.types) $ V.containsAllJust ["node"]
+          V.inField ("types", T.types) $ V.required $ V.containsAll ["node"]
         ]
