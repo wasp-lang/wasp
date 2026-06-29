@@ -10,7 +10,7 @@ import InstallInstructions from './\_install-instructions.md'
 
 ## What's new in 0.25?
 
-<!-- Nothing here yet -->
+Wasp now uses **TypeScript 6**. Generated projects are built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.
 
 ## How to migrate?
 
@@ -39,6 +39,66 @@ Update the version field in your Wasp config to `^0.25.0`.
   </TabItem>
 </Tabs>
 
-### 2. Enjoy your updated Wasp app
+### 2. Update your TypeScript config for TypeScript 6
+
+TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly. In `tsconfig.wasp.json`, also bump `target` and `lib` to `ES2025`.
+
+In `tsconfig.wasp.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="tsconfig.wasp.json"
+    {
+      "compilerOptions": {
+        // ...
+        "target": "ES2022",
+        "lib": ["ES2023"]
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="tsconfig.wasp.json"
+    {
+      "compilerOptions": {
+        // ...
+        "target": "ES2025",
+        "lib": ["ES2025"],
+        "types": ["node"]
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+In `tsconfig.src.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="tsconfig.src.json"
+    {
+      "compilerOptions": {
+        // ...
+        "outDir": ".wasp/out/user"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="tsconfig.src.json"
+    {
+      "compilerOptions": {
+        // ...
+        "outDir": ".wasp/out/user",
+        "types": ["react", "node"]
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+We also recommend bumping the `typescript` dev dependency in your `package.json` to `6.0.3`, so your editor and local tooling match the version Wasp uses.
+
+### 3. Enjoy your updated Wasp app
 
 That's it!
