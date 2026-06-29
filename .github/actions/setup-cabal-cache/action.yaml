@@ -17,9 +17,7 @@ runs:
       shell: bash
       run: |
         set -euxo pipefail
-
         echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
-
         echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
         echo "CABAL_INDEX=$(cabal path -v0 --remote-repo-cache)" >> $GITHUB_OUTPUT
 
