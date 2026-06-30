@@ -32,7 +32,7 @@
     "estree-util-scope": "^1.0.0",
     "estree-walker": "^3.0.3",
     "type-fest": "^5.6.0",
-    "typescript": "^5.8.3",
+    "typescript": "^6.0.3",
     "unrun": "^0.3.0"
   },
   "devDependencies": {
