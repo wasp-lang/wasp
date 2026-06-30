@@ -18,18 +18,16 @@ interface FrontMatter {
 }
 
 /**
- * Reimplements Docusaurus's original `DocItemContent` so the "Last checked
- * with versions" notice can live inside the `markdown` container, above the
- * title.
+ * Modified Docusaurus's `DocItem/Content` component.
+ * Modifications:
+ * - Adds the "Last checked with versions" notice inside the `markdown` container,
+ *   before any other content. The original component only lets us inject the notice
+ *   on top of `MDXContent`'s children, which renders it below a frontmatter (synthetic)
+ *   title but above an inline `# h1` title.
  *
- * The original component only lets us inject the notice into `MDXContent`'s
- * children, which renders below a frontmatter (synthetic) title but above an
- * inline `# h1` title.
- *
- * Mirrors the upstream component:
- * @see {@link https://github.com/facebook/docusaurus/blob/main/packages/docusaurus-theme-classic/src/theme/DocItem/Content/index.tsx}
+ * @see {@link https://docusaurus.io/docs/swizzling Docasaurus swizzling}
  */
-export default function ContentWrapper({ children }: Props): ReactNode {
+export default function Content({ children }: Props): ReactNode {
   const frontMatter = useDoc().frontMatter as FrontMatter;
   const syntheticTitle = useSyntheticTitle();
 
