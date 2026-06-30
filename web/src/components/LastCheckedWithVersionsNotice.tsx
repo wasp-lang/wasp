@@ -15,12 +15,6 @@ export interface LastCheckedWithVersions {
   [name: string]: Version;
 }
 
-/**
- * Renders a note listing the versions a guide was last checked with.
- *
- * Place it just below the title of any guide that depends on external libraries
- * or services, passing the versions it was last verified against.
- */
 export default function LastCheckedWithVersionsNotice({
   lastCheckedWithVersions,
 }: {
