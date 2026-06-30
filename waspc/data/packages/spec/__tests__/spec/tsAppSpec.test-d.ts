@@ -12,11 +12,18 @@ describe("AuthMethods", () => {
     usernameAndPassword: {},
   };
 
+  const someRoute: WaspSpec.Route = {
+    kind: "route",
+    name: "SomeRoute",
+    path: "/some",
+    page: { kind: "page", component: () => null },
+  };
+
   const email: Required<Pick<WaspSpec.AuthMethods, "email">> = {
     email: {
       fromField: { email: "noreply@example.com" },
-      emailVerification: { clientRoute: "/verify" },
-      passwordReset: { clientRoute: "/reset" },
+      emailVerification: { clientRoute: someRoute },
+      passwordReset: { clientRoute: someRoute },
     },
   };
 

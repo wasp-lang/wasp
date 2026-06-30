@@ -71,8 +71,8 @@ describe("mapApp", () => {
     const apiNamespace = Fixtures.getApiNamespace("full");
     const job = Fixtures.getJob("full");
     const crud = Fixtures.getCrud("full");
-    const emailVerifyRoute = Fixtures.getEmailVerifyRoute();
-    const passwordResetRoute = Fixtures.getPasswordResetRoute();
+    const emailVerifyRoute = Fixtures.getEmailVerifyRoute("full");
+    const passwordResetRoute = Fixtures.getPasswordResetRoute("full");
     const authConfig = Fixtures.getAuthConfig("full");
     const server = Fixtures.getServerConfig("full");
     const client = Fixtures.getClientConfig("full");
@@ -284,6 +284,105 @@ describe("mapApp", () => {
     );
   });
 
+  test("auto-registers routes referenced by `auth` but absent from `spec`", () => {
+    const loginRoute = route(
+      "LoginRoute",
+      "/login",
+      page(Fixtures.getRefObject("minimal", "named")),
+    );
+    const verifyRoute = route(
+      "VerifyRoute",
+      "/verify",
+      page(Fixtures.getRefObject("minimal", "default")),
+    );
+    const resetRoute = route(
+      "ResetRoute",
+      "/reset",
+      page(Fixtures.getRefObject("full", "named")),
+    );
+
+    const decls = mapAppWithAuth({
+      userEntity: "User",
+      methods: {
+        email: {
+          fromField: { email: "noreply@example.com" },
+          emailVerification: { clientRoute: verifyRoute },
+          passwordReset: { clientRoute: resetRoute },
+        },
+      },
+      onAuthFailedRedirectTo: loginRoute,
+    });
+
+    // The referenced routes are registered even though none are in `spec`.
+    const routeNames = decls
+      .filter((d) => d.declType === "Route")
+      .map((d) => d.declName);
+    expect(routeNames).toEqual(["LoginRoute", "VerifyRoute", "ResetRoute"]);
+
+    // Each referenced route's page is auto-registered too.
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual(
+      expect.arrayContaining([
+        getRefObjectDeclarationName(loginRoute.page.component),
+        getRefObjectDeclarationName(verifyRoute.page.component),
+        getRefObjectDeclarationName(resetRoute.page.component),
+      ]),
+    );
+  });
+
+  test("registers a route once when it is both in `spec` and referenced by `auth`", () => {
+    const homeRoute = route(
+      "HomeRoute",
+      "/",
+      page(Fixtures.getRefObject("minimal", "named")),
+    );
+
+    const decls = mapAppWithAuth(
+      {
+        userEntity: "User",
+        methods: {},
+        onAuthFailedRedirectTo: homeRoute,
+      },
+      [homeRoute],
+    );
+
+    const routeNames = decls
+      .filter((d) => d.declType === "Route")
+      .map((d) => d.declName);
+    expect(routeNames).toEqual(["HomeRoute"]);
+  });
+
+  test("throws when a route referenced by `auth` conflicts with a same-named route in `spec`", () => {
+    const routeInSpec = route(
+      "LoginRoute",
+      "/login",
+      page(Fixtures.getRefObject("minimal", "named")),
+    );
+    const routeInAuth = route(
+      "LoginRoute",
+      "/login-elsewhere",
+      page(Fixtures.getRefObject("minimal", "named")),
+    );
+
+    expect(() =>
+      mapAppWithAuth(
+        {
+          userEntity: "User",
+          methods: {},
+          onAuthFailedRedirectTo: routeInAuth,
+        },
+        [routeInSpec],
+      ),
+    ).toThrow("Conflicting configurations for the route `LoginRoute`");
+  });
+
+  function mapAppWithAuth(auth: WaspSpec.Auth, spec: WaspSpec.Spec = []) {
+    const app: WaspSpec.App = { ...Fixtures.getApp("minimal"), auth, spec };
+    return mapMockApp(app, [auth.userEntity]);
+  }
+
   // TODO: duplicate query name → throw.
 });
 
@@ -418,7 +517,7 @@ describe("mapAuth", () => {
     const auth = Fixtures.getAuthConfig("full");
     assertDefined(auth.methods.email?.emailVerification.clientRoute);
     testMapAuth(auth, {
-      overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
+      overrideRoutes: [auth.methods.email.passwordReset.clientRoute.name],
       shouldError: true,
     });
   });
@@ -427,7 +526,7 @@ describe("mapAuth", () => {
     const auth = Fixtures.getAuthConfig("full");
     assertDefined(auth.methods.email?.passwordReset.clientRoute);
     testMapAuth(auth, {
-      overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
+      overrideRoutes: [auth.methods.email.emailVerification.clientRoute.name],
       shouldError: true,
     });
   });
@@ -449,8 +548,8 @@ describe("mapAuth", () => {
     const routes =
       overrideRoutes ??
       [
-        auth.methods.email?.emailVerification.clientRoute,
-        auth.methods.email?.passwordReset.clientRoute,
+        auth.methods.email?.emailVerification.clientRoute.name,
+        auth.methods.email?.passwordReset.clientRoute.name,
       ].filter((e) => e !== undefined);
     const ctx = makeMapperContext({
       entityNames: entities,
@@ -467,8 +566,8 @@ describe("mapAuth", () => {
     expect(result).toStrictEqual({
       userEntity: ctx.entityRefParser(auth.userEntity),
       methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
-      onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
+      onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo.path,
+      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo?.path,
       onBeforeSignup:
         auth.onBeforeSignup &&
         mapRefObjectForMockProjectDir(auth.onBeforeSignup),
@@ -501,7 +600,7 @@ describe("mapAuthMethods", () => {
     const authMethods = Fixtures.getAuthMethods("full");
     assertDefined(authMethods.email?.emailVerification.clientRoute);
     testMapAuthMethods(authMethods, {
-      overrideRoutes: [authMethods.email.passwordReset.clientRoute],
+      overrideRoutes: [authMethods.email.passwordReset.clientRoute.name],
       shouldError: true,
     });
   });
@@ -510,7 +609,7 @@ describe("mapAuthMethods", () => {
     const authMethods = Fixtures.getAuthMethods("full");
     assertDefined(authMethods.email?.passwordReset.clientRoute);
     testMapAuthMethods(authMethods, {
-      overrideRoutes: [authMethods.email.emailVerification.clientRoute],
+      overrideRoutes: [authMethods.email.emailVerification.clientRoute.name],
       shouldError: true,
     });
   });
@@ -530,8 +629,8 @@ describe("mapAuthMethods", () => {
     const routes =
       overrideRoutes ??
       [
-        authMethods.email?.emailVerification.clientRoute,
-        authMethods.email?.passwordReset.clientRoute,
+        authMethods.email?.emailVerification.clientRoute.name,
+        authMethods.email?.passwordReset.clientRoute.name,
       ].filter((e) => e !== undefined);
     const ctx = makeMapperContext({ routeNames: routes });
 
@@ -586,7 +685,7 @@ describe("mapEmailAuth", () => {
     const emailAuth = Fixtures.getEmailAuthConfig("full");
     expect(emailAuth.emailVerification.clientRoute).toBeDefined();
     testMapEmailAuth(emailAuth, {
-      overrideRoutes: [emailAuth.passwordReset.clientRoute],
+      overrideRoutes: [emailAuth.passwordReset.clientRoute.name],
       shouldError: true,
     });
   });
@@ -595,7 +694,7 @@ describe("mapEmailAuth", () => {
     const emailAuth = Fixtures.getEmailAuthConfig("full");
     expect(emailAuth.passwordReset.clientRoute).toBeDefined();
     testMapEmailAuth(emailAuth, {
-      overrideRoutes: [emailAuth.emailVerification.clientRoute],
+      overrideRoutes: [emailAuth.emailVerification.clientRoute.name],
       shouldError: true,
     });
   });
@@ -615,8 +714,8 @@ describe("mapEmailAuth", () => {
     const routes =
       overrideRoutes ??
       [
-        emailAuth?.emailVerification.clientRoute,
-        emailAuth?.passwordReset.clientRoute,
+        emailAuth?.emailVerification.clientRoute.name,
+        emailAuth?.passwordReset.clientRoute.name,
       ].filter((e) => e !== undefined);
     const ctx = makeMapperContext({ routeNames: routes });
 
@@ -679,7 +778,7 @@ describe("mapEmailFlow", () => {
     },
   ): void {
     const { overrideRoutes, shouldError } = options;
-    const routes = overrideRoutes ?? [emailFlow.clientRoute];
+    const routes = overrideRoutes ?? [emailFlow.clientRoute.name];
     const ctx = makeMapperContext({ routeNames: routes });
 
     if (shouldError) {
@@ -690,7 +789,7 @@ describe("mapEmailFlow", () => {
     const result = AppSpecMapper.mapEmailFlow(emailFlow, ctx);
 
     expect(result).toStrictEqual({
-      clientRoute: ctx.routeRefParser(emailFlow.clientRoute),
+      clientRoute: ctx.routeRefParser(emailFlow.clientRoute.name),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
         mapRefObjectForMockProjectDir(emailFlow.getEmailContentFn),

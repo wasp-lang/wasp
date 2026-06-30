@@ -151,29 +151,28 @@ export interface Auth extends AuthHooks {
    * Route that Wasp redirects unauthenticated users to when they try to
    * access a page that has `authRequired: true`.
    *
+   * Pass a {@link Route} created with the {@link route} constructor. Wasp
+   * redirects to that route's path. Referencing a `route()` value (instead of
+   * a bare path string) means the target is checked to exist.
+   *
    * See [Adding Auth to the Project](https://wasp.sh/docs/tutorial/auth#adding-auth-to-the-project)
    * for an example.
    */
-  onAuthFailedRedirectTo: RouteTarget;
+  onAuthFailedRedirectTo: Route;
   /**
    * Route that Wasp redirects users to after a successful login or signup.
+   *
+   * Pass a {@link Route} created with the {@link route} constructor. Wasp
+   * redirects to that route's path.
    *
    * Only takes effect when using Wasp's built-in Auth UI.
    *
    * See [Auth UI](https://wasp.sh/docs/auth/ui).
    *
-   * @default "/"
+   * @default the route with path "/"
    */
-  onAuthSucceededRedirectTo?: RouteTarget;
+  onAuthSucceededRedirectTo?: Route;
 }
-
-/**
- * A redirect target for auth flows. Either a {@link Route} (created with the
- * {@link route} constructor) or a URL path string.
- *
- * @category Specifications
- */
-export type RouteTarget = Route | string;
 
 interface AuthHooks {
   /**
@@ -457,11 +456,10 @@ export interface EmailFlowConfig {
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
-   * Name of the route that handles the link sent in the email (e.g.
-   * `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
+   * Route that handles the link sent in the email.
    *
-   * The route must be defined in {@link App.spec} with the {@link route}
-   * constructor.
+   * Pass a {@link Route} created with the {@link route} constructor and
+   * registered in {@link App.spec}.
    *
    * This route should handle the process of taking a token from the URL and
    * sending it to the server to verify the e-mail address. You can use our
@@ -471,7 +469,7 @@ export interface EmailFlowConfig {
    * action](https://wasp.sh/docs/auth/email/create-your-own-ui#resetpassword)
    * helpers for that.
    */
-  clientRoute: RouteTarget;
+  clientRoute: Route;
 }
 
 /**

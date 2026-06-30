@@ -37,10 +37,17 @@ export function mapApp(
   const flatSpec = flattenSpec(spec);
 
   const entityRefParser = makeRefParser("Entity", entityNames);
-  const routeSpecElements = extractSpecElements("route", flatSpec);
+  // Routes referenced by `auth` (e.g. `onAuthFailedRedirectTo`) are
+  // auto-registered, mirroring how `route(_, _, page())` auto-registers the
+  // page passed to it. A route that is both listed in `spec` and referenced by
+  // `auth` is registered once (see `dedupeRouteDecls`).
+  const routeElements = [
+    ...extractSpecElements("route", flatSpec),
+    ...(auth ? collectAuthRoutes(auth) : []),
+  ];
   const routeRefParser = makeRefParser(
     "Route",
-    routeSpecElements.map((r) => r.name),
+    routeElements.map((r) => r.name),
   );
   const ctx: AppMapperContext = {
     entityRefParser,
@@ -63,13 +70,13 @@ export function mapApp(
   );
 
   const routeDecls = mapToDecls(
-    routeSpecElements,
+    routeElements,
     "Route",
     (route) => route.name,
     (route) => mapRoute(route),
   );
   const routePageDecls = mapToDecls(
-    routeSpecElements,
+    routeElements,
     "Page",
     (route) => getRefObjectDeclarationName(route.page.component),
     (route) => mapPage(route.page, ctx),
@@ -145,7 +152,7 @@ export function mapApp(
   return ensureAllDecls({
     App: [appDecl],
     Page: dedupePageDecls([...pageDecls, ...routePageDecls]),
-    Route: routeDecls,
+    Route: dedupeRouteDecls(routeDecls),
     Query: queryDecls,
     Action: actionDecls,
     Api: apiDecls,
@@ -226,6 +233,55 @@ function arePageDeclsEqual(
   );
 }
 
+/**
+ * A {@link WaspSpec.Route} can be both listed in the app's `spec` and
+ * referenced by `auth` (e.g. {@link WaspSpec.Auth.onAuthFailedRedirectTo}). We
+ * register each route once, collapsing identical declarations and rejecting
+ * conflicting ones that share a name.
+ */
+export function dedupeRouteDecls(
+  decls: AppSpec.GetDeclForType<"Route">[],
+): AppSpec.GetDeclForType<"Route">[] {
+  const routesByDeclName = Map.groupBy(decls, (decl) => decl.declName);
+  return Array.from(routesByDeclName.values()).map((routes) =>
+    routes.reduce((firstRoute, currentRoute) => {
+      if (!areRouteDeclsEqual(currentRoute, firstRoute)) {
+        throw new SpecUserError(
+          `Conflicting configurations for the route \`${firstRoute.declName}\`:\n` +
+            `- Definition A: ${JSON.stringify(firstRoute.declValue)}\n` +
+            `- Definition B: ${JSON.stringify(currentRoute.declValue)}\n\n` +
+            "All routes with the same name must produce the same configuration.",
+        );
+      }
+      return firstRoute;
+    }),
+  );
+}
+
+function areRouteDeclsEqual(
+  route1: AppSpec.GetDeclForType<"Route">,
+  route2: AppSpec.GetDeclForType<"Route">,
+): boolean {
+  return (
+    route1.declName === route2.declName &&
+    JSON.stringify(route1.declValue) === JSON.stringify(route2.declValue)
+  );
+}
+
+/**
+ * Collects every {@link WaspSpec.Route} referenced by `auth` so the caller can
+ * auto-register them, the same way a route auto-registers the page passed to
+ * its constructor.
+ */
+function collectAuthRoutes(auth: WaspSpec.Auth): WaspSpec.Route[] {
+  return [
+    auth.onAuthFailedRedirectTo,
+    auth.onAuthSucceededRedirectTo,
+    auth.methods.email?.emailVerification.clientRoute,
+    auth.methods.email?.passwordReset.clientRoute,
+  ].filter((route) => route !== undefined);
+}
+
 export function mapQuery(
   query: WaspSpec.Query,
   ctx: AppMapperContext,
@@ -269,10 +325,8 @@ export function mapAuth(
   return {
     userEntity: ctx.entityRefParser(userEntity),
     methods: mapAuthMethods(methods, ctx),
-    onAuthFailedRedirectTo: routeTargetToString(onAuthFailedRedirectTo),
-    onAuthSucceededRedirectTo:
-      onAuthSucceededRedirectTo &&
-      routeTargetToString(onAuthSucceededRedirectTo),
+    onAuthFailedRedirectTo: onAuthFailedRedirectTo.path,
+    onAuthSucceededRedirectTo: onAuthSucceededRedirectTo?.path,
     onBeforeSignup: onBeforeSignup && ctx.mapRefObject(onBeforeSignup),
     onAfterSignup: onAfterSignup && ctx.mapRefObject(onAfterSignup),
     onAfterEmailVerified:
@@ -353,7 +407,7 @@ export function mapEmailFlow(
   const { getEmailContentFn, clientRoute } = emailFlow;
   return {
     getEmailContentFn: getEmailContentFn && ctx.mapRefObject(getEmailContentFn),
-    clientRoute: routeTargetToRef(clientRoute, ctx.routeRefParser),
+    clientRoute: ctx.routeRefParser(clientRoute.name),
   };
 }
 
@@ -524,19 +578,6 @@ export function makeRefParser<T extends AppSpec.DeclType>(
       declType,
     };
   };
-}
-
-function routeTargetToString(routeTarget: WaspSpec.RouteTarget): string {
-  return typeof routeTarget === "string" ? routeTarget : routeTarget.path;
-}
-
-export function routeTargetToRef(
-  routeTarget: WaspSpec.RouteTarget,
-  routeRefParser: RefParser<"Route">,
-): AppSpec.Ref<"Route"> {
-  const routePath =
-    typeof routeTarget === "string" ? routeTarget : routeTarget.path;
-  return routeRefParser(routePath);
 }
 
 function extractSpecElements<Kind extends WaspSpec.SpecElement["kind"]>(
