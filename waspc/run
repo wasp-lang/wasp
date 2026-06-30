@@ -176,7 +176,7 @@ print_usage() {
   print_usage_cmd "build:packages" \
     "Builds the TypeScript projects under data/packages/."
   print_usage_cmd "build:libs" \
-    "Builds the Wasp libs under libs/."
+    "Builds the Wasp libs under data/Generator/libs/."
   echo ""
   print_usage_cmd "bust-libs-cache" \
     "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."

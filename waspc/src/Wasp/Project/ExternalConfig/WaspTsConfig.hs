@@ -22,14 +22,14 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.eqJust ["**/*.wasp.ts", ".wasp/out/types/spec"],
+    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where
     compilerOptionsValidator :: V.Validator T.CompilerOptions
     compilerOptionsValidator =
       V.all
-        [ V.inField ("target", T.target) $ V.eqJust "ES2022",
+        [ V.inField ("target", T.target) $ V.eqJust "ES2025",
           V.inField ("module", T._module) $ V.eqJust "esnext",
           V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
           V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
@@ -39,5 +39,8 @@ waspTsConfigValidator =
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
-          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"]
+          V.inField ("lib", T.lib) $ V.eqJust ["ES2025"],
+          -- From TypeScript 6 onwards, we need to manually specify which
+          -- packages' globals we want to load.
+          V.inField ("types", T.types) $ V.required $ V.containsAll ["node"]
         ]

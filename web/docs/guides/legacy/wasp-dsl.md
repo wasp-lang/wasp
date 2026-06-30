@@ -1,11 +1,13 @@
 ---
 sidebar_label: "Wasp DSL"
 comments: true
-last_checked_with_versions:
-  Wasp: 0.24
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Migrating from the Wasp DSL
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
 Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../general/spec.md): a `main.wasp.ts` file written in TypeScript.
 
@@ -284,7 +286,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 These steps convert a Wasp DSL config to the Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
 
-After finishing this guide, return to the [migration guide](../../migration-guide.md) if you still need to complete the shared Wasp 0.24 migration steps.
+After finishing this guide, return to the [migration guide](/docs/0.24/migration-guide) if you still need to complete the shared Wasp 0.24 migration steps.
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 

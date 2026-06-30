@@ -22,7 +22,8 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "allowJs": true,
-    "outDir": ".wasp/out/user"
+    "outDir": ".wasp/out/user",
+    "types": ["react", "node"]
   },
   "include": ["src"],
   "exclude": ["**/*.wasp.ts"]

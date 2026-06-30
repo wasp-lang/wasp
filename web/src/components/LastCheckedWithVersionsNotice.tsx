@@ -4,32 +4,26 @@ import { useMemo } from "react";
 
 /**
  * A version can be a simple string (e.g., "v2.3.4"), a number (e.g., 14),
- * or a Date (e.g., 2023-01-15) indicating when the dependency was last checked.
+ * or a Date (e.g., new Date("2023-01-15")) indicating when the dependency was
+ * last checked.
  *
- * The YAML parser in Docusaurus automatically tries to parse any number-like or
- * date-like strings into numbers or Date objects, so we need to account for that.
- *
- * Dates are especially useful for unversioned dependencies, like Shadcn.
+ * Dates are useful for unversioned dependencies, like Shadcn.
  */
-export type Version = string | number | Date;
-
-export interface LastCheckedWithVersions {
-  [name: string]: Version;
-}
+type Version = string | number | Date;
 
 export default function LastCheckedWithVersionsNotice({
-  lastCheckedWithVersions,
+  versions,
 }: {
-  lastCheckedWithVersions: LastCheckedWithVersions;
+  versions: { [dependency: string]: Version };
 }) {
   const lastCheckedWithString = useMemo(
     () =>
       listFormatter.format(
-        Object.entries(lastCheckedWithVersions).map(([key, value]) =>
+        Object.entries(versions).map(([key, value]) =>
           formatVersion(key, value),
         ),
       ),
-    [lastCheckedWithVersions],
+    [versions],
   );
 
   return (
