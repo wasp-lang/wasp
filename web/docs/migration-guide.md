@@ -10,7 +10,9 @@ import InstallInstructions from './\_install-instructions.md'
 
 ## What's new in 0.25?
 
-Wasp now uses **TypeScript 6**. Generated projects are built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.
+### TypeScript 6
+
+Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.
 
 ## How to migrate?
 
