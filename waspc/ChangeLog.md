@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Upgraded Wasp's TypeScript support to TypeScript 6. Generated projects now use TypeScript `6.0.3`, and existing projects must update their `tsconfig.wasp.json` and `tsconfig.src.json`: add explicit `types` arrays (TypeScript 6 no longer auto-includes `@types/*`) and bump `target`/`lib` to `ES2025`. ([#4401](https://github.com/wasp-lang/wasp/pull/4401))
+- Upgraded Wasp's TypeScript support to TypeScript 6. ([#4401](https://github.com/wasp-lang/wasp/pull/4401))
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
 - Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
 

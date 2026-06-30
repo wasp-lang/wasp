@@ -97,7 +97,30 @@ In `tsconfig.src.json`:
   </TabItem>
 </Tabs>
 
-We also recommend bumping the `typescript` dev dependency in your `package.json` to `6.0.3`, so your editor and local tooling match the version Wasp uses.
+In `package.json`, update the `typescript` dev dependency to `6.0.3`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // ...
+        "typescript": "5.9.3"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // ...
+        "typescript": "6.0.3"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
 
 ### 3. Enjoy your updated Wasp app
 
