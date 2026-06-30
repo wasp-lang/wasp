@@ -17,7 +17,7 @@ waspCompletionTest =
       TestCase "complete-full-word" $
         assertWaspCliCompletion "wasp-cli telemetry" "telemetry",
       TestCase "complete-multiple-choice" $
-        assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile",
+        assertWaspCliCompletion "wasp-cli d" "doctor\ndb\ndeploy\ndeps\ndockerfile",
       TestCase "complete-unknown-empty" $
         assertWaspCliCompletion "wasp-cli unknown" ""
     ]
