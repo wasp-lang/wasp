@@ -18,12 +18,11 @@ interface FrontMatter {
 }
 
 /**
- * Modified Docusaurus's `DocItem/Content` component.
+ * Ejected and modified Docusaurus `DocItem/Content` component.
  * Modifications:
- * - Adds the "Last checked with versions" notice inside the `markdown` container,
+ * - Adds the "Last checked with versions" notice inside the markdown container, but
  *   before any other content. The original component only lets us inject the notice
- *   on top of `MDXContent`'s children, which renders it below a frontmatter (synthetic)
- *   title but above an inline `# h1` title.
+ *   as `<MDXContent>`'s child, which always renders it below the frontmatter title.
  *
  * @see {@link https://docusaurus.io/docs/swizzling Docasaurus swizzling}
  */
