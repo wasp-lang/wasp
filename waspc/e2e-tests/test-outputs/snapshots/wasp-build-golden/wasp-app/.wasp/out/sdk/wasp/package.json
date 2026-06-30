@@ -23,7 +23,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@tsconfig/vite-react": "^8.0.0",
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/react": "^19.2.7",

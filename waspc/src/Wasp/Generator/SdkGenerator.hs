@@ -233,10 +233,7 @@ npmDepsForSdk spec =
             ("@types/express", show expressTypesVersionRange),
             ("@types/express-serve-static-core", show expressTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
-            ("@types/react-dom", show reactDomTypesVersionRange),
-            -- NOTE: Make sure to bump the version of the tsconfig
-            -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^8.0.0")
+            ("@types/react-dom", show reactDomTypesVersionRange)
           ],
       N.peerDependencies = Npm.Dependency.fromList []
     }

@@ -40,7 +40,7 @@ waspTsConfigValidator =
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
           V.inField ("lib", T.lib) $ V.eqJust ["ES2025"],
-          -- TypeScript 6 no longer auto-includes @types/* packages, so we
-          -- require `node` to be listed explicitly for the Wasp spec files.
+          -- From TypeScript 6 onwards, we need to manually specify which
+          -- packages' globals we want to load.
           V.inField ("types", T.types) $ V.required $ V.containsAll ["node"]
         ]
