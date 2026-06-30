@@ -7,9 +7,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Migrating from the Wasp TS Config
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.24" }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 

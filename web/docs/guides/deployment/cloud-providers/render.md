@@ -8,9 +8,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Render
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.24", Render: new Date("2026-04-15") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Render: new Date("2026-04-15") }} />
 
 ## Deploy Wasp on Render <Server /> <Client /> <Database />
 

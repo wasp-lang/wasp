@@ -7,9 +7,7 @@ import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
 # Caprover
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.24", Caprover: new Date("2026-01-30") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: new Date("2026-01-30") }} />
 
 ## Deploy Wasp with Caprover
 

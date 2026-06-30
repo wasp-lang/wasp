@@ -6,9 +6,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Swagger UI
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.24", "swagger-jsdoc": "6", "swagger-ui-express": "5" }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "swagger-jsdoc": "6", "swagger-ui-express": "5" }} />
 
 This guide shows you how to add Swagger UI documentation to your Wasp APIs, making it easy to explore and test your endpoints.
 

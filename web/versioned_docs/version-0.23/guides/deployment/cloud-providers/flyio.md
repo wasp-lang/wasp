@@ -9,9 +9,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Fly.io
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.23", "Fly.io": new Date("2026-04-06") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", "Fly.io": new Date("2026-04-06") }} />
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 

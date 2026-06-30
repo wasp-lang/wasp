@@ -7,9 +7,7 @@ import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
 
 # Coolify
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.21.0", Coolify: new Date("2026-01-30") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.21.0", Coolify: new Date("2026-01-30") }} />
 
 ## Deploy Wasp with Coolify
 

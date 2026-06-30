@@ -9,9 +9,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Railway
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.23", Railway: new Date("2026-04-06") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", Railway: new Date("2026-04-06") }} />
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 

@@ -7,9 +7,7 @@ import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
 
 # Simple VPS
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.21.0", Caddy: new Date("2026-01-30"), Ubuntu: new Date("2026-01-30") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.21.0", Caddy: new Date("2026-01-30"), Ubuntu: new Date("2026-01-30") }} />
 
 ## Deploy Wasp to a VPS
 

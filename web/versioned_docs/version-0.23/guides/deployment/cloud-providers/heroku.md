@@ -8,9 +8,7 @@ import { Server, Database } from '../DeploymentTag'
 
 # Heroku
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.23", Heroku: new Date("2026-04-06") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", Heroku: new Date("2026-04-06") }} />
 
 ## Deploy Wasp to Heroku <Server /> <Database />
 

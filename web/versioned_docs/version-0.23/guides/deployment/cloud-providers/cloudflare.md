@@ -8,9 +8,7 @@ import { Client } from '../DeploymentTag'
 
 # Cloudflare
 
-<LastCheckedWithVersionsNotice
-  versions={{ Wasp: "0.23", "Cloudflare Workers": new Date("2026-04-06") }}
-/>
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", "Cloudflare Workers": new Date("2026-04-06") }} />
 
 ## Deploy Wasp to Cloudflare Workers <Client />
 
