@@ -17,6 +17,7 @@ url = "https://downloads.haskell.org/~ghcup/0.2.6.1/x86_64-linux-ghcup-0.2.6.1"
 url = "https://downloads.haskell.org/~ghcup/0.2.6.1/x86_64-linux-ghcup-0.2.6.1"
 
 [tools."aqua:ghcup"."platforms.macos-arm64"]
+checksum = "blake3:28f02abfb5f88d39df5412c11f3e8ad6025dfe96c0509e024ab02a6e2342f7cc"
 url = "https://downloads.haskell.org/~ghcup/0.2.6.1/aarch64-apple-darwin-ghcup-0.2.6.1"
 
 [tools."aqua:ghcup"."platforms.macos-x64"]
@@ -78,6 +79,7 @@ url = "https://github.com/tfausak/cabal-gild/releases/download/1.5.0.1/cabal-gil
 url_api = "https://api.github.com/repos/tfausak/cabal-gild/releases/assets/177007969"
 
 [tools."github:tfausak/cabal-gild"."platforms.macos-arm64"]
+checksum = "blake3:3ada4479200233e755230ce0f637cce088f4fcba3679474ba1ef72f0d0e5dfdd"
 url = "https://github.com/tfausak/cabal-gild/releases/download/1.5.0.1/cabal-gild-1.5.0.1-darwin-arm64.tar.gz"
 url_api = "https://api.github.com/repos/tfausak/cabal-gild/releases/assets/177007972"
 
@@ -153,6 +155,7 @@ url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Linux.zi
 url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848989"
 
 [tools.ormolu."platforms.macos-arm64"]
+checksum = "blake3:c213ae987b2140952a47921710fee434b01968f0129ecc741112d9da6011a381"
 url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-macOS.zip"
 url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848990"
 
