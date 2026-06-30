@@ -1,21 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { WEB_PROJECT_ROOT_DIR } from "../site-root";
-import { htmlToMarkdown } from "./convert";
-import { isHtmlFileAValidMarkdownCandidate } from "./markdown-routes";
-
-const BUILD_DIR = path.join(WEB_PROJECT_ROOT_DIR, "build");
-const MARKDOWN_DOCS_INDEX_HEADER = `\
-> Fetch the complete documentation index at: https://wasp.sh/llms.txt
----
-
-`;
-
-generateMarkdownFiles().catch((err) => {
-  console.error("Failed to generate Markdown files:", err);
-  process.exit(1);
-});
+import { LllmDocsContext } from "../context";
+import { createDocusaurusHtmlToMarkdownProcessor } from "./convert";
+import { isHtmlFileAValidMarkdownVariantCandidate } from "./markdown-routes";
 
 /**
  * Turns the rendered HTML for docs, blog, and resources pages into Markdown
@@ -28,20 +16,26 @@ generateMarkdownFiles().catch((err) => {
  *     non-MD compliant content (e.g. code block titles).
  * - It is more future proof. HTML and Markdown are not prone to changes.
  */
-async function generateMarkdownFiles(): Promise<void> {
+export async function generateMarkdownFilesForValidHtmlFiles(
+  context: LllmDocsContext,
+): Promise<void> {
   console.log("Generating markdown files from built HTML...");
+  const { outDir, baseUrl } = context;
 
-  const htmlFilesRelPaths = await findConvertibleHtmlFiles();
+  const markdownDocsIndexHeader = buildMarkdownDocsIndexHeader(baseUrl);
+  const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
+
+  const htmlFilesRelPaths = await findConvertibleHtmlFiles(outDir);
   let generatedDocs = 0;
   for (const htmlFileRelPath of htmlFilesRelPaths) {
-    const htmlFileAbsPath = path.join(BUILD_DIR, htmlFileRelPath);
+    const htmlFileAbsPath = path.join(outDir, htmlFileRelPath);
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
     console.log("Generating: ", markdownFileAbsPath);
 
     const html = await fs.readFile(htmlFileAbsPath, "utf8");
     const markdown = htmlToMarkdown(html);
-    const markdownWithIndex = MARKDOWN_DOCS_INDEX_HEADER + markdown;
+    const markdownWithIndex = markdownDocsIndexHeader + markdown;
 
     await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
     generatedDocs++;
@@ -52,13 +46,21 @@ async function generateMarkdownFiles(): Promise<void> {
   );
 }
 
-async function findConvertibleHtmlFiles(): Promise<string[]> {
+function buildMarkdownDocsIndexHeader(baseUrl: string): string {
+  return `\
+> Fetch the complete documentation index at: ${baseUrl}/llms.txt
+---
+
+`;
+}
+
+async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
   const htmlFileRelPaths: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
-    cwd: BUILD_DIR,
+    cwd: outDir,
   })) {
-    if (isHtmlFileAValidMarkdownCandidate(htmlFileRelPath)) {
+    if (isHtmlFileAValidMarkdownVariantCandidate(htmlFileRelPath)) {
       htmlFileRelPaths.push(htmlFileRelPath);
     }
   }

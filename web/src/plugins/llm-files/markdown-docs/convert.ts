@@ -10,61 +10,57 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { SKIP, visit } from "unist-util-visit";
+import { LllmDocsContext } from "../context";
 
 /**
- * CSS class used to indicate HTML content we skip when generating markdown docs.
- */
-export const SKIP_IN_MARKDOWN_DOCS_CLASS = "skip-in-markdown-docs";
-
-/**
- * Converts Docusaurus HTML output to Markdown.
+ * Creates a Docusaurus HTML to markdown processor.
  *
- * Docusaurus renders MDX into HTML with theme-specific wrappers that
- * the default conversion mangles, so the handlers below recognize them and emit
- * clean Markdown.
+ * Docusaurus renders MDX into HTML with theme-specific wrappers that the default markdown
+ * conversion mangles. This processors recognizes them and emit clean markdown.
  */
-const markdownProcessor = unified()
-  .use(rehypeParse)
-  .use(rehypeReduceDocusaurusPageToMarkdownContent)
-  .use(rehypeRemark, {
-    handlers: {
-      div(state, element: hast.Element) {
-        if (hasClass(element, "theme-code-block")) {
-          return docusaurusCodeBlockToMdast(element);
-        }
-        if (hasClass(element, "theme-admonition")) {
-          return docusaurusAdmonitionToMdast(state, element);
-        }
-        if (hasClass(element, "tabs-container")) {
-          return docusaurusTabsToMdast(state, element);
-        }
-        return state.all(element);
+export function createDocusaurusHtmlToMarkdownProcessor(
+  context: LllmDocsContext,
+): (html: string) => string {
+  const markdownProcessor = unified()
+    .use(rehypeParse)
+    .use(() => rehypeReduceDocusaurusPageToMarkdownContent(context))
+    .use(rehypeRemark, {
+      handlers: {
+        div(state, element: hast.Element) {
+          if (hasClass(element, "theme-code-block")) {
+            return docusaurusCodeBlockToMdast(element);
+          }
+          if (hasClass(element, "theme-admonition")) {
+            return docusaurusAdmonitionToMdast(state, element);
+          }
+          if (hasClass(element, "tabs-container")) {
+            return docusaurusTabsToMdast(state, element);
+          }
+          return state.all(element);
+        },
       },
-    },
-  })
-  .use(remarkGfm)
-  .use(remarkDirective)
-  .use(remarkStringify, {
-    bullet: "-",
-    emphasis: "*",
-    strong: "*",
-    fence: "`",
-    fences: true,
-    rule: "-",
-    listItemIndent: "one",
-  });
+    })
+    .use(remarkGfm)
+    .use(remarkDirective)
+    .use(remarkStringify, {
+      bullet: "-",
+      emphasis: "*",
+      strong: "*",
+      fence: "`",
+      fences: true,
+      rule: "-",
+      listItemIndent: "one",
+    });
 
-/**
- * Converts a built Docusaurus HTML page to Markdown.
- */
-export function htmlToMarkdown(html: string): string {
-  const markdown = String(markdownProcessor.processSync(html)).trim();
-  if (!markdown) {
-    throw Error(
-      "Markdown content is null. Most likely a stray document. Please update the `isValidMarkdownDocsRoute` function.",
-    );
-  }
-  return markdown;
+  return (html: string) => {
+    const markdown = String(markdownProcessor.processSync(html)).trim();
+    if (!markdown) {
+      throw Error(
+        "Markdown content is null. Most likely a stray document. Please update the `isValidMarkdownDocsRoute` function.",
+      );
+    }
+    return markdown;
+  };
 }
 
 /**
@@ -72,16 +68,17 @@ export function htmlToMarkdown(html: string): string {
  * Drops unnecessary nodes that would otherwise leak into the markdown.
  * E.g., comments.
  */
-function rehypeReduceDocusaurusPageToMarkdownContent(): (
-  root: hast.Root,
-) => void {
+function rehypeReduceDocusaurusPageToMarkdownContent(
+  context: LllmDocsContext,
+): (root: hast.Root) => void {
   return (root: hast.Root): void => {
     root.children = [findMarkdownContentContainer(root)];
 
     visit(root, (node, index, parent) => {
       // React injects empty `<!-- -->` comments around dynamic values.
       const isComment = node.type === "comment";
-      const isSkippable = node.type === "element" && isSkippableElement(node);
+      const isSkippable =
+        node.type === "element" && isSkippableElement(context, node);
       if (isComment || isSkippable) {
         parent.children.splice(index, 1);
         return [SKIP, index];
@@ -120,12 +117,15 @@ function findMarkdownContentContainer(root: hast.Root): hast.Element {
   );
 }
 
-function isSkippableElement(element: hast.Element): boolean {
+function isSkippableElement(
+  context: LllmDocsContext,
+  element: hast.Element,
+): boolean {
   const isDocusaurusHashLink =
     element.tagName === "a" && hasClass(element, "hash-link");
 
   const hasSkipInMarkdownDcosClass = getClassNames(element).includes(
-    SKIP_IN_MARKDOWN_DOCS_CLASS,
+    context.skipElementInMarkdownDocsClass,
   );
 
   return isDocusaurusHashLink || hasSkipInMarkdownDcosClass;

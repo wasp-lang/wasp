@@ -4,16 +4,18 @@
  *
  * HTML file path must be relative to the build dir.
  */
-export function isHtmlFileAValidMarkdownCandidate(
+export function isHtmlFileAValidMarkdownVariantCandidate(
   htmlFileRelPath: string,
 ): boolean {
-  return isRouteWithMarkdownVariant(htmlFileRelPathToRoute(htmlFileRelPath));
+  return isRouteAValidMarkdownVariantCandidate(
+    htmlFileRelPathToRoute(htmlFileRelPath),
+  );
 }
 
 /**
  * Whether a route supports markdown variant of content.
  */
-export function isRouteWithMarkdownVariant(route: string): boolean {
+export function isRouteAValidMarkdownVariantCandidate(route: string): boolean {
   return (
     route === "/docs" ||
     route.startsWith("/docs/") ||

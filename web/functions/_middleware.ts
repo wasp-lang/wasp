@@ -1,4 +1,4 @@
-import { isRouteWithMarkdownVariant } from "../scripts/markdown-docs/html-to-md/markdown-routes";
+import { isRouteAValidMarkdownVariantCandidate } from "../src/plugins/llm-files/markdown-docs/markdown-routes";
 
 interface CloudflarePagesContext {
   request: Request;
@@ -19,7 +19,7 @@ export const onRequest = async (
   const url = new URL(request.url);
 
   const isMarkdownContentNegotiationRoute =
-    isRouteWithMarkdownVariant(url.pathname) &&
+    isRouteAValidMarkdownVariantCandidate(url.pathname) &&
     !isSpecificFileTypeRoute(url.pathname);
   if (!isMarkdownContentNegotiationRoute) {
     return next();
