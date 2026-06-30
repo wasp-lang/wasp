@@ -2,8 +2,11 @@ module Wasp.Node.Version
   ( VersionCheckResult (..),
     oldestWaspSupportedNpmVersion,
     oldestWaspSupportedNodeVersion,
+    nodeTypesVersionRangeMatchingNodeMajor,
     isRangeInWaspSupportedRange,
     checkUserNodeAndNpmMeetWaspRequirements,
+    getUserNodeVersion,
+    getUserNpmVersion,
   )
 where
 
@@ -23,6 +26,10 @@ oldestWaspSupportedNodeVersion = SV.Version 24 14 1
 
 oldestWaspSupportedNpmVersion :: SV.Version
 oldestWaspSupportedNpmVersion = SV.Version 11 11 0
+
+nodeTypesVersionRangeMatchingNodeMajor :: SV.Version -> SV.Range
+nodeTypesVersionRangeMatchingNodeMajor nodeVersion =
+  SV.backwardsCompatibleWith $ SV.Version (SV.major nodeVersion) 0 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
@@ -63,6 +70,12 @@ checkUserToolVersion commandName commandArgs oldestSupportedToolVersion = do
           "You are running " ++ commandName ++ " " ++ show version ++ ".",
           "Wasp requires " ++ commandName ++ " version " ++ show oldestSupportedToolVersion ++ " or higher."
         ]
+
+getUserNodeVersion :: IO (Either ErrorMessage SV.Version)
+getUserNodeVersion = getToolVersionFromCommandOutput "node" ["--version"]
+
+getUserNpmVersion :: IO (Either ErrorMessage SV.Version)
+getUserNpmVersion = getToolVersionFromCommandOutput "npm" ["--version"]
 
 getToolVersionFromCommandOutput :: String -> [String] -> IO (Either ErrorMessage SV.Version)
 getToolVersionFromCommandOutput commandName commandArgs = do

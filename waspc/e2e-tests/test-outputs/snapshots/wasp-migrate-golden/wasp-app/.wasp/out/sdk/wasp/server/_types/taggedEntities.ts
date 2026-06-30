@@ -7,7 +7,7 @@ import {
   type Entity, 
   type EntityName,
   type Task,
-} from 'wasp/entities'
+} from '../../entities/index.js'
 
 export type _Task = WithName<Task, "Task">
 

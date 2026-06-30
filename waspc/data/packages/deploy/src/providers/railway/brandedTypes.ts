@@ -8,5 +8,9 @@ export type RailwayProjectId = Branded<string, "RailwayProjectId">;
 export type ClientServiceName = Branded<string, "ClientServiceName">;
 export type ServerServiceName = Branded<string, "ServerServiceName">;
 export type DbServiceName = Branded<string, "DbServiceName">;
+export type RailwayServiceName =
+  | ClientServiceName
+  | ServerServiceName
+  | DbServiceName;
 
 export type Port = Branded<number, "Port">;

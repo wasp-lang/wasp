@@ -129,7 +129,6 @@ spec_AppSpecValid = do
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                AS.Auth.externalAuthEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
@@ -190,7 +189,6 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.methods = authMethods,
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
@@ -363,7 +361,6 @@ spec_AppSpecValid = do
                                   { AS.Auth.methods =
                                       AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
@@ -499,36 +496,47 @@ spec_AppSpecValid = do
               }
 
       it "returns no error for prerendered route with static path and no auth" $ do
-        ASV.validateAppSpec (makeSpec "/about" (Just True) Nothing) `shouldBe` []
+        ASV.validateAppSpec (makeSpec "/about" ["/about"] Nothing) `shouldBe` []
 
       it "returns an error for prerendered route with dynamic segment" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" (Just True) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" ["/photo/:photoId"] Nothing)
         length errors `shouldBe` 1
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route with splat" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/files/*" (Just True) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/files/*" ["/files/*"] Nothing)
         length errors `shouldBe` 1
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route with optional segment" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" (Just True) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" ["/photo/:id/edit?"] Nothing)
         length errors `shouldBe` 1
         -- Has both : and ?, but we just check at least one error about dynamic segments
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route pointing to authRequired page" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/dashboard" (Just True) (Just True))
+        let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just True))
         -- One error from validateAppAuthIsSetIfAnyPageRequiresAuth (app.auth not set)
         -- and one from validatePrerenderRoutes (prerender + authRequired)
         any (("authRequired" `isInfixOf`) . show) errors `shouldBe` True
         any (("Prerendered routes cannot require authentication" `isInfixOf`) . show) errors `shouldBe` True
 
-      it "returns no error when prerender is not set on dynamic route" $ do
-        ASV.validateAppSpec (makeSpec "/photo/:photoId" Nothing Nothing) `shouldBe` []
+      it "returns no error when the prerender list is empty on a dynamic route" $ do
+        ASV.validateAppSpec (makeSpec "/photo/:photoId" [] Nothing) `shouldBe` []
 
-      it "returns no error when prerender is False on dynamic route" $ do
-        ASV.validateAppSpec (makeSpec "/photo/:photoId" (Just False) Nothing) `shouldBe` []
+      it "returns no error when prerendering concrete instances of a dynamic route" $ do
+        ASV.validateAppSpec (makeSpec "/blog/:slug" ["/blog/intro", "/blog/changelog"] Nothing)
+          `shouldBe` []
+
+      it "returns an error when a listed prerender path is itself dynamic" $ do
+        let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/blog/:slug"] Nothing)
+        length errors `shouldBe` 1
+        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+
+      it "returns an error when a listed prerender path does not match the route pattern" $ do
+        let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/not-blog/intro"] Nothing)
+        length errors `shouldBe` 1
+        show (head errors) `shouldSatisfy` ("does not match" `isInfixOf`)
 
     describe "declaration names validation" $ do
       let testInvalidDeclName makeDecl invalidName = it invalidName $ do
@@ -623,6 +631,7 @@ spec_AppSpecValid = do
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
+                Npm.PackageJson.version = Nothing,
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
@@ -655,7 +664,8 @@ spec_AppSpecValid = do
         { AS.Page.component =
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
-              (fromJust $ SP.parseRelFileP "pages/Main"),
+              (fromJust $ SP.parseRelFileP "pages/Main")
+              Nothing,
           AS.Page.authRequired = Nothing
         }
 
@@ -678,7 +688,7 @@ spec_AppSpecValid = do
     makeBasicRouteDecl name pageName =
       AS.Decl.makeDecl
         name
-        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = Nothing}
+        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = []}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl
@@ -762,3 +772,4 @@ spec_AppSpecValid = do
       AS.ExtImport.ExtImport
         (AS.ExtImport.ExtImportModule "Dummy")
         (fromJust $ SP.parseRelFileP "dummy/File")
+        Nothing

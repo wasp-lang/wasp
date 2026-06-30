@@ -4,9 +4,9 @@ import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 function l(title, overrideTitle) {
   const links = {
     Wasp: "https://wasp.sh/",
-    "web app": "https://github.com/wasp-lang/wasp/tree/main/mage",
+    "web app": "https://github.com/wasp-lang/wasp/tree/v0.23.0/mage",
     "GPT code agent":
-      "https://github.com/wasp-lang/wasp/tree/main/waspc/src/Wasp/AI",
+      "https://github.com/wasp-lang/wasp/tree/v0.23.0/waspc/src/Wasp/AI",
     "blog post": "https://wasp.sh/blog/2023/07/10/gpt-web-app-generator",
   };
 
@@ -62,12 +62,8 @@ const faqs = [
         mistakes, especially for more complex apps, but altogether it works
         better than we expected! The code it generates is often very reasonable,
         and for very simple apps, it can even produce a working app out of the
-        box, while for a bit more complex apps it currently serves more like a
+        box, while for a bit more complex apps it serves more like a
         super-intelligent starter that needs a couple of tweaks to get it going.
-        <br />
-        <br />
-        With LLMs improving in general, the quality of generated code will only
-        get better!
       </p>
     ),
   },
@@ -83,10 +79,6 @@ const faqs = [
         In order to keep things simpler for this first version, we enforced some
         limitations: no additional npm deps, no additional files, no TS, no
         advanced Wasp features.
-        <br />
-        <br />
-        We believe most of these limitations can be removed in the future with
-        more work!
       </p>
     ),
   },
@@ -103,8 +95,7 @@ const faqs = [
         task.
         <br />
         <br />
-        We use GPT4o for all the phases at the moment of writing, as it gives
-        the best ratio of quality / cost.
+        Mage calls the legacy CLI generator under the hood.
       </p>
     ),
   },
@@ -114,11 +105,17 @@ const faqs = [
       <p>
         If you have access yourself to the OpenAI API, you can choose GPT model
         for the whole app, or play with adjusting the temperature, by running
-        the Wasp GPT code agent locally! So same thing like Mage, but via CLI.
+        the Wasp GPT code agent locally.
         <br />
         <br />
-        To run Wasp AI (Mage) locally, make sure you have wasp installed and
-        just run:
+        Install the CLI:
+        <br />
+        <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
+          npm i -g @wasp.sh/wasp-cli@0.23.0
+        </span>
+        <br />
+        <br />
+        Then run:
         <br />
         <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           wasp new
@@ -128,7 +125,7 @@ const faqs = [
         will start generating!
         <br />
         <br />
-        There is also a command for running the same thing programmatically,
+        That CLI also has a command for running the same thing programmatically,
         without interactive questions:
         <br />
         <span className="rounded-sm bg-slate-800 p-1 text-slate-200">

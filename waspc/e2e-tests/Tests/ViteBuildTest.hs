@@ -8,6 +8,7 @@ import ShellCommands
     ShellCommandBuilder,
     TestContext,
     WaspProjectContext (..),
+    appendToFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
@@ -24,7 +25,7 @@ import Wasp.Project.Env (dotEnvClient)
 viteBuildTest :: Test
 viteBuildTest =
   Test
-    "vite-build-env-vars"
+    "vite-build"
     [ TestCase
         "fail-on-missing-required-env-vars"
         ( createViteBuildTestCase [expectCommandFailure <$> viteBuild]
@@ -63,6 +64,20 @@ viteBuildTest =
               appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
               assertBuildOutputContains inlineEnvVarValue
             ]
+        ),
+      TestCase
+        "fail-on-user-code-type-error"
+        ( createViteBuildTestCase
+            [ addTypeErrorToSrcFile,
+              expectCommandFailure <$> viteBuildWithApiUrl
+            ]
+        ),
+      TestCase
+        "ignore-wasp-ts-type-errors"
+        ( createViteBuildTestCase
+            [ addTypeErrorToWaspTsFile,
+              viteBuildWithApiUrl
+            ]
         )
     ]
   where
@@ -75,6 +90,9 @@ viteBuildTest =
 
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"
+
+    viteBuildWithApiUrl :: ShellCommandBuilder WaspProjectContext ShellCommand
+    viteBuildWithApiUrl = appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
 
     assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
@@ -97,6 +115,15 @@ viteBuildTest =
       writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
         T.pack $
           testEnvVarKey ++ "=" ++ value
+
+    addTypeErrorToSrcFile :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError
+
+    addTypeErrorToWaspTsFile :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addTypeErrorToWaspTsFile = appendToFile "main.wasp.ts" typeError
+
+    typeError :: T.Text
+    typeError = "const shouldBeString: string = 123"
 
     appendInlineEnvVars :: [(String, String)] -> ShellCommand -> ShellCommand
     appendInlineEnvVars envVars command = foldr appendInlineEnvVar command envVars

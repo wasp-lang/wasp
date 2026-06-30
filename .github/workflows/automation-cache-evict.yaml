@@ -9,13 +9,16 @@ name: "Automation - Evict caches"
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+      - closed
 
 concurrency:
   group: "automation-cache-evict"
   cancel-in-progress: true
+
+permissions:
+  actions: write
 
 jobs:
   evict-cache:
@@ -23,6 +26,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Evict caches
         shell: bash

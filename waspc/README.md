@@ -230,7 +230,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `src/` -> main source code, library
 - `cli/src/` -> rest of the source code, cli, uses library
 - `cli/exe/` -> thin executable wrapper around cli library code
-- `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
+- `tests/`, `e2e-tests/`, `cli/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
 - `libs/` -> internal npm packages (WaspLibs) that are bundled with Wasp and copied into generated apps (see [WaspLibs](#wasplibs) for more details)
 - `packages/` -> TypeScript packages used by Wasp compiler (see [TypeScript Packages](#typescript-packages) for more details)
@@ -285,7 +285,6 @@ To run tests:
 - To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
 - To run Wasp CLI tests only, you can do `./run test:cli`.
-- To run Wasp LS tests only, you can do `./run test:waspls`.
 - To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
 - To run examples e2e tests, you can do `./run test:examples`.
 - To run starter templates e2e tests, you can do `./run test:starters`.
@@ -392,7 +391,7 @@ How do I know where I want to target my PR, to `release` or `main`?
 
 - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, update for Mage that needs to go out now, ... .
 - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
-- Stuff published on `release` (docs, Mage) uses/references version of `wasp` that was last released (so one that is also on `release`).
+- Stuff published on `release` uses/references version of `wasp` that was last released (so one that is also on `release`). Mage is an exception and uses its own pinned Wasp CLI version.
 - TLDR;
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
@@ -437,13 +436,10 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes, e.g. some can be skipped if there were no breaking changes).
 
-- Update [the templates in Wasp AI](./src/Wasp/AI/GenerateNewProject/InitialFiles.hs) if necessary
-- Update Open Saas:
-  - Check and merge [all Open Saas PRs with the label `merge-before-release`](https://github.com/wasp-lang/open-saas/pulls?q=sort:updated-desc+is:pr+is:open+label:merge-before-release).
-  - Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
+- Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
 - 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
-- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
+- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.24.1`) and do the rest of the steps from there.
 - 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
   - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
 - 👉 Create an RC release do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
@@ -460,7 +456,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Push your local `release` branch to remote.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main` (you can also find it [here](https://github.com/wasp-lang/wasp/pulls?q=is%3Apr+head%3Arelease+base%3Amain+is%3Aopen)). Make sure to merge that PR (create a merge commit, **don't squash or rebase**). This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
-- If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
+- If there are changes to the docs, [publish the new version](../web/README.md#deployment) from the `release` branch.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
 - Announce the new release in Discord.
@@ -468,18 +464,16 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 
 #### Determining next version
 
-`waspc` follows typical SemVer versioning scheme, so `major.minor.patch`.
-There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
-So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
+`waspc` follows typical SemVer versioning scheme, so `major.minor.patch`. While we are not 1.0 yet, we follow the SemVer convention of keeping `major` at 0, and bumping `minor` on breaking changes instead.
 
 #### Test releases (e.g. Release Candidate)
 
 Making a test release, especially "Release Candidate" (RC) release is useful when you want to test the release without it being published to the normal users.
 If doing this, steps are the following:
 
-1. Create a new branch called `rc-<version>` (e.g., `rc-0.19.0`) by branching out of the last commit you want to release (probably latest `main`).
+1. Create a new branch called `rc-<version>` (e.g., `rc-0.24.1`) by branching out of the last commit you want to release (probably latest `main`).
 
-2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc.1`).
+2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.24.1-rc.1`).
    The script will throw some warnings which you should accept.
 
 3. Once the draft release is created on Github:
@@ -490,10 +484,10 @@ If doing this, steps are the following:
 4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
    ```sh
-   npm i -g @wasp.sh/wasp-cli@0.19.0-rc.1
+   npm i -g @wasp.sh/wasp-cli@0.24.1-rc.1
    ```
 
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc.2`, see step 2).
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.24.1-rc.2`, see step 2).
 
 ## Documentation
 
@@ -501,9 +495,7 @@ External documentation, for users of Wasp, is hosted at https://wasp.sh/docs, an
 
 ## Mage
 
-Wasp's magic GPT web app generator aka Wasp AI aka Mage is hosted at https://usemage.ai and its source is available at [mage](/mage).
-
-Make sure to update it when changes modify how Wasp works.
+Mage is Wasp's GPT web app generator for the pre-Spec Wasp DSL. It is hosted at https://usemage.ai and its source is available at [mage](/mage).
 
 ## Haskell
 

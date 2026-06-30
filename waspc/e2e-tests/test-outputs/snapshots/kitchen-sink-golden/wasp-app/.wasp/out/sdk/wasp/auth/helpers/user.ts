@@ -1,4 +1,4 @@
-import { setSessionId } from 'wasp/client/api'
+import { setSessionId } from '../../api/index.js'
 import { invalidateAndRemoveQueries } from '../../client/operations/internal/resources.js'
 
 // PRIVATE API

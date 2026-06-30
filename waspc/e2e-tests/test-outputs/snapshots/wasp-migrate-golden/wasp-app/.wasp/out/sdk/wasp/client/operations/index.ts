@@ -20,3 +20,8 @@ export {
     // PRIVATE API (framework code)
     queryClientInitialized
 } from './queryClient'
+
+export {
+    // PUBLIC API
+    type QueryMetadata,
+} from './rpc'

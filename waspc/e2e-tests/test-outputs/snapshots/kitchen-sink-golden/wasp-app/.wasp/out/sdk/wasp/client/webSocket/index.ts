@@ -3,7 +3,7 @@ import { WebSocketContext, WebSocketContextValue } from './WebSocketProvider'
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
-} from 'wasp/server/webSocket'
+} from '../../server/webSocket/index.js'
 
 // PUBLIC API
 export type ServerToClientPayload<Event extends keyof ServerToClientEvents> =

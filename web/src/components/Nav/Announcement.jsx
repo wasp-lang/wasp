@@ -1,39 +1,30 @@
 import { useHistory } from "@docusaurus/router";
-import classNames from "classnames";
 
-import styles from "../../pages/styles.module.css";
+const ANNOUNCEMENT_LINK = "/blog/2026/06/05/wasp-launch-week-12-ts-spec";
 
 const Announcement = () => {
-  let history = useHistory();
+  const history = useHistory();
 
-  const handleLink = () => {
-    history.push("/blog/2025/10/08/design-ai-thon");
+  const handleClick = () => {
+    history.push(ANNOUNCEMENT_LINK);
   };
 
   return (
     <div
-      onClick={handleLink}
-      className={classNames(
-        styles.gradientBackground,
-        `cursor-pointer flex-row space-x-3 overflow-hidden text-white`,
-      )}
+      onClick={handleClick}
+      className="cursor-pointer border-b-2 border-wasp-black bg-wasp-yellow text-wasp-black transition-colors hover:bg-wasp-yellow-dark"
     >
-      <div
-        className={`mx-auto flex items-center justify-center divide-white p-3 text-sm font-medium lg:container lg:divide-x lg:px-16 xl:px-20`}
-      >
-        <span className="item-center flex gap-2 px-3">
-          <span>
-            <b className="text-yellow-300">🎨 Wasp Design-AI-Thon is live!</b>{" "}
-            <span className="font-medium underline">Oct 10 - Oct 19</span>
+      <div className="mx-auto flex items-center justify-center gap-3 px-4 py-2 font-mono text-xs font-medium tracking-wide lg:container lg:px-16 lg:text-sm">
+        <span className="hidden sm:inline">🦋</span>
+        <span>
+          <b className="uppercase tracking-widest">Launch Week #12 — TS Spec</b>
+          <span className="mx-2 hidden sm:inline">·</span>
+          <span className="hidden sm:inline">
+            Wasp goes fully TypeScript-native.
           </span>
         </span>
-
-        <span className="hidden items-center space-x-2 px-3 lg:flex">
-          <span
-            className={`cursor-pointer rounded-full bg-neutral-700 px-2.5 py-1 text-xs hover:bg-neutral-600`}
-          >
-            Join now <span className="text-yellow-300">→</span>
-          </span>
+        <span className="inline-flex items-center border-2 border-wasp-black bg-wasp-bg px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest lg:text-xs">
+          Kickoff Mon, Jun 15 <span className="ml-1">→</span>
         </span>
       </div>
     </div>

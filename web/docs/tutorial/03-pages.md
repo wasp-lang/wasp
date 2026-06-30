@@ -8,43 +8,51 @@ import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
 
-In the default `main.wasp` file created by `wasp new`, there is a **page** and a **route** declaration:
+In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    route RootRoute { path: "/", to: MainPage }
-    page MainPage {
-      // We specify that the React implementation of the page is exported from
-      // `src/MainPage.jsx`. This statement uses standard JS import syntax.
-      // Use `@src` to reference files inside the `src` folder.
-      component: import { MainPage } from "@src/MainPage"
-    }
+    ```ts title="main.wasp.ts"
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
+
+    export default app({
+      // ...
+      spec: [
+        // We specify that the React implementation of the page is exported from
+        // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
+        route("RootRoute", "/", page(MainPage)),
+      ],
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    route RootRoute { path: "/", to: MainPage }
-    page MainPage {
-      // We specify that the React implementation of the page is exported from
-      // `src/MainPage.tsx`. This statement uses standard JS import syntax.
-      // Use `@src` to reference files inside the `src` folder.
-      component: import { MainPage } from "@src/MainPage"
-    }
+    ```ts title="main.wasp.ts"
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
+
+    export default app({
+      // ...
+      spec: [
+        // We specify that the React implementation of the page is exported from
+        // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
+        route("RootRoute", "/", page(MainPage)),
+      ],
+    })
     ```
   </TabItem>
 </Tabs>
 
-Together, these declarations tell Wasp that when a user navigates to `/`, it should render the named export from `src/MainPage.{jsx,tsx}`.
+Together, these specifications tell Wasp that when a user navigates to `/`, it should render the `MainPage` component from `src/MainPage.{jsx,tsx}`.
 
 ## The MainPage Component
 
-Let's take a look at the React component referenced by the page declaration:
+Let's take a look at the React component referenced by the page spec:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import Logo from './assets/logo.svg';
-import './Main.css';
+import Logo from "./assets/wasp-logo-rounded.svg";
+import "./Main.css";
 
 export function MainPage() {
   // ...
@@ -63,13 +71,18 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
+To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
 
-```wasp title="main.wasp"
-route HelloRoute { path: "/hello/:name", to: HelloPage }
-page HelloPage {
-  component: import { HelloPage } from "@src/HelloPage"
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { HelloPage } from "./src/HelloPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    route("HelloRoute", "/hello/:name", page(HelloPage)),
+  ],
+})
 ```
 
 When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router` to access the `name` parameter:
@@ -111,27 +124,29 @@ At this point, the main page should look like this:
 
 <img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
-You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
+You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
-Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its `route` and `page` declarations from the `main.wasp` file.
+Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
 
 Your Wasp file should now look like this:
 
-```wasp title="main.wasp"
-app TodoApp {
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+
+export default app({
+  name: "TodoApp",
   wasp: {
-    version: "{latestWaspVersion}"
+    version: "{latestWaspVersion}",
   },
   title: "TodoApp",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
-  ]
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  component: import { MainPage } from "@src/MainPage"
-}
+  ],
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+  ],
+})
 ```
 </TutorialAction>
 

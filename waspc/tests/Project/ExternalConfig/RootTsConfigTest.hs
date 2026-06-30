@@ -53,6 +53,7 @@ validTsConfig =
   T.TsConfig
     { T.compilerOptions = Nothing,
       T.include = Nothing,
+      T.exclude = Nothing,
       T.files = Just [],
       T.references =
         Just

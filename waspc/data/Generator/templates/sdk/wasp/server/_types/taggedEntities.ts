@@ -10,7 +10,7 @@ import {
   {=# entities =}
   type {= name =},
   {=/ entities =}
-} from 'wasp/entities'
+} from '../../entities/index.js'
 
 {=# entities =}
 export type {= internalTypeName =} = WithName<{= name =}, "{= name =}">

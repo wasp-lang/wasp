@@ -1,0 +1,74 @@
+name: "Automation - Close stale PRs"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 1 * * *"
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  close-stale-prs:
+    name: Close stale PRs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/stale@v10
+        with:
+          operations-per-run: 100 # Default is 30, which is quite low
+
+          # First we mark a PR or issue as "Stale".
+          # PRs get it automatically after 7 days of inactivity, while issues
+          # are never marked as stale automatically (we can do it manually if we
+          # want to).
+
+          days-before-issue-stale: -1 # Don't mark issues as stale automatically.
+          days-before-pr-stale: 7
+          exempt-pr-labels: "no-stale"
+
+          stale-pr-message: |
+            This pull request is now **stale**.
+            That means that it hasn't seen any activity for a while, and needs to be updated or addressed before it can be merged.
+
+            **Next steps** if the PR is still relevant, and you are able to devote time to it:
+            - If you received any questions or feedback, please address them.
+            - Merge the latest `main` into your branch to ensure that you are up to date.
+            - If you are still working on the changes, please leave a comment telling us so.
+            - Otherwise, just leave a comment explaining why the PR is still relevant.
+
+            If no action is taken, this PR will be automatically closed in 7 days.
+
+          stale-issue-message: |
+            This issue is now **stale**.
+            That means that it might not be relevant anymore, or is outdated enough that it might no longer be applicable.
+
+            **Next steps** if the issue is still relevant:
+            - If you received any questions or feedback, please address them.
+            - Test your bug or feature request with the latest version of Wasp and leave a comment if it is still present.
+            - Otherwise, just leave a comment explaining why the issue is still relevant.
+
+            If no action is taken, this issue will be automatically closed in 7 days.
+
+          # After a PR or issue has been marked as stale for 7 days, we close it.
+
+          days-before-close: 7
+
+          close-pr-message: |
+            This pull request is now **closed**.
+            This doesn't mean that we don't care about it anymore, but rather that it has been inactive for a while and needs some attention to keep it relevant.
+
+            **Next steps** if the PR is still relevant:
+            - Follow the **next steps** in the message above.
+            - Create a new PR, linking to this one.
+
+          close-issue-message: |
+            This issue is now **closed**.
+            This doesn't mean that we don't care about it anymore, but rather that it has been inactive for a while and needs some attention to keep it relevant.
+
+            **Next steps** if the issue is still relevant:
+            - Follow the **next steps** in the message above.
+            - Create a new issue, linking to this one.

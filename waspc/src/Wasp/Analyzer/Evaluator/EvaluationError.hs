@@ -10,8 +10,8 @@ where
 
 import Data.List (intercalate)
 import qualified Text.Parsec
+import Wasp.Analyzer.Ctx (Ctx, WithCtx (..))
 import Wasp.Analyzer.ErrorMessage (makeFullErrorMsg)
-import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..))
 import Wasp.Analyzer.Type (Type)
 import Wasp.Util (concatPrefixAndText, indent, second3)
 

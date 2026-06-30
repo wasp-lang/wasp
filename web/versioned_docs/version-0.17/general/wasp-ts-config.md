@@ -6,7 +6,7 @@ import { DiscordLink } from '@site/blog/components/DiscordLink';
 
 :::caution Requires Wasp >= 0.16.3
 This document assumes your app works with Wasp >= 0.16.3.\
-If you haven't migrated your app yet, follow the [migration instructions](../migration-guides/migrate-from-0-15-to-0-16.md) and verify everything works. After that, come back here and try out the new Wasp TS config.
+If you haven't migrated your app yet, follow the [migration instructions](/docs/0.16/migration-guide) and verify everything works. After that, come back here and try out the new Wasp TS config.
 :::
 
 :::caution Early preview

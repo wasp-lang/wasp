@@ -1,20 +1,57 @@
 # Changelog
 
+## 0.25.0
+
+### ⚠️ Breaking Changes
+
+- Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
+- Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
+
+### 🎉 New Features
+
+- A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
+
+### 🐞 Bug fixes
+
+- Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
+
+### 🔧 Small improvements
+
+- Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
+- `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
+- `tsconfig.wasp.json`'s `include` now accepts extra globs in addition to the required Wasp entries, so you can keep helpers and libraries used by your `.wasp.ts` files in the same TS project. ([#4398](https://github.com/wasp-lang/wasp/pull/4398))
+
 ## 0.24.0
 
 ### ⚠️ Breaking Changes
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
 
+- The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. ([#4153](https://github.com/wasp-lang/wasp/pull/4153))
+- Wasp now requires `vitest` to be listed in your project's `devDependencies`. ([#4182](https://github.com/wasp-lang/wasp/pull/4182))
+- Removed `wasp new:ai` and the `ai-generated` starter template. ([#4280](https://github.com/wasp-lang/wasp/pull/4280))
+
 ### 🎉 New Features
 
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
 - Wasp TS spec now properly sets the `NODE_ENV` environment variable depending on which command you use to run Wasp. ([#4087](https://github.com/wasp-lang/wasp/pull/4087))
 - Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
+- Wasp TS spec now supports real JS imports, letting you import values in `main.wasp.ts` and pass them directly instead of using import objects like `{ import, from }`. ([#4143](https://github.com/wasp-lang/wasp/pull/4143))
+
+### 🐞 Bug fixes
+
+- Fixed a race condition in development mode that could potentially load the app's JS bundle before the Vite runtime, causing the app to fail the load with a "Can't detect preamble" error. ([#4258](https://github.com/wasp-lang/wasp/issues/4258))
+- Fixed `wasp deploy railway launch` sometimes producing a crashed server with an empty `DATABASE_URL`. Wasp now waits for the database service to finish deploying before setting up the other services. ([#4291](https://github.com/wasp-lang/wasp/pull/4291))
+- Fixed a bug where `wasp deploy railway launch` wouldn't correctly build the Wasp app client if the `/` route was not prerendered. ([#4293](https://github.com/wasp-lang/wasp/pull/4293))
 
 ### 🔧 Small improvements
 
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
+- The npm package now shows a clear error when installed on an unsupported Node.js version. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
+
+### 📖 Documentation
+
+- We now have a [SEO & GEO optimization guide](https://wasp.sh/docs/guides/optimization/seo). ([#4264](https://github.com/wasp-lang/wasp/pull/4264))
 
 ## 0.23.0
 

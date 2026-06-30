@@ -1,7 +1,8 @@
 import { UppercaseTextRequestState } from "@prisma/client";
 import { UppercaseTextRequest } from "wasp/entities";
 import { HttpError } from "wasp/server";
-import { uppercaseTextJob, UppercaseTextJob } from "wasp/server/jobs";
+import * as jobs from "wasp/server/jobs";
+import { type UppercaseTextJob } from "wasp/server/jobs";
 import {
   GetTextUppercaseRequests,
   RequestUppercaseText,
@@ -29,7 +30,7 @@ export const requestUppercaseText: RequestUppercaseText<{
   });
 
   // Submit the job for processing
-  uppercaseTextJob.submit({
+  jobs.uppercaseTextJob.submit({
     requestId: request.id,
   });
 
@@ -49,7 +50,7 @@ export const getTextUppercaseRequests: GetTextUppercaseRequests<
   });
 };
 
-export const uppercaseText: UppercaseTextJob<
+export const uppercaseTextJob: UppercaseTextJob<
   { requestId: string },
   void
 > = async (args, context) => {
