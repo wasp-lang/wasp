@@ -16,7 +16,7 @@ import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -29,13 +29,12 @@ import Wasp.Project.Common
     CompileWarning,
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
-    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
     srcTsConfig,
+    tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
-import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -50,6 +49,7 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
+  ValidNodeAndNpm <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
@@ -81,8 +81,7 @@ build = do
       "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
-      waspFilePath <- ExceptT $ findWaspFile waspProjectDir
-      let srcTsConfigPath = srcTsConfig $ getTsConfigPathsForWaspProject waspFilePath
+      let srcTsConfigPath = srcTsConfig tsConfigPaths
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.

@@ -1,4 +1,4 @@
--- | This module exports the functions necessary for typechecking the AST from "Analyzer.Parser".
+-- | This module exports the functions necessary for typechecking the "Analyzer.AST".
 -- See the Type Checking section in "docs/wasplang" for the rules type checking follows.
 --
 -- See "Analyzer.TypeChecker.Internal" for the implementation of the type checking rules.
@@ -25,7 +25,7 @@ module Wasp.Analyzer.TypeChecker
   )
 where
 
-import Wasp.Analyzer.Parser.AST (AST)
+import Wasp.Analyzer.AST (AST)
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Internal (check)
 import Wasp.Analyzer.TypeChecker.Monad (run)

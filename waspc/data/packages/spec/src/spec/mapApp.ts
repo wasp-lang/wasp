@@ -6,6 +6,7 @@
  */
 
 import * as AppSpec from "../appSpec.js";
+import { normalizePrerender } from "../normalizePrerender.js";
 import * as WaspSpec from "./publicApi/waspSpec.js";
 import { getRefObjectDeclarationName, mapRefObject } from "./refObject.js";
 import { SpecUserError } from "./specUserError.js";
@@ -181,7 +182,7 @@ export function mapRoute(route: WaspSpec.Route): AppSpec.Route {
       name: getRefObjectDeclarationName(route.page.component),
       declType: "Page",
     },
-    prerender,
+    prerender: normalizePrerender(prerender, path),
     lazy,
   };
 }

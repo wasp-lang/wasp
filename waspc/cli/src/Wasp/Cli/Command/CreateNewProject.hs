@@ -22,6 +22,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require (ValidNodeAndNpm (ValidNodeAndNpm), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
@@ -32,6 +33,7 @@ import qualified Wasp.Util.Terminal as Term
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
 createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
+  ValidNodeAndNpm <- require
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription

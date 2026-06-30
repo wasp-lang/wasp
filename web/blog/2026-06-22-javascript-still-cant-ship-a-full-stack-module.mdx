@@ -1,0 +1,324 @@
+---
+title: "JavaScript still can't ship a full-stack module"
+authors: [miho]
+image: /img/javascript-still-cant-ship-a-full-stack-module/banner.webp
+tags: [wasp, javascript, full-stack, ai, typescript]
+keywords: ["full-stack modules", "javascript framework", "wasp framework", "full-stack javascript", "typescript framework", "deep modules", "ai coding agents", "rails for javascript", "laravel packages", "open saas", "npm packages", "vertical slices", "stripe payments"]
+description: "Why JavaScript lacks true full-stack modules, what Rails and Laravel get right, and how Wasp can bring that pattern to JS."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+import { VideoWithCaption } from './components/VideoWithCaption';
+
+Imagine if there were a way for us to somehow ship a *full-stack* package that you could plug into your app. Client code, backend code, webhooks, and database models all wired up and ready to go. I know I'd love that. Just install one complete module and the whole thing just works.
+
+{/* truncate */}
+
+Take payments, for example. Normally, we install the Stripe SDK or some nice payments UI library, but it always requires manual wiring. And that wiring bit, figuring out how to integrate libraries written by different people, is one of the most annoying parts of the job.
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/banner.webp"
+  caption="Different ways you can write a full-stack feature."
+  alt="Different ways to write a full-stack feature"
+/>
+
+Yeah yeah, I know what you are thinking. LLMs are writing most of the code these days, who cares? **Ok, but it's already been established: what's good for humans is good for LLMs. They like to be lazy too.**
+
+## Agents love working with legos
+
+Opus, GPT, and the rest of the models out there adore "legos" (pre-built pieces of functionality): they speed up the scaffolding process and result in more secure apps. You shouldn't trust your agent with hand-rolled components, especially with parts that need to be vetted (auth, payments...). When you trust the agent with that, you pay for more tokens and have no idea where the security holes are.
+
+But imagine those agents had access to well-tested, full-stack implementations of auth, payments, file upload, admin dashboard, etc. Ideally, these packaged legos would hide most of the complexity from us and offer our agents control knobs for the most important configuration. For example, the agents would only be dealing with 2 env variables and maybe 2 or 3 lines of config for tested, reliable, and secure Google auth.
+
+Matt Pocock talks about how LLMs struggle when a feature is split across too many layers and too much ad hoc glue. He focuses on the concept of "deep modules" from [A Philosophy of Software Design](https://www.amazon.com/Philosophy-Software-Design-John-Ousterhout/dp/1732102201) as one of the methods that help agents work in your codebase. We can define deep modules as a standalone part of our app that exposes a simple way to use it (a *thin interface*), but hides all the internal complexities of the actual implementation.
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/matt-pocock-deep-modules.webp"
+  caption={
+    <a
+      href="https://youtu.be/uC44zFz7JSM?si=uike3KKy_fbc01TU"
+      target="_blank"
+      rel="noreferrer noopener"
+    >
+      “Your codebase is NOT ready for AI (here's how to fix it)”
+    </a>
+  }
+  alt="Matt Pocock video about preparing codebases for AI"
+/>
+
+The legos I described are nothing more than deep modules themselves, having a thin interface for the agent to interact with while the complexity is tucked away.
+
+## Legos have a name: full-stack modules
+
+While developing [Wasp](/), a JS full-stack framework, we keep researching other ecosystems (Rails, Laravel, Django, etc.) and finding ways how they figured out developer productivity. We kept finding these reusable legos, so we gave them a name: "full-stack modules". Let's define what we mean by that exactly.
+
+We usually talk about applications in two ways:
+
+1. One is by technical layers: backend server, frontend client, database.
+2. The other is by vertical slices: a complete feature that runs through the whole stack. Payments is our standard example: backend logic, the button the user clicks, and the database model that stores the state. A full-stack module is one of these vertical slices.
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/technical-layers-vs-vertical-slices.webp"
+  caption="Technical layers vs vertical slices of an application."
+  alt="Technical layers compared with vertical slices in an application"
+/>
+
+In Rails and Laravel, you can install packages that ship a slice like this. Add the package and payments are covered. You are not assembling a model, a backend, and a UI by hand. You can install one package which was developed against the stable shape of these frameworks.
+
+That is a real advantage developers in Rails and Laravel ecosystems have, and it matters even more in the AI age. You ship faster if you don't spend days figuring out payments. You are also safer if you lean on a battle-tested package instead of something you wrote (or generated) under time pressure. The same logic applies to LLMs. We rarely review every line they produce. So, the less custom glue we ask them to write, the better.
+
+## Researching full-stack modules in 11 frameworks
+
+To better understand the common patterns, I wanted to "feel" how full-stack modules work elsewhere. I can read the docs only so much, so I prefer playing around with code, trying to make some changes and see what kind of pushback the API will give me.
+
+I gathered all the frameworks/libraries/tools that sounded interesting to me and looked like they had something to teach me. Then I sketched an app that would somehow use a full-stack module.
+
+To make it easy to compare, I created a static HTML prototype and tried to flesh out the requirements:
+
+- users can sign up / log in
+- they can browse products
+- they can buy products with Stripe
+- they can see their purchased items
+
+In all of the frameworks, we want to see the same webshop (same design, same capabilities).
+
+<VideoWithCaption
+  source="img/javascript-still-cant-ship-a-full-stack-module/fsm.mp4"
+  caption="Demo of the payments module in Django"
+  alt="Demo of the payments module in Django"
+/>
+
+Our webshop is made out of auth, payments, and products modules. In this exercise, we told the agent that the "payments" module *must be implemented* as a full-stack module. The idea was for the module to be reusable, and it can't make any assumptions about where it will be used.
+
+We took all these requirements and built the same app in 11 different frameworks. See the list here: [https://fsm-research.static.miho.dev](https://fsm-research.static.miho.dev/)
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/payments-module-frameworks.webp"
+  caption="How the host app uses the payments module in different frameworks."
+  alt="How host apps use a payments module in different frameworks"
+/>
+
+Playing around with the same webshop across different frameworks helped us understand how full-stack modules can be implemented. Different frameworks had different levels of support, which made the experience more or less enjoyable.
+
+For example:
+
+1. In some frameworks, sharing a full-stack feature is much more polished.
+   1. For example, in Orchard Core, you define a `Startup` class which has the ability to register services, database migrations, and add client and server routes as soon as the payments module is registered.
+   2. In Rails, once you install the `payments` engine, based on the Rails folder conventions, you get views, models, controllers, etc. automatically registered.
+2. But in some, the experience of sharing a module was more hands-on.
+   1. My experience with RedwoodJS was a bit less smooth. I had to install the package twice, once in the `web` app and then again in the `api` app. I had to manually define queries and re-export pages to get them registered.
+
+Some of that is due to the design of the frameworks (e.g. serverless-first assumptions), some of it was due to wanting to allow more flexibility (e.g. database implementation is not owned by the framework).
+
+For fun, we built a (very subjective) tier list of frameworks we tried based on their level of support for what we call full-stack modules: [https://fsm-research.static.miho.dev/fsm-tier-list](https://fsm-research.static.miho.dev/fsm-tier-list)
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/full-stack-modules-tier-list.webp"
+  caption="Tier list of support for full-stack modules in various frameworks. JS frameworks are highlighted in yellow."
+  alt="Tier list showing support for full-stack modules across frameworks"
+/>
+
+## Why there are no full-stack modules in JS
+
+Hm, if full-stack modules are so great, why aren't they a JS standard? I think it's useful to first define what full-stack modules need to be viable in an ecosystem.
+
+Full-stack modules need:
+
+1. A way to ship runtime code (React components, Node.js server code, etc.)
+2. A way to ship glue (code that describes how pieces fit together)
+3. A way to distribute an installable unit
+
+JavaScript ecosystem has no shortage of great libraries, and in great part that's due to how easy it is to ship code with `npm`. I'd say that sorts out points 1 and 3: it's easy to ship and install libraries.
+
+But, it's impossible to ship "glue" code, the code that connects, e.g. the Stripe SDK on the backend, the payment button, and your database storage layer. I mean, how could it work if there are so many different standards for every little thing in JS?
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/npm-full-stack-module.webp"
+  caption="A full-stack module shipped as an npm package."
+  alt="A full-stack module shipped as an npm package"
+/>
+
+There is no standard full-stack layer you can rely on when shipping a library, so you can't really ship full-stack libraries.
+
+One of the core reasons is that many popular frameworks are frontend-first, and nobody dares to own the full-stack concept: client, server, and the database. You need to opt into owning (and accept the maintenance burden) everything if you want to provide a consistent development surface.
+
+When you have some stable surface, your libraries can actually make assumptions and be "braver", e.g. they can assume how the routing works or how to expose webhooks in your app.
+
+## Wasp is doing something about it
+
+So what are we doing about it? We are building a truly full-stack framework. We control the frontend, the backend, and the database layer. That puts us in a good position to ship a full-stack module system on a predictable stack, and later grow it into a registry.
+
+The core feature of Wasp is its spec file, a TypeScript config where you describe your app's features like client routing, server queries and actions, async jobs, etc. You still write React and Node.js to implement your features, while Wasp's spec file is where you write the "glue" code.
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/wasp-spec-file.webp"
+  caption="You define all the wiring code in one place: the Wasp Spec file."
+  alt="The Wasp Spec file defines application wiring code in one place"
+/>
+
+The cool thing about the "glue" code being written in a TypeScript spec file means that we can also package it alongside the React and Node.js code. We then arrive at a full-stack module.
+
+One package which ships:
+
+- React and Node.js code,
+- and the spec file that explains how to wire it all together.
+
+I can hear you saying "This is all very exciting, but let's see some code", so, okay, okay, let's take a quick look at some of the technical details. Beware, this is all very experimental, but the concept is solid.
+
+Let's see how we can extract a full-stack feature from your Wasp app, so you can reuse it in the next project or even across all your company's internal tooling.
+
+Here's an example Wasp spec file:
+
+```typescript
+// main.wasp.ts
+// Regular Wasp app: the app owns the payments wiring.
+
+import { action, api, app, page, query, route } from "@wasp.sh/spec";
+
+import { LandingPage } from "./src/landing-page/LandingPage" with { type: "ref" };
+import { PricingPage } from "./src/payment/PricingPage" with { type: "ref" };
+import { CheckoutResultPage } from "./src/payment/CheckoutResultPage" with { type: "ref" };
+import { generateCheckoutSession, getCustomerPortalUrl } from "./src/payment/operations" with { type: "ref" };
+import { paymentsMiddlewareConfigFn, paymentsWebhook } from "./src/payment/webhook" with { type: "ref" };
+
+export default app({
+  // ...
+
+  spec: [
+    route("LandingPageRoute", "/", page(LandingPage), { prerender: true }),
+
+    // Payments "glue" code
+    route("PricingPageRoute", "/pricing", page(PricingPage), {
+      prerender: true,
+    }),
+    route(
+      "CheckoutResultRoute",
+      "/checkout",
+      page(CheckoutResultPage, { authRequired: true }),
+    ),
+    query(getCustomerPortalUrl, { entities: ["User"] }),
+    action(generateCheckoutSession, { entities: ["User"] }),
+    api("POST", "/payments-webhook", paymentsWebhook, {
+      entities: ["User"],
+      middlewareConfigFn: paymentsMiddlewareConfigFn,
+    }),
+
+    // ...
+  ],
+});
+```
+
+We see that to implement payments we need:
+
+- two client pages: `/pricing` and `/checkout`
+- two operations: `getCustomerPortalUrl` and `generateCheckoutSession`
+- and a webhook endpoint at `/payments-webhook`
+
+For each of those pieces, we also have runtime code in files like `PricingPage.tsx` and `operations.ts`.
+
+So if we wanted to share this as an installable full-stack feature, we need to package both the runtime and the spec code. This way, Wasp knows how to wire the feature once installed.
+
+Let's say we shipped `stripePayments` as an `npm` package. This is how using the full-stack module would look:
+
+```typescript
+// main.wasp.ts
+// Wasp app with a full-stack payments module.
+
+import { app, page, route } from "@wasp.sh/spec";
+import { stripePayments } from "@acme/stripe-payments/spec";
+
+import { LandingPage } from "./src/landing-page/LandingPage" with { type: "ref" };
+
+export default app({
+  // ...
+
+  spec: [
+    route("LandingPageRoute", "/", page(LandingPage), { prerender: true }),
+
+    stripePayments("Payments", {
+      entities: { User: "User" },
+
+      plans: {
+        hobby: {
+          kind: "subscription",
+          priceIdEnvVar: "PAYMENTS_HOBBY_SUBSCRIPTION_PLAN_ID",
+        },
+        pro: {
+          kind: "subscription",
+          priceIdEnvVar: "PAYMENTS_PRO_SUBSCRIPTION_PLAN_ID",
+        },
+        credits10: {
+          kind: "credits",
+          amount: 10,
+          priceIdEnvVar: "PAYMENTS_CREDITS_10_PLAN_ID",
+        },
+      },
+    }),
+
+    // ...
+  ],
+});
+```
+
+In our example, you:
+
+- import `stripePayments` from `@acme/stripe-payments/spec`,
+- configure it with your app's payment plans,
+- get the client pages, operations, and webhook endpoints set up automatically!
+
+One extra fun fact: since the spec file is written in TypeScript, you can even fetch the info about your payment plans from a CMS or an API.
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/installing-wasp-full-stack-module.webp"
+  caption="Installing a full-stack module in Wasp."
+  alt="Installing a full-stack module in a Wasp application"
+/>
+
+Full-stack modules will not fit every use case. So there should be escape hatches:
+
+1. Shipping FSMs as npm packages gives authors flexibility to expose lower-level primitives. Users can rewire the high-level design without rewriting the implementation.
+2. And of course, you can take the FSM code as a reference implementation and tweak it, reimplement pieces of it, etc.
+3. Or even better, fork it with your tweaks and maintain an internal version specific to your organisation that you can use across your internal apps.
+
+## Open SaaS could become Open Anything
+
+At Wasp, we've built and maintain the most popular open-source SaaS boilerplate starter, [Open SaaS](https://opensaas.sh/).
+
+It's already packed with features:
+
+- payments
+- auth methods
+- file upload
+- an LLM wrapper example
+- etc.
+
+But we're reluctant to add new ones, because it's already common for users to delete many features from the template to customize it (which is pretty meh from a DX perspective).
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/open-saas.webp"
+  caption="Our open-source and free SaaS starter."
+  alt="Open SaaS, Wasp's open-source SaaS starter"
+/>
+
+Let's imagine what full-stack modules would mean for starters like these. Instead of shipping a starter with *all the features*, you could maybe start with a nice design system and tell users to install *features* they need. A user building an LLM-powered site with subscriptions would only install the payments and LLM full-stack modules. Some other user might install only the admin panel and S3 file uploads full-stack modules, etc.
+
+And those are only the modules we thought of so far. Imagine when the ecosystem has hundreds of community built modules, this starter becomes the most powerful starter in the world. And of course, the same modules could be used by any Wasp app out there.
+
+<ImgWithCaption
+  source="/img/javascript-still-cant-ship-a-full-stack-module/module-registry.webp"
+  caption="A concept for a future full-stack module registry."
+  alt="Concept design for a full-stack module registry"
+/>
+
+## Conclusion
+
+We've seen in other ecosystems how powerful these legos/full-stack modules are. Developers and LLMs that use them get more done plus have higher confidence in their apps.
+
+We think it's possible to bring the same idea to the JS ecosystem.
+
+The pieces we need to make it happen:
+
+- a stable full-stack surface to work against,
+- a way to ship together React components, Node.js code, and the "glue" code.
+
+And that's exactly what we want to build with Wasp. [Follow us on X](https://x.com/WaspLang) or join our [Discord](https://discord.gg/rzdnErX) to follow along.

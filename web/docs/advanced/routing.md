@@ -4,7 +4,9 @@ title: Routing
 
 Wasp uses [React Router](https://reactrouter.com) under the hood. Route paths support all the standard patterns described below.
 
-## Dynamic Segments
+## Dynamic route segments {#dynamic-segments}
+
+### Parameter Segments
 
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`.
 
@@ -31,7 +33,7 @@ export function PhotoPage() {
 
 Read more in the [React Router docs on dynamic segments](https://reactrouter.com/7.12.0/start/data/routing#dynamic-segments).
 
-## Optional Segments
+### Optional Segments
 
 Append `?` to a path segment to make it optional. The route will match whether or not the segment is present.
 
@@ -60,7 +62,7 @@ export function PhotoPage() {
 
 Read more in the [React Router docs on optional segments](https://reactrouter.com/7.12.0/start/data/routing#optional-segments).
 
-## Splats
+### Splats
 
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param.
 
@@ -113,7 +115,7 @@ Most apps won't need to change this. Disabling lazy loading is useful when you w
 
 ## Prerendered routes
 
-You can prerender specific routes at build time by setting `prerender: true`. This generates static HTML that is served immediately, giving faster load times and better SEO.
+You can prerender specific routes at build time by setting the `prerender` property. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -127,4 +129,4 @@ export default app({
 })
 ```
 
-Prerendering works on static paths only and cannot be used with `authRequired` pages. See the [Prerendering](./prerendering.md) page for the full documentation.
+See the [Prerendering](./prerendering.md) page for the full documentation.
