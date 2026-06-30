@@ -23,7 +23,11 @@ export function createDocusaurusHtmlToMarkdownProcessor(
 ): (html: string) => string {
   const markdownProcessor = unified()
     .use(rehypeParse)
-    .use(() => rehypeReduceDocusaurusPageToMarkdownContent(context))
+    .use(() =>
+      rehypeReduceDocusaurusPageToMarkdownContent(
+        context.skipElementInMarkdownDocsClass,
+      ),
+    )
     .use(rehypeRemark, {
       handlers: {
         div(state, element: hast.Element) {
@@ -69,7 +73,7 @@ export function createDocusaurusHtmlToMarkdownProcessor(
  * E.g., comments.
  */
 function rehypeReduceDocusaurusPageToMarkdownContent(
-  context: LllmDocsContext,
+  skipElementClass: string,
 ): (root: hast.Root) => void {
   return (root: hast.Root): void => {
     root.children = [findMarkdownContentContainer(root)];
@@ -78,7 +82,7 @@ function rehypeReduceDocusaurusPageToMarkdownContent(
       // React injects empty `<!-- -->` comments around dynamic values.
       const isComment = node.type === "comment";
       const isSkippable =
-        node.type === "element" && isSkippableElement(context, node);
+        node.type === "element" && isSkippableElement(skipElementClass, node);
       if (isComment || isSkippable) {
         parent.children.splice(index, 1);
         return [SKIP, index];
@@ -118,17 +122,16 @@ function findMarkdownContentContainer(root: hast.Root): hast.Element {
 }
 
 function isSkippableElement(
-  context: LllmDocsContext,
+  skipElementClass: string,
   element: hast.Element,
 ): boolean {
   const isDocusaurusHashLink =
     element.tagName === "a" && hasClass(element, "hash-link");
 
-  const hasSkipInMarkdownDcosClass = getClassNames(element).includes(
-    context.skipElementInMarkdownDocsClass,
-  );
+  const hasSkipInMarkdownDocsClass =
+    getClassNames(element).includes(skipElementClass);
 
-  return isDocusaurusHashLink || hasSkipInMarkdownDcosClass;
+  return isDocusaurusHashLink || hasSkipInMarkdownDocsClass;
 }
 
 /**
