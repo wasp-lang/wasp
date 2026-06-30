@@ -6,9 +6,12 @@ interface CloudflarePagesContext {
 }
 
 /**
- * Middleware entry function which handles markdown content negotiation for markdown docs.
- * When a client asks for Markdown variant of content via the `Accept` header,
+ * Middleware entry function which handles markdown content negotiation for docs.
+ *
+ * When a client asks for a markdown variant of some docs via the `Accept` header,
  * serve the pre-generated `.md` sibling of the requested page instead of the HTML.
+ *
+ * Only works for valid markdown variant routes ({@link isRouteAValidMarkdownVariantCandidate}).
  *
  * @see {@link https://developers.cloudflare.com/pages/functions/middleware/ Cloudflare middleware}
  */
