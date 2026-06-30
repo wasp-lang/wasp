@@ -1,3 +1,4 @@
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import { dateFormatter, listFormatter } from "@site/src/lib/formatters";
 import Admonition from "@theme/Admonition";
 import { useMemo } from "react";
@@ -17,20 +18,37 @@ export interface LastCheckedWithVersions {
   [name: string]: Version;
 }
 
-export default function LastCheckedWithVersionsNotice({
-  lastCheckedWithVersions,
-}: {
-  lastCheckedWithVersions: LastCheckedWithVersions;
-}) {
+interface FrontMatter {
+  last_checked_with_versions?: LastCheckedWithVersions;
+}
+
+/**
+ * Renders a note listing the versions a guide was last checked with.
+ *
+ * The `remark-last-checked-with-versions` plugin injects this
+ * component just below the title of any guide that declares
+ * `last_checked_with_versions` value.
+ */
+export default function LastCheckedWithVersionsNotice() {
+  const { frontMatter } = useDoc();
+  const lastCheckedWithVersions = (frontMatter as FrontMatter)
+    .last_checked_with_versions;
+
   const lastCheckedWithString = useMemo(
     () =>
-      listFormatter.format(
-        Object.entries(lastCheckedWithVersions).map(([key, value]) =>
-          formatVersion(key, value),
-        ),
-      ),
+      lastCheckedWithVersions
+        ? listFormatter.format(
+            Object.entries(lastCheckedWithVersions).map(([key, value]) =>
+              formatVersion(key, value),
+            ),
+          )
+        : "",
     [lastCheckedWithVersions],
   );
+
+  if (!lastCheckedWithVersions) {
+    return null;
+  }
 
   return (
     <Admonition type="note">

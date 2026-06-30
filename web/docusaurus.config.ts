@@ -7,6 +7,7 @@ import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
 import fixAPILinks from "./src/remark/fix-api-links";
+import lastCheckedWithVersions from "./src/remark/last-checked-with-versions";
 import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
@@ -200,6 +201,7 @@ const config: Config = {
             searchAndReplace,
             codeWithHole,
             fixAPILinks,
+            lastCheckedWithVersions,
           ],
 
           // ------ Configuration for multiple docs versions ------ //
