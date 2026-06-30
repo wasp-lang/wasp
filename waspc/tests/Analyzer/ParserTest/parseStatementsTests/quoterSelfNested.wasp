@@ -1,1 +1,0 @@
-test SelfNested {=foo {=foo foo=} foo=}

@@ -51,7 +51,7 @@ Together, these specifications tell Wasp that when a user navigates to `/`, it s
 Let's take a look at the React component referenced by the page spec:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import Logo from "./assets/logo.svg";
+import Logo from "./assets/wasp-logo-rounded.svg";
 import "./Main.css";
 
 export function MainPage() {
@@ -124,7 +124,7 @@ At this point, the main page should look like this:
 
 <img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
-You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
+You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
 

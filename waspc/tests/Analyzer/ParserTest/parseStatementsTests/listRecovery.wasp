@@ -1,4 +1,0 @@
-app todoApp {
-  dependencies: [("wasp-compiler"), ("wasp-cli")]
-}
-

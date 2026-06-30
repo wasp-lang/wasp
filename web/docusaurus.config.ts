@@ -1,7 +1,9 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
+import { getRedirects } from "./redirects";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
@@ -11,7 +13,7 @@ import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
   ...themes.github,
-  plain: { ...themes.github.plain, backgroundColor: "#f0ede6" },
+  plain: { ...themes.github.plain, backgroundColor: "var(--wasp-code-bg)" },
 };
 
 const darkCodeTheme = {
@@ -38,10 +40,14 @@ const config: Config = {
   onBrokenAnchors: "throw",
   favicon: "img/favicon.svg",
   themeConfig: {
+    colorMode: {
+      respectPrefersColorScheme: true,
+    },
+
     announcementBar: {
-      id: "app-in-production",
+      id: "lw12-ts-spec",
       content:
-        '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
+        '🦋 <b>Launch Week #12 — TS Spec</b> · Wasp goes fully TypeScript-native. <a href="/blog/2026/06/05/wasp-launch-week-12-ts-spec">Kickoff Mon, Jun 15 →</a>',
       backgroundColor: "#111",
       textColor: "#f5c842",
       isCloseable: false,
@@ -262,6 +268,12 @@ const config: Config = {
   scripts: getScripts(),
   plugins: [
     "plugin-image-zoom",
+
+    cloudflareRedirects({
+      redirects: getRedirects({
+        redirectCurrentVersionToCanonical: !includeCurrentVersion,
+      }),
+    }),
 
     [
       "@docusaurus/plugin-content-blog",

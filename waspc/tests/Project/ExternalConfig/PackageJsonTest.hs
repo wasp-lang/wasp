@@ -5,29 +5,25 @@ import qualified Data.Map as M
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (TsConfigPaths, tsConfigPathsInWaspLangProjects, tsConfigPathsInWaspTsProjects)
+import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
 import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
 
 spec_PackageJson :: Spec
 spec_PackageJson = do
   describe "validatePackageJsonForProject" $ do
     it "returns no errors for a valid Wasp TS project package.json" $
-      validate tsConfigPathsInWaspTsProjects (validPackageJson `withDevDependency` requiredNodeTypesDependency)
+      validate tsConfigPaths (validPackageJson `withDevDependency` requiredNodeTypesDependency)
         `shouldBe` []
 
     it "returns an error when a Wasp TS project is missing @types/node" $
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
-
-    it "skips Node types validation for Wasp-lang projects" $
-      validate tsConfigPathsInWaspLangProjects validPackageJson
-        `shouldBe` []
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
 validate = validatePackageJsonForProject
 
 assertReturnsValidationErrorMentioningField :: String -> P.PackageJson -> Expectation
 assertReturnsValidationErrorMentioningField fieldName packageJson =
-  validate tsConfigPathsInWaspTsProjects packageJson `shouldSatisfy` any (fieldName `isInfixOf`)
+  validate tsConfigPaths packageJson `shouldSatisfy` any (fieldName `isInfixOf`)
 
 validPackageJson :: P.PackageJson
 validPackageJson =

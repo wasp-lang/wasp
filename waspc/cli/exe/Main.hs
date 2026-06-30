@@ -10,6 +10,7 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr, stdout)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -27,6 +28,7 @@ import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
+import Wasp.Cli.Command.Doctor (doctor)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
@@ -36,11 +38,7 @@ import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
-import Wasp.Cli.Command.WaspLS (runWaspLS)
-import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
-import qualified Wasp.Message as Message
-import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
@@ -59,6 +57,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ["uninstall"] -> Command.Call.Uninstall
         ["version"] -> Command.Call.Version
+        ["doctor"] -> Command.Call.Doctor
         ["build"] -> Command.Call.Build
         ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
         ["telemetry"] -> Command.Call.Telemetry
@@ -69,22 +68,11 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
-        ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         ("test" : testArgs) -> Command.Call.Test testArgs
         _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
-
-  -- Before calling any command, check that the node requirement is met. Node is
-  -- not needed for every command, but checking for every command was decided
-  -- to be more robust than trying to only check for commands that require it.
-  -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> do
-      cliSendMessage $ Message.Failure "Node/NPM requirement not met" errorMsg
-      exitFailure
-    NodeVersion.VersionCheckSuccess -> pure ()
 
   setDefaultCliEnvVars
 
@@ -97,6 +85,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
+    Command.Call.Doctor -> doctor
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
@@ -108,7 +97,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
-    Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
     Command.Call.Unknown _ -> printUsage >> exitFailure
@@ -154,7 +142,7 @@ printUsage =
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
         cmd   "    version               Prints current version of CLI.",
-        cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
+        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
@@ -189,11 +177,11 @@ printUsage =
 {- ORMOLU_ENABLE -}
 
 printVersion :: IO ()
-printVersion =
-  putStrLn $
+printVersion = do
+  hPutStrLn stdout $ show waspVersion
+  hPutStrLn stderr $
     unlines
-      [ show waspVersion,
-        "",
+      [ "",
         "If you wish to install/switch to the latest version of Wasp, do:",
         indent 2 $ getInstallationCommand Nothing,
         "",

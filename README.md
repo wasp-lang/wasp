@@ -61,16 +61,16 @@ Simple Wasp spec file in which you describe the high-level details of your web a
 ```ts
 // file: main.wasp.ts
 
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, query, route } from "@wasp.sh/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" }; // Your React code.
 import { DashboardPage } from "./src/dashboard/DashboardPage" with { type: "ref" };
-import { getTasks } from "./queries" with { type: "ref" }; // Your Node.js code.
+import { getTasks } from "./src/queries" with { type: "ref" }; // Your Node.js code.
 
 export default app({
-  name: "TodoApp",
-  title: "TODO App",
+  name: "todoApp",
   wasp: { version: "^0.24.0" },
+  title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     // Full-stack auth out-of-the-box.

@@ -7,11 +7,12 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
 import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
+  ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   deployResult <- liftIO $ do

@@ -12,6 +12,7 @@ data Call
   | Build
   | BuildStart Arguments
   | Version
+  | Doctor
   | Telemetry
   | Deps
   | Dockerfile
@@ -20,9 +21,9 @@ data Call
   | Studio
   | PrintBashCompletionInstruction
   | BashCompletionListCommands
-  | WaspLS
   | Deploy Arguments -- deploy cmd passthrough args
   | Test Arguments -- "client" | "server", then test cmd passthrough args
   | Unknown Arguments -- all args
+  deriving (Eq)
 
 type Arguments = [String]

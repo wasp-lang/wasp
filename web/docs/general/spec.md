@@ -22,14 +22,15 @@ If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration gu
 ## A quick example
 
 ```ts title="main.wasp.ts"
-import { app, page, route, query } from "@wasp.sh/spec";
-import MainPage from "./src/MainPage" with { type: "ref" };
+import { app, page, query, route } from "@wasp.sh/spec";
+import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "todoApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
-  wasp: { version: "^0.24.0" },
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     query(getTasks, { entities: ["Task"] }),
@@ -63,7 +64,7 @@ Anywhere the Wasp Spec expects your app's function or component (like a page's `
 Import the value with the regular syntax, adding `with { type: "ref" }`. Use it when importing components or functions from `src/` so Wasp can connect them to pages, actions, queries, and other specifications.
 
 ```ts title="main.wasp.ts"
-import MainPage from "./src/MainPage" with { type: "ref" };
+import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
@@ -75,7 +76,7 @@ The import paths are relative to the  `*.wasp.ts` file they're written in (see [
 
 
 ```ts title="src/auth/auth.wasp.ts"
-import LoginPage from "./LoginPage" with { type: "ref" };
+import { LoginPage } from "./LoginPage" with { type: "ref" };
 
 export const auth = [page(LoginPage)];
 ```
@@ -101,6 +102,7 @@ Use `ref(...)` when a direct reference import is not practical. Import `ref` fro
 import { ref } from "@wasp.sh/spec";
 
 export default app({
+  // ...
   spec: [
     page(ref({ importDefault: "MainPage", from: "./src/MainPage" })),
     query(ref({ import: "getTasks", from: "./src/queries" })),
@@ -129,8 +131,8 @@ Each feature file exports it's own `Spec`:
 ```ts title="src/auth/auth.wasp.ts"
 import { page, route, type Spec } from "@wasp.sh/spec";
 
-import LoginPage from "./LoginPage" with { type: "ref" };
-import SignupPage from "./SignupPage" with { type: "ref" };
+import { LoginPage } from "./LoginPage" with { type: "ref" };
+import { SignupPage } from "./SignupPage" with { type: "ref" };
 
 export const authSpec: Spec = [
   route("SignupRoute", "/signup", page(SignupPage)),
@@ -145,13 +147,14 @@ Then `main.wasp.ts` imports it and joins in into the `spec`:
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec";
 
-import MainPage from "./src/MainPage" with { type: "ref" };
+import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { authSpec } from "./src/auth/auth.wasp";
 
 export default app({
   name: "todoApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
-  wasp: { version: "^0.24.0" },
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     authSpec,

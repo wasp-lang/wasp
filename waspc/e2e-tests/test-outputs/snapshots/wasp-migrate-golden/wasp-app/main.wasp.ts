@@ -3,8 +3,8 @@ import { MainPage } from "./src/MainPage" with { type: "ref" };
 
 export default app({
   name: "waspApp",
+  wasp: { version: "^0.25.0" },
   title: "wasp-app",
-  wasp: { version: "^0.24.0" },
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("RootRoute", "/", page(MainPage)),

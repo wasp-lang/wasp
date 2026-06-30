@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v6
         with:
@@ -34,31 +36,37 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Parse oromolu version
+        id: parse-ormolu-version
         working-directory: waspc
         run: |
-          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+          echo "ormolu-version=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
 
       # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
       - uses: haskell-actions/run-ormolu@v15
         with:
-          version: ${{ env.ORMOLU_VERSION }}
+          version: ${{ steps.parse-ormolu-version.outputs.ormolu-version }}
 
   cabal-gild:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Parse cabal-gild version
         working-directory: waspc
+        id: parse-cabal-gild-version
         run: |
-          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+          echo "cabal-gild-version=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
 
       - uses: tfausak/cabal-gild-setup-action@v2
         with:
-          version: ${{ env.CABAL_GILD_VERSION }}
+          version: ${{ steps.parse-cabal-gild-version.outputs.cabal-gild-version }}
 
       - name: Run cabal-gild
         working-directory: waspc

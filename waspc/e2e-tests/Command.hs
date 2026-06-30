@@ -5,6 +5,7 @@ module Command
     CommandCwd (..),
     cmd,
     showCommand,
+    programFromEnvVar,
     withEnvVars,
     withoutEnvVars,
     withStdin,
@@ -22,11 +23,12 @@ import Control.Exception (bracketOnError)
 import Control.Monad (void)
 import qualified Data.ByteString as BS
 import Data.IORef (IORef, atomicModifyIORef', newIORef, readIORef)
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Data.Text.Encoding.Error (lenientDecode)
 import StrongPath (Abs, Dir, Dir', Path', Rel, Rel', castDir, castRel, fromAbsDir, (</>))
-import System.Environment (getEnvironment)
+import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
 import System.IO (Handle, hClose)
 import qualified System.Process as P
@@ -38,6 +40,10 @@ import TestLogger (TestLogger, logOutputChunk)
 data Command = Command
   { -- | Name of the program, looked up on @PATH@ (e.g. @wasp-cli@, @npx@, @docker@).
     program :: String,
+    -- | When set, the program is read from this environment variable at run
+    -- time, falling back to 'program' if the variable is unset. See
+    -- 'programFromEnvVar'.
+    programEnvVarOverride :: Maybe String,
     args :: [String],
     -- | When set, this text is piped to the process's stdin (which is then closed).
     stdinText :: Maybe T.Text,
@@ -58,6 +64,7 @@ cmd :: String -> [String] -> Command
 cmd program args =
   Command
     { program,
+      programEnvVarOverride = Nothing,
       args,
       stdinText = Nothing,
       addedEnvVars = [],
@@ -73,6 +80,13 @@ showCommand command =
       concatMap (\(name, value) -> name ++ "=" ++ value ++ " ") command.addedEnvVars,
       unwords (command.program : command.args)
     ]
+
+-- | Resolves the program from the given environment variable at run time,
+-- falling back to the literal 'program' when the variable is unset. Used to run
+-- the dev Wasp CLI through @WASP_CLI_CMD@ (a @cabal run@ wrapper that is a
+-- single executable standing in for @wasp-cli@).
+programFromEnvVar :: String -> Command -> Command
+programFromEnvVar envVarName command = command {programEnvVarOverride = Just envVarName}
 
 withEnvVars :: [(String, String)] -> Command -> Command
 withEnvVars envVars command = command {addedEnvVars = envVars ++ command.addedEnvVars}
@@ -121,9 +135,10 @@ executeCommand logger commandWorkingDir command =
 startCommand :: TestLogger -> Path' Abs Dir' -> Command -> IO StartedCommand
 startCommand logger commandWorkingDir command = do
   envVars <- resolveEnvVars
+  resolvedProgram <- resolveProgram
   (maybeStdinHandle, maybeStdoutHandle, maybeStderrHandle, processHandle) <-
     P.createProcess
-      (P.proc command.program command.args)
+      (P.proc resolvedProgram command.args)
         { P.cwd = Just $ fromAbsDir resolvedCwd,
           P.env = Just envVars,
           P.std_in = maybe P.Inherit (const P.CreatePipe) command.stdinText,
@@ -163,6 +178,11 @@ startCommand logger commandWorkingDir command = do
       Nothing -> commandWorkingDir
       Just (CommandCwdAbs dir) -> dir
       Just (CommandCwdRelativeToWorkingDir dir) -> commandWorkingDir </> dir
+
+    resolveProgram :: IO String
+    resolveProgram = case command.programEnvVarOverride of
+      Nothing -> return command.program
+      Just envVarName -> fromMaybe command.program <$> lookupEnv envVarName
 
     resolveEnvVars :: IO [(String, String)]
     resolveEnvVars = do

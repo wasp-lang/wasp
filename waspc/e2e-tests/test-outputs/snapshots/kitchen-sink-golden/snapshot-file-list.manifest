@@ -596,6 +596,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/serialization/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/serialization/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/serialization/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/serialization/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/HttpError.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/HttpError.js
@@ -964,6 +968,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.js
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/cacheInvalidation.test.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/cacheInvalidation.test.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/cacheInvalidation.test.js
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/cacheInvalidation.test.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/components/Todo.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/components/Todo.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/components/Todo.jsx
@@ -1000,6 +1008,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchP
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderInstancesPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderInstancesPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderInstancesPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderInstancesPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.jsx
@@ -1075,6 +1087,7 @@ wasp-app/.wasp/out/sdk/wasp/env/validation.ts
 wasp-app/.wasp/out/sdk/wasp/package.json
 wasp-app/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 wasp-app/.wasp/out/sdk/wasp/scripts/copy-assets.js
+wasp-app/.wasp/out/sdk/wasp/serialization/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/HttpError.ts
 wasp-app/.wasp/out/sdk/wasp/server/_types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
@@ -1175,6 +1188,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/lazyLoading.wasp.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/actions.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/operations/cacheInvalidation.test.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/components/Todo.test.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/components/Todo.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/helpers.test.ts
@@ -1185,6 +1199,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/TasksPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/queries.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/prerender/pages/HydrationMismatchPage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/features/prerender/pages/PrerenderInstancesPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/prerender/pages/PrerenderPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/prerender/prerender.wasp.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
@@ -1417,6 +1432,7 @@ wasp-app/src/features/lazy-loading/lazyLoading.wasp.ts
 wasp-app/src/features/lazy-loading/pages/EagerPage.tsx
 wasp-app/src/features/lazy-loading/pages/LazyPage.tsx
 wasp-app/src/features/operations/actions.ts
+wasp-app/src/features/operations/cacheInvalidation.test.ts
 wasp-app/src/features/operations/components/Todo.test.tsx
 wasp-app/src/features/operations/components/Todo.tsx
 wasp-app/src/features/operations/helpers.test.ts
@@ -1427,6 +1443,7 @@ wasp-app/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/src/features/operations/pages/TasksPage.tsx
 wasp-app/src/features/operations/queries.ts
 wasp-app/src/features/prerender/pages/HydrationMismatchPage.tsx
+wasp-app/src/features/prerender/pages/PrerenderInstancesPage.tsx
 wasp-app/src/features/prerender/pages/PrerenderPage.tsx
 wasp-app/src/features/prerender/prerender.wasp.ts
 wasp-app/src/features/streaming/api.ts

@@ -2,6 +2,8 @@
 title: Prerendering
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 By default, Wasp apps are single-page applications: the browser downloads JavaScript, and React renders the page on the client. This means search engines, AI crawlers, and users on slow connections see a blank page until JavaScript loads and executes.
 
 Wasp can **prerender** specific routes at build time, producing static HTML files that are served immediately. The page then hydrates on the client for full interactivity.
@@ -15,31 +17,90 @@ This gives you:
 
 ## Enabling prerendering
 
-Add `prerender: true` to any route spec:
+You can add the `prerender` option to a Route spec to enable prerendering. The only [limitation](#limitations) is that the route must **not** have the `authRequired` property turned on.
+
+Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp build`. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
+
+### Static routes
+
+For routes with no [dynamic segments](./routing.md#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
+import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
-    route("LandingRoute", "/", page(LandingPage), { prerender: true }),
+    route("LandingRoute", "/", page(LandingPage), {
+      // highlight-next-line
+      prerender: true,
+    }),
+    route("AboutRoute", "/about", page(AboutPage), {
+      // highlight-next-line
+      prerender: true,
+    }),
   ],
 })
 ```
 
-That's it. When you run `wasp build`, Wasp renders this route's HTML at build time. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
+### Dynamic routes
+
+If your route has [dynamic segments](./routing.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { CountryPage } from "./src/CountryPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    route("CountryRoute", "/supported-countries/:country", page(CountryPage), {
+      // highlight-next-line
+      prerender: ["/supported-countries/us", "/supported-countries/es"],
+    }),
+  ],
+})
+```
+
+The prerendered paths must match the route's pattern, with all dynamic segments replaced by concrete values. All paths not declared in the `prerender` array will still work, but they will be rendered on the client as normal, instead of being prerendered.
+
+### Generating prerendered paths from data
+
+If you have a lot of dynamic paths to prerender, you can generate the list of paths from your data or other sources. For example, if you want to prerender the routes for your Top 10 countries, you can fetch them from your analytics and generate the paths:
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { CountryPage } from "./src/CountryPage" with { type: "ref" }
+
+async function getTopCountries(): Promise<string[]> {
+  const response = await fetch("https://api.my-analytics.com/top-countries")
+  return await response.json()
+}
+
+export default app({
+  // ...
+  spec: [
+    route("CountryRoute", "/supported-countries/:country", page(CountryPage), {
+      // highlight-next-line
+      prerender: (await getTopCountries()).map(country => `/supported-countries/${country}`),
+    }),
+  ],
+})
+```
+
+[Wasp Spec files](../general/spec.md) run like regular Node.js scripts, so you can use any Node.js APIs (like `fs`, `path`, or `fetch`), or npm libraries, to generate the prerendered paths.
 
 ## How it works
 
 By default, `wasp build` generates a single `200.html` file that serves as the entry point for all routes. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
 
-But for `prerender: true` routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is then written to a file placed in the build output alongside the SPA file.
+But for prerendered routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is then written to a file placed in the build output alongside the SPA file.
 
 When a request hits a prerendered route's path, the server sends the pre-built HTML directly. Once the browser loads the JavaScript bundle, React hydrates the static HTML into a fully interactive app, no second render needed.
 
-Routes without `prerender: true` continue to work as before: the server sends the SPA file, and the client renders the page from scratch.
+Routes that haven't enabled prerendering continue to work as before: the server sends the SPA file, and the client renders the page from scratch.
 
 ## When to use prerendering
 
@@ -54,27 +115,16 @@ Prerendering works best for pages where the content is known at build time:
 Prerendering is especially valuable if you want your content to be indexed by search engines or readable by AI assistants like ChatGPT, Perplexity, or Claude.
 :::
 
-## Limitations
+You can learn more in our SEO guide, which explains exactly how prerendering helps search engines index your content:
 
-### Static paths only
+<CardLink
+  to="/docs/guides/optimization/seo"
+  kind="guide"
+  title="SEO guide"
+  description="Learn how to make your Wasp app more discoverable by search engines."
+/>
 
-Prerendering only works on routes with static paths. Routes with dynamic segments (`:paramName`), optional segments (`?`), or splats (`*`) cannot be prerendered, because the HTML must be generated at build time for a known URL.
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { AboutPage } from "./src/AboutPage" with { type: "ref" }
-import { UserPage } from "./src/UserPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    // ✅ Works (static path)
-    route("AboutRoute", "/about", page(AboutPage), { prerender: true }),
-    // ❌ Won't compile (dynamic segment)
-    route("UserRoute", "/user/:id", page(UserPage), { prerender: true }),
-  ],
-})
-```
+## Limitations {#limitations}
 
 ### No auth-required pages
 
@@ -98,9 +148,7 @@ export default app({
 })
 ```
 
-:::caution
-Wasp reports an error at compile time if you try to prerender a route with a dynamic path or an auth-required page.
-:::
+Wasp reports an error at compile time if you try to prerender an auth-required page.
 
 ## Troubleshooting
 
@@ -154,26 +202,9 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ## API reference
 
-### `prerender` route config option
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { SomePage } from "./src/SomePage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("NameRoute", "/some-path", page(SomePage), {
-      prerender: true, // optional, defaults to false
-    }),
-  ],
-})
-```
-
-`prerender` is an optional boolean field in the config object passed as the fourth argument to `route(...)`.
-
-When set to `true`, Wasp prerenders the route's page component at build time, producing a static HTML file for that path.
-
-**Requirements:**
-- The route path must be fully static (no `:paramName`, `*`, or `?` segments).
-- The target page must not have `authRequired: true`.
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Route#prerender"
+  kind="api"
+  title="Route.prerender"
+  description="The full description of the prerender option of the route spec."
+/>

@@ -1,5 +1,5 @@
-import { Route } from 'wasp/client'
-import type { _Awaited, _ReturnType } from 'wasp/universal/types'
+import { Route } from '../../index.js'
+import type { _Awaited, _ReturnType } from '../../../universal/types.js'
 import type {
   GenericBackendOperation,
   GenericOperationRpc,

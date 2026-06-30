@@ -79,6 +79,7 @@ import Command
     CommandResult (..),
     cmd,
     inAbsoluteDir,
+    programFromEnvVar,
     showCommand,
     withStdin,
   )
@@ -106,8 +107,6 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-
--- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 
 -- Running commands
 
@@ -204,8 +203,11 @@ assertOutputContains stepDescription result expectedOutputPart =
 
 -- Wasp CLI commands
 
+-- | The dev Wasp CLI is run through the @WASP_CLI_CMD@ executable (a @cabal run@
+-- wrapper set by @./run@ and 'Main.ensureE2eTestsEnvironment'), falling back to
+-- @wasp-cli@ on @PATH@ when the variable is unset.
 waspCli :: [String] -> Command
-waspCli = cmd "wasp-cli"
+waspCli = programFromEnvVar "WASP_CLI_CMD" . cmd "wasp-cli"
 
 waspCliNew :: String -> StarterTemplate -> Command
 waspCliNew appName starterTemplate = waspCli ["new", appName, "-t", show starterTemplate]
