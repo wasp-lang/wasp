@@ -9,7 +9,7 @@ where
 
 import Context (SnapshotTestContext (..), WaspProjectContext (..))
 import Control.Exception (Exception, throwIO)
-import Control.Monad (filterM, forM, forM_, unless)
+import Control.Monad (filterM, forM_, unless)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import Data.Algorithm.Diff (getGroupedDiff)
@@ -17,7 +17,7 @@ import Data.Algorithm.DiffOutput (ppDiff)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
-import Data.Maybe (catMaybes, fromJust)
+import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import FileSystem
@@ -33,7 +33,7 @@ import FileSystem
 import Step (Step, runSteps)
 import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
-import System.Directory (copyFile, createDirectoryIfMissing, doesFileExist, removePathForcibly)
+import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName)
 import System.IO.Error (doesNotExistErrorType, mkIOError)
@@ -63,16 +63,17 @@ testTreeFromSnapshotTest :: SnapshotTest -> TestTree
 testTreeFromSnapshotTest snapshotTest =
   goldenTest
     snapshotTest.name
-    getGoldenSnapshotDir
-    runStepsAndGetCurrentSnapshotDir
-    compareSnapshotDirs
-    (updateGoldenSnapshotDir snapshotTest.name)
+    getGoldenSnapshotContents
+    runStepsAndGetCurrentSnapshotContents
+    compareSnapshotContents
+    (updateGoldenSnapshotContents snapshotTest.name)
   where
-    -- The golden value is the golden snapshot dir. Its manifest file is used as
-    -- the marker of the golden snapshot's existence: when it is missing, we
-    -- signal "golden does not exist" to tasty-golden (which then creates it).
-    getGoldenSnapshotDir :: IO (Path' Abs (Dir SnapshotDir))
-    getGoldenSnapshotDir = do
+    -- The golden value is the contents of the golden snapshot. The manifest file
+    -- is used as the marker of the golden snapshot's existence: when it is
+    -- missing, we signal "golden does not exist" to tasty-golden (which then
+    -- creates it via the update function).
+    getGoldenSnapshotContents :: IO SnapshotContents
+    getGoldenSnapshotContents = do
       goldenSnapshotDir <- getSnapshotDir snapshotTest.name Golden
       let goldenManifestFilePath =
             SP.fromAbsFile $ goldenSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
@@ -80,12 +81,12 @@ testTreeFromSnapshotTest snapshotTest =
       unless manifestExists $
         throwIO $
           mkIOError doesNotExistErrorType "golden snapshot manifest" Nothing (Just goldenManifestFilePath)
-      return goldenSnapshotDir
+      readSnapshotContents goldenSnapshotDir
 
-    -- The tested value is the current snapshot dir, produced by running the
-    -- snapshot test's steps in it.
-    runStepsAndGetCurrentSnapshotDir :: IO (Path' Abs (Dir SnapshotDir))
-    runStepsAndGetCurrentSnapshotDir = do
+    -- The tested value is the contents of the current snapshot, produced by
+    -- running the snapshot test's steps in the current snapshot dir.
+    runStepsAndGetCurrentSnapshotContents :: IO SnapshotContents
+    runStepsAndGetCurrentSnapshotContents = do
       snapshotsDir <- getSnapshotsDir
       currentSnapshotDir <- getSnapshotDir snapshotTest.name Current
       let logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
@@ -112,7 +113,7 @@ testTreeFromSnapshotTest snapshotTest =
         (currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir)
       normalizePackageJsonFiles currentSnapshotDir
 
-      return currentSnapshotDir
+      readSnapshotContents currentSnapshotDir
 
     getSnapshotDir :: String -> SnapshotType -> IO (Path' Abs (Dir SnapshotDir))
     getSnapshotDir snapshotTestName snapshotType = do
@@ -130,55 +131,59 @@ instance Exception SnapshotTestStepsFailure
 
 -- Snapshot comparison
 
--- | Compares the files of the golden and the current snapshot dir (existence
--- and content), reporting all mismatches at once.
-compareSnapshotDirs ::
-  Path' Abs (Dir SnapshotDir) ->
-  Path' Abs (Dir SnapshotDir) ->
-  IO (Maybe String)
-compareSnapshotDirs goldenSnapshotDir currentSnapshotDir = do
-  goldenFiles <- getRelSnapshotFilesForContentCheck goldenSnapshotDir
-  currentFiles <- getRelSnapshotFilesForContentCheck currentSnapshotDir
+-- | The comparable contents of a snapshot: the bytes of each content-checked
+-- file, keyed by its path relative to the snapshot dir, sorted by path.
+type SnapshotContents = [(FilePath, BS.ByteString)]
 
-  let filesOnlyInGolden = filter (`notElem` currentFiles) goldenFiles
-      filesOnlyInCurrent = filter (`notElem` goldenFiles) currentFiles
-      filesInBoth = filter (`elem` goldenFiles) currentFiles
+-- | Reads the contents of a snapshot dir's content-checked files into a
+-- 'SnapshotContents' value. Reads strictly, since a golden read may be followed
+-- by a golden update (see 'Test.Tasty.Golden.Advanced.goldenTest').
+readSnapshotContents :: Path' Abs (Dir SnapshotDir) -> IO SnapshotContents
+readSnapshotContents snapshotDir =
+  getSnapshotFilesForContentCheck snapshotDir >>= mapM readFileEntry
+  where
+    readFileEntry :: Path' Abs (File SnapshotFile) -> IO (FilePath, BS.ByteString)
+    readFileEntry file = do
+      content <- BS.readFile (SP.fromAbsFile file)
+      return (makeRelative (SP.fromAbsDir snapshotDir) (SP.fromAbsFile file), content)
 
-  fileContentMismatches <- catMaybes <$> forM filesInBoth compareFileContents
-
-  let mismatchReports =
-        concat
-          [ map ("file missing in current snapshot: " ++) filesOnlyInGolden,
-            map ("file not present in golden snapshot: " ++) filesOnlyInCurrent,
-            fileContentMismatches
-          ]
-
+-- | Compares the golden and current snapshot contents (existence and content),
+-- reporting all mismatches at once.
+compareSnapshotContents :: SnapshotContents -> SnapshotContents -> IO (Maybe String)
+compareSnapshotContents goldenContents currentContents =
   return $
     if null mismatchReports
       then Nothing
-      else
-        Just $
-          unlines $
-            ("Current snapshot does not match the golden snapshot (" ++ SP.fromAbsDir goldenSnapshotDir ++ "):")
-              : mismatchReports
+      else Just $ unlines $ "Current snapshot does not match the golden snapshot:" : mismatchReports
   where
-    compareFileContents :: FilePath -> IO (Maybe String)
-    compareFileContents relFilePath = do
-      goldenContent <- BS.readFile (SP.fromAbsDir goldenSnapshotDir ++ relFilePath)
-      currentContent <- BS.readFile (SP.fromAbsDir currentSnapshotDir ++ relFilePath)
-      return $
-        if goldenContent == currentContent
-          then Nothing
-          else Just $ "file contents differ: " ++ relFilePath ++ "\n" ++ renderContentDiff goldenContent currentContent
+    goldenPaths = map fst goldenContents
+    currentPaths = map fst currentContents
 
-    renderContentDiff :: BS.ByteString -> BS.ByteString -> String
-    renderContentDiff goldenContent currentContent =
-      case (TE.decodeUtf8' goldenContent, TE.decodeUtf8' currentContent) of
-        (Right goldenText, Right currentText) ->
-          truncateDiff $ ppDiff $ getGroupedDiff (textToLines goldenText) (textToLines currentText)
-        _ -> "(binary files differ)"
-      where
-        textToLines = map T.unpack . T.lines
+    filesOnlyInGolden = filter (`notElem` currentPaths) goldenPaths
+    filesOnlyInCurrent = filter (`notElem` goldenPaths) currentPaths
+
+    contentMismatches =
+      [ "file contents differ: " ++ path ++ "\n" ++ renderContentDiff goldenContent currentContent
+        | (path, goldenContent) <- goldenContents,
+          Just currentContent <- [lookup path currentContents],
+          goldenContent /= currentContent
+      ]
+
+    mismatchReports =
+      concat
+        [ map ("file missing in current snapshot: " ++) filesOnlyInGolden,
+          map ("file not present in golden snapshot: " ++) filesOnlyInCurrent,
+          contentMismatches
+        ]
+
+renderContentDiff :: BS.ByteString -> BS.ByteString -> String
+renderContentDiff goldenContent currentContent =
+  case (TE.decodeUtf8' goldenContent, TE.decodeUtf8' currentContent) of
+    (Right goldenText, Right currentText) ->
+      truncateDiff $ ppDiff $ getGroupedDiff (textToLines goldenText) (textToLines currentText)
+    _ -> "(binary files differ)"
+  where
+    textToLines = map T.unpack . T.lines
 
     truncateDiff :: String -> String
     truncateDiff diff
@@ -187,33 +192,24 @@ compareSnapshotDirs goldenSnapshotDir currentSnapshotDir = do
       where
         maxDiffLength = 10000
 
--- | Replaces the golden snapshot dir with the (filtered) contents of the
--- current snapshot dir. Called by tasty-golden when the golden snapshot does
--- not exist, or when it differs from the current one and @--accept@ is passed.
-updateGoldenSnapshotDir :: String -> Path' Abs (Dir SnapshotDir) -> IO ()
-updateGoldenSnapshotDir snapshotTestName currentSnapshotDir = do
+-- | Replaces the golden snapshot with the given (current) snapshot contents.
+-- Called by tasty-golden when the golden snapshot does not exist, or when it
+-- differs from the current one and @--accept@ is passed.
+updateGoldenSnapshotContents :: String -> SnapshotContents -> IO ()
+updateGoldenSnapshotContents snapshotTestName contents = do
   snapshotsDir <- getSnapshotsDir
   let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName Golden
 
   removePathForcibly $ SP.fromAbsDir goldenSnapshotDir
 
-  -- Copy only the files that take part in the snapshot comparison, so that
-  -- ignored files (e.g. node_modules) don't end up in version control.
-  relFilesToCopy <- getRelSnapshotFilesForContentCheck currentSnapshotDir
-  forM_ relFilesToCopy $ \relFilePath -> do
+  -- The contents only contain files that take part in the comparison, so
+  -- ignored files (e.g. node_modules) never end up in version control.
+  forM_ contents $ \(relFilePath, content) -> do
     let dstFilePath = SP.fromAbsDir goldenSnapshotDir ++ relFilePath
     createDirectoryIfMissing True $ takeDirectory dstFilePath
-    copyFile (SP.fromAbsDir currentSnapshotDir ++ relFilePath) dstFilePath
+    BS.writeFile dstFilePath content
 
 -- Snapshot file listing
-
--- | Lists the files of a snapshot dir that take part in the snapshot content
--- comparison, as relative paths (with a leading path separator stripped off by
--- 'makeRelative'), sorted.
-getRelSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [FilePath]
-getRelSnapshotFilesForContentCheck snapshotDir =
-  map (makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile)
-    <$> getSnapshotFilesForContentCheck snapshotDir
 
 getSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
 getSnapshotFilesForContentCheck snapshotDir =
