@@ -5,6 +5,7 @@ import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
+import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
@@ -39,6 +40,7 @@ main = do
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
       ensureE2eTestsEnvironment
+      warmUpWaspCli
       e2eTests >>= defaultMain
 
 ensureE2eTestsEnvironment :: IO ()
@@ -51,6 +53,18 @@ ensureE2eTestsEnvironment = do
       waspcDir <- getWaspcDirPath
       let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
       setEnv "WASP_CLI_CMD" devWaspCliCmd
+
+-- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
+-- invoking it concurrently (via 'mapConcurrently' in 'e2eTests').
+--
+-- The dev CLI runs through `cabal run`, and Cabal does not support several
+-- concurrent invocations sharing a single `dist-newstyle`: if the first build
+-- isn't finished, the parallel invocations race to register the inplace package
+-- and fail with "package.conf.inplace already exists". Doing one serial
+-- invocation here forces that build to complete first, so the concurrent
+-- invocations only ever run the already-built CLI.
+warmUpWaspCli :: IO ()
+warmUpWaspCli = callCommand "$WASP_CLI_CMD version > /dev/null"
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
