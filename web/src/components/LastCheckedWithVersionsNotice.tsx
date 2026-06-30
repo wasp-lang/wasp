@@ -7,27 +7,23 @@ import { useMemo } from "react";
  * or a Date (e.g., new Date("2023-01-15")) indicating when the dependency was
  * last checked.
  *
- * Dates are especially useful for unversioned dependencies, like Shadcn.
+ * Dates are useful for unversioned dependencies, like Shadcn.
  */
-export type Version = string | number | Date;
-
-export interface LastCheckedWithVersions {
-  [name: string]: Version;
-}
+type Version = string | number | Date;
 
 export default function LastCheckedWithVersionsNotice({
-  lastCheckedWithVersions,
+  versions,
 }: {
-  lastCheckedWithVersions: LastCheckedWithVersions;
+  [dependency: string]: Version;
 }) {
   const lastCheckedWithString = useMemo(
     () =>
       listFormatter.format(
-        Object.entries(lastCheckedWithVersions).map(([key, value]) =>
+        Object.entries(versions).map(([key, value]) =>
           formatVersion(key, value),
         ),
       ),
-    [lastCheckedWithVersions],
+    [versions],
   );
 
   return (

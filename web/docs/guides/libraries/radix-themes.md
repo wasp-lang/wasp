@@ -5,7 +5,7 @@ comments: true
 # Radix Themes
 
 <LastCheckedWithVersionsNotice
-  lastCheckedWithVersions={{ Wasp: "0.24", "Radix Themes": 3 }}
+  versions={{ Wasp: "0.24", "Radix Themes": 3 }}
 />
 
 This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.com/themes) component library into your Wasp application.

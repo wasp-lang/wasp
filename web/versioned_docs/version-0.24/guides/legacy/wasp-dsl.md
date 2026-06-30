@@ -6,7 +6,7 @@ comments: true
 # Migrating from the Wasp DSL
 
 <LastCheckedWithVersionsNotice
-  lastCheckedWithVersions={{ Wasp: "0.24" }}
+  versions={{ Wasp: "0.24" }}
 />
 
 Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../general/spec.md): a `main.wasp.ts` file written in TypeScript.

@@ -8,7 +8,7 @@ import { Client } from '../DeploymentTag'
 # Netlify
 
 <LastCheckedWithVersionsNotice
-  lastCheckedWithVersions={{ Wasp: "0.24", Netlify: new Date("2026-05-28") }}
+  versions={{ Wasp: "0.24", Netlify: new Date("2026-05-28") }}
 />
 
 ## Deploy Wasp to Netlify <Client />

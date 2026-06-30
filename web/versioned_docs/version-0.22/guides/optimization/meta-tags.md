@@ -6,7 +6,7 @@ comments: true
 # Adding SEO metadata to your Wasp app
 
 <LastCheckedWithVersionsNotice
-  lastCheckedWithVersions={{ Wasp: "0.21" }}
+  versions={{ Wasp: "0.21" }}
 />
 
 This guide shows you how to set up meta tags for your Wasp application to improve SEO and enable rich previews when your app is shared on platforms like Slack, X, or Discord.

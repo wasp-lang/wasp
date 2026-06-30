@@ -5,7 +5,7 @@ comments: true
 # Sentry
 
 <LastCheckedWithVersionsNotice
-  lastCheckedWithVersions={{ Wasp: "0.24", "@sentry/node": "8", "@sentry/react": "8" }}
+  versions={{ Wasp: "0.24", "@sentry/node": "8", "@sentry/react": "8" }}
 />
 
 This guide shows you how to integrate [Sentry](https://sentry.io/) into your Wasp application for error tracking on both the server and client.

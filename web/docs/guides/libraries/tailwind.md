@@ -5,7 +5,7 @@ comments: true
 # Tailwind CSS
 
 <LastCheckedWithVersionsNotice
-  lastCheckedWithVersions={{ Wasp: "0.24", Tailwind: 4 }}
+  versions={{ Wasp: "0.24", Tailwind: 4 }}
 />
 
 Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS by setting it up through their [Vite installation method](https://tailwindcss.com/docs/installation/using-vite), as with any other project.
