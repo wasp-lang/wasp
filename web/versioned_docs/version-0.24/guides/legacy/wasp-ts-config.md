@@ -1,11 +1,13 @@
 ---
 sidebar_label: "Wasp TS Config"
 comments: true
-last_checked_with_versions:
-  Wasp: 0.24
 ---
 
 # Migrating from the Wasp TS Config
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.24" }}
+/>
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 

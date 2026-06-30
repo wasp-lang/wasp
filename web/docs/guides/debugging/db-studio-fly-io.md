@@ -1,10 +1,11 @@
 ---
 title: Database Studio with Fly.io
-last_checked_with_versions:
-  Wasp: "0.24"
-  Fly CLI: 0.4.11
 comments: true
 ---
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.24", "Fly CLI": "0.4.11" }}
+/>
 
 This guide shows you how to connect to your production database on Fly.io and run `wasp db studio` to inspect or modify your data.
 

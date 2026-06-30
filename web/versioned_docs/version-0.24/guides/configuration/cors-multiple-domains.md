@@ -1,11 +1,13 @@
 ---
 title: Multiple Domains CORS
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
 ---
 
 # Multiple Domains CORS
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.24" }}
+/>
 
 This guide shows you how to configure CORS (Cross-Origin Resource Sharing) to support multiple domains in your Wasp application using custom global middleware.
 

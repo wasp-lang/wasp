@@ -1,11 +1,12 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
-  multer: "2.1.1"
 ---
 
 # File Uploads
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.24", multer: "2.1.1" }}
+/>
 
 This guide shows you how to implement file uploads in your Wasp application using [Multer](https://github.com/expressjs/multer).
 

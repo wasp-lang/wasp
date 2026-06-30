@@ -1,11 +1,13 @@
 ---
 sidebar_label: "Wasp Installer"
 comments: true
-last_checked_with_versions:
-  Wasp: 0.21
 ---
 
 # Legacy Wasp installer
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.21" }}
+/>
 
 Starting from Wasp 0.21, installation is done [through npm](../../introduction/quick-start.md#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
 

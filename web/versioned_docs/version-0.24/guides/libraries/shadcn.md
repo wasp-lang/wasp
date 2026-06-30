@@ -1,11 +1,12 @@
 ---
 comments: true
-last_checked_with_versions:
-    Wasp: "0.24"
-    Shadcn: 2026-05-28
 ---
 
 # Shadcn
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.24", Shadcn: new Date("2026-05-28") }}
+/>
 
 ## Setting up Shadcn in a Wasp project
 

@@ -1,14 +1,15 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.23"
-  Netlify: 2026-04-06
 ---
 
 import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Netlify
+
+<LastCheckedWithVersionsNotice
+  lastCheckedWithVersions={{ Wasp: "0.23", Netlify: new Date("2026-04-06") }}
+/>
 
 ## Deploy Wasp to Netlify <Client />
 This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
