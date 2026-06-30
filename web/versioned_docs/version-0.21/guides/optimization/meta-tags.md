@@ -3,6 +3,8 @@ title: SEO metadata
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Adding SEO metadata to your Wasp app
 
 <LastCheckedWithVersionsNotice

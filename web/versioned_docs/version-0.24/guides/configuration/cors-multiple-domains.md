@@ -3,6 +3,8 @@ title: Multiple Domains CORS
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Multiple Domains CORS
 
 <LastCheckedWithVersionsNotice

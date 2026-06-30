@@ -2,6 +2,8 @@
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # WebSocket Namespaces
 
 <LastCheckedWithVersionsNotice

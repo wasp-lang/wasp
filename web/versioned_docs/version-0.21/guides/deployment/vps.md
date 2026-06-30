@@ -2,6 +2,7 @@
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
 
 # Simple VPS

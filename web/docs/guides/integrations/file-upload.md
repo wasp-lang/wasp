@@ -2,6 +2,8 @@
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # File Uploads
 
 <LastCheckedWithVersionsNotice

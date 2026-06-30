@@ -3,6 +3,8 @@ sidebar_label: "Wasp Installer"
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Legacy Wasp installer
 
 <LastCheckedWithVersionsNotice

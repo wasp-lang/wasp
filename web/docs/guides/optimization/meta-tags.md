@@ -3,6 +3,8 @@ title: Meta tags
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Adding `<meta>` tags to your Wasp app
 
 <LastCheckedWithVersionsNotice

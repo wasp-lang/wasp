@@ -3,6 +3,8 @@ sidebar_label: "Wasp TS Config"
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Migrating from the Wasp TS Config
 
 <LastCheckedWithVersionsNotice

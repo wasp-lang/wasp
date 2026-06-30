@@ -3,6 +3,8 @@ title: Local Network Testing
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 <LastCheckedWithVersionsNotice
   versions={{ Wasp: "0.24" }}
 />

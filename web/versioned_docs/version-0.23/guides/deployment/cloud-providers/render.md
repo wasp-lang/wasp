@@ -2,6 +2,7 @@
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
 import { Server, Client, Database } from '../DeploymentTag'
 

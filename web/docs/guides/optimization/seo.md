@@ -3,6 +3,7 @@ title: SEO & GEO
 comments: true
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { CardLink } from "@site/src/components/CardLink"
 
 # Optimizing for search and AI crawlers (SEO & GEO)
