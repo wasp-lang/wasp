@@ -1,7 +1,6 @@
 module TestLogger
   ( TestLogger,
     withTestLogger,
-    loggerLogFile,
     logStepHeader,
     logOutputChunk,
     formatFailureWithLog,

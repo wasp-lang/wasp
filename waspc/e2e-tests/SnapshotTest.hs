@@ -36,6 +36,7 @@ import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName)
+import qualified System.FilePath as FP
 import System.IO.Error (doesNotExistErrorType, mkIOError)
 import Test.Tasty (TestTree)
 import Test.Tasty.Golden.Advanced (goldenTest)
@@ -205,7 +206,7 @@ updateGoldenSnapshotContents snapshotTestName contents = do
   -- The contents only contain files that take part in the comparison, so
   -- ignored files (e.g. node_modules) never end up in version control.
   forM_ contents $ \(relFilePath, content) -> do
-    let dstFilePath = SP.fromAbsDir goldenSnapshotDir ++ relFilePath
+    let dstFilePath = SP.fromAbsDir goldenSnapshotDir FP.</> relFilePath
     createDirectoryIfMissing True $ takeDirectory dstFilePath
     BS.writeFile dstFilePath content
 

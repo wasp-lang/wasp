@@ -110,18 +110,13 @@ import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 runCommand :: (HasWorkingDir ctx) => Command -> Step ctx ()
 runCommand command = do
   result <- runCommandGetResult command
-  liftStepIO $ case result.exitCode of
-    ExitSuccess -> return ()
-    ExitFailure code ->
-      failStep (runDescription command) ("command exited with code " ++ show code)
+  liftStepIO $ assertCommandSucceeded (runDescription command) result
 
 -- | Runs a command, asserting it fails (exits with a non-zero code).
 runCommandExpectingFailure :: (HasWorkingDir ctx) => Command -> Step ctx ()
 runCommandExpectingFailure command = do
   result <- runCommandGetResultDescribed description command
-  liftStepIO $ case result.exitCode of
-    ExitFailure _ -> return ()
-    ExitSuccess -> failStep description "command succeeded, but it was expected to fail"
+  liftStepIO $ assertCommandFailed description result
   where
     description = "run expecting failure: " ++ showCommand command
 
@@ -131,9 +126,7 @@ assertCommandSucceedsWithOutputContaining :: (HasWorkingDir ctx) => Command -> S
 assertCommandSucceedsWithOutputContaining command expectedOutputPart = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ do
-    case result.exitCode of
-      ExitSuccess -> return ()
-      ExitFailure code -> failStep description ("command exited with code " ++ show code)
+    assertCommandSucceeded description result
     assertOutputContains description result expectedOutputPart
   where
     description = showCommand command ++ " (expecting output to contain " ++ show expectedOutputPart ++ ")"
@@ -144,9 +137,7 @@ assertCommandFailsWithOutputContaining :: (HasWorkingDir ctx) => Command -> Stri
 assertCommandFailsWithOutputContaining command expectedOutputPart = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ do
-    case result.exitCode of
-      ExitFailure _ -> return ()
-      ExitSuccess -> failStep description "command succeeded, but it was expected to fail"
+    assertCommandFailed description result
     assertOutputContains description result expectedOutputPart
   where
     description = "run expecting failure: " ++ showCommand command ++ " (expecting output to contain " ++ show expectedOutputPart ++ ")"
@@ -173,9 +164,7 @@ assertCommandStdoutMatches :: (HasWorkingDir ctx) => String -> (T.Text -> Bool) 
 assertCommandStdoutMatches expectationDescription matches command = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ do
-    case result.exitCode of
-      ExitSuccess -> return ()
-      ExitFailure code -> failStep description ("command exited with code " ++ show code)
+    assertCommandSucceeded description result
     unless (matches result.stdoutText) $
       failStep description ("stdout was: " ++ show result.stdoutText)
   where
@@ -196,6 +185,18 @@ assertOutputContains :: String -> CommandResult -> String -> IO ()
 assertOutputContains stepDescription result expectedOutputPart =
   unless (T.pack expectedOutputPart `T.isInfixOf` result.combinedOutput) $
     failStep stepDescription ("command output does not contain " ++ show expectedOutputPart)
+
+-- | Fails the step unless the command exited successfully.
+assertCommandSucceeded :: String -> CommandResult -> IO ()
+assertCommandSucceeded stepDescription result = case result.exitCode of
+  ExitSuccess -> return ()
+  ExitFailure code -> failStep stepDescription ("command exited with code " ++ show code)
+
+-- | Fails the step unless the command exited with a failure (non-zero) code.
+assertCommandFailed :: String -> CommandResult -> IO ()
+assertCommandFailed stepDescription result = case result.exitCode of
+  ExitFailure _ -> return ()
+  ExitSuccess -> failStep stepDescription "command succeeded, but it was expected to fail"
 
 -- Wasp CLI commands
 
@@ -465,9 +466,7 @@ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirFromGitRootDir = do
     runCommandGetResult $
       cmd "git" ["-C", fromRelDir gitRootFromSnapshotDir, "ls-files", fromRelDir srcDirFromGitRootDir]
   makeStep description $ \_ context -> do
-    case gitLsFilesResult.exitCode of
-      ExitSuccess -> return ()
-      ExitFailure code -> failStep description ("git ls-files exited with code " ++ show code)
+    assertCommandSucceeded description gitLsFilesResult
     let snapshotWaspProjectDirPath = fromAbsDir context.waspProjectContext.waspProjectDir
         gitRootDirPath = fromAbsDir context.snapshotDir FP.</> fromRelDir gitRootFromSnapshotDir
         trackedFilePathsFromGitRoot = lines $ T.unpack gitLsFilesResult.stdoutText

@@ -22,6 +22,7 @@ import Control.Concurrent.Async (async, cancel, wait)
 import Control.Exception (bracketOnError)
 import Control.Monad (void)
 import qualified Data.ByteString as BS
+import Data.Char (isAlphaNum)
 import Data.IORef (IORef, atomicModifyIORef', newIORef, readIORef)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
@@ -77,9 +78,20 @@ showCommand :: Command -> String
 showCommand command =
   concat
     [ concatMap (\envVarName -> "unset " ++ envVarName ++ "; ") command.removedEnvVars,
-      concatMap (\(name, value) -> name ++ "=" ++ value ++ " ") command.addedEnvVars,
-      unwords (command.program : command.args)
+      concatMap (\(name, value) -> name ++ "=" ++ quoteForDisplay value ++ " ") command.addedEnvVars,
+      unwords $ map quoteForDisplay (command.program : command.args)
     ]
+
+quoteForDisplay :: String -> String
+quoteForDisplay value
+  | null value = "''"
+  | all isSafeChar value = value
+  | otherwise = "'" ++ concatMap escapeSingleQuote value ++ "'"
+  where
+    isSafeChar char = isAlphaNum char || char `elem` ("_@%+=:,./-" :: String)
+
+    escapeSingleQuote '\'' = "'\\''"
+    escapeSingleQuote char = [char]
 
 -- | Resolves the program from the given environment variable at run time,
 -- falling back to the literal 'program' when the variable is unset. Used to run

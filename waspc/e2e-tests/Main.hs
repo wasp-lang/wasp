@@ -39,7 +39,7 @@ main = do
     else do
       ensureE2eTestsEnvironment
       warmUpWaspCli
-      e2eTests >>= defaultMain
+      defaultMain e2eTests
 
 ensureE2eTestsEnvironment :: IO ()
 ensureE2eTestsEnvironment = do
@@ -65,57 +65,56 @@ warmUpWaspCli :: IO ()
 warmUpWaspCli = callCommand "$WASP_CLI_CMD version > /dev/null"
 
 -- TODO: Investigate automatically discovering the tests.
-e2eTests :: IO TestTree
+e2eTests :: TestTree
 e2eTests =
-  return $
-    testGroup
-      "E2E tests"
-      [ testGroup
-          "Snapshot Tests"
-          ( map
-              testTreeFromSnapshotTest
-              [ waspNewSnapshotTest,
-                waspCompileSnapshotTest,
-                waspBuildSnapshotTest,
-                waspMigrateSnapshotTest,
-                kitchenSinkSnapshotTest
-              ]
-          ),
-        testGroup
-          "Tests"
-          ( map
-              testTreeFromTest
-              [ -- general Wasp commads
-                waspNewTest,
-                waspTelemetryTest,
-                waspCompletionTest,
-                waspVersionTest,
-                -- Wasp project commands
-                waspCompileTest,
-                -- NOTE(Franjo): The following tests have the `FIXME` comment because they
-                -- are long running processes, which we haven't implmemented support for yet.
-                -- Adding support should now be a matter of building on 'Command.startCommand'
-                -- (e.g. a step that starts a command, waits for some output, and terminates it).
-                -- FIXME: waspStartTest,
-                waspBuildTest,
-                waspTsSpecNodeEnvTest,
-                viteBuildTest,
-                viteConfigTest,
-                -- FIXME: waspBuildStartTest,
-                waspCleanTest,
-                waspSpecAvailableTest,
-                waspInfoTest,
-                waspInstallTest,
-                waspDepsTest,
-                waspDockerfileTest,
-                -- FIXME: waspStudioTest,
-                -- Wasp project db commands
-                -- FIXME: waspDbStartTest,
-                -- FIXME: waspDbStudioTest,
-                waspDbSeedTest,
-                waspDbResetTest,
-                waspDbMigrateDevTest,
-                waspSpecEntityTypesTest
-              ]
-          )
-      ]
+  testGroup
+    "E2E tests"
+    [ testGroup
+        "Snapshot Tests"
+        ( map
+            testTreeFromSnapshotTest
+            [ waspNewSnapshotTest,
+              waspCompileSnapshotTest,
+              waspBuildSnapshotTest,
+              waspMigrateSnapshotTest,
+              kitchenSinkSnapshotTest
+            ]
+        ),
+      testGroup
+        "Tests"
+        ( map
+            testTreeFromTest
+            [ -- general Wasp commads
+              waspNewTest,
+              waspTelemetryTest,
+              waspCompletionTest,
+              waspVersionTest,
+              -- Wasp project commands
+              waspCompileTest,
+              -- NOTE(Franjo): The following tests have the `FIXME` comment because they
+              -- are long running processes, which we haven't implmemented support for yet.
+              -- Adding support should now be a matter of building on 'Command.startCommand'
+              -- (e.g. a step that starts a command, waits for some output, and terminates it).
+              -- FIXME: waspStartTest,
+              waspBuildTest,
+              waspTsSpecNodeEnvTest,
+              viteBuildTest,
+              viteConfigTest,
+              -- FIXME: waspBuildStartTest,
+              waspCleanTest,
+              waspSpecAvailableTest,
+              waspInfoTest,
+              waspInstallTest,
+              waspDepsTest,
+              waspDockerfileTest,
+              -- FIXME: waspStudioTest,
+              -- Wasp project db commands
+              -- FIXME: waspDbStartTest,
+              -- FIXME: waspDbStudioTest,
+              waspDbSeedTest,
+              waspDbResetTest,
+              waspDbMigrateDevTest,
+              waspSpecEntityTypesTest
+            ]
+        )
+    ]
