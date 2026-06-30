@@ -14,7 +14,7 @@ type Version = string | number | Date;
 export default function LastCheckedWithVersionsNotice({
   versions,
 }: {
-  [dependency: string]: Version;
+  versions: { [dependency: string]: Version };
 }) {
   const lastCheckedWithString = useMemo(
     () =>
