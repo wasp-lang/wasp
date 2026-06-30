@@ -7,8 +7,8 @@ import NeatInterpolation (trimming)
 import Step (Step, askStepContext)
 import Steps
   ( appendToFile,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     runCommandExpectingFailure,
     setWaspDbToPSQL,
@@ -64,8 +64,8 @@ viteBuildTest =
   where
     createViteBuildTestCase :: Step WaspProjectContext () -> Step TestContext ()
     createViteBuildTestCase steps = do
-      createTestWaspProject minimalStarterTemplate
-      inTestWaspProjectDir $ do
+      createWaspProject minimalStarterTemplate
+      inWaspProjectDir $ do
         setWaspDbToPSQL
         writeMainPageTsx
         runCommand waspCliBuild

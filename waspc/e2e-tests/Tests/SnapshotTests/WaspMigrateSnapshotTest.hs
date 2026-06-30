@@ -5,18 +5,19 @@ import NeatInterpolation (trimming)
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import Steps
   ( appendToPrismaFile,
-    createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     waspCliCompile,
     waspCliDbMigrateDev,
   )
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspMigrateSnapshotTest :: SnapshotTest
 waspMigrateSnapshotTest =
   makeSnapshotTest "wasp-migrate" $ do
-    createSnapshotWaspProjectFromMinimalStarter
-    inSnapshotWaspProjectDir $ do
+    createWaspProject minimalStarterTemplate
+    inWaspProjectDir $ do
       runCommand waspCliCompile
       appendToPrismaFile taskPrismaModel
       waspCliDbMigrateDev "foo"

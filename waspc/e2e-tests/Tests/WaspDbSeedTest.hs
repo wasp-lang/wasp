@@ -2,7 +2,7 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Steps (appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCli, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import Steps (appendToPrismaFile, createSeedFile, createWaspProject, inWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCli, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
@@ -25,8 +25,8 @@ waspDbSeedTest =
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       TestCase "succeed-seed-database" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliCompile
           appendToPrismaFile taskPrismaModel
           waspCliDbMigrateDev "foo"

@@ -2,8 +2,8 @@ module Tests.WaspCompileTest (waspCompileTest) where
 
 import Steps
   ( assertDirExists,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     runCommandExpectingFailure,
     waspCliCompile,
@@ -18,14 +18,14 @@ waspCompileTest =
     [ TestCase "fail-outside-project" $
         runCommandExpectingFailure waspCliCompile,
       TestCase "succeed-uncompiled-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliCompile
           assertDirExists ".wasp"
           assertDirExists "node_modules",
       TestCase "succeed-compiled-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliCompile
           runCommand waspCliCompile
           assertDirExists ".wasp"

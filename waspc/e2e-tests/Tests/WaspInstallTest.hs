@@ -3,8 +3,8 @@ module Tests.WaspInstallTest (waspInstallTest) where
 import Steps
   ( assertDirDoesNotExist,
     assertSymlinkExists,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     runCommandExpectingFailure,
     waspCliClean,
@@ -21,8 +21,8 @@ waspInstallTest =
     [ TestCase "install-fails-outside-project" $
         runCommandExpectingFailure waspCliInstall,
       TestCase "install-restores-wasp-spec-after-clean" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliClean
           assertDirDoesNotExist "node_modules"
           runCommand waspCliInstall

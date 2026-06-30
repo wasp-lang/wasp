@@ -6,8 +6,8 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Steps
   ( assertCommandSucceedsWithOutputContaining,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     replaceMainWaspTsFile,
     setWaspDbToPSQL,
     waspCliBuild,
@@ -22,13 +22,13 @@ waspTsSpecNodeEnvTest =
   Test
     "wasp-ts-spec-node-env"
     [ TestCase "node-env-is-development-on-compile" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           replaceMainWaspTsFile nodeEnvMainWaspTs
           assertCommandSucceedsWithOutputContaining waspCliCompile "E2E-NODE-ENV=development",
       TestCase "node-env-is-production-on-build" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           setWaspDbToPSQL
           replaceMainWaspTsFile nodeEnvMainWaspTs
           assertCommandSucceedsWithOutputContaining waspCliBuild "E2E-NODE-ENV=production"

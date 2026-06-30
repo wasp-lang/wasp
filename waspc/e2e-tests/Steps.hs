@@ -55,7 +55,6 @@ module Steps
     assertDirDoesNotExist,
     assertFileExists,
     assertSymlinkExists,
-    assertDirHasSubdirWithNameContaining,
 
     -- * Wasp project steps
     setWaspDbToPSQL,
@@ -63,13 +62,11 @@ module Steps
     createSeedFile,
     replaceMainWaspTsFile,
 
-    -- * 'Context.TestContext' steps
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    -- * 'Context.HasWaspProjectContext' steps
+    createWaspProject,
+    inWaspProjectDir,
 
     -- * 'Context.SnapshotTestContext' steps
-    createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
   )
 where
@@ -85,14 +82,14 @@ import Command
   )
 import qualified Command
 import Context
-  ( HasWorkingDir (workingDir),
+  ( HasWaspProjectContext (getWaspProjectContext),
+    HasWorkingDir (workingDir),
     SnapshotTestContext (..),
-    TestContext (..),
     WaspProjectContext (..),
   )
-import Control.Monad (filterM, forM_, unless, when)
+import Control.Monad (forM_, unless, when)
 import qualified Data.ByteString as BS
-import Data.List (isInfixOf, isSuffixOf)
+import Data.List (isSuffixOf)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import FileSystem (GitRootDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
@@ -102,7 +99,6 @@ import qualified System.Directory as SD
 import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
@@ -310,13 +306,15 @@ waspCliDbMigrateDev migrationName = do
         migrationsDirExists <- SD.doesDirectoryExist (fromAbsDir migrationsDir)
         when migrationsDirExists $ do
           entryNames <- SD.listDirectory (fromAbsDir migrationsDir)
-          let migrationDirNames = filter isMigrationDirNameWithDatePrefix entryNames
+          let migrationDirNames = filter isUnnormalizedMigrationDirName entryNames
           forM_ migrationDirNames $ \migrationDirName ->
             SD.renameDirectory
               (fromAbsDir migrationsDir FP.</> migrationDirName)
               (fromAbsDir migrationsDir FP.</> ("no-date-" ++ migrationName))
 
-    isMigrationDirNameWithDatePrefix entryName =
+    -- A migration dir for this migration (its name ends with the migration name)
+    -- that we haven't normalized yet (i.e. it still has its date prefix).
+    isUnnormalizedMigrationDirName entryName =
       migrationName `isSuffixOf` entryName && entryName /= "no-date-" ++ migrationName
 
 -- | Builds and deletes the Docker image for a Wasp app.
@@ -425,20 +423,6 @@ assertSymlinkExists path =
   where
     description = "assert symlink exists: " ++ path
 
--- | Asserts that the directory has an (immediate) subdirectory whose name
--- contains the given text.
-assertDirHasSubdirWithNameContaining :: Path' Abs (Dir d) -> String -> Step ctx ()
-assertDirHasSubdirWithNameContaining dir expectedNamePart =
-  makeStep description $ \_ _ -> do
-    entryNames <- SD.listDirectory (fromAbsDir dir)
-    subdirNames <-
-      filterM
-        (SD.doesDirectoryExist . (fromAbsDir dir FP.</>))
-        (filter (expectedNamePart `isInfixOf`) entryNames)
-    when (null subdirNames) $ failStep description "no such subdirectory"
-  where
-    description = "assert dir " ++ fromAbsDir dir ++ " has subdir with name containing " ++ show expectedNamePart
-
 -- Wasp project steps
 
 -- NOTE: Fragile, assumes line numbers do not change.
@@ -459,29 +443,19 @@ replaceMainWaspTsFile content = do
   context <- askStepContext
   writeToFile (context.waspProjectDir </> mainWaspTsFileInWaspProjectDir) content
 
--- 'Context.TestContext' steps
+-- 'Context.HasWaspProjectContext' steps
 
-createTestWaspProject :: StarterTemplate -> Step TestContext ()
-createTestWaspProject template = do
+createWaspProject :: (HasWaspProjectContext ctx, HasWorkingDir ctx) => StarterTemplate -> Step ctx ()
+createWaspProject template = do
   context <- askStepContext
-  runCommand $ waspCliNew context.waspProjectContext.waspProjectName template
+  runCommand $ waspCliNew (getWaspProjectContext context).waspProjectName template
 
-inTestWaspProjectDir :: Step WaspProjectContext () -> Step TestContext ()
-inTestWaspProjectDir steps = do
+inWaspProjectDir :: (HasWaspProjectContext ctx) => Step WaspProjectContext () -> Step ctx ()
+inWaspProjectDir steps = do
   context <- askStepContext
-  withInnerContext context.waspProjectContext steps
+  withInnerContext (getWaspProjectContext context) steps
 
 -- 'Context.SnapshotTestContext' steps
-
-createSnapshotWaspProjectFromMinimalStarter :: Step SnapshotTestContext ()
-createSnapshotWaspProjectFromMinimalStarter = do
-  context <- askStepContext
-  runCommand $ waspCliNew context.waspProjectContext.waspProjectName minimalStarterTemplate
-
-inSnapshotWaspProjectDir :: Step WaspProjectContext () -> Step SnapshotTestContext ()
-inSnapshotWaspProjectDir steps = do
-  context <- askStepContext
-  withInnerContext context.waspProjectContext steps
 
 copyContentsOfGitTrackedDirToSnapshotWaspProjectDir ::
   Path' (Rel GitRootDir) (Dir srcDir) ->

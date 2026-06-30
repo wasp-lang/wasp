@@ -2,8 +2,8 @@ module Tests.WaspCleanTest (waspCleanTest) where
 
 import Steps
   ( assertDirDoesNotExist,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     runCommandExpectingFailure,
     waspCliClean,
@@ -19,14 +19,14 @@ waspCleanTest =
     [ TestCase "fail-outside-project" $
         runCommandExpectingFailure waspCliClean,
       TestCase "succeed-uncompiled-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliClean
           assertDirDoesNotExist ".wasp"
           assertDirDoesNotExist "node_modules",
       TestCase "succeed-compiled-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliCompile
           runCommand waspCliClean
           assertDirDoesNotExist ".wasp"

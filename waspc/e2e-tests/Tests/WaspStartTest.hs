@@ -1,6 +1,6 @@
 module Tests.WaspStartTest (waspStartTest) where
 
-import Steps (assertDirExists, createTestWaspProject, inTestWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliCompile, waspCliStart)
+import Steps (assertDirExists, createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliCompile, waspCliStart)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -12,14 +12,14 @@ waspStartTest =
     [ TestCase "fail-outside-project" $
         runCommandExpectingFailure waspCliStart,
       TestCase "succeed-uncompiled-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliStart
           assertDirExists ".wasp"
           assertDirExists "node_modules",
       TestCase "succeed-compiled-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliCompile
           runCommand waspCliStart
     ]

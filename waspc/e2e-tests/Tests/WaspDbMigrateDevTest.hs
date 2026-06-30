@@ -1,19 +1,20 @@
 module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
-import Context (WaspProjectContext (..))
+import Context (WaspProjectContext)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Step (Step, askStepContext)
+import Step (Step)
 import Steps
   ( appendToPrismaFile,
-    assertDirHasSubdirWithNameContaining,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    assertDirExists,
+    createWaspProject,
+    inWaspProjectDir,
     runCommandExpectingFailure,
     waspCli,
     waspCliDbMigrateDev,
   )
-import StrongPath ((</>))
+import StrongPath (fromRelDir, (</>))
+import qualified System.FilePath as FP
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.DbGenerator.Common
@@ -35,12 +36,12 @@ waspDbMigrateDevTest =
         runCommandExpectingFailure $
           waspCli ["db", "migrate-dev"],
       TestCase "succeed-migrations-up-to-date" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $
           waspCliDbMigrateDev "no_migration",
       TestCase "succeed-create-new-migration" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           appendToPrismaFile taskPrismaModel
           waspCliDbMigrateDev "yes_migration"
           assertMigrationDirsExist "yes_migration"
@@ -56,15 +57,18 @@ waspDbMigrateDevTest =
         }
       |]
 
+-- | After 'waspCliDbMigrateDev' runs, it normalizes the migration directory
+-- name to @no-date-<migrationName>@, so we assert that exact directory exists
+-- (both in the Wasp project and in the generated app).
 assertMigrationDirsExist :: String -> Step WaspProjectContext ()
 assertMigrationDirsExist migrationName = do
-  waspProjectContext <- askStepContext
-  let waspMigrationsDir = waspProjectContext.waspProjectDir </> dbMigrationsDirInWaspProjectDir
-      waspOutMigrationsDir =
-        waspProjectContext.waspProjectDir
-          </> dotWaspDirInWaspProjectDir
-          </> generatedAppDirInDotWaspDir
-          </> dbRootDirInGeneratedAppDir
-          </> dbMigrationsDirInDbRootDir
-  assertDirHasSubdirWithNameContaining waspMigrationsDir migrationName
-  assertDirHasSubdirWithNameContaining waspOutMigrationsDir migrationName
+  assertMigrationDirExists (fromRelDir dbMigrationsDirInWaspProjectDir)
+  assertMigrationDirExists (fromRelDir waspOutMigrationsDir)
+  where
+    waspOutMigrationsDir =
+      dotWaspDirInWaspProjectDir
+        </> generatedAppDirInDotWaspDir
+        </> dbRootDirInGeneratedAppDir
+        </> dbMigrationsDirInDbRootDir
+    assertMigrationDirExists migrationsDir =
+      assertDirExists (migrationsDir FP.</> ("no-date-" ++ migrationName))

@@ -2,8 +2,8 @@ module Tests.WaspBuildTest (waspBuildTest) where
 
 import Steps
   ( assertDirExists,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     runCommandExpectingFailure,
     setWaspDbToPSQL,
@@ -19,12 +19,12 @@ waspBuildTest =
     [ TestCase "fail-outside-project" $
         runCommandExpectingFailure waspCliBuild,
       TestCase "fail-sqlite-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $
           runCommandExpectingFailure waspCliBuild,
       TestCase "succeed-postgresql-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           setWaspDbToPSQL
           runCommand waspCliBuild
           assertDirExists ".wasp"

@@ -1,6 +1,6 @@
 module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
-import Steps (createTestWaspProject, inTestWaspProjectDir, runCommand, runCommandExpectingFailure, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
+import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -13,13 +13,13 @@ waspBuildStartTest =
         runCommandExpectingFailure $
           waspCliBuildStart [],
       TestCase "fail-unbuilt-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           setWaspDbToPSQL
           runCommandExpectingFailure $ waspCliBuildStart [],
       TestCase "succeed-built-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           setWaspDbToPSQL
           runCommand waspCliBuild
           runCommand $ waspCliBuildStart ["-s", "DATABASE_URL=none"]

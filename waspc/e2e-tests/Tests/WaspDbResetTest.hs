@@ -2,7 +2,7 @@ module Tests.WaspDbResetTest (waspDbResetTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Steps (appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCli, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
+import Steps (appendToPrismaFile, createSeedFile, createWaspProject, inWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
@@ -14,8 +14,7 @@ waspDbResetTest =
   Test
     "wasp-db-reset"
     [ TestCase "fail-outside-project" $
-        runCommandExpectingFailure $
-          waspCli ["db", "reset"],
+        runCommandExpectingFailure waspCliDbReset,
       -- FIXME: find a way without seed commands
       -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
       -- I have the following comments with `FIXME`.
@@ -27,8 +26,8 @@ waspDbResetTest =
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       TestCase "succeed-reset-database" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           runCommand waspCliCompile
           appendToPrismaFile taskPrismaModel
           waspCliDbMigrateDev "foo"

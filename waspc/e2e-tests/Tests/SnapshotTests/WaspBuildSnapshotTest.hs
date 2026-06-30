@@ -8,8 +8,8 @@ import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import Step (Step, askStepContext)
 import Steps
   ( buildAndRemoveWaspProjectDockerImage,
-    createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     runCommand,
     setWaspDbToPSQL,
     waspCliBuild,
@@ -18,13 +18,14 @@ import Steps
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified StrongPath.FilePath as FP
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (WaspProjectDir)
 
 waspBuildSnapshotTest :: SnapshotTest
 waspBuildSnapshotTest =
   makeSnapshotTest "wasp-build" $ do
-    createSnapshotWaspProjectFromMinimalStarter
-    inSnapshotWaspProjectDir $ do
+    createWaspProject minimalStarterTemplate
+    inWaspProjectDir $ do
       setWaspDbToPSQL
       runCommand waspCliBuild
       buildAndRemoveWaspProjectDockerImage

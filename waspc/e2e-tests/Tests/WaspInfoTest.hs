@@ -1,6 +1,6 @@
 module Tests.WaspInfoTest (waspInfoTest) where
 
-import Steps (createTestWaspProject, inTestWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliInfo)
+import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliInfo)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -13,7 +13,7 @@ waspInfoTest =
     [ TestCase "fail-outside-project" $
         runCommandExpectingFailure waspCliInfo,
       TestCase "succeed-inside-project" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $
           runCommand waspCliInfo
     ]

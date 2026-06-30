@@ -5,7 +5,7 @@ import Steps
   ( appendToFile,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
     copyFile,
-    inSnapshotWaspProjectDir,
+    inWaspProjectDir,
     runCommand,
     waspCliCompile,
     waspCliInstall,
@@ -16,7 +16,7 @@ kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
   makeSnapshotTest "kitchen-sink" $ do
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|]
-    inSnapshotWaspProjectDir $ do
+    inWaspProjectDir $ do
       createDotEnvServerFile
       normalizePostgresConnectionString
       runCommand waspCliInstall

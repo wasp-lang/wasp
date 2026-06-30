@@ -6,8 +6,8 @@ import Control.Monad (forM_)
 import Step (Step)
 import Steps
   ( assertCommandFailsWithOutputContaining,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
     removeDirRecursively,
     runCommand,
     setWaspDbToPSQL,
@@ -40,8 +40,8 @@ waspSpecAvailableTest =
   Test
     "wasp-spec-available"
     [ TestCase "commands-requiring-wasp-spec-fail-with-install-hint-when-missing" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           removeNodeModules
           mapM_
             assertCommandFailsWithInstallHint
@@ -58,23 +58,23 @@ waspSpecAvailableTest =
               waspCliTestClient []
             ],
       TestCase "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           corruptWaspSpecVersion
           assertCommandFailsWithInstallHint waspCliCompile,
       TestCase "build-start-fails-with-install-hint-when-wasp-spec-missing" $ do
         -- `wasp build start` requires `.wasp/build` to exist before its
         -- `WaspSpecAvailable` check fires, so we build first, then nuke
         -- node_modules to reach the install-hint failure path.
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           setWaspDbToPSQL
           runCommand waspCliBuild
           removeNodeModules
           assertCommandFailsWithInstallHint (waspCliBuildStart []),
       TestCase "commands-not-requiring-wasp-spec-succeed-when-missing" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir
           $ forM_
             -- Project-scoped commands that don't require wasp-spec to be installed.
             [ waspCliClean,

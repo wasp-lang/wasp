@@ -5,6 +5,7 @@ module Context
     TestContext (..),
     SnapshotTestContext (..),
     HasWorkingDir (..),
+    HasWaspProjectContext (..),
   )
 where
 
@@ -43,3 +44,14 @@ instance HasWorkingDir TestContext where
 
 instance HasWorkingDir SnapshotTestContext where
   workingDir = castDir . (.snapshotDir)
+
+-- | A step context that wraps a 'WaspProjectContext', so that Wasp project
+-- steps can run from either a 'TestContext' or a 'SnapshotTestContext'.
+class HasWaspProjectContext ctx where
+  getWaspProjectContext :: ctx -> WaspProjectContext
+
+instance HasWaspProjectContext TestContext where
+  getWaspProjectContext = (.waspProjectContext)
+
+instance HasWaspProjectContext SnapshotTestContext where
+  getWaspProjectContext = (.waspProjectContext)

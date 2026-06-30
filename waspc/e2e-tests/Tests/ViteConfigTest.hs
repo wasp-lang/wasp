@@ -4,9 +4,9 @@ import Context (WaspProjectContext (..))
 import NeatInterpolation (trimming)
 import Step (Step, askStepContext)
 import Steps
-  ( createTestWaspProject,
+  ( createWaspProject,
     deleteFile,
-    inTestWaspProjectDir,
+    inWaspProjectDir,
     runCommandExpectingFailure,
     waspCliCompile,
     writeToFile,
@@ -20,13 +20,13 @@ viteConfigTest =
   Test
     "vite-config-validation"
     [ TestCase "fail-on-missing-vite-config" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           deleteFile "vite.config.ts"
           runCommandExpectingFailure waspCliCompile,
       TestCase "fail-on-missing-wasp-plugin-import" $ do
-        createTestWaspProject minimalStarterTemplate
-        inTestWaspProjectDir $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
           writeViteConfigWithoutPlugin
           runCommandExpectingFailure waspCliCompile
     ]

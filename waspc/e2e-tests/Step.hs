@@ -27,8 +27,8 @@ newtype Step ctx a = Step (ReaderT (StepEnv ctx) IO a)
   deriving (Functor, Applicative, Monad)
 
 data StepEnv ctx = StepEnv
-  { stepContext :: ctx,
-    stepLogger :: TestLogger
+  { context :: ctx,
+    logger :: TestLogger
   }
 
 -- | Thrown when a step fails (command exit code, failed assertion, file system
@@ -49,15 +49,15 @@ makeStep :: String -> (TestLogger -> ctx -> IO a) -> Step ctx a
 makeStep stepDescription action = Step $ do
   env <- ask
   liftIO $ do
-    logStepHeader env.stepLogger stepDescription
-    action env.stepLogger env.stepContext
+    logStepHeader env.logger stepDescription
+    action env.logger env.context
 
 -- | Fails the enclosing step.
 failStep :: String -> String -> IO a
 failStep stepDescription failureDetails = throwIO $ StepFailure stepDescription failureDetails
 
 askStepContext :: Step ctx ctx
-askStepContext = Step $ asks (.stepContext)
+askStepContext = Step $ asks (.context)
 
 liftStepIO :: IO a -> Step ctx a
 liftStepIO = Step . liftIO
@@ -67,7 +67,7 @@ liftStepIO = Step . liftIO
 withInnerContext :: innerCtx -> Step innerCtx () -> Step ctx ()
 withInnerContext innerContext step = Step $ do
   env <- ask
-  liftIO $ runStepInEnv (StepEnv innerContext env.stepLogger) step
+  liftIO $ runStepInEnv (StepEnv innerContext env.logger) step
 
 -- | Runs the steps of a test in order, collecting their output into the given
 -- log file. Returns the formatted failure message of the first failed step, if any.
