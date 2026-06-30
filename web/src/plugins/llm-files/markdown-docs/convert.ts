@@ -21,7 +21,7 @@ import { LllmDocsContext } from "../context";
 export function createDocusaurusHtmlToMarkdownProcessor(
   context: LllmDocsContext,
 ): (html: string) => string {
-  const markdownProcessor = unified()
+  const docusaurusHtmlToMarkdownProcessor = unified()
     .use(rehypeParse)
     .use(() =>
       rehypeReduceDocusaurusPageToMarkdownContent(
@@ -57,7 +57,9 @@ export function createDocusaurusHtmlToMarkdownProcessor(
     });
 
   return (html: string) => {
-    const markdown = String(markdownProcessor.processSync(html)).trim();
+    const markdown = String(
+      docusaurusHtmlToMarkdownProcessor.processSync(html),
+    ).trim();
     if (!markdown) {
       throw Error(
         "Markdown content is null. Most likely a stray document. Please update the `isValidMarkdownDocsRoute` function.",
