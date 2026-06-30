@@ -7,7 +7,6 @@ import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -67,8 +66,7 @@ warmUpWaspCli = callCommand "$WASP_CLI_CMD version > /dev/null"
 
 -- TODO: Investigate automatically discovering the tests.
 e2eTests :: IO TestTree
-e2eTests = do
-  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
+e2eTests =
   return $
     testGroup
       "E2E tests"
@@ -119,6 +117,5 @@ e2eTests = do
                 waspDbMigrateDevTest,
                 waspSpecEntityTypesTest
               ]
-          ),
-        sdkPackageExportsTestTree
+          )
       ]

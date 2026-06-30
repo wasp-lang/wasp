@@ -11,6 +11,7 @@ import Steps
     waspCliInstall,
   )
 import StrongPath (reldir)
+import Tests.SdkPackageExportsTest (assertSdkPackageExports)
 
 kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
@@ -21,6 +22,7 @@ kitchenSinkSnapshotTest =
       normalizePostgresConnectionString
       runCommand waspCliInstall
       runCommand waspCliCompile
+      assertSdkPackageExports
   where
     createDotEnvServerFile = copyFile ".env.server.example" ".env.server"
     normalizePostgresConnectionString = appendToFile ".env.server" "\nDATABASE_URL=mock-database-url"
