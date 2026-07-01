@@ -80,4 +80,4 @@ jobs:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
-          mise x "${EXTRA_TOOLS[@]}" -- bash ./run test:waspc:e2e
+          mise x "${EXTRA_TOOLS[@]}" -- ./run test:waspc:e2e
