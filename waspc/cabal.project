@@ -1,3 +1,4 @@
+-- Keep in sync with /mise.toml
 with-compiler: ghc-9.6.7
 
 packages: .

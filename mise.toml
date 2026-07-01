@@ -1,0 +1,77 @@
+min_version = "2026.6.14"
+
+[tools]
+"aqua:ghcup" = "0.2.6.1"
+
+cabal = "3.12.1.0"
+
+# Keep in sync with:
+# - /waspc/cabal.project
+# - /waspc/dev-tool.project
+"mise-ghcup:ghc" = "9.6.7"
+
+# We assume that this HLS version ships prebuilt binaries for the GHC version
+# above. When upgrading GHC or HLS, check
+# https://haskell-language-server.readthedocs.io/en/latest/support/ghc-version-support.html
+# to see which combination of GHC and HLS versions are compatible.
+"mise-ghcup:hls" = "2.12.0.0"
+
+# This should be equal to Wasp's lowest supported Node version.
+# Keep in sync with:
+# - The compiler (Wasp.Node.Version).
+# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
+# - The docs plugin: /web/src/remark/search-and-replace.ts
+# (Also just grep for the version in case we forgot somewhere.)
+"node" = "24.14.1"
+
+"github:tfausak/cabal-gild" = "1.5.0.1"
+
+ormolu = "0.7.2.0"
+
+[plugins]
+"vfox:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
+
+[bootstrap.packages]
+# Dependencies for Ubuntu / Debian
+# GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-ubuntu)
+"apt:build-essential" = "latest"
+"apt:curl" = "latest"
+"apt:libffi-dev" = "latest"
+"apt:libgmp-dev" = "latest"
+"apt:libncurses-dev" = "latest"
+# Cabal dependencies
+"apt:zlib1g-dev" = "latest"
+
+# Dependencies for Alpine
+# GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-alpine)
+"apk:binutils-gold" = "latest"
+"apk:curl" = "latest"
+"apk:gcc" = "latest"
+"apk:g++" = "latest"
+"apk:gmp-dev" = "latest"
+"apk:gmp-static" = "latest"
+"apk:libc-dev" = "latest"
+"apk:libffi-dev" = "latest"
+"apk:make" = "latest"
+"apk:musl-dev" = "latest"
+"apk:ncurses-dev" = "latest"
+"apk:perl" = "latest"
+"apk:pkgconfig" = "latest"
+"apk:tar" = "latest"
+"apk:xz" = "latest"
+# `./run` script dependencies
+"apk:bash" = "latest"
+# Cabal dependencies
+"apk:zlib-dev" = "latest"
+"apk:zlib-static" = "latest"
+# Prisma dependencies
+"apk:openssl" = "latest"
+
+[settings]
+lockfile = true
+experimental = true # Needed for backend plugins (mise-ghcup) to work.
+
+[settings.node]
+# The Node backend has a knack for compiling from source on Alpine even when
+# there's a pre-built binary available. So we explicitly tell it not to do that.
+compile = false

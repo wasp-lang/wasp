@@ -1,15 +1,14 @@
 ---
 title: SEO & GEO
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
-  Lighthouse: 13
-  "industry standards": 2026-06-08
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { CardLink } from "@site/src/components/CardLink"
 
 # Optimizing for search and AI crawlers (SEO & GEO)
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
 
 Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible and attractive to search engines, social media platforms, and AI assistants.
 
