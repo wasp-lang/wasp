@@ -23,7 +23,7 @@ import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog,
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Job.Node (runNodeCommandAsJob)
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.Util.IO as IOUitl
 

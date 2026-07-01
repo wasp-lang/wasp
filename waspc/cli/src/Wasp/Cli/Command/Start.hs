@@ -13,8 +13,10 @@ import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
-import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Command.Watch (WatchCompileHooks (..), watch)
+import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator
+import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -53,8 +55,18 @@ start = do
     -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    serverProcessManager <- ServerGenerator.newServerProcessManager
+    let watchCompileHooks =
+          WatchCompileHooks
+            { _onSuccessfulCompile = \serverChangeImpact -> do
+                case serverChangeImpact of
+                  ServerGenerator.ServerMightBeAffected -> cliSendMessage $ Msg.Start "Updating server..."
+                  ServerGenerator.ServerUnaffected -> return ()
+                ServerGenerator.notifySuccessfulCompile serverProcessManager serverChangeImpact,
+              _onFailedCompile = ServerGenerator.notifyFailedCompile serverProcessManager
+            }
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks
+    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir serverProcessManager (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).

@@ -345,7 +345,9 @@ library
     Wasp.Job.Except
     Wasp.Job.IO
     Wasp.Job.IO.PrefixedWriter
+    Wasp.Job.Node
     Wasp.Job.Process
+    Wasp.Job.Process.Managed
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal

@@ -77,7 +77,7 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Job.Node (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
