@@ -10,7 +10,12 @@ import Test.Hspec (Spec, anyErrorCall, describe, it, shouldBe, shouldMatchList, 
 import Wasp.Generator.FileDraft (FileDraft (FileDraftTextFd), Writeable (getDstPath))
 import Wasp.Generator.FileDraft.TextFileDraft (TextFileDraft)
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
-import Wasp.Generator.WriteFileDrafts (assertDstPathsAreUnique, fileDraftsToWriteAndFilesToDelete)
+import Wasp.Generator.WriteFileDrafts
+  ( GeneratedAppPathChange (..),
+    assertDstPathsAreUnique,
+    fileDraftsToWriteAndFilesToDelete,
+    generatedAppPathChangesFromFileDraftSync,
+  )
 import Wasp.Util (Checksum, checksumFromString, checksumFromText)
 
 genMockTextFileDrafts :: Int -> [TextFileDraft]
@@ -76,6 +81,17 @@ spec_WriteFileDrafts =
       let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete (Just relPathsToChecksums) fdsWithChecksums
       fileDraftsToWrite `shouldMatchList` map fst (newFdsWithChecksums ++ updatedFdsWithChecksums)
       filesToDelete `shouldMatchList` map fst deletedRelPathsToChecksums
+    it "should report generated path changes for written and deleted paths" $ do
+      let fdsWithChecksums = genFdsWithChecksums 2
+      let fileDraftsToWrite = fst <$> fdsWithChecksums
+      let filesToDelete =
+            [ Left [SP.relfile|path/to/redundant/file.txt|],
+              Right [SP.reldir|path/to/redundant/dir|]
+            ]
+      generatedAppPathChangesFromFileDraftSync fileDraftsToWrite filesToDelete
+        `shouldMatchList` ( (GeneratedAppPathWritten . getDstPath <$> fileDraftsToWrite)
+                              ++ (GeneratedAppPathDeleted <$> filesToDelete)
+                          )
   where
     fromEither :: (a -> c) -> (b -> c) -> Either a b -> c
     fromEither f _ (Left a) = f a

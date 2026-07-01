@@ -1,8 +1,10 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Generator.WriteFileDrafts
-  ( synchronizeFileDraftsWithDisk,
+  ( GeneratedAppPathChange (..),
+    synchronizeFileDraftsWithDisk,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
+    generatedAppPathChangesFromFileDraftSync, -- Exported for testing.
     assertDstPathsAreUnique, -- Exported for testing.
     removeFromChecksumFile,
   )
@@ -27,10 +29,15 @@ import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo, Writeable (getChecksum, getDstPath))
 import Wasp.Util (Checksum)
 
+data GeneratedAppPathChange
+  = GeneratedAppPathWritten (FileOrDirPathRelativeTo GeneratedAppDir)
+  | GeneratedAppPathDeleted (FileOrDirPathRelativeTo GeneratedAppDir)
+  deriving (Eq, Show)
+
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
-synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO ()
+synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO [GeneratedAppPathChange]
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   return $! assertDstPathsAreUnique fileDrafts
 
@@ -58,6 +65,13 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 
   let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
   writeChecksumFile dstDir relativePathsToChecksums
+
+  return $ generatedAppPathChangesFromFileDraftSync fileDraftsToWrite filesToDelete
+
+generatedAppPathChangesFromFileDraftSync :: [FileDraft] -> [FileOrDirPathRelativeTo GeneratedAppDir] -> [GeneratedAppPathChange]
+generatedAppPathChangesFromFileDraftSync fileDraftsToWrite filesToDelete =
+  (GeneratedAppPathWritten . getDstPath <$> fileDraftsToWrite)
+    ++ (GeneratedAppPathDeleted <$> filesToDelete)
 
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo GeneratedAppDir, Checksum)]
 
@@ -126,7 +140,7 @@ readChecksumFile dstDir = do
   return $ do
     contents <- maybeContents
     typeAndPathAndChecksums <- Aeson.decode contents :: Maybe [((String, FilePath), Checksum)]
-    sequence $ (\(typeAndPath, checksum) -> (,checksum) <$> fromTypeAndPathToSp typeAndPath) <$> typeAndPathAndChecksums
+    mapM (\(typeAndPath, checksum) -> (,checksum) <$> fromTypeAndPathToSp typeAndPath) typeAndPathAndChecksums
   where
     checksumFP = SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot
 

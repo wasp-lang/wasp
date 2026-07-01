@@ -17,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
+- `wasp start` now manages the development server process directly instead of relying on the generated server's `nodemon`, fixing development server restart and shutdown cleanup issues. ([#4407](https://github.com/wasp-lang/wasp/pull/4407))
 
 ### 🔧 Small improvements
 

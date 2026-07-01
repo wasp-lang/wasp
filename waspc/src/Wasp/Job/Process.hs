@@ -1,9 +1,6 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Wasp.Job.Process
-  ( runProcessAsJob,
-    runNodeCommandAsJob,
-    runNodeCommandAsJobWithExtraEnv,
+  ( runProcessAndStreamOutput,
+    runProcessAsJob,
   )
 where
 
@@ -12,33 +9,29 @@ import Control.Concurrent.Async (Concurrently (..))
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
-import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
-import StrongPath (Abs, Dir, Path')
-import qualified StrongPath as SP
-import System.Environment (getEnvironment)
-import System.Exit (ExitCode (..))
 import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Job as J
-import qualified Wasp.Node.Version as NodeVersion
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
---   Returns exit code of the process once it finishes, and also sends it to the channel.
---   Makes sure to terminate the process (or process group on *nix) if exception occurs.
-runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob process jobType chan =
+-- | Runs a child process and streams its output without emitting 'JobExit'.
+-- Use 'runProcessAsJob' for top-level jobs that should signal completion to job readers.
+runProcessAndStreamOutput :: P.CreateProcess -> J.JobType -> J.Job
+runProcessAndStreamOutput = runProcessAndStreamOutputWithCleanup terminateStreamingProcess
+
+runProcessAndStreamOutputWithCleanup :: (CP.StreamingProcessHandle -> IO ()) -> P.CreateProcess -> J.JobType -> J.Job
+runProcessAndStreamOutputWithCleanup cleanup process jobType chan =
   bracket
     (CP.streamingProcess process)
-    (\(_, _, _, sph) -> terminateStreamingProcess sph)
-    runStreamingProcessAsJob
+    (\(_, _, _, sph) -> cleanup sph)
+    runStreamingProcessAndStreamOutput
   where
-    runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
+    runStreamingProcessAndStreamOutput (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
             runConduit $
               stdoutStream
@@ -63,59 +56,37 @@ runProcessAsJob process jobType chan =
                           }
                   )
 
-      exitCode <-
-        runConcurrently $
-          Concurrently forwardStdoutToChan
-            *> Concurrently forwardStderrToChan
-            *> Concurrently (CP.waitForStreamingProcess processHandle)
+      runConcurrently $
+        Concurrently forwardStdoutToChan
+          *> Concurrently forwardStderrToChan
+          *> Concurrently (CP.waitForStreamingProcess processHandle)
 
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobExit exitCode,
-            J._jobType = jobType
-          }
+terminateStreamingProcess :: CP.StreamingProcessHandle -> IO ()
+terminateStreamingProcess streamingProcessHandle = do
+  let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
+  -- Many commands we run spawn child processes, which can spawn their own children.
+  -- On Unix, interrupting the process group preserves the existing cleanup policy
+  -- better than terminating only the root process, even if the root process already
+  -- exited. On Windows, interruptProcessGroupOf requires create_group=True, which
+  -- this generic runner intentionally avoids because some top-level jobs inherit
+  -- stdin. Wasp-owned long-running children should use Wasp.Job.Process.Managed instead.
+  if System.Info.os == "mingw32"
+    then
+      P.getProcessExitCode processHandle >>= \case
+        Just _ -> return ()
+        Nothing -> P.terminateProcess processHandle
+    else P.interruptProcessGroupOf processHandle
 
-      return exitCode
+-- | Runs a top-level job and emits 'JobExit' when it finishes.
+-- Internal child processes should use 'runProcessAndStreamOutput' instead.
+runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
+runProcessAsJob process jobType chan = do
+  exitCode <- runProcessAndStreamOutput process jobType chan
 
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
-    terminateStreamingProcess streamingProcessHandle = do
-      let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
-      return $ ExitFailure 1
+  writeChan chan $
+    J.JobMessage
+      { J._data = J.JobExit exitCode,
+        J._jobType = jobType
+      }
 
-runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
-
-runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
-  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    NodeVersion.VersionCheckSuccess -> do
-      envVars <- getAllEnvVars
-      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-      runProcessAsJob nodeCommandProcess jobType chan
-  where
-    -- Haskell will use the first value for variable name it finds. Since env
-    -- vars in 'extraEnvVars' should override the inherited env vars, we
-    -- must prepend them.
-    getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
-    exitWithError exitCode errorMsg = do
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobOutput errorMsg J.Stderr,
-            J._jobType = jobType
-          }
-      writeChan chan $
-        J.JobMessage
-          { J._data = J.JobExit exitCode,
-            J._jobType = jobType
-          }
-      return exitCode
+  return exitCode

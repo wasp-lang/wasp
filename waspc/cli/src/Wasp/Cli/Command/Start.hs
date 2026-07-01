@@ -13,8 +13,12 @@ import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
-import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Command.Start.ServerRuntimeInputChange (classifyServerRuntimeInputChange)
+import Wasp.Cli.Command.Watch (WatchCompileHooks (..), watch)
+import Wasp.Cli.Message (cliSendMessage)
+import qualified Wasp.Cli.SignalHandling as SignalHandling
 import qualified Wasp.Generator
+import qualified Wasp.Generator.ServerGenerator.ServerProcessSupervisor as ServerProcessSupervisor
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -46,15 +50,26 @@ start = do
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
 
-  watchOrStartResult <- liftIO $ do
+  watchOrStartResult <- liftIO $ SignalHandling.withGracefulTermination $ do
     -- This MVar is used to exchange information between the two processes below running in
     -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
     -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
     -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    serverProcessSupervisor <- ServerProcessSupervisor.newServerProcessSupervisor
+    let watchCompileHooks =
+          WatchCompileHooks
+            { _onSuccessfulCompile = \watchCompileResult -> do
+                let serverRuntimeInputChange = classifyServerRuntimeInputChange watchCompileResult
+                case serverRuntimeInputChange of
+                  ServerProcessSupervisor.ServerRuntimeInputMightHaveChanged -> cliSendMessage $ Msg.Start "Updating server..."
+                  ServerProcessSupervisor.NoServerRuntimeInputChange -> return ()
+                ServerProcessSupervisor.notifySuccessfulCompile serverProcessSupervisor serverRuntimeInputChange,
+              _onFailedCompile = const $ ServerProcessSupervisor.notifyFailedCompile serverProcessSupervisor
+            }
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks
+    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir serverProcessSupervisor (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).

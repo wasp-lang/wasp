@@ -6,10 +6,14 @@ where
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
+import Wasp.Generator.ServerGenerator.ServerProcessSupervisor
+  ( ServerProcessSupervisor,
+    runServerProcessSupervisor,
+  )
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJob)
 
-startServer :: Path' Abs (Dir GeneratedAppDir) -> J.Job
-startServer generatedAppDir = do
-  let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-  runNodeCommandAsJob serverDir "npm" ["run", "watch"] J.Server
+startServer :: Path' Abs (Dir GeneratedAppDir) -> ServerProcessSupervisor -> J.Job
+startServer generatedAppDir supervisor =
+  runServerProcessSupervisor serverDir supervisor
+  where
+    serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
