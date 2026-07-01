@@ -1,6 +1,7 @@
 import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
+import AI from "../components/AI";
 import Faq from "../components/Faq.jsx";
 import FeaturesExplorer from "../components/FeaturesExplorer";
 import Footer from "../components/Footer";
@@ -8,6 +9,7 @@ import Hero from "../components/Hero";
 import HowItWorks from "../components/HowItWorks";
 import Nav from "../components/Nav/index";
 import Newsletter from "../components/Newsletter";
+import Philosophy from "../components/Philosophy";
 import Properties from "../components/Properties";
 import Roadmap from "../components/Roadmap";
 import WaspOutThere from "../components/WaspOutThere";
@@ -49,8 +51,10 @@ const Index = () => {
             <Hero />
             <Properties />
             <FeaturesExplorer />
-            <WaspOutThere />
+            <AI />
             <HowItWorks />
+            <WaspOutThere />
+            <Philosophy />
             <Newsletter />
             <Roadmap />
             <Faq />

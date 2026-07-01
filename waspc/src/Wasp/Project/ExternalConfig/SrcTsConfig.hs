@@ -49,6 +49,9 @@ srcTsConfigValidator =
           V.inField ("strict", T.strict) $ V.eqJust True,
           V.inField ("esModuleInterop", T.esModuleInterop) $ V.eqJust True,
           V.inField ("lib", T.lib) $ V.eqJust ["dom", "dom.iterable", "esnext"],
+          -- From TypeScript 6 onwards, we need to manually specify which
+          -- packages' globals we want to load.
+          V.inField ("types", T.types) $ V.required $ V.containsAll ["react", "node"],
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           -- Wasp internally uses TypeScript's project references to compile the
           -- code. Referenced projects may not disable emit, so we must specify an

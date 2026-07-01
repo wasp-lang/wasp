@@ -1,14 +1,13 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.23"
-  Caddy: 2026-01-30
-  Ubuntu: 2026-01-30
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
 # Simple VPS
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", Caddy: new Date("2026-01-30"), Ubuntu: new Date("2026-01-30") }} />
 
 ## Deploy Wasp to a VPS
 

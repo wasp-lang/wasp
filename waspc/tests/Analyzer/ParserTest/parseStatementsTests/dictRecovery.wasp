@@ -1,4 +1,0 @@
-app todoApp {
-  foo: ("a"),
-  bar: ("b")
-}

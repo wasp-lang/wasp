@@ -1,7 +1,7 @@
 import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-import { prisma } from 'wasp/server'
-import { type User } from "wasp/entities"
+import { prisma } from '../server/index.js'
+import { type User } from "../entities/index.js"
 
 const prismaAdapter = new PrismaAdapter(
   prisma.session,

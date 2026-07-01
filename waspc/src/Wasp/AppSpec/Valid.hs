@@ -16,7 +16,7 @@ import Data.Bifunctor (first)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
-import Wasp.Analyzer.Parser (isValidWaspIdentifier)
+import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -49,6 +49,7 @@ import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
 
@@ -440,27 +441,41 @@ validatePrerenderRoutes :: AppSpec -> [ValidationError]
 validatePrerenderRoutes spec =
   concatMap validatePrerenderRoute prerenderRoutes
   where
-    prerenderRoutes = filter ((== Just True) . Route.prerender . snd) (AS.getRoutes spec)
+    -- Routes that prerender at least one path.
+    prerenderRoutes = filter (not . null . prerenderPaths . snd) (AS.getRoutes spec)
 
     validatePrerenderRoute (routeName, route) =
-      concat
-        [ [ GenericValidationError $
-              "Route '"
-                ++ routeName
-                ++ "' has prerender enabled but its path ("
-                ++ Route.path route
-                ++ ") contains dynamic segments. Prerendered routes must have static paths."
-            | pathHasDynamicSegments (Route.path route)
-          ],
+      concatMap (validatePrerenderPath routeName route) (prerenderPaths route)
+        ++ [ GenericValidationError $
+               "Route '"
+                 ++ routeName
+                 ++ "' has prerendering enabled but its page has authRequired set to true."
+                 ++ " Prerendered routes cannot require authentication."
+             | pageRequiresAuth (getPage route)
+           ]
+
+    validatePrerenderPath routeName route path
+      | pathHasDynamicSegments path =
           [ GenericValidationError $
               "Route '"
                 ++ routeName
-                ++ "' has prerender enabled but its page has authRequired set to true."
-                ++ " Prerendered routes cannot require authentication."
-            | pageRequiresAuth (getPage route)
+                ++ "' lists prerender path ("
+                ++ path
+                ++ ") which contains dynamic segments. Prerender paths must be fully static."
           ]
-        ]
+      | not (doesConcretePathMatchRoutePattern (Route.path route) path) =
+          [ GenericValidationError $
+              "Route '"
+                ++ routeName
+                ++ "' lists prerender path ("
+                ++ path
+                ++ ") which does not match the route's path pattern ("
+                ++ Route.path route
+                ++ ")."
+          ]
+      | otherwise = []
 
+    prerenderPaths = Route.prerender
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
     pageRequiresAuth page = Page.authRequired page == Just True
 

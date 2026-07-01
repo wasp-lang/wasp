@@ -8,6 +8,7 @@
     "moduleResolution": "nodenext",
     "moduleDetection": "force",
     "isolatedModules": true,
+    "types": ["node"],
 
     "strict": true,
     "noUncheckedIndexedAccess": true,

@@ -1,7 +1,6 @@
 module Wasp.Project.Analyze
   ( analyzeWaspProject,
     analyzePrismaSchema,
-    WaspFilePath (..),
   )
 where
 
@@ -24,12 +23,11 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     SrcTsConfigFile,
-    WaspFilePath (..),
     WaspProjectDir,
     findFileInWaspProjectDir,
-    getTsConfigPathsForWaspProject,
     prismaSchemaFileInWaspProjectDir,
     srcTsConfig,
+    tsConfigPaths,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
@@ -60,7 +58,6 @@ analyzeWaspProject waspDir compileOptions = do
         (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
         -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
         (Right prismaSchemaAst, _) -> do
-          let tsConfigPaths = getTsConfigPathsForWaspProject waspFilePath
           EC.parseAndValidateExternalConfigs waspDir tsConfigPaths >>= \case
             Left externalConfigErrors -> return (Left externalConfigErrors, [])
             Right externalConfigs ->

@@ -1,11 +1,11 @@
 import { hashPassword } from './password.js'
-import { prisma, HttpError } from 'wasp/server'
-import { sleep } from 'wasp/server/utils'
+import { prisma, HttpError } from '../server/index.js'
+import { sleep } from '../server/utils.js'
 import {
   type User,
   type Auth,
   type AuthIdentity,
-} from 'wasp/entities'
+} from '../entities/index.js'
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
