@@ -24,6 +24,8 @@ cabal = "3.12.1.0"
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.14.1"
 
+jq = "latest"
+
 "github:tfausak/cabal-gild" = "1.5.0.1"
 
 ormolu = "0.7.2.0"
