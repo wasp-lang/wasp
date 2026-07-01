@@ -1,5 +1,6 @@
+
+import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "@site/src/lib/constants";
 import { useState } from "react";
-import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "../../src/lib/constants";
 import styles from "./SecretGeneratorBlock.module.css";
 
 interface Props {
