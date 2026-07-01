@@ -17,7 +17,7 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
-import Wasp.Generator.ServerGenerator.Start
+import Wasp.Generator.ServerGenerator.ServerProcessSupervisor
   ( ServerChangeImpact (..),
   )
 import qualified Wasp.Message as Msg
