@@ -5,7 +5,7 @@ import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 import { prisma } from '../index.js'
 import { type AuthUser } from '../auth/user.js'
 
-import { chatWebSocket as chatWebSocket_ext } from 'wasp/src/features/chat/webSocket'
+import { chatWebSocket as chatWebSocket_ext } from '../../src/features/chat/webSocket'
 
 // Public API
 export type WebSocketDefinition<

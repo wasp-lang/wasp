@@ -77,6 +77,17 @@
     */
     "moduleResolution": "bundler",
     /*
+      We import user code verbatim, so an import path may include a JS/TS file
+      extension (e.g. when a `ref({ from })` points at `@src/foo.ts`).
+      `allowImportingTsExtensions` lets us type-check such imports, and
+      `rewriteRelativeImportExtensions` rewrites the extension (e.g. `.ts` -> `.js`)
+      on emit. The latter only rewrites relative specifiers, which is why the SDK
+      imports user code via relative paths (see SdkGenerator/JsImport.hs).
+      Reference: https://github.com/wasp-lang/wasp/issues/4368
+    */
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    /*
        The `incremental` option enables faster SDK compilation, less Vite HMR
        messages and it prevent unnecessary full-page reloads when using Vite HMR.
        While this is great, we still want to dig deeper at some point to understand

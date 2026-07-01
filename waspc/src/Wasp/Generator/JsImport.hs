@@ -13,7 +13,7 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
+import Wasp.Generator.Common (GeneratedAppComponentSrcDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
@@ -68,7 +68,7 @@ extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportN
     }
   where
     importName = extImportNameToJsImportName extImportName
-    importPath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
+    importPath = SP.castRel $ projectSrcDir </> extImportPath
     projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
 
 getAliasedExtImportIdentifier :: EI.ExtImport -> String

@@ -1,4 +1,4 @@
-import { setUpPrisma as setUpPrisma_ext } from 'wasp/src/features/db/prisma'
+import { setUpPrisma as setUpPrisma_ext } from '../src/features/db/prisma'
 
 function createDbClient() {
   return setUpPrisma_ext()

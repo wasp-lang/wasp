@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/auth/providers/types.ts"
         ],
-        "c76ad894f7f8342916370fcd00bb2032a900dc5111c3ff137e159d66d9dd1391"
+        "8bf4fa4512584852471b7da9dd6d10bccfb12aad1e268692d227454e683cb37e"
     ],
     [
         [
@@ -578,7 +578,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "84e7d4f9012887bfb04ca09fc0145865d3b0a2c5576bb5482339733d6e69a127"
+        "5591f678c81b9bed66c8b43cead34b350218354d5d93180d045f68a38888caec"
     ],
     [
         [
@@ -1061,14 +1061,14 @@
             "file",
             "sdk/wasp/server/crud/tasks.ts"
         ],
-        "14cfda936a5735aeacb30fca0cb63e308856305c838298386772572ac5eb775b"
+        "282b36244a5fc6fc8afa9eefd53cb8d42e1b5ee05529b5806f22f7444fff9130"
     ],
     [
         [
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "0c1add088dc314561312f4e789db34daf11df951a3357269c7ffb461631d7d7c"
+        "7e33cf3548515d0739ff61a67345fa7167904b8b4093a88b54c4a708d11647ec"
     ],
     [
         [
@@ -1110,7 +1110,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "141565f4e150143ad201eb9c44c7acd58ac380319b21a694ef20cf3309e24729"
+        "2bde0c9e0af6f00ab32487107b053361e5763fba952b7df85efc5417c856573a"
     ],
     [
         [
@@ -1201,7 +1201,7 @@
             "file",
             "sdk/wasp/server/operations/actions/index.ts"
         ],
-        "760d1df6a9ebdf7cb9d784cb9a385bca03c4ea1969a11359355713cf9d60cdae"
+        "61dfdfbe1a7f18c705288b4944d3da9e47227cae9dd392d9ce7045bf6fc8a7c0"
     ],
     [
         [
@@ -1222,7 +1222,7 @@
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "ce007cd6165791a8c06ad58fd1b7011e1fc29196fa20d97a15c51bd598c7dd6e"
+        "78c0f7bd1638a8ccb793d400a3d40b9eed9daff32de639726caa5a53a53d02a4"
     ],
     [
         [
@@ -1257,7 +1257,7 @@
             "file",
             "sdk/wasp/server/webSocket/index.ts"
         ],
-        "17efba55216fa880d47c3053171fefef432336db5a06a0d567799de1be00881a"
+        "a559647196cdedff81af2defdfd5d029e241bb6f9ebed495dcde9dde0316dc83"
     ],
     [
         [
@@ -1817,7 +1817,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
+        "cda43a6dce31d79ae7234093b413567f63b8c71316df5d2e081296f220cd2ee4"
     ],
     [
         [
@@ -2615,7 +2615,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "213a1d444513d843b0be136a553475786863fd38b07f0d86e990f0b1bad40b31"
     ],
     [
         [

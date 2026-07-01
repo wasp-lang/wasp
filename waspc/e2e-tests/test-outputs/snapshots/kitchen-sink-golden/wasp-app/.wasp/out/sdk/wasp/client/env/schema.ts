@@ -1,6 +1,6 @@
 import * as z from "zod"
 
-import { clientEnvValidationSchema as clientEnvValidationSchema_ext } from 'wasp/src/env'
+import { clientEnvValidationSchema as clientEnvValidationSchema_ext } from '../../src/env'
 const userClientEnvSchema = clientEnvValidationSchema_ext;
 
 const serverUrlSchema =

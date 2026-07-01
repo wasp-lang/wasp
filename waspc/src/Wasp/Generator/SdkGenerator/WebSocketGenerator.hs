@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Char (toLower)
-import StrongPath (relfile)
+import StrongPath (reldir, relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -40,7 +40,7 @@ genServerWebSocketIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "userWebSocketFn" .= extImportToImportJson mayebWebSocketFn,
+          "userWebSocketFn" .= extImportToImportJson [reldir|server/webSocket|] mayebWebSocketFn,
           "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
         ]
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec

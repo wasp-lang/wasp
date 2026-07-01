@@ -6,18 +6,18 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
 } from '../wrappers.js'
-import { getTasks as getTasks_ext } from 'wasp/src/features/operations/queries'
-import { getNumTasks as getNumTasks_ext } from 'wasp/src/features/operations/queries'
-import { getTask as getTask_ext } from 'wasp/src/features/operations/queries'
-import { getSerializedObjects as getSerializedObjects_ext } from 'wasp/src/features/operations/queries'
-import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from 'wasp/src/features/jobs/uppercaseText'
-import { getDate as getDate_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getAnythingNoAuth as getAnythingNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getAnythingAuth as getAnythingAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getTrueVoid as getTrueVoid_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getAnyNoAuth as getAnyNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getAnyAuth as getAnyAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from 'wasp/src/rpcTests/operations/definitions'
+import { getTasks as getTasks_ext } from '../../../src/features/operations/queries'
+import { getNumTasks as getNumTasks_ext } from '../../../src/features/operations/queries'
+import { getTask as getTask_ext } from '../../../src/features/operations/queries'
+import { getSerializedObjects as getSerializedObjects_ext } from '../../../src/features/operations/queries'
+import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from '../../../src/features/jobs/uppercaseText'
+import { getDate as getDate_ext } from '../../../src/rpcTests/operations/definitions'
+import { getAnythingNoAuth as getAnythingNoAuth_ext } from '../../../src/rpcTests/operations/definitions'
+import { getAnythingAuth as getAnythingAuth_ext } from '../../../src/rpcTests/operations/definitions'
+import { getTrueVoid as getTrueVoid_ext } from '../../../src/rpcTests/operations/definitions'
+import { getAnyNoAuth as getAnyNoAuth_ext } from '../../../src/rpcTests/operations/definitions'
+import { getAnyAuth as getAnyAuth_ext } from '../../../src/rpcTests/operations/definitions'
+import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from '../../../src/rpcTests/operations/definitions'
 
 // PRIVATE API
 export type GetTasks_ext = typeof getTasks_ext

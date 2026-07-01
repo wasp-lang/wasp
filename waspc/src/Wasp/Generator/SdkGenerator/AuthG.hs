@@ -159,8 +159,8 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        [ "emailUserSignupFields" .= extImportToImportJson [reldir|auth/providers|] userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson [reldir|auth/providers|] userUsernameAndPassowrdSignupFields
         ]
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
@@ -176,8 +176,8 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+          "emailUserSignupFields" .= extImportToImportJson [reldir|auth/providers|] userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson [reldir|auth/providers|] userUsernameAndPassowrdSignupFields
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth

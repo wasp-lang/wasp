@@ -10,7 +10,7 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-import { emailUserSignupFields as emailUserSignupFields_ext } from 'wasp/src/features/auth/providers/email'
+import { emailUserSignupFields as emailUserSignupFields_ext } from '../../src/features/auth/providers/email'
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<typeof emailUserSignupFields_ext>;
 
