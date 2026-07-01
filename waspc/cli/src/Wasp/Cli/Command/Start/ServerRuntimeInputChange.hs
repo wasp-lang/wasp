@@ -3,8 +3,6 @@ module Wasp.Cli.Command.Start.ServerRuntimeInputChange
   )
 where
 
-import Data.List (isPrefixOf)
-import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (CompileResult (..))
@@ -17,45 +15,53 @@ import Wasp.Generator.ServerGenerator.ServerProcessSupervisor
   )
 import Wasp.Generator.WriteFileDrafts (GeneratedAppPathChange (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir)
+import Wasp.Util.Glob (GlobPatterns, compileGlobPatterns, dirAndDescendantsGlobs, matchesAnyGlob, recursiveFileGlobsWithExtensions)
 
--- Server runtime inputs are user `src` runtime files, generated `server/src`
--- runtime files, generated `server/src` directory deletes, and generated `server/.env`.
 classifyServerRuntimeInputChange :: WatchCompileResult -> ServerRuntimeInputChange
 classifyServerRuntimeInputChange watchCompileResult
-  | any isServerRuntimeInputProjectFile (_watchProjectFileChanges watchCompileResult) = ServerRuntimeInputMightHaveChanged
-  | any isServerRuntimeInputGeneratedAppChange (_compileGeneratedAppPathChanges $ _watchCompileResult watchCompileResult) = ServerRuntimeInputMightHaveChanged
+  | any changedProjectFileIsServerRuntimeInput changedProjectFiles = ServerRuntimeInputMightHaveChanged
+  | any changedGeneratedPathIsServerRuntimeInput changedGeneratedPaths = ServerRuntimeInputMightHaveChanged
   | otherwise = NoServerRuntimeInputChange
+  where
+    changedProjectFiles = _watchProjectFileChanges watchCompileResult
+    changedGeneratedPaths = _compileGeneratedAppPathChanges $ _watchCompileResult watchCompileResult
 
-isServerRuntimeInputProjectFile :: ProjectFileChange -> Bool
-isServerRuntimeInputProjectFile (ProjectFileChange pathInProject) =
-  isFileInDirWithServerRuntimeInputExtension projectSrcDir pathInProject
+changedProjectFileIsServerRuntimeInput :: ProjectFileChange -> Bool
+changedProjectFileIsServerRuntimeInput (ProjectFileChange pathInProject) =
+  projectServerRuntimeInputFileGlobs `matchesAnyGlob` pathInProject
 
-isServerRuntimeInputGeneratedAppChange :: GeneratedAppPathChange -> Bool
-isServerRuntimeInputGeneratedAppChange (GeneratedAppPathWritten path) =
-  isServerRuntimeInputGeneratedAppPath path
-isServerRuntimeInputGeneratedAppChange (GeneratedAppPathDeleted path) =
-  isServerRuntimeInputGeneratedAppPath path
+changedGeneratedPathIsServerRuntimeInput :: GeneratedAppPathChange -> Bool
+changedGeneratedPathIsServerRuntimeInput (GeneratedAppPathWritten path) =
+  generatedPathIsServerRuntimeInput path
+changedGeneratedPathIsServerRuntimeInput (GeneratedAppPathDeleted path) =
+  generatedPathIsServerRuntimeInput path
 
-isServerRuntimeInputGeneratedAppPath :: FileOrDirPathRelativeTo GeneratedAppDir -> Bool
-isServerRuntimeInputGeneratedAppPath (Left file) =
-  file == generatedServerEnvFile
-    || isGeneratedServerSrcRuntimeInputFile file
-isServerRuntimeInputGeneratedAppPath (Right dir) =
-  SP.fromRelDir dir `pathIsInDir` generatedServerSrcDir
+generatedPathIsServerRuntimeInput :: FileOrDirPathRelativeTo GeneratedAppDir -> Bool
+generatedPathIsServerRuntimeInput (Left file) =
+  generatedServerRuntimeInputFileGlobs `matchesAnyGlob` SP.fromRelFile file
+generatedPathIsServerRuntimeInput (Right dir) =
+  generatedServerRuntimeInputDirGlobs `matchesAnyGlob` FP.dropTrailingPathSeparator (SP.fromRelDir dir)
 
-isGeneratedServerSrcRuntimeInputFile :: Path' (Rel GeneratedAppDir) File' -> Bool
-isGeneratedServerSrcRuntimeInputFile = isFileInDirWithServerRuntimeInputExtension generatedServerSrcDir . SP.fromRelFile
+projectServerRuntimeInputFilePatterns :: [String]
+projectServerRuntimeInputFilePatterns =
+  recursiveFileGlobsWithExtensions projectSrcDir serverRuntimeInputFileExtensions
 
-isFileInDirWithServerRuntimeInputExtension :: FilePath -> FilePath -> Bool
-isFileInDirWithServerRuntimeInputExtension dir file =
-  file `pathIsInDir` dir
-    && hasServerRuntimeInputExtension file
+generatedServerRuntimeInputFilePatterns :: [String]
+generatedServerRuntimeInputFilePatterns =
+  generatedServerEnvFile
+    : recursiveFileGlobsWithExtensions generatedServerSrcDir serverRuntimeInputFileExtensions
 
-hasServerRuntimeInputExtension :: FilePath -> Bool
-hasServerRuntimeInputExtension path = FP.takeExtension path `elem` serverRuntimeInputExtensions
+generatedServerRuntimeInputDirPatterns :: [String]
+generatedServerRuntimeInputDirPatterns = dirAndDescendantsGlobs generatedServerSrcDir
 
-pathIsInDir :: FilePath -> FilePath -> Bool
-pathIsInDir path dir = FP.splitDirectories dir `isPrefixOf` FP.splitDirectories path
+projectServerRuntimeInputFileGlobs :: GlobPatterns
+projectServerRuntimeInputFileGlobs = compileGlobPatterns projectServerRuntimeInputFilePatterns
+
+generatedServerRuntimeInputFileGlobs :: GlobPatterns
+generatedServerRuntimeInputFileGlobs = compileGlobPatterns generatedServerRuntimeInputFilePatterns
+
+generatedServerRuntimeInputDirGlobs :: GlobPatterns
+generatedServerRuntimeInputDirGlobs = compileGlobPatterns generatedServerRuntimeInputDirPatterns
 
 projectSrcDir :: FilePath
 projectSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir srcDirInWaspProjectDir
@@ -63,8 +69,8 @@ projectSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir srcDirInWaspProject
 generatedServerSrcDir :: FilePath
 generatedServerSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir ServerGenerator.Common.serverSrcDirInGeneratedAppDir
 
-generatedServerEnvFile :: Path' (Rel GeneratedAppDir) File'
-generatedServerEnvFile = ServerGenerator.Common.serverRootDirInGeneratedAppDir </> [relfile|.env|]
+generatedServerEnvFile :: FilePath
+generatedServerEnvFile = SP.fromRelDir ServerGenerator.Common.serverRootDirInGeneratedAppDir FP.</> ".env"
 
-serverRuntimeInputExtensions :: [String]
-serverRuntimeInputExtensions = [".ts", ".mts", ".js", ".mjs", ".json"]
+serverRuntimeInputFileExtensions :: [String]
+serverRuntimeInputFileExtensions = [".ts", ".mts", ".js", ".mjs", ".json"]
