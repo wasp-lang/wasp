@@ -28,12 +28,10 @@ viteBuildTest =
     "vite-build"
     [ TestCase
         "fail-on-missing-required-env-vars"
-        ( createViteBuildTestCase [expectCommandFailure <$> viteBuild]
-        ),
+        (createViteBuildTestCase [expectCommandFailure <$> viteBuild]),
       TestCase
         "success-with-required-env-vars"
-        ( createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]
-        ),
+        (createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]),
       TestCase
         "fail-missing-inline-env-var"
         ( createViteBuildTestCase

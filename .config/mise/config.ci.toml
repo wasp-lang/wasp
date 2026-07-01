@@ -5,4 +5,8 @@
 # These tools are only used locally, so we don't install them in CI, because
 # they take up more time and cache space.
 [settings]
-disable_tools = ["mise-ghcup:hls"]
+disable_tools = [
+  "mise-ghcup:hls",
+  "mise-cabal:hlint",
+  "mise-cabal:stan",
+]
