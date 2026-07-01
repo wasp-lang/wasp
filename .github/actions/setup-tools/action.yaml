@@ -11,7 +11,7 @@ runs:
       uses: jdx/mise-action@v4
       env:
         # Loads `.config/mise/config.ci.toml` on top of `mise.toml`, which
-        # disables dev-only tools (HLS, HLint, Stan) that no CI job needs.
+        # disables dev-only tools that are not used in CI.
         MISE_ENV: ci
       with:
         bootstrap: true
