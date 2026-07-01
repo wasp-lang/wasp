@@ -15,6 +15,14 @@ const LLMS_TXT_OTHER_RESOURCES = `## Other Resources
 - [Wasp GitHub](https://github.com/wasp-lang/wasp)
 `;
 
+/**
+ * Generates the `llms.txt` file.
+ * It serves as an universal index to all other `llms*.txt` files and resources.
+ * This includes:
+ * - All verioned LLM files (`llms-{waspVersion}.txt` and `llms-full-{waspVersion}.txt`).
+ * - All posts (see {@link PostCollection}).
+ * - Other resources (see {@link LLMS_TXT_OTHER_RESOURCES}).
+ */
 export async function generateLlmsTxtFile(
   context: LlmFilesContext,
 ): Promise<void> {

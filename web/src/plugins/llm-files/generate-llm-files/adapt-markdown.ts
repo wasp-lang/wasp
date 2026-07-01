@@ -7,7 +7,7 @@ import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
 /**
- * For the full llm files we:
+ * For the `llms-full*.txt` files we:
  * - Drop the title (the breadcrumb heading replaces it).
  * - Nest the remaining headings one level deeper.
  * - Turn links into full URLs so the file stands on its own.

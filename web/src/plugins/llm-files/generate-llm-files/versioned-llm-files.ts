@@ -10,7 +10,7 @@ import {
 } from "./docs-index";
 
 /**
- * Generates all `llm-{waspVersion}.txt` and `llm-full-{waspVersion}.txt` files.
+ * Generates all `llms-{waspVersion}.txt` and `llms-full-{waspVersion}.txt` files.
  */
 export async function generateVersionedLlmFiles(
   context: LlmFilesContext,
@@ -42,6 +42,12 @@ export async function generateVersionedLlmFiles(
   }
 }
 
+/**
+ * Generates a `llms-{waspVersion}.txt` file.
+ * It serves as an index to almost all docs routes (`/docs/*`) for that Wasp version.
+ *
+ * @see {@link buildMarkdownDocsIndex} for more details.
+ */
 async function generateVersionedLlmsTxt(
   context: LlmFilesContext,
   waspVersion: string,
@@ -70,7 +76,7 @@ function buildLlmsTxtBody(
       lines.push(`- [${item.title}](${item.url})`);
     } else {
       const headingHashes = "#".repeat(3 + depth);
-      lines.push(`\n${headingHashes} ${item.title}`);
+      lines.push(`${headingHashes} ${item.title}`);
       buildLlmsTxtBody(lines, item.items, depth + 1);
     }
   }
@@ -104,6 +110,12 @@ function buildLlmsFullTxtBody(
 
 const LLMS_FULL_TXT_HEADER_DIVIDER = "\n---\n\n";
 
+/**
+ * Generates a `llms-full-{waspVersion}.txt` file.
+ * It includes the content of almost all docs routes (`/docs/*`)  for that Wasp version.
+ *
+ * @see {@link buildMarkdownDocsIndex} for more details.
+ */
 async function generateVersionedLlmsFullTxt(
   context: LlmFilesContext,
   waspVersion: string,
@@ -118,6 +130,12 @@ async function generateVersionedLlmsFullTxt(
   await fs.writeFile(absPath, content, "utf8");
 }
 
+/**
+ * Generates a `llms-full.txt` file.
+ * It includes the content of almost all docs routes (`/docs/*`)  for the latest Wasp version.
+ *
+ * @see {@link buildMarkdownDocsIndex} for more details.
+ */
 async function generateLatestVersionLlmsFullTxt(
   context: LlmFilesContext,
   waspVersion: string,
@@ -132,6 +150,11 @@ async function generateLatestVersionLlmsFullTxt(
   await fs.writeFile(absPath, content, "utf8");
 }
 
+/**
+ * `llms-full.txt` also includes an index to all other `llms-full-{waspVersion}.txt` variants.
+ * This is because LLMs might default to this file even if their user has an outdated
+ * Wasp verison (if they skipped the `llms.txt` index).
+ */
 function buildLatestVersionFullDocsHeader(
   context: LlmFilesContext,
   waspVersion: string,

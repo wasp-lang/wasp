@@ -3,10 +3,12 @@ import { generateLlmsTxtFile } from "./llms-txt";
 import { generateVersionedLlmFiles } from "./versioned-llm-files";
 
 /**
- * Generates the following files into the build directory:
- * - llms.txt - index of llms-{waspVersion}.txt, llms-full-{waspVersion}.txt, blog posts, and other resources
- * - llms-{waspVersion}.txt - index of that Wasp version's docs, guides, and API pages
- * - llms-full-{waspVersion}.txt - that Wasp version docs and guides concatenated together
+ * Generates all LLM files in the {@link LlmFilesContext.outDir}.
+ * This incldes:
+ * - `llms.txt` - universal index to all other `llms*.txt` files and resources.
+ * - `llms-{waspVersion}.txt` - index to that Wasp version's docs.
+ * - `llms-full-{waspVersion}.txt` - content of that Wasp version's docs.
+ * - `llms-full.txt` - content of the latest Wasp version's docs and an index to other `llms-full-{waspVersion}.txt` files.
  */
 export async function generateLlmFiles(
   context: LlmFilesContext,

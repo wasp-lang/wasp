@@ -1,4 +1,3 @@
-
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "@site/src/lib/constants";
 import { useState } from "react";
 import styles from "./SecretGeneratorBlock.module.css";
