@@ -52,13 +52,15 @@ function isSpecificFileTypeRoute(pathname: string): boolean {
   return pathname.split("/").at(-1)!.includes(".");
 }
 
+/**
+ * We don't really want to bother with format priorities (order of formats or q-values).
+ * Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
+ */
 function acceptsMarkdownContent(request: Request): boolean {
   if (request.method !== "GET") {
     return false;
   }
   const acceptHeader = request.headers.get("Accept") ?? "";
-  // We don't really want to bother with format priorities (order of formats or q-values).
-  // Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
   return acceptHeader.includes("text/markdown");
 }
 
