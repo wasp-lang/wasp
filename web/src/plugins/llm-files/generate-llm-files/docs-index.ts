@@ -147,7 +147,7 @@ async function resolveSidebarItem(
     case "link":
       if (!sidebarItem.href.startsWith("/")) {
         // External link in sidebar. E.g. example apps link and roadmap link.
-        // TODO: Should this be part of llm files?
+        // TODO: Should this be part of the llm files?
         return null;
       }
       return resolveIndexDoc(context, sidebarItem.href, sidebarItem.label);
@@ -156,8 +156,8 @@ async function resolveSidebarItem(
     case "ref":
       const doc = docsById.get(sidebarItem.id);
       if (!doc) {
-        // TODO: when does this happen?
-        return null;
+        // This should be unreachable.
+        throw new Error(`Sidebar references unknown doc id: ${sidebarItem.id}`);
       }
       const title =
         sidebarItem.label ?? doc.frontMatter.sidebar_label ?? doc.title;

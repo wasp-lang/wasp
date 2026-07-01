@@ -42,8 +42,8 @@ export function docusaurusPluginLlmFiles({
           | LoadedContent
           | undefined;
         if (!docsLoadedContent) {
-          throw Error(
-            `wasp-llm-files: could not find content for "${DOCUSAURUS_DOCS_PLUGIN_NAME}.default".`,
+          throw new Error(
+            `Could not find content for "${DOCUSAURUS_DOCS_PLUGIN_NAME}.default".`,
           );
         }
 
@@ -53,12 +53,6 @@ export function docusaurusPluginLlmFiles({
       },
 
       async postBuild({ outDir, siteConfig }) {
-        if (!docsLoadedContent || !blogContentByPluginId) {
-          throw Error(
-            "wasp-llm-files: allContentLoaded did not run before postBuild.",
-          );
-        }
-
         const { loadedVersions } = docsLoadedContent;
         const baseUrl = stripTrailingSlash(siteConfig.url + siteConfig.baseUrl);
 
@@ -90,8 +84,8 @@ function collectPostCollections(
   return POST_COLLECTIONS.map(({ pluginId, sectionTitle }) => {
     const blogContent = blogContentByPluginId?.[pluginId];
     if (!blogContent) {
-      throw Error(
-        `wasp-llm-files: could not find content for "${DOCUSAURUS_BLOG_PLUGIN_NAME}.${pluginId}".`,
+      throw new Error(
+        `Could not find content for "${DOCUSAURUS_BLOG_PLUGIN_NAME}.${pluginId}".`,
       );
     }
 
