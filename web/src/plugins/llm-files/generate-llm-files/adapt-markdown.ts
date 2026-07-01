@@ -1,4 +1,4 @@
-import type { Heading, Nodes as MdastNodes, Root as MdastRoot } from "mdast";
+import type * as mdast from "mdast";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
@@ -7,40 +7,38 @@ import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
 /**
- * For the `llms-full*.txt` files we:
- * - Drop the title (the breadcrumb heading replaces it).
- * - Nest the remaining headings one level deeper.
- * - Turn links into full URLs so the file stands on its own.
+ * Adapts the generated markdown docs so that they make sense
+ * in context of `llms-full*.txt` files.
+ *
+ * @see {@link remarkAdaptMarkdownForLlmsFullFiles} for more details.
  */
-export function adaptMarkdownForLlmFullFiles(
+export function adaptMarkdownForLlmsFullFiles(
   baseUrl: string,
   markdown: string,
 ): string {
-  return String(
-    getBuiltMarkdownProcessor(baseUrl).processSync(markdown),
-  ).trim();
+  return String(getLlmsFullMarkdownProcessor(baseUrl).processSync(markdown));
 }
 
-const builtMarkdownProcessorByBaseUrl = new Map<
+const llmsFullMarkdownProcessorByBaseUrl = new Map<
   string,
-  ReturnType<typeof createBuiltMarkdownProcessor>
+  ReturnType<typeof createLlmsFullMarkdownProcessor>
 >();
 
-function getBuiltMarkdownProcessor(baseUrl: string) {
-  let processor = builtMarkdownProcessorByBaseUrl.get(baseUrl);
+function getLlmsFullMarkdownProcessor(baseUrl: string) {
+  let processor = llmsFullMarkdownProcessorByBaseUrl.get(baseUrl);
   if (!processor) {
-    processor = createBuiltMarkdownProcessor(baseUrl);
-    builtMarkdownProcessorByBaseUrl.set(baseUrl, processor);
+    processor = createLlmsFullMarkdownProcessor(baseUrl);
+    llmsFullMarkdownProcessorByBaseUrl.set(baseUrl, processor);
   }
   return processor;
 }
 
-function createBuiltMarkdownProcessor(baseUrl: string) {
+function createLlmsFullMarkdownProcessor(baseUrl: string) {
   return unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkDirective)
-    .use(() => (tree: MdastRoot) => rewriteBuiltDoc(baseUrl, tree))
+    .use(() => remarkAdaptMarkdownForLlmsFullFiles(baseUrl))
     .use(remarkStringify, {
       bullet: "-",
       emphasis: "*",
@@ -52,42 +50,60 @@ function createBuiltMarkdownProcessor(baseUrl: string) {
     });
 }
 
-function rewriteBuiltDoc(baseUrl: string, tree: MdastRoot): void {
-  dropIndexHeader(tree);
-  dropTitleHeading(tree);
-  nestHeadingsDeeper(tree);
-  makeRootRelativeUrlsAbsolute(baseUrl, tree);
+function remarkAdaptMarkdownForLlmsFullFiles(
+  baseUrl: string,
+): (tree: mdast.Root) => void {
+  return (tree: mdast.Root) => {
+    dropIndexHeader(tree);
+    dropDocumentHeading(tree);
+    nestHeadingsDeeper(tree);
+    makeRootRelativeUrlsAbsolute(baseUrl, tree);
+  };
 }
 
 /**
- * Each built Markdown file starts with a header pointing at the docs index
- * (a blockquote followed by a thematic break). It is redundant inside the
- * concatenated index, so we drop it.
+ * Each markdown docs file starts with a header pointing to that Wasp versions
+ * `llms-{waspVerison}.txt` file.
+ *
+ * It is redundant inside the `llms-full*.txt` files, so we drop it.
+ * TODO: can we do this better?
  */
-function dropIndexHeader(tree: MdastRoot): void {
+function dropIndexHeader(tree: mdast.Root): void {
   const [first, second] = tree.children;
   if (first?.type === "blockquote" && second?.type === "thematicBreak") {
     tree.children.splice(0, 2);
   }
 }
 
-function dropTitleHeading(tree: MdastRoot): void {
-  const titleIndex = tree.children.findIndex(
+/**
+ * `llms-full*.txt` files generate breadcrumb headings:
+ * e.g. "Authentication / Auth Hooks" instead of "Auth Hooks".
+ *
+ * To avoid duplicate headings we drop the pre-existing heading.
+ */
+function dropDocumentHeading(tree: mdast.Root): void {
+  const headingIndex = tree.children.findIndex(
     (node) => node.type === "heading" && node.depth === 1,
   );
-  if (titleIndex !== -1) {
-    tree.children.splice(titleIndex, 1);
+  if (headingIndex !== -1) {
+    tree.children.splice(headingIndex, 1);
   }
 }
 
-function nestHeadingsDeeper(tree: MdastRoot): void {
+/**
+ * All category headings are nested under a "section title",
+ * e.g. "Docs", "Guides", "API".
+ *
+ * So we have to make them 1 depth deeper.
+ */
+function nestHeadingsDeeper(tree: mdast.Root): void {
   visit(tree, "heading", (heading) => {
-    heading.depth = (heading.depth + 1) as Heading["depth"];
+    heading.depth = (heading.depth + 1) as mdast.Heading["depth"];
   });
 }
 
-function makeRootRelativeUrlsAbsolute(baseUrl: string, tree: MdastRoot): void {
-  visit(tree, (node: MdastNodes) => {
+function makeRootRelativeUrlsAbsolute(baseUrl: string, tree: mdast.Root): void {
+  visit(tree, (node: mdast.Nodes) => {
     const hasRootRelativeUrl =
       (node.type === "link" ||
         node.type === "image" ||

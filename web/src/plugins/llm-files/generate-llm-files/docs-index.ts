@@ -7,7 +7,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { stripTrailingSlash } from "../helpers";
-import { adaptMarkdownForLlmFullFiles } from "./adapt-markdown";
+import { adaptMarkdownForLlmsFullFiles } from "./adapt-markdown";
 import type { LlmFilesContext } from "./context";
 
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
@@ -235,7 +235,7 @@ async function resolveIndexDoc(
     const markdown = await fs.readFile(markdownFilePath, "utf8");
     markdownDocument = {
       url: context.baseUrl + markdownRoute,
-      markdown: adaptMarkdownForLlmFullFiles(context.baseUrl, markdown),
+      markdown: adaptMarkdownForLlmsFullFiles(context.baseUrl, markdown),
     };
     markdownDocumentByRouteCache.set(route, markdownDocument);
   }
