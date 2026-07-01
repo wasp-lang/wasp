@@ -57,10 +57,28 @@ spec_AppSpecFromJSON = do
           {
             "kind": "invalid",
             "name" : "foo",
-            "path": "file.js" 
+            "path": "file.js"
           }
         |]
         `shouldDecodeTo` (Nothing :: Maybe ExtImport.ExtImport)
+    it "preserves a JS/TS file extension in the path (faithful passthrough)" $ do
+      [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.ts" }|]
+        `shouldDecodeTo` Just
+          ( ExtImport.ExtImport
+              { ExtImport.name = ExtImport.ExtImportField "foo",
+                ExtImport.path = [relfileP|folder/file.ts|],
+                ExtImport.alias = Nothing
+              }
+          )
+    it "preserves an extensionless path (faithful passthrough)" $ do
+      [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file" }|]
+        `shouldDecodeTo` Just
+          ( ExtImport.ExtImport
+              { ExtImport.name = ExtImport.ExtImportField "foo",
+                ExtImport.path = [relfileP|folder/file|],
+                ExtImport.alias = Nothing
+              }
+          )
   describe "Page" $ do
     it "parses a valid Page JSON with auth" $ do
       [trimming|

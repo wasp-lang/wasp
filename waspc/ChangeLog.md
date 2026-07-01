@@ -17,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
+- External imports (`ref({ from })`) now accept a module path that includes a JS/TS file extension (e.g. `@src/foo.ts`) and embed it verbatim into generated code, fixing a `TS5097` server build error for path-driven tools like file-based routing. ([#4368](https://github.com/wasp-lang/wasp/issues/4368))
 
 ### 🔧 Small improvements
 

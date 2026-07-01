@@ -19,10 +19,17 @@
     "rootDir": ".",
     // Enable source map for debugging
     "sourceMap": true,
-    // We are using rollup and extensionless imports, our module and module
-    // resolution reflect that.
+    // We bundle the server with rollup/esbuild (which reads TS source directly),
+    // so our module and module resolution reflect that.
     "module": "preserve",
     "moduleResolution": "bundler",
+    // We import user code verbatim, so an import path may include a JS/TS file
+    // extension (e.g. when a `ref({ from })` points at `@src/foo.ts`). `tsc` here
+    // only type-checks (rollup/esbuild produces the runtime bundle), so we set
+    // `noEmit` and allow the extension without rewriting it.
+    // Reference: https://github.com/wasp-lang/wasp/issues/4368
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
     // them here to be explicit.
     "esModuleInterop": true,

@@ -13,7 +13,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelFile, reldir, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
@@ -355,7 +355,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+            "prismaSetupFn" .= extImportToImportJson [reldir|server|] maybePrismaSetupFn
           ]
 
   return $

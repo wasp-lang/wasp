@@ -53,7 +53,7 @@ genSignupAction auth =
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl localAuthProvider,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson [reldir|auth/username/actions|] userUsernameAndPassowrdSignupFields
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth

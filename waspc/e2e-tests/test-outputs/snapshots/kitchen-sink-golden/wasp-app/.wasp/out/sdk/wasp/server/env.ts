@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 import { ensureEnvSchema } from "../env/validation.js"
-import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from 'wasp/src/env'
+import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from '../src/env'
 const userServerEnvSchema = serverEnvValidationSchema_ext;
 
 const waspCommonServerEnvSchema = z.object({

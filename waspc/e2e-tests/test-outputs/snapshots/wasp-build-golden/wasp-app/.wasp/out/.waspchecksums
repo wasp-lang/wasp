@@ -599,7 +599,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
+        "cda43a6dce31d79ae7234093b413567f63b8c71316df5d2e081296f220cd2ee4"
     ],
     [
         [
@@ -739,6 +739,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "213a1d444513d843b0be136a553475786863fd38b07f0d86e990f0b1bad40b31"
     ]
 ]

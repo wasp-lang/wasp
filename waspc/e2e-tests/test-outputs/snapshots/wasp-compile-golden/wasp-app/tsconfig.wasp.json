@@ -12,6 +12,8 @@
     "jsx": "preserve",
     "allowJs": true,
     "noEmit": true,
+    // Allow `with { type: "ref" }` imports to include a JS/TS file extension.
+    "allowImportingTsExtensions": true,
     "lib": ["ES2025"],
     "types": ["node"]
   },

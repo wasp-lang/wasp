@@ -8,18 +8,14 @@ module Wasp.Generator.Common
     makeJsonWithEntityData,
     GeneratedAppComponentSrcDir,
     makeJsArrayFromHaskellList,
-    dropExtensionFromImportPath,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.List (intercalate)
-import Data.Maybe (fromJust)
-import StrongPath (Dir, File, Path, Posix, Rel, reldir)
-import qualified StrongPath as SP
+import StrongPath (Dir, Rel, reldir)
 import StrongPath.Types (Path')
-import System.FilePath (splitExtension)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toLowerFirst)
 
@@ -65,8 +61,3 @@ makeJsArrayFromHaskellList :: [String] -> String
 makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
   where
     listOfJsStrings = map (\s -> "'" ++ s ++ "'") list
-
-dropExtensionFromImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
-dropExtensionFromImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
-  where
-    dropExtension = fst . splitExtension

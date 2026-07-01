@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
+import StrongPath (Dir, Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -56,10 +56,13 @@ genIndexTs spec =
   where
     tmplData =
       object
-        [ "actions" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec),
-          "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+        [ "actions" .= map (getActionData operationsIndexDirInSdkRootDir isAuthEnabledGlobally) (AS.getActions spec),
+          "queries" .= map (getQueryData operationsIndexDirInSdkRootDir isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
+    -- The jsFn imports are unused in this index file (it only re-exports), but we
+    -- still pass this file's location for consistency.
+    operationsIndexDirInSdkRootDir = serverOpsDirInSdkRootDir
 
 genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
@@ -80,7 +83,7 @@ genQueriesIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
-          "operations" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+          "operations" .= map (getQueryData [reldir|server/operations/queries|] isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
@@ -94,7 +97,7 @@ genActionsIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
-          "operations" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec)
+          "operations" .= map (getActionData [reldir|server/operations/actions|] isAuthEnabledGlobally) (AS.getActions spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
@@ -121,13 +124,15 @@ genActionTypesFile spec =
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
-getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData isAuthEnabledGlobally operation
+getQueryData :: Path' (Rel SdkRootDir) (Dir importLocation) -> Bool -> (String, AS.Query.Query) -> Aeson.Value
+getQueryData importLocationDirInSdkRootDir isAuthEnabledGlobally (queryName, query) =
+  getOperationTmplData importLocationDirInSdkRootDir isAuthEnabledGlobally operation
   where
     operation = AS.Operation.QueryOp queryName query
 
-getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
-getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData isAuthEnabledGlobally operation
+getActionData :: Path' (Rel SdkRootDir) (Dir importLocation) -> Bool -> (String, AS.Action.Action) -> Aeson.Value
+getActionData importLocationDirInSdkRootDir isAuthEnabledGlobally (actionName, action) =
+  getOperationTmplData importLocationDirInSdkRootDir isAuthEnabledGlobally operation
   where
     operation = AS.Operation.ActionOp actionName action
 
@@ -155,10 +160,10 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
     getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
-getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
-getOperationTmplData isAuthEnabledGlobally operation =
+getOperationTmplData :: Path' (Rel SdkRootDir) (Dir importLocation) -> Bool -> AS.Operation.Operation -> Aeson.Value
+getOperationTmplData importLocationDirInSdkRootDir isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
+    [ "jsFn" .= extOperationImportToImportJson importLocationDirInSdkRootDir (AS.Operation.getFn operation),
       "operationName" .= getName operation,
       "operationTypeName" .= getOperationTypeName operation,
       "entities"

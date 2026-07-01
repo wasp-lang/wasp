@@ -8,8 +8,8 @@ import type { Payload, SuperJSONObject } from "../../core/serialization/index.js
 import type {
   Task,
 } from "../../entities/index.js";
-import { crudGetAllTasks as crudGetAllTasks_ext } from 'wasp/src/features/crud/crud'
-import { crudCreateTask as crudCreateTask_ext } from 'wasp/src/features/crud/crud'
+import { crudGetAllTasks as crudGetAllTasks_ext } from '../../src/features/crud/crud'
+import { crudCreateTask as crudCreateTask_ext } from '../../src/features/crud/crud'
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task
