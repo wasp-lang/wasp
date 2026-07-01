@@ -9,6 +9,7 @@ env:
 
 defaults:
   run:
+    shell: bash
     working-directory: waspc
 
 permissions:
@@ -61,16 +62,9 @@ jobs:
       - uses: ./.github/actions/setup-tools
 
       - name: Compile TS packages and libs
-        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           ./run build:packages
           ./run build:libs
-
-      - name: Compile TS packages and libs
-        if: runner.os == 'Windows'
-        run: |
-          ./run.ps1 build:packages
-          ./run.ps1 build:libs
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
@@ -85,6 +79,5 @@ jobs:
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
-        shell: bash
         run: |
           mise x "${EXTRA_TOOLS[@]}" -- bash ./run test:waspc:e2e
