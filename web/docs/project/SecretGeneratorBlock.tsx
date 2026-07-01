@@ -1,5 +1,5 @@
+import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "@site/src/lib/constants";
 import { useState } from "react";
-import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "../../src/plugins/llm-files/markdown-docs/convert";
 import styles from "./SecretGeneratorBlock.module.css";
 
 interface Props {

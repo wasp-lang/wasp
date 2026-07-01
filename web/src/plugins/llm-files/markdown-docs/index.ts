@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { LllmDocsContext } from "../context";
-import { createDocusaurusHtmlToMarkdownProcessor } from "./convert";
+import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import { isHtmlFileAValidMarkdownVariantCandidate } from "./markdown-routes";
 
 /**
