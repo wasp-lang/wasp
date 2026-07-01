@@ -50,25 +50,24 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Setup
 
-#### Haskell toolchain
+#### Dev tooling
 
-The best way to install the Haskell toolchain is via [ghcup](https://www.haskell.org/ghcup/).
+We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
 
-Once you have `ghcup` installed, run the `ghcup tui` command to install and select the correct versions of `cabal` (package manager), `hls` (language server), and `ghc` (compiler).
+Run `mise install` from the root of the repo to install all the required tools. Then, you can access the mise-managed tools in different ways:
 
-To find out what the correct versions of these tools are for the `waspc`:
+- **(Recommended for local development)** You can set up your shell to automatically call the `mise activate` script. This will make sure that the specified tools and versions are in your `PATH` when you go into the repo. Check their installation instructions at https://mise.jdx.dev/installing-mise.html#shells.
 
-- Run `./run ghcup-set` to determine the specific versions of `ghc` and `hls` you should use. While the primary purpose of this command is to set them to the correct versions, it will also print those versions as a side effect.
-- As for `cabal`, just go with the latest one.
+- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into an one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
+
+- If you don't want to add a shell hook, you can use the [Shims mode](https://mise.jdx.dev/dev-tools/shims.html), which lets you just add a single directory to your `PATH`, which will get populated with intelligent redirectors to the correct versions of the tools for the current working directory.
+
+- For one-off commands, you can use [the `mise exec` command](https://mise.jdx.dev/cli/exec.html) (or `mise x`) to run a specific command with the repo tools available, e.g. `mise x -- ghc --version`, `mise x -- node --version`, `mise x -- ./run build`, etc.
+
+You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
 
 > [!NOTE]
-> On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
-
-#### Javascript / TypeScript toolchain
-
-You need to have the correct version of `node` (and `npm`) installed and set.
-
-Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
+> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](../mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
 
 ### Build
 

@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - uses: ./.github/actions/setup-tools
 
       - name: Compute artifact names for download
         uses: ./.github/actions/compute-artifact-names
@@ -77,11 +78,6 @@ jobs:
             > ./input/data.json
 
           cat ./input/data.json # For debugging purposes
-
-      - uses: actions/setup-node@v6
-        with:
-          cache: npm
-          node-version-file: ".nvmrc"
 
       - name: Install dependencies for script
         working-directory: ./scripts/make-npm-packages

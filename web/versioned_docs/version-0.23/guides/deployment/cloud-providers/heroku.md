@@ -1,14 +1,14 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.23"
-  Heroku: 2026-04-06
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
 import { Server, Database } from '../DeploymentTag'
 
 # Heroku
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", Heroku: new Date("2026-04-06") }} />
 
 ## Deploy Wasp to Heroku <Server /> <Database />
 
