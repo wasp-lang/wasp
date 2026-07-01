@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { LllmDocsContext } from "../context";
+import { MarkdownDocsContext } from "./context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import { isHtmlFileAValidMarkdownVariantCandidate } from "./markdown-routes";
 
@@ -17,7 +17,7 @@ import { isHtmlFileAValidMarkdownVariantCandidate } from "./markdown-routes";
  * - It is more future proof. HTML and Markdown are not prone to changes.
  */
 export async function generateMarkdownFilesForValidHtmlFiles(
-  context: LllmDocsContext,
+  context: MarkdownDocsContext,
 ): Promise<void> {
   console.log("Generating markdown files from built HTML...");
   const { outDir, baseUrl } = context;

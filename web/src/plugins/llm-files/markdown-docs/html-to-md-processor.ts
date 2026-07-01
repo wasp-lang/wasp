@@ -10,7 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { SKIP, visit } from "unist-util-visit";
-import { LllmDocsContext } from "../context";
+import { MarkdownDocsContext } from "./context";
 
 /**
  * Creates a Docusaurus HTML to markdown processor.
@@ -19,7 +19,7 @@ import { LllmDocsContext } from "../context";
  * conversion mangles. This processors recognizes them and emit clean markdown.
  */
 export function createDocusaurusHtmlToMarkdownProcessor(
-  context: LllmDocsContext,
+  context: MarkdownDocsContext,
 ): (html: string) => string {
   const docusaurusHtmlToMarkdownProcessor = unified()
     .use(rehypeParse)

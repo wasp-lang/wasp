@@ -295,8 +295,7 @@ const config: Config = {
         onUntruncatedBlogPosts: "throw",
       },
     ],
-
-    async function tailwindPlugin(context, options) {
+    async function tailwindPlugin(_context, _options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -307,7 +306,6 @@ const config: Config = {
         },
       };
     },
-
     [
       "docusaurus-plugin-typedoc",
       {
