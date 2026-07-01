@@ -2,26 +2,25 @@ module Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) whe
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import Steps
   ( appendToPrismaFile,
-    createSnapshotWaspProjectFromMinimalStarter,
-    inSnapshotWaspProjectDir,
+    createWaspProject,
+    inWaspProjectDir,
+    runCommand,
     waspCliCompile,
     waspCliDbMigrateDev,
   )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspMigrateSnapshotTest :: SnapshotTest
 waspMigrateSnapshotTest =
-  makeSnapshotTest
-    "wasp-migrate"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [ waspCliCompile,
-          appendToPrismaFile taskPrismaModel,
-          waspCliDbMigrateDev "foo"
-        ]
-    ]
+  makeSnapshotTest "wasp-migrate" $ do
+    createWaspProject minimalStarterTemplate
+    inWaspProjectDir $ do
+      runCommand waspCliCompile
+      appendToPrismaFile taskPrismaModel
+      waspCliDbMigrateDev "foo"
   where
     taskPrismaModel :: T.Text
     taskPrismaModel =

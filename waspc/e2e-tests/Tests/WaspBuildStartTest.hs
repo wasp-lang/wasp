@@ -1,6 +1,6 @@
 module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
+import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -9,31 +9,18 @@ waspBuildStartTest :: Test
 waspBuildStartTest =
   Test
     "wasp-build-start"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliBuildStartFails]),
-      TestCase
-        "fail-unbuilt-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  return waspCliBuildStartFails
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-built-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  waspCliBuild,
-                  waspCliBuildStart "-s DATABASE_URL=none"
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure $
+          waspCliBuildStart [],
+      TestCase "fail-unbuilt-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
+          setWaspDbToPSQL
+          runCommandExpectingFailure $ waspCliBuildStart [],
+      TestCase "succeed-built-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
+          setWaspDbToPSQL
+          runCommand waspCliBuild
+          runCommand $ waspCliBuildStart ["-s", "DATABASE_URL=none"]
     ]
-  where
-    waspCliBuildStartFails :: ShellCommand
-    waspCliBuildStartFails = "! $WASP_CLI_CMD build start"

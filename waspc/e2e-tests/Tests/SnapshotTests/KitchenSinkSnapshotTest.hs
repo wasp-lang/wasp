@@ -1,32 +1,28 @@
 module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext,
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import Steps
+  ( appendToFile,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
-    inSnapshotWaspProjectDir,
+    copyFile,
+    inWaspProjectDir,
+    runCommand,
     waspCliCompile,
     waspCliInstall,
   )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (reldir)
+import Tests.SdkPackageExportsTest (assertSdkPackageExports)
 
 kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
-  makeSnapshotTest
-    "kitchen-sink"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
-      inSnapshotWaspProjectDir
-        [ createDotEnvServerFile,
-          normalizePostgresConnectionString,
-          waspCliInstall,
-          waspCliCompile
-        ]
-    ]
+  makeSnapshotTest "kitchen-sink" $ do
+    copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|]
+    inWaspProjectDir $ do
+      createDotEnvServerFile
+      normalizePostgresConnectionString
+      runCommand waspCliInstall
+      runCommand waspCliCompile
+      assertSdkPackageExports
   where
-    createDotEnvServerFile :: ShellCommandBuilder WaspProjectContext ShellCommand
-    createDotEnvServerFile = return "cp .env.server.example .env.server"
-
-    normalizePostgresConnectionString :: ShellCommandBuilder WaspProjectContext ShellCommand
-    normalizePostgresConnectionString = return "printf '\\nDATABASE_URL=mock-database-url\\n' >> .env.server"
+    createDotEnvServerFile = copyFile ".env.server.example" ".env.server"
+    normalizePostgresConnectionString = appendToFile ".env.server" "\nDATABASE_URL=mock-database-url"

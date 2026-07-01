@@ -1,6 +1,6 @@
 module Tests.WaspStartTest (waspStartTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliCompile, waspCliStart)
+import Steps (assertDirExists, createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliCompile, waspCliStart)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -9,34 +9,17 @@ waspStartTest :: Test
 waspStartTest =
   Test
     "wasp-start"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliStartFails]),
-      TestCase
-        "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliStart,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-compiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  waspCliStart
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliStart,
+      TestCase "succeed-uncompiled-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
+          runCommand waspCliStart
+          assertDirExists ".wasp"
+          assertDirExists "node_modules",
+      TestCase "succeed-compiled-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
+          runCommand waspCliCompile
+          runCommand waspCliStart
     ]
-  where
-    waspCliStartFails :: ShellCommand
-    waspCliStartFails = "! $WASP_CLI_CMD start"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

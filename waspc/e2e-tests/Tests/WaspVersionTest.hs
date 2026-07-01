@@ -1,6 +1,6 @@
 module Tests.WaspVersionTest (waspVersionTest) where
 
-import ShellCommands (ShellCommand, (~|))
+import Steps (assertCommandStdoutFirstLineEquals, waspCliVersion)
 import Test (Test (..), TestCase (..))
 import Wasp.Version (waspVersion)
 
@@ -8,10 +8,6 @@ waspVersionTest :: Test
 waspVersionTest =
   Test
     "wasp-version"
-    [ TestCase
-        "match-waspc-version"
-        (return . (: []) $ (~| ("{ read ver; [ \"$ver\" = '" ++ show waspVersion ++ "' ]; }")) $ waspCliVersion)
+    [ TestCase "match-waspc-version" $
+        assertCommandStdoutFirstLineEquals waspCliVersion (show waspVersion)
     ]
-
-waspCliVersion :: ShellCommand
-waspCliVersion = "$WASP_CLI_CMD version"

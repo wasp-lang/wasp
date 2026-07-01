@@ -1,6 +1,14 @@
 module Tests.WaspBuildTest (waspBuildTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild)
+import Steps
+  ( assertDirExists,
+    createWaspProject,
+    inWaspProjectDir,
+    runCommand,
+    runCommandExpectingFailure,
+    setWaspDbToPSQL,
+    waspCliBuild,
+  )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -8,32 +16,17 @@ waspBuildTest :: Test
 waspBuildTest =
   Test
     "wasp-build"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliBuildFails]),
-      TestCase
-        "fail-sqlite-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir [return waspCliBuildFails]
-            ]
-        ),
-      TestCase
-        "succeed-postgresql-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  waspCliBuild,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliBuild,
+      TestCase "fail-sqlite-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $
+          runCommandExpectingFailure waspCliBuild,
+      TestCase "succeed-postgresql-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
+          setWaspDbToPSQL
+          runCommand waspCliBuild
+          assertDirExists ".wasp"
+          assertDirExists "node_modules"
     ]
-  where
-    waspCliBuildFails :: ShellCommand
-    waspCliBuildFails = "! $WASP_CLI_CMD build"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

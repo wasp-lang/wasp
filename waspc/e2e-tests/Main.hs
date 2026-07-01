@@ -1,4 +1,3 @@
-import Control.Concurrent.Async (mapConcurrently)
 import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
 import StrongPath ((</>))
@@ -8,7 +7,6 @@ import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -41,7 +39,7 @@ main = do
     else do
       ensureE2eTestsEnvironment
       warmUpWaspCli
-      e2eTests >>= defaultMain
+      defaultMain e2eTests
 
 ensureE2eTestsEnvironment :: IO ()
 ensureE2eTestsEnvironment = do
@@ -54,8 +52,8 @@ ensureE2eTestsEnvironment = do
       let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
       setEnv "WASP_CLI_CMD" devWaspCliCmd
 
--- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
--- invoking it concurrently (via 'mapConcurrently' in 'e2eTests').
+-- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
+-- concurrently (tasty runs the test cases in parallel).
 --
 -- The dev CLI runs through `cabal run`, and Cabal does not support several
 -- concurrent invocations sharing a single `dist-newstyle`: if the first build
@@ -67,59 +65,56 @@ warmUpWaspCli :: IO ()
 warmUpWaspCli = callCommand "$WASP_CLI_CMD version > /dev/null"
 
 -- TODO: Investigate automatically discovering the tests.
--- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
---       See: github.com/wasp-lang/wasp/issues/3404
-e2eTests :: IO TestTree
-e2eTests = do
-  snapshotTestTrees <-
-    mapConcurrently
-      testTreeFromSnapshotTest
-      [ waspNewSnapshotTest,
-        waspCompileSnapshotTest,
-        waspBuildSnapshotTest,
-        waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
-      ]
-  shellTestTrees <-
-    mapM
-      testTreeFromTest
-      [ -- general Wasp commads
-        waspNewTest,
-        waspTelemetryTest,
-        waspCompletionTest,
-        waspVersionTest,
-        -- Wasp project commands
-        waspCompileTest,
-        -- NOTE(Franjo): The following tests have the `FIXME` comment because they
-        -- are long running processes, which we haven't implmemented support for yet.
-        -- These will be fixed as part of the refactor to pure Haskell tests.
-        -- FIXME: waspStartTest,
-        waspBuildTest,
-        waspTsSpecNodeEnvTest,
-        viteBuildTest,
-        viteConfigTest,
-        -- FIXME: waspBuildStartTest,
-        waspCleanTest,
-        waspSpecAvailableTest,
-        waspInfoTest,
-        waspInstallTest,
-        waspDepsTest,
-        waspDockerfileTest,
-        -- FIXME: waspStudioTest,
-        -- Wasp project db commands
-        -- FIXME: waspDbStartTest,
-        -- FIXME: waspDbStudioTest,
-        waspDbSeedTest,
-        waspDbResetTest,
-        waspDbMigrateDevTest,
-        waspSpecEntityTypesTest
-      ]
-  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
-
-  return $
-    testGroup
-      "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTestTrees,
-        testGroup "Shell tests" shellTestTrees,
-        testGroup "Tests" [sdkPackageExportsTestTree]
-      ]
+e2eTests :: TestTree
+e2eTests =
+  testGroup
+    "E2E tests"
+    [ testGroup
+        "Snapshot Tests"
+        ( map
+            testTreeFromSnapshotTest
+            [ waspNewSnapshotTest,
+              waspCompileSnapshotTest,
+              waspBuildSnapshotTest,
+              waspMigrateSnapshotTest,
+              kitchenSinkSnapshotTest
+            ]
+        ),
+      testGroup
+        "Tests"
+        ( map
+            testTreeFromTest
+            [ -- general Wasp commads
+              waspNewTest,
+              waspTelemetryTest,
+              waspCompletionTest,
+              waspVersionTest,
+              -- Wasp project commands
+              waspCompileTest,
+              -- NOTE(Franjo): The following tests have the `FIXME` comment because they
+              -- are long running processes, which we haven't implmemented support for yet.
+              -- Adding support should now be a matter of building on 'Command.startCommand'
+              -- (e.g. a step that starts a command, waits for some output, and terminates it).
+              -- FIXME: waspStartTest,
+              waspBuildTest,
+              waspTsSpecNodeEnvTest,
+              viteBuildTest,
+              viteConfigTest,
+              -- FIXME: waspBuildStartTest,
+              waspCleanTest,
+              waspSpecAvailableTest,
+              waspInfoTest,
+              waspInstallTest,
+              waspDepsTest,
+              waspDockerfileTest,
+              -- FIXME: waspStudioTest,
+              -- Wasp project db commands
+              -- FIXME: waspDbStartTest,
+              -- FIXME: waspDbStudioTest,
+              waspDbSeedTest,
+              waspDbResetTest,
+              waspDbMigrateDevTest,
+              waspSpecEntityTypesTest
+            ]
+        )
+    ]

@@ -1,6 +1,6 @@
 module Tests.WaspDockerfileTest (waspDockerfileTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDockerfile)
+import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliDockerfile)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -9,19 +9,10 @@ waspDockerfileTest :: Test
 waspDockerfileTest =
   Test
     "wasp-dockerfile"
-    [ TestCase
-        "fail-outside-project"
-        (return [waspCliDockerfileFails]),
-      TestCase
-        "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDockerfile
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliDockerfile,
+      TestCase "succeed-inside-project" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $
+          runCommand waspCliDockerfile
     ]
-  where
-    waspCliDockerfileFails :: ShellCommand
-    waspCliDockerfileFails = "! $WASP_CLI_CMD dockerfile"

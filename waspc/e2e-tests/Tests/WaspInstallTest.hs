@@ -1,9 +1,12 @@
 module Tests.WaspInstallTest (waspInstallTest) where
 
-import ShellCommands
-  ( ShellCommand,
-    createTestWaspProject,
-    inTestWaspProjectDir,
+import Steps
+  ( assertDirDoesNotExist,
+    assertSymlinkExists,
+    createWaspProject,
+    inWaspProjectDir,
+    runCommand,
+    runCommandExpectingFailure,
     waspCliClean,
     waspCliCompile,
     waspCliInstall,
@@ -15,29 +18,14 @@ waspInstallTest :: Test
 waspInstallTest =
   Test
     "wasp-install"
-    [ TestCase
-        "install-fails-outside-project"
-        (return [waspCliInstallFails]),
-      TestCase
-        "install-restores-wasp-spec-after-clean"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliClean,
-                  return $ assertDirectoryDoesNotExist "node_modules",
-                  waspCliInstall,
-                  return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
-                  waspCliCompile
-                ]
-            ]
-        )
+    [ TestCase "install-fails-outside-project" $
+        runCommandExpectingFailure waspCliInstall,
+      TestCase "install-restores-wasp-spec-after-clean" $ do
+        createWaspProject minimalStarterTemplate
+        inWaspProjectDir $ do
+          runCommand waspCliClean
+          assertDirDoesNotExist "node_modules"
+          runCommand waspCliInstall
+          assertSymlinkExists "node_modules/@wasp.sh/spec"
+          runCommand waspCliCompile
     ]
-  where
-    waspCliInstallFails :: ShellCommand
-    waspCliInstallFails = "! $WASP_CLI_CMD install"
-
-    assertDirectoryDoesNotExist :: FilePath -> ShellCommand
-    assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"
-
-    assertSymlinkExists :: FilePath -> ShellCommand
-    assertSymlinkExists path = "[ -L '" ++ path ++ "' ]"

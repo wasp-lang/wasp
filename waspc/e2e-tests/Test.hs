@@ -7,16 +7,14 @@ module Test
   )
 where
 
+import Context (TestContext (..), WaspProjectContext (..))
 import Data.Maybe (fromJust)
-import FileSystem (TestCaseDir, TestLogFile, getTestCaseDir, testCaseLogFileInTestCaseDir)
-import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, File, Path', fromAbsDir, parseRelDir, (</>))
-import System.Exit (ExitCode (..))
-import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
-import Test.Hspec (Spec, expectationFailure, it)
-import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (testSpec)
-import TestLogging (formatCommandFailure, openLogForCommand)
+import FileSystem (getTestCaseDir, testCaseLogFileInTestCaseDir)
+import Step (Step, runSteps)
+import StrongPath (fromAbsDir, parseRelDir, (</>))
+import qualified System.Directory as SD
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit (Assertion, assertFailure, testCase)
 
 data Test = Test
   { name :: String,
@@ -26,54 +24,33 @@ data Test = Test
 -- | Represent a single test case of some 'Test'.
 data TestCase = TestCase
   { name :: String,
-    shellCommandBuilder :: ShellCommandBuilder TestContext [ShellCommand]
+    steps :: Step TestContext ()
   }
 
-testTreeFromTest :: Test -> IO TestTree
-testTreeFromTest test = do
-  testSpec test.name (mapM_ createTestCaseSpec test.testCases)
-  where
-    createTestCaseSpec :: TestCase -> Spec
-    createTestCaseSpec testCase =
-      it testCase.name $ do
-        testCaseDir <- getTestCaseDir test.name testCase.name
-        let testCaseCommand = createTestCaseCommand testCaseDir testCase
-            testName = test.name ++ " / " ++ testCase.name
+testTreeFromTest :: Test -> TestTree
+testTreeFromTest test =
+  testGroup test.name $
+    map (\tc -> testCase tc.name $ runTestCase test tc) test.testCases
 
-        setupTestCase testCaseDir
-        (exitCode, logFile) <- executeTestCaseCommand testCaseDir testCaseCommand testName
+runTestCase :: Test -> TestCase -> Assertion
+runTestCase test testCase' = do
+  testCaseDir <- getTestCaseDir test.name testCase'.name
 
-        case exitCode of
-          ExitFailure code -> expectationFailure =<< formatCommandFailure code logFile
-          ExitSuccess -> return ()
+  -- Remove any leftovers of a previous run of this test case.
+  SD.removePathForcibly $ fromAbsDir testCaseDir
+  SD.createDirectoryIfMissing True $ fromAbsDir testCaseDir
 
-createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
-createTestCaseCommand testCaseDir testCase =
-  foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
-  where
-    testContext = TestContext {testCaseDir, waspProjectContext}
-    waspProjectContext =
-      WaspProjectContext
-        { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
-          waspProjectName = "wasp-app"
-        }
+  let testCaseContext =
+        TestContext
+          { testCaseDir,
+            waspProjectContext =
+              WaspProjectContext
+                { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
+                  waspProjectName = "wasp-app"
+                }
+          }
+      testName = test.name ++ " / " ++ testCase'.name
+      logFile = testCaseDir </> testCaseLogFileInTestCaseDir
 
-setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
-setupTestCase testCaseDir = do
-  callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
-  callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
-
-executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String -> IO (ExitCode, Path' Abs (File TestLogFile))
-executeTestCaseCommand testCaseDir testCaseCommand testName = do
-  let logFile = testCaseDir </> testCaseLogFileInTestCaseDir
-  (logOut, logErr) <- openLogForCommand logFile testName testCaseCommand
-  (_, _, _, processHandle) <-
-    createProcess
-      (shell testCaseCommand)
-        { cwd = Just $ fromAbsDir testCaseDir,
-          std_in = Inherit,
-          std_out = UseHandle logOut,
-          std_err = UseHandle logErr
-        }
-  exitCode <- waitForProcess processHandle
-  return (exitCode, logFile)
+  result <- runSteps testName logFile testCaseContext testCase'.steps
+  either assertFailure return result
