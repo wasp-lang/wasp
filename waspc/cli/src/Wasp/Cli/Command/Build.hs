@@ -14,7 +14,7 @@ import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, compileResultWarningsAndErrors, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
@@ -148,7 +148,7 @@ buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
+buildIO waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions

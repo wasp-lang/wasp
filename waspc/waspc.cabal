@@ -523,6 +523,7 @@ library cli-lib
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
+    Wasp.Cli.Command.Start.ServerRuntimeInputChange
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
@@ -667,6 +668,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    strong-path,
     tasty,
     tasty-hspec,
     time,
@@ -678,6 +680,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.Command.Start.ServerRuntimeInputChangeTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

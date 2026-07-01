@@ -1,5 +1,7 @@
 module Wasp.Cli.Command.Watch
-  ( WatchCompileHooks (..),
+  ( ProjectFileChange (..),
+    WatchCompileResult (..),
+    WatchCompileHooks (..),
     watch,
   )
 where
@@ -14,21 +16,27 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, compileResultWarningsAndErrors, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
-import Wasp.Generator.ServerGenerator.ServerProcessSupervisor
-  ( ServerChangeImpact (..),
-  )
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
-newtype ChangeBatch = ChangeBatch [FSN.Event]
+newtype ProjectFileChange = ProjectFileChange
+  { _projectFileChangePath :: FilePath
+  }
+
+newtype ChangeBatch = ChangeBatch [ProjectFileChange]
 
 data WatchCompileHooks = WatchCompileHooks
-  { _onSuccessfulCompile :: ServerChangeImpact -> IO (),
-    _onFailedCompile :: IO ()
+  { _onSuccessfulCompile :: WatchCompileResult -> IO (),
+    _onFailedCompile :: WatchCompileResult -> IO ()
+  }
+
+data WatchCompileResult = WatchCompileResult
+  { _watchProjectFileChanges :: [ProjectFileChange],
+    _watchCompileResult :: CompileResult
   }
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
@@ -84,7 +92,8 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
           -- Recompile, but only after a 1s period of no new events.
           changeBatch <- collectChangeBatchUntilQuiet chan lastCompileTime 1 event
           currentTime <- getCurrentTime
-          (warnings, errors) <- recompile changeBatch
+          compileResult <- recompile changeBatch
+          let (warnings, errors) = compileResultWarningsAndErrors compileResult
           updateOngoingCompilationResultMVar (warnings, errors)
           listenForEvents chan currentTime
 
@@ -110,11 +119,18 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
           eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
           case eventOrDelay of
             Left event
-              | isStaleEvent event lastCompileTime -> return $ ChangeBatch $ reverse events
+              | isStaleEvent event lastCompileTime -> return $ eventsToChangeBatch events
               | otherwise ->
                   -- We have a new event, restart waiting process.
                   collectEvents $ event : events
-            Right () -> return $ ChangeBatch $ reverse events
+            Right () -> return $ eventsToChangeBatch events
+
+    eventsToChangeBatch :: [FSN.Event] -> ChangeBatch
+    eventsToChangeBatch events = ChangeBatch $ eventToProjectFileChange <$> reverse events
+
+    eventToProjectFileChange :: FSN.Event -> ProjectFileChange
+    eventToProjectFileChange event =
+      ProjectFileChange $ FP.normalise $ FP.makeRelative (SP.fromAbsDir waspProjectDir) (FSN.eventPath event)
 
     isStaleEvent :: FSN.Event -> UTCTime -> Bool
     isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
@@ -123,59 +139,29 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
-    recompile :: ChangeBatch -> IO ([CompileWarning], [CompileError])
+    recompile :: ChangeBatch -> IO CompileResult
     recompile changeBatch = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      (warnings, errors) <- compileIO waspProjectDir outDir
+      compileResult <- compileIO waspProjectDir outDir
+      let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
+      let fileChanges = getFileChanges changeBatch
+      let watchCompileResult =
+            WatchCompileResult
+              { _watchProjectFileChanges = fileChanges,
+                _watchCompileResult = compileResult
+              }
       if null errors
-        then do
-          let serverChangeImpact = classifyServerChangeImpact changeBatch
-          _onSuccessfulCompile watchCompileHooks serverChangeImpact
+        then _onSuccessfulCompile watchCompileHooks watchCompileResult
         else
           cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
-            >> _onFailedCompile watchCompileHooks
+            >> _onFailedCompile watchCompileHooks watchCompileResult
 
-      return (warnings, errors)
+      return compileResult
 
-    classifyServerChangeImpact :: ChangeBatch -> ServerChangeImpact
-    classifyServerChangeImpact (ChangeBatch events)
-      | any eventMightAffectServer events = ServerMightBeAffected
-      | otherwise = ServerUnaffected
-
-    eventMightAffectServer :: FSN.Event -> Bool
-    eventMightAffectServer event =
-      topLevelFileMightAffectServer pathInProject
-        || srcFileMightAffectServer pathInProject
-      where
-        pathInProject = FP.normalise $ FP.makeRelative (SP.fromAbsDir waspProjectDir) (FSN.eventPath event)
-
-    topLevelFileMightAffectServer :: FilePath -> Bool
-    topLevelFileMightAffectServer pathInProject =
-      case FP.splitDirectories pathInProject of
-        [filename] -> filename `elem` serverRelevantTopLevelFiles
-        _ -> False
-
-    srcFileMightAffectServer :: FilePath -> Bool
-    srcFileMightAffectServer pathInProject =
-      case FP.splitDirectories pathInProject of
-        srcDirName : _ -> srcDirName == FP.dropTrailingPathSeparator (SP.fromRelDir srcDirInWaspProjectDir) && FP.takeExtension pathInProject `elem` serverRelevantExtensions
-        _ -> False
-
-    serverRelevantTopLevelFiles :: [FilePath]
-    serverRelevantTopLevelFiles =
-      [ "main.wasp",
-        "main.wasp.ts",
-        ".env",
-        ".env.server",
-        "schema.prisma",
-        "package.json",
-        ".waspignore"
-      ]
-
-    serverRelevantExtensions :: [String]
-    serverRelevantExtensions = [".ts", ".mts", ".js", ".mjs", ".json"]
+    getFileChanges :: ChangeBatch -> [ProjectFileChange]
+    getFileChanges (ChangeBatch fileChanges) = fileChanges
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,

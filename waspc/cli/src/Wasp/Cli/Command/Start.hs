@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Start.ServerRuntimeInputChange (classifyServerRuntimeInputChange)
 import Wasp.Cli.Command.Watch (WatchCompileHooks (..), watch)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.SignalHandling as SignalHandling
@@ -59,12 +60,13 @@ start = do
     serverProcessSupervisor <- ServerProcessSupervisor.newServerProcessSupervisor
     let watchCompileHooks =
           WatchCompileHooks
-            { _onSuccessfulCompile = \serverChangeImpact -> do
-                case serverChangeImpact of
-                  ServerProcessSupervisor.ServerMightBeAffected -> cliSendMessage $ Msg.Start "Updating server..."
-                  ServerProcessSupervisor.ServerUnaffected -> return ()
-                ServerProcessSupervisor.notifySuccessfulCompile serverProcessSupervisor serverChangeImpact,
-              _onFailedCompile = ServerProcessSupervisor.notifyFailedCompile serverProcessSupervisor
+            { _onSuccessfulCompile = \watchCompileResult -> do
+                let serverRuntimeInputChange = classifyServerRuntimeInputChange watchCompileResult
+                case serverRuntimeInputChange of
+                  ServerProcessSupervisor.ServerRuntimeInputMightHaveChanged -> cliSendMessage $ Msg.Start "Updating server..."
+                  ServerProcessSupervisor.NoServerRuntimeInputChange -> return ()
+                ServerProcessSupervisor.notifySuccessfulCompile serverProcessSupervisor serverRuntimeInputChange,
+              _onFailedCompile = const $ ServerProcessSupervisor.notifyFailedCompile serverProcessSupervisor
             }
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks
     let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir serverProcessSupervisor (onJobsQuietDown ongoingCompilationResultMVar)

@@ -44,7 +44,7 @@ watchAndTest testRunner = do
     let watchCompileHooks =
           WatchCompileHooks
             { _onSuccessfulCompile = const $ cliSendMessage $ Msg.Success "Recompilation on file change succeeded.",
-              _onFailedCompile = return ()
+              _onFailedCompile = const $ return ()
             }
     let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar watchCompileHooks
 

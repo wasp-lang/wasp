@@ -1,5 +1,5 @@
 module Wasp.Generator.ServerGenerator.ServerProcessSupervisor
-  ( ServerChangeImpact (..),
+  ( ServerRuntimeInputChange (..),
     ServerProcessSupervisor,
     newServerProcessSupervisor,
     notifyFailedCompile,
@@ -28,12 +28,13 @@ import Wasp.Job.Process.Managed
 
 newtype ServerProcessSupervisor = ServerProcessSupervisor (Chan ServerSupervisorCommand)
 
-data ServerChangeImpact
-  = ServerMightBeAffected
-  | ServerUnaffected
+data ServerRuntimeInputChange
+  = ServerRuntimeInputMightHaveChanged
+  | NoServerRuntimeInputChange
+  deriving (Eq, Show)
 
 data ServerSupervisorCommand
-  = SuccessfulCompile ServerChangeImpact (MVar ())
+  = SuccessfulCompile ServerRuntimeInputChange (MVar ())
   | FailedCompile (MVar ())
   | ServerProcessExited ServerProcessId ExitCode
 
@@ -51,9 +52,9 @@ data ServerProcessState
 newServerProcessSupervisor :: IO ServerProcessSupervisor
 newServerProcessSupervisor = ServerProcessSupervisor <$> newChan
 
-notifySuccessfulCompile :: ServerProcessSupervisor -> ServerChangeImpact -> IO ()
-notifySuccessfulCompile supervisor changeImpact =
-  sendBlockingServerSupervisorCommand supervisor $ SuccessfulCompile changeImpact
+notifySuccessfulCompile :: ServerProcessSupervisor -> ServerRuntimeInputChange -> IO ()
+notifySuccessfulCompile supervisor serverRuntimeInputChange =
+  sendBlockingServerSupervisorCommand supervisor $ SuccessfulCompile serverRuntimeInputChange
 
 notifyFailedCompile :: ServerProcessSupervisor -> IO ()
 notifyFailedCompile supervisor =
@@ -87,15 +88,15 @@ runServerProcessSupervisorLoop ::
   Chan J.JobMessage ->
   IO ()
 runServerProcessSupervisorLoop serverDir supervisor serverStateRef nextServerProcessIdRef chan = do
-  handleSuccessfulCompile serverDir supervisor serverStateRef nextServerProcessIdRef chan ServerMightBeAffected
+  handleSuccessfulCompile serverDir supervisor serverStateRef nextServerProcessIdRef chan ServerRuntimeInputMightHaveChanged
   processServerCommands
   where
     processServerCommands = do
       command <- readServerSupervisorCommand supervisor
       case command of
-        SuccessfulCompile changeImpact done ->
+        SuccessfulCompile serverRuntimeInputChange done ->
           processBlockingCommand done $
-            handleSuccessfulCompile serverDir supervisor serverStateRef nextServerProcessIdRef chan changeImpact
+            handleSuccessfulCompile serverDir supervisor serverStateRef nextServerProcessIdRef chan serverRuntimeInputChange
         FailedCompile done ->
           processBlockingCommand done $
             stopServerFromStateRef serverStateRef
@@ -111,13 +112,13 @@ handleSuccessfulCompile ::
   IORef ServerProcessState ->
   IORef Int ->
   Chan J.JobMessage ->
-  ServerChangeImpact ->
+  ServerRuntimeInputChange ->
   IO ()
-handleSuccessfulCompile serverDir supervisor serverStateRef nextServerProcessIdRef chan changeImpact = do
+handleSuccessfulCompile serverDir supervisor serverStateRef nextServerProcessIdRef chan serverRuntimeInputChange = do
   syncServerState serverStateRef chan
   serverState <- readIORef serverStateRef
-  case (serverState, changeImpact) of
-    (ServerRunning {}, ServerUnaffected) -> return ()
+  case (serverState, serverRuntimeInputChange) of
+    (ServerRunning {}, NoServerRuntimeInputChange) -> return ()
     _ -> do
       bundleExitCode <- bundleServer serverDir chan
       case bundleExitCode of
