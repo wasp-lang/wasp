@@ -229,7 +229,9 @@ async function resolveIndexDoc(
   if (!markdownDocument) {
     const markdownFilePath = path.join(context.outDir, markdownRoute);
     if (!existsSync(markdownFilePath)) {
-      throw Error(`Missing Markdown file for a document: ${markdownFilePath}`);
+      throw Error(
+        `Missing a markdown file for a document: "${markdownFilePath}"`,
+      );
     }
 
     const markdown = await fs.readFile(markdownFilePath, "utf8");

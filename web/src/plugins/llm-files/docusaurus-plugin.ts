@@ -14,10 +14,7 @@ const DOCUSAURUS_BLOG_PLUGIN_NAME = "docusaurus-plugin-content-blog";
  * Blog-plugin instances whose posts are listed in `llms.txt`.
  * The plugin id matches the `id` set in the Docusaurus config.
  */
-const POST_COLLECTIONS: { pluginId: string; sectionTitle: string }[] = [
-  { pluginId: "blog", sectionTitle: "Blog posts" },
-  { pluginId: "resources", sectionTitle: "Resources posts" },
-];
+const POST_COLLECTIONS = ["blog", "resources"] as const;
 
 export interface LlmFilesPluginOptions {
   skipElementInMarkdownDocsClass: string;
@@ -53,6 +50,12 @@ export function docusaurusPluginLlmFiles({
       },
 
       async postBuild({ outDir, siteConfig }) {
+        if (!docsLoadedContent || !blogContentByPluginId) {
+          throw Error(
+            "wasp-llm-files: allContentLoaded did not run before postBuild.",
+          );
+        }
+
         const { loadedVersions } = docsLoadedContent;
         const baseUrl = stripTrailingSlash(siteConfig.url + siteConfig.baseUrl);
 
@@ -81,7 +84,7 @@ function collectPostCollections(
   baseUrl: string,
   blogContentByPluginId: { [pluginId: string]: BlogContent },
 ): PostCollection[] {
-  return POST_COLLECTIONS.map(({ pluginId, sectionTitle }) => {
+  return POST_COLLECTIONS.map((pluginId) => {
     const blogContent = blogContentByPluginId?.[pluginId];
     if (!blogContent) {
       throw new Error(
@@ -94,6 +97,6 @@ function collectPostCollections(
       url: baseUrl + blogPost.metadata.permalink + ".md",
     }));
 
-    return { sectionTitle, posts };
+    return { sectionTitle: blogContent.blogTitle, posts };
   });
 }
