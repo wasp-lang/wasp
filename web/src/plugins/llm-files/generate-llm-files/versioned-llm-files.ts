@@ -5,8 +5,8 @@ import path from "path";
 import type { LlmFilesContext } from "./context";
 import {
   type IndexItem,
-  type MarkdownDocsIndex,
-  buildMarkdownDocsIndex,
+  type LlmFilesMarkdownDocsIndex,
+  buildLlmFilesMarkdownDocsIndex,
 } from "./docs-index";
 
 /**
@@ -19,7 +19,7 @@ export async function generateVersionedLlmFiles(
   const waspVersion = loadedVersion.versionName;
   console.log(`Processing Wasp version ${waspVersion}:`);
 
-  const markdownDocsIndex = await buildMarkdownDocsIndex(
+  const markdownDocsIndex = await buildLlmFilesMarkdownDocsIndex(
     context,
     loadedVersion,
   );
@@ -46,12 +46,12 @@ export async function generateVersionedLlmFiles(
  * Generates a `llms-{waspVersion}.txt` file.
  * It serves as an index to almost all docs routes (`/docs/*`) for that Wasp version.
  *
- * @see {@link buildMarkdownDocsIndex} for more details.
+ * @see {@link buildLlmFilesMarkdownDocsIndex} for more details.
  */
 async function generateVersionedLlmsTxt(
   context: LlmFilesContext,
   waspVersion: string,
-  markdownDocsIndex: MarkdownDocsIndex,
+  markdownDocsIndex: LlmFilesMarkdownDocsIndex,
 ): Promise<void> {
   const lines: string[] = [`# Wasp ${waspVersion} Documentation`, ""];
   for (const section of markdownDocsIndex.sections) {
@@ -82,7 +82,9 @@ function buildLlmsTxtBody(
   }
 }
 
-function buildLlmsFullTxtContent(markdownDocsIndex: MarkdownDocsIndex): string {
+function buildLlmsFullTxtContent(
+  markdownDocsIndex: LlmFilesMarkdownDocsIndex,
+): string {
   let fullDocsBody = "";
   for (const section of markdownDocsIndex.sections) {
     fullDocsBody += `# ${section.title}\n\n`;
@@ -114,7 +116,7 @@ const LLMS_FULL_TXT_HEADER_DIVIDER = "\n---\n\n";
  * Generates a `llms-full-{waspVersion}.txt` file.
  * It includes the content of almost all docs routes (`/docs/*`)  for that Wasp version.
  *
- * @see {@link buildMarkdownDocsIndex} for more details.
+ * @see {@link buildLlmFilesMarkdownDocsIndex} for more details.
  */
 async function generateVersionedLlmsFullTxt(
   context: LlmFilesContext,
@@ -134,7 +136,7 @@ async function generateVersionedLlmsFullTxt(
  * Generates a `llms-full.txt` file.
  * It includes the content of almost all docs routes (`/docs/*`)  for the latest Wasp version.
  *
- * @see {@link buildMarkdownDocsIndex} for more details.
+ * @see {@link buildLlmFilesMarkdownDocsIndex} for more details.
  */
 async function generateLatestVersionLlmsFullTxt(
   context: LlmFilesContext,

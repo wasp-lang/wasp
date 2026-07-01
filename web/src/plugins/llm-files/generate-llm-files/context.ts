@@ -4,7 +4,6 @@ export interface LlmFilesContext {
   baseUrl: string;
   outDir: string;
   latestWaspVersion: string;
-  /** Docs of every Wasp version, latest first, as loaded by the docs plugin. */
   loadedVersions: LoadedVersion[];
   postCollections: PostCollection[];
 }

@@ -6,13 +6,19 @@ import { existsSync } from "fs";
 import fs from "fs/promises";
 import path from "path";
 
-import type { LlmFilesContext } from "./context";
 import { stripTrailingSlash } from "../helpers";
 import { adaptMarkdownForLlmFullFiles } from "./adapt-markdown";
+import type { LlmFilesContext } from "./context";
 
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
-export interface MarkdownDocsIndex {
+/**
+ * An index of all markdown docs that we want to be part
+ * of our `llms*.txt` files.
+ *
+ * The index follows the docs categories hirarchical structure.
+ */
+export interface LlmFilesMarkdownDocsIndex {
   sections: IndexSection[];
 }
 
@@ -38,7 +44,7 @@ export interface IndexCategory {
 
 /**
  * An idividual item of some sidebar category, e.g.: "Authentication / Email / Overview".
- * Represents a docs page we can visit. Has markdown contnet.
+ * Represents a docs page we can visit.
  */
 export interface IndexDoc {
   type: "doc";
@@ -51,18 +57,19 @@ type LoadedSidebarItem = LoadedVersion["sidebars"][string][number];
 type DocsById = Map<DocMetadata["id"], DocMetadata>;
 
 /**
- * Builds a markdown docs index for a single docs version, straight from the
- * docs plugin's in-memory content.
+ * Builds a {@link LlmFilesMarkdownDocsIndex} for a single Wasp version.
  *
- * `Docs` and `Guides` follow their sidebars (categories become titles, docs
- * become links/content). `API` is listed separately: it is large and verbose,
- * so we surface only each package's index page (its overview, which itself
- * links to every symbol).
+ * Converts sidebars (`Docs`, `Guides`, `API`...) into index sections,
+ * where categories become titles, and docs become content.
+ *
+ * `API` index section is handled specially.
+ * We only include API package's index pages into the index.
+ * Otherwise the output would be too verbose.
  */
-export async function buildMarkdownDocsIndex(
+export async function buildLlmFilesMarkdownDocsIndex(
   context: LlmFilesContext,
   loadedVersion: LoadedVersion,
-): Promise<MarkdownDocsIndex> {
+): Promise<LlmFilesMarkdownDocsIndex> {
   const docsById: DocsById = new Map(
     loadedVersion.docs.map((doc) => [doc.id, doc]),
   );
@@ -143,11 +150,7 @@ async function resolveSidebarItem(
         // TODO: Should this be part of llm files?
         return null;
       }
-      return resolveIndexDoc(
-        context,
-        stripTrailingSlash(sidebarItem.href),
-        sidebarItem.label,
-      );
+      return resolveIndexDoc(context, sidebarItem.href, sidebarItem.label);
 
     case "doc":
     case "ref":
@@ -158,7 +161,7 @@ async function resolveSidebarItem(
       }
       const title =
         sidebarItem.label ?? doc.frontMatter.sidebar_label ?? doc.title;
-      return resolveIndexDoc(context, stripTrailingSlash(doc.permalink), title);
+      return resolveIndexDoc(context, doc.permalink, title);
 
     case "html":
       return null;
@@ -171,6 +174,9 @@ async function resolveSidebarItem(
   }
 }
 
+/**
+ * For each unique package in API docs, resolve its index page.
+ */
 async function buildApiSectionItems(
   context: LlmFilesContext,
   docs: DocMetadata[],
@@ -179,21 +185,15 @@ async function buildApiSectionItems(
   for (const doc of docs) {
     const packageName = extractApiDocsPackageName(doc.id);
     if (packageName) {
-      items.push(
-        await resolveIndexDoc(
-          context,
-          stripTrailingSlash(doc.permalink),
-          packageName,
-        ),
-      );
+      items.push(await resolveIndexDoc(context, doc.permalink, packageName));
     }
   }
   return items;
 }
 
 /**
- * Tries to extract the name of some package's API docs.
- * Does it by trying to match API package index package.
+ * Tries to extract the name of some package in API docs.
+ * Does it by trying to match a document id to the API docs package index page.
  *
  * Depends on `typedoc` package generated output format.
  *
@@ -222,16 +222,19 @@ async function resolveIndexDoc(
   route: string,
   title: string,
 ): Promise<IndexDoc> {
-  let markdownDocument = markdownDocumentByRouteCache.get(route);
+  const normalizedRoute = stripTrailingSlash(route);
+  const markdownRoute = normalizedRoute + ".md";
+
+  let markdownDocument = markdownDocumentByRouteCache.get(normalizedRoute);
   if (!markdownDocument) {
-    const markdownFilePath = path.join(context.outDir, route + ".md");
+    const markdownFilePath = path.join(context.outDir, markdownRoute);
     if (!existsSync(markdownFilePath)) {
       throw Error(`Missing Markdown file for a document: ${markdownFilePath}`);
     }
 
     const markdown = await fs.readFile(markdownFilePath, "utf8");
     markdownDocument = {
-      url: context.baseUrl + route + ".md",
+      url: context.baseUrl + markdownRoute,
       markdown: adaptMarkdownForLlmFullFiles(context.baseUrl, markdown),
     };
     markdownDocumentByRouteCache.set(route, markdownDocument);
