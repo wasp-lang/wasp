@@ -88,6 +88,9 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 to ensure all the tests are passing.
 
+> [!NOTE]
+> On Windows, run these scripts with Bash (the `bash.exe` bundled with [Git for Windows](https://git-scm.com/download/win)), not PowerShell.
+
 ### Run the `wasp` CLI
 
 ```sh
