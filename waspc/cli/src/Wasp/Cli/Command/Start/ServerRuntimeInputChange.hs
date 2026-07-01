@@ -3,7 +3,8 @@ module Wasp.Cli.Command.Start.ServerRuntimeInputChange
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, relfile, (</>))
+import Data.List (isPrefixOf)
+import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (CompileResult (..))
@@ -17,53 +18,50 @@ import Wasp.Generator.ServerGenerator.ServerProcessSupervisor
 import Wasp.Generator.WriteFileDrafts (GeneratedAppPathChange (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
+-- Server runtime inputs are user `src` runtime files, generated `server/src`
+-- runtime files, generated `server/src` directory deletes, and generated `server/.env`.
 classifyServerRuntimeInputChange :: WatchCompileResult -> ServerRuntimeInputChange
 classifyServerRuntimeInputChange watchCompileResult
-  | any projectFileChangeMightAffectServerRuntime (_watchProjectFileChanges watchCompileResult) = ServerRuntimeInputMightHaveChanged
-  | any generatedAppPathChangeMightAffectServerRuntime (_compileGeneratedAppPathChanges $ _watchCompileResult watchCompileResult) = ServerRuntimeInputMightHaveChanged
+  | any isServerRuntimeInputProjectFile (_watchProjectFileChanges watchCompileResult) = ServerRuntimeInputMightHaveChanged
+  | any isServerRuntimeInputGeneratedAppChange (_compileGeneratedAppPathChanges $ _watchCompileResult watchCompileResult) = ServerRuntimeInputMightHaveChanged
   | otherwise = NoServerRuntimeInputChange
 
-projectFileChangeMightAffectServerRuntime :: ProjectFileChange -> Bool
-projectFileChangeMightAffectServerRuntime (ProjectFileChange pathInProject) =
-  case FP.splitDirectories pathInProject of
-    srcDirName : _ ->
-      srcDirName == projectSrcDirName
-        && FP.takeExtension pathInProject `elem` serverRuntimeInputExtensions
-    _ -> False
+isServerRuntimeInputProjectFile :: ProjectFileChange -> Bool
+isServerRuntimeInputProjectFile (ProjectFileChange pathInProject) =
+  isFileInDirWithServerRuntimeInputExtension projectSrcDir pathInProject
 
-generatedAppPathChangeMightAffectServerRuntime :: GeneratedAppPathChange -> Bool
-generatedAppPathChangeMightAffectServerRuntime (GeneratedAppPathWritten path) =
-  generatedAppPathMightAffectServerRuntime path
-generatedAppPathChangeMightAffectServerRuntime (GeneratedAppPathDeleted path) =
-  generatedAppPathMightAffectServerRuntime path
+isServerRuntimeInputGeneratedAppChange :: GeneratedAppPathChange -> Bool
+isServerRuntimeInputGeneratedAppChange (GeneratedAppPathWritten path) =
+  isServerRuntimeInputGeneratedAppPath path
+isServerRuntimeInputGeneratedAppChange (GeneratedAppPathDeleted path) =
+  isServerRuntimeInputGeneratedAppPath path
 
-generatedAppPathMightAffectServerRuntime :: FileOrDirPathRelativeTo GeneratedAppDir -> Bool
-generatedAppPathMightAffectServerRuntime (Left file) =
+isServerRuntimeInputGeneratedAppPath :: FileOrDirPathRelativeTo GeneratedAppDir -> Bool
+isServerRuntimeInputGeneratedAppPath (Left file) =
   file == generatedServerEnvFile
-    || (fileIsUnderGeneratedServerSrc file && FP.takeExtension (SP.fromRelFile file) `elem` serverRuntimeInputExtensions)
-generatedAppPathMightAffectServerRuntime (Right dir) =
-  dirIsUnderGeneratedServerSrc dir
+    || isGeneratedServerSrcRuntimeInputFile file
+isServerRuntimeInputGeneratedAppPath (Right dir) =
+  SP.fromRelDir dir `pathIsInDir` generatedServerSrcDir
 
-fileIsUnderGeneratedServerSrc :: Path' (Rel GeneratedAppDir) File' -> Bool
-fileIsUnderGeneratedServerSrc = pathIsUnderGeneratedServerSrc . SP.fromRelFile
+isGeneratedServerSrcRuntimeInputFile :: Path' (Rel GeneratedAppDir) File' -> Bool
+isGeneratedServerSrcRuntimeInputFile = isFileInDirWithServerRuntimeInputExtension generatedServerSrcDir . SP.fromRelFile
 
-dirIsUnderGeneratedServerSrc :: Path' (Rel GeneratedAppDir) (Dir dir) -> Bool
-dirIsUnderGeneratedServerSrc = pathIsUnderGeneratedServerSrc . SP.fromRelDir
+isFileInDirWithServerRuntimeInputExtension :: FilePath -> FilePath -> Bool
+isFileInDirWithServerRuntimeInputExtension dir file =
+  file `pathIsInDir` dir
+    && hasServerRuntimeInputExtension file
 
-pathIsUnderGeneratedServerSrc :: FilePath -> Bool
-pathIsUnderGeneratedServerSrc path = generatedServerSrcDirParts `isPrefixOfPathParts` FP.splitDirectories path
+hasServerRuntimeInputExtension :: FilePath -> Bool
+hasServerRuntimeInputExtension path = FP.takeExtension path `elem` serverRuntimeInputExtensions
 
-isPrefixOfPathParts :: [FilePath] -> [FilePath] -> Bool
-isPrefixOfPathParts [] _ = True
-isPrefixOfPathParts _ [] = False
-isPrefixOfPathParts (prefixPart : prefixRest) (pathPart : pathRest) =
-  prefixPart == pathPart && isPrefixOfPathParts prefixRest pathRest
+pathIsInDir :: FilePath -> FilePath -> Bool
+pathIsInDir path dir = FP.splitDirectories dir `isPrefixOf` FP.splitDirectories path
 
-projectSrcDirName :: FilePath
-projectSrcDirName = FP.dropTrailingPathSeparator $ SP.fromRelDir srcDirInWaspProjectDir
+projectSrcDir :: FilePath
+projectSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir srcDirInWaspProjectDir
 
-generatedServerSrcDirParts :: [FilePath]
-generatedServerSrcDirParts = FP.splitDirectories $ SP.fromRelDir ServerGenerator.Common.serverSrcDirInGeneratedAppDir
+generatedServerSrcDir :: FilePath
+generatedServerSrcDir = FP.dropTrailingPathSeparator $ SP.fromRelDir ServerGenerator.Common.serverSrcDirInGeneratedAppDir
 
 generatedServerEnvFile :: Path' (Rel GeneratedAppDir) File'
 generatedServerEnvFile = ServerGenerator.Common.serverRootDirInGeneratedAppDir </> [relfile|.env|]

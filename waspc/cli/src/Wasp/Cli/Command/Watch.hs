@@ -146,7 +146,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
-      let fileChanges = getFileChanges changeBatch
+      let ChangeBatch fileChanges = changeBatch
       let watchCompileResult =
             WatchCompileResult
               { _watchProjectFileChanges = fileChanges,
@@ -159,10 +159,6 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
             >> _onFailedCompile watchCompileHooks watchCompileResult
 
       return compileResult
-
-    getFileChanges :: ChangeBatch -> [ProjectFileChange]
-    getFileChanges (ChangeBatch fileChanges) = fileChanges
-
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
     --   so better approach would be probably to use information from .gitignore instead, or
