@@ -12,10 +12,6 @@
   {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
   {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
-      {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
-      {=!  expose it here (which leaks it to our users). We could avoid this by =}
-      {=!  using relative imports inside SDK code (instead of library imports), =}
-      {=!  but I didn't have time to implement it. =}
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
@@ -100,14 +96,7 @@
       "./client/app/layout": "./dist/client/app/layout.jsx",
       "./client/app/router": "./dist/client/app/router.jsx",
       {=! Private: [client] =}
-      "./client/vite": "./dist/client/vite/index.js",
-
-      {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
-      {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
-      "./client/operations/rpc": "./dist/client/operations/rpc.js",
-      "./server/operations/actions":  "./dist/server/operations/actions/index.js",
-      "./server/operations/queries": "./dist/server/operations/queries/index.js",
-      "./server/_types": "./dist/server/_types/index.js"
+      "./client/vite": "./dist/client/vite/index.js"
   },
   {=!
     TypeScript doesn't care about the redirects we define above in "exports" field; those

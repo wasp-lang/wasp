@@ -22,7 +22,7 @@ function createBundle(inputFilePath, outputFilePath) {
       userVirtualModules(),
       // We added `".ts"` to the default `extensions` array value.
       // This is because the `userVirtualModules` plugin
-      // resolves the user virtual modules to TypeScript files.
+      // can resolve user virtual modules to TypeScript files.
       resolve({ extensions: [".mjs", ".js", ".ts", ".json", ".node"] }),
       esbuild({
         target: "esnext",
