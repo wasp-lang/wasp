@@ -6,7 +6,7 @@ import { createAuthRequiredPage } from "wasp/client/app"
 
 import { App as App_ext } from './src/App'
 
-import { setup as setup_ext } from './src/clientSetup'
+import { clientSetup as clientSetup_ext } from './src/clientSetup'
 
 import { EagerPage } from './src/features/lazy-loading/pages/EagerPage'
 
@@ -168,6 +168,13 @@ const routesMapping = {
         .then(component => ({ default: component }))
       ),
   },
+  PrerenderInstancesRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/prerender/pages/PrerenderInstancesPage').then(m => m.PrerenderInstancesPage)
+        .then(component => ({ default: component }))
+      ),
+  },
   HydrationMismatchRoute: {
     Component:
       lazy(() =>
@@ -177,7 +184,7 @@ const routesMapping = {
   },
 } as const;
 
-await setup_ext()
+await clientSetup_ext()
 
 initializeQueryClient()
 

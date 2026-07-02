@@ -1,0 +1,68 @@
+/**
+ * Wasp shared Prism styles
+ *
+ * Loaded globally. Owns code-block structure: font, layout, selection,
+ * and inline-code styling.
+ *
+ * Token colors and code-block background are set by the prism-react-renderer
+ * theme prop (applied as inline styles, which override CSS):
+ *   - LP: waspCodeTheme in src/components/CodeHighlight.jsx
+ *   - Docs: lightCodeTheme / darkCodeTheme in docusaurus.config.ts
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  font-size: 0.95em;
+  line-height: 1.7;
+
+  -moz-tab-size: 2;
+  -o-tab-size: 2;
+  tab-size: 2;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+pre > code[class*="language-"] {
+  font-size: 1em;
+}
+
+pre[class*="language-"]::-moz-selection,
+pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection,
+code[class*="language-"] ::-moz-selection {
+  background: #fff3cc; /* wasp-yellow-light */
+}
+
+pre[class*="language-"]::selection,
+pre[class*="language-"] ::selection,
+code[class*="language-"]::selection,
+code[class*="language-"] ::selection {
+  background: #fff3cc;
+}
+
+/* Code blocks scroll horizontally if content overflows. */
+pre[class*="language-"] {
+  overflow: auto;
+}
+
+/* Inline code (no JS theme equivalent — must be CSS). */
+:not(pre) > code[class*="language-"] {
+  padding: 0.2em;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  background: var(--wasp-code-bg);
+  border: 1px solid #bbb;
+}
+
+.token.namespace {
+  opacity: 0.7;
+}

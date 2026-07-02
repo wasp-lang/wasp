@@ -18,7 +18,7 @@ import {
   {=# operations.Delete =}
   RegisteredDeleteAction,
   {=/ operations.Delete =}
-} from 'wasp/server/crud/{= name =}'
+} from '../../server/crud/{= name =}'
 
 
 // PUBLIC API

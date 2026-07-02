@@ -294,6 +294,19 @@ export const routes = {
         options?.hash
       ),
   },
+  PrerenderInstancesRoute: {
+    to: "/prerender-instances/:slug",
+    build: (
+      options: OptionalRouteOptions
+      & { params: {"slug": ParamValue;}}
+    ) => interpolatePath(
+        
+        "/prerender-instances/:slug",
+        options.params,
+        options?.search,
+        options?.hash
+      ),
+  },
   HydrationMismatchRoute: {
     to: "/hydration-mismatch",
     build: (
@@ -314,3 +327,5 @@ export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 // PUBLIC API
 export { Link } from './Link'
+// PUBLIC API
+export { NavLink } from './NavLink'

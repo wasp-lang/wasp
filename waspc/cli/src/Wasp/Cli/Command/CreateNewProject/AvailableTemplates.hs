@@ -5,7 +5,6 @@ module Wasp.Cli.Command.CreateNewProject.AvailableTemplates
     defaultStarterTemplate,
     basicStarterTemplate,
     minimalStarterTemplate,
-    tsMinimalStarterTemplate,
     openSaasStarterTemplate,
   )
 where
@@ -22,9 +21,7 @@ availableStarterTemplates :: [StarterTemplate]
 availableStarterTemplates =
   [ basicStarterTemplate,
     minimalStarterTemplate,
-    tsMinimalStarterTemplate,
-    openSaasStarterTemplate,
-    AiGeneratedStarterTemplate
+    openSaasStarterTemplate
   ]
 
 defaultStarterTemplate :: StarterTemplate
@@ -40,25 +37,6 @@ minimalStarterTemplate =
         TemplateMetadata
           { _name = "minimal",
             _description = "A minimal starter template that features just a single page.",
-            _buildStartingInstructions = \projectDirName ->
-              unlines
-                [ styleText $ "To run your new app, do:",
-                  styleCode $ "    cd " <> projectDirName,
-                  styleCode $ "    wasp start"
-                ]
-          }
-    }
-
-{- HLINT ignore tsMinimalStarterTemplate "Redundant $" -}
-
-tsMinimalStarterTemplate :: StarterTemplate
-tsMinimalStarterTemplate =
-  BundledStarterTemplate
-    { bundledPath = [reldir|ts-minimal|],
-      metadata =
-        TemplateMetadata
-          { _name = "ts-minimal",
-            _description = "Like minimal, but uses TypeScript config (.wasp.ts) instead of the Wasp DSL.",
             _buildStartingInstructions = \projectDirName ->
               unlines
                 [ styleText $ "To run your new app, do:",
@@ -104,6 +82,7 @@ openSaasStarterTemplate =
         ),
       archiveName = "template.tar.gz",
       archivePath = [reldir|.|],
+      _waspProjectDirFromTemplateOutputDir = [reldir|app|],
       metadata =
         ( TemplateMetadata
             { _name = "saas",

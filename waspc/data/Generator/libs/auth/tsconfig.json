@@ -5,6 +5,7 @@
     "jsx": "react-jsx",
     "lib": ["esnext", "dom", "DOM.Iterable"],
     "skipLibCheck": true,
+    "types": ["react", "node"],
 
     /* Modules */
     "moduleResolution": "bundler",

@@ -1,11 +1,11 @@
 import { createContext, useState, useEffect, Context, ReactNode } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { getSessionId } from 'wasp/client/api'
-import { apiEventsEmitter } from 'wasp/api/events'
-import { config } from 'wasp/client'
+import { getSessionId } from '../../api/index.js'
+import { apiEventsEmitter } from '../../api/events.js'
+import { config } from '../index.js'
 
-import type { ClientToServerEvents, ServerToClientEvents } from 'wasp/server/webSocket';
+import type { ClientToServerEvents, ServerToClientEvents } from '../../server/webSocket/index.js';
 
 export type WebSocketContextValue = {
   socket: typeof socket

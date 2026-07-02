@@ -4,12 +4,12 @@ import type {
   _Task,
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload, SuperJSONObject } from "wasp/core/serialization";
+import type { Payload, SuperJSONObject } from "../../core/serialization/index.js";
 import type {
   Task,
-} from "wasp/entities";
-import { getAllTasks as getAllTasks_ext } from 'wasp/src/features/crud/crud'
-import { createTask as createTask_ext } from 'wasp/src/features/crud/crud'
+} from "../../entities/index.js";
+import { crudGetAllTasks as crudGetAllTasks_ext } from 'wasp/src/features/crud/crud'
+import { crudCreateTask as crudCreateTask_ext } from 'wasp/src/features/crud/crud'
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task
@@ -35,14 +35,14 @@ export declare namespace tasks {
  * The types with the `Resolved` suffix are the types that are used internally by the Wasp client
  * to implement full-stack type safety.
  */
-const _waspGetAllQuery = getAllTasks_ext
+const _waspGetAllQuery = crudGetAllTasks_ext
 export type GetAllQueryResolved = typeof _waspGetAllQuery
 
 type GetInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
 export type GetQueryResolved = tasks.GetQuery<GetInput, GetOutput>
 
-const _waspCreateAction = createTask_ext
+const _waspCreateAction = crudCreateTask_ext
 export type CreateActionResolved = typeof _waspCreateAction
 
 type UpdateInput = SuperJSONObject & Prisma.XOR<

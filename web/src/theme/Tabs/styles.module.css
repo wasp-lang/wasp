@@ -1,0 +1,32 @@
+@media (min-width: 1680px) {
+  .sideBySide [role="tablist"] {
+    display: grid;
+    grid-template-columns: repeat(var(--tab-count, 1), minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .sideBySide [role="tab"] {
+    cursor: text;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .sideBySide [role="tab"]:hover {
+    background: transparent;
+  }
+
+  .sideBySide [role="tab"][aria-selected="true"] {
+    border-bottom-color: transparent;
+    color: inherit;
+  }
+
+  .sideBySide :global(.tabs-container) > div:has(> [role="tabpanel"]) {
+    display: grid;
+    grid-template-columns: repeat(var(--tab-count, 1), minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .sideBySide [role="tabpanel"][hidden] {
+    display: block;
+  }
+}

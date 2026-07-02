@@ -11,11 +11,10 @@ jobs:
     name: Test starters
     runs-on: ubuntu-22.04
     steps:
-      - uses: "actions/checkout@v6"
-
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
         with:
-          node-version-file: .nvmrc
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 

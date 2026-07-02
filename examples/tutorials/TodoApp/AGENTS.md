@@ -1,0 +1,1 @@
+../../../waspc/data/Cli/starters/skeleton/AGENTS.md

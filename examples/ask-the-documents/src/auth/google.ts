@@ -1,10 +1,10 @@
 import { defineUserSignupFields } from "wasp/server/auth";
 
-export const fields = defineUserSignupFields({
+export const googleUserSignupFields = defineUserSignupFields({
   email: (data: any) => data.profile.email,
 });
 
-export function getConfig() {
+export function getGoogleAuthConfig() {
   return {
     scopes: ["profile", "email"],
   };

@@ -30,7 +30,17 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.path = [relfileP|folder/file.js|]
+                ExtImport.path = [relfileP|folder/file.js|],
+                ExtImport.alias = Nothing
+              }
+          )
+    it "parses a valid aliased ext import" $
+      extAliasedImportJson
+        `shouldDecodeTo` Just
+          ( ExtImport.ExtImport
+              { ExtImport.name = ExtImport.ExtImportField "foo",
+                ExtImport.path = [relfileP|folder/file.js|],
+                ExtImport.alias = Just "bar"
               }
           )
     it "parses a valid default ext import" $
@@ -38,7 +48,8 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportModule "foo",
-                ExtImport.path = [relfileP|folder/subfolder/file.js|]
+                ExtImport.path = [relfileP|folder/subfolder/file.js|],
+                ExtImport.alias = Nothing
               }
           )
     it "fails to parse an invalid of import" $ do
@@ -88,7 +99,8 @@ spec_AppSpecFromJSON = do
       [trimming|
           {
             "path": "/foo",
-            "to": ${pageRef}
+            "to": ${pageRef},
+            "prerender": []
           }
         |]
         `shouldDecodeTo` Just
@@ -96,7 +108,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Nothing,
-                Route.prerender = Nothing
+                Route.prerender = []
               }
           )
     it "parses a valid Route JSON with lazy: false" $ do
@@ -104,7 +116,8 @@ spec_AppSpecFromJSON = do
           {
             "path": "/foo",
             "to": ${pageRef},
-            "lazy": false
+            "lazy": false,
+            "prerender": []
           }
         |]
         `shouldDecodeTo` Just
@@ -112,7 +125,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Just False,
-                Route.prerender = Nothing
+                Route.prerender = []
               }
           )
     it "parses a valid Route JSON with lazy: true" $ do
@@ -120,7 +133,8 @@ spec_AppSpecFromJSON = do
           {
             "path": "/foo",
             "to": ${pageRef},
-            "lazy": true
+            "lazy": true,
+            "prerender": []
           }
         |]
         `shouldDecodeTo` Just
@@ -128,15 +142,15 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Just True,
-                Route.prerender = Nothing
+                Route.prerender = []
               }
           )
-    it "parses a valid Route JSON with prerender: true" $ do
+    it "parses a valid Route JSON with a prerender path list" $ do
       [trimming|
           {
             "path": "/foo",
             "to": ${pageRef},
-            "prerender": true
+            "prerender": ["/foo", "/bar"]
           }
         |]
         `shouldDecodeTo` Just
@@ -144,23 +158,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Nothing,
-                Route.prerender = Just True
-              }
-          )
-    it "parses a valid Route JSON with prerender: false" $ do
-      [trimming|
-          {
-            "path": "/foo",
-            "to": ${pageRef},
-            "prerender": false
-          }
-        |]
-        `shouldDecodeTo` Just
-          ( Route.Route
-              { Route.path = "/foo",
-                Route.to = fromJust $ decodeJson pageRef,
-                Route.lazy = Nothing,
-                Route.prerender = Just False
+                Route.prerender = ["/foo", "/bar"]
               }
           )
 
@@ -377,6 +375,7 @@ spec_AppSpecFromJSON = do
           )
   where
     extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.js" }|]
+    extAliasedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.js", "alias": "bar" }|]
     extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "path": "@src/folder/subfolder/file.js" }|]
 
     fooEntityRef = [trimming| { "name": "foo", "declType": "Entity" }|]

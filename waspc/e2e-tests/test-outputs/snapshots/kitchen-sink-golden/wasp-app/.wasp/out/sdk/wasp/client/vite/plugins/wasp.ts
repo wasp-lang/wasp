@@ -26,13 +26,13 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     /**
      * Plugins running after core Vite plugins.
      */
-    typescriptCheck(),
+    typescriptCheck({ srcTsConfigPath: "tsconfig.src.json" }),
     validateEnv(),
     react(options?.reactOptions),
     ssr({
       clientEntrySrc: "/@wasp/client-entry.tsx",
       ssrEntrySrc: "/@wasp/ssr-entry.tsx",
-      ssrPaths: ['/', '/prerender', '/hydration-mismatch'],
+      ssrPaths: ['/', '/prerender', '/prerender-instances/martin', '/prerender-instances/matija', '/hydration-mismatch'],
       spaFallbackFile: "200.html",
     }),
   ];

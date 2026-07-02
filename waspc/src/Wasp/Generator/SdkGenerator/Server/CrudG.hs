@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Server.CrudG
-  ( genNewServerCrudApi,
+  ( genServerCrudApi,
   )
 where
 
@@ -17,8 +17,8 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 
-genNewServerCrudApi :: AppSpec -> Generator [FileDraft]
-genNewServerCrudApi spec =
+genServerCrudApi :: AppSpec -> Generator [FileDraft]
+genServerCrudApi spec =
   if areThereAnyCruds
     then sequence [genCrudIndex spec cruds]
     else return []

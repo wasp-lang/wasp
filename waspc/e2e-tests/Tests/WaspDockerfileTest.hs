@@ -24,4 +24,4 @@ waspDockerfileTest =
     ]
   where
     waspCliDockerfileFails :: ShellCommand
-    waspCliDockerfileFails = "! wasp-cli dockerfile"
+    waspCliDockerfileFails = "! $WASP_CLI_CMD dockerfile"

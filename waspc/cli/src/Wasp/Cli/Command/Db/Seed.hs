@@ -85,7 +85,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
       _noSeeds ->
         (E.throwError . CommandError "No seeds defined") $
           "You haven't defined any database seeding functions, so there is nothing to run!\n"
-            <> "To do so, define seeding functions via app.db.seeds in your Wasp config."
+            <> "To do so, define seeding functions via app.db.seeds in your Wasp spec."
 
     getSeedNames :: (Functor f) => f AS.ExtImport.ExtImport -> f String
     getSeedNames seeds = AS.ExtImport.importIdentifier <$> seeds

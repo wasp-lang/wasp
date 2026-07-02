@@ -1,4 +1,0 @@
-Completion items:
-  label={"MainPage"} kind={CiVariable} detail={":: page (declaration type)"}
-  label={"MainRoute"} kind={CiVariable} detail={":: route (declaration type)"}
-  label={"todoApp"} kind={CiVariable} detail={":: app (declaration type)"}

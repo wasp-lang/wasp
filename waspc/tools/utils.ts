@@ -56,7 +56,7 @@ export function runCmd(
   });
 }
 
-const STARTING_SEARCH_LOCATIONS = ["examples", "mage"];
+const STARTING_SEARCH_LOCATIONS = ["examples"];
 const DIRS_TO_SKIP = new Set(["node_modules"]);
 export function findWaspProjectDirsAbsPathInRepo(): string[] {
   const repoRootPath = getRepoRootPath();
@@ -87,7 +87,7 @@ export function findWaspProjectDirsAbsPathInRepo(): string[] {
   }
 }
 
-const WASP_PROJECT_FILE_NAMES = ["main.wasp", "main.wasp.ts"];
+const WASP_PROJECT_FILE_NAMES = ["main.wasp.ts"];
 export function isWaspProjectDir(dir: string): boolean {
   return WASP_PROJECT_FILE_NAMES.some((name) => existsSync(join(dir, name)));
 }

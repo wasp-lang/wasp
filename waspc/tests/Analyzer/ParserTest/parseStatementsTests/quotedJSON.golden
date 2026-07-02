@@ -1,9 +1,0 @@
-(AST
-  (Decl@1:1-3:6 type=test name=JSON
-    (Quoter@1:11-3:6 tag=json
-      {=
-        "key": "value"
-      =}
-    )
-  )
-)

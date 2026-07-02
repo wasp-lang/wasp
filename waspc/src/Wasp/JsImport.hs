@@ -14,6 +14,7 @@ module Wasp.JsImport
     getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
+    getJsImportPathStringFromPath,
     getJsDynamicImportExpression,
   )
 where
@@ -106,6 +107,19 @@ getJsImportStmtAndIdentifier jsImport =
       TypeImport -> "import type"
       ValueImport -> "import"
     (importIdentifier, importClause) = getJsImportIdentifierAndClause jsImport._name jsImport._importAlias
+
+getJsImportPathString :: JsImport -> String
+getJsImportPathString jsImport = getJsImportPathStringFromPath jsImport._path
+
+getJsImportPathStringFromPath :: JsImportPath -> String
+getJsImportPathStringFromPath = \case
+  RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
+  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+  RawImportName moduleName -> moduleName
+  where
+    normalizePath path
+      | ".." `isPrefixOf` path = path
+      | otherwise = "./" ++ path
 
 -- | Returns a dynamic import expression. The shape depends on the import kind:
 --   * named type export: @import('./path').Name@

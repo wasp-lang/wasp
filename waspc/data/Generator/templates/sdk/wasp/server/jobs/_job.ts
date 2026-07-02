@@ -1,6 +1,6 @@
 {{={= =}=}}
-import { prisma } from 'wasp/server'
-import type { JSONValue, JSONObject } from 'wasp/core/serialization'
+import { prisma } from '../index.js'
+import type { JSONValue, JSONObject } from '../../core/serialization/index.js'
 import { type JobFn, createJobDefinition } from '{= jobExecutorImportPath =}'
 
 const entities = {

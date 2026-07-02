@@ -24,6 +24,22 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
+    it "returns an error when exclude is wrong" $
+      assertReturnsValidationErrorMentioningField "exclude" $
+        validTsConfig {T.exclude = Nothing}
+
+    it "returns an error when types is missing a required entry" $
+      assertReturnsValidationErrorMentioningField "types" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["node"]})}
+
+    it "returns an error when types is missing" $
+      assertReturnsValidationErrorMentioningField "types" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Nothing})}
+
+    it "accepts extra entries in types as long as react and node are present" $
+      validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react", "node", "vite/client"]})})
+        `shouldBe` []
+
 validate :: T.TsConfig -> [String]
 validate = validateTsConfig srcTsConfigValidator "tsconfig.json"
 
@@ -36,6 +52,7 @@ validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
       T.include = Just ["src"],
+      T.exclude = Just ["**/*.wasp.ts"],
       T.files = Nothing,
       T.references = Nothing
     }
@@ -54,6 +71,8 @@ validCompilerOptions =
       T.strict = Just True,
       T.esModuleInterop = Just True,
       T.lib = Just ["dom", "dom.iterable", "esnext"],
+      T.types = Just ["react", "node"],
+      T.paths = Nothing,
       T.allowJs = Just True,
       T.outDir = Just ".wasp/out/user",
       T.noEmit = Nothing

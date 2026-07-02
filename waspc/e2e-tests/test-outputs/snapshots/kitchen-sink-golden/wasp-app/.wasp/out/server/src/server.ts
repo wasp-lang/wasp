@@ -3,7 +3,7 @@ import http from 'http'
 import app from './app.js'
 import { config } from 'wasp/server'
 
-import { setup } from '../../../../src/serverSetup'
+import { serverSetup } from '../../../../src/serverSetup'
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
@@ -21,7 +21,7 @@ const startServer = async () => {
   const server = http.createServer(app)
 
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
-  await (setup as ServerSetupFn)(serverSetupFnContext)
+  await (serverSetup as ServerSetupFn)(serverSetupFnContext)
 
   await initWebSocket(server)
 

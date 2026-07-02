@@ -3,10 +3,10 @@ import { slack } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/slack'
-const _waspUserSignupFields = userSignupFields
-import { config } from '../../../../../../../src/features/auth/providers/slack'
-const _waspUserDefinedConfigFn = config
+import { slackUserSignupFields } from '../../../../../../../src/features/auth/providers/slack'
+const _waspUserSignupFields = slackUserSignupFields
+import { slackConfig } from '../../../../../../../src/features/auth/providers/slack'
+const _waspUserDefinedConfigFn = slackConfig
 
 const _waspConfig: ProviderConfig = {
     id: slack.id,

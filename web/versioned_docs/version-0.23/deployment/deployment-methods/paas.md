@@ -3,7 +3,7 @@ title: Cloud Providers
 ---
 
 import BuildingTheWebClient from './_building-the-web-client.md'
-import { GuideLink } from '@site/src/components/GuideLink'
+import { CardLink } from '@site/src/components/CardLink'
 
 You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.
 
@@ -11,17 +11,17 @@ You can deploy the built Wasp app wherever and however you want, as long as your
 
 We have step-by-step guides for deploying your Wasp app to some of the most popular providers you can follow:
 
-<GuideLink linkToGuide="../../guides/deployment/cloudflare" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
+<CardLink to="../../guides/deployment/cloud-providers/cloudflare" kind="guide" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
 
-<GuideLink linkToGuide="../../guides/deployment/flyio" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
+<CardLink to="../../guides/deployment/cloud-providers/flyio" kind="guide" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
 
-<GuideLink linkToGuide="../../guides/deployment/heroku" title="Deploying Wasp to Heroku" description="Uses Heroku, heroku CLI, Docker" />
+<CardLink to="../../guides/deployment/cloud-providers/heroku" kind="guide" title="Deploying Wasp to Heroku" description="Uses Heroku, heroku CLI, Docker" />
 
-<GuideLink linkToGuide="../../guides/deployment/netlify" title="Deploying Wasp to Netlify" description="Uses Netlify, Netlify CLI" />
+<CardLink to="../../guides/deployment/cloud-providers/netlify" kind="guide" title="Deploying Wasp to Netlify" description="Uses Netlify, Netlify CLI" />
 
-<GuideLink linkToGuide="../../guides/deployment/railway" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
+<CardLink to="../../guides/deployment/cloud-providers/railway" kind="guide" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
 
-<GuideLink linkToGuide="../../guides/deployment/render" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
+<CardLink to="../../guides/deployment/cloud-providers/render" kind="guide" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
 
 If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
 Feel free to [open a PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/deployment/deployment-methods/paas.md) if you'd like to write one yourself :)

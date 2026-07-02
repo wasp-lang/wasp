@@ -1,9 +1,11 @@
 ---
 title: Local Network Testing
-last_checked_with_versions:
-  Wasp: 0.21.1
 comments: true
 ---
+
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.21.1" }} />
 
 This guide shows you how to test your Wasp application on other devices (phones, tablets) connected to the same local network during development.
 

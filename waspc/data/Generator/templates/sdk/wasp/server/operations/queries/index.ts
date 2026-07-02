@@ -5,7 +5,7 @@
 {=! TODO: This will generate multiple import statements even though they're
           importing symbols from the same file. We should improve our importing machinery
           to support multiple imports from the same file =}
-import { prisma } from 'wasp/server'
+import { prisma } from '../../index.js'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
