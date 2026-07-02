@@ -134,16 +134,6 @@ getJsDynamicImportExpression jsImport = case jsImport._kind of
       JsImportModule _ -> "default"
       JsImportField name -> name
 
-getJsImportPathString :: JsImport -> String
-getJsImportPathString jsImport = case jsImport._path of
-  RawImportName moduleName -> moduleName
-  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
-  RelativeImportPath relPath -> normalizeRelImportPath $ SP.fromRelFileP relPath
-  where
-    normalizeRelImportPath path
-      | ".." `isPrefixOf` path = path
-      | otherwise = "./" ++ path
-
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
 -- e.g. for import Name from "file.js" it returns ("Name", "Name")

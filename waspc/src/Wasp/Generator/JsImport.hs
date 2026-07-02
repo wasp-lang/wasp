@@ -19,7 +19,7 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (..),
+    JsImportPath (RelativeImportPath),
     getJsDynamicImportExpression,
     getJsImportStmtAndIdentifier,
     makeValueJsImport,
