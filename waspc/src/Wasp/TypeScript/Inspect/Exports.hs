@@ -25,9 +25,8 @@ import Data.Conduit.Process.Typed (ExitCode (ExitSuccess))
 import qualified Data.HashMap.Strict as M
 import GHC.Generics (Generic)
 import qualified System.Process as P
-import Wasp.Analyzer (SourcePosition)
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
-import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
+import Wasp.Analyzer.SourcePosition (SourcePosition (SourcePosition))
+import Wasp.Analyzer.SourceRegion (SourceRegion (SourceRegion))
 import Wasp.NodePackageFFI (RunnablePackage (TsInspectPackage), getPackageProcessOptions)
 
 -- | Attempt to get list of exported names from TypeScript files.

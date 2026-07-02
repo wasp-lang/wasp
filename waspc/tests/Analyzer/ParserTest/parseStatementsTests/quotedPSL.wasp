@@ -1,3 +1,0 @@
-test PSL {=psl
-  id Int @id
-psl=}

@@ -1,7 +1,7 @@
 module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
@@ -56,13 +56,13 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
+          "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "spaFallbackFile" .= spaFallbackFile,
           "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
         ]
     prerenderPaths =
-      map (AS.Route.path . snd) $
-        filter (fromMaybe False . AS.Route.prerender . snd) (AS.getRoutes spec)
+      concatMap (AS.Route.prerender . snd) (AS.getRoutes spec)
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData

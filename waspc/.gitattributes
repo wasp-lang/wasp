@@ -9,4 +9,3 @@
 *.ps1 text eol=crlf
 
 e2e-tests/test-outputs/snapshots/*-golden/** linguist-generated=true
-waspls/tests/completionTests/*.golden linguist-generated=true

@@ -163,6 +163,12 @@ async function makeFormattedJsCodeBlock(
   // Find the `title=` meta param and change the extension.
   const originalTitle = meta.get("title");
   if (originalTitle) {
+    if (/\.wasp\.tsx?$/.test(originalTitle)) {
+      throw new Error(
+        `The \`${META_FLAG}\` flag cannot be used on Wasp Spec files (${originalTitle}): Wasp Spec files should always be TypeScript.`,
+      );
+    }
+
     const newTitle = transformExt(originalTitle, EXTENSION_TRANSFORMATIONS);
     meta.set("title", newTitle);
   }

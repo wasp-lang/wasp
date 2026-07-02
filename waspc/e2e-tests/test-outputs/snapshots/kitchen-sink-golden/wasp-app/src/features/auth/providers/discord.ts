@@ -1,10 +1,10 @@
 import { defineUserSignupFields } from "wasp/server/auth";
 
-export function config() {
+export function discordConfig() {
   console.log("Inside user-supplied Discord config");
   return {
     scopes: ["identify", "email"],
   };
 }
 
-export const userSignupFields = defineUserSignupFields({});
+export const discordUserSignupFields = defineUserSignupFields({});

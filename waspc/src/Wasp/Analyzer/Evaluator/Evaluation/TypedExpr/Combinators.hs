@@ -161,7 +161,7 @@ extImport = evaluation' . withCtx $ \ctx -> \case
     --   figure out that is better (it sounds/feels like it could be).
     case AppSpec.ExtImport.parseExtImportPath extImportPath of
       Left err -> mkParseError ctx err
-      Right importPath -> pure $ AppSpec.ExtImport.ExtImport name importPath
+      Right importPath -> pure $ AppSpec.ExtImport.ExtImport name importPath Nothing
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
   where
     mkParseError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg

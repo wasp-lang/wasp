@@ -6,10 +6,10 @@ where
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
-import StrongPath (Abs, Dir, Dir', Path', Rel')
+import StrongPath (Dir', Path', Rel')
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
-import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), getAbsWaspProjectDir)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import Wasp.Cli.GithubRepo
   ( GithubReleaseArchiveName,
@@ -17,32 +17,28 @@ import Wasp.Cli.GithubRepo
     checkGitHubReleaseExists,
     fetchFolderFromGithubReleaseArchiveToDisk,
   )
-import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 
 createProjectOnDiskFromGhReleaseArchiveTemplate ::
-  String ->
-  Path' Abs (Dir WaspProjectDir) ->
-  NewProjectName ->
-  NewProjectAppName ->
+  NewProjectDescription ->
   GithubRepoRef ->
   GithubReleaseArchiveName ->
   Path' Rel' Dir' ->
   Command ()
-createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir projectName appName ghRepoRef assetName templatePathInRepo = do
+createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef assetName templatePathInRepo = do
   releaseExists <- liftIO (checkGitHubReleaseExists ghRepoRef)
 
   unless releaseExists throwOutdatedTagError
 
-  fetchTemplateFromGhToWaspProjectDir
+  fetchTemplateFromGhToTemplateOutputDir
     >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
   where
-    fetchTemplateFromGhToWaspProjectDir =
-      liftIO $ fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo absWaspProjectDir
+    fetchTemplateFromGhToTemplateOutputDir =
+      liftIO $ fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo (_absTemplateOutputDir newProjectDescription)
 
     replaceTemplatePlaceholders =
-      liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
+      liftIO $ replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
 
     throwOutdatedTagError =
       throwProjectCreationError $
@@ -60,3 +56,6 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
           ]
 
     releasesUrl = intercalate "/" ["https://github.com", _repoOwner ghRepoRef, _repoName ghRepoRef, "releases"]
+
+    templateName = show $ _template newProjectDescription
+    absWaspProjectDir = getAbsWaspProjectDir newProjectDescription

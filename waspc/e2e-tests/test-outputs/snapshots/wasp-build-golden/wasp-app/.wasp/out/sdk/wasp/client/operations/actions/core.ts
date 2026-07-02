@@ -1,4 +1,4 @@
-import type { _Awaited, _ReturnType } from 'wasp/universal/types'
+import type { _Awaited, _ReturnType } from '../../../universal/types.js'
 import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {

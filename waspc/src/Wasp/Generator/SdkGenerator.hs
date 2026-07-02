@@ -55,14 +55,19 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
-import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
-import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
+import Wasp.Generator.SdkGenerator.Client.AuthG (genClientAuth)
+import Wasp.Generator.SdkGenerator.Client.CrudG (genClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
-import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genClientRouterApi)
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
+import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
+import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genEmailSenderApi)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genJobsApi)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -109,8 +114,10 @@ genSdk spec =
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|types/index.ts|],
+      C.genFileCopy [relfile|types/register.ts|],
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|api/events.ts|],
+      C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],
@@ -141,14 +148,13 @@ genSdk spec =
     <++> genServerApi spec
     <++> genWebSockets spec
     <++> genServerMiddleware
-    -- New API
-    <++> genNewClientAuth spec
-    <++> genNewServerApi spec
-    <++> genNewServerCrudApi spec
-    <++> genNewClientCrudApi spec
-    <++> genNewEmailSenderApi spec
-    <++> genNewJobsApi spec
-    <++> genNewClientRouterApi spec
+    <++> genClientAuth spec
+    <++> genServerAuth spec
+    <++> genServerCrudApi spec
+    <++> genClientCrudApi spec
+    <++> genEmailSenderApi spec
+    <++> genJobsApi spec
+    <++> genClientRouterApi spec
     <++> genEnvValidation spec
     <++> genClientApp spec
     <++> genVitePlugins spec
@@ -241,10 +247,7 @@ npmDepsForSdk spec =
             ("@types/express", show expressTypesVersionRange),
             ("@types/express-serve-static-core", show expressTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
-            ("@types/react-dom", show reactDomTypesVersionRange),
-            -- NOTE: Make sure to bump the version of the tsconfig
-            -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^7.0.0")
+            ("@types/react-dom", show reactDomTypesVersionRange)
           ],
       N.peerDependencies = Npm.Dependency.fromList []
     }
@@ -254,8 +257,7 @@ npmDepsForSdk spec =
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
   Npm.Dependency.fromList
-    [ ("vitest", "^4.0.16"),
-      ("@vitest/ui", "^4.0.16"),
+    [ ("@vitest/ui", "^4.0.16"),
       ("jsdom", "^27.4.0"),
       ("@testing-library/react", "^16.3.1"),
       ("@testing-library/jest-dom", "^6.9.1"),

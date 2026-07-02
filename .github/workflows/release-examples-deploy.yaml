@@ -29,6 +29,9 @@ concurrency:
 env:
   WASP_TELEMETRY_DISABLE: 1
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     strategy:
@@ -49,26 +52,22 @@ jobs:
       url: ${{ steps.app-info.outputs.url }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
         with:
-          cache: "npm"
-          node-version-file: .nvmrc
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
+        env:
+          WASP_VERSION: ${{ inputs.version }}
+        run: npm i -g "@wasp.sh/wasp-cli@${WASP_VERSION}"
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Setup Wasp TS Config (if needed)
+      - name: Install app dependencies
         working-directory: ${{ matrix.app-dir }}
-        run: |
-          if [ -f *.wasp.ts ]; then
-            wasp ts-setup
-          fi
+        run: wasp install
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}

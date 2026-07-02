@@ -23,25 +23,25 @@ jobs:
           - kitchen-sink
 
     steps:
-      - uses: "actions/checkout@v6"
-
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
         with:
-          node-version-file: .nvmrc
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 
-      - name: Setup Wasp TS Config (if needed)
+      - name: Install app dependencies
         working-directory: examples/${{ matrix.example }}
-        run: |
-          if [ -f *.wasp.ts ]; then
-            wasp-cli ts-setup
-          fi
+        run: wasp-cli install
 
       # We must compile the project to generate the Wasp libs before installing deps
       - name: Compile project and install deps for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         run: wasp-cli compile
+
+      - name: Run client tests for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: wasp-cli test client run --passWithNoTests
 
       - name: Setup project environment for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}

@@ -11,11 +11,11 @@ import type {
   _{= crud.entityUpper =},
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload, SuperJSONObject } from "wasp/core/serialization";
+import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   {= crud.entityUpper =},
 } from "wasp/entities";
-import type { CrudOverrideFromRegister } from 'wasp/types'
+import type { CrudOverrideFromRegister } from '../../types/register'
 
 type _WaspEntityTagged = _{= crud.entityUpper =}
 type _WaspEntity = {= crud.entityUpper =}

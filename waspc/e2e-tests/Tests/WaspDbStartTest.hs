@@ -34,4 +34,4 @@ waspDbStartTest =
     ]
   where
     waspCliDbStartFails :: ShellCommand
-    waspCliDbStartFails = "! wasp-cli db start"
+    waspCliDbStartFails = "! $WASP_CLI_CMD db start"

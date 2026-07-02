@@ -25,11 +25,12 @@ import Wasp.Generator.Monad
     runGenerator,
   )
 import Wasp.Generator.SdkGenerator (genSdk)
+import Wasp.Generator.SdkTypesGenerator (genSdkTypes)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
+import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
-import Wasp.Generator.UserTypesGenerator (genUserTypes)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
@@ -66,7 +67,8 @@ genApp spec = do
 
   genServer spec
     <++> genSdk spec
-    <++> genUserTypes spec
+    <++> genSpecTypes spec
+    <++> genSdkTypes spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genWaspLibs

@@ -3,7 +3,7 @@ title: Self-Hosted
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
-import { GuideLink } from '@site/src/components/GuideLink'
+import { CardLink } from '@site/src/components/CardLink'
 
 If you have your server or rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
 
@@ -69,7 +69,7 @@ On your server:
 
 Check out one of our step-by-step guides for more details:
 
-<GuideLink linkToGuide="../../guides/deployment/vps" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+<CardLink to="../../guides/deployment/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
 ### Coolify
 
@@ -92,7 +92,7 @@ Check out one of our step-by-step guides for more details:
 
 Check out one of our step-by-step guides for more details:
 
-<GuideLink linkToGuide="../../guides/deployment/coolify" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/coolify" kind="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
 
 ### CapRover
 
@@ -115,7 +115,7 @@ Check out one of our step-by-step guides for more details:
 
 Check out one of our step-by-step guides for more details:
 
-<GuideLink linkToGuide="../../guides/deployment/caprover" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/caprover" kind="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
 
 ## Database setup
 

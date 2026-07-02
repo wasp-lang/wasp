@@ -20,6 +20,15 @@ import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImpo
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.UserVirtualModules (VirtualModuleId)
 import Wasp.JsImport (JsImport (..), JsImportKind (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), getJsDynamicImportExpression, getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, makeValueJsImport)
+import Wasp.JsImport
+  ( JsImport (..),
+    JsImportKind (..),
+    JsImportName (JsImportField, JsImportModule),
+    JsImportPath (RelativeImportPath),
+    getJsDynamicImportExpression,
+    getJsImportStmtAndIdentifier,
+    makeValueJsImport,
+  )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::
@@ -58,7 +67,7 @@ jsImportToImportJson = maybe notDefinedImportJsonData mkImportJsonData
         (jsImportStatement, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
-extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
+extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath _) =
   JsImport
     { _kind = ValueImport,
       _path = RelativeImportPath importPath,

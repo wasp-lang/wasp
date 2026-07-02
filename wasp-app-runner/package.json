@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/wasp-app-runner",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "type": "module",
   "description": "CLI tool for running Wasp applications for e2e testing",
   "repository": {
@@ -30,6 +30,6 @@
   "devDependencies": {
     "@types/node": "^22.15.12",
     "@types/semver": "^7.7.1",
-    "typescript": "^5.8.3"
+    "typescript": "^6.0.3"
   }
 }

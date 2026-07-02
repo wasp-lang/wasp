@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Client.AuthG
-  ( genNewClientAuth,
+  ( genClientAuth,
   )
 where
 
@@ -18,8 +18,8 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Util ((<++>))
 
-genNewClientAuth :: AppSpec -> Generator [FileDraft]
-genNewClientAuth spec =
+genClientAuth :: AppSpec -> Generator [FileDraft]
+genClientAuth spec =
   case maybeAuth of
     Nothing -> return []
     Just auth ->

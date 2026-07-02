@@ -93,6 +93,10 @@ npm run generate-app -- --app-name MyApp --output-dir ./custom-output --tutorial
 - Files are named using the source file and action ID.
 - Each patch file contains a Git diff for that specific action.
 
+If a patch is missing or no longer applies, `generate-app` will pause and ask you to update the generated app. Open `.result/<app-name>`, make the change described by the current `<TutorialAction>`, then confirm the prompt. The executor will create the patch file and commit the action automatically, so don't commit manually inside the generated app.
+
+When doing this with an LLM, keep `generate-app` running and use a human-in-the-loop flow: when the prompt names the current action, ask the LLM to edit `.result/<app-name>` for that action, review the change, then confirm the prompt. Repeat until `generate-app` finishes successfully.
+
 ### Tutorial File Format
 
 Tutorial actions are defined in MDX files using JSX components:

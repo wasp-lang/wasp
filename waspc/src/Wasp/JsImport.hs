@@ -14,6 +14,7 @@ module Wasp.JsImport
     getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
+    getJsImportPathStringFromPath,
     getJsDynamicImportExpression,
   )
 where
@@ -107,6 +108,19 @@ getJsImportStmtAndIdentifier jsImport =
       ValueImport -> "import"
     (importIdentifier, importClause) = getJsImportIdentifierAndClause jsImport._name jsImport._importAlias
 
+getJsImportPathString :: JsImport -> String
+getJsImportPathString jsImport = getJsImportPathStringFromPath jsImport._path
+
+getJsImportPathStringFromPath :: JsImportPath -> String
+getJsImportPathStringFromPath = \case
+  RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
+  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+  RawImportName moduleName -> moduleName
+  where
+    normalizePath path
+      | ".." `isPrefixOf` path = path
+      | otherwise = "./" ++ path
+
 -- | Returns a dynamic import expression. The shape depends on the import kind:
 --   * named type export: @import('./path').Name@
 --   * named value export: @import('./path').then(m => m.Name)@
@@ -119,16 +133,6 @@ getJsDynamicImportExpression jsImport = case jsImport._kind of
     importName = case jsImport._name of
       JsImportModule _ -> "default"
       JsImportField name -> name
-
-getJsImportPathString :: JsImport -> String
-getJsImportPathString jsImport = case jsImport._path of
-  RawImportName moduleName -> moduleName
-  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
-  RelativeImportPath relPath -> normalizeRelImportPath $ SP.fromRelFileP relPath
-  where
-    normalizeRelImportPath path
-      | ".." `isPrefixOf` path = path
-      | otherwise = "./" ++ path
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")

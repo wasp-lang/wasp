@@ -20,7 +20,11 @@ data Route = Route
     --   For that the best solution is probably to implement sum types (https://github.com/wasp-lang/wasp/issues/381).
     to :: Ref Page,
     lazy :: Maybe Bool,
-    prerender :: Maybe Bool
+    -- | Concrete static paths to prerender at build time (empty when
+    -- prerendering is disabled). The public @prerender: true@ shorthand is
+    -- normalized to @[routePath]@ by the spec mappers (in the TS @spec@
+    -- package), so by the time it reaches here it is always a list of paths.
+    prerender :: [String]
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 

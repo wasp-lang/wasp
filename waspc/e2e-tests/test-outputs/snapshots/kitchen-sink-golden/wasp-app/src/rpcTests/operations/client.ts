@@ -29,9 +29,9 @@ import {
 
 import { SERIALIZABLE_OBJECTS_FIXTURE } from "./fixtures";
 
-import { QueryMetadata } from "wasp/client/operations/rpc";
+import { QueryMetadata } from "wasp/client/operations";
 import { Task } from "wasp/entities";
-import { Payload } from "wasp/server/_types";
+import { Payload } from "wasp/serialization";
 import { Equal, Expect } from "../helpers";
 
 type TestCases = [

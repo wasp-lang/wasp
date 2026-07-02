@@ -4,7 +4,8 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
     NewProjectName (..),
     NewProjectAppName (..),
     parseWaspProjectNameIntoAppName,
-    obtainAvailableProjectDirPath,
+    obtainAvailableTemplateOutputDirPath,
+    getAbsWaspProjectDir,
   )
 where
 
@@ -13,18 +14,19 @@ import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
 import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', (</>))
 import StrongPath.Path (toPathAbsDir)
-import Wasp.Analyzer.Parser (isValidWaspIdentifier)
+import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
   )
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
-import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir, throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   ( StarterTemplate,
     findTemplateByString,
+    waspProjectDirFromTemplateOutputDir,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
@@ -35,8 +37,12 @@ data NewProjectDescription = NewProjectDescription
   { _projectName :: NewProjectName,
     _appName :: NewProjectAppName,
     _template :: StarterTemplate,
-    _absWaspProjectDir :: Path' Abs (Dir WaspProjectDir)
+    _absTemplateOutputDir :: Path' Abs (Dir TemplateOutputDir)
   }
+
+getAbsWaspProjectDir :: NewProjectDescription -> Path' Abs (Dir WaspProjectDir)
+getAbsWaspProjectDir (NewProjectDescription {_absTemplateOutputDir = absTemplateOutputDir, _template = template}) =
+  absTemplateOutputDir </> waspProjectDirFromTemplateOutputDir template
 
 newtype NewProjectName = NewProjectName String
 
@@ -78,8 +84,8 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
 
   template <- maybe getFallbackTemplate (findTemplateOrThrow starterTemplates) templateNameArg
 
-  absWaspProjectDir <- obtainAvailableProjectDirPath projectName
-  return $ mkNewProjectDescription projectName appName absWaspProjectDir template
+  absTemplateOutputDir <- obtainAvailableTemplateOutputDirPath projectName
+  return $ mkNewProjectDescription projectName appName absTemplateOutputDir template
 
 askForName :: Command String
 askForName =
@@ -114,28 +120,29 @@ findTemplateOrThrow availableTemplates templateName = case findTemplateByString 
         <> intercalate ", " (map show availableTemplates)
         <> "."
 
-obtainAvailableProjectDirPath :: String -> Command (Path' Abs (Dir WaspProjectDir))
-obtainAvailableProjectDirPath projectName = do
-  absWaspProjectDir <- getAbsPathToNewProjectDirInCwd projectName
-  ensureProjectDirDoesNotExist projectName absWaspProjectDir
-  return absWaspProjectDir
+obtainAvailableTemplateOutputDirPath :: String -> Command (Path' Abs (Dir TemplateOutputDir))
+obtainAvailableTemplateOutputDirPath projectName = do
+  absTemplateOutputDir <- getAbsPathToTemplateOutputDirInCwd projectName
+  ensureTemplateOutputDirDoesNotExist projectName absTemplateOutputDir
+  return absTemplateOutputDir
   where
-    getAbsPathToNewProjectDirInCwd :: String -> Command (Path' Abs (Dir WaspProjectDir))
-    getAbsPathToNewProjectDirInCwd projectDirName = do
+    getAbsPathToTemplateOutputDirInCwd :: String -> Command (Path' Abs (Dir TemplateOutputDir))
+    getAbsPathToTemplateOutputDirInCwd projectDirName = do
       liftIO (getAbsPathToDirInCwd projectDirName) >>= either throwError return
       where
-        throwError err = throwProjectCreationError $ "Failed to get absolute path to Wasp project dir: " ++ show err
-    ensureProjectDirDoesNotExist :: String -> Path' Abs (Dir WaspProjectDir) -> Command ()
-    ensureProjectDirDoesNotExist projectDirName absWaspProjectDir = do
-      whenM (doesDirExist $ toPathAbsDir absWaspProjectDir) $
+        throwError err = throwProjectCreationError $ "Failed to get absolute path to template output dir: " ++ show err
+
+    ensureTemplateOutputDirDoesNotExist :: String -> Path' Abs (Dir TemplateOutputDir) -> Command ()
+    ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir = do
+      whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir) $
         throwProjectCreationError $
           "Directory \"" ++ projectDirName ++ "\" is not empty."
 
-mkNewProjectDescription :: String -> NewProjectAppName -> Path' Abs (Dir WaspProjectDir) -> StarterTemplate -> NewProjectDescription
-mkNewProjectDescription projectName appName absWaspProjectDir template =
+mkNewProjectDescription :: String -> NewProjectAppName -> Path' Abs (Dir TemplateOutputDir) -> StarterTemplate -> NewProjectDescription
+mkNewProjectDescription projectName appName absTemplateOutputDir template =
   NewProjectDescription
     { _projectName = NewProjectName projectName,
       _appName = appName,
       _template = template,
-      _absWaspProjectDir = absWaspProjectDir
+      _absTemplateOutputDir = absTemplateOutputDir
     }

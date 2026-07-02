@@ -23,16 +23,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.24.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "ebff18b870fff9120dcc52aa42d9aab6f9f074f94230783811f6d7e19b08048c"
+        "edeb63155c6ccc03d3eb1f9bcd543d977275087febf518c6d3e3479f6f1762cf"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.24.0.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
         ],
-        "3cd2675d328494840796e1f619327d743acfbe899b6ea5e4db4677bd913fcdc5"
+        "c1e32f2f59b2d67026d11f5c0e4026cfb42dce9963c48203d51685b6171f3f59"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "2c6a32dff4ef5d8284e5f99cda26df93577edf5034245d7f7b13f64034c9e277"
+        "aa06f20bfd37ead40b5d143458a0cf7d2c0acb9a28d5eac4a0ed1c503f67a0ef"
     ],
     [
         [
@@ -109,7 +109,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "41d376823d51bcbc38267f1f6050ccafc0c5a0bd1cfb76125bf1456f4655e796"
+        "e2e453d10b129803681e6cec3dccead055cfde26a20a1a81b374a0a1ed43001c"
     ],
     [
         [
@@ -158,7 +158,7 @@
             "file",
             "sdk/wasp/client/operations/actions/core.ts"
         ],
-        "ff3597c5f07015adf4dcf5cf6043d054989e76522fd59eb94bdaa34e9c9ea95f"
+        "02d2028c46cd470dec7be3344a94755521528135653066f99a01a338058f1805"
     ],
     [
         [
@@ -179,21 +179,21 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "edcdc3798590e62b778115b3818df8cc69fa5a8bb3a7fe9fa6d6d5ea706d14c4"
+        "c96965e460ada3ad0369ed17a0dc8ebce623781ba02ab8059e61856024d12df2"
     ],
     [
         [
             "file",
             "sdk/wasp/client/operations/internal/index.ts"
         ],
-        "c37958916c49908e3379f281e1722aa58b44349d46f627e15ee73460bc801f71"
+        "cd22c11fa94f24c132361772557e25d34149667eec1a080bead2aa74a4de3f2a"
     ],
     [
         [
             "file",
             "sdk/wasp/client/operations/internal/resources.js"
         ],
-        "0f3a0e4d19ceff419a6343ab5162d8b0985673f9d3d7d76bd4471fae0076fe17"
+        "fa3e3b77c1d6f62889b613706fff1ee92bd70aa68ae80751df05c0ac72d844a4"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "sdk/wasp/client/operations/queries/core.ts"
         ],
-        "7f842b7add5a2949a49981dac64dd5951457eb5b9d3c555f25f6e4f11c04f3b4"
+        "63e324b622637513d40c0e3404c42cfbee665d7804a8f459036efeaa376f21d6"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "sdk/wasp/client/operations/rpc.ts"
         ],
-        "08f30fe4e31a691a225949ccd4d638cffe78bf2f4f2a76feb70133d4d9a5ba94"
+        "a793af6c311e6a55525dab6ba25bdd192488005b93323e5ba21cca2f8eddb943"
     ],
     [
         [
@@ -240,9 +240,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/router/NavLink.tsx"
+        ],
+        "22f7b0a0000fc53091f7a281feb025ea80f8a279bf2d21a2be3531d0c5b202ab"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "ad12dae94c1c68a4f31f660dd942fc0b43d713b4ed37145faeb2f65d3e5bc392"
+        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
     ],
     [
         [
@@ -277,7 +284,7 @@
             "file",
             "sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "ae31b78cbc3223f1be003031f7de6170bf019a2400eb2f8526bb26c8fdeab357"
+        "f13f830a28370dc6038a5f69ce61b371530f776a407210b513daccb327bb8257"
     ],
     [
         [
@@ -305,7 +312,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "737990d1ed27a0481690366da5a0c8cd7bd795a08e0984d35eac8f6a132fbd3c"
+        "d039097bc563e8f51831f01b9f73549e7eda752d21480cf2cbe545520c0f8aea"
     ],
     [
         [
@@ -326,7 +333,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "356176e14b791e4d2bf5896dda26d1758cc80500533888990db0ba2b265a1361"
+        "6cf5e3e60d652b061bd5f6b7e31d6844ab7f4f6c7c519427405ed2272a6050b2"
     ],
     [
         [
@@ -410,14 +417,14 @@
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "46889a74ff4b17a27dc1a086ec97f25aecd9b174a71bb35ebf65f1b0ca697a69"
+        "98533ab34114e30eb7890f9e5784623d7a7070b497e00440896cbea15d9d5616"
     ],
     [
         [
             "file",
             "sdk/wasp/package.json"
         ],
-        "af53827f8ee7852083d1a73e172b4c59d0ea5816a3d63eb5efed4f5b3344486a"
+        "ed1ba8d3bb450ebeb348dc378e09884c2b1bcb10ed6b8328a1872c95f90d7e93"
     ],
     [
         [
@@ -436,6 +443,13 @@
     [
         [
             "file",
+            "sdk/wasp/serialization/index.ts"
+        ],
+        "ea0d33a9d5dda88e783ac63d402c9f7444bd516a5e624f6af2b9d69b4a15e0a3"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/HttpError.ts"
         ],
         "9c1b2449d8e9d68470c6014054a3c3074069a104ddb291b9089c30d624a2d9d9"
@@ -445,14 +459,14 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "eb670470bdf240069288cb4b26c27dee74a9c7327d1df5639018a5627b6be02f"
+        "1cfc989acb1bbd62c677d57fae0af75fa11b9d5fa17a47bd25534bca06bc168c"
     ],
     [
         [
             "file",
             "sdk/wasp/server/_types/taggedEntities.ts"
         ],
-        "94a8c58d122296edd8803618b878c66dc1ce27035735f31bb97d6a58be219324"
+        "3f56911846ce4c382bc4dfe16e847f475f504ef78e98dfa47ad704094a2fa0cc"
     ],
     [
         [
@@ -501,14 +515,14 @@
             "file",
             "sdk/wasp/server/operations/actions/index.ts"
         ],
-        "35fa55dbb38aa52924082f825b80c4b41be7371934466f6797aeef02b70baa31"
+        "419ff2b797f3aa7418b93df88d9ecc8dcf076fc7ff45a0da5daaece70c2774e2"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/actions/types.ts"
         ],
-        "cc03111599e32695d677e8ac4e65b98cf90e0cb066e71c3da06af254c784b489"
+        "30d5f5faeb3ae0e83a18a7a91d8928293855eda76f2ebb9a659f54cbdd565b83"
     ],
     [
         [
@@ -522,14 +536,14 @@
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "35fa55dbb38aa52924082f825b80c4b41be7371934466f6797aeef02b70baa31"
+        "419ff2b797f3aa7418b93df88d9ecc8dcf076fc7ff45a0da5daaece70c2774e2"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/queries/types.ts"
         ],
-        "19f72a3a37efd1e29b0793caa7f379494ad236bb513c8c8804b5a8d305c45196"
+        "dd1eb9d2fc6651128358bc73190f8e0cf1a1e5093c821bde0a3acfe51afadc9e"
     ],
     [
         [
@@ -557,21 +571,21 @@
             "file",
             "sdk/wasp/src/Main.css"
         ],
-        "05a725d9aa060e2972bf91ed825502667c9b8aeb0893110c493818efc0c9ffa9"
+        "b410e1a99ed88d2f587be8e9172957aa663dc4763e83611f4ba9569c3111c0e4"
     ],
     [
         [
             "file",
             "sdk/wasp/src/MainPage.tsx"
         ],
-        "8b411885c41164a60e135c7e191d23095dfda51c3d7968539a7e7f62e8f12940"
+        "64b5e63d9eb29b316493b474f3ce690ea072f3063ea1337db9b2c2e9e41fc322"
     ],
     [
         [
             "file",
-            "sdk/wasp/src/assets/logo.svg"
+            "sdk/wasp/src/assets/wasp-logo-rounded.svg"
         ],
-        "563d907afcd4f7860194dc46eeed2ad85e9933dd8cc5dd8c93563a3bb43b0daa"
+        "5667daf3583b1d6c7fe8187951246623fbe2330894dc12e69a8b068775470a3a"
     ],
     [
         [
@@ -585,7 +599,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "c8af1903f502f7ea1850203d1f9b5d31f8f4878a51bad9a4cc0c65155bb100e0"
+        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
     ],
     [
         [
@@ -662,7 +676,7 @@
             "file",
             "server/package.json"
         ],
-        "a5edab468cdb7b773a096668f34e9d8f567600c48dc06877ea3d5e28d204f78c"
+        "b9f810cf3ddde0e058760d4c031552872f28eab0f2f5b173687d2aeb7b934f1a"
     ],
     [
         [
@@ -732,6 +746,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
+        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
     ]
 ]

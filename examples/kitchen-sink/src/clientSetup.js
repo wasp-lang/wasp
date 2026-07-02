@@ -1,6 +1,6 @@
 import { configureQueryClient, testingAction } from "wasp/client/operations";
 
-export function setup() {
+export function clientSetup() {
   console.log("This was called from the client setup function");
 
   if (!import.meta.env.SSR) {
