@@ -1,12 +1,11 @@
 import { QueryObserver } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { config } from "wasp/client";
 import {
   createTask,
   getTasks,
   initializeQueryClient,
-  queryClientInitialized,
 } from "wasp/client/operations";
 import { mockServer } from "wasp/client/test";
 import { serialize } from "wasp/core/serialization";
@@ -38,13 +37,6 @@ const apiUrlPattern = new RegExp(
   "^" + config.apiUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
 );
 
-beforeAll(async () => {
-  // `mockServer()` (called above) already wires up server.listen/resetHandlers/
-  // close via beforeAll/afterEach/afterAll.
-  initializeQueryClient();
-  await queryClientInitialized;
-});
-
 beforeEach(() => {
   // `mockServer()`'s afterEach calls `server.resetHandlers()`, so the handler
   // has to be (re)registered before each test rather than once in `beforeAll`.
@@ -66,7 +58,7 @@ beforeEach(() => {
 
 describe("action cache invalidation (#3009)", () => {
   it("queries depending on the action's entities are fresh once the action resolves", async () => {
-    const queryClient = await queryClientInitialized;
+    const queryClient = initializeQueryClient();
     const queryKey = getTasks.queryCacheKey;
 
     // Server starts with a single task.

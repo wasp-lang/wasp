@@ -1,12 +1,9 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
 import { lazy } from "react"
 
 import { createAuthRequiredPage } from "wasp/client/app"
 
 import { App as App_ext } from './src/App'
-
-import { clientSetup as clientSetup_ext } from './src/clientSetup'
 
 import { EagerPage } from './src/features/lazy-loading/pages/EagerPage'
 
@@ -183,10 +180,6 @@ const routesMapping = {
       ),
   },
 } as const;
-
-await clientSetup_ext()
-
-initializeQueryClient()
 
 const rootElement =
   <App_ext />

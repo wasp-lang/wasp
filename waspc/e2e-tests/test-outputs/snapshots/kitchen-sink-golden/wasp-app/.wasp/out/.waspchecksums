@@ -401,6 +401,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/app/client-setup.ts"
+        ],
+        "6902a7e64a4088f37c6011d0518a0525c6c375478e060b9423f673db3879808d"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx"
         ],
         "303821bb9b02b284835f571618c5f92e3da1b97709b7ed6cb3313fb33cc871f6"
@@ -438,7 +445,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "3add5d6ad5a3290bb2a6ac13a463773e6a725fbc0383bd5c0cd4db5f8500662a"
+        "975c0684cb4f9f67312d8e962458f2e07993fd2f5164acdaa54c4f80b28e29d1"
     ],
     [
         [
@@ -620,7 +627,7 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "c96965e460ada3ad0369ed17a0dc8ebce623781ba02ab8059e61856024d12df2"
+        "66f85f8b8c10f0fc3417cddb19463af7772ffb5ed71de4c15b445b7b3154b221"
     ],
     [
         [
@@ -634,7 +641,7 @@
             "file",
             "sdk/wasp/client/operations/internal/resources.js"
         ],
-        "fa3e3b77c1d6f62889b613706fff1ee92bd70aa68ae80751df05c0ac72d844a4"
+        "48900f0c0c194b961467dd736de84a515a2d1ec703ec4195750f59f0a026ef7f"
     ],
     [
         [
@@ -662,7 +669,7 @@
             "file",
             "sdk/wasp/client/operations/queryClient.ts"
         ],
-        "5c1d87ac10513788bcde7ebc7c10601b9ad0854cddff355e8fb7e2d4685ecdef"
+        "3b4eb2cdd4c19140455b7e03ce8099e2fd19268f41ca272d80f4f6f760d44a5a"
     ],
     [
         [
@@ -795,7 +802,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "602d74f37a55ee7dfa2322d28687a580bf1710a5ab1929a0c81cabb386a12b14"
+        "fc65953c6524ef546b0b664e675d905426e0f297677c973b1aad85b78830051f"
     ],
     [
         [
@@ -1621,7 +1628,7 @@
             "file",
             "sdk/wasp/src/features/operations/cacheInvalidation.test.ts"
         ],
-        "0bf9d9216c118effd6d7fc23ac35df2c6b90cc7c68c536562dc73a4668251bde"
+        "3a2585bf1d3ec96675539ab5ebebbdf3c192e9232dde4609a41534e136d93639"
     ],
     [
         [

@@ -10,6 +10,7 @@ wasp-app/.wasp/out/package-lock.json
 wasp-app/.wasp/out/package.json
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/app/client-setup.ts
 wasp-app/.wasp/out/sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/FullPageWrapper.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.module.css
@@ -68,6 +69,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/api/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/api/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/api/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/api/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/client-setup.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/client-setup.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/client-setup.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/client-setup.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/DefaultRootErrorBoundary.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/DefaultRootErrorBoundary.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/DefaultRootErrorBoundary.jsx

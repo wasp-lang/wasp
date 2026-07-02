@@ -51,6 +51,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/app/client-setup.ts"
+        ],
+        "a7313d9c6391a81661546b2ec51d23eb78cb55c1830322d5f6407cea88139fa6"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx"
         ],
         "303821bb9b02b284835f571618c5f92e3da1b97709b7ed6cb3313fb33cc871f6"
@@ -88,7 +95,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "e70518ff937c59c28d85782e1ccc86aa4e088f491130d31a8a8d9f43a86308c6"
+        "663121e506487fe479d64b1b72fce432809d4c835125adbed68bbaa41984836e"
     ],
     [
         [
@@ -179,7 +186,7 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "c96965e460ada3ad0369ed17a0dc8ebce623781ba02ab8059e61856024d12df2"
+        "66f85f8b8c10f0fc3417cddb19463af7772ffb5ed71de4c15b445b7b3154b221"
     ],
     [
         [
@@ -193,7 +200,7 @@
             "file",
             "sdk/wasp/client/operations/internal/resources.js"
         ],
-        "fa3e3b77c1d6f62889b613706fff1ee92bd70aa68ae80751df05c0ac72d844a4"
+        "48900f0c0c194b961467dd736de84a515a2d1ec703ec4195750f59f0a026ef7f"
     ],
     [
         [
@@ -221,7 +228,7 @@
             "file",
             "sdk/wasp/client/operations/queryClient.ts"
         ],
-        "5c1d87ac10513788bcde7ebc7c10601b9ad0854cddff355e8fb7e2d4685ecdef"
+        "3b4eb2cdd4c19140455b7e03ce8099e2fd19268f41ca272d80f4f6f760d44a5a"
     ],
     [
         [
@@ -354,7 +361,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
+        "1da18649210169b8383b876b5c5fe708528e28e47f3acec333b7bb84304a8e8b"
     ],
     [
         [
