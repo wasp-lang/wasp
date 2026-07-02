@@ -1,8 +1,8 @@
 {{={= =}=}}
 import * as z from "zod"
 
-import { ensureEnvSchema } from "../env/validation.js"
-import { FromRegister } from "../types/index.js";
+import { ensureEnvSchema } from "../env/validation"
+import { FromRegister } from "../types/register";
 
 type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
 type UserServerEnvSchema = RegisteredServerEnvValidationSchema;

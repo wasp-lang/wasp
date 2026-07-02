@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types.js'
+import type { Expand, Exact } from '../../universal/types'
 import type { ProviderName } from '../utils'
 
 // PUBLIC API
@@ -12,7 +12,7 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 {=# emailUserSignupFields.isDefined =}
-import type { FromRegister } from 'wasp/types'
+import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
@@ -21,7 +21,7 @@ type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 {=/ emailUserSignupFields.isDefined =}
 
 {=# usernameAndPasswordUserSignupFields.isDefined =}
-import type { FromRegister } from 'wasp/types'
+import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
