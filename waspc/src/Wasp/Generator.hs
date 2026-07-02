@@ -68,7 +68,7 @@ genApp spec = do
   genServer spec
     <++> genSdk spec
     <++> genSpecTypes spec
-    <++> genUserTypes spec
+    <++> genSdkTypes spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genWaspLibs

@@ -323,9 +323,9 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
-    Wasp.Generator.UserTypesGenerator
-    Wasp.Generator.UserTypesGenerator.Common
-    Wasp.Generator.UserTypesGenerator.JsImport
+    Wasp.Generator.SdkTypesGenerator
+    Wasp.Generator.SdkTypesGenerator.Common
+    Wasp.Generator.SdkTypesGenerator.JsImport
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common

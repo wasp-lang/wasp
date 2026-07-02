@@ -1,4 +1,4 @@
-module Wasp.Generator.UserTypesGenerator.JsImport
+module Wasp.Generator.SdkTypesGenerator.JsImport
   ( extOperationImportToImportJson,
     extImportToImportJson,
   )
@@ -13,7 +13,7 @@ import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.UserTypesGenerator.Common (TypesRootDir, typesRootDirInGeneratedCodeDir)
+import Wasp.Generator.SdkTypesGenerator.Common (SdkTypesRootDir, sdkTypesRootDirInGeneratedCodeDir)
 import Wasp.JsImport (JsImport (..), JsImportKind (TypeImport), JsImportPath (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppDir)
 import Wasp.Util.StrongPath (invertRelDir)
@@ -38,13 +38,13 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    importPath = dropExtensionFromImportPath $ SP.castRel $ extSrcDirFromTypesRootDir </> extImportPath
+    importPath = dropExtensionFromImportPath $ SP.castRel $ extSrcDirFromSdkTypesRootDir </> extImportPath
 
-extSrcDirFromTypesRootDir :: Path Posix (Rel TypesRootDir) (Dir SourceExternalCodeDir)
-extSrcDirFromTypesRootDir =
+extSrcDirFromSdkTypesRootDir :: Path Posix (Rel SdkTypesRootDir) (Dir SourceExternalCodeDir)
+extSrcDirFromSdkTypesRootDir =
   SP.castRel $
     fromJust $
       relDirToPosix $
         generatedCodeDirFromTypesRootDir </> waspProjectDirFromGeneratedAppDir </> srcDirInWaspProjectDir
   where
-    generatedCodeDirFromTypesRootDir = invertRelDir typesRootDirInGeneratedCodeDir
+    generatedCodeDirFromTypesRootDir = invertRelDir sdkTypesRootDirInGeneratedCodeDir
