@@ -32,10 +32,8 @@ genVirtualRoutesTsx spec =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
           "isAuthEnabled" .= isAuthEnabled spec,
-          "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
           "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent)
         ]
-    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 isRouteLazy :: AS.Route.Route -> Bool

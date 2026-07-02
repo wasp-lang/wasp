@@ -10,6 +10,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -17,6 +18,7 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as WS
 import Wasp.Util ((<++>))
@@ -25,7 +27,8 @@ genClientApp :: AppSpec -> Generator [FileDraft]
 genClientApp spec =
   sequence
     [ genAppIndex spec,
-      genWaspAppComponent spec
+      genWaspAppComponent spec,
+      genClientSetup spec
     ]
     <++> genLayout spec
     <++> genAppComponents
@@ -45,6 +48,15 @@ genWaspAppComponent spec =
     C.mkTmplFdWithData
       [relfile|client/app/components/WaspApp.tsx|]
       (object ["areWebSocketsUsed" .= WS.areWebSocketsUsed spec])
+
+genClientSetup :: AppSpec -> Generator FileDraft
+genClientSetup spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|client/app/client-setup.ts|]
+      (object ["setupFn" .= extImportToImportJson maybeSetupJsFunction])
+  where
+    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
 
 genAppComponents :: Generator [FileDraft]
 genAppComponents =

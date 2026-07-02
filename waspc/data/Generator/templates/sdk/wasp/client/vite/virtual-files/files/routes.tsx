@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
 import { lazy } from "react"
 
 {=# isAuthEnabled =}
@@ -10,10 +9,6 @@ import { createAuthRequiredPage } from "wasp/client/app"
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
-
-{=# setupFn.isDefined =}
-{=& setupFn.importStatement =}
-{=/ setupFn.isDefined =}
 
 {=# routes =}
 {=^ isLazy =}
@@ -52,12 +47,6 @@ const routesMapping = {
   {=/ isLazy =}
   {=/ routes =}
 } as const;
-
-{=# setupFn.isDefined =}
-await {= setupFn.importIdentifier =}()
-{=/ setupFn.isDefined =}
-
-initializeQueryClient()
 
 const rootElement =
   {=# rootComponent.isDefined =}
