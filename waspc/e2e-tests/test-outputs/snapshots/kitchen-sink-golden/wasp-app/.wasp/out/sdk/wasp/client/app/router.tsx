@@ -1,4 +1,4 @@
-import type { ReactNode, ComponentType } from 'react'
+import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
 import { OAuthCallbackPage } from "./pages/OAuthCallback"
@@ -9,7 +9,7 @@ import { routes } from '../router/index'
 
 type RouteMapping = Record<
   string,
-  { Component: ComponentType }
+  Pick<RouteObject, 'Component' | 'lazy'>
 >;
 
 export function getRouteObjects({

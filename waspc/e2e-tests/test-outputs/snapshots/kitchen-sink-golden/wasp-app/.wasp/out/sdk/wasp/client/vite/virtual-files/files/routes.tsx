@@ -1,6 +1,5 @@
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
-import { lazy } from "react"
 
 import { createAuthRequiredPage } from "wasp/client/app"
 
@@ -12,175 +11,129 @@ import { EagerPage } from './src/features/lazy-loading/pages/EagerPage'
 
 const routesMapping = {
   HomeRoute: {
-    Component:
-      lazy(() =>
-        import('./src/pages/HomePage').then(m => m.HomePage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/pages/HomePage').then(m => m.HomePage)
+      .then(component => ({ Component: component })),
   },
   CatchAllRoute: {
-    Component:
-      lazy(() =>
-        import('./src/pages/CatchAllPage').then(m => m.CatchAllPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/pages/CatchAllPage').then(m => m.CatchAllPage)
+      .then(component => ({ Component: component })),
   },
   SignupRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/Signup').then(m => m.default)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/Signup').then(m => m.default)
+      .then(component => ({ Component: component })),
   },
   LoginRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/Login').then(m => m.default)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/Login').then(m => m.default)
+      .then(component => ({ Component: component })),
   },
   PasswordResetRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset)
+      .then(component => ({ Component: component })),
   },
   EmailVerificationRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification)
+      .then(component => ({ Component: component })),
   },
   RequestPasswordResetRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/RequestPasswordReset').then(m => m.RequestPasswordReset)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/RequestPasswordReset').then(m => m.RequestPasswordReset)
+      .then(component => ({ Component: component })),
   },
   ProfileRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/ProfilePage').then(m => m.ProfilePage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/ProfilePage').then(m => m.ProfilePage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   ManualSignupRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/ManualSignupPage').then(m => m.ManualSignupPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/ManualSignupPage').then(m => m.ManualSignupPage)
+      .then(component => ({ Component: component })),
   },
   CustomSignupRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/auth/pages/CustomSignupPage').then(m => m.CustomSignupPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/auth/pages/CustomSignupPage').then(m => m.CustomSignupPage)
+      .then(component => ({ Component: component })),
   },
   TasksRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/operations/pages/TasksPage').then(m => m.TasksPage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/operations/pages/TasksPage').then(m => m.TasksPage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   TaskRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/operations/pages/TaskDetailPage').then(m => m.TaskDetailPage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/operations/pages/TaskDetailPage').then(m => m.TaskDetailPage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   SerializationRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/operations/pages/SerializationPage').then(m => m.SerializationPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/operations/pages/SerializationPage').then(m => m.SerializationPage)
+      .then(component => ({ Component: component })),
   },
   JobsRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/jobs/pages/JobsPage').then(m => m.JobsPage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/jobs/pages/JobsPage').then(m => m.JobsPage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   ApisRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/apis/pages/ApisPage').then(m => m.ApisPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/apis/pages/ApisPage').then(m => m.ApisPage)
+      .then(component => ({ Component: component })),
   },
   CrudListRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/crud/pages/ListPage').then(m => m.ListPage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/crud/pages/ListPage').then(m => m.ListPage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   CrudDetailRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/crud/pages/DetailPage').then(m => m.DetailPage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/crud/pages/DetailPage').then(m => m.DetailPage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   StreamingRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/streaming/pages/StreamingTestPage').then(m => m.StreamingTestPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/streaming/pages/StreamingTestPage').then(m => m.StreamingTestPage)
+      .then(component => ({ Component: component })),
   },
   ChatRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/chat/pages/ChatPage').then(m => m.ChatPage)
-        .then(component => createAuthRequiredPage(component))
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/chat/pages/ChatPage').then(m => m.ChatPage)
+      .then(component => createAuthRequiredPage(component))
+      .then(component => ({ Component: component })),
   },
   EagerRoute: {
     Component: EagerPage,
   },
   LazyRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/lazy-loading/pages/LazyPage').then(m => m.LazyPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/lazy-loading/pages/LazyPage').then(m => m.LazyPage)
+      .then(component => ({ Component: component })),
   },
   PrerenderRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/prerender/pages/PrerenderPage').then(m => m.PrerenderPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/prerender/pages/PrerenderPage').then(m => m.PrerenderPage)
+      .then(component => ({ Component: component })),
   },
   PrerenderInstancesRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/prerender/pages/PrerenderInstancesPage').then(m => m.PrerenderInstancesPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/prerender/pages/PrerenderInstancesPage').then(m => m.PrerenderInstancesPage)
+      .then(component => ({ Component: component })),
   },
   HydrationMismatchRoute: {
-    Component:
-      lazy(() =>
-        import('./src/features/prerender/pages/HydrationMismatchPage').then(m => m.HydrationMismatchPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: () =>
+      import('./src/features/prerender/pages/HydrationMismatchPage').then(m => m.HydrationMismatchPage)
+      .then(component => ({ Component: component })),
   },
 } as const;
 

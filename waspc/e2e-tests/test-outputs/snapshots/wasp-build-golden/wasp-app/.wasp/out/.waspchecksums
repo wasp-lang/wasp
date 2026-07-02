@@ -116,7 +116,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "2b5dc997d1f01dfb8121e415a2d41ea035ce18ae877403036eec61009967f92b"
+        "8f2dbdea62ef4f0c78d3ce3d6b46896eef1909146c2ef5c6f6228f4991cd20a5"
     ],
     [
         [
@@ -347,14 +347,14 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
+        "b6f52189ec485dc1397781f59f87ea2f243b09d4e72bbd0522ac40ccfd313383"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
+        "414b1611518493420eb087ca111d4423bd8562115a72bb9b53f0c4f146fcc955"
     ],
     [
         [

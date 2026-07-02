@@ -1,6 +1,6 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useState, useEffect, StrictMode, use, lazy, startTransition } from "react";
+import { useState, useEffect, StrictMode, use, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -382,9 +382,7 @@ function getRouteObjects({ routesMapping: routesMapping2, rootElement: rootEleme
 }
 const routesMapping = {
   RootRoute: {
-    Component: lazy(
-      () => __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage).then((component) => ({ default: component }))
-    )
+    lazy: () => __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage).then((component) => ({ Component: component }))
   }
 };
 initializeQueryClient();
@@ -399,9 +397,25 @@ const router = createBrowserRouter(routeObjects, {
   // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData
 });
+const routerInitialized = new Promise((resolve) => {
+  if (router.state.initialized) {
+    resolve();
+    return;
+  }
+  const unsubscribe = router.subscribe((state) => {
+    if (state.initialized) {
+      unsubscribe();
+      resolve();
+    }
+  });
+});
+function InitializedRouterProvider() {
+  use(routerInitialized);
+  return /* @__PURE__ */ jsx(RouterProvider, { router });
+}
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 function App() {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
+  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(InitializedRouterProvider, {}) }) });
 }
 startTransition(() => {
   hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
