@@ -1,7 +1,7 @@
 {{={= =}=}}
-import { createAction, type ActionFor } from "../operations/actions/core.js";
-import { createQuery, type QueryFor } from "../operations/queries/core.js";
-import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers.js";
+import { createAction, type ActionFor } from "../operations/actions/core";
+import { createQuery, type QueryFor } from "../operations/queries/core";
+import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers";
 import {
   {=# operations.Get =}
   RegisteredGetQuery,

@@ -1,9 +1,9 @@
-import { type Route } from "../index.js";
 import type {
   IfAny,
   _Awaited,
   _ReturnType
-} from "../../universal/types.js";
+} from "../../universal/types";
+import { type Route } from "../index";
 
 // PRIVATE API (for SDK, should maybe be public, users define values of this
 // type).
