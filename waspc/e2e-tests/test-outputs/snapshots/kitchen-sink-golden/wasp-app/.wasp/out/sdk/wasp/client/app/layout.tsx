@@ -1,5 +1,4 @@
 import { StrictMode, type ReactNode } from "react";
-import { useIsClient } from "./hooks/useIsClient.js"
 
 export function Layout({
   children,
@@ -10,8 +9,6 @@ export function Layout({
   isFallbackPage?: boolean;
   clientEntrySrc?: string;
 }) {
-  const isClient = useIsClient()
-
   /*
     From the Vite SSR plugin, we inherit the concept of a "prerendered page" vs.
     a "fallback page".
@@ -28,13 +25,16 @@ export function Layout({
     actual page content, so that it can turn into anything. If we're
     prerendering a non-fallback page, we'll give it its content.
 
-    But, if we're already in the client, we always want to render the page
-    content. Whether prerendered as a fallback or not, now it's showtime, so we
-    must show the user the content.
+    `isFallbackPage` is only ever `true` during server prerendering of the
+    fallback shell. On the client, the client entry never passes it (so it
+    defaults to `false`) and instead mounts the fallback fresh via
+    `createRoot(...).render()`, while hydrating prerendered pages. That means we
+    always render children on the client, whether the page was prerendered as a
+    fallback or not.
 
     Thus, we end up with the line below:
   */
-  const shouldRenderChildren = isClient || !isFallbackPage
+  const shouldRenderChildren = !isFallbackPage
 
   return (
     <StrictMode>
@@ -52,10 +52,24 @@ export function Layout({
           <title>Wasp Kitchen Sink</title>
 
           {
-            // We pass that argument in SSR builds and not in client builds.
-            // This would usually cause a hydration mismatch, but React has an
-            // exception for `<script>` tags, for this specific usecase, so it
-            // will work fine.
+            // We pass this argument in SSR builds and not in client builds.
+            //
+            // This tag survives both client render paths:
+            // - Prerendered pages hydrate the server HTML. The `<script>` would
+            //   normally count as a hydration mismatch (it's absent from the
+            //   client render), but React has an exception for `<script>` tags
+            //   for this specific usecase, so it works fine.
+            // - The fallback shell is mounted fresh with `createRoot`. On a
+            //   fresh mount into `document`, React clears the singleton
+            //   elements' children EXCEPT `<script>`, `<style>`,
+            //   `<link rel="stylesheet">`, and hoistable-marked nodes, so this
+            //   `<script>` (and the Vite-injected assets) survive.
+            //
+            // Caveat: on the fallback mount, retained server-shell
+            // `<script>`/`<style>`/stylesheet nodes coming from the user's
+            // `head` are re-inserted by React, so they can appear twice in the
+            // DOM. This is cosmetic: React-created `<script>` tags never
+            // execute, and duplicate stylesheets are harmless.
             clientEntrySrc ? (
               // We'd usually use React prerender's `bootstrapModules` options for
               // injecting this script, but it would also add a `<link

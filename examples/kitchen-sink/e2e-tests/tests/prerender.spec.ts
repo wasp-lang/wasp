@@ -83,6 +83,28 @@ test.describe("hydration warnings", () => {
 
     expect(hydrationWarning.hasHappened()).toBe(true);
   });
+
+  test("fallback-served route mounts without a hydration warning", async ({
+    page,
+  }) => {
+    using hydrationWarning = checkHydrationWarning(page);
+
+    let pageError = false;
+    page.on("pageerror", () => {
+      pageError = true;
+    });
+
+    // "charlie" is not prerendered, so it is served as the fallback shell and
+    // must be mounted fresh on the client (via `createRoot`) instead of
+    // hydrated.
+    await page.goto("/prerender-instances/charlie");
+
+    await expect(page.getByTestId("render-location")).toHaveText("client");
+    await expect(page.getByTestId("slug")).toHaveText("charlie");
+
+    expect(hydrationWarning.hasHappened()).toBe(false);
+    expect(pageError).toBe(false);
+  });
 });
 
 function checkHydrationWarning(page: Page) {

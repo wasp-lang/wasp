@@ -1,5 +1,5 @@
 import { startTransition } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
@@ -15,12 +15,16 @@ const router = createBrowserRouter(routeObjects, {
   hydrationData: window.__staticRouterHydrationData,
 })
 
-// We embed this data at prerendering time.
+// We embed this data at prerendering time. If it's missing, we fall back to the
+// hydrate branch below, which matches the previous behavior and is safe for
+// prerendered pages.
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
 
 function App() {
   return (
-    <Layout isFallbackPage={isFallbackPage}>
+    // On the client we always render the page content, so we don't pass
+    // `isFallbackPage` to the `Layout`.
+    <Layout>
       <WaspApp>
         <RouterProvider router={router} />
       </WaspApp>
@@ -29,5 +33,11 @@ function App() {
 }
 
 startTransition(() => {
-  hydrateRoot(document, <App />);
+  if (isFallbackPage) {
+    // The fallback shell has no prerendered content, so mount fresh instead of
+    // hydrating.
+    createRoot(document).render(<App />);
+  } else {
+    hydrateRoot(document, <App />);
+  }
 });

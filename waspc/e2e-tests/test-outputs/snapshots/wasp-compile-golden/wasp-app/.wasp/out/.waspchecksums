@@ -93,13 +93,6 @@
     [
         [
             "file",
-            "sdk/wasp/client/app/hooks/useIsClient.ts"
-        ],
-        "d6912c04aaee762cc62a3d811d6253fc8b31732ea80d1e757e2480d6c37e3931"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/client/app/index.tsx"
         ],
         "6bcaf8f893b0c1e55ee09411ddb6e36871ebae371fab829aa3046c48054c8bfb"
@@ -109,7 +102,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "e2e453d10b129803681e6cec3dccead055cfde26a20a1a81b374a0a1ed43001c"
+        "c02db7d37d523b10464ef5b696458b16200230319227f581335a5fef3afe4baa"
     ],
     [
         [
@@ -347,7 +340,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
+        "08c7b8c615341fbc70da3ea90765156cf1228d2456ad8ee9c5f310db37dbed45"
     ],
     [
         [

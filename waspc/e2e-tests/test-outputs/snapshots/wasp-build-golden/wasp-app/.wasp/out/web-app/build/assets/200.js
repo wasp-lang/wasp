@@ -1,7 +1,7 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useState, useEffect, StrictMode, use, lazy, startTransition } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { StrictMode, use, lazy, startTransition } from "react";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -38,26 +38,32 @@ import "superjson";
     fetch(link.href, fetchOpts);
   }
 })();
-function useIsClient() {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  return isClient;
-}
 function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntrySrc }) {
-  const isClient = useIsClient();
-  const shouldRenderChildren = isClient || !isFallbackPage2;
+  const shouldRenderChildren = !isFallbackPage2;
   return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
     /* @__PURE__ */ jsxs("head", { children: [
       /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
       /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
       /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
       /* @__PURE__ */ jsx("title", { children: "wasp-app" }),
-      // We pass that argument in SSR builds and not in client builds.
-      // This would usually cause a hydration mismatch, but React has an
-      // exception for `<script>` tags, for this specific usecase, so it
-      // will work fine.
+      // We pass this argument in SSR builds and not in client builds.
+      //
+      // This tag survives both client render paths:
+      // - Prerendered pages hydrate the server HTML. The `<script>` would
+      //   normally count as a hydration mismatch (it's absent from the
+      //   client render), but React has an exception for `<script>` tags
+      //   for this specific usecase, so it works fine.
+      // - The fallback shell is mounted fresh with `createRoot`. On a
+      //   fresh mount into `document`, React clears the singleton
+      //   elements' children EXCEPT `<script>`, `<style>`,
+      //   `<link rel="stylesheet">`, and hoistable-marked nodes, so this
+      //   `<script>` (and the Vite-injected assets) survive.
+      //
+      // Caveat: on the fallback mount, retained server-shell
+      // `<script>`/`<style>`/stylesheet nodes coming from the user's
+      // `head` are re-inserted by React, so they can appear twice in the
+      // DOM. This is cosmetic: React-created `<script>` tags never
+      // execute, and duplicate stylesheets are harmless.
       clientEntrySrc ? (
         // We'd usually use React prerender's `bootstrapModules` options for
         // injecting this script, but it would also add a `<link
@@ -401,8 +407,16 @@ const router = createBrowserRouter(routeObjects, {
 });
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 function App() {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
+  return (
+    // On the client we always render the page content, so we don't pass
+    // `isFallbackPage` to the `Layout`.
+    /* @__PURE__ */ jsx(Layout, { children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) })
+  );
 }
 startTransition(() => {
-  hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
+  if (isFallbackPage) {
+    createRoot(document).render(/* @__PURE__ */ jsx(App, {}));
+  } else {
+    hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
+  }
 });
