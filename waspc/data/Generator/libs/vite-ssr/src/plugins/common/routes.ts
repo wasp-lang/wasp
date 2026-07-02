@@ -1,5 +1,9 @@
 import * as posixPath from "node:path/posix";
-import { removeLeadingSlash } from "../util/path";
+import {
+  getRoutablePathname,
+  removeLeadingSlash,
+  removeTrailingSlash,
+} from "../util/path";
 
 export interface SsrRoute {
   /** The pathname visible in the browser's address bar. */
@@ -38,10 +42,26 @@ export class SsrRoutes {
     ];
 
     this.byId = new Map(routes.map((route) => [route.id, route]));
-    this.byPath = new Map(routes.map((route) => [route.path, route]));
+    this.byPath = new Map(
+      routes.map((route) => [removeTrailingSlash(route.path), route]),
+    );
   }
 
   getAllIds() {
     return Array.from(this.byId.keys());
+  }
+
+  /**
+   * Finds the route matching a request URL, falling back to the SPA fallback
+   * when nothing matches. Unlike the configured route paths, the request URL
+   * may contain a query string, percent-encoding, a trailing slash, or Vite's
+   * `base` prefix, so it's normalized before lookup.
+   */
+  match(requestUrl: string, base: string): Readonly<SsrRoute> {
+    const pathname = getRoutablePathname(requestUrl, base);
+    if (pathname === null) {
+      return this.spaFallbackFile;
+    }
+    return this.byPath.get(pathname) ?? this.spaFallbackFile;
   }
 }

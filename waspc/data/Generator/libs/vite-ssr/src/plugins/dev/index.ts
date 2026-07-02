@@ -53,14 +53,17 @@ export const ssrDev = (
             rewritten it to `/index.html`. With `req.url` we get `/index.html`
             so we know we're looking for the HTML file; but `req.originalUrl` is
             still `/some-page`, and we can pass that to our prerendering logic.
+
+            Note that Vite rewrites `req.url` but not `req.originalUrl`, so the
+            latter still carries the query string and the `base` prefix (if
+            any); `routes.match` normalizes those away before looking up the
+            route.
           */
           if (!url || url !== "/index.html" || !originalUrl) {
             return next();
           }
 
-          const route = routes.byPath.has(originalUrl)
-            ? originalUrl
-            : routes.spaFallbackFile.path;
+          const route = routes.match(originalUrl, server.config.base);
 
           // Clear the SSR module cache on every request, so that we always run the latest code.
           ssrEnv.runner.clearCache();
@@ -68,7 +71,7 @@ export const ssrDev = (
           const html = await withRegisteredCss(ssrEnv.hot, async () => {
             const { default: prerenderApp }: { default: PrerenderFn } =
               await ssrEnv.runner.import(ssrEntrySrc);
-            return await prerenderApp(route, { clientEntrySrc });
+            return await prerenderApp(route.path, { clientEntrySrc });
           });
 
           if (!html) {

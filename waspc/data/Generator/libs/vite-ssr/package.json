@@ -21,7 +21,9 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "prepare": "npm run build",
-    "test": "exit 0"
+    "test": "npm run test:types && npm run test:unit",
+    "test:types": "tsc --noEmit",
+    "test:unit": "vitest run"
   },
   "peerDependencies": {
     "vite": "^7"
@@ -32,6 +34,7 @@
     "@types/node": "~22.12",
     "tsdown": "^0.21.5",
     "typescript": "~6.0.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.0.10"
   }
 }

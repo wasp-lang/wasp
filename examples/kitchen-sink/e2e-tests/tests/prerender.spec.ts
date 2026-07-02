@@ -18,6 +18,28 @@ test.describe("prerender", () => {
     await expect(page.getByTestId("render-location")).toHaveText("client");
   });
 
+  test("prerendered content is served for a URL with a query string", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
+    await page.goto("/prerender?utm_source=test");
+
+    await expect(page.getByTestId("render-location")).toHaveText("server");
+  });
+
+  test("prerendered content is served for a URL with a trailing slash", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
+    await page.goto("/prerender/");
+
+    await expect(page.getByTestId("render-location")).toHaveText("server");
+  });
+
   test("listed instances of a dynamic route are prerendered with no javascript", async ({
     browser,
   }) => {

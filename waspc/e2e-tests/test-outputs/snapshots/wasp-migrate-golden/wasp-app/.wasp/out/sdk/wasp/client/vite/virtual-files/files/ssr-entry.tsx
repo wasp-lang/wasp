@@ -1,5 +1,6 @@
 import type { PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
+import * as posixPath from "node:path/posix";
 import assert from "node:assert/strict";
 import { prerenderToNodeStream as reactPrerender } from "react-dom/static";
 import {
@@ -20,7 +21,13 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
     basename: "/",
   });
 
-  const req = new Request(new URL(route, "http://localhost"));
+  // `route` is an app-relative path (e.g. "/about"), but the static handler
+  // matches request URLs against its `basename`, so the base dir has to be
+  // added back in. (The SPA fallback's `route` never matches anyway; its
+  // render is the route-less shell.)
+  const req = new Request(
+    new URL(posixPath.join("/", route), "http://localhost"),
+  );
 
   const context = await query(req);
   assert(

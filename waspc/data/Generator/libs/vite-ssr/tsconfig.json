@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "extends": ["@tsconfig/node22", "@tsconfig/node-ts"],
   "compilerOptions": {
     "target": "esnext",
