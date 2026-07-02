@@ -17,6 +17,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
+- Fixed a hydration mismatch on prerendered pages by using React Router's `StaticRouter` during SSR and serializing the hydration data ourselves. ([#4417](https://github.com/wasp-lang/wasp/pull/4417))
 
 ### 🔧 Small improvements
 
