@@ -3,7 +3,7 @@
  *
  * The SDK defines and exports empty "register" interfaces (e.g. {@link Register}). 
  * During compliation, Wasp generate additional type declarations
- * in `.wasp/out/types/` (which is part of user project) that extend 
+ * in `.wasp/out/types/sdk/` (which is part of user project) that extend 
  * empty "register" interfaces via module augmentation.
  *
  * As a result, the SDK can "see" user-defined types without directly

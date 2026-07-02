@@ -138,7 +138,7 @@ Update the `include` field of the TypeScript configuration:
     "outDir": ".wasp/out/user"
   },
   // highlight-next-line
-  "include": ["src", ".wasp/out/types"]
+  "include": ["src", ".wasp/out/types/sdk"]
 }
 ```
 

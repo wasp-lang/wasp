@@ -25,6 +25,6 @@
     "outDir": ".wasp/out/user",
     "types": ["react", "node"]
   },
-  "include": ["src", ".wasp/out/types"],
+  "include": ["src", ".wasp/out/types/sdk"],
   "exclude": ["**/*.wasp.ts"]
 }
