@@ -14,6 +14,10 @@ import InstallInstructions from './\_install-instructions.md'
 
 Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.
 
+### Vite 8 and Vitest 4.1
+
+Wasp now uses **Vite 8**, which is powered by [Rolldown](https://rolldown.rs/) (a Rust bundler) instead of Rollup and esbuild, for faster builds. Testing moves to **Vitest 4.1** to stay compatible. You need to bump the `vite` and `vitest` dev dependencies in your app's `package.json` (see below), otherwise Wasp will refuse to build.
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -124,6 +128,42 @@ In `package.json`, update the `typescript` dev dependency to `6.0.3`:
   </TabItem>
 </Tabs>
 
-### 3. Enjoy your updated Wasp app
+### 3. Update Vite and Vitest
+
+Wasp validates the `vite` and `vitest` versions in your app's `package.json`, so you must bump them to the new ranges. Update your `devDependencies`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // ...
+        "vite": "^7.0.6",
+        "vitest": "^4.0.16"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // ...
+        "vite": "^8.1.0",
+        "vitest": "^4.1.9"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+If you use `@tailwindcss/vite` (Wasp's starters do), bump it to `^4.3.1` as well so it stays compatible with Vite 8.
+
+Vite 8 is now powered by [Rolldown](https://rolldown.rs/). Most apps need no other changes, but if you have a custom `vite.config.ts`:
+
+- `build.rollupOptions` still works but is deprecated in favor of `build.rolldownOptions`. See [Vite's migration guide](https://vite.dev/guide/migration) for details.
+- The React plugin's options type changed with `@vitejs/plugin-react` v6. If you pass `reactOptions` through Wasp's `WaspPluginOptions`, double-check they still typecheck against the new version.
+
+### 4. Enjoy your updated Wasp app
 
 That's it!

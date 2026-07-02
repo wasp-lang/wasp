@@ -10,8 +10,8 @@
     "@types/react-dom": "^19.2.3",
     "prisma": "5.19.1",
     "typescript": "6.0.3",
-    "vite": "^7.0.6",
-    "vitest": "^4.0.16"
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   },
   "name": "wasp-app",
   "type": "module",
