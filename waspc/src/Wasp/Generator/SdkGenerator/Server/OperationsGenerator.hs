@@ -21,11 +21,9 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    SdkRootDir,
+  ( SdkRootDir,
+    SdkTemplatesDir,
     getRegisteredOperationTypeName,
-    makeSdkImportPath,
-    getOperationTypeName,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
