@@ -19,13 +19,14 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.UserVirtualModules (VirtualModuleId)
-import Wasp.JsImport (JsImport (..), JsImportKind (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), getJsDynamicImportExpression, getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, makeValueJsImport)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (RelativeImportPath),
+    JsImportPath (..),
     getJsDynamicImportExpression,
+    getJsImportIdentifier,
+    getJsImportPathString,
     getJsImportStmtAndIdentifier,
     makeValueJsImport,
   )
