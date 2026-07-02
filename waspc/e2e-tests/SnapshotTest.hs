@@ -116,10 +116,10 @@ testTreeFromSnapshotTest snapshotTest =
 
       readSnapshotContents currentSnapshotDir
 
-    getSnapshotDir :: String -> SnapshotType -> IO (Path' Abs (Dir SnapshotDir))
-    getSnapshotDir snapshotTestName snapshotType = do
-      snapshotsDir <- getSnapshotsDir
-      return $ snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
+getSnapshotDir :: String -> SnapshotType -> IO (Path' Abs (Dir SnapshotDir))
+getSnapshotDir snapshotTestName snapshotType = do
+  snapshotsDir <- getSnapshotsDir
+  return $ snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
 
 -- | Thrown when the steps of a snapshot test fail: the snapshot comparison is
 -- skipped and the test fails with the (already formatted) step failure message.
@@ -198,8 +198,7 @@ renderContentDiff goldenContent currentContent =
 -- differs from the current one and @--accept@ is passed.
 updateGoldenSnapshotContents :: String -> SnapshotContents -> IO ()
 updateGoldenSnapshotContents snapshotTestName contents = do
-  snapshotsDir <- getSnapshotsDir
-  let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName Golden
+  goldenSnapshotDir <- getSnapshotDir snapshotTestName Golden
 
   removePathForcibly $ SP.fromAbsDir goldenSnapshotDir
 
