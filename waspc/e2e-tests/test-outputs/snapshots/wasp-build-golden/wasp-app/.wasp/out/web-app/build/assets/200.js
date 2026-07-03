@@ -397,25 +397,24 @@ const router = createBrowserRouter(routeObjects, {
   // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData
 });
-const routerInitialized = new Promise((resolve) => {
-  if (router.state.initialized) {
-    resolve();
-    return;
-  }
-  const unsubscribe = router.subscribe((state) => {
-    if (state.initialized) {
-      unsubscribe();
-      resolve();
+function waitForRouterInitialized(router2) {
+  return new Promise((resolve) => {
+    if (router2.state.initialized) {
+      resolve(router2);
+      return;
     }
+    const unsubscribe = router2.subscribe((state) => {
+      if (state.initialized) {
+        unsubscribe();
+        resolve(router2);
+      }
+    });
   });
-});
-function InitializedRouterProvider() {
-  use(routerInitialized);
-  return /* @__PURE__ */ jsx(RouterProvider, { router });
 }
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
+const routerProvider = waitForRouterInitialized(router).then((router2) => /* @__PURE__ */ jsx(RouterProvider, { router: router2 }));
 function App() {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(InitializedRouterProvider, {}) }) });
+  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: routerProvider }) });
 }
 startTransition(() => {
   hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
