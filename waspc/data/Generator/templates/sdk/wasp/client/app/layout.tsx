@@ -57,13 +57,25 @@ export function Layout({
             // exception for `<script>` tags, for this specific usecase, so it
             // will work fine.
             clientEntrySrc ? (
-              // We'd usually use React prerender's `bootstrapModules` options for
-              // injecting this script, but it would also add a `<link
-              // rel="modulepreload">` tag that Vite doesn't handle correctly. So
-              // we just add the script ourselves in the regular way.
+              // The client entry is a Vite virtual module (e.g. `virtual:wasp/client-entry.tsx`).
+              // A `virtual:` id is a valid ES import specifier, but not a fetchable URL, 
+              // so we can't use it as a raw `<script src>`: the browser would treat `virtual:` 
+              // as a dead URL scheme and never load it. Instead we load it via an inline dynamic
+              // `import()`, which Vite rewrites for us: to `/@id/virtual:...` in dev and to
+              // the hashed chunk in build.
+              //
+              // We also avoid React prerender's `bootstrapModules` option, which
+              // would add a `<link rel="modulepreload">` tag that Vite doesn't
+              // handle correctly.
               //
               // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-              <script type="module" src={clientEntrySrc} />
+              <script
+                type="module"
+                async
+                dangerouslySetInnerHTML={{
+                  __html: `import(${JSON.stringify(clientEntrySrc)})`,
+                }}
+              />
             ) : null
           }
         </head>
