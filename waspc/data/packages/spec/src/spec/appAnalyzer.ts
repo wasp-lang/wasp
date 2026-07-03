@@ -39,7 +39,7 @@ function getApp(
 
   if (!isApp(waspTsDefaultExport)) {
     throw new SpecUserError(
-      `The default export of '${waspTsSpecFile}' file must be of type 'App'` +
+      `The default export of '${waspTsSpecFile}' file must be of type 'App'. ` +
         "Make sure you export the result of calling 'app({ ... })'",
     );
   }
