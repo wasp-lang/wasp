@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { startTransition } from "react";
-import { createRoot, hydrateRoot } from "react-dom/client";
+import { hydrateRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 

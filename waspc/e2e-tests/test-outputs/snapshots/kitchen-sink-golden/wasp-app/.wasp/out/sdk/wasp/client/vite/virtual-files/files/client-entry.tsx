@@ -18,16 +18,36 @@ const router = createBrowserRouter(routeObjects, {
 // We embed this data at prerendering time.
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
 
-function App() {
-  return (
-    <Layout isFallbackPage={isFallbackPage}>
-      <WaspApp>
-        <RouterProvider router={router} />
-      </WaspApp>
-    </Layout>
-  );
-}
+const app =
+  waitForRouterInitialized(router).then(() => (
+    <RouterProvider router={router} />
+  ))
+
+const tree = (
+  <Layout isFallbackPage={isFallbackPage}>
+    <WaspApp>
+      {app}
+    </WaspApp>
+  </Layout>
+)
 
 startTransition(() => {
-  hydrateRoot(document, <App />);
+  hydrateRoot(document, tree);
 });
+
+async function waitForRouterInitialized(
+  router: ReturnType<typeof createBrowserRouter>,
+): Promise<void> {
+  if (router.state.initialized) {
+    return;
+  }
+
+  return new Promise((resolve) => {
+    const unsubscribe = router.subscribe(() => {
+      if (router.state.initialized) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}

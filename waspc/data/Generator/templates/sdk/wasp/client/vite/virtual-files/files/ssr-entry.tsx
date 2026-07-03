@@ -22,7 +22,7 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   const app = isFallbackPage ? undefined : (await makeStaticApp(route));
 
   const tree = (
-    <Layout clientEntrySrc={clientEntrySrc}>
+    <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
       <WaspApp>
         {app}
       </WaspApp>

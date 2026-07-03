@@ -1,7 +1,9 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
+{=^ rootComponent.isDefined =}
 import { Outlet } from "react-router"
+{=/ rootComponent.isDefined =}
 
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
