@@ -25,7 +25,7 @@ const app =
   ))
 
 const tree = (
-  <Layout>
+  <Layout isFallbackPage={isFallbackPage}>
     <WaspApp>
       {app}
     </WaspApp>
@@ -33,11 +33,7 @@ const tree = (
 )
 
 startTransition(() => {
-  if (isFallbackPage) {
-    createRoot(document).render(tree);
-  } else {
-    hydrateRoot(document, tree);
-  }
+  hydrateRoot(document, tree);
 });
 
 async function waitForRouterInitialized(

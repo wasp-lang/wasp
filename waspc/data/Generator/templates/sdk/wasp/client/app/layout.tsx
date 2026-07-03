@@ -1,13 +1,17 @@
 {{={= =}=}}
-import { StrictMode, type ReactNode } from "react";
+import { StrictMode, type ReactNode, useSyncExternalStore } from "react";
 
 export function Layout({
   children,
+  isFallbackPage = false,
   clientEntrySrc,
 }: {
   children?: ReactNode;
+  isFallbackPage?: boolean;
   clientEntrySrc?: string;
 }) {
+  const shouldRenderContent = useShouldRenderContent(isFallbackPage);
+
   return (
     <StrictMode>
       <html lang="en">
@@ -53,9 +57,38 @@ export function Layout({
         </head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>
-          {children}
+          {shouldRenderContent ? children : null}
         </body>
       </html>
     </StrictMode>
   );
+}
+
+function useShouldRenderContent(isFallbackPage: boolean) {
+  // We always want to render the content on the client.
+  const getOnClient = () => true;
+
+  // On the server, we only want to render the content if it's not a fallback page.
+  const getOnServer = () => !isFallbackPage;
+
+  const shouldRenderContent =
+    // We use `useSyncExternalStore` because it allows us to have different
+    // values on the server and client without hydration errors. The semantics
+    // also match, as in this case the fallback status is the synchronous state
+    // we are reading from, it just never changes after being first initialized.
+    useSyncExternalStore(
+      emptySubscribe,
+      getOnClient,
+      getOnServer,
+    );
+
+  return shouldRenderContent;
+}
+
+// The subscribe function is expected to only change when the store changes.
+// Because our "store" is static, we make our function never change by putting
+// it on the top.
+function emptySubscribe() {
+  const emptyUnsubscribe = () => {};
+  return emptyUnsubscribe;
 }
