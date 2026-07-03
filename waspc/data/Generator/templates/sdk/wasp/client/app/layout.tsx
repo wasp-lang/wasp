@@ -52,17 +52,30 @@ export function Layout({
           <title>{= title =}</title>
 
           {
-            // We pass that argument in SSR builds and not in client builds.
-            // This would usually cause a hydration mismatch, but React has an
-            // exception for `<script>` tags, for this specific usecase, so it
-            // will work fine.
+            /*
+              This script tag's job is to load the client entry so the browser
+              downloads and runs it, hydrating the prerendered HTML.
+
+              We only need it in SSR builds, as by the time the client is
+              running this code, it doesn't need to run itself again (and could
+              lead to duplication).
+
+              Rendering it only on the server and not on the client would
+              normally cause a hydration mismatch, but React skips erroring on
+              server-only nodes if they are **direct children** of `<head>` and
+              `<body>`, to support this kind of usecase. (See
+              https://react.dev/reference/react-dom/static/prerenderToNodeStream)
+
+              We'd usually inject this via React prerender's `bootstrapModules`
+              option, but that has two problems:
+                1. React also emits a `<link rel="modulepreload"
+                   href="@/wasp/client">` for the bootstrap scripts, but Vite
+                   doesn't rewrite `link.href`s, so it would end up as a broken
+                   link.
+                2. It hardcodes `async` on the script, which in dev races the
+                   `@vitejs/plugin-react` refresh preamble (see #4258).
+            */
             clientEntrySrc ? (
-              // We'd usually use React prerender's `bootstrapModules` options for
-              // injecting this script, but it would also add a `<link
-              // rel="modulepreload">` tag that Vite doesn't handle correctly. So
-              // we just add the script ourselves in the regular way.
-              //
-              // https://react.dev/reference/react-dom/static/prerenderToNodeStream
               <script type="module" src={clientEntrySrc} />
             ) : null
           }
