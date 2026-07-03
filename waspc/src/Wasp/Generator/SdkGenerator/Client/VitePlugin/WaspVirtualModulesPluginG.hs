@@ -78,7 +78,7 @@ genVirtualSsrEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
-          "spaFallbackFile" .= spaFallbackFile,
+          "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
 

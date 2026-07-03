@@ -8,9 +8,9 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
   )
 where
 
-import StrongPath (Dir, Path', Rel, reldir, relfileP, (</>))
+import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, relfileP, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.JsImport (VirtualModuleId)
+import Wasp.Generator.UserVirtualModules (VirtualModuleId)
 
 data VirtualFilesDir
 
@@ -31,5 +31,5 @@ routesEntryPointVMId = [relfileP|virtual:wasp/routes.tsx|]
 ssrEntryPointVMId :: VirtualModuleId
 ssrEntryPointVMId = [relfileP|virtual:wasp/ssr-entry.tsx|]
 
-spaFallbackFile :: String
-spaFallbackFile = "200.html"
+spaFallbackFile :: Path Posix (Rel Dir') File'
+spaFallbackFile = [relfileP|200.html|]
