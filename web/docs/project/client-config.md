@@ -155,6 +155,10 @@ For the full description of the `rootComponent` field, check the [`Client` API R
 
 `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp executes on the client before everything else.
 
+:::caution The setup function can also run on the server
+The setup function can also run during server-side rendering, like when [prerendering](../advanced/prerendering.md) pages, where browser APIs like `window` are not available. See [Running Code Only on the Client](#running-code-only-on-the-client).
+:::
+
 ### Running Some Code
 
 We can run any code we want in the setup function.
@@ -186,6 +190,23 @@ For example, here's a setup function that logs a message every hour:
     ```
   </TabItem>
 </Tabs>
+
+### Running Code Only on the Client {#running-code-only-on-the-client}
+
+If your app uses [prerendering](../advanced/prerendering.md), Wasp also executes the setup function while rendering your pages on the server. There, browser APIs like `window`, `document`, or `localStorage` don't exist, so using them would crash the prerender. Side effects like timers or event listeners would also run in the Node.js process.
+
+To run some code only in the browser, check Vite's [`import.meta.env.SSR`](https://vite.dev/guide/env-and-mode.html#env-variables) flag, which is `true` during server-side rendering and `false` on the client:
+
+```ts title="src/myClientSetupCode.ts" auto-js
+export default async function mySetupFunction(): Promise<void> {
+  if (import.meta.env.SSR) {
+    // We're rendering on the server, skip the browser-only setup.
+    return
+  }
+
+  window.addEventListener("online", () => console.log("You are back online!"))
+}
+```
 
 ### Overriding Default Behaviour for Queries
 
