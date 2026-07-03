@@ -6,7 +6,7 @@ import { prerenderToNodeStream as reactPrerender } from "react-dom/static";
 import {
   createStaticHandler,
   createStaticRouter,
-  RouterProvider,
+  StaticRouterProvider,
 } from "react-router";
 
 import { Layout } from "wasp/client/app/layout";
@@ -17,10 +17,35 @@ import { WaspApp } from "wasp/client/app";
 const SPA_FALLBACK_FILE = "{= spaFallbackFile =}";
 
 const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
-  const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
-    basename: "{= baseDir =}",
-  });
+  const isFallbackPage = route === SPA_FALLBACK_FILE;
 
+  const app = isFallbackPage ? undefined : (await makeStaticApp(route));
+
+  const tree = (
+    <Layout clientEntrySrc={clientEntrySrc}>
+      <WaspApp>
+        {app}
+      </WaspApp>
+    </Layout>
+  )
+
+  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
+
+  const html = await reactPrerender(tree, {
+    bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,
+  })
+    .then((result) => streamConsumers.text(result.prelude))
+
+  return html;
+}
+
+export default prerenderApp;
+
+const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
+  basename: "{= baseDir =}",
+});
+
+async function makeStaticApp(route: string) {
   const req = new Request(new URL(route, "http://localhost"));
 
   const context = await query(req);
@@ -30,26 +55,6 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   );
 
   const router = createStaticRouter(dataRoutes, context);
-  const isFallbackPage = route === SPA_FALLBACK_FILE;
 
-  function App() {
-    return (
-      <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
-        <WaspApp>
-          <RouterProvider router={router} />
-        </WaspApp>
-      </Layout>
-    )
-  }
-
-  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
-
-  const html = await reactPrerender(<App/>, {
-    bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,
-  })
-    .then((result) => streamConsumers.text(result.prelude))
-
-  return html;
+  return <StaticRouterProvider router={router} context={context} />;
 }
-
-export default prerenderApp;

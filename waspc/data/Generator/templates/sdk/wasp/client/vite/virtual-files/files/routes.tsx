@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
-import { lazy } from "react"
+import { Outlet } from "react-router"
 
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
@@ -25,19 +25,19 @@ const routesMapping = {
   {=# routes =}
   {=# isLazy =}
   {= name =}: {
-    Component:
-      {=! We use React's `lazy()` instead of defining a Lazy Route on React =}
-      {=! Router's side because there's a bug where it will ask for a =}
-      {=! HydrationFallback and commit it immediately even when working with =}
-      {=! prerendered pages. =}
-      {=! https://github.com/remix-run/react-router/issues/14955 =}
-      lazy(() =>
-        {=& import.dynamicImportExpression =}
-        {=# isAuthRequired =}
-        .then(component => createAuthRequiredPage(component))
-        {=/ isAuthRequired =}
-        .then(component => ({ default: component }))
-      ),
+    lazy: async () => {
+      const Component = await {=& import.dynamicImportExpression =};
+
+      return {
+        Component:
+          {=# isAuthRequired =}
+          createAuthRequiredPage(Component),
+          {=/ isAuthRequired =}
+          {=^ isAuthRequired =}
+          Component,
+          {=/ isAuthRequired =}
+      }
+    },
   },
   {=/ isLazy =}
   {=^ isLazy =}
@@ -60,12 +60,16 @@ await {= setupFn.importIdentifier =}()
 initializeQueryClient()
 
 const rootElement =
-  {=# rootComponent.isDefined =}
-  <{= rootComponent.importIdentifier =} />
-  {=/ rootComponent.isDefined =}
-  {=^ rootComponent.isDefined =}
-  undefined
-  {=/ rootComponent.isDefined =}
+  // We don't really need to wrap the app in a div nor name it "root", but we
+  // keep it for backwards compatibility with older Wasp versions.
+  <div id="root">
+    {=# rootComponent.isDefined =}
+    <{= rootComponent.importIdentifier =} />
+    {=/ rootComponent.isDefined =}
+    {=^ rootComponent.isDefined =}
+    <Outlet />
+    {=/ rootComponent.isDefined =}
+  </div>
 
 export const routeObjects = getRouteObjects({
   routesMapping,
