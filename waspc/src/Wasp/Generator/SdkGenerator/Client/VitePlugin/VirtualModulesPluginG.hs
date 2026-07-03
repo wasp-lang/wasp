@@ -12,11 +12,11 @@ import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointVMId, routesEntryPointVMId, spaFallbackFile, ssrEntryPointVMId, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), makeValueJsImport)
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
@@ -51,9 +51,9 @@ getVirtualModulesTs =
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualModules.ts|]
     tmplData =
       object
-        [ "clientEntryPointPath" .= clientEntryPointPath,
-          "routesEntryPointPath" .= routesEntryPointPath,
-          "ssrEntryPointPath" .= ssrEntryPointPath
+        [ "clientEntryPointVMId" .= SP.fromRelFileP clientEntryPointVMId,
+          "routesEntryPointVMId" .= SP.fromRelFileP routesEntryPointVMId,
+          "ssrEntryPointVMId" .= SP.fromRelFileP ssrEntryPointVMId
         ]
 
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
@@ -77,7 +77,7 @@ genVirtualSsrEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
-          "spaFallbackFile" .= spaFallbackFile,
+          "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
 
@@ -85,4 +85,4 @@ routeObjectsImportJson :: Value
 routeObjectsImportJson =
   jsImportToImportJson $
     Just $
-      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
+      makeValueJsImport (ModuleImportPath routesEntryPointVMId) (JsImportField "routeObjects")

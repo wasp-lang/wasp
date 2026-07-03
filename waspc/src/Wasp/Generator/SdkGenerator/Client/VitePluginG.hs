@@ -11,7 +11,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointVMId, spaFallbackFile, ssrEntryPointVMId)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG (getVirtualModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
@@ -53,10 +53,10 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
     tmplData =
       object
-        [ "clientEntryPointPath" .= clientEntryPointPath,
+        [ "clientEntryPointVMId" .= SP.fromRelFileP clientEntryPointVMId,
           "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
-          "ssrEntryPointPath" .= ssrEntryPointPath,
-          "spaFallbackFile" .= spaFallbackFile,
+          "ssrEntryPointVMId" .= SP.fromRelFileP ssrEntryPointVMId,
+          "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
           "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
         ]
     prerenderPaths =
