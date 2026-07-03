@@ -1,6 +1,6 @@
 /// <reference types="node" />
-// Helper to compile the waspc/libs/* packages locally and in CI and then move
-// them into the Cabal data dir.
+// Helper to compile the waspc/data/Generator/libs/* packages locally and in CI
+// and then move them into the Cabal data dir.
 
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";

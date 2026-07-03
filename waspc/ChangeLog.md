@@ -4,6 +4,9 @@
 
 ### ⚠️ Breaking Changes
 
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
+
+- Upgraded Wasp's TypeScript support to TypeScript 6. ([#4401](https://github.com/wasp-lang/wasp/pull/4401))
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
 - Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
 
@@ -19,6 +22,7 @@
 
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
 - `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
+- `tsconfig.wasp.json`'s `include` now accepts extra globs in addition to the required Wasp entries, so you can keep helpers and libraries used by your `.wasp.ts` files in the same TS project. ([#4398](https://github.com/wasp-lang/wasp/pull/4398))
 
 ## 0.24.0
 

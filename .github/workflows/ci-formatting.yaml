@@ -16,11 +16,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-
-      - uses: actions/setup-node@v6
-        with:
-          cache: "npm"
-          node-version-file: .nvmrc
+      - uses: ./.github/actions/setup-tools
 
       - name: Run Prettier
         run: |
@@ -38,17 +34,11 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - uses: ./.github/actions/setup-tools
 
-      - name: Parse oromolu version
-        id: parse-ormolu-version
+      - name: Run ormolu
         working-directory: waspc
-        run: |
-          echo "ormolu-version=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
-
-      # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
-      - uses: haskell-actions/run-ormolu@v15
-        with:
-          version: ${{ steps.parse-ormolu-version.outputs.ormolu-version }}
+        run: ./run check:ormolu
 
   cabal-gild:
     runs-on: ubuntu-latest
@@ -57,20 +47,8 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-
-      - name: Parse cabal-gild version
-        working-directory: waspc
-        id: parse-cabal-gild-version
-        run: |
-          echo "cabal-gild-version=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
-
-      - uses: tfausak/cabal-gild-setup-action@v2
-        with:
-          version: ${{ steps.parse-cabal-gild-version.outputs.cabal-gild-version }}
+      - uses: ./.github/actions/setup-tools
 
       - name: Run cabal-gild
         working-directory: waspc
-        run: |
-          for f in $(git ls-files '*.cabal'); do
-            cabal-gild --mode check --input "$f"
-          done
+        run: ./run check:cabal

@@ -28,6 +28,7 @@ jobs:
 
           days-before-issue-stale: -1 # Don't mark issues as stale automatically.
           days-before-pr-stale: 7
+          exempt-pr-labels: "no-stale"
 
           stale-pr-message: |
             This pull request is now **stale**.
