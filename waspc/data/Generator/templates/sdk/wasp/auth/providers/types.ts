@@ -11,23 +11,23 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-{=# emailUserSignupFields.isDefined =}
+{=# isEmailUserSignupFieldsDefined =}
 import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
 
 type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
-{=/ emailUserSignupFields.isDefined =}
+{=/ isEmailUserSignupFieldsDefined =}
 
-{=# usernameAndPasswordUserSignupFields.isDefined =}
+{=# isUsernameAndPasswordUserSignupFieldsDefined =}
 import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
 
 type RegisteredUsernameAndPasswordSignupFields = FromRegister<"usernameAndPasswordUserSignupFields", {}>
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 /**
  * Extracts the result types from a UserSignupFields object.

@@ -1,9 +1,9 @@
 {{={= =}=}}
 
-{=# emailUserSignupFields.isDefined =}
+{=# isEmailUserSignupFieldsDefined =}
 export type { UserEmailSignupFields } from './types';
-{=/ emailUserSignupFields.isDefined =}
+{=/ isEmailUserSignupFieldsDefined =}
 
-{=# usernameAndPasswordUserSignupFields.isDefined =}
+{=# isUsernameAndPasswordUserSignupFieldsDefined =}
 export type { UserUsernameAndPasswordSignupFields } from './types';
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
