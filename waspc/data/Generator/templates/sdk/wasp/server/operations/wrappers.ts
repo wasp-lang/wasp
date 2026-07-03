@@ -40,9 +40,16 @@ export type UnauthenticatedOperationFor<
  * Creates the server-side API for an unauthenticated operation.
  *
  * @template OperationDefinition The type of the unauthenticated operation's definition.
- * @param getUserOperation A getter that returns the unauthenticated operation's
- * definition. Using a getter defers the module binding read, avoiding TDZ
- * (used before defined) errors when Rollup merges virtual module chunks.
+ * @param getUserOperation Returns the user's unauthenticated operation's definition.
+ * We take a getter rather than the function itself to stay safe against import cycles.
+ * 
+ * A user operation can import another operation, whose wrapped definitions lives in 
+ * this module. When the bundler flattens those modules into a single file, 
+ * these `createOperation` calls can run before the user's function has been initialized.
+ * Reading the value there would throw "Cannot access '...' before initialization".
+ * 
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized.
  * @param entities The unauthenticated operation's entity map.
  * @returns The server-side API for the provided unauthenticated operation.
  */
@@ -97,10 +104,17 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  * Creates the server-side API for an authenticated operation.
  *
  * @template OperationDefinition The type of the authenticated operation's definition.
- * @param getUserOperation A getter that returns the unauthenticated operation's
- * definition. Using a getter defers the module binding read, avoiding TDZ
- * (used before defined) errors when Rollup merges virtual module chunks.
- * @param entities The authenticated operation's entity map .
+ * @param getUserOperation Returns the user's authenticated operation's definition.
+ * We take a getter rather than the function itself to stay safe against import cycles.
+ * 
+ * A user operation can import another operation, whose wrapped definitions lives in 
+ * this module. When the bundler flattens those modules into a single file, 
+ * these `createOperation` calls can run before the user's function has been initialized.
+ * Reading the value there would throw "Cannot access '...' before initialization".
+ * 
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized.
+ * @param entities The authenticated operation's entity map.
  * @returns The server-side API for the provided authenticated operation.
  */
 export function createAuthenticatedOperation<
