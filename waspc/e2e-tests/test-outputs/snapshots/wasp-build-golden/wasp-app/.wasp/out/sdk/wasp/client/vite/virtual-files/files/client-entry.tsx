@@ -15,6 +15,25 @@ const router = createBrowserRouter(routeObjects, {
   hydrationData: window.__staticRouterHydrationData,
 })
 
+// We embed this data at prerendering time.
+const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
+
+const routerProviderPromise = waitForRouterInitialized(router).then(
+  (router) => <RouterProvider router={router} />,
+)
+
+function App() {
+  return (
+    <Layout isFallbackPage={isFallbackPage}>
+      <WaspApp>{routerProviderPromise}</WaspApp>
+    </Layout>
+  );
+}
+
+startTransition(() => {
+  hydrateRoot(document, <App />);
+});
+
 // Rendering `RouterProvider` before the router has loaded the matched route's
 // `lazy` module would commit its `HydrateFallback` over the prerendered HTML.
 // https://github.com/remix-run/react-router/issues/14955#issuecomment-4407850287
@@ -34,25 +53,3 @@ function waitForRouterInitialized(router: DataRouter): Promise<DataRouter> {
     })
   })
 }
-
-// We embed this data at prerendering time.
-const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
-
-// Created once, outside of render: re-renders (e.g. hydration mismatch
-// recovery) must see the same, already-settled promise so React can unwrap it
-// synchronously instead of suspending again.
-const routerProvider = waitForRouterInitialized(router).then((router) => (
-  <RouterProvider router={router} />
-))
-
-function App() {
-  return (
-    <Layout isFallbackPage={isFallbackPage}>
-      <WaspApp>{routerProvider}</WaspApp>
-    </Layout>
-  );
-}
-
-startTransition(() => {
-  hydrateRoot(document, <App />);
-});

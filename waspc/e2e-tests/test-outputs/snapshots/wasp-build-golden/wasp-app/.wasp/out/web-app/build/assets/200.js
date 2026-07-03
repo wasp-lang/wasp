@@ -397,6 +397,16 @@ const router = createBrowserRouter(routeObjects, {
   // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData
 });
+const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
+const routerProviderPromise = waitForRouterInitialized(router).then(
+  (router2) => /* @__PURE__ */ jsx(RouterProvider, { router: router2 })
+);
+function App() {
+  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise }) });
+}
+startTransition(() => {
+  hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
+});
 function waitForRouterInitialized(router2) {
   return new Promise((resolve) => {
     if (router2.state.initialized) {
@@ -411,11 +421,3 @@ function waitForRouterInitialized(router2) {
     });
   });
 }
-const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
-const routerProvider = waitForRouterInitialized(router).then((router2) => /* @__PURE__ */ jsx(RouterProvider, { router: router2 }));
-function App() {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: routerProvider }) });
-}
-startTransition(() => {
-  hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
-});
