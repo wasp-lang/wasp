@@ -39,7 +39,7 @@
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
         ],
-        "c1e32f2f59b2d67026d11f5c0e4026cfb42dce9963c48203d51685b6171f3f59"
+        "f6dc5ce1dd3d05ea0004f2b33c8f2e2a8f61fcf5bec87d9eb3bb962f96e4306f"
     ],
     [
         [
@@ -452,7 +452,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "ea53d3eb2b388c694945f2e1e4539f05e3f63aabb4f2b4e31036a517817903c9"
+        "037947978d14b3c566f760329d38001e093f13934832427afef00554ee20da12"
     ],
     [
         [

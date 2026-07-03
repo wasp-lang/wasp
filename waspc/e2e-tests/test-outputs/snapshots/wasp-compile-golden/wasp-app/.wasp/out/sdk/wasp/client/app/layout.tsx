@@ -51,31 +51,41 @@ export function Layout({
           <title>wasp-app</title>
 
           {
-            // We pass this argument in SSR builds and not in client builds.
-            //
-            // This tag survives both client render paths:
-            // - Prerendered pages hydrate the server HTML. The `<script>` would
-            //   normally count as a hydration mismatch (it's absent from the
-            //   client render), but React has an exception for `<script>` tags
-            //   for this specific usecase, so it works fine.
-            // - The fallback shell is mounted fresh with `createRoot`. On a
-            //   fresh mount into `document`, React clears the singleton
-            //   elements' children EXCEPT `<script>`, `<style>`,
-            //   `<link rel="stylesheet">`, and hoistable-marked nodes, so this
-            //   `<script>` (and the Vite-injected assets) survive.
-            //
-            // Caveat: on the fallback mount, retained server-shell
-            // `<script>`/`<style>`/stylesheet nodes coming from the user's
-            // `head` are re-inserted by React, so they can appear twice in the
-            // DOM. This is cosmetic: React-created `<script>` tags never
-            // execute, and duplicate stylesheets are harmless.
+            /*
+              This script tag's job is to load the client entry so the browser
+              downloads and runs it, hydrating the prerendered HTML (or, for the
+              fallback shell, mounting the app fresh).
+
+              We only need it in SSR builds, as by the time the client is
+              running this code, it doesn't need to run itself again (and could
+              lead to duplication).
+
+              Rendering it only on the server and not on the client would
+              normally cause a hydration mismatch, but React skips erroring on
+              server-only nodes if they are **direct children** of `<head>` and
+              `<body>`, to support this kind of usecase. (See
+              https://react.dev/reference/react-dom/static/prerenderToNodeStream)
+
+              The fallback shell isn't hydrated but mounted fresh with
+              `createRoot`. On a fresh mount into `document`, React clears the
+              singleton elements' children EXCEPT `<script>`, `<style>`,
+              `<link rel="stylesheet">`, and hoistable-marked nodes, so this
+              `<script>` (and the Vite-injected assets) survive. The retained
+              server-shell nodes coming from the user's `head` are re-inserted
+              by React, so they can appear twice in the DOM, but that's cosmetic:
+              React-created `<script>` tags never execute, and duplicate
+              stylesheets are harmless.
+
+              We'd usually inject this via React prerender's `bootstrapModules`
+              option, but that has two problems:
+                1. React also emits a `<link rel="modulepreload"
+                   href="@/wasp/client">` for the bootstrap scripts, but Vite
+                   doesn't rewrite `link.href`s, so it would end up as a broken
+                   link.
+                2. It hardcodes `async` on the script, which in dev races the
+                   `@vitejs/plugin-react` refresh preamble (see #4258).
+            */
             clientEntrySrc ? (
-              // We'd usually use React prerender's `bootstrapModules` options for
-              // injecting this script, but it would also add a `<link
-              // rel="modulepreload">` tag that Vite doesn't handle correctly. So
-              // we just add the script ourselves in the regular way.
-              //
-              // https://react.dev/reference/react-dom/static/prerenderToNodeStream
               <script type="module" src={clientEntrySrc} />
             ) : null
           }
