@@ -32,7 +32,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "edeb63155c6ccc03d3eb1f9bcd543d977275087febf518c6d3e3479f6f1762cf"
+        "6f08aaa536ed5444d10bfa57d61f85c65f40ea0f6b3ce0630ab5210f9aeaaf1e"
     ],
     [
         [
@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "dcc63ceab024657653b082cd772b7ec50f53e47583a8f20974c605dfdb200a91"
+        "a8432aeb59a0c64672f937d4a18fbcc274bf85c3663c2341e1ca457d1428372a"
     ],
     [
         [
@@ -389,7 +389,7 @@
             "file",
             "sdk/wasp/auth/utils.ts"
         ],
-        "59031378776dc0976f534b55d82017a6c63af90044950cee5ce4740cdc25c077"
+        "c380d802c38b34281e66c7b75a3233ceb5ac11d58048779547a2cd3073884e7b"
     ],
     [
         [
@@ -459,14 +459,14 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "5eaded4c756d4cf8dcf261532db3d0994b5bb615aa56ab7ac371455be33a1f39"
+        "0e077f3b2396b68ef631f8d51c1f5924efa9d7fe79cebc9831332688b9d0613a"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/pages/createAuthRequiredPage.jsx"
         ],
-        "8bebba242087e307c8333f0f4ba869fd7cde1988b99a49a3ffbfa67bf1005428"
+        "c67ffafd402b0eaad10633a653646b8134d39b472fefc7c51959d3507cb0ad03"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "d637e7f7ac33a73ed335a6c8889dc43e6a6cf23035aec8b0ab062e88f6d7c2e6"
+        "781b63aacaf95bfbe94d1c2ea17d5a760c00112d4db92f5657a5dfb4f3db272c"
     ],
     [
         [
@@ -516,6 +516,13 @@
             "sdk/wasp/client/auth/microsoft.ts"
         ],
         "f639041cc70895ba6e797063005f07e6aeb490e65f9e8befb063e2ace2a8c90b"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/auth/redirect.ts"
+        ],
+        "263076db0ab4ea0a159afb8520c95ce1653a43b170699bbb29f4deae7ad4ec35"
     ],
     [
         [
@@ -1348,7 +1355,14 @@
             "file",
             "sdk/wasp/src/features/auth/auth.wasp.ts"
         ],
-        "89b3cd5b87f881f834e31b088473d8d4a847e96e853bcfed8d1dd5233cf7eff9"
+        "c72a233db842956cd3486882f94b9e72265270c5df71a6903d3bc76822ff7e50"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/auth/clientHooks.ts"
+        ],
+        "644884c887c06fe39ba6ee1cf92921f65b6f8ba56e314eba3d60eb15b77b9fc4"
     ],
     [
         [

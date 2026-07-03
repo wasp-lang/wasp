@@ -85,7 +85,6 @@ export default app({
       },
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/"
   },
   // ...
 })

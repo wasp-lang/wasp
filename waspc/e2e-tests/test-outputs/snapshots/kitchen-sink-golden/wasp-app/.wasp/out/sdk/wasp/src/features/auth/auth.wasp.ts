@@ -1,5 +1,6 @@
 import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
 
+import { onAuthSucceededRedirect } from "./clientHooks" with { type: "ref" };
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
   onAfterEmailVerified,
@@ -82,7 +83,7 @@ export const authConfig: Auth = {
     },
   },
   onAuthFailedRedirectTo: "/login",
-  onAuthSucceededRedirectTo: "/",
+  onAuthSucceededRedirect,
   onBeforeSignup,
   onAfterSignup,
   onAfterEmailVerified,

@@ -23,6 +23,7 @@ import type {
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
+import { consumeOnAuthSucceededRedirectRoute } from '../../../../client/auth/redirect'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
@@ -68,7 +69,7 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
-      navigate('/')
+      navigate(consumeOnAuthSucceededRedirectRoute())
     },
   });
   async function onSubmit (data) {

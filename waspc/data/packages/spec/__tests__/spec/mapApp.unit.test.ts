@@ -468,7 +468,9 @@ describe("mapAuth", () => {
       userEntity: ctx.entityRefParser(auth.userEntity),
       methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
+      onAuthSucceededRedirect:
+        auth.onAuthSucceededRedirect &&
+        mapRefObjectForMockProjectDir(auth.onAuthSucceededRedirect),
       onBeforeSignup:
         auth.onBeforeSignup &&
         mapRefObjectForMockProjectDir(auth.onBeforeSignup),

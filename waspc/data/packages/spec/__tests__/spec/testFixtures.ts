@@ -406,7 +406,7 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
         userEntity: "User",
         methods: getAuthMethods("full"),
         onAuthFailedRedirectTo: "/login",
-        onAuthSucceededRedirectTo: "/profile",
+        onAuthSucceededRedirect: getRefObject("full", "named"),
         onBeforeSignup: getRefObject("full", "named"),
         onAfterSignup: getRefObject("full", "named"),
         onAfterEmailVerified: getRefObject("full", "named"),

@@ -1,7 +1,11 @@
-{{={= =}=}}
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation } from 'react-router'
 import { useAuth } from "../../auth";
+import {
+  clearOriginalRoute,
+  getOnAuthSucceededRedirectRouteFor,
+  peekOriginalRoute,
+} from "../../auth/redirect";
 import { api } from "../../../api";
 import { initSession } from "../../../auth/helpers/user";
 import { useEffectOnce } from "../../hooks";
@@ -12,9 +16,21 @@ const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
 export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
+  // The lazy initializer only peeks at the saved original route (it doesn't
+  // clear it), so it is stable under StrictMode's double invocation.
+  const [originalRoute] = useState(() => peekOriginalRoute());
+  const isLoggedIn = user !== undefined && user !== null;
 
-  if (user !== undefined && user !== null) {
-    return <Navigate to="{= onAuthSucceededRedirectTo =}" replace />;
+  useEffect(() => {
+    if (isLoggedIn) {
+      clearOriginalRoute();
+    }
+  }, [isLoggedIn]);
+
+  if (isLoggedIn) {
+    return (
+      <Navigate to={getOnAuthSucceededRedirectRouteFor(originalRoute)} replace />
+    );
   }
 
 

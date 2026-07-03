@@ -27,6 +27,7 @@ import { SocialButton } from '../social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
+import { consumeOnAuthSucceededRedirectRoute } from '../../../../client/auth/redirect'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -99,7 +100,7 @@ export const LoginSignupForm = ({
     isLogin,
     onError: onErrorHandler,
     onSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
+      navigate(consumeOnAuthSucceededRedirectRoute())
     },
   });
   {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
@@ -112,7 +113,7 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
+      navigate(consumeOnAuthSucceededRedirectRoute())
     },
   });
   {=/ enabledProviders.isEmailAuthEnabled =}

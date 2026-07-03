@@ -91,6 +91,7 @@ wasp-app/.wasp/out/sdk/wasp/client/auth/github.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/google.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/microsoft.ts
+wasp-app/.wasp/out/sdk/wasp/client/auth/redirect.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/slack.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/ui.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
@@ -388,6 +389,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/redirect.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/redirect.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/redirect.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/redirect.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/slack.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/slack.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/slack.js
@@ -835,6 +840,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/apis/pages/ApisPage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/apis/pages/ApisPage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/apis/pages/ApisPage.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/apis/pages/ApisPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/clientHooks.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/clientHooks.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/clientHooks.js
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/clientHooks.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/customSignup.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/customSignup.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/customSignup.js
@@ -1146,6 +1155,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/apis/apis.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/apis/apis.wasp.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/apis/pages/ApisPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/auth.wasp.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/auth/clientHooks.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/customSignup.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/pages/CustomSignupPage.tsx
@@ -1348,6 +1358,7 @@ wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
+wasp-app/e2e-tests/tests/redirect-after-login.spec.ts
 wasp-app/e2e-tests/tests/serialization.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
 wasp-app/e2e-tests/tests/user-api.spec.ts
@@ -1388,6 +1399,7 @@ wasp-app/src/features/apis/apis.ts
 wasp-app/src/features/apis/apis.wasp.ts
 wasp-app/src/features/apis/pages/ApisPage.tsx
 wasp-app/src/features/auth/auth.wasp.ts
+wasp-app/src/features/auth/clientHooks.ts
 wasp-app/src/features/auth/customSignup.ts
 wasp-app/src/features/auth/hooks.ts
 wasp-app/src/features/auth/pages/CustomSignupPage.tsx

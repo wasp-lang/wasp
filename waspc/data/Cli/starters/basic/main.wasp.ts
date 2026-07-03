@@ -31,7 +31,6 @@ export default app({
         },
       },
     },
-    onAuthSucceededRedirectTo: "/",
     onAuthFailedRedirectTo: "/login",
   },
   emailSender: {

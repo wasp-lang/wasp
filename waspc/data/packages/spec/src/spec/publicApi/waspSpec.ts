@@ -156,15 +156,21 @@ export interface Auth extends AuthHooks {
    */
   onAuthFailedRedirectTo: string;
   /**
-   * Route that Wasp redirects users to after a successful login or signup.
+   * Decides which route Wasp redirects users to after a successful login or
+   * signup. References a function from your source code (imported
+   * `with { type: "ref" }`) that receives a context object with the
+   * `originalRoute` the user tried to visit before being redirected to the
+   * login page (or `undefined` if they went there directly) and returns the
+   * route to navigate to. Build it with the `redirectToOriginalRoute` /
+   * `redirectToFixed` helpers from `wasp/client/auth`, or write your own.
    *
    * Only takes effect when using Wasp's built-in Auth UI.
    *
    * See [Auth UI](https://wasp.sh/docs/auth/ui).
    *
-   * @default "/"
+   * @default Redirects to "/".
    */
-  onAuthSucceededRedirectTo?: string;
+  onAuthSucceededRedirect?: Reference<AnyFunction>;
 }
 
 interface AuthHooks {

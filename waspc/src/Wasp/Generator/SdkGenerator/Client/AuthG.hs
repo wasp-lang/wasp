@@ -3,6 +3,7 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
   )
 where
 
+import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -16,6 +17,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
 genClientAuth :: AppSpec -> Generator [FileDraft]
@@ -25,7 +27,8 @@ genClientAuth spec =
     Just auth ->
       sequence
         [ genAuthIndex auth,
-          genAuthUi auth
+          genAuthUi auth,
+          genAuthRedirect auth
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
@@ -55,6 +58,17 @@ genAuthUi auth =
       tmplData
   where
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
+
+genAuthRedirect :: AS.Auth.Auth -> Generator FileDraft
+genAuthRedirect auth =
+  return $
+    mkTmplFdWithData
+      (clientAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        ["onAuthSucceededRedirectFn" .= extImportToImportJson (AS.Auth.onAuthSucceededRedirect auth)]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =

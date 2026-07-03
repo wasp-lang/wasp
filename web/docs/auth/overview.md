@@ -131,6 +131,60 @@ You can only use `authRequired` if your app uses one of the [available auth meth
 
 If `authRequired` is set to `true`, the page's React component (passed as the first argument to `page(...)`) receives the `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user section](#accessing-the-logged-in-user).
 
+## Redirecting users after a successful login
+
+By default, Wasp's [Auth UI](./ui.md) redirects users to `/` after a successful login or signup. You can change the destination with the `auth.onAuthSucceededRedirect` field, which references a function from your source code that decides the route.
+
+The most common setup is sending users back to the page they tried to visit before being redirected to the login page, with query params and hash preserved. Use the `redirectToOriginalRoute` helper to build your function:
+
+```ts title="src/auth/clientHooks.ts"
+import {
+  redirectToOriginalRoute,
+  type OnAuthSucceededRedirectFn,
+} from "wasp/client/auth"
+
+export const onAuthSucceededRedirect: OnAuthSucceededRedirectFn =
+  redirectToOriginalRoute({ fallback: "/" })
+```
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { onAuthSucceededRedirect } from "./src/auth/clientHooks" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: {
+    // ...
+    onAuthFailedRedirectTo: "/login",
+    // highlight-next-line
+    onAuthSucceededRedirect,
+  },
+})
+```
+
+When an unauthenticated user tries to open a page with `authRequired: true`, Wasp remembers the route they wanted (for the current browser tab) and, after they log in, sends them back to it. If they went to the login page directly, they are redirected to the `fallback` route (defaults to `/`). The remembered route is used at most once. Note that signing out while on a protected page also counts as being redirected off of it, so logging back in within the same tab returns the user to that page.
+
+To always redirect to a fixed route instead, use the `redirectToFixed` helper: `redirectToFixed("/dashboard")`.
+
+For full control, write your own function. It receives a context object with the `originalRoute` (or `undefined` if the user went to the login page directly) and returns the route to redirect to:
+
+```ts title="src/auth/clientHooks.ts"
+import { type OnAuthSucceededRedirectFn } from "wasp/client/auth"
+
+export const onAuthSucceededRedirect: OnAuthSucceededRedirectFn = ({ originalRoute }) => {
+  if (originalRoute?.startsWith("/admin")) {
+    return "/"
+  }
+  return originalRoute ?? "/home"
+}
+```
+
+:::caution Keep the function pure
+Wasp may call your function during React rendering, so it must not have side effects — compute the route from the context and return it. Since it runs on the client, it also must not import server-only code (e.g. anything from `wasp/server`), so keep it in a separate file from your server auth hooks.
+:::
+
+This option only takes effect when using Wasp's built-in [Auth UI](./ui.md).
+
 ## Logout action
 
 We provide an action for logging out the user. Here's how you can use it:

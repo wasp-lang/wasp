@@ -14,7 +14,6 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -94,11 +93,8 @@ genCreateAuthRequiredPage auth =
       (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
 
 genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
-genOAuthCallbackPage auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
+genOAuthCallbackPage _auth =
+  return $ genFileCopy [relfile|client/app/pages/OAuthCallback.tsx|]
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

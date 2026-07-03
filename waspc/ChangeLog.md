@@ -6,6 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
 
+- Replaced `app.auth.onAuthSucceededRedirectTo` with `app.auth.onAuthSucceededRedirect`, which references a function from your source code that decides where users are redirected after a successful login or signup. To keep redirecting to a fixed route, export `redirectToFixed("/some/route")` (from `wasp/client/auth`) and reference it `with { type: "ref" }`; use `redirectToOriginalRoute({ fallback: "/" })` to send users back to the page they originally tried to visit. If you didn't set `onAuthSucceededRedirectTo`, nothing changes — Wasp still redirects to `/` by default. ([#1772](https://github.com/wasp-lang/wasp/issues/1772))
 - Upgraded Wasp's TypeScript support to TypeScript 6. ([#4401](https://github.com/wasp-lang/wasp/pull/4401))
 - Upgraded React Router from v7 to v8. The upgrade is backwards compatible. ([#4433](https://github.com/wasp-lang/wasp/pull/4433))
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))

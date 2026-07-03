@@ -152,7 +152,7 @@ export type Auth = {
   userEntity: Ref<"Entity">;
   methods: AuthMethods;
   onAuthFailedRedirectTo: string;
-  onAuthSucceededRedirectTo: Optional<string>;
+  onAuthSucceededRedirect: Optional<ExtImport>;
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
   onAfterEmailVerified: Optional<ExtImport>;

@@ -1,7 +1,8 @@
 {{={= =}=}}
 import * as React from 'react'
 
-import { Navigate } from 'react-router'
+import { saveOriginalRoute } from '@wasp.sh/lib-auth/browser'
+import { Navigate, useLocation } from 'react-router'
 import { useAuth } from '../../auth'
 
 import { Loader } from '../components/Loader'
@@ -11,6 +12,16 @@ import { FullPageWrapper } from '../components/FullPageWrapper'
 export const createAuthRequiredPage = (Page) => {
   return (props) => {
     const { data: user, status, error } = useAuth()
+    const location = useLocation()
+
+    const isRedirectingToLogin = status === 'success' && !user
+    // Saved in an effect (not during render) so renders that React discards
+    // can't capture a route the user never got redirected from.
+    React.useEffect(() => {
+      if (isRedirectingToLogin) {
+        saveOriginalRoute(location.pathname + location.search + location.hash)
+      }
+    }, [isRedirectingToLogin, location])
 
     switch (status) {
       case 'success':

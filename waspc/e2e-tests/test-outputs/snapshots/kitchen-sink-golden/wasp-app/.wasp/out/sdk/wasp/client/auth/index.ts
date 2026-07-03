@@ -1,3 +1,9 @@
+export {
+  redirectToFixed,
+  redirectToOriginalRoute,
+  type OnAuthSucceededRedirectContext,
+  type OnAuthSucceededRedirectFn,
+} from '@wasp.sh/lib-auth/browser'
 export * from './ui'
 export * from './email'
 export * from './slack'

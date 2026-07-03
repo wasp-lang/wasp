@@ -39,7 +39,7 @@ data Auth = Auth
   { userEntity :: Ref Entity,
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
-    onAuthSucceededRedirectTo :: Maybe String,
+    onAuthSucceededRedirect :: Maybe ExtImport,
     onBeforeSignup :: Maybe ExtImport,
     onAfterSignup :: Maybe ExtImport,
     onAfterEmailVerified :: Maybe ExtImport,

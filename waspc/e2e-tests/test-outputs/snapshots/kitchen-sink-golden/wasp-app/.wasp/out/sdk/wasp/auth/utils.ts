@@ -60,7 +60,6 @@ export const contextWithUserEntity = {
 // PRIVATE API
 export const authConfig = {
   failureRedirectPath: "/login",
-  successRedirectPath: "/",
 }
 
 // PUBLIC API

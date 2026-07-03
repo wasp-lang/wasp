@@ -258,7 +258,7 @@ export function mapAuth(
     userEntity,
     methods,
     onAuthFailedRedirectTo,
-    onAuthSucceededRedirectTo,
+    onAuthSucceededRedirect,
     onBeforeSignup,
     onAfterSignup,
     onAfterEmailVerified,
@@ -270,7 +270,8 @@ export function mapAuth(
     userEntity: ctx.entityRefParser(userEntity),
     methods: mapAuthMethods(methods, ctx),
     onAuthFailedRedirectTo,
-    onAuthSucceededRedirectTo,
+    onAuthSucceededRedirect:
+      onAuthSucceededRedirect && ctx.mapRefObject(onAuthSucceededRedirect),
     onBeforeSignup: onBeforeSignup && ctx.mapRefObject(onBeforeSignup),
     onAfterSignup: onAfterSignup && ctx.mapRefObject(onAfterSignup),
     onAfterEmailVerified:

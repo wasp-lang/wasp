@@ -18,6 +18,10 @@ Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0
 
 Wasp now uses **React Router 8**. The upgrade is backwards compatible for typical usage (e.g. `Link`, `NavLink`, `Outlet`), so you only need to bump the `react-router` dependency.
 
+### Redirecting users back after login
+
+The new `auth.onAuthSucceededRedirect` field lets you decide where users go after a successful login or signup — including sending them back to the page they originally tried to visit, with the `redirectToOriginalRoute` helper. It replaces the `onAuthSucceededRedirectTo` field (see below). Read more in [Redirecting users after a successful login](./auth/overview.md#redirecting-users-after-a-successful-login).
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -138,6 +142,55 @@ In `tsconfig.src.json`:
   </TabItem>
 </Tabs>
 
-### 4. Enjoy your updated Wasp app
+### 4. Replace `onAuthSucceededRedirectTo` with `onAuthSucceededRedirect`
+
+The `auth.onAuthSucceededRedirectTo` field was replaced by `auth.onAuthSucceededRedirect`, which references a function from your source code that decides where users are redirected after a successful login or signup.
+
+If you didn't set `onAuthSucceededRedirectTo`, there's nothing to do — Wasp still redirects to `/` by default.
+
+If you set it, export a function built with the `redirectToFixed` helper and reference it from your config:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    export default app({
+      // ...
+      auth: {
+        // ...
+        // highlight-next-line
+        onAuthSucceededRedirectTo: "/dashboard",
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/auth/clientHooks.ts"
+    import {
+      redirectToFixed,
+      type OnAuthSucceededRedirectFn,
+    } from "wasp/client/auth";
+
+    export const onAuthSucceededRedirect: OnAuthSucceededRedirectFn =
+      redirectToFixed("/dashboard");
+    ```
+
+    ```ts title="main.wasp.ts"
+    import { onAuthSucceededRedirect } from "./src/auth/clientHooks" with { type: "ref" };
+
+    export default app({
+      // ...
+      auth: {
+        // ...
+        // highlight-next-line
+        onAuthSucceededRedirect,
+      },
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+While you're at it, consider using the new `redirectToOriginalRoute({ fallback: "/" })` helper instead — it sends users back to the page they tried to visit before logging in. See [Redirecting users after a successful login](./auth/overview.md#redirecting-users-after-a-successful-login).
+
+### 5. Enjoy your updated Wasp app
 
 That's it!
