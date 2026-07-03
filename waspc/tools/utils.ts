@@ -87,7 +87,7 @@ export function findWaspProjectDirsAbsPathInRepo(): string[] {
   }
 }
 
-const WASP_PROJECT_FILE_NAMES = ["main.wasp.ts"];
+const WASP_PROJECT_FILE_NAMES = ["main.wasp.ts", "main.wasp.tsx"];
 export function isWaspProjectDir(dir: string): boolean {
   return WASP_PROJECT_FILE_NAMES.some((name) => existsSync(join(dir, name)));
 }

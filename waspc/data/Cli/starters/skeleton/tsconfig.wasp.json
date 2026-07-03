@@ -9,11 +9,11 @@
     "noUnusedParameters": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "allowJs": true,
     "noEmit": true,
     "lib": ["ES2025"],
     "types": ["node"]
   },
-  "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
+  "include": ["**/*.wasp.ts", "**/*.wasp.tsx", ".wasp/out/types/spec"]
 }

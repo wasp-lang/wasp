@@ -5,7 +5,7 @@ export default app({
   name: "waspApp",
   wasp: { version: "^0.25.0" },
   title: "wasp-app",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],

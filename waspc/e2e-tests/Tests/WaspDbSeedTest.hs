@@ -2,7 +2,7 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsxFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
@@ -41,7 +41,7 @@ waspDbSeedTest =
                   createSeedFile
                     (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
                     seedScriptThatAssertsTasksTableIsNotEmpty,
-                  replaceMainWaspTsFile mainWaspTsWithSeeds,
+                  replaceMainWaspTsxFile mainWaspTsWithSeeds,
                   waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
                   waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
                   waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName
@@ -76,7 +76,7 @@ waspDbSeedTest =
           name: "waspDbSeedTest",
           title: "waspDbSeedTest",
           wasp: { version: "$textWaspVersion" },
-          head: ["<link rel='icon' href='/favicon.ico' />"],
+          head: [<link rel="icon" href="/favicon.ico" />],
           db: {
             seeds: [
               $seedScriptThatPopulatesTasksTableName,

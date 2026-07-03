@@ -26,5 +26,5 @@
     "types": ["react", "node"]
   },
   "include": ["src"],
-  "exclude": ["**/*.wasp.ts"]
+  "exclude": ["**/*.wasp.ts", "**/*.wasp.tsx"]
 }

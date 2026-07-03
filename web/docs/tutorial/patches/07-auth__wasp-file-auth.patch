@@ -1,11 +1,11 @@
-diff --git a/main.wasp.ts b/main.wasp.ts
+diff --git a/main.wasp.tsx b/main.wasp.tsx
 index 4d3c796..cfdf5eb 100644
---- a/main.wasp.ts
-+++ b/main.wasp.ts
+--- a/main.wasp.tsx
++++ b/main.wasp.tsx
 @@ -8,6 +8,13 @@ export default app({
    wasp: { version: "^0.24.0" },
    title: "TodoApp",
-   head: ["<link rel='icon' href='/favicon.ico' />"],
+   head: [<link rel="icon" href="/favicon.ico" />],
 +  auth: {
 +    userEntity: "User",
 +    methods: {

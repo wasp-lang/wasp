@@ -73,9 +73,9 @@ Let's create a full-app example that uses automatic CRUD. We'll stick to using t
 
 ### Creating the App
 
-We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
+We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.tsx` file:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -85,7 +85,7 @@ export default app({
   name: "tasksCrudApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "Tasks Crud App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
 
   // We enabled auth and set the auth method to username and password
   auth: {

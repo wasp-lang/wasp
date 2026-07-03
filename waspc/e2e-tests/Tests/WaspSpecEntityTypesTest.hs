@@ -10,7 +10,7 @@ import ShellCommands
     assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
-    replaceMainWaspTsFile,
+    replaceMainWaspTsxFile,
     waspCliCompile,
   )
 import Test (Test (..), TestCase (..))
@@ -27,7 +27,7 @@ waspSpecEntityTypesTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
-                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  replaceMainWaspTsxFile $ mainWaspTs validEntityName,
                   compileWaspMainTsFiles
                 ]
             ]
@@ -38,7 +38,7 @@ waspSpecEntityTypesTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
-                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  replaceMainWaspTsxFile $ mainWaspTs validEntityName,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   compileWaspMainTsFiles
                 ]
@@ -51,7 +51,7 @@ waspSpecEntityTypesTest =
       --       [ createTestWaspProject minimalStarterTemplate,
       --         inTestWaspProjectDir
       --           [ appendToPrismaFile prismaUserModel,
-      --             replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
+      --             replaceMainWaspTsxFile $ mainWaspTs invalidEntityName,
       --             assertCommandOutputContains
       --               (("! " ++) <$> compileWaspMainTsFiles)
       --               ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
@@ -64,9 +64,9 @@ waspSpecEntityTypesTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
-                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  replaceMainWaspTsxFile $ mainWaspTs validEntityName,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
-                  replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
+                  replaceMainWaspTsxFile $ mainWaspTs invalidEntityName,
                   assertCommandOutputContains
                     (("! " ++) <$> compileWaspMainTsFiles)
                     ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
@@ -98,7 +98,7 @@ waspSpecEntityTypesTest =
           name: "enti",
           title: "enti",
           wasp: { version: "$textWaspVersion" },
-          head: ["<link rel='icon' href='/favicon.ico' />"],
+          head: [<link rel="icon" href="/favicon.ico" />],
           auth: {
             userEntity: "$entityName",
             methods: {

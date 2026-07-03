@@ -443,14 +443,14 @@ When you want to add authentication to your app, you need to specify the `userEn
 
 For example, you might set it to `User`:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // highlight-next-line
     userEntity: "User",

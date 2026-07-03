@@ -327,19 +327,20 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     ```json title="tsconfig.wasp.json"
     {
       "compilerOptions": {
-        "target": "ES2022",
+        "target": "ES2025",
         "module": "esnext",
         "moduleResolution": "bundler",
-        "jsx": "preserve",
+        "jsx": "react-jsx",
         "strict": true,
         "isolatedModules": true,
         "moduleDetection": "force",
         "skipLibCheck": true,
         "allowJs": true,
         "noEmit": true,
-        "lib": ["ES2023"]
+        "lib": ["ES2025"],
+        "types": ["node"]
       },
-      "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
+      "include": ["**/*.wasp.ts", "**/*.wasp.tsx", ".wasp/out/types/spec"]
     }
     ```
 
@@ -349,7 +350,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     {
       // ...
       "include": ["src"],
-      "exclude": ["**/*.wasp.ts"]
+      "exclude": ["**/*.wasp.ts", "**/*.wasp.tsx"]
     }
     ```
 
@@ -372,14 +373,14 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
       </TabItem>
       <TabItem value="after" label="After">
-        ```ts title="main.wasp.ts"
+        ```tsx title="main.wasp.tsx"
         import { app } from "@wasp.sh/spec";
 
         export default app({
           name: "myApp",
           title: "My app",
           wasp: { version: "^0.24.0" },
-          head: ["<link rel='icon' href='/favicon.ico' />"],
+          head: [<link rel="icon" href="/favicon.ico" />],
           spec: [
             // ...
           ]
@@ -390,7 +391,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     </Tabs>
 
     :::note
-    While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+    While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.tsx` (or `main.wasp.ts` if it doesn't use JSX, e.g. when it has no `head`). You can still split the rest of your config across other `*.wasp.ts(x)` files.
     :::
 
 6.  Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.

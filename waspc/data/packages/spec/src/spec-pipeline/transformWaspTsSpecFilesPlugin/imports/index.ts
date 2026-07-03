@@ -29,7 +29,9 @@ export function transformRefImportsPlugin(): Plugin {
 
         // If the AST is already available, use it; otherwise ask the bundler to
         // parse it.
-        const ast = meta.ast || this.parse(code, { lang: "ts" });
+        const ast =
+          meta.ast ||
+          this.parse(code, { lang: id.endsWith(".tsx") ? "tsx" : "ts" });
 
         transformRefImports_mutate(ast, meta.magicString);
 

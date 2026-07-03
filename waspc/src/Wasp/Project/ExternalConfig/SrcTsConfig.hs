@@ -28,7 +28,7 @@ srcTsConfigValidator :: V.Validator T.TsConfig
 srcTsConfigValidator =
   V.all
     [ V.inField ("include", T.include) $ V.eqJust ["src"],
-      V.inField ("exclude", T.exclude) $ V.eqJust ["**/*.wasp.ts"],
+      V.inField ("exclude", T.exclude) $ V.required $ V.containsAll ["**/*.wasp.ts", "**/*.wasp.tsx"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where

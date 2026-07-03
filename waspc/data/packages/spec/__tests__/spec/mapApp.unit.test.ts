@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import { normalizePrerender } from "../../src/normalizePrerender.js";
@@ -49,7 +50,7 @@ describe("mapApp", () => {
         declValue: {
           wasp: app.wasp,
           title: app.title,
-          head: app.head,
+          head: undefined,
           auth: undefined,
           server: undefined,
           client: undefined,
@@ -85,7 +86,7 @@ describe("mapApp", () => {
       name: "FullApp",
       wasp: { version: "^0.16.3" },
       title: "Mock App",
-      head: ['<link rel="icon" href="/favicon.ico" />'],
+      head: [createElement("link", { rel: "icon", href: "/favicon.ico" })],
       auth: authConfig,
       server,
       client,
@@ -125,7 +126,7 @@ describe("mapApp", () => {
         declValue: {
           wasp: inputApp.wasp,
           title: inputApp.title,
-          head: inputApp.head,
+          head: ['<link rel={"icon"} href={"/favicon.ico"} />'],
           auth: AppSpecMapper.mapAuth(authConfig, ctx),
           server: AppSpecMapper.mapServer(server, ctx),
           client: AppSpecMapper.mapClient(client, ctx),

@@ -21,11 +21,11 @@ npm install swagger-jsdoc swagger-ui-express
 npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 ```
 
-### 2. Configure the API namespace in main.wasp.ts
+### 2. Configure the API namespace in main.wasp.tsx
 
 Add an API namespace for the Swagger UI endpoint:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { api, apiNamespace, app } from "@wasp.sh/spec"
 import { getStatus } from "./src/apis" with { type: "ref" }
 import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
@@ -34,7 +34,7 @@ export default app({
   name: "MyApp",
   wasp: { version: "^0.24.0" },
   title: "my-app",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   spec: [
     // highlight-next-line
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),

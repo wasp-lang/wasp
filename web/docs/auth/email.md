@@ -26,9 +26,9 @@ We'll need to take the following steps to set up email authentication:
 4. Use Auth UI components in our pages
 5. Set up the email sender
 
-Structure of the `main.wasp.ts` file we will end up with:
+Structure of the `main.wasp.tsx` file we will end up with:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
@@ -37,7 +37,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // ...
   },
@@ -52,18 +52,18 @@ export default app({
 })
 ```
 
-### 1. Enable Email Authentication in `main.wasp.ts`
+### 1. Enable Email Authentication in `main.wasp.tsx`
 
-Let's start with adding the following to our `main.wasp.ts` file:
+Let's start with adding the following to our `main.wasp.tsx` file:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // 1. Specify the user entity (we'll define it next)
     userEntity: "User",

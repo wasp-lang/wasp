@@ -21,11 +21,11 @@ Creating an Action is very similar to creating a Query.
 
 ### Specifying an Action
 
-We must first declare the Action in `main.wasp.ts`:
+We must first declare the Action in `main.wasp.tsx`:
 
 <TutorialAction id="action-create-task" action="APPLY_PATCH">
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 // highlight-next-line
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -73,7 +73,7 @@ Once again, we've annotated the Action with the `CreateTask` and `Task` types ge
 </ShowForTs>
 
 :::tip
-We put the function in a new file `src/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the reference import in `main.wasp.ts` points to it and the file is located within the `src` directory.
+We put the function in a new file `src/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the reference import in `main.wasp.tsx` points to it and the file is located within the `src` directory.
 :::
 
 ## Invoking the Action on the Client
@@ -183,11 +183,11 @@ We'll create a new Action to update a task's status and call it from React whene
 Since we've already created one task together, try to create this one yourself. It should be an Action named `updateTask` that receives the task's `id` and its `isDone` status. You can see our implementation below.
 
 <Collapse title="Solution">
-  Declaring the Action in `main.wasp.ts`:
+  Declaring the Action in `main.wasp.tsx`:
 
   <TutorialAction id="action-update-task" action="APPLY_PATCH">
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }

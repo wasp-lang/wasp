@@ -6,6 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
 
+- `app.head` now takes inline JSX elements (e.g. `head: [<link rel="icon" href="/favicon.ico" />]`) instead of HTML strings. Since JSX requires a `.tsx` file, rename your spec file to `main.wasp.tsx` if you use `app.head`. Additionally, `tsconfig.wasp.json` now requires `"jsx": "react-jsx"` and `"**/*.wasp.tsx"` in `include`, and `tsconfig.src.json` requires `"**/*.wasp.tsx"` in `exclude`. ([#4327](https://github.com/wasp-lang/wasp/issues/4327))
 - Upgraded Wasp's TypeScript support to TypeScript 6. ([#4401](https://github.com/wasp-lang/wasp/pull/4401))
 - Upgraded React Router from v7 to v8. The upgrade is backwards compatible. ([#4433](https://github.com/wasp-lang/wasp/pull/4433))
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))

@@ -41,7 +41,7 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
@@ -96,7 +96,7 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-start
@@ -178,7 +178,7 @@ We don't want users who are not logged in to access the main page, because they 
 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }

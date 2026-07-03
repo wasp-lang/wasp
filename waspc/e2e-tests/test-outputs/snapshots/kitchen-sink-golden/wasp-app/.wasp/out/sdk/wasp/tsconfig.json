@@ -98,5 +98,6 @@
     // Wasp spec files shouldn't be compiled by the SDK because they are used to
     // configure Wasp and not part of the SDK runtime.
     "**/*.wasp.ts",
+    "**/*.wasp.tsx",
   ]
 }

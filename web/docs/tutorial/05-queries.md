@@ -23,10 +23,10 @@ We'll create a new Query called `getTasks`. We'll need to declare the Query in t
 
 ### Specifying a Query
 
-We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it exists:
+We need to add a **query** specification to `main.wasp.tsx` so that Wasp knows it exists:
 
 <TutorialAction id="query-get-tasks" action="APPLY_PATCH">
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 // highlight-next-line
 import { app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -76,10 +76,10 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 ```
 </TutorialAction>
 <ShowForTs>
-Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.ts`:
+Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.tsx`:
 
 - `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
-- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.tsx`.
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
@@ -96,7 +96,7 @@ The arguments the caller passes to the Query.
 
   An object with extra information injected by Wasp. Its type depends on the Query specification.
 
-Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since the Query spec in `main.wasp.tsx` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and Actions are NodeJS functions executed on the server.
@@ -155,12 +155,12 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
 Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
 
 <ShowForJs>
-  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
+  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.tsx`.
   - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 </ShowForJs>
 
 <ShowForTs>
-  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
+  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.tsx`.
   - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
   - `Task` - The type for the Task entity defined in `schema.prisma`.
 

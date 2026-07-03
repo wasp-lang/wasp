@@ -2,7 +2,7 @@ import { fs, path } from "zx";
 
 /**
  * Configures the Wasp for MailCrab SMTP email server which is used by `wasp-app-runner`.
- * Assumes the Wasp project uses the `main.wasp.ts` as the Wasp spec file.
+ * Assumes the Wasp project uses `main.wasp.ts` or `main.wasp.tsx` as the Wasp spec file.
  */
 export async function setupWaspMailCrabConfiguration(
   waspProjectPath: string,
@@ -11,8 +11,20 @@ export async function setupWaspMailCrabConfiguration(
   await fs.ensureFile(waspServerEnvFilePath);
   setupMailCrabEnvVariables(waspServerEnvFilePath);
 
-  const waspAppSpecPath = path.join(waspProjectPath, "main.wasp.ts");
+  const waspAppSpecPath = await findWaspAppSpecPath(waspProjectPath);
   setupMailCrabWaspTsSpec(waspAppSpecPath);
+}
+
+async function findWaspAppSpecPath(waspProjectPath: string): Promise<string> {
+  const candidatePaths = ["main.wasp.tsx", "main.wasp.ts"].map((fileName) =>
+    path.join(waspProjectPath, fileName),
+  );
+  for (const candidatePath of candidatePaths) {
+    if (await fs.pathExists(candidatePath)) {
+      return candidatePath;
+    }
+  }
+  throw new Error(`No Wasp spec file found in ${waspProjectPath}`);
 }
 
 async function setupMailCrabEnvVariables(

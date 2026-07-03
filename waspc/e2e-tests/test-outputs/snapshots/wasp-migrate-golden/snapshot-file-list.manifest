@@ -429,7 +429,7 @@ wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/AGENTS.md
 wasp-app/CLAUDE.md
-wasp-app/main.wasp.ts
+wasp-app/main.wasp.tsx
 wasp-app/migrations/migration_lock.toml
 wasp-app/migrations/no-date-foo/migration.sql
 wasp-app/package-lock.json

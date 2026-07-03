@@ -32,14 +32,14 @@ This field tells Wasp which Entity represents the user.
 
 Here's what the full setup looks like:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // highlight-next-line
     userEntity: "User",
@@ -96,7 +96,7 @@ model User {
 
 Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
@@ -104,7 +104,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

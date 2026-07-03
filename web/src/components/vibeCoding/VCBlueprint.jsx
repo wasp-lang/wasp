@@ -11,7 +11,7 @@ export default app({
   name: "mySaasApp",
   wasp: { version: "^0.24.0" },
   title: "My SaaS App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: { google: {}, email: {} }
@@ -48,7 +48,7 @@ const VCBlueprint = ({ variant }) => {
           <span className="underline decoration-yellow-500">entire app</span>
         </h2>
         <p className="text-neutral-500">
-          Your main.wasp.ts is like a blueprint of your app. Features defined
+          Your main.wasp.tsx is like a blueprint of your app. Features defined
           here get handled by Wasp, so you and your agent can focus on what
           makes your app unique.
         </p>
@@ -57,7 +57,7 @@ const VCBlueprint = ({ variant }) => {
       <div className="mx-auto mt-12 max-w-2xl overflow-hidden rounded-md border border-neutral-200">
         <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-2">
           <span className="text-sm font-medium text-neutral-500">
-            main.wasp.ts
+            main.wasp.tsx
           </span>
         </div>
         <CodeHighlight language="typescript" source={waspCode} />

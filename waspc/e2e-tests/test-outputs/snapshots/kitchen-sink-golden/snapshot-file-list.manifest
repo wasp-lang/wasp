@@ -1354,7 +1354,7 @@ wasp-app/e2e-tests/tests/user-api.spec.ts
 wasp-app/e2e-tests/tests/websocket.spec.ts
 wasp-app/fly-client.toml
 wasp-app/fly-server.toml
-wasp-app/main.wasp.ts
+wasp-app/main.wasp.tsx
 wasp-app/migrations/20230404165422_initial/migration.sql
 wasp-app/migrations/20230816133128_add_address/migration.sql
 wasp-app/migrations/20231124161113_initial/migration.sql

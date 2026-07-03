@@ -1,7 +1,7 @@
-diff --git a/main.wasp.ts b/main.wasp.ts
+diff --git a/main.wasp.tsx b/main.wasp.tsx
 index 52438c9..6a71803 100644
---- a/main.wasp.ts
-+++ b/main.wasp.ts
+--- a/main.wasp.tsx
++++ b/main.wasp.tsx
 @@ -18,7 +18,13 @@ export default app({
      onAuthFailedRedirectTo: "/login",
    },

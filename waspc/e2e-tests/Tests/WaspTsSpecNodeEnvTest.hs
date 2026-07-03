@@ -8,7 +8,7 @@ import ShellCommands
   ( assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
-    replaceMainWaspTsFile,
+    replaceMainWaspTsxFile,
     setWaspDbToPSQL,
     waspCliBuild,
     waspCliCompile,
@@ -26,7 +26,7 @@ waspTsSpecNodeEnvTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ replaceMainWaspTsFile nodeEnvMainWaspTs,
+                [ replaceMainWaspTsxFile nodeEnvMainWaspTs,
                   assertCommandOutputContains waspCliCompile "E2E-NODE-ENV=development"
                 ]
             ]
@@ -37,7 +37,7 @@ waspTsSpecNodeEnvTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ setWaspDbToPSQL,
-                  replaceMainWaspTsFile nodeEnvMainWaspTs,
+                  replaceMainWaspTsxFile nodeEnvMainWaspTs,
                   assertCommandOutputContains waspCliBuild "E2E-NODE-ENV=production"
                 ]
             ]
@@ -56,7 +56,7 @@ waspTsSpecNodeEnvTest =
           name: "tsSpecNodeEnvTest",
           title: "tsSpecNodeEnvTest",
           wasp: { version: "$textWaspVersion" },
-          head: ["<link rel='icon' href='/favicon.ico' />"],
+          head: [<link rel="icon" href="/favicon.ico" />],
           spec: [
             route("RootRoute", "/", page(MainPage)),
           ]

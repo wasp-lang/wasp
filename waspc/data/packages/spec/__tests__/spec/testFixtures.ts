@@ -4,6 +4,7 @@
  * surface currently supports (`page`, `query`).
  */
 
+import { createElement } from "react";
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
 import { _waspMakeRef } from "../../src/internal.js";
@@ -37,7 +38,7 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
         name: "FullApp",
         wasp: { version: "^0.16.3" },
         title: "Mock App",
-        head: ['<link rel="icon" href="/favicon.ico" />'],
+        head: [createElement("link", { rel: "icon", href: "/favicon.ico" })],
         auth: getAuthConfig("full"),
         server: getServerConfig("full"),
         client: getClientConfig("full"),

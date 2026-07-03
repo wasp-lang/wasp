@@ -5,13 +5,13 @@ This project uses the Wasp framework.
 ### Docs
 
 - Find docs via the index at https://wasp.sh/llms.txt
-- Pick the docs map matching the Wasp version in `main.wasp.ts`.
+- Pick the docs map matching the Wasp version in `main.wasp.tsx`.
 - Prefer raw Markdown URLs from the docs map over guessing `wasp.sh/docs` URLs.
 - If this file conflicts with versioned Wasp docs, trust the docs and tell the user this file may be stale.
 
 ### Wasp TypeScript Spec
 
-- `main.wasp.ts` contains the Wasp version and the Wasp app specification.
+- `main.wasp.tsx` contains the Wasp version and the Wasp app specification.
 - When it references app components/functions, import them from `src/` with `with { type: "ref" }`.
 - `route(name, ...)` and `crud(name, ...)` take an explicit name.
 - Other constructors take no name argument; the declaration's name is the imported identifier. For example, `job(sendReminder, { ... })` declares a job named `sendReminder`.

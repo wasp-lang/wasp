@@ -21,7 +21,7 @@ If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration gu
 
 ## A quick example
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, query, route } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
@@ -30,13 +30,17 @@ export default app({
   name: "todoApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     query(getTasks, { entities: ["Task"] }),
   ],
 });
 ```
+
+:::note `main.wasp.ts` vs `main.wasp.tsx`
+When your spec uses JSX (like the `head` field above), the file must be named `main.wasp.tsx`, since JSX is only allowed in `.tsx` files. If your spec doesn't use any JSX, you can name it `main.wasp.ts` instead.
+:::
 
 You build your app by:
 
@@ -140,11 +144,11 @@ export const authSpec: Spec = [
 ];
 ```
 
-The `Spec` annotation gives TypeScript enough information to validate the specification in its own file before it's added to the `main.wasp.ts`.
+The `Spec` annotation gives TypeScript enough information to validate the specification in its own file before it's added to the `main.wasp.tsx`.
 
-Then `main.wasp.ts` imports it and joins in into the `spec`:
+Then `main.wasp.tsx` imports it and joins in into the `spec`:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" };
@@ -154,7 +158,7 @@ export default app({
   name: "todoApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     authSpec,
@@ -162,7 +166,7 @@ export default app({
 });
 ```
 
-All spec files should have the `.wasp.ts` extension, so they are included in the `tsconfig.wasp.json` and type-checked.
+All spec files should have the `.wasp.ts` extension (or `.wasp.tsx`, if they use JSX), so they are included in the `tsconfig.wasp.json` and type-checked.
 
 ### Detecting production mode
 

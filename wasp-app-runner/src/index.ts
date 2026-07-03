@@ -102,7 +102,7 @@ async function runWaspApp({
 async function isWaspTypescriptConfigProject(pathToApp: PathToApp) {
   try {
     const files = await readdir(pathToApp);
-    return files.some((file) => file.endsWith(".wasp.ts"));
+    return files.some((file) => /\.wasp\.tsx?$/.test(file));
   } catch (error) {
     logger.error(`Failed to read directory ${pathToApp}: ${error}`);
     process.exit(1);

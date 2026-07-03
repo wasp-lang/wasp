@@ -1,7 +1,7 @@
-diff --git a/main.wasp.ts b/main.wasp.ts
+diff --git a/main.wasp.tsx b/main.wasp.tsx
 index 53e10fc..b4e49b4 100644
---- a/main.wasp.ts
-+++ b/main.wasp.ts
+--- a/main.wasp.tsx
++++ b/main.wasp.tsx
 @@ -1,6 +1,7 @@
 -import { app, page, query, route } from "@wasp.sh/spec";
 +import { action, app, page, query, route } from "@wasp.sh/spec";

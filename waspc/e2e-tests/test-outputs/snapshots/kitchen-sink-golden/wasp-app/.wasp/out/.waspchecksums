@@ -452,7 +452,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "6d4a3e951de52ae7947d7cc372de4f8b01991b8bce032efaef6c94455a22cee6"
+        "38735e1ac7c0bd94c1eb3d2448658a6095d64d74da30090d9870d46653cef932"
     ],
     [
         [
@@ -1810,7 +1810,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
+        "530d627a33e19e0d04dfa05c3fe687f43c56b8ec353d1e2a8d1f3a3e035a96dd"
     ],
     [
         [

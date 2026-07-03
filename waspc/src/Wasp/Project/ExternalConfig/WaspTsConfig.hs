@@ -22,7 +22,7 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
+    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", "**/*.wasp.tsx", ".wasp/out/types/spec"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where
@@ -32,7 +32,9 @@ waspTsConfigValidator =
         [ V.inField ("target", T.target) $ V.eqJust "ES2025",
           V.inField ("module", T._module) $ V.eqJust "esnext",
           V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
-          V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
+          -- The `react-jsx` mode is required so JSX in `main.wasp.tsx` (e.g.
+          -- in `app.head`) typechecks without importing React.
+          V.inField ("jsx", T.jsx) $ V.eqJust "react-jsx",
           V.inField ("strict", T.strict) $ V.eqJust True,
           V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
           V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",

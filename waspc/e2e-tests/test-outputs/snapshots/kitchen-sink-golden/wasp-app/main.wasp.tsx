@@ -30,8 +30,8 @@ export default app({
   wasp: { version: "0.25.0" },
   title: "Wasp Kitchen Sink",
   head: [
-    "<link rel='manifest' href='/manifest.json' />",
-    "<link rel='icon' href='/favicon.ico' />",
+    <link rel="manifest" href="/manifest.json" />,
+    <link rel="icon" href="/favicon.ico" />,
   ],
   webSocket,
   auth: authConfig,

@@ -1,7 +1,7 @@
-diff --git a/main.wasp.ts b/main.wasp.ts
+diff --git a/main.wasp.tsx b/main.wasp.tsx
 index b4e49b4..c4ac9bc 100644
---- a/main.wasp.ts
-+++ b/main.wasp.ts
+--- a/main.wasp.tsx
++++ b/main.wasp.tsx
 @@ -1,7 +1,7 @@
  import { action, app, page, query, route } from "@wasp.sh/spec";
  import { MainPage } from "./src/MainPage" with { type: "ref" };

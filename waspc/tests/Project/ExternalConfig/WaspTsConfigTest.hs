@@ -34,14 +34,14 @@ spec_WaspTsConfig = do
 
     it "returns an error when include is missing a required glob" $
       assertReturnsValidationErrorMentioningField "include" $
-        validTsConfig {T.include = Just ["**/*.wasp.ts"]}
+        validTsConfig {T.include = Just ["**/*.wasp.ts", "**/*.wasp.tsx"]}
 
     it "returns an error when include is wrong" $
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["src"]}
 
     it "returns no errors when include has the required globs plus extra ones" $
-      validate (validTsConfig {T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec", "lib/**/*.ts"]})
+      validate (validTsConfig {T.include = Just ["**/*.wasp.ts", "**/*.wasp.tsx", ".wasp/out/types/spec", "lib/**/*.ts"]})
         `shouldBe` []
 
     it "returns an error when types is missing the required node entry" $
@@ -67,7 +67,7 @@ validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
-      T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec"],
+      T.include = Just ["**/*.wasp.ts", "**/*.wasp.tsx", ".wasp/out/types/spec"],
       T.exclude = Nothing,
       T.files = Nothing,
       T.references = Nothing
@@ -83,7 +83,7 @@ validCompilerOptions =
       T.moduleResolution = Just "bundler",
       T.moduleDetection = Just "force",
       T.isolatedModules = Just True,
-      T.jsx = Just "preserve",
+      T.jsx = Just "react-jsx",
       T.strict = Just True,
       T.esModuleInterop = Nothing,
       T.lib = Just ["ES2025"],

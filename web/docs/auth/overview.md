@@ -19,14 +19,14 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "MyApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My app",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

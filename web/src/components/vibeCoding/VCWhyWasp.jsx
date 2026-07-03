@@ -115,7 +115,7 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 export default app({
   name: "mySaasApp",
   wasp: { version: "^0.24.0" },
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   title: "My SaaS App",
   auth: {
     userEntity: "User",
@@ -138,7 +138,7 @@ export default app({
   name: "mySaasApp",
   wasp: { version: "^0.24.0" },
   title: "My SaaS App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: { google: {}, slack: {} }
@@ -419,7 +419,7 @@ const useInteractiveDemo = () => {
         <div className="h-2 w-2 rounded-full bg-yellow-400" />
         <div className="h-2 w-2 rounded-full bg-green-400" />
         <span className="ml-2 text-xs font-medium text-neutral-400">
-          main.wasp.ts
+          main.wasp.tsx
         </span>
       </div>
       <div

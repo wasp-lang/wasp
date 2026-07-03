@@ -417,7 +417,7 @@ wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/AGENTS.md
 wasp-app/CLAUDE.md
-wasp-app/main.wasp.ts
+wasp-app/main.wasp.tsx
 wasp-app/package-lock.json
 wasp-app/package.json
 wasp-app/public/favicon.ico

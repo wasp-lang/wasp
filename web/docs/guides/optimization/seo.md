@@ -101,18 +101,18 @@ Search engines and social platforms read `<meta>` tags from your HTML to decide 
 
 You can set tags for your whole app through the `head` field of your `app` declaration:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   // ...
   title: "My App",
   head: [
-    "<link rel='icon' href='/favicon.ico' />",
+    <link rel="icon" href="/favicon.ico" />,
     // highlight-start
-    "<meta name='description' content='Your apps main description.' />",
-    "<meta property='og:title' content='My App' />",
-    "<meta property='og:image' content='https://your-app.com/banner.webp' />",
+    <meta name="description" content="Your apps main description." />,
+    <meta property="og:title" content="My App" />,
+    <meta property="og:image" content="https://your-app.com/banner.webp" />,
     // highlight-end
   ],
   // ...

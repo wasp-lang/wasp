@@ -40,7 +40,7 @@ module ShellCommands
     waspCliInstall,
     assertCommandOutputContains,
     createSeedFile,
-    replaceMainWaspTsFile,
+    replaceMainWaspTsxFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
     TestContext (..),
@@ -63,7 +63,7 @@ import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsxFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- TODO: In future, find a good way to test `wasp-cli start`.
@@ -264,12 +264,12 @@ createSeedFile fileName content = do
 
   writeToFile seedFile content
 
-replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
-replaceMainWaspTsFile content = do
+replaceMainWaspTsxFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+replaceMainWaspTsxFile content = do
   context <- ask
-  let mainWaspTsFile = context.waspProjectDir </> mainWaspTsFileInWaspProjectDir
+  let mainWaspTsxFile = context.waspProjectDir </> mainWaspTsxFileInWaspProjectDir
 
-  writeToFile mainWaspTsFile content
+  writeToFile mainWaspTsxFile content
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.

@@ -8,6 +8,7 @@ module Wasp.Project.Common
     SrcTsConfigFile,
     WaspTsFile,
     mainWaspTsFileInWaspProjectDir,
+    mainWaspTsxFileInWaspProjectDir,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedAppDirInDotWaspDir,
@@ -57,6 +58,10 @@ data WaspTsFile
 
 mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspTsFile)
 mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
+
+-- | The `.tsx` variant of the spec file, for specs that use JSX (e.g. in `app.head`).
+mainWaspTsxFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspTsFile)
+mainWaspTsxFileInWaspProjectDir = [relfile|main.wasp.tsx|]
 
 data SrcTsConfigFile
 

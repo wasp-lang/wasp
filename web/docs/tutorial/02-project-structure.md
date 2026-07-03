@@ -11,14 +11,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     To use JavaScript in the main page, you must manually rename the file
     `src/MainPage.tsx` to `src/MainPage.jsx`. Restart `wasp start` after you do this.
 
-    No updates to the `main.wasp.ts` file are necessary - it stays the same regardless of the language you use.
+    No updates to the `main.wasp.tsx` file are necessary - it stays the same regardless of the language you use.
 
     After creating a new Wasp project and renaming the `src/MainPage.tsx` file, your project should look like this:
 
     <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
     ```python
     .
-    ├── main.wasp.ts  # Your Wasp Spec goes here.
+    ├── main.wasp.tsx # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
     │   └── favicon.ico
@@ -42,7 +42,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
     ```python
     .
-    ├── main.wasp.ts  # Your Wasp Spec goes here.
+    ├── main.wasp.tsx # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
     │   └── favicon.ico
@@ -74,20 +74,20 @@ We won't be customizing the Vite setup in this tutorial, so you can safely ignor
 
 The `schema.prisma` file is where you define your database schema using [Prisma](https://www.prisma.io/). We'll cover this a bit later in the tutorial.
 
-The most important file in the project is `main.wasp.ts`. Wasp uses the configuration within it to perform its magic. Based on what you write, it generates a bunch of code for your database, server-client communication, React routing, and more.
+The most important file in the project is `main.wasp.tsx`. Wasp uses the configuration within it to perform its magic. Based on what you write, it generates a bunch of code for your database, server-client communication, React routing, and more.
 
-Let's take a closer look at `main.wasp.ts`
+Let's take a closer look at `main.wasp.tsx`
 
-## `main.wasp.ts`
+## `main.wasp.tsx`
 
-`main.wasp.ts` is your app's Wasp file.
+`main.wasp.tsx` is your app's Wasp file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
 The file exports your app's top-level configuration and a collection of specifications. Each one defines a Route, Page, Query, Action, or other features provided by Wasp.
 
-The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
+The default `main.wasp.tsx` file generated with `wasp new` on the previous page looks like this:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec"
 // This is a reference to your MainPage component.
 // Read more about how Wasp references your code in the section below.
@@ -100,7 +100,7 @@ export default app({
   },
   title: "TodoApp", // Used as the browser tab title.
   head: [
-    "<link rel='icon' href='/favicon.ico' />",
+    <link rel="icon" href="/favicon.ico" />,
   ],
   // Add your specs here so Wasp knows to register them.
   spec: [
@@ -111,7 +111,7 @@ export default app({
 
 ### Referencing code from `src`
 
-When `main.wasp.ts` needs to point to your React components or Node.js functions, it uses imports like this:
+When `main.wasp.tsx` needs to point to your React components or Node.js functions, it uses imports like this:
 
 ```ts
 import { MainPage } from "./src/MainPage" with { type: "ref" }

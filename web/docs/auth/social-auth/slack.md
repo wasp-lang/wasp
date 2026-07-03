@@ -37,14 +37,14 @@ Enabling Slack Authentication comes down to a series of steps:
 
 Now let's properly configure the Auth object:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // highlight-next-line
     // 1. Specify the User entity  (we'll define it next)
@@ -191,14 +191,14 @@ WASP_SERVER_URL=https://<subdomain>.loca.lt
 
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {
@@ -266,7 +266,7 @@ The fields you receive depend on the scopes you request. In the example above, t
 
 <OverrideExampleIntro />
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
@@ -274,7 +274,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

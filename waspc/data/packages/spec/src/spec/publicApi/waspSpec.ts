@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+import type { ReactElement } from "react";
 import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { RefObject } from "../refObject.js";
@@ -8,19 +9,20 @@ import { FromRegister } from "./register.js";
  * Root shape of a Wasp app specification.
  *
  * Pass an `App` to the {@link app} constructor and `export default` the
- * result from `main.wasp.ts`.
+ * result from `main.wasp.ts` (or `main.wasp.tsx` when using JSX, e.g. for
+ * {@link App.head}).
  *
  * @category Wasp Spec
  *
  * @example
- * ```ts
+ * ```tsx
  * import { app } from "@wasp.sh/spec"
  *
  * export default app({
  *   name: "todoApp",
  *   wasp: { version: "^0.24.0" },
  *   title: "ToDo App",
- *   head: ["<link rel='icon' href='/favicon.ico' />"],
+ *   head: [<link rel="icon" href="/favicon.ico" />],
  *   spec: [],
  * });
  * ```
@@ -45,18 +47,20 @@ export interface App {
    */
   title: string;
   /**
-   * Extra tags injected into the HTML `<head>`.
+   * Extra tags injected into the HTML `<head>`, written as JSX elements
+   * (e.g. `<link rel="icon" href="/favicon.ico" />`).
    *
-   * Each entry is rendered inside a React component, so the strings must be
-   * valid JSX: self-closing tags must end with `/>` (e.g. `<meta ... />`),
-   * and attributes must be camelCased (e.g. `httpEquiv` instead of
-   * `http-equiv`).
+   * Using JSX requires naming your spec file `main.wasp.tsx`.
+   *
+   * Only plain HTML elements with serializable props are supported —
+   * components and event handlers are not, because the tags are embedded
+   * into the generated app at compile time.
    *
    * Due to a [React bug](https://github.com/facebook/react/issues/36169),
    * avoid `defer` on `<script>` tags because it can cause hydration
    * warnings. Use `async` instead.
    */
-  head?: string[];
+  head?: ReactElement[];
   /** Configuration for authentication. Enables auth when set. */
   auth?: Auth;
   /** Configuration for the server part of the resulting Wasp app. */

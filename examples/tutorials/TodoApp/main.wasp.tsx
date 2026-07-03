@@ -10,7 +10,7 @@ export default app({
   name: "TodoApp",
   wasp: { version: "0.25.0" },
   title: "TodoApp",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

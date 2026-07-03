@@ -37,14 +37,14 @@ Enabling GitHub Authentication comes down to a series of steps:
 
 Let's start by properly configuring the Auth object:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // highlight-next-line
     // 1. Specify the User entity  (we'll define it next)
@@ -146,14 +146,14 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 Add `gitHub: {}` to the `auth.methods` object to use it with default settings.
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {
@@ -221,7 +221,7 @@ The fields you receive will depend on the scopes you requested. By default we do
 <OverrideExampleIntro />
 
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 import { getConfig, userSignupFields } from "./src/auth/github" with { type: "ref" }
 
@@ -229,7 +229,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

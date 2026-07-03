@@ -58,8 +58,8 @@ Build your app in a day and deploy it with a single CLI command!
 
 Simple Wasp spec file in which you describe the high-level details of your web app:
 
-```ts
-// file: main.wasp.ts
+```tsx
+// file: main.wasp.tsx
 
 import { app, page, query, route } from "@wasp.sh/spec";
 
@@ -71,7 +71,7 @@ export default app({
   name: "todoApp",
   wasp: { version: "^0.24.0" },
   title: "ToDo App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // Full-stack auth out-of-the-box.
     userEntity: "User",

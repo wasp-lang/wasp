@@ -51,18 +51,18 @@ You don't need to write any code for these features, Wasp will take care of it f
 
 Let's say you want to build a web app that allows users to **create and share their favorite recipes**.
 
-Let's start with the `main.wasp.ts` file: it is the central spec file of your app, where you describe the app from the high level.
+Let's start with the `main.wasp.tsx` file: it is the central spec file of your app, where you describe the app from the high level.
 
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "RecipeApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My Recipes",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login",

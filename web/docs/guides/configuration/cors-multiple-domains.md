@@ -29,11 +29,11 @@ By default, Wasp configures CORS to allow requests only from your client URL (de
 
 ## Setting up Multiple Domain CORS
 
-### 1. Configure global middleware in main.wasp.ts
+### 1. Configure global middleware in main.wasp.tsx
 
 Add the server middleware configuration:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, query, route } from "@wasp.sh/spec"
 import { getSomeData } from "./src/data" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -42,7 +42,7 @@ import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
 export default app({
   name: "CorsTest",
   wasp: { version: "^0.24.0" },
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   title: "cors-test",
   server: {
     // highlight-next-line

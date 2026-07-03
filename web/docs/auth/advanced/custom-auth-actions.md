@@ -19,7 +19,7 @@ Below you will find a starting point for creating your own actions. The given im
 
 ### Email
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { action, app } from "@wasp.sh/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
@@ -28,7 +28,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // ...
     onBeforeSignup,

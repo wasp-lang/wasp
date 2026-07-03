@@ -77,6 +77,43 @@ describe("Wasp TS spec pipeline", () => {
     expect(result).toMatchSnapshot();
   });
 
+  test("analyzes JSX head elements in a main.wasp.tsx spec", () => {
+    using project = makeTempProject("wasp-spec-pipeline-jsx-head-");
+
+    const result = project.analyzeSpec(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  head: [`,
+        `    <link rel="icon" href="/favicon.ico" />,`,
+        `    <meta name="theme-color" content="#123456" />,`,
+        `  ],`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
+      "main.wasp.tsx",
+    );
+
+    expect(result).toMatchObject({
+      status: "ok",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          declType: "App",
+          declValue: expect.objectContaining({
+            head: [
+              '<link rel={"icon"} href={"/favicon.ico"} />',
+              '<meta name={"theme-color"} content={"#123456"} />',
+            ],
+          }),
+        }),
+      ]),
+    });
+  });
+
   test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", () => {
     using project = makeTempProject("wasp-spec-pipeline-type-error-");
 
@@ -136,7 +173,10 @@ describe("Wasp TS spec pipeline", () => {
 
 type TempProject = Disposable & {
   writeProjectFile: (relativeFilePath: string, sourceText: string) => void;
-  analyzeSpec: (sourceText: string) => ReturnType<typeof analyzeApp>;
+  analyzeSpec: (
+    sourceText: string,
+    specFileName?: string,
+  ) => ReturnType<typeof analyzeApp>;
 };
 
 function makeTempProject(prefix: string): TempProject {
@@ -161,7 +201,13 @@ function scaffoldProject({
     path.join(projectRootDir, "package.json"),
     JSON.stringify({
       type: "module",
-      dependencies: { "@wasp.sh/spec": "file:" + SPEC_PACKAGE_DIR },
+      dependencies: {
+        "@wasp.sh/spec": "file:" + SPEC_PACKAGE_DIR,
+        react: "^19.2.1",
+      },
+      devDependencies: {
+        "@types/react": "^19.2.7",
+      },
     }),
   );
 
@@ -172,12 +218,12 @@ function scaffoldProject({
         target: "ES2022",
         module: "ESNext",
         moduleResolution: "bundler",
-        jsx: "preserve",
+        jsx: "react-jsx",
         strict: true,
         allowJs: true,
         noEmit: true,
       },
-      include: ["main.wasp.ts", "**/*.wasp.ts"],
+      include: ["**/*.wasp.ts", "**/*.wasp.tsx"],
     }),
   );
 
@@ -188,12 +234,12 @@ function scaffoldProject({
       writeProjectFile(projectRootDir, relativeFilePath, sourceText);
     },
 
-    analyzeSpec: (sourceText: string) => {
-      writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
+    analyzeSpec: (sourceText, specFileName = "main.wasp.ts") => {
+      writeProjectFile(projectRootDir, specFileName, sourceText);
 
       cp.execSync("npm i", { cwd: projectRootDir, stdio: "inherit" });
       cp.execSync(
-        "npx @wasp.sh/spec analyze main.wasp.ts tsconfig.json . result.json '[]'",
+        `npx @wasp.sh/spec analyze ${specFileName} tsconfig.json . result.json '[]'`,
         { cwd: projectRootDir, stdio: "inherit" },
       );
 

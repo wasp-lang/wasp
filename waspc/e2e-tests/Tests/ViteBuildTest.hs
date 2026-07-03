@@ -120,7 +120,7 @@ viteBuildTest =
     addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError
 
     addTypeErrorToWaspTsFile :: ShellCommandBuilder WaspProjectContext ShellCommand
-    addTypeErrorToWaspTsFile = appendToFile "main.wasp.ts" typeError
+    addTypeErrorToWaspTsFile = appendToFile "main.wasp.tsx" typeError
 
     typeError :: T.Text
     typeError = "const shouldBeString: string = 123"

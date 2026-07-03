@@ -15,9 +15,9 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 
 ### Setting metadata for every page
 
-You can add meta tags to your application using the `head` property in your `app` spec. These tags will be included in the `<head>` section of your HTML.
+You can add meta tags to your application using the `head` property in your `app` spec. It takes a list of JSX elements, which will be included in the `<head>` section of your HTML. Since JSX is only allowed in `.tsx` files, your spec file must be named `main.wasp.tsx`.
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
@@ -25,24 +25,24 @@ export default app({
   wasp: { version: "^0.24.0" },
   title: "My App",
   head: [
-    "<link rel='icon' href='/favicon.ico' />",
-    "<meta name='description' content='Your apps main description and features.' />",
-    "<meta name='author' content='Your (App) Name' />",
-    "<meta name='keywords' content='saas, solution, product, app, service' />",
+    <link rel="icon" href="/favicon.ico" />,
+    <meta name="description" content="Your apps main description and features." />,
+    <meta name="author" content="Your (App) Name" />,
+    <meta name="keywords" content="saas, solution, product, app, service" />,
 
     // Open Graph tags for social media previews
-    "<meta property='og:type' content='website' />",
-    "<meta property='og:title' content='Your App Name' />",
-    "<meta property='og:site_name' content='Your App Name' />",
-    "<meta property='og:url' content='https://your-app.com' />",
-    "<meta property='og:description' content='Your apps main description and features.' />",
-    "<meta property='og:image' content='https://your-app.com/public-banner.webp' />",
+    <meta property="og:type" content="website" />,
+    <meta property="og:title" content="Your App Name" />,
+    <meta property="og:site_name" content="Your App Name" />,
+    <meta property="og:url" content="https://your-app.com" />,
+    <meta property="og:description" content="Your apps main description and features." />,
+    <meta property="og:image" content="https://your-app.com/public-banner.webp" />,
 
     // Twitter Card tags
-    "<meta name='twitter:image' content='https://your-app.com/public-banner.webp' />",
-    "<meta name='twitter:image:width' content='800' />",
-    "<meta name='twitter:image:height' content='400' />",
-    "<meta name='twitter:card' content='summary_large_image' />",
+    <meta name="twitter:image" content="https://your-app.com/public-banner.webp" />,
+    <meta name="twitter:image:width" content="800" />,
+    <meta name="twitter:image:height" content="400" />,
+    <meta name="twitter:card" content="summary_large_image" />,
   ],
   // ...
 })

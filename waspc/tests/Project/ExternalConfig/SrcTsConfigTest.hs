@@ -24,9 +24,17 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
-    it "returns an error when exclude is wrong" $
+    it "returns an error when exclude is missing" $
       assertReturnsValidationErrorMentioningField "exclude" $
         validTsConfig {T.exclude = Nothing}
+
+    it "returns an error when exclude is missing a required glob" $
+      assertReturnsValidationErrorMentioningField "exclude" $
+        validTsConfig {T.exclude = Just ["**/*.wasp.ts"]}
+
+    it "accepts extra entries in exclude as long as the required globs are present" $
+      validate (validTsConfig {T.exclude = Just ["**/*.wasp.ts", "**/*.wasp.tsx", "src/**/*.stories.tsx"]})
+        `shouldBe` []
 
     it "returns an error when types is missing a required entry" $
       assertReturnsValidationErrorMentioningField "types" $
@@ -52,7 +60,7 @@ validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
       T.include = Just ["src"],
-      T.exclude = Just ["**/*.wasp.ts"],
+      T.exclude = Just ["**/*.wasp.ts", "**/*.wasp.tsx"],
       T.files = Nothing,
       T.references = Nothing
     }

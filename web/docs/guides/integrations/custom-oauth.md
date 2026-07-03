@@ -17,11 +17,11 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 
 ## Setting up a Custom OAuth Provider
 
-### 1. Configure main.wasp.ts
+### 1. Configure main.wasp.tsx
 
 Set up the auth configuration and API routes:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { api, app, page, route } from "@wasp.sh/spec"
 import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -30,7 +30,7 @@ export default app({
   name: "SpotifyOauth",
   wasp: { version: "^0.24.0" },
   title: "spotify-oauth",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/",

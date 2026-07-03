@@ -108,11 +108,13 @@ function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
 }
 
 function findWaspFilePath(projectDir: string): string {
-  const path = join(projectDir, "main.wasp.ts");
-  if (existsSync(path)) {
-    return path;
+  for (const fileName of ["main.wasp.ts", "main.wasp.tsx"]) {
+    const path = join(projectDir, fileName);
+    if (existsSync(path)) {
+      return path;
+    }
   }
-  throw new Error(`No main.wasp.ts file in ${projectDir}`);
+  throw new Error(`No main.wasp.ts(x) file in ${projectDir}`);
 }
 
 function rebuildLibs(): void {

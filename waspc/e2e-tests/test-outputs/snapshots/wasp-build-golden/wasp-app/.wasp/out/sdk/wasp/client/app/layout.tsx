@@ -21,7 +21,7 @@ export function Layout({
             content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
           />
 
-          <link rel='icon' href='/favicon.ico' />
+          <link rel={"icon"} href={"/favicon.ico"} />
 
           <title>wasp-app</title>
 

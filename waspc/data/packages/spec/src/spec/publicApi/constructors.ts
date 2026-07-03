@@ -20,15 +20,15 @@ import type {
 /**
  * Creates a Wasp {@link App}.
  *
- * Call `app()` exactly once in your `main.wasp.ts` and export the result as
- * the file's default export. The Wasp compiler reads this default export to
- * generate your app.
+ * Call `app()` exactly once in your `main.wasp.ts` (or `main.wasp.tsx` when
+ * using JSX, e.g. for `head`) and export the result as the file's default
+ * export. The Wasp compiler reads this default export to generate your app.
  *
  * See the [Wasp Spec docs](https://wasp.sh/docs/general/spec) for the full
  * shape of the configuration.
  *
  * @example
- * ```ts
+ * ```tsx
  * import { app, page, route } from '@wasp.sh/spec'
  * import MainPage from './src/MainPage' with { type: 'ref' }
  *
@@ -36,7 +36,7 @@ import type {
  *   name: 'todoApp',
  *   wasp: { version: "^0.24.0" },
  *   title: "ToDo App",
- *   head: ["<link rel='icon' href='/favicon.ico' />"],
+ *   head: [<link rel="icon" href="/favicon.ico" />],
  *   spec: [
  *     route('MainRoute', '/', page(MainPage)),
  *   ],

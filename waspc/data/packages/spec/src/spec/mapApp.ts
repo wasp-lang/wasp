@@ -7,6 +7,7 @@
 
 import * as AppSpec from "../appSpec.js";
 import { normalizePrerender } from "../normalizePrerender.js";
+import { mapHeadElements } from "./headElements.js";
 import * as WaspSpec from "./publicApi/waspSpec.js";
 import { getRefObjectDeclarationName, mapRefObject } from "./refObject.js";
 import { SpecUserError } from "./specUserError.js";
@@ -132,7 +133,7 @@ export function mapApp(
     declValue: {
       wasp,
       title,
-      head,
+      head: head && mapHeadElements(head),
       auth: auth && mapAuth(auth, ctx),
       server: server && mapServer(server, ctx),
       client: client && mapClient(client, ctx),

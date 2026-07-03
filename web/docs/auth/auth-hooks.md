@@ -45,7 +45,7 @@ Users signing in with [OAuth](./social-auth/overview.md) must authorize access b
 
 To use auth hooks, you must first declare them in the Wasp file:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 import {
   onBeforeSignup,
@@ -60,7 +60,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {
@@ -580,7 +580,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
 
 ## API Reference
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 import {
   onBeforeSignup,
@@ -595,7 +595,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

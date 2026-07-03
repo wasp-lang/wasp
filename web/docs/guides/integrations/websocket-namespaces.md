@@ -18,11 +18,11 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 
 ## Setting up WebSocket with Namespaces
 
-### 1. Configure WebSocket in main.wasp.ts
+### 1. Configure WebSocket in main.wasp.tsx
 
 Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec"
 import Main from "./src/MainPage" with { type: "ref" }
 import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
@@ -31,7 +31,7 @@ export default app({
   name: "WebsocketTest",
   wasp: { version: "^0.24.0" },
   title: "websocket-test",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   // highlight-start
   webSocket: {
     fn: webSocketFn,

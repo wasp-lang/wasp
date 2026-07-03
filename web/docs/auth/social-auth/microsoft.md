@@ -51,14 +51,14 @@ Enabling Microsoft Authentication comes down to a series of steps:
 
 Let's start by properly configuring the Auth object:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
@@ -180,14 +180,14 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 Add `microsoft: {}` to the `auth.methods` object to use it with default settings:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {
@@ -233,7 +233,7 @@ The fields you receive depend on the scopes you request. The default scopes are 
 
 <OverrideExampleIntro />
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app } from "@wasp.sh/spec"
 import { getConfig, userSignupFields } from "./src/auth/microsoft" with { type: "ref" }
 
@@ -241,7 +241,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
+  head: [<link rel="icon" href="/favicon.ico" />],
   auth: {
     userEntity: "User",
     methods: {

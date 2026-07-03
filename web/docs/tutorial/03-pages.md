@@ -8,11 +8,11 @@ import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
 
-In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
+In the default `main.wasp.tsx` file created by `wasp new`, there is a **page** and a **route** spec:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
+    ```tsx title="main.wasp.tsx"
     import { app, page, route } from "@wasp.sh/spec"
     import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -28,7 +28,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
+    ```tsx title="main.wasp.tsx"
     import { app, page, route } from "@wasp.sh/spec"
     import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -73,7 +73,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec"
 import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
@@ -126,11 +126,11 @@ At this point, the main page should look like this:
 
 You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
-Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
+Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.tsx` file.
 
 Your Wasp file should now look like this:
 
-```ts title="main.wasp.ts"
+```tsx title="main.wasp.tsx"
 import { app, page, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -141,7 +141,7 @@ export default app({
   },
   title: "TodoApp",
   head: [
-    "<link rel='icon' href='/favicon.ico' />",
+    <link rel="icon" href="/favicon.ico" />,
   ],
   spec: [
     route("RootRoute", "/", page(MainPage)),
