@@ -10,6 +10,7 @@
 ### 🎉 New Features
 
 - A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
+- Added [Resend](https://resend.com) as an email sender provider, usable via `provider: "Resend"` and the `RESEND_API_KEY` environment variable. ([#4381](https://github.com/wasp-lang/wasp/pull/4381))
 
 ### 🐞 Bug fixes
 

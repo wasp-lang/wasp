@@ -69,7 +69,7 @@ resend =
     }
   where
     resendVersionRange :: SV.Range
-    resendVersionRange = [SV.r|^4.0.0|]
+    resendVersionRange = [SV.r|^6.0.0|]
 
     resendDependency :: Npm.Dependency.Dependency
     resendDependency = Npm.Dependency.make ("resend", show resendVersionRange)
