@@ -1,43 +1,37 @@
 module Wasp.Generator.SdkGenerator.JsImport
-  ( extOperationImportToImportJson,
-    extImportToImportJson,
-    extImportToJsImport,
+  ( extImportToImportJson,
+    VirtualModuleId,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust)
-import StrongPath (castRel, relDirToPosix, (</>))
+import StrongPath (Dir', File', Path, Posix, Rel)
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkGenerator.Common
-  ( extSrcDirInSdkRootDir,
-    makeSdkImportPath,
-  )
 import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport), JsImportPath (..))
 
-extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
-extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
+type VirtualModuleId = Path Posix (Rel Dir') File'
+
+-- | SDK is not allowed to import user exports (extImports) directly,
+-- because that would cause a cyclic dependency. Instead, SDK resolves
+-- user project imports through virtual modules.
+--
+-- For this to work properly, the virutal module also has to be registered
+-- in the bundler of runtime that is going to use that part of code.
+-- E.g. server bunlder has to register operations virtual modules.
+extImportToImportJson :: VirtualModuleId -> Maybe EI.ExtImport -> Aeson.Value
+extImportToImportJson virtualModuleId maybeExtImport = GJI.jsImportToImportJson jsImport
   where
-    jsImport = extImportToJsImport <$> maybeExtImport
+    jsImport = extImportToJsImport virtualModuleId <$> maybeExtImport
 
-extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
-extOperationImportToImportJson =
-  GJI.jsImportToImportJson
-    . Just
-    . extImportToJsImport
-
-extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+extImportToJsImport :: VirtualModuleId -> EI.ExtImport -> JsImport
+extImportToJsImport virtualModuleId extImport@(EI.ExtImport extImportName _ _) =
   JsImport
     { _kind = ValueImport,
-      _path = ModuleImportPath importPath,
+      _path = ModuleImportPath virtualModuleId,
       _name = importName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    importPath = makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
-    extCodeDirP = fromJust $ relDirToPosix extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName

@@ -24,12 +24,12 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.JsImport (VirtualModuleId)
 import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules
-  ( VirtualModuleId,
-    serverEnvValidationSchemaVMId,
+  ( serverEnvValidationSchemaVMId,
     userOperationVMId,
     userPrismaSetupFnVMId,
   )

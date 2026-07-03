@@ -5,16 +5,14 @@ module Wasp.Generator.UserVirtualModules
     clientEnvValidationSchemaVMId,
     userClientSetupFnVMId,
     userClientRootComponentVMId,
-    VirtualModuleId,
   )
 where
 
 import Data.Maybe (fromJust)
-import StrongPath (Dir', File', Path, Posix, Rel, parseRelFileP, relfileP)
+import StrongPath (parseRelFileP, relfileP)
 import Wasp.AppSpec.Operation (Operation (..))
 import qualified Wasp.AppSpec.Operation as AS.Operation
-
-type VirtualModuleId = Path Posix (Rel Dir') File'
+import Wasp.Generator.SdkGenerator.JsImport (VirtualModuleId)
 
 serverEnvValidationSchemaVMId :: VirtualModuleId
 serverEnvValidationSchemaVMId = [relfileP|virtual:wasp/user/server-env-validation-schema|]

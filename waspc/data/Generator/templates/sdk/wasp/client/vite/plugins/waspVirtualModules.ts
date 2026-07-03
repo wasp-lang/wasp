@@ -8,9 +8,9 @@ import {
 import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
-  { id: "{= clientEntryPointPath =}", load: getClientEntryTsxContent },
-  { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
-  { id: "{= ssrEntryPointPath =}", load: getSsrEntryTsxContent },
+  { id: "{= clientEntryPointVMId =}", load: getClientEntryTsxContent },
+  { id: "{= routesEntryPointVMId =}", load: getRoutesTsxContent },
+  { id: "{= ssrEntryPointVMId =}", load: getSsrEntryTsxContent },
 ]);
 
 export function waspVirtualModules(): Plugin {

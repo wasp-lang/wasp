@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -24,7 +25,6 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
@@ -159,11 +159,11 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "emailUserSignupFields" .= extImportToImportJson emailUserSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson usernameAndPasswordUserSignupFields
+        [ "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined,
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
         ]
-    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
@@ -176,12 +176,12 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "emailUserSignupFields" .= extImportToImportJson emailUserSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson usernameAndPasswordUserSignupFields
+          "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined,
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

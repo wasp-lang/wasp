@@ -6,7 +6,6 @@ module Wasp.Generator.JsImport
     extImportNameToJsImportName,
     getAliasedExtImportIdentifier,
     extImportToRelativeSrcImportFromViteExecution,
-    virtualExtImportToImportJson,
   )
 where
 
@@ -18,7 +17,6 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Wasp.Generator.UserVirtualModules (VirtualModuleId)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
@@ -79,23 +77,6 @@ extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportN
     importName = extImportNameToJsImportName extImportName
     importPath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
     projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
-
-virtualExtImportToImportJson :: VirtualModuleId -> Maybe EI.ExtImport -> Aeson.Value
-virtualExtImportToImportJson virtualModuleId maybeExtImport =
-  jsImportToImportJson jsImport
-  where
-    jsImport = virtualExtImportToJsImport virtualModuleId <$> maybeExtImport
-
--- Creates a JS import for an external file which is resolved
--- through a virtual module.
-virtualExtImportToJsImport :: VirtualModuleId -> EI.ExtImport -> JsImport
-virtualExtImportToJsImport virtualModuleId extImport =
-  JsImport
-    { _kind = ValueImport,
-      _path = ModuleImportPath virtualModuleId,
-      _name = extImportNameToJsImportName extImport.name,
-      _importAlias = Just $ getAliasedExtImportIdentifier extImport
-    }
 
 getAliasedExtImportIdentifier :: EI.ExtImport -> String
 getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"

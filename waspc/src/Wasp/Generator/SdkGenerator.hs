@@ -50,7 +50,6 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -63,6 +62,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genEmailSenderApi)
@@ -367,7 +367,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn
+            "prismaSetupFn" .= extImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn
           ]
 
   return $
@@ -384,9 +384,9 @@ genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =
       object
-        [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson clientEnvValidationSchemaVMId maybeClientEnvValidationSchema,
-          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson serverEnvValidationSchemaVMId maybeServerEnvValidationSchema,
-          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn,
+        [ "clientEnvValidationSchema" .= extImportToImportJson clientEnvValidationSchemaVMId maybeClientEnvValidationSchema,
+          "serverEnvValidationSchema" .= extImportToImportJson serverEnvValidationSchemaVMId maybeServerEnvValidationSchema,
+          "prismaSetupFn" .= extImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn,
           "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
           "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
