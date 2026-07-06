@@ -701,7 +701,7 @@ spec_AppSpecValid = do
         { AS.Page.component =
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
-              (fromJust $ SP.parseRelFileP "pages/Main")
+              (AS.ExtImport.ProjectSrcExtImportSource $ fromJust $ SP.parseRelFileP "pages/Main")
               Nothing,
           AS.Page.authRequired = Nothing
         }
@@ -808,5 +808,5 @@ spec_AppSpecValid = do
     dummyExtImport =
       AS.ExtImport.ExtImport
         (AS.ExtImport.ExtImportModule "Dummy")
-        (fromJust $ SP.parseRelFileP "dummy/File")
+        (AS.ExtImport.ProjectSrcExtImportSource $ fromJust $ SP.parseRelFileP "dummy/File")
         Nothing

@@ -112,13 +112,25 @@ export type ExtImportKind = ExtImport["kind"];
 export type NamedExtImport = {
   kind: "named";
   name: string;
-  path: `@src/${string}`;
+  source: ExtImportSource;
   alias?: string;
 };
 export type DefaultExtImport = {
   kind: "default";
   name: string;
+  source: ExtImportSource;
+};
+export type ExtImportSource =
+  | ProjectSrcExtImportSource
+  | PackageExtImportSource;
+export type ProjectSrcExtImportSource = {
+  kind: "project-src";
   path: `@src/${string}`;
+};
+export type PackageExtImportSource = {
+  kind: "package";
+  packageName: string;
+  subpath?: string;
 };
 
 export type JobExecutor = "PgBoss";

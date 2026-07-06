@@ -40,17 +40,98 @@ describe("mapRefObject", () => {
       expect(result).toStrictEqual({
         kind: "named",
         name: refObject.import,
-        path: "@src/external",
+        source: { kind: "project-src", path: "@src/external" },
         alias: refObject.alias,
       } satisfies AppSpec.ExtImport);
     } else {
       expect(result).toStrictEqual({
         kind: "default",
         name: refObject.importDefault,
-        path: "@src/external",
+        source: { kind: "project-src", path: "@src/external" },
       } satisfies AppSpec.ExtImport);
     }
   }
+
+  test("should map named package import correctly", () => {
+    expect(
+      mapRefObjectForProject(
+        Fixtures.getRefObjectForMockProject({
+          import: "SkateboardPage",
+          alias: "SkateboardPageAlias",
+          from: "@skateboard/fsm/SkateboardPage",
+        }),
+      ),
+    ).toStrictEqual({
+      kind: "named",
+      name: "SkateboardPage",
+      alias: "SkateboardPageAlias",
+      source: {
+        kind: "package",
+        packageName: "@skateboard/fsm",
+        subpath: "SkateboardPage",
+      },
+    } satisfies AppSpec.ExtImport);
+  });
+
+  test("should map default package import correctly", () => {
+    expect(
+      mapRefObjectForProject(
+        Fixtures.getRefObjectForMockProject({
+          importDefault: "DefaultExport",
+          from: "unscoped-package/nested/export",
+        }),
+      ),
+    ).toStrictEqual({
+      kind: "default",
+      name: "DefaultExport",
+      source: {
+        kind: "package",
+        packageName: "unscoped-package",
+        subpath: "nested/export",
+      },
+    } satisfies AppSpec.ExtImport);
+  });
+
+  test.each(["/abs/path", "C:\\abs\\path", "\\\\server\\share\\path"])(
+    "should reject absolute ref path %s",
+    (from) => {
+      expect(() =>
+        mapRefObjectForProject(
+          Fixtures.getRefObjectForMockProject({
+            importDefault: "DefaultExport",
+            from,
+          }),
+        ),
+      ).toThrow(SpecUserError);
+      expect(() =>
+        mapRefObjectForProject(
+          Fixtures.getRefObjectForMockProject({
+            importDefault: "DefaultExport",
+            from,
+          }),
+        ),
+      ).toThrow("Absolute ref paths are not supported");
+    },
+  );
+
+  test("should reject scoped package refs without package name", () => {
+    expect(() =>
+      mapRefObjectForProject(
+        Fixtures.getRefObjectForMockProject({
+          importDefault: "DefaultExport",
+          from: "@scope",
+        }),
+      ),
+    ).toThrow(SpecUserError);
+    expect(() =>
+      mapRefObjectForProject(
+        Fixtures.getRefObjectForMockProject({
+          importDefault: "DefaultExport",
+          from: "@scope",
+        }),
+      ),
+    ).toThrow("must include both scope and package name");
+  });
 
   function mapRefObjectForProject(refObject: unknown): AppSpec.ExtImport {
     return mapRefObject(refObject, {

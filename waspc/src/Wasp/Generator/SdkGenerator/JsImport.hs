@@ -7,7 +7,7 @@ import qualified Data.Aeson as Aeson
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
-import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
+import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport), JsImportPath (RawImportName))
 
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
@@ -17,7 +17,7 @@ extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
 extImportToJsImport ::
   EI.ExtImport ->
   JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+extImportToJsImport extImport@(EI.ExtImport extImportName extImportSource _) =
   JsImport
     { _kind = ValueImport,
       _path = importPath,
@@ -25,5 +25,9 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
       _importAlias = Just $ GJI.getAliasedExtImportIdentifier extImport
     }
   where
+    importPath = case extImportSource of
+      EI.ProjectSrcExtImportSource projectSrcPath ->
+        VUM.extImportToVirtualUserModuleJsImportPath projectSrcPath
+      EI.PackageExtImportSource packageImportSource ->
+        RawImportName $ EI.packageImportSourceToImportSpecifier packageImportSource
     importName = GJI.extImportNameToJsImportName extImportName
-    importPath = VUM.extImportToVirtualUserModuleJsImportPath extImportPath

@@ -145,7 +145,7 @@ getServerVirtualUserModules :: AppSpec -> [VirtualUserModule]
 getServerVirtualUserModules = filter ((== ServerRuntime) . runtime) . getVirtualUserModules
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
-extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
+extImportToVirtualUserModuleJsImportPath :: EI.ProjectSrcExtImportPath -> JsImportPath
 extImportToVirtualUserModuleJsImportPath extImportPath =
   RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP extImportPath
 

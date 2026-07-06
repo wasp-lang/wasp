@@ -1,0 +1,32 @@
+{
+  "name": "@kitchen-sink/module",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./spec": {
+      "types": "./dist/spec.d.ts",
+      "import": "./dist/spec.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "wasp module build",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@wasp.sh/spec": "^0.25.0",
+    "react": "^19.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@wasp.sh/spec": "file:.wasp/spec/",
+    "react": "^19.2.1",
+    "typescript": "6.0.3"
+  }
+}
