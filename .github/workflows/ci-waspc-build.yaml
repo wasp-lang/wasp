@@ -20,9 +20,6 @@ on:
       output_linux-aarch64:
         value: ${{ jobs.build.outputs.output_linux-aarch64 }}
         description: "The build output metadata for linux-aarch64."
-      output_linux-aarch64-static:
-        value: ${{ jobs.build.outputs.output_linux-aarch64-static }}
-        description: "The build output metadata for linux-aarch64-static."
       output_macos-x86_64:
         value: ${{ jobs.build.outputs.output_macos-x86_64 }}
         description: "The build output metadata for macos-x86_64."

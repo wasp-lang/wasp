@@ -24,17 +24,13 @@ jobs:
           - # Linux ARM64 with Glibc
             os: ubuntu-24.04-arm
 
-          - # Linux ARM64 with Musl
-            os: ubuntu-24.04-arm
-            container: alpine:3.23
-
           - # Apple Silicon
             os: macos-latest
 
           - # Apple Intel
             os: macos-15-intel
 
-    name: "${{ format(matrix.runner.container && '{1} on {0}' || '{0}', matrix.runner.os, matrix.runner.container) }}"
+    name: "${{ matrix.runner.container || matrix.runner.os }}"
 
     runs-on: ${{ matrix.runner.os }}
     container: ${{ matrix.runner.container }}
