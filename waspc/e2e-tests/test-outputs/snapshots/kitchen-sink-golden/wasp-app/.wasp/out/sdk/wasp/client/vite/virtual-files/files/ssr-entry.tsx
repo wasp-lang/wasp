@@ -18,19 +18,19 @@ const SPA_FALLBACK_FILE = "200.html";
 const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   const isFallbackPage = route === SPA_FALLBACK_FILE;
 
-  const app = isFallbackPage ? undefined : (await makeStaticApp(route));
+  const staticRouterProvider = isFallbackPage ? undefined : (await makeStaticRouterProvider(route));
 
-  const tree = (
+  const fullAppTree = (
     <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
       <WaspApp>
-        {app}
+        {staticRouterProvider}
       </WaspApp>
     </Layout>
   )
 
   const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
 
-  const html = await reactPrerender(tree, {
+  const html = await reactPrerender(fullAppTree, {
     bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,
   })
     .then((result) => streamConsumers.text(result.prelude))
@@ -44,7 +44,7 @@ const { query, dataRoutes } = createStaticHandler(routeObjects, {
   basename: "/",
 });
 
-async function makeStaticApp(route: string) {
+async function makeStaticRouterProvider(route: string) {
   const req = new Request(new URL(route, "http://localhost"));
 
   const context = await query(req);

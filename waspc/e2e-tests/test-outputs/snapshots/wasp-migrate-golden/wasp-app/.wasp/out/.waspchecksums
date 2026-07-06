@@ -25,14 +25,14 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "b76862df87b9b931e5ee8968fb8335ad93a419ee80045461f66838edf9cb84e7"
+        "edeb63155c6ccc03d3eb1f9bcd543d977275087febf518c6d3e3479f6f1762cf"
     ],
     [
         [
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
         ],
-        "0895210e787ce4f407d11cfa7f120e52ece9aea3eca39936b73a32659ee0e97b"
+        "f6dc5ce1dd3d05ea0004f2b33c8f2e2a8f61fcf5bec87d9eb3bb962f96e4306f"
     ],
     [
         [
@@ -102,14 +102,14 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "5b10f9e997ea1467e2d637feac3ee5c8f564131bb1e50237ab969aa6d4b6a9f8"
+        "42932382c6e025c863a4a3e131cff1a4aa910d3173d372e55b3bd061f4a2c986"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "2b5dc997d1f01dfb8121e415a2d41ea035ce18ae877403036eec61009967f92b"
+        "3f8db611f300550058764b1ea3c453710828d335fb909ba7069e44f6eebda416"
     ],
     [
         [
@@ -312,14 +312,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "2d6c682c53e9aaa2e362025abe39dc37603ae502e05aea394c79143c21fa3ff9"
+        "0fdf894207303eb8f9b072786a2fa3b69da84795db85631fdf32394686f3d863"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/virtualModules.ts"
         ],
-        "ded8c37b86b3b261359655f086cb4fe694de8406b390e65be7aa7bf385407348"
+        "64aba2d2b2135503606db815795b1e6b2f91fb68372188aeee11c29ca9a2d768"
     ],
     [
         [
@@ -340,7 +340,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "12748890979a73623ff358138ba8083d812fa3c84a599d01bdfb6cb94fe2f617"
+        "515a0d762c8c2e74f5b2809c2000e45fc4fbb770a65fcbc536e1945dfd184b77"
     ],
     [
         [
@@ -354,7 +354,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "77e1a44cf8515d3aa1807c7fbfa2d6ac78d5c3e69a74e150e1c7e4b9c1a1e087"
+        "9a0c1f4032ce91549bbcd95630c9da24e27cbc710c95c3c9150bdcf570210b03"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "a274d99cdb10bc20cdde475ba412174820c0e75d68b4180c599a60405e9da3f7"
+        "ed1ba8d3bb450ebeb348dc378e09884c2b1bcb10ed6b8328a1872c95f90d7e93"
     ],
     [
         [
