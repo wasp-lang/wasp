@@ -16,7 +16,7 @@ Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0
 
 ### React Router 8
 
-Wasp now uses **React Router 8**. The upgrade is backwards compatible for typical usage (e.g. `Link`, `NavLink`, `Outlet`), so you only need to bump the `react-router` dependency in your `package.json` (see below).
+Wasp now uses **React Router 8**. The upgrade is backwards compatible for typical usage (e.g. `Link`, `NavLink`, `Outlet`), so you only need to bump the `react-router` dependency.
 
 ## How to migrate?
 
@@ -45,7 +45,42 @@ Update the version field in your Wasp config to `^0.25.0`.
   </TabItem>
 </Tabs>
 
-### 2. Update your TypeScript config for TypeScript 6
+### 2. Update your dependencies in `package.json`
+
+Bump Wasp-required dependencies to their latest version:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // ...
+        "react-router": "^7.12.0"
+      },
+      "devDependencies": {
+        // ...
+        "typescript": "5.9.3"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // ...
+        "react-router": "^8.0.1"
+      },
+      "devDependencies": {
+        // ...
+        "typescript": "6.0.3"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 3. Update your TypeScript config for TypeScript 6
 
 TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly. In `tsconfig.wasp.json`, also bump `target` and `lib` to `ES2025`.
 
@@ -97,58 +132,6 @@ In `tsconfig.src.json`:
         // ...
         "outDir": ".wasp/out/user",
         "types": ["react", "node"]
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-In `package.json`, update the `typescript` dev dependency to `6.0.3`:
-
-<Tabs sideBySide>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // ...
-        "typescript": "5.9.3"
-      }
-    }
-    ```
-  </TabItem>
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // ...
-        "typescript": "6.0.3"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-### 3. Update the React Router dependency
-
-In `package.json`, update the `react-router` dependency to `^8.0.1`:
-
-<Tabs sideBySide>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // ...
-        "react-router": "^7.12.0"
-      }
-    }
-    ```
-  </TabItem>
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // ...
-        "react-router": "^8.0.1"
       }
     }
     ```
