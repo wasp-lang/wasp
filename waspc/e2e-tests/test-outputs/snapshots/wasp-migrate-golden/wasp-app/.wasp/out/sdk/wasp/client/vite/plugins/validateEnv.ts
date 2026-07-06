@@ -35,6 +35,18 @@ export function validateEnv(): Plugin {
         configFile: false,
         plugins: resolvedConfig.plugins
           .filter((plugin) => plugin.name !== PLUGIN_NAME)
+          // Reusing `vite:`-prefixed plugin instances is unsafe: the new
+          // server re-runs their `configResolved`/`buildStart` hooks, and
+          // since Vite 8 those hooks rebind closures shared with the main
+          // server (e.g. `vite:resolve-builtin:get-environment` captures "the
+          // current environment per name", and `vite:react-*` captures the
+          // resolved config). The main server then resolves through this
+          // temporary server's environments (deps optimizer with
+          // `noDiscovery: true`, HMR disabled), breaking CJS dependency
+          // pre-bundling and React Fast Refresh for the whole dev session.
+          // The temporary server creates its own fresh internal plugins, and
+          // Vite transforms TS/JSX natively, so dropping these is safe here.
+          .filter((plugin) => !plugin.name.startsWith("vite:"))
           // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
           // wire long-lived behavior into a dev or preview server: middleware,
           // websocket handlers, file watchers, and similar background tasks.
@@ -46,17 +58,23 @@ export function validateEnv(): Plugin {
           //
           // We don't need either hook to validate the client env schema.
           // We only need module resolution and transforms.
+          //
+          // `buildStart` must not run either: plugins may use it to capture
+          // the environments of the server that fires it (Vite's own internal
+          // plugins do this), and running it here would rebind such closures
+          // to this short-lived server.
           .map((plugin) => ({
             ...plugin,
             configureServer: undefined,
             configurePreviewServer: undefined,
+            buildStart: undefined,
           })),
         // Minimize side effects from spinning up a temporary dev server.
         appType: 'custom',      // avoid HTML handling
-        server: { 
+        server: {
           middlewareMode: true, // do not start an actual HTTP server
-          watch: null, 
-          hmr: false 
+          watch: null,
+          hmr: false
         },
         logLevel: "silent",
         optimizeDeps: { noDiscovery: true, include: [] },
