@@ -28,7 +28,7 @@
                 },
                 {
                     "name": "react-router",
-                    "version": "^7.12.0"
+                    "version": "^8.0.1"
                 },
                 {
                     "name": "tailwind-merge",
@@ -156,7 +156,7 @@
             },
             {
                 "name": "react-router",
-                "version": "^7.12.0"
+                "version": "^8.0.1"
             },
             {
                 "name": "react-hook-form",

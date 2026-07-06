@@ -80,7 +80,7 @@ Everything below applies to both `Link` and `NavLink`.
 
 ### Catch-all routes
 
-If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/7.12.0/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
+If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/8.0.1/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -196,7 +196,7 @@ The `Link` component accepts the following props:
 
 - `hash: string`
 
-- all other props that the `react-router`'s [Link](https://reactrouter.com/7.12.0/api/components/Link) component accepts
+- all other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
 
 ### `NavLink` Component
 
@@ -220,7 +220,7 @@ The `NavLink` component accepts the following props:
 
 - `hash: string`
 
-- all other props that the `react-router`'s [NavLink](https://reactrouter.com/7.12.0/api/components/NavLink) component accepts
+- all other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
 
   - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
 
