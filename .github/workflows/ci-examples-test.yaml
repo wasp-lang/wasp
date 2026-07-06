@@ -8,14 +8,11 @@ env:
 
 jobs:
   test-example-apps:
-    name: "Test Example Apps (${{ matrix.example }}) on ${{ matrix.os }}"
-    runs-on: ${{ matrix.os }}
+    name: Test Example Apps
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-22.04
-          - ubuntu-24.04-arm
         example:
           - tutorials/TodoApp
           - tutorials/TodoAppTs

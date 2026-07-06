@@ -27,9 +27,6 @@ jobs:
           - # Linux ARM64 with Musl
             os: ubuntu-24.04-arm
             container: alpine:3.23
-            # `container` alone isn't enough to tell this job apart from the
-            # x86_64 Musl one in the checks UI, so we give it an explicit name.
-            name: alpine:3.23 (arm64)
 
           - # Apple Silicon
             os: macos-latest
@@ -37,7 +34,7 @@ jobs:
           - # Apple Intel
             os: macos-15-intel
 
-    name: "${{ matrix.runner.name || matrix.runner.container || matrix.runner.os }}"
+    name: "${{ format(matrix.runner.container && '{1} on {0}' || '{0}', matrix.runner.os, matrix.runner.container) }}"
 
     runs-on: ${{ matrix.runner.os }}
     container: ${{ matrix.runner.container }}

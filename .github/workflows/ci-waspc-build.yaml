@@ -82,7 +82,6 @@ jobs:
             # since newer releases might have different versions of the
             # libraries we depend on.
             container: alpine:3.23
-            skip-node-install: true
             static: true
 
           - name: linux-aarch64
@@ -107,7 +106,6 @@ jobs:
             # since newer releases might have different versions of the
             # libraries we depend on.
             container: alpine:3.23
-            skip-node-install: true
             static: true
 
           - name: macos-x86_64
