@@ -12,7 +12,7 @@ import InstallInstructions from './\_install-instructions.md'
 
 ### TypeScript 6
 
-Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.
+Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.<<<<<<< ours
 
 ### React Router 8
 
@@ -21,6 +21,14 @@ Wasp now uses **React Router 8**. The upgrade is backwards compatible for typica
 ### Vite 8
 
 Wasp now uses **Vite 8**, which is powered by [Rolldown](https://rolldown.rs/) (a Rust bundler) instead of Rollup and esbuild, for faster builds. Testing moves to **Vitest 4.1** to stay compatible.
+||||||| original
+
+=======
+
+### React Router 8
+
+Wasp now uses **React Router 8**. The upgrade is backwards compatible for typical usage (e.g. `Link`, `NavLink`, `Outlet`), so you only need to bump the `react-router` dependency.
+>>>>>>> theirs
 
 ## How to migrate?
 
