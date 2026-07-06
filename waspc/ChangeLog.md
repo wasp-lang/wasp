@@ -7,6 +7,7 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
 
 - Upgraded Wasp's TypeScript support to TypeScript 6. ([#4401](https://github.com/wasp-lang/wasp/pull/4401))
+- Upgraded React Router from v7 to v8. Bump `react-router` to `^8.0.1` in your `package.json`. The upgrade is backwards compatible for library usage. ([#XXXX](https://github.com/wasp-lang/wasp/pull/XXXX))
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
 - Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
 
