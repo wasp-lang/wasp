@@ -4,11 +4,16 @@ module Wasp.Project.Db.Dev.Postgres
     makeDevDbName,
     defaultDevPass,
     defaultDevPort,
+    devDbPortEnvVarName,
+    getDevDbPort,
+    parseDevDbPort,
     makeDevConnectionUrl,
   )
 where
 
 import StrongPath (Abs, Dir, Path')
+import System.Environment (lookupEnv)
+import Text.Read (readMaybe)
 import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 
@@ -32,6 +37,25 @@ makeDevDbName waspProjectDir appName =
 defaultDevPort :: Int
 defaultDevPort = 5432 -- 5432 is default port for PostgreSQL db.
 
-makeDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> String
-makeDevConnectionUrl waspProjectDir appName =
-  makeConnectionUrl defaultDevUser defaultDevPass defaultDevPort $ makeDevDbName waspProjectDir appName
+-- | Env var users can set to make Wasp run/connect to the dev database on a
+-- custom host port, e.g. when 5432 is already taken by a local PostgreSQL server.
+devDbPortEnvVarName :: String
+devDbPortEnvVarName = "WASP_DEV_DB_PORT"
+
+-- It reads it from the `WASP_DEV_DB_PORT` env var, defaulting to `defaultDevPort`
+-- when the env var is not set, and erroring out when it holds an invalid value.
+getDevDbPort :: IO Int
+getDevDbPort = do
+  maybePortStr <- lookupEnv devDbPortEnvVarName
+  case maybePortStr of
+    Nothing -> return defaultDevPort
+    Just portStr -> either error return $ parseDevDbPort portStr
+
+parseDevDbPort :: String -> Either String Int
+parseDevDbPort portStr = case readMaybe portStr of
+  Just port | port > 0 && port <= 65535 -> Right port
+  _ -> Left $ devDbPortEnvVarName <> " must be a valid TCP port number (1-65535), but it is set to: " <> portStr
+
+makeDevConnectionUrl :: Int -> Path' Abs (Dir WaspProjectDir) -> String -> String
+makeDevConnectionUrl devDbPort waspProjectDir appName =
+  makeConnectionUrl defaultDevUser defaultDevPass devDbPort $ makeDevDbName waspProjectDir appName
