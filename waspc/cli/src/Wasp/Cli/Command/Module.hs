@@ -14,20 +14,22 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Module as ProjectModule
 
 module_ :: Arguments -> Command ()
 module_ = \case
   ["new", packageName] -> new packageName
   ["install"] -> install
-  ["build"] -> build
+  ["build"] -> build ProjectModule.BuildOnce
+  ["build", "--watch"] -> build ProjectModule.BuildAndWatch
+  ["build", "-w"] -> build ProjectModule.BuildAndWatch
   _ ->
     throwError $
       CommandError
         "Unknown module command"
-        "Usage: wasp module new <name> | wasp module <install|build>"
+        "Usage: wasp module new <name> | wasp module install | wasp module build [--watch]"
 
 new :: String -> Command ()
 new packageName = do
@@ -49,13 +51,13 @@ install = do
     Right () -> cliSendMessageC $ Msg.Success "Wasp module dependencies installed."
     Left errorMessage -> throwError $ CommandError "Failed to install Wasp module dependencies" errorMessage
 
-build :: Command ()
-build = do
+build :: ProjectModule.ModuleBuildMode -> Command ()
+build buildMode = do
   ValidNodeAndNpm <- require
   moduleDir <- getCurrentModuleDir
 
   cliSendMessageC $ Msg.Start "Building Wasp module..."
-  liftIO (ProjectModule.buildModuleIO moduleDir) >>= \case
+  liftIO (ProjectModule.buildModuleIO moduleDir buildMode) >>= \case
     Right () -> cliSendMessageC $ Msg.Success "Wasp module built."
     Left errorMessage -> throwError $ CommandError "Failed to build Wasp module" errorMessage
 

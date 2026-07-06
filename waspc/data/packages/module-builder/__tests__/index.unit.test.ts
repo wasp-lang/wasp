@@ -1,10 +1,44 @@
+import { mkdtempSync, realpathSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import {
   getModulePackageRefSource,
+  parseArgs,
   transformModuleRefImports_mutate,
 } from "../src/index.js";
+
+describe("parseArgs", () => {
+  test("parses a single build", () => {
+    const moduleDir = makeModuleDir();
+
+    expect(parseArgs(["--module-dir", moduleDir])).toEqual({
+      moduleDir: realpathSync(moduleDir),
+      watch: false,
+    });
+  });
+
+  test("parses a watch build", () => {
+    const moduleDir = makeModuleDir();
+
+    expect(parseArgs(["--module-dir", moduleDir, "--watch"])).toEqual({
+      moduleDir: realpathSync(moduleDir),
+      watch: true,
+    });
+  });
+
+  test("rejects unknown arguments", () => {
+    expect(() => parseArgs(["--module-dir", "/module", "--bad"])).toThrow(
+      /Usage:/,
+    );
+  });
+});
+
+function makeModuleDir(): string {
+  return mkdtempSync(path.join(tmpdir(), "wasp-module-builder-test-"));
+}
 
 describe("getModulePackageRefSource", () => {
   test("maps a relative src ref to a package subpath", () => {
