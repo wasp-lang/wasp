@@ -13,12 +13,15 @@ type PackageJson = {
 };
 
 async function main(): Promise<void> {
-  const { moduleDir } = parseArgs(process.argv.slice(2));
+  const { moduleDir, watch } = parseArgs(process.argv.slice(2));
 
-  await buildModule(moduleDir);
+  await buildModule(moduleDir, { watch });
 }
 
-export async function buildModule(moduleDir: string): Promise<void> {
+export async function buildModule(
+  moduleDir: string,
+  { watch = false }: { watch?: boolean } = {},
+): Promise<void> {
   const packageName = readPackageName(moduleDir);
   const moduleSpecPath = path.join(moduleDir, "module.wasp.ts");
 
@@ -34,6 +37,7 @@ export async function buildModule(moduleDir: string): Promise<void> {
     sourcemap: true,
     dts: { sourcemap: true },
     fixedExtension: false,
+    watch,
   } satisfies InlineConfig;
 
   await build({
@@ -59,14 +63,24 @@ export async function buildModule(moduleDir: string): Promise<void> {
   });
 }
 
-function parseArgs(args: string[]): { moduleDir: string } {
-  if (args.length !== 2 || args[0] !== "--module-dir") {
+export function parseArgs(args: string[]): {
+  moduleDir: string;
+  watch: boolean;
+} {
+  if (
+    (args.length !== 2 && args.length !== 3) ||
+    args[0] !== "--module-dir" ||
+    (args.length === 3 && args[2] !== "--watch")
+  ) {
     throw new Error(
-      "Usage: __internal_wasp_module_builder__ --module-dir <path>",
+      "Usage: __internal_wasp_module_builder__ --module-dir <path> [--watch]",
     );
   }
 
-  return { moduleDir: realpathSync(path.resolve(args[1]!)) };
+  return {
+    moduleDir: realpathSync(path.resolve(args[1]!)),
+    watch: args[2] === "--watch",
+  };
 }
 
 function readPackageName(moduleDir: string): string {

@@ -1,5 +1,6 @@
 module Wasp.Project.Module
-  ( createModuleOnDisk,
+  ( ModuleBuildMode (..),
+    createModuleOnDisk,
     installWaspDependenciesIO,
     installModuleIO,
     buildModuleIO,
@@ -15,16 +16,20 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Path.IO (copyDirRecur)
 import StrongPath (Abs, Dir, Dir', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
-import StrongPath.Path (toPathAbsDir)
 import qualified StrongPath as SP
+import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesFileExist, doesPathExist)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import qualified System.Process as P
 import qualified Wasp.Data as Data
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions, tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util.Terminal (styleCode)
+import qualified Wasp.Version as WV
+
+data ModuleBuildMode = BuildOnce | BuildAndWatch
 
 createModuleOnDisk :: FilePath -> String -> IO (Either String ())
 createModuleOnDisk moduleDir packageName = do
@@ -50,15 +55,29 @@ installWaspDependenciesIO projectDir = do
   messageChan <- newChan
   installProjectNpmDependencies messageChan projectDir
 
-buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-buildModuleIO moduleDir = do
+buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> ModuleBuildMode -> IO (Either String ())
+buildModuleIO moduleDir buildMode = do
   ensureIsModuleDir moduleDir >>= \case
     Left errorMessage -> return $ Left errorMessage
-    Right () -> runModuleBuilder moduleDir
+    Right () ->
+      ensureInstalledModuleDependencies moduleDir >>= \case
+        Left errorMessage -> return $ Left errorMessage
+        Right () -> runModuleBuilder moduleDir buildMode
 
-runModuleBuilder :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-runModuleBuilder moduleDir = do
-  cp <- getPackageProcessOptions ModuleBuilderPackage ["--module-dir", fromAbsDir moduleDir]
+ensureInstalledModuleDependencies :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+ensureInstalledModuleDependencies moduleDir =
+  tryGettingInstalledPackageVersion moduleDir WaspSpecPackage >>= \case
+    Left _ -> return $ Left missingDepsError
+    Right installedWaspSpecVersion
+      | installedWaspSpecVersion == WV.waspVersion -> return $ Right ()
+      | otherwise -> return $ Left missingDepsError
+  where
+    missingDepsError =
+      "Your module dependencies are out of date. Run " ++ styleCode "wasp module install" ++ " to fix this."
+
+runModuleBuilder :: Path' Abs (Dir WaspProjectDir) -> ModuleBuildMode -> IO (Either String ())
+runModuleBuilder moduleDir buildMode = do
+  cp <- getPackageProcessOptions ModuleBuilderPackage $ buildModuleBuilderArgs moduleDir buildMode
   let cpInheritHandles =
         cp
           { P.std_in = P.Inherit,
@@ -70,6 +89,13 @@ runModuleBuilder moduleDir = do
   case exitCode of
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "Module build failed with exit code: " ++ show code
+
+buildModuleBuilderArgs :: Path' Abs (Dir WaspProjectDir) -> ModuleBuildMode -> [String]
+buildModuleBuilderArgs moduleDir buildMode =
+  ["--module-dir", fromAbsDir moduleDir]
+    ++ case buildMode of
+      BuildOnce -> []
+      BuildAndWatch -> ["--watch"]
 
 ensureIsModuleDir :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 ensureIsModuleDir moduleDir = do

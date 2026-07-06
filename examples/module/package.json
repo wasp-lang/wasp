@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "wasp module build",
+    "build:watch": "wasp module build --watch",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
