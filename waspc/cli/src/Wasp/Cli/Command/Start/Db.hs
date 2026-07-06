@@ -47,12 +47,15 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 
   let (appName, _) = ASV.getApp appSpec
 
+  devDbPort <- liftIO Dev.Postgres.getDevDbPort
+
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
     AS.App.Db.PostgreSQL ->
       startPostgresDevDb
         waspProjectDir
         appName
+        devDbPort
         (dbImage args)
         (dbVolumeMountPath args)
   where
@@ -117,8 +120,8 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DockerImageName -> DockerVolumeMountPath -> Command ()
-startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Int -> DockerImageName -> DockerVolumeMountPath -> Command ()
+startPostgresDevDb waspProjectDir appName devDbPort dbDockerImage dbDockerVolumeMountPath = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
@@ -148,7 +151,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
           [ "docker run",
             printf "--name %s" dockerContainerName,
             "--rm",
-            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
+            printf "--publish %d:5432" devDbPort,
             printf "-v %s:%s" dockerVolumeName dbDockerVolumeMountPath,
             printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
             printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
@@ -160,7 +163,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
     dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
-    connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
+    connectionUrl = Dev.Postgres.makeDevConnectionUrl devDbPort waspProjectDir appName
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
@@ -170,14 +173,17 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
       whenM (liftIO $ Socket.checkIfPortIsInUse devDbSocketAddress) throwPortAlreadyInUseError
       whenM (liftIO $ Socket.checkIfPortIsAcceptingConnections devDbSocketAddress) throwPortAlreadyInUseError
       where
-        devDbSocketAddress = Socket.makeLocalHostSocketAddress $ fromIntegral Dev.Postgres.defaultDevPort
+        devDbSocketAddress = Socket.makeLocalHostSocketAddress $ fromIntegral devDbPort
         throwPortAlreadyInUseError =
           E.throwError $
             CommandError
               "Port already in use"
               ( printf
-                  "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
-                  Dev.Postgres.defaultDevPort
+                  ( "Wasp can't run PostgreSQL dev database for you since port %d is already in use.\n"
+                      <> "You can make Wasp use a different port by setting the %s env var."
+                  )
+                  devDbPort
+                  Dev.Postgres.devDbPortEnvVarName
               )
 
 -- | Docker volume name unique for the Wasp project with specified path and name.
