@@ -22,10 +22,9 @@ export function waspVirtualModules(): Plugin {
     configResolved(config) {
       virtualFiles = resolveVirtualFiles(config.root);
     },
-    // We resolve virtual ids to their fake on-disk path, and we also claim
-    // that fake path itself. The latter is required because tooling (e.g. the
-    // React Fast Refresh wrapper on Vite 8) can re-import a module by its
-    // resolved id, and that fake path must stay resolvable back to us.
+    // We resolve virtual ids to their fake on-disk path, and we also claim that
+    // fake path itself, since Vite and other plugins may request either
+    // indiscriminately.
     resolveId: (id) =>
       virtualFiles.ids.get(id) ?? (virtualFiles.loaders.has(id) ? id : undefined),
     load(id) {
