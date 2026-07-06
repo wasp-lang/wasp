@@ -5,7 +5,7 @@ import { normalizeRefObjectPath } from "./refObjectPath.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
- * A reference to code in your app's `src` directory.
+ * A reference to code used by a Wasp app or module.
  *
  * @category References
  */
@@ -36,10 +36,10 @@ export interface NamedRefObjectDescriptor {
    * Optional local alias.
    *
    * Alias takes precedence over the `import` field when
-   * Wasp Spec dervies some {@link WaspSpec.SpecElement} name.
+   * Wasp Spec derives some {@link WaspSpec.SpecElement} name.
    */
   alias?: string;
-  /** Module path, relative to the `*.wasp.ts` file using it. */
+  /** Relative app path or package specifier. */
   from: string;
 }
 
@@ -52,21 +52,21 @@ export interface NamedRefObjectDescriptor {
 export interface DefaultRefObjectDescriptor {
   /** Local name for the default import. */
   importDefault: string;
-  /** Module path, relative to the `*.wasp.ts` file using it. */
+  /** Relative app path or package specifier. */
   from: string;
 }
 
 /**
- * Creates a fallback reference object for a value from your app.
+ * Creates a fallback reference object for a value from your app or module.
  *
  * {@include ./publicApi/referenceImports.md}
  *
  * Reference imports are preferred because editors can follow and rename real
  * imports.
  *
- * The import path must be relative to the `*.wasp.ts` file where it is used
- * and resolve inside the app's `src/` directory. Absolute
- * paths are not supported.
+ * Relative import paths must resolve inside the app's `src/` directory.
+ * Non-relative import paths are treated as package imports.
+ * Absolute paths are not supported.
  *
  * @category References
  *
@@ -119,14 +119,14 @@ export function mapRefObject(
     return {
       kind: "named",
       name: refObject.import,
-      path: mapRefObjectPath(refObject, { projectRootDir }),
+      source: mapRefObjectSource(refObject, { projectRootDir }),
       alias: refObject.alias,
     };
   } else if (isDefaultRefObject(refObject)) {
     return {
       kind: "default",
       name: refObject.importDefault,
-      path: mapRefObjectPath(refObject, { projectRootDir }),
+      source: mapRefObjectSource(refObject, { projectRootDir }),
     };
   } else {
     throw new SpecUserError(
@@ -152,21 +152,70 @@ export function getRefObjectDeclarationName(refObject: unknown): string {
   );
 }
 
-function mapRefObjectPath(
+function mapRefObjectSource(
   refObject: RefObjectDescriptor,
   { projectRootDir }: { projectRootDir: string },
-): AppSpec.ExtImport["path"] {
+): AppSpec.ExtImportSource {
+  if (isAbsoluteRefPath(refObject.from)) {
+    throw new SpecUserError(
+      `Absolute ref paths are not supported: ${JSON.stringify(refObject.from)}. Use a relative path or a package import.`,
+    );
+  }
+
+  if (!refObject.from.startsWith(".")) {
+    return {
+      kind: "package",
+      ...splitPackageSpecifier(refObject.from),
+    };
+  }
+
   if (!hasSourceFilePath(refObject)) {
     throw new SpecUserError(
       `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
   }
 
-  return normalizeRefObjectPath({
-    importPath: refObject.from,
-    importingFilePath: refObject.sourceFilePath,
-    projectRootDir,
-  });
+  return {
+    kind: "project-src",
+    path: normalizeRefObjectPath({
+      importPath: refObject.from,
+      importingFilePath: refObject.sourceFilePath,
+      projectRootDir,
+    }),
+  };
+}
+
+function splitPackageSpecifier(
+  specifier: string,
+): Omit<AppSpec.PackageExtImportSource, "kind"> {
+  const [firstPart, secondPart, ...remainingParts] = specifier.split("/");
+
+  if (specifier.startsWith("@")) {
+    if (!secondPart) {
+      throw new SpecUserError(
+        `Scoped package ref ${JSON.stringify(specifier)} must include both scope and package name.`,
+      );
+    }
+
+    return {
+      packageName: `${firstPart}/${secondPart}`,
+      subpath: remainingParts.join("/") || undefined,
+    };
+  }
+
+  return {
+    packageName: firstPart ?? "",
+    subpath:
+      [secondPart, ...remainingParts].filter(Boolean).join("/") || undefined,
+  };
+}
+
+function isAbsoluteRefPath(path: string): boolean {
+  return (
+    path.startsWith("/") ||
+    /^[A-Za-z]:[\\/]/.test(path) ||
+    path.startsWith("\\\\")
+  );
 }
 
 type RefObjectSource = {

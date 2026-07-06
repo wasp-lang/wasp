@@ -22,7 +22,7 @@ export function normalizeRefObjectPath({
   importPath: string;
   importingFilePath: string;
   projectRootDir: string;
-}): AppSpec.ExtImport["path"] {
+}): AppSpec.ProjectSrcExtImportSource["path"] {
   const srcRelativePath = getValidSrcRelativePath({
     importPath,
     importingFilePath,
@@ -108,8 +108,11 @@ function getPathInsideRoot(
 
 function toAppSpecExtImportPath(
   srcRelativePath: string,
-): AppSpec.ExtImport["path"] {
-  return path.join("@src", srcRelativePath) as AppSpec.ExtImport["path"];
+): AppSpec.ProjectSrcExtImportSource["path"] {
+  return path.join(
+    "@src",
+    srcRelativePath,
+  ) as AppSpec.ProjectSrcExtImportSource["path"];
 }
 
 function isValidSrcRelativeFilePath(srcRelativePath: string): boolean {

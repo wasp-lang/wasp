@@ -4,14 +4,19 @@
 
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
+    ExtImportSource (..),
     ExtImportName (..),
+    PackageImportSource (..),
+    ProjectSrcExtImportPath,
     importIdentifier,
+    packageImportSourceToImportSpecifier,
     parseExtImportPath,
   )
 where
 
 import Control.Arrow (left)
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:), (.:?))
+import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
 import Data.List (stripPrefix)
@@ -23,8 +28,8 @@ import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 data ExtImport = ExtImport
   { -- | What is being imported.
     name :: ExtImportName,
-    -- | Path from which we are importing.
-    path :: ExtImportPath,
+    -- | Source from which we are importing.
+    source :: ExtImportSource,
     -- | Local alias used in the Wasp config.
     alias :: Maybe Identifier
   }
@@ -34,18 +39,39 @@ instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
     kindStr <- o .: "kind"
     nameStr <- o .: "name"
-    pathStr <- o .: "path"
+    source <- o .: "source"
     aliasStr <- o .:? "alias"
     extImportName <- parseExtImportName kindStr nameStr
-    extImportPath <- either fail pure $ parseExtImportPath pathStr
-    return $ ExtImport extImportName extImportPath aliasStr
+    return $ ExtImport extImportName source aliasStr
     where
       parseExtImportName kindStr nameStr = case kindStr of
         "default" -> pure $ ExtImportModule nameStr
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
 
-type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
+type ProjectSrcExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
+
+data ExtImportSource
+  = ProjectSrcExtImportSource ProjectSrcExtImportPath
+  | PackageExtImportSource PackageImportSource
+  deriving (Show, Eq, Data)
+
+instance FromJSON ExtImportSource where
+  parseJSON = withObject "ExtImportSource" $ \o -> do
+    kindStr <- o .: "kind"
+    case kindStr of
+      "project-src" -> do
+        pathStr <- o .: "path"
+        projectSrcPath <- either fail pure $ parseExtImportPath pathStr
+        return $ ProjectSrcExtImportSource projectSrcPath
+      "package" -> PackageExtImportSource <$> parseJSON (Aeson.Object o)
+      _ -> fail $ "Failed to parse import source kind: " <> kindStr
+
+data PackageImportSource = PackageImportSource
+  { packageName :: String,
+    subpath :: Maybe String
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 type Identifier = String
 
@@ -63,7 +89,11 @@ importIdentifier (ExtImport importName _ maybeAlias) = case maybeAlias of
     ExtImportModule n -> n
     ExtImportField n -> n
 
-parseExtImportPath :: String -> Either String ExtImportPath
+packageImportSourceToImportSpecifier :: PackageImportSource -> String
+packageImportSourceToImportSpecifier (PackageImportSource packageName maybeSubpath) =
+  packageName ++ maybe "" ("/" ++) maybeSubpath
+
+parseExtImportPath :: String -> Either String ProjectSrcExtImportPath
 parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
   Nothing -> Left $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
   Just relFileFP ->

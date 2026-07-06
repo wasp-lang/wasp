@@ -30,14 +30,18 @@ extOperationImportToImportJson =
     . extImportToJsImport
 
 extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+extImportToJsImport extImport@(EI.ExtImport extImportName extImportSource _) =
   JsImport
     { _kind = ValueImport,
-      _path = ModuleImportPath importPath,
+      _path = importPath,
       _name = importName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    importPath = makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
+    importPath = case extImportSource of
+      EI.ProjectSrcExtImportSource projectSrcPath ->
+        ModuleImportPath $ makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel projectSrcPath
+      EI.PackageExtImportSource packageImportSource ->
+        RawImportName $ EI.packageImportSourceToImportSpecifier packageImportSource
     extCodeDirP = fromJust $ relDirToPosix extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName

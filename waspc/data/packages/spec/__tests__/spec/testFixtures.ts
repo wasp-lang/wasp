@@ -629,7 +629,7 @@ export function getRefObject(
   }
 }
 
-const getRefObjectForMockProject = _waspMakeRef(MOCK_MAIN_WASP_TS_PATH);
+export const getRefObjectForMockProject = _waspMakeRef(MOCK_MAIN_WASP_TS_PATH);
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
 

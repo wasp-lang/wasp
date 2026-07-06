@@ -12,6 +12,7 @@
     "test:install-deps": "playwright install --with-deps"
   },
   "dependencies": {
+    "@kitchen-sink/module": "file:../module",
     "@tanstack/react-query": "~4.42.0",
     "chai": "^5.2.0",
     "clsx": "^2.1.1",

@@ -18,11 +18,27 @@ try {
 
 function buildPackages(): void {
   const dataPackagesDirPath = getDataPackagesDirPath();
-  const packageDirs = discoverSubDirs(dataPackagesDirPath);
+  const packageDirs = orderPackageDirs(discoverSubDirs(dataPackagesDirPath));
 
   for (const packageDir of packageDirs) {
     buildPackage(packageDir);
   }
+}
+
+function orderPackageDirs(packageDirs: string[]): string[] {
+  const packageDirsWithNames = packageDirs.map((dir) => ({
+    dir,
+    name: getPackageJson(dir).name,
+  }));
+
+  packageDirsWithNames.sort((a, b) => {
+    // module-builder imports @wasp.sh/spec/internal from spec's built dist.
+    if (a.name === "@wasp.sh/spec") return -1;
+    if (b.name === "@wasp.sh/spec") return 1;
+    return a.dir.localeCompare(b.dir);
+  });
+
+  return packageDirsWithNames.map(({ dir }) => dir);
 }
 
 function buildPackage(packageDir: string): void {

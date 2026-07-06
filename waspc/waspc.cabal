@@ -24,6 +24,11 @@ data-files:
   --   it has to be followed by extension, which is why we have to manually list all of the extensions,
   --   and also files with no extension.
   --   Check https://github.com/haskell/cabal/issues/5883 for more details.
+  Cli/module-template/**/*.json
+  Cli/module-template/**/*.md
+  Cli/module-template/**/*.ts
+  Cli/module-template/**/*.tsx
+  Cli/module-template/.gitignore
   Cli/starters/**/*.css
   Cli/starters/**/*.js
   Cli/starters/**/*.json
@@ -58,6 +63,9 @@ data-files:
   packages/deploy/dist/**/*.js
   packages/deploy/package-lock.json
   packages/deploy/package.json
+  packages/module-builder/dist/**/*.js
+  packages/module-builder/package-lock.json
+  packages/module-builder/package.json
   packages/prisma/dist/**/*.js
   packages/prisma/package-lock.json
   packages/prisma/package.json
@@ -369,6 +377,7 @@ library
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
+    Wasp.Project.Module
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -508,6 +517,7 @@ library cli-lib
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
+    Wasp.Cli.Command.Module
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
     Wasp.Cli.Command.News.Display

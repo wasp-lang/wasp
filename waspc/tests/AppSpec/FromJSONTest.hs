@@ -30,7 +30,16 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.path = [relfileP|folder/file.js|],
+                ExtImport.source = ExtImport.ProjectSrcExtImportSource [relfileP|folder/file.js|],
+                ExtImport.alias = Nothing
+              }
+          )
+    it "parses a valid package ext import" $
+      extPackageImportJson
+        `shouldDecodeTo` Just
+          ( ExtImport.ExtImport
+              { ExtImport.name = ExtImport.ExtImportField "foo",
+                ExtImport.source = ExtImport.PackageExtImportSource $ ExtImport.PackageImportSource "@scope/pkg" (Just "folder/file.js"),
                 ExtImport.alias = Nothing
               }
           )
@@ -39,7 +48,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.path = [relfileP|folder/file.js|],
+                ExtImport.source = ExtImport.ProjectSrcExtImportSource [relfileP|folder/file.js|],
                 ExtImport.alias = Just "bar"
               }
           )
@@ -48,7 +57,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportModule "foo",
-                ExtImport.path = [relfileP|folder/subfolder/file.js|],
+                ExtImport.source = ExtImport.ProjectSrcExtImportSource [relfileP|folder/subfolder/file.js|],
                 ExtImport.alias = Nothing
               }
           )
@@ -57,7 +66,7 @@ spec_AppSpecFromJSON = do
           {
             "kind": "invalid",
             "name" : "foo",
-            "path": "file.js" 
+            "source": { "kind": "project-src", "path": "file.js" }
           }
         |]
         `shouldDecodeTo` (Nothing :: Maybe ExtImport.ExtImport)
@@ -374,9 +383,10 @@ spec_AppSpecFromJSON = do
               }
           )
   where
-    extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.js" }|]
-    extAliasedImportJson = [trimming| { "kind": "named", "name" : "foo", "path": "@src/folder/file.js", "alias": "bar" }|]
-    extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "path": "@src/folder/subfolder/file.js" }|]
+    extNamedImportJson = [trimming| { "kind": "named", "name" : "foo", "source": { "kind": "project-src", "path": "@src/folder/file.js" } }|]
+    extPackageImportJson = [trimming| { "kind": "named", "name" : "foo", "source": { "kind": "package", "packageName": "@scope/pkg", "subpath": "folder/file.js" } }|]
+    extAliasedImportJson = [trimming| { "kind": "named", "name" : "foo", "source": { "kind": "project-src", "path": "@src/folder/file.js" }, "alias": "bar" }|]
+    extDefaultImportJson = [trimming| { "kind": "default", "name" : "foo", "source": { "kind": "project-src", "path": "@src/folder/subfolder/file.js" } }|]
 
     fooEntityRef = [trimming| { "name": "foo", "declType": "Entity" }|]
     barEntityRef = [trimming| { "name": "bar", "declType": "Entity" }|]

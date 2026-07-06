@@ -176,6 +176,7 @@ function scaffoldProject({
         strict: true,
         allowJs: true,
         noEmit: true,
+        skipLibCheck: true,
       },
       include: ["main.wasp.ts", "**/*.wasp.ts"],
     }),
