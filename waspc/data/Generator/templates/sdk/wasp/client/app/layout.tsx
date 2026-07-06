@@ -10,7 +10,7 @@ export function Layout({
   isFallbackPage?: boolean;
   clientEntrySrc?: string;
 }) {
-  const shouldRenderContent = useShouldRenderContent(isFallbackPage);
+  const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage);
 
   return (
     <StrictMode>
@@ -57,21 +57,21 @@ export function Layout({
         </head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>
-          {shouldRenderContent ? children : null}
+          {shouldRenderAppContent ? children : null}
         </body>
       </html>
     </StrictMode>
   );
 }
 
-function useShouldRenderContent(isFallbackPage: boolean) {
+function useShouldRenderAppContent(isFallbackPage: boolean) {
   // We always want to render the content on the client.
   const getOnClient = () => true;
 
   // On the server, we only want to render the content if it's not a fallback page.
   const getOnServer = () => !isFallbackPage;
 
-  const shouldRenderContent =
+  const shouldRenderAppContent =
     // We use `useSyncExternalStore` because it allows us to have different
     // values on the server and client without hydration errors. The semantics
     // also match, as in this case the fallback status is the synchronous state
@@ -82,7 +82,7 @@ function useShouldRenderContent(isFallbackPage: boolean) {
       getOnServer,
     );
 
-  return shouldRenderContent;
+  return shouldRenderAppContent;
 }
 
 // The subscribe function is expected to only change when the store changes.

@@ -39,7 +39,7 @@ import "superjson";
   }
 })();
 function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntrySrc }) {
-  const shouldRenderContent = useShouldRenderContent(isFallbackPage2);
+  const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage2);
   return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
     /* @__PURE__ */ jsxs("head", { children: [
       /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
@@ -73,21 +73,21 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
     ] }),
     /* @__PURE__ */ jsxs("body", { children: [
       /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      shouldRenderContent ? children : null
+      shouldRenderAppContent ? children : null
     ] })
   ] }) });
 }
-function useShouldRenderContent(isFallbackPage2) {
+function useShouldRenderAppContent(isFallbackPage2) {
   const getOnClient = () => true;
   const getOnServer = () => !isFallbackPage2;
-  const shouldRenderContent = (
+  const shouldRenderAppContent = (
     // We use `useSyncExternalStore` because it allows us to have different
     // values on the server and client without hydration errors. The semantics
     // also match, as in this case the fallback status is the synchronous state
     // we are reading from, it just never changes after being first initialized.
     useSyncExternalStore(emptySubscribe, getOnClient, getOnServer)
   );
-  return shouldRenderContent;
+  return shouldRenderAppContent;
 }
 function emptySubscribe() {
   const emptyUnsubscribe = () => {
@@ -427,10 +427,10 @@ const router = createBrowserRouter(routeObjects, {
   hydrationData: window.__staticRouterHydrationData
 });
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
-const app = waitForRouterInitialized(router).then(() => /* @__PURE__ */ jsx(RouterProvider, { router }));
-const tree = /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: app }) });
+const routerProviderPromise = waitForRouterInitialized(router).then(() => /* @__PURE__ */ jsx(RouterProvider, { router }));
+const fullAppTree = /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise }) });
 startTransition(() => {
-  hydrateRoot(document, tree);
+  hydrateRoot(document, fullAppTree);
 });
 async function waitForRouterInitialized(router2) {
   if (router2.state.initialized) {

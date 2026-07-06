@@ -19,21 +19,21 @@ const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
 // We embed this data at prerendering time.
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
 
-const app =
+const routerProviderPromise =
   waitForRouterInitialized(router).then(() => (
     <RouterProvider router={router} />
   ))
 
-const tree = (
+const fullAppTree = (
   <Layout isFallbackPage={isFallbackPage}>
     <WaspApp>
-      {app}
+      {routerProviderPromise}
     </WaspApp>
   </Layout>
 )
 
 startTransition(() => {
-  hydrateRoot(document, tree);
+  hydrateRoot(document, fullAppTree);
 });
 
 async function waitForRouterInitialized(
