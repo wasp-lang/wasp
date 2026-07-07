@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { ReactNode, ComponentType } from 'react'
+import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
@@ -10,10 +10,7 @@ import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 
 import { routes } from '../router/index'
 
-type RouteMapping = Record<
-  string,
-  { Component: ComponentType }
->;
+type RouteMapping = Record<string, RouteObject>;
 
 export function getRouteObjects({
   routesMapping,
