@@ -37,29 +37,7 @@ export function validateEnv(): Plugin {
           .filter((plugin) => plugin.name !== PLUGIN_NAME)
           // Ignore `vite:`-prefixed plugins since Vite will recreate them for
           // the temporary server anyway.
-          .filter((plugin) => !plugin.name.startsWith("vite:"))
-          // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
-          // wire long-lived behavior into a dev or preview server: middleware,
-          // websocket handlers, file watchers, and similar background tasks.
-          //
-          // Plugins are supposed to clean these up by returning a teardown
-          // function from the hook, but some forget to, so resources they
-          // allocate end up outliving the server. This forces the original
-          // Vite process to be alive indefinitely.
-          //
-          // We don't need either hook to validate the client env schema.
-          // We only need module resolution and transforms.
-          //
-          // `buildStart` must not run either: plugins may use it to capture
-          // the environments of the server that fires it (Vite's own internal
-          // plugins do this), and running it here would rebind such closures
-          // to this short-lived server.
-          .map((plugin) => ({
-            ...plugin,
-            configureServer: undefined,
-            configurePreviewServer: undefined,
-            buildStart: undefined,
-          })),
+          .filter((plugin) => !plugin.name.startsWith("vite:")),
         // Minimize side effects from spinning up a temporary dev server.
         appType: 'custom',      // avoid HTML handling
         server: {
