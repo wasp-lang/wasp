@@ -31,12 +31,12 @@ version = "3.12.1.0"
 backend = "aqua:haskell/cabal/cabal-install"
 
 [tools.cabal."platforms.linux-arm64"]
-checksum = "sha256:7642f4bfb4eb88ed82b4022940ad53206012ab116a19a367579ca6a7c2adb6d2"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install-3.12.1.0-aarch64-linux-alpine3_22.tar.xz"
+checksum = "sha256:69b978d843503dfd9c42d6da0195b46ed35d12040e833810c335c1c012e72ec3"
+url = "https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install-3.12.1.0-aarch64-linux-alpine3_18.tar.xz"
 
 [tools.cabal."platforms.linux-arm64-musl"]
-checksum = "sha256:7642f4bfb4eb88ed82b4022940ad53206012ab116a19a367579ca6a7c2adb6d2"
-url = "https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install-3.12.1.0-aarch64-linux-alpine3_22.tar.xz"
+checksum = "sha256:69b978d843503dfd9c42d6da0195b46ed35d12040e833810c335c1c012e72ec3"
+url = "https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install-3.12.1.0-aarch64-linux-alpine3_18.tar.xz"
 
 [tools.cabal."platforms.linux-x64"]
 checksum = "sha256:6fa71b75c87cd57700348fc9c089703201aac5fd248a92e6bc7346fd2e007da7"
