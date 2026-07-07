@@ -20,7 +20,7 @@ Wasp now uses **React Router 8**. The upgrade is backwards compatible for typica
 
 ### Vite 8
 
-Wasp now uses **Vite 8**, which is powered by [Rolldown](https://rolldown.rs/) (a Rust bundler) instead of Rollup and esbuild, for faster builds. Testing moves to **Vitest 4.1** to stay compatible.
+Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster builds. Testing moves to **Vitest 4.1** to stay compatible.
 
 ## How to migrate?
 
