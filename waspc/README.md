@@ -50,6 +50,11 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Setup
 
+> [!IMPORTANT]
+> **On Windows**, develop Wasp using the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt.
+>
+> If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux setup instructions instead.
+
 #### Dev tooling
 
 We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
@@ -87,13 +92,6 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ```
 
 to ensure all the tests are passing.
-
-> [!NOTE]
-> On Windows, the powershell's active code page should be changed to utf-8 to support special letters in some test suits (ref. [PR3027](https://github.com/wasp-lang/wasp/pull/3027)).
->
-> ```ps
-> chcp 65001
-> ```
 
 ### Run the `wasp` CLI
 

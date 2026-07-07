@@ -50,7 +50,7 @@ getWaspcDirPath = do
   SP.parseAbsDir absCwd
 
 waspCliDevToolInWaspcDir :: Path' (Rel WaspcDir) File'
-waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev.ts|]
+waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev|]
 
 waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
 waspcDirInGitRootDir = [reldir|waspc|]
