@@ -30,6 +30,7 @@ import Wasp.Project.Common
     tsConfigPaths,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
+import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
@@ -86,7 +87,8 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
-  let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
+  devDbPort <- DevPostgres.getDevDbPort
+  let devDbUrl = makeDevDatabaseUrl devDbPort waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
 

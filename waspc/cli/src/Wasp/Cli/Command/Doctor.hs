@@ -9,6 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Functor ((<&>))
 import Data.Maybe (catMaybes)
 import System.Directory (findExecutable)
+import System.Environment (lookupEnv)
 import System.Exit (ExitCode (ExitSuccess))
 import System.IO.Error (catchIOError, tryIOError)
 import qualified System.Info
@@ -51,7 +52,7 @@ checks =
     ("Docker", checkDocker >> return "running"),
     makePortCheck "Client" WebApp.defaultClientPort,
     makePortCheck "Server" Server.defaultServerPort,
-    makePortCheck "Dev database" Dev.Postgres.defaultDevPort
+    ("Dev database port", checkDevDbPortIsFree)
   ]
   where
     makePortCheck name port =
@@ -128,3 +129,12 @@ checkPortIsFree port =
       False -> return ()
   where
     checkIfLocalPortIsInuse = Socket.checkIfPortIsInUse . Socket.makeLocalHostSocketAddress . fromIntegral
+
+checkDevDbPortIsFree :: Check String
+checkDevDbPortIsFree = do
+  port <-
+    ExceptT $
+      maybe (Right Dev.Postgres.defaultDevPort) Dev.Postgres.parseDevDbPort
+        <$> lookupEnv Dev.Postgres.devDbPortEnvVarName
+  checkPortIsFree port
+  return $ "free (" ++ show port ++ ")"
