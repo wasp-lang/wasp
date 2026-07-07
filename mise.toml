@@ -1,4 +1,4 @@
-min_version = "2026.7.0"
+min_version = "2026.7.1"
 
 [tools]
 ghcup = "0.2.6.2"
@@ -21,6 +21,9 @@ cabal = "3.16.1.0"
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.14.1"
 
+# TODO: Provide a fallback for Linux ARM64 and macOS x64, where cabal-gild is
+# not prebuilt on GitHub.
+# https://github.com/jdx/mise/discussions/10828
 "github:tfausak/cabal-gild" = "1.8.4.1"
 
 ormolu = "0.8.1.1"
@@ -31,7 +34,7 @@ ormolu = "0.8.1.1"
 
 [plugins]
 "vfox:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
-"vfox:mise-cabal" = "https://github.com/cprecioso/mise-cabal.git"
+"vfox:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
