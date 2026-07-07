@@ -193,7 +193,12 @@ export type EmailSender = {
   defaultFrom: Optional<EmailFromField>;
 };
 
-export type EmailProvider = "SMTP" | "SendGrid" | "Mailgun" | "Resend" | "Dummy";
+export type EmailProvider =
+  | "SMTP"
+  | "SendGrid"
+  | "Mailgun"
+  | "Resend"
+  | "Dummy";
 
 export type EmailFromField = {
   name: Optional<string>;
