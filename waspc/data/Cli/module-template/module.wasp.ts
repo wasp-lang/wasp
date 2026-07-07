@@ -1,4 +1,8 @@
-import { page, route } from "@wasp.sh/spec";
+import { page, query, route, type Spec } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
+import { getModuleContent } from "./src/queries" with { type: "ref" };
 
-export const moduleSpec = [route("ModuleRoute", "/module", page(MainPage))];
+export const moduleSpec: Spec = [
+  route("ModuleRoute", "/module", page(MainPage)),
+  query(getModuleContent),
+];

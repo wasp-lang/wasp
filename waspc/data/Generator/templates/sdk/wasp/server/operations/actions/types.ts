@@ -16,7 +16,7 @@ import {
 
 {=# operations =}
 // PUBLIC API
-export type {= typeName =}<Input extends Payload = never, Output extends Payload = Payload> = 
+export type {= typeName =}<Input extends Payload = never, Output extends Payload = Payload> =
   {=# usesAuth =}
   AuthenticatedActionDefinition<
   {=/ usesAuth =}

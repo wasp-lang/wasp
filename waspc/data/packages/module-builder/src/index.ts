@@ -1,7 +1,15 @@
 import type { RefObjectDescriptor } from "@wasp.sh/spec";
 import { transformRefImports_mutate } from "@wasp.sh/spec/internal";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { RolldownMagicString } from "rolldown";
@@ -48,19 +56,141 @@ export async function buildModule(
     platform: "node",
     target: "node22",
     deps: {
-      neverBundle: ["@wasp.sh/spec", "@wasp.sh/spec/internal"],
+      alwaysBundle: [/.*/],
+    },
+    hooks: {
+      "build:done": () => {
+        writeLooseModuleSpecTypes(moduleDir);
+      },
     },
   });
 
-  await build({
-    ...commonOptions,
-    clean: false,
-    entry: { "*": ["src/**/*.ts", "src/**/*.tsx", "!src/**/*.d.ts"] },
-    platform: "neutral",
-    deps: {
-      neverBundle: ["react", "react/jsx-runtime", "wasp/client/operations"],
+  const sourceEntries = getSourceEntries(moduleDir);
+  if (Object.keys(sourceEntries).length > 0) {
+    await build({
+      ...commonOptions,
+      clean: false,
+      entry: sourceEntries,
+      platform: "neutral",
+      deps: {
+        neverBundle: ["react", "react/jsx-runtime", /^wasp\//],
+      },
+    });
+  }
+}
+
+function writeLooseModuleSpecTypes(moduleDir: string): void {
+  const moduleSpec = readFileSync(
+    path.join(moduleDir, "module.wasp.ts"),
+    "utf8",
+  );
+  writeFileSync(
+    path.join(moduleDir, "dist", "spec.d.ts"),
+    getLooseModuleSpecTypes(moduleSpec),
+  );
+  rmSync(path.join(moduleDir, "dist", "spec.d.ts.map"), { force: true });
+}
+
+export function getLooseModuleSpecTypes(moduleSpec: string): string {
+  const exportedNames = [
+    ...getDirectExportNames(moduleSpec),
+    ...getNamedExportNames(moduleSpec),
+  ];
+  const uniqueExportedNames = [...new Set(exportedNames)].sort();
+  const hasDefaultExport =
+    /export\s+default\b/.test(moduleSpec) ||
+    /export\s+(?!type\b)\{[^}]+\bas\s+default\b[^}]*\}/.test(moduleSpec);
+  const typeLines = [
+    ...uniqueExportedNames.map(
+      (exportedName) => `declare const ${exportedName}: any;`,
+    ),
+    hasDefaultExport ? "declare const _default: any;" : null,
+    uniqueExportedNames.length > 0
+      ? `export { ${uniqueExportedNames.join(", ")} };`
+      : null,
+    hasDefaultExport ? "export default _default;" : null,
+  ].filter((line) => line !== null);
+
+  return `${typeLines.join("\n")}\n`;
+}
+
+function getDirectExportNames(moduleSpec: string): string[] {
+  return [
+    ...moduleSpec.matchAll(
+      /export\s+(?:const|let|var|function|class)\s+([A-Za-z_$][A-Za-z0-9_$]*)/g,
+    ),
+  ].map((match) => match[1]!);
+}
+
+function getNamedExportNames(moduleSpec: string): string[] {
+  return [...moduleSpec.matchAll(/export\s+(?!type\b)\{([^}]+)\}/g)].flatMap(
+    (match) => {
+      return match[1]!
+        .split(",")
+        .map((specifier) => specifier.trim())
+        .filter((specifier) => specifier.length > 0)
+        .map((specifier) =>
+          specifier
+            .split(/\s+as\s+/)
+            .at(-1)!
+            .trim(),
+        )
+        .filter((exportedName) => exportedName !== "default");
     },
-  });
+  );
+}
+
+export function getSourceEntries(moduleDir: string): Record<string, string> {
+  const sourceDir = path.join(moduleDir, "src");
+  if (!existsSync(sourceDir)) {
+    return {};
+  }
+
+  return listSourceEntryFiles(sourceDir).reduce<Record<string, string>>(
+    (entries, sourceFilePath) => {
+      const entryName = stripKnownExtension(
+        path.relative(sourceDir, sourceFilePath),
+      ).replaceAll(path.sep, "/");
+
+      assert(
+        entries[entryName] === undefined,
+        `Duplicate module source entry ${JSON.stringify(entryName)}.`,
+      );
+
+      entries[entryName] = `./${path
+        .relative(moduleDir, sourceFilePath)
+        .replaceAll(path.sep, "/")}`;
+
+      return entries;
+    },
+    {},
+  );
+}
+
+function listSourceEntryFiles(sourceDir: string): string[] {
+  return readdirSync(sourceDir)
+    .flatMap((entryName) => {
+      const entryPath = path.join(sourceDir, entryName);
+      const entryStats = statSync(entryPath);
+
+      if (entryStats.isDirectory()) {
+        return listSourceEntryFiles(entryPath);
+      }
+
+      if (entryStats.isFile() && isSourceEntryFile(entryName)) {
+        return [entryPath];
+      }
+
+      return [];
+    })
+    .sort();
+}
+
+function isSourceEntryFile(fileName: string): boolean {
+  return (
+    (fileName.endsWith(".ts") || fileName.endsWith(".tsx")) &&
+    !fileName.endsWith(".d.ts")
+  );
 }
 
 export function parseArgs(args: string[]): {

@@ -50,6 +50,7 @@ module ShellCommands
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    copyContentsOfGitTrackedDirToSnapshotSubDir,
   )
 where
 
@@ -355,18 +356,36 @@ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir ::
   ShellCommandBuilder SnapshotTestContext ShellCommand
 copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirFromGitRootDir = do
   context <- ask
-  let snapshotWaspProjectDir = context.waspProjectContext.waspProjectDir
+  return $ copyContentsOfGitTrackedDir srcDirFromGitRootDir context.waspProjectContext.waspProjectDir
 
-      listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
-        "git -C " ++ fromRelDir gitRootFromSnapshotDir ++ " ls-files " ++ fromRelDir srcDirFromGitRootDir
-      -- Remove the relative prefix from each path so that files get copied into the destination dir directly.
-      -- e.g. `../../../../examples/todoApp/file.txt` -> `file.txt`
-      stripSrcDirRelPrefixFromPaths :: ShellCommand =
-        "sed 's#^" ++ fromRelDir srcDirFromGitRootDir ++ "##'"
-      copyFromSrcDirToSnapshotWaspProjectDir :: ShellCommand =
-        "rsync -a --files-from=- " ++ fromRelDir (gitRootFromSnapshotDir </> srcDirFromGitRootDir) ++ " " ++ fromAbsDir snapshotWaspProjectDir
-   in return $
-        unwords ["mkdir -p", fromAbsDir snapshotWaspProjectDir]
-          ~&& listRelPathsOfGitTrackedFilesInSrcDir
-          ~| stripSrcDirRelPrefixFromPaths
-          ~| copyFromSrcDirToSnapshotWaspProjectDir
+copyContentsOfGitTrackedDirToSnapshotSubDir ::
+  Path' (Rel GitRootDir) (Dir srcDir) ->
+  Path' (Rel SnapshotDir) (Dir destDir) ->
+  ShellCommandBuilder SnapshotTestContext ShellCommand
+copyContentsOfGitTrackedDirToSnapshotSubDir srcDirFromGitRootDir destDirFromSnapshotDir = do
+  context <- ask
+  return $ copyContentsOfGitTrackedDir srcDirFromGitRootDir (context.snapshotDir </> destDirFromSnapshotDir)
+
+copyContentsOfGitTrackedDir ::
+  Path' (Rel GitRootDir) (Dir srcDir) ->
+  Path' Abs (Dir destDir) ->
+  ShellCommand
+copyContentsOfGitTrackedDir srcDirFromGitRootDir destDir =
+  unwords ["mkdir -p", fromAbsDir destDir]
+    ~&& listRelPathsOfGitTrackedFilesInSrcDir
+    ~| stripSrcDirRelPrefixFromPaths
+    ~| copyFromSrcDirToDestDir
+  where
+    listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand
+    listRelPathsOfGitTrackedFilesInSrcDir =
+      "git -C " ++ fromRelDir gitRootFromSnapshotDir ++ " ls-files " ++ fromRelDir srcDirFromGitRootDir
+
+    -- Remove the relative prefix from each path so files get copied into the destination dir directly.
+    -- e.g. `../../../../examples/todoApp/file.txt` -> `file.txt`
+    stripSrcDirRelPrefixFromPaths :: ShellCommand
+    stripSrcDirRelPrefixFromPaths =
+      "sed 's#^" ++ fromRelDir srcDirFromGitRootDir ++ "##'"
+
+    copyFromSrcDirToDestDir :: ShellCommand
+    copyFromSrcDirToDestDir =
+      "rsync -a --files-from=- " ++ fromRelDir (gitRootFromSnapshotDir </> srcDirFromGitRootDir) ++ " " ++ fromAbsDir destDir

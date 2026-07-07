@@ -10,22 +10,25 @@ where
 
 import Control.Concurrent (newChan)
 import Control.Monad (forM_)
-import Data.Char (isAlphaNum, toLower)
+import Data.Char (isAlphaNum, toLower, toUpper)
+import Data.List (nub, sort)
 import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Path.IO (copyDirRecur)
-import StrongPath (Abs, Dir, Dir', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, Dir', File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesFileExist, doesPathExist)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import qualified System.Process as P
+import Text.Regex.TDFA ((=~))
 import qualified Wasp.Data as Data
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions, tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
@@ -47,7 +50,7 @@ installModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installModuleIO moduleDir = do
   ensureIsModuleDir moduleDir >>= \case
     Left errorMessage -> return $ Left errorMessage
-    Right () -> installWaspDependenciesIO moduleDir
+    Right () -> installModuleDependenciesIO moduleDir
 
 installWaspDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installWaspDependenciesIO projectDir = do
@@ -55,11 +58,19 @@ installWaspDependenciesIO projectDir = do
   messageChan <- newChan
   installProjectNpmDependencies messageChan projectDir
 
+installModuleDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+installModuleDependenciesIO moduleDir = do
+  ensurePackageIsAtInstallationPathInProject moduleDir WaspSpecPackage
+  ensureWaspSdkTypeShimIO moduleDir
+  messageChan <- newChan
+  installProjectNpmDependencies messageChan moduleDir
+
 buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> ModuleBuildMode -> IO (Either String ())
 buildModuleIO moduleDir buildMode = do
   ensureIsModuleDir moduleDir >>= \case
     Left errorMessage -> return $ Left errorMessage
-    Right () ->
+    Right () -> do
+      ensureWaspSdkTypeShimIO moduleDir
       ensureInstalledModuleDependencies moduleDir >>= \case
         Left errorMessage -> return $ Left errorMessage
         Right () -> runModuleBuilder moduleDir buildMode
@@ -106,6 +117,58 @@ ensureIsModuleDir moduleDir = do
 
 moduleTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
 moduleTemplateDirInDataDir = [reldir|Cli/module-template|]
+
+waspSdkModuleShimTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
+waspSdkModuleShimTemplateDirInDataDir = [reldir|Generator/templates/sdk/wasp/module-shim|]
+
+ensureWaspSdkTypeShimIO :: Path' Abs (Dir WaspProjectDir) -> IO ()
+ensureWaspSdkTypeShimIO moduleDir = do
+  moduleSpecContents <- TIO.readFile $ fromAbsFile $ moduleDir </> [relfile|module.wasp.ts|]
+  let operationNames = extractOperationNames moduleSpecContents
+  dataDir <- Data.getAbsDataDirPath
+  let waspShimDir = moduleDir </> [reldir|.wasp/wasp|]
+  IOUtil.deleteDirectoryIfExists waspShimDir
+  IOUtil.copyDirectory (dataDir </> waspSdkModuleShimTemplateDirInDataDir) waspShimDir
+  replaceFilePlaceholder
+    (waspShimDir </> [relfile|client/operations.d.ts|])
+    "__waspClientOperationsShimExports__"
+    (clientOperationsShimExports operationNames)
+  replaceFilePlaceholder
+    (waspShimDir </> [relfile|server/operations.d.ts|])
+    "__waspServerOperationsShimExports__"
+    (serverOperationsShimExports operationNames)
+
+extractOperationNames :: T.Text -> [String]
+extractOperationNames contents =
+  sort . nub $ map (!! 2) matches
+  where
+    matches :: [[String]]
+    matches = T.unpack contents =~ ("(query|action)[[:space:]]*\\([[:space:]]*([A-Za-z_$][A-Za-z0-9_$]*)" :: String)
+
+clientOperationsShimExports :: [String] -> T.Text
+clientOperationsShimExports = T.unlines . map (T.pack . ("export const " ++) . (++ ": any;"))
+
+serverOperationsShimExports :: [String] -> T.Text
+serverOperationsShimExports operationNames =
+  T.unlines $
+    map operationValueShim operationNames
+      ++ map operationTypeShim operationNames
+  where
+    operationValueShim operationName = T.pack $ "export const " ++ operationName ++ ": any;"
+    operationTypeShim operationName =
+      T.pack $
+        "export type "
+          ++ operationTypeName operationName
+          ++ "<Args = unknown, Result = unknown> = (args: Args, context: unknown) => Result | Promise<Result>;"
+
+operationTypeName :: String -> String
+operationTypeName [] = []
+operationTypeName (c : rest) = toUpper c : rest
+
+replaceFilePlaceholder :: Path' Abs (File f) -> T.Text -> T.Text -> IO ()
+replaceFilePlaceholder filePath placeholder replacement = do
+  contents <- TIO.readFile $ fromAbsFile filePath
+  TIO.writeFile (fromAbsFile filePath) $ T.replace placeholder replacement contents
 
 replaceModuleTemplatePlaceholders :: Path' Abs (Dir WaspProjectDir) -> String -> IO ()
 replaceModuleTemplatePlaceholders moduleDir packageName = do

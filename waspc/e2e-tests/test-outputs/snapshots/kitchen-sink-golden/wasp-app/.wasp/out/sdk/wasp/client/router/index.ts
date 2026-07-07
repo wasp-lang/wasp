@@ -14,7 +14,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/",
         undefined,
         options?.search,
@@ -27,7 +26,6 @@ export const routes = {
       options: OptionalRouteOptions
       & { params: {"*": ParamValue;}}
     ) => interpolatePath(
-        
         "*",
         options.params,
         options?.search,
@@ -40,7 +38,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/signup",
         undefined,
         options?.search,
@@ -53,7 +50,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/login",
         undefined,
         options?.search,
@@ -66,7 +62,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/password-reset",
         undefined,
         options?.search,
@@ -79,7 +74,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/email-verification-",
         undefined,
         options?.search,
@@ -92,7 +86,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/request-password-reset",
         undefined,
         options?.search,
@@ -105,7 +98,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/profile",
         undefined,
         options?.search,
@@ -118,7 +110,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/manual-signup",
         undefined,
         options?.search,
@@ -131,7 +122,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/custom-signup",
         undefined,
         options?.search,
@@ -144,7 +134,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/tasks",
         undefined,
         options?.search,
@@ -157,7 +146,6 @@ export const routes = {
       options: OptionalRouteOptions
       & { params: {"id": ParamValue;}}
     ) => interpolatePath(
-        
         "/tasks/:id",
         options.params,
         options?.search,
@@ -170,7 +158,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/serialization",
         undefined,
         options?.search,
@@ -183,7 +170,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/jobs",
         undefined,
         options?.search,
@@ -196,7 +182,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/apis",
         undefined,
         options?.search,
@@ -209,7 +194,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/crud",
         undefined,
         options?.search,
@@ -222,7 +206,6 @@ export const routes = {
       options: OptionalRouteOptions
       & { params: {"id": ParamValue;}}
     ) => interpolatePath(
-        
         "/crud/:id",
         options.params,
         options?.search,
@@ -235,7 +218,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/streaming",
         undefined,
         options?.search,
@@ -248,7 +230,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/chat",
         undefined,
         options?.search,
@@ -261,7 +242,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/lazy/no",
         undefined,
         options?.search,
@@ -274,7 +254,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/lazy/yes",
         undefined,
         options?.search,
@@ -287,7 +266,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/prerender",
         undefined,
         options?.search,
@@ -300,7 +278,6 @@ export const routes = {
       options: OptionalRouteOptions
       & { params: {"slug": ParamValue;}}
     ) => interpolatePath(
-        
         "/prerender-instances/:slug",
         options.params,
         options?.search,
@@ -313,8 +290,19 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/hydration-mismatch",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  ModuleRoute: {
+    to: "/fsm",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        "/fsm",
         undefined,
         options?.search,
         options?.hash

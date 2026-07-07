@@ -29,6 +29,8 @@ export { getAnyAuth } from './queries/index.js'
 
 export { getAnyToNumberSpecified } from './queries/index.js'
 
+export { getModuleContent } from './queries/index.js'
+
 export { customSignup } from './actions/index.js'
 
 export { createTask } from './actions/index.js'
