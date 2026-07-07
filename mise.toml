@@ -23,8 +23,9 @@ cabal = "3.16.1.0"
 
 jq = "1.8.2"
 
-# TODO: Provide a fallback for Linux ARM64 and macOS x64, where cabal-gild is
-# not prebuilt on GitHub.
+# TODO: Provide a fallback for Linux ARM64 and macOS x64
+# The upstream repo only distributes prebuilt binaries for Linux x64, macOS
+# arm64, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
 "github:tfausak/cabal-gild" = "1.8.4.1"
 
