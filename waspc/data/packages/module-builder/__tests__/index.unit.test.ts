@@ -5,6 +5,7 @@ import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import {
+  assertHasDefaultExport,
   getLooseModuleSpecTypes,
   getModulePackageRefSource,
   getSourceEntries,
@@ -109,6 +110,35 @@ describe("getLooseModuleSpecTypes", () => {
         "\n",
       ),
     );
+  });
+});
+
+describe("assertHasDefaultExport", () => {
+  test("accepts a direct default export", () => {
+    expect(() =>
+      assertHasDefaultExport(
+        "/module/module.wasp.ts",
+        `export default [] satisfies Spec;`,
+      ),
+    ).not.toThrow();
+  });
+
+  test("accepts a default export specifier", () => {
+    expect(() =>
+      assertHasDefaultExport(
+        "/module/module.wasp.ts",
+        `const moduleSpec = []; export { moduleSpec as default };`,
+      ),
+    ).not.toThrow();
+  });
+
+  test("rejects named-only exports", () => {
+    expect(() =>
+      assertHasDefaultExport(
+        "/module/module.wasp.ts",
+        `export const moduleSpec = [];`,
+      ),
+    ).toThrow(/must default export/);
   });
 });
 

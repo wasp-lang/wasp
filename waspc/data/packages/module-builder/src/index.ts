@@ -13,6 +13,7 @@ import {
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { RolldownMagicString } from "rolldown";
+import { parseAst } from "rolldown/parseAst";
 import type { ESTree as t } from "rolldown/utils";
 import { build, type InlineConfig, type TsdownPlugin } from "tsdown";
 
@@ -37,6 +38,9 @@ export async function buildModule(
     throw new Error(`Couldn't find module.wasp.ts in ${moduleDir}.`);
   }
 
+  const moduleSpec = readFileSync(moduleSpecPath, "utf8");
+  assertHasDefaultExport(moduleSpecPath, moduleSpec);
+
   const commonOptions = {
     config: false,
     cwd: moduleDir,
@@ -60,7 +64,7 @@ export async function buildModule(
     },
     hooks: {
       "build:done": () => {
-        writeLooseModuleSpecTypes(moduleDir);
+        writeLooseModuleSpecTypes(moduleDir, moduleSpec);
       },
     },
   });
@@ -79,11 +83,10 @@ export async function buildModule(
   }
 }
 
-function writeLooseModuleSpecTypes(moduleDir: string): void {
-  const moduleSpec = readFileSync(
-    path.join(moduleDir, "module.wasp.ts"),
-    "utf8",
-  );
+function writeLooseModuleSpecTypes(
+  moduleDir: string,
+  moduleSpec: string,
+): void {
   writeFileSync(
     path.join(moduleDir, "dist", "spec.d.ts"),
     getLooseModuleSpecTypes(moduleSpec),
@@ -112,6 +115,53 @@ export function getLooseModuleSpecTypes(moduleSpec: string): string {
   ].filter((line) => line !== null);
 
   return `${typeLines.join("\n")}\n`;
+}
+
+export function assertHasDefaultExport(
+  moduleSpecPath: string,
+  moduleSpec: string,
+): void {
+  const ast = parseAst(moduleSpec, { lang: "ts" });
+
+  if (!hasDefaultExport(ast)) {
+    throw new Error(
+      `${moduleSpecPath} must default export a Wasp module spec. Example: export default [route("ModuleRoute", "/module", page(MainPage))] satisfies Spec;`,
+    );
+  }
+}
+
+function hasDefaultExport(ast: t.Program): boolean {
+  return ast.body.some((node) => {
+    if (node.type === "ExportDefaultDeclaration") {
+      return true;
+    }
+
+    if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
+      return false;
+    }
+
+    return node.specifiers.some(
+      (specifier) =>
+        specifier.type === "ExportSpecifier" &&
+        getModuleExportName(specifier.exported) === "default",
+    );
+  });
+}
+
+function getModuleExportName(exportName: unknown): string | null {
+  if (typeof exportName !== "object" || exportName === null) {
+    return null;
+  }
+
+  if ("name" in exportName && typeof exportName.name === "string") {
+    return exportName.name;
+  }
+
+  if ("value" in exportName && typeof exportName.value === "string") {
+    return exportName.value;
+  }
+
+  return null;
 }
 
 function getDirectExportNames(moduleSpec: string): string[] {
