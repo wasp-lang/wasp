@@ -12,7 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🎉 New Features
 
-- We now have a Linux ARM64 build of Wasp available! That means that Wasp can now run on e.g. the Raspberry Pi, Android (with Termius and glibc libraries installed), or Docker containers in Apple Silicon Macs. `npm install -g @wasp.sh/wasp-cli` will automatically install the correct version for your system. ([#4435](https://github.com/wasp-lang/wasp/pull/4435))
+- We now have a Linux ARM64 build of Wasp available! That means that Wasp can now run on e.g. the Raspberry Pi or Docker on Apple Silicon. `npm install -g @wasp.sh/wasp-cli` will automatically install the correct version for your system. ([#4435](https://github.com/wasp-lang/wasp/pull/4435))
 - A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
 
 ### 🐞 Bug fixes
