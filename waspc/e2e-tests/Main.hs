@@ -64,7 +64,7 @@ ensureE2eTestsEnvironment = do
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: IO ()
-warmUpWaspCli = callCommand "$WASP_CLI_CMD version > /dev/null"
+warmUpWaspCli = callCommand "$WASP_CLI_CMD version 2>&1 >/dev/null" -- We don't need any output.
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.

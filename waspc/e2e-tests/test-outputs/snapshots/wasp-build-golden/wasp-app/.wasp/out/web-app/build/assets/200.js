@@ -1,8 +1,8 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useState, useEffect, StrictMode, use, lazy, startTransition } from "react";
+import { StrictMode, useSyncExternalStore, use, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { useRouteError, createBrowserRouter } from "react-router";
+import { useRouteError, Outlet, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ky from "ky";
@@ -38,16 +38,8 @@ import "superjson";
     fetch(link.href, fetchOpts);
   }
 })();
-function useIsClient() {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  return isClient;
-}
 function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntrySrc }) {
-  const isClient = useIsClient();
-  const shouldRenderChildren = isClient || !isFallbackPage2;
+  const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage2);
   return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
     /* @__PURE__ */ jsxs("head", { children: [
       /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
@@ -81,9 +73,26 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
     ] }),
     /* @__PURE__ */ jsxs("body", { children: [
       /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null })
+      shouldRenderAppContent ? children : null
     ] })
   ] }) });
+}
+function useShouldRenderAppContent(isFallbackPage2) {
+  const getOnClient = () => true;
+  const getOnServer = () => !isFallbackPage2;
+  const shouldRenderAppContent = (
+    // We use `useSyncExternalStore` because it allows us to have different
+    // values on the server and client without hydration errors. The semantics
+    // also match, as in this case the fallback status is the synchronous state
+    // we are reading from, it just never changes after being first initialized.
+    useSyncExternalStore(emptySubscribe, getOnClient, getOnServer)
+  );
+  return shouldRenderAppContent;
+}
+function emptySubscribe() {
+  const emptyUnsubscribe = () => {
+  };
+  return emptyUnsubscribe;
 }
 function stripTrailingSlash(url) {
   return url?.replace(/\/$/, "");
@@ -393,13 +402,20 @@ function getRouteObjects({ routesMapping: routesMapping2, rootElement: rootEleme
 }
 const routesMapping = {
   RootRoute: {
-    Component: lazy(
-      () => __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage).then((component) => ({ default: component }))
-    )
+    lazy: async () => {
+      const Component = await __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage);
+      return {
+        Component
+      };
+    }
   }
 };
 initializeQueryClient();
-const rootElement = void 0;
+const rootElement = (
+  // We don't really need to wrap the app in a div nor name it "root", but we
+  // keep it for backwards compatibility with older Wasp versions.
+  /* @__PURE__ */ jsx("div", { id: "root", children: /* @__PURE__ */ jsx(Outlet, {}) })
+);
 const routeObjects = getRouteObjects({
   routesMapping,
   rootElement
@@ -407,13 +423,25 @@ const routeObjects = getRouteObjects({
 const router = createBrowserRouter(routeObjects, {
   basename: "/",
   // React Router will put hydration data on this property of the `window` object.
-  // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
+  // https://reactrouter.com/8.0.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData
 });
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
-function App() {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
-}
+const routerProviderPromise = waitForRouterInitialized(router).then(() => /* @__PURE__ */ jsx(RouterProvider, { router }));
+const fullAppTree = /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise }) });
 startTransition(() => {
-  hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
+  hydrateRoot(document, fullAppTree);
 });
+async function waitForRouterInitialized(router2) {
+  if (router2.state.initialized) {
+    return;
+  }
+  return new Promise((resolve) => {
+    const unsubscribe = router2.subscribe(() => {
+      if (router2.state.initialized) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}
