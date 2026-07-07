@@ -3,7 +3,7 @@ import {
   DbServiceName,
   RailwayProjectName,
   ServerServiceName,
-} from "../brandedTypes";
+} from "../brandedTypes.js";
 
 export function createRailwayClientServiceName(
   projectName: RailwayProjectName,

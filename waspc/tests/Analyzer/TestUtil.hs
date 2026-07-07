@@ -1,19 +1,22 @@
 module Analyzer.TestUtil where
 
-import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.Ctx (Ctx, WithCtx (..), ctxFromRgn)
+import qualified Wasp.Analyzer.Ctx as Ctx
+import Wasp.Analyzer.SourcePosition (SourcePosition (..))
+import Wasp.Analyzer.SourceRegion (SourceRegion (..))
 import qualified Wasp.Analyzer.TypeChecker as T
 
-pos :: Int -> Int -> P.SourcePosition
-pos line column = P.SourcePosition line column
+pos :: Int -> Int -> SourcePosition
+pos = SourcePosition
 
-rgn :: (Int, Int) -> (Int, Int) -> P.SourceRegion
-rgn (sl, sc) (el, ec) = P.SourceRegion (pos sl sc) (pos el ec)
+rgn :: (Int, Int) -> (Int, Int) -> SourceRegion
+rgn (sl, sc) (el, ec) = SourceRegion (pos sl sc) (pos el ec)
 
-ctx :: (Int, Int) -> (Int, Int) -> P.Ctx
-ctx (a, b) (c, d) = P.ctxFromRgn (pos a b) (pos c d)
+ctx :: (Int, Int) -> (Int, Int) -> Ctx
+ctx (a, b) (c, d) = ctxFromRgn (pos a b) (pos c d)
 
-wctx :: (Int, Int) -> (Int, Int) -> a -> P.WithCtx a
-wctx start end = P.WithCtx (ctx start end)
+wctx :: (Int, Int) -> (Int, Int) -> a -> WithCtx a
+wctx start end = WithCtx (ctx start end)
 
-fromWithCtx :: P.WithCtx T.TypedExpr -> T.TypedExpr
-fromWithCtx = P.fromWithCtx
+fromWithCtx :: WithCtx T.TypedExpr -> T.TypedExpr
+fromWithCtx = Ctx.fromWithCtx

@@ -52,15 +52,10 @@ jobs:
       url: ${{ steps.app-info.outputs.url }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-
-      - uses: actions/setup-node@v6
-        with:
-          cache: "npm"
-          node-version-file: .nvmrc
+      - uses: ./.github/actions/setup-tools
 
       - name: Install Wasp
         env:

@@ -1,6 +1,6 @@
 # Wasp Monorepo
 
-Wasp is a full-stack web framework that compiles `.wasp` configuration files into React + Node.js applications. The compiler is written in Haskell.
+Wasp is a full-stack web framework that compiles TypeScript config (`main.wasp.ts`) files into React + Node.js applications. The compiler is written in Haskell.
 
 ## Repository Structure
 
@@ -26,8 +26,7 @@ Key things to know:
 
 - Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
-- Toolchain versions (GHC, HLS) are specified in `waspc/cabal.project` and `waspc/dev-tool.project`. Use `./run ghcup-set` to set the correct versions.
-- Node.js minimum version is in `.nvmrc`.
+- Toolchain versions are specified in `mise.toml`.
 
 ## Code Conventions
 
@@ -42,12 +41,12 @@ Key things to know:
 
 ### TypeScript/JavaScript
 
-- Prettier-formatted (config in `prettier.config.ts`). Check/fix with `./run check:prettier` / `./run format:prettier`.
+- Prettier-formatted (config in `prettier.config.mjs`). Check/fix with `./run check:prettier` / `./run format:prettier`.
 - camelCase for files/functions, PascalCase for components/types.
 
 ### Architecture
 
-- **Analyzer** parses `.wasp` files → **AppSpec** (IR) → **Generator** produces React/Node.js code.
+- TypeScript config (`main.wasp.ts`) is read by `Wasp.Project.WaspFile.TypeScript` → **AppSpec** (IR) → **Generator** produces React/Node.js code. The **Analyzer** derives entity declarations from the Prisma schema.
 - Code generation uses a file draft system and Mustache templates in `data/Generator/templates/`.
 
 ## Important Rules

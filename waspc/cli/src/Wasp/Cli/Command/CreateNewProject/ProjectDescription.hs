@@ -16,7 +16,7 @@ import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path', (</>))
 import StrongPath.Path (toPathAbsDir)
-import Wasp.Analyzer.Parser (isValidWaspIdentifier)
+import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),

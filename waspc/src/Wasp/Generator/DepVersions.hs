@@ -28,7 +28,7 @@ superjsonVersionRange :: SV.Range
 superjsonVersionRange = [SV.r|^2.2.1|]
 
 typescriptVersionRange :: SV.Range
-typescriptVersionRange = [SV.r|5.9.3|]
+typescriptVersionRange = [SV.r|6.0.3|]
 
 -- When updating the React version,
 -- also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
@@ -48,7 +48,7 @@ reactDomTypesVersionRange :: SV.Range
 reactDomTypesVersionRange = [SV.r|^19.2.3|]
 
 reactRouterVersionRange :: SV.Range
-reactRouterVersionRange = [SV.r|^7.12.0|]
+reactRouterVersionRange = [SV.r|^8.0.1|]
 
 reactQueryVersionRange :: SV.Range
 reactQueryVersionRange = [SV.r|~4.42.0|]
