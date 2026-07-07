@@ -26,6 +26,7 @@ jobs:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
           # prevent the version from changing on its own.
           - ubuntu-22.04
+          - ubuntu-24.04-arm
           - macos-15-intel
           - macos-15 # Apple Silicon
           - windows-latest
