@@ -624,6 +624,7 @@ test-suite waspc-tests
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest
     Project.ExternalConfig.WaspTsConfigTest
+    Project.ModuleTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest

@@ -115,7 +115,7 @@ replaceModuleTemplatePlaceholders moduleDir packageName = do
     TIO.writeFile filePath $ T.replace "__waspModulePackageName__" (T.pack packageName) contents
 
 packageNameToDirName :: String -> FilePath
-packageNameToDirName packageName = sanitizePackageName $ FP.takeBaseName packageName
+packageNameToDirName = sanitizePackageName
 
 sanitizePackageName :: String -> String
 sanitizePackageName name = case sanitized of
