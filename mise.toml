@@ -21,6 +21,8 @@ cabal = "3.16.1.0"
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.14.1"
 
+jq = "1.8.2"
+
 # TODO: Provide a fallback for Linux ARM64 and macOS x64, where cabal-gild is
 # not prebuilt on GitHub.
 # https://github.com/jdx/mise/discussions/10828

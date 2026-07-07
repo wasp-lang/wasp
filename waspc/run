@@ -33,7 +33,7 @@ INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 # A single executable that runs the locally-built CLI via `cabal run`.
 # Being a single executable (rather than a multi-word command string) lets it
 # be a drop-in replacement for `wasp`, with no shell-quoting surprises.
-WASP_CLI_CMD="${PROJECT_ROOT}/tools/wasp-cli-dev.ts"
+WASP_CLI_CMD="${PROJECT_ROOT}/tools/wasp-cli-dev"
 WASP_CLI_RUN_CMD="${WASP_CLI_CMD} ${ARGS[@]}"
 WASP_CLI_INSTALL_CMD="${WASP_CLI_CMD} install"
 

@@ -14,6 +14,9 @@ Wasp's compiler is built with Haskell and under the hood it generates a web appl
 - Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set!
 - Below you can find links to the good first issues. If you'd like to filter the issues on your own — please, use [this link](https://github.com/wasp-lang/wasp/issues)
 
+> [!NOTE]
+> **Developing on Windows?** Use the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). Wasp's development scripts are Bash scripts and won't run in PowerShell or Command Prompt. If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux instructions instead.
+
 Let's jump right in!
 
 ## Wasp compiler/CLI/LSP internals
