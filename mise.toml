@@ -27,9 +27,15 @@ jq = "1.8.2"
 # The upstream repo only distributes prebuilt binaries for Linux x64, macOS
 # arm64, and Windows x64.
 # https://github.com/jdx/mise/discussions/10828
-"github:tfausak/cabal-gild" = "1.8.4.1"
+"github:tfausak/cabal-gild".version = "1.8.4.1"
+"github:tfausak/cabal-gild".os = ["linux/x64", "darwin/arm64", "windows/x64"]
 
-ormolu = "0.8.1.1"
+# TODO: Provide a fallback for Linux ARM64
+# The upstream repo only distributes prebuilt binaries for Linux x64, macOS
+# (all, and Windows x64.
+# https://github.com/jdx/mise/discussions/10828
+ormolu.version = "0.8.1.1"
+ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
 "mise-cabal:hlint" = "3.6.1"
 
