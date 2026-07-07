@@ -18,6 +18,10 @@ Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0
 
 Wasp now uses **React Router 8**. The upgrade is backwards compatible for typical usage (e.g. `Link`, `NavLink`, `Outlet`), so you only need to bump the `react-router` dependency.
 
+### Vite 8
+
+Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster builds. Testing moves to **Vitest 4.1** to stay compatible.
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -59,7 +63,10 @@ Bump Wasp-required dependencies to their latest version:
       },
       "devDependencies": {
         // ...
-        "typescript": "5.9.3"
+        "@tailwindcss/vite": "^4.1.18", // only if present
+        "typescript": "5.9.3",
+        "vite": "^7.0.6",
+        "vitest": "^4.0.16"
       }
     }
     ```
@@ -73,7 +80,10 @@ Bump Wasp-required dependencies to their latest version:
       },
       "devDependencies": {
         // ...
-        "typescript": "6.0.3"
+        "@tailwindcss/vite": "^4.3.1", // only if present
+        "typescript": "6.0.3",
+        "vite": "^8.1.0",
+        "vitest": "^4.1.9"
       }
     }
     ```

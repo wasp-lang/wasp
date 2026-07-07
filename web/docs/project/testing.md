@@ -15,7 +15,7 @@ Make sure your `devDependencies` include the Vitest dependency. Wasp starters co
 ```json title="package.json"
 {
   "devDependencies": {
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.9"
   }
 }
 ```
