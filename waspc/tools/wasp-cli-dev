@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Runs the locally-built Wasp CLI through `cabal run`, so that dev and test
+# invocations always reflect the current state of the `waspc` source without a
+# prior `cabal install`.
+#
+# We expose this as a single executable (rather than a multi-word command
+# string) so it can stand in wherever a plain `wasp` / `wasp-cli` binary is
+# expected (e2e shell commands, wasp-app-runner, playwright configs) without
+# each consumer having to special-case shell quoting and word splitting.
+
+set -e
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+WASPC_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
+
+# "-v0" silences cabal's own logs so the CLI behaves like an installed binary.
+exec cabal -v0 --project-dir="$WASPC_DIR" run wasp-cli -- "$@"
