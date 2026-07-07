@@ -24,6 +24,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
 - `tsconfig.wasp.json`'s `include` now accepts extra globs in addition to the required Wasp entries, so you can keep helpers and libraries used by your `.wasp.ts` files in the same TS project. ([#4398](https://github.com/wasp-lang/wasp/pull/4398))
 - Improved some prerendering internals for a faster first paint and more accurate lazy-loading of pages. ([#4428](https://github.com/wasp-lang/wasp/pull/4428))
+- Added support for the `WASP_DEV_DB_PORT` environment variable, letting you run and connect to the managed dev database on a custom port when `5432` is already taken (by @Nihal-Ahamed-MS). ([#4424](https://github.com/wasp-lang/wasp/issues/4424))
 
 ## 0.24.0
 
