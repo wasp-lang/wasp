@@ -50,6 +50,7 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Setup
 
+<!-- prettier-ignore -->
 > [!IMPORTANT]
 > **On Windows**, develop Wasp using the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt.
 >
