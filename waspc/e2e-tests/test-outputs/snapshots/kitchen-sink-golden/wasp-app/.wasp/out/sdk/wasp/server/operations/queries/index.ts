@@ -18,6 +18,7 @@ import { getTrueVoid as getTrueVoid_ext } from 'wasp/src/rpcTests/operations/def
 import { getAnyNoAuth as getAnyNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
 import { getAnyAuth as getAnyAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
 import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from 'wasp/src/rpcTests/operations/definitions'
+import { getModuleContent as getModuleContent_ext } from '@kitchen-sink/module/queries'
 
 // PRIVATE API
 export type GetTasks_ext = typeof getTasks_ext
@@ -162,6 +163,18 @@ export type GetAnyToNumberSpecified_ext = typeof getAnyToNumberSpecified_ext
 export const getAnyToNumberSpecified: AuthenticatedOperationFor<GetAnyToNumberSpecified_ext> =
   createAuthenticatedOperation(
     getAnyToNumberSpecified_ext,
+    {
+    },
+  )
+
+
+// PRIVATE API
+export type GetModuleContent_ext = typeof getModuleContent_ext
+
+// PUBLIC API
+export const getModuleContent: AuthenticatedOperationFor<GetModuleContent_ext> =
+  createAuthenticatedOperation(
+    getModuleContent_ext,
     {
     },
   )

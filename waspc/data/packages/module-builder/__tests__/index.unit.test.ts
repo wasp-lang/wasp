@@ -1,11 +1,13 @@
-import { mkdtempSync, realpathSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import {
+  getLooseModuleSpecTypes,
   getModulePackageRefSource,
+  getSourceEntries,
   parseArgs,
   transformModuleRefImports_mutate,
 } from "../src/index.js";
@@ -69,6 +71,61 @@ describe("getModulePackageRefSource", () => {
         packageName: "@acme/fsm",
       }),
     ).toThrow(/inside src/);
+  });
+});
+
+describe("getLooseModuleSpecTypes", () => {
+  test("loosens direct named exports", () => {
+    expect(getLooseModuleSpecTypes(`export const moduleSpec = [];`)).toBe(
+      [`declare const moduleSpec: any;`, `export { moduleSpec };`, ``].join(
+        "\n",
+      ),
+    );
+  });
+
+  test("loosens named export lists", () => {
+    expect(
+      getLooseModuleSpecTypes(
+        [
+          `const moduleSpec = [];`,
+          `const otherSpec = [];`,
+          `export { moduleSpec, otherSpec as renamedSpec };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toBe(
+      [
+        `declare const moduleSpec: any;`,
+        `declare const renamedSpec: any;`,
+        `export { moduleSpec, renamedSpec };`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("loosens default exports", () => {
+    expect(getLooseModuleSpecTypes(`export default [];`)).toBe(
+      [`declare const _default: any;`, `export default _default;`, ``].join(
+        "\n",
+      ),
+    );
+  });
+});
+
+describe("getSourceEntries", () => {
+  test("maps src files to package subpath entries", () => {
+    const moduleDir = makeModuleDir();
+    mkdirSync(path.join(moduleDir, "src", "pages"), { recursive: true });
+    writeFileSync(path.join(moduleDir, "src", "MainPage.tsx"), "");
+    writeFileSync(path.join(moduleDir, "src", "queries.ts"), "");
+    writeFileSync(path.join(moduleDir, "src", "ignored.d.ts"), "");
+    writeFileSync(path.join(moduleDir, "src", "pages", "Details.tsx"), "");
+
+    expect(getSourceEntries(moduleDir)).toEqual({
+      MainPage: "./src/MainPage.tsx",
+      "pages/Details": "./src/pages/Details.tsx",
+      queries: "./src/queries.ts",
+    });
   });
 });
 

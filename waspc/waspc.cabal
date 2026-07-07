@@ -46,6 +46,7 @@ data-files:
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
   Generator/templates/**/*.css
+  Generator/templates/**/*.d.ts
   Generator/templates/**/*.js
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx

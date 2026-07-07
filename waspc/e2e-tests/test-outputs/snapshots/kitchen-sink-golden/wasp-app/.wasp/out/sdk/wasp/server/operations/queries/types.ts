@@ -8,7 +8,7 @@ import {
 } from '../../_types/index.js'
 
 // PUBLIC API
-export type GetTasks<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetTasks<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
       _Task,
@@ -18,7 +18,7 @@ export type GetTasks<Input extends Payload = never, Output extends Payload = Pay
   >
 
 // PUBLIC API
-export type GetNumTasks<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetNumTasks<Input extends Payload = never, Output extends Payload = Payload> =
   UnauthenticatedQueryDefinition<
     [
       _Task,
@@ -28,7 +28,7 @@ export type GetNumTasks<Input extends Payload = never, Output extends Payload = 
   >
 
 // PUBLIC API
-export type GetTask<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetTask<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
       _Task,
@@ -38,7 +38,7 @@ export type GetTask<Input extends Payload = never, Output extends Payload = Payl
   >
 
 // PUBLIC API
-export type GetSerializedObjects<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetSerializedObjects<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
     ],
@@ -47,7 +47,7 @@ export type GetSerializedObjects<Input extends Payload = never, Output extends P
   >
 
 // PUBLIC API
-export type GetTextUppercaseRequests<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetTextUppercaseRequests<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
       _UppercaseTextRequest,
@@ -57,7 +57,7 @@ export type GetTextUppercaseRequests<Input extends Payload = never, Output exten
   >
 
 // PUBLIC API
-export type GetDate<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetDate<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
     ],
@@ -66,7 +66,7 @@ export type GetDate<Input extends Payload = never, Output extends Payload = Payl
   >
 
 // PUBLIC API
-export type GetAnythingNoAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetAnythingNoAuth<Input extends Payload = never, Output extends Payload = Payload> =
   UnauthenticatedQueryDefinition<
     [
     ],
@@ -75,7 +75,7 @@ export type GetAnythingNoAuth<Input extends Payload = never, Output extends Payl
   >
 
 // PUBLIC API
-export type GetAnythingAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetAnythingAuth<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
     ],
@@ -84,7 +84,7 @@ export type GetAnythingAuth<Input extends Payload = never, Output extends Payloa
   >
 
 // PUBLIC API
-export type GetTrueVoid<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetTrueVoid<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
     ],
@@ -93,7 +93,7 @@ export type GetTrueVoid<Input extends Payload = never, Output extends Payload = 
   >
 
 // PUBLIC API
-export type GetAnyNoAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetAnyNoAuth<Input extends Payload = never, Output extends Payload = Payload> =
   UnauthenticatedQueryDefinition<
     [
     ],
@@ -102,7 +102,7 @@ export type GetAnyNoAuth<Input extends Payload = never, Output extends Payload =
   >
 
 // PUBLIC API
-export type GetAnyAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetAnyAuth<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
     ],
@@ -111,7 +111,16 @@ export type GetAnyAuth<Input extends Payload = never, Output extends Payload = P
   >
 
 // PUBLIC API
-export type GetAnyToNumberSpecified<Input extends Payload = never, Output extends Payload = Payload> = 
+export type GetAnyToNumberSpecified<Input extends Payload = never, Output extends Payload = Payload> =
+  AuthenticatedQueryDefinition<
+    [
+    ],
+    Input,
+    Output
+  >
+
+// PUBLIC API
+export type GetModuleContent<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
     ],

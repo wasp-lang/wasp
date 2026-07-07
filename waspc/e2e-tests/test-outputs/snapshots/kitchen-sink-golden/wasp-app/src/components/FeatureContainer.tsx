@@ -179,6 +179,16 @@ const featureGroups: FeatureGroup[] = [
       },
     ],
   },
+  {
+    title: "Other",
+    features: [
+      {
+        to: "/fsm",
+        title: "Full-stack Module",
+        isPublic: true,
+      },
+    ],
+  },
 ];
 
 function FeatureTree() {

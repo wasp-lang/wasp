@@ -1278,6 +1278,7 @@ wasp-app/.wasp/out/server/src/queries/getAnyToNumberSpecified.ts
 wasp-app/.wasp/out/server/src/queries/getAnythingAuth.ts
 wasp-app/.wasp/out/server/src/queries/getAnythingNoAuth.ts
 wasp-app/.wasp/out/server/src/queries/getDate.ts
+wasp-app/.wasp/out/server/src/queries/getModuleContent.ts
 wasp-app/.wasp/out/server/src/queries/getNumTasks.ts
 wasp-app/.wasp/out/server/src/queries/getSerializedObjects.ts
 wasp-app/.wasp/out/server/src/queries/getTask.ts
@@ -1304,6 +1305,7 @@ wasp-app/.wasp/out/server/src/routes/operations/getAnyToNumberSpecified.js
 wasp-app/.wasp/out/server/src/routes/operations/getAnythingAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/getAnythingNoAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/getDate.js
+wasp-app/.wasp/out/server/src/routes/operations/getModuleContent.js
 wasp-app/.wasp/out/server/src/routes/operations/getNumTasks.js
 wasp-app/.wasp/out/server/src/routes/operations/getSerializedObjects.js
 wasp-app/.wasp/out/server/src/routes/operations/getTask.js

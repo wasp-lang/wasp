@@ -648,7 +648,7 @@
             "file",
             "sdk/wasp/client/operations/queries/index.ts"
         ],
-        "eb9aa4ec9cf229bbc301f84221085911177970c637a49472d0807ebc68e82a51"
+        "7eaf09e9da890488981ae07f82e80e2e11ccf567b2e731aa11ff7fc692051ef3"
     ],
     [
         [
@@ -683,7 +683,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "e61b8ab2927705ef9b7f20d9e8e61c705b79fa402a59fe705096a999e959506d"
+        "fb05cc3797f90f88f62c2e6da147550cb9e30dde27df473318207892cadd0dd9"
     ],
     [
         [
@@ -774,7 +774,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "b5db741e0d7b953cd7f6f70ace2172c35c8123bd4ff60c9d43a14bbb7a5bd03c"
+        "565f0335c7b8ffa5fd46b30bcfc6e18619a28cfea3a1090d995f142049e88d05"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "8b4c79cc0ed90c7f4af7c33de824b1020f4c5673fa446bb42d084a86d899f8e4"
+        "48816d15965a7ef8b7e31e34d9f32a20d094fe936c42d8676edaaf46bffa7a51"
     ],
     [
         [
@@ -1201,28 +1201,28 @@
             "file",
             "sdk/wasp/server/operations/actions/types.ts"
         ],
-        "c039716c099edfdab89b3ffde5cff73326aaaa652994cecaef62374407740f35"
+        "07d6f7e6e626176642ae96374bdcfe45c81163125ce65e0a461a77b02bffe1d2"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/index.ts"
         ],
-        "f273b0599556a529a244438678c149b1fafb75546611db405cafa4d3bbef3235"
+        "ed0ac6ccc7840534ff550cd3b8791236318c1c667fd016de5fbef6a02d0b58ba"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "ce007cd6165791a8c06ad58fd1b7011e1fc29196fa20d97a15c51bd598c7dd6e"
+        "a53818469872c9e728600da02562ee823e8ceade0c9f82f3b2d1efa995793273"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/queries/types.ts"
         ],
-        "b70715278fe2e841748f4a7e080963d63b56a56be8bc831facc409f196556767"
+        "fe844c364ddb6e673bbde99035801156b385ecaacabb022c70f27ddd8c379e06"
     ],
     [
         [
@@ -1299,7 +1299,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "c6cbfa3afcba062f19838327d1a23e017d830e9cd55dd30eaaa944d96b2ac714"
+        "a6adb17491d5f04877164ae749ae47446867db33648a87cae733619e6e963548"
     ],
     [
         [
@@ -2277,6 +2277,13 @@
     [
         [
             "file",
+            "server/src/queries/getModuleContent.ts"
+        ],
+        "a3238a7a8137e76677f7ac23c3580de02eab3fef2462bc24206451a6160ec589"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/getNumTasks.ts"
         ],
         "a9a29055e91fb31b5ecd2c461a464170ae172a5ffba87689c8957c4772415bd9"
@@ -2459,6 +2466,13 @@
     [
         [
             "file",
+            "server/src/routes/operations/getModuleContent.js"
+        ],
+        "34f9a56925dd9fc156b0696a886dc62689a9287c7267769e2027e19297572b76"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/operations/getNumTasks.js"
         ],
         "fdd9d46f9aa19af99febd4070357f7f841b579dfa3f129ea1f9e64e5538208b8"
@@ -2503,7 +2517,7 @@
             "file",
             "server/src/routes/operations/index.js"
         ],
-        "dc4f461f5d6caa8be0295dbabd6ebf2607c532e6202c90f620bb65e88e69241d"
+        "72ebbe1aa7248c86ee3a3fe5f2f4ebc6eff01d3b3c774b7140fa328a2da0b0c8"
     ],
     [
         [

@@ -242,7 +242,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
+        "468ebc7a9db1afeb1556510dae1cac5d309d031dd3857893fa63cbcfa3639493"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "b5db741e0d7b953cd7f6f70ace2172c35c8123bd4ff60c9d43a14bbb7a5bd03c"
+        "565f0335c7b8ffa5fd46b30bcfc6e18619a28cfea3a1090d995f142049e88d05"
     ],
     [
         [

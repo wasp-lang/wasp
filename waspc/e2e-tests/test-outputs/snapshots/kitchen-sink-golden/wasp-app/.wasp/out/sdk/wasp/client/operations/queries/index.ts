@@ -11,6 +11,7 @@ import type { GetTrueVoid_ext } from '../../../server/operations/queries/index.j
 import type { GetAnyNoAuth_ext } from '../../../server/operations/queries/index.js'
 import type { GetAnyAuth_ext } from '../../../server/operations/queries/index.js'
 import type { GetAnyToNumberSpecified_ext } from '../../../server/operations/queries/index.js'
+import type { GetModuleContent_ext } from '../../../server/operations/queries/index.js'
 
 // PUBLIC API
 export const getTasks: QueryFor<GetTasks_ext> = createQuery<GetTasks_ext>(
@@ -81,6 +82,12 @@ export const getAnyAuth: QueryFor<GetAnyAuth_ext> = createQuery<GetAnyAuth_ext>(
 // PUBLIC API
 export const getAnyToNumberSpecified: QueryFor<GetAnyToNumberSpecified_ext> = createQuery<GetAnyToNumberSpecified_ext>(
   'operations/get-any-to-number-specified',
+  [],
+)
+
+// PUBLIC API
+export const getModuleContent: QueryFor<GetModuleContent_ext> = createQuery<GetModuleContent_ext>(
+  'operations/get-module-content',
   [],
 )
 

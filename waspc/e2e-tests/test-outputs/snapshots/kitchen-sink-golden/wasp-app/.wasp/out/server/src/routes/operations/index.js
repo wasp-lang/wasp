@@ -32,6 +32,7 @@ import getTrueVoid from './getTrueVoid.js'
 import getAnyNoAuth from './getAnyNoAuth.js'
 import getAnyAuth from './getAnyAuth.js'
 import getAnyToNumberSpecified from './getAnyToNumberSpecified.js'
+import getModuleContent from './getModuleContent.js'
 
 const router = express.Router()
 
@@ -65,5 +66,6 @@ router.post('/get-true-void', auth, getTrueVoid)
 router.post('/get-any-no-auth', getAnyNoAuth)
 router.post('/get-any-auth', auth, getAnyAuth)
 router.post('/get-any-to-number-specified', auth, getAnyToNumberSpecified)
+router.post('/get-module-content', auth, getModuleContent)
 
 export default router

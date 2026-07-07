@@ -7,7 +7,7 @@ import {
 } from '../../_types/index.js'
 
 // PUBLIC API
-export type CustomSignup<Input extends Payload = never, Output extends Payload = Payload> = 
+export type CustomSignup<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
     ],
@@ -16,17 +16,7 @@ export type CustomSignup<Input extends Payload = never, Output extends Payload =
   >
 
 // PUBLIC API
-export type CreateTask<Input extends Payload = never, Output extends Payload = Payload> = 
-  AuthenticatedActionDefinition<
-    [
-      _Task,
-    ],
-    Input,
-    Output
-  >
-
-// PUBLIC API
-export type UpdateTaskIsDone<Input extends Payload = never, Output extends Payload = Payload> = 
+export type CreateTask<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -36,7 +26,7 @@ export type UpdateTaskIsDone<Input extends Payload = never, Output extends Paylo
   >
 
 // PUBLIC API
-export type DeleteCompletedTasks<Input extends Payload = never, Output extends Payload = Payload> = 
+export type UpdateTaskIsDone<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -46,7 +36,7 @@ export type DeleteCompletedTasks<Input extends Payload = never, Output extends P
   >
 
 // PUBLIC API
-export type ToggleAllTasks<Input extends Payload = never, Output extends Payload = Payload> = 
+export type DeleteCompletedTasks<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -56,7 +46,17 @@ export type ToggleAllTasks<Input extends Payload = never, Output extends Payload
   >
 
 // PUBLIC API
-export type RequestUppercaseText<Input extends Payload = never, Output extends Payload = Payload> = 
+export type ToggleAllTasks<Input extends Payload = never, Output extends Payload = Payload> =
+  AuthenticatedActionDefinition<
+    [
+      _Task,
+    ],
+    Input,
+    Output
+  >
+
+// PUBLIC API
+export type RequestUppercaseText<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _UppercaseTextRequest,
@@ -66,7 +66,7 @@ export type RequestUppercaseText<Input extends Payload = never, Output extends P
   >
 
 // PUBLIC API
-export type TestingAction<Input extends Payload = never, Output extends Payload = Payload> = 
+export type TestingAction<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
     ],
@@ -75,17 +75,7 @@ export type TestingAction<Input extends Payload = never, Output extends Payload 
   >
 
 // PUBLIC API
-export type TaskToTaskUnspecified<Input extends Payload = never, Output extends Payload = Payload> = 
-  AuthenticatedActionDefinition<
-    [
-      _Task,
-    ],
-    Input,
-    Output
-  >
-
-// PUBLIC API
-export type TaskToTaskSatisfies<Input extends Payload = never, Output extends Payload = Payload> = 
+export type TaskToTaskUnspecified<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -95,7 +85,7 @@ export type TaskToTaskSatisfies<Input extends Payload = never, Output extends Pa
   >
 
 // PUBLIC API
-export type TaskToTaskSpecified<Input extends Payload = never, Output extends Payload = Payload> = 
+export type TaskToTaskSatisfies<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -105,7 +95,7 @@ export type TaskToTaskSpecified<Input extends Payload = never, Output extends Pa
   >
 
 // PUBLIC API
-export type VoidToStringAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type TaskToTaskSpecified<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -115,7 +105,17 @@ export type VoidToStringAuth<Input extends Payload = never, Output extends Paylo
   >
 
 // PUBLIC API
-export type VoidToStringNoAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type VoidToStringAuth<Input extends Payload = never, Output extends Payload = Payload> =
+  AuthenticatedActionDefinition<
+    [
+      _Task,
+    ],
+    Input,
+    Output
+  >
+
+// PUBLIC API
+export type VoidToStringNoAuth<Input extends Payload = never, Output extends Payload = Payload> =
   UnauthenticatedActionDefinition<
     [
       _Task,
@@ -125,7 +125,7 @@ export type VoidToStringNoAuth<Input extends Payload = never, Output extends Pay
   >
 
 // PUBLIC API
-export type UnspecifiedToNumber<Input extends Payload = never, Output extends Payload = Payload> = 
+export type UnspecifiedToNumber<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -135,7 +135,7 @@ export type UnspecifiedToNumber<Input extends Payload = never, Output extends Pa
   >
 
 // PUBLIC API
-export type BoolToStringAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type BoolToStringAuth<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -145,7 +145,7 @@ export type BoolToStringAuth<Input extends Payload = never, Output extends Paylo
   >
 
 // PUBLIC API
-export type BoolToStringNoAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type BoolToStringNoAuth<Input extends Payload = never, Output extends Payload = Payload> =
   UnauthenticatedActionDefinition<
     [
       _Task,
@@ -155,7 +155,7 @@ export type BoolToStringNoAuth<Input extends Payload = never, Output extends Pay
   >
 
 // PUBLIC API
-export type BoolToVoidNoAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type BoolToVoidNoAuth<Input extends Payload = never, Output extends Payload = Payload> =
   UnauthenticatedActionDefinition<
     [
       _Task,
@@ -165,7 +165,7 @@ export type BoolToVoidNoAuth<Input extends Payload = never, Output extends Paylo
   >
 
 // PUBLIC API
-export type BoolToVoidAuth<Input extends Payload = never, Output extends Payload = Payload> = 
+export type BoolToVoidAuth<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,
@@ -175,7 +175,7 @@ export type BoolToVoidAuth<Input extends Payload = never, Output extends Payload
   >
 
 // PUBLIC API
-export type JsActionWithArgs<Input extends Payload = never, Output extends Payload = Payload> = 
+export type JsActionWithArgs<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedActionDefinition<
     [
       _Task,

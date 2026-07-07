@@ -243,6 +243,16 @@ const routesMapping = {
       }
     },
   },
+  ModuleRoute: {
+    lazy: async () => {
+      const Component = await import('@kitchen-sink/module/MainPage').then(m => m.MainPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
 } as const;
 
 await clientSetup_ext()

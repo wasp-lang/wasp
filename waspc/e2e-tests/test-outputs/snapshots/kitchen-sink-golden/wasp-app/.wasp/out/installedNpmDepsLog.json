@@ -3,6 +3,10 @@
         "fromUser": {
             "dependencies": [
                 {
+                    "name": "@kitchen-sink/module",
+                    "version": "file:../module"
+                },
+                {
                     "name": "@tanstack/react-query",
                     "version": "~4.42.0"
                 },
