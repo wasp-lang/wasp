@@ -312,14 +312,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "70d64d3eb0e6af02619c5d936e43d083486a9913dcc62281a523663518ecce12"
+        "c172e926843b4ab12f96ebe79a70124d233d9d7fd948de0cdcd3388565402400"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/virtualModules.ts"
         ],
-        "98ba9ea7ce552eab24302dcacbf0cca49489cc58ea042c19d4957ae5b423e00a"
+        "64aba2d2b2135503606db815795b1e6b2f91fb68372188aeee11c29ca9a2d768"
     ],
     [
         [
@@ -368,7 +368,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/resolver.ts"
         ],
-        "dcd995f6dceb185ac518ddd168ccc299dd3d1560593d9f37b931087da29f73b6"
+        "a8bc680361ce67794cb2becf7213cd1c95d0909044f267db266d235ad4e5ab1b"
     ],
     [
         [
