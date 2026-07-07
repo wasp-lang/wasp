@@ -58,7 +58,7 @@
                 },
                 {
                     "name": "@tailwindcss/vite",
-                    "version": "^4.1.18"
+                    "version": "^4.3.1"
                 },
                 {
                     "name": "@types/chai",
@@ -102,11 +102,11 @@
                 },
                 {
                     "name": "vite",
-                    "version": "^7.0.6"
+                    "version": "^8.1.0"
                 },
                 {
                     "name": "vitest",
-                    "version": "^4.0.16"
+                    "version": "^4.1.9"
                 }
             ],
             "peerDependencies": []
@@ -196,7 +196,7 @@
             },
             {
                 "name": "@vitest/ui",
-                "version": "^4.0.16"
+                "version": "^4.1.9"
             },
             {
                 "name": "jsdom",
@@ -238,7 +238,7 @@
             },
             {
                 "name": "@vitejs/plugin-react",
-                "version": "^4.7.0"
+                "version": "^6.0.3"
             },
             {
                 "name": "@types/express",

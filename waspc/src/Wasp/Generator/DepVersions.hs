@@ -60,10 +60,10 @@ expressTypesVersionRange :: SV.Range
 expressTypesVersionRange = [SV.r|^5.0.0|]
 
 viteVersionRange :: SV.Range
-viteVersionRange = [SV.r|^7.0.6|]
+viteVersionRange = [SV.r|^8.1.0|]
 
 vitestVersionRange :: SV.Range
-vitestVersionRange = [SV.r|^4.0.16|]
+vitestVersionRange = [SV.r|^4.1.9|]
 
 dotenvVersionRange :: SV.Range
 dotenvVersionRange = [SV.r|^16.6.1|]
