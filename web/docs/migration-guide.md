@@ -66,7 +66,7 @@ Bump Wasp-required dependencies to their latest version:
         "@tailwindcss/vite": "^4.1.18", // only if present
         "typescript": "5.9.3",
         "vite": "^7.0.6",
-        "vitest": "^4.0.16" // only if present
+        "vitest": "^4.0.16"
       }
     }
     ```
@@ -83,7 +83,7 @@ Bump Wasp-required dependencies to their latest version:
         "@tailwindcss/vite": "^4.3.1", // only if present
         "typescript": "6.0.3",
         "vite": "^8.1.0",
-        "vitest": "^4.1.9" // only if present
+        "vitest": "^4.1.9"
       }
     }
     ```
