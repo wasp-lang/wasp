@@ -151,7 +151,7 @@ validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   [ GenericValidationError
       "Expected app.auth to be defined since there are Pages with authRequired set to true."
-    | anyPageRequiresAuth && not (isAuthEnabled spec)
+  | anyPageRequiresAuth && not (isAuthEnabled spec)
   ]
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
@@ -163,7 +163,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
     Just auth ->
       [ GenericValidationError
           "Expected app.auth to use either email or username and password authentication, but not both."
-        | areBothAuthMethodsUsed
+      | areBothAuthMethodsUsed
       ]
       where
         areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
@@ -172,7 +172,7 @@ validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
       ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.dbProviderPostgresqlStringLiteral ++ "\" since there are jobs with executor set to PgBoss.")
-    | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
+  | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
 validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
@@ -451,7 +451,7 @@ validatePrerenderRoutes spec =
                  ++ routeName
                  ++ "' has prerendering enabled but its page has authRequired set to true."
                  ++ " Prerendered routes cannot require authentication."
-             | pageRequiresAuth (getPage route)
+           | pageRequiresAuth (getPage route)
            ]
 
     validatePrerenderPath routeName route path
