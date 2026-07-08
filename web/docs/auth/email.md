@@ -57,7 +57,12 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import {
+  LoginPage,
+  PasswordResetPage,
+  EmailVerificationPage,
+} from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -75,21 +80,32 @@ export default app({
           name: "My App Postman",
           email: "hello@itsme.com"
         },
-        // 4. Specify the email verification and password reset options (we'll talk about them later)
+        // 4. Specify the email verification and password reset options (we'll talk
+        //    about them later). The routes referenced here are automatically added
+        //    to the spec, and we'll create their page components in a later step.
         emailVerification: {
-          clientRoute: "EmailVerificationRoute",
+          clientRoute: route(
+            "EmailVerificationRoute",
+            "/email-verification",
+            page(EmailVerificationPage)
+          ),
         },
         passwordReset: {
-          clientRoute: "PasswordResetRoute",
+          clientRoute: route(
+            "PasswordResetRoute",
+            "/password-reset",
+            page(PasswordResetPage)
+          ),
         },
       },
     },
-    onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   // ...
 })
 ```
+
+Note that these routes don't have to be listed in `spec`: referencing them from `auth` registers them automatically, the same way a page passed to `route()` is registered.
 
 Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailAuthConfig.md).
 
@@ -129,30 +145,24 @@ The `User` entity can be as simple as including only the `id` field:
 
 Next, we need to define the routes and pages for the authentication pages.
 
-Add the following to the `main.wasp.ts` file:
+The login, email verification, and password reset routes are already registered: we referenced them from `auth` in step 1. That leaves the signup and request password reset routes, which we add to the `spec` array in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
 import {
-  LoginPage,
   SignupPage,
   RequestPasswordResetPage,
-  PasswordResetPage,
-  EmailVerificationPage,
 } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
-    route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
     route(
       "RequestPasswordResetRoute",
       "/request-password-reset",
       page(RequestPasswordResetPage)
     ),
-    route("PasswordResetRoute", "/password-reset", page(PasswordResetPage)),
-    route("EmailVerificationRoute", "/email-verification", page(EmailVerificationPage)),
   ],
 })
 ```
@@ -414,11 +424,21 @@ Our setup looks like this:
 // ...
 
 emailVerification: {
-  clientRoute: "EmailVerificationRoute",
+  clientRoute: route(
+    "EmailVerificationRoute",
+    "/email-verification",
+    page(EmailVerificationPage)
+  ),
 }
 ```
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
+
+:::info Verifying on the server
+
+The `clientRoute` field also accepts a server `api(...)` endpoint as its destination, e.g. if you want to verify the email directly on the server without a client page. It is auto-registered in the spec the same way a route is.
+
+:::
 
 The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
 
@@ -448,7 +468,11 @@ Our setup in `main.wasp.ts` looks like this:
 // ...
 
 passwordReset: {
-  clientRoute: "PasswordResetRoute",
+  clientRoute: route(
+    "PasswordResetRoute",
+    "/password-reset",
+    page(PasswordResetPage)
+  ),
 }
 ```
 

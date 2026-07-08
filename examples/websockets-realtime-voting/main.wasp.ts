@@ -16,7 +16,7 @@ export default app({
   },
   auth: {
     userEntity: "User",
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
     methods: {
       usernameAndPassword: {},
     },
@@ -26,7 +26,6 @@ export default app({
   },
   spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),
-    route("LoginRoute", "/login", page(LoginPage)),
     route("RegisterRoute", "/signup", page(SignupPage)),
   ],
 });

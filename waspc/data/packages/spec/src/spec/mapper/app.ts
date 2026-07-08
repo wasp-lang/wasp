@@ -40,8 +40,6 @@ export function mapApp(
     spec,
   } = app;
 
-  const flatSpec = flattenSpec(spec);
-
   // Keyed by `declType:declName`: decl names only have to be unique within
   // their decl type (mirroring waspc's AppSpec validation), so decls of
   // different types may share a name.
@@ -49,13 +47,6 @@ export function mapApp(
 
   const ctx: AppMapperContext = {
     emitEntityRef: makeRefParser("Entity", entityNames),
-
-    emitRouteRef: makeRefParser(
-      "Route",
-      flatSpec
-        .filter((el): el is WaspSpec.Route => el.kind === "route")
-        .map((route) => route.name),
-    ),
 
     emitRefObject: (refObject: unknown) =>
       mapRefObject(refObject, {
@@ -81,7 +72,7 @@ export function mapApp(
     },
   };
 
-  for (const specElement of flatSpec) {
+  for (const specElement of flattenSpec(spec)) {
     ctx.emitSpecElementRef(specElement);
   }
 
@@ -121,11 +112,18 @@ export function mapAuth(
     onAfterLogin,
   } = auth;
 
+  // `auth` auto-registers the destinations it references, the same way a
+  // route auto-registers the page passed to its constructor.
+  ctx.emitSpecElementRef(onAuthFailedRedirectTo);
+  if (onAuthSucceededRedirectTo) {
+    ctx.emitSpecElementRef(onAuthSucceededRedirectTo);
+  }
+
   return {
     userEntity: ctx.emitEntityRef(userEntity),
     methods: mapAuthMethods(methods, ctx),
-    onAuthFailedRedirectTo,
-    onAuthSucceededRedirectTo,
+    onAuthFailedRedirectTo: onAuthFailedRedirectTo.path,
+    onAuthSucceededRedirectTo: onAuthSucceededRedirectTo?.path,
     onBeforeSignup: onBeforeSignup && ctx.emitRefObject(onBeforeSignup),
     onAfterSignup: onAfterSignup && ctx.emitRefObject(onAfterSignup),
     onAfterEmailVerified:
@@ -204,10 +202,13 @@ export function mapEmailFlow(
   ctx: AppMapperContext,
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
+
+  ctx.emitSpecElementRef(clientRoute);
+
   return {
     getEmailContentFn:
       getEmailContentFn && ctx.emitRefObject(getEmailContentFn),
-    clientRoute: ctx.emitRouteRef(clientRoute),
+    clientRoute: clientRoute.path,
   };
 }
 

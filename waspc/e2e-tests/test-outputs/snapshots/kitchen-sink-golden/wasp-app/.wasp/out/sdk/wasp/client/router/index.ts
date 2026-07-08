@@ -47,45 +47,6 @@ export const routes = {
         options?.hash
       ),
   },
-  LoginRoute: {
-    to: "/login",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/login",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
-  PasswordResetRoute: {
-    to: "/password-reset",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/password-reset",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
-  EmailVerificationRoute: {
-    to: "/email-verification-",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/email-verification-",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
   RequestPasswordResetRoute: {
     to: "/request-password-reset",
     build: (
@@ -315,6 +276,45 @@ export const routes = {
     ) => interpolatePath(
         
         "/hydration-mismatch",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  LoginRoute: {
+    to: "/login",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/login",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  EmailVerificationRoute: {
+    to: "/email-verification-",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/email-verification-",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  PasswordResetRoute: {
+    to: "/password-reset",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/password-reset",
         undefined,
         options?.search,
         options?.hash

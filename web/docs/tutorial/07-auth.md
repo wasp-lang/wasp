@@ -11,8 +11,8 @@ Most modern apps need a way to create and authenticate users. Wasp makes this as
 To add users to your app, you must:
 
 - [ ] Create a `User` Entity.
-- [ ] Tell Wasp to use the _Username and Password_ authentication.
 - [ ] Add login and signup pages.
+- [ ] Tell Wasp to use the _Username and Password_ authentication.
 - [ ] Update the main page to require authentication.
 - [ ] Add a relation between `User` and `Task` entities.
 - [ ] Modify your Queries and Actions so users can only see and modify their tasks.
@@ -35,94 +35,11 @@ model User {
 ```
 </TutorialAction>
 
-## Adding Auth to the Project
-
-Next, tell Wasp to use full-stack [authentication](../auth/overview):
-
-<TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
-
-```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
-import { MainPage } from "./src/MainPage" with { type: "ref" }
-import { getTasks } from "./src/queries" with { type: "ref" }
-import { createTask, updateTask } from "./src/actions" with { type: "ref" }
-
-export default app({
-  // ...
-  // highlight-start
-  auth: {
-    // Tells Wasp which entity to use for storing users.
-    userEntity: "User",
-    methods: {
-      // Enable username and password auth.
-      usernameAndPassword: {},
-    },
-    // We'll see how this is used in a bit.
-    onAuthFailedRedirectTo: "/login",
-  },
-  // highlight-end
-  spec: [
-    route("RootRoute", "/", page(MainPage)),
-    query(getTasks, { entities: ["Task"] }),
-    action(createTask, { entities: ["Task"] }),
-    action(updateTask, { entities: ["Task"] }),
-  ],
-})
-```
-</TutorialAction>
-
-Don't forget to update the database schema by running:
-
-<TutorialAction id="migration-add-user" action="MIGRATE_DB" />
-
-```sh
-wasp db migrate-dev
-```
-
-By doing this, Wasp will create:
-
-- [Auth UI](../auth/ui) with login and signup forms.
-- A `logout()` action.
-- A React hook `useAuth()`.
-- `context.user` for use in Queries and Actions.
-
-:::info
-Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
-:::
-
 ## Adding Login and Signup Pages
 
-Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
+Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by writing the React components, and then wire them into the Wasp file in the next section.
 
-<TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
-
-```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp.sh/spec"
-import { MainPage } from "./src/MainPage" with { type: "ref" }
-// highlight-start
-import { SignupPage } from "./src/SignupPage" with { type: "ref" }
-import { LoginPage } from "./src/LoginPage" with { type: "ref" }
-// highlight-end
-import { getTasks } from "./src/queries" with { type: "ref" }
-import { createTask, updateTask } from "./src/actions" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("RootRoute", "/", page(MainPage)),
-    // highlight-start
-    route("SignupRoute", "/signup", page(SignupPage)),
-    route("LoginRoute", "/login", page(LoginPage)),
-    // highlight-end
-    // ... existing queries and actions
-  ],
-})
-```
-</TutorialAction>
-
-Great, Wasp now knows these pages exist!
-
-Here's the React code for the pages you've just imported:
+Here's the React code for the login page:
 
 <TutorialAction id="login-page-initial" action="APPLY_PATCH">
 
@@ -171,6 +88,69 @@ export const SignupPage = () => {
   Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](../advanced/links) for more details.
   :::
 </ShowForTs>
+
+## Adding Auth to the Project
+
+Next, tell Wasp to use full-stack [authentication](../auth/overview) and declare the pages you just created:
+
+<TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
+
+```ts title="main.wasp.ts"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+// highlight-start
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+// highlight-end
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
+
+export default app({
+  // ...
+  // highlight-start
+  auth: {
+    // Tells Wasp which entity to use for storing users.
+    userEntity: "User",
+    methods: {
+      // Enable username and password auth.
+      usernameAndPassword: {},
+    },
+    // The route Wasp redirects unauthenticated users to.
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
+  },
+  // highlight-end
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+    // highlight-next-line
+    route("SignupRoute", "/signup", page(SignupPage)),
+    query(getTasks, { entities: ["Task"] }),
+    action(createTask, { entities: ["Task"] }),
+    action(updateTask, { entities: ["Task"] }),
+  ],
+})
+```
+</TutorialAction>
+
+Notice that the login route isn't listed in `spec`: referencing a route from `auth` registers it automatically, the same way a page passed to `route()` is registered.
+
+Don't forget to update the database schema by running:
+
+<TutorialAction id="migration-add-user" action="MIGRATE_DB" />
+
+```sh
+wasp db migrate-dev
+```
+
+By doing this, Wasp will create:
+
+- [Auth UI](../auth/ui) with login and signup forms.
+- A `logout()` action.
+- A React hook `useAuth()`.
+- `context.user` for use in Queries and Actions.
+
+:::info
+Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
+:::
 
 ## Update the Main Page to Require Auth
 

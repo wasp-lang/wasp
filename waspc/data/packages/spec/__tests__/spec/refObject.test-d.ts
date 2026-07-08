@@ -31,6 +31,13 @@ describe("RefObject input types", () => {
     const setup = () => null;
     const middleware = () => null;
 
+    const someRoute: WaspSpec.Route = {
+      kind: "route",
+      name: "SomeRoute",
+      path: "/some",
+      page: { kind: "page", component },
+    };
+
     assertType<WaspSpec.Page>({ kind: "page", component });
     assertType<WaspSpec.Query>({
       kind: "query",
@@ -61,7 +68,7 @@ describe("RefObject input types", () => {
     assertType<WaspSpec.Auth>({
       userEntity: "User",
       methods: {},
-      onAuthFailedRedirectTo: "/login",
+      onAuthFailedRedirectTo: someRoute,
       onBeforeSignup: hook,
     });
     assertType<WaspSpec.SocialAuthConfig>({
@@ -70,7 +77,7 @@ describe("RefObject input types", () => {
     });
     assertType<WaspSpec.EmailFlowConfig>({
       getEmailContentFn: hook,
-      clientRoute: "EmailRoute",
+      clientRoute: someRoute,
     });
     assertType<WaspSpec.Server>({
       setupFn: setup,

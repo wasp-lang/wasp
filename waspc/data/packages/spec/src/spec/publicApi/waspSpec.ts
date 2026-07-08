@@ -107,7 +107,8 @@ export interface Wasp {
  *
  * @example
  * ```ts
- * import { app } from "@wasp.sh/spec"
+ * import { app, page, route } from "@wasp.sh/spec"
+ * import { LoginPage } from "./src/LoginPage" with { type: "ref" }
  *
  * export default app({
  *   // ...
@@ -118,7 +119,7 @@ export interface Wasp {
  *       google: {},
  *       gitHub: {},
  *     },
- *     onAuthFailedRedirectTo: "/login",
+ *     onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
  *   },
  * })
  * ```
@@ -148,23 +149,32 @@ export interface Auth extends AuthHooks {
   /** Enabled authentication methods. */
   methods: AuthMethods;
   /**
-   * Route that Wasp redirects unauthenticated users to when they try to
+   * Destination that Wasp redirects unauthenticated users to when they try to
    * access a page that has `authRequired: true`.
+   *
+   * Pass a {@link Route} created with the {@link route} constructor, or an
+   * {@link Api} created with the {@link api} constructor. It will be
+   * automatically registered in the {@link App.spec}.
    *
    * See [Adding Auth to the Project](https://wasp.sh/docs/tutorial/auth#adding-auth-to-the-project)
    * for an example.
    */
-  onAuthFailedRedirectTo: string;
+  onAuthFailedRedirectTo: Destination;
   /**
-   * Route that Wasp redirects users to after a successful login or signup.
+   * Destination that Wasp redirects users to after a successful login or
+   * signup.
+   *
+   * Pass a {@link Route} created with the {@link route} constructor, or an
+   * {@link Api} created with the {@link api} constructor. It will be
+   * automatically registered in the {@link App.spec}.
    *
    * Only takes effect when using Wasp's built-in Auth UI.
    *
    * See [Auth UI](https://wasp.sh/docs/auth/ui).
    *
-   * @default "/"
+   * @default the route with path "/"
    */
-  onAuthSucceededRedirectTo?: string;
+  onAuthSucceededRedirectTo?: Destination;
 }
 
 interface AuthHooks {
@@ -263,8 +273,9 @@ type SocialAuthMethodName =
  *
  * @example
  * ```ts
- * import { app } from "@wasp.sh/spec"
+ * import { app, page, route } from "@wasp.sh/spec"
  * import { userSignupFields } from "./src/auth" with { type: "ref" }
+ * import { LoginPage } from "./src/LoginPage" with { type: "ref" }
  *
  * export default app({
  *   // ...
@@ -275,7 +286,7 @@ type SocialAuthMethodName =
  *         userSignupFields,
  *       },
  *     },
- *     onAuthFailedRedirectTo: "/login",
+ *     onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
  *   },
  * })
  * ```
@@ -293,8 +304,9 @@ export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
  *
  * @example
  * ```ts
- * import { app } from "@wasp.sh/spec"
+ * import { app, page, route } from "@wasp.sh/spec"
  * import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
+ * import { LoginPage } from "./src/LoginPage" with { type: "ref" }
  *
  * export default app({
  *   // ...
@@ -306,7 +318,7 @@ export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
  *         userSignupFields,
  *       },
  *     },
- *     onAuthFailedRedirectTo: "/login",
+ *     onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
  *   },
  * })
  * ```
@@ -338,12 +350,17 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
  *
  * @example
  * ```ts
- * import { app } from "@wasp.sh/spec"
+ * import { app, page, route } from "@wasp.sh/spec"
  * import { userSignupFields } from "./src/auth" with { type: "ref" }
  * import {
  *   getVerificationEmailContent,
  *   getPasswordResetEmailContent,
  * } from "./src/auth/email" with { type: "ref" }
+ * import {
+ *   EmailVerificationPage,
+ *   PasswordResetPage,
+ *   LoginPage,
+ * } from "./src/auth/pages" with { type: "ref" }
  *
  * export default app({
  *   // ...
@@ -357,16 +374,24 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
  *           email: "hello@itsme.com",
  *         },
  *         emailVerification: {
- *           clientRoute: "EmailVerificationRoute",
+ *           clientRoute: route(
+ *             "EmailVerificationRoute",
+ *             "/email-verification",
+ *             page(EmailVerificationPage),
+ *           ),
  *           getEmailContentFn: getVerificationEmailContent,
  *         },
  *         passwordReset: {
- *           clientRoute: "PasswordResetRoute",
+ *           clientRoute: route(
+ *             "PasswordResetRoute",
+ *             "/password-reset",
+ *             page(PasswordResetPage),
+ *           ),
  *           getEmailContentFn: getPasswordResetEmailContent,
  *         },
  *       },
  *     },
- *     onAuthFailedRedirectTo: "/login",
+ *     onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
  *   },
  * })
  * ```
@@ -449,21 +474,22 @@ export interface EmailFlowConfig {
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
-   * Name of the route that handles the link sent in the email (e.g.
-   * `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
+   * Destination that handles the link sent in the email.
    *
-   * The route must be defined in {@link App.spec} with the {@link route}
-   * constructor.
+   * Pass a {@link Route} created with the {@link route} constructor, or an
+   * {@link Api} created with the {@link api} constructor (e.g. to handle the
+   * link directly on the server). The destination is automatically registered
+   * in {@link App.spec}.
    *
-   * This route should handle the process of taking a token from the URL and
-   * sending it to the server to verify the e-mail address. You can use our
+   * The destination should handle the process of taking a token from the URL
+   * and sending it to the server to verify the e-mail address. You can use our
    * [`verifyEmail`
    * action](https://wasp.sh/docs/auth/email/create-your-own-ui#verifyemail) and
    * [`resetPassword`
    * action](https://wasp.sh/docs/auth/email/create-your-own-ui#resetpassword)
    * helpers for that.
    */
-  clientRoute: string;
+  clientRoute: Destination;
 }
 
 /**
@@ -841,6 +867,16 @@ export type SpecElement =
   | ApiNamespace
   | Job
   | Crud;
+
+/**
+ * A destination the app can send users to: a client-side {@link Route} or a
+ * server-side {@link Api} endpoint.
+ *
+ * Create one with the {@link route} or {@link api} constructor.
+ *
+ * @category Specifications
+ */
+export type Destination = Route | Api;
 
 /**
  * A page in the app, normally a React component rendered for a {@link Route}.

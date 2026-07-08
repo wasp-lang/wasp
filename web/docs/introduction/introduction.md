@@ -56,7 +56,8 @@ Let's start with the `main.wasp.ts` file: it is the central spec file of your ap
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/LoginPage" with { type: "ref" }
 
 export default app({
   name: "RecipeApp",
@@ -65,12 +66,14 @@ export default app({
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     methods: { usernameAndPassword: {} },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
     userEntity: "User",
   },
   // ...
 })
 ```
+
+The `route(...)` we passed to `onAuthFailedRedirectTo` is registered automatically because `auth` references it, so we don't have to list it in the app's `spec` array (just like pages passed to `route()`).
 
 Let's then add the data models for your recipes. Wasp understands and uses the models from the `schema.prisma` file. We will want to have Users and Users can own Recipes:
 
@@ -190,7 +193,7 @@ And voila! We are listing all the recipes in our app 🎉
 This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo App tutorial](../tutorial/01-create.md).
 
 :::note
-Above we skipped defining `/login` and `/signup` pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
+Above we skipped implementing the `LoginPage` component and defining a `/signup` page to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
 :::
 
 ## When to use Wasp

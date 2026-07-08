@@ -17,6 +17,8 @@ import { serverEnvValidation } from "./src/env" with { type: "ref" };
 import { Layout } from "./src/Layout" with { type: "ref" };
 import { Main } from "./src/pages/MainPage" with { type: "ref" };
 
+const rootRoute = route("RootRoute", "/", page(Main), { prerender: true });
+
 export default app({
   name: "askTheDocuments",
   wasp: { version: "0.25.0" },
@@ -30,7 +32,7 @@ export default app({
         configFn: getGoogleAuthConfig,
       },
     },
-    onAuthFailedRedirectTo: "/",
+    onAuthFailedRedirectTo: rootRoute,
   },
   client: {
     rootComponent: Layout,
@@ -39,7 +41,7 @@ export default app({
     envValidationSchema: serverEnvValidation,
   },
   spec: [
-    route("RootRoute", "/", page(Main), { prerender: true }),
+    rootRoute,
 
     action(embedDocument, { entities: ["Document"] }),
     action(getScrapeCandidates, { entities: ["Document"] }),

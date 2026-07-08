@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import MainPage from "./src/cards/MainPage" with { type: "ref" };
 import Layout from "./src/Layout" with { type: "ref" };
 
-import { authSpec } from "./src/auth/auth.wasp";
+import { authSpec, loginRoute } from "./src/auth/auth.wasp";
 import { cardsSpec } from "./src/cards/cards.wasp";
 
 export default app({
@@ -16,7 +16,7 @@ export default app({
       usernameAndPassword: {},
       google: {},
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: loginRoute,
   },
   client: {
     rootComponent: Layout,

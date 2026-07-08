@@ -52,7 +52,8 @@ Enabling Microsoft Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -68,13 +69,15 @@ export default app({
       // highlight-next-line
       microsoft: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })
 ```
 
 `userEntity` is explained in [the social auth overview](./overview.md#user-entity).
+
+`onAuthFailedRedirectTo` takes a `route(...)` value. You don't have to list this route in the `spec` array: referencing it from `auth` registers it automatically, just like pages passed to `route()`. (We'll define the `LoginPage` component in a later step.)
 
 ### 2. Adding the User Entity
 
@@ -145,23 +148,9 @@ The `MICROSOFT_TENANT_ID` should be set based on the supported account types you
 
 ### 5. Adding the Necessary Routes and Pages
 
-Let's define the necessary authentication Routes and Pages.
+We already declared the necessary authentication Route and Page in step 1: the `route("LoginRoute", "/login", page(LoginPage))` value we passed to `onAuthFailedRedirectTo` takes care of it, so there's nothing to add to the `spec` array.
 
-Add the following code to your `main.wasp.ts` file:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { LoginPage } from "./src/pages/auth" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("LoginRoute", "/login", page(LoginPage)),
-  ],
-})
-```
-
-We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
+We'll define the React component for the login page in the `src/pages/auth.{jsx,tsx}` file below.
 
 ### 6. Create the Client Pages
 
@@ -181,7 +170,8 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `microsoft: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -194,7 +184,7 @@ export default app({
       // highlight-next-line
       microsoft: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })
@@ -234,7 +224,8 @@ The fields you receive depend on the scopes you request. The default scopes are 
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 import { getConfig, userSignupFields } from "./src/auth/microsoft" with { type: "ref" }
 
 export default app({
@@ -252,7 +243,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })

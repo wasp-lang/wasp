@@ -12,13 +12,36 @@ describe("AuthMethods", () => {
     usernameAndPassword: {},
   };
 
+  const someRoute: WaspSpec.Route = {
+    kind: "route",
+    name: "SomeRoute",
+    path: "/some",
+    page: { kind: "page", component: () => null },
+  };
+
+  const someApi: WaspSpec.Api = {
+    kind: "api",
+    method: "GET",
+    path: "/some",
+    fn: () => null,
+  };
+
   const email: Required<Pick<WaspSpec.AuthMethods, "email">> = {
     email: {
       fromField: { email: "noreply@example.com" },
-      emailVerification: { clientRoute: "/verify" },
-      passwordReset: { clientRoute: "/reset" },
+      emailVerification: { clientRoute: someRoute },
+      passwordReset: { clientRoute: someRoute },
     },
   };
+
+  const emailWithApiDestination: Required<Pick<WaspSpec.AuthMethods, "email">> =
+    {
+      email: {
+        fromField: { email: "noreply@example.com" },
+        emailVerification: { clientRoute: someApi },
+        passwordReset: { clientRoute: someRoute },
+      },
+    };
 
   const google: Required<Pick<WaspSpec.AuthMethods, "google">> = {
     google: {},
@@ -34,6 +57,12 @@ describe("AuthMethods", () => {
 
   test("allows only email", () => {
     expectTypeOf<typeof email>().toExtend<WaspSpec.AuthMethods>();
+  });
+
+  test("allows an API endpoint as an email flow destination", () => {
+    expectTypeOf<
+      typeof emailWithApiDestination
+    >().toExtend<WaspSpec.AuthMethods>();
   });
 
   test("allows no local auth method (e.g. only a social method)", () => {
@@ -62,5 +91,13 @@ describe("AuthMethods", () => {
     expectTypeOf<
       typeof google & typeof usernameAndPassword & typeof email
     >().not.toExtend<WaspSpec.AuthMethods>();
+  });
+});
+
+describe("Destination", () => {
+  test("accepts routes and APIs but not bare strings", () => {
+    expectTypeOf<WaspSpec.Route>().toExtend<WaspSpec.Destination>();
+    expectTypeOf<WaspSpec.Api>().toExtend<WaspSpec.Destination>();
+    expectTypeOf<string>().not.toExtend<WaspSpec.Destination>();
   });
 });

@@ -21,8 +21,6 @@ export type GetSpecElementForKind<Kind extends WaspSpec.SpecElement["kind"]> =
 export interface AppMapperContext {
   emitEntityRef(name: string): AppSpec.Ref<"Entity">;
 
-  emitRouteRef(name: string): AppSpec.Ref<"Route">;
-
   emitRefObject(refObject: WaspSpec.Reference<unknown>): AppSpec.ExtImport;
 
   emitSpecElementRef<SpecElement extends WaspSpec.SpecElement>(

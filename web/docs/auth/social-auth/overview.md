@@ -33,7 +33,8 @@ This field tells Wasp which Entity represents the user.
 Here's what the full setup looks like:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -46,11 +47,13 @@ export default app({
     methods: {
       google: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })
 ```
+
+Note that `onAuthFailedRedirectTo` takes a `route(...)` value, and that this route doesn't have to be listed in the `spec` array: referencing it from `auth` registers it automatically, just like pages passed to `route()`.
 
 ```prisma title="schema.prisma"
 // highlight-next-line
@@ -97,7 +100,8 @@ model User {
 Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -113,7 +117,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })

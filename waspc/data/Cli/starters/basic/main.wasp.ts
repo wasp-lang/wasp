@@ -7,7 +7,7 @@ import { RequestPasswordResetPage } from "./src/auth/email/RequestPasswordResetP
 import { SignupPage } from "./src/auth/email/SignupPage" with { type: "ref" };
 import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref" };
 import { tagsSpec } from "./src/tags/tags.wasp";
-import { tasksSpec } from "./src/tasks/task.wasp";
+import { tasksRoute, tasksSpec } from "./src/tasks/task.wasp";
 
 export default app({
   name: "__waspAppName__",
@@ -24,15 +24,23 @@ export default app({
         },
         userSignupFields,
         emailVerification: {
-          clientRoute: "EmailVerificationRoute",
+          clientRoute: route(
+            "EmailVerificationRoute",
+            "/email-verification",
+            page(EmailVerificationPage),
+          ),
         },
         passwordReset: {
-          clientRoute: "PasswordResetRoute",
+          clientRoute: route(
+            "PasswordResetRoute",
+            "/password-reset",
+            page(PasswordResetPage),
+          ),
         },
       },
     },
-    onAuthSucceededRedirectTo: "/",
-    onAuthFailedRedirectTo: "/login",
+    onAuthSucceededRedirectTo: tasksRoute,
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   emailSender: {
     provider: "Dummy",
@@ -43,18 +51,11 @@ export default app({
   spec: [
     tasksSpec,
     tagsSpec,
-    route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
     route(
       "RequestPasswordResetRoute",
       "/request-password-reset",
       page(RequestPasswordResetPage),
-    ),
-    route("PasswordResetRoute", "/password-reset", page(PasswordResetPage)),
-    route(
-      "EmailVerificationRoute",
-      "/email-verification",
-      page(EmailVerificationPage),
     ),
   ],
 });

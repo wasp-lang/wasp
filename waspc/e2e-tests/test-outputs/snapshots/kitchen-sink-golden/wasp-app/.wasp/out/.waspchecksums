@@ -683,7 +683,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "e61b8ab2927705ef9b7f20d9e8e61c705b79fa402a59fe705096a999e959506d"
+        "9e80934d97f9e5f180b0764b81e7b4c1c4742fbec697e1297efde464ceddc552"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "8b4c79cc0ed90c7f4af7c33de824b1020f4c5673fa446bb42d084a86d899f8e4"
+        "baf6fa6742d63f88d98b7764cc5769be11511a2974174b5b2df2eb85aeed7488"
     ],
     [
         [
@@ -1348,7 +1348,7 @@
             "file",
             "sdk/wasp/src/features/auth/auth.wasp.ts"
         ],
-        "89b3cd5b87f881f834e31b088473d8d4a847e96e853bcfed8d1dd5233cf7eff9"
+        "57b6e735a8a2ecb1eb71a8510941adad1d8745b09a198e738713f84bfb9b74e5"
     ],
     [
         [
@@ -1727,6 +1727,13 @@
             "sdk/wasp/src/features/streaming/streaming.wasp.ts"
         ],
         "522894ccab7ad1f3b69eb35456d579c83ba8e7790070abc26841f26c853148e9"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/home.wasp.ts"
+        ],
+        "965b01e5895b92bc3896116b56015111e0413ceac7e87f0a4ff416bdb4286ce1"
     ],
     [
         [

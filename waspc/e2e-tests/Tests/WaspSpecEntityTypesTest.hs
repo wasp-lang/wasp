@@ -94,6 +94,11 @@ waspSpecEntityTypesTest =
       [trimming|
         import { app, ref, route } from "@wasp.sh/spec";
 
+        const mainRoute = route("Route", "/", {
+          kind: "page",
+          component: ref({ from: "./src/somewhere", import: "something" }),
+        });
+
         export default app({
           name: "enti",
           title: "enti",
@@ -104,14 +109,9 @@ waspSpecEntityTypesTest =
             methods: {
               usernameAndPassword: {},
             },
-            onAuthFailedRedirectTo: "/",
+            onAuthFailedRedirectTo: mainRoute,
           },
-          spec: [
-            route("Route", "/", {
-              kind: "page",
-              component: ref({ from: "./src/somewhere", import: "something" }),
-            }),
-          ],
+          spec: [mainRoute],
         });
       |]
 

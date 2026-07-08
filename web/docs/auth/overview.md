@@ -20,7 +20,8 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "MyApp",
@@ -35,11 +36,13 @@ export default app({
       google: {},
       gitHub: {},
     },
-    onAuthFailedRedirectTo: "/someRoute",
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   // ...
 })
 ```
+
+Note that the login route doesn't have to be listed in `spec`: referencing it from `auth` registers it automatically, the same way a page passed to `route()` is registered.
 
 <small>
   Read more about the `auth` field options in the [API Reference](#api-reference) section.
@@ -387,8 +390,9 @@ First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `mai
 For example, if you are using [Username & Password](./username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -400,7 +404,7 @@ export default app({
         userSignupFields,
       },
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   // ...
 })
@@ -597,8 +601,9 @@ export const SignupPage = () => {
 If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -611,7 +616,7 @@ export default app({
         userSignupFields,
       },
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   // ...
 })

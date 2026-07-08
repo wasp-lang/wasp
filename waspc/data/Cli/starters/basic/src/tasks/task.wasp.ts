@@ -7,8 +7,15 @@ import {
 import { getTasks } from "./queries" with { type: "ref" };
 import { TasksPage } from "./TasksPage" with { type: "ref" };
 
+// We also want to use it in the `auth` configuration, so we export it.
+export const tasksRoute = route(
+  "TasksRoute",
+  "/",
+  page(TasksPage, { authRequired: true }),
+);
+
 export const tasksSpec: Spec = [
-  route("TasksRoute", "/", page(TasksPage, { authRequired: true })),
+  tasksRoute,
   query(getTasks, { entities: ["Task", "Tag"] }),
   action(createTask, { entities: ["Task"] }),
   action(updateTaskStatus, { entities: ["Task"] }),
