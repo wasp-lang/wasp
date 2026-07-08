@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@kitchen-sink/module": "file:../module",
+    "@kitchen-sink/module": "file:../module/kitchen-sink-module-0.0.1.tgz",
     "@tanstack/react-query": "~4.42.0",
     "chai": "^5.2.0",
     "clsx": "^2.1.1",

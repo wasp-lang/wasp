@@ -159,7 +159,7 @@ serverOperationsShimExports operationNames =
       T.pack $
         "export type "
           ++ operationTypeName operationName
-          ++ "<Args = unknown, Result = unknown> = (args: Args, context: unknown) => Result | Promise<Result>;"
+          ++ "<Args = unknown, Result = unknown, Context = unknown> = (args: Args, context: Context) => Result | Promise<Result>;"
 
 operationTypeName :: String -> String
 operationTypeName [] = []

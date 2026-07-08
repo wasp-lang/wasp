@@ -184,3 +184,13 @@ export type JsActionWithArgs<Input extends Payload = never, Output extends Paylo
     Output
   >
 
+// PUBLIC API
+export type AddRandomTodo<Input extends Payload = never, Output extends Payload = Payload> =
+  AuthenticatedActionDefinition<
+    [
+      _Task,
+    ],
+    Input,
+    Output
+  >
+

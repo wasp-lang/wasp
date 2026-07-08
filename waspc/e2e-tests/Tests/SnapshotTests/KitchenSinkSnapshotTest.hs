@@ -37,6 +37,7 @@ kitchenSinkSnapshotTest =
         "cd module"
           ~&& "$WASP_CLI_CMD module install"
           ~&& "$WASP_CLI_CMD module build"
+          ~&& "npm run pack"
           ~&& "cd .."
 
     removeModuleDependency :: ShellCommandBuilder SnapshotTestContext ShellCommand

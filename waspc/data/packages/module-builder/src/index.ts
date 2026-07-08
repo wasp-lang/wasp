@@ -125,43 +125,13 @@ export function assertHasDefaultExport(
 
   if (!hasDefaultExport(ast)) {
     throw new Error(
-      `${moduleSpecPath} must default export a Wasp module spec. Example: export default [route("ModuleRoute", "/module", page(MainPage))] satisfies Spec;`,
+      `${moduleSpecPath} must default export a Wasp module spec function.`,
     );
   }
 }
 
 function hasDefaultExport(ast: t.Program): boolean {
-  return ast.body.some((node) => {
-    if (node.type === "ExportDefaultDeclaration") {
-      return true;
-    }
-
-    if (node.type !== "ExportNamedDeclaration" || node.exportKind === "type") {
-      return false;
-    }
-
-    return node.specifiers.some(
-      (specifier) =>
-        specifier.type === "ExportSpecifier" &&
-        getModuleExportName(specifier.exported) === "default",
-    );
-  });
-}
-
-function getModuleExportName(exportName: unknown): string | null {
-  if (typeof exportName !== "object" || exportName === null) {
-    return null;
-  }
-
-  if ("name" in exportName && typeof exportName.name === "string") {
-    return exportName.name;
-  }
-
-  if ("value" in exportName && typeof exportName.value === "string") {
-    return exportName.value;
-  }
-
-  return null;
+  return ast.body.some((node) => node.type === "ExportDefaultDeclaration");
 }
 
 function getDirectExportNames(moduleSpec: string): string[] {

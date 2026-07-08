@@ -18,6 +18,7 @@
   "scripts": {
     "build": "wasp module build",
     "build:watch": "wasp module build --watch",
+    "pack": "npm pack --pack-destination .",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -29,6 +30,9 @@
     "wasp": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "quote-lib": "^2.0.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",
