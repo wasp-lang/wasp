@@ -24,6 +24,7 @@ import { boolToStringNoAuth as boolToStringNoAuth_ext } from 'wasp/src/rpcTests/
 import { boolToVoidNoAuth as boolToVoidNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
 import { boolToVoidAuth as boolToVoidAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
 import { jsActionWithArgs as jsActionWithArgs_ext } from 'wasp/src/rpcTests/operations/jsDefinitions'
+import { addRandomTodo as addRandomTodo_ext } from '@kitchen-sink/module/actions'
 
 // PRIVATE API
 export type CustomSignup_ext = typeof customSignup_ext
@@ -234,6 +235,18 @@ export type JsActionWithArgs_ext = typeof jsActionWithArgs_ext
 export const jsActionWithArgs: AuthenticatedOperationFor<JsActionWithArgs_ext> =
   createAuthenticatedOperation(
     jsActionWithArgs_ext,
+    {
+      Task: prisma.task,
+    },
+  )
+
+// PRIVATE API
+export type AddRandomTodo_ext = typeof addRandomTodo_ext
+
+// PUBLIC API
+export const addRandomTodo: AuthenticatedOperationFor<AddRandomTodo_ext> =
+  createAuthenticatedOperation(
+    addRandomTodo_ext,
     {
       Task: prisma.task,
     },

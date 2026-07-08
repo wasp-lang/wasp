@@ -114,25 +114,16 @@ describe("getLooseModuleSpecTypes", () => {
 });
 
 describe("assertHasDefaultExport", () => {
-  test("accepts a direct default export", () => {
+  test("accepts a default export", () => {
     expect(() =>
       assertHasDefaultExport(
         "/module/module.wasp.ts",
-        `export default [] satisfies Spec;`,
+        `export default function getModuleSpec(options) { return []; }`,
       ),
     ).not.toThrow();
   });
 
-  test("accepts a default export specifier", () => {
-    expect(() =>
-      assertHasDefaultExport(
-        "/module/module.wasp.ts",
-        `const moduleSpec = []; export { moduleSpec as default };`,
-      ),
-    ).not.toThrow();
-  });
-
-  test("rejects named-only exports", () => {
+  test("rejects missing default export", () => {
     expect(() =>
       assertHasDefaultExport(
         "/module/module.wasp.ts",

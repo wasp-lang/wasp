@@ -4,7 +4,7 @@
             "dependencies": [
                 {
                     "name": "@kitchen-sink/module",
-                    "version": "file:../module"
+                    "version": "file:../module/kitchen-sink-module-0.0.1.tgz"
                 },
                 {
                     "name": "@tanstack/react-query",

@@ -20,6 +20,7 @@ import boolToStringNoAuth from './boolToStringNoAuth.js'
 import boolToVoidNoAuth from './boolToVoidNoAuth.js'
 import boolToVoidAuth from './boolToVoidAuth.js'
 import jsActionWithArgs from './jsActionWithArgs.js'
+import addRandomTodo from './addRandomTodo.js'
 import getTasks from './getTasks.js'
 import getNumTasks from './getNumTasks.js'
 import getTask from './getTask.js'
@@ -32,7 +33,7 @@ import getTrueVoid from './getTrueVoid.js'
 import getAnyNoAuth from './getAnyNoAuth.js'
 import getAnyAuth from './getAnyAuth.js'
 import getAnyToNumberSpecified from './getAnyToNumberSpecified.js'
-import getModuleContent from './getModuleContent.js'
+import getTodoItems from './getTodoItems.js'
 
 const router = express.Router()
 
@@ -54,6 +55,7 @@ router.post('/bool-to-string-no-auth', boolToStringNoAuth)
 router.post('/bool-to-void-no-auth', boolToVoidNoAuth)
 router.post('/bool-to-void-auth', auth, boolToVoidAuth)
 router.post('/js-action-with-args', auth, jsActionWithArgs)
+router.post('/add-random-todo', auth, addRandomTodo)
 router.post('/get-tasks', auth, getTasks)
 router.post('/get-num-tasks', getNumTasks)
 router.post('/get-task', auth, getTask)
@@ -66,6 +68,6 @@ router.post('/get-true-void', auth, getTrueVoid)
 router.post('/get-any-no-auth', getAnyNoAuth)
 router.post('/get-any-auth', auth, getAnyAuth)
 router.post('/get-any-to-number-specified', auth, getAnyToNumberSpecified)
-router.post('/get-module-content', auth, getModuleContent)
+router.post('/get-todo-items', auth, getTodoItems)
 
 export default router

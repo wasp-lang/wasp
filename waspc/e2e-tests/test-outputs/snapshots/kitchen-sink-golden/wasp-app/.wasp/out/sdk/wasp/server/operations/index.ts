@@ -27,7 +27,7 @@ export { getAnyAuth } from './queries/index.js'
 
 export { getAnyToNumberSpecified } from './queries/index.js'
 
-export { getModuleContent } from './queries/index.js'
+export { getTodoItems } from './queries/index.js'
 
 export { customSignup } from './actions/index.js'
 
@@ -64,3 +64,5 @@ export { boolToVoidNoAuth } from './actions/index.js'
 export { boolToVoidAuth } from './actions/index.js'
 
 export { jsActionWithArgs } from './actions/index.js'
+
+export { addRandomTodo } from './actions/index.js'

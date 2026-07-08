@@ -249,7 +249,7 @@ const routesMapping = {
 
       return {
         Component:
-          Component,
+          createAuthRequiredPage(Component),
       }
     },
   },

@@ -13,7 +13,7 @@ import {
   serverSetup,
 } from "./src/serverSetup" with { type: "ref" };
 
-import fsmModuleSpec from "@kitchen-sink/module/spec";
+import getFsmModuleSpec from "@kitchen-sink/module/spec";
 import { apisSpec } from "./src/features/apis/apis.wasp";
 import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
 import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";
@@ -66,6 +66,6 @@ export default app({
     lazyLoadingSpec,
     prerenderSpec,
     rpcTestsSpec,
-    fsmModuleSpec,
+    getFsmModuleSpec({ prefix: "/fsm" }),
   ],
 });

@@ -17,6 +17,7 @@ import type { BoolToStringNoAuth_ext } from '../../../server/operations/actions/
 import type { BoolToVoidNoAuth_ext } from '../../../server/operations/actions/index.js'
 import type { BoolToVoidAuth_ext } from '../../../server/operations/actions/index.js'
 import type { JsActionWithArgs_ext } from '../../../server/operations/actions/index.js'
+import type { AddRandomTodo_ext } from '../../../server/operations/actions/index.js'
 
 // PUBLIC API
 export const customSignup: ActionFor<CustomSignup_ext> = createAction<CustomSignup_ext>(
@@ -123,5 +124,11 @@ export const boolToVoidAuth: ActionFor<BoolToVoidAuth_ext> = createAction<BoolTo
 // PUBLIC API
 export const jsActionWithArgs: ActionFor<JsActionWithArgs_ext> = createAction<JsActionWithArgs_ext>(
   'operations/js-action-with-args',
+  ['Task'],
+)
+
+// PUBLIC API
+export const addRandomTodo: ActionFor<AddRandomTodo_ext> = createAction<AddRandomTodo_ext>(
+  'operations/add-random-todo',
   ['Task'],
 )

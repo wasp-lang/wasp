@@ -18,7 +18,7 @@ import { getTrueVoid as getTrueVoid_ext } from 'wasp/src/rpcTests/operations/def
 import { getAnyNoAuth as getAnyNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
 import { getAnyAuth as getAnyAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
 import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { getModuleContent as getModuleContent_ext } from '@kitchen-sink/module/queries'
+import { getTodoItems as getTodoItems_ext } from '@kitchen-sink/module/queries'
 
 // PRIVATE API
 export type GetTasks_ext = typeof getTasks_ext
@@ -169,13 +169,14 @@ export const getAnyToNumberSpecified: AuthenticatedOperationFor<GetAnyToNumberSp
 
 
 // PRIVATE API
-export type GetModuleContent_ext = typeof getModuleContent_ext
+export type GetTodoItems_ext = typeof getTodoItems_ext
 
 // PUBLIC API
-export const getModuleContent: AuthenticatedOperationFor<GetModuleContent_ext> =
+export const getTodoItems: AuthenticatedOperationFor<GetTodoItems_ext> =
   createAuthenticatedOperation(
-    getModuleContent_ext,
+    getTodoItems_ext,
     {
+      Task: prisma.task,
     },
   )
 

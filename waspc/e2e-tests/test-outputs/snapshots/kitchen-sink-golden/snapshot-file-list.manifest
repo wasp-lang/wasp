@@ -1224,6 +1224,7 @@ wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
+wasp-app/.wasp/out/server/src/actions/addRandomTodo.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToVoidAuth.ts
@@ -1278,12 +1279,12 @@ wasp-app/.wasp/out/server/src/queries/getAnyToNumberSpecified.ts
 wasp-app/.wasp/out/server/src/queries/getAnythingAuth.ts
 wasp-app/.wasp/out/server/src/queries/getAnythingNoAuth.ts
 wasp-app/.wasp/out/server/src/queries/getDate.ts
-wasp-app/.wasp/out/server/src/queries/getModuleContent.ts
 wasp-app/.wasp/out/server/src/queries/getNumTasks.ts
 wasp-app/.wasp/out/server/src/queries/getSerializedObjects.ts
 wasp-app/.wasp/out/server/src/queries/getTask.ts
 wasp-app/.wasp/out/server/src/queries/getTasks.ts
 wasp-app/.wasp/out/server/src/queries/getTextUppercaseRequests.ts
+wasp-app/.wasp/out/server/src/queries/getTodoItems.ts
 wasp-app/.wasp/out/server/src/queries/getTrueVoid.ts
 wasp-app/.wasp/out/server/src/routes/apis/index.ts
 wasp-app/.wasp/out/server/src/routes/auth/index.js
@@ -1292,6 +1293,7 @@ wasp-app/.wasp/out/server/src/routes/auth/me.ts
 wasp-app/.wasp/out/server/src/routes/crud/index.ts
 wasp-app/.wasp/out/server/src/routes/crud/tasks.ts
 wasp-app/.wasp/out/server/src/routes/index.js
+wasp-app/.wasp/out/server/src/routes/operations/addRandomTodo.js
 wasp-app/.wasp/out/server/src/routes/operations/boolToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/boolToStringNoAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/boolToVoidAuth.js
@@ -1305,12 +1307,12 @@ wasp-app/.wasp/out/server/src/routes/operations/getAnyToNumberSpecified.js
 wasp-app/.wasp/out/server/src/routes/operations/getAnythingAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/getAnythingNoAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/getDate.js
-wasp-app/.wasp/out/server/src/routes/operations/getModuleContent.js
 wasp-app/.wasp/out/server/src/routes/operations/getNumTasks.js
 wasp-app/.wasp/out/server/src/routes/operations/getSerializedObjects.js
 wasp-app/.wasp/out/server/src/routes/operations/getTask.js
 wasp-app/.wasp/out/server/src/routes/operations/getTasks.js
 wasp-app/.wasp/out/server/src/routes/operations/getTextUppercaseRequests.js
+wasp-app/.wasp/out/server/src/routes/operations/getTodoItems.js
 wasp-app/.wasp/out/server/src/routes/operations/getTrueVoid.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/routes/operations/jsActionWithArgs.js

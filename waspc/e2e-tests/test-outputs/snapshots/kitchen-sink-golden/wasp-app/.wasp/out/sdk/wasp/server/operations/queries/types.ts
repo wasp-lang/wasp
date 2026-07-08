@@ -120,9 +120,10 @@ export type GetAnyToNumberSpecified<Input extends Payload = never, Output extend
   >
 
 // PUBLIC API
-export type GetModuleContent<Input extends Payload = never, Output extends Payload = Payload> =
+export type GetTodoItems<Input extends Payload = never, Output extends Payload = Payload> =
   AuthenticatedQueryDefinition<
     [
+      _Task,
     ],
     Input,
     Output

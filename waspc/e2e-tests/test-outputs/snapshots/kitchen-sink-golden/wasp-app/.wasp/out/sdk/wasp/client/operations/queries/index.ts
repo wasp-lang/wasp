@@ -11,7 +11,7 @@ import type { GetTrueVoid_ext } from '../../../server/operations/queries/index.j
 import type { GetAnyNoAuth_ext } from '../../../server/operations/queries/index.js'
 import type { GetAnyAuth_ext } from '../../../server/operations/queries/index.js'
 import type { GetAnyToNumberSpecified_ext } from '../../../server/operations/queries/index.js'
-import type { GetModuleContent_ext } from '../../../server/operations/queries/index.js'
+import type { GetTodoItems_ext } from '../../../server/operations/queries/index.js'
 
 // PUBLIC API
 export const getTasks: QueryFor<GetTasks_ext> = createQuery<GetTasks_ext>(
@@ -86,9 +86,9 @@ export const getAnyToNumberSpecified: QueryFor<GetAnyToNumberSpecified_ext> = cr
 )
 
 // PUBLIC API
-export const getModuleContent: QueryFor<GetModuleContent_ext> = createQuery<GetModuleContent_ext>(
-  'operations/get-module-content',
-  [],
+export const getTodoItems: QueryFor<GetTodoItems_ext> = createQuery<GetTodoItems_ext>(
+  'operations/get-todo-items',
+  ['Task'],
 )
 
 // PRIVATE API (used in SDK)
