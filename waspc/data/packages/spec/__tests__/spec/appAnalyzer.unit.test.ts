@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { loadWaspTsSpecDefaultExport } from "../../src/spec-pipeline/loadWaspTsSpec.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
-import { mapApp } from "../../src/spec/mapApp.js";
+import { mapApp } from "../../src/spec/mapper/app.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";

@@ -29,6 +29,7 @@
     "test:watch": "npm run build && vitest --reporter=verbose"
   },
   "dependencies": {
+    "es-toolkit": "^1.49.0",
     "estree-util-scope": "^1.0.0",
     "estree-walker": "^3.0.3",
     "type-fest": "^5.6.0",

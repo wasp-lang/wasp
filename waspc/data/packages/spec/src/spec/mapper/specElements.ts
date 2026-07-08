@@ -1,0 +1,214 @@
+import { normalizePrerender } from "../../normalizePrerender.js";
+import { getRefObjectDeclarationName } from "../refObject.js";
+import type { AppMapperContext, AppSpec, WaspSpec } from "./types.js";
+
+export const AppSpecDeclTypeForWaspSpecElementKind = {
+  page: "Page",
+  route: "Route",
+  query: "Query",
+  action: "Action",
+  api: "Api",
+  apiNamespace: "ApiNamespace",
+  job: "Job",
+  crud: "Crud",
+} as const satisfies Record<
+  WaspSpec.SpecElement["kind"],
+  AppSpec.Decl["declType"]
+>;
+
+export type AppSpecDeclTypeForWaspSpecElement<
+  SpecElement extends WaspSpec.SpecElement,
+> = (typeof AppSpecDeclTypeForWaspSpecElementKind)[SpecElement["kind"]];
+
+export function mapWaspSpecElement<T extends WaspSpec.SpecElement>(
+  el: T,
+  ctx: AppMapperContext,
+): AppSpec.Decl {
+  switch (el.kind) {
+    case "page":
+      return mapPage(el, ctx);
+    case "route":
+      return mapRoute(el, ctx);
+    case "query":
+      return mapQuery(el, ctx);
+    case "action":
+      return mapAction(el, ctx);
+    case "api":
+      return mapApi(el, ctx);
+    case "apiNamespace":
+      return mapApiNamespace(el, ctx);
+    case "job":
+      return mapJob(el, ctx);
+    case "crud":
+      return mapCrud(el, ctx);
+    default:
+      return el satisfies never;
+  }
+}
+
+export function mapPage(
+  page: WaspSpec.Page,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Page"> {
+  const { component, authRequired } = page;
+  return {
+    declType: "Page",
+    declName: getRefObjectDeclarationName(page.component),
+    declValue: {
+      component: ctx.emitRefObject(component),
+      authRequired,
+    },
+  };
+}
+
+export function mapRoute(
+  route: WaspSpec.Route,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Route"> {
+  const { path, prerender, lazy } = route;
+  return {
+    declType: "Route",
+    declName: route.name,
+    declValue: {
+      path,
+      to: ctx.emitSpecElementRef(route.page),
+      prerender: normalizePrerender(prerender, path),
+      lazy,
+    },
+  };
+}
+
+export function mapQuery(
+  query: WaspSpec.Query,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Query"> {
+  const { fn, entities, auth } = query;
+  return {
+    declType: "Query",
+    declName: getRefObjectDeclarationName(query.fn),
+    declValue: {
+      fn: ctx.emitRefObject(fn),
+      entities: entities?.map(ctx.emitEntityRef),
+      auth,
+    },
+  };
+}
+
+export function mapAction(
+  action: WaspSpec.Action,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Action"> {
+  const { fn, entities, auth } = action;
+  return {
+    declType: "Action",
+    declName: getRefObjectDeclarationName(action.fn),
+    declValue: {
+      fn: ctx.emitRefObject(fn),
+      entities: entities?.map(ctx.emitEntityRef),
+      auth,
+    },
+  };
+}
+
+export function mapApi(
+  api: WaspSpec.Api,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Api"> {
+  const { method, path, fn, middlewareConfigFn, entities, auth } = api;
+  return {
+    declType: "Api",
+    declName: getRefObjectDeclarationName(api.fn),
+    declValue: {
+      fn: ctx.emitRefObject(fn),
+      middlewareConfigFn:
+        middlewareConfigFn && ctx.emitRefObject(middlewareConfigFn),
+      entities: entities?.map(ctx.emitEntityRef),
+      httpRoute: [method, path],
+      auth,
+    },
+  };
+}
+
+export function mapApiNamespace(
+  apiNamespace: WaspSpec.ApiNamespace,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"ApiNamespace"> {
+  const { middlewareConfigFn, path } = apiNamespace;
+  return {
+    declType: "ApiNamespace",
+    declName: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
+    declValue: {
+      middlewareConfigFn: ctx.emitRefObject(middlewareConfigFn),
+      path,
+    },
+  };
+}
+
+export function mapJob(
+  job: WaspSpec.Job,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Job"> {
+  const { fn, executor, schedule, entities, performExecutorOptions } = job;
+  return {
+    declType: "Job",
+    declName: getRefObjectDeclarationName(job.fn),
+    declValue: {
+      executor,
+      perform: {
+        fn: ctx.emitRefObject(fn),
+        executorOptions: performExecutorOptions,
+      },
+      schedule: schedule && mapSchedule(schedule),
+      entities: entities?.map(ctx.emitEntityRef),
+    },
+  };
+}
+
+export function mapCrud(
+  crud: WaspSpec.Crud,
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"Crud"> {
+  const { entity, operations } = crud;
+  return {
+    declType: "Crud",
+    declName: crud.name,
+    declValue: {
+      entity: ctx.emitEntityRef(entity),
+      operations: mapCrudOperations(operations, ctx),
+    },
+  };
+}
+
+export function mapCrudOperations(
+  operations: WaspSpec.CrudOperations,
+  ctx: AppMapperContext,
+): AppSpec.CrudOperations {
+  const { get, getAll, create, update, delete: del } = operations;
+  return {
+    get: get && mapCrudOperationOptions(get, ctx),
+    getAll: getAll && mapCrudOperationOptions(getAll, ctx),
+    create: create && mapCrudOperationOptions(create, ctx),
+    update: update && mapCrudOperationOptions(update, ctx),
+    delete: del && mapCrudOperationOptions(del, ctx),
+  };
+}
+
+export function mapCrudOperationOptions(
+  options: WaspSpec.CrudOperationOptions,
+  ctx: AppMapperContext,
+): AppSpec.CrudOperationOptions {
+  const { isPublic, overrideFn } = options;
+  return {
+    isPublic,
+    overrideFn: overrideFn && ctx.emitRefObject(overrideFn),
+  };
+}
+
+export function mapSchedule(schedule: WaspSpec.Schedule): AppSpec.Schedule {
+  const { cron, args, executorOptions } = schedule;
+  return {
+    cron,
+    args,
+    executorOptions,
+  };
+}
