@@ -9,11 +9,14 @@ where
 
 import Control.Concurrent (writeChan)
 import Control.Concurrent.Async (Concurrently (..))
+import Control.Monad (unless)
+import qualified Data.ByteString as BS
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (Decoding (Some), streamDecodeUtf8With)
+import Data.Text.Encoding.Error (lenientDecode)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
@@ -40,28 +43,10 @@ runProcessAsJob process jobType chan =
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
-            runConduit $
-              stdoutStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout,
-                            J._jobType = jobType
-                          }
-                  )
+            forwardDecodedOutputToChan stdoutStream J.Stdout
 
       let forwardStderrToChan =
-            runConduit $
-              stderrStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr,
-                            J._jobType = jobType
-                          }
-                  )
+            forwardDecodedOutputToChan stderrStream J.Stderr
 
       exitCode <-
         runConcurrently $
@@ -76,6 +61,27 @@ runProcessAsJob process jobType chan =
           }
 
       return exitCode
+      where
+        forwardDecodedOutputToChan outputStream outputType = do
+          nextDecoder <- runConduit $ outputStream .| CL.foldM decodeChunk initialDecoder
+          flushDecoder nextDecoder
+          where
+            initialDecoder = case streamDecodeUtf8With lenientDecode BS.empty of
+              Some _ _ decoder -> decoder
+
+            decodeChunk decoder chunk = case decoder chunk of
+              Some text _ nextDecoder -> emitText text >> return nextDecoder
+
+            flushDecoder decoder = case decoder BS.empty of
+              Some text _ _ -> emitText text
+
+            emitText text =
+              unless (T.null text) $
+                writeChan chan $
+                  J.JobMessage
+                    { J._data = J.JobOutput text outputType,
+                      J._jobType = jobType
+                    }
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.

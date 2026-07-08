@@ -605,6 +605,7 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.WriteFileDraftsTest
+    Job.ProcessTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
