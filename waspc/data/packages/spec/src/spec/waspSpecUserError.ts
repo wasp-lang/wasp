@@ -27,5 +27,8 @@
  * @category Errors
  */
 export class WaspSpecUserError extends Error {
+  // Set so the error prints as `WaspSpecUserError: ...` instead of `Error: ...`.
+  // `@internal` keeps it out of the generated API docs (see `typedoc.jsonc`).
+  /** @internal */
   public override name = "WaspSpecUserError";
 }
