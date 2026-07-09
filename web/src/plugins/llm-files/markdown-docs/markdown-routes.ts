@@ -1,10 +1,11 @@
 /**
  * Whether a HTML file is a valid candidate for generating a
- * markdown varaint.
+ * markdown variant.
  *
- * HTML file path must be relative to the build dir.
+ * HTML file path must be relative to the site dir.
+ * E.g. for route "/docs", the file path has to be "docs.html".
  */
-export function isHtmlFileAValidMarkdownVariantCandidate(
+export function relHtmlFilePathHasMarkdownVariant(
   htmlFileRelPath: string,
 ): boolean {
   return routeHasMarkdownVariant(htmlFileRelPathToRoute(htmlFileRelPath));

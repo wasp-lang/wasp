@@ -3,7 +3,7 @@ import path from "path";
 
 import { LllmDocsContext } from "../context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
-import { isHtmlFileAValidMarkdownVariantCandidate } from "./markdown-routes";
+import { relHtmlFilePathHasMarkdownVariant } from "./markdown-routes";
 
 /**
  * Turns the rendered HTML for docs, blog, and resources pages into Markdown
@@ -25,10 +25,9 @@ export async function generateMarkdownFilesForValidHtmlFiles(
   const markdownDocsIndexHeader = buildMarkdownDocsIndexHeader(baseUrl);
   const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
 
-  const htmlFilesRelPaths = await findConvertibleHtmlFiles(outDir);
+  const htmlFilesAbsPaths = await findConvertibleHtmlFiles(outDir);
   let generatedDocs = 0;
-  for (const htmlFileRelPath of htmlFilesRelPaths) {
-    const htmlFileAbsPath = path.join(outDir, htmlFileRelPath);
+  for (const htmlFileAbsPath of htmlFilesAbsPaths) {
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
     console.log("Generating: ", markdownFileAbsPath);
@@ -55,15 +54,15 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 }
 
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
-  const htmlFileRelPaths: string[] = [];
+  const htmlFileAbsPaths: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
-    if (isHtmlFileAValidMarkdownVariantCandidate(htmlFileRelPath)) {
-      htmlFileRelPaths.push(htmlFileRelPath);
+    if (relHtmlFilePathHasMarkdownVariant(htmlFileRelPath)) {
+      htmlFileAbsPaths.push(path.join(outDir, htmlFileRelPath));
     }
   }
 
-  return htmlFileRelPaths;
+  return htmlFileAbsPaths;
 }
