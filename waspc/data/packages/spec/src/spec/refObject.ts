@@ -1,7 +1,10 @@
 import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
 import type * as WaspSpec from "./publicApi/waspSpec.js";
-import { normalizeRefObjectPath } from "./refObjectPath.js";
+import {
+  normalizeRefObjectPath,
+  tryMapPackageRefObjectPath,
+} from "./refObjectPath.js";
 import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 /**
@@ -157,7 +160,7 @@ function mapRefObjectSource(
   { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImportSource {
   if (isAbsoluteRefPath(refObject.from)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Absolute ref paths are not supported: ${JSON.stringify(refObject.from)}. Use a relative path or a package import.`,
     );
   }
@@ -173,6 +176,15 @@ function mapRefObjectSource(
     throw new WaspSpecUserError(
       `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
+  }
+
+  const packageSource = tryMapPackageRefObjectPath({
+    importPath: refObject.from,
+    importingFilePath: refObject.sourceFilePath,
+    projectRootDir,
+  });
+  if (packageSource !== undefined) {
+    return packageSource;
   }
 
   return {
@@ -192,7 +204,7 @@ function splitPackageSpecifier(
 
   if (specifier.startsWith("@")) {
     if (!secondPart) {
-      throw new SpecUserError(
+      throw new WaspSpecUserError(
         `Scoped package ref ${JSON.stringify(specifier)} must include both scope and package name.`,
       );
     }

@@ -5,7 +5,7 @@
   "exports": {
     "./spec": {
       "types": "./dist/spec.d.ts",
-      "import": "./dist/spec.js"
+      "default": "./module.wasp.ts"
     },
     "./*": {
       "types": "./dist/*.d.ts",
@@ -13,7 +13,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "module.wasp.ts",
+    "src"
   ],
   "scripts": {
     "build": "wasp module build",

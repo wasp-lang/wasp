@@ -2,16 +2,9 @@ import assert from "node:assert/strict";
 import type { Plugin, RolldownMagicString } from "rolldown";
 import type { ESTree as t } from "rolldown/utils";
 import { WASP_SPEC_FILE_REGEX } from "../../common.js";
-import {
-  applyTransformImportsPlan_mutate,
-  type TransformRefImportOptions,
-} from "./apply.js";
+import { applyTransformImportsPlan_mutate } from "./apply.js";
 import { assertCanTransformImports } from "./check.js";
 import { planTransformImports } from "./plan.js";
-
-export type TransformRefImportsOptions = TransformRefImportOptions & {
-  extraSafeNameBases?: Record<string, string>;
-};
 
 export function transformRefImportsPlugin(): Plugin {
   return {
@@ -49,17 +42,14 @@ export function transformRefImportsPlugin(): Plugin {
 export function transformRefImports_mutate(
   ast: t.Program,
   magicString: RolldownMagicString,
-  options: TransformRefImportsOptions = {},
 ): void {
   assertCanTransformImports(ast);
 
-  const importsPlan = planTransformImports(ast, {
-    extraSafeNameBases: options.extraSafeNameBases,
-  });
+  const importsPlan = planTransformImports(ast);
 
   if (!importsPlan) {
     return;
   }
 
-  applyTransformImportsPlan_mutate(magicString, importsPlan, options);
+  applyTransformImportsPlan_mutate(magicString, importsPlan);
 }

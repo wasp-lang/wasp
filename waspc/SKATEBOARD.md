@@ -6,6 +6,7 @@
 - The module function accepts `options` and returns a Wasp `Spec`.
 - `examples/module` is the current skateboard module package: `@kitchen-sink/module`.
 - Kitchen Sink default-imports the module function from `@kitchen-sink/module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
+- Invariant: spec files (`*.wasp.ts`) are a Wasp dialect. Only the Wasp CLI spec pipeline transforms them. Modules ship `module.wasp.ts` as source and never ship pre-transformed spec code.
 
 ## Module SDK Shim
 
@@ -18,16 +19,20 @@
 
 ## Module Builder
 
-- Spec build entry is `module.wasp.ts` and bundles dependencies into `dist/spec.js`.
+- The spec is not built. `module.wasp.ts` ships as source in the package, and the package's `/spec` export points at it. The builder only emits `dist/spec.d.ts` (declaration-only, `noCheck`) for editor support in the host app. Its type references resolve against the host's `@wasp.sh/spec`, so there are no duplicate branded types.
 - Module builder rejects `module.wasp.ts` files without a direct default export.
 - The default client-route option is `prefix`.
-- `dist/spec.d.ts` is rewritten to loose `any` exports to avoid duplicate branded `@wasp.sh/spec` types.
 - Source build entries are discovered from `src/**/*.ts` and `src/**/*.tsx`, excluding `.d.ts`.
 - Source entry names preserve package subpaths, e.g. `src/queries.ts` -> `dist/queries.js` -> `@pkg/queries`.
 - Source build externalizes `react`, `react/jsx-runtime`, and all `wasp/*` imports.
+- Watch mode rebuilds only `src/` entries. `dist/spec.d.ts` is emitted once per build invocation.
 
 ## Host App Integration
 
+- The host spec pipeline consumes module specs as source. The pipeline's external resolver (`externalResolver.ts`) keeps bare imports external except those that resolve to `*.wasp.ts` files, which get bundled so the host's own plugins lower the module's ref imports. The resolver must be the `external` option (not a `resolveId` plugin) because the bundler consults `external` before plugin resolution.
+- `mapRefObject` maps relative refs from package-resident spec files to package import sources: the nearest `package.json` names the package, and `./src/<subpath>` maps to the `<packageName>/<subpath>` export backed by `dist/`.
+- The host typecheck skips spec files from `node_modules`. Module authors typecheck their own package.
+- The module's `@wasp.sh/spec` import stays external and resolves to the host's copy at spec evaluation time, so there is a single spec package instance.
 - Host SDK Vite config dedupes the generated SDK package name (`wasp`) with React, React DOM, React Query, and React Router.
 - Host SDK TypeScript config maps `wasp/*` to SDK source files during SDK build. This prevents self-imports from resolving through package exports into `dist/`, which otherwise causes TS5055 overwrite-input errors on repeated builds.
 - Kitchen Sink snapshot setup copies `examples/module` as sibling `module`, builds it, then runs Kitchen Sink install/compile.
