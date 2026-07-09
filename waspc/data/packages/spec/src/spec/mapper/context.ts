@@ -57,7 +57,10 @@ export function makeAppMapperContext({
     ) => {
       const decl = mapWaspSpecElement(specElement, ctx);
 
+      // We're keying by type+name since waspc allows Decls with the same name
+      // if they are different types.
       const declKey = `${decl.declType}:${decl.declName}`;
+
       const oldDecl = specElementDecls.get(declKey);
       if (oldDecl && !isEqual(oldDecl, decl)) {
         throw makeConflictingDeclsError(oldDecl, decl);
@@ -105,7 +108,7 @@ function makeConflictingDeclsError(
   );
 }
 
-const declTypeDisplayNames = {
+const declTypeDisplayNames: Record<AppSpec.Decl["declType"], string> = {
   App: "app",
   Page: "page",
   Route: "route",
@@ -115,4 +118,4 @@ const declTypeDisplayNames = {
   ApiNamespace: "API namespace",
   Job: "job",
   Crud: "CRUD",
-} as const satisfies Record<AppSpec.Decl["declType"], string>;
+};

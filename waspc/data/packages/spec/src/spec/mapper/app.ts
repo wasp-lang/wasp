@@ -1,12 +1,3 @@
-/**
- * @module
- *
- * This module maps the Wasp Spec to the internal representation of
- * the app ({@link AppSpec.Decl}).
- * All of the mapping functions are exported so that they can be individually
- * tested.
- */
-
 import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { AppMapperContext } from "./context.js";
