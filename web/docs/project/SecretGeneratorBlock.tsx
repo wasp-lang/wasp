@@ -36,7 +36,7 @@ export function SecretGeneratorBlock({
   }
 
   return (
-    <div className={styles.container}>
+    <span className={styles.container}>
       <button
         onClick={copySecret}
         className={styles.iconBtn}
@@ -54,7 +54,7 @@ export function SecretGeneratorBlock({
       >
         <RefreshIcon />
       </button>
-    </div>
+    </span>
   );
 }
 

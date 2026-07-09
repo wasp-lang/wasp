@@ -7,15 +7,14 @@
 export function isHtmlFileAValidMarkdownVariantCandidate(
   htmlFileRelPath: string,
 ): boolean {
-  return isRouteAValidMarkdownVariantCandidate(
-    htmlFileRelPathToRoute(htmlFileRelPath),
-  );
+  return routeHasMarkdownVariant(htmlFileRelPathToRoute(htmlFileRelPath));
 }
 
 /**
  * Whether a route supports markdown variant of content.
+ * Keep in sync with `_routes.json` in `static/` dir.
  */
-export function isRouteAValidMarkdownVariantCandidate(route: string): boolean {
+export function routeHasMarkdownVariant(route: string): boolean {
   return (
     route === "/docs" ||
     route.startsWith("/docs/") ||
