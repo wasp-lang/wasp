@@ -63,6 +63,10 @@ import qualified Wasp.SemanticVersion as SV
 -- IMPORTANT: Do not change this data structure without updating the AppSpec in
 -- packages/spec/src/appSpec.ts. That module is a TypeScript mirror
 -- implementation of AppSpec's FromJSON.
+--
+-- NOTE: The decls are also serialized back to the same JSON format by
+-- `wasp inspect --json` (via their ToJSON instances), so decl changes affect
+-- that output as well.
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],

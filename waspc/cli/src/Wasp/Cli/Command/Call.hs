@@ -17,6 +17,7 @@ data Call
   | Deps
   | Dockerfile
   | Info
+  | Inspect Arguments
   | News
   | Studio
   | PrintBashCompletionInstruction

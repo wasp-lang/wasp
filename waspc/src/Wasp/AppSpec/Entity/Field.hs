@@ -6,9 +6,11 @@ module Wasp.AppSpec.Entity.Field
     Composite (..),
     Scalar (..),
     pslFieldToEntityField,
+    showFieldType,
   )
 where
 
+import Data.Aeson (ToJSON (toJSON), object, (.=))
 import Data.Data (Data)
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 
@@ -17,6 +19,16 @@ data Field = Field
     fieldType :: !FieldType
   }
   deriving (Show, Eq, Data)
+
+-- | Fields are not part of the JSON wire format coming from the TS spec
+-- (entities are built from the Prisma schema), so this shape exists only for
+-- output (e.g. `wasp inspect --json`).
+instance ToJSON Field where
+  toJSON field =
+    object
+      [ "name" .= fieldName field,
+        "type" .= showFieldType (fieldType field)
+      ]
 
 data FieldType = FieldTypeScalar Scalar | FieldTypeComposite Composite
   deriving (Show, Eq, Data)
@@ -40,6 +52,19 @@ data Scalar
     UserType String
   | Unsupported String
   deriving (Show, Eq, Data)
+
+-- | Renders the field type the way the user wrote it in the Prisma schema,
+-- e.g. "Int", "String?", "Tag[]".
+showFieldType :: FieldType -> String
+showFieldType = \case
+  FieldTypeScalar scalar -> showScalar scalar
+  FieldTypeComposite (Optional scalar) -> showScalar scalar ++ "?"
+  FieldTypeComposite (List scalar) -> showScalar scalar ++ "[]"
+  where
+    showScalar = \case
+      UserType typeName -> typeName
+      Unsupported typeName -> "Unsupported(" ++ show typeName ++ ")"
+      scalar -> show scalar
 
 pslFieldToEntityField :: Psl.Model.Field -> Field
 pslFieldToEntityField pslField =

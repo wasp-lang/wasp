@@ -216,6 +216,7 @@ library
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
+    Wasp.AppSpec.Core.Inspectable
     Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
@@ -223,6 +224,7 @@ library
     Wasp.AppSpec.Entity.Field
     Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
+    Wasp.AppSpec.Inspect
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
@@ -506,6 +508,8 @@ library cli-lib
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Inspect
+    Wasp.Cli.Command.Inspect.ArgumentsParser
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
@@ -588,6 +592,8 @@ test-suite waspc-tests
     Analyzer.TypeCheckerTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
+    AppSpec.InspectableTest
+    AppSpec.ToJSONTest
     AppSpec.ValidTest
     EnvTest
     ExternalConfig.Npm.NpmDependenciesTest
@@ -669,6 +675,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     Paths_waspc
     TerminalTest
+    Wasp.Cli.Command.InspectTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
@@ -728,6 +735,7 @@ test-suite waspc-e2e-tests
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
     Tests.WaspInfoTest
+    Tests.WaspInspectTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
     Tests.WaspSpecAvailableTest

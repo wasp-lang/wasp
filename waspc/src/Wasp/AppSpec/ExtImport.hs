@@ -7,12 +7,14 @@ module Wasp.AppSpec.ExtImport
     ExtImportName (..),
     importIdentifier,
     parseExtImportPath,
+    showExtImport,
+    showExtImportPath,
   )
 where
 
 import Control.Arrow (left)
-import Data.Aeson (FromJSON (parseJSON), withObject, (.:), (.:?))
-import Data.Aeson.Types (ToJSON)
+import Data.Aeson (FromJSON (parseJSON), object, withObject, (.:), (.:?), (.=))
+import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Data (Data)
 import Data.List (stripPrefix)
 import GHC.Generics (Generic)
@@ -29,6 +31,19 @@ data ExtImport = ExtImport
     alias :: Maybe Identifier
   }
   deriving (Show, Eq, Data)
+
+instance ToJSON ExtImport where
+  toJSON extImport =
+    object
+      [ "kind" .= kindStr,
+        "name" .= nameStr,
+        "path" .= showExtImportPath (path extImport),
+        "alias" .= alias extImport
+      ]
+    where
+      (kindStr, nameStr) = case name extImport of
+        ExtImportModule n -> ("default" :: String, n)
+        ExtImportField n -> ("named", n)
 
 instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
@@ -72,13 +87,31 @@ parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
       $ SP.parseRelFileP relFileFP
   where
     stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
-    -- Filip: We no longer want separation between client and server code
-    -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
-    -- For now, as we'd like (expect):
-    --   - Nodemon watches all files in the user's source folder (client files
-    --   included), but tsc only compiles the server files (I think because it
-    --   knows that the others aren't used). I am not yet sure how it knows this.
-    --   - Vite also only triggers on client files. I am not sure how it knows
-    --   about the difference either.
-    -- todo (filip): investigate
-    extSrcPrefix = "@src/"
+
+-- | Renders the import path the way the user wrote it, e.g. @"@src/queries.ts"@.
+showExtImportPath :: ExtImportPath -> String
+showExtImportPath extImportPath = extSrcPrefix ++ SP.fromRelFileP extImportPath
+
+-- | Renders an external import the way the user would write it, e.g.
+-- @{ tasks } from "@src/queries.ts"@ or @Main from "@src/pages/Main.tsx"@.
+showExtImport :: ExtImport -> String
+showExtImport extImport = importClause ++ " from \"" ++ showExtImportPath (path extImport) ++ "\""
+  where
+    importClause = case name extImport of
+      ExtImportModule n -> withAlias n
+      ExtImportField n -> "{ " ++ withAlias n ++ " }"
+    withAlias n = case alias extImport of
+      Just a | a /= n -> n ++ " as " ++ a
+      _ -> n
+
+-- Filip: We no longer want separation between client and server code
+-- todo (filip): Do we still want to know which is which. We might (because of the reloading).
+-- For now, as we'd like (expect):
+--   - Nodemon watches all files in the user's source folder (client files
+--   included), but tsc only compiles the server files (I think because it
+--   knows that the others aren't used). I am not yet sure how it knows this.
+--   - Vite also only triggers on client files. I am not sure how it knows
+--   about the difference either.
+-- todo (filip): investigate
+extSrcPrefix :: String
+extSrcPrefix = "@src/"

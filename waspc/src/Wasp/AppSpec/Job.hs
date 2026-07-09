@@ -15,13 +15,14 @@ module Wasp.AppSpec.Job
   )
 where
 
-import Data.Aeson (FromJSON, parseJSON)
+import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
-import Wasp.AppSpec.Entity (Entity)
-import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.Entity (Entity, showEntityRefs)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
 import Wasp.AppSpec.JSON (JSON (..))
 
 data Job = Job
@@ -30,9 +31,20 @@ data Job = Job
     schedule :: Maybe Schedule,
     entities :: Maybe [Ref Entity]
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Job
+
+instance Inspectable Job where
+  inspectionSection = "Jobs"
+  inspect (name, job) =
+    InspectionEntry
+      [ name,
+        show $ executor job,
+        maybe "" (\s -> "cron " ++ show s.cron) (schedule job),
+        showExtImport job.perform.fn,
+        showEntityRefs $ entities job
+      ]
 
 data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic)
@@ -45,11 +57,15 @@ instance FromJSON JobExecutor where
     "PgBoss" -> pure PgBoss
     _ -> fail $ "Failed to parse job executor: " <> show executorStr
 
+-- NOTE: Hand-written for the same single-data-constructor reason as FromJSON above.
+instance ToJSON JobExecutor where
+  toJSON PgBoss = "PgBoss"
+
 data Perform = Perform
   { fn :: ExtImport,
     executorOptions :: Maybe ExecutorOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 -- Allows jobs to run via some cron schedule.
 data Schedule = Schedule
@@ -57,14 +73,14 @@ data Schedule = Schedule
     args :: Maybe JSON, -- Arguments to pass to the job handler function (`Perform.fn`).
     executorOptions :: Maybe ExecutorOptions
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 -- These are optional executor-specific JSON options we pass
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
   { pgBoss :: Maybe JSON
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 jobExecutors :: [JobExecutor]
 jobExecutors = enumFrom minBound :: [JobExecutor]

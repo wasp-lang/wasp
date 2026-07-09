@@ -35,6 +35,8 @@ module ShellCommands
     waspCliStudio,
     waspCliDbStudio,
     waspCliInfo,
+    waspCliInspect,
+    waspCliInspectJson,
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
@@ -233,6 +235,24 @@ waspCliDbStudio = return "$WASP_CLI_CMD db studio"
 
 waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInfo = return "$WASP_CLI_CMD info"
+
+waspCliInspect :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliInspect = return "$WASP_CLI_CMD inspect"
+
+-- | Runs `wasp inspect --json` and asserts that stdout alone is valid JSON
+-- with the expected {waspVersion, decls} envelope.
+waspCliInspectJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliInspectJson =
+  return $
+    "$WASP_CLI_CMD inspect --json"
+      ~| ( "node -e \""
+             ++ "let d = '';"
+             ++ " process.stdin.on('data', (c) => (d += c));"
+             ++ " process.stdin.on('end', () => {"
+             ++ " const s = JSON.parse(d);"
+             ++ " if (typeof s.waspVersion !== 'string' || !Array.isArray(s.decls) || s.decls.length === 0) process.exit(1);"
+             ++ " });\""
+         )
 
 waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDeps = return "$WASP_CLI_CMD deps"

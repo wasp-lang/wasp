@@ -30,6 +30,7 @@ import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.Inspect (inspect)
 import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Start (start)
@@ -64,6 +65,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
+        ("inspect" : inspectArgs) -> Command.Call.Inspect inspectArgs
         ["news"] -> Command.Call.News
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
@@ -94,6 +96,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
+    Command.Call.Inspect inspectArgs -> runCommand $ inspect inspectArgs
     Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
@@ -161,6 +164,8 @@ printUsage =
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    info                  Prints basic information about the current Wasp project.",
+        cmd   "    inspect [--json]      Prints an overview of your app: routes, pages, queries, actions, and more.",
+              "                          With --json, prints the full evaluated app spec as JSON.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
         cmd   "    news                  Read the latest Wasp-related news.",

@@ -10,6 +10,7 @@ module Wasp.Cli.Command.Compile
     printWarningsAndErrorsIfAny,
     analyze,
     analyzeWithOptions,
+    analyzeWithWarningsOnStderr,
   )
 where
 
@@ -19,6 +20,8 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -159,3 +162,27 @@ analyzeWithOptions waspProjectDir options = do
         CommandError "Analyzing wasp project failed" $
           show (length errors) <> " errors found:\n" <> formatErrorOrWarningMessages errors
     Right spec -> return spec
+
+-- | Like 'analyze', but keeps stdout free for machine-readable output:
+-- compile warnings and errors go to stderr instead ('analyze' prints
+-- everything to stdout, via 'cliSendMessage'). Exits with a failure code on
+-- compile errors, bypassing 'CommandError' for the same reason.
+analyzeWithWarningsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
+analyzeWithWarningsOnStderr waspProjectDir = do
+  (appSpecOrErrors, warnings) <-
+    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
+  liftIO $
+    unless (null warnings) $
+      hPutStrLn stderr $
+        "Your wasp project reported following warnings during compilation:\n"
+          <> formatErrorOrWarningMessages warnings
+  case appSpecOrErrors of
+    Right spec -> return spec
+    Left errors ->
+      liftIO $ do
+        hPutStrLn stderr $
+          "Analyzing wasp project failed, "
+            <> show (length errors)
+            <> " errors found:\n"
+            <> formatErrorOrWarningMessages errors
+        exitFailure

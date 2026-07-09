@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Wasp.AppSpec.Core.Decl
   ( Decl,
@@ -10,15 +11,26 @@ module Wasp.AppSpec.Core.Decl
   )
 where
 
+import Data.Aeson (ToJSON (toJSON), object, (.=))
 import Data.Maybe (mapMaybe)
 import Data.Typeable (cast)
-import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
 
 -- | A container for any (IsDecl a) type, allowing you to have a heterogenous list of
 --   Wasp declarations as [Decl].
 --   Declarations make the top level of AppSpec.
 data Decl where
   Decl :: (IsDecl a) => String -> a -> Decl
+
+-- | Serializes a declaration into the same JSON envelope that the TS spec
+-- produces and 'Wasp.AppSpec.Core.Decl.JSON' parses: {declType, declName, declValue}.
+instance ToJSON Decl where
+  toJSON (Decl name (value :: a)) =
+    object
+      [ "declType" .= declTypeName @a,
+        "declName" .= name,
+        "declValue" .= value
+      ]
 
 -- | Extracts all declarations of a certain type from a @[Decl]@s
 takeDecls :: (IsDecl a) => [Decl] -> [(String, a)]

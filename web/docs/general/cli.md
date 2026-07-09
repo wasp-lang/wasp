@@ -144,6 +144,10 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 ```
 - `wasp deps` lists the dependencies that Wasp uses in your project.
 - `wasp info` provides basic details about the current Wasp project.
+- `wasp inspect` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs.
+
+  With the `--json` flag, it instead prints the full evaluated app spec as JSON, which is handy for scripts and AI tools (e.g. `wasp inspect --json | jq '.decls[] | select(.declType == "Route")'`). The JSON schema follows Wasp's internal spec format and may change between Wasp versions. Only the payload goes to stdout (warnings and errors go to stderr), so the output is safe to pipe.
+
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 ### Database Commands
