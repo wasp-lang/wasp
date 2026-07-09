@@ -21,7 +21,7 @@
     "build": "wasp module build",
     "build:watch": "wasp module build --watch",
     "pack": "npm pack --pack-destination .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.wasp.json && tsc -p tsconfig.src.json"
   },
   "peerDependencies": {
     "@wasp.sh/spec": "^0.25.0",
@@ -34,6 +34,7 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^22.17.0",
     "@types/react": "^19.2.7",
     "@wasp.sh/spec": "file:.wasp/spec/",
     "react": "^19.2.1",

@@ -19,10 +19,6 @@ export function typecheckPlugin({
 
     moduleParsed(info) {
       if (!WASP_SPEC_FILE_REGEX.test(info.id)) return;
-      // Spec files from installed packages are third-party code. Their authors
-      // typecheck them in the package project; checking them against the host
-      // app's tsconfig would surface errors the host user can't fix.
-      if (info.id.includes("node_modules")) return;
       assert(info.code);
       specFileSources.set(info.id, info.code);
     },
