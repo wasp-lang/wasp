@@ -7,5 +7,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["module.wasp.ts", "src"]
+  "include": ["module.wasp.ts", "src", ".wasp/wasp/ambient.d.ts"]
 }
