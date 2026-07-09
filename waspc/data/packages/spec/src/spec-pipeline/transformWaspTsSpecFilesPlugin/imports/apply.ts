@@ -8,41 +8,30 @@ import {
 } from "../util.js";
 import type { Plan, RefImportReference } from "./plan.js";
 
-export type TransformRefImportOptions = {
-  mapRefObjectDescriptor?: (
-    descriptor: RefObjectDescriptor,
-  ) => RefObjectDescriptor;
-  getRefHelperPrelude?: (plan: Plan) => string;
-};
-
 export function applyTransformImportsPlan_mutate(
   magicString: RolldownMagicString,
-  plan: Plan,
-  options: TransformRefImportOptions = {},
+  { refImports, safeRefHelperName }: Plan,
 ): void {
-  const { refImports, safeRefHelperName } = plan;
-
   for (const { removeImport } of refImports) {
     magicString.remove(removeImport.start, removeImport.end);
   }
 
   magicString.prepend(
     [
-      // Add the `ref` helper import, or a custom prelude that defines it.
-      options.getRefHelperPrelude?.(plan) ??
-        buildImportStatement(
-          [[PUBLIC_REF_HELPER_IMPORT_NAME, safeRefHelperName]],
-          PUBLIC_REF_HELPER_IMPORT_SOURCE,
-        ),
+      // Add the `ref` helper import
+      buildImportStatement(
+        [[PUBLIC_REF_HELPER_IMPORT_NAME, safeRefHelperName]],
+        PUBLIC_REF_HELPER_IMPORT_SOURCE,
+      ),
 
       // Convert each original ref import to a `const` declaration that uses the
-      // `ref` helper. In ES Modules, imports are always hoisted, so we add these
-      // declarations at the top of the file to preserve the original semantics.
+      // `ref` helper.
+      // In ES Modules, imports are always hoisted, so we add these declarations
+      // at the top of the file to preserve the original semantics.
       ...refImports.flatMap(({ references }) =>
         references.map((ref) =>
           getLoweredImportSource(ref, {
             refHelperName: safeRefHelperName,
-            mapRefObjectDescriptor: options.mapRefObjectDescriptor,
           }),
         ),
       ),
@@ -52,12 +41,7 @@ export function applyTransformImportsPlan_mutate(
 
 function getLoweredImportSource(
   ref: RefImportReference,
-  ctx: {
-    refHelperName: string;
-    mapRefObjectDescriptor?: (
-      descriptor: RefObjectDescriptor,
-    ) => RefObjectDescriptor;
-  },
+  ctx: { refHelperName: string },
 ): string {
   switch (ref.kind) {
     case "named":
@@ -87,19 +71,9 @@ function getLoweredImportSource(
 function getRefObjectBindingSource(
   identifier: string,
   descriptor: RefObjectDescriptor,
-  {
-    refHelperName,
-    mapRefObjectDescriptor,
-  }: {
-    refHelperName: string;
-    mapRefObjectDescriptor?: (
-      descriptor: RefObjectDescriptor,
-    ) => RefObjectDescriptor;
-  },
+  { refHelperName }: { refHelperName: string },
 ) {
-  const mappedDescriptor = mapRefObjectDescriptor?.(descriptor) ?? descriptor;
-
   return `const ${identifier} = ${refHelperName}(${JSON.stringify(
-    mappedDescriptor satisfies RefObjectDescriptor,
+    descriptor satisfies RefObjectDescriptor,
   )});\n`;
 }

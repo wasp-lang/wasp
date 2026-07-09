@@ -1,5 +1,6 @@
 import { unrun } from "unrun";
 import { SpecUserError } from "../spec/specUserError.js";
+import { createSpecAwareExternalResolver } from "./externalResolver.js";
 import { transformWaspTsSpecFilesPlugin } from "./transformWaspTsSpecFilesPlugin/index.js";
 import { typecheckPlugin } from "./typecheckPlugin/index.js";
 
@@ -13,6 +14,9 @@ export async function loadWaspTsSpecDefaultExport({
   const { module: specModule } = await unrun({
     path: specPath,
     inputOptions: {
+      // Replaces unrun's default resolver so package spec sources get bundled
+      // through the pipeline instead of being executed as-is.
+      external: createSpecAwareExternalResolver(specPath),
       plugins: [
         transformWaspTsSpecFilesPlugin(),
         typecheckPlugin({ tsconfigPath }),

@@ -1,7 +1,118 @@
-import { realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
+
+/**
+ * Maps a relative ref from a spec file that lives inside an installed package
+ * (e.g. `node_modules/@scope/module/module.wasp.ts`) to a package import
+ * source, using the module packaging convention: `./src/<subpath>` in the
+ * package maps to the `<packageName>/<subpath>` package export.
+ *
+ * Returns `undefined` when the importing file belongs to the project itself.
+ */
+export function tryMapPackageRefObjectPath({
+  importPath,
+  importingFilePath,
+  projectRootDir,
+}: {
+  importPath: string;
+  importingFilePath: string;
+  projectRootDir: string;
+}): AppSpec.PackageExtImportSource | undefined {
+  const canonicalImportingFilePath = getCanonicalPath(
+    path.resolve(importingFilePath),
+  );
+  const packageRootDir = findEnclosingPackageRootDir(
+    path.dirname(canonicalImportingFilePath),
+  );
+  if (packageRootDir === undefined) {
+    return undefined;
+  }
+
+  const canonicalProjectRootPath = getCanonicalPath(
+    path.resolve(projectRootDir),
+  );
+  if (packageRootDir === canonicalProjectRootPath) {
+    return undefined;
+  }
+
+  const packageName = readPackageName(packageRootDir);
+  if (packageName === undefined) {
+    return undefined;
+  }
+
+  return {
+    kind: "package",
+    packageName,
+    subpath: getValidPackageSrcSubpath({
+      importPath,
+      canonicalImportingFilePath,
+      packageRootDir,
+    }),
+  };
+}
+
+function findEnclosingPackageRootDir(startDir: string): string | undefined {
+  let currentDir = startDir;
+  while (true) {
+    if (existsSync(path.join(currentDir, "package.json"))) {
+      return currentDir;
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      return undefined;
+    }
+    currentDir = parentDir;
+  }
+}
+
+function readPackageName(packageRootDir: string): string | undefined {
+  try {
+    const packageJson: unknown = JSON.parse(
+      readFileSync(path.join(packageRootDir, "package.json"), "utf8"),
+    );
+
+    return typeof packageJson === "object" &&
+      packageJson !== null &&
+      "name" in packageJson &&
+      typeof packageJson.name === "string" &&
+      packageJson.name.length > 0
+      ? packageJson.name
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function getValidPackageSrcSubpath({
+  importPath,
+  canonicalImportingFilePath,
+  packageRootDir,
+}: {
+  importPath: string;
+  canonicalImportingFilePath: string;
+  packageRootDir: string;
+}): string {
+  const importingDir = path.dirname(canonicalImportingFilePath);
+  const packageSrcDir = path.resolve(packageRootDir, "src");
+  const importedFilePath = path.resolve(importingDir, importPath);
+
+  const srcRelativePath = path.relative(packageSrcDir, importedFilePath);
+
+  if (!isValidSrcRelativeFilePath(srcRelativePath)) {
+    throw new SpecUserError(
+      `Reference import path ${JSON.stringify(importPath)} in ${JSON.stringify(canonicalImportingFilePath)} must resolve to a file inside the package src/ directory.`,
+    );
+  }
+
+  return stripSourceExtension(srcRelativePath);
+}
+
+function stripSourceExtension(filePath: string): string {
+  return filePath.replace(/\.(tsx?|jsx?)$/, "");
+}
 
 /**
  * Converts a relative ref object path from the user's `.wasp.ts` file into

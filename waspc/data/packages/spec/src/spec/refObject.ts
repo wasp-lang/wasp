@@ -1,7 +1,10 @@
 import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
 import type * as WaspSpec from "./publicApi/waspSpec.js";
-import { normalizeRefObjectPath } from "./refObjectPath.js";
+import {
+  normalizeRefObjectPath,
+  tryMapPackageRefObjectPath,
+} from "./refObjectPath.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
@@ -173,6 +176,15 @@ function mapRefObjectSource(
     throw new SpecUserError(
       `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
+  }
+
+  const packageSource = tryMapPackageRefObjectPath({
+    importPath: refObject.from,
+    importingFilePath: refObject.sourceFilePath,
+    projectRootDir,
+  });
+  if (packageSource !== undefined) {
+    return packageSource;
   }
 
   return {

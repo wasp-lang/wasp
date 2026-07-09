@@ -15,7 +15,6 @@ import type {
 export type Plan = {
   refImports: RefImport[];
   safeRefHelperName: string;
-  extraSafeNames: Record<string, string>;
 };
 
 export type RefImportReference =
@@ -31,12 +30,7 @@ export interface RefImport {
   };
 }
 
-export function planTransformImports(
-  ast: t.Program,
-  {
-    extraSafeNameBases = {},
-  }: { extraSafeNameBases?: Record<string, string> } = {},
-): Plan | null {
+export function planTransformImports(ast: t.Program): Plan | null {
   const refImports = findRefImports(ast);
   if (refImports.length === 0) {
     return null;
@@ -44,24 +38,9 @@ export function planTransformImports(
 
   const scope = getTopLevelBindings(ast);
 
-  const safeRefHelperName = reserveSafeName(
-    PUBLIC_REF_HELPER_IMPORT_NAME,
-    scope,
-  );
-  const extraSafeNames = Object.fromEntries(
-    Object.entries(extraSafeNameBases).map(([key, desiredName]) => [
-      key,
-      reserveSafeName(desiredName, scope),
-    ]),
-  );
+  const safeRefHelperName = makeSafeName(PUBLIC_REF_HELPER_IMPORT_NAME, scope);
 
-  return { refImports, safeRefHelperName, extraSafeNames };
-}
-
-function reserveSafeName(desiredName: string, scope: Set<string>): string {
-  const safeName = makeSafeName(desiredName, scope);
-  scope.add(safeName);
-  return safeName;
+  return { refImports, safeRefHelperName };
 }
 
 function findRefImports(ast: t.Program) {
