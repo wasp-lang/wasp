@@ -11,6 +11,7 @@ where
 import Control.Concurrent (newChan)
 import Control.Monad (forM_)
 import Data.Char (isAlphaNum, toLower)
+import Data.List (intercalate)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Path.IO (copyDirRecur)
@@ -20,10 +21,12 @@ import System.Directory (doesFileExist, doesPathExist)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import qualified System.Process as P
+import Validation (Validation (..))
 import qualified Wasp.Data as Data
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions, tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
@@ -45,7 +48,10 @@ installModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installModuleIO moduleDir = do
   ensureIsModuleDir moduleDir >>= \case
     Left errorMessage -> return $ Left errorMessage
-    Right () -> installModuleDependenciesIO moduleDir
+    Right () ->
+      ensureValidModuleWaspTsConfig moduleDir >>= \case
+        Left errorMessage -> return $ Left errorMessage
+        Right () -> installModuleDependenciesIO moduleDir
 
 installWaspDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installWaspDependenciesIO projectDir = do
@@ -64,11 +70,22 @@ buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> ModuleBuildMode -> IO (Either
 buildModuleIO moduleDir buildMode = do
   ensureIsModuleDir moduleDir >>= \case
     Left errorMessage -> return $ Left errorMessage
-    Right () -> do
-      ensureWaspSdkTypeShimIO moduleDir
-      ensureInstalledModuleDependencies moduleDir >>= \case
+    Right () ->
+      ensureValidModuleWaspTsConfig moduleDir >>= \case
         Left errorMessage -> return $ Left errorMessage
-        Right () -> runModuleBuilder moduleDir buildMode
+        Right () -> do
+          ensureWaspSdkTypeShimIO moduleDir
+          ensureInstalledModuleDependencies moduleDir >>= \case
+            Left errorMessage -> return $ Left errorMessage
+            Right () -> runModuleBuilder moduleDir buildMode
+
+-- | Module spec files are compiled the same way as app spec files, so modules
+-- must have the same tsconfig.wasp.json apps have, validated the same way.
+ensureValidModuleWaspTsConfig :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+ensureValidModuleWaspTsConfig moduleDir =
+  parseAndValidateWaspTsConfig moduleDir [relfile|tsconfig.wasp.json|] >>= \case
+    Success _ -> return $ Right ()
+    Failure errors -> return $ Left $ intercalate "\n" errors
 
 ensureInstalledModuleDependencies :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 ensureInstalledModuleDependencies moduleDir =

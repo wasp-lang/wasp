@@ -4,15 +4,17 @@ import * as path from "node:path";
 import { WASP_SPEC_FILE_REGEX } from "./common.js";
 
 /**
- * Decides which imports stay external to the spec bundle. Mirrors unrun's
- * default resolver (builtins and bare imports resolvable from the entry's
- * `node_modules` stay external) with one exception: bare imports that resolve
- * to `*.wasp.ts` files are bundled.
+ * Replaces unrun's default external resolver (same rules) with one exception:
  *
- * Wasp spec files are a Wasp dialect, not plain TS: only the Wasp pipeline may
- * transform them. Package spec exports (e.g. `@scope/module/spec`) resolve to
- * `*.wasp.ts` sources, so they must go through the pipeline's transform
- * plugins instead of being executed as-is.
+ *   main.wasp.ts -> import "@scope/module/spec" -> node_modules/.../module.wasp.ts
+ *
+ *   external: raw .wasp.ts executed by Node -> ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING,
+ *             `with { type: "ref" }` imports never lowered
+ *   bundled:  pipeline plugins transform it like any other spec file
+ *
+ * Must be the `external` option, not a resolveId plugin: the bundler checks
+ * `external` before plugin resolution, and unrun replaces it wholesale
+ * without exporting its default.
  */
 export function createSpecAwareExternalResolver(specPath: string) {
   const entryDir = path.dirname(specPath);

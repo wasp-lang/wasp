@@ -54,6 +54,9 @@ export async function buildModule(
       clean: true,
       entry: sourceEntries,
       platform: "neutral",
+      // The root tsconfig.json is a solution file with references, which the
+      // dts plugin can't consume. Source code compiles under tsconfig.src.json.
+      tsconfig: "tsconfig.src.json",
       deps: {
         neverBundle: ["react", "react/jsx-runtime", /^wasp\//],
       },
@@ -72,14 +75,15 @@ function emitSpecDeclarationFile(
   const program = ts.createProgram({
     rootNames: [moduleSpecPath],
     options: {
+      // The spec is compiled the same way in the module and in the host app:
+      // both use the Wasp-prescribed tsconfig.wasp.json.
+      ...readWaspTsConfigCompilerOptions(moduleDir),
+      // Overrides for the declaration-only emit. Typechecking the spec is
+      // `npm run typecheck`'s job in the module.
+      noEmit: false,
       declaration: true,
       emitDeclarationOnly: true,
       noCheck: true,
-      skipLibCheck: true,
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.ESNext,
-      moduleResolution: ts.ModuleResolutionKind.Bundler,
-      jsx: ts.JsxEmit.ReactJSX,
     },
   });
 
@@ -99,6 +103,40 @@ function emitSpecDeclarationFile(
 
   mkdirSync(path.join(moduleDir, "dist"), { recursive: true });
   writeFileSync(path.join(moduleDir, "dist", "spec.d.ts"), declarationFileText);
+}
+
+function readWaspTsConfigCompilerOptions(
+  moduleDir: string,
+): ts.CompilerOptions {
+  const waspTsConfigPath = path.join(moduleDir, "tsconfig.wasp.json");
+  if (!existsSync(waspTsConfigPath)) {
+    throw new Error(`Couldn't find tsconfig.wasp.json in ${moduleDir}.`);
+  }
+
+  const configFile = ts.readConfigFile(waspTsConfigPath, ts.sys.readFile);
+  if (configFile.error) {
+    throw new Error(
+      `Error when reading ${waspTsConfigPath}: ${ts.flattenDiagnosticMessageText(configFile.error.messageText, "\n")}`,
+    );
+  }
+
+  const parsed = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    moduleDir,
+    undefined,
+    waspTsConfigPath,
+  );
+  if (parsed.errors.length > 0) {
+    const formattedErrors = parsed.errors
+      .map((error) => ts.flattenDiagnosticMessageText(error.messageText, "\n"))
+      .join("\n");
+    throw new Error(
+      `Error when parsing ${waspTsConfigPath}: ${formattedErrors}`,
+    );
+  }
+
+  return parsed.options;
 }
 
 export function assertHasDefaultExport(
