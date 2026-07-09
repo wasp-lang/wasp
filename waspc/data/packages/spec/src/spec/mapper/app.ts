@@ -2,7 +2,7 @@ import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { AppMapperContext } from "./context.js";
 
-export function mapApp(
+export function mapAppSpec(
   app: WaspSpec.App,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"App"> {
@@ -55,24 +55,24 @@ export function mapAuth(
 
   // `auth` auto-registers the destinations it references, the same way a
   // route auto-registers the page passed to its constructor.
-  ctx.emitSpecElementRef(onAuthFailedRedirectTo);
+  ctx.collectSpecElement(onAuthFailedRedirectTo);
   if (onAuthSucceededRedirectTo) {
-    ctx.emitSpecElementRef(onAuthSucceededRedirectTo);
+    ctx.collectSpecElement(onAuthSucceededRedirectTo);
   }
 
   return {
-    userEntity: ctx.emitEntityRef(userEntity),
+    userEntity: ctx.resolveEntityRef(userEntity),
     methods: mapAuthMethods(methods, ctx),
     onAuthFailedRedirectTo: onAuthFailedRedirectTo.path,
     onAuthSucceededRedirectTo: onAuthSucceededRedirectTo?.path,
-    onBeforeSignup: onBeforeSignup && ctx.emitRefObject(onBeforeSignup),
-    onAfterSignup: onAfterSignup && ctx.emitRefObject(onAfterSignup),
+    onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
+    onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
     onAfterEmailVerified:
-      onAfterEmailVerified && ctx.emitRefObject(onAfterEmailVerified),
+      onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
     onBeforeOAuthRedirect:
-      onBeforeOAuthRedirect && ctx.emitRefObject(onBeforeOAuthRedirect),
-    onBeforeLogin: onBeforeLogin && ctx.emitRefObject(onBeforeLogin),
-    onAfterLogin: onAfterLogin && ctx.emitRefObject(onAfterLogin),
+      onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
+    onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
+    onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
   };
 }
 
@@ -109,7 +109,7 @@ export function mapUsernameAndPassword(
 ): AppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
-    userSignupFields: userSignupFields && ctx.emitRefObject(userSignupFields),
+    userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
   };
 }
 
@@ -119,8 +119,8 @@ export function mapSocialAuth(
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = socialAuth;
   return {
-    configFn: configFn && ctx.emitRefObject(configFn),
-    userSignupFields: userSignupFields && ctx.emitRefObject(userSignupFields),
+    configFn: configFn && ctx.parseRefObject(configFn),
+    userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
   };
 }
 
@@ -131,7 +131,7 @@ export function mapEmailAuth(
   const { userSignupFields, fromField, emailVerification, passwordReset } =
     emailAuth;
   return {
-    userSignupFields: userSignupFields && ctx.emitRefObject(userSignupFields),
+    userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
     fromField: mapEmailFromField(fromField),
     emailVerification: mapEmailFlow(emailVerification, ctx),
     passwordReset: mapEmailFlow(passwordReset, ctx),
@@ -144,11 +144,11 @@ export function mapEmailFlow(
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
 
-  ctx.emitSpecElementRef(clientRoute);
+  ctx.collectSpecElement(clientRoute);
 
   return {
     getEmailContentFn:
-      getEmailContentFn && ctx.emitRefObject(getEmailContentFn),
+      getEmailContentFn && ctx.parseRefObject(getEmailContentFn),
     clientRoute: clientRoute.path,
   };
 }
@@ -159,11 +159,11 @@ export function mapServer(
 ): AppSpec.Server {
   const { setupFn, middlewareConfigFn, envValidationSchema } = server;
   return {
-    setupFn: setupFn && ctx.emitRefObject(setupFn),
+    setupFn: setupFn && ctx.parseRefObject(setupFn),
     middlewareConfigFn:
-      middlewareConfigFn && ctx.emitRefObject(middlewareConfigFn),
+      middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
     envValidationSchema:
-      envValidationSchema && ctx.emitRefObject(envValidationSchema),
+      envValidationSchema && ctx.parseRefObject(envValidationSchema),
   };
 }
 
@@ -173,19 +173,19 @@ export function mapClient(
 ): AppSpec.Client {
   const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
   return {
-    rootComponent: rootComponent && ctx.emitRefObject(rootComponent),
-    setupFn: setupFn && ctx.emitRefObject(setupFn),
+    rootComponent: rootComponent && ctx.parseRefObject(rootComponent),
+    setupFn: setupFn && ctx.parseRefObject(setupFn),
     baseDir,
     envValidationSchema:
-      envValidationSchema && ctx.emitRefObject(envValidationSchema),
+      envValidationSchema && ctx.parseRefObject(envValidationSchema),
   };
 }
 
 export function mapDb(db: WaspSpec.Db, ctx: AppMapperContext): AppSpec.Db {
   const { seeds, prismaSetupFn } = db;
   return {
-    seeds: seeds?.map(ctx.emitRefObject),
-    prismaSetupFn: prismaSetupFn && ctx.emitRefObject(prismaSetupFn),
+    seeds: seeds?.map(ctx.parseRefObject),
+    prismaSetupFn: prismaSetupFn && ctx.parseRefObject(prismaSetupFn),
   };
 }
 
@@ -214,7 +214,7 @@ export function mapWebSocket(
 ): AppSpec.WebSocket {
   const { fn, autoConnect } = webSocket;
   return {
-    fn: ctx.emitRefObject(fn),
+    fn: ctx.parseRefObject(fn),
     autoConnect,
   };
 }

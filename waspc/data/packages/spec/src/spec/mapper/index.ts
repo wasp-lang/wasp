@@ -1,6 +1,6 @@
 import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
-import { mapApp } from "./app.js";
+import { mapAppSpec } from "./app.js";
 import { makeAppMapperContext } from "./context.js";
 
 export function convertWaspSpecToAppSpec(
@@ -13,19 +13,19 @@ export function convertWaspSpecToAppSpec(
     entityNames: string[];
   },
 ): AppSpec.Decl[] {
-  const { ctx, collectedSpecElementDecls } = makeAppMapperContext({
+  const { ctx, collectedDeclsByKey } = makeAppMapperContext({
     entityNames,
     projectRootDir,
   });
 
   const specElements = flattenSpecElements(app.spec);
   for (const specElement of specElements) {
-    ctx.emitSpecElementRef(specElement);
+    ctx.collectSpecElement(specElement);
   }
 
-  const appDecl = mapApp(app, ctx);
+  const appDecl = mapAppSpec(app, ctx);
 
-  return [appDecl, ...collectedSpecElementDecls.values()];
+  return [appDecl, ...collectedDeclsByKey.values()];
 }
 
 function flattenSpecElements(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {
