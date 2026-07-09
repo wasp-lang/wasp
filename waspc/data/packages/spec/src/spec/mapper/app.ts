@@ -53,8 +53,6 @@ export function mapAuth(
     onAfterLogin,
   } = auth;
 
-  // `auth` auto-registers the destinations it references, the same way a
-  // route auto-registers the page passed to its constructor.
   ctx.collectSpecElement(onAuthFailedRedirectTo);
   if (onAuthSucceededRedirectTo) {
     ctx.collectSpecElement(onAuthSucceededRedirectTo);

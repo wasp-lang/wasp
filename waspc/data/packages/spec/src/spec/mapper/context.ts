@@ -10,9 +10,9 @@ import {
 } from "./specElements.js";
 
 export interface AppMapperContext {
-  resolveEntityRef(name: string): AppSpec.Ref<"Entity">;
-
   parseRefObject(refObject: WaspSpec.Reference<unknown>): AppSpec.ExtImport;
+
+  resolveEntityRef(name: string): AppSpec.Ref<"Entity">;
 
   collectSpecElement<SpecElement extends WaspSpec.SpecElement>(
     specElement: SpecElement,
@@ -54,7 +54,6 @@ export function makeAppMapperContext({
 
       return declToRef(newDecl);
     },
-
   };
 
   return { ctx, collectedDeclsByKey };
