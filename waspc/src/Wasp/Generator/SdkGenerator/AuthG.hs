@@ -9,6 +9,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.Destination as AS.Destination
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -130,8 +131,8 @@ genUtils auth =
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "failureRedirectPath" .= AS.Destination.path (AS.Auth.onAuthFailedRedirectTo auth),
+          "successRedirectPath" .= AS.Destination.path (getOnAuthSucceededRedirectToOrDefault auth)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

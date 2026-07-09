@@ -219,6 +219,7 @@ library
     Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
+    Wasp.AppSpec.Destination
     Wasp.AppSpec.Entity
     Wasp.AppSpec.Entity.Field
     Wasp.AppSpec.ExtImport

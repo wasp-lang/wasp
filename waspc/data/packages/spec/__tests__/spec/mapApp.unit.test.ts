@@ -363,6 +363,124 @@ describe("convertWaspSpecToAppSpec", () => {
     ).toThrow("Conflicting configurations for the route `LoginRoute`");
   });
 
+  test("auto-registers an API referenced by `auth` but absent from `spec`", () => {
+    const verifyEmailApi = api(
+      "GET",
+      "/email-verify",
+      Fixtures.getRefObject("minimal", "named"),
+    );
+    const resetRoute = route(
+      "ResetRoute",
+      "/reset",
+      page(Fixtures.getRefObject("minimal", "default")),
+    );
+    const loginRoute = route(
+      "LoginRoute",
+      "/login",
+      page(Fixtures.getRefObject("full", "named")),
+    );
+
+    const decls = mapAppWithAuth({
+      userEntity: "User",
+      methods: {
+        email: {
+          fromField: { email: "noreply@example.com" },
+          emailVerification: { clientRoute: verifyEmailApi },
+          passwordReset: { clientRoute: resetRoute },
+        },
+      },
+      onAuthFailedRedirectTo: loginRoute,
+    });
+
+    // The referenced API is registered even though `spec` is empty.
+    const apiName = getSpecElementDeclName(verifyEmailApi);
+    const apiNames = decls
+      .filter((d) => d.declType === "Api")
+      .map((d) => d.declName);
+    expect(apiNames).toEqual([apiName]);
+
+    // The email flow carries the auto-registered API's path.
+    const appDecl = decls.find((d) => d.declType === "App");
+    assertDefined(appDecl);
+    expect(
+      appDecl.declValue.auth?.methods.email?.emailVerification.clientRoute,
+    ).toStrictEqual({ kind: "Api", path: "/email-verify" });
+  });
+
+  test("maps a redirect destination that is an API to the API's kind and path", () => {
+    const authFailedApi = api(
+      "ALL",
+      "/not-allowed",
+      Fixtures.getRefObject("minimal", "named"),
+    );
+
+    const decls = mapAppWithAuth({
+      userEntity: "User",
+      methods: {},
+      onAuthFailedRedirectTo: authFailedApi,
+    });
+
+    const appDecl = decls.find((d) => d.declType === "App");
+    assertDefined(appDecl);
+    expect(appDecl.declValue.auth?.onAuthFailedRedirectTo).toStrictEqual({
+      kind: "Api",
+      path: "/not-allowed",
+    });
+
+    // The API is auto-registered too.
+    const apiNames = decls
+      .filter((d) => d.declType === "Api")
+      .map((d) => d.declName);
+    expect(apiNames).toEqual([getSpecElementDeclName(authFailedApi)]);
+  });
+
+  test("registers an API once when it is both in `spec` and referenced by `auth`", () => {
+    const authFailedApi = api(
+      "ALL",
+      "/not-allowed",
+      Fixtures.getRefObject("minimal", "named"),
+    );
+
+    const decls = mapAppWithAuth(
+      {
+        userEntity: "User",
+        methods: {},
+        onAuthFailedRedirectTo: authFailedApi,
+      },
+      [authFailedApi],
+    );
+
+    const apiNames = decls
+      .filter((d) => d.declType === "Api")
+      .map((d) => d.declName);
+    expect(apiNames).toEqual([getSpecElementDeclName(authFailedApi)]);
+  });
+
+  test("throws when an API referenced by `auth` conflicts with a same-named API in `spec`", () => {
+    const refObject = Fixtures.getRefObject("minimal", "named");
+    const apiInSpec = api("GET", "/email-verify", refObject);
+    const apiInAuth = api("POST", "/email-verify-elsewhere", refObject);
+    const loginRoute = route(
+      "LoginRoute",
+      "/login",
+      page(Fixtures.getRefObject("minimal", "default")),
+    );
+
+    expect(() =>
+      mapAppWithAuth(
+        {
+          userEntity: "User",
+          methods: {},
+          onAuthFailedRedirectTo: loginRoute,
+          onAuthSucceededRedirectTo: apiInAuth,
+        },
+        [apiInSpec],
+      ),
+    ).toThrow(
+      `Conflicting configurations for the API \`${getSpecElementDeclName(apiInSpec)}\``,
+    );
+  });
+
   test("dedups a query listed twice with identical configs", () => {
     const refObject = Fixtures.getRefObject("minimal", "named");
     const query1 = query(refObject);
@@ -565,8 +683,12 @@ describe("mapAuth", () => {
     expect(result).toStrictEqual({
       userEntity: ctx.emitEntityRef(auth.userEntity),
       methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
-      onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo.path,
-      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo?.path,
+      onAuthFailedRedirectTo: AppSpecMapper.mapDestination(
+        auth.onAuthFailedRedirectTo,
+      ),
+      onAuthSucceededRedirectTo:
+        auth.onAuthSucceededRedirectTo &&
+        AppSpecMapper.mapDestination(auth.onAuthSucceededRedirectTo),
       onBeforeSignup:
         auth.onBeforeSignup &&
         mapRefObjectForMockProjectDir(auth.onBeforeSignup),
@@ -682,7 +804,7 @@ describe("mapEmailFlow", () => {
     const result = AppSpecMapper.mapEmailFlow(emailFlow, ctx);
 
     expect(result).toStrictEqual({
-      clientRoute: emailFlow.clientRoute.path,
+      clientRoute: AppSpecMapper.mapDestination(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
         mapRefObjectForMockProjectDir(emailFlow.getEmailContentFn),
@@ -1092,3 +1214,11 @@ describe("mapSchedule", () => {
     } satisfies AppSpec.Schedule);
   }
 });
+
+/**
+ * An `expect(value).toBeDefined()` assertion that also narrows the type of the
+ * variable.
+ */
+function assertDefined<T>(value: T | null | undefined): asserts value is T {
+  expect(value).toBeDefined();
+}

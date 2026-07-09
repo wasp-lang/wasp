@@ -1,7 +1,12 @@
 {{={= =}=}}
 import * as React from 'react'
 
+{=^ onAuthFailedRedirectTo.isApi =}
 import { Navigate } from 'react-router'
+{=/ onAuthFailedRedirectTo.isApi =}
+{=# onAuthFailedRedirectTo.isApi =}
+import { config } from '../../config'
+{=/ onAuthFailedRedirectTo.isApi =}
 import { useAuth } from '../../auth'
 
 import { Loader } from '../components/Loader'
@@ -17,7 +22,12 @@ export const createAuthRequiredPage = (Page) => {
         if (user) {
           return <Page {...props} user={user} />
         } else {
-          return <Navigate to="{= onAuthFailedRedirectTo =}" replace />
+          {=^ onAuthFailedRedirectTo.isApi =}
+          return <Navigate to="{= onAuthFailedRedirectTo.path =}" replace />
+          {=/ onAuthFailedRedirectTo.isApi =}
+          {=# onAuthFailedRedirectTo.isApi =}
+          return <NavigateToApiEndpoint />
+          {=/ onAuthFailedRedirectTo.isApi =}
         }
       case 'loading':
         return (
@@ -36,3 +46,17 @@ export const createAuthRequiredPage = (Page) => {
     }
   }
 }
+{=# onAuthFailedRedirectTo.isApi =}
+
+const NavigateToApiEndpoint = () => {
+  React.useEffect(() => {
+    window.location.replace(`${config.apiUrl}{= onAuthFailedRedirectTo.path =}`)
+  }, [])
+
+  return (
+    <FullPageWrapper className="wasp-auth-required-loader-wrapper">
+      <Loader />
+    </FullPageWrapper>
+  )
+}
+{=/ onAuthFailedRedirectTo.isApi =}

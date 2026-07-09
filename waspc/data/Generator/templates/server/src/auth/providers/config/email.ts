@@ -11,7 +11,7 @@ import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth/email";
 import { defineHandler } from "wasp/server/utils";
-import { env } from "wasp/server";
+import { env{=# isAnyEmailDestinationApi =}, config{=/ isAnyEmailDestinationApi =} } from "wasp/server";
 
 {=# userSignupFields.isDefined =}
 {=& userSignupFields.importStatement =}
@@ -68,7 +68,10 @@ const config: ProviderConfig = {
         const signupRoute = defineHandler(getSignupRoute({
             userSignupFields: _waspUserSignupFields,
             fromField,
-            clientRoute: '{= emailVerificationClientRoute =}',
+            clientRoute: '{= emailVerificationClientRoute.path =}',
+            {=# emailVerificationClientRoute.isApi =}
+            clientRouteBaseUrl: config.serverUrl,
+            {=/ emailVerificationClientRoute.isApi =}
             getVerificationEmailContent: _waspGetVerificationEmailContent,
             {=# isDevelopment =}
             isEmailAutoVerified: env.SKIP_EMAIL_VERIFICATION_IN_DEV,
@@ -81,7 +84,10 @@ const config: ProviderConfig = {
 
         const requestPasswordResetRoute = defineHandler(getRequestPasswordResetRoute({
             fromField,
-            clientRoute: '{= passwordResetClientRoute =}',
+            clientRoute: '{= passwordResetClientRoute.path =}',
+            {=# passwordResetClientRoute.isApi =}
+            clientRouteBaseUrl: config.serverUrl,
+            {=/ passwordResetClientRoute.isApi =}
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,
         }));
         router.post('/request-password-reset', requestPasswordResetRoute);

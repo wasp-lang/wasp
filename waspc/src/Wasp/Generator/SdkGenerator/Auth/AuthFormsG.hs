@@ -16,6 +16,7 @@ import Wasp.Generator.AuthProviders
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import Wasp.Generator.Common (makeJsonWithDestinationData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
@@ -143,7 +144,7 @@ genLoginSignupForm auth =
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+        [ "onAuthSucceededRedirectTo" .= makeJsonWithDestinationData (getOnAuthSucceededRedirectToOrDefault auth),
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,

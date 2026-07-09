@@ -6,6 +6,7 @@ module Wasp.Generator.Common
     GeneratedAppComponentDir,
     DbRootDir,
     makeJsonWithEntityData,
+    makeJsonWithDestinationData,
     GeneratedAppComponentSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
@@ -20,6 +21,7 @@ import StrongPath (Dir, File, Path, Posix, Rel, reldir)
 import qualified StrongPath as SP
 import StrongPath.Types (Path')
 import System.FilePath (splitExtension)
+import qualified Wasp.AppSpec.Destination as AS.Destination
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toLowerFirst)
 
@@ -60,6 +62,13 @@ makeJsonWithEntityData name =
     -- `context.entities` JS objects in Wasp templates.
     entityNameToPrismaIdentifier :: String -> String
     entityNameToPrismaIdentifier = toLowerFirst
+
+makeJsonWithDestinationData :: AS.Destination.Destination -> Aeson.Value
+makeJsonWithDestinationData destination =
+  object
+    [ "path" .= AS.Destination.path destination,
+      "isApi" .= AS.Destination.isApiDestination destination
+    ]
 
 makeJsArrayFromHaskellList :: [String] -> String
 makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"

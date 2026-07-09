@@ -26,6 +26,7 @@ import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
+import qualified Wasp.AppSpec.Destination as AS.Destination
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Job as AS.Job
@@ -140,7 +141,7 @@ spec_AppSpecValid = do
                       AS.Auth.microsoft = Nothing,
                       AS.Auth.email = Nothing
                     },
-                AS.Auth.onAuthFailedRedirectTo = "/",
+                AS.Auth.onAuthFailedRedirectTo = makeRouteDestination "/",
                 AS.Auth.onAuthSucceededRedirectTo = Nothing,
                 AS.Auth.onBeforeSignup = Nothing,
                 AS.Auth.onAfterSignup = Nothing,
@@ -189,7 +190,7 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.methods = authMethods,
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthFailedRedirectTo = makeRouteDestination "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,
@@ -220,12 +221,12 @@ spec_AppSpecValid = do
                       },
                   AS.Auth.emailVerification =
                     AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = "/test",
+                      { AS.Auth.EmailVerification.clientRoute = makeRouteDestination "/test",
                         AS.Auth.EmailVerification.getEmailContentFn = Nothing
                       },
                   AS.Auth.passwordReset =
                     AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = "/test",
+                      { AS.Auth.PasswordReset.clientRoute = makeRouteDestination "/test",
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
                       }
                 }
@@ -339,12 +340,12 @@ spec_AppSpecValid = do
                       },
                   AS.Auth.emailVerification =
                     AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = "/test",
+                      { AS.Auth.EmailVerification.clientRoute = makeRouteDestination "/test",
                         AS.Auth.EmailVerification.getEmailContentFn = Nothing
                       },
                   AS.Auth.passwordReset =
                     AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = "/test",
+                      { AS.Auth.PasswordReset.clientRoute = makeRouteDestination "/test",
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
                       }
                 }
@@ -361,7 +362,7 @@ spec_AppSpecValid = do
                                   { AS.Auth.methods =
                                       AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthFailedRedirectTo = makeRouteDestination "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,
@@ -689,6 +690,9 @@ spec_AppSpecValid = do
       AS.Decl.makeDecl
         name
         AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = []}
+
+    makeRouteDestination path =
+      AS.Destination.Destination {AS.Destination.kind = AS.Destination.Route, AS.Destination.path = path}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl

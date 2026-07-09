@@ -22,8 +22,10 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import qualified Wasp.AppSpec.Destination as AS.Destination
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as Email
+import Wasp.Generator.Common (makeJsonWithDestinationData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -52,8 +54,9 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
         [ "providerId" .= Email.providerId emailAuthProvider,
           "displayName" .= Email.displayName emailAuthProvider,
           "fromField" .= fromFieldJson,
-          "emailVerificationClientRoute" .= emailVerificationClientRoute,
-          "passwordResetClientRoute" .= passwordResetClientRoute,
+          "emailVerificationClientRoute" .= makeJsonWithDestinationData emailVerificationClientRoute,
+          "passwordResetClientRoute" .= makeJsonWithDestinationData passwordResetClientRoute,
+          "isAnyEmailDestinationApi" .= any AS.Destination.isApiDestination [emailVerificationClientRoute, passwordResetClientRoute],
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
           "getVerificationEmailContent" .= getVerificationEmailContent,
           "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields,

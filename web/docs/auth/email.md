@@ -434,6 +434,12 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
+:::info Verifying on the server
+
+The `clientRoute` field also accepts a server `api(...)` endpoint as its destination, e.g. if you want to verify the email directly on the server without a client page. It is auto-registered in the spec the same way a route is. The link in the e-mail then points at the endpoint on the Wasp server, and the endpoint receives the token as the `token` query parameter.
+
+:::
+
 The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
 
 ### Email Verification Page

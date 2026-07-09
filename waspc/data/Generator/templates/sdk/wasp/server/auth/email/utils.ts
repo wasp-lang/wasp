@@ -16,18 +16,20 @@ import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../..
 export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,
+  baseUrl: string = waspServerConfig.frontendUrl,
 ): Promise<string> {
   const { jwtToken } = await createEmailJWT(email);
-  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
+  return `${baseUrl}${clientRoute}?token=${jwtToken}`;
 }
 
 // PUBLIC API
 export async function createPasswordResetLink(
   email: string,
   clientRoute: string,
+  baseUrl: string = waspServerConfig.frontendUrl,
 ): Promise<string>  {
   const { jwtToken } = await createEmailJWT(email);
-  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
+  return `${baseUrl}${clientRoute}?token=${jwtToken}`;
 }
 
 async function createEmailJWT(email: string): Promise<{ jwtToken: string; }> {

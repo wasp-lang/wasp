@@ -63,8 +63,9 @@ export function mapAuth(
   return {
     userEntity: ctx.emitEntityRef(userEntity),
     methods: mapAuthMethods(methods, ctx),
-    onAuthFailedRedirectTo: onAuthFailedRedirectTo.path,
-    onAuthSucceededRedirectTo: onAuthSucceededRedirectTo?.path,
+    onAuthFailedRedirectTo: mapDestination(onAuthFailedRedirectTo),
+    onAuthSucceededRedirectTo:
+      onAuthSucceededRedirectTo && mapDestination(onAuthSucceededRedirectTo),
     onBeforeSignup: onBeforeSignup && ctx.emitRefObject(onBeforeSignup),
     onAfterSignup: onAfterSignup && ctx.emitRefObject(onAfterSignup),
     onAfterEmailVerified:
@@ -149,9 +150,26 @@ export function mapEmailFlow(
   return {
     getEmailContentFn:
       getEmailContentFn && ctx.emitRefObject(getEmailContentFn),
-    clientRoute: clientRoute.path,
+    clientRoute: mapDestination(clientRoute),
   };
 }
+
+export function mapDestination(
+  destination: WaspSpec.Destination,
+): AppSpec.Destination {
+  return {
+    kind: destinationKindForSpecElementKind[destination.kind],
+    path: destination.path,
+  };
+}
+
+const destinationKindForSpecElementKind = {
+  route: "Route",
+  api: "Api",
+} as const satisfies Record<
+  WaspSpec.Destination["kind"],
+  AppSpec.DestinationKind
+>;
 
 export function mapServer(
   server: WaspSpec.Server,

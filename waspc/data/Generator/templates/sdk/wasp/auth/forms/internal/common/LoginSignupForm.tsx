@@ -26,7 +26,9 @@ import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
+{=^ onAuthSucceededRedirectTo.isApi =}
 import { useNavigate } from 'react-router'
+{=/ onAuthSucceededRedirectTo.isApi =}
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -87,7 +89,9 @@ export const LoginSignupForm = ({
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}
+  {=^ onAuthSucceededRedirectTo.isApi =}
   const navigate = useNavigate();
+  {=/ onAuthSucceededRedirectTo.isApi =}
   const onErrorHandler = (error) => {
     setErrorMessage({ title: error.message, description: error.data?.data?.message })
   };
@@ -99,7 +103,12 @@ export const LoginSignupForm = ({
     isLogin,
     onError: onErrorHandler,
     onSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
+      {=^ onAuthSucceededRedirectTo.isApi =}
+      navigate('{= onAuthSucceededRedirectTo.path =}')
+      {=/ onAuthSucceededRedirectTo.isApi =}
+      {=# onAuthSucceededRedirectTo.isApi =}
+      window.location.assign(`${config.apiUrl}{= onAuthSucceededRedirectTo.path =}`)
+      {=/ onAuthSucceededRedirectTo.isApi =}
     },
   });
   {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
@@ -112,7 +121,12 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
+      {=^ onAuthSucceededRedirectTo.isApi =}
+      navigate('{= onAuthSucceededRedirectTo.path =}')
+      {=/ onAuthSucceededRedirectTo.isApi =}
+      {=# onAuthSucceededRedirectTo.isApi =}
+      window.location.assign(`${config.apiUrl}{= onAuthSucceededRedirectTo.path =}`)
+      {=/ onAuthSucceededRedirectTo.isApi =}
     },
   });
   {=/ enabledProviders.isEmailAuthEnabled =}
