@@ -5,17 +5,14 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
-import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Module as ProjectModule
 
 module_ :: Arguments -> Command ()
@@ -33,8 +30,11 @@ module_ = \case
 
 new :: String -> Command ()
 new packageName = do
-  currentDir <- liftIO getCurrentDirectory
-  let moduleDir = currentDir FP.</> ProjectModule.packageNameToDirName packageName
+  currentDir <- getCurrentDir
+  moduleDirName <- case SP.parseRelDir $ ProjectModule.packageNameToDirName packageName of
+    Just dirName -> return dirName
+    Nothing -> throwError $ CommandError "Invalid module name" $ "Couldn't derive a directory name from " ++ show packageName ++ "."
+  let moduleDir = currentDir </> moduleDirName
 
   cliSendMessageC $ Msg.Start "Creating Wasp module scaffold..."
   liftIO (ProjectModule.createModuleOnDisk moduleDir packageName) >>= \case
@@ -44,7 +44,7 @@ new packageName = do
 install :: Command ()
 install = do
   ValidNodeAndNpm <- require
-  moduleDir <- getCurrentModuleDir
+  moduleDir <- getCurrentDir
 
   cliSendMessageC $ Msg.Start "Installing Wasp module dependencies..."
   liftIO (ProjectModule.installModuleIO moduleDir) >>= \case
@@ -54,12 +54,16 @@ install = do
 build :: ProjectModule.ModuleBuildMode -> Command ()
 build buildMode = do
   ValidNodeAndNpm <- require
-  moduleDir <- getCurrentModuleDir
+  moduleDir <- getCurrentDir
 
   cliSendMessageC $ Msg.Start "Building Wasp module..."
   liftIO (ProjectModule.buildModuleIO moduleDir buildMode) >>= \case
     Right () -> cliSendMessageC $ Msg.Success "Wasp module built."
     Left errorMessage -> throwError $ CommandError "Failed to build Wasp module" errorMessage
 
-getCurrentModuleDir :: Command (Path' Abs (Dir WaspProjectDir))
-getCurrentModuleDir = SP.castDir . fromJust . SP.parseAbsDir <$> liftIO getCurrentDirectory
+getCurrentDir :: Command (Path' Abs (Dir dirType))
+getCurrentDir = do
+  currentDirFilePath <- liftIO getCurrentDirectory
+  case SP.parseAbsDir currentDirFilePath of
+    Just currentDir -> return currentDir
+    Nothing -> throwError $ CommandError "Invalid current directory" $ "Couldn't parse the current directory path: " ++ currentDirFilePath

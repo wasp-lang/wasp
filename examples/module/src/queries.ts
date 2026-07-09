@@ -1,40 +1,5 @@
 import type { GetTodoItems } from "wasp/server/operations";
-
-type TodoItem = {
-  id: number;
-  description: string;
-  isDone: boolean;
-};
-
-type TodoItems = {
-  items: TodoItem[];
-  totalCount: number;
-};
-
-type HostUser = {
-  id: number;
-};
-
-type HostTaskOwnerWhere = {
-  user: { id: HostUser["id"] };
-};
-
-type HostTaskDelegate = {
-  findMany(args: {
-    where: HostTaskOwnerWhere;
-    orderBy: { id: "desc" };
-    take: number;
-    select: { id: true; description: true; isDone: true };
-  }): Promise<TodoItem[]>;
-  count(args: { where: HostTaskOwnerWhere }): Promise<number>;
-};
-
-type HostContext = {
-  user?: HostUser;
-  entities: {
-    Task: HostTaskDelegate;
-  };
-};
+import type { HostContext, TodoItems } from "./types";
 
 export const getTodoItems: GetTodoItems<void, TodoItems, HostContext> = async (
   _args,

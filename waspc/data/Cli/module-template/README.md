@@ -9,8 +9,14 @@ wasp module build
 wasp module build --watch
 ```
 
+Pack for installing into a host app:
+
+```sh
+npm run pack
+```
+
 Import from a Wasp app:
 
 ```ts
-import { moduleSpec } from "__waspModulePackageName__/spec";
+import getModuleSpec from "__waspModulePackageName__/spec";
 ```

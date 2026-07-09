@@ -44,7 +44,8 @@
 - Once the import is in the generated server bundle, Node resolves it from the generated server package / host app, not from `examples/module/node_modules`, so symlinked local installs can fail at runtime with `ERR_MODULE_NOT_FOUND` for module dependencies.
 - Packing the module with `npm pack` and installing the tarball avoids the symlink issue. npm installs the module dependency graph into the host app, so generated server bare imports like `quote-lib` resolve from the host `node_modules`.
 - Kitchen Sink currently depends on the repo-local packed artifact at `file:../module/kitchen-sink-module-0.0.1.tgz` to model published-package behavior without custom registry setup.
-- When module source changes, rebuild the module, run `npm run pack` from `examples/module/`, then reinstall Kitchen Sink dependencies.
+- When module source changes, rebuild the module, run `npm run pack` from `examples/module/`, then refresh the Kitchen Sink lockfile (see next bullet).
+- `package-lock.json` pins the tarball's `integrity` hash, and npm does not notice a changed tarball at the same version and path. With a warm npm cache it silently installs the stale cached content; with a cold cache (CI, e2e) it fails with `EINTEGRITY`. To refresh: replace the module's `integrity` value in `package-lock.json` with the new tarball hash (`sha512-$(openssl dgst -sha512 -binary <tarball> | base64)`), delete `node_modules/@kitchen-sink/module`, then run `wasp install`. Do not run plain `npm install` in a Wasp project dir. It prunes the Wasp-managed SDK entries (`.wasp/out/sdk/wasp`) from the lockfile.
 - Do not commit absolute temp tarball paths. A real workflow should either publish/install a package artifact or make Wasp's local module development path preserve module dependency resolution.
 
 ## Known Limitations

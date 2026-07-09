@@ -12,12 +12,10 @@ import Control.Concurrent (newChan)
 import Control.Monad (forM_)
 import Data.Char (isAlphaNum, toLower, toUpper)
 import Data.List (nub, sort)
-import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Path.IO (copyDirRecur)
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
-import qualified StrongPath as SP
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesFileExist, doesPathExist)
 import System.Exit (ExitCode (..))
@@ -34,16 +32,15 @@ import qualified Wasp.Version as WV
 
 data ModuleBuildMode = BuildOnce | BuildAndWatch
 
-createModuleOnDisk :: FilePath -> String -> IO (Either String ())
+createModuleOnDisk :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Either String ())
 createModuleOnDisk moduleDir packageName = do
-  doesModuleDirExist <- doesPathExist moduleDir
+  doesModuleDirExist <- doesPathExist $ fromAbsDir moduleDir
   if doesModuleDirExist
-    then return $ Left $ moduleDir ++ " already exists."
+    then return $ Left $ fromAbsDir moduleDir ++ " already exists."
     else do
       dataDir <- Data.getAbsDataDirPath
-      let absModuleDir = SP.castDir $ fromJust $ SP.parseAbsDir moduleDir
-      copyDirRecur (toPathAbsDir $ dataDir </> moduleTemplateDirInDataDir) (toPathAbsDir absModuleDir)
-      replaceModuleTemplatePlaceholders absModuleDir packageName
+      copyDirRecur (toPathAbsDir $ dataDir </> moduleTemplateDirInDataDir) (toPathAbsDir moduleDir)
+      replaceModuleTemplatePlaceholders moduleDir packageName
       return $ Right ()
 
 installModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
@@ -178,10 +175,7 @@ replaceModuleTemplatePlaceholders moduleDir packageName = do
     TIO.writeFile filePath $ T.replace "__waspModulePackageName__" (T.pack packageName) contents
 
 packageNameToDirName :: String -> FilePath
-packageNameToDirName = sanitizePackageName
-
-sanitizePackageName :: String -> String
-sanitizePackageName name = case sanitized of
+packageNameToDirName name = case sanitized of
   "" -> "wasp-module"
   _ -> sanitized
   where

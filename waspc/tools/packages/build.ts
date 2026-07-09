@@ -26,19 +26,15 @@ function buildPackages(): void {
 }
 
 function orderPackageDirs(packageDirs: string[]): string[] {
-  const packageDirsWithNames = packageDirs.map((dir) => ({
-    dir,
-    name: getPackageJson(dir).name,
-  }));
+  // Other packages import @wasp.sh/spec from its built dist, so spec builds first.
+  const specDirs = packageDirs.filter(
+    (dir) => getPackageJson(dir).name === "@wasp.sh/spec",
+  );
+  const otherDirs = packageDirs
+    .filter((dir) => !specDirs.includes(dir))
+    .sort((a, b) => a.localeCompare(b));
 
-  packageDirsWithNames.sort((a, b) => {
-    // module-builder imports @wasp.sh/spec/internal from spec's built dist.
-    if (a.name === "@wasp.sh/spec") return -1;
-    if (b.name === "@wasp.sh/spec") return 1;
-    return a.dir.localeCompare(b.dir);
-  });
-
-  return packageDirsWithNames.map(({ dir }) => dir);
+  return [...specDirs, ...otherDirs];
 }
 
 function buildPackage(packageDir: string): void {
