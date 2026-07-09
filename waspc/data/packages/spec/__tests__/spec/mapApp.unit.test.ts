@@ -2,8 +2,12 @@ import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import { normalizePrerender } from "../../src/normalizePrerender.js";
 import * as AppSpecMapper from "../../src/spec/mapper/app.js";
+import {
+  type AppMapperContext,
+  makeRefParser,
+} from "../../src/spec/mapper/context.js";
+import { convertWaspSpecToAppSpec } from "../../src/spec/mapper/index.js";
 import * as SpecElementMapper from "../../src/spec/mapper/specElements.js";
-import type { AppMapperContext } from "../../src/spec/mapper/types.js";
 import {
   api,
   app,
@@ -28,17 +32,15 @@ function makeMapperContext({
   entityNames?: string[];
 } = {}): AppMapperContext {
   const ctx: AppMapperContext = {
-    emitEntityRef: AppSpecMapper.makeRefParser("Entity", entityNames),
+    emitEntityRef: makeRefParser("Entity", entityNames),
     emitRefObject: mapRefObjectForMockProjectDir,
-    // Decl registration (dedup and conflict detection) is a `mapApp`-level
+    // Decl registration (dedup and conflict detection) is an orchestration-level
     // concern; tests exercising individual mappers only need the ref.
     emitSpecElementRef<SpecElement extends WaspSpec.SpecElement>(
       specElement: SpecElement,
     ) {
       const decl = SpecElementMapper.mapWaspSpecElement(specElement, ctx);
-      return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
-        SpecElementMapper.AppSpecDeclTypeForWaspSpecElement<SpecElement>
-      >;
+      return SpecElementMapper.declToRef<SpecElement>(decl);
     },
   };
   return ctx;
@@ -50,13 +52,13 @@ function getSpecElementDeclName(specElement: WaspSpec.SpecElement): string {
 }
 
 function mapMockApp(app: WaspSpec.App, entityNames: string[]) {
-  return AppSpecMapper.mapApp(app, {
+  return convertWaspSpecToAppSpec(app, {
     entityNames,
     projectRootDir: Fixtures.MOCK_PROJECT_DIR,
   });
 }
 
-describe("mapApp", () => {
+describe("convertWaspSpecToAppSpec", () => {
   test("should map minimal app correctly", () => {
     const entityNames = Fixtures.getEntities("minimal");
     const app = Fixtures.getApp("minimal");
@@ -264,6 +266,7 @@ describe("mapApp", () => {
 
     const declTypes = decls.map((d) => d.declType);
     expect(declTypes).toEqual(["App", "Query", "Api"]);
+    expect(getSpecElementDeclName(query1)).toBe(getSpecElementDeclName(api1));
   });
 
   test("auto-registers routes referenced by `auth` but absent from `spec`", () => {

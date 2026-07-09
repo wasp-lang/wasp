@@ -1,6 +1,8 @@
+import * as AppSpec from "../../appSpec.js";
 import { normalizePrerender } from "../../normalizePrerender.js";
+import * as WaspSpec from "../publicApi/waspSpec.js";
 import { getRefObjectDeclarationName } from "../refObject.js";
-import type { AppMapperContext, AppSpec, WaspSpec } from "./types.js";
+import type { AppMapperContext } from "./context.js";
 
 export const AppSpecDeclTypeForWaspSpecElementKind = {
   page: "Page",
@@ -19,6 +21,16 @@ export const AppSpecDeclTypeForWaspSpecElementKind = {
 export type AppSpecDeclTypeForWaspSpecElement<
   SpecElement extends WaspSpec.SpecElement,
 > = (typeof AppSpecDeclTypeForWaspSpecElementKind)[SpecElement["kind"]];
+
+export function declToRef<SpecElement extends WaspSpec.SpecElement>(
+  decl: AppSpec.Decl,
+): AppSpec.Ref<AppSpecDeclTypeForWaspSpecElement<SpecElement>> {
+  // TypeScript can't correlate `decl.declType` with the spec element's kind
+  // across `mapWaspSpecElement`'s switch, so we assert the ref type here.
+  return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
+    AppSpecDeclTypeForWaspSpecElement<SpecElement>
+  >;
+}
 
 export function mapWaspSpecElement<T extends WaspSpec.SpecElement>(
   el: T,
