@@ -9,14 +9,12 @@
 
 ## Module SDK Shim
 
-- `wasp module install` and `wasp module build` generate `.wasp/wasp` inside module projects.
-- Shim templates live in `data/Generator/templates/sdk/wasp/module-shim/`.
-- Server operation type shims accept `Args`, `Result`, and `Context` generics so modules can describe host app contracts without importing host types.
-- The shim package is named `wasp` and only types:
-  - `wasp/client/operations`
-  - `wasp/server/operations`
+- `wasp module install` and `wasp module build` copy the static shim into `.wasp/wasp` inside module projects.
+- Shim files live in `data/Generator/templates/sdk/wasp/module-shim/`. Nothing in the shim is generated per module.
+- Modules type server code with generic `Query` / `Action` types (`<Args, Result, Context>`). The real SDK's `wasp/server/operations` exports the same generics, so module operation code is valid host app code.
+- `ambient.d.ts` declares the wildcard `declare module "wasp/*";`, so every other `wasp/*` import typechecks as `any`. Real declaration files (e.g. `wasp/server/operations`) win over the wildcard. The module tsconfig must include `.wasp/wasp/ambient.d.ts`.
 - The shim is for module typechecking. Runtime `wasp/*` imports are provided by the host app SDK.
-- Operation shim exports are derived from `query(name)` / `action(name)` calls in `module.wasp.ts`.
+- An operation named `query` or `action` would generate a `Query`/`Action` SDK type colliding with the generics. Wasp does not validate this yet.
 
 ## Module Builder
 
@@ -50,8 +48,7 @@
 
 ## Known Limitations
 
-- Operation extraction in `Wasp.Project.Module` is regex-based.
-- The shim only knows operation imports. Other `wasp/*` subpaths remain runtime-only unless explicitly added.
+- Only `wasp/server/operations` is typed in the shim. All other `wasp/*` imports are `any` via the ambient wildcard.
 - `file:../module` local development does not faithfully model published package dependency resolution once the host server bundle follows symlinks into the module source.
 - Module host app contracts are structural and local to the module. There is no generated type that proves the host app actually provides the expected Prisma model shape.
 

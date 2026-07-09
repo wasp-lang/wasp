@@ -5,7 +5,6 @@
   "type": "module",
   "exports": {
     "./client/operations": {
-      "types": "./client/operations.d.ts",
       "default": "./runtime-error.js"
     },
     "./server/operations": {
