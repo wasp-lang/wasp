@@ -10,13 +10,12 @@ import {
 } from "./specElements.js";
 
 export interface AppMapperContext {
-  emitEntityRef(name: string): AppSpec.Ref<"Entity">;
+  parseRefObject(refObject: WaspSpec.Reference<unknown>): AppSpec.ExtImport;
 
-  emitRefObject(refObject: WaspSpec.Reference<unknown>): AppSpec.ExtImport;
+  resolveEntityRef(name: string): AppSpec.Ref<"Entity">;
+  resolveRouteRef(name: string): AppSpec.Ref<"Route">;
 
-  emitRouteRef(name: string): AppSpec.Ref<"Route">;
-
-  emitSpecElementRef<SpecElement extends WaspSpec.SpecElement>(
+  collectSpecElement<SpecElement extends WaspSpec.SpecElement>(
     specElement: SpecElement,
   ): AppSpec.Ref<AppSpecDeclTypeForWaspSpecElement<SpecElement>>;
 }
@@ -31,49 +30,49 @@ export function makeAppMapperContext({
   specElements: WaspSpec.SpecElement[];
 }): {
   ctx: AppMapperContext;
-  collectedSpecElementDecls: ReadonlyMap<string, AppSpec.Decl>;
+  collectedDeclsByKey: ReadonlyMap<string, AppSpec.Decl>;
 } {
-  // Keyed by `declType:declName`: decl names only have to be unique within
-  // their decl type (mirroring waspc's AppSpec validation), so decls of
-  // different types may share a name.
-  const specElementDecls = new Map<string, AppSpec.Decl>();
+  const collectedDeclsByKey = new Map<string, AppSpec.Decl>();
 
   const ctx: AppMapperContext = {
-    emitEntityRef: makeRefParser("Entity", entityNames),
+    resolveEntityRef: makeRefParser("Entity", entityNames),
 
-    emitRefObject: (refObject: unknown) =>
+    parseRefObject: (refObject) =>
       mapRefObject(refObject, {
         projectRootDir,
       }),
 
-    emitRouteRef: makeRefParser(
+    resolveRouteRef: makeRefParser(
       "Route",
       specElements
         .filter((el): el is WaspSpec.Route => el.kind === "route")
         .map((route) => route.name),
     ),
 
-    emitSpecElementRef: <SpecElement extends WaspSpec.SpecElement>(
+    collectSpecElement: <SpecElement extends WaspSpec.SpecElement>(
       specElement: SpecElement,
     ) => {
-      const decl = mapSpecElement(specElement, ctx);
+      const newDecl = mapSpecElement(specElement, ctx);
+      const declKey = makeKeyForDecl(newDecl);
 
-      // We're keying by type+name since waspc allows Decls with the same name
-      // if they are different types.
-      const declKey = `${decl.declType}:${decl.declName}`;
-
-      const oldDecl = specElementDecls.get(declKey);
-      if (oldDecl && !isEqual(oldDecl, decl)) {
-        throw makeConflictingDeclsError(oldDecl, decl);
+      const existingDecl = collectedDeclsByKey.get(declKey);
+      if (existingDecl && !isEqual(existingDecl, newDecl)) {
+        throw makeConflictingDeclsError(existingDecl, newDecl);
       }
 
-      specElementDecls.set(declKey, decl);
+      collectedDeclsByKey.set(declKey, newDecl);
 
-      return declToRef<SpecElement>(decl);
+      return declToRef(newDecl);
     },
   };
 
-  return { ctx, collectedSpecElementDecls: specElementDecls };
+  return { ctx, collectedDeclsByKey };
+}
+
+function makeKeyForDecl(decl: AppSpec.Decl): string {
+  // We're keying by type+name since waspc allows Decls with the same name
+  // if they are different types.
+  return `${decl.declType}:${decl.declName}`;
 }
 
 export function makeRefParser<T extends AppSpec.DeclType>(
@@ -99,9 +98,9 @@ function makeConflictingDeclsError(
   incomingDecl: AppSpec.Decl,
 ): SpecUserError {
   return new SpecUserError(
-    `Conflicting configurations for the ${declTypeDisplayNames[existingDecl.declType]} \`${existingDecl.declName}\`:\n` +
-      `- Definition A: ${JSON.stringify(existingDecl.declValue)}\n` +
-      `- Definition B: ${JSON.stringify(incomingDecl.declValue)}\n\n` +
+    `Conflicting configurations for the ${declTypeDisplayNames[existingDecl.declType]} \`${existingDecl.declName}\`:\n\n` +
+      `\`${existingDecl.declName}\` (A):\n${showDecl(existingDecl)}\n\n` +
+      `\`${incomingDecl.declName}\` (B):\n${showDecl(incomingDecl)}\n\n` +
       `All definitions with the same name must produce the same configuration.\n` +
       "If the duplication was intentional, please use a different name to differentiate them.",
   );
@@ -118,3 +117,7 @@ const declTypeDisplayNames: Record<AppSpec.Decl["declType"], string> = {
   Job: "job",
   Crud: "CRUD",
 };
+
+function showDecl(decl: AppSpec.Decl) {
+  return JSON.stringify(decl.declValue, null, 2);
+}

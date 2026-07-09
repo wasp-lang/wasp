@@ -67,7 +67,7 @@ export function mapPageSpec(
     declType: "Page",
     declName: getRefObjectDeclarationName(page.component),
     declValue: {
-      component: ctx.emitRefObject(component),
+      component: ctx.parseRefObject(component),
       authRequired,
     },
   };
@@ -83,7 +83,7 @@ export function mapRouteSpec(
     declName: route.name,
     declValue: {
       path,
-      to: ctx.emitSpecElementRef(route.page),
+      to: ctx.collectSpecElement(route.page),
       prerender: normalizePrerender(prerender, path),
       lazy,
     },
@@ -99,8 +99,8 @@ export function mapQuerySpec(
     declType: "Query",
     declName: getRefObjectDeclarationName(query.fn),
     declValue: {
-      fn: ctx.emitRefObject(fn),
-      entities: entities?.map(ctx.emitEntityRef),
+      fn: ctx.parseRefObject(fn),
+      entities: entities?.map(ctx.resolveEntityRef),
       auth,
     },
   };
@@ -115,8 +115,8 @@ export function mapActionSpec(
     declType: "Action",
     declName: getRefObjectDeclarationName(action.fn),
     declValue: {
-      fn: ctx.emitRefObject(fn),
-      entities: entities?.map(ctx.emitEntityRef),
+      fn: ctx.parseRefObject(fn),
+      entities: entities?.map(ctx.resolveEntityRef),
       auth,
     },
   };
@@ -131,10 +131,10 @@ export function mapApiSpec(
     declType: "Api",
     declName: getRefObjectDeclarationName(api.fn),
     declValue: {
-      fn: ctx.emitRefObject(fn),
+      fn: ctx.parseRefObject(fn),
       middlewareConfigFn:
-        middlewareConfigFn && ctx.emitRefObject(middlewareConfigFn),
-      entities: entities?.map(ctx.emitEntityRef),
+        middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
+      entities: entities?.map(ctx.resolveEntityRef),
       httpRoute: [method, path],
       auth,
     },
@@ -150,7 +150,7 @@ export function mapApiNamespaceSpec(
     declType: "ApiNamespace",
     declName: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
     declValue: {
-      middlewareConfigFn: ctx.emitRefObject(middlewareConfigFn),
+      middlewareConfigFn: ctx.parseRefObject(middlewareConfigFn),
       path,
     },
   };
@@ -167,11 +167,11 @@ export function mapJobSpec(
     declValue: {
       executor,
       perform: {
-        fn: ctx.emitRefObject(fn),
+        fn: ctx.parseRefObject(fn),
         executorOptions: performExecutorOptions,
       },
       schedule: schedule && mapSchedule(schedule),
-      entities: entities?.map(ctx.emitEntityRef),
+      entities: entities?.map(ctx.resolveEntityRef),
     },
   };
 }
@@ -194,7 +194,7 @@ export function mapCrudSpec(
     declType: "Crud",
     declName: crud.name,
     declValue: {
-      entity: ctx.emitEntityRef(entity),
+      entity: ctx.resolveEntityRef(entity),
       operations: mapCrudOperations(operations, ctx),
     },
   };
@@ -221,6 +221,6 @@ export function mapCrudOperationOptions(
   const { isPublic, overrideFn } = options;
   return {
     isPublic,
-    overrideFn: overrideFn && ctx.emitRefObject(overrideFn),
+    overrideFn: overrideFn && ctx.parseRefObject(overrideFn),
   };
 }

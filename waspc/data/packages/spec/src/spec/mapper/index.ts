@@ -15,19 +15,19 @@ export function convertWaspSpecToAppSpec(
 ): AppSpec.Decl[] {
   const specElements = flattenSpecElements(app.spec);
 
-  const { ctx, collectedSpecElementDecls } = makeAppMapperContext({
+  const { ctx, collectedDeclsByKey } = makeAppMapperContext({
     entityNames,
     projectRootDir,
     specElements,
   });
 
   for (const specElement of specElements) {
-    ctx.emitSpecElementRef(specElement);
+    ctx.collectSpecElement(specElement);
   }
 
   const appDecl = mapAppSpec(app, ctx);
 
-  return [appDecl, ...collectedSpecElementDecls.values()];
+  return [appDecl, ...collectedDeclsByKey.values()];
 }
 
 function flattenSpecElements(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {

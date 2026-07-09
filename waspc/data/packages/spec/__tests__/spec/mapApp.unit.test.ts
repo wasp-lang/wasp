@@ -34,12 +34,11 @@ function makeMapperContext({
   routeNames?: string[];
 } = {}): AppMapperContext {
   const ctx: AppMapperContext = {
-    emitEntityRef: makeRefParser("Entity", entityNames),
-    emitRouteRef: makeRefParser("Route", routeNames),
-    emitRefObject: mapRefObjectForMockProjectDir,
-    // Decl registration (dedup and conflict detection) is an orchestration-level
-    // concern; tests exercising individual mappers only need the ref.
-    emitSpecElementRef<SpecElement extends WaspSpec.SpecElement>(
+    resolveEntityRef: makeRefParser("Entity", entityNames),
+    resolveRouteRef: makeRefParser("Route", routeNames),
+    parseRefObject: mapRefObjectForMockProjectDir,
+    // For testing, the individual mapper functions only need the `AppSpec.Ref`.
+    collectSpecElement<SpecElement extends WaspSpec.SpecElement>(
       specElement: SpecElement,
     ) {
       const decl = SpecElementMapper.mapSpecElement(specElement, ctx);
@@ -389,7 +388,7 @@ describe("mapQuery", () => {
       declName: getRefObjectDeclarationName(query.fn),
       declValue: {
         fn: mapRefObjectForMockProjectDir(query.fn),
-        entities: query.entities?.map(ctx.emitEntityRef),
+        entities: query.entities?.map(ctx.resolveEntityRef),
         auth: query.auth,
       },
     } satisfies AppSpec.GetDeclForType<"Query">);
@@ -422,7 +421,7 @@ describe("mapAction", () => {
       declName: getRefObjectDeclarationName(action.fn),
       declValue: {
         fn: mapRefObjectForMockProjectDir(action.fn),
-        entities: action.entities?.map(ctx.emitEntityRef),
+        entities: action.entities?.map(ctx.resolveEntityRef),
         auth: action.auth,
       },
     } satisfies AppSpec.GetDeclForType<"Action">);
@@ -496,7 +495,7 @@ describe("mapAuth", () => {
     const result = AppSpecMapper.mapAuth(auth, ctx);
 
     expect(result).toStrictEqual({
-      userEntity: ctx.emitEntityRef(auth.userEntity),
+      userEntity: ctx.resolveEntityRef(auth.userEntity),
       methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
@@ -721,7 +720,7 @@ describe("mapEmailFlow", () => {
     const result = AppSpecMapper.mapEmailFlow(emailFlow, ctx);
 
     expect(result).toStrictEqual({
-      clientRoute: ctx.emitRouteRef(emailFlow.clientRoute),
+      clientRoute: ctx.resolveRouteRef(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
         mapRefObjectForMockProjectDir(emailFlow.getEmailContentFn),
@@ -810,7 +809,7 @@ describe("mapApi", () => {
         middlewareConfigFn:
           api.middlewareConfigFn &&
           mapRefObjectForMockProjectDir(api.middlewareConfigFn),
-        entities: api.entities?.map(ctx.emitEntityRef),
+        entities: api.entities?.map(ctx.resolveEntityRef),
         httpRoute: [api.method, api.path],
         auth: api.auth,
       },
@@ -1009,7 +1008,7 @@ describe("mapJob", () => {
           executorOptions: job.performExecutorOptions,
         },
         schedule: job.schedule && SpecElementMapper.mapSchedule(job.schedule),
-        entities: job.entities?.map(ctx.emitEntityRef),
+        entities: job.entities?.map(ctx.resolveEntityRef),
       },
     } satisfies AppSpec.GetDeclForType<"Job">);
   }
@@ -1040,7 +1039,7 @@ describe("mapCrud", () => {
       declType: "Crud",
       declName: crudDecl.name,
       declValue: {
-        entity: ctx.emitEntityRef(crudDecl.entity),
+        entity: ctx.resolveEntityRef(crudDecl.entity),
         operations: SpecElementMapper.mapCrudOperations(
           crudDecl.operations,
           ctx,
