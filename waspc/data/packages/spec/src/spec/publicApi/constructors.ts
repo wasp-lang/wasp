@@ -12,10 +12,10 @@ import type {
 
 // Throughout this file, in order for the constructor's input type to be
 // expanded in the docs, but not the resulting type; we do one bit of
-// indirection, by creating a {Type}Config file, and setting it with the
+// indirection, by creating a {Type}Config type, and setting it with the
 // `@inline` and `@expandType {Type}` tags. This makes sure that the config
-// option appear right in the documentation of the so users don't have to move
-// to another page to see the fields.
+// options appear right in the documentation so users don't have to move to
+// another page to see the fields.
 
 /**
  * Creates a Wasp {@link App}.
@@ -52,10 +52,12 @@ export function app(config: AppConfig): App {
 }
 
 /**
+ * The configuration object accepted by the {@link app} constructor.
+ *
  * @inline
  * @expandType App
  */
-type AppConfig = Omit<App, "kind">;
+export type AppConfig = Omit<App, "kind">;
 
 /**
  * Creates a {@link Page} definition.
@@ -86,10 +88,13 @@ export function page(component: Page["component"], config?: PageConfig): Page {
 }
 
 /**
+ * The optional configuration object accepted as the last argument of the
+ * {@link page} constructor.
+ *
  * @inline
  * @expandType Page
  */
-type PageConfig = Omit<Page, "kind" | "component">;
+export type PageConfig = Omit<Page, "kind" | "component">;
 
 /**
  * Creates a {@link Route} definition.
@@ -133,10 +138,13 @@ export function route(
 }
 
 /**
+ * The optional configuration object accepted as the last argument of the
+ * {@link route} constructor.
+ *
  * @inline
  * @expandType Route
  */
-type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
+export type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
 
 /**
  * Creates a {@link Query} definition.
@@ -181,10 +189,13 @@ export function query(fn: Query["fn"], config?: QueryConfig): Query {
 }
 
 /**
+ * The optional configuration object accepted as the last argument of the
+ * {@link query} constructor.
+ *
  * @inline
  * @expandType Query
  */
-type QueryConfig = Omit<Query, "kind" | "fn">;
+export type QueryConfig = Omit<Query, "kind" | "fn">;
 
 /**
  * Creates an {@link Action} definition.
@@ -222,10 +233,13 @@ export function action(fn: Action["fn"], config?: ActionConfig): Action {
 }
 
 /**
+ * The optional configuration object accepted as the last argument of the
+ * {@link action} constructor.
+ *
  * @inline
  * @expandType Action
  */
-type ActionConfig = Omit<Action, "kind" | "fn">;
+export type ActionConfig = Omit<Action, "kind" | "fn">;
 
 /**
  * Creates an {@link Api} endpoint definition.
@@ -263,10 +277,13 @@ export function api(
 }
 
 /**
+ * The optional configuration object accepted as the last argument of the
+ * {@link api} constructor.
+ *
  * @inline
  * @expandType Api
  */
-type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
+export type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
 
 /**
  * Creates an {@link ApiNamespace} definition.
@@ -301,10 +318,13 @@ export function apiNamespace(
 }
 
 /**
+ * The configuration object accepted as the last argument of the
+ * {@link apiNamespace} constructor.
+ *
  * @inline
  * @expandType ApiNamespace
  */
-type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
+export type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
 
 /**
  * Creates a {@link Job} definition.
@@ -342,10 +362,13 @@ export function job(fn: Job["fn"], config: JobConfig): Job {
 }
 
 /**
+ * The configuration object accepted as the last argument of the
+ * {@link job} constructor.
+ *
  * @inline
  * @expandType Job
  */
-type JobConfig = Omit<Job, "kind" | "fn">;
+export type JobConfig = Omit<Job, "kind" | "fn">;
 
 /**
  * Creates a {@link Crud} definition.
