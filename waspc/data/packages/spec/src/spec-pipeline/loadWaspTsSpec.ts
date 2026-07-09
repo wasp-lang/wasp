@@ -1,5 +1,5 @@
 import { unrun } from "unrun";
-import { SpecUserError } from "../spec/specUserError.js";
+import { WaspSpecUserError } from "../spec/waspSpecUserError.js";
 import { transformWaspTsSpecFilesPlugin } from "./transformWaspTsSpecFilesPlugin/index.js";
 import { typecheckPlugin } from "./typecheckPlugin/index.js";
 
@@ -23,29 +23,47 @@ export async function loadWaspTsSpecDefaultExport({
     // https://gugustinette.github.io/unrun/advanced/presets.html
     preset: "bundle-require",
   }).catch((error: unknown) => {
-    // When a plugin throws, the bundler wraps the original error in an
-    // aggregate build error and exposes the originals on `.errors`. We dig out
-    // the `SpecUserError` so it reaches the top-level handler in `run.ts` as a
-    // clean user error instead of an internal crash.
-    throw getSpecUserError(error) ?? error;
+    // The bundler doesn't surface the original error directly: a plugin throw
+    // is wrapped in an aggregate build error (originals on `.errors`), and a
+    // throw while executing the spec is wrapped with the original on `.cause`.
+    // We dig out any `WaspSpecUserError` from that chain so it reaches the
+    // top-level handler in `run.ts` as a clean user error instead of an
+    // internal crash. This also lets userland spec libraries report errors the
+    // same way the pipeline does by throwing a `WaspSpecUserError` themselves.
+    throw findWaspSpecUserError(error) ?? error;
   });
 
   return getDefaultExport(specModule);
 }
 
-function getSpecUserError(error: unknown): SpecUserError | undefined {
-  if (
-    // Checks to convince TypeScript that we can access `error.errors[0]`.
-    error instanceof Error &&
-    "errors" in error &&
-    Array.isArray(error.errors) &&
-    error.errors.length === 1 &&
-    error.errors[0] instanceof SpecUserError
-  ) {
-    return error.errors[0];
-  } else {
-    return undefined;
+/**
+ * Walks an error's `cause` and `errors` chains looking for a `WaspSpecUserError`.
+ */
+function findWaspSpecUserError(error: unknown): WaspSpecUserError | undefined {
+  const seen = new Set<unknown>();
+  const toVisit: unknown[] = [error];
+
+  while (toVisit.length > 0) {
+    const current = toVisit.pop();
+
+    if (current instanceof WaspSpecUserError) {
+      return current;
+    }
+
+    if (typeof current !== "object" || current === null || seen.has(current)) {
+      continue;
+    }
+    seen.add(current);
+
+    if ("cause" in current) {
+      toVisit.push(current.cause);
+    }
+    if ("errors" in current && Array.isArray(current.errors)) {
+      toVisit.push(...current.errors);
+    }
   }
+
+  return undefined;
 }
 
 function getDefaultExport(loadedModule: unknown): unknown {

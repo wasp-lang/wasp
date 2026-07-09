@@ -1,4 +1,5 @@
 export { ref } from "../refObject.js";
+export { WaspSpecUserError } from "../waspSpecUserError.js";
 export {
   action,
   api,

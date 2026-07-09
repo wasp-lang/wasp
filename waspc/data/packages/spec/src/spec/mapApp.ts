@@ -9,7 +9,7 @@ import * as AppSpec from "../appSpec.js";
 import { normalizePrerender } from "../normalizePrerender.js";
 import * as WaspSpec from "./publicApi/waspSpec.js";
 import { getRefObjectDeclarationName, mapRefObject } from "./refObject.js";
-import { SpecUserError } from "./specUserError.js";
+import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 export function mapApp(
   app: WaspSpec.App,
@@ -202,7 +202,7 @@ export function dedupePageDecls(
   return Array.from(pagesByDeclName.values()).map((pages) =>
     pages.reduce((firstPage, currentPage) => {
       if (!arePageDeclsEqual(currentPage, firstPage)) {
-        throw new SpecUserError(
+        throw new WaspSpecUserError(
           `Conflicting configurations for the page \`${firstPage.declName}\`:\n` +
             `- Definition A: ${JSON.stringify(firstPage.declValue)}\n` +
             `- Definition B: ${JSON.stringify(currentPage.declValue)}\n\n` +
@@ -512,7 +512,7 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 ): RefParser<T> {
   return function parseRef(potentialRef: string): AppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
-      throw new SpecUserError(
+      throw new WaspSpecUserError(
         `Invalid \`${declType}\` reference: \`${potentialRef}\`\n` +
           `Please make sure that \`${potentialRef}\` is actually defined.`,
       );
