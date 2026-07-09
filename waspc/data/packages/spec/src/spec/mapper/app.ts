@@ -7,25 +7,14 @@
  * tested.
  */
 
-import { isEqual } from "es-toolkit";
-import { mapRefObject } from "../refObject.js";
-import { SpecUserError } from "../specUserError.js";
-import {
-  AppSpecDeclTypeForWaspSpecElement,
-  mapWaspSpecElement,
-} from "./specElements.js";
-import type { AppMapperContext, AppSpec, WaspSpec } from "./types.js";
+import * as AppSpec from "../../appSpec.js";
+import * as WaspSpec from "../publicApi/waspSpec.js";
+import { AppMapperContext } from "./context.js";
 
 export function mapApp(
   app: WaspSpec.App,
-  {
-    projectRootDir,
-    entityNames,
-  }: {
-    projectRootDir: string;
-    entityNames: string[];
-  },
-): AppSpec.Decl[] {
+  ctx: AppMapperContext,
+): AppSpec.GetDeclForType<"App"> {
   const {
     name,
     wasp,
@@ -37,56 +26,10 @@ export function mapApp(
     db,
     emailSender,
     webSocket,
-    spec,
   } = app;
 
-  const flatSpec = flattenSpec(spec);
-
-  // Keyed by `declType:declName`: decl names only have to be unique within
-  // their decl type (mirroring waspc's AppSpec validation), so decls of
-  // different types may share a name.
-  const specElementDecls = new Map<string, AppSpec.Decl>();
-
-  const ctx: AppMapperContext = {
-    emitEntityRef: makeRefParser("Entity", entityNames),
-
-    emitRouteRef: makeRefParser(
-      "Route",
-      flatSpec
-        .filter((el): el is WaspSpec.Route => el.kind === "route")
-        .map((route) => route.name),
-    ),
-
-    emitRefObject: (refObject: unknown) =>
-      mapRefObject(refObject, {
-        projectRootDir,
-      }),
-
-    emitSpecElementRef: <SpecElement extends WaspSpec.SpecElement>(
-      specElement: SpecElement,
-    ) => {
-      const decl = mapWaspSpecElement(specElement, ctx);
-
-      const declKey = `${decl.declType}:${decl.declName}`;
-      const oldDecl = specElementDecls.get(declKey);
-      if (oldDecl && !isEqual(oldDecl, decl)) {
-        throw makeConflictingDeclsError(oldDecl, decl);
-      }
-
-      specElementDecls.set(declKey, decl);
-
-      return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
-        AppSpecDeclTypeForWaspSpecElement<SpecElement>
-      >;
-    },
-  };
-
-  for (const specElement of flatSpec) {
-    ctx.emitSpecElementRef(specElement);
-  }
-
-  const appDecl = {
-    declType: "App" as const,
+  return {
+    declType: "App",
     declName: name,
     declValue: {
       wasp,
@@ -100,8 +43,6 @@ export function mapApp(
       webSocket: webSocket && mapWebSocket(webSocket, ctx),
     },
   };
-
-  return [appDecl, ...specElementDecls.values()];
 }
 
 export function mapAuth(
@@ -275,53 +216,4 @@ export function mapWebSocket(
     fn: ctx.emitRefObject(fn),
     autoConnect,
   };
-}
-
-export function makeRefParser<T extends AppSpec.DeclType>(
-  declType: T,
-  declNames: string[],
-): (name: string) => AppSpec.Ref<T> {
-  return function parseRef(potentialRef: string): AppSpec.Ref<T> {
-    if (!declNames.includes(potentialRef)) {
-      throw new SpecUserError(
-        `Invalid \`${declType}\` reference: \`${potentialRef}\`\n` +
-          `Please make sure that \`${potentialRef}\` is actually defined.`,
-      );
-    }
-    return {
-      name: potentialRef,
-      declType,
-    };
-  };
-}
-
-function flattenSpec(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {
-  // We assert the `[spec]` as a `SpecElement[]` to avoid
-  // infinite recursion of the `WaspSpec.Spec` type.
-  return ([spec] as WaspSpec.SpecElement[]).flat(Infinity);
-}
-
-const declTypeDisplayNames = {
-  App: "app",
-  Page: "page",
-  Route: "route",
-  Query: "query",
-  Action: "action",
-  Api: "API",
-  ApiNamespace: "API namespace",
-  Job: "job",
-  Crud: "CRUD",
-} as const satisfies Record<AppSpec.Decl["declType"], string>;
-
-function makeConflictingDeclsError(
-  existingDecl: AppSpec.Decl,
-  incomingDecl: AppSpec.Decl,
-): SpecUserError {
-  return new SpecUserError(
-    `Conflicting configurations for the ${declTypeDisplayNames[existingDecl.declType]} \`${existingDecl.declName}\`:\n` +
-      `- Definition A: ${JSON.stringify(existingDecl.declValue)}\n` +
-      `- Definition B: ${JSON.stringify(incomingDecl.declValue)}\n\n` +
-      `All definitions with the same name must produce the same configuration.\n` +
-      "If the duplication was intentional, please use a different name to differentiate them.",
-  );
 }

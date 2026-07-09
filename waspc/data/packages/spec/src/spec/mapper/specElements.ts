@@ -1,6 +1,8 @@
+import * as AppSpec from "../../appSpec.js";
 import { normalizePrerender } from "../../normalizePrerender.js";
+import * as WaspSpec from "../publicApi/waspSpec.js";
 import { getRefObjectDeclarationName } from "../refObject.js";
-import type { AppMapperContext, AppSpec, WaspSpec } from "./types.js";
+import type { AppMapperContext } from "./context.js";
 
 export const AppSpecDeclTypeForWaspSpecElementKind = {
   page: "Page",
