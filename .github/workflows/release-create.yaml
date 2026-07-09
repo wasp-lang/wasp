@@ -23,6 +23,11 @@ jobs:
     with:
       override-npm-package-version: ${{ github.ref_name }}
 
+  # In the following jobs we don't want to pick up the CI caches, avoiding a
+  # potential cache poisoning attack that is not observable in the stored
+  # artifacts. So we exceptionally don't use our `setup-tools` actions. See
+  # https://docs.zizmor.sh/audits/#cache-poisoning for more details.
+
   create-release:
     needs: ci
     runs-on: ubuntu-latest
@@ -61,15 +66,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          # Disable caching to avoid a potentially poisoned cache introducing a
-          # vulnerability not present in the stored artifacts.
-          # https://docs.zizmor.sh/audits/#cache-poisoning
-          cache: false
-          package-manager-cache: false
 
       - uses: actions/download-artifact@v8
         with:
