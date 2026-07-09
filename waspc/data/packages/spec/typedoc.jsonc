@@ -12,11 +12,8 @@
 
   "excludeInternal": true,
 
-  // Don't document members inherited from external types. Without this, a class
-  // like `WaspSpecUserError` that extends the built-in `Error` would list all
-  // of `Error`'s inherited properties and methods (`message`, `stack`,
-  // `captureStackTrace`, ...). We only want to document the class itself, that
-  // it extends `Error`, and its constructor.
+  // Don't document members inherited from external types, e.g.
+  // `WaspSpecUserError` shouldn't list all built-in `Error` properties.
   "excludeExternals": true,
 
   "entryPoints": ["src/index.ts"],
