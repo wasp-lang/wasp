@@ -10,6 +10,7 @@ interface CloudflarePagesContext {
  * When a client asks for a markdown variant of some docs via the `Accept` header,
  * serve the pre-generated `.md` sibling of the requested page instead of the HTML.
  * Only works for valid markdown variant routes ({@link routeHasMarkdownVariant}).
+ * Only handles routes defined in the `static/_routes.json`.
  *
  * Runs as a Cloudflare Pages Function, so it executes on the Cloudflare Workers runtime.
  * This is not a Node.js runtime, so we must manage external dependencies carefully.
@@ -46,13 +47,16 @@ export const onRequest = async (
 };
 
 /**
- * True if the last path segmenet includes a dot.
+ * True if the last path segment includes a file extension.
  *
- * @example "/docs.md"
- * @example "/docs.html"
+ * @example "/docs.md" → true
+ * @example "/docs.html" → true
+ * @example "/docs/0.24" → false
+ * @example "/docs/2.0" → false
  */
 function routeHasFileTypeExtension(pathname: string): boolean {
-  return pathname.split("/").at(-1)!.includes(".");
+  const lastSegment = pathname.split("/").at(-1)!;
+  return /\.[a-z]+$/i.test(lastSegment);
 }
 
 /**

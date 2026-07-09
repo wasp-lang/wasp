@@ -12,7 +12,7 @@ interface Props {
 
 /**
  * Only renders this block if user has not selected JS in the codeblocks.
- * This is so that the SSR documents render TS conent by default.
+ * This is so that the SSR documents render TS content by default.
  * @Note leave a blank space after opening the tag e.g.
  *
  * @example

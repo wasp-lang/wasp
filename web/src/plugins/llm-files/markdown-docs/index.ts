@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { LllmDocsContext } from "../context";
+import { LlmDocsContext } from "../context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import { relHtmlFilePathHasMarkdownVariant } from "./markdown-routes";
 
@@ -9,15 +9,15 @@ import { relHtmlFilePathHasMarkdownVariant } from "./markdown-routes";
  * Turns the rendered HTML for docs, blog, and resources pages into Markdown
  * served alongside the HTML.
  *
- * We opted out for HTML -> MD (instead of MDX -> MD) approach because:
- * - It is more stable. HTML -> MD is a very matrue pipeline, MDX is a newer concept.
+ * We opted for HTML -> MD (instead of MDX -> MD) approach because:
+ * - It is more stable. HTML -> MD is a very mature pipeline, MDX is a newer concept.
  * - It is less of a maintenance burden. MDX -> MD requires handling each MDX
  *     feature (e.g. a component) preemptively. HTML -> MD only requires handling
  *     non-MD compliant content (e.g. code block titles).
  * - It is more future proof. HTML and Markdown are not prone to changes.
  */
 export async function generateMarkdownFilesForValidHtmlFiles(
-  context: LllmDocsContext,
+  context: LlmDocsContext,
 ): Promise<void> {
   console.log("Generating markdown files from built HTML...");
   const { outDir, baseUrl } = context;

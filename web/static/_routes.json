@@ -8,5 +8,23 @@
     "/resources",
     "/resources/*"
   ],
-  "exclude": ["/build/*"]
+  "exclude": [
+    "/*.css",
+    "/*.js",
+    "/*.mjs",
+    "/*.map",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.webp",
+    "/*.avif",
+    "/*.ico",
+    "/*.woff",
+    "/*.woff2",
+    "/*.ttf",
+    "/*.pdf",
+    "/*.md"
+  ]
 }
