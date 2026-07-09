@@ -258,8 +258,9 @@ These were configured with mutating method calls. They are now keys of the `app(
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec";
+    import { app, page, route } from "@wasp.sh/spec";
     import App from "./src/App" with { type: "ref" };
+    import { LoginPage } from "./src/LoginPage" with { type: "ref" };
 
     export default app({
       name: "todoApp",
@@ -268,7 +269,7 @@ These were configured with mutating method calls. They are now keys of the `app(
       auth: {
         userEntity: "User",
         methods: { google: {} },
-        onAuthFailedRedirectTo: "/login",
+        onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
       },
       client: {
         rootComponent: App,

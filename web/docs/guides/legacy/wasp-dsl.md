@@ -256,8 +256,9 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec";
+    import { app, page, route } from "@wasp.sh/spec";
     import App from "./src/App" with { type: "ref" };
+    import { LoginPage } from "./src/LoginPage" with { type: "ref" };
 
     export default app({
       name: "todoApp",
@@ -266,7 +267,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
       auth: {
         userEntity: "User",
         methods: { google: {} },
-        onAuthFailedRedirectTo: "/login",
+        onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
       },
       client: {
         rootComponent: App,
