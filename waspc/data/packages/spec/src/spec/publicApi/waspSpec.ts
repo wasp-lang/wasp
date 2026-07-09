@@ -149,24 +149,21 @@ export interface Auth extends AuthHooks {
   /** Enabled authentication methods. */
   methods: AuthMethods;
   /**
-   * Destination that Wasp redirects unauthenticated users to when they try to
+   * Route that Wasp redirects unauthenticated users to when they try to
    * access a page that has `authRequired: true`.
    *
-   * Pass a {@link Route} created with the {@link route} constructor, or an
-   * {@link Api} created with the {@link api} constructor. It will be
-   * automatically registered in the {@link App.spec}.
+   * Pass a {@link Route} created with the {@link route} constructor. It will
+   * be automatically registered in the {@link App.spec}.
    *
    * See [Adding Auth to the Project](https://wasp.sh/docs/tutorial/auth#adding-auth-to-the-project)
    * for an example.
    */
-  onAuthFailedRedirectTo: Destination;
+  onAuthFailedRedirectTo: Route;
   /**
-   * Destination that Wasp redirects users to after a successful login or
-   * signup.
+   * Route that Wasp redirects users to after a successful login or signup.
    *
-   * Pass a {@link Route} created with the {@link route} constructor, or an
-   * {@link Api} created with the {@link api} constructor. It will be
-   * automatically registered in the {@link App.spec}.
+   * Pass a {@link Route} created with the {@link route} constructor. It will
+   * be automatically registered in the {@link App.spec}.
    *
    * Only takes effect when using Wasp's built-in Auth UI.
    *
@@ -174,7 +171,7 @@ export interface Auth extends AuthHooks {
    *
    * @default the route with path "/"
    */
-  onAuthSucceededRedirectTo?: Destination;
+  onAuthSucceededRedirectTo?: Route;
 }
 
 interface AuthHooks {
@@ -474,14 +471,12 @@ export interface EmailFlowConfig {
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
-   * Destination that handles the link sent in the email.
+   * Route that handles the link sent in the email.
    *
-   * Pass a {@link Route} created with the {@link route} constructor, or an
-   * {@link Api} created with the {@link api} constructor (e.g. to handle the
-   * link directly on the server). The destination is automatically registered
-   * in {@link App.spec}.
+   * Pass a {@link Route} created with the {@link route} constructor. It is
+   * automatically registered in {@link App.spec}.
    *
-   * The destination should handle the process of taking a token from the URL
+   * The route's page should handle the process of taking a token from the URL
    * and sending it to the server to verify the e-mail address. You can use our
    * [`verifyEmail`
    * action](https://wasp.sh/docs/auth/email/create-your-own-ui#verifyemail) and
@@ -489,7 +484,7 @@ export interface EmailFlowConfig {
    * action](https://wasp.sh/docs/auth/email/create-your-own-ui#resetpassword)
    * helpers for that.
    */
-  clientRoute: Destination;
+  clientRoute: Route;
 }
 
 /**
@@ -867,16 +862,6 @@ export type SpecElement =
   | ApiNamespace
   | Job
   | Crud;
-
-/**
- * A destination the app can send users to: a client-side {@link Route} or a
- * server-side {@link Api} endpoint.
- *
- * Create one with the {@link route} or {@link api} constructor.
- *
- * @category Specifications
- */
-export type Destination = Route | Api;
 
 /**
  * A page in the app, normally a React component rendered for a {@link Route}.
