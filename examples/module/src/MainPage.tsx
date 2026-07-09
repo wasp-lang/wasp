@@ -1,37 +1,20 @@
 import { useState } from "react";
-import {
-  addRandomTodo,
-  getTodoItems,
-  useAction,
-  useQuery,
-} from "wasp/client/operations";
-
-type TodoItem = {
-  id: number;
-  description: string;
-  isDone: boolean;
-};
-
-type TodoItems = {
-  items: TodoItem[];
-  totalCount: number;
-};
+import { addRandomTodo, getTodoItems, useQuery } from "wasp/client/operations";
+import type { TodoItems } from "./types";
 
 export function MainPage() {
-  const { data, isLoading, error, refetch } = useQuery(getTodoItems);
-  const addTodo = useAction(addRandomTodo);
+  const { data, isLoading, error } = useQuery(getTodoItems);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
 
-  const todoItems = data as TodoItems | undefined;
+  const todoItems: TodoItems | undefined = data;
 
   async function handleAddRandomTodo() {
     setIsAdding(true);
     setAddError(null);
 
     try {
-      await addTodo();
-      await refetch();
+      await addRandomTodo();
     } catch (error) {
       setAddError(error instanceof Error ? error.message : String(error));
     } finally {

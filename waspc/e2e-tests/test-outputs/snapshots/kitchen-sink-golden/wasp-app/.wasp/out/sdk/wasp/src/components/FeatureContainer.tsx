@@ -185,7 +185,6 @@ const featureGroups: FeatureGroup[] = [
       {
         to: "/fsm",
         title: "Full-stack Module",
-        isPublic: true,
       },
     ],
   },
