@@ -42,7 +42,7 @@ function makeMapperContext({
     emitSpecElementRef<SpecElement extends WaspSpec.SpecElement>(
       specElement: SpecElement,
     ) {
-      const decl = SpecElementMapper.mapWaspSpecElement(specElement, ctx);
+      const decl = SpecElementMapper.mapSpecElement(specElement, ctx);
       return SpecElementMapper.declToRef<SpecElement>(decl);
     },
   };
@@ -50,7 +50,7 @@ function makeMapperContext({
 }
 
 function getSpecElementDeclName(specElement: WaspSpec.SpecElement): string {
-  return SpecElementMapper.mapWaspSpecElement(specElement, makeMapperContext())
+  return SpecElementMapper.mapSpecElement(specElement, makeMapperContext())
     .declName;
 }
 
@@ -156,17 +156,17 @@ describe("convertWaspSpecToAppSpec", () => {
           webSocket: AppSpecMapper.mapWebSocket(webSocket, ctx),
         },
       },
-      SpecElementMapper.mapPage(page, ctx),
-      SpecElementMapper.mapRoute(route, ctx),
-      SpecElementMapper.mapQuery(query, ctx),
-      SpecElementMapper.mapApi(api, ctx),
-      SpecElementMapper.mapApiNamespace(apiNamespace, ctx),
-      SpecElementMapper.mapJob(job, ctx),
-      SpecElementMapper.mapCrud(crud, ctx),
-      SpecElementMapper.mapPage(emailVerifyRoute.page, ctx),
-      SpecElementMapper.mapRoute(emailVerifyRoute, ctx),
-      SpecElementMapper.mapPage(passwordResetRoute.page, ctx),
-      SpecElementMapper.mapRoute(passwordResetRoute, ctx),
+      SpecElementMapper.mapPageSpec(page, ctx),
+      SpecElementMapper.mapRouteSpec(route, ctx),
+      SpecElementMapper.mapQuerySpec(query, ctx),
+      SpecElementMapper.mapApiSpec(api, ctx),
+      SpecElementMapper.mapApiNamespaceSpec(apiNamespace, ctx),
+      SpecElementMapper.mapJobSpec(job, ctx),
+      SpecElementMapper.mapCrudSpec(crud, ctx),
+      SpecElementMapper.mapPageSpec(emailVerifyRoute.page, ctx),
+      SpecElementMapper.mapRouteSpec(emailVerifyRoute, ctx),
+      SpecElementMapper.mapPageSpec(passwordResetRoute.page, ctx),
+      SpecElementMapper.mapRouteSpec(passwordResetRoute, ctx),
     ] satisfies AppSpec.Decl[]);
   });
 
@@ -311,7 +311,7 @@ describe("mapPage", () => {
 
   function testMapPage(page: WaspSpec.Page): void {
     const ctx = makeMapperContext();
-    const result = SpecElementMapper.mapPage(page, ctx);
+    const result = SpecElementMapper.mapPageSpec(page, ctx);
 
     expect(result).toStrictEqual({
       declType: "Page",
@@ -334,7 +334,7 @@ describe("mapRoute", () => {
   });
 
   test("should expand prerender: true to the route's own path", () => {
-    const result = SpecElementMapper.mapRoute(
+    const result = SpecElementMapper.mapRouteSpec(
       route("LandingRoute", "/landing", Fixtures.getPage("minimal"), {
         prerender: true,
       }),
@@ -345,7 +345,7 @@ describe("mapRoute", () => {
 
   function testMapRoute(route: WaspSpec.Route): void {
     const ctx = makeMapperContext();
-    const result = SpecElementMapper.mapRoute(route, ctx);
+    const result = SpecElementMapper.mapRouteSpec(route, ctx);
 
     expect(result).toStrictEqual({
       declType: "Route",
@@ -376,13 +376,13 @@ describe("mapQuery", () => {
     const query = Fixtures.getQuery("full");
     const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => SpecElementMapper.mapQuery(query, ctx)).toThrow();
+    expect(() => SpecElementMapper.mapQuerySpec(query, ctx)).toThrow();
   });
 
   function testMapQuery(query: WaspSpec.Query): void {
     const ctx = makeMapperContext({ entityNames: query.entities ?? [] });
 
-    const result = SpecElementMapper.mapQuery(query, ctx);
+    const result = SpecElementMapper.mapQuerySpec(query, ctx);
 
     expect(result).toStrictEqual({
       declType: "Query",
@@ -409,13 +409,13 @@ describe("mapAction", () => {
     const action = Fixtures.getAction("full");
     const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => SpecElementMapper.mapAction(action, ctx)).toThrow();
+    expect(() => SpecElementMapper.mapActionSpec(action, ctx)).toThrow();
   });
 
   function testMapAction(action: WaspSpec.Action): void {
     const ctx = makeMapperContext({ entityNames: action.entities ?? [] });
 
-    const result = SpecElementMapper.mapAction(action, ctx);
+    const result = SpecElementMapper.mapActionSpec(action, ctx);
 
     expect(result).toStrictEqual({
       declType: "Action",
@@ -794,13 +794,13 @@ describe("mapApi", () => {
     const api = Fixtures.getApi("full");
     const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => SpecElementMapper.mapApi(api, ctx)).toThrow();
+    expect(() => SpecElementMapper.mapApiSpec(api, ctx)).toThrow();
   });
 
   function testMapApi(api: WaspSpec.Api): void {
     const ctx = makeMapperContext({ entityNames: api.entities ?? [] });
 
-    const result = SpecElementMapper.mapApi(api, ctx);
+    const result = SpecElementMapper.mapApiSpec(api, ctx);
 
     expect(result).toStrictEqual({
       declType: "Api",
@@ -829,7 +829,7 @@ describe("mapApiNamespace", () => {
 
   function testMapApiNamespace(apiNamespace: WaspSpec.ApiNamespace): void {
     const ctx = makeMapperContext();
-    const result = SpecElementMapper.mapApiNamespace(apiNamespace, ctx);
+    const result = SpecElementMapper.mapApiNamespaceSpec(apiNamespace, ctx);
 
     expect(result).toStrictEqual({
       declType: "ApiNamespace",
@@ -991,13 +991,13 @@ describe("mapJob", () => {
     const job = Fixtures.getJob("full");
     const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => SpecElementMapper.mapJob(job, ctx)).toThrow();
+    expect(() => SpecElementMapper.mapJobSpec(job, ctx)).toThrow();
   });
 
   function testMapJob(job: WaspSpec.Job): void {
     const ctx = makeMapperContext({ entityNames: job.entities ?? [] });
 
-    const result = SpecElementMapper.mapJob(job, ctx);
+    const result = SpecElementMapper.mapJobSpec(job, ctx);
 
     expect(result).toStrictEqual({
       declType: "Job",
@@ -1028,13 +1028,13 @@ describe("mapCrud", () => {
     const crudDecl = Fixtures.getCrud("full");
     const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => SpecElementMapper.mapCrud(crudDecl, ctx)).toThrow();
+    expect(() => SpecElementMapper.mapCrudSpec(crudDecl, ctx)).toThrow();
   });
 
   function testMapCrud(crudDecl: WaspSpec.Crud): void {
     const ctx = makeMapperContext({ entityNames: [crudDecl.entity] });
 
-    const result = SpecElementMapper.mapCrud(crudDecl, ctx);
+    const result = SpecElementMapper.mapCrudSpec(crudDecl, ctx);
 
     expect(result).toStrictEqual({
       declType: "Crud",

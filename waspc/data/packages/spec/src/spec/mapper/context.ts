@@ -6,7 +6,7 @@ import { SpecUserError } from "../specUserError.js";
 import {
   AppSpecDeclTypeForWaspSpecElement,
   declToRef,
-  mapWaspSpecElement,
+  mapSpecElement,
 } from "./specElements.js";
 
 export interface AppMapperContext {
@@ -56,7 +56,7 @@ export function makeAppMapperContext({
     emitSpecElementRef: <SpecElement extends WaspSpec.SpecElement>(
       specElement: SpecElement,
     ) => {
-      const decl = mapWaspSpecElement(specElement, ctx);
+      const decl = mapSpecElement(specElement, ctx);
 
       // We're keying by type+name since waspc allows Decls with the same name
       // if they are different types.

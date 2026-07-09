@@ -1,6 +1,6 @@
 import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
-import { mapApp } from "./app.js";
+import { mapAppSpec } from "./app.js";
 import { makeAppMapperContext } from "./context.js";
 
 export function convertWaspSpecToAppSpec(
@@ -25,7 +25,7 @@ export function convertWaspSpecToAppSpec(
     ctx.emitSpecElementRef(specElement);
   }
 
-  const appDecl = mapApp(app, ctx);
+  const appDecl = mapAppSpec(app, ctx);
 
   return [appDecl, ...collectedSpecElementDecls.values()];
 }

@@ -2,7 +2,7 @@ import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { AppMapperContext } from "./context.js";
 
-export function mapApp(
+export function mapAppSpec(
   app: WaspSpec.App,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"App"> {

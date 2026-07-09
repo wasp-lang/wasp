@@ -32,33 +32,33 @@ export function declToRef<SpecElement extends WaspSpec.SpecElement>(
   >;
 }
 
-export function mapWaspSpecElement<T extends WaspSpec.SpecElement>(
+export function mapSpecElement<T extends WaspSpec.SpecElement>(
   el: T,
   ctx: AppMapperContext,
 ): AppSpec.Decl {
   switch (el.kind) {
     case "page":
-      return mapPage(el, ctx);
+      return mapPageSpec(el, ctx);
     case "route":
-      return mapRoute(el, ctx);
+      return mapRouteSpec(el, ctx);
     case "query":
-      return mapQuery(el, ctx);
+      return mapQuerySpec(el, ctx);
     case "action":
-      return mapAction(el, ctx);
+      return mapActionSpec(el, ctx);
     case "api":
-      return mapApi(el, ctx);
+      return mapApiSpec(el, ctx);
     case "apiNamespace":
-      return mapApiNamespace(el, ctx);
+      return mapApiNamespaceSpec(el, ctx);
     case "job":
-      return mapJob(el, ctx);
+      return mapJobSpec(el, ctx);
     case "crud":
-      return mapCrud(el, ctx);
+      return mapCrudSpec(el, ctx);
     default:
       return el satisfies never;
   }
 }
 
-export function mapPage(
+export function mapPageSpec(
   page: WaspSpec.Page,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Page"> {
@@ -73,7 +73,7 @@ export function mapPage(
   };
 }
 
-export function mapRoute(
+export function mapRouteSpec(
   route: WaspSpec.Route,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Route"> {
@@ -90,7 +90,7 @@ export function mapRoute(
   };
 }
 
-export function mapQuery(
+export function mapQuerySpec(
   query: WaspSpec.Query,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Query"> {
@@ -106,7 +106,7 @@ export function mapQuery(
   };
 }
 
-export function mapAction(
+export function mapActionSpec(
   action: WaspSpec.Action,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Action"> {
@@ -122,7 +122,7 @@ export function mapAction(
   };
 }
 
-export function mapApi(
+export function mapApiSpec(
   api: WaspSpec.Api,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Api"> {
@@ -141,7 +141,7 @@ export function mapApi(
   };
 }
 
-export function mapApiNamespace(
+export function mapApiNamespaceSpec(
   apiNamespace: WaspSpec.ApiNamespace,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"ApiNamespace"> {
@@ -156,7 +156,7 @@ export function mapApiNamespace(
   };
 }
 
-export function mapJob(
+export function mapJobSpec(
   job: WaspSpec.Job,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Job"> {
@@ -176,7 +176,16 @@ export function mapJob(
   };
 }
 
-export function mapCrud(
+export function mapSchedule(schedule: WaspSpec.Schedule): AppSpec.Schedule {
+  const { cron, args, executorOptions } = schedule;
+  return {
+    cron,
+    args,
+    executorOptions,
+  };
+}
+
+export function mapCrudSpec(
   crud: WaspSpec.Crud,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Crud"> {
@@ -213,14 +222,5 @@ export function mapCrudOperationOptions(
   return {
     isPublic,
     overrideFn: overrideFn && ctx.emitRefObject(overrideFn),
-  };
-}
-
-export function mapSchedule(schedule: WaspSpec.Schedule): AppSpec.Schedule {
-  const { cron, args, executorOptions } = schedule;
-  return {
-    cron,
-    args,
-    executorOptions,
   };
 }
