@@ -23,10 +23,9 @@ export function createDocusaurusHtmlToMarkdownProcessor(
 ): (html: string) => string {
   const docusaurusHtmlToMarkdownProcessor = unified()
     .use(rehypeParse)
-    .use(() =>
-      rehypeReduceDocusaurusPageToMarkdownContent(
-        context.skipElementInMarkdownDocsClass,
-      ),
+    .use(
+      rehypeReduceDocusaurusPageToValidMarkdownContent,
+      context.skipElementInMarkdownDocsClass,
     )
     .use(rehypeRemark, {
       handlers: {
@@ -74,18 +73,14 @@ export function createDocusaurusHtmlToMarkdownProcessor(
  * Drops unnecessary nodes that would otherwise leak into the markdown.
  * E.g., comments.
  */
-function rehypeReduceDocusaurusPageToMarkdownContent(
+function rehypeReduceDocusaurusPageToValidMarkdownContent(
   skipElementClass: string,
 ): (root: hast.Root) => void {
-  return (root: hast.Root): void => {
+  return (root) => {
     root.children = [findMarkdownContentContainer(root)];
 
     visit(root, (node, index, parent) => {
-      // React injects empty `<!-- -->` comments around dynamic values.
-      const isComment = node.type === "comment";
-      const isSkippable =
-        node.type === "element" && isSkippableElement(skipElementClass, node);
-      if (isComment || isSkippable) {
+      if (!!parent && !!index && isSkippableNode(node, skipElementClass)) {
         parent.children.splice(index, 1);
         return [SKIP, index];
       }
@@ -123,17 +118,32 @@ function findMarkdownContentContainer(root: hast.Root): hast.Element {
   );
 }
 
-function isSkippableElement(
-  skipElementClass: string,
-  element: hast.Element,
-): boolean {
-  const isDocusaurusHashLink =
-    element.tagName === "a" && hasClass(element, "hash-link");
+function isSkippableNode(node: hast.Nodes, skipElementClass: string): boolean {
+  // React injects empty `<!-- -->` comments around dynamic values.
+  if (node.type === "comment") {
+    return true;
+  }
 
-  const hasSkipInMarkdownDocsClass =
-    getClassNames(element).includes(skipElementClass);
+  if (node.type === "element") {
+    /**
+     * A hash link is a link that appears next to headings as # symbol on hover.
+     * Clicking it changes the URL to include the title as URI fragment.
+     * In markdown it creates unnecessary noise, e.g.:
+     * ## When to use Wasp[#](https://wasp.sh/docs#when-to-use-wasp).
+     */
+    const isDocusaurusHeadingHashLink =
+      node.tagName === "a" && hasClass(node, "hash-link");
+    if (isDocusaurusHeadingHashLink) {
+      return true;
+    }
 
-  return isDocusaurusHashLink || hasSkipInMarkdownDocsClass;
+    const hasSkipInMarkdownDocsClass = hasClass(node, skipElementClass);
+    if (hasSkipInMarkdownDocsClass) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -182,8 +192,8 @@ function docusaurusCodeBlockToMdast(codeBlock: hast.Element): mdast.Code {
 
   return {
     type: "code",
-    lang: Boolean(codeLanguage) ? codeLanguage : undefined,
-    meta: Boolean(codeTitle) ? `title="${codeTitle}"` : undefined,
+    lang: codeLanguage ? codeLanguage : undefined,
+    meta: codeTitle ? `title="${codeTitle}"` : undefined,
     value: codeText,
   };
 }
@@ -252,7 +262,7 @@ function docusaurusAdmonitionToMdast(
   ) as mdastDirective.ContainerDirective["children"];
 
   const hasCustomTitle =
-    Boolean(admonitionCustomTitle) &&
+    !!admonitionCustomTitle &&
     admonitionCustomTitle.toLowerCase() !== admonitionType.toLowerCase();
   if (hasCustomTitle) {
     children.unshift({

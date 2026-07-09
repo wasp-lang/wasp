@@ -26,7 +26,6 @@ export async function generateMarkdownFilesForValidHtmlFiles(
   const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
 
   const htmlFilesAbsPaths = await findConvertibleHtmlFiles(outDir);
-  let generatedDocs = 0;
   for (const htmlFileAbsPath of htmlFilesAbsPaths) {
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
@@ -37,11 +36,9 @@ export async function generateMarkdownFilesForValidHtmlFiles(
     const markdownWithIndex = markdownDocsIndexHeader + markdown;
 
     await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
-    generatedDocs++;
   }
-
   console.log(
-    `Markdown generation complete: generated ${generatedDocs} markdown docs from HTML.`,
+    `Markdown generation complete: generated ${htmlFilesAbsPaths.length} markdown docs from HTML.`,
   );
 }
 
