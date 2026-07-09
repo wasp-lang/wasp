@@ -43,9 +43,7 @@ function makeMapperContext({
       specElement: SpecElement,
     ) {
       const decl = SpecElementMapper.mapWaspSpecElement(specElement, ctx);
-      return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
-        SpecElementMapper.AppSpecDeclTypeForWaspSpecElement<SpecElement>
-      >;
+      return SpecElementMapper.declToRef<SpecElement>(decl);
     },
   };
   return ctx;
@@ -272,6 +270,7 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const declTypes = decls.map((d) => d.declType);
     expect(declTypes).toEqual(["App", "Query", "Api"]);
+    expect(getSpecElementDeclName(query1)).toBe(getSpecElementDeclName(api1));
   });
 
   test("dedups a query listed twice with identical configs", () => {

@@ -5,6 +5,7 @@ import { mapRefObject } from "../refObject.js";
 import { SpecUserError } from "../specUserError.js";
 import {
   AppSpecDeclTypeForWaspSpecElement,
+  declToRef,
   mapWaspSpecElement,
 } from "./specElements.js";
 
@@ -68,9 +69,7 @@ export function makeAppMapperContext({
 
       specElementDecls.set(declKey, decl);
 
-      return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
-        AppSpecDeclTypeForWaspSpecElement<SpecElement>
-      >;
+      return declToRef<SpecElement>(decl);
     },
   };
 

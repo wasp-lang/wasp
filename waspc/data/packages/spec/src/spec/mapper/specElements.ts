@@ -22,6 +22,16 @@ export type AppSpecDeclTypeForWaspSpecElement<
   SpecElement extends WaspSpec.SpecElement,
 > = (typeof AppSpecDeclTypeForWaspSpecElementKind)[SpecElement["kind"]];
 
+export function declToRef<SpecElement extends WaspSpec.SpecElement>(
+  decl: AppSpec.Decl,
+): AppSpec.Ref<AppSpecDeclTypeForWaspSpecElement<SpecElement>> {
+  // TypeScript can't correlate `decl.declType` with the spec element's kind
+  // across `mapWaspSpecElement`'s switch, so we assert the ref type here.
+  return { declType: decl.declType, name: decl.declName } as AppSpec.Ref<
+    AppSpecDeclTypeForWaspSpecElement<SpecElement>
+  >;
+}
+
 export function mapWaspSpecElement<T extends WaspSpec.SpecElement>(
   el: T,
   ctx: AppMapperContext,
