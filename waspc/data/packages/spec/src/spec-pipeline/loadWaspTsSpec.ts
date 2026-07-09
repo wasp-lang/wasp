@@ -38,9 +38,18 @@ function findWaspSpecUserError(error: unknown): WaspSpecUserError | undefined {
   if (error instanceof WaspSpecUserError) {
     return error;
   }
-  if (error instanceof AggregateError && error.errors.length === 1) {
+
+  // unrun doesn't throw actual `AggregateError`s, but it adds an `errors`
+  // property to the error object.
+  if (
+    error instanceof Error &&
+    "errors" in error &&
+    Array.isArray(error.errors) &&
+    error.errors.length === 1
+  ) {
     return findWaspSpecUserError(error.errors[0]);
   }
+
   if (error instanceof Error && error.cause) {
     return findWaspSpecUserError(error.cause);
   }
