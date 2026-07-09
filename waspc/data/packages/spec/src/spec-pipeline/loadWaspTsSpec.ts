@@ -23,47 +23,27 @@ export async function loadWaspTsSpecDefaultExport({
     // https://gugustinette.github.io/unrun/advanced/presets.html
     preset: "bundle-require",
   }).catch((error: unknown) => {
-    // The bundler doesn't surface the original error directly: a plugin throw
-    // is wrapped in an aggregate build error (originals on `.errors`), and a
-    // throw while executing the spec is wrapped with the original on `.cause`.
-    // We dig out any `WaspSpecUserError` from that chain so it reaches the
-    // top-level handler in `run.ts` as a clean user error instead of an
-    // internal crash. This also lets userland spec libraries report errors the
-    // same way the pipeline does by throwing a `WaspSpecUserError` themselves.
     throw findWaspSpecUserError(error) ?? error;
   });
 
   return getDefaultExport(specModule);
 }
 
-/**
- * Walks an error's `cause` and `errors` chains looking for a `WaspSpecUserError`.
- */
+/*
+ Errors can get wrapped into other errors. This walks Error.cause and
+ AggregateError.errors (only if a single item) to find an underlying
+ `WaspSpecUserError` if it exists.
+*/
 function findWaspSpecUserError(error: unknown): WaspSpecUserError | undefined {
-  const seen = new Set<unknown>();
-  const toVisit: unknown[] = [error];
-
-  while (toVisit.length > 0) {
-    const current = toVisit.pop();
-
-    if (current instanceof WaspSpecUserError) {
-      return current;
-    }
-
-    if (typeof current !== "object" || current === null || seen.has(current)) {
-      continue;
-    }
-    seen.add(current);
-
-    if ("cause" in current) {
-      toVisit.push(current.cause);
-    }
-    if ("errors" in current && Array.isArray(current.errors)) {
-      toVisit.push(...current.errors);
-    }
+  if (error instanceof WaspSpecUserError) {
+    return error;
   }
-
-  return undefined;
+  if (error instanceof AggregateError && error.errors.length === 1) {
+    return findWaspSpecUserError(error.errors[0]);
+  }
+  if (error instanceof Error && error.cause) {
+    return findWaspSpecUserError(error.cause);
+  }
 }
 
 function getDefaultExport(loadedModule: unknown): unknown {
