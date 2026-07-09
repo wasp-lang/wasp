@@ -579,27 +579,11 @@ export function getEmailVerifyRoute<Scope extends ConfigScope>(
 export function getEmailVerifyRoute(
   scope: ConfigScope,
 ): Config<WaspSpec.Route> {
-  const component = getRefObjectForMockProject({
-    import: "EmailVerifyPage",
-    from: "./src/auth/pages",
+  return getAuthPageRoute(scope, {
+    name: EMAIL_VERIFY_ROUTE_NAME,
+    path: EMAIL_VERIFY_ROUTE_PATH,
+    component: { import: "EmailVerifyPage", from: "./src/auth/pages" },
   });
-  switch (scope) {
-    case "minimal":
-      return route(
-        EMAIL_VERIFY_ROUTE_NAME,
-        EMAIL_VERIFY_ROUTE_PATH,
-        page(component),
-      );
-    case "full":
-      return route(
-        EMAIL_VERIFY_ROUTE_NAME,
-        EMAIL_VERIFY_ROUTE_PATH,
-        page(component, { authRequired: true }),
-        { lazy: true, prerender: true },
-      );
-    default:
-      assertUnreachable(scope);
-  }
 }
 
 export function getPasswordResetRoute<Scope extends ConfigScope>(
@@ -608,24 +592,34 @@ export function getPasswordResetRoute<Scope extends ConfigScope>(
 export function getPasswordResetRoute(
   scope: ConfigScope,
 ): Config<WaspSpec.Route> {
-  const component = getRefObjectForMockProject({
-    import: "PasswordResetPage",
-    from: "./src/auth/pages",
+  return getAuthPageRoute(scope, {
+    name: PASSWORD_RESET_ROUTE_NAME,
+    path: PASSWORD_RESET_ROUTE_PATH,
+    component: { import: "PasswordResetPage", from: "./src/auth/pages" },
   });
+}
+
+function getAuthPageRoute(
+  scope: ConfigScope,
+  {
+    name,
+    path,
+    component,
+  }: {
+    name: string;
+    path: string;
+    component: Parameters<typeof getRefObjectForMockProject>[0];
+  },
+): Config<WaspSpec.Route> {
+  const pageComponent = getRefObjectForMockProject(component);
   switch (scope) {
     case "minimal":
-      return route(
-        PASSWORD_RESET_ROUTE_NAME,
-        PASSWORD_RESET_ROUTE_PATH,
-        page(component),
-      );
+      return route(name, path, page(pageComponent));
     case "full":
-      return route(
-        PASSWORD_RESET_ROUTE_NAME,
-        PASSWORD_RESET_ROUTE_PATH,
-        page(component, { authRequired: true }),
-        { lazy: true, prerender: true },
-      );
+      return route(name, path, page(pageComponent, { authRequired: true }), {
+        lazy: true,
+        prerender: true,
+      });
     default:
       assertUnreachable(scope);
   }
