@@ -121,6 +121,15 @@ spec_concatPrefixAndText = do
     it "put all the text below the prefix, indented for 2 spaces, if text has multiple lines" $ do
       concatPrefixAndText "prefix: " "foo\nbar" `shouldBe` "prefix: \n  foo\n  bar"
 
+spec_alignColumns :: Spec
+spec_alignColumns = do
+  it "aligns cells into columns and drops trailing whitespace" $
+    alignColumns
+      [ ["/", "HomeRoute", ""],
+        ["/login", "LoginRoute", "[auth]"]
+      ]
+      `shouldBe` ["/       HomeRoute", "/login  LoginRoute  [auth]"]
+
 spec_leftPad :: Spec
 spec_leftPad = do
   describe "leftPad should" $ do

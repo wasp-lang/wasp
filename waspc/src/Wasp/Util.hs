@@ -17,6 +17,7 @@ module Wasp.Util
     indent,
     concatShortPrefixAndText,
     concatPrefixAndText,
+    alignColumns,
     insertAt,
     leftPad,
     trim,
@@ -59,7 +60,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
-import Data.List (group, intercalate, sort)
+import Data.List (dropWhileEnd, group, intercalate, sort, transpose)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Map (Map)
 import qualified Data.Map.Merge.Lazy as Map.Merge
@@ -180,6 +181,14 @@ concatShortPrefixAndText prefix text =
 concatPrefixAndText :: String -> String -> String
 concatPrefixAndText prefix text =
   if length (lines text) <= 1 then prefix ++ text else prefix ++ "\n" ++ indent 2 text
+
+-- | Pads each cell to its column's width, so cells line up across rows.
+alignColumns :: [[String]] -> [String]
+alignColumns rows = renderRow <$> rows
+  where
+    renderRow = dropWhileEnd isSpace . intercalate "  " . zipWith padToWidth columnWidths
+    padToWidth width cell = cell ++ replicate (width - length cell) ' '
+    columnWidths = map (maximum . map length) $ transpose rows
 
 -- | Adds given element to the start of the given list until the list is of specified length.
 -- leftPad ' ' 4 "hi" == "  hi"

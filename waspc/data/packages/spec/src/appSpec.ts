@@ -2,10 +2,6 @@
  * TypeScript. The original implemention is in Haskell (waspc).
  *
  * IMPORTANT: Do not change this file without updating the AppSpec in waspc.
- *
- * NOTE: This decl format is also emitted by `wasp inspect --json` (via the
- * ToJSON instances in waspc), extended with an output-only `Entity` decl type
- * of the shape `{ fields: { name, type }[], pslSource: string }`.
  */
 
 export type Decl = {
