@@ -1,4 +1,4 @@
-import { app } from "@wasp.sh/spec";
+import { app, route } from "@wasp.sh/spec";
 
 import {
   authSpec,
@@ -7,10 +7,12 @@ import {
   passwordResetRoute,
 } from "./src/auth/auth.wasp";
 import { tagsSpec } from "./src/tags/tags.wasp";
-import { tasksRoute, tasksSpec } from "./src/tasks/tasks.wasp";
+import { tasksPage, tasksSpec } from "./src/tasks/tasks.wasp";
 
 import { App } from "./src/App" with { type: "ref" };
 import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref" };
+
+const mainRoute = route("TasksRoute", "/", tasksPage);
 
 export default app({
   name: "__waspAppName__",
@@ -34,7 +36,7 @@ export default app({
         },
       },
     },
-    onAuthSucceededRedirectTo: tasksRoute,
+    onAuthSucceededRedirectTo: mainRoute,
     onAuthFailedRedirectTo: loginRoute,
   },
   emailSender: {
@@ -43,5 +45,5 @@ export default app({
   client: {
     rootComponent: App,
   },
-  spec: [tasksSpec, tagsSpec, authSpec],
+  spec: [mainRoute, tasksSpec, tagsSpec, authSpec],
 });

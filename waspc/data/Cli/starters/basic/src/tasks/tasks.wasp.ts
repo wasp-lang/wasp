@@ -1,4 +1,4 @@
-import { type Spec, action, page, query, route } from "@wasp.sh/spec";
+import { type Spec, action, page, query } from "@wasp.sh/spec";
 
 import {
   createTask,
@@ -8,11 +8,7 @@ import {
 import { getTasks } from "./queries" with { type: "ref" };
 import { TasksPage } from "./TasksPage" with { type: "ref" };
 
-export const tasksRoute = route(
-  "TasksRoute",
-  "/",
-  page(TasksPage, { authRequired: true }),
-);
+export const tasksPage = page(TasksPage, { authRequired: true });
 
 export const tasksOperations = [
   query(getTasks, { entities: ["Task", "Tag"] }),
@@ -21,4 +17,4 @@ export const tasksOperations = [
   action(deleteCompletedTasks, { entities: ["Task"] }),
 ];
 
-export const tasksSpec: Spec = [tasksRoute, tasksOperations];
+export const tasksSpec: Spec = [tasksPage, tasksOperations];
