@@ -23,10 +23,10 @@ import Wasp.Generator.TypesGenerator.SdkTypesGenerator.Common (mkTmplFdWithData)
 import Wasp.Generator.TypesGenerator.SdkTypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 
 genSdkTypes :: AppSpec -> Generator [FileDraft]
-genSdkTypes spec = genUserModuleAugmentation spec
+genSdkTypes spec = genSdkRegisterModuleAugmentationForUser spec
 
-genUserModuleAugmentation :: AppSpec -> Generator [FileDraft]
-genUserModuleAugmentation spec =
+genSdkRegisterModuleAugmentationForUser :: AppSpec -> Generator [FileDraft]
+genSdkRegisterModuleAugmentationForUser spec =
   return
     [ mkTmplFdWithData
         [relfile|register.ts|]
