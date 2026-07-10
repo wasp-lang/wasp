@@ -682,7 +682,6 @@ test-suite waspc-e2e-tests
   build-depends:
     aeson,
     aeson-pretty,
-    async,
     base,
     base64-bytestring,
     bytestring,
@@ -699,6 +698,7 @@ test-suite waspc-e2e-tests
     tasty-golden,
     tasty-hspec,
     text,
+    unliftio ^>=0.2.25,
     waspc,
 
   other-modules:

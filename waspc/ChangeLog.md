@@ -29,6 +29,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
 - `tsconfig.wasp.json`'s `include` now accepts extra globs in addition to the required Wasp entries, so you can keep helpers and libraries used by your `.wasp.ts` files in the same TS project. ([#4398](https://github.com/wasp-lang/wasp/pull/4398))
 - Improved some prerendering internals for a faster first paint and more accurate lazy-loading of pages. ([#4428](https://github.com/wasp-lang/wasp/pull/4428))
+- The Wasp Spec package now exports the config object types for its constructors from `@wasp.sh/spec`, so libraries built on top of the Spec can reuse the type of a constructor's optional config argument. ([#4447](https://github.com/wasp-lang/wasp/pull/4447))
 
 ## 0.24.0
 
