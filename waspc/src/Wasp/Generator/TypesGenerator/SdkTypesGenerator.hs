@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkTypesGenerator
+module Wasp.Generator.TypesGenerator.SdkTypesGenerator
   ( genSdkTypes,
   )
 where
@@ -19,8 +19,8 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkTypesGenerator.Common (mkTmplFdWithData)
-import Wasp.Generator.SdkTypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
+import Wasp.Generator.TypesGenerator.SdkTypesGenerator.Common (mkTmplFdWithData)
+import Wasp.Generator.TypesGenerator.SdkTypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 
 genSdkTypes :: AppSpec -> Generator [FileDraft]
 genSdkTypes spec = genUserModuleAugmentation spec

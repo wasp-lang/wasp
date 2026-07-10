@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkTypesGenerator.Common
+module Wasp.Generator.TypesGenerator.SdkTypesGenerator.Common
   ( SdkTypesRootDir,
     SdkTypesTemplatesDir,
     mkTmplFdWithDstAndData,

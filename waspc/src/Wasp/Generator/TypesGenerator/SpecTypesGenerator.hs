@@ -1,4 +1,4 @@
-module Wasp.Generator.SpecTypesGenerator
+module Wasp.Generator.TypesGenerator.SpecTypesGenerator
   ( genSpecTypes,
   )
 where

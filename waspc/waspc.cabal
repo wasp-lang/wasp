@@ -303,9 +303,6 @@ library
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.WebSocketGenerator
-    Wasp.Generator.SdkTypesGenerator
-    Wasp.Generator.SdkTypesGenerator.Common
-    Wasp.Generator.SdkTypesGenerator.JsImport
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
@@ -322,10 +319,14 @@ library
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
-    Wasp.Generator.SpecTypesGenerator
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.TypesGenerator
+    Wasp.Generator.TypesGenerator.SdkTypesGenerator
+    Wasp.Generator.TypesGenerator.SdkTypesGenerator.Common
+    Wasp.Generator.TypesGenerator.SdkTypesGenerator.JsImport
+    Wasp.Generator.TypesGenerator.SpecTypesGenerator
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common

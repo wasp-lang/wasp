@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkTypesGenerator.JsImport
+module Wasp.Generator.TypesGenerator.SdkTypesGenerator.JsImport
   ( extOperationImportToImportJson,
     extImportToImportJson,
   )
@@ -13,7 +13,7 @@ import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkTypesGenerator.Common (SdkTypesRootDir, sdkTypesRootDirInGeneratedCodeDir)
+import Wasp.Generator.TypesGenerator.SdkTypesGenerator.Common (SdkTypesRootDir, sdkTypesRootDirInGeneratedCodeDir)
 import Wasp.JsImport (JsImport (..), JsImportKind (TypeImport), JsImportPath (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppDir)
 import Wasp.Util.StrongPath (invertRelDir)
