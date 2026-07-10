@@ -301,7 +301,7 @@ describe("convertWaspSpecToAppSpec", () => {
     const routeNames = decls
       .filter((d) => d.declType === "Route")
       .map((d) => d.declName);
-    expect(routeNames).toEqual(["LoginRoute", "VerifyRoute", "ResetRoute"]);
+    expect(routeNames).toEqual(["VerifyRoute", "ResetRoute", "LoginRoute"]);
 
     // Each referenced route's page is auto-registered too.
     const pageNames = decls
@@ -564,8 +564,10 @@ describe("mapAuth", () => {
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
       methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
-      onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo.path,
-      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo?.path,
+      onAuthFailedRedirectTo: ctx.collectSpecElement(auth.onAuthFailedRedirectTo),
+      onAuthSucceededRedirectTo:
+        auth.onAuthSucceededRedirectTo &&
+        ctx.collectSpecElement(auth.onAuthSucceededRedirectTo),
       onBeforeSignup:
         auth.onBeforeSignup &&
         mapRefObjectForMockProjectDir(auth.onBeforeSignup),
@@ -681,7 +683,7 @@ describe("mapEmailFlow", () => {
     const result = AppSpecMapper.mapEmailFlow(emailFlow, ctx);
 
     expect(result).toStrictEqual({
-      clientRoute: emailFlow.clientRoute.path,
+      clientRoute: ctx.collectSpecElement(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
         mapRefObjectForMockProjectDir(emailFlow.getEmailContentFn),

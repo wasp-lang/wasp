@@ -14,7 +14,10 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.SdkGenerator.Auth.Common
+  ( getOnAuthFailedRedirectTo,
+    getOnAuthSucceededRedirectToOrDefault,
+  )
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -81,24 +84,24 @@ genAuthPages spec =
     Nothing -> return []
     Just auth ->
       sequence $
-        [genCreateAuthRequiredPage auth]
-          ++ [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
+        [genCreateAuthRequiredPage spec auth]
+          ++ [genOAuthCallbackPage spec auth | AS.Auth.isExternalAuthEnabled auth]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
-genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
-genCreateAuthRequiredPage auth =
+genCreateAuthRequiredPage :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genCreateAuthRequiredPage spec auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/createAuthRequiredPage.jsx|]
-      (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
+      (object ["onAuthFailedRedirectTo" .= getOnAuthFailedRedirectTo spec auth])
 
-genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
-genOAuthCallbackPage auth =
+genOAuthCallbackPage :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genOAuthCallbackPage spec auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
+      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault spec auth])
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

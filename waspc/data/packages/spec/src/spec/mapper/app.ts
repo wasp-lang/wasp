@@ -53,16 +53,13 @@ export function mapAuth(
     onAfterLogin,
   } = auth;
 
-  ctx.collectSpecElement(onAuthFailedRedirectTo);
-  if (onAuthSucceededRedirectTo) {
-    ctx.collectSpecElement(onAuthSucceededRedirectTo);
-  }
-
   return {
     userEntity: ctx.resolveEntityRef(userEntity),
     methods: mapAuthMethods(methods, ctx),
-    onAuthFailedRedirectTo: onAuthFailedRedirectTo.path,
-    onAuthSucceededRedirectTo: onAuthSucceededRedirectTo?.path,
+    onAuthFailedRedirectTo: ctx.collectSpecElement(onAuthFailedRedirectTo),
+    onAuthSucceededRedirectTo:
+      onAuthSucceededRedirectTo &&
+      ctx.collectSpecElement(onAuthSucceededRedirectTo),
     onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
     onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
     onAfterEmailVerified:

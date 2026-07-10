@@ -281,19 +281,6 @@ export const routes = {
         options?.hash
       ),
   },
-  LoginRoute: {
-    to: "/login",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/login",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
   EmailVerificationRoute: {
     to: "/email-verification-",
     build: (
@@ -315,6 +302,19 @@ export const routes = {
     ) => interpolatePath(
         
         "/password-reset",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  LoginRoute: {
+    to: "/login",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/login",
         undefined,
         options?.search,
         options?.hash

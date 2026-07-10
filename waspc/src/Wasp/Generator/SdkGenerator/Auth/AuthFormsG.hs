@@ -5,6 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
@@ -27,8 +28,8 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Util ((<++>))
 
-genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthForms auth =
+genAuthForms :: AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
+genAuthForms spec auth =
   sequence
     [ genAuthComponent auth,
       genFileCopyInAuthForms [relfile|Auth.module.css|],
@@ -37,7 +38,7 @@ genAuthForms auth =
       genFileCopyInAuthForms [relfile|Signup.tsx|]
     ]
     <++> genEmailForms auth
-    <++> genInternalAuthComponents auth
+    <++> genInternalAuthComponents spec auth
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
@@ -68,13 +69,13 @@ genEmailForms auth =
   where
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
-genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
-genInternalAuthComponents auth =
+genInternalAuthComponents :: AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
+genInternalAuthComponents spec auth =
   sequence
     [ genFileCopyInAuthFormsInternal [relfile|auth-styles.css|],
       genFileCopyInAuthFormsInternal [relfile|util.ts|]
     ]
-    <++> genLoginSignupForm auth
+    <++> genLoginSignupForm spec auth
     <++> genFormComponent
     <++> genMessageComponent
     <++> genEmailComponents
@@ -129,8 +130,8 @@ genInternalAuthComponents auth =
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
-genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
-genLoginSignupForm auth =
+genLoginSignupForm :: AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
+genLoginSignupForm spec auth =
   sequence
     [ genLoginSigunFormComponent,
       genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
@@ -143,7 +144,7 @@ genLoginSignupForm auth =
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault spec auth,
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
