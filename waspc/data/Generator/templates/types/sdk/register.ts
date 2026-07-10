@@ -5,49 +5,49 @@ import "wasp/types"
 
 declare module "wasp/types" {
   interface Register {
-{=# prismaSetupFn.isDefined =}
+    {=# prismaSetupFn.isDefined =}
     prismaSetupFn: typeof {=& prismaSetupFn.dynamicImportExpression =}
-{=/ prismaSetupFn.isDefined =}
-{=# serverEnvValidationSchema.isDefined =}
+    {=/ prismaSetupFn.isDefined =}
+    {=# serverEnvValidationSchema.isDefined =}
     serverEnvValidationSchema: typeof {=& serverEnvValidationSchema.dynamicImportExpression =}
-{=/ serverEnvValidationSchema.isDefined =}
-{=# clientEnvValidationSchema.isDefined =}
+    {=/ serverEnvValidationSchema.isDefined =}
+    {=# clientEnvValidationSchema.isDefined =}
     clientEnvValidationSchema: typeof {=& clientEnvValidationSchema.dynamicImportExpression =}
-{=/ clientEnvValidationSchema.isDefined =}
-{=# webSocketFn.isDefined =}
+    {=/ clientEnvValidationSchema.isDefined =}
+    {=# webSocketFn.isDefined =}
     webSocketFn: typeof {=& webSocketFn.dynamicImportExpression =}
-{=/ webSocketFn.isDefined =}
-{=# emailUserSignupFields.isDefined =}
+    {=/ webSocketFn.isDefined =}
+    {=# emailUserSignupFields.isDefined =}
     emailUserSignupFields: typeof {=& emailUserSignupFields.dynamicImportExpression =}
-{=/ emailUserSignupFields.isDefined =}
-{=# usernameAndPasswordUserSignupFields.isDefined =}
+    {=/ emailUserSignupFields.isDefined =}
+    {=# usernameAndPasswordUserSignupFields.isDefined =}
     usernameAndPasswordUserSignupFields: typeof {=& usernameAndPasswordUserSignupFields.dynamicImportExpression =}
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+    {=/ usernameAndPasswordUserSignupFields.isDefined =}
     operations: {
-{=# operations =}
+    {=# operations =}
       '{= operationName =}': typeof {=& jsFn.dynamicImportExpression =}
     {=/ operations =}
     }
     crudOverrides: {
-{=# cruds =}
+    {=# cruds =}
       '{= name =}': {
-{=# overrides.GetAll.isDefined =}
+        {=# overrides.GetAll.isDefined =}
         GetAll: typeof {=& overrides.GetAll.dynamicImportExpression =}
-{=/ overrides.GetAll.isDefined =}
-{=# overrides.Get.isDefined =}
+        {=/ overrides.GetAll.isDefined =}
+        {=# overrides.Get.isDefined =}
         Get: typeof {=& overrides.Get.dynamicImportExpression =}
-{=/ overrides.Get.isDefined =}
-{=# overrides.Create.isDefined =}
+        {=/ overrides.Get.isDefined =}
+        {=# overrides.Create.isDefined =}
         Create: typeof {=& overrides.Create.dynamicImportExpression =}
-{=/ overrides.Create.isDefined =}
-{=# overrides.Update.isDefined =}
+        {=/ overrides.Create.isDefined =}
+        {=# overrides.Update.isDefined =}
         Update: typeof {=& overrides.Update.dynamicImportExpression =}
-{=/ overrides.Update.isDefined =}
-{=# overrides.Delete.isDefined =}
+        {=/ overrides.Update.isDefined =}
+        {=# overrides.Delete.isDefined =}
         Delete: typeof {=& overrides.Delete.dynamicImportExpression =}
-{=/ overrides.Delete.isDefined =}
+        {=/ overrides.Delete.isDefined =}
       }
-{=/ cruds =}
+    {=/ cruds =}
     }
   }
 }

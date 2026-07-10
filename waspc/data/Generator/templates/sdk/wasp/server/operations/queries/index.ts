@@ -17,7 +17,7 @@ import {
 import type { OperationFromRegister } from '../../../types/register'
 import type {
   {=# operations =}
-  {= genericOperationDefinitionTypeName =},
+  {= genericTypeNameForDefiningOperation =},
   {=/ operations =}
 } from './types'
 {=# operations =}
@@ -26,7 +26,7 @@ import type {
 {=# operations =}
 
 // PRIVATE API
-export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= genericOperationDefinitionTypeName =}>
+export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= genericTypeNameForDefiningOperation =}>
 
 // PUBLIC API
 {=# usesAuth =}

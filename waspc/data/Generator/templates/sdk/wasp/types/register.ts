@@ -1,17 +1,17 @@
 /**
  * This module acts as a bridge between the SDK and user-defined types.
  *
- * The SDK defines and exports empty "register" interfaces (e.g. {@link Register}). 
+ * The SDK defines and exports empty "register" interface ({@link Register}).
  * During compliation, Wasp generate additional type declarations
- * in `.wasp/out/types/sdk/` (which is part of user project) that extend 
- * empty "register" interfaces via module augmentation.
+ * in `.wasp/out/types/sdk/` (which is part of user project) that extend
+ * the empty "register" interface via module augmentation.
  *
- * As a result, the SDK can "see" user-defined types without directly
- * depending on user code. 
+ * As a result, users can "see" user-defined types in SDK without SDK 
+ * directly depending on the user code.
  * 
  * Types `XFromRegister` safely read values from these registers:
- *  - If the user provided a type → it is used
- *  - Otherwise → a fallback type is used
+ *  - If the user provided a type, it is used.
+ *  - Otherwise, a fallback type is used.
  */
 
 export interface Register {}
