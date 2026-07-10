@@ -41,11 +41,13 @@ Update the version field in your Wasp config to `^0.25.0`.
   </TabItem>
 </Tabs>
 
-### 2. Update your TypeScript config for TypeScript 6
+### 2. Update your TypeScript configuration
 
-TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly. In `tsconfig.wasp.json`, also bump `target` and `lib` to `ES2025`.
+Due to TypeScript 6 upgrade and internal `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
 
-In `tsconfig.wasp.json`:
+TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly.
+
+In `tsconfig.wasp.json`, list the types and bump `target` and `lib` to `ES2025`:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -64,16 +66,18 @@ In `tsconfig.wasp.json`:
     {
       "compilerOptions": {
         // ...
+        // highlight-start
         "target": "ES2025",
         "lib": ["ES2025"],
         "types": ["node"]
+        // highlight-end
       }
     }
     ```
   </TabItem>
 </Tabs>
 
-In `tsconfig.src.json`:
+In `tsconfig.src.json`, list the types and update the `include` field:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -83,6 +87,7 @@ In `tsconfig.src.json`:
         // ...
         "outDir": ".wasp/out/user"
       }
+      "include": ["src"]
     }
     ```
   </TabItem>
@@ -92,8 +97,11 @@ In `tsconfig.src.json`:
       "compilerOptions": {
         // ...
         "outDir": ".wasp/out/user",
+        // highlight-next-line
         "types": ["react", "node"]
-      }
+      }  
+      // highlight-next-line
+      "include": ["src", ".wasp/out/types/sdk"]
     }
     ```
   </TabItem>
@@ -117,6 +125,7 @@ In `package.json`, update the `typescript` dev dependency to `6.0.3`:
     {
       "devDependencies": {
         // ...
+        // highlight-next-line
         "typescript": "6.0.3"
       }
     }
@@ -124,24 +133,6 @@ In `package.json`, update the `typescript` dev dependency to `6.0.3`:
   </TabItem>
 </Tabs>
 
-
-### 3. Update your `tsconfig.src.json` file
-
-Due to internal `wasp/sdk` package changes, we require a simple change to your `tsconfig.src.json`.
-
-Update the `include` field of the TypeScript configuration:
-
-```json title="tsconfig.json"
-{
-  "compilerOptions": {
-    // ...
-    "outDir": ".wasp/out/user"
-  },
-  // highlight-next-line
-  "include": ["src", ".wasp/out/types/sdk"]
-}
-```
-
-### 4. Enjoy your updated Wasp app
+### 3. Enjoy your updated Wasp app
 
 That's it!
