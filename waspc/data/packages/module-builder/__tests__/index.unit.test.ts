@@ -14,16 +14,6 @@ describe("parseArgs", () => {
 
     expect(parseArgs(["--module-dir", moduleDir])).toEqual({
       moduleDir: realpathSync(moduleDir),
-      watch: false,
-    });
-  });
-
-  test("parses a watch build", () => {
-    const moduleDir = makeModuleDir();
-
-    expect(parseArgs(["--module-dir", moduleDir, "--watch"])).toEqual({
-      moduleDir: realpathSync(moduleDir),
-      watch: true,
     });
   });
 

@@ -19,14 +19,12 @@ module_ :: Arguments -> Command ()
 module_ = \case
   ["new", packageName] -> new packageName
   ["install"] -> install
-  ["build"] -> build ProjectModule.BuildOnce
-  ["build", "--watch"] -> build ProjectModule.BuildAndWatch
-  ["build", "-w"] -> build ProjectModule.BuildAndWatch
+  ["build"] -> build
   _ ->
     throwError $
       CommandError
         "Unknown module command"
-        "Usage: wasp module new <name> | wasp module install | wasp module build [--watch]"
+        "Usage: wasp module new <name> | wasp module install | wasp module build"
 
 new :: String -> Command ()
 new packageName = do
@@ -51,13 +49,13 @@ install = do
     Right () -> cliSendMessageC $ Msg.Success "Wasp module dependencies installed."
     Left errorMessage -> throwError $ CommandError "Failed to install Wasp module dependencies" errorMessage
 
-build :: ProjectModule.ModuleBuildMode -> Command ()
-build buildMode = do
+build :: Command ()
+build = do
   ValidNodeAndNpm <- require
   moduleDir <- getCurrentDir
 
   cliSendMessageC $ Msg.Start "Building Wasp module..."
-  liftIO (ProjectModule.buildModuleIO moduleDir buildMode) >>= \case
+  liftIO (ProjectModule.buildModuleIO moduleDir) >>= \case
     Right () -> cliSendMessageC $ Msg.Success "Wasp module built."
     Left errorMessage -> throwError $ CommandError "Failed to build Wasp module" errorMessage
 

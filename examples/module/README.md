@@ -6,7 +6,6 @@ Build:
 ```sh
 wasp module install
 wasp module build
-wasp module build --watch
 ```
 
 Pack for installing into a host app:

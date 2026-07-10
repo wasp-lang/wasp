@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "jsx": "react-jsx",
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
     "strict": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
+    "allowJs": true,
+    "types": ["react", "node"],
     "noEmit": true
   },
-  "include": ["src", ".wasp/wasp/ambient.d.ts"]
+  "include": ["src", ".wasp/wasp/ambient.d.ts"],
+  "exclude": ["**/*.wasp.ts"]
 }

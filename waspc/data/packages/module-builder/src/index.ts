@@ -5,6 +5,7 @@ import {
   readdirSync,
   readFileSync,
   realpathSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
@@ -20,15 +21,12 @@ type PackageJson = {
 };
 
 async function main(): Promise<void> {
-  const { moduleDir, watch } = parseArgs(process.argv.slice(2));
+  const { moduleDir } = parseArgs(process.argv.slice(2));
 
-  await buildModule(moduleDir, { watch });
+  await buildModule(moduleDir);
 }
 
-export async function buildModule(
-  moduleDir: string,
-  { watch = false }: { watch?: boolean } = {},
-): Promise<void> {
+export async function buildModule(moduleDir: string): Promise<void> {
   // Validates that the module has a package.json with a name.
   readPackageName(moduleDir);
 
@@ -41,7 +39,9 @@ export async function buildModule(
   assertHasDefaultExport(moduleSpecPath, moduleSpec);
 
   const sourceEntries = getSourceEntries(moduleDir);
-  if (Object.keys(sourceEntries).length > 0) {
+  if (Object.keys(sourceEntries).length === 0) {
+    rmSync(path.join(moduleDir, "dist"), { recursive: true, force: true });
+  } else {
     await build({
       config: false,
       cwd: moduleDir,
@@ -50,7 +50,6 @@ export async function buildModule(
       sourcemap: true,
       dts: { sourcemap: true },
       fixedExtension: false,
-      watch,
       clean: true,
       entry: sourceEntries,
       platform: "neutral",
@@ -63,8 +62,6 @@ export async function buildModule(
     });
   }
 
-  // The spec ships as source (module.wasp.ts), so only its declaration file is
-  // built, for editor support in the host app.
   emitSpecDeclarationFile(moduleDir, moduleSpecPath);
 }
 
@@ -211,21 +208,15 @@ function isSourceEntryFile(fileName: string): boolean {
 
 export function parseArgs(args: string[]): {
   moduleDir: string;
-  watch: boolean;
 } {
-  if (
-    (args.length !== 2 && args.length !== 3) ||
-    args[0] !== "--module-dir" ||
-    (args.length === 3 && args[2] !== "--watch")
-  ) {
+  if (args.length !== 2 || args[0] !== "--module-dir") {
     throw new Error(
-      "Usage: __internal_wasp_module_builder__ --module-dir <path> [--watch]",
+      "Usage: __internal_wasp_module_builder__ --module-dir <path>",
     );
   }
 
   return {
     moduleDir: realpathSync(path.resolve(args[1]!)),
-    watch: args[2] === "--watch",
   };
 }
 
