@@ -592,8 +592,6 @@ test-suite waspc-tests
     Analyzer.TypeCheckerTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
-    AppSpec.InspectableTest
-    AppSpec.ToJSONTest
     AppSpec.ValidTest
     EnvTest
     ExternalConfig.Npm.NpmDependenciesTest
@@ -675,7 +673,6 @@ test-suite wasp-cli-tests
     DbMigrateTest
     Paths_waspc
     TerminalTest
-    Wasp.Cli.Command.InspectTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
