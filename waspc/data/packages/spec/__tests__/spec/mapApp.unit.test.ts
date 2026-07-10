@@ -564,7 +564,9 @@ describe("mapAuth", () => {
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
       methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
-      onAuthFailedRedirectTo: ctx.collectSpecElement(auth.onAuthFailedRedirectTo),
+      onAuthFailedRedirectTo: ctx.collectSpecElement(
+        auth.onAuthFailedRedirectTo,
+      ),
       onAuthSucceededRedirectTo:
         auth.onAuthSucceededRedirectTo &&
         ctx.collectSpecElement(auth.onAuthSucceededRedirectTo),
