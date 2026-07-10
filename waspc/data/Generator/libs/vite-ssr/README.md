@@ -76,7 +76,7 @@ const prerender: PrerenderFn = async (route, ctx) => {
   const html = await streamConsumers.text(
     prerenderToNodeStream(
       <App
-        scriptSrc={ctx.clientEntrySrc}
+        clientEntrySrc={ctx.clientEntrySrc}
         renderType={
           isFallback ? { type: "fallback" } : { type: "route", route }
         }

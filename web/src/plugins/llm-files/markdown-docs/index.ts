@@ -3,14 +3,14 @@ import path from "path";
 
 import { MarkdownDocsContext } from "./context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
-import { isHtmlFileAValidMarkdownVariantCandidate } from "./markdown-routes";
+import { relHtmlFilePathHasMarkdownVariant } from "./markdown-routes";
 
 /**
  * Turns the rendered HTML for docs, blog, and resources pages into Markdown
  * served alongside the HTML.
  *
- * We opted out for HTML -> MD (instead of MDX -> MD) approach because:
- * - It is more stable. HTML -> MD is a very matrue pipeline, MDX is a newer concept.
+ * We opted for HTML -> MD (instead of MDX -> MD) approach because:
+ * - It is more stable. HTML -> MD is a very mature pipeline, MDX is a newer concept.
  * - It is less of a maintenance burden. MDX -> MD requires handling each MDX
  *     feature (e.g. a component) preemptively. HTML -> MD only requires handling
  *     non-MD compliant content (e.g. code block titles).
@@ -25,10 +25,8 @@ export async function generateMarkdownFilesForValidHtmlFiles(
   const markdownDocsIndexHeader = buildMarkdownDocsIndexHeader(baseUrl);
   const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
 
-  const htmlFilesRelPaths = await findConvertibleHtmlFiles(outDir);
-  let generatedDocs = 0;
-  for (const htmlFileRelPath of htmlFilesRelPaths) {
-    const htmlFileAbsPath = path.join(outDir, htmlFileRelPath);
+  const htmlFilesAbsPaths = await findConvertibleHtmlFiles(outDir);
+  for (const htmlFileAbsPath of htmlFilesAbsPaths) {
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
     console.log("Generating: ", markdownFileAbsPath);
@@ -38,11 +36,9 @@ export async function generateMarkdownFilesForValidHtmlFiles(
     const markdownWithIndex = markdownDocsIndexHeader + markdown;
 
     await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
-    generatedDocs++;
   }
-
   console.log(
-    `Markdown generation complete: generated ${generatedDocs} markdown docs from HTML.`,
+    `Markdown generation complete: generated ${htmlFilesAbsPaths.length} markdown docs from HTML.`,
   );
 }
 
@@ -55,15 +51,15 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 }
 
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
-  const htmlFileRelPaths: string[] = [];
+  const htmlFileAbsPaths: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
-    if (isHtmlFileAValidMarkdownVariantCandidate(htmlFileRelPath)) {
-      htmlFileRelPaths.push(htmlFileRelPath);
+    if (relHtmlFilePathHasMarkdownVariant(htmlFileRelPath)) {
+      htmlFileAbsPaths.push(path.join(outDir, htmlFileRelPath));
     }
   }
 
-  return htmlFileRelPaths;
+  return htmlFileAbsPaths;
 }

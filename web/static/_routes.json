@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "include": [
+    "/docs",
+    "/docs/*",
+    "/blog",
+    "/blog/*",
+    "/resources",
+    "/resources/*"
+  ],
+  "exclude": [
+    "/*.css",
+    "/*.js",
+    "/*.mjs",
+    "/*.map",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.webp",
+    "/*.avif",
+    "/*.ico",
+    "/*.woff",
+    "/*.woff2",
+    "/*.ttf",
+    "/*.pdf",
+    "/*.md"
+  ]
+}
