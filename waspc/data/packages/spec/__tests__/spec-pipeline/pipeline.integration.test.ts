@@ -77,7 +77,7 @@ describe("Wasp TS spec pipeline", () => {
     expect(result).toMatchSnapshot();
   });
 
-  test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", () => {
+  test("surfaces type errors in the spec as a WaspSpecUserError with formatted diagnostics", () => {
     using project = makeTempProject("wasp-spec-pipeline-type-error-");
 
     const result = project.analyzeSpec(
@@ -103,7 +103,33 @@ describe("Wasp TS spec pipeline", () => {
     });
   });
 
-  test("rejects namespace ref imports with a SpecUserError", () => {
+  test("surfaces a WaspSpecUserError thrown by the user's spec as a clean error", () => {
+    using project = makeTempProject("wasp-spec-pipeline-user-error-");
+
+    const result = project.analyzeSpec(
+      [
+        `import { app, WaspSpecUserError } from "@wasp.sh/spec";`,
+        ``,
+        `function requireEnv(name: string): string {`,
+        `  throw new WaspSpecUserError(\`Missing environment variable '\${name}'.\`);`,
+        `}`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: requireEnv("MY_SECRET"),`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    expect(result).toEqual({
+      status: "error",
+      error: "Missing environment variable 'MY_SECRET'.",
+    });
+  });
+
+  test("rejects namespace ref imports with a WaspSpecUserError", () => {
     using project = makeTempProject("wasp-spec-pipeline-namespace-");
 
     project.writeProjectFile(

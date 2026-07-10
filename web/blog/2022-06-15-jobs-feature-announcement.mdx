@@ -8,6 +8,7 @@ tags: [webdev, wasp, feature, jobs]
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import WaspIntro from './_wasp-intro.md';
+import { ImgWithCaption } from './components/ImgWithCaption';
 import { InBlogCta } from './components/InBlogCta';
 
 <p align="center">
@@ -60,13 +61,11 @@ Wasp allows you to write a regular async JavaScript function (like the one above
 
 ## Most jobs have a boss. Our first job executor is a... pg-boss. 😅
 
-<p align="center">
-  <figure>
-    <img alt="Eeek" src={useBaseUrl('img/jobs-eyes.gif')} />
-
-    <figcaption>Me trying to lay off the job-related puns. Ok, ok, I’ll quit. Ahhh!</figcaption>
-  </figure>
-</p>
+<ImgWithCaption
+  alt="Eeek"
+  source="img/jobs-eyes.gif"
+  caption="Me trying to lay off the job-related puns. Ok, ok, I’ll quit. Ahhh!"
+/>
 
 In my prior life as a Ruby on Rails developer, the decision of how to implement jobs was pretty simple. You had Active Job at your disposal, and for backends, you would use something like Sidekiq or Delayed Job. In a similarly paved path, Python developers would have likely looked first to Celery.
 

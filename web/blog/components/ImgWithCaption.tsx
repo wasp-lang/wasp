@@ -4,7 +4,8 @@ import type { ReactNode } from "react";
 interface ImgWithCaptionProps {
   source: string;
   caption?: ReactNode;
-  width?: number;
+  width?: number | string;
+  height?: number | string;
   alt: string;
   justifyContent?: "center" | "flex-start" | "flex-end";
   margin?: string;
@@ -32,6 +33,7 @@ export function ImgWithCaption(props: ImgWithCaptionProps) {
     <img
       style={{
         width: props.width,
+        height: props.height,
         display: isFramed ? "block" : undefined,
         border: isFramed
           ? `${frameBorderWidth}px solid ${frameBorderColor}`
