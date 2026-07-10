@@ -1,13 +1,16 @@
-import { app, page, route } from "@wasp.sh/spec";
-import { App } from "./src/App" with { type: "ref" };
-import { EmailVerificationPage } from "./src/auth/email/EmailVerificationPage" with { type: "ref" };
-import { LoginPage } from "./src/auth/email/LoginPage" with { type: "ref" };
-import { PasswordResetPage } from "./src/auth/email/PasswordResetPage" with { type: "ref" };
-import { RequestPasswordResetPage } from "./src/auth/email/RequestPasswordResetPage" with { type: "ref" };
-import { SignupPage } from "./src/auth/email/SignupPage" with { type: "ref" };
-import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref" };
+import { app } from "@wasp.sh/spec";
+
+import {
+  authSpec,
+  emailVerificationRoute,
+  loginRoute,
+  passwordResetRoute,
+} from "./src/auth/auth.wasp";
 import { tagsSpec } from "./src/tags/tags.wasp";
-import { tasksRoute, tasksSpec } from "./src/tasks/task.wasp";
+import { tasksRoute, tasksSpec } from "./src/tasks/tasks.wasp";
+
+import { App } from "./src/App" with { type: "ref" };
+import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref" };
 
 export default app({
   name: "__waspAppName__",
@@ -24,23 +27,15 @@ export default app({
         },
         userSignupFields,
         emailVerification: {
-          clientRoute: route(
-            "EmailVerificationRoute",
-            "/email-verification",
-            page(EmailVerificationPage),
-          ),
+          clientRoute: emailVerificationRoute,
         },
         passwordReset: {
-          clientRoute: route(
-            "PasswordResetRoute",
-            "/password-reset",
-            page(PasswordResetPage),
-          ),
+          clientRoute: passwordResetRoute,
         },
       },
     },
     onAuthSucceededRedirectTo: tasksRoute,
-    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
+    onAuthFailedRedirectTo: loginRoute,
   },
   emailSender: {
     provider: "Dummy",
@@ -48,14 +43,5 @@ export default app({
   client: {
     rootComponent: App,
   },
-  spec: [
-    tasksSpec,
-    tagsSpec,
-    route("SignupRoute", "/signup", page(SignupPage)),
-    route(
-      "RequestPasswordResetRoute",
-      "/request-password-reset",
-      page(RequestPasswordResetPage),
-    ),
-  ],
+  spec: [tasksSpec, tagsSpec, authSpec],
 });
