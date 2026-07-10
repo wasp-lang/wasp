@@ -24,8 +24,6 @@ bashCompletion = do
     ["module"] -> listCommands moduleSubCommands
     [cmdPrefix] -> listMatchingCommands cmdPrefix commands
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
-    ["module", "build"] -> listCommands moduleBuildOptions
-    ["module", "build", optionPrefix] -> listMatchingCommands optionPrefix moduleBuildOptions
     ["module", cmdPrefix] -> listMatchingCommands cmdPrefix moduleSubCommands
     _ -> liftIO . putStrLn $ ""
   where
@@ -50,7 +48,6 @@ bashCompletion = do
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
     moduleSubCommands = ["new", "install", "build"]
-    moduleBuildOptions = ["--watch"]
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()

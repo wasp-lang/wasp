@@ -19,7 +19,6 @@
   ],
   "scripts": {
     "build": "wasp module build",
-    "build:watch": "wasp module build --watch",
     "pack": "npm pack --pack-destination .",
     "typecheck": "tsc -p tsconfig.wasp.json && tsc -p tsconfig.src.json"
   },

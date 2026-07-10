@@ -161,7 +161,7 @@ printUsage =
         cmd   "    build start [args]    Previews the built production app locally.",
         cmd   "    module new <name>     Creates a minimal reusable Wasp module scaffold.",
         cmd   "    module install        Installs dependencies needed to develop a Wasp module.",
-        cmd   "    module build [--watch]",
+        cmd   "    module build",
               "                          Builds a reusable Wasp module package.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
         cmd   "    telemetry             Prints telemetry status.",
