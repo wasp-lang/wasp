@@ -133,8 +133,6 @@ describe("convertWaspSpecToAppSpec", () => {
 
     // Decls come out in registration order: each `spec` element in listing
     // order, with a route's page registered right before the route itself.
-    // The destinations `auth` references are already listed in `spec`, so
-    // they don't register a second time.
     expect(result).toStrictEqual([
       {
         declType: "App",
