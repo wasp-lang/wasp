@@ -14,7 +14,7 @@ import {
   createAuthenticatedOperation,
   {=/ isAuthEnabled =}
 } from '../wrappers'
-import type { OperationFromRegister } from '../../../types/register'
+import type { OperationFromRegister } from '../register'
 import type {
   {=# operations =}
   {= genericTypeNameForDefiningOperation =},

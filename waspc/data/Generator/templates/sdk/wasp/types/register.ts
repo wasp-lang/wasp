@@ -1,44 +1,24 @@
 /**
  * This module acts as a bridge between the SDK and user-defined types.
  *
- * The SDK defines and exports empty "register" interface ({@link Register}).
+ * The SDK defines and exports empty {@link Register} interface.
  * During compliation, Wasp generate additional type declarations
  * in `.wasp/out/types/sdk/` (which is part of user project) that extend
- * the empty "register" interface via module augmentation.
+ * the empty {@link Register} interface via module augmentation.
  *
  * As a result, users can "see" user-defined types in SDK without SDK 
  * directly depending on the user code.
- * 
- * Types `XFromRegister` safely read values from these registers:
- *  - If the user provided a type, it is used.
- *  - Otherwise, a fallback type is used.
  */
 
+/**
+ * Register for type augmentation via declaration merging.
+ */
 export interface Register {}
 
+/**
+ * Safely reads values from {@link Register}.
+ * Returns the registered type for a given {@link Key}, or falls back to {@link Fallback}.
+ */
 export type FromRegister<Key extends string, Fallback> = Key extends keyof Register
   ? Register[Key]
-  : Fallback;
-
-export type OperationFromRegister<
-  Operation extends string,
-  Fallback,
-  Subregister = "operations",
-> = Subregister extends keyof Register
-  ? Operation extends keyof Register[Subregister]
-    ? Register[Subregister][Operation]
-    : Fallback
-  : Fallback;
-
-export type CrudOverrideFromRegister<
-  CrudName extends string,
-  CrudOperation extends string,
-  Fallback,
-  Subregister = "crudOverrides",
->  = Subregister extends keyof Register
-  ? CrudName extends keyof Register[Subregister]
-    ? CrudOperation extends keyof Register[Subregister][CrudName]
-      ? Register[Subregister][CrudName][CrudOperation]
-      : Fallback
-    : Fallback
   : Fallback;
