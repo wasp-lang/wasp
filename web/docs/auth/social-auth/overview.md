@@ -53,7 +53,7 @@ export default app({
 })
 ```
 
-Note that `onAuthFailedRedirectTo` takes a `route(...)` value, and that this route doesn't have to be listed in the `spec` array: referencing it from `auth` registers it automatically, just like pages passed to `route()`.
+Note that `onAuthFailedRedirectTo` takes a `route(...)` value, and that this route doesn't have to be listed in the `spec` array: referencing it from `auth` registers it automatically.
 
 ```prisma title="schema.prisma"
 // highlight-next-line

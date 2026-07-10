@@ -62,7 +62,7 @@ export default app({
 
 `userEntity` is explained in [the social auth overview](./overview.md#user-entity).
 
-`onAuthFailedRedirectTo` takes a `route(...)` value. You don't have to list this route in the `spec` array: referencing it from `auth` registers it automatically, just like pages passed to `route()`. (We'll define the `LoginPage` component in a later step.)
+`onAuthFailedRedirectTo` takes a `route(...)` value. You don't have to list this route in the `spec` array: referencing it from `auth` registers it automatically. We'll define the `LoginPage` component in a later step.
 
 ### 2. Adding the User Entity
 
