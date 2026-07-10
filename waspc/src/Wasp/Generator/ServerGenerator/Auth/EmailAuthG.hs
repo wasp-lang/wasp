@@ -22,6 +22,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import Wasp.AppSpec.Util (getRoutePathFromRef)
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as Email
 import Wasp.Generator.FileDraft (FileDraft)
@@ -72,8 +73,8 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
 
     isDevelopment = AS.isDevelopment spec
 
-    emailVerificationClientRoute = AS.Auth.EmailVerification.clientRoute emailVerification
-    passwordResetClientRoute = AS.Auth.PasswordReset.clientRoute passwordReset
+    emailVerificationClientRoute = getRoutePathFromRef spec $ AS.Auth.EmailVerification.clientRoute emailVerification
+    passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
     getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
     getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
     maybeUserSignupFields = AS.Auth.userSignupFieldsForEmailAuth emailAuthConfig

@@ -141,13 +141,10 @@ export function mapEmailFlow(
   ctx: AppMapperContext,
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
-
-  ctx.collectSpecElement(clientRoute);
-
   return {
     getEmailContentFn:
       getEmailContentFn && ctx.parseRefObject(getEmailContentFn),
-    clientRoute: clientRoute.path,
+    clientRoute: ctx.collectSpecElement(clientRoute),
   };
 }
 

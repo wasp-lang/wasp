@@ -207,12 +207,12 @@ export type EmailFromField = {
 
 export type EmailVerificationConfig = {
   getEmailContentFn: Optional<ExtImport>;
-  clientRoute: string;
+  clientRoute: Ref<"Route">;
 };
 
 export type PasswordResetConfig = {
   getEmailContentFn: Optional<ExtImport>;
-  clientRoute: string;
+  clientRoute: Ref<"Route">;
 };
 
 export type Ref<T extends DeclType> = {

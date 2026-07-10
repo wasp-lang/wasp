@@ -220,12 +220,12 @@ spec_AppSpecValid = do
                       },
                   AS.Auth.emailVerification =
                     AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = "/test",
+                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.EmailVerification.getEmailContentFn = Nothing
                       },
                   AS.Auth.passwordReset =
                     AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = "/test",
+                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
                       }
                 }
@@ -339,12 +339,12 @@ spec_AppSpecValid = do
                       },
                   AS.Auth.emailVerification =
                     AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = "/test",
+                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.EmailVerification.getEmailContentFn = Nothing
                       },
                   AS.Auth.passwordReset =
                     AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = "/test",
+                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
                         AS.Auth.PasswordReset.getEmailContentFn = Nothing
                       }
                 }
