@@ -22,7 +22,7 @@ COMMANDS
            Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
-    doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
+    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
@@ -41,6 +41,8 @@ COMMANDS
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     info                  Prints basic information about the current Wasp project.
+    inspect [--json]      Prints an overview of your app: routes, pages, queries, actions, and more.
+                          With --json, prints the full evaluated app spec as JSON.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
@@ -146,7 +148,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 - `wasp info` provides basic details about the current Wasp project.
 - `wasp inspect` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs.
 
-  With the `--json` flag, it instead prints the full evaluated app spec as JSON, which is handy for scripts and AI tools (e.g. `wasp inspect --json | jq '.decls[] | select(.declType == "Route")'`). The JSON schema follows Wasp's internal spec format and may change between Wasp versions. Only the payload goes to stdout (warnings and errors go to stderr), so the output is safe to pipe.
+  With the `--json` flag, it instead prints the full evaluated app spec as JSON, which is handy for scripts and AI tools. The JSON schema follows Wasp's internal spec format and may change between Wasp versions.
 
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 

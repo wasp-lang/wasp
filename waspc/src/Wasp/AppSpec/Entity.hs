@@ -23,7 +23,6 @@ import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
-import Wasp.Psl.Generator.Model (generateModelBody)
 import Wasp.Psl.Util (findIdBlockAttribute, findIdField)
 
 data Entity = Entity
@@ -39,12 +38,11 @@ instance FromJSON Entity where
 
 -- | Entities are not part of the JSON wire format coming from the TS spec
 -- (they are built from the Prisma schema), so this shape exists only for
--- output (e.g. `wasp inspect --json`) and is deliberately not parseable back.
+-- output (e.g. `wasp inspect --json`).
 instance ToJSON Entity where
   toJSON entity =
     object
-      [ "fields" .= fields entity,
-        "pslSource" .= generateModelBody (pslModelBody entity)
+      [ "fields" .= fields entity
       ]
 
 instance Inspectable Entity where
