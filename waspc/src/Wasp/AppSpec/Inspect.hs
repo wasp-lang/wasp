@@ -25,16 +25,16 @@ data InspectionSection = InspectionSection
 -- are the point of `wasp inspect`, and entities are visible in schema.prisma.
 inspectAppSpec :: AppSpec -> [InspectionSection]
 inspectAppSpec spec =
-  appSection spec :
-  [ section (AS.getRoutes spec),
-    section (AS.getPages spec),
-    section (AS.getQueries spec),
-    section (AS.getActions spec),
-    section (AS.getApis spec),
-    section (AS.getApiNamespaces spec),
-    section (AS.getCruds spec),
-    section (AS.getJobs spec)
-  ]
+  appSection spec
+    : [ section (AS.getRoutes spec),
+        section (AS.getPages spec),
+        section (AS.getQueries spec),
+        section (AS.getActions spec),
+        section (AS.getApis spec),
+        section (AS.getApiNamespaces spec),
+        section (AS.getCruds spec),
+        section (AS.getJobs spec)
+      ]
 
 -- | The app's own entry, extended with facts only the whole spec knows.
 appSection :: AppSpec -> InspectionSection

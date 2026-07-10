@@ -7,9 +7,10 @@ where
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
-import qualified Data.ByteString.Lazy.Char8 as BSLC
+import qualified Data.ByteString.Lazy as BSL
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, intercalate, transpose)
+import System.IO (hPutStrLn, stdout)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Inspectable (InspectionEntry (..))
@@ -34,10 +35,12 @@ inspect = withArguments "wasp inspect" inspectArgsParser $ \args -> do
   appSpec <- analyzeWithWarningsOnStderr waspDir
   liftIO $
     if json args
-      then BSLC.putStrLn $ encodeAppSpecJson appSpec
+      then do
+        BSL.hPutStr stdout $ encodeAppSpecJson appSpec
+        putStrLn ""
       else putStr $ renderInspection $ inspectAppSpec appSpec
 
-encodeAppSpecJson :: AppSpec -> BSLC.ByteString
+encodeAppSpecJson :: AppSpec -> BSL.ByteString
 encodeAppSpecJson appSpec =
   encodePretty $
     object
@@ -51,8 +54,8 @@ renderInspection sections = intercalate "\n" $ renderSection <$> nonEmptySection
     nonEmptySections = filter (not . null . sectionEntries) sections
     renderSection section =
       unlines $
-        title (sectionTitle section) :
-        map ("  " ++) (renderAlignedRows $ entryCells <$> sectionEntries section)
+        title (sectionTitle section)
+          : map ("  " ++) (renderAlignedRows $ entryCells <$> sectionEntries section)
 
 -- | Pads each cell to its column's width, so cells line up across rows.
 renderAlignedRows :: [[String]] -> [String]
