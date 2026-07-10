@@ -4,15 +4,13 @@ authors: [martinsos]
 tags: [discord, nodejs]
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import { ImgWithCaption } from './components/ImgWithCaption';
 
-<p align="center">
-  <figure>
-    <img alt="Guest introducing themselves and getting full-access." src={useBaseUrl('img/discord-introduction-example.png')} />
-
-    <figcaption>A Guest user getting access by introducing themselves in the "introductions" channel.</figcaption>
-  </figure>
-</p>
+<ImgWithCaption
+  alt="Guest introducing themselves and getting full-access."
+  source="img/discord-introduction-example.png"
+  caption='A Guest user getting access by introducing themselves in the "introductions" channel.'
+/>
 
 At [Wasp](https://wasp.sh), we have a Discord server for our community, where we talk with people interested in and using Wasp - Waspeteers!
 
@@ -32,13 +30,12 @@ We want the following: when a new user comes to our Discord server, they should 
 
 Once they introduced themselves in the `introductions` channel, they would get access to the rest of the channels.
 
-<p align="center">
-  <figure>
-    <img alt="Channels user can see when Guest vs when full member." src={useBaseUrl('img/wasp-guest-vs-waspeteer.png')} height="400px" />
-
-    <figcaption>Left: what Guest sees; Right: what Waspeteer sees.</figcaption>
-  </figure>
-</p>
+<ImgWithCaption
+  alt="Channels user can see when Guest vs when full member."
+  source="img/wasp-guest-vs-waspeteer.png"
+  height="400px"
+  caption="Left: what Guest sees; Right: what Waspeteer sees."
+/>
 
 In Discord, access control is performed via roles. There are two ways to accomplish what we need:
 

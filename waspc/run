@@ -91,23 +91,16 @@ TEST_CMD="cabal test && \
 
 # Utility
 GHCID_CMD="ghcid --command=cabal repl"
-DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
-function install_dev_tool() {
-  echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
-}
-function dev_tool_path() {
-  echo "$DEV_TOOLS_BIN/$1"
-}
-STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
-HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
+STAN_CMD="$BUILD_HS_FULL_CMD && stan report ${ARGS[*]}"
+HLINT_CMD="hlint . ${ARGS[*]}"
 PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
 PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
 ORMOLU_BASE_CMD="ormolu --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
 CABAL_GILD_BASE_CMD="cabal-gild"
-CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
-CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
+CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check "'$'"(git ls-files '*.cabal')"
+CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format "'$'"(git ls-files '*.cabal')"
 
 # We remove .wasp/out before `wasp install`, so package-lock entries for
 # generated workspaces and their local tarball deps become stale. Drop them so
