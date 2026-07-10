@@ -28,8 +28,7 @@ Enabling Google Authentication comes down to a series of steps:
 1. Enabling Google authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating a Google OAuth app.
-4. Adding the necessary Routes and Pages
-5. Using Auth UI components in our Pages.
+4. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
@@ -162,13 +161,7 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
-### 5. Adding the Necessary Routes and Pages
-
-We already declared the necessary authentication Route and Page in step 1: the `route("LoginRoute", "/login", page(LoginPage))` value we passed to `onAuthFailedRedirectTo` takes care of it, so there's nothing to add to the `spec` array.
-
-We'll define the React component for the login page in the `src/pages/auth.{jsx,tsx}` file below.
-
-### 6. Create the Client Pages
+### 5. Create the Client Pages
 
 <SocialLoginClientPages />
 
