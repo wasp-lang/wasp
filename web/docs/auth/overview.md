@@ -42,7 +42,7 @@ export default app({
 })
 ```
 
-Note that the login route doesn't have to be listed in `spec`: referencing it from `auth` registers it automatically, the same way a page passed to `route()` is registered.
+Note that the login route doesn't have to be listed in `spec`: referencing it from `auth` registers it automatically.
 
 <small>
   Read more about the `auth` field options in the [API Reference](#api-reference) section.

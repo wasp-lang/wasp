@@ -12,8 +12,6 @@ export default app({
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     // ...
-    // Routes referenced here (like the login route) are registered
-    // automatically, so they don't have to be listed in `spec`.
     onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   spec: [

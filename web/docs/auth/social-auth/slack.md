@@ -28,8 +28,7 @@ Enabling Slack Authentication comes down to a series of steps:
 1. Enabling Slack authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating Slack App.
-4. Adding the necessary Routes and Pages
-5. Using Auth UI components in our Pages.
+4. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
@@ -63,7 +62,7 @@ export default app({
 })
 ```
 
-`onAuthFailedRedirectTo` takes a `route(...)` value. You don't have to list this route in the `spec` array: referencing it from `auth` registers it automatically, just like pages passed to `route()`. (We'll define the `LoginPage` component in a later step.)
+`onAuthFailedRedirectTo` takes a `route(...)` value. You don't have to list this route in the `spec` array: referencing it from `auth` registers it automatically. We'll define the `LoginPage` component in a later step.
 
 ### 2. Add the User Entity
 
@@ -114,13 +113,7 @@ SLACK_CLIENT_ID=your-slack-client-id
 SLACK_CLIENT_SECRET=your-slack-client-secret
 ```
 
-### 5. Adding the Necessary Routes and Pages
-
-We already declared the necessary authentication Route and Page in step 1: the `route("LoginRoute", "/login", page(LoginPage))` value we passed to `onAuthFailedRedirectTo` takes care of it, so there's nothing to add to the `spec` array.
-
-We'll define the React component for the login page in the `src/pages/auth.{jsx,tsx}` file below.
-
-### 6. Creating the Client Pages
+### 5. Creating the Client Pages
 
 <SocialLoginClientPages />
 

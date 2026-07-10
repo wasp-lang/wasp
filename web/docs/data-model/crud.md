@@ -105,7 +105,7 @@ export default app({
 })
 ```
 
-Note that `loginRoute` isn't listed in the `spec` array: referencing it from `auth` registers it automatically, just like pages passed to `route()`.
+Note that `loginRoute` isn't listed in the `spec` array: referencing it from `auth` registers it automatically.
 
 And let's define our entities in the `schema.prisma` file:
 

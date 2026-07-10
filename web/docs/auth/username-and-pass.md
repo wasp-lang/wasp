@@ -70,7 +70,7 @@ export default app({
 })
 ```
 
-Note that the login route doesn't have to be listed in `spec`: referencing it from `auth` registers it automatically, the same way a page passed to `route()` is registered. We'll create its `LoginPage` component in a later step.
+Note that the login route doesn't have to be listed in `spec`: referencing it from `auth` registers it automatically. We'll create its `LoginPage` component in a later step.
 
 Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig.md).
 

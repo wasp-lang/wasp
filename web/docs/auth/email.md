@@ -80,9 +80,7 @@ export default app({
           name: "My App Postman",
           email: "hello@itsme.com"
         },
-        // 4. Specify the email verification and password reset options (we'll talk
-        //    about them later). The routes referenced here are automatically added
-        //    to the spec, and we'll create their page components in a later step.
+        // 4. Specify the email verification and password reset options (we'll talk about them later)
         emailVerification: {
           clientRoute: route(
             "EmailVerificationRoute",
@@ -105,7 +103,7 @@ export default app({
 })
 ```
 
-Note that these routes don't have to be listed in `spec`: referencing them from `auth` registers them automatically, the same way a page passed to `route()` is registered.
+Note that these routes don't have to be listed in `spec`: referencing them from `auth` registers them automatically.
 
 Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailAuthConfig.md).
 

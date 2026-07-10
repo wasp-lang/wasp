@@ -131,7 +131,7 @@ export default app({
 ```
 </TutorialAction>
 
-Notice that the login route isn't listed in `spec`: referencing a route from `auth` registers it automatically, the same way a page passed to `route()` is registered.
+Notice that the login route doesn't need to be listed in `spec`: referencing a route from `auth` registers it automatically. You can still add it to `spec` if you want, but it's not necessary.
 
 Don't forget to update the database schema by running:
 
