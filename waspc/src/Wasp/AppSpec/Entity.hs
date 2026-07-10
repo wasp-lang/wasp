@@ -42,7 +42,7 @@ makeEntity body =
     makeEntityFieldsFromPslBody (Psl.Model.Body pslElements) =
       Field.pslFieldToEntityField
         <$> [ field
-              | (Psl.Model.ElementField field) <- Psl.WithCtx.getNode <$> pslElements
+            | (Psl.Model.ElementField field) <- Psl.WithCtx.getNode <$> pslElements
             ]
 
 getFields :: Entity -> [Field]
