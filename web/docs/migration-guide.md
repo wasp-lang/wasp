@@ -24,7 +24,7 @@ Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster b
 
 ### Type-checked auth routes
 
-Auth route references are now **type-checked**. The `onAuthFailedRedirectTo` and `onAuthSucceededRedirectTo` fields, and the email `emailVerification`/`passwordReset` `clientRoute` fields, now take a `route()` object instead of a path or route-name string. This guarantees every reference points at a route that actually exists. A referenced route that isn't already listed in `spec` is registered automatically, so you can define it right where you reference it.
+Auth route references are now **type-checked**. The `onAuthFailedRedirectTo` and `onAuthSucceededRedirectTo` fields, and the email `emailVerification`/`passwordReset` `clientRoute` fields, now take a `route()` object instead of a path or route-name string. This guarantees every reference points at a route that actually exists. A referenced route that isn't already listed in `spec` is registered automatically, so you can define it in place without repeating it.
 
 ## How to migrate?
 
@@ -154,7 +154,7 @@ In `tsconfig.src.json`:
 
 ### 4. Pass `route()` objects to your `auth` config
 
-If your app uses `auth`, replace the string route references with the matching `route()` object. The redirect fields (`onAuthFailedRedirectTo`, `onAuthSucceededRedirectTo`) and the email `clientRoute` fields no longer accept strings. Since referenced routes are registered automatically, a route that was only listed in `spec` to be referenced here can be defined inline and dropped from `spec` (keep it in `spec`, or reference it by a shared variable, if you also use it elsewhere).
+If your app uses `auth`, replace the string route references with the matching `route()` object. The redirect fields (`onAuthFailedRedirectTo`, `onAuthSucceededRedirectTo`) and the email `clientRoute` fields no longer accept strings. Since referenced routes are registered automatically, a route that was only listed in `spec` to be referenced here can be defined inline.
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
