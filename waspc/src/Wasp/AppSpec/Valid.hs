@@ -70,6 +70,7 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
+          validateOperationEntitiesAreUnique spec,
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
@@ -263,6 +264,28 @@ validateCrudOperations spec =
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
+validateOperationEntitiesAreUnique :: AppSpec -> [ValidationError]
+validateOperationEntitiesAreUnique spec =
+  concatMap validateOperation (AS.getOperations spec)
+  where
+    validateOperation :: AS.Operation.Operation -> [ValidationError]
+    validateOperation operation = case findDuplicateElems entityNames of
+      [] -> []
+      duplicateEntityNames ->
+        [ GenericValidationError $
+            "The "
+              ++ describeOperation operation
+              ++ " lists the same entity more than once in its 'entities' list: "
+              ++ intercalate ", " (map show duplicateEntityNames)
+              ++ ". Please remove the duplicate entity references."
+        ]
+      where
+        entityNames = maybe [] (map AS.refName) (AS.Operation.getEntities operation)
+
+    describeOperation :: AS.Operation.Operation -> String
+    describeOperation (AS.Operation.QueryOp name _) = "query '" ++ name ++ "'"
+    describeOperation (AS.Operation.ActionOp name _) = "action '" ++ name ++ "'"
 
 {- ORMOLU_DISABLE -}
 -- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"
