@@ -295,7 +295,7 @@ const config: Config = {
         onUntruncatedBlogPosts: "throw",
       },
     ],
-    async function tailwindPlugin(_context, _options) {
+    async function tailwindPlugin() {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {

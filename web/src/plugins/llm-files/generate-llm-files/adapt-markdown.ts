@@ -38,7 +38,7 @@ function createLlmsFullMarkdownProcessor(baseUrl: string) {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkDirective)
-    .use(() => remarkAdaptMarkdownForLlmsFullFiles(baseUrl))
+    .use(remarkAdaptMarkdownForLlmsFullFiles, baseUrl)
     .use(remarkStringify, {
       bullet: "-",
       emphasis: "*",
@@ -98,7 +98,7 @@ function dropDocumentHeading(tree: mdast.Root): void {
  */
 function nestHeadingsDeeper(tree: mdast.Root): void {
   visit(tree, "heading", (heading) => {
-    heading.depth = (heading.depth + 1) as mdast.Heading["depth"];
+    heading.depth = Math.min(heading.depth + 1, 6) as mdast.Heading["depth"];
   });
 }
 

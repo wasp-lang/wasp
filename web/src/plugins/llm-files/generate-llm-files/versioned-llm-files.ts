@@ -114,7 +114,7 @@ const LLMS_FULL_TXT_HEADER_DIVIDER = "\n---\n\n";
 
 /**
  * Generates a `llms-full-{waspVersion}.txt` file.
- * It includes the content of almost all docs routes (`/docs/*`)  for that Wasp version.
+ * It includes the content of almost all docs routes (`/docs/*`) for that Wasp version.
  *
  * @see {@link buildLlmFilesMarkdownDocsIndex} for more details.
  */
@@ -134,7 +134,7 @@ async function generateVersionedLlmsFullTxt(
 
 /**
  * Generates a `llms-full.txt` file.
- * It includes the content of almost all docs routes (`/docs/*`)  for the latest Wasp version.
+ * It includes the content of almost all docs routes (`/docs/*`) for the latest Wasp version.
  *
  * @see {@link buildLlmFilesMarkdownDocsIndex} for more details.
  */
@@ -177,9 +177,8 @@ function buildFullDocsIndexSection(context: LlmFilesContext): string {
   const waspVersions = context.loadedVersions.map(
     (version) => version.versionName,
   );
-  const latestWaspVersion = waspVersions[0];
   let section = `## Full Documentation by Version\n`;
-  section += `- [latest (currently ${latestWaspVersion})](${baseUrl}/llms-full.txt)\n`;
+  section += `- [latest (currently ${context.latestWaspVersion})](${baseUrl}/llms-full.txt)\n`;
   for (const waspVersion of waspVersions) {
     section += `- [${waspVersion}](${baseUrl}/llms-full-${waspVersion}.txt)\n`;
   }

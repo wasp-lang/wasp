@@ -61,7 +61,7 @@ export function createDocusaurusHtmlToMarkdownProcessor(
     ).trim();
     if (!markdown) {
       throw Error(
-        "Markdown content is null. Most likely a stray document. Please update the `isValidMarkdownDocsRoute` function.",
+        "Markdown content is null. Most likely a stray document. Please update the `routeHasMarkdownVariant` function.",
       );
     }
     return markdown;

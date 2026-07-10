@@ -17,9 +17,9 @@ const LLMS_TXT_OTHER_RESOURCES = `## Other Resources
 
 /**
  * Generates the `llms.txt` file.
- * It serves as an universal index to all other `llms*.txt` files and resources.
+ * It serves as a universal index to all other `llms*.txt` files and resources.
  * This includes:
- * - All verioned LLM files (`llms-{waspVersion}.txt` and `llms-full-{waspVersion}.txt`).
+ * - All versioned LLM files (`llms-{waspVersion}.txt` and `llms-full-{waspVersion}.txt`).
  * - All posts (see {@link PostCollection}).
  * - Other resources (see {@link LLMS_TXT_OTHER_RESOURCES}).
  */
@@ -50,12 +50,11 @@ function buildLlmFilesIndexSection(context: LlmFilesContext): string {
   const waspVersions = context.loadedVersions.map(
     (version) => version.versionName,
   );
-  const latestWaspVersion = waspVersions[0];
 
   let llmFilesIndexSection = `## Documentation Maps by Version\n*IMPORTANT:* You should run \`wasp version\` to get the installed Wasp CLI version before choosing the correct link.\n`;
   for (const waspVersion of waspVersions) {
     const waspVersionLabel =
-      waspVersion === latestWaspVersion
+      waspVersion === context.latestWaspVersion
         ? `${waspVersion} (latest)`
         : waspVersion;
     llmFilesIndexSection += `- [${waspVersionLabel}](${context.baseUrl}/llms-${waspVersion}.txt)\n`;

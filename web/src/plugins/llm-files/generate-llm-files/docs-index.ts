@@ -16,7 +16,7 @@ const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
  * An index of all markdown docs that we want to be part
  * of our `llms*.txt` files.
  *
- * The index follows the docs categories hirarchical structure.
+ * The index follows the docs categories hierarchical structure.
  */
 export interface LlmFilesMarkdownDocsIndex {
   sections: IndexSection[];
@@ -43,7 +43,7 @@ export interface IndexCategory {
 }
 
 /**
- * An idividual item of some sidebar category, e.g.: "Authentication / Email / Overview".
+ * An individual item of some sidebar category, e.g.: "Authentication / Email / Overview".
  * Represents a docs page we can visit.
  */
 export interface IndexDoc {
@@ -222,14 +222,13 @@ async function resolveIndexDoc(
   route: string,
   title: string,
 ): Promise<IndexDoc> {
-  const normalizedRoute = stripTrailingSlash(route);
-  const markdownRoute = normalizedRoute + ".md";
+  const markdownRoute = stripTrailingSlash(route) + ".md";
 
-  let markdownDocument = markdownDocumentByRouteCache.get(normalizedRoute);
+  let markdownDocument = markdownDocumentByRouteCache.get(route);
   if (!markdownDocument) {
     const markdownFilePath = path.join(context.outDir, markdownRoute);
     if (!existsSync(markdownFilePath)) {
-      throw Error(
+      throw new Error(
         `Missing a markdown file for a document: "${markdownFilePath}"`,
       );
     }

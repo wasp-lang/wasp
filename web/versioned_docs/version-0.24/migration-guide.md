@@ -55,7 +55,7 @@ My app currently uses the Wasp DSL in main.wasp. Please convert the config to th
 
 Use these docs:
 
-- 0.23 to 0.24 migration guide: https://wasp.sh/docs/migration-guide.md
+- 0.23 to 0.24 migration guide: https://wasp.sh/docs/0.24/migration-guide.md
 - Wasp DSL to Wasp Spec conversion guide: https://wasp.sh/docs/guides/legacy/wasp-dsl.md
 - Wasp Spec docs: https://wasp.sh/docs/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
@@ -85,7 +85,7 @@ My app currently uses the old class-based Wasp TS Config in \`main.wasp.ts\`. Pl
 
 Use these docs:
 
-- 0.23 to 0.24 migration guide: https://wasp.sh/docs/migration-guide.md
+- 0.23 to 0.24 migration guide: https://wasp.sh/docs/0.24/migration-guide.md
 - Wasp TS Config to Wasp Spec conversion guide: https://wasp.sh/docs/guides/legacy/wasp-ts-config.md
 - Wasp Spec docs: https://wasp.sh/docs/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts

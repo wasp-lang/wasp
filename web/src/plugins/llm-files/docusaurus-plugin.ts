@@ -51,8 +51,13 @@ export function docusaurusPluginLlmFiles({
 
       async postBuild({ outDir, siteConfig }) {
         if (!docsLoadedContent || !blogContentByPluginId) {
-          throw Error(
+          throw new Error(
             "wasp-llm-files: allContentLoaded did not run before postBuild.",
+          );
+        }
+        if (siteConfig.trailingSlash) {
+          throw new Error(
+            "wasp-llm-files: The plugins only works with `trailingSlash` set to false.",
           );
         }
 
