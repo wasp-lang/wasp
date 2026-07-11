@@ -54,25 +54,10 @@ function remarkAdaptMarkdownForLlmsFullFiles(
   baseUrl: string,
 ): (tree: mdast.Root) => void {
   return (tree: mdast.Root) => {
-    dropIndexHeader(tree);
     dropDocumentHeading(tree);
     nestHeadingsDeeper(tree);
     makeRootRelativeUrlsAbsolute(baseUrl, tree);
   };
-}
-
-/**
- * Each markdown docs file starts with a header pointing to that Wasp versions
- * `llms-{waspVerison}.txt` file.
- *
- * It is redundant inside the `llms-full*.txt` files, so we drop it.
- * TODO: can we do this better?
- */
-function dropIndexHeader(tree: mdast.Root): void {
-  const [first, second] = tree.children;
-  if (first?.type === "blockquote" && second?.type === "thematicBreak") {
-    tree.children.splice(0, 2);
-  }
 }
 
 /**

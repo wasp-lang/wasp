@@ -5,7 +5,10 @@ import type { PluginModule } from "@docusaurus/types";
 import { generateLlmFiles } from "./generate-llm-files";
 import type { PostCollection } from "./generate-llm-files/context";
 import { stripTrailingSlash } from "./helpers";
-import { generateMarkdownFilesForValidHtmlFiles } from "./markdown-docs";
+import {
+  convertValidHtmlFilesToMarkdownDocs,
+  writeMarkdownDocsFiles,
+} from "./markdown-docs";
 
 const DOCUSAURUS_DOCS_PLUGIN_NAME = "docusaurus-plugin-content-docs";
 const DOCUSAURUS_BLOG_PLUGIN_NAME = "docusaurus-plugin-content-blog";
@@ -64,11 +67,14 @@ export function docusaurusPluginLlmFiles({
         const { loadedVersions } = docsLoadedContent;
         const baseUrl = stripTrailingSlash(siteConfig.url + siteConfig.baseUrl);
 
-        await generateMarkdownFilesForValidHtmlFiles({
+        const markdownDocsContext = {
           outDir,
           baseUrl,
           skipElementInMarkdownDocsClass,
-        });
+        };
+        const markdownDocByRoute =
+          await convertValidHtmlFilesToMarkdownDocs(markdownDocsContext);
+        await writeMarkdownDocsFiles(markdownDocsContext, markdownDocByRoute);
 
         await generateLlmFiles({
           baseUrl,
@@ -79,6 +85,7 @@ export function docusaurusPluginLlmFiles({
             baseUrl,
             blogContentByPluginId,
           ),
+          markdownDocByRoute,
         });
       },
     };

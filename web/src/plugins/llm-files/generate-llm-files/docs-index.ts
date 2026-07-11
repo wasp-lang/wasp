@@ -2,9 +2,6 @@ import type {
   DocMetadata,
   LoadedVersion,
 } from "@docusaurus/plugin-content-docs";
-import { existsSync } from "fs";
-import fs from "fs/promises";
-import path from "path";
 
 import { stripTrailingSlash } from "../helpers";
 import { adaptMarkdownForLlmsFullFiles } from "./adapt-markdown";
@@ -66,10 +63,10 @@ type DocsById = Map<DocMetadata["id"], DocMetadata>;
  * We only include API package's index pages into the index.
  * Otherwise the output would be too verbose.
  */
-export async function buildLlmFilesMarkdownDocsIndex(
+export function buildLlmFilesMarkdownDocsIndex(
   context: LlmFilesContext,
   loadedVersion: LoadedVersion,
-): Promise<LlmFilesMarkdownDocsIndex> {
+): LlmFilesMarkdownDocsIndex {
   const docsById: DocsById = new Map(
     loadedVersion.docs.map((doc) => [doc.id, doc]),
   );
@@ -77,7 +74,7 @@ export async function buildLlmFilesMarkdownDocsIndex(
   const indexSections: IndexSection[] = [
     {
       title: "Docs",
-      items: await buildSidebarItems(
+      items: buildSidebarItems(
         context,
         loadedVersion.sidebars["docs"] ?? [],
         docsById,
@@ -85,7 +82,7 @@ export async function buildLlmFilesMarkdownDocsIndex(
     },
     {
       title: "Guides",
-      items: await buildSidebarItems(
+      items: buildSidebarItems(
         context,
         loadedVersion.sidebars["guides"] ?? [],
         docsById,
@@ -93,7 +90,7 @@ export async function buildLlmFilesMarkdownDocsIndex(
     },
     {
       title: "API",
-      items: await buildApiSectionItems(context, loadedVersion.docs),
+      items: buildApiSectionItems(context, loadedVersion.docs),
     },
   ]
     // Some sections can be empty in old Wasp versions. Like `API` and `Guides`.
@@ -104,14 +101,14 @@ export async function buildLlmFilesMarkdownDocsIndex(
   };
 }
 
-async function buildSidebarItems(
+function buildSidebarItems(
   context: LlmFilesContext,
   sidebarItems: LoadedSidebarItem[],
   docsById: DocsById,
-): Promise<IndexItem[]> {
+): IndexItem[] {
   const indexItems: IndexItem[] = [];
   for (const sidebarItem of sidebarItems) {
-    const indexItem = await resolveSidebarItem(context, sidebarItem, docsById);
+    const indexItem = resolveSidebarItem(context, sidebarItem, docsById);
     if (indexItem) {
       indexItems.push(indexItem);
     }
@@ -123,21 +120,17 @@ async function buildSidebarItems(
  * Docusaurus keeps sidebar doc entries as bare `{ type: "doc", id }`, so we
  * join each against the version's docs to recover its permalink and title.
  */
-async function resolveSidebarItem(
+function resolveSidebarItem(
   context: LlmFilesContext,
   sidebarItem: LoadedSidebarItem,
   docsById: DocsById,
-): Promise<IndexItem | null> {
+): IndexItem | null {
   switch (sidebarItem.type) {
     case "category":
       if (SIDEBAR_CATEGORIES_TO_IGNORE.includes(sidebarItem.label)) {
         return null;
       }
-      const items = await buildSidebarItems(
-        context,
-        sidebarItem.items,
-        docsById,
-      );
+      const items = buildSidebarItems(context, sidebarItem.items, docsById);
       if (items.length === 0) {
         // A category without any items, shouldn't really happen.
         return null;
@@ -177,15 +170,15 @@ async function resolveSidebarItem(
 /**
  * For each unique package in API docs, resolve its index page.
  */
-async function buildApiSectionItems(
+function buildApiSectionItems(
   context: LlmFilesContext,
   docs: DocMetadata[],
-): Promise<IndexItem[]> {
+): IndexItem[] {
   const items: IndexItem[] = [];
   for (const doc of docs) {
     const packageName = extractApiDocsPackageName(doc.id);
     if (packageName) {
-      items.push(await resolveIndexDoc(context, doc.permalink, packageName));
+      items.push(resolveIndexDoc(context, doc.permalink, packageName));
     }
   }
   return items;
@@ -212,35 +205,36 @@ function extractApiDocsPackageName(docId: string): string | null {
   return apiDocsPackageName;
 }
 
-const markdownDocumentByRouteCache = new Map<
-  string,
-  { url: string; markdown: string }
->();
+/**
+ * Docs can appear in multiple sidebars (e.g. via "ref" items), so we cache
+ * the adapted markdown to avoid re-adapting the same doc.
+ */
+const adaptedMarkdownByRouteCache = new Map<string, string>();
 
-async function resolveIndexDoc(
+function resolveIndexDoc(
   context: LlmFilesContext,
   route: string,
   title: string,
-): Promise<IndexDoc> {
-  const markdownRoute = stripTrailingSlash(route) + ".md";
+): IndexDoc {
+  const docRoute = stripTrailingSlash(route);
 
-  let markdownDocument = markdownDocumentByRouteCache.get(route);
-  if (!markdownDocument) {
-    const markdownFilePath = path.join(context.outDir, markdownRoute);
-    if (!existsSync(markdownFilePath)) {
-      throw new Error(
-        `Missing a markdown file for a document: "${markdownFilePath}"`,
-      );
+  let adaptedMarkdown = adaptedMarkdownByRouteCache.get(docRoute);
+  if (adaptedMarkdown === undefined) {
+    const markdown = context.markdownDocByRoute.get(docRoute);
+    if (markdown === undefined) {
+      throw new Error(`Missing a markdown doc for a document: "${docRoute}"`);
     }
 
-    const markdown = await fs.readFile(markdownFilePath, "utf8");
-    markdownDocument = {
-      url: context.baseUrl + markdownRoute,
-      markdown: adaptMarkdownForLlmsFullFiles(context.baseUrl, markdown),
-    };
-    markdownDocumentByRouteCache.set(route, markdownDocument);
+    adaptedMarkdown = adaptMarkdownForLlmsFullFiles(context.baseUrl, markdown);
+    adaptedMarkdownByRouteCache.set(docRoute, adaptedMarkdown);
   }
-  return { type: "doc", title, ...markdownDocument };
+
+  return {
+    type: "doc",
+    title,
+    url: context.baseUrl + docRoute + ".md",
+    markdown: adaptedMarkdown,
+  };
 }
 
 function assertUnreachable(_x: never, message: string): never {

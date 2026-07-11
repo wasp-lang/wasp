@@ -19,7 +19,7 @@ export async function generateVersionedLlmFiles(
   const waspVersion = loadedVersion.versionName;
   console.log(`Processing Wasp version ${waspVersion}:`);
 
-  const markdownDocsIndex = await buildLlmFilesMarkdownDocsIndex(
+  const markdownDocsIndex = buildLlmFilesMarkdownDocsIndex(
     context,
     loadedVersion,
   );

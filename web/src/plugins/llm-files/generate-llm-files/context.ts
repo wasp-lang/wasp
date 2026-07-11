@@ -1,11 +1,14 @@
 import type { LoadedVersion } from "@docusaurus/plugin-content-docs";
 
+import type { MarkdownDocByRoute } from "../markdown-docs";
+
 export interface LlmFilesContext {
   baseUrl: string;
   outDir: string;
   latestWaspVersion: string;
   loadedVersions: LoadedVersion[];
   postCollections: PostCollection[];
+  markdownDocByRoute: MarkdownDocByRoute;
 }
 
 /**

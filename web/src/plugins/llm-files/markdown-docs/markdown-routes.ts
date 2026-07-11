@@ -33,7 +33,7 @@ export function routeHasMarkdownVariant(route: string): boolean {
  * @example "docs.html" → "/docs"
  * @example "blog/2025/12/31/post.html" → "/blog/2025/12/31/post"
  */
-function htmlFileRelPathToRoute(htmlFileRelPath: string): string {
+export function htmlFileRelPathToRoute(htmlFileRelPath: string): string {
   return "/" + htmlFileRelPath.replace(/\\/g, "/").replace(/\.html$/, "");
 }
 
