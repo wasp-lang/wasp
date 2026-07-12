@@ -1,5 +1,5 @@
-module Wasp.Generator.TypesGenerator.SdkTypesGenerator
-  ( genSdkTypes,
+module Wasp.Generator.TypeAugmentationGenerator.RuntimeTypeAugmentationGenerator.SdkTypeAugmentationGenerator
+  ( genSdkTypeAugmentation,
   )
 where
 
@@ -19,14 +19,11 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.TypesGenerator.SdkTypesGenerator.Common (mkTmplFdWithData)
-import Wasp.Generator.TypesGenerator.SdkTypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
+import Wasp.Generator.TypeAugmentationGenerator.RuntimeTypeAugmentationGenerator.SdkTypeAugmentationGenerator.Common (mkTmplFdWithData)
+import Wasp.Generator.TypeAugmentationGenerator.RuntimeTypeAugmentationGenerator.SdkTypeAugmentationGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 
-genSdkTypes :: AppSpec -> Generator [FileDraft]
-genSdkTypes spec = genSdkRegisterModuleAugmentationForUser spec
-
-genSdkRegisterModuleAugmentationForUser :: AppSpec -> Generator [FileDraft]
-genSdkRegisterModuleAugmentationForUser spec =
+genSdkTypeAugmentation :: AppSpec -> Generator [FileDraft]
+genSdkTypeAugmentation spec =
   return
     [ mkTmplFdWithData
         [relfile|register.ts|]

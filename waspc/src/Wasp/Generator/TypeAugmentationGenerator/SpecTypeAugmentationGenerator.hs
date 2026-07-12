@@ -1,5 +1,5 @@
-module Wasp.Generator.TypesGenerator.SpecTypesGenerator
-  ( genSpecTypes,
+module Wasp.Generator.TypeAugmentationGenerator.SpecTypeAugmentationGenerator
+  ( genSpecTypeAugmentation,
   )
 where
 
@@ -13,8 +13,8 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.NodePackageFFI (InstallablePackage (..), getInstallablePackageName)
 
-genSpecTypes :: AppSpec -> Generator [FileDraft]
-genSpecTypes spec =
+genSpecTypeAugmentation :: AppSpec -> Generator [FileDraft]
+genSpecTypeAugmentation spec =
   if null entities
     then return []
     else
