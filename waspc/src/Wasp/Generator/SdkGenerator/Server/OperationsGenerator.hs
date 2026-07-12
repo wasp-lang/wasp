@@ -24,6 +24,7 @@ import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
     getGenericOperationDefinitionTypeName,
+    mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
@@ -42,7 +43,8 @@ genOperations spec =
       genQueriesIndex spec,
       genActionsIndex spec,
       genWrappers spec,
-      genIndexTs spec
+      genIndexTs spec,
+      genRegister
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
@@ -59,11 +61,15 @@ genIndexTs spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
+genRegister :: Generator FileDraft
+genRegister = return $ mkTmplFd (serverOpsDirInSdkTemplatesDir </> [relfile|register.ts|])
+
 genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
   return $
     mkTmplFdWithData
-      (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|])
+      ( serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]
+      )
       tmplData
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
