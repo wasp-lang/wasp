@@ -17,7 +17,7 @@ import {
 import type { OperationFromRegister } from '../register'
 import type {
   {=# operations =}
-  {= genericTypeNameForDefiningOperation =},
+  {= genericOperationDefinitionTypeName =},
   {=/ operations =}
 } from './types'
 {=# operations =}
@@ -26,16 +26,16 @@ import type {
 {=# operations =}
 
 // PRIVATE API
-export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= genericTypeNameForDefiningOperation =}>
+export type Registered{= genericOperationDefinitionTypeName =} = OperationFromRegister<'{= operationName =}', {= genericOperationDefinitionTypeName =}>
 
 // PUBLIC API
 {=# usesAuth =}
-export const {= operationName =}: AuthenticatedOperationFor<{= registeredOperationTypeName =}> =
-  createAuthenticatedOperation<{= registeredOperationTypeName =}>(
+export const {= operationName =}: AuthenticatedOperationFor<Registered{= genericOperationDefinitionTypeName =}> =
+  createAuthenticatedOperation<Registered{= genericOperationDefinitionTypeName =}>(
 {=/ usesAuth =}
 {=^ usesAuth =}
-export const {= operationName =}: UnauthenticatedOperationFor<{= registeredOperationTypeName =}> =
-  createUnauthenticatedOperation<{= registeredOperationTypeName =}>(
+export const {= operationName =}: UnauthenticatedOperationFor<Registered{= genericOperationDefinitionTypeName =}> =
+  createUnauthenticatedOperation<Registered{= genericOperationDefinitionTypeName =}>(
 {=/ usesAuth =}
     {= jsFn.importIdentifier =},
     {
