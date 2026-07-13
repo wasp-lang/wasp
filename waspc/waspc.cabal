@@ -28,7 +28,7 @@ data-files:
   Cli/module-template/**/*.md
   Cli/module-template/**/*.ts
   Cli/module-template/**/*.tsx
-  Cli/module-template/.gitignore
+  Cli/module-template/gitignore
   Cli/starters/**/*.css
   Cli/starters/**/*.js
   Cli/starters/**/*.json
