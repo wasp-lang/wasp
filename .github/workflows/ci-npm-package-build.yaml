@@ -79,7 +79,7 @@ jobs:
       NPM_PACKAGING_METADATA_JSON: ${{ needs.npm-packaging-metadata.outputs.NPM_PACKAGING_METADATA_JSON }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
@@ -136,7 +136,7 @@ jobs:
         waspc/data/packages/spec
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
