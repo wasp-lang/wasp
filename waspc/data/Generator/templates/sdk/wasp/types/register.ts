@@ -34,8 +34,7 @@
  * As a result, users can see their own user-defined types in the SDK,
  * without SDK, directly depending on the user code.
  *
- * @see {@link https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces Interface declaration merging in TypeScript}
- * @see {@link https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation Module augmentation in TypeScript}
+ * @see {@link https://github.com/wasp-lang/wasp/pull/4049 PR implementing the change}
  */
 
 /**
