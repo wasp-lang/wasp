@@ -23,7 +23,7 @@ Full-stack modules are npm packages that contribute declarations to a host app t
   - ❌ Shim-only generics or incompatible per-operation generics.
 - ✅ Module operations declare their required structural context. The demo leaves its Prisma delegate as `any` because the host model shape cannot be verified.
   - ❌ Mock Prisma delegate types.
-- ✅ Modules and apps validate `tsconfig.wasp.json` against the same required baseline. Module source validation reuses the app source baseline, replacing app project-reference output with `noEmit` and adding the SDK shim declaration. Module declaration emit uses the module config; host compilation uses the host config.
+- ✅ Modules and apps validate `tsconfig.wasp.json` against the same required baseline. Module source validation reuses the app source baseline, replacing app project-reference output with `noEmit`, adding the SDK shim declaration, and requiring `jsx: react-jsx` instead of the app's `preserve`: module `dist/` ships plain `.js` that host bundlers never transform, so JSX must be compiled away at module build time. Module declaration emit uses the module config; host compilation uses the host config.
   - ❌ Hardcoded builder options or configs that violate the Wasp baseline.
 - ✅ After bundling, the host typechecks all transformed `*.wasp.ts` sources, including imported module specs. Error diagnostics fail compilation; non-error diagnostics warn. This checks bundled spec sources, not every source file in the module.
   - ❌ Skip package specs or downgrade errors to warnings.
