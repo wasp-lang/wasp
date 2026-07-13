@@ -4,12 +4,13 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 
 ## Spec
 
-- ✅ Generated modules publish `module.wasp.ts` as the runtime `./spec` export for the Wasp pipeline. Direct Node execution is unsupported. The host applies its normal spec transforms and typechecking.
-  - ❌ Build `dist/spec.js`: duplicates ref lowering and bundles the module's incompatible `@wasp.sh/spec` types.
+- ✅ Generated modules publish `dist/spec.js` as the runtime `./spec` export. `@wasp.sh/spec` remains external so the host supplies the runtime instance.
+  - ❌ Publish `module.wasp.ts` for transformation by the host.
 - ✅ Direct default export `(options) => Spec`, called explicitly by the host app.
   - ❌ Named exports, static specs, and default re-exports.
 - ✅ `prefix` is the conventional client-route option. Wasp does not interpret it or namespace declarations and operation URLs.
-- ✅ Relative refs in package specs must stay inside the package's `src/`. They map lexically to `<packageName>/<subpath>`; file existence and package exports are not validated.
+- ✅ Relative refs carry an explicit logical origin. Package origins contain the canonical package name and package-relative spec path; project origins contain a project-relative spec path.
+- ✅ Relative refs must stay inside `src/`. They map lexically to project `@src/<subpath>` or package `<packageName>/<subpath>` imports; file existence and package exports are not validated after transformation.
 - ✅ Absolute ref paths are rejected. Non-relative refs are package specifiers. `@src/foo` has no legacy project-source meaning and is interpreted as the package name `@src/foo`.
   - ❌ Full npm package-specifier validation; only incomplete scoped names such as `@scope` are rejected.
 - ✅ AppSpec external imports carry a tagged source: a project `@src/...` path or a package name plus optional subpath. The legacy Wasp DSL continues to produce project-source imports.
@@ -25,15 +26,14 @@ Full-stack modules are npm packages that contribute declarations to a host app t
   - ❌ Mock Prisma delegate types.
 - ✅ Modules and apps validate `tsconfig.wasp.json` against the same required baseline. Module source validation reuses the app source baseline, replacing app project-reference output with `noEmit`, adding the SDK shim declaration, and requiring `jsx: react-jsx` instead of the app's `preserve`: module `dist/` ships plain `.js` that host bundlers never transform, so JSX must be compiled away at module build time. Module declaration emit uses the module config; host compilation uses the host config.
   - ❌ Hardcoded builder options or configs that violate the Wasp baseline.
-- ✅ After bundling, the host typechecks all transformed `*.wasp.ts` sources, including imported module specs. Error diagnostics fail compilation; non-error diagnostics warn. This checks bundled spec sources, not every source file in the module.
-  - ❌ Skip package specs or downgrade errors to warnings.
-- ✅ The only built spec artifact is `dist/spec.d.ts`, emitted with `noCheck` from the module config. Its references resolve against the host's `@wasp.sh/spec`.
+- ✅ `wasp module build` typechecks the original and transformed module spec. The host typechecks only project-owned spec sources and the module's declaration boundary.
+- ✅ Built spec artifacts are `dist/spec.js` and a bundled `dist/spec.d.ts`. The declaration bundle is self-contained except for package types such as the host's `@wasp.sh/spec`.
   - ❌ Use `module.wasp.ts` as the package's `types` target.
 
 ## Pipeline
 
-- ✅ The spec pipeline replaces unrun's external resolver, bundling bare imports that resolve to `*.wasp.ts`. Externalized package specs would execute as raw TypeScript without ref lowering.
-  - ❌ `resolveId`, wrapping or vendoring unrun, or replacing unrun with rolldown in this skateboard.
+- ✅ The app and module pipelines reuse compiler plugins from `@wasp.sh/spec/compiler`, supplying project or package logical origins per transformed spec file.
+- ✅ Package `/spec` imports resolve to ordinary external JavaScript modules. The host has no package-source `.wasp.ts` resolver.
 - ✅ Module spec imports of `@wasp.sh/spec` stay external and resolve to the host's copy.
   - ❌ Bundle a second spec-package instance.
 - ✅ Generators render package-source external imports as package specifiers. Project-source imports continue through generated external-code paths.
@@ -47,7 +47,7 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 
 ## Packaging
 
-- ✅ Published modules are npm artifacts containing `module.wasp.ts`, `src/`, and compiled `dist/`. Runtime libraries are dependencies; host-provided libraries are peers.
+- ✅ Published modules contain compiled `dist/` artifacts, package metadata, and documentation. They do not contain `module.wasp.ts` or `src/`. Runtime libraries are dependencies; host-provided libraries are peers.
 - ✅ Kitchen Sink uses a checked-in tarball so the module's dependencies install into the host.
   - ❌ Default symlinked `file:../module`: the server bundle inlines module code but cannot resolve its bare dependency imports.
 - ✅ Refresh the fixture by building and packing, updating lockfile `integrity`, removing the installed module, and running `wasp install`.
@@ -63,5 +63,6 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 - ✅ The builder enforces direct `export default` syntax, but not that the exported value is an `(options) => Spec` function.
 - ✅ The builder validates only a non-empty package name, not package metadata or name syntax.
 - ✅ Every `src/**/*.ts` and `src/**/*.tsx` file becomes a public entry. JavaScript is not built, although ref mapping strips `.js` and `.jsx`.
-- ✅ Declaration emit uses `noCheck`; `npm run typecheck` is separate.
+- ✅ `tsdown` bundles module spec declarations after `wasp module build` performs module spec typechecking. `npm run typecheck` remains available for both module tsconfigs.
+- ✅ npm package aliases are unsupported; generated imports use the module's canonical `package.json` name.
 - ✅ Operations named `query` or `action` collide with the generic SDK aliases.
