@@ -24,7 +24,7 @@
     "test": "exit 0"
   },
   "peerDependencies": {
-    "vite": "^7"
+    "vite": "^8"
   },
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",
@@ -32,6 +32,6 @@
     "@types/node": "~22.12",
     "tsdown": "^0.21.5",
     "typescript": "~6.0.3",
-    "vite": "^7.3.1"
+    "vite": "^8.1.0"
   }
 }

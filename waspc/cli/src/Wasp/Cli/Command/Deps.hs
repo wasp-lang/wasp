@@ -42,13 +42,11 @@ depsMessage appSpec =
     ]
       ++ printDeps
         "Server dependencies:"
-        ( filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
-        )
+        (filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
       ++ [""]
       ++ printDeps
         "Server devDependencies:"
-        ( filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
-        )
+        (filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
   where
     waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.waspLibs
     filterOutWaspLibDeps = filter ((`Set.notMember` waspLibPackageNames) . Npm.Dependency.name)

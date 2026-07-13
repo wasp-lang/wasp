@@ -154,6 +154,7 @@ printUsage =
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
+        cmd   "    compile               Compiles your Wasp project and reports any errors, without running it.",
         cmd   "    build                 Generates the full web app, ready for deployment.",
         cmd   "    build start [args]    Previews the built production app locally.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",

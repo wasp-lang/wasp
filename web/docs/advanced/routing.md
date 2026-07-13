@@ -31,7 +31,7 @@ export function PhotoPage() {
 }
 ```
 
-Read more in the [React Router docs on dynamic segments](https://reactrouter.com/7.12.0/start/data/routing#dynamic-segments).
+Read more in the [React Router docs on dynamic segments](https://reactrouter.com/8.0.1/start/data/routing#dynamic-segments).
 
 ### Optional Segments
 
@@ -60,7 +60,7 @@ export function PhotoPage() {
 }
 ```
 
-Read more in the [React Router docs on optional segments](https://reactrouter.com/7.12.0/start/data/routing#optional-segments).
+Read more in the [React Router docs on optional segments](https://reactrouter.com/8.0.1/start/data/routing#optional-segments).
 
 ### Splats
 
@@ -88,7 +88,7 @@ export function FilesPage() {
 }
 ```
 
-Read more in the [React Router docs on splats](https://reactrouter.com/7.12.0/start/data/routing#splats).
+Read more in the [React Router docs on splats](https://reactrouter.com/8.0.1/start/data/routing#splats).
 
 ## Lazy-Loaded Routes
 

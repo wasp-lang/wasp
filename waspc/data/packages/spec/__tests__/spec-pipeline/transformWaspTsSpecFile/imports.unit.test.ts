@@ -2,7 +2,7 @@ import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import { transformRefImports_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/index.js";
-import { SpecUserError } from "../../../src/spec/specUserError.js";
+import { WaspSpecUserError } from "../../../src/spec/waspSpecUserError.js";
 
 describe("transformRefImports", () => {
   test("leaves files without ref imports untouched", () => {
@@ -72,7 +72,7 @@ describe("transformRefImports", () => {
     );
   });
 
-  test("rejects namespace ref imports with a SpecUserError", () => {
+  test("rejects namespace ref imports with a WaspSpecUserError", () => {
     expect(() =>
       transformImports(
         [
@@ -80,7 +80,7 @@ describe("transformRefImports", () => {
           ``,
         ].join("\n"),
       ),
-    ).toThrow(SpecUserError);
+    ).toThrow(WaspSpecUserError);
   });
 
   test("mentions the offending namespace binding in the error", () => {
@@ -179,7 +179,7 @@ describe("transformRefImports", () => {
         source: `import {} from "./operations" with { type: "ref" };`,
       },
     ])("rejects $caseName", ({ source }) => {
-      expect(() => transformImports(source)).toThrow(SpecUserError);
+      expect(() => transformImports(source)).toThrow(WaspSpecUserError);
       expect(() => transformImports(source)).toThrow(
         "must import at least one binding",
       );
@@ -216,7 +216,7 @@ describe("transformRefImports", () => {
       transformImports(
         `export { MainPage } from "./src/MainPage" with { type: "ref" };`,
       ),
-    ).toThrow(SpecUserError);
+    ).toThrow(WaspSpecUserError);
   });
 });
 
