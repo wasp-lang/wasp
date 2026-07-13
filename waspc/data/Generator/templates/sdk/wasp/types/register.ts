@@ -1,37 +1,43 @@
 /**
  * This module acts as a bridge between SDK and user project types.
  * 
- * If SDK tried to directly import types from user project,
+ * If the SDK tried to import types from the user project directly,
  * it would create a cyclic dependency between TypeScript projects.
- * Instead, the solution is for user project to push types into SDK.
- * That way the SDK can use user's types, without knowning about
- * the user project.
+ * TypeScript can't compile projects that have cyclic dependencies.
+ * So we must find a way to bridge the types without the SDK depending
+ * on the user project.
+ * 
+ * The solution is to either:
+ * 
+ * 1. Copy the user project and make the SDK depend on the copy. This
+ *    was our previous solution. While easy to implement, it forces
+ *    the user project to compile with the SDK's TypeScript config.
  *
+ * 2. For the user project to push types into the SDK. That way the
+ *    SDK can use the user's types, without depending on the user project.
+ *
+ * This solution uses the 2. approach:
+ * 
  * The SDK defines {@link Register} interface, which is publicly
  * exported through the `wasp/types` module.
  * 
- * During compilation, Wasp generate additional type declarations in
- * `.wasp/out/types/app/sdk` (which is part of user project) that
- * extend empty {@link Register} interface via module augmentation:
- *  ```ts
- * declare module "wasp/types" {
- *   interface Register {
- *     prismaSetupFn: typeof import('../../../../../src/features/db/prisma').setUpPrisma
- *     // ...
- *   }
- * }
- * ```
- * This essentially pushes user project types into SDK.
+ * During compilation, Wasp generates additional type declarations in
+ * `.wasp/out/types/app/sdk/register.ts` (which is part of the user project)
+ * that extend empty {@link Register} interface via module augmentation
+ * and declaration merging.This essentially pushes user project types
+ * into the SDK.
  * 
  * On the SDK side, all user project dependent types are resolved through
- * the {@link Register} interface. If a user defined type for something
- * exists in {@link Register}, we use it, otherwise, we default to
- * something sesnible.
- * E.g. `PrismaClient` type is either type of user's custom intance,
- * or a type of default prisma client instance.
+ * the {@link Register} interface. If a user-defined type for something
+ * exists in {@link Register}, we use it; otherwise, we fallback to some
+ * sensible default type. We must have a fallback because the SDK must 
+ * be compileable standalone, without a user project.
  * 
- * As a result, users can see their own user-defined types in SDK,
- * without SDK directly depending on the user code.
+ * As a result, users can see their own user-defined types in the SDK,
+ * without SDK, directly depending on the user code.
+ *
+ * @see {@link https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces Interface declaration merging in TypeScript}
+ * @see {@link https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation Module augmentation in TypeScript}
  */
 
 /**
