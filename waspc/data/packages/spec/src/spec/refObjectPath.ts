@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import type * as AppSpec from "../appSpec.js";
-import { SpecUserError } from "./specUserError.js";
+import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 /**
  * Maps a relative ref from a spec file that lives inside an installed package
@@ -102,7 +102,7 @@ function getValidPackageSrcSubpath({
   const srcRelativePath = path.relative(packageSrcDir, importedFilePath);
 
   if (!isValidSrcRelativeFilePath(srcRelativePath)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Reference import path ${JSON.stringify(importPath)} in ${JSON.stringify(canonicalImportingFilePath)} must resolve to a file inside the package src/ directory.`,
     );
   }
@@ -170,7 +170,7 @@ function getValidSrcRelativePath({
   const srcRelativePath = path.relative(srcRootDir, importedFilePath);
 
   if (!isValidSrcRelativeFilePath(srcRelativePath)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Reference import path ${JSON.stringify(importPath)} in ${JSON.stringify(importingFilePath)} must resolve to a file inside the app src/ directory.`,
     );
   }

@@ -36,6 +36,7 @@ bashCompletion = do
         "start",
         "db",
         "clean",
+        "compile",
         "build",
         "module",
         "deploy",

@@ -29,20 +29,6 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
       },
     },
     {
-      "declName": "FaqPage",
-      "declType": "Page",
-      "declValue": {
-        "component": {
-          "kind": "default",
-          "name": "FaqPage",
-          "source": {
-            "kind": "project-src",
-            "path": "@src/features/faq/FaqPage",
-          },
-        },
-      },
-    },
-    {
       "declName": "archive",
       "declType": "Action",
       "declValue": {
@@ -54,6 +40,20 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
           "source": {
             "kind": "project-src",
             "path": "@src/adminOperations",
+          },
+        },
+      },
+    },
+    {
+      "declName": "FaqPage",
+      "declType": "Page",
+      "declValue": {
+        "component": {
+          "kind": "default",
+          "name": "FaqPage",
+          "source": {
+            "kind": "project-src",
+            "path": "@src/features/faq/FaqPage",
           },
         },
       },

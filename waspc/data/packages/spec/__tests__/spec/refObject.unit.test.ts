@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
 import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import { mapRefObject } from "../../src/spec/refObject.js";
-import { SpecUserError } from "../../src/spec/specUserError.js";
+import { WaspSpecUserError } from "../../src/spec/waspSpecUserError.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapRefObject", () => {
@@ -27,7 +27,7 @@ describe("mapRefObject", () => {
     { refObject: { parse: () => ({}) } },
     { refObject: { from: "./src/external" } },
   ])("returns an error for invalid runtime values", ({ refObject }) => {
-    expect(() => mapRefObjectForProject(refObject)).toThrow(SpecUserError);
+    expect(() => mapRefObjectForProject(refObject)).toThrow(WaspSpecUserError);
     expect(() => mapRefObjectForProject(refObject)).toThrow(
       "Got an import in the Wasp file that we couldn't process",
     );
@@ -102,7 +102,7 @@ describe("mapRefObject", () => {
             from,
           }),
         ),
-      ).toThrow(SpecUserError);
+      ).toThrow(WaspSpecUserError);
       expect(() =>
         mapRefObjectForProject(
           Fixtures.getRefObjectForMockProject({
@@ -122,7 +122,7 @@ describe("mapRefObject", () => {
           from: "@scope",
         }),
       ),
-    ).toThrow(SpecUserError);
+    ).toThrow(WaspSpecUserError);
     expect(() =>
       mapRefObjectForProject(
         Fixtures.getRefObjectForMockProject({

@@ -229,7 +229,7 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
             ("typescript", show typescriptVersionRange),
-            ("@vitejs/plugin-react", "^4.7.0"),
+            ("@vitejs/plugin-react", "^6.0.3"),
             ("@types/express", show expressTypesVersionRange),
             ("@types/express-serve-static-core", show expressTypesVersionRange),
             ("@types/react", show reactTypesVersionRange),
@@ -243,7 +243,7 @@ npmDepsForSdk spec =
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
   Npm.Dependency.fromList
-    [ ("@vitest/ui", "^4.0.16"),
+    [ ("@vitest/ui", "^4.1.9"),
       ("jsdom", "^27.4.0"),
       ("@testing-library/react", "^16.3.1"),
       ("@testing-library/jest-dom", "^6.9.1"),

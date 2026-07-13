@@ -16,7 +16,7 @@
     "@playwright/test": "1.55.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.3.1",
     "@types/chai": "^5.2.2",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
@@ -27,8 +27,8 @@
     "@wasp.sh/wasp-app-runner": "^0.0.16",
     "prisma": "5.19.1",
     "typescript": "6.0.3",
-    "vite": "^7.0.6",
-    "vitest": "^4.0.16"
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   },
   "name": "kitchen-sink",
   "scripts": {

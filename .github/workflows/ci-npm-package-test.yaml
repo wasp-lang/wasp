@@ -21,6 +21,9 @@ jobs:
             os: ubuntu-latest
             container: alpine:3.23
 
+          - # Linux ARM64 with Glibc
+            os: ubuntu-24.04-arm
+
           - # Apple Silicon
             os: macos-latest
 

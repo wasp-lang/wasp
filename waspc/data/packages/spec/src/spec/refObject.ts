@@ -5,7 +5,7 @@ import {
   normalizeRefObjectPath,
   tryMapPackageRefObjectPath,
 } from "./refObjectPath.js";
-import { SpecUserError } from "./specUserError.js";
+import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 /**
  * A reference to code used by a Wasp app or module.
@@ -132,7 +132,7 @@ export function mapRefObject(
       source: mapRefObjectSource(refObject, { projectRootDir }),
     };
   } else {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       "Got an import in the Wasp file that we couldn't process: " +
         JSON.stringify(refObject) +
         '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the ref object correctly.',
@@ -149,7 +149,7 @@ export function getRefObjectDeclarationName(refObject: unknown): string {
     return refObject.importDefault;
   }
 
-  throw new SpecUserError(
+  throw new WaspSpecUserError(
     "Got an import in the Wasp file that we couldn't process: " +
       JSON.stringify(refObject),
   );
@@ -160,7 +160,7 @@ function mapRefObjectSource(
   { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImportSource {
   if (isAbsoluteRefPath(refObject.from)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Absolute ref paths are not supported: ${JSON.stringify(refObject.from)}. Use a relative path or a package import.`,
     );
   }
@@ -173,7 +173,7 @@ function mapRefObjectSource(
   }
 
   if (!hasSourceFilePath(refObject)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
   }
@@ -204,7 +204,7 @@ function splitPackageSpecifier(
 
   if (specifier.startsWith("@")) {
     if (!secondPart) {
-      throw new SpecUserError(
+      throw new WaspSpecUserError(
         `Scoped package ref ${JSON.stringify(specifier)} must include both scope and package name.`,
       );
     }

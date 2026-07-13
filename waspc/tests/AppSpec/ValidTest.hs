@@ -456,6 +456,43 @@ spec_AppSpecValid = do
       testDuplicateDecls [basicAppDecl, entityDecl, entityDecl] "entity" "There are duplicate entity declarations with name 'TestEntity'."
       testDuplicateDecls [basicAppDecl, jobDecl, jobDecl] "job" "There are duplicate job declarations with name 'testJob'."
 
+    describe "operation entities uniqueness validation" $ do
+      let makeActionDeclWithEntities name entityNames =
+            AS.Decl.makeDecl
+              name
+              AS.Action.Action
+                { AS.Action.auth = Nothing,
+                  AS.Action.entities = Just $ AS.Core.Ref.Ref <$> entityNames,
+                  AS.Action.fn = dummyExtImport
+                }
+      let makeQueryDeclWithEntities name entityNames =
+            AS.Decl.makeDecl
+              name
+              AS.Query.Query
+                { AS.Query.auth = Nothing,
+                  AS.Query.entities = Just $ AS.Core.Ref.Ref <$> entityNames,
+                  AS.Query.fn = dummyExtImport
+                }
+      let makeSpecWithDecls extraDecls =
+            basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl] ++ extraDecls}
+
+      it "returns no error when an action's entities are all unique" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeActionDeclWithEntities "myAction" ["Task", "User"]])
+          `shouldBe` []
+      it "returns no error when an operation has no entities" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeActionDeclWithEntities "myAction" []])
+          `shouldBe` []
+      it "returns an error when an action lists the same entity more than once" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeActionDeclWithEntities "myAction" ["Task", "User", "Task"]])
+          `shouldBe` [ Valid.GenericValidationError
+                         "The action 'myAction' lists the same entity more than once in its 'entities' list: \"Task\". Please remove the duplicate entity references."
+                     ]
+      it "returns an error when a query lists the same entity more than once" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeQueryDeclWithEntities "myQuery" ["Task", "Task"]])
+          `shouldBe` [ Valid.GenericValidationError
+                         "The query 'myQuery' lists the same entity more than once in its 'entities' list: \"Task\". Please remove the duplicate entity references."
+                     ]
+
     describe "should validate that there's at least one 'route' declaration" $ do
       it "returns no error if there is at least one 'route' declaration" $ do
         ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []

@@ -50,6 +50,12 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Setup
 
+<!-- prettier-ignore -->
+> [!IMPORTANT]
+> **On Windows**, develop Wasp using the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt.
+>
+> If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux setup instructions instead.
+
 #### Dev tooling
 
 We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
@@ -87,13 +93,6 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ```
 
 to ensure all the tests are passing.
-
-> [!NOTE]
-> On Windows, the powershell's active code page should be changed to utf-8 to support special letters in some test suits (ref. [PR3027](https://github.com/wasp-lang/wasp/pull/3027)).
->
-> ```ps
-> chcp 65001
-> ```
 
 ### Run the `wasp` CLI
 
@@ -375,22 +374,22 @@ The subsequent runs will be much faster.
 
 ## Branching and merging strategy
 
-This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`), and also Mage web app (under `mage`). In order to facilitate the development of Wasp code while still allowing for website / Mage updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
+This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`). In order to facilitate the development of Wasp code while still allowing for website updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
 
 All Wasp development should be done on feature branches. They form the basis of PRs that will target one of the two following branches:
 
 - `main`: this branch contains all the actively developed new features and corresponding documentation updates. Some of these things may not yet be released, but anything merged into `main` should be in a release-ready state.
   - This is the default branch to target for any Wasp feature branches.
-- `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website, and also currently published version of Mage.
+- `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website.
   - When doing a full release, which means making a new release based on what we have currently on `main`, we do the following:
     1. Update `main` branch by merging `release` into it. There might be conflicts but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
     2. Update `release` branch to this new `main` by merging `main` into it. There will be no conflicts since we already resolved all of them in the previous step.
 
 How do I know where I want to target my PR, to `release` or `main`?
 
-- If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, update for Mage that needs to go out now, ... .
+- If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, ... .
 - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
-- Stuff published on `release` uses/references version of `wasp` that was last released (so one that is also on `release`). Mage is an exception and uses its own pinned Wasp CLI version.
+- Stuff published on `release` uses/references version of `wasp` that was last released (so one that is also on `release`).
 - TLDR;
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
@@ -456,7 +455,6 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main` (you can also find it [here](https://github.com/wasp-lang/wasp/pulls?q=is%3Apr+head%3Arelease+base%3Amain+is%3Aopen)). Make sure to merge that PR (create a merge commit, **don't squash or rebase**). This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](../web/README.md#deployment) from the `release` branch.
-- If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
 - Announce the new release in Discord.
 - Go back to [Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "After the release" section of the checklist.
@@ -491,10 +489,6 @@ If doing this, steps are the following:
 ## Documentation
 
 External documentation, for users of Wasp, is hosted at https://wasp.sh/docs, and its source is available at [web/docs](/web/docs), next to the website and blog.
-
-## Mage
-
-Mage is Wasp's GPT web app generator for the pre-Spec Wasp DSL. It is hosted at https://usemage.ai and its source is available at [mage](/mage).
 
 ## Haskell
 
