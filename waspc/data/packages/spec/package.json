@@ -6,7 +6,7 @@
   "author": "wasp",
   "license": "MIT",
   "bin": {
-    "__internal_wasp_spec__": "./dist/src/run.js"
+    "__internal_wasp_spec__": "dist/src/run.js"
   },
   "exports": {
     ".": {
@@ -18,6 +18,10 @@
       "default": "./dist/src/internal.js"
     }
   },
+  "files": [
+    "dist/**",
+    "!dist/__tests__/**"
+  ],
   "scripts": {
     "build": "tsc",
     "coverage": "vitest run --coverage",
