@@ -1,18 +1,29 @@
-# @wasp.sh/spec
+The Wasp Spec, as an npm package.
 
-Wasp Spec is a library for defining a Wasp application specification in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
+**Note:** If you are a creating a Wasp app yourself, the Wasp CLI will install and manage this package for you. Use this package only if you are creating a Wasp Spec helper or library outside of a Wasp project.
 
-## Important Notes
+## For Wasp users
 
-The `appSpec.ts` type definitions in this package are meant to mirror the AppSpec declarations defined in the `waspc` Haskell codebase. When making changes to this package, ensure that they align with the corresponding Haskell implementation.
+If you are creating a Wasp app, you don't need to install this package yourself. The Wasp CLI will install and manage it for you.
 
-When linking to other Wasp docs from TSDoc comments in this package, write the full `https://wasp.sh/docs/...` URL rather than a relative path. The website build rewrites those URLs to relative links via the `fix-api-links` remark plugin (see [Writing Docs](../../../../web/WRITING-DOCS.md)), so they resolve correctly both on the rendered website and in the raw markdown that consumers of this package read.
+- Learn more about Wasp: https://wasp.sh/
+- Read about the Wasp spec: https://wasp.sh/docs/general/spec
+- Follow our tutorial: https://wasp.sh/docs/tutorial/create
+- Join our community: https://discord.gg/rzdnErX
 
-## Testing
+## For Wasp Spec library authors
 
-```bash
-npm run test
-npm run test:unit
-npm run test:integration
-npm run coverage
+If you are creating a Wasp Spec helper or library outside of a Wasp project, you can install this package as a dependency in your project. For best results, add it to both your `devDependencies` and `peerDependencies` in your `package.json`, so you have a local copy during development, but your library users will use the version of the package that is installed in their Wasp project.
+
+In `package.json`:
+
+```json
+{
+  "peerDependencies": {
+    "@wasp/spec": "^0.24.0"
+  },
+  "devDependencies": {
+    "@wasp/spec": "^0.24.0"
+  }
+}
 ```
