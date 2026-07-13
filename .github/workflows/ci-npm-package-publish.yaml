@@ -14,9 +14,18 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
 
+      # Both artifacts are downloaded into the same folder so the publish glob
+      # below picks them all up. The CLI artifact holds package directories; the
+      # supporting-packages artifact holds `.tgz` tarballs. `pkg-pr-new publish`
+      # accepts both.
       - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          path: packages/
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ vars.WASP_SUPPORTING_PACKAGES_ARTIFACT_NAME }}
           path: packages/
 
       - name: Publish Wasp npm packages
