@@ -56,6 +56,10 @@ spec_SrcTsConfig = do
       assertReturnsModuleValidationErrorMentioningField "noEmit" $
         validModuleTsConfig {T.compilerOptions = Just (validModuleCompilerOptions {T.noEmit = Nothing})}
 
+    it "requires JSX to be compiled away in module source" $
+      assertReturnsModuleValidationErrorMentioningField "jsx" $
+        validModuleTsConfig {T.compilerOptions = Just (validModuleCompilerOptions {T.jsx = Just "preserve"})}
+
 validateApp :: T.TsConfig -> [String]
 validateApp = validateTsConfig srcTsConfigValidator "tsconfig.src.json"
 
@@ -113,5 +117,6 @@ validModuleCompilerOptions =
   validCompilerOptions
     { T.composite = Nothing,
       T.outDir = Nothing,
-      T.noEmit = Just True
+      T.noEmit = Just True,
+      T.jsx = Just "react-jsx"
     }

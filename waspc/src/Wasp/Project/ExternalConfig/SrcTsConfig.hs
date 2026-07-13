@@ -69,7 +69,6 @@ commonCompilerOptionsValidator =
       -- `isolatedModules` prevents users from using features that don't work
       -- with Wasp's transpilers (e.g., const enums).
       V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
-      V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
       V.inField ("strict", T.strict) $ V.eqJust True,
       V.inField ("esModuleInterop", T.esModuleInterop) $ V.eqJust True,
       V.inField ("lib", T.lib) $ V.eqJust ["dom", "dom.iterable", "esnext"],
@@ -83,7 +82,9 @@ commonCompilerOptionsValidator =
 appCompilerOptionsValidator :: V.Validator T.CompilerOptions
 appCompilerOptionsValidator =
   V.all
-    [ -- Wasp uses project references to compile user code. Referenced projects
+    [ -- Vite transforms app source, so JSX can stay untouched.
+      V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
+      -- Wasp uses project references to compile user code. Referenced projects
       -- may not disable emit, so they need a dedicated output directory.
       V.inField ("outDir", T.outDir) $ V.eqJust ".wasp/out/user",
       V.inField ("composite", T.composite) $ V.eqJust True
@@ -91,4 +92,9 @@ appCompilerOptionsValidator =
 
 moduleCompilerOptionsValidator :: V.Validator T.CompilerOptions
 moduleCompilerOptionsValidator =
-  V.inField ("noEmit", T.noEmit) $ V.eqJust True
+  V.all
+    [ -- Module source is prebuilt into plain .js files that host bundlers
+      -- never transform, so JSX must be compiled away.
+      V.inField ("jsx", T.jsx) $ V.eqJust "react-jsx",
+      V.inField ("noEmit", T.noEmit) $ V.eqJust True
+    ]
