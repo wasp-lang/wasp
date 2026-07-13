@@ -85,9 +85,6 @@ jobs:
         run: |
           set -x # Log each command for debugging
 
-          # Pre-release versions are staged under the "rc" dist-tag so they
-          # don't become "latest" once approved. The dist-tag is fixed at
-          # staging time and can't be changed at approval time.
           # Per semver, a version containing a "-" character is a pre-release
           # (e.g. v0.24.1-rc.1), which is what we match on here.
           case "$REF_NAME" in
