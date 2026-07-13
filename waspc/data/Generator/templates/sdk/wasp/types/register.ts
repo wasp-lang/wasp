@@ -7,16 +7,14 @@
  * So we must find a way to bridge the types without the SDK depending
  * on the user project.
  * 
- * The solution is to either:
- * 
- * 1. Copy the user project and make the SDK depend on the copy. This
- *    was our previous solution. While easy to implement, it forces
- *    the user project to compile with the SDK's TypeScript config.
+ * Copying the user project and making the SDK depend on the copy
+ * is not an option, becuase it forces the user project to compile
+ * with the SDK's TypeScript config.
+ * ({@link https://github.com/wasp-lang/wasp/issues/2247 Old issue about the problem})
  *
- * 2. For the user project to push types into the SDK. That way the
- *    SDK can use the user's types, without depending on the user project.
- *
- * This solution uses the 2. approach:
+ * Instead, the solution is for the user project to push types into
+ * the SDK. That way the SDK can use the user's types, without 
+ * depending on the user project.
  * 
  * The SDK defines {@link Register} interface, which is publicly
  * exported through the `wasp/types` module.
@@ -24,7 +22,7 @@
  * During compilation, Wasp generates additional type declarations in
  * `.wasp/out/types/app/sdk/register.ts` (which is part of the user project)
  * that extend empty {@link Register} interface via module augmentation
- * and declaration merging.This essentially pushes user project types
+ * and declaration merging. This essentially pushes user project types
  * into the SDK.
  * 
  * On the SDK side, all user project dependent types are resolved through
