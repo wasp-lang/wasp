@@ -14,6 +14,18 @@ on:
       output_linux-x86_64:
         value: ${{ jobs.build.outputs.output_linux-x86_64 }}
         description: "The build output metadata for linux-x86_64."
+      output_linux-x86_64-static:
+        value: ${{ jobs.build.outputs.output_linux-x86_64-static }}
+        description: "The build output metadata for linux-x86_64-static."
+      output_linux-aarch64:
+        value: ${{ jobs.build.outputs.output_linux-aarch64 }}
+        description: "The build output metadata for linux-aarch64."
+      output_macos-x86_64:
+        value: ${{ jobs.build.outputs.output_macos-x86_64 }}
+        description: "The build output metadata for macos-x86_64."
+      output_macos-aarch64:
+        value: ${{ jobs.build.outputs.output_macos-aarch64 }}
+        description: "The build output metadata for macos-aarch64."
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -24,6 +36,10 @@ jobs:
       waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
       data_files_list: ${{ steps.data-files.outputs.list }}
       output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
+      output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
+      output_linux-aarch64: ${{ steps.set-outputs.outputs.output_linux-aarch64 }}
+      output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
+      output_macos-aarch64: ${{ steps.set-outputs.outputs.output_macos-aarch64 }}
 
     strategy:
       fail-fast: false
@@ -55,6 +71,40 @@ jobs:
               export DEBIAN_FRONTEND=noninteractive
               apt-get update -y
               apt-get install -y curl
+
+          - name: linux-x86_64-static
+            runner: ubuntu-latest
+            # We pin the `alpine` version to a specific one we have tested,
+            # since newer releases might have different versions of the
+            # libraries we depend on.
+            container: alpine:3.23
+            static: true
+
+          - name: linux-aarch64
+            runner: ubuntu-24.04-arm
+            # We use an old Ubuntu version so we can link to a low `glibc` version.
+            # `glibc` is backwards-compatible but not forwards-compatible, so it
+            # is a good idea to use the oldest version we reasonably can. Otherwise,
+            # the wasp binary would possibly not work on the system using an older
+            # glibc than what it was built with (e.g. an older Ubuntu version).
+            container: ubuntu:24.04
+            static: false
+            install-deps: |
+              # We need either `curl` or `wget` to install Mise, which then
+              # installs everything else.
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update -y
+              apt-get install -y curl
+
+          - name: macos-x86_64
+            runner: macos-15-intel
+            # macOS's syscalls are private and change between versions, so we
+            # can't statically link the binary.
+            static: false
+
+          - name: macos-aarch64
+            runner: macos-15 # By default an Apple Silicon-based runner.
+            static: false # Check the comment above for why we can't statically link on macOS
 
     runs-on: ${{ matrix.env.runner }}
     container:
