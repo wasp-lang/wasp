@@ -40,6 +40,7 @@ createModuleOnDisk moduleDir packageName = do
       dataDir <- Data.getAbsDataDirPath
       copyDirRecur (toPathAbsDir $ dataDir </> moduleTemplateDirInDataDir) (toPathAbsDir moduleDir)
       replaceModuleTemplatePlaceholders moduleDir packageName
+      IOUtil.renameDotfiles moduleDir moduleTemplateDotfiles
       return $ Right ()
 
 installModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
@@ -120,6 +121,11 @@ ensureIsModuleDir moduleDir = do
 
 moduleTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
 moduleTemplateDirInDataDir = [reldir|Cli/module-template|]
+
+-- | Files stored without their leading dot in the module template directory,
+-- to prevent tools (e.g. npm, cabal) from stripping them during packaging.
+moduleTemplateDotfiles :: [String]
+moduleTemplateDotfiles = ["gitignore"]
 
 waspSdkModuleShimTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
 waspSdkModuleShimTemplateDirInDataDir = [reldir|Generator/templates/sdk/wasp/module-shim|]
