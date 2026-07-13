@@ -68,8 +68,7 @@ genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
   return $
     mkTmplFdWithData
-      ( serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]
-      )
+      (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|])
       tmplData
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
