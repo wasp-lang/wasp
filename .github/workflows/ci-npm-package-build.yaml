@@ -20,35 +20,12 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 jobs:
-  make-npm-packages:
+  npm-packaging-metadata:
     runs-on: ubuntu-latest
 
-    name: Make npm packages
+    name: Compute npm packaging metadata
     steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/setup-tools
-
-      - name: Compute artifact names for download
-        uses: ./.github/actions/compute-artifact-names
-        id: compute-download-artifact-names
-        with:
-          build-name: all
-
-      - uses: actions/download-artifact@v8
-        with:
-          path: "./download/"
-          pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
-
-      - name: Copy artifacts to input folder
-        env:
-          ARTIFACT_NAME: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
-        run: |
-          mkdir -p ./input/
-          cp ./download/${ARTIFACT_NAME}/* ./input/
-
-      - name: Create build metadata file
+      - name: Create metadata file
         env:
           INPUT_DATA_JSON: ${{ inputs.build-outputs-json }}
           OVERRIDE_VERSION_JSON: ${{ inputs.override-npm-package-version && toJson(inputs.override-npm-package-version) || 'null' }}
@@ -75,9 +52,59 @@ jobs:
             --argjson inputData "$INPUT_DATA_JSON" \
             --argjson overrideVersion "$OVERRIDE_VERSION_JSON" \
             "$JQ_PROGRAM" \
-            > ./input/data.json
+            > ./data.json
 
-          cat ./input/data.json # For debugging purposes
+      - name: Print npm package metadata for debugging
+        run: cat ./data.json
+
+      - name: Set output
+        id: set-output
+        run: |
+          {
+            echo 'NPM_PACKAGING_METADATA_JSON<<EOF'
+            cat ./data.json
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+    outputs:
+      NPM_PACKAGING_METADATA_JSON: ${{ steps.set-output.outputs.NPM_PACKAGING_METADATA_JSON }}
+
+  make-cli-npm-packages:
+    runs-on: ubuntu-latest
+    needs: npm-packaging-metadata
+
+    name: Make Wasp CLI npm packages
+
+    env:
+      NPM_PACKAGING_METADATA_JSON: ${{ needs.npm-packaging-metadata.outputs.NPM_PACKAGING_METADATA_JSON }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
+
+      - name: Compute artifact names for download
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-download-artifact-names
+        with:
+          build-name: all
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: "./download/"
+          pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
+
+      - name: Copy artifacts to input folder
+        env:
+          ARTIFACT_NAME: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
+        run: |
+          mkdir -p ./input/
+          cp ./download/${ARTIFACT_NAME}/* ./input/
+
+      - name: Write metadata file
+        run: |
+          cat <<<"$NPM_PACKAGING_METADATA_JSON" > ./input/data.json
 
       - name: Install dependencies for script
         working-directory: ./scripts/make-npm-packages
@@ -91,3 +118,53 @@ jobs:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           include-hidden-files: true
           path: ./output/
+
+  make-supporting-packages:
+    runs-on: ubuntu-latest
+    needs: npm-packaging-metadata
+
+    name: Make Wasp supporting npm packages
+
+    env:
+      ARTIFACTS_DIR: ./output
+      NPM_PACKAGING_METADATA_JSON: ${{ needs.npm-packaging-metadata.outputs.NPM_PACKAGING_METADATA_JSON }}
+      PACKAGES:
+        # We don't use a matrix since we need a single job. This is because the
+        # upload step needs to upload all packages at once in a single job,
+        # instead of each job doing their own upload.
+        |
+        waspc/data/packages/spec
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
+
+      - name: Build and pack
+        run: |
+          set -euxo pipefail
+
+          VERSION=$(jq <<<"$NPM_PACKAGING_METADATA_JSON" -r '.version')
+
+          mkdir -p "$ARTIFACTS_DIR"
+
+          for package in $PACKAGES; do
+            cd "$GITHUB_WORKSPACE/$package"
+
+            echo "Building and packing $package"
+            npm ci
+            npm run build
+
+            # Keep the published version in sync with the CLI packages (matters
+            # only when override-npm-package-version is set).
+            npm version --no-git-tag-version --allow-same-version "$VERSION"
+
+            npm pack --pack-destination "$ARTIFACTS_DIR"
+          done
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ vars.WASP_SUPPORTING_PACKAGES_ARTIFACT_NAME }}
+          include-hidden-files: true
+          path: ${{ env.ARTIFACTS_DIR }}
