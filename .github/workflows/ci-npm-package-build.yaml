@@ -126,7 +126,7 @@ jobs:
     name: Make Wasp supporting npm packages
 
     env:
-      ARTIFACTS_DIR: ./output
+      ARTIFACTS_DIR: "${{ github.workspace }}/output"
       NPM_PACKAGING_METADATA_JSON: ${{ needs.npm-packaging-metadata.outputs.NPM_PACKAGING_METADATA_JSON }}
       PACKAGES:
         # We don't use a matrix since we need a single job. This is because the
