@@ -4,7 +4,7 @@
  * The SDK defines and exports empty {@link Register} interface.
  * 
  * During compilation, Wasp generate additional type declarations
- * in `.wasp/out/types/runtime/sdk` (which is part of user project) that 
+ * in `.wasp/out/types/app/sdk` (which is part of user project) that 
  * extend (augment) empty {@link Register} interface via module augmentation:
  * ```ts
  * declare module "wasp/types" {

@@ -1,4 +1,4 @@
-module Wasp.Generator.TypeAugmentationGenerator.RuntimeTypeAugmentationGenerator.SdkTypeAugmentationGenerator.Common
+module Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator.Common
   ( SdkTypeAugmentationRootDir,
     SdkTypeAugmentationTemplatesDir,
     mkTmplFdWithDstAndData,
@@ -15,6 +15,14 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.Common
+  ( appTypeAugmentationRootDirInTypeAugmentationRootDir,
+    appTypeAugmentationTemplatesDirInTypeAugmentationTemplatesDir,
+  )
+import Wasp.Generator.TypeAugmentationGenerator.Common
+  ( typeAugmentationRootDirInGeneratedCodeDir,
+    typeAugmentationTemplatesDirInTemplatesDir,
+  )
 
 data SdkTypeAugmentationRootDir
 
@@ -49,7 +57,13 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     tmplData
 
 sdkTypeAugmentationRootDirInGeneratedCodeDir :: Path' (Rel GeneratedAppDir) (Dir SdkTypeAugmentationRootDir)
-sdkTypeAugmentationRootDirInGeneratedCodeDir = [reldir|types/runtime/sdk|]
+sdkTypeAugmentationRootDirInGeneratedCodeDir =
+  typeAugmentationRootDirInGeneratedCodeDir
+    </> appTypeAugmentationRootDirInTypeAugmentationRootDir
+    </> [reldir|sdk|]
 
 sdkTypeAugmentationTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTypeAugmentationTemplatesDir)
-sdkTypeAugmentationTemplatesDirInTemplatesDir = [reldir|types/runtime/sdk|]
+sdkTypeAugmentationTemplatesDirInTemplatesDir =
+  typeAugmentationTemplatesDirInTemplatesDir
+    </> appTypeAugmentationTemplatesDirInTypeAugmentationTemplatesDir
+    </> [reldir|sdk|]

@@ -159,7 +159,7 @@ In `tsconfig.src.json`, list the types and update the `include` field:
         "types": ["react", "node"]
       }  
       // highlight-next-line
-      "include": ["src", ".wasp/out/types/runtime"]
+      "include": ["src", ".wasp/out/types/app"]
     }
     ```
   </TabItem>

@@ -51,7 +51,7 @@ validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
-      T.include = Just ["src", ".wasp/out/types/runtime"],
+      T.include = Just ["src", ".wasp/out/types/app"],
       T.exclude = Just ["**/*.wasp.ts"],
       T.files = Nothing,
       T.references = Nothing
