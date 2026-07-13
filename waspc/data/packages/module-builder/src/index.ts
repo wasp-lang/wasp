@@ -1,13 +1,11 @@
+import { createWaspTsSpecPlugins } from "@wasp.sh/spec/compiler";
 import assert from "node:assert/strict";
 import {
   existsSync,
-  mkdirSync,
   readdirSync,
   readFileSync,
   realpathSync,
-  rmSync,
   statSync,
-  writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -27,8 +25,8 @@ async function main(): Promise<void> {
 }
 
 export async function buildModule(moduleDir: string): Promise<void> {
-  // Validates that the module has a package.json with a name.
-  readPackageName(moduleDir);
+  moduleDir = realpathSync(moduleDir);
+  const packageName = readPackageName(moduleDir);
 
   const moduleSpecPath = path.join(moduleDir, "module.wasp.ts");
   if (!existsSync(moduleSpecPath)) {
@@ -37,20 +35,45 @@ export async function buildModule(moduleDir: string): Promise<void> {
 
   const moduleSpec = readFileSync(moduleSpecPath, "utf8");
   assertHasDefaultExport(moduleSpecPath, moduleSpec);
+  typecheckModuleSpec(moduleDir);
+
+  await build({
+    config: false,
+    cwd: moduleDir,
+    outDir: "dist",
+    format: "esm",
+    sourcemap: false,
+    dts: { sourcemap: false },
+    fixedExtension: false,
+    clean: true,
+    entry: { spec: "./module.wasp.ts" },
+    platform: "node",
+    target: "node24",
+    tsconfig: "tsconfig.wasp.json",
+    plugins: createWaspTsSpecPlugins({
+      tsconfigPath: path.join(moduleDir, "tsconfig.wasp.json"),
+      getRefOrigin: (filePath) => ({
+        kind: "package",
+        packageName,
+        specFilePath: getModuleRelativePath(moduleDir, filePath),
+      }),
+    }),
+    deps: {
+      neverBundle: [/^[^./]/],
+    },
+  });
 
   const sourceEntries = getSourceEntries(moduleDir);
-  if (Object.keys(sourceEntries).length === 0) {
-    rmSync(path.join(moduleDir, "dist"), { recursive: true, force: true });
-  } else {
+  if (Object.keys(sourceEntries).length > 0) {
     await build({
       config: false,
       cwd: moduleDir,
       outDir: "dist",
       format: "esm",
       sourcemap: true,
-      dts: { sourcemap: true },
+      dts: true,
       fixedExtension: false,
-      clean: true,
+      clean: false,
       entry: sourceEntries,
       platform: "neutral",
       // The root tsconfig.json is a solution file with references, which the
@@ -61,59 +84,18 @@ export async function buildModule(moduleDir: string): Promise<void> {
       },
     });
   }
-
-  emitSpecDeclarationFile(moduleDir, moduleSpecPath);
 }
 
-function emitSpecDeclarationFile(
-  moduleDir: string,
-  moduleSpecPath: string,
-): void {
-  const program = ts.createProgram({
-    rootNames: [moduleSpecPath],
-    options: {
-      // The spec is compiled the same way in the module and in the host app:
-      // both use the Wasp-prescribed tsconfig.wasp.json.
-      ...readWaspTsConfigCompilerOptions(moduleDir),
-      // Overrides for the declaration-only emit. Typechecking the spec is
-      // `npm run typecheck`'s job in the module.
-      noEmit: false,
-      declaration: true,
-      emitDeclarationOnly: true,
-      noCheck: true,
-    },
-  });
-
-  let declarationFileText: string | undefined;
-  program.emit(
-    program.getSourceFile(moduleSpecPath),
-    (_fileName, text) => {
-      declarationFileText = text;
-    },
-    undefined,
-    true,
-  );
-
-  if (declarationFileText === undefined) {
-    throw new Error(`Couldn't emit a declaration file for ${moduleSpecPath}.`);
-  }
-
-  mkdirSync(path.join(moduleDir, "dist"), { recursive: true });
-  writeFileSync(path.join(moduleDir, "dist", "spec.d.ts"), declarationFileText);
-}
-
-function readWaspTsConfigCompilerOptions(
-  moduleDir: string,
-): ts.CompilerOptions {
+function typecheckModuleSpec(moduleDir: string): void {
   const waspTsConfigPath = path.join(moduleDir, "tsconfig.wasp.json");
-  if (!existsSync(waspTsConfigPath)) {
-    throw new Error(`Couldn't find tsconfig.wasp.json in ${moduleDir}.`);
-  }
-
   const configFile = ts.readConfigFile(waspTsConfigPath, ts.sys.readFile);
   if (configFile.error) {
     throw new Error(
-      `Error when reading ${waspTsConfigPath}: ${ts.flattenDiagnosticMessageText(configFile.error.messageText, "\n")}`,
+      ts.formatDiagnosticsWithColorAndContext([configFile.error], {
+        getCanonicalFileName: (fileName) => fileName,
+        getCurrentDirectory: () => moduleDir,
+        getNewLine: () => ts.sys.newLine,
+      }),
     );
   }
 
@@ -125,15 +107,37 @@ function readWaspTsConfigCompilerOptions(
     waspTsConfigPath,
   );
   if (parsed.errors.length > 0) {
-    const formattedErrors = parsed.errors
-      .map((error) => ts.flattenDiagnosticMessageText(error.messageText, "\n"))
-      .join("\n");
     throw new Error(
-      `Error when parsing ${waspTsConfigPath}: ${formattedErrors}`,
+      ts.formatDiagnosticsWithColorAndContext(parsed.errors, {
+        getCanonicalFileName: (fileName) => fileName,
+        getCurrentDirectory: () => moduleDir,
+        getNewLine: () => ts.sys.newLine,
+      }),
     );
   }
 
-  return parsed.options;
+  const program = ts.createProgram({
+    rootNames: parsed.fileNames,
+    options: parsed.options,
+  });
+  const errors = ts
+    .getPreEmitDiagnostics(program)
+    .filter(
+      (diagnostic) =>
+        diagnostic.category === ts.DiagnosticCategory.Error &&
+        (diagnostic.file === undefined ||
+          diagnostic.file.fileName.endsWith(".wasp.ts")),
+    );
+
+  if (errors.length > 0) {
+    throw new Error(
+      ts.formatDiagnosticsWithColorAndContext(errors, {
+        getCanonicalFileName: (fileName) => fileName,
+        getCurrentDirectory: () => moduleDir,
+        getNewLine: () => ts.sys.newLine,
+      }),
+    );
+  }
 }
 
 export function assertHasDefaultExport(
@@ -166,6 +170,10 @@ export function getSourceEntries(moduleDir: string): Record<string, string> {
       ).replaceAll(path.sep, "/");
 
       assert(
+        entryName.toLowerCase() !== "spec",
+        'Module source entry "spec" conflicts with the compiled module spec.',
+      );
+      assert(
         entries[entryName] === undefined,
         `Duplicate module source entry ${JSON.stringify(entryName)}.`,
       );
@@ -178,6 +186,33 @@ export function getSourceEntries(moduleDir: string): Record<string, string> {
     },
     {},
   );
+}
+
+function getModuleRelativePath(moduleDir: string, filePath: string): string {
+  const relativePath = tryGetModuleRelativePath(moduleDir, filePath);
+  if (relativePath === undefined) {
+    throw new Error(
+      `Module spec file ${JSON.stringify(filePath)} must be inside ${JSON.stringify(moduleDir)}.`,
+    );
+  }
+
+  return relativePath;
+}
+
+function tryGetModuleRelativePath(
+  moduleDir: string,
+  filePath: string,
+): string | undefined {
+  const relativePath = path.relative(moduleDir, filePath);
+  if (
+    path.isAbsolute(relativePath) ||
+    relativePath === ".." ||
+    relativePath.startsWith(`..${path.sep}`)
+  ) {
+    return undefined;
+  }
+
+  return relativePath.replaceAll(path.sep, "/");
 }
 
 function listSourceEntryFiles(sourceDir: string): string[] {
@@ -202,7 +237,8 @@ function listSourceEntryFiles(sourceDir: string): string[] {
 function isSourceEntryFile(fileName: string): boolean {
   return (
     (fileName.endsWith(".ts") || fileName.endsWith(".tsx")) &&
-    !fileName.endsWith(".d.ts")
+    !fileName.endsWith(".d.ts") &&
+    !fileName.endsWith(".wasp.ts")
   );
 }
 

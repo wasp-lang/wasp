@@ -55,6 +55,7 @@ describe("getSourceEntries", () => {
     writeFileSync(path.join(moduleDir, "src", "MainPage.tsx"), "");
     writeFileSync(path.join(moduleDir, "src", "queries.ts"), "");
     writeFileSync(path.join(moduleDir, "src", "ignored.d.ts"), "");
+    writeFileSync(path.join(moduleDir, "src", "ignored.wasp.ts"), "");
     writeFileSync(path.join(moduleDir, "src", "pages", "Details.tsx"), "");
 
     expect(getSourceEntries(moduleDir)).toEqual({
@@ -62,5 +63,15 @@ describe("getSourceEntries", () => {
       "pages/Details": "./src/pages/Details.tsx",
       queries: "./src/queries.ts",
     });
+  });
+
+  test("rejects entries that collide with the compiled spec", () => {
+    const moduleDir = makeModuleDir();
+    mkdirSync(path.join(moduleDir, "src"));
+    writeFileSync(path.join(moduleDir, "src", "Spec.ts"), "");
+
+    expect(() => getSourceEntries(moduleDir)).toThrow(
+      /conflicts with the compiled module spec/,
+    );
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
+import { _waspMakeRef } from "../../src/internal.js";
 import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import { mapRefObject } from "../../src/spec/refObject.js";
 import { WaspSpecUserError } from "../../src/spec/waspSpecUserError.js";
@@ -27,14 +28,14 @@ describe("mapRefObject", () => {
     { refObject: { parse: () => ({}) } },
     { refObject: { from: "./src/external" } },
   ])("returns an error for invalid runtime values", ({ refObject }) => {
-    expect(() => mapRefObjectForProject(refObject)).toThrow(WaspSpecUserError);
-    expect(() => mapRefObjectForProject(refObject)).toThrow(
+    expect(() => mapRefObject(refObject)).toThrow(WaspSpecUserError);
+    expect(() => mapRefObject(refObject)).toThrow(
       "Got an import in the Wasp file that we couldn't process",
     );
   });
 
   function testMapRefObject(refObject: WaspSpec.RefObject): void {
-    const result = mapRefObjectForProject(refObject);
+    const result = mapRefObject(refObject);
 
     if ("import" in refObject) {
       expect(result).toStrictEqual({
@@ -54,7 +55,7 @@ describe("mapRefObject", () => {
 
   test("should map named package import correctly", () => {
     expect(
-      mapRefObjectForProject(
+      mapRefObject(
         Fixtures.getRefObjectForMockProject({
           import: "SkateboardPage",
           alias: "SkateboardPageAlias",
@@ -75,7 +76,7 @@ describe("mapRefObject", () => {
 
   test("should map default package import correctly", () => {
     expect(
-      mapRefObjectForProject(
+      mapRefObject(
         Fixtures.getRefObjectForMockProject({
           importDefault: "DefaultExport",
           from: "unscoped-package/nested/export",
@@ -92,31 +93,33 @@ describe("mapRefObject", () => {
     } satisfies AppSpec.ExtImport);
   });
 
-  test.each(["/abs/path", "C:\\abs\\path", "\\\\server\\share\\path"])(
-    "should reject absolute ref path %s",
-    (from) => {
-      expect(() =>
-        mapRefObjectForProject(
-          Fixtures.getRefObjectForMockProject({
-            importDefault: "DefaultExport",
-            from,
-          }),
-        ),
-      ).toThrow(WaspSpecUserError);
-      expect(() =>
-        mapRefObjectForProject(
-          Fixtures.getRefObjectForMockProject({
-            importDefault: "DefaultExport",
-            from,
-          }),
-        ),
-      ).toThrow("Absolute ref paths are not supported");
-    },
-  );
+  test.each([
+    "/abs/path",
+    "C:\\abs\\path",
+    "\\rooted\\path",
+    "\\\\server\\share\\path",
+  ])("should reject absolute ref path %s", (from) => {
+    expect(() =>
+      mapRefObject(
+        Fixtures.getRefObjectForMockProject({
+          importDefault: "DefaultExport",
+          from,
+        }),
+      ),
+    ).toThrow(WaspSpecUserError);
+    expect(() =>
+      mapRefObject(
+        Fixtures.getRefObjectForMockProject({
+          importDefault: "DefaultExport",
+          from,
+        }),
+      ),
+    ).toThrow("Absolute ref paths are not supported");
+  });
 
   test("should reject scoped package refs without package name", () => {
     expect(() =>
-      mapRefObjectForProject(
+      mapRefObject(
         Fixtures.getRefObjectForMockProject({
           importDefault: "DefaultExport",
           from: "@scope",
@@ -124,7 +127,7 @@ describe("mapRefObject", () => {
       ),
     ).toThrow(WaspSpecUserError);
     expect(() =>
-      mapRefObjectForProject(
+      mapRefObject(
         Fixtures.getRefObjectForMockProject({
           importDefault: "DefaultExport",
           from: "@scope",
@@ -133,9 +136,26 @@ describe("mapRefObject", () => {
     ).toThrow("must include both scope and package name");
   });
 
-  function mapRefObjectForProject(refObject: unknown): AppSpec.ExtImport {
-    return mapRefObject(refObject, {
-      projectRootDir: Fixtures.MOCK_PROJECT_DIR,
+  test("should map a relative package ref from its logical origin", () => {
+    const makePackageRef = _waspMakeRef({
+      kind: "package",
+      packageName: "@kitchen-sink/module",
+      specFilePath: "module.wasp.ts",
     });
-  }
+    const refObject = makePackageRef({
+      import: "getTodoItems",
+      from: "./src/queries.ts",
+    });
+
+    expect(mapRefObject(refObject)).toStrictEqual({
+      kind: "named",
+      name: "getTodoItems",
+      alias: undefined,
+      source: {
+        kind: "package",
+        packageName: "@kitchen-sink/module",
+        subpath: "queries",
+      },
+    } satisfies AppSpec.ExtImport);
+  });
 });

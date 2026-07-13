@@ -1,10 +1,8 @@
+import { posix as posixPath, win32 as windowsPath } from "node:path";
 import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
 import type * as WaspSpec from "./publicApi/waspSpec.js";
-import {
-  normalizeRefObjectPath,
-  tryMapPackageRefObjectPath,
-} from "./refObjectPath.js";
+import { normalizeRefObjectPath } from "./refObjectPath.js";
 import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 /**
@@ -59,6 +57,21 @@ export interface DefaultRefObjectDescriptor {
   from: string;
 }
 
+export type RefOrigin = ProjectRefOrigin | PackageRefOrigin;
+
+export interface ProjectRefOrigin {
+  kind: "project";
+  /** Path to the spec file, relative to the project root. */
+  specFilePath: string;
+}
+
+export interface PackageRefOrigin {
+  kind: "package";
+  packageName: string;
+  /** Path to the spec file, relative to the package root. */
+  specFilePath: string;
+}
+
 /**
  * Creates a fallback reference object for a value from your app or module.
  *
@@ -92,44 +105,39 @@ export function ref(_descriptor: RefObjectDescriptor): RefObject {
 }
 
 /**
- * Creates a `ref` helper bound to the user's `.wasp.ts` file.
+ * Creates a `ref` helper bound to the logical origin of a `.wasp.ts` file.
  *
- * Ref objects need the current spec file location to resolve relative paths,
- * but `ref` itself can't use `import.meta.url` because it would point to this
- * helper module. `_waspMakeRef(sourceFilePath)` lets each `.wasp.ts` file
- * create a local `ref` that carries its own source file path.
+ * Ref objects need their spec file's project- or package-relative path to
+ * resolve relative imports without depending on a machine's filesystem.
  *
  * @internal
  */
 export function _waspMakeRef(
-  sourceFilePath: string,
-): (descriptor: RefObjectDescriptor) => SourceAwareRefObject {
+  origin: RefOrigin,
+): (descriptor: RefObjectDescriptor) => OriginAwareRefObject {
   return (descriptor: RefObjectDescriptor) => {
     const refObject = {
       ...descriptor,
       kind: "refObject",
     } as RefObject;
 
-    return { ...refObject, sourceFilePath };
+    return { ...refObject, origin };
   };
 }
 
-export function mapRefObject(
-  refObject: unknown,
-  { projectRootDir }: { projectRootDir: string },
-): AppSpec.ExtImport {
+export function mapRefObject(refObject: unknown): AppSpec.ExtImport {
   if (isNamedRefObject(refObject)) {
     return {
       kind: "named",
       name: refObject.import,
-      source: mapRefObjectSource(refObject, { projectRootDir }),
+      source: mapRefObjectSource(refObject),
       alias: refObject.alias,
     };
   } else if (isDefaultRefObject(refObject)) {
     return {
       kind: "default",
       name: refObject.importDefault,
-      source: mapRefObjectSource(refObject, { projectRootDir }),
+      source: mapRefObjectSource(refObject),
     };
   } else {
     throw new WaspSpecUserError(
@@ -157,7 +165,6 @@ export function getRefObjectDeclarationName(refObject: unknown): string {
 
 function mapRefObjectSource(
   refObject: RefObjectDescriptor,
-  { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImportSource {
   if (isAbsoluteRefPath(refObject.from)) {
     throw new WaspSpecUserError(
@@ -172,28 +179,29 @@ function mapRefObjectSource(
     };
   }
 
-  if (!hasSourceFilePath(refObject)) {
+  if (!hasRefOrigin(refObject)) {
     throw new WaspSpecUserError(
-      `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
+      `Relative ref path ${JSON.stringify(refObject.from)} is missing spec file origin information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
   }
 
-  const packageSource = tryMapPackageRefObjectPath({
+  const path = normalizeRefObjectPath({
     importPath: refObject.from,
-    importingFilePath: refObject.sourceFilePath,
-    projectRootDir,
+    specFilePath: refObject.origin.specFilePath,
+    originKind: refObject.origin.kind,
   });
-  if (packageSource !== undefined) {
-    return packageSource;
+
+  if (refObject.origin.kind === "package") {
+    return {
+      kind: "package",
+      packageName: refObject.origin.packageName,
+      subpath: path,
+    };
   }
 
   return {
     kind: "project-src",
-    path: normalizeRefObjectPath({
-      importPath: refObject.from,
-      importingFilePath: refObject.sourceFilePath,
-      projectRootDir,
-    }),
+    path: `@src/${path}`,
   };
 }
 
@@ -223,24 +231,30 @@ function splitPackageSpecifier(
 }
 
 function isAbsoluteRefPath(path: string): boolean {
-  return (
-    path.startsWith("/") ||
-    /^[A-Za-z]:[\\/]/.test(path) ||
-    path.startsWith("\\\\")
-  );
+  return posixPath.isAbsolute(path) || windowsPath.isAbsolute(path);
 }
 
-type RefObjectSource = {
-  sourceFilePath: string;
+type RefObjectOrigin = {
+  origin: RefOrigin;
 };
 
-type SourceAwareRefObject = RefObject & RefObjectSource;
+type OriginAwareRefObject = RefObject & RefObjectOrigin;
 
-function hasSourceFilePath(value: unknown): value is RefObjectSource {
+function hasRefOrigin(value: unknown): value is RefObjectOrigin {
+  if (!isObject(value) || !isObject(value.origin)) {
+    return false;
+  }
+
+  const origin = value.origin;
+  if (origin.kind === "project") {
+    return typeof origin.specFilePath === "string";
+  }
+
   return (
-    isObject(value) &&
-    "sourceFilePath" in value &&
-    typeof value.sourceFilePath === "string"
+    origin.kind === "package" &&
+    typeof origin.packageName === "string" &&
+    origin.packageName.length > 0 &&
+    typeof origin.specFilePath === "string"
   );
 }
 

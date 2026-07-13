@@ -4,7 +4,7 @@
 
 - Full-stack modules default-export a function from `module.wasp.ts` that accepts `options` and returns a Wasp `Spec`. Direct `export default` only.
 - The default client-route option is `prefix`.
-- Invariant: spec files (`*.wasp.ts`) are a Wasp dialect. Only the Wasp CLI spec pipeline transforms them. Modules ship `module.wasp.ts` as source and never ship pre-transformed spec code.
+- Invariant: spec files (`*.wasp.ts`) are a Wasp dialect. `wasp module build` compiles module specs to JavaScript before publication; host apps never consume package-resident Wasp source.
 - `examples/module` is the current skateboard module package: `@kitchen-sink/module`. Kitchen Sink imports it from `@kitchen-sink/module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
 
 ## Module SDK Shim
@@ -17,18 +17,20 @@
 
 ## Module Builder
 
-- The spec is not built. The package's `/spec` export points at `module.wasp.ts`. The builder only emits `dist/spec.d.ts` (declaration-only, `noCheck`) for editor support in the host app. Its type references resolve against the host's `@wasp.sh/spec`, so there are no duplicate branded types.
-- Modules must have the same `tsconfig.wasp.json` apps have, so the spec file is compiled the same way in the module and in the host app. `wasp module install` and `wasp module build` validate it with the app validator (`Wasp.Project.ExternalConfig.WaspTsConfig`), and the `dist/spec.d.ts` emit reads its compiler options.
+- The package's `/spec` export points at `dist/spec.js`, with `dist/spec.d.ts` for editor support. The compiled JavaScript keeps `@wasp.sh/spec` external and resolves to the host's peer dependency at evaluation time.
+- The app and module pipelines share the ref-lowering and transformed-source typechecking plugins from `@wasp.sh/spec/compiler`.
+- Ref helpers carry logical origins. Project origins contain a project-relative spec path; package origins contain the package name and package-relative spec path. Relative refs are mapped with pure POSIX path arithmetic, without absolute paths or package filesystem discovery.
+- Modules use the same `tsconfig.wasp.json` baseline as apps. `wasp module build` typechecks the original module spec, typechecks its transformed source, and bundles its public declarations into `dist/spec.d.ts`.
 - Source code lives under `tsconfig.src.json`; `tsconfig.json` is an app-style solution file referencing both.
 - Source build entries are discovered from `src/**/*.ts` and `src/**/*.tsx`, excluding `.d.ts`. Entry names preserve package subpaths, e.g. `src/queries.ts` -> `dist/queries.js` -> `@pkg/queries`.
 - Source build externalizes `react`, `react/jsx-runtime`, and all `wasp/*` imports.
-- Watch mode rebuilds only `src/` entries. `dist/spec.d.ts` is emitted once per build invocation.
+- There is no module build watch mode.
 
 ## Host App Integration
 
-- The pipeline's external resolver (`externalResolver.ts`) keeps bare imports external except those that resolve to `*.wasp.ts` files, which get bundled so the host's own plugins lower the module's ref imports. It must be the `external` option (not a `resolveId` plugin) because the bundler consults `external` before plugin resolution.
-- `mapRefObject` maps relative refs from package-resident spec files to package import sources: the nearest `package.json` names the package, and `./src/<subpath>` maps to the `<packageName>/<subpath>` export backed by `dist/`.
-- The host typechecks module spec files like its own. A broken module fails the host compile with a type error, not spec evaluation with a runtime error.
+- Module `/spec` exports are ordinary external ESM dependencies. The host pipeline transforms and typechecks only project-owned `*.wasp.ts` files.
+- `mapRefObject` maps package logical origins and relative descriptors such as `./src/<subpath>` to `<packageName>/<subpath>` imports backed by `dist/`.
+- Module source errors fail `wasp module build`. The host typechecks the module factory call through `dist/spec.d.ts` and performs host-specific entity and declaration validation after evaluation.
 - The module's `@wasp.sh/spec` import stays external and resolves to the host's copy at spec evaluation time, so there is a single spec package instance.
 - Host SDK Vite config dedupes the generated SDK package name (`wasp`) with React, React DOM, React Query, and React Router.
 - Host SDK TypeScript config maps `wasp/*` to SDK source files during SDK build. This prevents self-imports from resolving through package exports into `dist/`, which otherwise causes TS5055 overwrite-input errors on repeated builds.
@@ -65,6 +67,7 @@
 
 - Only `wasp/server/operations` is typed in the shim. All other `wasp/*` imports are `any` via the ambient wildcard.
 - Module host app contracts are structural and local to the module. There is no generated type that proves the host app actually provides the expected Prisma model shape.
+- npm aliases for module packages are not supported because compiled logical origins carry the canonical `package.json` name used in generated imports.
 
 ## Verification Commands
 
