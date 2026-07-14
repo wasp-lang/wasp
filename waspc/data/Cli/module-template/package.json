@@ -27,11 +27,6 @@
     "react": "^19.2.1",
     "wasp": "*"
   },
-  "peerDependenciesMeta": {
-    "wasp": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@types/node": "^22.17.0",
     "@types/react": "^19.2.7",

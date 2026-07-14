@@ -27,11 +27,6 @@
     "react": "^19.2.1",
     "wasp": "*"
   },
-  "peerDependenciesMeta": {
-    "wasp": {
-      "optional": true
-    }
-  },
   "dependencies": {
     "quote-lib": "^2.0.1"
   },
