@@ -20,7 +20,7 @@ export type MarkdownDocByRoute = Map<string, string>;
 
 /**
  * Turns the rendered HTML for docs, blog, and resources pages into
- * in-memory base markdown docs.
+ * base markdown docs.
  *
  * We opted for HTML -> MD (instead of MDX -> MD) approach because:
  * - It is more stable. HTML -> MD is a very mature pipeline, MDX is a newer concept.
