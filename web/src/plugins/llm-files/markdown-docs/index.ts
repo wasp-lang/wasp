@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
+import { VFile } from "vfile";
 import { MarkdownDocsContext } from "./context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import {
@@ -38,10 +39,16 @@ export async function convertValidHtmlFilesToMarkdownDocs(
 
   const markdownDocByRoute: MarkdownDocByRoute = new Map();
   for (const htmlFileRelPath of await findConvertibleHtmlFiles(outDir)) {
-    const html = await fs.readFile(path.join(outDir, htmlFileRelPath), "utf8");
+    const htmlFileAbsPath = path.join(outDir, htmlFileRelPath);
+    const htmlContent = await fs.readFile(htmlFileAbsPath, "utf8");
+    const htmlFile = new VFile({
+      path: htmlFileAbsPath,
+      value: htmlContent,
+    });
+
     markdownDocByRoute.set(
       htmlFileRelPathToRoute(htmlFileRelPath),
-      htmlToMarkdown(html),
+      htmlToMarkdown(htmlFile),
     );
   }
   console.log(
@@ -84,15 +91,15 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 }
 
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
-  const htmlFileRelPaths: string[] = [];
+  const absHtmlFilePaths: string[] = [];
 
-  for await (const htmlFileRelPath of fs.glob("**/*.html", {
+  for await (const relHtmlFilePath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
-    if (relHtmlFilePathHasMarkdownVariant(htmlFileRelPath)) {
-      htmlFileRelPaths.push(htmlFileRelPath);
+    if (relHtmlFilePathHasMarkdownVariant(relHtmlFilePath)) {
+      absHtmlFilePaths.push(path.join(outDir, relHtmlFilePath));
     }
   }
 
-  return htmlFileRelPaths;
+  return absHtmlFilePaths;
 }
