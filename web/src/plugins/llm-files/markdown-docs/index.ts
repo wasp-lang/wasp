@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
+import { VFile } from "vfile";
 import { LlmDocsContext } from "../context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import { relHtmlFilePathHasMarkdownVariant } from "./markdown-routes";
@@ -27,13 +28,15 @@ export async function generateMarkdownFilesForValidHtmlFiles(
 
   const htmlFilesAbsPaths = await findConvertibleHtmlFiles(outDir);
   for (const htmlFileAbsPath of htmlFilesAbsPaths) {
-    const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
+    const htmlContent = await fs.readFile(htmlFileAbsPath, "utf8");
+    const htmlFile = new VFile({
+      path: htmlFileAbsPath,
+      value: htmlContent,
+    });
 
-    console.log("Generating: ", markdownFileAbsPath);
-
-    const html = await fs.readFile(htmlFileAbsPath, "utf8");
-    const markdown = htmlToMarkdown(html);
+    const markdown = htmlToMarkdown(htmlFile);
     const markdownWithIndex = markdownDocsIndexHeader + markdown;
+    const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
     await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
   }

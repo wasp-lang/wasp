@@ -4,6 +4,7 @@ import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
+import { VFile } from "vfile";
 import { LlmDocsContext } from "../context";
 import { docusaurusHtmlToMdHandlers } from "./docusaurus/docusaurus-html-to-md-handlers";
 import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/rehype-reduce-docusaurus-page";
@@ -16,7 +17,7 @@ import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/r
  */
 export function createDocusaurusHtmlToMarkdownProcessor(
   context: LlmDocsContext,
-): (html: string) => string {
+): (htmlFile: VFile) => string {
   const docusaurusHtmlToMarkdownProcessor = unified()
     .use(rehypeParse)
     .use(
@@ -36,13 +37,19 @@ export function createDocusaurusHtmlToMarkdownProcessor(
       listItemIndent: "one",
     });
 
-  return (html: string) => {
+  return (htmlFile) => {
+    const htmlContent = htmlFile.toString();
     const markdown = String(
-      docusaurusHtmlToMarkdownProcessor.processSync(html),
+      docusaurusHtmlToMarkdownProcessor.processSync(htmlContent),
     ).trim();
     if (!markdown) {
-      throw Error(
-        "Markdown content is null. Most likely a stray document. Please update the `isValidMarkdownDocsRoute` function.",
+      const preview = htmlContent.slice(0, 150).replace(/\n/g, " ");
+      const truncated = htmlContent.length > 150 ? "..." : "";
+
+      htmlFile.fail(
+        `Generated empty markdown from HTML at "${htmlFile.path}" (${htmlContent.length} bytes). ` +
+          `Likely a stray or invalid document.` +
+          `HTML preview: "${preview}${truncated}". `,
       );
     }
     return markdown;
