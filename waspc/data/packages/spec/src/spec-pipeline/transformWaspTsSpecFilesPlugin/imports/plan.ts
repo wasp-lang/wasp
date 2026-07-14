@@ -1,5 +1,5 @@
 import type { ESTree as t } from "rolldown/utils";
-import { SpecUserError } from "../../../spec/specUserError.js";
+import { WaspSpecUserError } from "../../../spec/waspSpecUserError.js";
 import {
   getStringValue,
   getTopLevelBindings,
@@ -48,7 +48,7 @@ function findRefImports(ast: t.Program) {
     const importSource = getStringValue(node.source);
 
     if (node.specifiers.length === 0) {
-      throw new SpecUserError(
+      throw new WaspSpecUserError(
         `Ref import from ${JSON.stringify(importSource)} must import at least one binding.`,
       );
     }

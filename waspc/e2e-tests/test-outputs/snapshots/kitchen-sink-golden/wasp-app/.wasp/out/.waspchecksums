@@ -32,14 +32,14 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "edeb63155c6ccc03d3eb1f9bcd543d977275087febf518c6d3e3479f6f1762cf"
+        "b76862df87b9b931e5ee8968fb8335ad93a419ee80045461f66838edf9cb84e7"
     ],
     [
         [
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
         ],
-        "f6dc5ce1dd3d05ea0004f2b33c8f2e2a8f61fcf5bec87d9eb3bb962f96e4306f"
+        "0895210e787ce4f407d11cfa7f120e52ece9aea3eca39936b73a32659ee0e97b"
     ],
     [
         [
@@ -753,7 +753,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "0fdf894207303eb8f9b072786a2fa3b69da84795db85631fdf32394686f3d863"
+        "c172e926843b4ab12f96ebe79a70124d233d9d7fd948de0cdcd3388565402400"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "515a0d762c8c2e74f5b2809c2000e45fc4fbb770a65fcbc536e1945dfd184b77"
+        "91715e7d9d9b7b30c81fe61f801cc544472b8f944148a3b7aa5cff93be3fa8b8"
     ],
     [
         [
@@ -809,7 +809,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/resolver.ts"
         ],
-        "dcd995f6dceb185ac518ddd168ccc299dd3d1560593d9f37b931087da29f73b6"
+        "a8bc680361ce67794cb2becf7213cd1c95d0909044f267db266d235ad4e5ab1b"
     ],
     [
         [
@@ -886,7 +886,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "d45a3c3b6c0b301e821ce0cd79b7affbb4f6c6750b51b009c4ac66219dd530d9"
+        "9c47d4bcc018ac6d599df49f6cc530ce0a788dd2e1b8387842d51eb2c710e18f"
     ],
     [
         [
@@ -1089,7 +1089,7 @@
             "file",
             "sdk/wasp/server/email/core/types.ts"
         ],
-        "2cdb06f4cf935e023ef90353c783033187e55ac75ce2fae59e30d050ea176eb1"
+        "bedc8f94e3530e0e01f5d377a5fbeb41fb55aa9380834f9f27d5f1ffb10e7c2f"
     ],
     [
         [
@@ -1299,7 +1299,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "b2a88f5eaf930f2daf2523b0206cad4398f7c77e2e478008af342c235b1ca765"
+        "c6cbfa3afcba062f19838327d1a23e017d830e9cd55dd30eaaa944d96b2ac714"
     ],
     [
         [

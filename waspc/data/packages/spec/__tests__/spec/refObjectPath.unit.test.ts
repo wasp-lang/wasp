@@ -3,7 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import { describe, expect, test } from "vitest";
 import { normalizeRefObjectPath } from "../../src/spec/refObjectPath.js";
-import { SpecUserError } from "../../src/spec/specUserError.js";
+import { WaspSpecUserError } from "../../src/spec/waspSpecUserError.js";
 
 describe("normalizeRefObjectPath", () => {
   test("maps a top-level spec ref import targeting src", () => {
@@ -74,7 +74,7 @@ describe("normalizeRefObjectPath", () => {
         importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
         projectRootDir: project.rootDir,
       }),
-    ).toThrow(SpecUserError);
+    ).toThrow(WaspSpecUserError);
     expect(() =>
       normalizeRefObjectPath({
         importPath: "./helpers/helper",
@@ -93,7 +93,7 @@ describe("normalizeRefObjectPath", () => {
         importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
         projectRootDir: project.rootDir,
       }),
-    ).toThrow(SpecUserError);
+    ).toThrow(WaspSpecUserError);
     expect(() =>
       normalizeRefObjectPath({
         importPath: "./src",

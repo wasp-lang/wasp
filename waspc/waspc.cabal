@@ -122,7 +122,6 @@ library
     -- (fourth digits) are still within the range. Exceptions are packages that
     -- use only two digits (e.g., cryptonite) where we're forced to adapt and
     -- use two digits as well.
-    Glob ^>=0.10.2,
     aeson ^>=2.2.3,
     aeson-pretty ^>=0.8.10,
     async ^>=2.2.5,
@@ -138,6 +137,7 @@ library
     extra ^>=1.7.16,
     filepath ^>=1.4.301,
     githash ^>=0.1.7,
+    Glob ^>=0.10.2,
     http-conduit ^>=2.3.9,
     http-types ^>=0.12.4,
     megaparsec ^>=9.5.0,
@@ -164,8 +164,8 @@ library
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Analyzer
-    Wasp.Analyzer.AST
     Wasp.Analyzer.AnalyzeError
+    Wasp.Analyzer.AST
     Wasp.Analyzer.Ctx
     Wasp.Analyzer.ErrorMessage
     Wasp.Analyzer.Evaluator
@@ -221,10 +221,10 @@ library
     Wasp.AppSpec.Crud
     Wasp.AppSpec.Entity
     Wasp.AppSpec.Entity.Field
-    Wasp.AppSpec.ExtImport
     Wasp.AppSpec.ExternalFiles
-    Wasp.AppSpec.JSON
+    Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
+    Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query
@@ -423,15 +423,15 @@ library
     Wasp.Util.FilePath
     Wasp.Util.GitRev
     Wasp.Util.HashMap
+    Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
-    Wasp.Util.InstallMethod
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.StrongPath
-    Wasp.Util.TH
     Wasp.Util.Terminal
+    Wasp.Util.TH
     Wasp.Util.WebRouterPath
     Wasp.Valid
     Wasp.Validator
@@ -558,11 +558,11 @@ test-suite waspc-tests
     tasty-discover:tasty-discover
 
   build-depends:
-    Diff ^>=0.4.1,
     aeson,
     base,
     containers,
     deepseq,
+    Diff ^>=0.4.1,
     filepath,
     hspec >=2.11,
     megaparsec,
@@ -657,10 +657,10 @@ test-suite wasp-cli-tests
     tasty-discover:tasty-discover
 
   build-depends:
-    QuickCheck,
     base,
     cli-lib,
     hspec,
+    QuickCheck,
     tasty,
     tasty-hspec,
     time,
@@ -683,7 +683,6 @@ test-suite waspc-e2e-tests
   build-depends:
     aeson,
     aeson-pretty,
-    async,
     base,
     base64-bytestring,
     bytestring,
@@ -700,6 +699,7 @@ test-suite waspc-e2e-tests
     tasty-golden,
     tasty-hspec,
     text,
+    unliftio ^>=0.2.25,
     waspc,
 
   other-modules:

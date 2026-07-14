@@ -1,4 +1,4 @@
-import * as path from "node:path";
+import * as path from "node:path"
 
 export type VirtualFiles = {
   ids: ReadonlyMap<string, string>;
@@ -18,11 +18,18 @@ export const makeVirtualFilesResolver =
       absPath: path.resolve(rootPath, path.basename(d.id)),
     }));
 
-    const ids = new Map(filesWithAbsPath.map((d) => [d.id, d.absPath]));
-
-    const loaders = new Map(
-      filesWithAbsPath.map((d) => [d.absPath, d.load]),
+    const ids = new Map(
+      filesWithAbsPath.flatMap((d) =>
+        // We'll resolve both the relative and absolute paths for the virtual
+        // files, since Vite and other plugins may request either.
+        [
+          [d.id, d.absPath],
+          [d.absPath, d.absPath],
+        ],
+      ),
     );
+
+    const loaders = new Map(filesWithAbsPath.map((d) => [d.absPath, d.load]));
 
     return { ids, loaders };
   };

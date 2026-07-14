@@ -48,7 +48,7 @@ reactDomTypesVersionRange :: SV.Range
 reactDomTypesVersionRange = [SV.r|^19.2.3|]
 
 reactRouterVersionRange :: SV.Range
-reactRouterVersionRange = [SV.r|^7.12.0|]
+reactRouterVersionRange = [SV.r|^8.0.1|]
 
 reactQueryVersionRange :: SV.Range
 reactQueryVersionRange = [SV.r|~4.42.0|]
@@ -60,10 +60,10 @@ expressTypesVersionRange :: SV.Range
 expressTypesVersionRange = [SV.r|^5.0.0|]
 
 viteVersionRange :: SV.Range
-viteVersionRange = [SV.r|^7.0.6|]
+viteVersionRange = [SV.r|^8.1.0|]
 
 vitestVersionRange :: SV.Range
-vitestVersionRange = [SV.r|^4.0.16|]
+vitestVersionRange = [SV.r|^4.1.9|]
 
 dotenvVersionRange :: SV.Range
 dotenvVersionRange = [SV.r|^16.6.1|]

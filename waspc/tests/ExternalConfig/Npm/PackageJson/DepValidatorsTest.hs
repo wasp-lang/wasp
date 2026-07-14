@@ -189,11 +189,11 @@ itEach testName fn =
   sequence_
     [ it (printf "%s (%s dep, %s)" testName (show depType) (pkgJsonName :: String)) $
         fn depType pkgJson
-      | depType <- [Runtime, Development],
-        (pkgJson, pkgJsonName) <-
-          [ (mockPackageJson, "mocked package.json"),
-            (emptyPackageJson, "empty package.json")
-          ]
+    | depType <- [Runtime, Development],
+      (pkgJson, pkgJsonName) <-
+        [ (mockPackageJson, "mocked package.json"),
+          (emptyPackageJson, "empty package.json")
+        ]
     ]
 
 mockPackageJson :: P.PackageJson

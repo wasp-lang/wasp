@@ -12,6 +12,10 @@
 
   "excludeInternal": true,
 
+  // Don't document members inherited from external types, e.g.
+  // `WaspSpecUserError` shouldn't list all built-in `Error` properties.
+  "excludeExternals": true,
+
   "entryPoints": ["src/index.ts"],
 
   // For exports with no category
@@ -22,6 +26,9 @@
     "Constructors",
     "Specifications",
     "Declarations",
+    "References",
+    "Errors",
+    "Fields",
     "*",
   ],
 }
