@@ -38,7 +38,7 @@ export async function convertValidHtmlFilesToMarkdownDocs(
   const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
 
   const markdownDocByRoute: MarkdownDocByRoute = new Map();
-  for (const htmlFileRelPath of await findConvertibleHtmlFiles(outDir)) {
+  for (const htmlFileRelPath of await findConvertibleHtmlFileRelPaths(outDir)) {
     const htmlFileAbsPath = path.join(outDir, htmlFileRelPath);
     const htmlContent = await fs.readFile(htmlFileAbsPath, "utf8");
     const htmlFile = new VFile({
@@ -90,16 +90,18 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 `;
 }
 
-async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
-  const htmlFileAbsPath: string[] = [];
+async function findConvertibleHtmlFileRelPaths(
+  outDir: string,
+): Promise<string[]> {
+  const htmlFileRelPaths: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
     if (htmlFileRelPathHasMarkdownVariant(htmlFileRelPath)) {
-      htmlFileAbsPath.push(path.join(outDir, htmlFileRelPath));
+      htmlFileRelPaths.push(htmlFileRelPath);
     }
   }
 
-  return htmlFileAbsPath;
+  return htmlFileRelPaths;
 }

@@ -3,7 +3,7 @@ import { generateLlmsTxtFile } from "./llms-txt";
 import { generateVersionedLlmFiles } from "./versioned-llm-files";
 
 /**
- * Generates all LLM files in the {@link LlmFilesContext.outDir}.
+ * Generates all LLM files in the {@link LlmFilesContext}'s `outDir`.
  * This includes:
  * - `llms.txt` - universal index to all other `llms*.txt` files and resources.
  * - `llms-{waspVersion}.txt` - index to that Wasp version's docs.
