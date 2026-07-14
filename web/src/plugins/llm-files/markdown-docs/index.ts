@@ -91,15 +91,15 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 }
 
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
-  const absHtmlFilePaths: string[] = [];
+  const htmlFileAbsPath: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
     if (htmlFileRelPathHasMarkdownVariant(htmlFileRelPath)) {
-      absHtmlFilePaths.push(path.join(outDir, htmlFileRelPath));
+      htmlFileAbsPath.push(path.join(outDir, htmlFileRelPath));
     }
   }
 
-  return absHtmlFilePaths;
+  return htmlFileAbsPath;
 }
