@@ -31,33 +31,28 @@ export function docusaurusPluginLlmFiles({
   skipElementInMarkdownDocsClass,
 }: LlmFilesPluginOptions): PluginModule {
   return () => {
-    let docsLoadedContent: LoadedContent | undefined;
-    let blogContentByPluginId: { [pluginId: string]: BlogContent } | undefined;
+    let docsLoadedContent: LoadedContent;
+    let blogContentByPluginId: { [pluginId: string]: BlogContent | undefined };
 
     return {
       name: "wasp-llm-files",
 
       allContentLoaded({ allContent }) {
-        docsLoadedContent = allContent[DOCUSAURUS_DOCS_PLUGIN_NAME]?.default as
-          | LoadedContent
-          | undefined;
-        if (!docsLoadedContent) {
+        const maybeDocsLoadedContent = allContent[DOCUSAURUS_DOCS_PLUGIN_NAME]
+          ?.default as LoadedContent | undefined;
+        if (!maybeDocsLoadedContent) {
           throw new Error(
             `Could not find content for "${DOCUSAURUS_DOCS_PLUGIN_NAME}.default".`,
           );
         }
+        docsLoadedContent = maybeDocsLoadedContent;
 
-        blogContentByPluginId = allContent[DOCUSAURUS_BLOG_PLUGIN_NAME] as
-          | { [pluginId: string]: BlogContent }
-          | undefined;
+        blogContentByPluginId = allContent[DOCUSAURUS_BLOG_PLUGIN_NAME] as {
+          [pluginId: string]: BlogContent | undefined;
+        };
       },
 
       async postBuild({ outDir, siteConfig }) {
-        if (!docsLoadedContent || !blogContentByPluginId) {
-          throw new Error(
-            "wasp-llm-files: allContentLoaded did not run before postBuild.",
-          );
-        }
         if (siteConfig.trailingSlash) {
           throw new Error(
             "wasp-llm-files: The plugins only works with `trailingSlash` set to false.",
@@ -94,10 +89,10 @@ export function docusaurusPluginLlmFiles({
 
 function collectPostCollections(
   baseUrl: string,
-  blogContentByPluginId: { [pluginId: string]: BlogContent },
+  blogContentByPluginId: { [pluginId: string]: BlogContent | undefined },
 ): PostCollection[] {
   return POST_COLLECTIONS.map((pluginId) => {
-    const blogContent = blogContentByPluginId?.[pluginId];
+    const blogContent = blogContentByPluginId[pluginId];
     if (!blogContent) {
       throw new Error(
         `Could not find content for "${DOCUSAURUS_BLOG_PLUGIN_NAME}.${pluginId}".`,
