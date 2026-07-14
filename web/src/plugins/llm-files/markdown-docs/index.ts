@@ -6,7 +6,7 @@ import { MarkdownDocsContext } from "./context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import {
   htmlFileRelPathToRoute,
-  relHtmlFilePathHasMarkdownVariant,
+  htmlFileRelPathHasMarkdownVariant,
 } from "./markdown-routes";
 
 /**
@@ -93,11 +93,11 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
   const absHtmlFilePaths: string[] = [];
 
-  for await (const relHtmlFilePath of fs.glob("**/*.html", {
+  for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
-    if (relHtmlFilePathHasMarkdownVariant(relHtmlFilePath)) {
-      absHtmlFilePaths.push(path.join(outDir, relHtmlFilePath));
+    if (htmlFileRelPathHasMarkdownVariant(htmlFileRelPath)) {
+      absHtmlFilePaths.push(path.join(outDir, htmlFileRelPath));
     }
   }
 

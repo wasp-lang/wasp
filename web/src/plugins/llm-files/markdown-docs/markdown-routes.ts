@@ -5,7 +5,7 @@
  * HTML file path must be relative to the site dir.
  * E.g. for route "/docs", the file path has to be "docs.html".
  */
-export function relHtmlFilePathHasMarkdownVariant(
+export function htmlFileRelPathHasMarkdownVariant(
   htmlFileRelPath: string,
 ): boolean {
   return routeHasMarkdownVariant(htmlFileRelPathToRoute(htmlFileRelPath));
