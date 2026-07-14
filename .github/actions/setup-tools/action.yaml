@@ -26,10 +26,9 @@ runs:
     - name: Select Mise environment
       shell: bash
       env:
-        # Loads `.config/mise/config.ci.toml` on top of `mise.toml`, which
-        # disables dev-only tools that are not used in CI. Also `no-haskell`
-        # disables Haskell tools if `haskell` input is false.
-        MISE_ENV: ${{ inputs.haskell == 'true' && 'ci' || 'ci,no-haskell' }}
+        # Loads `.config/mise/config.$MISE_ENV.toml` on top of `mise.toml`,
+        # which disables dev-only tools that are not used in CI.
+        MISE_ENV: ${{ inputs.haskell == 'true' && 'ci' || 'ci-no-haskell' }}
       run:
         # We control the value passed here completely.
         # zizmor: ignore[github-env]
