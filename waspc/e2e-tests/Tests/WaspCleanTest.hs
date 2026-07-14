@@ -41,8 +41,10 @@ waspCleanTest =
               inTestWaspProjectDir
                 [ waspCliCompile,
                   return "mkdir -p .wasp/state && touch .wasp/state/dev.db",
+                  return "mkdir .wasp/unused",
                   waspCliClean,
                   return $ assertDirectoryDoesNotExist ".wasp/out",
+                  return $ assertDirectoryDoesNotExist ".wasp/unused",
                   return "[ -f .wasp/state/dev.db ]",
                   return "$WASP_CLI_CMD clean --data",
                   return $ assertDirectoryDoesNotExist ".wasp"

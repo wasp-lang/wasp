@@ -14,7 +14,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir, stateDirInDotWaspDir)
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Terminal (styleCode)
 
@@ -23,15 +23,12 @@ clean = withArguments "wasp clean" cleanArgsParser $ \cleanArgs -> do
   InWaspProject waspProjectDir <- require
 
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
-  let generatedAppDir = waspProjectDir SP.</> generatedAppDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
 
   if deleteData cleanArgs
     then deleteDirectoryIfExistsVerbosely dotWaspDir
     else do
-      deleteDirectoryIfExistsVerbosely generatedAppDir
-      liftIO $ IOUtil.deleteDirectoryIfExists $ dotWaspDir SP.</> [SP.reldir|spec|]
-      liftIO $ IOUtil.deleteFileIfExists $ dotWaspDir SP.</> [SP.relfile|spec-result.json|]
+      liftIO $ IOUtil.deleteDirectoryContentsExcept dotWaspDir stateDirInDotWaspDir
       dotWaspDirExists <- liftIO $ IOUtil.doesDirectoryExist dotWaspDir
       when dotWaspDirExists $ do
         dotWaspDirIsEmpty <- liftIO $ IOUtil.isDirectoryEmpty dotWaspDir
