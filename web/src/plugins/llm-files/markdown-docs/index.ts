@@ -34,11 +34,11 @@ export async function generateMarkdownFilesForValidHtmlFiles(
       value: htmlContent,
     });
 
-    const markdown = htmlToMarkdown(htmlFile);
-    const markdownWithIndex = markdownDocsIndexHeader + markdown;
+    const markdownContent = htmlToMarkdown(htmlFile);
+    const markdownConentWithIndex = markdownDocsIndexHeader + markdownContent;
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
-    await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
+    await fs.writeFile(markdownFileAbsPath, markdownConentWithIndex, "utf8");
   }
   console.log(
     `Markdown generation complete: generated ${htmlFilesAbsPaths.length} markdown docs from HTML.`,

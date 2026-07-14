@@ -39,19 +39,15 @@ export function createDocusaurusHtmlToMarkdownProcessor(
 
   return (htmlFile) => {
     const htmlContent = htmlFile.toString();
-    const markdown = String(
+    const markdownContent = String(
       docusaurusHtmlToMarkdownProcessor.processSync(htmlContent),
     ).trim();
-    if (!markdown) {
-      const preview = htmlContent.slice(0, 150).replace(/\n/g, " ");
-      const truncated = htmlContent.length > 150 ? "..." : "";
-
+    if (!markdownContent) {
       htmlFile.fail(
         `Generated empty markdown from HTML at "${htmlFile.path}" (${htmlContent.length} bytes). ` +
-          `Likely a stray or invalid document.` +
-          `HTML preview: "${preview}${truncated}". `,
+          `Likely a stray or invalid document.`,
       );
     }
-    return markdown;
+    return markdownContent;
   };
 }
