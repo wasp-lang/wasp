@@ -2,13 +2,13 @@
 import { type ActionFor, createAction } from "./core";
 import {
 {=# actions =}
-  type Registered{= genericOperationDefinitionTypeName =},
+  type {= registeredOperationTypeName =},
 {=/ actions =}
 } from "../../../server/operations/actions/index";
 {=# actions =}
 
 // PUBLIC API
-export const {= operationName =}: ActionFor<Registered{= genericOperationDefinitionTypeName =}> = createAction<Registered{= genericOperationDefinitionTypeName =}>(
+export const {= operationName =}: ActionFor<{= registeredOperationTypeName =}> = createAction<{= registeredOperationTypeName =}>(
   "{= actionRoute =}",
   {=& entitiesArray =},
 )

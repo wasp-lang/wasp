@@ -2,13 +2,13 @@
 import { type QueryFor, createQuery } from "./core";
 import {
 {=# queries =}
-  type Registered{= genericOperationDefinitionTypeName =},
+  type {= registeredOperationTypeName =},
 {=/ queries =}
 } from "../../../server/operations/queries/index";
 {=# queries =}
 
 // PUBLIC API
-export const {= operationName =}: QueryFor<Registered{= genericOperationDefinitionTypeName =}> = createQuery<Registered{= genericOperationDefinitionTypeName =}>(
+export const {= operationName =}: QueryFor<{= registeredOperationTypeName =}> = createQuery<{= registeredOperationTypeName =}>(
   "{= queryRoute =}",
   {=& entitiesArray =},
 )

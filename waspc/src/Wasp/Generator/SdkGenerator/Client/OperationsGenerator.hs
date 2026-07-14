@@ -17,6 +17,7 @@ import Wasp.Generator.SdkGenerator.Common
     clientTemplatesDirInSdkTemplatesDir,
     genFileCopy,
     getGenericOperationDefinitionTypeName,
+    getRegisteredOperationTypeName,
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -117,6 +118,7 @@ getOperationTypeData operation = tmplData
   where
     tmplData =
       [ "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
+        "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
         "operationName" .= operationName
       ]
     operationName = AS.Operation.getName operation
