@@ -54,15 +54,15 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 }
 
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
-  const htmlFileAbsPaths: string[] = [];
+  const absHtmlFilePaths: string[] = [];
 
-  for await (const htmlFileRelPath of fs.glob("**/*.html", {
+  for await (const relHtmlFilePath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
-    if (relHtmlFilePathHasMarkdownVariant(htmlFileRelPath)) {
-      htmlFileAbsPaths.push(path.join(outDir, htmlFileRelPath));
+    if (relHtmlFilePathHasMarkdownVariant(relHtmlFilePath)) {
+      absHtmlFilePaths.push(path.join(outDir, relHtmlFilePath));
     }
   }
 
-  return htmlFileAbsPaths;
+  return absHtmlFilePaths;
 }
