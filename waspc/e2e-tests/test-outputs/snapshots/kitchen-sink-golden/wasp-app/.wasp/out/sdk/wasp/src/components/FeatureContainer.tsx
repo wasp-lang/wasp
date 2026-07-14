@@ -180,11 +180,16 @@ const featureGroups: FeatureGroup[] = [
     ],
   },
   {
-    title: "Other",
+    title: "Full-stack modules",
     features: [
       {
         to: "/fsm",
-        title: "Full-stack Module",
+        title: "Module-owned page",
+      },
+      {
+        to: "/fsm-api",
+        title: "Host-owned page",
+        isPublic: true,
       },
     ],
   },

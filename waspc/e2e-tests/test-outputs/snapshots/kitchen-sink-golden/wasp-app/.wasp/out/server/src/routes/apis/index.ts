@@ -14,11 +14,13 @@ import { barBaz as _waspbarBazfn } from '../../../../../../src/features/apis/api
 import { webhookCallback as _waspwebhookCallbackfn } from '../../../../../../src/features/apis/apis'
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { streamingText as _waspstreamingTextfn } from '../../../../../../src/features/streaming/api'
+import { startModuleJob as _waspstartModuleJobfn } from '@kitchen-sink/module/moduleJobServer'
 
 const idFn: MiddlewareConfigFn = x => x
 
 const _waspbarBazmiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
+const _waspstartModuleJobmiddlewareConfigFn = idFn
 
 const router = express.Router()
 
@@ -94,6 +96,23 @@ router.get(
         },
       }
       return _waspstreamingTextfn(req, res, context)
+    }
+  )
+)
+const startModuleJobMiddleware = globalMiddlewareConfigForExpress(_waspstartModuleJobmiddlewareConfigFn)
+router.post(
+  '/fsm/api/job',
+  startModuleJobMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspstartModuleJobfn>[0],
+      res: Parameters<typeof _waspstartModuleJobfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspstartModuleJobfn(req, res, context)
     }
   )
 )

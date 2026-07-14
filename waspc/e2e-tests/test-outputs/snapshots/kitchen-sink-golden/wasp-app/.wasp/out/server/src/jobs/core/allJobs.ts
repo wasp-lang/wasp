@@ -5,3 +5,4 @@
 import '../uppercaseTextJob.js'
 import '../mySpecialJob.js'
 import '../mySpecialScheduledJob.js'
+import '../moduleJob.js'

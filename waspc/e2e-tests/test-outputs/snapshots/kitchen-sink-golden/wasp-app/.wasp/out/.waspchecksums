@@ -683,7 +683,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "fb05cc3797f90f88f62c2e6da147550cb9e30dde27df473318207892cadd0dd9"
+        "80f30899de66a19462b6a8d70f3fdae8beef5fc4184fd58d55f3261b7e2109eb"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "103083adf8fe592b230d3fc7802727f07a2bdbf0827180bc5354bb887e8befd8"
+        "01ed619b3e528a8fa87711b7e7a8cb02026ccd75c59fc0a498526beaeee48d15"
     ],
     [
         [
@@ -935,7 +935,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "e65877814b7326bb5abaa6f6f0f72ab21577188b861121722e6c595024d76265"
+        "38d7a2b4523f8a99272b5a475ed938b15120bf8084ea577912c9da5725524bb3"
     ],
     [
         [
@@ -1152,7 +1152,14 @@
             "file",
             "sdk/wasp/server/jobs/index.ts"
         ],
-        "f5ddf0ebcd9ee5176b2b8434e7e5d7528d0b13a7aa8db9d23eef02aba4f1b956"
+        "5909fce9ffe2dcb953f0b81c1f89017fb369a090d7d5fb9e2fca6a9b6198f7f5"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/jobs/moduleJob.ts"
+        ],
+        "b3879958822898c3313ebe0afe52039c3bdda426eff4814d977875f7de137c80"
     ],
     [
         [
@@ -1299,7 +1306,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "75a02c620c092374130e784aae0793e120bb980e4904201928c4558308bfff51"
+        "455ed7e0124d63995e411755d8a0e68757b884344da79940d21e50d1bb32e699"
     ],
     [
         [
@@ -1738,6 +1745,13 @@
     [
         [
             "file",
+            "sdk/wasp/src/pages/FullStackModuleApiPage.tsx"
+        ],
+        "ad27d470c9143cb6eea5a916fb777859eabff6f30864b43e22b21cec8c566bed"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/pages/HomePage.tsx"
         ],
         "3b477ee3d36e6ac0999b1ff06772cd9f4533c5fe7e544bdfba6876391888f561"
@@ -1894,7 +1908,14 @@
             "file",
             "server/rollup.config.js"
         ],
-        "630e078e18967e2f058ae9518e92b34db4d84174500173fce64a1d6ba3ce666b"
+        "00c54e77a8f5f43b09ae6edc84e7454f31ed310cf7b0a183e5e81f903daf7729"
+    ],
+    [
+        [
+            "file",
+            "server/rollupPackages.js"
+        ],
+        "c2ed958511b80cb417ef0049e6d14d02ae2ac214ae72e6a55f470b7be95a8465"
     ],
     [
         [
@@ -2195,7 +2216,14 @@
             "file",
             "server/src/jobs/core/allJobs.ts"
         ],
-        "b7f4360fe4b88dc2c8a41813a6f7e20e8c1285a6aaca96103f4666f1b571c4f3"
+        "772ff595a7cf7db73c79b2618c7d728f9a44b5dcb2b6e0d3a90445214df32465"
+    ],
+    [
+        [
+            "file",
+            "server/src/jobs/moduleJob.ts"
+        ],
+        "cdaca1b24f582a2b3e059f8519e55c31cec05a76f6c2cefc5391cece099e0ca7"
     ],
     [
         [
@@ -2335,7 +2363,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "83ef7b37c5b37e337f8eebce4c8f2682811b4ec2ca870954cca51b1315637c09"
+        "db41fd92d445e46b1c1c31efedffc995b5f65dc2425ef23c207167303dfaa77f"
     ],
     [
         [

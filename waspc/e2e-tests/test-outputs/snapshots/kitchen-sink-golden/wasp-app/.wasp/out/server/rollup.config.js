@@ -1,5 +1,16 @@
 import esbuild from 'rollup-plugin-esbuild'
 import resolve from '@rollup/plugin-node-resolve';
+import { resolve as resolvePath } from 'node:path'
+import {
+  discoverWaspModulePackages,
+  shouldExternalize,
+} from './rollupPackages.js'
+
+const appRootDir = resolvePath(import.meta.dirname, '../../..')
+const packagesToBundle = new Set([
+  'wasp',
+  ...discoverWaspModulePackages(appRootDir),
+])
 
 export default [
   createBundle('src/server.ts', 'bundle/server.js'),
@@ -20,9 +31,9 @@ function createBundle(inputFilePath, outputFilePath) {
         target: 'esnext',
       }),
     ],
-    // We don't want to bundle any of the node_module deps because we want to
-    // keep them as external dependencies.
-    external: /node_modules/,
+    // Wasp modules must share the host's bundled Wasp runtime. Their own
+    // third-party dependencies remain external.
+    external: (id) => shouldExternalize(id, packagesToBundle),
     // 'preserveSymlinks: false' tells Rollup to fully follow symlinks when
     // resolving modules. This is the default option, but we're setting it
     // explicitly because we rely on it.

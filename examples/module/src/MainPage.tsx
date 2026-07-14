@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { addRandomTodo, getTodoItems, useQuery } from "wasp/client/operations";
+import { requestModuleJob } from "./moduleJobClient";
 import type { TodoItems } from "./types";
 
 export function MainPage() {
   const { data, isLoading, error } = useQuery(getTodoItems);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [isStartingJob, setIsStartingJob] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobError, setJobError] = useState<string | null>(null);
 
   const todoItems: TodoItems | undefined = data;
 
@@ -19,6 +23,21 @@ export function MainPage() {
       setAddError(error instanceof Error ? error.message : String(error));
     } finally {
       setIsAdding(false);
+    }
+  }
+
+  async function handleStartJob() {
+    setIsStartingJob(true);
+    setJobId(null);
+    setJobError(null);
+
+    try {
+      const response = await requestModuleJob("module-page");
+      setJobId(response.jobId);
+    } catch (error) {
+      setJobError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setIsStartingJob(false);
     }
   }
 
@@ -97,6 +116,38 @@ export function MainPage() {
             <small>Showing latest {todoItems.items.length} TODOs.</small>
           </>
         )}
+      </section>
+      <section
+        style={{
+          marginTop: "1rem",
+          padding: "1rem",
+          border: "1px solid #ddd",
+          borderRadius: "0.75rem",
+          maxWidth: "36rem",
+        }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>Background job</h2>
+        <p style={{ marginTop: 0, color: "#666", lineHeight: 1.6 }}>
+          This module-owned page calls a module-owned API that submits a
+          module-owned PgBoss job.
+        </p>
+        <button
+          type="button"
+          onClick={handleStartJob}
+          disabled={isStartingJob}
+          style={{
+            border: 0,
+            borderRadius: "999px",
+            padding: "0.7rem 1rem",
+            background: "#111",
+            color: "#fff",
+            cursor: isStartingJob ? "not-allowed" : "pointer",
+          }}
+        >
+          {isStartingJob ? "Submitting..." : "Submit module job"}
+        </button>
+        {jobId && <p data-testid="module-job-id">Submitted job: {jobId}</p>}
+        {jobError && <p>Failed to submit job: {jobError}</p>}
       </section>
     </main>
   );

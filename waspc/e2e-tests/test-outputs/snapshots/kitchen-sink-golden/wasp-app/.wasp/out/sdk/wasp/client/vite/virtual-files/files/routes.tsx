@@ -20,6 +20,16 @@ const routesMapping = {
       }
     },
   },
+  FullStackModuleApiRoute: {
+    lazy: async () => {
+      const Component = await import('./src/pages/FullStackModuleApiPage').then(m => m.FullStackModuleApiPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
   CatchAllRoute: {
     lazy: async () => {
       const Component = await import('./src/pages/CatchAllPage').then(m => m.CatchAllPage);

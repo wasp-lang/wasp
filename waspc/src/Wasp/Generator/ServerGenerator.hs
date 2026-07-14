@@ -78,6 +78,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
+      genFileCopy [relfile|rollupPackages.js|],
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
       genGitignore,

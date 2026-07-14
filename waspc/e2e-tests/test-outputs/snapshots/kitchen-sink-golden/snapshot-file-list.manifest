@@ -735,6 +735,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/moduleJob.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/moduleJob.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/moduleJob.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/moduleJob.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/mySpecialJob.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/mySpecialJob.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/mySpecialJob.js
@@ -1023,6 +1027,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/pages/CatchAllPage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/CatchAllPage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/CatchAllPage.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/CatchAllPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/FullStackModuleApiPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/FullStackModuleApiPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/FullStackModuleApiPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/FullStackModuleApiPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.jsx
@@ -1118,6 +1126,7 @@ wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/index.ts
+wasp-app/.wasp/out/sdk/wasp/server/jobs/moduleJob.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/mySpecialJob.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/mySpecialScheduledJob.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/uppercaseTextJob.ts
@@ -1201,6 +1210,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/streaming.wasp.ts
 wasp-app/.wasp/out/sdk/wasp/src/pages/CatchAllPage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/pages/FullStackModuleApiPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/HomePage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/helpers.ts
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/operations/client.ts
@@ -1224,6 +1234,7 @@ wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
+wasp-app/.wasp/out/server/rollupPackages.js
 wasp-app/.wasp/out/server/src/actions/addRandomTodo.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts
@@ -1267,6 +1278,7 @@ wasp-app/.wasp/out/server/src/auth/providers/oauth/user.ts
 wasp-app/.wasp/out/server/src/crud/tasks.ts
 wasp-app/.wasp/out/server/src/dbSeed.ts
 wasp-app/.wasp/out/server/src/jobs/core/allJobs.ts
+wasp-app/.wasp/out/server/src/jobs/moduleJob.ts
 wasp-app/.wasp/out/server/src/jobs/mySpecialJob.ts
 wasp-app/.wasp/out/server/src/jobs/mySpecialScheduledJob.ts
 wasp-app/.wasp/out/server/src/jobs/uppercaseTextJob.ts
@@ -1345,6 +1357,7 @@ wasp-app/e2e-tests/tests/catch-all-route.spec.ts
 wasp-app/e2e-tests/tests/crud.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
 wasp-app/e2e-tests/tests/custom-signup.spec.ts
+wasp-app/e2e-tests/tests/full-stack-modules.spec.ts
 wasp-app/e2e-tests/tests/helpers.ts
 wasp-app/e2e-tests/tests/lazy-loading.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
@@ -1447,6 +1460,7 @@ wasp-app/src/features/streaming/api.ts
 wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/features/streaming/streaming.wasp.ts
 wasp-app/src/pages/CatchAllPage.tsx
+wasp-app/src/pages/FullStackModuleApiPage.tsx
 wasp-app/src/pages/HomePage.tsx
 wasp-app/src/rpcTests/helpers.ts
 wasp-app/src/rpcTests/operations/client.ts

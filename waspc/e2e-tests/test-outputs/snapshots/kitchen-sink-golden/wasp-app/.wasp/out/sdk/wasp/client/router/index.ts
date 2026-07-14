@@ -20,6 +20,18 @@ export const routes = {
         options?.hash
       ),
   },
+  FullStackModuleApiRoute: {
+    to: "/fsm-api",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        "/fsm-api",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
   CatchAllRoute: {
     to: "*",
     build: (

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Before: the host and module evaluate separate Wasp SDK runtimes. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">Before: module stays outside the bundle</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">The host and module load their own copies of the Wasp SDK.</text>
+
+  <g data-region="server-bundle">
+    <rect x="48" y="128" width="560" height="568" rx="8" />
+    <text x="72" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">server.js Rollup bundle</text>
+
+    <rect x="80" y="200" width="496" height="96" rx="4" />
+    <text x="104" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">Host server code</text>
+    <text x="104" y="264" font-size="12" stroke="none" fill="#666">Startup, routes, APIs, host jobs</text>
+
+    <line x1="328" y1="296" x2="328" y2="360" marker-end="url(#arrow)" />
+    <text x="344" y="336" font-size="12" stroke="none" fill="#666">import wasp/server/jobs</text>
+
+    <rect x="80" y="368" width="496" height="128" rx="4" fill="#e6e6e6" />
+    <text x="104" y="408" font-size="14" font-weight="600" stroke="none" fill="#000">Wasp SDK copy A</text>
+    <text x="104" y="440" font-size="12" stroke="none" fill="#666">wasp/server/jobs inside server.js</text>
+    <text x="104" y="472" font-size="12" stroke="none" fill="#666">Its own state</text>
+
+    <line x1="328" y1="496" x2="328" y2="552" marker-end="url(#arrow)" />
+    <rect x="144" y="560" width="368" height="88" rx="4" />
+    <text x="168" y="592" font-size="14" font-weight="600" stroke="none" fill="#000">pgBossStarted promise A</text>
+    <text x="168" y="624" font-size="12" stroke="none" fill="#666">Started by the host runtime</text>
+  </g>
+
+  <g data-region="node-runtime">
+    <rect x="672" y="128" width="560" height="568" rx="8" />
+    <text x="696" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Outside the bundle</text>
+
+    <rect x="704" y="200" width="496" height="96" rx="4" />
+    <text x="728" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">@kitchen-sink/module</text>
+    <text x="728" y="264" font-size="12" stroke="none" fill="#666">Module API and job worker</text>
+
+    <line x1="952" y1="296" x2="952" y2="360" marker-end="url(#arrow)" />
+    <text x="968" y="336" font-size="12" stroke="none" fill="#666">imports wasp/server/jobs</text>
+
+    <rect x="704" y="368" width="496" height="128" rx="4" fill="#e6e6e6" />
+    <text x="728" y="408" font-size="14" font-weight="600" stroke="none" fill="#000">Wasp SDK copy B</text>
+    <text x="728" y="440" font-size="12" stroke="none" fill="#666">wasp/server/jobs loaded by Node</text>
+    <text x="728" y="472" font-size="12" stroke="none" fill="#666">Its own state</text>
+
+    <line x1="952" y1="496" x2="952" y2="552" marker-end="url(#arrow)" />
+    <rect x="768" y="560" width="368" height="88" rx="4" />
+    <text x="792" y="592" font-size="14" font-weight="600" stroke="none" fill="#000">pgBossStarted promise B</text>
+    <text x="792" y="624" font-size="12" stroke="none" fill="#666">Module submission waits here</text>
+  </g>
+
+  <line x1="576" y1="248" x2="704" y2="248" marker-end="url(#arrow)" />
+  <text x="640" y="232" font-size="12" text-anchor="middle" stroke="none" fill="#666">external import</text>
+
+  <g data-region="annotations">
+    <rect x="72" y="352" width="1128" height="160" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="64" cy="352" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="64" y="356" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+
+    <rect x="128" y="544" width="1024" height="120" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="120" cy="544" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="120" y="548" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+
+  <text x="640" y="744" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Result: two SDK copies, two promises</text>
+  <text x="640" y="776" font-size="14" text-anchor="middle" stroke="none" fill="#666">The host starts promise A while the module waits forever on promise B.</text>
+</svg>
