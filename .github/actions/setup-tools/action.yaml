@@ -30,7 +30,10 @@ runs:
         # disables dev-only tools that are not used in CI. Also `no-haskell`
         # disables Haskell tools if `haskell` input is false.
         MISE_ENV: ${{ inputs.haskell == 'true' && 'ci' || 'ci,no-haskell' }}
-      run: echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
+      run:
+        # We control the value passed here completely.
+        # zizmor: ignore[github-env]
+        echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
 
     - name: Install Mise
       uses: jdx/mise-action@v4
