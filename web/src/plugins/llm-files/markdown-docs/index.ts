@@ -26,7 +26,7 @@ export async function generateMarkdownFilesForValidHtmlFiles(
   const markdownDocsIndexHeader = buildMarkdownDocsIndexHeader(baseUrl);
   const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
 
-  const htmlFilesAbsPaths = await findConvertibleHtmlFiles(outDir);
+  const htmlFilesAbsPaths = await findConvertibleHtmlFileAbsPaths(outDir);
   for (const htmlFileAbsPath of htmlFilesAbsPaths) {
     const htmlContent = await fs.readFile(htmlFileAbsPath, "utf8");
     const htmlFile = new VFile({
@@ -53,7 +53,9 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 `;
 }
 
-async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
+async function findConvertibleHtmlFileAbsPaths(
+  outDir: string,
+): Promise<string[]> {
   const htmlFileAbsPath: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
