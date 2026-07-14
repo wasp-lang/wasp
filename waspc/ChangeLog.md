@@ -11,7 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Upgraded React Router from v7 to v8. The upgrade is backwards compatible. ([#4433](https://github.com/wasp-lang/wasp/pull/4433))
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
 - Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
-- Moved the SQLite development database into the new `.wasp/state` directory, so that it is not deleted by `wasp clean` or recompiles by default.
+- Moved the SQLite development database into the new `.wasp/state` directory, so that it is not deleted by `wasp clean` or recompiles by default. ([#4467](https://github.com/wasp-lang/wasp/pull/4467))
 
 ### 🎉 New Features
 
