@@ -4,7 +4,7 @@ import path from "path";
 import { VFile } from "vfile";
 import { LlmDocsContext } from "../context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
-import { relHtmlFilePathHasMarkdownVariant } from "./markdown-routes";
+import { htmlFileRelPathHasMarkdownVariant } from "./markdown-routes";
 
 /**
  * Turns the rendered HTML for docs, blog, and resources pages into Markdown
@@ -56,11 +56,11 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 async function findConvertibleHtmlFiles(outDir: string): Promise<string[]> {
   const absHtmlFilePaths: string[] = [];
 
-  for await (const relHtmlFilePath of fs.glob("**/*.html", {
+  for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
-    if (relHtmlFilePathHasMarkdownVariant(relHtmlFilePath)) {
-      absHtmlFilePaths.push(path.join(outDir, relHtmlFilePath));
+    if (htmlFileRelPathHasMarkdownVariant(htmlFileRelPath)) {
+      absHtmlFilePaths.push(path.join(outDir, htmlFileRelPath));
     }
   }
 
