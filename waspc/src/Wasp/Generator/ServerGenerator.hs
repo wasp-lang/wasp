@@ -83,6 +83,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genVirtualUserModulesPlugin spec,
+      genFileCopy [relfile|rollupPackages.js|],
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
       genGitignore,

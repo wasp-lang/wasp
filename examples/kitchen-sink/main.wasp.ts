@@ -7,6 +7,7 @@ import {
   serverEnvValidationSchema,
 } from "./src/env" with { type: "ref" };
 import { CatchAllPage } from "./src/pages/CatchAllPage" with { type: "ref" };
+import { FullStackModuleApiPage } from "./src/pages/FullStackModuleApiPage" with { type: "ref" };
 import { HomePage } from "./src/pages/HomePage" with { type: "ref" };
 import {
   serverMiddlewareFn,
@@ -55,6 +56,7 @@ export default app({
   },
   spec: [
     route("HomeRoute", "/", page(HomePage), { prerender: true }),
+    route("FullStackModuleApiRoute", "/fsm-api", page(FullStackModuleApiPage)),
     route("CatchAllRoute", "*", page(CatchAllPage)),
     authSpec,
     operationsSpec,

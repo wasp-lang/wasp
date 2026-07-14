@@ -414,6 +414,7 @@ wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
+wasp-app/.wasp/out/server/rollupPackages.js
 wasp-app/.wasp/out/server/src/app.js
 wasp-app/.wasp/out/server/src/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/server/src/middleware/index.ts
