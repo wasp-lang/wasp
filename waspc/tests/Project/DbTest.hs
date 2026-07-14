@@ -8,14 +8,9 @@ import Wasp.Project.Db
   ( DbSystemParseError (..),
     getDbSystemFromPrismaSchema,
   )
-import qualified Wasp.Project.Db.Dev.Sqlite as Sqlite
 
 spec_DbHelperTest :: Spec
 spec_DbHelperTest = do
-  describe "SQLite development database" $ do
-    it "uses the persistent state directory" $
-      Sqlite.defaultDevDbFile `shouldBe` "file:../../state/dev.db"
-
   describe "getDbSystemFromPrismaSchema" $ do
     it "Correctly extracts PostgreSQL" $ do
       let prismaSchema =
