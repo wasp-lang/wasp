@@ -61,6 +61,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
+        with:
+          haskell: true
 
       - name: Compile TS packages and libs
         run: |
