@@ -1,6 +1,8 @@
 module Wasp.Project.Common
   ( WaspProjectDir,
     DotWaspDir,
+    StateDir,
+    DevDbFile,
     NodeModulesDir,
     CompileError,
     CompileWarning,
@@ -10,6 +12,10 @@ module Wasp.Project.Common
     mainWaspTsFileInWaspProjectDir,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
+    stateDirInDotWaspDir,
+    stateDirInWaspProjectDir,
+    devDbFileInStateDir,
+    devDbFileInWaspProjectDir,
     generatedAppDirInDotWaspDir,
     waspProjectDirFromGeneratedAppDir,
     dotWaspRootFileInWaspProjectDir,
@@ -49,6 +55,10 @@ data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
+data StateDir -- Here we put persistent local Wasp state.
+
+data DevDbFile
+
 data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
@@ -79,6 +89,18 @@ data TsConfigPaths = TsConfigPaths
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
+
+stateDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir StateDir)
+stateDirInDotWaspDir = [reldir|state|]
+
+stateDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir StateDir)
+stateDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> stateDirInDotWaspDir
+
+devDbFileInStateDir :: Path' (Rel StateDir) (File DevDbFile)
+devDbFileInStateDir = [relfile|dev.db|]
+
+devDbFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File DevDbFile)
+devDbFileInWaspProjectDir = stateDirInWaspProjectDir </> devDbFileInStateDir
 
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]

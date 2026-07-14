@@ -32,8 +32,8 @@ COMMANDS
                           Optionally specify a custom Docker image or Docker volume mount path.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
     install               Sets up all internal Wasp npm dependencies and runs npm install.
-    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
-                          Wasp equivalent of 'have you tried closing and opening it again?'.
+    clean [--data]        Deletes the generated app, all cached artifacts, and the node_modules dir.
+                          Pass --data to also delete persistent state, like the development SQLite database.
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
@@ -105,7 +105,7 @@ wasp db start
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
-- `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
+- `wasp clean` removes all generated code and other cached artifacts. It doesn't remove data such as your SQLite database. Use `wasp clean --data` when you intentionally want to remove all Wasp state, including the database.
 
 ```
 

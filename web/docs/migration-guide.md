@@ -24,6 +24,17 @@ Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster b
 
 ## How to migrate?
 
+### 0. Preserve your SQLite development data
+
+**Only if your project uses SQLite.**
+
+If your project uses SQLite and you want to keep its development data, move the database to its new location before upgrading. Run the following commands in your project root:
+
+```bash
+mkdir -p .wasp/state
+mv .wasp/out/db/dev.db* .wasp/state/
+```
+
 ### 1. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.25.0`.

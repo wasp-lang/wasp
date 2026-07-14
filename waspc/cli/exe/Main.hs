@@ -51,7 +51,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("new" : newArgs) -> Command.Call.New newArgs
         ["start"] -> Command.Call.Start
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
-        ["clean"] -> Command.Call.Clean
+        ("clean" : cleanArgs) -> Command.Call.Clean cleanArgs
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
@@ -80,7 +80,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
-    Command.Call.Clean -> runCommand clean
+    Command.Call.Clean cleanArgs -> runCommand $ clean cleanArgs
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
@@ -152,8 +152,8 @@ printUsage =
               "                          Optionally specify a custom Docker image or Docker volume mount path.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
-        cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
-              "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
+        cmd   "    clean [--data]        Deletes the generated app, all cached artifacts, and the node_modules dir.",
+              "                          Pass --data to also delete persistent state, like the development SQLite database.",
         cmd   "    compile               Compiles your Wasp project and reports any errors, without running it.",
         cmd   "    build                 Generates the full web app, ready for deployment.",
         cmd   "    build start [args]    Previews the built production app locally.",
