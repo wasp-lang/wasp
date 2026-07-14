@@ -64,15 +64,7 @@ function isSkippableNode(node: hast.Nodes, skipElementClass: string): boolean {
   }
 
   if (node.type === "element") {
-    /**
-     * A hash link is a link that appears next to headings as # symbol on hover.
-     * Clicking it changes the URL to include the title as URI fragment.
-     * In markdown it creates unnecessary noise, e.g.:
-     * ## When to use Wasp[#](https://wasp.sh/docs#when-to-use-wasp).
-     */
-    const isDocusaurusHeadingHashLink =
-      node.tagName === "a" && hasClass(node, "hash-link");
-    if (isDocusaurusHeadingHashLink) {
+    if (isDocusaurusHeadingHashLink(node)) {
       return true;
     }
 
@@ -83,4 +75,24 @@ function isSkippableNode(node: hast.Nodes, skipElementClass: string): boolean {
   }
 
   return false;
+}
+
+/**
+ * A hash link is a link that appears next to headings as # symbol on hover.
+ * Clicking it changes the URL to include the title as URI fragment.
+ *
+ * In markdown it creates unnecessary noise.
+ *
+ * @example
+ * Generated markdown without this function:
+ * ```md
+ * ## When to use Wasp[#](https://wasp.sh/docs#when-to-use-wasp).
+ * ```
+ * Generated markdown with this function:
+ * ```md
+ * ## When to use Wasp
+ * ```
+ */
+function isDocusaurusHeadingHashLink(node: hast.Element) {
+  return node.tagName === "a" && hasClass(node, "hash-link");
 }
