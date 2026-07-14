@@ -61,7 +61,9 @@ jobs:
           ARTIFACT_NAME: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
         run: |
           mkdir -p "$PACKAGES_INPUT_DIR_PATH"
-          cp "$WASPC_DOWNLOAD_DIR_PATH"/"$ARTIFACT_NAME"/* "$PACKAGES_INPUT_DIR_PATH/"
+          # `ARTIFACT_NAME` is a glob (`wasp-cli-*`) matching one downloaded
+          # folder per build platform, so it must stay unquoted to expand.
+          cp "$WASPC_DOWNLOAD_DIR_PATH"/$ARTIFACT_NAME/* "$PACKAGES_INPUT_DIR_PATH/"
 
       - name: Create build metadata file
         env:
