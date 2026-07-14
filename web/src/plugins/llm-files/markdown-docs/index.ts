@@ -5,8 +5,8 @@ import { VFile } from "vfile";
 import { MarkdownDocsContext } from "./context";
 import { createDocusaurusHtmlToMarkdownProcessor } from "./html-to-md-processor";
 import {
-  htmlFileRelPathToRoute,
   htmlFileRelPathHasMarkdownVariant,
+  htmlFileRelPathToRoute,
 } from "./markdown-routes";
 
 /**
