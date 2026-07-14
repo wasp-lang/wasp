@@ -405,7 +405,7 @@ CI runs for any commits on `main` branch, for pull requests, and for any commits
 
 During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
-If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
+If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages, and the Wasp npm packages are uploaded to npm's staging queue (see [Typical Release Process](#typical-release-process) for how they get approved).
 
 We also have a workflow for deploying example apps to Fly.io (`release-examples-deploy.yaml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
 
@@ -447,10 +447,10 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 When you're ready to make the final release, make sure you are on `release` and then run `./new-release 0.x.y`.
   - This script will do some checks, tag the commit with the new release version, and push the tag.
 - 👉 Wait for CI to finish & succeed for the new tag.
-  - This is triggered automatically on tag push. When it's done, it will create a new draft release.
+  - This is triggered automatically on tag push. When it's done, it will create a new draft release on Github and stage the npm packages on npm (staged packages are not published until a maintainer approves them).
 - 👉 Find the new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes. This usually means copy-pasting the ChangeLog entries for the released version.
 - 👉 Publish the draft release when ready.
-- 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
+- 👉 Approve the staged npm packages. Run `npm stage list` to find the stage IDs, then `npm stage approve <stage-id>` for each. Approval requires 2FA.
 - 👉 Push your local `release` branch to remote.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main` (you can also find it [here](https://github.com/wasp-lang/wasp/pulls?q=is%3Apr+head%3Arelease+base%3Amain+is%3Aopen)). Make sure to merge that PR (create a merge commit, **don't squash or rebase**). This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
@@ -478,13 +478,15 @@ If doing this, steps are the following:
    - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
    - Push the `rc-<version>` branch to remote.
 
-4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
+4. Approve the staged npm packages. Run `npm stage list` to find the stage IDs, then `npm stage approve <stage-id>` for each. Approval requires 2FA.
+
+5. Install the package by passing an explicit version:
 
    ```sh
    npm i -g @wasp.sh/wasp-cli@0.24.1-rc.1
    ```
 
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.24.1-rc.2`, see step 2).
+6. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.24.1-rc.2`, see step 2).
 
 ## Documentation
 
