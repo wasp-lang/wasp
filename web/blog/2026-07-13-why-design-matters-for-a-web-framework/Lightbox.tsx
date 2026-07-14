@@ -50,7 +50,12 @@ export function Lightbox({ src, alt, onClose }: LightboxProps) {
         alt={alt}
         className="no-default-zoom"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: "95vw", maxHeight: "95vh", display: "block", cursor: "default" }}
+        style={{
+          maxWidth: "95vw",
+          maxHeight: "95vh",
+          display: "block",
+          cursor: "default",
+        }}
       />
     </div>
   );

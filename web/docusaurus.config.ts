@@ -56,7 +56,7 @@ const config: Config = {
     imageZoom: {
       // Opt out any image with the `.no-default-zoom` class (used by our custom
       // Carousel + ImgGallery components, which have their own lightbox).
-      selector: '.markdown img:not(.no-default-zoom)',
+      selector: ".markdown img:not(.no-default-zoom)",
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {

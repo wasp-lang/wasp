@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import { useEffect, useRef, useState } from "react";
 import { Lightbox } from "./Lightbox";
 
 interface CarouselImage {
@@ -16,7 +16,9 @@ interface CarouselProps {
 
 export function LandingPagesCarousel({ images, caption }: CarouselProps) {
   const [index, setIndex] = useState(0);
-  const [zoomed, setZoomed] = useState<{ src: string; alt: string } | null>(null);
+  const [zoomed, setZoomed] = useState<{ src: string; alt: string } | null>(
+    null,
+  );
   const rootRef = useRef<HTMLDivElement>(null);
 
   const clamp = (i: number) => Math.max(0, Math.min(images.length - 1, i));
@@ -28,8 +30,14 @@ export function LandingPagesCarousel({ images, caption }: CarouselProps) {
     const onKey = (e: KeyboardEvent) => {
       if (zoomed) return; // let Lightbox handle its own keys
       if (!rootRef.current?.contains(document.activeElement)) return;
-      if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-      if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        go(-1);
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        go(1);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -42,23 +50,44 @@ export function LandingPagesCarousel({ images, caption }: CarouselProps) {
       className="figure-container"
       ref={rootRef}
       tabIndex={0}
-      style={{ display: "flex", flexDirection: "column", alignItems: "stretch", outline: "none" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        outline: "none",
+      }}
     >
       <figure style={{ margin: 0, position: "relative" }}>
         {/* Label + counter above the current slide */}
         {(current.label || images.length > 1) && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-            <div style={{ fontFamily: "IBM Plex Mono, monospace", fontWeight: 600, fontSize: 15 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              marginBottom: 8,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "IBM Plex Mono, monospace",
+                fontWeight: 600,
+                fontSize: 15,
+              }}
+            >
               {current.label}
             </div>
             {images.length > 1 && (
-              <div style={{
-                fontFamily: "IBM Plex Mono, monospace",
-                fontSize: 12,
-                letterSpacing: "0.08em",
-                opacity: 0.6,
-              }}>
-                {String(index + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+              <div
+                style={{
+                  fontFamily: "IBM Plex Mono, monospace",
+                  fontSize: 12,
+                  letterSpacing: "0.08em",
+                  opacity: 0.6,
+                }}
+              >
+                {String(index + 1).padStart(2, "0")} /{" "}
+                {String(images.length).padStart(2, "0")}
               </div>
             )}
           </div>
@@ -74,21 +103,41 @@ export function LandingPagesCarousel({ images, caption }: CarouselProps) {
             }}
           >
             {images.map((img, i) => (
-              <Slide key={i} img={img} onZoom={(src, alt) => setZoomed({ src, alt })} />
+              <Slide
+                key={i}
+                img={img}
+                onZoom={(src, alt) => setZoomed({ src, alt })}
+              />
             ))}
           </div>
 
           {images.length > 1 && (
             <>
-              <NavButton side="left" onClick={() => go(-1)} disabled={index === 0} />
-              <NavButton side="right" onClick={() => go(1)} disabled={index === images.length - 1} />
+              <NavButton
+                side="left"
+                onClick={() => go(-1)}
+                disabled={index === 0}
+              />
+              <NavButton
+                side="right"
+                onClick={() => go(1)}
+                disabled={index === images.length - 1}
+              />
             </>
           )}
         </div>
 
         {/* Thumbnail strip */}
         {images.length > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: 8,
+              marginTop: 16,
+            }}
+          >
             {images.map((img, i) => (
               <Thumbnail
                 key={i}
@@ -117,7 +166,13 @@ export function LandingPagesCarousel({ images, caption }: CarouselProps) {
         )}
       </figure>
 
-      {zoomed && <Lightbox src={zoomed.src} alt={zoomed.alt} onClose={() => setZoomed(null)} />}
+      {zoomed && (
+        <Lightbox
+          src={zoomed.src}
+          alt={zoomed.alt}
+          onClose={() => setZoomed(null)}
+        />
+      )}
     </div>
   );
 }
@@ -131,7 +186,14 @@ function Slide({
 }) {
   const src = useBaseUrl(img.source);
   return (
-    <div style={{ flex: "0 0 100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div
+      style={{
+        flex: "0 0 100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <img
         src={src}
         alt={img.alt}
@@ -142,7 +204,9 @@ function Slide({
           display: "block",
           cursor: "zoom-in",
           background: img.framed ? "var(--wasp-y)" : undefined,
-          border: img.framed ? "3px solid var(--wasp-k)" : "1px solid var(--wasp-g5)",
+          border: img.framed
+            ? "3px solid var(--wasp-k)"
+            : "1px solid var(--wasp-g5)",
           padding: img.framed ? 14 : undefined,
           boxSizing: "border-box",
         }}
@@ -178,7 +242,9 @@ function Thumbnail({
         width: 150,
         height: 94,
         padding: 0,
-        border: active ? "2.5px solid var(--wasp-y)" : "1.5px solid var(--wasp-g5)",
+        border: active
+          ? "2.5px solid var(--wasp-y)"
+          : "1.5px solid var(--wasp-g5)",
         outline: active ? "1px solid var(--wasp-k)" : "none",
         background: "transparent",
         cursor: "pointer",
@@ -246,4 +312,3 @@ function NavButton({
     </button>
   );
 }
-

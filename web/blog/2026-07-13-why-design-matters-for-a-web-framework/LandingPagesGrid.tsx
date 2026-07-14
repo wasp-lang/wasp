@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import { useEffect, useRef, useState } from "react";
 import { Lightbox } from "./Lightbox";
 
 interface GalleryImage {
@@ -17,7 +17,9 @@ const DESKTOP_BREAKPOINT = 768; // px
 
 export function LandingPagesGrid({ images, caption }: LandingPagesGridProps) {
   const [isDesktop, setIsDesktop] = useState(true);
-  const [zoomed, setZoomed] = useState<{ src: string; alt: string } | null>(null);
+  const [zoomed, setZoomed] = useState<{ src: string; alt: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     const mq = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT}px)`);
@@ -28,10 +30,20 @@ export function LandingPagesGrid({ images, caption }: LandingPagesGridProps) {
   }, []);
 
   return (
-    <div className="figure-container" style={{ display: "flex", flexDirection: "column", alignItems: "stretch" }}>
+    <div
+      className="figure-container"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+      }}
+    >
       <figure style={{ margin: 0, position: "relative" }}>
         {isDesktop ? (
-          <DesktopGrid images={images} onZoom={(src, alt) => setZoomed({ src, alt })} />
+          <DesktopGrid
+            images={images}
+            onZoom={(src, alt) => setZoomed({ src, alt })}
+          />
         ) : (
           <MobileCarousel images={images} />
         )}
@@ -51,7 +63,13 @@ export function LandingPagesGrid({ images, caption }: LandingPagesGridProps) {
         )}
       </figure>
 
-      {zoomed && <Lightbox src={zoomed.src} alt={zoomed.alt} onClose={() => setZoomed(null)} />}
+      {zoomed && (
+        <Lightbox
+          src={zoomed.src}
+          alt={zoomed.alt}
+          onClose={() => setZoomed(null)}
+        />
+      )}
     </div>
   );
 }
@@ -64,7 +82,9 @@ function DesktopGrid({
   onZoom: (src: string, alt: string) => void;
 }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+    <div
+      style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}
+    >
       {images.map((img, i) => (
         <GridImage key={i} img={img} onZoom={onZoom} />
       ))}
@@ -139,7 +159,14 @@ function MobileCarousel({ images }: { images: GalleryImage[] }) {
         ))}
       </div>
       {images.length > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 12 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 8,
+            marginTop: 12,
+          }}
+        >
           {images.map((_, i) => (
             <button
               key={i}
@@ -151,7 +178,9 @@ function MobileCarousel({ images }: { images: GalleryImage[] }) {
                 padding: 0,
                 border: "1.5px solid var(--ifm-color-emphasis-1000)",
                 background:
-                  i === activeIndex ? "var(--ifm-color-emphasis-1000)" : "transparent",
+                  i === activeIndex
+                    ? "var(--ifm-color-emphasis-1000)"
+                    : "transparent",
                 cursor: "pointer",
               }}
             />
@@ -174,8 +203,12 @@ function MobileSlide({ img }: { img: GalleryImage }) {
         alignItems: "center",
       }}
     >
-      <img src={src} alt={img.alt} className="no-default-zoom" style={{ maxWidth: "100%", display: "block" }} />
+      <img
+        src={src}
+        alt={img.alt}
+        className="no-default-zoom"
+        style={{ maxWidth: "100%", display: "block" }}
+      />
     </div>
   );
 }
-
