@@ -8,7 +8,7 @@
  * on the user project.
  * 
  * Copying the user project and making the SDK depend on the copy
- * is not an option, becuase it forces the user project to compile
+ * is not an option, because it forces the user's project to compile
  * with the SDK's TypeScript config.
  * ({@link https://github.com/wasp-lang/wasp/issues/2247 Old issue about the problem})
  *
@@ -16,7 +16,7 @@
  * the SDK. That way the SDK can use the user's types, without 
  * depending on the user project.
  * 
- * The SDK defines {@link Register} interface, which is publicly
+ * The SDK defines empty {@link Register} interface, which is publicly
  * exported through the `wasp/types` module.
  * 
  * During compilation, Wasp generates additional type declarations in
@@ -25,11 +25,30 @@
  * and declaration merging. This essentially pushes user project types
  * into the SDK.
  * 
- * On the SDK side, all user project dependent types are resolved through
- * the {@link Register} interface. If a user-defined type for something
- * exists in {@link Register}, we use it; otherwise, we fallback to some
- * sensible default type. We must have a fallback because the SDK must 
- * be compileable standalone, without a user project.
+ * On the SDK side, all user project dependent types are defined as
+ * conditional types. If a user-defined type for something exists in
+ * {@link Register}, we use it; otherwise, we fallback to some
+ * sensible default type.
+ * 
+ * The purpose of conditional types in SDK is two-fold:
+ * 
+ * 1. The SDK must be compilable on its own (without a user project).
+ *    Conditioanl types allow exactly that. If a user project didn't push
+ *    any types to the SDK, we use a fallback type. The fallback type
+ *    still satisfies the general type structure that we expect.
+ * 
+ *    E.g., if a user didn't define a custom Prisma client instance, the
+ *    `PrismaClient` will return a fallback type, which is a Prisma client
+ *    with default settings.
+ * 
+ * 2. The conditional types allow for the propagation of types from the SDK
+ *    back to the user project. Since we force the types to stay in their
+ *    conditional (rather than resolved) form, as soon as the condition
+ *    changes the type itself is recalculated. That means as soon as users
+ *    updates their types, the SDK types will also recalculate.
+ * 
+ *    E.g., if a user defines a custom Prisma client instance, the
+ *    `PrismaClient` type will instead return the user's custom client.
  * 
  * As a result, users can see their own user-defined types in the SDK,
  * without SDK, directly depending on the user code.
