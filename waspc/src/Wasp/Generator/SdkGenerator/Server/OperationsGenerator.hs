@@ -24,8 +24,9 @@ import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
     getGenericOperationDefinitionTypeName,
+    getRegisteredOperationTypeName,
     mkTmplFd,
-    mkTmplFdWithData, getRegisteredOperationTypeName,
+    mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 
