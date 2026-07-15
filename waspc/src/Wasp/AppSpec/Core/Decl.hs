@@ -14,6 +14,7 @@ where
 import Data.Aeson (ToJSON (toJSON), object, (.=))
 import Data.Maybe (mapMaybe)
 import Data.Typeable (cast)
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), mapDatapointList)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
 
 -- | A container for any (IsDecl a) type, allowing you to have a heterogenous list of
@@ -44,3 +45,7 @@ fromDecl (Decl name value) = (name,) <$> cast value
 
 getDeclName :: Decl -> String
 getDeclName (Decl name _) = name
+
+instance Inspectable Decl where
+  inspect (Decl name value) =
+    mapDatapointList (("Name", name) :) <$> inspect value

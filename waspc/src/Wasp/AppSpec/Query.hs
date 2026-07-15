@@ -9,10 +9,11 @@ where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
+import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.Core.Ref (Ref)
+import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity
 import Wasp.AppSpec.ExtImport
 
@@ -26,11 +27,9 @@ data Query = Query
 instance IsDecl Query
 
 instance Inspectable Query where
-  inspectionSection = "Queries"
-  inspect (name, query) =
-    InspectionEntry
-      [ name,
-        if auth query == Just True then "[auth]" else "",
-        showExtImport $ fn query,
-        showEntityRefs $ entities query
-      ]
+  inspect query =
+    [ InspectionEntry "Queries" $
+        [("Import", showExtImport $ fn query)]
+          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities query]]
+          ++ [("Auth", "Enabled") | auth query == Just True]
+    ]

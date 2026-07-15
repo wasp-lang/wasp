@@ -16,7 +16,7 @@ import Wasp.AppSpec.App.EmailSender (EmailSender)
 import Wasp.AppSpec.App.Server (Server)
 import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.App.WebSocket (WebSocket)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (refName)
 
@@ -36,17 +36,14 @@ data App = App
 instance IsDecl App
 
 instance Inspectable App where
-  inspectionSection = "App"
-  inspect (name, app) =
-    InspectionEntry
-      [ name,
-        show $ title app,
-        maybe "" showAuth (auth app)
-      ]
+  inspect app =
+    [ InspectionEntry "App" $
+        ("Title", title app)
+          : inspectAuth' (auth app)
+    ]
     where
-      showAuth appAuth =
-        "auth: "
-          ++ intercalate ", " (enabledAuthMethodNames $ Auth.methods appAuth)
-          ++ " (user entity: "
-          ++ refName (Auth.userEntity appAuth)
-          ++ ")"
+      inspectAuth' Nothing = []
+      inspectAuth' (Just appAuth) =
+        [ ("Auth", intercalate ", " $ enabledAuthMethodNames $ Auth.methods appAuth),
+          ("User entity", refName (Auth.userEntity appAuth))
+        ]

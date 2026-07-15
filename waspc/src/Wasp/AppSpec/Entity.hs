@@ -7,17 +7,14 @@ module Wasp.AppSpec.Entity
     getPslModelBody,
     getIdField,
     getIdBlockAttribute,
-    showEntityRefs,
   )
 where
 
 import Data.Aeson (FromJSON (parseJSON), ToJSON (toJSON), object, (.=))
 import Data.Data (Data)
 import Data.List (intercalate)
-import Data.Maybe (fromMaybe)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
@@ -46,17 +43,11 @@ instance ToJSON Entity where
       ]
 
 instance Inspectable Entity where
-  inspectionSection = "Entities"
-  inspect (name, entity) =
-    InspectionEntry [name, intercalate ", " $ showField <$> fields entity]
-    where
-      showField field = Field.fieldName field ++ " " ++ Field.showFieldType (Field.fieldType field)
-
--- | Renders a cell like "uses Task, Tag" for declarations that operate on entities.
-showEntityRefs :: Maybe [Ref Entity] -> String
-showEntityRefs entityRefs = case refName <$> fromMaybe [] entityRefs of
-  [] -> ""
-  names -> "uses " ++ intercalate ", " names
+  inspect entity =
+    [ InspectionEntry
+        "Entities"
+        [("Fields", intercalate ", " $ Field.fieldName <$> fields entity)]
+    ]
 
 makeEntity :: Psl.Model.Body -> Entity
 makeEntity body =

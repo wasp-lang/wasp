@@ -10,7 +10,7 @@ where
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Page
@@ -32,15 +32,17 @@ data Route = Route
 instance IsDecl Route
 
 instance Inspectable Route where
-  inspectionSection = "Routes"
-  inspect (name, route) =
+  inspect route =
     InspectionEntry
-      [ path route,
-        name,
-        "-> " ++ refName (to route),
-        unwords $
-          concat
-            [ ["[lazy]" | lazy route == Just True],
-              ["[prerender]" | not $ null $ prerender route]
-            ]
-      ]
+      "Routes"
+      ( [ ("Path", path route),
+          ("Destination", refName (to route)),
+          ("Loading", if lazy route == Just False then "Eager" else "Lazy")
+        ]
+          ++ [("Prerender", "Enabled") | not $ null $ prerender route]
+      )
+      : [ InspectionEntry
+            "Prerendered routes"
+            [("Route", prerenderPath)]
+        | prerenderPath <- prerender route
+        ]

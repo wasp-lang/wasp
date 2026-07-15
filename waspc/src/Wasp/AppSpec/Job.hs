@@ -17,11 +17,12 @@ where
 
 import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON)
 import Data.Data (Data)
+import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.Core.Ref (Ref)
-import Wasp.AppSpec.Entity (Entity, showEntityRefs)
+import Wasp.AppSpec.Core.Ref (Ref, refName)
+import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
 import Wasp.AppSpec.JSON (JSON (..))
 
@@ -36,15 +37,14 @@ data Job = Job
 instance IsDecl Job
 
 instance Inspectable Job where
-  inspectionSection = "Jobs"
-  inspect (name, job) =
-    InspectionEntry
-      [ name,
-        show $ executor job,
-        maybe "" (\s -> "cron " ++ show s.cron) (schedule job),
-        showExtImport job.perform.fn,
-        showEntityRefs $ entities job
-      ]
+  inspect job =
+    [ InspectionEntry "Jobs" $
+        [ ("Executor", show $ executor job),
+          ("Schedule", maybe "" (show . cron) (schedule job)),
+          ("Import", showExtImport job.perform.fn)
+        ]
+          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities job]]
+    ]
 
 data JobExecutor = PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded, Generic)

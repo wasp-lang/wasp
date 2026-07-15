@@ -10,7 +10,7 @@ where
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
 
@@ -23,10 +23,10 @@ data ApiNamespace = ApiNamespace
 instance IsDecl ApiNamespace
 
 instance Inspectable ApiNamespace where
-  inspectionSection = "API namespaces"
-  inspect (name, apiNamespace) =
-    InspectionEntry
-      [ path apiNamespace,
-        name,
-        showExtImport $ middlewareConfigFn apiNamespace
-      ]
+  inspect apiNamespace =
+    [ InspectionEntry
+        "API namespaces"
+        [ ("Path", path apiNamespace),
+          ("Import", showExtImport $ middlewareConfigFn apiNamespace)
+        ]
+    ]

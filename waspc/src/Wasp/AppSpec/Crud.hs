@@ -15,7 +15,7 @@ import Data.Data (Data)
 import Data.List (intercalate)
 import Data.Maybe (isJust)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
@@ -30,28 +30,35 @@ data Crud = Crud
 instance IsDecl Crud
 
 instance Inspectable Crud where
-  inspectionSection = "CRUDs"
-  inspect (name, crud) =
-    InspectionEntry
-      [ name,
-        "on " ++ refName (entity crud),
-        intercalate ", " $ showEnabledOperations $ operations crud
-      ]
+  inspect crud =
+    [ InspectionEntry "CRUDs" $
+        ("Entity", refName (entity crud))
+          : showEnabledOperations (operations crud)
+    ]
     where
       showEnabledOperations ops =
-        [ showOperation operationName options
-        | (operationName, Just options) <-
-            [ ("get", get ops),
-              ("getAll", getAll ops),
-              ("create", create ops),
-              ("update", update ops),
-              ("delete", delete ops)
+        [ (operationName, showOperation $ getOptions ops)
+        | (operationName, getOptions) <-
+            [ ("get", get),
+              ("getAll", getAll),
+              ("create", create),
+              ("update", update),
+              ("delete", delete)
             ]
         ]
-      showOperation operationName options =
-        operationName
-          ++ (if isPublic options == Just True then " (public)" else "")
-          ++ (if isJust (overrideFn options) then " (override)" else "")
+
+      showOperation Nothing = "Disabled"
+      showOperation (Just options) =
+        unwords
+          [ "Enabled",
+            wrapInParens $
+              intercalate ", " $
+                ["public" | isPublic options == Just True]
+                  ++ ["overridden" | isJust (overrideFn options)]
+          ]
+
+      wrapInParens "" = ""
+      wrapInParens s = "(" ++ s ++ ")"
 
 data CrudOperations = CrudOperations
   { get :: Maybe CrudOperationOptions,

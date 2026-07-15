@@ -28,7 +28,7 @@ import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.Class.HasCustomEvaluation (HasCustomEvaluation (..))
 import Wasp.Analyzer.TypeDefinitions.TH
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
@@ -46,15 +46,14 @@ dummyCtx = TestUtil.ctx (1, 1) (1, 1)
 wctx :: a -> WithCtx a
 wctx = WithCtx dummyCtx
 
+emptyInspect :: a -> [InspectionEntry]
+emptyInspect = const []
+
 ------- Simple -------
 
 newtype Simple = Simple String deriving (Eq, Show, Data, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Simple where
-  inspectionSection = "Simples"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Simple where inspect = emptyInspect
 
 instance IsDecl Simple
 
@@ -64,11 +63,7 @@ makeDeclType ''Simple
 
 data Fields = Fields {a :: String, b :: Maybe Double} deriving (Eq, Show, Data, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Fields where
-  inspectionSection = "Fields"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Fields where inspect = emptyInspect
 
 instance IsDecl Fields
 
@@ -78,11 +73,7 @@ makeDeclType ''Fields
 
 data Person = Person {name :: String, age :: Integer} deriving (Eq, Show, Data, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Person where
-  inspectionSection = "Persons"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Person where inspect = emptyInspect
 
 instance IsDecl Person
 
@@ -100,11 +91,7 @@ data Business = Business
   }
   deriving (Eq, Show, Data, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Business where
-  inspectionSection = "Businesses"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Business where inspect = emptyInspect
 
 instance IsDecl Business
 
@@ -114,11 +101,7 @@ makeDeclType ''Business
 
 data Special = Special {imps :: [ExtImport], json :: JSON} deriving (Eq, Show, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Special where
-  inspectionSection = "Specials"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Special where inspect = emptyInspect
 
 instance IsDecl Special
 
@@ -162,11 +145,7 @@ data Custom = Custom
   {version :: SemanticVersion}
   deriving (Eq, Show, Data, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Custom where
-  inspectionSection = "Customs"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Custom where inspect = emptyInspect
 
 instance IsDecl Custom
 
@@ -182,11 +161,7 @@ data Tuples = Tuples
   }
   deriving (Eq, Show, Data, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable Tuples where
-  inspectionSection = "Tuples"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable Tuples where inspect = emptyInspect
 
 instance IsDecl Tuples
 
@@ -205,11 +180,7 @@ data AllJson = AllJson
   }
   deriving (Eq, Show, Generic, ToJSON)
 
--- Trivial Inspectable instance: this test-only decl type is never inspected;
--- the instance only satisfies the IsDecl superclass.
-instance Inspectable AllJson where
-  inspectionSection = "AllJsons"
-  inspect (name, _) = InspectionEntry [name]
+instance Inspectable AllJson where inspect = emptyInspect
 
 instance IsDecl AllJson
 

@@ -12,11 +12,12 @@ where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
+import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (..))
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.Core.Ref (Ref)
-import Wasp.AppSpec.Entity (Entity, showEntityRefs)
+import Wasp.AppSpec.Core.Ref (Ref, refName)
+import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
 
 data Api = Api
@@ -31,15 +32,15 @@ data Api = Api
 instance IsDecl Api
 
 instance Inspectable Api where
-  inspectionSection = "APIs"
-  inspect (name, api) =
-    InspectionEntry
-      [ show (method api) ++ " " ++ path api,
-        name,
-        if auth api == Just True then "[auth]" else "",
-        showExtImport $ fn api,
-        showEntityRefs $ entities api
-      ]
+  inspect api =
+    [ InspectionEntry "API" $
+        [ ("Method", show (method api)),
+          ("Route", path api),
+          ("Import", showExtImport $ fn api)
+        ]
+          ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities api]]
+          ++ [("Auth", "Enabled") | auth api == Just True]
+    ]
 
 method :: Api -> HttpMethod
 method = fst . httpRoute
