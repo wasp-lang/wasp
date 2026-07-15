@@ -37,9 +37,9 @@ spec_JsImportTest = do
     it "keeps parent relative import paths unchanged" $ do
       getJsImportPathStringFromPath testParentRelativeImportPath
         `shouldBe` generatedImportPathForParentRelativeImportPath
-    it "keeps module import path unchanged" $ do
-      getJsImportPathStringFromPath testModuleImportPath
-        `shouldBe` generatedImportPathForModuleImportPath
+    it "keeps raw import names unchanged" $ do
+      getJsImportPathStringFromPath testRawImportPath
+        `shouldBe` generatedImportPathForRawImportPath
   describe "getJsImportStmtAndIdentifier" $ do
     describe "generates import statement and identifier from" $ do
       it "module import" $ do
@@ -116,3 +116,9 @@ spec_JsImportTest = do
 
     generatedImportPathForModuleImportPath :: String
     generatedImportPathForModuleImportPath = "wasp/server/api"
+
+    testRawImportPath :: JsImportPath
+    testRawImportPath = RawImportName "/@wasp/routes.tsx"
+
+    generatedImportPathForRawImportPath :: String
+    generatedImportPathForRawImportPath = "/@wasp/routes.tsx"

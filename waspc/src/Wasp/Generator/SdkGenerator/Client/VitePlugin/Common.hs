@@ -1,16 +1,15 @@
 module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
   ( virtualFilesDirInViteDir,
     virtualFilesFilesDirInViteDir,
-    clientEntryPointVMId,
-    routesEntryPointVMId,
-    ssrEntryPointVMId,
+    clientEntryPointPath,
+    routesEntryPointPath,
+    ssrEntryPointPath,
     spaFallbackFile,
   )
 where
 
-import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, relfileP, (</>))
+import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.UserVirtualModules (VirtualModuleId)
 
 data VirtualFilesDir
 
@@ -22,14 +21,14 @@ virtualFilesDirInViteDir = [reldir|virtual-files|]
 virtualFilesFilesDirInViteDir :: Path' (Rel C.ViteDir) (Dir VirtualFilesFilesDir)
 virtualFilesFilesDirInViteDir = virtualFilesDirInViteDir </> [reldir|files|]
 
-clientEntryPointVMId :: VirtualModuleId
-clientEntryPointVMId = [relfileP|virtual:wasp/client-entry.tsx|]
+clientEntryPointPath :: String
+clientEntryPointPath = "/@wasp/client-entry.tsx"
 
-routesEntryPointVMId :: VirtualModuleId
-routesEntryPointVMId = [relfileP|virtual:wasp/routes.tsx|]
+routesEntryPointPath :: String
+routesEntryPointPath = "/@wasp/routes.tsx"
 
-ssrEntryPointVMId :: VirtualModuleId
-ssrEntryPointVMId = [relfileP|virtual:wasp/ssr-entry.tsx|]
+ssrEntryPointPath :: String
+ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
-spaFallbackFile :: Path Posix (Rel Dir') File'
-spaFallbackFile = [relfileP|200.html|]
+spaFallbackFile :: String
+spaFallbackFile = "200.html"

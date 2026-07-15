@@ -8,16 +8,15 @@ where
 import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
-import StrongPath.Path (toPathRelFileP)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointVMId, routesEntryPointVMId, spaFallbackFile, ssrEntryPointVMId, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), makeValueJsImport)
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
 
 getWaspVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getWaspVirtualModulesPlugin spec =
@@ -52,9 +51,9 @@ getWaspVirtualModulesTs =
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualModules.ts|]
     tmplData =
       object
-        [ "clientEntryPointVMId" .= toPathRelFileP clientEntryPointVMId,
-          "routesEntryPointVMId" .= toPathRelFileP routesEntryPointVMId,
-          "ssrEntryPointVMId" .= toPathRelFileP ssrEntryPointVMId
+        [ "clientEntryPointPath" .= clientEntryPointPath,
+          "routesEntryPointPath" .= routesEntryPointPath,
+          "ssrEntryPointPath" .= ssrEntryPointPath
         ]
 
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
@@ -78,7 +77,7 @@ genVirtualSsrEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
-          "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
+          "spaFallbackFile" .= spaFallbackFile,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
 
@@ -86,4 +85,4 @@ routeObjectsImportJson :: Value
 routeObjectsImportJson =
   jsImportToImportJson $
     Just $
-      makeValueJsImport (ModuleImportPath routesEntryPointVMId) (JsImportField "routeObjects")
+      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")

@@ -50,6 +50,7 @@ data JsImportKind
 data JsImportPath
   = RelativeImportPath (Path Posix (Rel Dir') File')
   | ModuleImportPath (Path Posix (Rel Dir') File')
+  | RawImportName String
   deriving (Show, Eq, Data)
 
 -- Note (filip): not a fan of so many aliases for regular types
@@ -114,6 +115,7 @@ getJsImportPathStringFromPath :: JsImportPath -> String
 getJsImportPathStringFromPath = \case
   RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
   ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+  RawImportName moduleName -> moduleName
   where
     normalizePath path
       | ".." `isPrefixOf` path = path

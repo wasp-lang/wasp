@@ -32,8 +32,6 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules (userOperationVMId)
-import Wasp.Util (toUpperFirst)
-import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 
 serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
 serverOperationIndexJsFileInSdkRootDir operation =

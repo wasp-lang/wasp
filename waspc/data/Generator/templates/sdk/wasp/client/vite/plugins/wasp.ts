@@ -33,8 +33,8 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     validateEnv(),
     react(options?.reactOptions),
     ssr({
-      clientEntrySrc: "{= clientEntryPointVMId =}",
-      ssrEntrySrc: "{= ssrEntryPointVMId =}",
+      clientEntrySrc: "{= clientEntryPointPath =}",
+      ssrEntrySrc: "{= ssrEntryPointPath =}",
       ssrPaths: {=& ssrPaths =},
       spaFallbackFile: "{= spaFallbackFile =}",
     }),
