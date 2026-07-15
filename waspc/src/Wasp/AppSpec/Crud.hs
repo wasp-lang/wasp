@@ -76,12 +76,12 @@ data CrudOperation = Get | GetAll | Create | Update | Delete
 toOperationList :: CrudOperations -> [(CrudOperation, CrudOperationOptions)]
 toOperationList ops =
   catMaybes
-    [ fmap (operation,) (optionsForOperation operation ops)
+    [ (operation,) <$> getOptions operation ops
     | operation <- [minBound ..] :: [CrudOperation]
     ]
   where
-    optionsForOperation Get = get
-    optionsForOperation GetAll = getAll
-    optionsForOperation Create = create
-    optionsForOperation Update = update
-    optionsForOperation Delete = delete
+    getOptions Get = get
+    getOptions GetAll = getAll
+    getOptions Create = create
+    getOptions Update = update
+    getOptions Delete = delete

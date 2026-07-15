@@ -15,7 +15,6 @@ import Data.Maybe (fromJust, fromMaybe)
 import StrongPath (File', Path', Rel)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.Crud (toOperationList)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.Crud.Routes as Routes
@@ -35,7 +34,7 @@ getCrudOperationJson crudOperationName crud idField =
   where
     crudEntityName = AS.refName $ AS.Crud.entity crud
 
-    crudOperations = toOperationList crud.operations
+    crudOperations = AS.Crud.toOperationList crud.operations
 
     getDataForOperation :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
     getDataForOperation (operation, options) =
