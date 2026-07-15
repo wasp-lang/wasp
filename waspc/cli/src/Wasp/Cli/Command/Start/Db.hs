@@ -47,7 +47,10 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 
   let (appName, _) = ASV.getApp appSpec
 
-  devDbPort <- liftIO Dev.Postgres.getDevDbPort
+  devDbPort <-
+    liftIO Dev.Postgres.getDevDbPort >>= \case
+      Left err -> E.throwError $ CommandError "Invalid dev database port" err
+      Right port -> return port
 
   case ASV.getValidDbSystem appSpec of
     AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
@@ -179,8 +182,10 @@ startPostgresDevDb waspProjectDir appName devDbPort dbDockerImage dbDockerVolume
             CommandError
               "Port already in use"
               ( printf
-                  ( "Wasp can't run PostgreSQL dev database for you since port %d is already in use.\n"
-                      <> "You can make Wasp use a different port by setting the %s env var."
+                  ( unlines
+                      [ "Wasp can't run PostgreSQL dev database for you since port %d is already in use.",
+                        "You can make Wasp use a different port by setting the %s env var."
+                      ]
                   )
                   devDbPort
                   Dev.Postgres.devDbPortEnvVarName
