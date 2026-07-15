@@ -1,7 +1,8 @@
 module Tests.WaspDepsTest (waspDepsTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliDeps)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDeps)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- TODO: Test that deps change with installs/uninstalls.
 waspDepsTest :: Test
@@ -14,7 +15,7 @@ waspDepsTest =
       TestCase
         "succeed-inside-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliDeps
                 ]
@@ -23,4 +24,4 @@ waspDepsTest =
     ]
   where
     waspCliDepsFails :: ShellCommand
-    waspCliDepsFails = "! wasp-cli deps"
+    waspCliDepsFails = "! $WASP_CLI_CMD deps"

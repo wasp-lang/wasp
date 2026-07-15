@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Wasp.Project.WaspFile.TypeScript
   ( analyzeWaspTsFile,
   )
@@ -6,17 +8,13 @@ where
 import Control.Arrow (left)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
+import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
-    Dir,
     File,
-    File',
     Path',
     Rel,
-    basename,
-    castFile,
     fromAbsDir,
     fromAbsFile,
     fromRelFile,
@@ -27,100 +25,59 @@ import System.Exit (ExitCode (..))
 import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
+import Wasp.CompileOptions (CompileOptions)
+import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageScriptInProject)
+import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
+    TsConfigPaths (..),
     WaspProjectDir,
+    WaspTsConfigFile,
     WaspTsFile,
     dotWaspDirInWaspProjectDir,
+    tsConfigPaths,
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
-import Wasp.Util (orElse)
 import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.StrongPath (replaceRelExtension)
-
-data CompiledWaspJsFile
-
-data AppSpecDeclsJsonFile
 
 analyzeWaspTsFile ::
-  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: I'm not yet sure where tsconfig.wasp.json location should come from
-  -- because we also need that knowledge when generating a TS SDK project.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
-  declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
-  ExceptT $ readDecls prismaSchemaAst declsJsonFile
-
-compileWaspTsFile ::
-  Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) File' ->
-  Path' Abs (File WaspTsFile) ->
-  IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
-compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath = do
-  chan <- newChan
-  (_, tscExitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      ( runNodeCommandAsJob
-          waspProjectDir
-          "npx"
-          -- We're using tsc to compile the *.wasp.ts file into a JS file.
-          --
-          -- The tsconfig.wasp.json is configured to give our users with the
-          -- best possible IDE support while coding the *.wasp.ts file.
-          --
-          -- When we actually want to compile the *.wasp.ts file, we must
-          -- override some of those rules.
-          --
-          -- Tehnically, some overrides could have been specified
-          -- in the tsconfig.wasp.json file, but we decided to keep them here
-          -- because it helps users avoid accidentally breaking things.
-          [ "tsc",
-            "-p",
-            fromAbsFile (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
-            -- The tsconfig.wasp.json file has the noEmit flag on.
-            -- The file only exists IDE support, and we don't want users to
-            -- accidentally chage the outDir.
-            --
-            -- Here, to actually generate the JS file in the desired location,
-            -- we must turn off the noEmit flag and specify the outDir.
-            "--noEmit",
-            "false",
-            "--outDir",
-            fromAbsDir outDir
-          ]
-          J.Wasp
-          chan
-      )
-  return $ case tscExitCode of
-    ExitFailure _status -> Left ["Got TypeScript compiler errors for " ++ fromAbsFile waspFilePath ++ "."]
-    ExitSuccess -> Right absCompiledWaspJsFile
+analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
+  specResultOrErrors <- runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
+  return $ case specResultOrErrors of
+    Left errs -> Left errs
+    Right (SpecAnalysisError specErrorMessage) ->
+      Left [formatSpecAnalysisError specErrorMessage]
+    Right (SpecAnalysisOk specDecls) ->
+      (++ specDecls) <$> entityDeclsOrErrors
   where
-    outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
-    -- We know this will be the output JS file's location because it's how TSC
-    -- works (assuming we've specified the outDir, which we did).
-    absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
-    compiledWaspJsFileInDotWaspDir =
-      castFile $
-        replaceRelExtension (basename waspFilePath) ".js"
-          `orElse` error ("Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ ".")
+    waspTsConfigFile = fromJust tsConfigPaths.waspTsConfig
 
-executeMainWaspJsFileAndGetDeclsFile ::
-  Path' Abs (Dir WaspProjectDir) ->
+    entityDeclsOrErrors =
+      left (map fst) $
+        left (map Analyzer.getErrorMessageAndCtx) $
+          Analyzer.getEntityDecls prismaSchemaAst
+
+    formatSpecAnalysisError specErrorMessage =
+      "Error while analyzing spec (*.wasp.ts) files:\n\n" ++ specErrorMessage
+
+runWaspSpecAnalyzer ::
+  CompileOptions ->
   Psl.Schema.Schema ->
-  Path' Abs (File CompiledWaspJsFile) ->
-  IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
-executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
+  Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
+  Path' Abs (File WaspTsFile) ->
+  IO (Either [CompileError] SpecAnalysisResult)
+runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
@@ -128,12 +85,23 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
       -- We invoke the script directly via `node` instead of `npx` because
       -- `npx` requires the bin file to be executable, and `cabal install`
       -- strips executable permissions from data files.
-      ( runNodeCommandAsJob
-          waspProjectDir
+      ( runNodeCommandAsJobWithExtraEnv
+          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+            -- Not related to `node` itself, so we have to set it manually.
+            -- It enables users to write environment specific code in the TS config.
+            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+            --       also provide the `NODE_ENV` values for the "configuration runtime".
+            --       Maybe consider using a different key, e.g. `WASP_MODE`?
+            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+          ]
+          compileOptions.waspProjectDir
           "node"
-          [ fromRelFile $ getInstallablePackageScriptInProject WaspConfigPackage,
-            fromAbsFile absCompiledMainWaspJsFile,
-            fromAbsFile absDeclsOutputFile,
+          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+            "analyze",
+            fromAbsFile waspFilePath,
+            fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+            fromAbsDir compileOptions.waspProjectDir,
+            fromAbsFile absSpecResultFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
             -- all the available entities to warn the user if they use an
             -- entity that doesn't exist.
@@ -143,25 +111,33 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
           chan
       )
   case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.ts file."]
-    ExitSuccess -> return $ Right absDeclsOutputFile
+    ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
+    ExitSuccess -> readSpecResultFile
   where
-    absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
+    absSpecResultFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec-result.json|]
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
-readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
-readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
-  entityDecls <- liftEither entityDeclsOrErrors
-  remainingDecls <- ExceptT $ left (: []) <$> declsFromJsonOrError
-  return $ entityDecls ++ remainingDecls
-  where
-    entityDeclsOrErrors =
-      left (map fst) $
-        left (map Analyzer.getErrorMessageAndCtx) $
-          Analyzer.getEntityDecls prismaSchemaAst
+    nodeEnvForBuildType :: BuildType.BuildType -> String
+    nodeEnvForBuildType BuildType.Development = "development"
+    nodeEnvForBuildType BuildType.Production = "production"
 
-    declsFromJsonOrError = do
-      declsBytestring <- IOUtil.readFileBytes declsJsonFile
+    readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
+    readSpecResultFile = do
+      contents <- IOUtil.readFileBytes absSpecResultFile
       return $
-        left ("Error while reading the declarations from JSON: " ++) $
-          Aeson.eitherDecode declsBytestring
+        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
+          Aeson.eitherDecode contents
+
+-- | The result handed back by the spec analyzer subprocess. Mirrors the
+-- @SpecResult@ type in @waspc.sh/spec; keep them in sync.
+data SpecAnalysisResult
+  = SpecAnalysisOk [AS.Decl]
+  | SpecAnalysisError String
+
+instance Aeson.FromJSON SpecAnalysisResult where
+  parseJSON = Aeson.withObject "SpecAnalysisResult" $ \o -> do
+    status <- o Aeson..: "status"
+    case status :: String of
+      "ok" -> SpecAnalysisOk <$> o Aeson..: "value"
+      "error" -> SpecAnalysisError <$> o Aeson..: "error"
+      _ -> fail $ "Unknown spec result status: " <> status

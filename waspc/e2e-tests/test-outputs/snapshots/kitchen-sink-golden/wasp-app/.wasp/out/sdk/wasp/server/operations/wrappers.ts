@@ -1,6 +1,6 @@
 import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
-import { type AuthUser } from 'wasp/auth'
+import { type AuthUser } from '../auth/user.js'
 import {
   _Entity,
   AuthenticatedOperationDefinition,

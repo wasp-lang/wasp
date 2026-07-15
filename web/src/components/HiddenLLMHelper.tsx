@@ -11,7 +11,7 @@ export function HiddenLLMHelper() {
         "telemetry",
         "contact",
         "contributing",
-        "migration-guides",
+        "migration-guide",
       ];
       return !excludedDocs.some((path) => doc.id.includes(path));
     })

@@ -2,8 +2,7 @@ import { fs, path } from "zx";
 
 /**
  * Configures the Wasp for MailCrab SMTP email server which is used by `wasp-app-runner`.
- *
- * Assumes the Wasp project uses the `main.wasp` as the Wasp configuration file.
+ * Assumes the Wasp project uses the `main.wasp.ts` as the Wasp spec file.
  */
 export async function setupWaspMailCrabConfiguration(
   waspProjectPath: string,
@@ -12,8 +11,8 @@ export async function setupWaspMailCrabConfiguration(
   await fs.ensureFile(waspServerEnvFilePath);
   setupMailCrabEnvVariables(waspServerEnvFilePath);
 
-  const waspAppSpecPath = path.join(waspProjectPath, "main.wasp");
-  setupMailCrabWaspAppSpec(waspAppSpecPath);
+  const waspAppSpecPath = path.join(waspProjectPath, "main.wasp.ts");
+  setupMailCrabWaspTsSpec(waspAppSpecPath);
 }
 
 async function setupMailCrabEnvVariables(
@@ -29,14 +28,12 @@ SMTP_PORT=1025
   await fs.appendFile(waspServerEnvFilePath, mailCrabSMTPEnvVars);
 }
 
-async function setupMailCrabWaspAppSpec(
-  waspAppSpecPath: string,
-): Promise<void> {
-  const waspAppSpec = await fs.readFile(waspAppSpecPath, "utf8");
-  const waspSMTPAppSpec = waspAppSpec.replace(
+async function setupMailCrabWaspTsSpec(waspTsSpecPath: string): Promise<void> {
+  const waspTsSpec = await fs.readFile(waspTsSpecPath, "utf8");
+  const waspSMTPAppSpec = waspTsSpec.replace(
     /provider:\s+[A-Za-z0-9_][A-Za-z0-9_]*/g,
     "provider: SMTP",
   );
 
-  await fs.writeFile(waspAppSpecPath, waspSMTPAppSpec);
+  await fs.writeFile(waspTsSpecPath, waspSMTPAppSpec);
 }

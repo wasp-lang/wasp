@@ -10,7 +10,7 @@ import {
   type Task,
   type TaskVote,
   type UppercaseTextRequest,
-} from 'wasp/entities'
+} from '../../entities/index.js'
 
 export type _User = WithName<User, "User">
 export type _Task = WithName<Task, "Task">

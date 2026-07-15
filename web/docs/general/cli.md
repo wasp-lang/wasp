@@ -19,24 +19,23 @@ COMMANDS
     new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.
       OPTIONS:
         -t|--template <template-name>
-           Available starter templates are: basic, minimal, saas, ai-generated.
-
-    new:ai <app-name> <app-description> [<config-json>]
-      Uses AI to create a new Wasp project just based on the app name and the description.
-      You can do the same thing with `wasp new` interactively.
-      Run `wasp new:ai` for more info.
+           Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
-    waspls                Run Wasp Language Server. Add --help to get more info.
+    doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
     start                 Runs Wasp app in development mode, watching for file changes.
-    start db              Starts managed development database for you.
+    start db [--db-image <image>] [--db-volume-mount-path <path>]
+                          Starts managed development database for you.
+                          Optionally specify a custom Docker image or Docker volume mount path.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
-    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.
+    install               Sets up all internal Wasp npm dependencies and runs npm install.
+    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
-    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
+    compile               Compiles your Wasp project and reports any errors, without running it.
+    build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
@@ -77,8 +76,6 @@ Choose a starter template
 [3] saas
     Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
     Check out https://opensaas.sh/ for more details.
-[4] ai-generated
-    🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)
 ▸ 1
 
 🐝 --- Creating your project from the "basic" template... -------------------------
@@ -123,6 +120,8 @@ $ wasp clean
 ✅ --- Deleted the node\_modules/ directory. ---------------------------------------
 
 ```
+
+- `wasp compile` compiles your Wasp project and reports any errors, without running the app. It's a quick way to check that your project is valid, which makes it especially handy in CI or for AI agents.
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
@@ -189,6 +188,25 @@ npm i -g @wasp.sh/wasp-cli@x.y.z
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
 ```
+
+- `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, whether Docker is installed and running, and whether the ports Wasp uses (the web client, server, and dev database) are free. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
+
+```
+
+$ wasp doctor
+
+Running Wasp doctor...
+
+[✓] Wasp: 0.14.0 (git v0.23.0-136-g874e208c13)
+[✓] System: darwin 25.5.0 aarch64
+[✓] Node.js: 24.14.1
+[✓] npm: 11.16.0
+[✓] Docker: installed and running
+[✓] Port 3000 (web client): free
+[✓] Port 3001 (server): free
+[✓] Port 5432 (dev database): free
+```
+
 - `wasp uninstall` removes Wasp from your system.
 
 ```

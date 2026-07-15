@@ -5,7 +5,7 @@
 {=! TODO: This will generate multiple import statements even though they're
           importing symbols from the same file. We should improve our importing machinery
           to support multiple imports from the same file =}
-import { prisma } from 'wasp/server'
+import { prisma } from '../../index'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
@@ -13,29 +13,29 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
   {=/ isAuthEnabled =}
-} from '../wrappers.js'
-import type { FromOperationsRegistry } from 'wasp/types'
+} from '../wrappers'
+import type { OperationFromRegister } from '../register'
 import type {
   {=# operations =}
-  {= operationTypeName =},
+  {= genericOperationDefinitionTypeName =},
   {=/ operations =}
-} from './types.js'
+} from './types'
 {=# operations =}
 {=& jsFn.importStatement =}
 {=/ operations =}
 {=# operations =}
 
 // PRIVATE API
-export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>
+export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= genericOperationDefinitionTypeName =}>
 
 // PUBLIC API
 {=# usesAuth =}
-export const {= operationName =}: AuthenticatedOperationFor<{= operationResolvedTypeName =}> =
-  createAuthenticatedOperation<{= operationResolvedTypeName =}>(
+export const {= operationName =}: AuthenticatedOperationFor<{= registeredOperationTypeName =}> =
+  createAuthenticatedOperation<{= registeredOperationTypeName =}>(
 {=/ usesAuth =}
 {=^ usesAuth =}
-export const {= operationName =}: UnauthenticatedOperationFor<{= operationResolvedTypeName =}> =
-  createUnauthenticatedOperation<{= operationResolvedTypeName =}>(
+export const {= operationName =}: UnauthenticatedOperationFor<{= registeredOperationTypeName =}> =
+  createUnauthenticatedOperation<{= registeredOperationTypeName =}>(
 {=/ usesAuth =}
     () => {= jsFn.importIdentifier =},
     {

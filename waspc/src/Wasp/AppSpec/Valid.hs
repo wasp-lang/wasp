@@ -16,7 +16,7 @@ import Data.Bifunctor (first)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
-import Wasp.Analyzer.Parser (isValidWaspIdentifier)
+import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -49,6 +49,7 @@ import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
 
@@ -69,6 +70,7 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
+          validateOperationEntitiesAreUnique spec,
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
@@ -150,7 +152,7 @@ validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   [ GenericValidationError
       "Expected app.auth to be defined since there are Pages with authRequired set to true."
-    | anyPageRequiresAuth && not (isAuthEnabled spec)
+  | anyPageRequiresAuth && not (isAuthEnabled spec)
   ]
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
@@ -162,7 +164,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
     Just auth ->
       [ GenericValidationError
           "Expected app.auth to use either email or username and password authentication, but not both."
-        | areBothAuthMethodsUsed
+      | areBothAuthMethodsUsed
       ]
       where
         areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
@@ -171,7 +173,7 @@ validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
       ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.dbProviderPostgresqlStringLiteral ++ "\" since there are jobs with executor set to PgBoss.")
-    | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
+  | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
 
 validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
@@ -262,6 +264,28 @@ validateCrudOperations spec =
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
+validateOperationEntitiesAreUnique :: AppSpec -> [ValidationError]
+validateOperationEntitiesAreUnique spec =
+  concatMap validateOperation (AS.getOperations spec)
+  where
+    validateOperation :: AS.Operation.Operation -> [ValidationError]
+    validateOperation operation = case findDuplicateElems entityNames of
+      [] -> []
+      duplicateEntityNames ->
+        [ GenericValidationError $
+            "The "
+              ++ describeOperation operation
+              ++ " lists the same entity more than once in its 'entities' list: "
+              ++ intercalate ", " (map show duplicateEntityNames)
+              ++ ". Please remove the duplicate entity references."
+        ]
+      where
+        entityNames = maybe [] (map AS.refName) (AS.Operation.getEntities operation)
+
+    describeOperation :: AS.Operation.Operation -> String
+    describeOperation (AS.Operation.QueryOp name _) = "query '" ++ name ++ "'"
+    describeOperation (AS.Operation.ActionOp name _) = "action '" ++ name ++ "'"
 
 {- ORMOLU_DISABLE -}
 -- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"
@@ -440,27 +464,41 @@ validatePrerenderRoutes :: AppSpec -> [ValidationError]
 validatePrerenderRoutes spec =
   concatMap validatePrerenderRoute prerenderRoutes
   where
-    prerenderRoutes = filter ((== Just True) . Route.prerender . snd) (AS.getRoutes spec)
+    -- Routes that prerender at least one path.
+    prerenderRoutes = filter (not . null . prerenderPaths . snd) (AS.getRoutes spec)
 
     validatePrerenderRoute (routeName, route) =
-      concat
-        [ [ GenericValidationError $
-              "Route '"
-                ++ routeName
-                ++ "' has prerender enabled but its path ("
-                ++ Route.path route
-                ++ ") contains dynamic segments. Prerendered routes must have static paths."
-            | pathHasDynamicSegments (Route.path route)
-          ],
+      concatMap (validatePrerenderPath routeName route) (prerenderPaths route)
+        ++ [ GenericValidationError $
+               "Route '"
+                 ++ routeName
+                 ++ "' has prerendering enabled but its page has authRequired set to true."
+                 ++ " Prerendered routes cannot require authentication."
+           | pageRequiresAuth (getPage route)
+           ]
+
+    validatePrerenderPath routeName route path
+      | pathHasDynamicSegments path =
           [ GenericValidationError $
               "Route '"
                 ++ routeName
-                ++ "' has prerender enabled but its page has authRequired set to true."
-                ++ " Prerendered routes cannot require authentication."
-            | pageRequiresAuth (getPage route)
+                ++ "' lists prerender path ("
+                ++ path
+                ++ ") which contains dynamic segments. Prerender paths must be fully static."
           ]
-        ]
+      | not (doesConcretePathMatchRoutePattern (Route.path route) path) =
+          [ GenericValidationError $
+              "Route '"
+                ++ routeName
+                ++ "' lists prerender path ("
+                ++ path
+                ++ ") which does not match the route's path pattern ("
+                ++ Route.path route
+                ++ ")."
+          ]
+      | otherwise = []
 
+    prerenderPaths = Route.prerender
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
     pageRequiresAuth page = Page.authRequired page == Just True
 

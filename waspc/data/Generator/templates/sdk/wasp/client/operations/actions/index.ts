@@ -1,13 +1,15 @@
 {{={= =}=}}
-import { type ActionFor, createAction } from './core'
+import { type ActionFor, createAction } from "./core";
+import {
 {=# actions =}
-{=& operationTypeImportStmt =}
+  type {= registeredOperationTypeName =},
 {=/ actions =}
+} from "../../../server/operations/actions/index";
 {=# actions =}
 
 // PUBLIC API
-export const {= operationName =}: ActionFor<{= operationTypeName =}> = createAction<{= operationTypeName =}>(
-  '{= actionRoute =}',
+export const {= operationName =}: ActionFor<{= registeredOperationTypeName =}> = createAction<{= registeredOperationTypeName =}>(
+  "{= actionRoute =}",
   {=& entitiesArray =},
 )
 {=/ actions =}

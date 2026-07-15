@@ -2,14 +2,17 @@
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-router": "^7.12.0"
+    "react-router": "^8.0.1"
   },
   "devDependencies": {
+    "@types/node": "^24.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@wasp.sh/spec": "file:.wasp/spec/",
     "prisma": "5.19.1",
-    "typescript": "5.9.3",
-    "vite": "^7.0.6"
+    "typescript": "6.0.3",
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   },
   "name": "wasp-app",
   "type": "module",

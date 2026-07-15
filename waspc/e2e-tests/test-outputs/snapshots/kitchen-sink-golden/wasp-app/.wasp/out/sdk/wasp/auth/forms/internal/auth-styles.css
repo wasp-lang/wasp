@@ -6,7 +6,7 @@
   */
 
   /* Colors */
-  --color-waspYellow: #ffcc00;
+  --color-waspYellow: #f5c842;
   --color-gray700: #a1a5ab;
   --color-gray600: #d1d5db;
   --color-gray500: gainsboro;
@@ -17,7 +17,7 @@
 
   /* Semantic colors */
   --color-brand: var(--color-waspYellow);
-  --color-brandAccent: #ffdb46;
+  --color-brandAccent: #fccf49;
   --color-errorBackground: var(--color-red);
   --color-errorText: #2D3748;
   --color-successBackground: var(--color-green);

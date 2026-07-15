@@ -65,8 +65,10 @@ async function invalidateQueriesUsing(resources) {
   const queryClient = await queryClientInitialized
 
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
-  queryCacheKeysToInvalidate.forEach(
-    queryCacheKey => queryClient.invalidateQueries(queryCacheKey)
+  await Promise.all(
+    queryCacheKeysToInvalidate.map(
+      queryCacheKey => queryClient.invalidateQueries(queryCacheKey)
+    )
   )
 }
 

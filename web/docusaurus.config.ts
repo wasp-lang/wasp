@@ -1,14 +1,25 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
+import { getRedirects } from "./redirects";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
+import fixAPILinks from "./src/remark/fix-api-links";
 import searchAndReplace from "./src/remark/search-and-replace";
 
-const lightCodeTheme = themes.github;
+const lightCodeTheme = {
+  ...themes.github,
+  plain: { ...themes.github.plain, backgroundColor: "var(--wasp-code-bg)" },
+};
+
+const darkCodeTheme = {
+  ...themes.dracula,
+  plain: { ...themes.dracula.plain, backgroundColor: "#1e1e1e" },
+};
 
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === "true";
@@ -27,21 +38,25 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
-  onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
+  favicon: "img/favicon.svg",
   themeConfig: {
+    colorMode: {
+      respectPrefersColorScheme: true,
+    },
+
     announcementBar: {
-      id: "design-aithon",
+      id: "wasp-100-typescript",
       content:
-        '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
-      backgroundColor: "#8b5cf6",
-      textColor: "#fff",
+        '<a href="/blog/2026/06/15/wasp-typescript-spec" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;"><span style="font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em;">Wasp is now 100% TypeScript</span><span style="display: inline-flex; align-items: center; border: 2px solid #111; background: #F5C842; color: #111; padding: 2px 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px;">Meet TS Spec →</span></a>',
+      backgroundColor: "#3178C6",
+      textColor: "#FAFAFA",
       isCloseable: false,
     },
 
     imageZoom: {
-      // CSS selector to apply the plugin to, defaults to '.markdown img'
-      //selector: '.markdown img',
+      // Opt out any image with the `.no-default-zoom` class (used by our custom
+      // Carousel + ImgGallery components, which have their own lightbox).
+      selector: ".markdown img:not(.no-default-zoom)",
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {
@@ -55,10 +70,10 @@ const config: Config = {
       },
     },
     navbar: {
-      title: "Wasp (beta)",
+      title: "Wasp",
       logo: {
         alt: "Wasp logo",
-        src: "img/wasp-logo-eqpar-circle.png",
+        src: "img/wasp-logo.svg",
         href: "https://wasp.sh/",
         target: "_self",
       },
@@ -69,6 +84,12 @@ const config: Config = {
           sidebarId: "docs",
           label: "Docs",
           className: "navbar-item-docs navbar-item-outside",
+        },
+        {
+          type: "docSidebar",
+          position: "left",
+          sidebarId: "api",
+          label: "API",
         },
         {
           type: "docSidebar",
@@ -112,6 +133,7 @@ const config: Config = {
         "bash",
       ],
       theme: lightCodeTheme,
+      darkTheme: darkCodeTheme,
     },
     footer: {
       style: "dark",
@@ -180,6 +202,7 @@ const config: Config = {
             fileExtSwitcher,
             searchAndReplace,
             codeWithHole,
+            fixAPILinks,
           ],
 
           // ------ Configuration for multiple docs versions ------ //
@@ -247,6 +270,12 @@ const config: Config = {
   plugins: [
     "plugin-image-zoom",
 
+    cloudflareRedirects({
+      redirects: getRedirects({
+        redirectCurrentVersionToCanonical: !includeCurrentVersion,
+      }),
+    }),
+
     [
       "@docusaurus/plugin-content-blog",
       {
@@ -266,7 +295,7 @@ const config: Config = {
       },
     ],
 
-    async function myPlugin(context, options) {
+    async function tailwindPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -277,10 +306,42 @@ const config: Config = {
         },
       };
     },
+
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        // docusaurus-plugin-typedoc options
+        sidebar: { typescript: true },
+
+        // typedoc-plugin-markdown options
+        readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
+        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
+
+        // input packages
+        entryPointStrategy: "packages",
+        entryPoints: ["../waspc/data/packages/spec"],
+
+        // If you want to set an option to a specific package, you can create a
+        // `typedoc.jsonc` file in that package's folder with the desired
+        // options from
+        // https://typedoc.org/documents/Options.Package_Options.html.
+      },
+    ],
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
     mermaid: true,
+    mdx1Compat: {
+      admonitions: true,
+      comments: true,
+      headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
+  future: {
+    v4: true,
   },
 };
 
@@ -311,11 +372,6 @@ function getScripts() {
     },
     {
       src: "/scripts/posthog.js",
-      defer: true,
-      requiresConsent: true,
-    },
-    {
-      src: "/scripts/reo.js",
       defer: true,
       requiresConsent: true,
     },

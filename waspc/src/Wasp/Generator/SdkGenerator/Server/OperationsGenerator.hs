@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( getServerOperationsImportPath,
+  ( serverOperationIndexJsFileInSdkRootDir,
     genOperations,
     getQueryData,
     getActionData,
@@ -12,7 +12,8 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -20,26 +21,25 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    getOperationTypeName,
-    makeSdkImportPath,
+  ( SdkRootDir,
+    SdkTemplatesDir,
+    getGenericOperationDefinitionTypeName,
+    getRegisteredOperationTypeName,
+    mkTmplFd,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules (userOperationVMId)
-import Wasp.Util (toUpperFirst)
 
--- | This function should match the `exports` path from the SDK's package.json.
-getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
-getServerOperationsImportPath = \operation ->
-  makeSdkImportPath $
-    [reldirP|server/operations|] </> case operation of
-      (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
-      (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
+serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
+serverOperationIndexJsFileInSdkRootDir operation =
+  serverOpsDirInSdkRootDir </> case operation of
+    (AS.Operation.QueryOp _ _) -> [relfile|queries/index.js|]
+    (AS.Operation.ActionOp _ _) -> [relfile|actions/index.js|]
 
-genOperations :: AS.AppSpec -> Generator [FileDraft]
+genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ genQueryTypesFile spec,
@@ -47,10 +47,11 @@ genOperations spec =
       genQueriesIndex spec,
       genActionsIndex spec,
       genWrappers spec,
-      genIndexTs spec
+      genIndexTs spec,
+      genRegister
     ]
 
-genIndexTs :: AS.AppSpec -> Generator FileDraft
+genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
   return $
     mkTmplFdWithData
@@ -64,7 +65,10 @@ genIndexTs spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genWrappers :: AS.AppSpec -> Generator FileDraft
+genRegister :: Generator FileDraft
+genRegister = return $ mkTmplFd (serverOpsDirInSdkTemplatesDir </> [relfile|register.ts|])
+
+genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
   return $
     mkTmplFdWithData
@@ -73,7 +77,7 @@ genWrappers spec =
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
-genQueriesIndex :: AS.AppSpec -> Generator FileDraft
+genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
   return $
     mkTmplFdWithData
@@ -87,7 +91,7 @@ genQueriesIndex spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionsIndex :: AS.AppSpec -> Generator FileDraft
+genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
   return $
     mkTmplFdWithData
@@ -101,7 +105,7 @@ genActionsIndex spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genQueryTypesFile :: AS.AppSpec -> Generator FileDraft
+genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
   genOperationTypesFile
     (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
@@ -111,7 +115,7 @@ genQueryTypesFile spec =
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionTypesFile :: AS.AppSpec -> Generator FileDraft
+genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec =
   genOperationTypesFile
     (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])
@@ -151,7 +155,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (AS.Operation.getName operation),
+        [ "typeName" .= getGenericOperationDefinitionTypeName operation,
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -161,14 +165,17 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= virtualExtImportToImportJson (userOperationVMId operation) (Just $ AS.Operation.getFn operation),
+    [ "jsFn" .= extImportToImportJson (userOperationVMId operation) (Just $ AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
-      "operationTypeName" .= toUpperFirst (AS.Operation.getName operation),
-      "operationResolvedTypeName" .= getOperationTypeName operation,
+      "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
+      "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverOpsDirInSdkTemplatesDir = [reldir|server/operations|]
+serverOpsDirInSdkTemplatesDir = castRel serverOpsDirInSdkRootDir
+
+serverOpsDirInSdkRootDir :: Path' (Rel SdkRootDir) Dir'
+serverOpsDirInSdkRootDir = [reldir|server/operations|]

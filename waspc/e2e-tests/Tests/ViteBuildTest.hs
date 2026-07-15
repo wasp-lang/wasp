@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Tests.ViteBuildTest (viteBuildTest) where
 
 import Control.Monad.Reader (ask)
@@ -9,32 +7,31 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     TestContext,
-    WaspNewTemplate (..),
     WaspProjectContext (..),
-    createFile,
+    appendToFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
     waspCliBuild,
+    writeToFile,
   )
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
 viteBuildTest :: Test
 viteBuildTest =
   Test
-    "vite-build-env-vars"
+    "vite-build"
     [ TestCase
         "fail-on-missing-required-env-vars"
-        ( createViteBuildTestCase [expectCommandFailure <$> viteBuild]
-        ),
+        (createViteBuildTestCase [expectCommandFailure <$> viteBuild]),
       TestCase
         "success-with-required-env-vars"
-        ( createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]
-        ),
+        (createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]),
       TestCase
         "fail-missing-inline-env-var"
         ( createViteBuildTestCase
@@ -65,18 +62,35 @@ viteBuildTest =
               appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
               assertBuildOutputContains inlineEnvVarValue
             ]
+        ),
+      TestCase
+        "fail-on-user-code-type-error"
+        ( createViteBuildTestCase
+            [ addTypeErrorToSrcFile,
+              expectCommandFailure <$> viteBuildWithApiUrl
+            ]
+        ),
+      TestCase
+        "ignore-wasp-ts-type-errors"
+        ( createViteBuildTestCase
+            [ addTypeErrorToWaspTsFile,
+              viteBuildWithApiUrl
+            ]
         )
     ]
   where
     createViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
     createViteBuildTestCase commands =
       sequence
-        [ createTestWaspProject Minimal,
+        [ createTestWaspProject minimalStarterTemplate,
           inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
         ]
 
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"
+
+    viteBuildWithApiUrl :: ShellCommandBuilder WaspProjectContext ShellCommand
+    viteBuildWithApiUrl = appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
 
     assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
@@ -85,7 +99,7 @@ viteBuildTest =
     writeMainPageTsx = do
       waspProjectContext <- ask
       let testEnvVarKeyText = T.pack testEnvVarKey
-      createFile
+      writeToFile
         (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|])
         [trimming|
           export function MainPage() {
@@ -96,9 +110,18 @@ viteBuildTest =
     writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     writeDotEnvClientFile value = do
       waspProjectContext <- ask
-      createFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
+      writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
         T.pack $
           testEnvVarKey ++ "=" ++ value
+
+    addTypeErrorToSrcFile :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError
+
+    addTypeErrorToWaspTsFile :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addTypeErrorToWaspTsFile = appendToFile "main.wasp.ts" typeError
+
+    typeError :: T.Text
+    typeError = "const shouldBeString: string = 123"
 
     appendInlineEnvVars :: [(String, String)] -> ShellCommand -> ShellCommand
     appendInlineEnvVars envVars command = foldr appendInlineEnvVar command envVars

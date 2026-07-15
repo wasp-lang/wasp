@@ -1,7 +1,8 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliDbStart)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliDbStart)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- FIXME: @waspCliDbStart@ - figure out long lasting processes
 waspDbStartTest :: Test
@@ -14,7 +15,7 @@ waspDbStartTest =
       TestCase
         "succeed-sqlite-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliDbStart
                 ]
@@ -23,7 +24,7 @@ waspDbStartTest =
       TestCase
         "succeed-postgresql-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   waspCliDbStart
@@ -33,4 +34,4 @@ waspDbStartTest =
     ]
   where
     waspCliDbStartFails :: ShellCommand
-    waspCliDbStartFails = "! wasp-cli db start"
+    waspCliDbStartFails = "! $WASP_CLI_CMD db start"

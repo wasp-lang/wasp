@@ -1,6 +1,6 @@
 {{={= =}=}}
-import { api, handleApiError } from 'wasp/client/api'
-{=# hasUsernameAndPasswordUserSignupFields =}
+import { api, handleApiError } from '../../../api/index.js'
+{=# usernameAndPasswordUserSignupFields.isDefined =}
 import { type UserUsernameAndPasswordSignupFields } from '../../providers'
 {=/ hasUsernameAndPasswordUserSignupFields =}
 

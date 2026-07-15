@@ -6,7 +6,7 @@ import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Hspec
 import Test.Tasty.QuickCheck
-import qualified Wasp.Analyzer.Parser as P
+import qualified Wasp.Analyzer.AST as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Internal
@@ -21,10 +21,6 @@ import qualified Wasp.Analyzer.TypeDefinitions.Internal as TD
 -- given how complex the code is, how many corner cases there are, and how well-defined the
 -- required properties of the type-checking functions are.
 
--- TODO:
--- Use the parser to generate AST instead of writing it by hand. Consider using quasiquotes
--- instead of calling "parse" directly.
-
 chooseType :: Gen Type
 chooseType =
   elements
@@ -35,18 +31,18 @@ chooseType =
       QuoterType "json"
     ]
 
-inferExprType' :: Bindings -> P.WithCtx P.Expr -> Either TypeError (WithCtx TypedExpr)
+inferExprType' :: Bindings -> WithCtx P.Expr -> Either TypeError (WithCtx TypedExpr)
 inferExprType' bindings expr = runWithBound bindings TD.empty $ inferExprType expr
 
-test :: String -> P.WithCtx P.Expr -> Either TypeError Type -> SpecWith (Arg Expectation)
+test :: String -> WithCtx P.Expr -> Either TypeError Type -> SpecWith (Arg Expectation)
 test name expr expected = it name $ do
   let actual = exprType . fromWithCtx <$> inferExprType' H.empty expr
   actual `shouldBe` expected
 
-testSuccess :: String -> P.WithCtx P.Expr -> Type -> SpecWith (Arg Expectation)
+testSuccess :: String -> WithCtx P.Expr -> Type -> SpecWith (Arg Expectation)
 testSuccess name expr = test name expr . Right
 
-testFail :: String -> P.WithCtx P.Expr -> TypeError -> SpecWith (Arg Expectation)
+testFail :: String -> WithCtx P.Expr -> TypeError -> SpecWith (Arg Expectation)
 testFail name expr = test name expr . Left
 
 spec_Internal :: Spec

@@ -1,6 +1,5 @@
 {{={= =}=}}
-import { StrictMode, type ReactNode } from "react";
-import { useIsClient } from "./hooks/useIsClient.js"
+import { StrictMode, type ReactNode, useSyncExternalStore } from "react";
 
 export function Layout({
   children,
@@ -11,31 +10,7 @@ export function Layout({
   isFallbackPage?: boolean;
   clientEntrySrc?: string;
 }) {
-  const isClient = useIsClient()
-
-  /*
-    From the Vite SSR plugin, we inherit the concept of a "prerendered page" vs.
-    a "fallback page".
-    - A prerendered page is a page that is rendered on the server, and then
-      hydrated on the client.
-    - A fallback page is a page which only prerenders the common HTML structure
-      on the server, and then renders the actual page content on the client.
-
-    To use an analogy, a fallback page is a pluripotent stem cell that can turn
-    into any page in the client; while a prerendered page is already specialized
-    and can only render its specific content.
-
-    So, if we are prerendering a fallback page, we want to avoid rendering the
-    actual page content, so that it can turn into anything. If we're
-    prerendering a non-fallback page, we'll give it its content.
-
-    But, if we're already in the client, we always want to render the page
-    content. Whether prerendered as a fallback or not, now it's showtime, so we
-    must show the user the content.
-
-    Thus, we end up with the line below:
-  */
-  const shouldRenderChildren = isClient || !isFallbackPage
+  const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage);
 
   return (
     <StrictMode>
@@ -50,43 +25,70 @@ export function Layout({
           {=& head =}
 
           <title>{= title =}</title>
+
+          {
+            /*
+              This script tag's job is to load the client entry so the browser
+              downloads and runs it, hydrating the prerendered HTML.
+
+              We only need it in SSR builds, as by the time the client is
+              running this code, it doesn't need to run itself again (and could
+              lead to duplication).
+
+              Rendering it only on the server and not on the client would
+              normally cause a hydration mismatch, but React skips erroring on
+              server-only nodes if they are **direct children** of `<head>` and
+              `<body>`, to support this kind of usecase. (See
+              https://react.dev/reference/react-dom/static/prerenderToNodeStream)
+
+              We'd usually inject this via React prerender's `bootstrapModules`
+              option, but that has two problems:
+                1. React also emits a `<link rel="modulepreload"
+                   href="@/wasp/client">` for the bootstrap scripts, but Vite
+                   doesn't rewrite `link.href`s, so it would end up as a broken
+                   link.
+                2. It hardcodes `async` on the script, which in dev races the
+                   `@vitejs/plugin-react` refresh preamble (see #4258).
+            */
+            clientEntrySrc ? (
+              <script type="module" src={clientEntrySrc} />
+            ) : null
+          }
         </head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>
-
-          {
-            // We don't really need to wrap the app in a div nor name it "root",
-            // but we keep it for backwards compatibility with older Wasp
-            // versions.
-          }
-          <div id="root">
-              {shouldRenderChildren ? children : null}
-          </div>
-
-          {
-            // We pass that argument in SSR builds and not in client builds.
-            // This would usually cause a hydration mismatch, but React has an
-            // exception for `<script>` tags, for this specific usecase, so it
-            // will work fine.
-            clientEntrySrc ? (
-              // We'd usually use React prerender's `bootstrapModules` options for
-              // injecting this script, but it would also add a `<link
-              // rel="modulepreload">` tag that Vite doesn't handle correctly. So
-              // we just add the script ourselves in the regular way.
-              //
-              // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-              <script
-                type="module"
-                src={clientEntrySrc}
-                // We make it `async` to decouple the tag's position from its
-                // execution phase. This way Vite can move it anywhere in the
-                // document to optimize loading performance.
-                async
-              />
-            ) : null
-          }
+          {shouldRenderAppContent ? children : null}
         </body>
       </html>
     </StrictMode>
   );
+}
+
+function useShouldRenderAppContent(isFallbackPage: boolean) {
+  // We always want to render the content on the client.
+  const getOnClient = () => true;
+
+  // On the server, we only want to render the content if it's not a fallback page.
+  const getOnServer = () => !isFallbackPage;
+
+  const shouldRenderAppContent =
+    // We use `useSyncExternalStore` because it allows us to have different
+    // values on the server and client without hydration errors. The semantics
+    // also match, as in this case the fallback status is the synchronous state
+    // we are reading from, it just never changes after being first initialized.
+    useSyncExternalStore(
+      emptySubscribe,
+      getOnClient,
+      getOnServer,
+    );
+
+  return shouldRenderAppContent;
+}
+
+// The subscribe function is expected to only change when the store changes.
+// Because our "store" is static, we make our function never change by putting
+// it on the top.
+function emptySubscribe() {
+  const emptyUnsubscribe = () => {};
+  return emptyUnsubscribe;
 }

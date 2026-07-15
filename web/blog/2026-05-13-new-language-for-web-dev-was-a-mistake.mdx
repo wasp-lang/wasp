@@ -1,0 +1,295 @@
+---
+title: "5 Years and $5M Later: Inventing a New Programming Language for Web Development Was a Mistake"
+authors: [matijasos]
+image: /img/new-language-mistake/banner.webp
+tags: [wasp, web dev, startup, programming language, typescript]
+keywords: ["wasp language", "custom programming language", "DSL vs TypeScript", "web framework", "full-stack framework", "wasp typescript sdk", "rails for javascript", "domain specific language", "web development framework", "compiler", "wasp compiler", "accidental complexity", "full-stack web app"]
+description: "After 5 years and $5M building Wasp, we're replacing our custom config language with TypeScript. Here's why we thought a new language was a good idea, what we learned, and why TypeScript won."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption'
+
+At [Wasp](https://github.com/wasp-lang/wasp), we're building a full-stack web framework - think Rails / Laravel for JS, but "stretched" over the frontend, too. My twin brother and I started it back in 2021 when we went through Y Combinator, and raised over $5M in total.
+
+<ImgWithCaption
+  source="/img/new-language-mistake/hn-launch.webp"
+  alt="Wasp's Launch HN post on Hacker News from February 2021"
+/>
+
+Our initial idea was to build a new programming language that would abstract common web app patterns while also working with any stack (we started with React, Node.js and Prisma) when you need to go deeper. Think Terraform, but for your web app stack instead of cloud infrastructure.
+
+Five years in, we realize it was a mistake. Creating a new language makes sense for certain problems and domains, but in this case, it wasn't a fit and brought us more trouble than it was worth.
+
+{/* truncate */}
+
+This post is about why we thought it was a good idea, what we learned, and why we're replacing our custom language with TypeScript, while Wasp itself stays the same under the hood.
+
+## TL;DR
+
+This is a long post. Here are the key things covered, so you can jump to what interests you without reading everything:
+
+- Having switched web dev stacks for years, we thought it would be cool to create a "universal framework" that could work with any stack. [We concluded we need to create a new language](#why-create-a-new-language-from-scratch-why-not-use-the-existing-ones) to achieve that.
+- [Developers resonated with the problem Wasp was solving, but the language was a tough sell](#reception-you-loved-the-idea-and-tolerated-the-language). "Lang" in the name made them think our aim was to replace JavaScript (it wasn't) and were skeptical of how it'd work with their tooling.
+- Many developers loved Wasp once they gave it a try. But getting them to try it out was the hard part.
+- Adoption still grew, but as we kept pushing towards 1.0 we realised the "language" concern wasn't going away. Also, [maintaining a good IDE experience for a custom language proved to be way harder than expected](#the-final-nail---trying-to-make-ide-support-work).
+- It turned out having a custom language wasn't Wasp's core value. It was [maintaining a high-level specification of the entire full-stack app](#language-was-never-the-moat-its-having-a-high-level-understanding-of-your-entire-app-at-compile-time), making it easier to reason about for both humans and AI.
+- [We decided to replace Wasp's config language with TypeScript](#goodbye-wasp-language-welcome-typescript). It is "only" an interface change, while everything else stays the same.
+
+## Why we thought creating a new language was a good idea
+
+My brother and I both come from a traditional Computer Science background, where we focused mostly on algorithms and applying them to areas such as bioinformatics and machine learning. We never considered ourselves web developers, and were even somewhat opposed to it (*"look at these folks just painting buttons the whole day, while I'm writing all the cool algorithms."*). Obviously, we didn't know enough.
+
+Still, we had one entrepreneurial friend in our group who was always doing something on the side, and he would pull us in whenever he'd land a bigger project. Each of these projects had something that made it "interesting" for us (e.g., building a news portal that also needed a recommendation engine, or an option trading analytics platform), but at the end of the day, it was mostly a classic web development job.
+
+That way, we got exposed to things like PHP (we built a complete CMS from scratch in it and then later realized there were frameworks and even off-the-shelf solutions we could have used), Java/JBoss, and also Backbone.js, Angular.js, and React as they were popping up, along with the build tools (remember Bower, Grunt, and Gulp)?
+
+2013 and later marked the era of reactive front-end frameworks, and each new one was something you absolutely had to use in your latest project, because that was part of what made your project/startup cool. The result was that each new project we started, we started with almost a completely different stack from the last one and had to re-learn all the patterns that we just figured out - authentication, routing, state management, …
+
+### We got tired of switching and stitching stacks
+
+Before, one would just choose between Spring Boot, Django, or Rails and have everything handled and managed. Now, I had to first pick each library, then make React, Redux, Webpack, Express, Passport, and Sequelize work together.
+
+No system was in charge, with a full understanding of the web app, and that feeling of responsibility didn't really sit well with Martin and me.
+
+Having gone through this stack-switching dance a few times (eventually landing on React, Node.js, and Mongoose at the time), we thought - isn't there a better way? It felt like we were constantly reinventing the same thing, spending most of our time managing our stack rather than writing our unique business logic.
+
+There's a name for this: *accidental complexity*. The work that has nothing to do with your actual problem, but you can't avoid it because of the tools you're using. That's exactly what we were feeling.
+
+### What if I could just say what I want, once?
+
+We asked ourselves: what if you could simply write what you want, and that's it? For example:
+
+- *"I want my app to have authentication with Google and GitHub"*
+- *"I want to have a route /profile, which is available only to authenticated users"*
+- *"I want a cron job that runs this function every day at 5pm"*
+
+Obviously, this is too conversational-y, so we imagined boiling it down to something more structured, like:
+
+- `auth: Google, GitHub`
+- `page Profile -> /profile, authRequired: true`
+- `job updateStats: run function doSomeCalc from stats.js every day at 5pm`
+
+It would basically be a way to define your app's requirements at a higher, implementation-free level (aka specification). We felt something like this could and should be possible, but with the tools we had, we had to implement each of these requirements scattered across the stack at what felt like an abstraction level too low.
+
+Our goal was never to replace the existing stack. You'd still implement most of your logic in a specific runtime (e.g., React or Node.js). But there'd be a central backbone which holds everything together.
+
+<ImgWithCaption
+  source="/img/new-language-mistake/wasp-architecture.webp"
+  caption="How we imagined (and implemented) Wasp. The config .wasp file with high-level declarations + your custom logic in React & Node.js goes in, and the fully working full-stack app is produced as a build artefact."
+  alt="Wasp architecture diagram"
+/>
+
+If you're curious, this is a code excerpt showing what the DSL looked like in its final form:
+
+```javascript
+app todoApp {
+  title: "ToDo App",  // visible in the browser tab
+  auth: { // full-stack auth out-of-the-box
+    userEntity: User,
+    methods: { google: {}, gitHub: {}, email: {...} }
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  authRequired: true, // Limit access to logged in users.
+  component: import Main from "@client/Main" // <-- Your React code.
+}
+
+query getTasks {
+  fn: import { getTasks } from "@server/tasks", // <-- Your Node.js code.
+	entities: [Task] // Automatic cache invalidation.
+}
+```
+
+The key insight for us was that the **web app domain changes very slowly compared to the velocity at which web dev implementation techniques evolve**. Both ten years ago and today, we refer to pages, routes, API endpoints, and data models. In the meantime, the UI implementation went full circle from server templates to the rich client and back to server actions.
+
+Our goal with Wasp was to let developers express as much as possible at the domain level, and let the system handle the (latest) implementation details. That way, whatever they build will last much longer and be easier to understand.
+
+### Why create a new language from scratch? Why not use the existing ones?
+
+While our understanding of the problem has mostly proven correct, because we experienced it first-hand, this was where we took the wrong turn.
+
+There were two main reasons why we opted to design a new language from scratch, with its own custom compiler, rather than use, e.g., TypeScript or Python as a "host" language:
+
+- **We wanted to have a full control over the syntax**, and make it as clean and boilerplate-free as possible.
+- **We envisioned Wasp as a runtime-agnostic tool**, eventually. E.g. maybe you write a piece of a typical CRUD logic in Node.js, but then some data-heavy stuff you'd rather do in Python which has better libraries for it.
+
+While we considered using TypeScript (and that was some of the early feedback we got, to have an embedded DSL, which is basically just a library, instead of the explicit DSL), it felt "wrong" to us at the time, as if we'd betray the core principles and a big vision we had for Wasp.
+
+In a way, we were very excited to ship Wasp as a standalone language because we believed it would make a stronger statement and make it clear it's not another typical language-bound framework (e.g., Rails or Django), but something more general.
+
+<ImgWithCaption
+  source="/img/new-language-mistake/first-landing-page.webp"
+  caption='Our first landing page, back in 2021. We were proudly putting "language" front and center.'
+  alt="Wasp first landing page"
+/>
+
+To be completely honest, we were also excited about the fact that we get to work on something so "cool" and foundational, such as a language and a compiler. Martin and I are both Haskell aficionados, and this was the perfect nail to hit with our functional hammer.
+
+## Reception: You loved the idea and tolerated the language
+
+After about [a year of working on Wasp, releasing an Alpha version, and launching it to developers](/blog/2022/09/29/journey-to-1000-gh-stars), we found a small tribe of excited early adopters and were accepted into Y Combinator. We raised our [pre-seed round](https://techcrunch.com/2021/10/04/yc-grads-wasp-land-1-5m-seed-to-help-developers-build-web-apps-faster/) shortly afterward, which enabled us to assemble the team and go build the first "real" version.
+
+Things were slow at the beginning as we were getting everything off the ground, but developers acutely felt the pain of boilerplate and were tired of stack-stitching, so Wasp gained momentum, especially after we entered Beta.
+
+You might also remember that at a similar time, back in 2021, a couple of other "Rails for JS" frameworks appeared on the scene, like RedwoodJS (by the creator of GitHub) and BlitzJS. They quickly got solid community traction, and it became clear to us that we're on the track to solve a very important problem.
+
+:::tip[Being weird sometimes pays off]
+In a way, Wasp's "weirdness" is what saved it from Redwood's and Blitz's fate. By avoiding tight coupling to a specific technology (as Redwood did with GraphQL and Blitz with Next.js), it remained general enough to adapt quickly and avoid becoming obsolete.
+:::
+
+<ImgWithCaption
+  source="/img/new-language-mistake/github-stars.webp"
+  alt="GitHub stars growth"
+/>
+
+Still, talking to developers, the question of "But why did you create a new language?" kept popping up in different contexts. There were a few main objections we kept hearing.
+
+### I see "wasp-lang" - does this replace JavaScript?
+
+Although we never meant to replace the existing web dev stack, but rather complement it (with Wasp, you still write 90% of your code in React & Node.js),  the notion of the "lang" suffix was simply too strong to convey that.
+
+Whenever a developer read "wasp-lang.dev", their mind automatically went to "oh, this is something like Rust/Java", and it was very hard to remove that lens once it came up. It immediately put Wasp into the "looks cool, but it's way too early" bucket.
+
+We were very excited about building a language and even highlighted it, but we underestimated how strong the term's meaning already is.
+
+### Is this going to work with my IDE and existing tooling?
+
+Even if you gave the language thing the benefit of the doubt, the next question is, "Does this come with its own ecosystem?" Developers know how much work it is to create a new standard and how much time it takes to grow the ecosystem around it.
+
+### This isn't for me, I don't want to learn Haskell
+
+<ImgWithCaption
+  source="/img/new-language-mistake/haskell-love.webp"
+  alt="Haskell love meme"
+/>
+
+We're using Haskell internally for our compiler, but end users will never see it and will use only TypeScript. It's similar to how Prisma's core was initially developed in Rust, and Terraform's HCL in Go.
+
+Still, our initial marketing around using Haskell worked out a bit too well for our own good. The Haskell community is small, but engaged, enthusiastic, and very hungry for real-world projects, especially around developer tooling.
+
+Sharing our progress with the community was often very well accepted, but also reinforced Wasp as a "Haskell-based language", especially if you just glanced over the title.
+
+<ImgWithCaption
+  source="/img/new-language-mistake/haskell-positioning.webp"
+  alt="Haskell positioning issue"
+/>
+
+Pair that up with the fact that on the GitHub repo page in the "Languages" bar, it said "Haskell: 90%" (we later found a way to circumvent this), and you got yourself a perfectly executed wrong positioning.
+
+### It's the packaging issue
+
+Many developers who actually tried Wasp loved it and didn't mind the language much. They could ship faster than ever without spending weeks learning the stack, and keep using React & Node.js. But getting developers to make that leap from *"what is this?"* to *"I will give it a go"* was really hard.
+
+<ImgWithCaption
+  source="/img/new-language-mistake/developer-love.webp"
+  caption="Once they tried Wasp, many developers really loved it. The hard part was getting them to try it."
+  alt="Developer testimonials about Wasp"
+/>
+
+We kept pushing. With Beta, adoption soared, and we started seeing startups built with Wasp getting acquired, as well as enterprises building internal tools and deploying them into their local infra setup (in the end, the Wasp app is just static frontend files + a single Docker image for the backend).
+
+To get past the "this is a weird new framework, why should I try it?" barrier, we built products on top of Wasp (an [open-source SaaS boilerplate starter](https://opensaas.sh/) and [our own "early" Lovable](/blog/2023/07/10/gpt-web-app-generator)) that shifted the decision to a higher level. It worked great and brought many people to Wasp.
+
+Still, the core issue persisted. Developers who came to Wasp couldn't understand what we were building, so they couldn't get excited about it.
+
+### The final nail - trying to make IDE support work
+
+We always assumed that if our language proves to be a wrong choice, it will be because our users told us so. It turned out to be the opposite: while developers who adopted Wasp were happy to keep using it, we started having more and more issues with it internally.
+
+One of the main things we underestimated was how much work it takes to develop the necessary tooling for a custom language, especially IDE/editor support. The bar developers expect today, especially in the JS world, is incredibly high, and the line between an IDE and a compiler is getting blurred.
+
+Once we dove deeper into building tooling for a custom language, we quickly realized the entire ecosystem is built for "standard" JavaScript and TypeScript frameworks. Anything else, and you're on your own, hitting walls really fast.
+
+<ImgWithCaption
+  source="/img/new-language-mistake/vscode-extension.webp"
+  caption="VS Code extension for Wasp language"
+  alt="VS Code extension for Wasp language"
+/>
+
+We ended up developing our own language server and a VS Code extension for it, but since Wasp used Prisma's DSL as an embedded language and had many references to React & Node.js files, we still only reached 80% of where we wanted to be.
+
+## Goodbye Wasp language, welcome TypeScript
+
+With all the accumulated pain around maintaining a custom language, and the constant friction of getting new developers to give it a try, we realized the root cause is deeper than "developers are afraid to try a new web framework".
+
+The usage kept growing, and more and more people were shipping their Wasp apps to production, but whatever we tried, it would always ultimately come back to "I really like what you're doing with Wasp, but why a custom language?". It felt like we were constantly driving with a handbrake pulled up.
+
+Finally, the ergonomics we aimed for with the language didn't turn out to be as important as we thought. Developers are perfectly happy using TypeScript, a language they are familiar with, even if it requires a few extra lines and braces.
+
+### Language was never the moat. It's having a high-level understanding of your entire app at compile time.
+
+When we started Wasp, the terms "language" and "specification" were basically synonyms to us. We couldn't imagine one without the other.
+
+But watching developers use Wasp and seeing what they are excited about, it became clear it was never the language. It was the fact that Wasp has a full understanding of their entire app via a high-level spec (e.g., `main.wasp`, now `main.wasp.ts`), which lets them easily grasp how their app works at a glance and feel in control.
+
+One way in which we tried to make it more tangible is by having a `wasp studio` command - if you run it in your terminal, you'll see how Wasp "sees" your app at compile time, and can reason about it before generating the target code:
+
+<ImgWithCaption
+  source="/img/new-language-mistake/wasp-studio.webp"
+  caption='wasp studio - how Wasp "sees" the structure of your app'
+  alt="Wasp studio showing app structure"
+/>
+
+Having this kind of "support system" made the process of building an app a much more managed experience. With AI and developers reviewing generated code less frequently, this became even more valuable, especially for a new generation of builders with less technical backgrounds (so-called "vibe-coders").
+
+And this app-level understanding doesn't change at all with the switch from Wasp's custom language to TypeScript. We only swapped the "front end" of the compiler, or how you define a high-level app spec in Wasp.
+
+### TypeScript SDK - from an experiment to production
+
+```javascript
+// Page & route definition
+const loginPage = app.page('LoginPage', {
+  component: { importDefault: 'Login', from: '@src/pages/auth/Login' }
+});
+app.route('LoginRoute', { path: '/login', to: loginPage });
+
+// Query
+app.query('getTasks', {
+  fn: { import: 'getTasks', from: '@src/queries' },
+  entities: ['Task']
+});
+
+// Async job
+app.job('mySpecialJob', {
+  executor: 'PgBoss',
+  perform: {
+    fn: { import: 'foo', from: '@src/jobs/bar' },
+    executorOptions: {
+      pgBoss: { retryLimit: 1 }
+    }
+  },
+  entities: ['Task']
+});
+
+export default app;
+```
+
+We introduced the [TypeScript SDK for Wasp](/docs/0.23/general/wasp-ts-config) as an experimental, early preview feature to gauge feedback. And we've received very positive feedback - some of our new users immediately opted for it and never even tried using the Wasp language. This has been a signal for us to keep going.
+
+After testing it internally and within the Wasp community, we're now confident this is the way forward. Besides circumventing the initial "why a new language" question, it solves all the problems we've been fighting for years.
+
+Every editor works out of the box. Developers can use conditionals, loops, and imports (e.g., you could implement your own file-based routing!). Splitting the spec across multiple files becomes trivial. And it gives us a solid foundation for the advanced features we've been wanting to build, like [Full Stack Modules](https://github.com/wasp-lang/wasp/issues/2873).
+
+## DSL, thanks for all the fish - we'd never come this far without you
+
+Looking back, Wasp probably wouldn't have come to life if we hadn't started the way we did. It was our best way to express what we wanted to build at the time, paired up with some personal biases, and well, what we simply thought was fun. It was the curiosity of "We know this sounds like a crazy idea, but we really want to see if it can work" that kept us pushing even when no one was watching.
+
+The DSL approach kept us honest to our vision that the specification should be separate from the implementation. We're still curious about opening support for other languages and runtimes (e.g., Python or Rust) and about the benefits of having a full picture of your app at compile time and being able to reason about it before generating the target code (which opens space for supporting different architectures, optimizations, etc.).
+
+## Your AI agent might like Wasp, too
+
+Finally, as AI agents write more and more of our code, we see many developers looking for tools that provide more structure and opinions upfront, which in turn makes adding features more predictable and the generated code easier to understand and review.
+
+Wasp fits perfectly here, since it spans the full stack of your app and ensures everything works together at all times. It's why many developers have also found renewed love for "old-school" monolithic frameworks such as Django, Rails, and Laravel. Wasp aims to provide the same experience and that feeling of "it just all works", but for the JS ecosystem.
+
+We repeatedly hear from developers using Wasp that it is the stack that works best with AI, and some of them even went so far as to [try 10 different solutions before settling on Wasp](/blog/2026/03/29/hireveld-from-10-stacks-to-production-with-wasp).
+
+## We are shipping TypeScript-first Wasp soon
+
+In the next few weeks, we're hosting Launch Week, during which we'll ship the TypeScript SDK as the primary way to use Wasp. We've already seen the excitement within our community, and can't wait to hear what you think about it.
+
+If you've ever been curious about Wasp, now is the perfect time to give it a try. No new language to learn. Just TypeScript, and everything Wasp does for you under the hood.
+
+To stay in the loop, join our [Discord](https://discord.gg/rzdnErX), or follow [Wasp](https://twitter.com/WaspLang) or [me](https://twitter.com/MatijaSosic) on X/Twitter.

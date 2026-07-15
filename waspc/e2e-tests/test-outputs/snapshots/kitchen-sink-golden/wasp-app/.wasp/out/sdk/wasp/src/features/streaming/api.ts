@@ -2,9 +2,12 @@ import { type MiddlewareConfigFn } from "wasp/server";
 import { type StreamingText } from "wasp/server/api";
 
 // Custom API endpoint that returns a streaming text.
-export const getText: StreamingText = async (_req, res, _context) => {
+export const streamingText: StreamingText = async (_req, res, _context) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Transfer-Encoding", "chunked");
+  // Prevents proxies (e.g. Railway's edge) from compressing the response,
+  // which would buffer the stream and break incremental delivery.
+  res.setHeader("Cache-Control", "no-transform");
 
   let counter = 1;
   res.write("Hm, let me see...\n");
@@ -26,6 +29,8 @@ export const getText: StreamingText = async (_req, res, _context) => {
 };
 
 // Returning the default config.
-export const getMiddlewareConfig: MiddlewareConfigFn = (config) => {
+export const defaultMiddlewareForStreamingText: MiddlewareConfigFn = (
+  config,
+) => {
   return config;
 };

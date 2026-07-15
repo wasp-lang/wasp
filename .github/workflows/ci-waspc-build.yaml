@@ -4,15 +4,6 @@ name: "Build - Wasp CLI binaries"
 # We can call it manually (workflow_dispatch) or from other workflows (workflow_call).
 on:
   workflow_call:
-    inputs:
-      node-version:
-        # NOTE: This should be equal to Wasp's lowest supported Node version.
-        # Don't change this version without updating it in all required
-        # places (full list in /.nvmrc).
-        description: "Node.js version to use for building"
-        default: "24.14.1"
-        type: string
-        required: false
     outputs:
       waspc_version:
         value: ${{ jobs.build.outputs.waspc_version }}
@@ -26,6 +17,9 @@ on:
       output_linux-x86_64-static:
         value: ${{ jobs.build.outputs.output_linux-x86_64-static }}
         description: "The build output metadata for linux-x86_64-static."
+      output_linux-aarch64:
+        value: ${{ jobs.build.outputs.output_linux-aarch64 }}
+        description: "The build output metadata for linux-aarch64."
       output_macos-x86_64:
         value: ${{ jobs.build.outputs.output_macos-x86_64 }}
         description: "The build output metadata for macos-x86_64."
@@ -43,6 +37,7 @@ jobs:
       data_files_list: ${{ steps.data-files.outputs.list }}
       output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
       output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
+      output_linux-aarch64: ${{ steps.set-outputs.outputs.output_linux-aarch64 }}
       output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
       output_macos-aarch64: ${{ steps.set-outputs.outputs.output_macos-aarch64 }}
 
@@ -71,35 +66,35 @@ jobs:
             container: ubuntu:20.04
             static: false
             install-deps: |
+              # We need either `curl` or `wget` to install Mise, which then
+              # installs everything else.
               export DEBIAN_FRONTEND=noninteractive
               apt-get update -y
-              # GHCup dependencies (https://www.haskell.org/ghcup/install/#version-2004-2010)
-              apt-get install -y build-essential curl libffi-dev libffi7 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5
-              # Cabal dependencies
-              apt-get install -y zlib1g-dev
+              apt-get install -y curl
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
-            # actions/setup-node does not work in alpine.
-            # https://github.com/actions/setup-node/issues/1293 To work around
-            # this, we use the alpine variant of the official node image, which
-            # already has a working Node.js version installed.
-            # We also pin the `alpine` version to a specific one we have tested,
+            # We pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
             # libraries we depend on.
-            container: node:${{ inputs.node-version }}-alpine3.23
-            skip-node-install: true
+            container: alpine:3.23
             static: true
+
+          - name: linux-aarch64
+            runner: ubuntu-24.04-arm
+            # We use an old Ubuntu version so we can link to a low `glibc` version.
+            # `glibc` is backwards-compatible but not forwards-compatible, so it
+            # is a good idea to use the oldest version we reasonably can. Otherwise,
+            # the wasp binary would possibly not work on the system using an older
+            # glibc than what it was built with (e.g. an older Ubuntu version).
+            container: ubuntu:24.04
+            static: false
             install-deps: |
-              apk update
-              # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
-              apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
-              # `./run` script dependencies
-              apk add bash
-              # Cabal dependencies
-              apk add zlib-dev zlib-static
-              # Prisma dependencies
-              apk add openssl
+              # We need either `curl` or `wget` to install Mise, which then
+              # installs everything else.
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update -y
+              apt-get install -y curl
 
           - name: macos-x86_64
             runner: macos-15-intel
@@ -112,11 +107,24 @@ jobs:
             static: false # Check the comment above for why we can't statically link on macOS
 
     runs-on: ${{ matrix.env.runner }}
-    container: ${{ matrix.env.container }}
+    container:
+      # Zizmor can't follow the matrix to see which container is used so it
+      # marks everything as unpinned, but they _are_ pinned.
+      # zizmor: ignore[unpinned-images]
+      ${{ matrix.env.container }}
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Install dependencies
+        if: ${{ matrix.env.install-deps }}
+        run: ${{ matrix.env.install-deps }}
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
+        with:
+          haskell: true
 
       - name: Compute artifact names
         uses: ./.github/actions/compute-artifact-names
@@ -124,28 +132,16 @@ jobs:
         with:
           build-name: ${{ matrix.env.name }}
 
-      - name: Install dependencies
-        if: ${{ matrix.env.install-deps }}
-        run: ${{ matrix.env.install-deps }}
-
-      - uses: ./.github/actions/setup-haskell
-        with:
-          extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
-
-      - uses: actions/setup-node@v6
-        if: ${{ !matrix.env.skip-node-install }}
-        with:
-          node-version: ${{ inputs.node-version }}
-
       - name: Build and package
         working-directory: waspc
         env:
           LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
           BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
+          TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
         run: |
           ./run build
           mkdir -p artifacts
-          ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
+          ./tools/make_binary_package.sh "artifacts/${TARBALL_NAME}"
 
       - name: Compute data files list
         id: data-files

@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import Control.Monad.Reader (asks)
@@ -10,11 +8,11 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext (),
     buildAndRemoveWaspProjectDockerImage,
-    createFile,
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
     setWaspDbToPSQL,
     waspCliBuild,
+    writeToFile,
   )
 import qualified ShellCommands as WaspProjectContext
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
@@ -44,7 +42,7 @@ wrapViteConfigForDeterministicBuild :: ShellCommandBuilder WaspProjectContext Sh
 wrapViteConfigForDeterministicBuild = do
   waspProjectDir <- asks (.waspProjectDir)
 
-  createFile
+  writeToFile
     (waspProjectDir </> wrapperViteFile)
     [trimming|
       import { mergeConfig, type Plugin } from "vite";

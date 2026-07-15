@@ -1,10 +1,10 @@
-import Logo from "./assets/logo.svg";
+import Logo from "./assets/wasp-logo-rounded.svg";
 import "./Main.css";
 
 export function MainPage() {
   return (
     <main className="container">
-      <img className="logo" src={Logo} alt="wasp" />
+      <img className="logo" src={Logo} alt="Wasp logo" />
 
       <h2 className="title">Welcome to Wasp!</h2>
 

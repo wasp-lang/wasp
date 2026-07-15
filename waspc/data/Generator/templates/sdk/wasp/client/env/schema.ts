@@ -1,9 +1,9 @@
 {{={= =}=}}
 import * as z from "zod"
+import { FromRegister } from "../../types/register";
 
-import { FromRegistry } from "../../types";
-
-export type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
+export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
+type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
@@ -36,10 +36,10 @@ const waspClientEnvSchema = import.meta.env.MODE === "production"
   ? waspProdClientEnvSchema
   : waspDevClientEnvSchema;
 
-export type ClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
+export type CompleteClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
 
 // PRIVATE API (sdk, Vite config)
-export const clientEnvSchema: ClientEnvSchema = z.object({
+export const clientEnvSchema: CompleteClientEnvSchema = z.object({
   ...userClientEnvSchema.shape,
   ...waspClientEnvSchema.shape
 });

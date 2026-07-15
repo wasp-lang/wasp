@@ -28,7 +28,7 @@ import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules
-  ( VirtualModuleId,
+  ( UserVirtualModuleId,
     serverEnvValidationSchemaVMId,
     userOperationVMId,
     userPrismaSetupFnVMId,
@@ -51,7 +51,7 @@ getServerUserVirtualModulesData spec =
     mkOperationVMImportData operation =
       mkVMImportData (userOperationVMId operation) (AS.Operation.getFn operation)
 
-    mkVMImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
+    mkVMImportData :: UserVirtualModuleId -> EI.ExtImport -> Aeson.Value
     mkVMImportData virtualModuleId extImport =
       object
         [ "virtualModuleId" .= toFilePath virtualModuleId,

@@ -5,12 +5,13 @@ import { fileURLToPath } from "node:url";
 const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /**
- * Maps the name of a virtual module pointing to the user's file to
- * that file's relative import path from the server project root.
+ * Maps virtual module IDs (pointing to user's server files)
+ * to their relative import paths from the server project root.
  * 
- * @example userVirtualModuleMap["virtual:wasp/user/server-env-schema"] // resolves to "../../../src/env"
+ * @example 
+ * serverUserVirtualModuleMap["virtual:wasp/user/server-env-schema"] // => "../../../src/env"
  */
-const userVirtualModuleMap = {
+const serverUserVirtualModuleMap = {
   {=# userVirtualModules =}
   "{= virtualModuleId =}": "{=& importJson.importPath =}",
   {=/ userVirtualModules =}
@@ -25,8 +26,8 @@ export function userVirtualModules() {
   return {
     name: "wasp:user-virtual-modules",
     async resolveId(id) {
-      if (id in userVirtualModuleMap) {
-        const absPath = path.resolve(serverRootDir, userVirtualModuleMap[id]);
+      if (id in serverUserVirtualModuleMap) {
+        const absPath = path.resolve(serverRootDir, serverUserVirtualModuleMap[id]);
         return await this.resolve(absPath, undefined, { skipSelf: true });
       }
       return null;

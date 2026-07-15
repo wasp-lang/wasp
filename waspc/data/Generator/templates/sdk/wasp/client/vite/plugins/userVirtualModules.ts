@@ -3,12 +3,13 @@ import path from "node:path";
 import { type Plugin } from "vite";
 
 /**
- * Maps the name of a virtual module pointing to the user's file to
- * that file's relative import path from the client project root.
+ * Maps virtual module IDs (pointing to user's client files)
+ * to their relative import paths from the client project root.
  * 
- * @example userVirtualModuleMap["virtual:wasp/user/client-env-schema"] // resolves to "./src/env"
+ * @example
+ * clientUserVirtualModuleMap["virtual:wasp/user/client-env-schema"] // => "./src/env"
  */
-const userVirtualModuleMap: { [userVirtualModule: string]: string } = {
+const clientUserVirtualModuleMap: { [userVirtualModule: string]: string } = {
   {=# userVirtualModules =}
   '{= virtualModuleId =}': '{=& importJson.importPath =}',
   {=/ userVirtualModules =}
@@ -29,8 +30,8 @@ export function userVirtualModules(): Plugin {
       clientRootDir = config.root;
     },
     async resolveId(id, importer, options) {
-      if (id in userVirtualModuleMap) {
-        const absPath = path.resolve(clientRootDir, userVirtualModuleMap[id]);
+      if (id in clientUserVirtualModuleMap) {
+        const absPath = path.resolve(clientRootDir, clientUserVirtualModuleMap[id]);
         return this.resolve(absPath, importer, { ...options, skipSelf: true });
       }
       return null;

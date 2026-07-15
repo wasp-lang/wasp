@@ -10,6 +10,7 @@
     ],
     "skipLibCheck": true,
     "allowJs": true,
+    "types": ["node", "react"],
     "rootDir": ".",
     "outDir": "dist",
 
@@ -94,5 +95,8 @@
     // web-app runtime via Vite virtual modules. That's why we don't want the
     // SDK to compile them.
     "client/vite/virtual-files/files",
+    // Wasp spec files shouldn't be compiled by the SDK because they are used to
+    // configure Wasp and not part of the SDK runtime.
+    "**/*.wasp.ts",
   ]
 }

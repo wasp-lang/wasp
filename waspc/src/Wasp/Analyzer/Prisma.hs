@@ -1,30 +1,26 @@
 module Wasp.Analyzer.Prisma
-  ( injectEntitiesFromPrismaSchema,
-    parseEntityStatements,
+  ( parseEntityStatements,
   )
 where
 
-import Wasp.Analyzer.Parser as Parser
+import Wasp.Analyzer.AST (Expr (..), Stmt (..))
+import Wasp.Analyzer.Ctx (Ctx (..), WithCtx (..))
+import Wasp.Analyzer.SourcePosition (SourcePosition (..))
+import Wasp.Analyzer.SourceRegion (SourceRegion (..))
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Generator.Model as Psl.Model.Generator
 
-injectEntitiesFromPrismaSchema :: Psl.Schema.Schema -> Parser.AST -> Either a Parser.AST
-injectEntitiesFromPrismaSchema schema ast = Right $ ast {Parser.astStmts = stmts ++ entityStmts}
-  where
-    entityStmts = parseEntityStatements schema
-    stmts = Parser.astStmts ast
-
-parseEntityStatements :: Psl.Schema.Schema -> [WithCtx Parser.Stmt]
+parseEntityStatements :: Psl.Schema.Schema -> [WithCtx Stmt]
 parseEntityStatements schema = makeEntityStmt <$> generatePrismaModelSources schema
 
 type ModelName = String
 
 type ModelBody = String
 
-makeEntityStmt :: (ModelName, ModelBody) -> WithCtx Parser.Stmt
-makeEntityStmt (name, body) = wrapWithCtx $ Parser.Decl "entity" name $ wrapWithCtx $ Parser.Quoter "psl" body
+makeEntityStmt :: (ModelName, ModelBody) -> WithCtx Stmt
+makeEntityStmt (name, body) = wrapWithCtx $ Decl "entity" name $ wrapWithCtx $ Quoter "psl" body
   where
     wrapWithCtx = WithCtx (Ctx mockSourceRegion)
     -- Since we didn't parse the entities from the Wasp source file
@@ -38,5 +34,5 @@ makeEntityStmt (name, body) = wrapWithCtx $ Parser.Decl "entity" name $ wrapWith
 generatePrismaModelSources :: Psl.Schema.Schema -> [(ModelName, ModelBody)]
 generatePrismaModelSources schema =
   [ (name, Psl.Model.Generator.generateModelBody body)
-    | (Psl.Model.Model name body) <- Psl.WithCtx.getNode <$> Psl.Schema.getModels schema
+  | (Psl.Model.Model name body) <- Psl.WithCtx.getNode <$> Psl.Schema.getModels schema
   ]

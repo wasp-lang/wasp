@@ -53,9 +53,9 @@ genSignupAction auth =
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl localAuthProvider,
-          "hasUsernameAndPasswordUserSignupFields" .= isJust userUsernameAndPassowrdSignupFields
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
         ]
-    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

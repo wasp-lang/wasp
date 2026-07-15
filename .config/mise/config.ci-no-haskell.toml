@@ -1,0 +1,17 @@
+# CI-only mise config, loaded on top of the base `mise.toml` when
+# `MISE_ENV=ci-no-haskell`. CI enables it via the `MISE_ENV` env var in
+# `.github/actions/setup-tools`. See
+# https://mise.jdx.dev/configuration/environments.html
+#
+# These tools are only used locally, so we don't install them in CI, because
+# they take up more time and cache space. We skip the heavy Haskell tools in
+# most CI runs, because they take up more time and cache space.
+[settings]
+disable_tools = [
+  "ghcup",
+  "cabal",
+  "mise-ghcup:ghc",
+  "mise-ghcup:hls",
+  "mise-cabal:hlint",
+  "mise-cabal:stan",
+]

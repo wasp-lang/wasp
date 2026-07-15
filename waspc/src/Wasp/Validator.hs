@@ -85,10 +85,25 @@ eqJust expected (Just actual)
 eqJust expected Nothing =
   failure $ "Missing value, expected " ++ show expected ++ "."
 
+-- | Validates that the list contains all of the expected elements. Additional
+-- elements are allowed. Combine with 'required' or 'ifJust' to validate an
+-- optional field.
+containsAll :: (Eq a, Show a) => [a] -> Validator [a]
+containsAll expected actual
+  | Prelude.all (`elem` actual) expected = success
+  | otherwise =
+      failure $ "Expected to contain all of " ++ show expected ++ " but got " ++ show actual ++ "."
+
 -- | Runs the inner validator only if the value is Just. If the value is
 -- Nothing, no validation is needed and the validation succeeds.
 ifJust :: Validator a -> Validator (Maybe a)
 ifJust = maybe success
+
+-- | Requires the value to be Just, then runs the inner validator on the
+-- unwrapped value. If the value is Nothing, the validation fails.
+required :: Validator a -> Validator (Maybe a)
+required _ Nothing = failure "Missing required value."
+required innerValidator (Just value) = innerValidator value
 
 instance Show ValidationError where
   show

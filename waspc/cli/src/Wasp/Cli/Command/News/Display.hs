@@ -1,6 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Wasp.Cli.Command.News.Display (showNewsEntry) where
 
 import qualified Data.Text as T

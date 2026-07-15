@@ -1,0 +1,54 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1`] = `
+{
+  "status": "ok",
+  "value": [
+    {
+      "declName": "demo",
+      "declType": "App",
+      "declValue": {
+        "title": "Split Demo",
+        "wasp": {
+          "version": "^0.16.0",
+        },
+      },
+    },
+    {
+      "declName": "MainPage",
+      "declType": "Page",
+      "declValue": {
+        "component": {
+          "kind": "default",
+          "name": "MainPage",
+          "path": "@src/MainPage",
+        },
+      },
+    },
+    {
+      "declName": "archive",
+      "declType": "Action",
+      "declValue": {
+        "entities": [],
+        "fn": {
+          "alias": "archive",
+          "kind": "named",
+          "name": "archive",
+          "path": "@src/adminOperations",
+        },
+      },
+    },
+    {
+      "declName": "FaqPage",
+      "declType": "Page",
+      "declValue": {
+        "component": {
+          "kind": "default",
+          "name": "FaqPage",
+          "path": "@src/features/faq/FaqPage",
+        },
+      },
+    },
+  ],
+}
+`;

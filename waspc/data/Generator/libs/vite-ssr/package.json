@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/lib-vite-ssr",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "type": "module",
   "private": true,
   "exports": {
@@ -24,14 +24,14 @@
     "test": "exit 0"
   },
   "peerDependencies": {
-    "vite": "^7"
+    "vite": "^8"
   },
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "~22.12",
-    "tsdown": "^0.20.3",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1"
+    "tsdown": "^0.21.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.1.0"
   }
 }

@@ -1,4 +1,4 @@
-import { api, removeLocalUserData } from 'wasp/client/api'
+import { api, removeLocalUserData } from '../api/index.js'
 import { invalidateAndRemoveQueries } from '../client/operations/internal/resources.js'
 
 // PUBLIC API

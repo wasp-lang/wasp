@@ -1,0 +1,357 @@
+---
+title: "Roll your own file-based router in under 50 lines of code"
+authors: [cprecioso]
+image: /img/roll-your-own-file-based-router/banner.webp
+tags: [wasp, typescript, routing, file-based routing, full-stack]
+keywords: ["file-based routing", "wasp framework", "typescript spec", "custom router", "next.js file-based routing", "react routing", "wasp routing", "programmable spec", "full-stack typescript", "main.wasp.ts", "route groups", "dynamic segments", "type-safe links", "convention over configuration"]
+description: "Wasp's spec is just a TypeScript program, so file-based routing isn't a framework feature you wait for — it's under 50 lines of code you own. Here's how to build one with the exact conventions you want."
+---
+
+Nowadays, web frameworks come with ✨ magic ✨. Some more than others, but all of them have some. The magic is usually in the form of conventions: do things their way and the framework helps you out; wander off the happy path and you're on your own.
+
+{/* truncate */}
+
+One of the main tricks they pull is quietly turning your folder structure into a config file. Create `app/about-us/page.tsx` in a Next.js app and `https://localhost:3000/about-us` magically starts working. Rename the file, and the URL changes with it. The framework is reading your file tree and turning it into a routing table.
+
+That is called **file-based routing**, and it's usually magic your framework either hands you or it doesn't; and when it does, you rarely get to customize it, the conventions are baked in. Want a folder name to carry special meaning, or a `logged-in.tsx`/`logged-out.tsx` split per route? Your only option is to post a feature request and wait, or go without.
+
+In Wasp, we really like explicitness, so we've resisted shipping a file-based router. That's changing now, but of course, we're not just adding the magic conventions and moving on. We're giving you a way to choose and design your own magic.
+
+## Wait, what's Wasp?
+
+Wasp is a batteries-included full-stack web framework for TypeScript. It covers your frontend, backend, and database as one cohesive whole.
+
+And one of our core ideas is that the entry point to all this full-stack goodness is through an explicit **Spec**. Instead of hiding your app's structure behind implicit conventions, you declare its features (like routes, authentication, queries, cron jobs, etc) directly in code. Wasp then compiles and stitches these pieces together:
+
+```tsx
+import { app, route, page } from "@wasp.sh/spec";
+
+// `type: ref` means we just want to point to these files, not execute them now:
+import MainPage from "./src/pages/MainPage" with { type: "ref" };
+import UserPage from "./src/pages/LoginPage" with { type: "ref" };
+
+export default app({
+  // Some example configurations, we'll skip them in the future:
+  name: "my-app",
+  wasp: { version: "^0.24.0" },
+  auth: { userEntity: "User", google: {} },
+
+  // The spec is where you declare your app's features:
+  spec: [
+    route("MainRoute", "/", page(MainPage)),
+    route("LoginRoute", "/login", page(UserPage, { authRequired: true })),
+  ],
+});
+```
+
+We chose this approach because explicit code is easier to reason about than hidden magic. This transparency makes the codebase easier to navigate for your team, and it gives AI code assistants a clear, structured map of your application to work with.
+
+That explicitness is the whole philosophy, and it's exactly why we've deliberately never shipped file-based routing. We just didn't want to bake that pile of implicit conventions into the framework.
+
+## The Spec is just a program
+
+But here's the part that makes it exciting. We recently [updated our spec](/blog/2026/06/15/wasp-typescript-spec) so that it lives in a `main.wasp.ts` file. And instead of being a static JSON file that the framework reads, it is just **a standard Node.js program**, written in TypeScript. You can pull in libraries from npm, read from disk, call an API, use environment variables, anything! The only rule is that you export an `app` at the end. That's all we need.
+
+So the Spec is explicit, but it's also _programmable_. And nothing says those `route` and `page` calls have to be typed out by hand.
+
+That's the entire trick. You can write a function that walks your `src/` folder and returns the same `route` and `page` objects you'd otherwise write manually. File-based routing stops being internal magic, and becomes a few lines of ordinary code that live in your repo, that you can read, and more importantly, customize.
+
+So even though we never shipped file-based routing, "we didn't ship it" doesn't mean "you can't have it". You add it yourself, with exactly the conventions you want. You get the best of both worlds, and nobody has to argue about defaults. Sorry if you liked the arguing.
+
+## The simplest possible router
+
+Let's build that. Because the route list is just an array of objects, the simplest possible "router" is one we write out by hand:
+
+```tsx
+// The `ref` helper is the dynamic version of `with { type: "ref" }` imports, so we'll use it to build programmatically.
+import { app, page, route, ref } from "@wasp.sh/spec";
+
+export default app({
+  spec: [
+    route(
+      "RootRoute",
+      "/",
+      page(ref({ importDefault: "RootPage", from: "./src/page.tsx" })),
+    ),
+    route(
+      "AboutUsRoute",
+      "/about-us",
+      page(
+        ref({ importDefault: "AboutUsPage", from: "./src/about-us/page.tsx" }),
+      ),
+    ),
+  ],
+});
+```
+
+That's a functioning router already, but the unsatisfying part is that we had to type it out ourselves. So let's _generate_ it instead, by looking at the project files.
+
+## The step up: generate the routes from the filesystem
+
+We'll pick a very simple convention: **a `page.tsx` inside a folder makes it a route.** So `src/about-us/page.tsx` serves `https://my-app.com/about-us`, and `src/page.tsx` serves `https://my-app.com/`.
+
+Here's the whole thing:
+
+```tsx
+import { page, ref, route } from "@wasp.sh/spec";
+import { pascalCase } from "es-toolkit";
+import { globSync } from "node:fs";
+import * as path from "node:path";
+
+export const fileBasedRoutes = (baseDir: string) => {
+  return globSync("**/page.tsx", { cwd: baseDir })
+    .sort() // Make the list stable between runs
+    .map((filePath) => {
+      const absoluteFilePath = path.resolve(baseDir, filePath);
+
+      const urlRoute = filePath
+        .split(path.sep)
+        .slice(0, -1) // Removes the "page.tsx" part
+        .join("/");
+
+      const routeName = pascalCase(urlRoute) || "Root";
+
+      return route(
+        `${routeName}Route`,
+        "/" + urlRoute,
+        page(
+          ref({
+            importDefault: `${routeName}Page`,
+            from: absoluteFilePath,
+          }),
+        ),
+      );
+    });
+};
+```
+
+That's the entire idea. Find every `page.tsx`, turn its folder path into a URL path and a name, and produce the `route()`s. For the route name we can even [lean on an npm package](https://es-toolkit.dev/reference/string/pascalCase.html) to get a clean name; it's just an ordinary npm dependency, like in any Node project.
+
+There's nothing clever going on here, it's plain filesystem glue. An inexperienced dev could write this without much trouble. It never reaches into Wasp's internals, and it only calls the same public `route`, `page`, and `ref` functions you'd use by hand.
+
+Wiring it into your app is one line:
+
+```tsx
+// main.wasp.ts
+import { app } from "@wasp.sh/spec";
+import { fileBasedRoutes } from "./lib/file-based-routes.wasp";
+
+export default app({
+  // ...
+  spec: [
+    // highlight-next-line
+    fileBasedRoutes("src"),
+
+    // Any other Specs your app uses (job(), query(), action(), ...)
+    // ...
+  ],
+});
+```
+
+`fileBasedRoutes` returns an array of route objects, and we drop it straight into `spec`. Voilà, you have file-based routing!
+
+## Everything Wasp already does still works
+
+Because we're producing normal `route` and `page` spec objects, the rest of Wasp neither knows nor cares that they were generated. So all the features you'd expect keep working, including [type-safe links](/docs/advanced/links):
+
+```tsx
+import { Link } from "wasp/client/router";
+
+export default function MainPage() {
+  return (
+    <>
+      <h1>Main page</h1>
+      <Link to="/about-us">About us</Link>
+    </>
+  );
+}
+```
+
+The `<Link>` component is fully typechecked with the routes your function generated. Generate a route from a folder, and you will get autocomplete and type errors for it everywhere. Nice.
+
+## Now make it yours: route groups
+
+Here's where it gets fun. This is _your_ code, so bend it to your project. Say you want **route groups:** folders that organize your files without showing up in the URL. The usual convention is to wrap them in parentheses, like `(marketing)`.
+
+It's a one-line filter:
+
+```tsx
+// highlight-next-line
+const ROUTE_GROUP_REGEX = /^\(.*\)$/; // Wrapped in parentheses
+
+// ...
+
+const urlRoute = filePath
+  .split(path.sep)
+  .slice(0, -1) // Removes the "page.tsx" part
+  // highlight-next-line
+  .filter((part) => !ROUTE_GROUP_REGEX.test(part)) // Remove any route groups
+  .join("/");
+```
+
+Now `src/(marketing)/about-us/page.tsx` still serves `/about-us`, but you can keep your marketing pages tidily grouped.
+
+## A convention for prerender and auth
+
+Now let's say that in your project, there are two settings you're reaching for constantly: marking a page as auth-required, or marking it for prerendering. Let's invent a convention for both, reusing the route-group syntax we just added: an `(auth)` group makes everything inside require auth, and a `(prerender)` group marks pages for prerendering.
+
+We detect those folders and thread the result into the spec objects:
+
+```tsx
+// highlight-start
+const isPrerender = filePath.includes("(prerender)");
+const isAuth = filePath.includes("(auth)");
+// highlight-end
+
+// ...
+
+return route(
+  `${routeName}Route`,
+  "/" + urlRoute,
+  page(
+    ref({
+      importDefault: `${routeName}Page`,
+      from: absoluteFilePath,
+    }),
+    // highlight-next-line
+    { authRequired: isAuth },
+  ),
+  // highlight-next-line
+  { prerender: isPrerender },
+);
+```
+
+These are _your_ conventions. Don't like parentheses for this? Use a `.auth.tsx` suffix, a `"use auth"` directive, or a config file next to the page; whatever reads best for your team. The spec doesn't dictate the shape, you do!
+
+## Dynamic and optional segments
+
+Wasp routing also supports [dynamic](/docs/advanced/routing#dynamic-segments) (`:id`) and [optional](/docs/advanced/routing#optional-segments) (`:id?`) segments. Written out in the spec by hand, they look like this:
+
+```tsx
+route("ProductRoute", "/products/:productId", page(ProductPage)),
+route("ArticleRoute", "/articles/:slug?", page(ArticlePage)),
+```
+
+The `:` character is not allowed in file paths, so let's copy Next.js's bracket syntax for this: `[productId]` becomes `:productId`, and `[[productId]]` becomes `:productId?`:
+
+```tsx
+// highlight-start
+const DYNAMIC_SEGMENT_REGEX = /^\[(.*)\]$/; // Wrapped in square brackets
+const OPTIONAL_SEGMENT_REGEX = /^\[\[(.*)\]\]$/; // Wrapped in two square brackets
+// highlight-end
+
+// ...
+
+const urlRoute = filePath
+  .split(path.sep)
+  .slice(0, -1) // Removes the "page.tsx" part
+  .filter((part) => !ROUTE_GROUP_REGEX.test(part)) // Remove any route groups
+  // highlight-start
+  .map((part) => part.replace(OPTIONAL_SEGMENT_REGEX, ":$1?")) // Convert optional segments
+  .map((part) => part.replace(DYNAMIC_SEGMENT_REGEX, ":$1")) // Convert dynamic segments
+  // highlight-end
+  .join("/");
+```
+
+Or you can invent your own syntax. The point is that it's just code, so you do you.
+
+## 45 lines later
+
+We're done!
+
+```tsx
+import { page, ref, route } from "@wasp.sh/spec";
+import { pascalCase } from "es-toolkit";
+import { globSync } from "node:fs";
+import * as path from "node:path";
+
+const ROUTE_GROUP_REGEX = /^\(.*\)$/; // Wrapped in parentheses
+const DYNAMIC_SEGMENT_REGEX = /^\[(.*)\]$/; // Wrapped in square brackets
+const OPTIONAL_SEGMENT_REGEX = /^\[\[(.*)\]\]$/; // Wrapped in two square brackets
+
+export const fileBasedRoutes = (baseDir: string) => {
+  return globSync("**/page.tsx", { cwd: baseDir })
+    .sort() // Make the list stable between runs
+    .map((filePath) => {
+      const absoluteFilePath = path.resolve(baseDir, filePath);
+
+      const isPrerender = filePath.includes("(prerender)");
+      const isAuth = filePath.includes("(auth)");
+
+      const urlRoute = filePath
+        .split(path.sep)
+        .slice(0, -1) // Removes the "page.tsx" part
+        .filter((part) => !ROUTE_GROUP_REGEX.test(part)) // Remove any route groups
+        .map((part) => part.replace(OPTIONAL_SEGMENT_REGEX, ":$1?")) // Convert optional segments
+        .map((part) => part.replace(DYNAMIC_SEGMENT_REGEX, ":$1")) // Convert dynamic segments
+        .join("/");
+
+      const routeName = pascalCase(urlRoute) || "Root";
+
+      return route(
+        `${routeName}Route`,
+        "/" + urlRoute,
+        page(
+          ref({
+            importDefault: `${routeName}Page`,
+            from: absoluteFilePath,
+          }),
+          { authRequired: isAuth },
+        ),
+        { prerender: isPrerender },
+      );
+    });
+};
+```
+
+That's it. You can start using these conventions as you see fit. For example, with the folder layout below:
+
+```
+src/
+├── (prerender)/
+│   └── (marketing)/
+│       ├── page.tsx
+│       └── about-us/
+│           └── page.tsx
+├── products/
+│   └── [productId]
+│       └── page.tsx
+└── (auth)/
+    └── dashboard/
+        └── page.tsx
+```
+
+...our function produces this spec:
+
+```tsx
+export default app({
+  spec: [
+    fileBasedRoutes("src"),
+
+    // the above call ⬆️ will turn into the following specs ⬇️
+
+    route("RootPage", "/", page(RootPage), { prerender: true }),
+    route("AboutUsPage", "/about-us", page(AboutUsPage), { prerender: true }),
+    route("ProductIdPage", "/products/:productId", page(ProductIdPage)),
+    route("DashboardPage", "/dashboard", page(DashboardPage), { authRequired: true }),
+  ],
+});
+```
+
+Add more files in that `(auth)`, and those pages become auth-required; name a folder `[[slug]]` and you get an optional segment. We've covered the most useful bits of Wasp's routing and exposed them through an entirely new API surface, and all of it lives in under 50 lines you can read end to end in a minute.
+
+And the same trick isn't limited to routes. Because the spec is just data your program returns, you can generate any of it the same way: `api()`, `query()`, `job()`, or `action()`, all from your own file layout. With other frameworks you might need weird hacks or an escape hatch to do this, but in Wasp there's nothing to escape from.
+
+This is the whole reason we keep going on about the spec being a first-class, programmable thing. It means that file-based routing didn't have to become a Wasp feature with a dozen options and an opt-out. It just became a small file you can control. [Meta-meta-framework, anyone?](/blog/2026/06/15/wasp-typescript-spec)
+
+## Roll your own
+
+Want a more full-featured file-based router than the version above? We are building one you can use or learn from: [wasp-lang/file-based-routing](https://github.com/wasp-lang/file-based-routing). We're still working on it, but it has quite a few more features than the one here. Other people might create their own libraries, and you can use those too!
+
+But the whole point of this post is that you don't have to use anyone's library. Run `wasp new`, copy our starting example, and build the conventions that fit _your_ project.
+
+## The future
+
+The same "spec is just a program" idea doesn't stop at routing. We're actively working on [full-stack modules](/blog/2026/06/22/javascript-still-cant-ship-a-full-stack-module): the idea that you'll be able to pull libraries that don't only contain backend or frontend code, but full-stack code, defined as a Spec. File-based routing might be a part of those specs in the future! But it all goes towards giving you the magic of conventions without losing control and explicitness when you want it.
+
+If you come up with something good, we'd genuinely love to see it, come share it on [our Discord](https://discord.gg/rzdnErX)!

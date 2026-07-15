@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Compile
   ( compileIO,
     compile,
@@ -20,7 +22,7 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -39,6 +41,7 @@ compile = do
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
+  WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
@@ -49,6 +52,7 @@ compile = do
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings.
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
+  ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
@@ -132,7 +136,7 @@ compileIOWithOptions options waspProjectDir outDir =
 defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =
   CompileOptions
-    { waspProjectDirPath = waspProjectDir,
+    { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id

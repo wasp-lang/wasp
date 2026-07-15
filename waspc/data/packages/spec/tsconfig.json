@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2024",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "types": ["node"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    "module": "NodeNext",
+    "rootDir": ".",
+    "outDir": "dist",
+    "declarationMap": true,
+
+    "declaration": true,
+    "lib": ["es2024"]
+  },
+  "include": ["src", "__tests__"]
+}

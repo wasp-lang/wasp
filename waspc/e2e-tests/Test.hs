@@ -1,6 +1,4 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module Test
   ( Test (..),
@@ -10,14 +8,15 @@ module Test
 where
 
 import Data.Maybe (fromJust)
-import FileSystem (TestCaseDir, getTestCaseDir)
+import FileSystem (TestCaseDir, TestLogFile, getTestCaseDir, testCaseLogFileInTestCaseDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelDir, (</>))
+import StrongPath (Abs, Dir, File, Path', fromAbsDir, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
+import TestLogging (formatCommandFailure, openLogForCommand)
 
 data Test = Test
   { name :: String,
@@ -39,15 +38,13 @@ testTreeFromTest test = do
       it testCase.name $ do
         testCaseDir <- getTestCaseDir test.name testCase.name
         let testCaseCommand = createTestCaseCommand testCaseDir testCase
+            testName = test.name ++ " / " ++ testCase.name
 
         setupTestCase testCaseDir
-
-        putStrLn $ "Executing test case: " ++ test.name ++ "/" ++ testCase.name
-        putStrLn $ "Command: " ++ testCaseCommand
-        exitCode <- executeTestCaseCommand testCaseDir testCaseCommand
+        (exitCode, logFile) <- executeTestCaseCommand testCaseDir testCaseCommand testName
 
         case exitCode of
-          ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
+          ExitFailure code -> expectationFailure =<< formatCommandFailure code logFile
           ExitSuccess -> return ()
 
 createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
@@ -66,14 +63,17 @@ setupTestCase testCaseDir = do
   callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
   callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
 
-executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> IO ExitCode
-executeTestCaseCommand testCaseDir testCaseCommand = do
+executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String -> IO (ExitCode, Path' Abs (File TestLogFile))
+executeTestCaseCommand testCaseDir testCaseCommand testName = do
+  let logFile = testCaseDir </> testCaseLogFileInTestCaseDir
+  (logOut, logErr) <- openLogForCommand logFile testName testCaseCommand
   (_, _, _, processHandle) <-
     createProcess
       (shell testCaseCommand)
         { cwd = Just $ fromAbsDir testCaseDir,
           std_in = Inherit,
-          std_out = Inherit,
-          std_err = Inherit
+          std_out = UseHandle logOut,
+          std_err = UseHandle logErr
         }
-  waitForProcess processHandle
+  exitCode <- waitForProcess processHandle
+  return (exitCode, logFile)

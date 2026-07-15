@@ -1,22 +1,23 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module ShellCommands
   ( ShellCommand,
     ShellCommandBuilder (..),
-    WaspNewTemplate (..),
     buildShellCommand,
     (~|),
     (~&&),
     (~?),
     (~||),
-    createFile,
+    writeToFile,
     appendToFile,
     replaceLineInFile,
     waspCliNewInteractive,
     waspCliNew,
     waspCliCompletion,
+    waspCliVersion,
+    waspCliTelemetry,
+    waspCliNews,
     WaspProjectContext (..),
     appendToPrismaFile,
     setWaspDbToPSQL,
@@ -28,13 +29,18 @@ module ShellCommands
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
+    waspCliStartDb,
+    waspCliTestClient,
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
     waspCliInfo,
     waspCliDeps,
+    waspCliDeploy,
+    waspCliInstall,
+    assertCommandOutputContains,
     createSeedFile,
-    replaceMainWaspFile,
+    replaceMainWaspTsFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
     TestContext (..),
@@ -51,15 +57,15 @@ import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
-import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, mainWaspFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
-import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
+import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
+import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project (WaspProjectDir)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
--- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
 type ShellCommand = String
@@ -103,8 +109,8 @@ infixl 4 ~?
 
 -- General commands
 
-createFile :: Path' Abs File' -> T.Text -> ShellCommandBuilder context ShellCommand
-createFile file fileContent = return $ createParentDir ~&& writeContentsToFile
+writeToFile :: Path' Abs (File a) -> T.Text -> ShellCommandBuilder context ShellCommand
+writeToFile file fileContent = return $ createParentDir ~&& writeContentsToFile
   where
     createParentDir :: ShellCommand
     createParentDir = "mkdir -p " ++ fromAbsDir (parent file)
@@ -132,28 +138,25 @@ replaceLineInFile fileName lineNumber line =
 
     tempFileName = fileName ++ ".tmp"
 
-data WaspNewTemplate = Minimal | Basic | SaaS
+waspCliNewInteractive :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewInteractive appName starterTemplate =
+  return $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "$WASP_CLI_CMD new"
 
-waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNewInteractive appName template =
-  return $
-    unwords ["printf", "\"" ++ appName ++ "\n" ++ templateNumber ++ "\n\""] ~| "wasp-cli new"
-  where
-    templateNumber = case template of
-      Basic -> "1"
-      Minimal -> "2"
-      SaaS -> "3"
-
-waspCliNew :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNew appName template = return $ unwords ["wasp-cli", "new", appName, "-t", templateName]
-  where
-    templateName = case template of
-      Basic -> "basic"
-      Minimal -> "minimal"
-      SaaS -> "saas"
+waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNew appName starterTemplate =
+  return $ unwords ["$WASP_CLI_CMD", "new", appName, "-t", show starterTemplate]
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
-waspCliCompletion = return "wasp-cli completion"
+waspCliCompletion = return "$WASP_CLI_CMD completion"
+
+waspCliVersion :: ShellCommandBuilder context ShellCommand
+waspCliVersion = return "$WASP_CLI_CMD version"
+
+waspCliTelemetry :: ShellCommandBuilder context ShellCommand
+waspCliTelemetry = return "$WASP_CLI_CMD telemetry"
+
+waspCliNews :: ShellCommandBuilder context ShellCommand
+waspCliNews = return "$WASP_CLI_CMD news"
 
 -- Wasp project commands
 
@@ -164,23 +167,29 @@ data WaspProjectContext = WaspProjectContext
   }
 
 waspCliCompile :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliCompile = return "wasp-cli compile"
+waspCliCompile = return "$WASP_CLI_CMD compile"
 
 waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliStart = return "wasp-cli start"
+waspCliStart = return "$WASP_CLI_CMD start"
+
+waspCliStartDb :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStartDb = return "$WASP_CLI_CMD start db"
+
+waspCliTestClient :: [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliTestClient testArgs = return $ unwords ("$WASP_CLI_CMD test client" : testArgs)
 
 waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliBuild = return "wasp-cli build"
+waspCliBuild = return "$WASP_CLI_CMD build"
 
 -- TODO: improve args situation
 waspCliBuildStart :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliBuildStart args = return $ "wasp-cli build start " ++ args
+waspCliBuildStart args = return $ "$WASP_CLI_CMD build start " ++ args
 
 waspCliClean :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliClean = return "wasp-cli clean"
+waspCliClean = return "$WASP_CLI_CMD clean"
 
 waspCliDbStart :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbStart = return "wasp-cli db start"
+waspCliDbStart = return "$WASP_CLI_CMD db start"
 
 -- | We make the migration name deterministic by forcing it to be
 -- @no-date-<migrationName>@, instead of usual @<date>-<migrationName>@.
@@ -197,7 +206,7 @@ waspCliDbMigrateDev migrationName = do
           </> dbRootDirInGeneratedAppDir
           </> dbMigrationsDirInDbRootDir
    in return $
-        unwords ["wasp-cli db migrate-dev --name", migrationName]
+        unwords ["$WASP_CLI_CMD db migrate-dev --name", migrationName]
           ~&& replaceMigrationDatePrefix (fromAbsDir waspMigrationsDir)
           ~&& replaceMigrationDatePrefix (fromAbsDir waspOutMigrationsDir)
   where
@@ -213,26 +222,32 @@ waspCliDbMigrateDev migrationName = do
         ]
 
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbSeed seedName = return $ "wasp-cli db seed " ++ seedName
+waspCliDbSeed seedName = return $ "$WASP_CLI_CMD db seed " ++ seedName
 
 waspCliDbReset :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbReset =
-  return "wasp-cli db reset --force"
+  return "$WASP_CLI_CMD db reset --force"
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDbStudio = return "wasp-cli db studio"
+waspCliDbStudio = return "$WASP_CLI_CMD db studio"
 
 waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInfo = return "wasp-cli info"
+waspCliInfo = return "$WASP_CLI_CMD info"
 
 waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDeps = return "wasp-cli deps"
+waspCliDeps = return "$WASP_CLI_CMD deps"
+
+waspCliDeploy :: [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDeploy deployArgs = return $ unwords ("$WASP_CLI_CMD deploy" : deployArgs)
 
 waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliDockerfile = return "wasp-cli dockerfile"
+waspCliDockerfile = return "$WASP_CLI_CMD dockerfile"
 
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliStudio = return "wasp-cli studio"
+waspCliStudio = return "$WASP_CLI_CMD studio"
+
+waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliInstall = return "$WASP_CLI_CMD install"
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -247,14 +262,14 @@ createSeedFile fileName content = do
   let seedDir = context.waspProjectDir </> seedsDirInWaspProjectDir
       seedFile = seedDir </> seedsFileInSeedsDir fileName
 
-  createFile seedFile content
+  writeToFile seedFile content
 
-replaceMainWaspFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
-replaceMainWaspFile content = do
+replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+replaceMainWaspTsFile content = do
   context <- ask
-  let mainWaspFile = context.waspProjectDir </> mainWaspFileInWaspProjectDir
+  let mainWaspTsFile = context.waspProjectDir </> mainWaspTsFileInWaspProjectDir
 
-  createFile mainWaspFile content
+  writeToFile mainWaspTsFile content
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
@@ -287,10 +302,26 @@ inTestWaspProjectDir waspProjectCommandBuilders = do
       ~&& foldr1 (~&&) (buildShellCommand context.waspProjectContext $ sequence waspProjectCommandBuilders)
       ~&& unwords ["cd", fromAbsDir context.testCaseDir]
 
-createTestWaspProject :: WaspNewTemplate -> ShellCommandBuilder TestContext ShellCommand
+createTestWaspProject :: StarterTemplate -> ShellCommandBuilder TestContext ShellCommand
 createTestWaspProject template = do
   context <- ask
   waspCliNew context.waspProjectContext.waspProjectName template
+
+assertCommandOutputContains ::
+  ShellCommandBuilder context ShellCommand ->
+  String ->
+  ShellCommandBuilder context ShellCommand
+assertCommandOutputContains commandBuilder marker = do
+  command <- commandBuilder
+  let logFile = ".wasp-e2e-output.log"
+      logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
+      searchMarkerInLogFile = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
+  return $ logCommandOutputToFile ~&& searchMarkerInLogFile
+  where
+    shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
+
+    escapeSingleQuote '\'' = "'\\''"
+    escapeSingleQuote c = [c]
 
 -- 'SnapshotTest' specific commands
 
@@ -303,7 +334,7 @@ data SnapshotTestContext = SnapshotTestContext
 createSnapshotWaspProjectFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspProjectFromMinimalStarter = do
   context <- ask
-  waspCliNew context.waspProjectContext.waspProjectName Minimal
+  waspCliNew context.waspProjectContext.waspProjectName minimalStarterTemplate
 
 inSnapshotWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->

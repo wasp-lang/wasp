@@ -11,10 +11,22 @@ concurrency:
 
 jobs:
   ci:
+    # We call a top-level workflow here, so it needs many permissions to do its
+    # job. The workflow itself is already checked by zizmor too, so we can
+    # safely ignore this warning here.
+    # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci.yaml
-    secrets: inherit
+    secrets:
+      # (Same comment as above)
+      # zizmor: ignore[secrets-inherit]
+      inherit
     with:
       override-npm-package-version: ${{ github.ref_name }}
+
+  # In the following jobs we don't want to pick up the CI caches, avoiding a
+  # potential cache poisoning attack that is not observable in the stored
+  # artifacts. So we exceptionally don't use our `setup-tools` actions. See
+  # https://docs.zizmor.sh/audits/#cache-poisoning for more details.
 
   create-release:
     needs: ci
@@ -34,13 +46,13 @@ jobs:
       # folders, not the folders themselves.
 
       - name: Create Github release
-        uses: ncipollo/release-action@v1
-        with:
-          draft: true
-          allowUpdates: true
-          artifacts: "./wasp-cli-*/*"
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          # Env for the `gh` CLI tool
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create --draft --verify-tag ${REF_NAME} "./wasp-cli-*/*"
 
   publish-npm:
     needs: ci
@@ -51,25 +63,35 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
         with:
-          node-version-file: .nvmrc
+          persist-credentials: false
 
       - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
-      - name: Publish Wasp npm packages
-        # Tokenless npm publishing requires npm v11.5.1+ so we request it
-        # explicitly.
-        # Read more: https://docs.npmjs.com/trusted-publishers/
+      - name: Stage Wasp npm packages for publishing
+        # Staged publishing uploads the packages to npm's staging queue instead
+        # of publishing them directly. A maintainer then has to approve them (on
+        # npmjs.com or with `npm stage approve`) before they become installable.
+        # Staged publishing requires npm v11.15.0+, so we request it explicitly.
+        # Read more:
+        # - https://docs.npmjs.com/trusted-publishers/
+        # - https://docs.npmjs.com/cli/v11/commands/npm-stage/
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           set -x # Log each command for debugging
+
+          # Per semver, a version containing a "-" character is a pre-release
+          # (e.g. v0.24.1-rc.1), which is what we match on here.
+          case "$REF_NAME" in
+            *-*) DIST_TAG="rc" ;;
+            *) DIST_TAG="latest" ;;
+          esac
+
           for pkg in ./packages/*; do
-            # The tag name has no special meaning, just avoids us
-            # broadly publishing an RC to the "latest" tag.
-            npx npm@^11.5.1 publish --tag rc "$pkg"
+            npx npm@^11.15.0 stage publish --tag "$DIST_TAG" "$pkg"
           done

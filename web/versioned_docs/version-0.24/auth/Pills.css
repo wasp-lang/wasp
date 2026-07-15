@@ -1,0 +1,9 @@
+.pills {
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.375rem;
+  color: currentColor;
+  border: 1px solid currentColor;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+}

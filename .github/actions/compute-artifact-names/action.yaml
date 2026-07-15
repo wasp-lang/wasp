@@ -15,14 +15,15 @@ runs:
     - name: Resolve build name
       id: resolve-build-name
       shell: sh
+      env:
+        INPUT_BUILD_NAME: ${{ inputs.build-name }}
       run: |
-        input='${{ inputs.build-name }}'
-
-        if [ "$input" = "all" ]; then
+        if [ "$INPUT_BUILD_NAME" = "all" ]; then
           build_name="*"
-        elif [ "$input" = "current" ]; then
+        elif [ "$INPUT_BUILD_NAME" = "current" ]; then
           case "${{ runner.os }}-${{ runner.arch }}" in
             Linux-X64)   build_name="linux-x86_64" ;;
+            Linux-ARM64) build_name="linux-aarch64" ;;
             macOS-X64)   build_name="macos-x86_64" ;;
             macOS-ARM64) build_name="macos-aarch64" ;;
             *)
@@ -31,7 +32,7 @@ runs:
               ;;
           esac
         else
-          build_name="$input"
+          build_name="$INPUT_BUILD_NAME"
         fi
 
         echo "build-name=$build_name" >> "$GITHUB_OUTPUT"
@@ -43,14 +44,17 @@ runs:
             "*",
             "linux-x86_64",
             "linux-x86_64-static",
+            "linux-aarch64",
             "macos-x86_64",
             "macos-aarch64"
           ]'),
           steps.resolve-build-name.outputs.build-name
         )
       shell: sh
+      env:
+        BUILD_NAME: ${{ steps.resolve-build-name.outputs.build-name }}
       run: |
-        echo '::error::Invalid build name provided: ${{ steps.resolve-build-name.outputs.build-name }}.'
+        echo "::error::Invalid build name provided: $BUILD_NAME."
         exit 1
 
     - name: Set artifact names
@@ -66,12 +70,15 @@ runs:
       id: set-npm-target
       if: steps.resolve-build-name.outputs.build-name != '*'
       shell: sh
+      env:
+        BUILD_NAME: ${{ steps.resolve-build-name.outputs.build-name }}
       run: |
-        case '${{ steps.resolve-build-name.outputs.build-name }}' in
-          linux-x86_64)        npm_target='{"os":"linux","cpu":"x64","libc":"glibc"}' ;;
-          linux-x86_64-static) npm_target='{"os":"linux","cpu":"x64","libc":"musl"}' ;;
-          macos-x86_64)        npm_target='{"os":"darwin","cpu":"x64"}' ;;
-          macos-aarch64)       npm_target='{"os":"darwin","cpu":"arm64"}' ;;
+        case "$BUILD_NAME" in
+          linux-x86_64)         npm_target='{"os":"linux","cpu":"x64","libc":"glibc"}' ;;
+          linux-x86_64-static)  npm_target='{"os":"linux","cpu":"x64","libc":"musl"}' ;;
+          linux-aarch64)        npm_target='{"os":"linux","cpu":"arm64","libc":"glibc"}' ;;
+          macos-x86_64)         npm_target='{"os":"darwin","cpu":"x64"}' ;;
+          macos-aarch64)        npm_target='{"os":"darwin","cpu":"arm64"}' ;;
         esac
         echo "npm-target=$npm_target" >>"$GITHUB_OUTPUT"
 

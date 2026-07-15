@@ -1,10 +1,11 @@
 {{={= =}=}}
 import * as z from "zod"
 
-import { ensureEnvSchema } from "../env/validation.js"
-import { FromRegistry } from "../types/index.js";
+import { ensureEnvSchema } from "../env/validation"
+import { FromRegister } from "../types/register";
 
-export type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
+export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
+type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
@@ -49,6 +50,11 @@ const waspCommonServerEnvSchema = z.object({
   }),
   MAILGUN_API_URL: z.string().optional(),
   {=/ enabledEmailSenders.isMailgunProviderEnabled =}
+  {=# enabledEmailSenders.isResendProviderEnabled =}
+  RESEND_API_KEY: z.string({
+    error: getRequiredEnvVarErrorMessage('Resend email sender', 'RESEND_API_KEY'),
+  }),
+  {=/ enabledEmailSenders.isResendProviderEnabled =}
   {=/ isEmailSenderEnabled =}
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {
@@ -175,15 +181,15 @@ const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
   z.object({...waspCommonServerEnvSchema.shape, ...waspProdServerEnvSchema.shape}),
 ]);
 
-type ServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+type CompleteServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
 
-const serverEnvSchema: ServerEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
+const serverEnvSchema: CompleteServerEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
 const defaultNodeEnvValue = waspDevServerEnvSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
 
 // PUBLIC API
-export const env: z.infer<ServerEnvSchema> = ensureEnvSchema(
+export const env: z.infer<CompleteServerEnvSchema> = ensureEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,

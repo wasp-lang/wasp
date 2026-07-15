@@ -1,14 +1,14 @@
 {{={= =}=}}
-import { api, handleApiError } from 'wasp/client/api';
+import { api, handleApiError } from '../../../api/index.js';
 import { SuccessResponseSchema } from '../../responseSchemas';
-{=# hasEmailUserSignupFields =}
+{=# isEmailUserSignupFieldsDefined =}
 import { type UserEmailSignupFields } from '../../providers'
-{=/ hasEmailUserSignupFields =}
+{=/ isEmailUserSignupFieldsDefined =}
 
 type EmailSignupData = {
   email: string
   password: string
-}{=# hasEmailUserSignupFields =} & UserEmailSignupFields{=/ hasEmailUserSignupFields =}
+}{=# isEmailUserSignupFieldsDefined =} & UserEmailSignupFields{=/ isEmailUserSignupFieldsDefined =}
 
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {
