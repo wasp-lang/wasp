@@ -150,6 +150,8 @@ printUsage =
         cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom Docker image or Docker volume mount path.",
+              "                          Set WASP_DEV_DB_PORT to use a port other than the default 5432.",
+              "                          Use the same value when running 'wasp start'.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -170,7 +172,7 @@ printUsage =
               "  wasp new MyApp",
               "  wasp start",
               "  wasp db migrate-dev",
-              "",
+              "  WASP_DEV_DB_PORT=8080 wasp start",
         Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
         Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
@@ -218,7 +220,8 @@ printDbUsage =
               "  start [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
               "                               Starts managed development database for you.",
-              "                               Optionally specify a custom Docker image or Docker volume mount path."
+              "                               Optionally specify a custom Docker image or Docker volume mount path.",
+              "                               Set WASP_DEV_DB_PORT to use a port other than the default 5432."
         ],
         cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
@@ -239,7 +242,8 @@ printDbUsage =
               "  wasp db migrate-dev",
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
-              "  wasp db studio"
+              "  wasp db studio",
+              "  WASP_DEV_DB_PORT=8080 wasp start db"
       ]
 {- ORMOLU_ENABLE -}
 
