@@ -19,7 +19,7 @@ The generated server bundles direct app dependencies that declare `wasp` as a pe
 This makes a full-stack module's server entry points and `wasp/*` imports part of the same Rollup graph as the host runtime:
 
 ```text
-@kitchen-sink/module/moduleJobServer  bundled
+@kitchen-sink/module/moduleApiServer  bundled
 wasp/server/jobs                      bundled once
 quote-lib                             external
 pg-boss                               external

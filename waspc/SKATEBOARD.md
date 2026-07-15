@@ -6,6 +6,7 @@
 - The default client-route option is `prefix`.
 - Invariant: spec files (`*.wasp.ts`) are a Wasp dialect. `wasp module build` compiles module specs to JavaScript before publication; host apps never consume package-resident Wasp source.
 - `examples/module` is the current skateboard module package: `@kitchen-sink/module`. Kitchen Sink imports it from `@kitchen-sink/module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
+- The demo module exercises all 8 module-usable declaration kinds: route, page, query, action, crud, api, apiNamespace, and job.
 
 ## Module SDK Shim
 
@@ -24,6 +25,9 @@
 - Source code lives under `tsconfig.src.json`; `tsconfig.json` is an app-style solution file referencing both.
 - Source build entries are discovered from `src/**/*.ts` and `src/**/*.tsx`, excluding `.d.ts`. Entry names preserve package subpaths, e.g. `src/queries.ts` -> `dist/queries.js` -> `@pkg/queries`.
 - Source build externalizes `react`, `react/jsx-runtime`, and all `wasp/*` imports.
+- Relative CSS imports (`import "./X.css"`) pass through the source build: the specifier stays verbatim in the compiled JavaScript and the imported CSS file is copied into `dist/` mirroring its `src/` path. The host bundler handles the rest.
+- Imported CSS files must exist and resolve inside `src/`; the build fails otherwise. Bare/package CSS imports remain a hard build error. Unimported CSS files are not copied.
+- The demo module ships `MainPage.css` this way, imported from `MainPage.tsx`.
 - There is no module build watch mode.
 
 ## Host App Integration
@@ -66,8 +70,13 @@
 ## Known Limitations
 
 - Only `wasp/server/operations` is typed in the shim. All other `wasp/*` imports are `any` via the ambient wildcard.
+- Module refs are static exports, so referenced behavior (e.g. middleware) cannot be parameterized by `options`. Only plain-data declaration values, such as the apiNamespace path, can derive from `options`.
 - Module host app contracts are structural and local to the module. There is no generated type that proves the host app actually provides the expected Prisma model shape.
 - npm aliases for module packages are not supported because compiled logical origins carry the canonical `package.json` name used in generated imports.
+- Module CSS imports are client-only. A CSS import reachable from a module server entry fails the generated server bundle (Rollup parse error), since FSM packages are bundled into server.js.
+- Module CSS lands in the host's global cascade. Convention: namespace class names with a module prefix and wrap the stylesheet in a named `@layer` so unlayered host CSS wins.
+- Modules must not precompile their own Tailwind CSS. Tailwind-styled modules compile in the host's Tailwind pass; the host opts in with `@source "../node_modules/<pkg>/dist"`.
+- No CSS Modules. The shim's `declare module "*.css";` types all CSS imports as `any`; there is no class-map typing.
 
 ## Verification Commands
 

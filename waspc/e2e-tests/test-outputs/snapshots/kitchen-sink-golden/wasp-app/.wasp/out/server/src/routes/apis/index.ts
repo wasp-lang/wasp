@@ -7,6 +7,7 @@ import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 
 import { barNamespaceMiddlewareFn as _waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from '../../../../../../src/features/streaming/api'
+import { moduleApiNamespaceMiddlewareFn as _waspmoduleApiNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from '@kitchen-sink/module/apiNamespaceMiddleware'
 
 import { fooBar as _waspfooBarfn } from '../../../../../../src/features/apis/apis'
 import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
@@ -14,18 +15,21 @@ import { barBaz as _waspbarBazfn } from '../../../../../../src/features/apis/api
 import { webhookCallback as _waspwebhookCallbackfn } from '../../../../../../src/features/apis/apis'
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { streamingText as _waspstreamingTextfn } from '../../../../../../src/features/streaming/api'
-import { startModuleJob as _waspstartModuleJobfn } from '@kitchen-sink/module/moduleJobServer'
+import { handleModulePing as _wasphandleModulePingfn } from '@kitchen-sink/module/moduleApiServer'
+import { startModuleJob as _waspstartModuleJobfn } from '@kitchen-sink/module/moduleApiServer'
 
 const idFn: MiddlewareConfigFn = x => x
 
 const _waspbarBazmiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
+const _wasphandleModulePingmiddlewareConfigFn = idFn
 const _waspstartModuleJobmiddlewareConfigFn = idFn
 
 const router = express.Router()
 
 router.use('/bar', globalMiddlewareConfigForExpress(_waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn))
 router.use('/api/streaming-test', globalMiddlewareConfigForExpress(_waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn))
+router.use('/fsm/api', globalMiddlewareConfigForExpress(_waspmoduleApiNamespaceMiddlewareFnnamespaceMiddlewareConfigFn))
 
 const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareConfigFn)
 router.all(
@@ -96,6 +100,23 @@ router.get(
         },
       }
       return _waspstreamingTextfn(req, res, context)
+    }
+  )
+)
+const handleModulePingMiddleware = globalMiddlewareConfigForExpress(_wasphandleModulePingmiddlewareConfigFn)
+router.get(
+  '/fsm/api/ping',
+  handleModulePingMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _wasphandleModulePingfn>[0],
+      res: Parameters<typeof _wasphandleModulePingfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _wasphandleModulePingfn(req, res, context)
     }
   )
 )
