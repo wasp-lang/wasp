@@ -48,15 +48,13 @@ getAliasedJsImportStmtAndIdentifier ::
 getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToExtCodeDir =
   JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToExtCodeDir
 
--- NOTE: We have to cast dir because the 'GJI' expects path to the `sdk/wasp/src` dir.
 extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ castDir waspProjectSrcDirFromServerSrcDir
+extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ waspProjectSrcDirFromServerSrcDir
   where
-    -- NOTE: Instead of generating the `src` folder with the user's code and
-    -- referencing that, we reference user code directly. This gives us proper
+    -- NOTE: We reference user code directly. This gives us proper we reference user code directly. This gives us proper
     -- error messages (with user's file names and line numbers). It works great
     -- with Vite (Vite outputs absolute file paths), but less great on the
     -- server (TS outputs relative paths, resulting in ../../src/something).

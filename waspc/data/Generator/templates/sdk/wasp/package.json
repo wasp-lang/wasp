@@ -37,7 +37,6 @@
     "./auth/jwt": "./dist/auth/jwt.js",
     {=!  Used by user, documented. =}
     "./auth/validation": "./dist/auth/validation.js",
-    "./src/*": "./dist/src/*.js",
     {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
     "./server/utils": "./dist/server/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -111,9 +110,6 @@
     }
   },
   "license": "ISC",
-  "include": [
-    "src/**/*"
-  ],
   {=& depsChunk =},
   {=& devDepsChunk =},
   {=& peerDepsChunk =}
