@@ -13,6 +13,7 @@ import { parseAst } from "rolldown/parseAst";
 import type { ESTree as t } from "rolldown/utils";
 import { build } from "tsdown";
 import ts from "typescript";
+import { cssPassthroughPlugin } from "./cssPassthroughPlugin.js";
 
 type PackageJson = {
   name?: unknown;
@@ -79,6 +80,12 @@ export async function buildModule(moduleDir: string): Promise<void> {
       // The root tsconfig.json is a solution file with references, which the
       // dts plugin can't consume. Source code compiles under tsconfig.src.json.
       tsconfig: "tsconfig.src.json",
+      plugins: [
+        cssPassthroughPlugin({
+          sourceDir: path.join(moduleDir, "src"),
+          outDir: path.join(moduleDir, "dist"),
+        }),
+      ],
       deps: {
         neverBundle: ["react", "react/jsx-runtime", /^wasp\//],
       },

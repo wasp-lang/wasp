@@ -130,6 +130,81 @@ test("compiled refs carry package-relative logical origins", async () => {
   }
 });
 
+test("relative CSS imports stay verbatim and imported CSS files copy to dist", async () => {
+  const moduleDir = scaffoldModule();
+  mkdirSync(path.join(moduleDir, "src", "sub"), { recursive: true });
+  writeFileSync(
+    path.join(moduleDir, "src", "Widget.tsx"),
+    ['import "./Widget.css";', 'export const widget = "widget";', ""].join(
+      "\n",
+    ),
+  );
+  writeFileSync(path.join(moduleDir, "src", "Widget.css"), ".widget {}\n");
+  writeFileSync(
+    path.join(moduleDir, "src", "sub", "Deep.tsx"),
+    ['import "./Deep.css";', 'export const deep = "deep";', ""].join("\n"),
+  );
+  writeFileSync(path.join(moduleDir, "src", "sub", "Deep.css"), ".deep {}\n");
+  writeFileSync(path.join(moduleDir, "src", "unused.css"), ".unused {}\n");
+
+  try {
+    await buildModule(moduleDir);
+
+    expect(
+      readFileSync(path.join(moduleDir, "dist", "Widget.js"), "utf8"),
+    ).toContain('import "./Widget.css";');
+    expect(
+      readFileSync(path.join(moduleDir, "dist", "Widget.css"), "utf8"),
+    ).toBe(".widget {}\n");
+    expect(
+      readFileSync(path.join(moduleDir, "dist", "sub", "Deep.js"), "utf8"),
+    ).toContain('import "./Deep.css";');
+    expect(
+      readFileSync(path.join(moduleDir, "dist", "sub", "Deep.css"), "utf8"),
+    ).toBe(".deep {}\n");
+    expect(existsSync(path.join(moduleDir, "dist", "unused.css"))).toBe(false);
+  } finally {
+    rmSync(moduleDir, { recursive: true, force: true });
+  }
+});
+
+test("rejects CSS imports that resolve outside src/", async () => {
+  const moduleDir = scaffoldModule();
+  mkdirSync(path.join(moduleDir, "src"));
+  writeFileSync(
+    path.join(moduleDir, "src", "Widget.tsx"),
+    ['import "../outside.css";', 'export const widget = "widget";', ""].join(
+      "\n",
+    ),
+  );
+  writeFileSync(path.join(moduleDir, "outside.css"), ".outside {}\n");
+
+  try {
+    await expect(buildModule(moduleDir)).rejects.toThrow(
+      /Module CSS files must live inside src\//,
+    );
+  } finally {
+    rmSync(moduleDir, { recursive: true, force: true });
+  }
+});
+
+test("rejects CSS imports of files that do not exist", async () => {
+  const moduleDir = scaffoldModule();
+  mkdirSync(path.join(moduleDir, "src"));
+  writeFileSync(
+    path.join(moduleDir, "src", "Widget.tsx"),
+    ['import "./Missing.css";', 'export const widget = "widget";', ""].join(
+      "\n",
+    ),
+  );
+
+  try {
+    await expect(buildModule(moduleDir)).rejects.toThrow(/does not exist/);
+  } finally {
+    rmSync(moduleDir, { recursive: true, force: true });
+  }
+});
+
 function scaffoldModule(): string {
   const moduleDir = mkdtempSync(
     path.join(tmpdir(), "wasp-module-builder-test-"),
