@@ -1,0 +1,177 @@
+@layer kitchen-sink-module {
+  :root {
+    --fsm-module-color-accent: #047857;
+    --fsm-module-color-accent-strong: #065f46;
+    --fsm-module-color-accent-soft: #a7f3d0;
+    --fsm-module-color-accent-faint: #ecfdf5;
+    --fsm-module-color-accent-contrast: #fff;
+    --fsm-module-color-muted: #666;
+    --fsm-module-color-done: #999;
+    --fsm-module-color-error: #c0392b;
+    --fsm-module-color-border-light: #eee;
+    --fsm-module-font-size-small: 0.875rem;
+    --fsm-module-font-size-control: 0.8rem;
+    --fsm-module-radius-pill: 999px;
+    --fsm-module-content-width: 36rem;
+    --fsm-module-shadow-card:
+      0 0 0 1px rgb(0 0 0 / 0.07), 0 1px 2px rgb(0 0 0 / 0.05),
+      0 2px 8px rgb(0 0 0 / 0.04);
+  }
+
+  .fsm-module-page {
+    padding: 3rem;
+    font-family: system-ui, sans-serif;
+  }
+
+  .fsm-module-page > h1 {
+    margin: 0.5rem 0;
+  }
+
+  .fsm-module-intro {
+    max-width: var(--fsm-module-content-width);
+    color: var(--fsm-module-color-muted);
+    line-height: 1.5;
+  }
+
+  .fsm-module-declaration-tag {
+    margin: 0;
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.375rem;
+    background: var(--fsm-module-color-accent-faint);
+    color: var(--fsm-module-color-accent);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* Card radius = todo-list radius (0.5rem) + card padding (1rem). */
+  .fsm-module-section {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 1.5rem;
+    box-shadow: var(--fsm-module-shadow-card);
+    max-width: var(--fsm-module-content-width);
+  }
+
+  .fsm-module-section:first-of-type {
+    margin-top: 2rem;
+  }
+
+  .fsm-module-section h2 {
+    margin: 0.25rem 0;
+  }
+
+  .fsm-module-section-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .fsm-module-section-copy {
+    margin: 0.25rem 0 0;
+    color: var(--fsm-module-color-muted);
+    font-size: var(--fsm-module-font-size-small);
+    line-height: 1.5;
+  }
+
+  .fsm-module-primary-button {
+    border: 0;
+    border-radius: var(--fsm-module-radius-pill);
+    padding: 0.7rem 1rem;
+    background: var(--fsm-module-color-accent);
+    color: var(--fsm-module-color-accent-contrast);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .fsm-module-primary-button:hover:not(:disabled) {
+    background: var(--fsm-module-color-accent-strong);
+  }
+
+  .fsm-module-primary-button:disabled {
+    cursor: not-allowed;
+  }
+
+  .fsm-module-section > .fsm-module-primary-button {
+    margin-top: 0.75rem;
+  }
+
+  .fsm-module-small-button {
+    position: relative;
+    border: 1px solid var(--fsm-module-color-accent-soft);
+    border-radius: var(--fsm-module-radius-pill);
+    padding: 0.25rem 0.75rem;
+    background: var(--fsm-module-color-accent-contrast);
+    color: var(--fsm-module-color-accent);
+    font-size: var(--fsm-module-font-size-control);
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Grows the hit area toward 40px; stays inside the 0.75rem row gap so
+     adjacent buttons' hit areas never overlap. */
+  .fsm-module-small-button::after {
+    content: "";
+    position: absolute;
+    inset: -7px -6px;
+  }
+
+  .fsm-module-small-button:hover {
+    background: var(--fsm-module-color-accent-faint);
+  }
+
+  .fsm-module-small-button:active {
+    scale: 0.96;
+  }
+
+  .fsm-module-todo-list {
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--fsm-module-color-border-light);
+    border-radius: 0.5rem;
+  }
+
+  .fsm-module-todo-list li + li {
+    border-top: 1px solid var(--fsm-module-color-border-light);
+  }
+
+  .fsm-module-todo-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: var(--fsm-module-font-size-small);
+  }
+
+  .fsm-module-todo-row-empty {
+    color: var(--fsm-module-color-muted);
+  }
+
+  .fsm-module-todo-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .fsm-module-todo-row[data-done="true"] .fsm-module-todo-text {
+    text-decoration: line-through;
+    color: var(--fsm-module-color-done);
+  }
+
+  .fsm-module-result-text {
+    margin: 0.75rem 0 0;
+    font-size: var(--fsm-module-font-size-small);
+  }
+
+  .fsm-module-error-text {
+    color: var(--fsm-module-color-error);
+    font-size: var(--fsm-module-font-size-small);
+  }
+}

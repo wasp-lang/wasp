@@ -543,7 +543,14 @@
             "file",
             "sdk/wasp/client/crud/index.ts"
         ],
-        "ca3b06b6c04c38c69523f435f6a15e9984414b440648708ea7227cd619b2f918"
+        "daf5b9b7a1aeea8d7474d6dfc9814a818b52b74cd76e4a329297d03c2a7c8e5f"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/crud/moduleTodos.ts"
+        ],
+        "ff7ad13982391f56b70dc3d0e636ca444dac310f94ffb184638f4a5bfb05565e"
     ],
     [
         [
@@ -935,7 +942,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "38d7a2b4523f8a99272b5a475ed938b15120bf8084ea577912c9da5725524bb3"
+        "1dfcd82a517768da47b4b74b1d5fa1a2b24fd9e339249750ba74948651ce5c51"
     ],
     [
         [
@@ -1047,7 +1054,14 @@
             "file",
             "sdk/wasp/server/crud/index.ts"
         ],
-        "7dda71528ee183839082ecfad97fb862b4ec2bced1d6539bec2d166387051442"
+        "1f1076ab609c6d37de4b2e45fe469b2742fadca78924beed6e3894e054dbe904"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/crud/moduleTodos.ts"
+        ],
+        "0e3a897466dcb2f0eb12e944183c12bb73f165a8e75cc264dab29bc2c90cb352"
     ],
     [
         [
@@ -1747,7 +1761,7 @@
             "file",
             "sdk/wasp/src/pages/FullStackModuleApiPage.tsx"
         ],
-        "ad27d470c9143cb6eea5a916fb777859eabff6f30864b43e22b21cec8c566bed"
+        "7252a8807fb7312d63d192aa5f7ccf33933a9d9e8b550926fb2446c8a2d52dad"
     ],
     [
         [
@@ -2200,6 +2214,13 @@
     [
         [
             "file",
+            "server/src/crud/moduleTodos.ts"
+        ],
+        "93de810961b57b56bfaee64f21c7597ff7971104b41410b3f1a6789c68182990"
+    ],
+    [
+        [
+            "file",
             "server/src/crud/tasks.ts"
         ],
         "ec3743598066198bc985071ef867d97c03ea2e8957e98f96320fab7821f1a293"
@@ -2223,7 +2244,7 @@
             "file",
             "server/src/jobs/moduleJob.ts"
         ],
-        "cdaca1b24f582a2b3e059f8519e55c31cec05a76f6c2cefc5391cece099e0ca7"
+        "783f898117633446e5d861b5f202908ccf5c5a992e8e998a84bbd33ef6c5dc00"
     ],
     [
         [
@@ -2363,7 +2384,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "db41fd92d445e46b1c1c31efedffc995b5f65dc2425ef23c207167303dfaa77f"
+        "3687e6d14af05373b300256de1bca12a271199207331ab6bccd5095d144710b2"
     ],
     [
         [
@@ -2391,7 +2412,14 @@
             "file",
             "server/src/routes/crud/index.ts"
         ],
-        "b66ff949dbdaa892a354f3a60dc59ce229323ef55fad38239f8b335ec1e71b8d"
+        "6aa27f2482d2dc0ed4c2c0f89863303e08c227a1da7f6acbb86ee4a133f9e362"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/crud/moduleTodos.ts"
+        ],
+        "564b7fe0394287ce17ebf13f89bfba92ac2bc8540a194b18e8b10f3882ad9fbf"
     ],
     [
         [

@@ -1,9 +1,30 @@
 import { config } from "wasp/client";
 import {
   getModuleJobApiPath,
+  getModulePingApiPath,
+  MODULE_API_HEADER_NAME,
   type ModuleJobResponse,
   type ModuleJobSource,
-} from "./moduleJobContract";
+} from "./moduleApiContract";
+
+export type ModulePingResult = {
+  moduleApiHeader: string | null;
+};
+
+export async function pingModuleApi(
+  modulePrefix: string = getCurrentPathname(),
+): Promise<ModulePingResult> {
+  const url = new URL(getModulePingApiPath(modulePrefix), config.apiUrl);
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Module ping API returned ${response.status}.`);
+  }
+
+  return {
+    moduleApiHeader: response.headers.get(MODULE_API_HEADER_NAME),
+  };
+}
 
 export async function requestModuleJob(
   source: ModuleJobSource,
@@ -21,7 +42,7 @@ export async function requestModuleJob(
   return (await response.json()) as ModuleJobResponse;
 }
 
-function getCurrentPathname(): string {
+export function getCurrentPathname(): string {
   return (
     globalThis as unknown as {
       location: { pathname: string };

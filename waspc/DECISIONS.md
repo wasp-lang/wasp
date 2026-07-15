@@ -52,6 +52,18 @@ Full-stack modules are npm packages that contribute declarations to a host app t
   - ❌ Default symlinked `file:../module`: the server bundle inlines module code but cannot resolve its bare dependency imports.
 - ✅ Refresh the fixture by building and packing, updating lockfile `integrity`, removing the installed module, and running `wasp install`.
 
+## Styling
+
+- ✅ Modules ship component styles as plain CSS files side-effect-imported from source (`import "./X.css"`). The builder keeps relative CSS imports verbatim in compiled JavaScript and copies imported CSS files into `dist/` mirroring `src/` paths; host Vite code-splits them per chunk (verified in dev prebundling and prod build).
+  - ❌ `@tsdown/css` single-bundle output: it strips CSS imports from emitted JS, breaking self-styling components, and forces a tsdown >= 0.22 upgrade.
+  - ❌ Runtime CSS-in-JS: ecosystem in decline (styled-components is in maintenance mode), singleton/dedupe hazards in the host.
+- ✅ The module shim declares `declare module "*.css";` so CSS side-effect imports typecheck. CSS Modules (typed class maps) are out of scope for the skateboard.
+- ✅ CSS imports are client-only. A CSS import reachable from a module server entry fails the generated server bundle (Rollup parse error), since FSM packages are bundled into server.js.
+- ✅ Module CSS is global in the host cascade. Convention: namespace class names with a module prefix and wrap the stylesheet in a named `@layer` so unlayered host CSS wins.
+- ✅ Tailwind-styled modules compile in the host's Tailwind pass: the host opts in with `@source "../node_modules/<pkg>/dist"` (verified: the oxide scanner extracts static class strings from compiled dist). Modules must not precompile their own Tailwind CSS (duplicate utilities/preflight).
+- ✅ Only CSS files actually imported by module source ship in dist; unimported CSS files are ignored.
+- ✅ CSS imports are only supported from TypeScript sources. A CSS import inside a `src/**/*.js` file compiles into its importer's chunk, where the verbatim relative specifier no longer resolves.
+
 ## CLI
 
 - ✅ `wasp module new <name>`, `wasp module install`, and `wasp module build` operate relative to the current directory.

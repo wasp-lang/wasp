@@ -1,5 +1,9 @@
 import * as jobs from "wasp/server/jobs";
-import type { ModuleJobRequest, ModuleJobResponse } from "./moduleJobContract";
+import type {
+  ModuleJobRequest,
+  ModuleJobResponse,
+  ModulePingResponse,
+} from "./moduleApiContract";
 
 type ApiRequest = {
   query: Partial<Record<keyof ModuleJobRequest, string>>;
@@ -9,6 +13,14 @@ type ApiResponse<Body> = {
   status(statusCode: number): ApiResponse<Body>;
   json(body: Body): void;
 };
+
+export function handleModulePing(
+  _req: unknown,
+  res: ApiResponse<ModulePingResponse>,
+  _context: unknown,
+): void {
+  res.status(200).json({ ok: true });
+}
 
 export async function startModuleJob(
   req: ApiRequest,

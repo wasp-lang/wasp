@@ -95,6 +95,7 @@ wasp-app/.wasp/out/sdk/wasp/client/auth/slack.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/ui.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
 wasp-app/.wasp/out/sdk/wasp/client/crud/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/crud/moduleTodos.ts
 wasp-app/.wasp/out/sdk/wasp/client/crud/operationsHelpers.ts
 wasp-app/.wasp/out/sdk/wasp/client/crud/tasks.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
@@ -404,6 +405,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/crud/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/crud/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/crud/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/crud/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/crud/moduleTodos.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/crud/moduleTodos.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/crud/moduleTodos.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/crud/moduleTodos.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/crud/operationsHelpers.js
@@ -675,6 +680,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/crud/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/crud/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/crud/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/crud/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/crud/moduleTodos.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/crud/moduleTodos.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/crud/moduleTodos.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/crud/moduleTodos.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/crud/tasks.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/crud/tasks.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/crud/tasks.js
@@ -1111,6 +1120,7 @@ wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/redirect.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/user.ts
 wasp-app/.wasp/out/sdk/wasp/server/config.ts
 wasp-app/.wasp/out/sdk/wasp/server/crud/index.ts
+wasp-app/.wasp/out/sdk/wasp/server/crud/moduleTodos.ts
 wasp-app/.wasp/out/sdk/wasp/server/crud/tasks.ts
 wasp-app/.wasp/out/sdk/wasp/server/dbClient.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/core/helpers.ts
@@ -1275,6 +1285,7 @@ wasp-app/.wasp/out/server/src/auth/providers/oauth/oneTimeCode.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/state.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/types.ts
 wasp-app/.wasp/out/server/src/auth/providers/oauth/user.ts
+wasp-app/.wasp/out/server/src/crud/moduleTodos.ts
 wasp-app/.wasp/out/server/src/crud/tasks.ts
 wasp-app/.wasp/out/server/src/dbSeed.ts
 wasp-app/.wasp/out/server/src/jobs/core/allJobs.ts
@@ -1303,6 +1314,7 @@ wasp-app/.wasp/out/server/src/routes/auth/index.js
 wasp-app/.wasp/out/server/src/routes/auth/logout.ts
 wasp-app/.wasp/out/server/src/routes/auth/me.ts
 wasp-app/.wasp/out/server/src/routes/crud/index.ts
+wasp-app/.wasp/out/server/src/routes/crud/moduleTodos.ts
 wasp-app/.wasp/out/server/src/routes/crud/tasks.ts
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/addRandomTodo.js
