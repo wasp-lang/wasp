@@ -12,8 +12,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { buildModule } from "../src/index.js";
+
+// Each test scaffolds a module and runs real npm installs and tsdown builds,
+// which exceed the default 5s timeout on slower CI runners.
+vi.setConfig({ testTimeout: 60_000 });
 
 test("a source-free build removes stale output and emits the compiled spec", async () => {
   const moduleDir = scaffoldModule();
