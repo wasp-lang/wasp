@@ -1,19 +1,21 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TupleSections #-}
 
 module Wasp.AppSpec.Crud
   ( Crud (..),
     CrudOperations (..),
     CrudOperation (..),
     CrudOperationOptions (..),
+    toOperationList,
   )
 where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
-import Data.Maybe (isJust)
+import Data.Maybe (catMaybes, isJust)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -37,18 +39,11 @@ instance Inspectable Crud where
     ]
     where
       showEnabledOperations ops =
-        [ (operationName, showOperation $ getOptions ops)
-        | (operationName, getOptions) <-
-            [ ("get", get),
-              ("getAll", getAll),
-              ("create", create),
-              ("update", update),
-              ("delete", delete)
-            ]
+        [ (show operationName, showOperation operationOptions)
+        | (operationName, operationOptions) <- toOperationList ops
         ]
 
-      showOperation Nothing = "Disabled"
-      showOperation (Just options) =
+      showOperation options =
         unwords
           [ "Enabled",
             wrapInParens $
@@ -76,4 +71,17 @@ data CrudOperationOptions = CrudOperationOptions
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data CrudOperation = Get | GetAll | Create | Update | Delete
-  deriving (Show, Eq, Ord, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Ord, Data, Generic, FromJSON, ToJSON, Enum, Bounded)
+
+toOperationList :: CrudOperations -> [(CrudOperation, CrudOperationOptions)]
+toOperationList ops =
+  catMaybes
+    [ fmap (operation,) (optionsForOperation operation ops)
+    | operation <- [minBound ..] :: [CrudOperation]
+    ]
+  where
+    optionsForOperation Get = get
+    optionsForOperation GetAll = getAll
+    optionsForOperation Create = create
+    optionsForOperation Update = update
+    optionsForOperation Delete = delete
