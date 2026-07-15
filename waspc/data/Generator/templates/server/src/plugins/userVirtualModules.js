@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /**
- * Maps user virtual module IDs to their relative import paths from
- * the server project root.
+ * Maps virtual module IDs (pointing to user's server files)
+ * to their relative import paths from the server project root.
  * 
  * @example 
  * serverUserVirtualModuleMap["virtual:wasp/user/server-env-schema"] // => "../../../src/env"

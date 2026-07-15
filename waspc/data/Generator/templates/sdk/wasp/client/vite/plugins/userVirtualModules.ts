@@ -3,8 +3,8 @@ import path from "node:path";
 import { type Plugin } from "vite";
 
 /**
- * Maps user virtual module IDs to their relative import paths from
- * the client project root.
+ * Maps virtual module IDs (pointing to user's client files)
+ * to their relative import paths from the client project root.
  * 
  * @example
  * clientUserVirtualModuleMap["virtual:wasp/user/client-env-schema"] // => "./src/env"
