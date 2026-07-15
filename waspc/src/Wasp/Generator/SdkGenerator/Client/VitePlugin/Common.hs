@@ -11,6 +11,7 @@ where
 
 import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, relfileP, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.WebAppGenerator (WebAppViteBuildDir)
 
 data VirtualFilesDir
 
@@ -33,5 +34,5 @@ routesEntryPointVMId = [relfileP|virtual:wasp/routes.tsx|]
 ssrEntryPointVMId :: VirtualModuleId
 ssrEntryPointVMId = [relfileP|virtual:wasp/ssr-entry.tsx|]
 
-spaFallbackFile :: Path Posix (Rel Dir') File'
+spaFallbackFile :: Path Posix (Rel WebAppViteBuildDir) File'
 spaFallbackFile = [relfileP|200.html|]
