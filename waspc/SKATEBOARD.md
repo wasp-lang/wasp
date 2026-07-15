@@ -45,6 +45,8 @@
 - Symlinked installs (`file:../module`) break at runtime: the generated server bundle follows symlinks and inlines module code, leaving module dependencies as bare imports (e.g. `quote-lib`) that Node then resolves from the host `node_modules`, where npm never installed them (`ERR_MODULE_NOT_FOUND`).
 - Packing the module (`npm pack`) and installing the tarball fixes this: npm installs the module's dependency graph into the host. Kitchen Sink depends on `file:../module/kitchen-sink-module-0.0.1.tgz` to model published-package behavior without a registry.
 - npm treats `name@version` tarballs as immutable: `package-lock.json` pins the tarball's `integrity` hash and npm never re-reads changed bytes at the same version and path. A warm npm cache silently installs the stale cached content; a cold cache (CI, e2e) fails with `EINTEGRITY`.
+- npm reports a missing `file:` tarball as "tarball data ... seems to be corrupted. Trying again." before the ENOENT error; the warning does not imply integrity drift.
+- Because modules peer-depend on `wasp`, npm reaches the SDK and its `file:` lib tarball dependencies during plain `wasp install` on a fresh clone, before any compilation. The CLI copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
 - After changing module source, refresh Kitchen Sink like this (from `examples/module/`):
 
   ```sh

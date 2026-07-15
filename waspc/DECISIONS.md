@@ -43,7 +43,9 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 
 - ✅ Generated packages use local `file:.wasp/...` dev dependencies for `@wasp.sh/spec` and the `wasp` shim. `wasp module install` refreshes both and runs `npm install` without rewriting `package.json`.
 - ✅ `wasp module build` validates both module tsconfigs, refreshes the shim, and requires the installed `node_modules/@wasp.sh/spec` version to exactly match the CLI version.
-- ✅ Generated modules declare required `@wasp.sh/spec` and React peers plus an optional `wasp` peer. The builder does not validate these fields.
+- ✅ Generated modules declare required `@wasp.sh/spec`, React, and `wasp` peers. The builder does not validate these fields.
+  - ❌ Optional `wasp` peer (`peerDependenciesMeta`): shipped initially, replaced with an explicit hard requirement.
+- ✅ npm auto-installs the required `wasp` peer, reaching the SDK's `file:` lib tarballs before first compilation, so `wasp install` copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
 
 ## Packaging
 

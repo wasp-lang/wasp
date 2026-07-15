@@ -23,8 +23,9 @@ import qualified System.Process as P
 import Validation (Validation (..))
 import qualified Wasp.Data as Data
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
+import Wasp.Generator.WaspLibs (ensureWaspLibsAreInGeneratedAppDir)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions, tryGettingInstalledPackageVersion)
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import Wasp.Project.ExternalConfig.SrcTsConfig (parseAndValidateModuleSrcTsConfig)
 import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
 import qualified Wasp.Util.IO as IOUtil
@@ -55,6 +56,10 @@ installModuleIO moduleDir = do
 installWaspDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installWaspDependenciesIO projectDir = do
   ensurePackageIsAtInstallationPathInProject projectDir WaspSpecPackage
+  -- Full-stack module packages peer-depend on the `wasp` SDK package, which
+  -- pulls the SDK's Wasp lib tarball dependencies into the npm install even
+  -- before the project is compiled, so the tarballs must already be on disk.
+  ensureWaspLibsAreInGeneratedAppDir $ projectDir </> generatedAppDirInWaspProjectDir
   messageChan <- newChan
   installProjectNpmDependencies messageChan projectDir
 
