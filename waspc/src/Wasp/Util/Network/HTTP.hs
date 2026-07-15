@@ -3,6 +3,7 @@ module Wasp.Util.Network.HTTP
     getHttpExceptionStatusCode,
     httpJSONThatThrowsIfNot2xx,
     checkUrlExists,
+    downloadUrlToFile,
   )
 where
 
@@ -11,9 +12,12 @@ import Control.Monad (void, when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson (FromJSON)
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as BL
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Network.HTTP.Types.Status (statusIsSuccessful)
+import StrongPath (Abs, File, Path')
+import qualified StrongPath as SP
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 
@@ -65,3 +69,8 @@ httpHeadRequest url = do
       <$> HTTP.parseRequest url
 
   HTTP.httpNoBody req
+
+-- | Throws an HttpException if status is not 2xx.
+downloadUrlToFile :: (MonadIO m) => String -> Path' Abs (File f) -> m ()
+downloadUrlToFile url destinationPath =
+  liftIO $ HTTP.C.simpleHttp url >>= BL.writeFile (SP.fromAbsFile destinationPath)
