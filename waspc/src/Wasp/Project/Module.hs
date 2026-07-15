@@ -55,20 +55,35 @@ installModuleIO moduleDir = do
 
 installWaspDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installWaspDependenciesIO projectDir = do
-  ensurePackageIsAtInstallationPathInProject projectDir WaspSpecPackage
-  -- Full-stack module packages peer-depend on the `wasp` SDK package, which
-  -- pulls the SDK's Wasp lib tarball dependencies into the npm install even
-  -- before the project is compiled, so the tarballs must already be on disk.
-  ensureWaspLibsAreInGeneratedAppDir $ projectDir </> generatedAppDirInWaspProjectDir
+  ensureWaspOwnedNpmArtifactsInProject projectDir
   messageChan <- newChan
   installProjectNpmDependencies messageChan projectDir
 
 installModuleDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installModuleDependenciesIO moduleDir = do
-  ensurePackageIsAtInstallationPathInProject moduleDir WaspSpecPackage
-  ensureWaspSdkTypeShimIO moduleDir
+  ensureWaspOwnedNpmArtifactsInModule moduleDir
   messageChan <- newChan
   installProjectNpmDependencies messageChan moduleDir
+
+-- | Materializes every Wasp-owned artifact that a project's npm install
+-- resolves from disk. The lockfile references these as @file:@ dependencies,
+-- so they must exist before npm runs, even on a fresh clone that was never
+-- compiled. Any new Wasp-owned npm artifact must be added here.
+ensureWaspOwnedNpmArtifactsInProject :: Path' Abs (Dir WaspProjectDir) -> IO ()
+ensureWaspOwnedNpmArtifactsInProject projectDir = do
+  ensurePackageIsAtInstallationPathInProject projectDir WaspSpecPackage
+  -- Module packages peer-depend on the `wasp` SDK package. npm auto-installs
+  -- required peers, so the SDK's `file:` lib tarball dependencies are resolved
+  -- during plain `wasp install`, before the first compilation.
+  ensureWaspLibsAreInGeneratedAppDir $ projectDir </> generatedAppDirInWaspProjectDir
+
+-- | Module counterpart of 'ensureWaspOwnedNpmArtifactsInProject': modules
+-- resolve the spec package and the `wasp` type shim from disk instead of the
+-- lib tarballs.
+ensureWaspOwnedNpmArtifactsInModule :: Path' Abs (Dir WaspProjectDir) -> IO ()
+ensureWaspOwnedNpmArtifactsInModule moduleDir = do
+  ensurePackageIsAtInstallationPathInProject moduleDir WaspSpecPackage
+  ensureWaspSdkTypeShimIO moduleDir
 
 buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 buildModuleIO moduleDir = do
