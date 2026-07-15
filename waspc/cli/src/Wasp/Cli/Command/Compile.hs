@@ -10,7 +10,7 @@ module Wasp.Cli.Command.Compile
     printWarningsAndErrorsIfAny,
     analyze,
     analyzeWithOptions,
-    analyzeWithWarningsOnStderr,
+    analyzeWithDiagnosticsOnStderr,
   )
 where
 
@@ -106,7 +106,7 @@ printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
   unless (null warns) $
     cliSendMessage $
-      Msg.Warning "Your wasp project reported following warnings during compilation" $
+      Msg.Warning compilationWarningsTitle $
         formatErrorOrWarningMessages warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
@@ -118,6 +118,21 @@ printErrorsIfAny errs = do
 
 formatErrorOrWarningMessages :: [String] -> String
 formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
+
+-- The titles of the compilation diagnostics are shared between the CLI (stdout,
+-- via 'cliSendMessage') and the machine-readable (stderr) sinks so their wording
+-- can't drift apart.
+
+compilationWarningsTitle :: String
+compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
+
+analysisErrorsTitle :: [CompileError] -> String
+analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
+
+-- | Prints a diagnostic (a title and its body) to stderr, keeping stdout free
+-- for machine-readable output.
+printDiagnosticToStderr :: String -> String -> IO ()
+printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
@@ -159,30 +174,23 @@ analyzeWithOptions waspProjectDir options = do
   case appSpecOrErrors of
     Left errors ->
       throwError $
-        CommandError "Analyzing wasp project failed" $
-          show (length errors) <> " errors found:\n" <> formatErrorOrWarningMessages errors
+        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:
 -- compile warnings and errors go to stderr instead ('analyze' prints
 -- everything to stdout, via 'cliSendMessage'). Exits with a failure code on
 -- compile errors, bypassing 'CommandError' for the same reason.
-analyzeWithWarningsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
-analyzeWithWarningsOnStderr waspProjectDir = do
+analyzeWithDiagnosticsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
+analyzeWithDiagnosticsOnStderr waspProjectDir = do
   (appSpecOrErrors, warnings) <-
     liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
   liftIO $
     unless (null warnings) $
-      hPutStrLn stderr $
-        "Your wasp project reported following warnings during compilation:\n"
-          <> formatErrorOrWarningMessages warnings
+      printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
   case appSpecOrErrors of
     Right spec -> return spec
     Left errors ->
       liftIO $ do
-        hPutStrLn stderr $
-          "Analyzing wasp project failed, "
-            <> show (length errors)
-            <> " errors found:\n"
-            <> formatErrorOrWarningMessages errors
+        printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
         exitFailure
