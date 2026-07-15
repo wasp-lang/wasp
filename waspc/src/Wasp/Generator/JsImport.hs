@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
     jsImportToImportJson,
@@ -21,7 +19,7 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (..),
+    JsImportPath (RelativeImportPath),
     getJsDynamicImportExpression,
     getJsImportIdentifier,
     getJsImportPathString,
