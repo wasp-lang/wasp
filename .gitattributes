@@ -1,3 +1,6 @@
+# Shell scripts must keep LF due to a Bash-on-Windows requirement.
+*.sh text eol=lf
+
 *.wasp linguist-language=JavaScript
 
 *.hs linguist-detectable=false
