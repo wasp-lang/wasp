@@ -57,10 +57,12 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
+        with:
+          haskell: true
 
       - name: Compile TS packages and libs
         run: |

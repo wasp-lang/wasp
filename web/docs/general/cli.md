@@ -34,6 +34,7 @@ COMMANDS
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
+    compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
     deploy                Deploys your Wasp app to cloud hosting providers.
@@ -121,6 +122,8 @@ $ wasp clean
 ✅ --- Deleted the node\_modules/ directory. ---------------------------------------
 
 ```
+
+- `wasp compile` compiles your Wasp project and reports any errors, without running the app. It's a quick way to check that your project is valid, which makes it especially handy in CI or for AI agents.
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
