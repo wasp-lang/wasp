@@ -51,25 +51,7 @@ export function Layout({
                    `@vitejs/plugin-react` refresh preamble (see #4258).
             */
             clientEntrySrc ? (
-              // The client entry is a Vite virtual module (e.g. `virtual:wasp/client-entry.tsx`).
-              // A `virtual:` id is a valid ES import specifier, but not a fetchable URL,
-              // so we can't use it as a raw `<script src>`: the browser would treat `virtual:`
-              // as a dead URL scheme and never load it. Instead we load it via an inline dynamic
-              // `import()`, which Vite rewrites for us: to `/@id/virtual:...` in dev and to
-              // the hashed chunk in build.
-              //
-              // We also avoid React prerender's `bootstrapModules` option, which
-              // would add a `<link rel="modulepreload">` tag that Vite doesn't
-              // handle correctly.
-              //
-              // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-              <script
-                type="module"
-                async
-                dangerouslySetInnerHTML={{
-                  __html: `import(${JSON.stringify(clientEntrySrc)})`,
-                }}
-              />
+              <script type="module" src={clientEntrySrc} />
             ) : null
           }
         </head>
