@@ -2,7 +2,6 @@
 
 module Wasp.Generator.SdkGenerator
   ( genSdk,
-    genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
   )
@@ -12,10 +11,9 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
+import Data.Maybe (isJust, maybeToList)
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import System.Exit (ExitCode (..))
-import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -23,7 +21,6 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -49,7 +46,7 @@ import Wasp.Generator.DepVersions
     superjsonVersionRange,
     typescriptVersionRange,
   )
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -312,8 +309,6 @@ genTsConfigJson = do
       )
 
 -- todo(filip): consider reorganizing/splitting the file.
-
-
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =

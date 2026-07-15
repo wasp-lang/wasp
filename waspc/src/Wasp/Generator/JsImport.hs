@@ -15,8 +15,8 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
@@ -32,7 +32,7 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::
   (GeneratedAppComponentSrcDir d) =>
-  Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
+  Path Posix (Rel d) (Dir SourceExternalCodeDir) ->
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
@@ -40,7 +40,7 @@ extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir ex
   where
     importName = extImportNameToJsImportName $ EI.name extImport
     importPath = SP.castRel $ pathFromImportLocationToSrcDir </> pathFromSrcDirToExtCodeDir </> userDefinedPathInExtSrcDir
-    userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel GeneratedExternalCodeDir) File'
+    userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel SourceExternalCodeDir) File'
 
 extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
 extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
