@@ -7,7 +7,7 @@ import {
   getPackageJson,
   runCmd,
 } from "../utils.ts";
-import { getDataPackagesDirPath } from "./utils.ts";
+import { getDataPackagesDirPath, orderPackageDirs } from "./utils.ts";
 
 try {
   buildPackages();
@@ -23,18 +23,6 @@ function buildPackages(): void {
   for (const packageDir of packageDirs) {
     buildPackage(packageDir);
   }
-}
-
-function orderPackageDirs(packageDirs: string[]): string[] {
-  // Other packages import @wasp.sh/spec from its built dist, so spec builds first.
-  const specDirs = packageDirs.filter(
-    (dir) => getPackageJson(dir).name === "@wasp.sh/spec",
-  );
-  const otherDirs = packageDirs
-    .filter((dir) => !specDirs.includes(dir))
-    .sort((a, b) => a.localeCompare(b));
-
-  return [...specDirs, ...otherDirs];
 }
 
 function buildPackage(packageDir: string): void {
