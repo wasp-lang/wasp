@@ -43,7 +43,8 @@
 ## Local Module Dependencies
 
 - Symlinked installs (`file:../module`) break at runtime: the generated server bundle follows symlinks and inlines module code, leaving module dependencies as bare imports (e.g. `quote-lib`) that Node then resolves from the host `node_modules`, where npm never installed them (`ERR_MODULE_NOT_FOUND`).
-- Packing the module (`npm pack`) and installing the tarball fixes this: npm installs the module's dependency graph into the host. Kitchen Sink depends on `file:../module/kitchen-sink-module-0.0.1.tgz` to model published-package behavior without a registry.
+- Packing the module (`npm pack`) and installing the tarball fixes this: npm installs the module's dependency graph into the host. Kitchen Sink depends on `file:src/modules/kitchen-sink-module-0.0.1.tgz` (a tarball committed inside the project) to model published-package behavior without a registry.
+- Local `file:` dependencies must live under the project's `src/` (Kitchen Sink: `src/modules/*.tgz`). `wasp build` already copies `src/` into the Docker build context and the generated Dockerfile ships it (`COPY src ./src`), so the tarball reaches the image's `npm install` with no build-pipeline changes. Paths outside `src/` are invisible to containerized builds.
 - npm treats `name@version` tarballs as immutable: `package-lock.json` pins the tarball's `integrity` hash and npm never re-reads changed bytes at the same version and path. A warm npm cache silently installs the stale cached content; a cold cache (CI, e2e) fails with `EINTEGRITY`.
 - npm reports a missing `file:` tarball as "tarball data ... seems to be corrupted. Trying again." before the ENOENT error; the warning does not imply integrity drift.
 - Because modules peer-depend on `wasp`, npm reaches the SDK and its `file:` lib tarball dependencies during plain `wasp install` on a fresh clone, before any compilation. The CLI copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
@@ -52,11 +53,12 @@
   ```sh
   ../../waspc/run wasp-cli module build
   npm run pack
+  cp kitchen-sink-module-0.0.1.tgz ../kitchen-sink/src/modules/
   cd ../kitchen-sink
   node -e '
     const fs = require("fs");
     const { createHash } = require("crypto");
-    const tarball = fs.readFileSync("../module/kitchen-sink-module-0.0.1.tgz");
+    const tarball = fs.readFileSync("src/modules/kitchen-sink-module-0.0.1.tgz");
     const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
     lock.packages["node_modules/@kitchen-sink/module"].integrity =
       "sha512-" + createHash("sha512").update(tarball).digest("base64");
