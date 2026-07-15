@@ -46,12 +46,17 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 - ✅ Generated modules declare required `@wasp.sh/spec`, React, and `wasp` peers. The builder does not validate these fields.
   - ❌ Optional `wasp` peer (`peerDependenciesMeta`): shipped initially, replaced with an explicit hard requirement.
 - ✅ npm auto-installs the required `wasp` peer, reaching the SDK's `file:` lib tarballs before first compilation, so `wasp install` copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
+  - Before modules, fresh-clone `wasp install` worked only by accident: with `.wasp/out/*` workspace globs matching nothing, npm pruned the lockfile entries for the SDK and its lib tarballs as unreachable. The `wasp` peer makes them reachable, so pruning no longer protects.
+  - Warm npm caches satisfy `file:` tarball dependencies by integrity hash, so missing tarballs stay invisible on dev machines and only surface in cold-cache environments such as CI runners.
+- ✅ Every Wasp-owned artifact that npm resolves from disk (spec package, lib tarballs, module shim) is materialized in one place per install target (`ensureWaspOwnedNpmArtifactsInProject` / `ensureWaspOwnedNpmArtifactsInModule`), so new artifact kinds have a single home.
 
 ## Packaging
 
 - ✅ Published modules contain compiled `dist/` artifacts, package metadata, and documentation. They do not contain `module.wasp.ts` or `src/`. Runtime libraries are dependencies; host-provided libraries are peers.
-- ✅ Kitchen Sink uses a checked-in tarball so the module's dependencies install into the host.
+- ✅ Kitchen Sink uses a checked-in tarball at `src/modules/` inside the project so the module's dependencies install into the host and the tarball rides the existing `COPY src ./src` into the Docker image.
   - ❌ Default symlinked `file:../module`: the server bundle inlines module code but cannot resolve its bare dependency imports.
+  - ❌ Sibling `file:../module/...` tarball: invisible to Docker's build context, so every containerized build (Fly, Railway, BUILD e2e) failed at `npm install`.
+  - ❌ `wasp build` scanning package.json for local `file:` deps and staging them into the build context: too much machinery for the skateboard.
 - ✅ Refresh the fixture by building and packing, updating lockfile `integrity`, removing the installed module, and running `wasp install`.
 
 ## Styling

@@ -1752,6 +1752,13 @@
     [
         [
             "file",
+            "sdk/wasp/src/modules/kitchen-sink-module-0.0.1.tgz"
+        ],
+        "64f0525d7fa39f562d730d0fbd0b1a159cd1cdfe2b0878705f264c087ef50bb4"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/pages/CatchAllPage.tsx"
         ],
         "6555ae077424788ded578da7610e7202deff7feace2a0e76cf700dc1900b6a55"
