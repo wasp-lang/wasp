@@ -20,9 +20,6 @@ data Field = Field
   }
   deriving (Show, Eq, Data)
 
--- | Fields are not part of the JSON wire format coming from the TS spec
--- (entities are built from the Prisma schema), so this shape exists only for
--- output (e.g. `wasp inspect --json`).
 instance ToJSON Field where
   toJSON field =
     object
