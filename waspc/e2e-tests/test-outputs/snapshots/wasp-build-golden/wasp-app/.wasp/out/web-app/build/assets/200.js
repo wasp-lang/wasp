@@ -252,7 +252,9 @@ function getSessionIdFromAuthorizationHeader(header) {
 }
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/operations/queryClient.js
-var defaultQueryClientConfig = {}, queryClientConfig, resolveQueryClientInitialized;
+var defaultQueryClientConfig = {};
+var queryClientConfig;
+var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
