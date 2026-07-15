@@ -17,7 +17,7 @@ import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.UserVirtualModules
-  ( VirtualModuleId,
+  ( UserVirtualModuleId,
     clientEnvValidationSchemaVMId,
     userClientRootComponentVMId,
     userClientSetupFnVMId,
@@ -36,7 +36,7 @@ getClientUserVirtualModulesData spec =
     ++ maybeToList (mkVMImportData userClientSetupFnVMId <$> maybeSetupFn)
     ++ maybeToList (mkVMImportData userClientRootComponentVMId <$> maybeRootComponent)
   where
-    mkVMImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
+    mkVMImportData :: UserVirtualModuleId -> EI.ExtImport -> Aeson.Value
     mkVMImportData virtualModuleId extImport =
       object
         [ "virtualModuleId" .= toFilePath virtualModuleId,

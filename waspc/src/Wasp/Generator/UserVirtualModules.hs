@@ -5,7 +5,7 @@ module Wasp.Generator.UserVirtualModules
     clientEnvValidationSchemaVMId,
     userClientSetupFnVMId,
     userClientRootComponentVMId,
-    VirtualModuleId,
+    UserVirtualModuleId,
   )
 where
 
@@ -14,15 +14,15 @@ import StrongPath (Dir', File', Path, Posix, Rel, parseRelFileP, relfileP)
 import Wasp.AppSpec.Operation (Operation (..))
 import qualified Wasp.AppSpec.Operation as AS.Operation
 
-type VirtualModuleId = Path Posix (Rel Dir') File'
+type UserVirtualModuleId = Path Posix (Rel Dir') File'
 
-serverEnvValidationSchemaVMId :: VirtualModuleId
+serverEnvValidationSchemaVMId :: UserVirtualModuleId
 serverEnvValidationSchemaVMId = [relfileP|virtual:wasp/user/server-env-validation-schema|]
 
-userPrismaSetupFnVMId :: VirtualModuleId
+userPrismaSetupFnVMId :: UserVirtualModuleId
 userPrismaSetupFnVMId = [relfileP|virtual:wasp/user/prisma-setup-fn|]
 
-userOperationVMId :: AS.Operation.Operation -> VirtualModuleId
+userOperationVMId :: AS.Operation.Operation -> UserVirtualModuleId
 userOperationVMId operation =
   fromJust . parseRelFileP $ "virtual:wasp/user/" ++ operationType ++ "/" ++ oprationName
   where
@@ -31,11 +31,11 @@ userOperationVMId operation =
       QueryOp _ _ -> "query"
       ActionOp _ _ -> "action"
 
-clientEnvValidationSchemaVMId :: VirtualModuleId
+clientEnvValidationSchemaVMId :: UserVirtualModuleId
 clientEnvValidationSchemaVMId = [relfileP|virtual:wasp/user/client-env-validation-schema|]
 
-userClientSetupFnVMId :: VirtualModuleId
+userClientSetupFnVMId :: UserVirtualModuleId
 userClientSetupFnVMId = [relfileP|virtual:wasp/user/client-setup-fn|]
 
-userClientRootComponentVMId :: VirtualModuleId
+userClientRootComponentVMId :: UserVirtualModuleId
 userClientRootComponentVMId = [relfileP|virtual:wasp/user/client-root-component|]
