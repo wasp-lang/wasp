@@ -33,9 +33,6 @@ instance IsDecl Entity
 instance FromJSON Entity where
   parseJSON = const $ fail "Entity declarations in wasp are deprecated, entities are now defined via prisma.schema file."
 
--- | Entities are not part of the JSON wire format coming from the TS spec
--- (they are built from the Prisma schema), so this shape exists only for
--- output (e.g. `wasp inspect --json`).
 instance ToJSON Entity where
   toJSON entity =
     object

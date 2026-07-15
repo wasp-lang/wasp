@@ -183,7 +183,8 @@ concatPrefixAndText :: String -> String -> String
 concatPrefixAndText prefix text =
   if length (lines text) <= 1 then prefix ++ text else prefix ++ "\n" ++ indent 2 text
 
--- | Pads each cell to its column's width, so cells line up across rows.
+-- | Given a table (list of list of strings), computes the maximum width of each
+-- column and pads each cell so that the column has the same width in every row.
 alignColumns :: [[String]] -> [String]
 alignColumns rows = renderRow <$> rows
   where
