@@ -19,7 +19,7 @@ data EmailSender = EmailSender
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 
-data EmailProvider = SMTP | SendGrid | Mailgun | Dummy
+data EmailProvider = SMTP | SendGrid | Mailgun | Resend | Dummy
   deriving (Show, Eq, Data, Generic, FromJSON)
 
 data EmailFromField = EmailFromField

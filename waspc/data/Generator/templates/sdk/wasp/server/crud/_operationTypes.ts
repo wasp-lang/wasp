@@ -15,7 +15,7 @@ import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   {= crud.entityUpper =},
 } from "wasp/entities";
-import type { CrudOverrideFromRegister } from '../../types/register'
+import type { Register } from '../../types/register'
 
 type _WaspEntityTagged = _{= crud.entityUpper =}
 type _WaspEntity = {= crud.entityUpper =}
@@ -85,3 +85,16 @@ type DeleteInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInp
 type DeleteOutput = _WaspEntity
 export type RegisteredDeleteAction = CrudOverrideFromRegister<'{= crud.name =}', 'Delete', {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>>
 {=/ crud.operations.Delete =}
+
+type CrudOverrideFromRegister<
+  CrudName extends string,
+  CrudOperation extends string,
+  Fallback,
+  Subregister = "crudOverrides",
+>  = Subregister extends keyof Register
+  ? CrudName extends keyof Register[Subregister]
+    ? CrudOperation extends keyof Register[Subregister][CrudName]
+      ? Register[Subregister][CrudName][CrudOperation]
+      : Fallback
+    : Fallback
+  : Fallback;

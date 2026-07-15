@@ -26,6 +26,12 @@ const emailProvider = {
   apiUrl: env.MAILGUN_API_URL,
 } as const;
 {=/ isMailgunProviderEnabled =}
+{=# isResendProviderEnabled =}
+const emailProvider = {
+  type: "resend",
+  apiKey: env.RESEND_API_KEY,
+} as const;
+{=/ isResendProviderEnabled =}
 {=# isDummyProviderEnabled =}
 const emailProvider = {
   type: "dummy",

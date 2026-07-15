@@ -25,12 +25,15 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
+    getGenericOperationDefinitionTypeName,
     getRegisteredOperationTypeName,
+    mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules (userOperationVMId)
 import Wasp.Util (toUpperFirst)
+import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 
 serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
 serverOperationIndexJsFileInSdkRootDir operation =
@@ -46,7 +49,8 @@ genOperations spec =
       genQueriesIndex spec,
       genActionsIndex spec,
       genWrappers spec,
-      genIndexTs spec
+      genIndexTs spec,
+      genRegister
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
@@ -62,6 +66,9 @@ genIndexTs spec =
           "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
+
+genRegister :: Generator FileDraft
+genRegister = return $ mkTmplFd (serverOpsDirInSdkTemplatesDir </> [relfile|register.ts|])
 
 genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
@@ -150,7 +157,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (AS.Operation.getName operation),
+        [ "typeName" .= getGenericOperationDefinitionTypeName operation,
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -162,7 +169,7 @@ getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extImportToImportJson (userOperationVMId operation) (Just $ AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
-      "genericOperationDefinitionTypeName" .= toUpperFirst (AS.Operation.getName operation),
+      "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
       "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),

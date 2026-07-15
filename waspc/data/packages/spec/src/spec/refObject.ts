@@ -2,7 +2,7 @@ import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
 import type * as WaspSpec from "./publicApi/waspSpec.js";
 import { normalizeRefObjectPath } from "./refObjectPath.js";
-import { SpecUserError } from "./specUserError.js";
+import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 /**
  * A reference to code in your app's `src` directory.
@@ -129,7 +129,7 @@ export function mapRefObject(
       path: mapRefObjectPath(refObject, { projectRootDir }),
     };
   } else {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       "Got an import in the Wasp file that we couldn't process: " +
         JSON.stringify(refObject) +
         '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the ref object correctly.',
@@ -146,7 +146,7 @@ export function getRefObjectDeclarationName(refObject: unknown): string {
     return refObject.importDefault;
   }
 
-  throw new SpecUserError(
+  throw new WaspSpecUserError(
     "Got an import in the Wasp file that we couldn't process: " +
       JSON.stringify(refObject),
   );
@@ -157,7 +157,7 @@ function mapRefObjectPath(
   { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImport["path"] {
   if (!hasSourceFilePath(refObject)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
   }
