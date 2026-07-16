@@ -10,13 +10,11 @@ where
 import Control.Concurrent (Chan, writeChan)
 import Control.Concurrent.Async (Concurrently (..))
 import Control.Monad (unless)
-import qualified Data.ByteString as BS
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
+import qualified Data.Conduit.Text as CT
 import qualified Data.Text as T
-import Data.Text.Encoding (Decoding (Some), streamDecodeUtf8With)
-import Data.Text.Encoding.Error (lenientDecode)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
@@ -77,26 +75,10 @@ runProcessAsJob process jobType chan =
       return $ ExitFailure 1
 
     forwardDecodedOutputToChan chan' jobType' outputStream outputType = do
-      nextDecoder <- runConduit $ outputStream .| CL.foldM (decodeChunkToChan chan' jobType' outputType) initialUtf8Decoder
-      flushDecoderToChan chan' jobType' outputType nextDecoder
-
-    initialUtf8Decoder :: BS.ByteString -> Decoding
-    initialUtf8Decoder = case streamDecodeUtf8With lenientDecode BS.empty of
-      Some _ _ decoder -> decoder
-
-    decodeChunkToChan ::
-      Chan J.JobMessage ->
-      J.JobType ->
-      J.JobOutputType ->
-      (BS.ByteString -> Decoding) ->
-      BS.ByteString ->
-      IO (BS.ByteString -> Decoding)
-    decodeChunkToChan chan' jobType' outputType decoder chunk = case decoder chunk of
-      Some text _ nextDecoder -> emitDecodedTextToChan chan' jobType' outputType text >> return nextDecoder
-
-    flushDecoderToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> (BS.ByteString -> Decoding) -> IO ()
-    flushDecoderToChan chan' jobType' outputType decoder = case decoder BS.empty of
-      Some text _ _ -> emitDecodedTextToChan chan' jobType' outputType text
+      runConduit $
+        outputStream
+          .| CT.decodeUtf8Lenient
+          .| CL.mapM_ (emitDecodedTextToChan chan' jobType' outputType)
 
     emitDecodedTextToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> T.Text -> IO ()
     emitDecodedTextToChan chan' jobType' outputType text =
