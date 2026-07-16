@@ -13,7 +13,7 @@ export { {= operationName =} } from './actions/index.js'
 {=/ actions =}
 
 /**
- * We must re-export {@link AuthUser} from "wasp/server/operations".
+ * We must re-export {@link AuthUser} in this module.
  * 
  * User code is compiled with declaration emit enabled. This is because
  * the server and the client TypeScript project reference the user's
@@ -23,8 +23,8 @@ export { {= operationName =} } from './actions/index.js'
  * When declaration emit is enabled, every exported binding without an
  * explicit type annotation gets its inferred type serialized into a
  * `.d.ts` file.
- * A common example is users defining operations while typing them with
- * the `satisfies` keyword.` 
+ * A common example is users defining operations/curd/API while typing
+ * them with the `satisfies` keyword.
  * 
  * If that inferred type structurally contains a type symbol from a
  * dependency package, `tsc` must synthesize a portable reference to
@@ -39,13 +39,13 @@ export { {= operationName =} } from './actions/index.js'
  *     E.g., the same module that defines the operation, imports
  *    {@link AuthUser}: `import { type AuthUser } from "wasp/auth"`.
  * 
- * 2. The symbol is re-exported through an already loaded module.
- *    E.g., some other module has: `import { X } from "auth/wasp"`.
- *    Because of that, `tsc` can reach {@link AuthUser} through "auth/wasp".
+ * 2. The symbol is re-exported in an already loaded module.
+ *    E.g., some other module has: `import { X } from "wasp/auth"`.
+ *    Because of that, `tsc` can reach {@link AuthUser} through "wasp/auth".
  * 
  * 3. The file where the symbol is declared is reachable through the
- *    packages `exports` map.
- *    E.g., Wasp SDK does not export `"server/operations/user"` module,
+ *    package's `exports` map.
+ *    E.g., Wasp SDK does not export `"server/auth/user"` module,
  *    where {@link AuthUser} is declared, so this condition always fails.
  * 
  * So we must depend on either the first or the second condition
@@ -60,7 +60,7 @@ export { {= operationName =} } from './actions/index.js'
  * but defines operations via the `satisfies` keyword. This results
  * in an error, because the {@link AuthUser} symbol is not portable.
  * 
- * To avoid this problem, `"wasp/server/operations"` re-export {@link AuthUser}.
+ * To avoid this problem, we re-export {@link AuthUser} here.
  * That way, `tsc` can always create a portable reference to it.
  */
 export { type AuthUser } from '../auth/user.js'
