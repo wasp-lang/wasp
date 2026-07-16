@@ -76,6 +76,37 @@ runProcessAsJob process jobType chan =
         else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
 
+    forwardDecodedOutputToChan chan' jobType' outputStream outputType = do
+      nextDecoder <- runConduit $ outputStream .| CL.foldM (decodeChunkToChan chan' jobType' outputType) initialUtf8Decoder
+      flushDecoderToChan chan' jobType' outputType nextDecoder
+
+    initialUtf8Decoder :: BS.ByteString -> Decoding
+    initialUtf8Decoder = case streamDecodeUtf8With lenientDecode BS.empty of
+      Some _ _ decoder -> decoder
+
+    decodeChunkToChan ::
+      Chan J.JobMessage ->
+      J.JobType ->
+      J.JobOutputType ->
+      (BS.ByteString -> Decoding) ->
+      BS.ByteString ->
+      IO (BS.ByteString -> Decoding)
+    decodeChunkToChan chan' jobType' outputType decoder chunk = case decoder chunk of
+      Some text _ nextDecoder -> emitDecodedTextToChan chan' jobType' outputType text >> return nextDecoder
+
+    flushDecoderToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> (BS.ByteString -> Decoding) -> IO ()
+    flushDecoderToChan chan' jobType' outputType decoder = case decoder BS.empty of
+      Some text _ _ -> emitDecodedTextToChan chan' jobType' outputType text
+
+    emitDecodedTextToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> T.Text -> IO ()
+    emitDecodedTextToChan chan' jobType' outputType text =
+      unless (T.null text) $
+        writeChan chan' $
+          J.JobMessage
+            { J._data = J.JobOutput text outputType,
+              J._jobType = jobType'
+            }
+
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
@@ -104,34 +135,3 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
             J._jobType = jobType
           }
       return exitCode
-
-forwardDecodedOutputToChan chan jobType outputStream outputType = do
-  nextDecoder <- runConduit $ outputStream .| CL.foldM (decodeChunkToChan chan jobType outputType) initialUtf8Decoder
-  flushDecoderToChan chan jobType outputType nextDecoder
-
-initialUtf8Decoder :: BS.ByteString -> Decoding
-initialUtf8Decoder = case streamDecodeUtf8With lenientDecode BS.empty of
-  Some _ _ decoder -> decoder
-
-decodeChunkToChan ::
-  Chan J.JobMessage ->
-  J.JobType ->
-  J.JobOutputType ->
-  (BS.ByteString -> Decoding) ->
-  BS.ByteString ->
-  IO (BS.ByteString -> Decoding)
-decodeChunkToChan chan jobType outputType decoder chunk = case decoder chunk of
-  Some text _ nextDecoder -> emitDecodedTextToChan chan jobType outputType text >> return nextDecoder
-
-flushDecoderToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> (BS.ByteString -> Decoding) -> IO ()
-flushDecoderToChan chan jobType outputType decoder = case decoder BS.empty of
-  Some text _ _ -> emitDecodedTextToChan chan jobType outputType text
-
-emitDecodedTextToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> T.Text -> IO ()
-emitDecodedTextToChan chan jobType outputType text =
-  unless (T.null text) $
-    writeChan chan $
-      J.JobMessage
-        { J._data = J.JobOutput text outputType,
-          J._jobType = jobType
-        }
