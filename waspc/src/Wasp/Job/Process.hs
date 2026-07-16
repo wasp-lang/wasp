@@ -7,7 +7,7 @@ module Wasp.Job.Process
   )
 where
 
-import Control.Concurrent (writeChan)
+import Control.Concurrent (Chan, writeChan)
 import Control.Concurrent.Async (Concurrently (..))
 import Control.Monad (unless)
 import qualified Data.ByteString as BS
@@ -43,10 +43,10 @@ runProcessAsJob process jobType chan =
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
-            forwardDecodedOutputToChan stdoutStream J.Stdout
+            forwardDecodedOutputToChan chan jobType stdoutStream J.Stdout
 
       let forwardStderrToChan =
-            forwardDecodedOutputToChan stderrStream J.Stderr
+            forwardDecodedOutputToChan chan jobType stderrStream J.Stderr
 
       exitCode <-
         runConcurrently $
@@ -61,27 +61,6 @@ runProcessAsJob process jobType chan =
           }
 
       return exitCode
-      where
-        forwardDecodedOutputToChan outputStream outputType = do
-          nextDecoder <- runConduit $ outputStream .| CL.foldM decodeChunk initialDecoder
-          flushDecoder nextDecoder
-          where
-            initialDecoder = case streamDecodeUtf8With lenientDecode BS.empty of
-              Some _ _ decoder -> decoder
-
-            decodeChunk decoder chunk = case decoder chunk of
-              Some text _ nextDecoder -> emitText text >> return nextDecoder
-
-            flushDecoder decoder = case decoder BS.empty of
-              Some text _ _ -> emitText text
-
-            emitText text =
-              unless (T.null text) $
-                writeChan chan $
-                  J.JobMessage
-                    { J._data = J.JobOutput text outputType,
-                      J._jobType = jobType
-                    }
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
@@ -125,3 +104,34 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
             J._jobType = jobType
           }
       return exitCode
+
+forwardDecodedOutputToChan chan jobType outputStream outputType = do
+  nextDecoder <- runConduit $ outputStream .| CL.foldM (decodeChunkToChan chan jobType outputType) initialUtf8Decoder
+  flushDecoderToChan chan jobType outputType nextDecoder
+
+initialUtf8Decoder :: BS.ByteString -> Decoding
+initialUtf8Decoder = case streamDecodeUtf8With lenientDecode BS.empty of
+  Some _ _ decoder -> decoder
+
+decodeChunkToChan ::
+  Chan J.JobMessage ->
+  J.JobType ->
+  J.JobOutputType ->
+  (BS.ByteString -> Decoding) ->
+  BS.ByteString ->
+  IO (BS.ByteString -> Decoding)
+decodeChunkToChan chan jobType outputType decoder chunk = case decoder chunk of
+  Some text _ nextDecoder -> emitDecodedTextToChan chan jobType outputType text >> return nextDecoder
+
+flushDecoderToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> (BS.ByteString -> Decoding) -> IO ()
+flushDecoderToChan chan jobType outputType decoder = case decoder BS.empty of
+  Some text _ _ -> emitDecodedTextToChan chan jobType outputType text
+
+emitDecodedTextToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> T.Text -> IO ()
+emitDecodedTextToChan chan jobType outputType text =
+  unless (T.null text) $
+    writeChan chan $
+      J.JobMessage
+        { J._data = J.JobOutput text outputType,
+          J._jobType = jobType
+        }
