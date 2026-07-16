@@ -5,6 +5,7 @@ import { $, syncProcessCwd } from "zx";
 import { waspSays } from "./common/terminal.js";
 import { createFlyCommand } from "./providers/fly/index.js";
 import { createRailwayCommand } from "./providers/railway/index.js";
+import { createVercelCommand } from "./providers/vercel/index.js";
 
 const program = new Command();
 
@@ -22,6 +23,7 @@ syncProcessCwd();
 
 program.addCommand(createFlyCommand());
 program.addCommand(createRailwayCommand());
+program.addCommand(createVercelCommand());
 
 try {
   // parseAsync not only parses the command line arguments but also

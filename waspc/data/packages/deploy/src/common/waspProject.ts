@@ -66,3 +66,30 @@ export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
   // The client is built from the project root dir.
   return path.join(waspProjectDir, ".");
 }
+
+// The SPA fallback filename the client build emits differs between Wasp
+// versions: 0.22 emits "index.html", main (0.25-dev) emits a dedicated
+// "200.html". Order matters: the dedicated fallback wins when both exist.
+const SPA_FALLBACK_FILE_CANDIDATES = ["200.html", "index.html"];
+
+/**
+ * Resolves the SPA fallback filename in the client build output. Providers
+ * must never hardcode this filename (it drifts across Wasp versions) - they
+ * should always resolve it through this helper, after the client build ran.
+ */
+export function getClientSpaFallbackFileName(
+  waspProjectDir: WaspProjectDir,
+): string {
+  const clientBuildArtefactsDir = getClientBuildArtefactsDir(waspProjectDir);
+  for (const candidate of SPA_FALLBACK_FILE_CANDIDATES) {
+    if (fs.existsSync(path.join(clientBuildArtefactsDir, candidate))) {
+      return candidate;
+    }
+  }
+  throw new Error(
+    [
+      `No SPA fallback file (${SPA_FALLBACK_FILE_CANDIDATES.join(" or ")}) found in the client build output at: ${clientBuildArtefactsDir}.`,
+      "Did the client build succeed?",
+    ].join("\n"),
+  );
+}

@@ -1,0 +1,18 @@
+app AppWithAuth {
+  wasp: {
+    version: "^0.22.0"
+  },
+  title: "App With Auth",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  }
+}
+
+route HomeRoute { path: "/", to: HomePage }
+page HomePage {
+  component: import { HomePage } from "@src/pages/HomePage"
+}
