@@ -4,10 +4,10 @@ import StrongPath (Dir, Path, Posix, Rel)
 import qualified StrongPath as SP
 import Test.Hspec
 import Wasp.AppSpec.ExtImport
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.JsImport
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
 import Wasp.JsImport as JI
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 
 spec_GeneratorJsImportTest :: Spec
 spec_GeneratorJsImportTest = do
