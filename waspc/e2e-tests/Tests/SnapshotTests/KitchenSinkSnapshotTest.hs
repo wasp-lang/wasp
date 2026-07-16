@@ -20,7 +20,7 @@ kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
     [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
-      copyContentsOfGitTrackedDirToSnapshotSubDir [reldir|examples/module|] [reldir|module|],
+      copyContentsOfGitTrackedDirToSnapshotSubDir [reldir|examples/kitchen-sink-module|] [reldir|module|],
       buildModuleDependency,
       inSnapshotWaspProjectDir
         [ createDotEnvServerFile,

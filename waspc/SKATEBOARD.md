@@ -5,7 +5,7 @@
 - Full-stack modules default-export a function from `module.wasp.ts` that accepts `options` and returns a Wasp `Spec`. Direct `export default` only.
 - The default client-route option is `prefix`.
 - Invariant: spec files (`*.wasp.ts`) are a Wasp dialect. `wasp module build` compiles module specs to JavaScript before publication; host apps never consume package-resident Wasp source.
-- `examples/module` is the current skateboard module package: `@kitchen-sink/module`. Kitchen Sink imports it from `@kitchen-sink/module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
+- `examples/kitchen-sink-module` is the current skateboard module package: `@kitchen-sink/module`. Kitchen Sink imports it from `@kitchen-sink/module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
 - The demo module exercises all 8 module-usable declaration kinds: route, page, query, action, crud, api, apiNamespace, and job.
 
 ## Module SDK Shim
@@ -38,7 +38,7 @@
 - The module's `@wasp.sh/spec` import stays external and resolves to the host's copy at spec evaluation time, so there is a single spec package instance.
 - Host SDK Vite config dedupes the generated SDK package name (`wasp`) with React, React DOM, React Query, and React Router.
 - Host SDK TypeScript config maps `wasp/*` to SDK source files during SDK build. This prevents self-imports from resolving through package exports into `dist/`, which otherwise causes TS5055 overwrite-input errors on repeated builds.
-- Kitchen Sink snapshot setup copies `examples/module` as sibling `module`, builds it, then runs Kitchen Sink install/compile.
+- Kitchen Sink snapshot setup copies `examples/kitchen-sink-module` as sibling `module`, builds it, then runs Kitchen Sink install/compile.
 
 ## Local Module Dependencies
 
@@ -48,7 +48,7 @@
 - npm treats `name@version` tarballs as immutable: `package-lock.json` pins the tarball's `integrity` hash and npm never re-reads changed bytes at the same version and path. A warm npm cache silently installs the stale cached content; a cold cache (CI, e2e) fails with `EINTEGRITY`.
 - npm reports a missing `file:` tarball as "tarball data ... seems to be corrupted. Trying again." before the ENOENT error; the warning does not imply integrity drift.
 - Because modules peer-depend on `wasp`, npm reaches the SDK and its `file:` lib tarball dependencies during plain `wasp install` on a fresh clone, before any compilation. The CLI copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
-- After changing module source, refresh Kitchen Sink like this (from `examples/module/`):
+- After changing module source, refresh Kitchen Sink like this (from `examples/kitchen-sink-module/`):
 
   ```sh
   ../../waspc/run wasp-cli module build
@@ -86,6 +86,6 @@
 
 - `./run build`
 - `npm run test` from `data/packages/module-builder/`
-- `../../waspc/run wasp-cli module install && npm run typecheck && ../../waspc/run wasp-cli module build` from `examples/module/`
+- `../../waspc/run wasp-cli module install && npm run typecheck && ../../waspc/run wasp-cli module build` from `examples/kitchen-sink-module/`
 - `../../waspc/run wasp-cli install && ../../waspc/run wasp-cli compile` from `examples/kitchen-sink/`
 - `./run test:waspc:e2e:accept-all`
