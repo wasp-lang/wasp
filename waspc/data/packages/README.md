@@ -24,3 +24,7 @@ directory. You should adjust this and/or add more file extensions if needed.
 
 The CI workflow runs the package install script, and `tools/make_binary_package.sh`
 takes care of copying data files into the release archive.
+
+If the package is listed in `published-packages.txt` (one per line), it will
+also be published to npm as part of the CI and in the release process, with the
+same version number as the Wasp CLI.
