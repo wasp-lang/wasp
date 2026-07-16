@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Fault: the module's wasp peer is the first inbound edge into the SDK package. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#d33" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">The first inbound edge into the SDK</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">Nothing pointed at the SDK until the module's wasp peer did; npm pruning hid the gap.</text>
+
+  <g data-region="before">
+    <rect x="48" y="128" width="560" height="584" rx="8" />
+    <text x="72" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Before modules</text>
+
+    <rect x="80" y="200" width="496" height="80" rx="4" />
+    <text x="104" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink package.json</text>
+    <text x="104" y="260" font-size="12" stroke="none" fill="#666">react, prisma, ... (registry deps only)</text>
+
+    <line x1="328" y1="280" x2="328" y2="336" marker-end="url(#arrow)" />
+
+    <rect x="80" y="344" width="496" height="64" rx="4" />
+    <text x="104" y="372" font-size="14" font-weight="600" stroke="none" fill="#000">Registry dependencies</text>
+    <text x="104" y="396" font-size="12" stroke="none" fill="#666">Install succeeds on a fresh clone</text>
+
+    <rect x="80" y="472" width="496" height="80" rx="4" fill="#e6e6e6" />
+    <text x="104" y="504" font-size="14" font-weight="600" stroke="none" fill="#000">wasp SDK workspace</text>
+    <text x="104" y="532" font-size="12" stroke="none" fill="#666">.wasp/out/sdk/wasp — absent before compile</text>
+
+    <rect x="80" y="584" width="496" height="80" rx="4" fill="#e6e6e6" />
+    <text x="104" y="616" font-size="14" font-weight="600" stroke="none" fill="#000">file: lib tarballs</text>
+    <text x="104" y="644" font-size="12" stroke="none" fill="#666">.wasp/out/libs/*.tgz — absent before compile</text>
+
+    <text x="104" y="448" font-size="12" stroke="none" fill="#666">No inbound edge: npm prunes both as unreachable.</text>
+    <text x="104" y="688" font-size="12" stroke="none" fill="#666">Fresh-clone install worked by accident.</text>
+  </g>
+
+  <g data-region="after">
+    <rect x="672" y="128" width="560" height="584" rx="8" />
+    <text x="696" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">With a full-stack module</text>
+
+    <rect x="704" y="200" width="496" height="80" rx="4" />
+    <text x="728" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink package.json</text>
+    <text x="728" y="260" font-size="12" stroke="none" fill="#666">+ "@kitchen-sink/module": "file:../module/*.tgz"</text>
+
+    <line x1="952" y1="280" x2="952" y2="336" marker-end="url(#arrow)" />
+
+    <rect x="704" y="344" width="496" height="64" rx="4" />
+    <text x="728" y="372" font-size="14" font-weight="600" stroke="none" fill="#000">@kitchen-sink/module tarball</text>
+    <text x="728" y="396" font-size="12" stroke="none" fill="#666">peerDependencies: { "wasp": "*" }</text>
+
+    <line x1="952" y1="408" x2="952" y2="464" marker-end="url(#arrow)" />
+    <text x="968" y="440" font-size="12" stroke="none" fill="#666">npm &#8805; 7 auto-installs peers</text>
+
+    <rect x="704" y="472" width="496" height="80" rx="4" fill="#e6e6e6" />
+    <text x="728" y="504" font-size="14" font-weight="600" stroke="none" fill="#000">wasp SDK workspace</text>
+    <text x="728" y="532" font-size="12" stroke="none" fill="#666">now reachable — pruning no longer protects</text>
+
+    <line x1="952" y1="552" x2="952" y2="576" marker-end="url(#arrow)" />
+
+    <rect x="704" y="584" width="496" height="80" rx="4" fill="#e6e6e6" />
+    <text x="728" y="616" font-size="14" font-weight="600" stroke="none" fill="#000">file: lib tarballs</text>
+    <text x="728" y="644" font-size="12" stroke="none" fill="#666">read before compile ever ran</text>
+
+    <text x="728" y="688" font-size="12" stroke="none" fill="#666">Fix: wasp install copies the shipped tarballs first.</text>
+  </g>
+
+  <g data-region="annotations" stroke="#d33" stroke-dasharray="6 4">
+    <rect x="696" y="576" width="512" height="96" rx="4" fill="none" />
+    <line x1="1208" y1="624" x2="1240" y2="624" marker-end="url(#arrow-red)" stroke-dasharray="none" />
+    <circle cx="1252" cy="624" r="12" fill="#fff" stroke-dasharray="none" />
+    <text x="1252" y="629" font-size="12" text-anchor="middle" stroke="none" fill="#d33">1</text>
+  </g>
+
+  <text x="48" y="760" font-size="12" stroke="none" fill="#d33">1 — fresh clone + cold cache: the lockfile points at artifacts that do not exist yet. ENOENT.</text>
+</svg>

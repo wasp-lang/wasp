@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Fault: npm reads Wasp-owned artifacts in earlier phases than the ones that produce them. -->
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">Needed before produced</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">Gray bar: the artifact exists from its producer phase onward. Circle: npm reads it in that phase.</text>
+
+  <g data-region="phase-headers">
+    <rect x="328" y="136" width="280" height="48" rx="4" />
+    <text x="468" y="166" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">wasp install</text>
+    <rect x="608" y="136" width="280" height="48" rx="4" />
+    <text x="748" y="166" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">wasp compile</text>
+    <rect x="888" y="136" width="280" height="48" rx="4" />
+    <text x="1028" y="166" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">wasp build (docker)</text>
+  </g>
+
+  <g data-region="row-spec">
+    <text x="48" y="244" font-size="14" font-weight="600" stroke="none" fill="#000">spec package</text>
+    <text x="48" y="268" font-size="12" stroke="none" fill="#666">.wasp/spec</text>
+    <rect x="328" y="232" width="840" height="32" fill="#e6e6e6" />
+    <circle cx="464" cy="248" r="16" fill="#fff" />
+    <text x="464" y="253" font-size="12" text-anchor="middle" stroke="none" fill="#000">ok</text>
+    <text x="640" y="253" font-size="12" stroke="none" fill="#666">install produces and reads it: the designed pattern</text>
+  </g>
+
+  <g data-region="row-libs">
+    <text x="48" y="356" font-size="14" font-weight="600" stroke="none" fill="#000">lib tarballs</text>
+    <text x="48" y="380" font-size="12" stroke="none" fill="#666">.wasp/out/libs/*.tgz</text>
+    <rect x="608" y="344" width="560" height="32" fill="#e6e6e6" />
+    <text x="624" y="365" font-size="12" stroke="none" fill="#666">produced by compile</text>
+  </g>
+
+  <g data-region="row-sdk">
+    <text x="48" y="468" font-size="14" font-weight="600" stroke="none" fill="#000">SDK package</text>
+    <text x="48" y="492" font-size="12" stroke="none" fill="#666">.wasp/out/sdk/wasp</text>
+    <rect x="608" y="456" width="560" height="32" fill="#e6e6e6" />
+    <text x="624" y="477" font-size="12" stroke="none" fill="#666">produced by compile</text>
+  </g>
+
+  <g data-region="row-module">
+    <text x="48" y="580" font-size="14" font-weight="600" stroke="none" fill="#000">module tarball in context</text>
+    <text x="48" y="604" font-size="12" stroke="none" fill="#666">was file:../module — outside .wasp/out</text>
+    <text x="624" y="589" font-size="12" stroke="none" fill="#666">no phase staged it — the bar is empty</text>
+  </g>
+
+  <g data-region="annotations" stroke="#d33" stroke-dasharray="6 4" fill="none">
+    <circle cx="464" cy="360" r="16" fill="#fff" />
+    <text x="464" y="365" font-size="12" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    <circle cx="464" cy="472" r="16" fill="#fff" />
+    <text x="464" y="477" font-size="12" text-anchor="middle" stroke="none" fill="#d33">2</text>
+    <circle cx="1024" cy="584" r="16" fill="#fff" />
+    <text x="1024" y="589" font-size="12" text-anchor="middle" stroke="none" fill="#d33">3</text>
+  </g>
+
+  <g data-region="legend">
+    <rect x="48" y="656" width="48" height="16" fill="#e6e6e6" />
+    <text x="112" y="669" font-size="12" stroke="none" fill="#666">artifact exists</text>
+    <circle cx="248" cy="664" r="12" fill="#fff" stroke="#d33" stroke-dasharray="6 4" />
+    <text x="272" y="669" font-size="12" stroke="none" fill="#d33">npm reads it before it exists</text>
+  </g>
+
+  <text x="48" y="712" font-size="12" stroke="none" fill="#d33">1 — install-phase npm reads the tarballs. Fixed: wasp install copies the shipped ones.</text>
+  <text x="48" y="736" font-size="12" stroke="none" fill="#d33">2 — install-phase npm links node_modules/wasp to it. Dangling symlink until compile; npm tolerates it.</text>
+  <text x="48" y="760" font-size="12" stroke="none" fill="#d33">3 — in-container npm reads the tarball. Fixed: tarball moved under src/, ships with COPY src.</text>
+</svg>
