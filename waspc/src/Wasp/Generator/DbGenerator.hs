@@ -6,7 +6,6 @@ module Wasp.Generator.DbGenerator
   )
 where
 
-import Control.Monad (when)
 import Data.Aeson (object, (.=))
 import Data.List (find)
 import Data.Maybe (maybeToList)
@@ -45,8 +44,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
-import Wasp.Project.Db (databaseUrlEnvVarName, validDbUrlExprForPrismaSchema)
-import qualified Wasp.Project.Db.Dev.Sqlite as Sqlite
+import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -139,7 +137,6 @@ genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir gen
 -- | This function operates on generated app, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
-  when usesManagedSqliteDatabase $ Sqlite.ensureStateDir $ AS.waspProjectDir spec
   formatPrismaSchemaFileOnDisk dstDir
 
   dbGeneratorWarnings <-
@@ -152,10 +149,6 @@ postWriteDbGeneratorActions spec dstDir = do
       else pure []
   dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir
   pure (dbGeneratorWarnings, dbGeneratorErrors)
-  where
-    usesManagedSqliteDatabase =
-      ASV.getValidDbSystem spec == AS.Db.SQLite
-        && not (any ((== databaseUrlEnvVarName) . fst) (AS.devEnvVarsServer spec))
 
 -- | One of the checks we perform is to compare the Wasp generated schema.prisma file
 -- and the schema.prisma file in the node_modules. Prisma formats the schema in node_modules
