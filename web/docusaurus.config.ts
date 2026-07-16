@@ -54,8 +54,9 @@ const config: Config = {
     },
 
     imageZoom: {
-      // CSS selector to apply the plugin to, defaults to '.markdown img'
-      //selector: '.markdown img',
+      // Opt out any image with the `.no-default-zoom` class (used by our custom
+      // Carousel + ImgGallery components, which have their own lightbox).
+      selector: ".markdown img:not(.no-default-zoom)",
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {
