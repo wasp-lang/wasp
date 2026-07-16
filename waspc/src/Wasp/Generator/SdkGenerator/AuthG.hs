@@ -11,6 +11,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -36,7 +37,7 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ genFileCopyInAuth [relfile|user.ts|]
+        [ genUserTs auth
         ]
         -- client stuff
         <++> sequence
@@ -66,6 +67,24 @@ genAuth spec =
         <++> genOAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genUserTs :: AS.Auth.Auth -> Generator FileDraft
+genUserTs auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|user.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "userEntityName" .= userEntityName,
+          "authEntityName" .= DbAuth.authEntityName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in

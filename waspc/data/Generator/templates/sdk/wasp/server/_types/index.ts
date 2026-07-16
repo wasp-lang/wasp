@@ -7,7 +7,7 @@ import {
 } from 'express-serve-static-core'
 import { prisma } from '../index.js'
 {=# isAuthEnabled =}
-import { type AuthUser } from '../auth/user.js'
+import { type AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
 import { type _Entity } from './taggedEntities'
 import { type Payload } from '../../core/serialization/index.js'

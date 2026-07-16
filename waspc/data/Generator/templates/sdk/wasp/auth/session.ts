@@ -2,7 +2,7 @@
 import { Request as ExpressRequest } from "express";
 
 import { type {= userEntityUpper =} } from '../entities/index.js';
-import { type AuthUserData } from '../server/auth/user.js';
+import { type AuthUserData } from './user.js';
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";

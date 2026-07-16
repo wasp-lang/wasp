@@ -6,7 +6,6 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
@@ -59,14 +58,11 @@ genAuthUser auth =
   where
     tmplData =
       object
-        [ "userEntityName" .= userEntityName,
-          "authEntityName" .= DbAuth.authEntityName,
-          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+        [ "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =

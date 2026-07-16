@@ -4,8 +4,7 @@ import { useQuery, buildAndRegisterQuery } from '../client/operations/index.js'
 import type { QueryFunction, Query  } from '../client/operations/rpc.js'
 import { api, handleApiError } from '../api/index.js'
 import { HttpMethod } from '../client/index.js'
-import type { AuthUser, AuthUserData } from '../server/auth/user.js'
-import { makeAuthUserIfPossible } from '../auth/user.js'
+import { makeAuthUserIfPossible, type AuthUser, type AuthUserData } from './user.js'
 import { UseQueryResult } from '@tanstack/react-query'
 
 // PUBLIC API

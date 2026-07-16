@@ -2,7 +2,7 @@
 import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
 {=# isAuthEnabled =}
-import { type AuthUser } from '../auth/user.js'
+import { type AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
 import {
   _Entity,
