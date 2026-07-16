@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Fault: file: deps outside .wasp/out never reach the docker image. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">file: deps do not survive the docker build</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">The image is built from enumerated COPYs of .wasp/out. Nothing else exists in the container.</text>
+
+  <g data-region="repo">
+    <rect x="48" y="128" width="384" height="512" rx="8" />
+    <text x="72" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Repository</text>
+
+    <rect x="80" y="200" width="320" height="80" rx="4" />
+    <text x="104" y="228" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink-module/</text>
+    <text x="104" y="256" font-size="12" stroke="none" fill="#666">kitchen-sink-module-0.0.1.tgz</text>
+
+    <rect x="80" y="304" width="320" height="288" rx="4" />
+    <text x="104" y="336" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink/</text>
+    <text x="104" y="364" font-size="12" stroke="none" fill="#666">package.json: "file:../module/*.tgz"</text>
+
+    <rect x="104" y="392" width="272" height="168" rx="4" fill="#e6e6e6" />
+    <text x="128" y="424" font-size="14" font-weight="600" stroke="none" fill="#000">.wasp/out/</text>
+    <text x="128" y="452" font-size="12" stroke="none" fill="#666">src, package.json, lockfile,</text>
+    <text x="128" y="472" font-size="12" stroke="none" fill="#666">server, sdk, libs, Dockerfile</text>
+    <text x="128" y="508" font-size="12" stroke="none" fill="#666">the tarball is not here:</text>
+    <text x="128" y="528" font-size="12" stroke="none" fill="#666">no phase staged it</text>
+  </g>
+
+  <g data-region="context">
+    <rect x="496" y="256" width="304" height="256" rx="8" />
+    <text x="520" y="296" font-size="20" font-weight="600" stroke="none" fill="#000">Build context</text>
+    <text x="520" y="324" font-size="12" stroke="none" fill="#666">= .wasp/out only</text>
+    <text x="520" y="360" font-size="12" stroke="none" fill="#666">COPY src ./src</text>
+    <text x="520" y="380" font-size="12" stroke="none" fill="#666">COPY package*.json .</text>
+    <text x="520" y="400" font-size="12" stroke="none" fill="#666">COPY server .wasp/out/server</text>
+    <text x="520" y="420" font-size="12" stroke="none" fill="#666">COPY sdk .wasp/out/sdk</text>
+    <text x="520" y="440" font-size="12" stroke="none" fill="#666">COPY libs .wasp/out/libs</text>
+    <text x="520" y="476" font-size="12" stroke="none" fill="#666">an allowlist, nothing else</text>
+  </g>
+
+  <g data-region="container">
+    <rect x="864" y="128" width="368" height="512" rx="8" />
+    <text x="888" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Container</text>
+
+    <rect x="896" y="200" width="304" height="128" rx="4" />
+    <text x="920" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">/app: RUN npm install</text>
+    <text x="920" y="260" font-size="12" stroke="none" fill="#666">"file:../module/*.tgz"</text>
+    <text x="920" y="280" font-size="12" stroke="none" fill="#666">resolves to /module/*.tgz</text>
+
+    <line x1="1048" y1="328" x2="1048" y2="384" marker-end="url(#arrow)" />
+
+    <rect x="896" y="392" width="304" height="88" rx="4" fill="#e6e6e6" />
+    <text x="920" y="424" font-size="14" font-weight="600" stroke="none" fill="#000">/module/*.tgz</text>
+    <text x="920" y="452" font-size="12" stroke="none" fill="#666">ENOENT, same on Fly and Railway</text>
+
+    <text x="920" y="528" font-size="12" stroke="none" fill="#666">Fix: tarball lives at src/modules/*.tgz and</text>
+    <text x="920" y="552" font-size="12" stroke="none" fill="#666">rides the existing COPY src ./src into the</text>
+    <text x="920" y="576" font-size="12" stroke="none" fill="#666">image. Zero build-pipeline changes.</text>
+  </g>
+
+  <g data-region="flow">
+    <line x1="432" y1="384" x2="488" y2="384" marker-end="url(#arrow)" />
+    <line x1="800" y1="384" x2="856" y2="384" marker-end="url(#arrow)" />
+    <text x="440" y="368" font-size="12" stroke="none" fill="#666">context</text>
+    <text x="808" y="368" font-size="12" stroke="none" fill="#666">build</text>
+  </g>
+
+  <g data-region="annotations" stroke="#d33" stroke-dasharray="6 4">
+    <rect x="72" y="192" width="336" height="96" rx="4" fill="none" />
+    <circle cx="424" cy="192" r="12" fill="#fff" stroke-dasharray="none" />
+    <text x="424" y="197" font-size="12" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    <rect x="888" y="384" width="320" height="104" rx="4" fill="none" />
+    <circle cx="1224" cy="384" r="12" fill="#fff" stroke-dasharray="none" />
+    <text x="1224" y="389" font-size="12" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+
+  <text x="48" y="712" font-size="12" stroke="none" fill="#d33">1 — the tarball lives outside the project; dev mode resolves it from the host filesystem, so nothing flags it earlier.</text>
+  <text x="48" y="736" font-size="12" stroke="none" fill="#d33">2 — every containerized build fails here: wasp build, Fly, Railway.</text>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Fault: warm npm caches make missing file: artifacts unobservable on dev machines. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">Warm caches hide missing artifacts</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">Same state, same command, opposite outcomes: cacache serves file: tarballs by integrity hash.</text>
+
+  <g data-region="dev-machine">
+    <rect x="48" y="128" width="560" height="536" rx="8" />
+    <text x="72" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Dev machine — warm cache</text>
+
+    <rect x="80" y="200" width="496" height="64" rx="4" />
+    <text x="104" y="228" font-size="14" font-weight="600" stroke="none" fill="#000">lockfile entry</text>
+    <text x="104" y="252" font-size="12" stroke="none" fill="#666">file:.wasp/out/libs/*.tgz + sha512 integrity</text>
+
+    <line x1="328" y1="264" x2="328" y2="320" marker-end="url(#arrow)" />
+
+    <rect x="80" y="328" width="496" height="80" rx="4" fill="#e6e6e6" />
+    <text x="104" y="360" font-size="14" font-weight="600" stroke="none" fill="#000">cacache hit</text>
+    <text x="104" y="388" font-size="12" stroke="none" fill="#666">content-addressed by integrity hash</text>
+
+    <line x1="328" y1="408" x2="328" y2="464" marker-end="url(#arrow)" />
+
+    <rect x="80" y="472" width="496" height="64" rx="4" />
+    <text x="104" y="500" font-size="14" font-weight="600" stroke="none" fill="#000">install succeeds</text>
+    <text x="104" y="524" font-size="12" stroke="none" fill="#666">the on-disk file is never read</text>
+
+    <text x="104" y="584" font-size="12" stroke="none" fill="#666">Missing files stay invisible; changed bytes install</text>
+    <text x="104" y="608" font-size="12" stroke="none" fill="#666">stale cache content.</text>
+  </g>
+
+  <g data-region="ci-runner">
+    <rect x="672" y="128" width="560" height="536" rx="8" />
+    <text x="696" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">CI runner — cold cache</text>
+
+    <rect x="704" y="200" width="496" height="64" rx="4" />
+    <text x="728" y="228" font-size="14" font-weight="600" stroke="none" fill="#000">lockfile entry</text>
+    <text x="728" y="252" font-size="12" stroke="none" fill="#666">same file: path, same integrity</text>
+
+    <line x1="952" y1="264" x2="952" y2="320" marker-end="url(#arrow)" />
+
+    <rect x="704" y="328" width="496" height="80" rx="4" fill="#e6e6e6" />
+    <text x="728" y="360" font-size="14" font-weight="600" stroke="none" fill="#000">cacache miss — read from disk</text>
+    <text x="728" y="388" font-size="12" stroke="none" fill="#666">.wasp/out/libs/*.tgz does not exist yet</text>
+
+    <line x1="952" y1="408" x2="952" y2="464" marker-end="url(#arrow)" />
+
+    <rect x="704" y="472" width="496" height="88" rx="4" />
+    <text x="728" y="500" font-size="14" font-weight="600" stroke="none" fill="#000">misleading error, then failure</text>
+    <text x="728" y="524" font-size="12" stroke="none" fill="#666">"tarball data seems to be corrupted. Trying again."</text>
+    <text x="728" y="544" font-size="12" stroke="none" fill="#666">then ENOENT, exit 254 (pacote retries ENOENT as corruption)</text>
+
+    <text x="728" y="608" font-size="12" stroke="none" fill="#666">CI was the first cold-cache test this flow ever had.</text>
+  </g>
+
+  <g data-region="annotations" stroke="#d33" stroke-dasharray="6 4">
+    <rect x="696" y="464" width="512" height="104" rx="4" fill="none" />
+    <circle cx="1224" cy="464" r="12" fill="#fff" stroke-dasharray="none" />
+    <text x="1224" y="469" font-size="12" text-anchor="middle" stroke="none" fill="#d33">1</text>
+  </g>
+
+  <text x="48" y="728" font-size="12" stroke="none" fill="#d33">1 — observable only cold; every warm cache masks it and the error text points away from the cause.</text>
+</svg>
