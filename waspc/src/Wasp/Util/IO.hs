@@ -4,7 +4,6 @@ module Wasp.Util.IO
   ( listDirectoryDeep,
     listDirectory,
     deleteDirectoryIfExists,
-    deleteDirectoryContentsExcept,
     deleteFileIfExists,
     doesFileExist,
     doesDirectoryExist,
@@ -23,7 +22,7 @@ module Wasp.Util.IO
   )
 where
 
-import Control.Monad (filterM, forM_, unless)
+import Control.Monad (filterM)
 import Control.Monad.Extra (whenM)
 import qualified Data.ByteString.Lazy as B
 import Data.List (sort)
@@ -108,16 +107,6 @@ listDirectory absDirPath = do
 deleteDirectoryIfExists :: Path' Abs (Dir d) -> IO ()
 deleteDirectoryIfExists dirPath =
   whenM (doesDirectoryExist dirPath) (removeDirectory dirPath)
-
-deleteDirectoryContentsExcept :: Path' Abs (Dir d) -> Path' (Rel d) (Dir e) -> IO ()
-deleteDirectoryContentsExcept dirPath dirToKeep =
-  whenM (doesDirectoryExist dirPath) $ do
-    (files, dirs) <- listDirectory dirPath
-    forM_ files $ removeFile . (dirPath </>)
-    forM_ dirs $ \dir ->
-      unless (toFilePath dir == toFilePath dirToKeep) $
-        removeDirectory $
-          dirPath </> dir
 
 deleteFileIfExists :: Path' Abs (File f) -> IO ()
 deleteFileIfExists filePath = whenM (doesFileExist filePath) $ removeFile filePath

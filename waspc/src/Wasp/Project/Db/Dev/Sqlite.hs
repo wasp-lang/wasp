@@ -1,20 +1,16 @@
 module Wasp.Project.Db.Dev.Sqlite
-  ( defaultDevDbFile,
-    ensureStateDir,
+  ( makeDevConnectionUrl,
   )
 where
 
-import StrongPath (Abs, Dir, Path', (</>))
+import StrongPath (Abs, File, Path')
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing)
 import Wasp.Project.Common
-  ( WaspProjectDir,
-    stateDirInWaspProjectDir,
+  ( DevDbFile,
   )
 
-defaultDevDbFile :: String
-defaultDevDbFile = "file:../../state/dev.db"
-
-ensureStateDir :: Path' Abs (Dir WaspProjectDir) -> IO ()
-ensureStateDir waspProjectDir =
-  createDirectoryIfMissing True . SP.fromAbsDir $ waspProjectDir </> stateDirInWaspProjectDir
+makeDevConnectionUrl :: Path' Abs (File DevDbFile) -> IO String
+makeDevConnectionUrl devDbFilePath = do
+  createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent devDbFilePath
+  return $ "file:" ++ SP.fromAbsFile devDbFilePath

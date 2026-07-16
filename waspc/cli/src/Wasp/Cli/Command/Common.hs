@@ -2,14 +2,17 @@ module Wasp.Cli.Command.Common
   ( readWaspCompileInfo,
     throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
+    deleteFileIfExistsVerbosely,
+    deleteDirectoryContentsVerboselyExcept,
   )
 where
 
+import Control.Monad (forM_, unless)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, File, Path', Rel)
 import qualified StrongPath as SP
 import StrongPath.Operations
 import System.Directory (findExecutable)
@@ -19,6 +22,7 @@ import qualified Wasp.Generator.WaspInfo as WI
 import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
+import Wasp.Util (whenM)
 import qualified Wasp.Util.IO as IOUtil
 
 readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> IO String
@@ -64,3 +68,38 @@ deleteDirectoryIfExistsVerbosely dir = do
       cliSendMessageC $ Msg.Success $ "Nothing to delete: The " ++ dirName ++ " directory does not exist."
   where
     dirName = SP.toFilePath $ basename dir
+
+deleteFileIfExistsVerbosely :: Path' Abs (File d) -> Command ()
+deleteFileIfExistsVerbosely file = do
+  cliSendMessageC $ Msg.Start $ "Deleting the " ++ fileBasename ++ " file..."
+  fileExist <- liftIO $ IOUtil.doesFileExist file
+  if fileExist
+    then do
+      liftIO $ IOUtil.removeFile file
+      cliSendMessageC $ Msg.Success $ "Deleted the " ++ fileBasename ++ " file."
+    else do
+      cliSendMessageC $ Msg.Success $ "Nothing to delete: The " ++ fileBasename ++ " file does not exist."
+  where
+    fileBasename = SP.toFilePath $ basename file
+
+deleteDirectoryContentsVerboselyExcept :: Path' Abs (Dir d) -> ([Path' (Rel d) (File a)], [Path' (Rel d) (Dir b)]) -> Command ()
+deleteDirectoryContentsVerboselyExcept dirPath (filesToKeep, dirsToKeep) =
+  whenM (liftIO $ IOUtil.doesDirectoryExist dirPath) $ do
+    (files, dirs) <- liftIO $ IOUtil.listDirectory dirPath
+
+    let nothingToKeep =
+          filesToKeep `isNotPresentIn` files
+            && dirsToKeep `isNotPresentIn` dirs
+
+    if nothingToKeep
+      then deleteDirectoryIfExistsVerbosely dirPath
+      else do
+        checkEachBeforeDelete deleteFileIfExistsVerbosely files filesToKeep
+        checkEachBeforeDelete deleteDirectoryIfExistsVerbosely dirs dirsToKeep
+  where
+    checkEachBeforeDelete deleteFn items itemsToKeep =
+      forM_ items $ \item ->
+        unless (item `elem` itemsToKeep) $
+          deleteFn (dirPath </> item)
+
+    xs `isNotPresentIn` ys = all (`notElem` ys) xs

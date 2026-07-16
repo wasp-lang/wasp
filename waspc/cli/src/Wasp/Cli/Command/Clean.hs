@@ -3,19 +3,16 @@ module Wasp.Cli.Command.Clean
   )
 where
 
-import Control.Monad (when)
-import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
+import Wasp.Cli.Command.Common (deleteDirectoryContentsVerboselyExcept, deleteDirectoryIfExistsVerbosely)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir, stateDirInDotWaspDir)
-import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Terminal (styleCode)
 
 clean :: Arguments -> Command ()
@@ -25,14 +22,13 @@ clean = withArguments "wasp clean" cleanArgsParser $ \cleanArgs -> do
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
 
-  if deleteData cleanArgs
-    then deleteDirectoryIfExistsVerbosely dotWaspDir
-    else do
-      liftIO $ IOUtil.deleteDirectoryContentsExcept dotWaspDir stateDirInDotWaspDir
-      dotWaspDirExists <- liftIO $ IOUtil.doesDirectoryExist dotWaspDir
-      when dotWaspDirExists $ do
-        dotWaspDirIsEmpty <- liftIO $ IOUtil.isDirectoryEmpty dotWaspDir
-        when dotWaspDirIsEmpty $ liftIO $ IOUtil.removeDirectory dotWaspDir
+  let dotWaspContentsToKeep =
+        if deleteData cleanArgs
+          then ([], [])
+          else ([], [stateDirInDotWaspDir])
+
+  deleteDirectoryContentsVerboselyExcept dotWaspDir dotWaspContentsToKeep
+
   deleteDirectoryIfExistsVerbosely nodeModulesDir
 
   cliSendMessageC $
