@@ -9,6 +9,10 @@ const deploymentMethods = [
     title: "Railway",
     linkTo: "./railway",
   },
+  {
+    title: "Vercel",
+    linkTo: "./vercel",
+  },
 ];
 
 export function WaspDeployProvidersGrid() {
