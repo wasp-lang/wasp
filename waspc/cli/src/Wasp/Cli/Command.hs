@@ -29,20 +29,21 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 
 newtype Command a = Command
-  { _runCommand :: HasRequirementsT (HasCommandErrorT (HasCleanupT IO)) a
+  { _runCommand :: RequirerT (ExceptT CommandError (CleanupT IO)) a
   }
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
 
-type HasCleanupT m = WriterT [m ()] m
+type CleanupT m = WriterT [m ()] m
 
-type HasCommandErrorT = ExceptT CommandError
-
-type HasRequirementsT = StateT [Requirement]
+type RequirerT = StateT [Requirement]
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do
   (result, cleanups) <- runWriterT $ runExceptT $ (`evalStateT` mempty) $ _runCommand cmd
 
+  -- We reverse the cleanups so they behave like a FILO queue.
+  -- e.g. `mkdir folder >> defer (rmdir folder) >> mkdir (folder </> file) >> defer (rm $ folder </> file)`
+  -- Should first cleanup the file and then the folder.
   sequence_ $ reverse cleanups
 
   case result of
