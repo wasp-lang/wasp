@@ -78,17 +78,13 @@ class (Typeable r) => Requirable r where
 -- @
 require :: (Requirable r) => Command r
 require =
-  Command (gets (mapMaybe castRequirement)) >>= \case
+  Command (gets (mapMaybe cast)) >>= \case
     (req : _) -> return req
     [] -> do
       -- Requirement hasn't been met, so run the check
       req <- checkRequirement
       Command $ modify (Requirement req :)
       return req
-  where
-    -- 'Requirement' is an existential wrapper, so we must cast its contained
-    -- value instead of the wrapper itself.
-    castRequirement (Requirement req) = cast req
 
 defer :: IO () -> Command ()
 defer cleanup = Command $ tell [cleanup]
