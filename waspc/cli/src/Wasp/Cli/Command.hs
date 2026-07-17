@@ -6,6 +6,9 @@ module Wasp.Cli.Command
     runCommand,
     CommandError (..),
 
+    -- * Cleanup
+    defer,
+
     -- * Requirements
 
     -- See "Wasp.Cli.Command.Requires" for documentation.
@@ -18,18 +21,31 @@ import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
+import Control.Monad.Writer (WriterT, runWriterT, tell)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 
-newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
+newtype Command a = Command
+  { _runCommand :: HasRequirementsT (HasCommandErrorT (HasCleanupT IO)) a
+  }
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
+
+type HasCleanupT m = WriterT [m ()] m
+
+type HasCommandErrorT = ExceptT CommandError
+
+type HasRequirementsT = StateT [Requirement]
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do
-  runExceptT (flip evalStateT [] $ _runCommand cmd) >>= \case
+  (result, cleanups) <- runWriterT $ runExceptT $ (`evalStateT` mempty) $ _runCommand cmd
+
+  sequence_ $ reverse cleanups
+
+  case result of
     Left cmdError -> do
       cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
       exitFailure
@@ -68,3 +84,6 @@ require =
       req <- checkRequirement
       Command $ modify (Requirement req :)
       return req
+
+defer :: IO () -> Command ()
+defer cleanup = Command $ tell [cleanup]
