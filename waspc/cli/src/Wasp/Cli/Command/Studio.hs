@@ -34,8 +34,8 @@ import qualified Wasp.Project.Studio
 
 studio :: Command ()
 studio = do
-  LockedWaspProject waspDir <- require
   ValidNodeAndNpm <- require
+  LockedWaspProject waspDir <- require
   WaspSpecAvailable <- require
 
   appSpec <- analyze waspDir

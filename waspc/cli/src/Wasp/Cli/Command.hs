@@ -86,6 +86,8 @@ require =
       Command $ modify (Requirement req :)
       return req
   where
+    -- 'Requirement' is an existential wrapper, so we must cast its contained
+    -- value instead of the wrapper itself.
     castRequirement (Requirement req) = cast req
 
 defer :: IO () -> Command ()

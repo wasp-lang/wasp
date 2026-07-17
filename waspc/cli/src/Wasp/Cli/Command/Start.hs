@@ -33,8 +33,8 @@ start = do
   -- Therefore, it's best to keep the periodic news check contained and
   -- expected. This way we know exactly which workflows it could possibly
   -- interrupt (LLMs, CIs, people...).
-  LockedWaspProject waspProjectDir <- require
   liftIO fetchAndListMustSeeNewsIfDue
+  LockedWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."

@@ -52,8 +52,8 @@ compile = do
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings.
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
-  LockedWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
+  LockedWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

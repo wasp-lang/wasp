@@ -21,7 +21,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
-- Wasp commands that write generated project state now fail gracefully instead of corrupting the project when another such command is already running. ([#4478](https://github.com/wasp-lang/wasp/issues/4478))
+- Wasp commands that write generated project state now fail gracefully instead of corrupting the project when another such command is already running. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
 
 ### 🔧 Small improvements
