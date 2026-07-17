@@ -659,6 +659,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    mtl,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -671,6 +672,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.CommandTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests
