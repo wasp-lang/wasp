@@ -470,6 +470,11 @@ library cli-lib
     waspc,
     zlib ^>=0.7.1,
 
+  if os(windows)
+    build-depends: Win32 ^>=2.13.4
+  else
+    build-depends: unix ^>=2.8.6
+
   other-modules:
     Paths_waspc
 
@@ -530,6 +535,7 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.ProjectLock
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
@@ -658,11 +664,14 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
+    directory,
     hspec,
     mtl,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
+    temporary,
     time,
     waspc,
 
@@ -673,6 +682,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.CommandTest
+    Wasp.Cli.ProjectLockTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

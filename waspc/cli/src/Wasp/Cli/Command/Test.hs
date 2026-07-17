@@ -12,7 +12,7 @@ import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspProjectLock (WaspProjectLock), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -30,6 +30,7 @@ test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test clie
 watchAndTest :: (Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do
   InWaspProject waspRoot <- require
+  WaspProjectLock <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."

@@ -26,6 +26,7 @@ module Wasp.Cli.Command.Require
     InWaspProject (InWaspProject),
     ValidNodeAndNpm (ValidNodeAndNpm),
     WaspSpecAvailable (WaspSpecAvailable),
+    WaspProjectLock (WaspProjectLock),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
@@ -42,7 +43,8 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), defer, require)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -89,6 +91,45 @@ instance Requirable InWaspProject where
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."
           )
+
+data WaspProjectLock = WaspProjectLock deriving (Typeable)
+
+instance Requirable WaspProjectLock where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    let lockFilePath = ProjectLock.projectLockFilePath waspProjectDir
+    liftIO (ProjectLock.acquireProjectLock waspProjectDir) >>= \case
+      Right _ -> do
+        defer $ ProjectLock.releaseProjectLock waspProjectDir
+        return WaspProjectLock
+      Left lockError -> throwError $ commandError lockFilePath lockError
+    where
+      commandError lockFilePath = \case
+        ProjectLock.ProjectLockHeld processId ->
+          CommandError
+            "Wasp project is already in use"
+            ( "Another Wasp command (PID "
+                ++ show processId
+                ++ ") is already running for this project. Stop it before running this command."
+            )
+        ProjectLock.ProjectLockMalformed ->
+          CommandError
+            "Wasp project is already in use"
+            ( "Wasp couldn't determine which process owns the lock at "
+                ++ SP.fromAbsFile lockFilePath
+                ++ ". If no other Wasp command is running, remove the lock file and try again."
+            )
+        ProjectLock.ProjectLockOwnerCheckFailed processId errorMessage ->
+          CommandError
+            "Wasp project is already in use"
+            ( "Wasp couldn't check whether the command with PID "
+                ++ show processId
+                ++ " is still running. To avoid corrupting the project, the lock at "
+                ++ SP.fromAbsFile lockFilePath
+                ++ " was left in place.\n"
+                ++ errorMessage
+                ++ "\nIf no other Wasp command is running, remove the lock file and try again."
+            )
 
 -- | Require that the Node.js and npm installed on the user's machine meet
 -- Wasp's version requirements. Any command that runs Node.js (compilation,

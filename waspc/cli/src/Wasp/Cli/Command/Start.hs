@@ -12,7 +12,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
-import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), WaspProjectLock (WaspProjectLock), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -33,8 +33,9 @@ start = do
   -- Therefore, it's best to keep the periodic news check contained and
   -- expected. This way we know exactly which workflows it could possibly
   -- interrupt (LLMs, CIs, people...).
-  liftIO fetchAndListMustSeeNewsIfDue
   InWaspProject waspProjectDir <- require
+  WaspProjectLock <- require
+  liftIO fetchAndListMustSeeNewsIfDue
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
