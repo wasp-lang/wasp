@@ -159,11 +159,11 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        [ "emailUserSignupFields" .= extImportToImportJson emailUserSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson usernameAndPasswordUserSignupFields
         ]
-    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
@@ -176,12 +176,12 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+          "emailUserSignupFields" .= extImportToImportJson emailUserSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson usernameAndPasswordUserSignupFields
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

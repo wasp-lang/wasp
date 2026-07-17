@@ -14,7 +14,6 @@ import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -24,11 +23,12 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
-    getOperationTypeName,
+    getGenericOperationDefinitionTypeName,
+    getRegisteredOperationTypeName,
+    mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
-import Wasp.Util (toUpperFirst)
 
 serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
 serverOperationIndexJsFileInSdkRootDir operation =
@@ -44,7 +44,8 @@ genOperations spec =
       genQueriesIndex spec,
       genActionsIndex spec,
       genWrappers spec,
-      genIndexTs spec
+      genIndexTs spec,
+      genRegister
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
@@ -60,6 +61,9 @@ genIndexTs spec =
           "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
+
+genRegister :: Generator FileDraft
+genRegister = return $ mkTmplFd (serverOpsDirInSdkTemplatesDir </> [relfile|register.ts|])
 
 genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
@@ -148,7 +152,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (getName operation),
+        [ "typeName" .= getGenericOperationDefinitionTypeName operation,
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -159,8 +163,9 @@ getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
-      "operationName" .= getName operation,
-      "operationTypeName" .= getOperationTypeName operation,
+      "operationName" .= AS.Operation.getName operation,
+      "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
+      "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)

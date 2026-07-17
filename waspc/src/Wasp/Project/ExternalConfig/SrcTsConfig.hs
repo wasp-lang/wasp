@@ -27,7 +27,7 @@ parseAndValidateSrcTsConfig = parseAndValidateTsConfigFile srcTsConfigValidator
 srcTsConfigValidator :: V.Validator T.TsConfig
 srcTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.eqJust ["src"],
+    [ V.inField ("include", T.include) $ V.eqJust ["src", ".wasp/out/types/app"],
       V.inField ("exclude", T.exclude) $ V.eqJust ["**/*.wasp.ts"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]

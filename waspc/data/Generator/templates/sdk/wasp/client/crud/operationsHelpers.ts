@@ -1,21 +1,35 @@
-import { useAction, useQuery } from "../operations"
-import type { Query, Action } from "../operations/rpc"
-import type { Tail } from "../../universal/types"
+import { _Awaited, _ReturnType } from "../../universal/types";
+import { useAction, useQuery } from "../operations";
+import type { ActionFor } from "../operations/actions/core";
+import type { ActionOptions } from "../operations/hooks";
+import type { QueryFor } from "../operations/queries/core";
+import { GenericBackendOperation } from "../operations/rpc";
 
 // PRIVATE API
-export function makeUseQueryFor<Input, Output>(
-  query: Query<Input, Output>
-) {
-  return (
-    ...rest: Tail<Parameters<typeof useQuery<Input, Output>>>
-  ) => useQuery<Input, Output>(query, ...rest);
+export type UseQueryFor<Operation extends GenericBackendOperation> = (
+  queryFnArgs?: OperationInput<Operation>,
+  options?: any
+) => ReturnType<typeof useQuery<OperationInput<Operation>, OperationOutput<Operation>>>;
+
+// PRIVATE API
+export function makeUseQueryFor<Operation extends GenericBackendOperation>(
+  query: QueryFor<Operation>
+): UseQueryFor<Operation> {
+  return (queryFnArgs, options) => useQuery(query, queryFnArgs, options);
 }
 
 // PRIVATE API
-export function makeUseActionFor<Input = unknown, Output = unknown>(
-  action: Action<Input, Output>
-) {
-  return (
-    ...rest: Tail<Parameters<typeof useAction<Input, Output>>>
-  ) => useAction<Input, Output>(action, ...rest);
+export type UseActionFor<Operation extends GenericBackendOperation> = (
+  actionOptions?: ActionOptions<OperationInput<Operation>>
+) => ReturnType<typeof useAction<OperationInput<Operation>, OperationOutput<Operation>>>;
+
+// PRIVATE API
+export function makeUseActionFor<Operation extends GenericBackendOperation>(
+  action: ActionFor<Operation>
+): UseActionFor<Operation> {
+  return (actionOptions) => useAction(action, actionOptions);
 }
+
+// PRIVATE API
+export type OperationInput<Operation extends GenericBackendOperation> = Parameters<Operation>[0];
+export type OperationOutput<Operation extends GenericBackendOperation> = _Awaited<_ReturnType<Operation>>

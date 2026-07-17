@@ -1,18 +1,16 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
+import { PrismaClient as InternalPrismaClient } from '@prisma/client'
+import type { FromRegister } from '../types/register'
+
+type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
+
 {=# prismaSetupFn.isDefined =}
 {=& prismaSetupFn.importStatement =}
-
-function createDbClient() {
-  return {= prismaSetupFn.importIdentifier =}()
-}
+const dbClient: PrismaClient =  {= prismaSetupFn.importIdentifier =}();
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
-import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-
-function createDbClient() {
-  return new InternalPrismaClient()
-}
+const dbClient: PrismaClient = new InternalPrismaClient();
 {=/ prismaSetupFn.isDefined =}
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
@@ -21,15 +19,11 @@ function createDbClient() {
 //   will throw an error.
 // * To avoid throwing an error, we return null if there are no
 //   entities in the schema.
-function createDbClient(): null {
-  return null
-}
+const dbClient: null = null;
 {=/ areThereAnyEntitiesDefined =}
 
-const dbClient = createDbClient()
-
-// PUBLIC API 
-export type PrismaClient = typeof dbClient
+// PUBLIC API
+export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
 
 // PUBLIC API
-export default dbClient
+export default dbClient;

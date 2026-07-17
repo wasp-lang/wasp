@@ -20,12 +20,14 @@ const { mockQuery } = mockServer();
 const mockTasks = [
   {
     id: 1,
+    _extraField: "Some string!" as const,
     description: "test todo 1",
     isDone: true,
     userId: 1,
     visibility: "PRIVATE" as TaskVisibility,
     user: {
       id: 1,
+      _extraField: "Some string!" as const,
       isOnAfterSignupHookCalled: true,
       isOnAfterLoginHookCalled: true,
       isOnAfterEmailVerifiedHookCalled: true,
@@ -34,6 +36,7 @@ const mockTasks = [
       auth: {
         id: "1",
         userId: 1,
+        _extraField: "Some string!" as const,
         identities: [
           {
             providerName: "email",

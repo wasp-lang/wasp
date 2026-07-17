@@ -104,6 +104,8 @@ genSdk spec =
     [ C.genFileCopy [relfile|vite-env.d.ts|],
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
       C.genFileCopy [relfile|scripts/copy-assets.js|],
+      C.genFileCopy [relfile|types/index.ts|],
+      C.genFileCopy [relfile|types/register.ts|],
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],

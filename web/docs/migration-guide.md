@@ -59,14 +59,17 @@ Bump Wasp-required dependencies to their latest version:
     {
       "dependencies": {
         // ...
+        // highlight-next-line
         "react-router": "^7.12.0"
       },
       "devDependencies": {
         // ...
+        // highlight-start
         "@tailwindcss/vite": "^4.1.18", // only if present
         "typescript": "5.9.3",
         "vite": "^7.0.6",
         "vitest": "^4.0.16"
+        // highlight-end
       }
     }
     ```
@@ -76,25 +79,30 @@ Bump Wasp-required dependencies to their latest version:
     {
       "dependencies": {
         // ...
+        // highlight-next-line
         "react-router": "^8.0.1"
       },
       "devDependencies": {
         // ...
+        // highlight-start
         "@tailwindcss/vite": "^4.3.1", // only if present
         "typescript": "6.0.3",
         "vite": "^8.1.0",
         "vitest": "^4.1.9"
+        // highlight-end
       }
     }
     ```
   </TabItem>
 </Tabs>
 
-### 3. Update your TypeScript config for TypeScript 6
+### 3. Update your TypeScript configuration
 
-TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly. In `tsconfig.wasp.json`, also bump `target` and `lib` to `ES2025`.
+Due to TypeScript 6 upgrade and internal `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
 
-In `tsconfig.wasp.json`:
+TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly.
+
+In `tsconfig.wasp.json`, list the types and bump `target` and `lib` to `ES2025`:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -102,8 +110,10 @@ In `tsconfig.wasp.json`:
     {
       "compilerOptions": {
         // ...
+        // highlight-start
         "target": "ES2022",
         "lib": ["ES2023"]
+        // highlight-end
       }
     }
     ```
@@ -113,16 +123,18 @@ In `tsconfig.wasp.json`:
     {
       "compilerOptions": {
         // ...
+        // highlight-start
         "target": "ES2025",
         "lib": ["ES2025"],
         "types": ["node"]
+        // highlight-end
       }
     }
     ```
   </TabItem>
 </Tabs>
 
-In `tsconfig.src.json`:
+In `tsconfig.src.json`, list the types and update the `include` field:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -132,6 +144,8 @@ In `tsconfig.src.json`:
         // ...
         "outDir": ".wasp/out/user"
       }
+      // highlight-next-line
+      "include": ["src"]
     }
     ```
   </TabItem>
@@ -141,8 +155,11 @@ In `tsconfig.src.json`:
       "compilerOptions": {
         // ...
         "outDir": ".wasp/out/user",
+        // highlight-next-line
         "types": ["react", "node"]
-      }
+      }  
+      // highlight-next-line
+      "include": ["src", ".wasp/out/types/app"]
     }
     ```
   </TabItem>

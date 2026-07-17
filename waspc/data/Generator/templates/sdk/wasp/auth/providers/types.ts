@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types.js'
+import type { Expand, Exact } from '../../universal/types'
 import type { ProviderName } from '../utils'
 
 // PUBLIC API
@@ -12,15 +12,21 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 {=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
+import type { FromRegister } from '../../types/register'
+
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
+export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
+
+type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 {=/ emailUserSignupFields.isDefined =}
 
 {=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
+import type { FromRegister } from '../../types/register'
+
 // PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
+export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
+
+type RegisteredUsernameAndPasswordSignupFields = FromRegister<"usernameAndPasswordUserSignupFields", {}>
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 /**
