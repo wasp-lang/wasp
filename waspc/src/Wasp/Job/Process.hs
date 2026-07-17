@@ -40,12 +40,6 @@ runProcessAsJob process jobType chan =
     runStreamingProcessAsJob
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
-            forwardDecodedOutputToChan chan jobType stdoutStream J.Stdout
-
-      let forwardStderrToChan =
-            forwardDecodedOutputToChan chan jobType stderrStream J.Stderr
-
       exitCode <-
         runConcurrently $
           Concurrently forwardStdoutToChan
@@ -59,6 +53,12 @@ runProcessAsJob process jobType chan =
           }
 
       return exitCode
+      where
+        forwardStdoutToChan =
+          forwardDecodedOutputToChan chan jobType stdoutStream J.Stdout
+
+        forwardStderrToChan =
+          forwardDecodedOutputToChan chan jobType stderrStream J.Stderr
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
