@@ -11,7 +11,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-<img alt="How Todo App will work once it is done" src={useBaseUrl('img/todo-app-tutorial-intro.gif')} className="tutorial-image" />
+<img alt="How the Todo App will work once it is finished" src={useBaseUrl('img/todo-app-tutorial-intro.gif')} className="tutorial-image" />
 
 <br />
 
