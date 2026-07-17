@@ -21,11 +21,11 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
-- Wasp commands that write generated project state now fail gracefully instead of corrupting the project when another such command is already running. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
 
 ### 🔧 Small improvements
 
+- Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
 - The `wasp compile` command is now listed in `wasp`'s usage output and bash completion, making it easier to discover. ([#4456](https://github.com/wasp-lang/wasp/pull/4456))
 - `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
