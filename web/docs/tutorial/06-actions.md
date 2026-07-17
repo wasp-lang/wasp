@@ -122,7 +122,7 @@ const NewTaskForm = () => {
 Unlike Queries, you can call Actions directly (without wrapping them in a hook) because they don't need reactivity. The rest is just regular React code.
 
 <ShowForTs>
-  Finally, because we've previously annotated the Action's server implementation with the correct type, Wasp knows that the `createTask` Action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` Action returns a `Task` but are not using it in this example.
+  Finally, because we've previously annotated the Action's server implementation with the correct type, Wasp knows that the `createTask` Action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` Action returns a `Task` but we are not using it in this example.
 </ShowForTs>
 
 All that's left now is adding this form to the page component:
