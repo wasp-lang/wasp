@@ -26,7 +26,7 @@ module Wasp.Cli.Command.Require
     InWaspProject (InWaspProject),
     ValidNodeAndNpm (ValidNodeAndNpm),
     WaspSpecAvailable (WaspSpecAvailable),
-    WaspProjectLock (WaspProjectLock),
+    LockedWaspProject (LockedWaspProject),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
@@ -92,16 +92,16 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
-data WaspProjectLock = WaspProjectLock deriving (Typeable)
+newtype LockedWaspProject = LockedWaspProject (Path' Abs (Dir WaspProjectDir)) deriving (Typeable)
 
-instance Requirable WaspProjectLock where
+instance Requirable LockedWaspProject where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
     let lockFilePath = ProjectLock.projectLockFilePath waspProjectDir
     liftIO (ProjectLock.acquireProjectLock waspProjectDir) >>= \case
       Right _ -> do
         defer $ ProjectLock.releaseProjectLock waspProjectDir
-        return WaspProjectLock
+        return $ LockedWaspProject waspProjectDir
       Left lockError -> throwError $ commandError lockFilePath lockError
     where
       commandError lockFilePath = \case

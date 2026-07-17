@@ -22,7 +22,7 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspProjectLock (WaspProjectLock), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), LockedWaspProject (LockedWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -52,8 +52,7 @@ compile = do
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings.
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
-  InWaspProject waspProjectDir <- require
-  WaspProjectLock <- require
+  LockedWaspProject waspProjectDir <- require
   ValidNodeAndNpm <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
