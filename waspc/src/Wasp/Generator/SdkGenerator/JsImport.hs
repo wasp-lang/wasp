@@ -1,43 +1,29 @@
 module Wasp.Generator.SdkGenerator.JsImport
-  ( extOperationImportToImportJson,
-    extImportToImportJson,
-    extImportToJsImport,
+  ( extImportToImportJson,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust)
-import StrongPath (castRel, relDirToPosix, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkGenerator.Common
-  ( extSrcDirInSdkRootDir,
-    makeSdkImportPath,
-  )
+import Wasp.Generator.UserVirtualModules (UserVirtualModuleId)
 import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport), JsImportPath (..))
 
-extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
-extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
+-- | SDK is not allowed to import from user project (ext imports) directly,
+-- because that would create a cyclic dependency between TypeScript projects.
+-- Instead, SDK resolves user project imports through virtual modules.
+extImportToImportJson :: UserVirtualModuleId -> Maybe EI.ExtImport -> Aeson.Value
+extImportToImportJson virtualModuleId maybeExtImport = GJI.jsImportToImportJson jsImport
   where
-    jsImport = extImportToJsImport <$> maybeExtImport
+    jsImport = extImportToJsImport virtualModuleId <$> maybeExtImport
 
-extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
-extOperationImportToImportJson =
-  GJI.jsImportToImportJson
-    . Just
-    . extImportToJsImport
-
-extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+extImportToJsImport :: UserVirtualModuleId -> EI.ExtImport -> JsImport
+extImportToJsImport virtualModuleId extImport@(EI.ExtImport extImportName _ _) =
   JsImport
     { _kind = ValueImport,
-      _path = ModuleImportPath importPath,
-      _name = importName,
+      -- Import from virtual module instead.
+      _path = ModuleImportPath virtualModuleId,
+      _name = GJI.extImportNameToJsImportName extImportName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
-  where
-    importPath = makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
-    extCodeDirP = fromJust $ relDirToPosix extSrcDirInSdkRootDir
-    importName = GJI.extImportNameToJsImportName extImportName

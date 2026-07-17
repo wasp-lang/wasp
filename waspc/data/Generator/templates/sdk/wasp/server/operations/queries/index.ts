@@ -37,7 +37,7 @@ export const {= operationName =}: AuthenticatedOperationFor<{= registeredOperati
 export const {= operationName =}: UnauthenticatedOperationFor<{= registeredOperationTypeName =}> =
   createUnauthenticatedOperation<{= registeredOperationTypeName =}>(
 {=/ usesAuth =}
-    {= jsFn.importIdentifier =},
+    () => {= jsFn.importIdentifier =},
     {
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},

@@ -2,7 +2,7 @@
 import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
 {=# isAuthEnabled =}
-import { type AuthUser } from '../auth/user.js'
+import { type AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
 import {
   _Entity,
@@ -40,18 +40,27 @@ export type UnauthenticatedOperationFor<
  * Creates the server-side API for an unauthenticated operation.
  *
  * @template OperationDefinition The type of the unauthenticated operation's definition.
- * @param userOperation The unauthenticated operation's definition.
- * @param entities The unauthenticated operation's entity map .
+ * @param getUserOperation Returns the user's unauthenticated operation's definition.
+ * We take a getter rather than the function itself to stay safe against import cycles.
+ * 
+ * A user operation can import another operation, whose wrapped definitions lives in 
+ * this module. When the bundler flattens those modules into a single file, 
+ * these `createOperation` calls can run before the user's function has been initialized.
+ * Reading the value there would throw "Cannot access '...' before initialization".
+ * 
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized.
+ * @param entities The unauthenticated operation's entity map.
  * @returns The server-side API for the provided unauthenticated operation.
  */
 export function createUnauthenticatedOperation<
   OperationDefinition extends GenericUnauthenticatedOperationDefinition
 >(
-  userOperation: OperationDefinition,
+  getUserOperation: () => OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
 ): UnauthenticatedOperationFor<OperationDefinition> {
   async function operation(payload: Parameters<OperationDefinition>[0]) {
-    return userOperation(payload, {
+    return getUserOperation()(payload, {
       entities,
     })
   }
@@ -95,14 +104,23 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  * Creates the server-side API for an authenticated operation.
  *
  * @template OperationDefinition The type of the authenticated operation's definition.
- * @param userOperation The authenticated operation's definition.
- * @param entities The authenticated operation's entity map .
+ * @param getUserOperation Returns the user's authenticated operation's definition.
+ * We take a getter rather than the function itself to stay safe against import cycles.
+ * 
+ * A user operation can import another operation, whose wrapped definitions lives in 
+ * this module. When the bundler flattens those modules into a single file, 
+ * these `createOperation` calls can run before the user's function has been initialized.
+ * Reading the value there would throw "Cannot access '...' before initialization".
+ * 
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized.
+ * @param entities The authenticated operation's entity map.
  * @returns The server-side API for the provided authenticated operation.
  */
 export function createAuthenticatedOperation<
   OperationDefinition extends GenericAuthenticatedOperationDefinition
 >(
-  userOperation: OperationDefinition,
+  getUserOperation: () => OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
 ): AuthenticatedOperationFor<OperationDefinition> {
   async function operation(...args: AuthenticatedOperationArgsFor<OperationDefinition>) {
@@ -119,14 +137,14 @@ export function createAuthenticatedOperation<
     } else if (includesPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, context] = args
-      return userOperation(payload as Parameters<OperationDefinition>[0], {
+      return getUserOperation()(payload as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })
     } else {
       // One argument sent -> the first and only argument is the user.
       const [context] = args
-      return userOperation(undefined as Parameters<OperationDefinition>[0], {
+      return getUserOperation()(undefined as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })

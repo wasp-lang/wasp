@@ -4,12 +4,14 @@ module Wasp.Generator.SdkGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -24,7 +26,6 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
@@ -36,7 +37,7 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ genFileCopyInAuth [relfile|user.ts|]
+        [ genUserTs auth
         ]
         -- client stuff
         <++> sequence
@@ -66,6 +67,24 @@ genAuth spec =
         <++> genOAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genUserTs :: AS.Auth.Auth -> Generator FileDraft
+genUserTs auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|user.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "userEntityName" .= userEntityName,
+          "authEntityName" .= DbAuth.authEntityName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
@@ -159,11 +178,11 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "emailUserSignupFields" .= extImportToImportJson emailUserSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson usernameAndPasswordUserSignupFields
+        [ "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined,
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
         ]
-    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
@@ -176,12 +195,12 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "emailUserSignupFields" .= extImportToImportJson emailUserSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson usernameAndPasswordUserSignupFields
+          "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined,
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

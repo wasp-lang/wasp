@@ -6,7 +6,6 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -62,9 +61,6 @@ sdkRootDirInGeneratedAppDir = [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
-
-extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
-extSrcDirInSdkRootDir = [reldir|src|]
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path

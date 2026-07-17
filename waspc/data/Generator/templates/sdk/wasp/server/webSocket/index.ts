@@ -6,7 +6,7 @@ import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 import { prisma } from '../index'
 import type { FromRegister } from '../../types/register'
 {=# isAuthEnabled =}
-import { type AuthUser } from '../auth/user'
+import { type AuthUser } from '../../auth/user'
 {=/ isAuthEnabled =}
 
 
