@@ -9,7 +9,6 @@ where
 
 import Control.Concurrent (Chan, writeChan)
 import Control.Concurrent.Async (Concurrently (..))
-import Control.Monad (unless)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
@@ -82,12 +81,11 @@ runProcessAsJob process jobType chan =
 
     emitDecodedTextToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> T.Text -> IO ()
     emitDecodedTextToChan chan' jobType' outputType text =
-      unless (T.null text) $
-        writeChan chan' $
-          J.JobMessage
-            { J._data = J.JobOutput text outputType,
-              J._jobType = jobType'
-            }
+      writeChan chan' $
+        J.JobMessage
+          { J._data = J.JobOutput text outputType,
+            J._jobType = jobType'
+          }
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
