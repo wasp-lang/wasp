@@ -423,6 +423,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.GitRev
+    Wasp.Util.Glob
     Wasp.Util.HashMap
     Wasp.Util.InstallMethod
     Wasp.Util.IO
@@ -641,6 +642,7 @@ test-suite waspc-tests
     Util.Diff
     Util.FibTest
     Util.FilePathTest
+    Util.GlobTest
     Util.IO.RetryTest
     Util.Prisma
     Util.StrongPathTest
