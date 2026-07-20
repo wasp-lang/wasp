@@ -161,6 +161,11 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
+  if os(windows)
+    build-depends: Win32 ^>=2.13.4
+  else
+    build-depends: unix ^>=2.8.6
+
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Analyzer
@@ -231,6 +236,8 @@ library
     Wasp.AppSpec.Route
     Wasp.AppSpec.Util
     Wasp.AppSpec.Valid
+    Wasp.Cli.ProjectLock
+    Wasp.Cli.ProjectLock.System
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
@@ -470,11 +477,6 @@ library cli-lib
     waspc,
     zlib ^>=0.7.1,
 
-  if os(windows)
-    build-depends: Win32 ^>=2.13.4
-  else
-    build-depends: unix ^>=2.8.6
-
   other-modules:
     Paths_waspc
 
@@ -535,7 +537,6 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
-    Wasp.Cli.ProjectLock
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser

@@ -39,7 +39,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Bool (bool)
 import Data.Data (Typeable)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
@@ -51,7 +51,7 @@ import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import qualified Wasp.Project.BuildType as BuildType
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, projectLockFileInWaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
@@ -97,39 +97,35 @@ newtype InLockedWaspProject = InLockedWaspProject (Path' Abs (Dir WaspProjectDir
 instance Requirable InLockedWaspProject where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
-    let lockFilePath = ProjectLock.projectLockFilePath waspProjectDir
-    liftIO (ProjectLock.acquireProjectLock waspProjectDir) >>= \case
+    let lockFilePath = waspProjectDir </> projectLockFileInWaspProjectDir
+
+    liftIO (ProjectLock.acquireProjectLock lockFilePath) >>= \case
       Right _ -> do
-        defer $ ProjectLock.releaseProjectLock waspProjectDir
+        defer $ ProjectLock.releaseProjectLock lockFilePath
         return $ InLockedWaspProject waspProjectDir
       Left lockError -> throwError $ commandError lockFilePath lockError
     where
-      commandError lockFilePath = \case
-        ProjectLock.ProjectLockHeld processId ->
-          CommandError
-            "Wasp project is already in use"
-            ( "Another Wasp command (PID "
-                ++ show processId
-                ++ ") is already running for this project. Stop it before running this command."
-            )
-        ProjectLock.ProjectLockMalformed ->
-          CommandError
-            "Wasp project is already in use"
-            ( "Wasp couldn't determine which process owns the lock at "
-                ++ SP.fromAbsFile lockFilePath
-                ++ ". If no other Wasp command is running, remove the lock file and try again."
-            )
-        ProjectLock.ProjectLockOwnerCheckFailed processId errorMessage ->
-          CommandError
-            "Wasp project is already in use"
-            ( "Wasp couldn't check whether the command with PID "
+      commandError _ (ProjectLock.ProjectLockHeld processId) =
+        CommandError "Wasp project is already in use" $
+          "Another Wasp command (PID "
+            ++ show processId
+            ++ ") is already running for this project. Stop it before running this command."
+      commandError lockFilePath (ProjectLock.ProjectLockMalformed _) =
+        CommandError "Wasp project is already in use" $
+          "Wasp couldn't determine which process owns the lock at "
+            ++ SP.fromAbsFile lockFilePath
+            ++ ". If no other Wasp command is running, remove the lock file and try again."
+      commandError lockFilePath (ProjectLock.ProjectLockOwnerCheckFailed processId errorMessage) =
+        CommandError "Wasp project is already in use" $
+          unlines
+            [ "Wasp couldn't check whether the command with PID "
                 ++ show processId
                 ++ " is still running. To avoid corrupting the project, the lock at "
                 ++ SP.fromAbsFile lockFilePath
-                ++ " was left in place.\n"
-                ++ errorMessage
-                ++ "\nIf no other Wasp command is running, remove the lock file and try again."
-            )
+                ++ " was left in place.",
+              errorMessage,
+              "\nIf no other Wasp command is running, remove the lock file and try again."
+            ]
 
 -- | Require that the Node.js and npm installed on the user's machine meet
 -- Wasp's version requirements. Any command that runs Node.js (compilation,
