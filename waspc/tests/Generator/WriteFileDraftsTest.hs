@@ -10,7 +10,10 @@ import Test.Hspec (Spec, anyErrorCall, describe, it, shouldBe, shouldMatchList, 
 import Wasp.Generator.FileDraft (FileDraft (FileDraftTextFd), Writeable (getDstPath))
 import Wasp.Generator.FileDraft.TextFileDraft (TextFileDraft)
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
-import Wasp.Generator.WriteFileDrafts (assertDstPathsAreUnique, fileDraftsToWriteAndFilesToDelete)
+import Wasp.Generator.WriteFileDrafts
+  ( assertDstPathsAreUnique,
+    fileDraftsToWriteAndFilesToDelete,
+  )
 import Wasp.Util (Checksum, checksumFromString, checksumFromText)
 
 genMockTextFileDrafts :: Int -> [TextFileDraft]
