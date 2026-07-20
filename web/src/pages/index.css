@@ -4,6 +4,12 @@ body {
   margin: 0;
 }
 
+/* Smooth-scroll in-page anchor jumps (e.g. hero → #ai section), scoped to
+   the landing page so docs anchor behavior stays untouched. */
+html:has(div.twLandingPage) {
+  scroll-behavior: smooth;
+}
+
 div.twLandingPage {
   background-color: var(--wasp-bg);
   font-family: "IBM Plex Mono", monospace;
