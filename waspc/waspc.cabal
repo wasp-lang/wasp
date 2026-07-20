@@ -352,6 +352,7 @@ library
     Wasp.Job.Except
     Wasp.Job.IO
     Wasp.Job.IO.PrefixedWriter
+    Wasp.Job.Node
     Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
@@ -582,6 +583,7 @@ test-suite waspc-tests
     neat-interpolation,
     parsec,
     path,
+    process,
     split,
     strong-path,
     tasty ^>=1.5.3,
@@ -618,6 +620,7 @@ test-suite waspc-tests
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
+    Job.ProcessTest
     JsImportTest
     Node.InternalTest
     Paths_waspc

@@ -14,6 +14,7 @@ import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util (secondsToMicroSeconds)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
 --   It will run as long as one of those processes does not fail.
@@ -41,8 +42,7 @@ listenForJobsQuietDown jobsChan onJobsQuietDown = do
   where
     waitForJobMsg = void $ readChan jobsChan
     waitForPeriodOfSilence = do
-      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsAsMs 5)
+      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsToMicroSeconds 5)
       case jobMsgOrTimeout of
         Left _ -> waitForPeriodOfSilence
         Right _ -> return ()
-    secondsAsMs s = s * 1000000
