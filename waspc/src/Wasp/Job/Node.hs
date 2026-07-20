@@ -21,18 +21,18 @@ runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType =
-  J.makeJob jobType $ \chan ->
-    NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-      NodeVersion.VersionCheckFail errorMsg -> do
-        J.writeJobOutput jobType J.Stderr (T.pack errorMsg) chan
-        return $ ExitFailure 1
-      NodeVersion.VersionCheckSuccess ->
-        runNodeCommandAndStreamOutputWithExtraEnv extraEnvVars fromDir command args jobType chan
+  J.makeJob jobType $
+    runNodeCommandAndStreamOutputWithExtraEnv extraEnvVars fromDir command args
 
-runNodeCommandAndStreamOutputWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.JobOutputStreamer
-runNodeCommandAndStreamOutputWithExtraEnv extraEnvVars fromDir command args jobType chan = do
-  nodeCommandProcess <- makeNodeCommandProcessWithExtraEnv extraEnvVars fromDir command args
-  runProcessAndStreamOutput nodeCommandProcess jobType chan
+runNodeCommandAndStreamOutputWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobOutputSink -> IO ExitCode
+runNodeCommandAndStreamOutputWithExtraEnv extraEnvVars fromDir command args outputSink =
+  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
+    NodeVersion.VersionCheckFail errorMsg -> do
+      J.writeJobOutput outputSink J.Stderr $ T.pack errorMsg
+      return $ ExitFailure 1
+    NodeVersion.VersionCheckSuccess -> do
+      nodeCommandProcess <- makeNodeCommandProcessWithExtraEnv extraEnvVars fromDir command args
+      runProcessAndStreamOutput nodeCommandProcess outputSink
 
 makeNodeCommandProcessWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> IO P.CreateProcess
 makeNodeCommandProcessWithExtraEnv extraEnvVars fromDir command args = do
