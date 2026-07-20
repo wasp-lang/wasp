@@ -1,18 +1,19 @@
 module Job.ProcessTest where
 
 import Control.Concurrent (Chan, newChan, readChan)
+import Data.Maybe (isNothing)
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
+import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn, shouldSatisfy)
 import qualified Wasp.Job as J
 import qualified Wasp.Job.Process as Process
 import Wasp.Util (secondsToMicroSeconds)
 
-spec_runProcessAndStreamOutput :: Spec
-spec_runProcessAndStreamOutput =
-  describe "runProcessAndStreamOutput" $ do
+spec_runProcessAsJob :: Spec
+spec_runProcessAsJob =
+  describe "runProcessAsJob" $ do
     it "decodes split and incomplete UTF-8 on stdout" $
       runSplitUtf8Process "stdout" `shouldReturn` "€�"
 
@@ -22,9 +23,12 @@ spec_runProcessAndStreamOutput =
 runSplitUtf8Process :: String -> IO T.Text
 runSplitUtf8Process streamName = do
   chan <- newChan
-  exitCode <- Process.runProcessAndStreamOutput (P.proc "node" ["-e", splitUtf8Script streamName]) J.Wasp chan
+  exitCode <- Process.runProcessAsJob (P.proc "node" ["-e", splitUtf8Script streamName]) J.Wasp chan
   exitCode `shouldBe` ExitSuccess
-  collectQueuedOutput chan
+  output <- collectOutputUntilExit chan
+  remainingMessage <- timeout (secondsToMicroSeconds 0.1) $ readChan chan
+  remainingMessage `shouldSatisfy` isNothing
+  return output
 
 splitUtf8Script :: String -> String
 splitUtf8Script streamName =
@@ -34,12 +38,14 @@ splitUtf8Script streamName =
     <> streamName
     <> ".write(Buffer.from([0x82, 0xac, 0xe2])), 200);"
 
-collectQueuedOutput :: Chan J.JobMessage -> IO T.Text
-collectQueuedOutput chan = go []
+collectOutputUntilExit :: Chan J.JobMessage -> IO T.Text
+collectOutputUntilExit chan = go []
   where
     go collected = do
-      maybeMessage <- timeout (secondsToMicroSeconds 0.2) $ readChan chan
-      case maybeMessage of
-        Nothing -> return $ T.concat $ reverse collected
-        Just J.JobMessage {J._data = J.JobOutput output _} -> go (output : collected)
-        Just _ -> go collected
+      message <- readChan chan
+      J._jobType message `shouldBe` J.Wasp
+      case J._data message of
+        J.JobOutput output _ -> go (output : collected)
+        J.JobExit exitCode -> do
+          exitCode `shouldBe` ExitSuccess
+          return $ T.concat $ reverse collected

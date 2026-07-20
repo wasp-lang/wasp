@@ -22,12 +22,12 @@ import qualified Wasp.Job as J
 -- | Runs a top-level job and emits 'JobExit' when it finishes.
 -- Internal child processes should use 'runProcessAndStreamOutput' instead.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob process jobType = J.makeJob jobType $ runProcessAndStreamOutput process jobType
+runProcessAsJob process jobType = J.makeJob jobType $ runProcessAndStreamOutput process
 
 -- | Runs a child process and streams its output without emitting 'JobExit'.
 -- Use 'runProcessAsJob' for top-level jobs that should signal completion to job readers.
-runProcessAndStreamOutput :: P.CreateProcess -> J.JobType -> J.JobOutputStreamer
-runProcessAndStreamOutput process jobType chan =
+runProcessAndStreamOutput :: P.CreateProcess -> J.JobOutputSink -> IO ExitCode
+runProcessAndStreamOutput process outputSink =
   bracket
     (CP.streamingProcess process)
     (\(_, _, _, sph) -> terminateStreamingProcess sph)
@@ -36,11 +36,11 @@ runProcessAndStreamOutput process jobType chan =
     runStreamingProcessAndStreamOutput (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
             runConduit $
-              stdoutStream .| CT.decodeUtf8Lenient .| CL.mapM_ (\text -> J.writeJobOutput jobType J.Stdout text chan)
+              stdoutStream .| CT.decodeUtf8Lenient .| CL.mapM_ (J.writeJobOutput outputSink J.Stdout)
 
       let forwardStderrToChan =
             runConduit $
-              stderrStream .| CT.decodeUtf8Lenient .| CL.mapM_ (\text -> J.writeJobOutput jobType J.Stderr text chan)
+              stderrStream .| CT.decodeUtf8Lenient .| CL.mapM_ (J.writeJobOutput outputSink J.Stderr)
 
       runConcurrently $
         Concurrently forwardStdoutToChan
