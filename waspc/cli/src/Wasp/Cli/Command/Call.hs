@@ -4,7 +4,7 @@ data Call
   = New Arguments
   | Start
   | StartDb Arguments
-  | Clean
+  | Clean Arguments
   | Install
   | Uninstall
   | Compile

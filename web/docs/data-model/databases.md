@@ -29,7 +29,7 @@ datasource db {
   Read more about how Wasp uses the Prisma schema file in the [Prisma schema file](./prisma-file.md) section.
 </small>
 
-When you use the SQLite database, Wasp sets the `DATABASE_URL` environment variable for you.
+When you use the SQLite database, Wasp sets the `DATABASE_URL` environment variable for you. Its database is stored at `.wasp/state/dev.db`, so it is preserved across compiles, builds, and `wasp clean`. Run `wasp clean --data` only when you intentionally want to delete this local data.
 
 SQLite is a great way to get started with a new project because it doesn't require any configuration, but Wasp can only use it in development. Once you want to deploy your Wasp app to production, you'll need to switch to PostgreSQL and stick with it.
 
@@ -168,11 +168,11 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    // ...
    ```
 
-2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean`](../general/cli#project-commands):
+2. Delete all the old migrations, since they are SQLite migrations and can't be used with PostgreSQL, as well as the SQLite database by running [`wasp clean --data`](../general/cli#project-commands):
 
    ```bash
    rm -r migrations/
-   wasp clean
+   wasp clean --data
    ```
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.

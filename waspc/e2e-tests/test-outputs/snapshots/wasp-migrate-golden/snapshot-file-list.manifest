@@ -4,8 +4,6 @@ wasp-app/.wasp/out/.dockerignore
 wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo
 wasp-app/.wasp/out/Dockerfile
-wasp-app/.wasp/out/db/dev.db
-wasp-app/.wasp/out/db/dev.db-journal
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/migrations/no-date-foo/migration.sql
 wasp-app/.wasp/out/db/schema.prisma
@@ -425,6 +423,8 @@ wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/spec/register.ts
 wasp-app/.wasp/spec-result.json
+wasp-app/.wasp/state/dev.db
+wasp-app/.wasp/state/dev.db-journal
 wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/AGENTS.md

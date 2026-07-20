@@ -24,7 +24,18 @@ Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster b
 
 ## How to migrate?
 
-### 1. Bump the Wasp version
+### 1. Preserve your SQLite development data
+
+**Only if your project uses SQLite.**
+
+If your project uses SQLite and you want to keep its development data, move the database to its new location before upgrading. Run the following commands in your project root:
+
+```bash
+mkdir -p .wasp/state
+mv .wasp/out/db/dev.db* .wasp/state/
+```
+
+### 2. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.25.0`.
 
@@ -49,7 +60,7 @@ Update the version field in your Wasp config to `^0.25.0`.
   </TabItem>
 </Tabs>
 
-### 2. Update your dependencies in `package.json`
+### 3. Update your dependencies in `package.json`
 
 Bump Wasp-required dependencies to their latest version:
 
@@ -90,7 +101,7 @@ Bump Wasp-required dependencies to their latest version:
   </TabItem>
 </Tabs>
 
-### 3. Update your TypeScript config for TypeScript 6
+### 4. Update your TypeScript config for TypeScript 6
 
 TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly. In `tsconfig.wasp.json`, also bump `target` and `lib` to `ES2025`.
 
@@ -148,6 +159,6 @@ In `tsconfig.src.json`:
   </TabItem>
 </Tabs>
 
-### 4. Enjoy your updated Wasp app
+### 5. Enjoy your updated Wasp app
 
 That's it!

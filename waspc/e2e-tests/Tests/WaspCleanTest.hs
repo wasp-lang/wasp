@@ -33,6 +33,30 @@ waspCleanTest =
                   return $ assertDirectoryDoesNotExist "node_modules"
                 ]
             ]
+        ),
+      TestCase
+        "preserves-state-unless-data-is-requested"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ waspCliCompile,
+                  return "mkdir -p .wasp/state && touch .wasp/state/dev.db",
+                  return "mkdir .wasp/unused",
+                  waspCliClean,
+                  return $ assertDirectoryDoesNotExist ".wasp/out",
+                  return $ assertDirectoryDoesNotExist ".wasp/unused",
+                  return "[ -f .wasp/state/dev.db ]",
+                  return "$WASP_CLI_CMD clean --data",
+                  return $ assertDirectoryDoesNotExist ".wasp"
+                ]
+            ]
+        ),
+      TestCase
+        "rejects-unknown-arguments"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir [return "! $WASP_CLI_CMD clean --unknown"]
+            ]
         )
     ]
   where

@@ -9,10 +9,11 @@ module Wasp.Project.Db
   )
 where
 
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.Project.Common (WaspProjectDir)
+import qualified Wasp.Project.Common as Common
 import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
 import qualified Wasp.Project.Db.Dev.Sqlite as DevSqlite
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
@@ -27,12 +28,12 @@ makeDevDatabaseUrl ::
   Path' Abs (Dir WaspProjectDir) ->
   AS.Db.DbSystem ->
   [AS.Decl] ->
-  Maybe String
-makeDevDatabaseUrl waspProjectDir dbSystem decls = do
+  IO (Maybe String)
+makeDevDatabaseUrl waspProjectDir AS.Db.PostgreSQL decls = return $ do
   (appName, _) <- AS.getApp decls
-  case dbSystem of
-    AS.Db.PostgreSQL -> Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
-    AS.Db.SQLite -> Just DevSqlite.defaultDevDbFile
+  Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
+makeDevDatabaseUrl waspProjectDir AS.Db.SQLite _ =
+  Just <$> DevSqlite.makeDevConnectionUrl (waspProjectDir </> Common.devDbFileInWaspProjectDir)
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"
