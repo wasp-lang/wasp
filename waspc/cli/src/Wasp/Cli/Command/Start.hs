@@ -5,6 +5,7 @@ where
 
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
+import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
@@ -20,14 +21,18 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
-import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Command.Start.ServerRuntimeInputChange (classifyServerEffect)
+import Wasp.Cli.Command.Watch (WatchCompileHooks (..), watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
+import qualified Wasp.Cli.SignalHandling as SignalHandling
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
@@ -66,20 +71,25 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
   cliSendMessageC $ Msg.Start "Starting up generated project..."
   cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
 
-  watchOrStartResult <- liftIO $ do
+  watchOrStartResult <- liftIO $ SignalHandling.withGracefulTermination $ do
     -- This MVar is used to exchange information between the two processes below running in
     -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
     -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
     -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp =
-          Wasp.Generator.start
-            runConfigs
-            waspProjectDir
-            outDir
-            (onJobsQuietDown ongoingCompilationResultMVar)
+    serverProcessController <- ServerGenerator.Start.newServerProcessController
+    let watchCompileHooks =
+          WatchCompileHooks
+            { _onSuccessfulCompile = \watchCompileResult -> do
+                let serverEffect = classifyServerEffect watchCompileResult
+                when (serverEffect /= ServerGenerator.Start.NoServerEffect) $
+                  cliSendMessage (Msg.Start "Updating server...")
+                ServerGenerator.Start.notifySuccessfulCompile serverProcessController serverEffect,
+              _onFailedCompile = const $ ServerGenerator.Start.notifyFailedCompile serverProcessController
+            }
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks
+    let startGeneratedWebApp = Wasp.Generator.start runConfigs waspProjectDir outDir serverProcessController (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).

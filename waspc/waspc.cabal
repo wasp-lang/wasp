@@ -162,6 +162,8 @@ library
   other-modules:
     Paths_waspc
     Wasp.Process.System
+    Wasp.Job.Subprocess.Managed
+    Wasp.Job.Subprocess.System
 
   exposed-modules:
     Wasp.AppComponentUrl
@@ -400,6 +402,7 @@ library
     Wasp.Util.Docker
     Wasp.Util.FilePath
     Wasp.Util.GitRev
+    Wasp.Util.Glob
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -511,6 +514,7 @@ library cli-lib
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
+    Wasp.Cli.Command.Start.ServerRuntimeInputChange
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
@@ -601,8 +605,10 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
+    Job.Subprocess.ManagedTest
     Job.ProcessTest
     JobTest
     JsImportTest
@@ -640,6 +646,7 @@ test-suite waspc-tests
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest
+    Util.GlobTest
     Util.IO.RetryTest
     Util.JsTest
     Util.Prisma
@@ -662,6 +669,7 @@ test-suite wasp-cli-tests
     hspec,
     network,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
     time,
@@ -676,6 +684,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.Command.Start.ServerRuntimeInputChangeTest
     Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
