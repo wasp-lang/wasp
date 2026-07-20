@@ -11,11 +11,11 @@ where
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import System.FilePath.Glob (Pattern, compile, match)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Project.Common
+import Wasp.Util.Glob (Pattern, compile, match)
 import qualified Wasp.Util.IO as IOUtil
 
 class AffectedByWaspignoreFile a
@@ -38,7 +38,7 @@ waspIgnorePathInWaspProjectDir = [relfile|.waspignore|]
 
 -- | These patterns are ignored by every 'WaspignoreFile'
 defaultIgnorePatterns :: [Pattern]
-defaultIgnorePatterns = map compile [".waspignore"]
+defaultIgnorePatterns = [".waspignore"]
 
 -- | Parses a string to a 'WaspignoreFile'.
 --
@@ -96,4 +96,4 @@ readWaspignoreFile file = do
 --   ignoreFile `ignores` "src/a.js" -- False
 --   @
 ignores :: WaspignoreFile -> FilePath -> Bool
-ignores (WaspignoreFile pats) fp = any (`match` fp) pats
+ignores (WaspignoreFile patterns) fp = any (`match` fp) patterns
