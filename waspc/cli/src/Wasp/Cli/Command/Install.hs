@@ -7,8 +7,9 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), require)
+import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Module as ProjectModule
 
