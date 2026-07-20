@@ -9,7 +9,7 @@ import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import Wasp.Job.Node (runNodeCommandAsJobWithExtraEnv)
 
 buildClient :: BuildStartConfig -> ExceptJob
 buildClient config =

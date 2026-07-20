@@ -4,7 +4,7 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan, threadDelay, writeChan)
+import Control.Concurrent (Chan, newChan, readChan, threadDelay)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
@@ -22,8 +22,9 @@ import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog,
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Job.Node (runNodeCommandAsJob)
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
@@ -89,7 +90,7 @@ installProjectNpmDependencies messagesChan projectDir = do
 
 installNpmDependenciesAndReport :: Job -> Chan JobMessage -> JobType -> IO ExitCode
 installNpmDependenciesAndReport installJob chan jobType = do
-  writeChan chan $ J.JobMessage {J._data = J.JobOutput "Starting npm install\n" J.Stdout, J._jobType = jobType}
+  J.writeJobOutput jobType J.Stdout "Starting npm install\n" chan
   result <- installJob chan `race` reportInstallationProgress chan jobType
   case result of
     Left exitCode -> return exitCode
@@ -100,11 +101,9 @@ reportInstallationProgress chan jobType =
   mapM_ reportMessage $ cycle possibleMessages
   where
     reportMessage message = do
-      threadDelay $ secToMicroSec 5
-      writeChan chan $ J.JobMessage {J._data = J.JobOutput (T.append message "\n") J.Stdout, J._jobType = jobType}
-      threadDelay $ secToMicroSec 5
-
-    secToMicroSec = (* 1000000)
+      threadDelay $ secondsToMicroSeconds 5
+      J.writeJobOutput jobType J.Stdout (T.append message "\n") chan
+      threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =
       [ "Still installing npm dependencies!",
