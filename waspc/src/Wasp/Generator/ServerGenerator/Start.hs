@@ -74,15 +74,16 @@ startServer generatedAppDir controller =
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
 runServerProcessController :: Path' Abs (Dir ServerRootDir) -> ServerProcessController -> J.Job
-runServerProcessController serverDir controller chan = do
-  -- Only the controller thread (this one) reads and writes these refs,
-  -- including the 'finally' cleanup below. The process exit watchers spawned
-  -- in 'startServerProcess' only write commands to the controller channel.
-  serverStateRef <- newIORef ServerNotRunning
-  nextServerProcessIdRef <- newIORef 0
-  runServerProcessControllerLoop serverDir controller serverStateRef nextServerProcessIdRef chan
-    `finally` stopServerFromStateRef serverStateRef
-  return ExitSuccess
+runServerProcessController serverDir controller =
+  J.makeJob J.Server $ \outputSink -> do
+    -- Only the controller thread (this one) reads and writes these refs,
+    -- including the 'finally' cleanup below. The process exit watchers spawned
+    -- in 'startServerProcess' only write commands to the controller channel.
+    serverStateRef <- newIORef ServerNotRunning
+    nextServerProcessIdRef <- newIORef 0
+    runServerProcessControllerLoop serverDir controller serverStateRef nextServerProcessIdRef outputSink
+      `finally` stopServerFromStateRef serverStateRef
+    return ExitSuccess
 
 sendBlockingServerControllerCommand :: ServerProcessController -> (MVar () -> ServerControllerCommand) -> IO ()
 sendBlockingServerControllerCommand (ServerProcessController commandChan) mkCommand = do
@@ -101,10 +102,10 @@ runServerProcessControllerLoop ::
   ServerProcessController ->
   IORef ServerProcessState ->
   IORef Int ->
-  Chan J.JobMessage ->
+  J.JobOutputSink ->
   IO ()
-runServerProcessControllerLoop serverDir controller serverStateRef nextServerProcessIdRef chan = do
-  handleSuccessfulCompile serverDir controller serverStateRef nextServerProcessIdRef chan RebundleAndRestartServer
+runServerProcessControllerLoop serverDir controller serverStateRef nextServerProcessIdRef outputSink = do
+  handleSuccessfulCompile serverDir controller serverStateRef nextServerProcessIdRef outputSink RebundleAndRestartServer
   processServerCommands
   where
     processServerCommands = do
@@ -112,12 +113,12 @@ runServerProcessControllerLoop serverDir controller serverStateRef nextServerPro
       case command of
         SuccessfulCompile serverEffect done ->
           processBlockingCommand done $
-            handleSuccessfulCompile serverDir controller serverStateRef nextServerProcessIdRef chan serverEffect
+            handleSuccessfulCompile serverDir controller serverStateRef nextServerProcessIdRef outputSink serverEffect
         FailedCompile done ->
           processBlockingCommand done $
             stopServerFromStateRef serverStateRef
         ServerProcessExited serverProcessId exitCode ->
-          handleServerProcessExited serverStateRef chan serverProcessId exitCode
+          handleServerProcessExited serverStateRef outputSink serverProcessId exitCode
       processServerCommands
 
     processBlockingCommand done action = action `finally` putMVar done ()
@@ -127,20 +128,20 @@ handleSuccessfulCompile ::
   ServerProcessController ->
   IORef ServerProcessState ->
   IORef Int ->
-  Chan J.JobMessage ->
+  J.JobOutputSink ->
   ServerEffect ->
   IO ()
-handleSuccessfulCompile serverDir controller serverStateRef nextServerProcessIdRef chan serverEffect = do
-  reconcileExitedServerProcess serverStateRef chan
+handleSuccessfulCompile serverDir controller serverStateRef nextServerProcessIdRef outputSink serverEffect = do
+  reconcileExitedServerProcess serverStateRef outputSink
   serverState <- readIORef serverStateRef
   case (serverState, serverEffect) of
     (ServerRunning {}, NoServerEffect) -> return ()
     (ServerRunning {}, RestartServer) ->
-      replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef chan
+      replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef outputSink
     _ -> do
-      bundleExitCode <- bundleServer serverDir chan
+      bundleExitCode <- bundleServer serverDir outputSink
       case bundleExitCode of
-        ExitSuccess -> replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef chan
+        ExitSuccess -> replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef outputSink
         ExitFailure {} -> stopServerFromStateRef serverStateRef
 
 replaceServerProcess ::
@@ -148,27 +149,27 @@ replaceServerProcess ::
   ServerProcessController ->
   IORef ServerProcessState ->
   IORef Int ->
-  Chan J.JobMessage ->
+  J.JobOutputSink ->
   IO ()
-replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef chan = do
+replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef outputSink = do
   stopServerFromStateRef serverStateRef
-  startServerProcess serverDir controller serverStateRef nextServerProcessIdRef chan
+  startServerProcess serverDir controller serverStateRef nextServerProcessIdRef outputSink
 
-bundleServer :: Path' Abs (Dir ServerRootDir) -> J.JobOutputStreamer
+bundleServer :: Path' Abs (Dir ServerRootDir) -> J.JobOutputSink -> IO ExitCode
 bundleServer serverDir =
-  runNodeCommandAndStreamOutputWithExtraEnv [] serverDir "npm" ["run", "bundle"] J.Server
+  runNodeCommandAndStreamOutputWithExtraEnv [] serverDir "npm" ["run", "bundle"]
 
 startServerProcess ::
   Path' Abs (Dir ServerRootDir) ->
   ServerProcessController ->
   IORef ServerProcessState ->
   IORef Int ->
-  Chan J.JobMessage ->
+  J.JobOutputSink ->
   IO ()
-startServerProcess serverDir controller serverStateRef nextServerProcessIdRef chan =
+startServerProcess serverDir controller serverStateRef nextServerProcessIdRef outputSink =
   makeNodeCommandProcessWithExtraEnv [("NODE_ENV", "development")] serverDir Common.devServerStartExecutable Common.devServerStartArgs >>= \serverProcess -> mask_ $ do
     serverProcessId <- getNextServerProcessId nextServerProcessIdRef
-    longRunningProcess <- LongRunning.start serverProcess J.Server chan
+    longRunningProcess <- LongRunning.start serverProcess outputSink
     writeIORef serverStateRef $ ServerRunning ServerProcess {_serverProcessId = serverProcessId, _longRunningProcess = longRunningProcess}
     exitWatcher <- async $ do
       exitCode <- LongRunning.waitForRootExit longRunningProcess
@@ -191,36 +192,36 @@ stopServerFromStateRef serverStateRef = mask_ $ do
       LongRunning.stop $ _longRunningProcess serverProcess
       writeIORef serverStateRef ServerNotRunning
 
-handleServerProcessExited :: IORef ServerProcessState -> Chan J.JobMessage -> ServerProcessId -> ExitCode -> IO ()
-handleServerProcessExited serverStateRef chan serverProcessId exitCode = do
+handleServerProcessExited :: IORef ServerProcessState -> J.JobOutputSink -> ServerProcessId -> ExitCode -> IO ()
+handleServerProcessExited serverStateRef outputSink serverProcessId exitCode = do
   serverState <- readIORef serverStateRef
   case serverState of
     ServerRunning serverProcess
       | _serverProcessId serverProcess == serverProcessId ->
-          cleanUpExitedServerProcess serverStateRef chan serverProcess exitCode
+          cleanUpExitedServerProcess serverStateRef outputSink serverProcess exitCode
     _ -> return ()
 
-reconcileExitedServerProcess :: IORef ServerProcessState -> Chan J.JobMessage -> IO ()
-reconcileExitedServerProcess serverStateRef chan = do
+reconcileExitedServerProcess :: IORef ServerProcessState -> J.JobOutputSink -> IO ()
+reconcileExitedServerProcess serverStateRef outputSink = do
   serverState <- readIORef serverStateRef
   case serverState of
     ServerNotRunning -> return ()
     ServerRunning serverProcess ->
       LongRunning.pollRootExit (_longRunningProcess serverProcess) >>= \case
         Nothing -> return ()
-        Just exitCode -> cleanUpExitedServerProcess serverStateRef chan serverProcess exitCode
+        Just exitCode -> cleanUpExitedServerProcess serverStateRef outputSink serverProcess exitCode
 
-cleanUpExitedServerProcess :: IORef ServerProcessState -> Chan J.JobMessage -> ServerProcess -> ExitCode -> IO ()
-cleanUpExitedServerProcess serverStateRef chan serverProcess exitCode = do
+cleanUpExitedServerProcess :: IORef ServerProcessState -> J.JobOutputSink -> ServerProcess -> ExitCode -> IO ()
+cleanUpExitedServerProcess serverStateRef outputSink serverProcess exitCode = do
   -- The root process exited on its own, but its descendants may have survived
   -- and could still hold the server port or output pipes.
   LongRunning.stop $ _longRunningProcess serverProcess
-  printServerProcessExit chan exitCode
+  printServerProcessExit outputSink exitCode
   writeIORef serverStateRef ServerNotRunning
 
-printServerProcessExit :: Chan J.JobMessage -> ExitCode -> IO ()
-printServerProcessExit chan exitCode =
-  writeServerOutput chan (outputType exitCode) $ formatServerProcessExit exitCode
+printServerProcessExit :: J.JobOutputSink -> ExitCode -> IO ()
+printServerProcessExit outputSink exitCode =
+  J.writeJobOutput outputSink (outputType exitCode) $ formatServerProcessExit exitCode
   where
     outputType ExitSuccess = J.Stdout
     outputType ExitFailure {} = J.Stderr
@@ -228,6 +229,3 @@ printServerProcessExit chan exitCode =
 formatServerProcessExit :: ExitCode -> T.Text
 formatServerProcessExit ExitSuccess = "Server process exited.\n"
 formatServerProcessExit (ExitFailure exitCode) = T.pack $ "Server process exited with code " <> show exitCode <> ".\n"
-
-writeServerOutput :: Chan J.JobMessage -> J.JobOutputType -> T.Text -> IO ()
-writeServerOutput chan outputType output = J.writeJobOutput J.Server outputType output chan

@@ -9,6 +9,7 @@ import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Conduit.Text as CT
+import System.Exit (ExitCode)
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
 import qualified Wasp.Job as J
