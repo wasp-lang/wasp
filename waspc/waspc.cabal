@@ -467,6 +467,7 @@ library cli-lib
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
+    resourcet ^>=1.3.0,
     strong-path,
     tar ^>=0.6.3,
     temporary ^>=1.3,
@@ -667,7 +668,6 @@ test-suite wasp-cli-tests
     cli-lib,
     directory,
     hspec,
-    mtl,
     QuickCheck,
     strong-path,
     tasty,
@@ -682,7 +682,6 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
-    Wasp.Cli.CommandTest
     Wasp.Cli.ProjectLockTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
