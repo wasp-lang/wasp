@@ -1,6 +1,6 @@
 module Wasp.Job
   ( Job,
-    JobOutputStreamer,
+    JobOutputSink,
     makeJob,
     writeJobOutput,
     JobMessage (..),
@@ -18,14 +18,14 @@ import System.Exit (ExitCode)
 --   until it is done, when it returns exit code.
 type Job = Chan JobMessage -> IO ExitCode
 
--- Build Jobs with makeJob: readers wait for JobExit and can hang without it.
--- JobOutputStreamer is for inner processes: they share output, but must not end the Job.
--- Streamers can still emit JobExit; we don't enforce this to keep the implementation simple.
-type JobOutputStreamer = Chan JobMessage -> IO ExitCode
+newtype JobOutputSink = JobOutputSink (JobOutputType -> Text -> IO ())
 
-makeJob :: JobType -> JobOutputStreamer -> Job
-makeJob jobType streamer chan =
-  streamer chan >>= emitJobExit jobType chan
+-- Build Jobs with makeJob: readers wait for JobExit and can hang without it.
+-- Inner actions receive only an output sink, so makeJob remains the sole owner
+-- of JobExit emission.
+makeJob :: JobType -> (JobOutputSink -> IO ExitCode) -> Job
+makeJob jobType run chan =
+  run (JobOutputSink $ writeOutput jobType chan) >>= emitJobExit jobType chan
 
 emitJobExit :: JobType -> Chan JobMessage -> ExitCode -> IO ExitCode
 emitJobExit jobType chan exitCode = do
@@ -36,8 +36,11 @@ emitJobExit jobType chan exitCode = do
       }
   return exitCode
 
-writeJobOutput :: JobType -> JobOutputType -> Text -> Chan JobMessage -> IO ()
-writeJobOutput jobType outputType output chan =
+writeJobOutput :: JobOutputSink -> JobOutputType -> Text -> IO ()
+writeJobOutput (JobOutputSink writeOutputToSink) = writeOutputToSink
+
+writeOutput :: JobType -> Chan JobMessage -> JobOutputType -> Text -> IO ()
+writeOutput jobType chan outputType output =
   writeChan chan $
     JobMessage
       { _data = JobOutput output outputType,
