@@ -450,6 +450,7 @@ library cli-lib
     cryptonite ^>=0.30,
     directory,
     exceptions,
+    extra,
     filepath,
     fsnotify ^>=0.4.2,
     http-conduit,
