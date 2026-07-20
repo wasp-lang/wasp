@@ -11,7 +11,7 @@ module Wasp.Job.Process.LongRunning
   )
 where
 
-import Control.Concurrent (Chan, modifyMVar, newMVar, threadDelay)
+import Control.Concurrent (modifyMVar, newMVar, threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (Exception (displayException), SomeException, bracket, finally, mask, onException, throwIO, try)
 import Control.Monad (unless, void, when)
@@ -38,7 +38,7 @@ import Text.Read (readMaybe)
 #endif
 
 -- Long-running processes are Wasp-owned children started now and stopped later.
--- They forward output to the job channel, but don't emit JobExit.
+-- They forward output to the job output sink, but don't emit JobExit.
 data LongRunningProcess = LongRunningProcess
   { waitForRootExit :: IO ExitCode,
     pollRootExit :: IO (Maybe ExitCode),
@@ -53,14 +53,14 @@ instance Exception ProcessTreeDidNotStop where
 
 runAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runAsJob process jobType =
-  J.makeJob jobType $ \chan ->
+  J.makeJob jobType $ \outputSink ->
     bracket
-      (start process jobType chan)
+      (start process outputSink)
       stop
       waitForRootExit
 
-start :: P.CreateProcess -> J.JobType -> Chan J.JobMessage -> IO LongRunningProcess
-start process jobType chan = mask $ \restore -> do
+start :: P.CreateProcess -> J.JobOutputSink -> IO LongRunningProcess
+start process outputSink = mask $ \restore -> do
   processResources@(_, _, _, processHandle) <- P.createProcess $ configureLongRunningProcess process
   maybeProcessGroupPid <-
     P.getPid processHandle
@@ -70,8 +70,8 @@ start process jobType chan = mask $ \restore -> do
   where
     finishInitialization maybeProcessGroupPid (maybeStdin, maybeStdout, maybeStderr, processHandle) = do
       rootExitAsync <- Async.async $ P.waitForProcess processHandle
-      stdoutAsync <- Async.async $ forwardOutput chan jobType maybeStdout J.Stdout
-      stderrAsync <- Async.async $ forwardOutput chan jobType maybeStderr J.Stderr
+      stdoutAsync <- Async.async $ forwardOutput outputSink maybeStdout J.Stdout
+      stderrAsync <- Async.async $ forwardOutput outputSink maybeStderr J.Stderr
       stopWorkerVar <- newMVar Nothing
       let closeHandles = mapM_ closeHandleIfOpen [maybeStdin, maybeStdout, maybeStderr]
       let cleanUpOutput =
@@ -83,7 +83,7 @@ start process jobType chan = mask $ \restore -> do
             case (processTreeResult, outputResult) of
               (Left exception, _) -> throwIO (exception :: SomeException)
               (Right False, _) -> do
-                J.writeJobOutput jobType J.Stderr (processTreeDidNotStopMessage <> "\n") chan
+                J.writeJobOutput outputSink J.Stderr $ processTreeDidNotStopMessage <> "\n"
                 throwIO ProcessTreeDidNotStop
               (Right True, Left exception) -> throwIO (exception :: SomeException)
               (Right True, Right ()) -> return ()
@@ -131,9 +131,9 @@ drainOrCancelOutput outputAsync = do
     Just (Left exception) -> throwIO exception
     Just (Right _) -> return ()
 
-forwardOutput :: Chan J.JobMessage -> J.JobType -> Maybe Handle -> J.JobOutputType -> IO ()
-forwardOutput _ _ Nothing _ = return ()
-forwardOutput chan jobType (Just handle) outputType =
+forwardOutput :: J.JobOutputSink -> Maybe Handle -> J.JobOutputType -> IO ()
+forwardOutput _ Nothing _ = return ()
+forwardOutput outputSink (Just handle) outputType =
   -- Chunks can split a multi-byte UTF-8 sequence, so decoding must carry
   -- partial sequences over into the next chunk.
   forwardChunks $ streamDecodeUtf8With lenientDecode
@@ -148,7 +148,7 @@ forwardOutput chan jobType (Just handle) outputType =
 
     emitOutput output =
       unless (T.null output) $
-        J.writeJobOutput jobType outputType output chan
+        J.writeJobOutput outputSink outputType output
 
     chunkSizeInBytes = 4096
 
