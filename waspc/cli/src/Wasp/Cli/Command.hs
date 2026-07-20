@@ -8,7 +8,18 @@ module Wasp.Cli.Command
 
     -- * Requirements
 
-    -- See "Wasp.Cli.Command.Requires" for documentation.
+    -- There are some requirements we want to assert in command code, such as
+    -- ensuring the command is being run inside a wasp project directory. We
+    -- might end up wanting to check each requirement multiple times, especially
+    -- if we want the value from it (like getting the wasp project directory),
+    -- but we also want to avoid duplicating work. Using 'require' results in
+    -- checked requirements being stored so they can be immediately retrieved
+    -- when checking the same requirements additional times.
+    --
+    -- See instances of 'Requirable' (each in its own module under
+    -- @Wasp.Cli.Command.Require@) for what kinds of requirements are supported.
+    -- To implement a new requirable type, give your type an instance of
+    -- 'Requirable' in its own module under @Wasp.Cli.Command.Require@.
     require,
     Requirable (checkRequirement),
   )
