@@ -332,10 +332,6 @@
                 "version": "^24.0.0"
             },
             {
-                "name": "nodemon",
-                "version": "^2.0.19"
-            },
-            {
                 "name": "rollup",
                 "version": "^4.9.6"
             },
