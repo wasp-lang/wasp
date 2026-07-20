@@ -5,7 +5,7 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.Job as J
-import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Job.Node (runNodeCommandAsJob)
 import Wasp.Project.Common (WaspProjectDir)
 
 testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job
