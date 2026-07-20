@@ -40,93 +40,100 @@ spec_LongRunningProcess =
     when (os /= "mingw32") $
       it "kills process-group descendants after the root process exits" $ do
         portFilePath <- makeTempPath "wasp-long-running-child-port"
-        chan <- newChan
-        longRunningProcess <- LongRunning.start (nodeScript $ exitingRootWithPortOwningChildScript portFilePath) J.Server chan
-        let cleanup = LongRunning.stop longRunningProcess >> removeFileIfExists portFilePath
-        ( do
-            waitUntil "child port file" $ doesFileExist portFilePath
-            port <- readFile portFilePath
-            maybeRootExit <- timeout (secondsToMicroSeconds 5) $ LongRunning.waitForRootExit longRunningProcess
-            maybeRootExit `shouldBe` Just ExitSuccess
-            LongRunning.pollRootExit longRunningProcess `shouldReturn` Just ExitSuccess
-            isPortAvailable port `shouldReturn` False
+        void $ withJobOutputSink $ \outputSink -> do
+          longRunningProcess <- LongRunning.start (nodeScript $ exitingRootWithPortOwningChildScript portFilePath) outputSink
+          let cleanup = LongRunning.stop longRunningProcess >> removeFileIfExists portFilePath
+          ( do
+              waitUntil "child port file" $ doesFileExist portFilePath
+              port <- readFile portFilePath
+              maybeRootExit <- timeout (secondsToMicroSeconds 5) $ LongRunning.waitForRootExit longRunningProcess
+              maybeRootExit `shouldBe` Just ExitSuccess
+              LongRunning.pollRootExit longRunningProcess `shouldReturn` Just ExitSuccess
+              isPortAvailable port `shouldReturn` False
 
-            startedAt <- getCurrentTime
-            LongRunning.stop longRunningProcess
-            stoppedAt <- getCurrentTime
+              startedAt <- getCurrentTime
+              LongRunning.stop longRunningProcess
+              stoppedAt <- getCurrentTime
 
-            realToFrac (stoppedAt `diffUTCTime` startedAt) `shouldSatisfy` (< maxAcceptableStopSeconds)
-            isPortAvailable port `shouldReturn` True
-          )
-          `finally` cleanup
+              realToFrac (stoppedAt `diffUTCTime` startedAt) `shouldSatisfy` (< maxAcceptableStopSeconds)
+              isPortAvailable port `shouldReturn` True
+            )
+            `finally` cleanup
 
     when (os /= "mingw32") $
       it "interrupts the process so it can exit gracefully before being killed" $ do
         startedFilePath <- makeTempPath "wasp-long-running-started"
         gracefulExitFilePath <- makeTempPath "wasp-long-running-graceful-exit"
-        chan <- newChan
-        longRunningProcess <- LongRunning.start (nodeScript $ gracefulProcessScript startedFilePath gracefulExitFilePath) J.Server chan
-        let cleanup =
+        void $ withJobOutputSink $ \outputSink -> do
+          longRunningProcess <- LongRunning.start (nodeScript $ gracefulProcessScript startedFilePath gracefulExitFilePath) outputSink
+          let cleanup =
+                LongRunning.stop longRunningProcess
+                  >> mapM_ removeFileIfExists [startedFilePath, gracefulExitFilePath]
+          ( do
+              waitUntil "process start" $ doesFileExist startedFilePath
               LongRunning.stop longRunningProcess
-                >> mapM_ removeFileIfExists [startedFilePath, gracefulExitFilePath]
-        ( do
-            waitUntil "process start" $ doesFileExist startedFilePath
-            LongRunning.stop longRunningProcess
-            waitUntil "graceful exit marker" $ doesFileExist gracefulExitFilePath
-          )
-          `finally` cleanup
+              waitUntil "graceful exit marker" $ doesFileExist gracefulExitFilePath
+            )
+            `finally` cleanup
 
     it "kills a process that ignores graceful stop signals" $ do
       startedFilePath <- makeTempPath "wasp-long-running-stubborn"
-      chan <- newChan
-      longRunningProcess <- LongRunning.start (nodeScript $ stubbornProcessScript startedFilePath) J.Server chan
-      let cleanup = LongRunning.stop longRunningProcess >> removeFileIfExists startedFilePath
-      ( do
-          waitUntil "process start" $ doesFileExist startedFilePath
-          startedAt <- getCurrentTime
-          LongRunning.stop longRunningProcess
-          stoppedAt <- getCurrentTime
-          realToFrac (stoppedAt `diffUTCTime` startedAt) `shouldSatisfy` (< maxAcceptableStopSeconds)
-          maybeRootExit <- timeout (secondsToMicroSeconds 5) $ LongRunning.waitForRootExit longRunningProcess
-          maybeRootExit `shouldSatisfy` isJust
-        )
-        `finally` cleanup
+      void $ withJobOutputSink $ \outputSink -> do
+        longRunningProcess <- LongRunning.start (nodeScript $ stubbornProcessScript startedFilePath) outputSink
+        let cleanup = LongRunning.stop longRunningProcess >> removeFileIfExists startedFilePath
+        ( do
+            waitUntil "process start" $ doesFileExist startedFilePath
+            startedAt <- getCurrentTime
+            LongRunning.stop longRunningProcess
+            stoppedAt <- getCurrentTime
+            realToFrac (stoppedAt `diffUTCTime` startedAt) `shouldSatisfy` (< maxAcceptableStopSeconds)
+            maybeRootExit <- timeout (secondsToMicroSeconds 5) $ LongRunning.waitForRootExit longRunningProcess
+            maybeRootExit `shouldSatisfy` isJust
+          )
+          `finally` cleanup
 
     it "releases a descendant-owned port before stop returns" $ do
       portFilePath <- makeTempPath "wasp-long-running-port"
-      chan <- newChan
-      longRunningProcess <- LongRunning.start (nodeScript $ portOwningChildProcessScript portFilePath) J.Server chan
-      let cleanup = LongRunning.stop longRunningProcess >> removeFileIfExists portFilePath
-      ( do
-          waitUntil "child-owned port" $ doesFileExist portFilePath
-          port <- readFile portFilePath
-          isPortAvailable port `shouldReturn` False
+      void $ withJobOutputSink $ \outputSink -> do
+        longRunningProcess <- LongRunning.start (nodeScript $ portOwningChildProcessScript portFilePath) outputSink
+        let cleanup = LongRunning.stop longRunningProcess >> removeFileIfExists portFilePath
+        ( do
+            waitUntil "child-owned port" $ doesFileExist portFilePath
+            port <- readFile portFilePath
+            isPortAvailable port `shouldReturn` False
 
-          LongRunning.stop longRunningProcess
+            LongRunning.stop longRunningProcess
 
-          isPortAvailable port `shouldReturn` True
-        )
-        `finally` cleanup
+            isPortAvailable port `shouldReturn` True
+          )
+          `finally` cleanup
 
     it "decodes chunk-split and incomplete UTF-8 output" $ do
-      chan <- newChan
       let euroSignCount = 40000 :: Int
       let expectedOutput = T.replicate euroSignCount "€" <> "�"
       let script =
             "process.stdout.write(Buffer.concat([Buffer.from('€'.repeat("
               <> show euroSignCount
               <> ")), Buffer.from([0xe2])]));"
-      longRunningProcess <- LongRunning.start (nodeScript script) J.Server chan
-      maybeExitCode <- timeout (secondsToMicroSeconds 20) $ LongRunning.waitForRootExit longRunningProcess
-      case maybeExitCode of
-        Nothing -> do
-          LongRunning.stop longRunningProcess
-          expectationFailure "Timed out waiting for process exit; output forwarding likely stalled"
-        Just exitCode -> do
-          exitCode `shouldBe` ExitSuccess
-          LongRunning.stop longRunningProcess
-          output <- collectQueuedOutput chan
-          output `shouldBe` expectedOutput
+      chan <- withJobOutputSink $ \outputSink -> do
+        longRunningProcess <- LongRunning.start (nodeScript script) outputSink
+        maybeExitCode <- timeout (secondsToMicroSeconds 20) $ LongRunning.waitForRootExit longRunningProcess
+        case maybeExitCode of
+          Nothing -> do
+            LongRunning.stop longRunningProcess
+            expectationFailure "Timed out waiting for process exit; output forwarding likely stalled"
+          Just exitCode -> do
+            exitCode `shouldBe` ExitSuccess
+            LongRunning.stop longRunningProcess
+      output <- collectQueuedOutput chan
+      output `shouldBe` expectedOutput
+
+withJobOutputSink :: (J.JobOutputSink -> IO ()) -> IO (Chan J.JobMessage)
+withJobOutputSink action = do
+  chan <- newChan
+  exitCode <- J.makeJob J.Server (\outputSink -> action outputSink >> return ExitSuccess) chan
+  exitCode `shouldBe` ExitSuccess
+  return chan
 
 -- Covers graceful stop, hard-stop escalation, and polling slack.
 maxAcceptableStopSeconds :: Double
