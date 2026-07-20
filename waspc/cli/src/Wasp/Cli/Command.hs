@@ -18,7 +18,7 @@ import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
-import Control.Monad.Trans.Resource (ResourceT, runResourceT)
+import Control.Monad.Trans.Resource (MonadResource, ResourceT, runResourceT)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
@@ -29,7 +29,7 @@ newtype Command a = Command
   { _runCommand ::
       StateT [Requirement] (ExceptT CommandError (ResourceT IO)) a
   }
-  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadResource)
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do

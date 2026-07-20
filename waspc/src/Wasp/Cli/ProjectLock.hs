@@ -32,9 +32,7 @@ data ProjectLockError
   | ProjectLockOwnerCheckFailed WaspProcessId String
   deriving (Eq, Show)
 
-acquireProjectLock ::
-  Path' Abs (File WaspProjectLockfile) ->
-  IO (Either ProjectLockError ())
+acquireProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO (Either ProjectLockError ())
 acquireProjectLock lockFilePath = runExceptT $ do
   lockExists <- liftIO $ Wasp.IO.doesFileExist lockFilePath
   when lockExists $ do
@@ -55,9 +53,7 @@ acquireProjectLock lockFilePath = runExceptT $ do
       processId <- getCurrentWaspProcessId
       Wasp.IO.writeFile lockFilePath (show processId)
 
-releaseProjectLock ::
-  Path' Abs (File WaspProjectLockfile) ->
-  IO ()
+releaseProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO ()
 releaseProjectLock = Wasp.IO.deleteFileIfExists
 
 readLockOwner :: Path' Abs (File WaspProjectLockfile) -> ExceptT ProjectLockError IO (Maybe WaspProcessId)

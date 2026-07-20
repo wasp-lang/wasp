@@ -36,14 +36,16 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Resource (allocate)
 import Data.Bool (bool)
 import Data.Data (Typeable)
+import Data.Either (isRight)
 import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), defer, require)
+import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
@@ -99,10 +101,13 @@ instance Requirable InLockedWaspProject where
     InWaspProject waspProjectDir <- require
     let lockFilePath = waspProjectDir </> projectLockFileInWaspProjectDir
 
-    liftIO (ProjectLock.acquireProjectLock lockFilePath) >>= \case
-      Right _ -> do
-        defer $ ProjectLock.releaseProjectLock lockFilePath
-        return $ InLockedWaspProject waspProjectDir
+    (_, lockResult) <-
+      allocate
+        (ProjectLock.acquireProjectLock lockFilePath)
+        (\lockResult -> when (isRight lockResult) $ ProjectLock.releaseProjectLock lockFilePath)
+
+    case lockResult of
+      Right _ -> return $ InLockedWaspProject waspProjectDir
       Left lockError -> throwError $ commandError lockFilePath lockError
     where
       commandError _ (ProjectLock.ProjectLockHeld processId) =
