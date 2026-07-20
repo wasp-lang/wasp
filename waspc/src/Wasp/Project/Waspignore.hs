@@ -15,12 +15,12 @@ import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Project.Common
-import Wasp.Util.Glob (GlobPatterns, compileGlobPatterns, matchesAnyGlob)
+import Wasp.Util.Glob (Pattern, compile, match)
 import qualified Wasp.Util.IO as IOUtil
 
 class AffectedByWaspignoreFile a
 
-newtype WaspignoreFile = WaspignoreFile GlobPatterns
+newtype WaspignoreFile = WaspignoreFile [Pattern]
 
 instance AffectedByWaspignoreFile SourceExternalCodeDir
 
@@ -37,7 +37,7 @@ waspIgnorePathInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspIgnorePathInWaspProjectDir = [relfile|.waspignore|]
 
 -- | These patterns are ignored by every 'WaspignoreFile'
-defaultIgnorePatterns :: [String]
+defaultIgnorePatterns :: [Pattern]
 defaultIgnorePatterns = [".waspignore"]
 
 -- | Parses a string to a 'WaspignoreFile'.
@@ -60,8 +60,8 @@ defaultIgnorePatterns = [".waspignore"]
 parseWaspignoreFile :: String -> WaspignoreFile
 parseWaspignoreFile =
   WaspignoreFile
-    . compileGlobPatterns
     . (defaultIgnorePatterns ++)
+    . map compile
     . filter isPatternLine
     . lines
   where
@@ -96,4 +96,4 @@ readWaspignoreFile file = do
 --   ignoreFile `ignores` "src/a.js" -- False
 --   @
 ignores :: WaspignoreFile -> FilePath -> Bool
-ignores (WaspignoreFile patterns) fp = patterns `matchesAnyGlob` fp
+ignores (WaspignoreFile patterns) fp = any (`match` fp) patterns
