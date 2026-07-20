@@ -12,7 +12,7 @@ import System.IO.Temp (withSystemTempDirectory)
 import Test.Hspec
 import Wasp.Cli.Command (CommandError (CommandError), runCommand)
 import Wasp.Cli.Command.Clean (clean)
-import Wasp.Cli.Command.Require (LockedWaspProject (LockedWaspProject), require)
+import Wasp.Cli.Command.Require (InLockedWaspProject (InLockedWaspProject), require)
 import Wasp.Cli.ProjectLock
   ( ProjectLockError (..),
     acquireProjectLock,
@@ -55,18 +55,16 @@ spec_projectLock = do
         _ <- expectAcquired =<< acquireProjectLock waspProjectDir
         releaseProjectLock waspProjectDir
 
-  describe "LockedWaspProject requirement" $ do
+  describe "InLockedWaspProject requirement" $ do
     -- These cases change the process-wide current directory, so they must remain
     -- in a single test to prevent tasty from running them concurrently.
     it "handles command cleanup and clean" $ do
       withTempWaspProject $ \waspProjectDir -> do
         Directory.withCurrentDirectory (SP.fromAbsDir waspProjectDir) $
           runCommand $ do
-            LockedWaspProject lockedProjectDir <- require
-            LockedWaspProject cachedProjectDir <- require
+            InLockedWaspProject lockedProjectDir <- require
             liftIO $ do
               lockedProjectDir `shouldBe` waspProjectDir
-              cachedProjectDir `shouldBe` waspProjectDir
               Directory.doesFileExist (lockFilePath waspProjectDir)
                 `shouldReturn` True
 
@@ -77,7 +75,7 @@ spec_projectLock = do
           Directory.withCurrentDirectory (SP.fromAbsDir waspProjectDir) $
             try $
               runCommand $ do
-                LockedWaspProject _ <- require
+                InLockedWaspProject _ <- require
                 throwError $ CommandError "Test error" "Error message"
 
         result `shouldBe` Left (ExitFailure 1)

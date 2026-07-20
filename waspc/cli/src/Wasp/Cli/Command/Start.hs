@@ -12,7 +12,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
-import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), LockedWaspProject (LockedWaspProject), require)
+import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -34,7 +34,7 @@ start = do
   -- expected. This way we know exactly which workflows it could possibly
   -- interrupt (LLMs, CIs, people...).
   liftIO fetchAndListMustSeeNewsIfDue
-  LockedWaspProject waspProjectDir <- require
+  InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
