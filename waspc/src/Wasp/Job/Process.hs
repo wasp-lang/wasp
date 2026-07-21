@@ -34,17 +34,13 @@ runProcessAndStreamOutput process outputSink =
     runStreamingProcessAndStreamOutput
   where
     runStreamingProcessAndStreamOutput (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
+      let forwardOutput outputType stream =
             runConduit $
-              stdoutStream .| CT.decodeUtf8Lenient .| CL.mapM_ (J.writeJobOutput outputSink J.Stdout)
-
-      let forwardStderrToChan =
-            runConduit $
-              stderrStream .| CT.decodeUtf8Lenient .| CL.mapM_ (J.writeJobOutput outputSink J.Stderr)
+              stream .| CT.decodeUtf8Lenient .| CL.mapM_ (J.writeJobOutput outputSink outputType)
 
       runConcurrently $
-        Concurrently forwardStdoutToChan
-          *> Concurrently forwardStderrToChan
+        Concurrently (forwardOutput J.Stdout stdoutStream)
+          *> Concurrently (forwardOutput J.Stderr stderrStream)
           *> Concurrently (CP.waitForStreamingProcess processHandle)
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
