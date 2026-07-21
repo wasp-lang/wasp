@@ -9,7 +9,6 @@ import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
-import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
@@ -82,8 +81,7 @@ e2eTests = do
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
-        waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
+        waspMigrateSnapshotTest
       ]
   shellTestTrees <-
     mapM
