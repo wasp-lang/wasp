@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG
-  ( getWaspVirtualModulesPlugin,
+  ( genWaspVirtualModulesPlugin,
   )
 where
 
@@ -18,10 +18,10 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
 
-getWaspVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
-getWaspVirtualModulesPlugin spec =
+genWaspVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
+genWaspVirtualModulesPlugin spec =
   sequence
-    [ getWaspVirtualModulesTs,
+    [ genWaspVirtualModulesTs,
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
@@ -43,8 +43,8 @@ genVirtualFilesResolverTs =
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
-getWaspVirtualModulesTs :: Generator FileDraft
-getWaspVirtualModulesTs =
+genWaspVirtualModulesTs :: Generator FileDraft
+genWaspVirtualModulesTs =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where

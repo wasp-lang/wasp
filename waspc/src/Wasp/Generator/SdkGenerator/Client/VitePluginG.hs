@@ -13,7 +13,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.UserVirtualModulesPluginG (genUserVirtualModulesPlugin)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG (getWaspVirtualModulesPlugin)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG (genWaspVirtualModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
@@ -40,7 +40,7 @@ genVitePlugins spec =
       genFileCopy [relfile|typescriptCheck.ts|],
       genUserVirtualModulesPlugin spec
     ]
-    <++> getWaspVirtualModulesPlugin spec
+    <++> genWaspVirtualModulesPlugin spec
   where
     genFileCopy = return . C.mkTmplFd . (C.vitePluginsDirInSdkTemplatesDir </>)
 
