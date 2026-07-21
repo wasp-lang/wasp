@@ -82,9 +82,9 @@ genSignupAction auth =
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl emailAuthProvider,
-          "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined
+          "isEmailUserSignupFieldsDefined" .= isJust emailUserSignupFields
         ]
-    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     authMethods = AS.Auth.methods auth
 
 genPasswordResetActions :: Generator FileDraft

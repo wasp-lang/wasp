@@ -178,11 +178,11 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined,
-          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
+        [ "isEmailUserSignupFieldsDefined" .= isJust emailUserSignupFields,
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isJust usernameAndPasswordUserSignupFields
         ]
-    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
@@ -195,12 +195,12 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "isEmailUserSignupFieldsDefined" .= isEmailUserSignupFieldsDefined,
-          "isUsernameAndPasswordUserSignupFieldsDefined" .= isUsernameAndPasswordUserSignupFieldsDefined
+          "isEmailUserSignupFieldsDefined" .= isJust emailUserSignupFields,
+          "isUsernameAndPasswordUserSignupFieldsDefined" .= isJust usernameAndPasswordUserSignupFields
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    isEmailUserSignupFieldsDefined = isJust $ AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    isUsernameAndPasswordUserSignupFieldsDefined = isJust $ AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
