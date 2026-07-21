@@ -19,16 +19,24 @@ import { isNotNull } from '../universal/predicates.js'
  * through the package's `exports` map (this module is reachable as
  * `"wasp/auth/user"`).
  *
- * User code is compiled with declaration emit enabled. This is because
- * the server and the client TypeScript project reference the user's
- * TypeScript project. As such, the user project must have `composite: true`
- * flag which forces declaration emit.
+ * User code is compiled with declaration emit enabled (`declaration: true`).
+ * This is because the server and the client TypeScript project reference
+ * the user's TypeScript project. As such, the user project must have
+ * `composite: true` flag which makes `declaration` default to `true`.
  *
  * When declaration emit is enabled, every exported binding without an
  * explicit type annotation gets its inferred type serialized into a
  * `.d.ts` file.
- * A common example is users defining operations/CRUD/API while typing
- * them with the `satisfies` keyword.
+ * 
+ * A common example is users defining operations while typing them with
+ * the `satisfies` keyword:
+ * ```ts
+ * import type { GetNumberOfTasks } from "wasp/server/operations";
+ * 
+ * export const GetNumberOfTasks = (async (_args, context) => {
+ *   return context.entities.Task.count();
+ * }) satisfies GetNumberOfTasks<void>;
+ * ```
  *
  * If that inferred type structurally contains a type symbol from a
  * dependency package, `tsc` must synthesize a portable reference to
