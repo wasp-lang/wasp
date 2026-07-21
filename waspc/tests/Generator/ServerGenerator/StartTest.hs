@@ -4,7 +4,6 @@ import Control.Concurrent (newChan, threadDelay)
 import Control.Concurrent.Async (cancel, withAsync)
 import Control.Exception (SomeException, finally, try)
 import Control.Monad (void, when)
-import Job.Process.LongRunningTest (isPortAvailable, isProcessAlive, killProcess, makeTempPath, trim, waitUntil)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, removeFile)
 import System.FilePath ((</>))
@@ -12,6 +11,7 @@ import System.IO (readFile')
 import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldNotBe, shouldReturn)
+import Test.Process.Util (isPortAvailable, isProcessAlive, killProcess, makeTempPath, trim, waitUntil)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.Start
   ( ServerEffect (..),
