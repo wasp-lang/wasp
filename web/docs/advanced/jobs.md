@@ -79,7 +79,7 @@ The worker function must be an `async` function. The function's return value rep
 The worker function accepts two arguments:
 
 - `args`: The data passed into the job when it's submitted.
-- `context: { entities }`: The context object containing entities you put in the Job spec.
+- `context: { entities }`: The context object containing the Entities you listed in the Job spec. See [Using Entities in server code](../data-model/entities.md#using-entities-in-server-code) for how to read and write them through `context.entities`.
   :::
 
 <ShowForTs>
