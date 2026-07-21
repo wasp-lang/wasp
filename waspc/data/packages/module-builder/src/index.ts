@@ -16,7 +16,7 @@ import ts from "typescript";
 import { cssPassthroughPlugin } from "./cssPassthroughPlugin.js";
 
 type PackageJson = {
-  name?: unknown;
+  name: string;
 };
 
 async function main(): Promise<void> {
@@ -273,10 +273,6 @@ function readPackageName(moduleDir: string): string {
   const packageJson = JSON.parse(
     readFileSync(packageJsonPath, "utf8"),
   ) as PackageJson;
-
-  if (typeof packageJson.name !== "string" || packageJson.name.length === 0) {
-    throw new Error(`${packageJsonPath} must define a non-empty string name.`);
-  }
 
   return packageJson.name;
 }

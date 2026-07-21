@@ -12,6 +12,9 @@ module ShellCommands
     writeToFile,
     appendToFile,
     replaceLineInFile,
+    assertFileExists,
+    assertDirectoryExists,
+    shellSingleQuote,
     waspCliNewInteractive,
     waspCliNew,
     waspCliCompletion,
@@ -38,6 +41,9 @@ module ShellCommands
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
+    waspCliModuleNew,
+    waspCliModuleInstall,
+    waspCliModuleBuild,
     assertCommandOutputContains,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -138,6 +144,12 @@ replaceLineInFile fileName lineNumber line =
     printCurrentLine = "1"
 
     tempFileName = fileName ++ ".tmp"
+
+assertFileExists :: FilePath -> ShellCommand
+assertFileExists filePath = "[ -f " ++ shellSingleQuote filePath ++ " ]"
+
+assertDirectoryExists :: FilePath -> ShellCommand
+assertDirectoryExists directoryPath = "[ -d " ++ shellSingleQuote directoryPath ++ " ]"
 
 waspCliNewInteractive :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewInteractive appName starterTemplate =
@@ -250,6 +262,15 @@ waspCliStudio = return "$WASP_CLI_CMD studio"
 waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInstall = return "$WASP_CLI_CMD install"
 
+waspCliModuleNew :: String -> ShellCommandBuilder context ShellCommand
+waspCliModuleNew packageName = return $ unwords ["$WASP_CLI_CMD", "module", "new", shellSingleQuote packageName]
+
+waspCliModuleInstall :: ShellCommandBuilder context ShellCommand
+waspCliModuleInstall = return "$WASP_CLI_CMD module install"
+
+waspCliModuleBuild :: ShellCommandBuilder context ShellCommand
+waspCliModuleBuild = return "$WASP_CLI_CMD module build"
+
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
 setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
@@ -318,9 +339,10 @@ assertCommandOutputContains commandBuilder marker = do
       logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
       searchMarkerInLogFile = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
   return $ logCommandOutputToFile ~&& searchMarkerInLogFile
-  where
-    shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
 
+shellSingleQuote :: String -> String
+shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
+  where
     escapeSingleQuote '\'' = "'\\''"
     escapeSingleQuote c = [c]
 

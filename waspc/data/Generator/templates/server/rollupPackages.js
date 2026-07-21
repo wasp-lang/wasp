@@ -9,7 +9,7 @@ export function discoverWaspModulePackages(appRootDir) {
       const packageJson = readPackageJson(
         join(appRootDir, "node_modules", packageName, "package.json"),
       );
-      return Object.hasOwn(packageJson.peerDependencies ?? {}, "wasp");
+      return isObject(packageJson.wasp) && isObject(packageJson.wasp.module);
     },
   );
 }
@@ -37,4 +37,8 @@ function getPackageName(importPath) {
 
 function readPackageJson(packageJsonPath) {
   return JSON.parse(readFileSync(packageJsonPath, "utf8"));
+}
+
+function isObject(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

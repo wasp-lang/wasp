@@ -26,6 +26,7 @@ import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.Generator.WaspLibs (ensureWaspLibsAreInGeneratedAppDir)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions, tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.ExternalConfig.PackageJson (parseAndValidateModulePackageJson)
 import Wasp.Project.ExternalConfig.SrcTsConfig (parseAndValidateModuleSrcTsConfig)
 import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
 import qualified Wasp.Util.IO as IOUtil
@@ -134,10 +135,14 @@ runModuleBuilder moduleDir = do
 
 ensureIsModuleDir :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 ensureIsModuleDir moduleDir = do
-  hasModuleSpec <- doesFileExist $ fromAbsFile $ moduleDir </> [relfile|module.wasp.ts|]
-  if hasModuleSpec
-    then return $ Right ()
-    else return $ Left $ fromAbsDir moduleDir ++ " is not a Wasp module directory. Expected module.wasp.ts."
+  packageJsonValidation <- parseAndValidateModulePackageJson moduleDir
+  case packageJsonValidation of
+    Failure errors -> return $ Left $ intercalate "\n" errors
+    Success _ -> do
+      hasModuleSpec <- doesFileExist $ fromAbsFile $ moduleDir </> [relfile|module.wasp.ts|]
+      if hasModuleSpec
+        then return $ Right ()
+        else return $ Left $ fromAbsDir moduleDir ++ " is not a Wasp module directory. Expected module.wasp.ts."
 
 moduleTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
 moduleTemplateDirInDataDir = [reldir|Cli/module-template|]
