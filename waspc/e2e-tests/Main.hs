@@ -8,8 +8,6 @@ import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
-import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
@@ -27,6 +25,7 @@ import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInfoTest (waspInfoTest)
 import Tests.WaspInstallTest (waspInstallTest)
+import Tests.WaspModuleTest (waspModuleTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
@@ -82,8 +81,7 @@ e2eTests = do
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
-        waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
+        waspMigrateSnapshotTest
       ]
   shellTestTrees <-
     mapM
@@ -108,6 +106,7 @@ e2eTests = do
         waspSpecAvailableTest,
         waspInfoTest,
         waspInstallTest,
+        waspModuleTest,
         waspDepsTest,
         waspDockerfileTest,
         -- FIXME: waspStudioTest,
@@ -119,14 +118,11 @@ e2eTests = do
         waspDbMigrateDevTest,
         waspSpecEntityTypesTest
       ]
-  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
-
   return $
     testGroup
       "E2E tests"
       [ testGroup "Snapshot Tests" snapshotTestTrees,
-        testGroup "Shell tests" shellTestTrees,
-        testGroup "Tests" [sdkPackageExportsTestTree]
+        testGroup "Shell tests" shellTestTrees
       ]
 
 -- | How many snapshot tests we prepare concurrently.

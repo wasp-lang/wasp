@@ -1,0 +1,12 @@
+{
+  "name": "wasp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/operations": {
+      "types": "./server/operations.d.ts",
+      "default": "./runtime-error.js"
+    }
+  }
+}

@@ -11,6 +11,7 @@ module Wasp.Util.IO
     readFileStrict,
     writeFile,
     removeFile,
+    renameDotfiles,
     copyFile,
     removeDirectory,
     copyDirectory,
@@ -137,6 +138,15 @@ writeFileFromText = T.IO.writeFile . SP.fromAbsFile
 
 removeFile :: Path' Abs (File f) -> IO ()
 removeFile = SD.removeFile . SP.fromAbsFile
+
+-- | Renames files stored without their leading dot (e.g. @gitignore@) back to
+-- their dotfile names (e.g. @.gitignore@). Templates ship dotfiles this way to
+-- prevent tools (e.g. npm, cabal) from stripping them during packaging.
+renameDotfiles :: Path' Abs (Dir d) -> [String] -> IO ()
+renameDotfiles dirPath =
+  mapM_ (\name -> SD.renameFile (dir FilePath.</> name) (dir FilePath.</> ("." <> name)))
+  where
+    dir = SP.fromAbsDir dirPath
 
 copyFile :: Path' Abs (File f1) -> Path' Abs (File f2) -> IO ()
 copyFile src dst = SD.copyFile (SP.fromAbsFile src) (SP.fromAbsFile dst)

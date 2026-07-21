@@ -77,7 +77,6 @@ describe("analyzeApp", () => {
       const result = await analyze();
       const expected = convertWaspSpecToAppSpec(app, {
         entityNames: entities,
-        projectRootDir: "/project",
       });
 
       expect(result).toEqual(expected);
@@ -86,6 +85,7 @@ describe("analyzeApp", () => {
     expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
       specPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
+      projectRootDir: "/project",
     });
   }
 });

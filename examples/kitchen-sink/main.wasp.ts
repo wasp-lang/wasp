@@ -7,12 +7,14 @@ import {
   serverEnvValidationSchema,
 } from "./src/env" with { type: "ref" };
 import { CatchAllPage } from "./src/pages/CatchAllPage" with { type: "ref" };
+import { FullStackModuleApiPage } from "./src/pages/FullStackModuleApiPage" with { type: "ref" };
 import { HomePage } from "./src/pages/HomePage" with { type: "ref" };
 import {
   serverMiddlewareFn,
   serverSetup,
 } from "./src/serverSetup" with { type: "ref" };
 
+import getFsmModuleSpec from "@kitchen-sink/module/spec";
 import { apisSpec } from "./src/features/apis/apis.wasp";
 import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
 import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";
@@ -54,6 +56,7 @@ export default app({
   },
   spec: [
     route("HomeRoute", "/", page(HomePage), { prerender: true }),
+    route("FullStackModuleApiRoute", "/fsm-api", page(FullStackModuleApiPage)),
     route("CatchAllRoute", "*", page(CatchAllPage)),
     authSpec,
     operationsSpec,
@@ -65,5 +68,6 @@ export default app({
     lazyLoadingSpec,
     prerenderSpec,
     rpcTestsSpec,
+    getFsmModuleSpec({ prefix: "/fsm" }),
   ],
 });

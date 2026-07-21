@@ -31,6 +31,7 @@ import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Install (install)
+import Wasp.Cli.Command.Module (module_)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
@@ -60,6 +61,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["doctor"] -> Command.Call.Doctor
         ["build"] -> Command.Call.Build
         ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
+        ("module" : moduleArgs) -> Command.Call.Module moduleArgs
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
@@ -90,6 +92,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
     Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
+    Command.Call.Module moduleArgs -> runCommand $ module_ moduleArgs
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
@@ -157,6 +160,10 @@ printUsage =
         cmd   "    compile               Compiles your Wasp project and reports any errors, without running it.",
         cmd   "    build                 Generates the full web app, ready for deployment.",
         cmd   "    build start [args]    Previews the built production app locally.",
+        cmd   "    module new <name>     Creates a minimal reusable Wasp module scaffold.",
+        cmd   "    module install        Installs dependencies needed to develop a Wasp module.",
+        cmd   "    module build",
+              "                          Builds a reusable Wasp module package.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",

@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. After: direct Wasp module packages join one Rollup graph. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">After: the module is bundled</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">The host and module now use the same copy of the Wasp SDK.</text>
+
+  <g data-region="discovery">
+    <rect x="48" y="120" width="1184" height="144" rx="8" />
+    <text x="72" y="152" font-size="20" font-weight="600" stroke="none" fill="#000">Find Wasp modules</text>
+
+    <rect x="72" y="176" width="256" height="56" rx="4" />
+    <text x="200" y="208" font-size="14" text-anchor="middle" stroke="none" fill="#000">App dependencies</text>
+    <line x1="328" y1="204" x2="424" y2="204" marker-end="url(#arrow)" />
+
+    <rect x="432" y="176" width="320" height="56" rx="4" />
+    <text x="592" y="200" font-size="14" text-anchor="middle" stroke="none" fill="#000">Uses Wasp as a peer?</text>
+    <text x="592" y="220" font-size="12" text-anchor="middle" stroke="none" fill="#666">Direct packages only</text>
+    <line x1="752" y1="204" x2="848" y2="204" marker-end="url(#arrow)" />
+
+    <rect x="856" y="176" width="352" height="56" rx="4" fill="#e6e6e6" />
+    <text x="1032" y="200" font-size="14" text-anchor="middle" stroke="none" fill="#000">Bundle these packages</text>
+    <text x="1032" y="220" font-size="12" text-anchor="middle" stroke="none" fill="#666">wasp, @kitchen-sink/module</text>
+  </g>
+
+  <g data-region="bundle">
+    <rect x="48" y="296" width="920" height="408" rx="8" />
+    <text x="72" y="336" font-size="20" font-weight="600" stroke="none" fill="#000">One server.js bundle</text>
+
+    <rect x="80" y="376" width="248" height="96" rx="4" />
+    <text x="204" y="408" font-size="14" text-anchor="middle" font-weight="600" stroke="none" fill="#000">Host server code</text>
+    <text x="204" y="440" font-size="12" text-anchor="middle" stroke="none" fill="#666">external() returns false</text>
+
+    <rect x="368" y="376" width="280" height="96" rx="4" />
+    <text x="508" y="408" font-size="14" text-anchor="middle" font-weight="600" stroke="none" fill="#000">Full-stack module code</text>
+    <text x="508" y="440" font-size="12" text-anchor="middle" stroke="none" fill="#666">Package is on the list</text>
+
+    <line x1="328" y1="424" x2="360" y2="424" marker-end="url(#arrow)" />
+    <line x1="204" y1="472" x2="384" y2="536" marker-end="url(#arrow)" />
+    <line x1="508" y1="472" x2="456" y2="536" marker-end="url(#arrow)" />
+
+    <rect x="248" y="544" width="344" height="128" rx="4" fill="#e6e6e6" />
+    <text x="420" y="584" font-size="14" text-anchor="middle" font-weight="600" stroke="none" fill="#000">One Wasp SDK copy</text>
+    <text x="420" y="616" font-size="12" text-anchor="middle" stroke="none" fill="#666">wasp/server/jobs loads once</text>
+    <text x="420" y="648" font-size="12" text-anchor="middle" stroke="none" fill="#666">One pgBossStarted promise</text>
+
+    <rect x="688" y="376" width="248" height="296" rx="4" />
+    <text x="812" y="408" font-size="14" text-anchor="middle" font-weight="600" stroke="none" fill="#000">Import decisions</text>
+    <line x1="712" y1="432" x2="912" y2="432" />
+    <text x="712" y="464" font-size="12" stroke="none" fill="#000">wasp/server/jobs</text>
+    <text x="912" y="464" font-size="12" text-anchor="end" stroke="none" fill="#666">bundle</text>
+    <text x="712" y="504" font-size="12" stroke="none" fill="#000">@kitchen-sink/module/*</text>
+    <text x="912" y="504" font-size="12" text-anchor="end" stroke="none" fill="#666">bundle</text>
+    <text x="712" y="544" font-size="12" stroke="none" fill="#000">./local.js</text>
+    <text x="912" y="544" font-size="12" text-anchor="end" stroke="none" fill="#666">bundle</text>
+    <text x="712" y="584" font-size="12" stroke="none" fill="#000">quote-lib</text>
+    <text x="912" y="584" font-size="12" text-anchor="end" stroke="none" fill="#666">external</text>
+    <text x="712" y="624" font-size="12" stroke="none" fill="#000">node:fs</text>
+    <text x="912" y="624" font-size="12" text-anchor="end" stroke="none" fill="#666">external</text>
+  </g>
+
+  <g data-region="external">
+    <rect x="1000" y="296" width="232" height="408" rx="8" />
+    <text x="1024" y="336" font-size="20" font-weight="600" stroke="none" fill="#000">Outside bundle</text>
+    <rect x="1024" y="376" width="184" height="80" rx="4" />
+    <text x="1116" y="408" font-size="14" text-anchor="middle" stroke="none" fill="#000">quote-lib</text>
+    <text x="1116" y="432" font-size="12" text-anchor="middle" stroke="none" fill="#666">Third-party dependency</text>
+    <rect x="1024" y="488" width="184" height="80" rx="4" />
+    <text x="1116" y="520" font-size="14" text-anchor="middle" stroke="none" fill="#000">node:fs</text>
+    <text x="1116" y="544" font-size="12" text-anchor="middle" stroke="none" fill="#666">Node built-in</text>
+  </g>
+
+  <line x1="936" y1="584" x2="1016" y2="416" marker-end="url(#arrow)" />
+  <line x1="936" y1="624" x2="1016" y2="528" marker-end="url(#arrow)" />
+
+  <g data-region="annotations">
+    <rect x="840" y="160" width="384" height="88" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="840" cy="160" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="840" y="164" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+
+    <rect x="232" y="528" width="376" height="160" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="232" cy="528" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="232" y="532" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+
+  <text x="640" y="760" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Result: host and module share one SDK copy and one promise</text>
+</svg>

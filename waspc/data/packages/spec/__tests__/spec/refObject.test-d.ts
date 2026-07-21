@@ -14,8 +14,11 @@ describe("RefObject input types", () => {
   });
 
   test("should accept _waspMakeRef helper output at reference use sites", () => {
-    const sourceAwareRefImport = _waspMakeRef(import.meta.url);
-    const component = sourceAwareRefImport({
+    const originAwareRefImport = _waspMakeRef({
+      kind: "project",
+      specFilePath: "main.wasp.ts",
+    });
+    const component = originAwareRefImport({
       importDefault: "MainPage",
       from: "./MainPage",
     });

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Summary flow from split runtime to one Rollup graph. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">Wasp SDK singleton: before and after</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">The fix bundles the module with the host so both use the same SDK copy.</text>
+
+  <g data-region="before">
+    <rect x="48" y="136" width="488" height="536" rx="8" />
+    <text x="72" y="176" font-size="20" font-weight="600" stroke="none" fill="#000">Before</text>
+    <text x="72" y="208" font-size="14" stroke="none" fill="#666">Module stays outside the bundle</text>
+
+    <rect x="80" y="248" width="184" height="96" rx="4" />
+    <text x="172" y="280" font-size="14" text-anchor="middle" stroke="none" fill="#000">server.js</text>
+    <text x="172" y="312" font-size="12" text-anchor="middle" stroke="none" fill="#666">Host code</text>
+
+    <rect x="320" y="248" width="184" height="96" rx="4" />
+    <text x="412" y="280" font-size="14" text-anchor="middle" stroke="none" fill="#000">Outside bundle</text>
+    <text x="412" y="312" font-size="12" text-anchor="middle" stroke="none" fill="#666">Module code</text>
+
+    <line x1="264" y1="296" x2="312" y2="296" marker-end="url(#arrow)" />
+
+    <rect x="80" y="408" width="184" height="112" rx="4" fill="#e6e6e6" />
+    <text x="172" y="448" font-size="14" text-anchor="middle" stroke="none" fill="#000">Wasp SDK A</text>
+    <text x="172" y="480" font-size="12" text-anchor="middle" stroke="none" fill="#666">Promise A</text>
+
+    <rect x="320" y="408" width="184" height="112" rx="4" fill="#e6e6e6" />
+    <text x="412" y="448" font-size="14" text-anchor="middle" stroke="none" fill="#000">Wasp SDK B</text>
+    <text x="412" y="480" font-size="12" text-anchor="middle" stroke="none" fill="#666">Promise B</text>
+
+    <line x1="172" y1="344" x2="172" y2="400" marker-end="url(#arrow)" />
+    <line x1="412" y1="344" x2="412" y2="400" marker-end="url(#arrow)" />
+
+    <rect x="72" y="392" width="448" height="144" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="72" cy="392" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="72" y="396" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+
+    <text x="292" y="592" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Two separate states</text>
+    <text x="292" y="624" font-size="12" text-anchor="middle" stroke="none" fill="#666">Host starts A; module waits on B</text>
+  </g>
+
+  <line x1="560" y1="400" x2="720" y2="400" marker-end="url(#arrow)" />
+  <text x="640" y="376" font-size="14" text-anchor="middle" stroke="none" fill="#000">Bundle Wasp modules</text>
+  <text x="640" y="440" font-size="12" text-anchor="middle" stroke="none" fill="#666">Package list</text>
+
+  <g data-region="after">
+    <rect x="744" y="136" width="488" height="536" rx="8" />
+    <text x="768" y="176" font-size="20" font-weight="600" stroke="none" fill="#000">After</text>
+    <text x="768" y="208" font-size="14" stroke="none" fill="#666">Module is bundled with the host</text>
+
+    <rect x="776" y="248" width="424" height="112" rx="4" />
+    <text x="988" y="280" font-size="14" text-anchor="middle" stroke="none" fill="#000">One server.js bundle</text>
+    <text x="988" y="312" font-size="12" text-anchor="middle" stroke="none" fill="#666">Host code + module code</text>
+    <text x="988" y="336" font-size="12" text-anchor="middle" stroke="none" fill="#666">Both use the same SDK import</text>
+
+    <line x1="988" y1="360" x2="988" y2="424" marker-end="url(#arrow)" />
+
+    <rect x="856" y="432" width="264" height="128" rx="4" fill="#e6e6e6" />
+    <text x="988" y="472" font-size="14" text-anchor="middle" stroke="none" fill="#000">One Wasp SDK copy</text>
+    <text x="988" y="504" font-size="12" text-anchor="middle" stroke="none" fill="#666">One pgBossStarted promise</text>
+    <text x="988" y="536" font-size="12" text-anchor="middle" stroke="none" fill="#666">Shared singleton state</text>
+
+    <rect x="840" y="416" width="296" height="160" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="840" cy="416" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="840" y="420" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+
+    <text x="988" y="624" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">One shared state</text>
+  </g>
+
+  <text x="640" y="744" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">We find Wasp modules by their peer dependency, then bundle them.</text>
+  <text x="640" y="776" font-size="14" text-anchor="middle" stroke="none" fill="#666">Other packages stay outside the bundle.</text>
+</svg>

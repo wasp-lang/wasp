@@ -242,7 +242,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
+        "468ebc7a9db1afeb1556510dae1cac5d309d031dd3857893fa63cbcfa3639493"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "b5db741e0d7b953cd7f6f70ace2172c35c8123bd4ff60c9d43a14bbb7a5bd03c"
+        "565f0335c7b8ffa5fd46b30bcfc6e18619a28cfea3a1090d995f142049e88d05"
     ],
     [
         [
@@ -522,7 +522,7 @@
             "file",
             "sdk/wasp/server/operations/actions/types.ts"
         ],
-        "30d5f5faeb3ae0e83a18a7a91d8928293855eda76f2ebb9a659f54cbdd565b83"
+        "a2125984086fe3495a0cb5bcb142007e724cfa71b5b31876907fcf9d6cccdff1"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/server/operations/queries/types.ts"
         ],
-        "dd1eb9d2fc6651128358bc73190f8e0cf1a1e5093c821bde0a3acfe51afadc9e"
+        "dd1685be6373343b7b555b8530bca4dd9e11da67587fca7232f201da4e27b974"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
+        "b782df6dd62288e0211f9c5f61eb6da65f6563ec7f2ab16401a726c18bb47dbf"
     ],
     [
         [
@@ -683,7 +683,14 @@
             "file",
             "server/rollup.config.js"
         ],
-        "3ebb3ad0b85eb393862b12bcf3b087bc852e768ea4fbcc5d90d4265f85fac7cb"
+        "57fae68f8ceed6f684e4ecacb9a74fabaf28186afb5b8bc758f579c85b614176"
+    ],
+    [
+        [
+            "file",
+            "server/rollupPackages.js"
+        ],
+        "33568cd85c0f9d0248a7a52dec6144a5970aa667a65d96c5af589c650a925b4c"
     ],
     [
         [

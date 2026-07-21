@@ -6,7 +6,7 @@ import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
-import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
+import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForModule, validatePackageJsonForProject)
 
 spec_PackageJson :: Spec
 spec_PackageJson = do
@@ -17,6 +17,23 @@ spec_PackageJson = do
 
     it "returns an error when a Wasp TS project is missing @types/node" $
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
+
+  describe "validatePackageJsonForModule" $ do
+    it "returns no errors when wasp.module is an object" $
+      validatePackageJsonForModule validModulePackageJson `shouldBe` []
+
+    it "returns an error when wasp is missing" $
+      validatePackageJsonForModule validPackageJson `shouldSatisfy` any ("wasp" `isInfixOf`)
+
+    it "returns an error when wasp.module is missing" $
+      validatePackageJsonForModule
+        validPackageJson {P.wasp = Just emptyWaspConfig}
+        `shouldSatisfy` any ("module" `isInfixOf`)
+
+    it "returns an error when name is empty" $
+      validatePackageJsonForModule
+        validModulePackageJson {P.name = ""}
+        `shouldSatisfy` any ("name" `isInfixOf`)
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
 validate = validatePackageJsonForProject
@@ -34,6 +51,23 @@ validPackageJson =
       P.devDependencies = M.empty,
       P.workspaces = Nothing,
       P.wasp = Nothing
+    }
+
+validModulePackageJson :: P.PackageJson
+validModulePackageJson =
+  validPackageJson
+    { P.wasp =
+        Just
+          emptyWaspConfig
+            { P.module_ = Just mempty
+            }
+    }
+
+emptyWaspConfig :: P.WaspConfig
+emptyWaspConfig =
+  P.WaspConfig
+    { P.overriddenDeps = Nothing,
+      P.module_ = Nothing
     }
 
 requiredNodeTypesDependency :: (P.PackageName, P.PackageVersion)

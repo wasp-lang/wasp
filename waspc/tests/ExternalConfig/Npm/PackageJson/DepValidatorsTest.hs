@@ -229,7 +229,11 @@ withOverriddenDep pkgJson (name, version) =
     updatedWaspConfig = existingWaspConfig {P.overriddenDeps = Just updatedOverrides}
 
 emptyWaspConfig :: P.WaspConfig
-emptyWaspConfig = P.WaspConfig {P.overriddenDeps = Nothing}
+emptyWaspConfig =
+  P.WaspConfig
+    { P.overriddenDeps = Nothing,
+      P.module_ = Nothing
+    }
 
 depTypeToFieldName :: DependencyType -> String
 depTypeToFieldName Runtime = "dependencies"

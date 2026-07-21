@@ -7,7 +7,7 @@ import {
   getPackageJson,
   runCmd,
 } from "../utils.ts";
-import { getDataPackagesDirPath } from "./utils.ts";
+import { getDataPackagesDirPath, orderPackageDirs } from "./utils.ts";
 
 try {
   buildPackages();
@@ -18,7 +18,7 @@ try {
 
 function buildPackages(): void {
   const dataPackagesDirPath = getDataPackagesDirPath();
-  const packageDirs = discoverSubDirs(dataPackagesDirPath);
+  const packageDirs = orderPackageDirs(discoverSubDirs(dataPackagesDirPath));
 
   for (const packageDir of packageDirs) {
     buildPackage(packageDir);

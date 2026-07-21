@@ -71,6 +71,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "defaultClientPort" .= WebApp.defaultClientPort,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
+          "sdkPackageName" .= sdkPackageName,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object

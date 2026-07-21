@@ -1,0 +1,41 @@
+{
+  "name": "__waspModulePackageName__",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./spec": {
+      "types": "./dist/spec.d.ts",
+      "import": "./dist/spec.js",
+      "default": "./dist/spec.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "default": "./dist/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "wasp module build",
+    "pack": "npm pack --pack-destination .",
+    "typecheck": "tsc -p tsconfig.wasp.json && tsc -p tsconfig.src.json"
+  },
+  "peerDependencies": {
+    "@wasp.sh/spec": "^0.25.0",
+    "react": "^19.2.1",
+    "wasp": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0",
+    "@types/react": "^19.2.7",
+    "@wasp.sh/spec": "file:.wasp/spec/",
+    "react": "^19.2.1",
+    "typescript": "6.0.3",
+    "wasp": "file:.wasp/wasp"
+  },
+  "wasp": {
+    "module": {}
+  }
+}
