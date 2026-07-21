@@ -34,5 +34,8 @@
     "react": "^19.2.1",
     "typescript": "6.0.3",
     "wasp": "file:.wasp/wasp"
+  },
+  "wasp": {
+    "module": {}
   }
 }

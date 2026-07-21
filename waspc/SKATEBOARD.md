@@ -18,6 +18,7 @@
 
 ## Module Builder
 
+- Module packages identify themselves to Wasp tooling with a `wasp.module` object in `package.json`. `wasp module install` and `wasp module build` require the marker; its contents are reserved for future configuration.
 - The package's `/spec` export points at `dist/spec.js`, with `dist/spec.d.ts` for editor support. The compiled JavaScript keeps `@wasp.sh/spec` external and resolves to the host's peer dependency at evaluation time.
 - The app and module pipelines share the ref-lowering and transformed-source typechecking plugins from `@wasp.sh/spec/compiler`.
 - Ref helpers carry logical origins. Project origins contain a project-relative spec path; package origins contain the package name and package-relative spec path. Relative refs are mapped with pure POSIX path arithmetic, without absolute paths or package filesystem discovery.

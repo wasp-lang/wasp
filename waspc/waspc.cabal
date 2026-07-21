@@ -733,7 +733,6 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
-    Tests.SdkPackageExportsTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
     Tests.SnapshotTests.WaspMigrateSnapshotTest
@@ -754,6 +753,7 @@ test-suite waspc-e2e-tests
     Tests.WaspDockerfileTest
     Tests.WaspInfoTest
     Tests.WaspInstallTest
+    Tests.WaspModuleTest
     Tests.WaspNewTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest

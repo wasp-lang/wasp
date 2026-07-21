@@ -45,6 +45,8 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 - ✅ `wasp module build` validates both module tsconfigs, refreshes the shim, and requires the installed `node_modules/@wasp.sh/spec` version to exactly match the CLI version.
 - ✅ Generated modules declare required `@wasp.sh/spec`, React, and `wasp` peers. The builder does not validate these fields.
   - ❌ Optional `wasp` peer (`peerDependenciesMeta`): shipped initially, replaced with an explicit hard requirement.
+- ✅ Full-stack module packages declare `"wasp": { "module": {} }`. The existence of the `wasp.module` object identifies the package to Wasp tooling; the object is reserved for future configuration.
+  - ❌ Infer module identity from the `wasp` peer dependency, which describes runtime compatibility rather than package kind.
 - ✅ npm auto-installs the required `wasp` peer, reaching the SDK's `file:` lib tarballs before first compilation, so `wasp install` copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
   - Before modules, fresh-clone `wasp install` worked only by accident: with `.wasp/out/*` workspace globs matching nothing, npm pruned the lockfile entries for the SDK and its lib tarballs as unreachable. The `wasp` peer makes them reachable, so pruning no longer protects.
   - Warm npm caches satisfy `file:` tarball dependencies by integrity hash, so missing tarballs stay invisible on dev machines and only surface in cold-cache environments such as CI runners.
@@ -80,7 +82,7 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 ## Accepted for now
 
 - ✅ The builder enforces direct `export default` syntax, but not that the exported value is an `(options) => Spec` function.
-- ✅ The builder validates only a non-empty package name, not package metadata or name syntax.
+- ✅ The CLI validates a non-empty package name and the `wasp.module` marker, but not package metadata or name syntax.
 - ✅ Every `src/**/*.ts` and `src/**/*.tsx` file becomes a public entry. JavaScript is not built, although ref mapping strips `.js` and `.jsx`.
 - ✅ `tsdown` bundles module spec declarations after `wasp module build` performs module spec typechecking. `npm run typecheck` remains available for both module tsconfigs.
 - ✅ npm package aliases are unsupported; generated imports use the module's canonical `package.json` name.

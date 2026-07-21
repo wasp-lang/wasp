@@ -1,6 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
-
 module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
     WaspConfig (..),
@@ -20,7 +17,6 @@ import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import Data.Map (Map)
 import qualified Data.Map as M
-import GHC.Generics (Generic)
 import StrongPath (Abs, File, Path')
 import Wasp.ExternalConfig.Npm.Dependency (Dependency)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
@@ -57,9 +53,18 @@ data WaspConfig = WaspConfig
     -- `package.json#dependencies`. This ensures users consciously acknowledge
     -- they're deviating from tested versions, and must update their overrides
     -- when Wasp's requirements change.
-    overriddenDeps :: !(Maybe DependenciesMap)
+    overriddenDeps :: !(Maybe DependenciesMap),
+    -- | An object marks this package as a Wasp full-stack module. Its contents
+    -- are reserved for future module configuration.
+    module_ :: !(Maybe Aeson.Object)
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Show)
+
+instance FromJSON WaspConfig where
+  parseJSON = Aeson.withObject "WaspConfig" $ \v ->
+    WaspConfig
+      <$> v .:? "overriddenDeps"
+      <*> v .:? "module"
 
 type DependenciesMap = Map PackageName PackageVersion
 

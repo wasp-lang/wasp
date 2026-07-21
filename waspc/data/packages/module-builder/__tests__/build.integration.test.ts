@@ -215,7 +215,11 @@ function scaffoldModule(): string {
   );
   writeFileSync(
     path.join(moduleDir, "package.json"),
-    JSON.stringify({ name: "test-module", type: "module" }),
+    JSON.stringify({
+      name: "test-module",
+      type: "module",
+      wasp: { module: {} },
+    }),
   );
   writeFileSync(
     path.join(moduleDir, "tsconfig.src.json"),

@@ -47,27 +47,33 @@ afterEach(() => {
 });
 
 describe("discoverWaspModulePackages", () => {
-  test("finds only direct dependencies that declare Wasp as a peer", () => {
+  test("finds only direct dependencies with a wasp.module object", () => {
     const appRootDir = makeAppRoot({
       dependencies: {
         "@acme/module": "1.0.0",
         regular: "1.0.0",
+        "invalid-module": "1.0.0",
       },
       devDependencies: {
         "dev-module": "1.0.0",
       },
     });
     writePackageJson(appRootDir, "@acme/module", {
+      wasp: { module: {} },
+    });
+    writePackageJson(appRootDir, "regular", {
       peerDependencies: { wasp: "*" },
     });
-    writePackageJson(appRootDir, "regular", {});
+    writePackageJson(appRootDir, "invalid-module", {
+      wasp: { module: true },
+    });
     writePackageJson(appRootDir, "dev-module", {
-      peerDependencies: { wasp: "*" },
+      wasp: { module: {} },
     });
     writePackageJson(
       path.join(appRootDir, "node_modules", "@acme", "module"),
       "nested-module",
-      { peerDependencies: { wasp: "*" } },
+      { wasp: { module: {} } },
     );
 
     expect(rollupPackages.discoverWaspModulePackages(appRootDir)).toEqual([
