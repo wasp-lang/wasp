@@ -18,7 +18,7 @@ import qualified System.Log.Logger as L
 -- 1.5.0.0.
 --
 -- Lsp 1.5.0.0 drops support for @hslogger@ and no longer exposes the
--- @setupLogger@ function. To properly accomodate the change, we would have to
+-- @setupLogger@ function. To properly accommodate the change, we would have to
 -- update our entire logging architecture in the LSP.
 --
 -- We soon plan to move Wasp to the TS Spec. Spending time on the LSP therefore
