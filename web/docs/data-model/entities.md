@@ -122,7 +122,7 @@ Let's see how you can define and work with Wasp Entities:
 1. Create/update some Entities in the `schema.prisma` file.
 2. Run `wasp db migrate-dev`. This command syncs the database model with the Entity definitions the `schema.prisma` file. It does this by creating migration scripts.
 3. Migration scripts are automatically placed in the `migrations/` folder. Make sure to commit this folder into version control.
-4.   Use Wasp's JavaScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](../data-model/operations/overview)).
+4. Use Wasp's JavaScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](../data-model/operations/overview)).
 
 #### Using Entities in Operations
 
