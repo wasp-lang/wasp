@@ -25,7 +25,7 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
     // True if command was `wasp build`, false otherwise.
     "is_build": true,
     // Captures `wasp deploy ...` args, but only those from the limited, pre-defined list of keywords.
-    // Those are "fly", "railway", "setup", "create-db", "deploy", "cmd", and "launch". Everything else is ommited.
+    // Those are "fly", "railway", "setup", "create-db", "deploy", "cmd", and "launch". Everything else is omitted.
     "deploy_cmd_args": "fly;deploy",
     "wasp_version": "0.1.9.1",
     "os": "linux",
