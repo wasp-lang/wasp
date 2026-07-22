@@ -9,12 +9,6 @@ import type { Expand } from '../universal/types.js'
 import { isNotNull } from '../universal/predicates.js'
 
 /**
- * We split the user code into two files:
- * - This one, with client-safe code (types and helpers).
- * - `wasp/server/auth/user.ts`, with server-only code.
- */
-
-/**
  * {@link AuthUser} must be declared in a module which is directly reachable
  * through the package's `exports` map (this module is reachable as
  * `"wasp/auth/user"`).

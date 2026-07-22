@@ -13,12 +13,6 @@ import type {
   UserFacingProviderData,
 } from '../../auth/user.js'
 
-/**
- * This module contains the server-only part of the user code (it transitively
- * imports Oslo's hashing functions through `wasp/auth/utils`).
- * The client-safe part (types and helper) lives in `wasp/auth/user`.
- */
-
 // PRIVATE API
 export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
