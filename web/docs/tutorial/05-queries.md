@@ -1,10 +1,11 @@
 ---
 title: 5. Querying the Database
+hide_table_of_contents: true
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers';
 import { TutorialAction } from './TutorialAction';
+import { Scrollycoding } from '@site/src/components/Scrollycoding';
 
 We want to know which tasks we need to do, so let's list them!
 
@@ -17,54 +18,65 @@ To list the tasks, you must:
 1. Create a Query that fetches the tasks from the database.
 2. Update the `MainPage.{jsx,tsx}` to use that Query and display the results.
 
-## Defining the Query
+## Creating and Using the Query
 
-We'll create a new Query called `getTasks`. We'll need to declare the Query in the Wasp file and write its implementation in <ShowForJs>JS</ShowForJs><ShowForTs>TS</ShowForTs>.
+<Scrollycoding>
 
-### Specifying a Query
+## !!steps Declaring the Query
 
-We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it exists:
+We'll create a new Query called `getTasks`. First, we add a **query** specification to `main.wasp.ts` so that Wasp knows it exists.
 
-<TutorialAction id="query-get-tasks" action="APPLY_PATCH">
-```ts title="main.wasp.ts"
-// highlight-next-line
-import { app, page, query, route } from "@wasp.sh/spec"
-import { MainPage } from "./src/MainPage" with { type: "ref" }
-// highlight-next-line
-import { getTasks } from "./src/queries" with { type: "ref" }
+We tell Wasp that this Query reads from the `Task` entity. Wasp will automatically update the Query's results whenever tasks are modified.
+
+<TutorialAction id="query-get-tasks" action="APPLY_PATCH" />
+
+:::note
+To generate the types used in the next step, make sure that `wasp start` is still running.
+:::
+
+```ts ! main.wasp.ts
+// !mark
+import { app, page, query, route } from "@wasp.sh/spec";
+import { MainPage } from "./src/MainPage" with { type: "ref" };
+// !mark
+import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
-  // ...
+  name: "TodoApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "TodoApp",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("RootRoute", "/", page(MainPage)),
-    // Tell Wasp that this query reads from the `Task` entity. Wasp will
-    // automatically update the results of this query when tasks are modified.
-    // highlight-next-line
+    // !mark
     query(getTasks, { entities: ["Task"] }),
   ],
-})
+});
 ```
 
-<ShowForTs>
-  :::note
-  To generate the types used in the next section, make sure that `wasp start` is still running.
-  :::
-</ShowForTs>
-</TutorialAction>
+## !!steps Implementing the Query
 
-### Implementing a Query
+Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` spec.
 
-<ShowForJs>
-  Next, create a new file called `src/queries.js` and define the JavaScript function we've just imported in our `query` spec:
-</ShowForJs>
+Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.ts`:
 
-<ShowForTs>
-  Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` spec:
-</ShowForTs>
+- `Task` corresponds to the `Task` entity you defined in `schema.prisma`.
+- `GetTasks` is a generic type Wasp generated based on the `getTasks` Query you declared.
 
-<TutorialAction id="query-get-tasks-impl" action="APPLY_PATCH">
+This Query doesn't expect any arguments (its input type is `void`), but it returns an array of tasks (its output type is `Task[]`). Annotating the Query is optional but highly recommended, because doing so enables **full-stack type safety**.
 
-```ts title="src/queries.ts" auto-js
+The Query function receives two parameters:
+
+- `args`: the arguments the caller passes to the Query.
+- `context`: an object with extra information injected by Wasp. Since the spec says `getTasks` uses the `Task` entity, Wasp injects a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for it as `context.entities.Task`, which we use above to fetch all the tasks.
+
+:::info
+Queries and Actions are NodeJS functions executed on the server.
+:::
+
+<TutorialAction id="query-get-tasks-impl" action="APPLY_PATCH" />
+
+```ts ! src/queries.ts
 import type { Task } from "wasp/entities";
 import type { GetTasks } from "wasp/server/operations";
 
@@ -74,49 +86,30 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   });
 };
 ```
-</TutorialAction>
-<ShowForTs>
-Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.ts`:
 
-- `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
-- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`.
+## !!steps Using the Query in React
 
-You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
+While we implement Queries on the server, Wasp generates client-side functions that take care of serialization, network calls, and cache invalidation, so you can call the server code like a regular function.
 
-Annotating the Queries is optional, but highly recommended because doing so enables **full-stack type safety**. We'll see what this means in the next step.
-</ShowForTs>
+Most of this is regular React. The only special parts are the three `wasp` imports:
 
-Query function parameters:
+- `getTasks`: the client-side Query function Wasp generated from the `getTasks` spec.
+- `useQuery`: Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, based on [react-query](https://github.com/tannerlinsley/react-query)'s hook of the same name.
+- `Task`: the type for the Task entity defined in `schema.prisma`.
 
-- `args: object`
+Notice you don't need to annotate the Query's return value: Wasp reuses the types from the Query's implementation for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
 
-The arguments the caller passes to the Query.
+We could have called the Query directly with `getTasks()`, but the `useQuery` hook makes it reactive: React re-renders the component every time the Query's result changes.
 
-- `context`
+<TutorialAction id="main-page-tasks" action="APPLY_PATCH" />
 
-  An object with extra information injected by Wasp. Its type depends on the Query specification.
-
-Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
-
-:::info
-Queries and Actions are NodeJS functions executed on the server.
-:::
-
-## Invoking the Query On the Frontend
-
-While we implement Queries on the server, Wasp generates client-side functions that automatically take care of serialization, network calls, and cache invalidation, allowing you to call the server code like it's a regular function.
-
-This makes it easy for us to use the `getTasks` Query we just created in our React component:
-
-<TutorialAction id="main-page-tasks" action="APPLY_PATCH">
-
-```tsx title="src/MainPage.tsx" auto-js
+```tsx ! src/MainPage.tsx
 import type { Task } from "wasp/entities";
-// highlight-next-line
+// !mark
 import { getTasks, useQuery } from "wasp/client/operations";
 
 export const MainPage = () => {
-  // highlight-next-line
+  // !mark
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
@@ -150,24 +143,8 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
   );
 };
 ```
-</TutorialAction>
 
-Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
-
-<ShowForJs>
-  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-  - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
-</ShowForJs>
-
-<ShowForTs>
-  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-  - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
-  - `Task` - The type for the Task entity defined in `schema.prisma`.
-
-Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.
-</ShowForTs>
-
-We could have called the Query directly using `getTasks()`, but the `useQuery` hook makes it reactive: React will re-render the component every time the Query changes. Remember that Wasp automatically refreshes Queries whenever the data is modified.
+</Scrollycoding>
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 

@@ -1,0 +1,107 @@
+.container {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin: 2rem 0 3rem;
+}
+
+.stepsContainer {
+  flex: 1;
+  min-width: 14rem;
+}
+
+.step {
+  border-left: 3px solid var(--ifm-color-emphasis-300);
+  padding: 0.25rem 1rem 0.25rem 1.25rem;
+  /* Generous spacing so scroll-based step selection has room to work. */
+  margin-bottom: 35vh;
+  cursor: pointer;
+}
+
+.step:last-child {
+  margin-bottom: 4rem;
+}
+
+.step[data-selected="true"] {
+  border-left-color: var(--ifm-color-primary);
+}
+
+.stepTitle {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-heading-color);
+}
+
+.sticker {
+  width: 55%;
+  max-width: 40rem;
+  position: sticky;
+  top: calc(var(--ifm-navbar-height) + 1.5rem);
+}
+
+.stickyCode {
+  border-radius: var(--ifm-global-radius, 8px);
+  overflow: hidden;
+  background: var(--ch-16);
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.filename {
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-700);
+}
+
+.pre {
+  margin: 0;
+  padding: 1rem;
+  max-height: calc(100vh - var(--ifm-navbar-height) - 8rem);
+  overflow: auto;
+  /* src/css/prism.css only styles Prism blocks, so set the code font here. */
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+.markedLine {
+  background: var(--docusaurus-highlighted-code-line-bg);
+  box-shadow: inset 3px 0 0 0 var(--ifm-color-primary);
+}
+
+.markedInline {
+  background: var(--docusaurus-highlighted-code-line-bg);
+  border-radius: 3px;
+  padding: 0 0.15em;
+}
+
+@media (max-width: 996px) {
+  /* Stack: code pane pinned below the navbar, steps scrolling beneath it. */
+  .container {
+    flex-direction: column-reverse;
+    gap: 0;
+  }
+
+  .stepsContainer {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .step {
+    margin-bottom: 2.5rem;
+  }
+
+  .sticker {
+    width: 100%;
+    max-width: none;
+    top: var(--ifm-navbar-height);
+    z-index: 10;
+  }
+
+  .pre {
+    max-height: 40vh;
+  }
+}

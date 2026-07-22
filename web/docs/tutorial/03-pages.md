@@ -1,5 +1,6 @@
 ---
 title: 3. Pages & Routes
+hide_table_of_contents: true
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -7,6 +8,7 @@ import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
+import { Scrollycoding } from '@site/src/components/Scrollycoding';
 
 In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
@@ -73,21 +75,38 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
 
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { HelloPage } from "./src/HelloPage" with { type: "ref" }
+<Scrollycoding>
+
+## !!steps Adding a Route
+
+Add a new route and page to your spec. This route uses a [dynamic segment](../advanced/routing#dynamic-segments) (`:name`) in its path, which Wasp passes to the page component.
+
+```ts ! main.wasp.ts
+import { app, page, route } from "@wasp.sh/spec";
+import { MainPage } from "./src/MainPage" with { type: "ref" };
+// !mark
+import { HelloPage } from "./src/HelloPage" with { type: "ref" };
 
 export default app({
-  // ...
+  name: "TodoApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "TodoApp",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
+    route("RootRoute", "/", page(MainPage)),
+    // !mark
     route("HelloRoute", "/hello/:name", page(HelloPage)),
   ],
-})
+});
 ```
 
-When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router` to access the `name` parameter:
+## !!steps Implementing the Page
 
-```tsx title="src/HelloPage.tsx" auto-js
+When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.tsx`. You can use the `useParams` hook from `react-router` to access the `name` parameter.
+
+Now you can visit `/hello/johnny` and see "Here's johnny!"
+
+```tsx ! src/HelloPage.tsx
 import { useParams } from "react-router";
 
 export const HelloPage = () => {
@@ -96,7 +115,7 @@ export const HelloPage = () => {
 };
 ```
 
-Now you can visit `/hello/johnny` and see "Here's johnny!"
+</Scrollycoding>
 
 <ShowForTs>
   :::tip Type-safe links
@@ -110,45 +129,48 @@ Now that you've seen how Wasp deals with Routes and Pages, it's finally time to 
 
 Start by cleaning up the starter project and removing unnecessary code and files.
 
-<TutorialAction id="prepare-project" action="APPLY_PATCH">
+<Scrollycoding>
 
-First, remove most of the code from the `MainPage` component:
+## !!steps Trimming the Main Page
 
-```tsx title="src/MainPage.tsx" auto-js
+First, remove most of the code from the `MainPage` component.
+
+You can now delete some redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.tsx` (we won't need this page for the rest of the tutorial).
+
+<TutorialAction id="prepare-project" action="APPLY_PATCH" />
+
+```tsx ! src/MainPage.tsx
 export const MainPage = () => {
   return <div>Hello world!</div>;
 };
 ```
 
-At this point, the main page should look like this:
+## !!steps Tidying the Wasp File
 
-<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
-
-You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
-
-Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
+Since `src/HelloPage.tsx` no longer exists, remove its route from the `main.wasp.ts` file.
 
 Your Wasp file should now look like this:
 
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { MainPage } from "./src/MainPage" with { type: "ref" }
+```ts ! main.wasp.ts
+import { app, page, route } from "@wasp.sh/spec";
+import { MainPage } from "./src/MainPage" with { type: "ref" };
 
 export default app({
   name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp",
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
-})
+});
 ```
-</TutorialAction>
+
+</Scrollycoding>
+
+At this point, the main page should look like this:
+
+<img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
 Excellent work!
 

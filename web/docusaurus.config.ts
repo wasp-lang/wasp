@@ -1,5 +1,7 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
+import type { CodeHikeConfig } from "codehike/mdx";
+import { recmaCodeHike, remarkCodeHike } from "codehike/mdx";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
@@ -19,6 +21,16 @@ const lightCodeTheme = {
 const darkCodeTheme = {
   ...themes.dracula,
   plain: { ...themes.dracula.plain, backgroundColor: "#1e1e1e" },
+};
+
+// CodeHike only powers the <Scrollycoding> blocks in the tutorial. It must not
+// take over regular code fences (auto-js, with-hole, Prism wasp/prisma, ...),
+// so `components.code` is intentionally not set. CodeHike only owns fences
+// whose meta starts with "!" (Scrollycoding step code); `ignoreCode` documents
+// and enforces that contract.
+const codeHikeConfig: CodeHikeConfig = {
+  ignoreCode: ({ meta }) => !meta?.trim().startsWith("!"),
+  syntaxHighlighting: { theme: "github-from-css" },
 };
 
 const includeCurrentVersion =
@@ -196,14 +208,21 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           sidebarCollapsible: true,
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
+          // searchAndReplace must run before remarkCodeHike: CodeHike highlights
+          // Scrollycoding step fences at remark time, so placeholders like
+          // {latestWaspVersion} inside them have to be substituted first.
+          beforeDefaultRemarkPlugins: [
+            searchAndReplace,
+            [remarkCodeHike, codeHikeConfig],
+          ],
           remarkPlugins: [
             autoJSCode,
             autoImportTabs,
             fileExtSwitcher,
-            searchAndReplace,
             codeWithHole,
             fixAPILinks,
           ],
+          recmaPlugins: [[recmaCodeHike, codeHikeConfig]],
 
           // ------ Configuration for multiple docs versions ------ //
 
@@ -261,7 +280,7 @@ const config: Config = {
           exclude: ["**/CLAUDE.md", "_wasp-intro.md"],
         },
         theme: {
-          customCss: ["./src/css/custom.css"],
+          customCss: ["./src/css/custom.css", "./src/css/codehike.css"],
         },
       } as Preset.Options,
     ],

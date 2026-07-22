@@ -35,6 +35,7 @@
     "autoprefixer": "^10.4.13",
     "classnames": "^2.3.2",
     "clsx": "^1.2.1",
+    "codehike": "^1.1.0",
     "front-matter": "^4.0.2",
     "glob": "^11.0.2",
     "plugin-image-zoom": "github:flexanalytics/plugin-image-zoom",
@@ -51,7 +52,8 @@
     "react-transition-group": "^4.4.5",
     "remotion": "^4.0.441",
     "tailwindcss": "^3.2.4",
-    "ts-blank-space": "^0.9.0"
+    "ts-blank-space": "^0.9.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "~3.10.1",
