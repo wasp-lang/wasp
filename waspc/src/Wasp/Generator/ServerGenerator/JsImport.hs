@@ -54,9 +54,5 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ waspProjectSrcDirFromServerSrcDir
   where
-    -- NOTE: We reference user code directly. This gives us proper
-    -- error messages (with user's file names and line numbers). It works great
-    -- with Vite (Vite outputs absolute file paths), but less great on the
-    -- server (TS outputs relative paths, resulting in ../../src/something).
     waspProjectSrcDirFromServerSrcDir = waspProjectDirFromServerSrcDir </> srcDirInWaspProjectDir
     waspProjectDirFromServerSrcDir = invertRelDir (generatedAppDirInWaspProjectDir </> serverSrcDirInGeneratedAppDir)
