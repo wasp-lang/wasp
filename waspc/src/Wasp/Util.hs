@@ -37,8 +37,6 @@ module Wasp.Util
     orIfNothing,
     orIfNothingM,
     kebabToCamelCase,
-    maybeToEither,
-    eitherToMaybe,
     orElse,
     whenM,
     naiveTrimJSON,
@@ -303,13 +301,6 @@ orIfNothing = flip fromMaybe
 
 orIfNothingM :: (Monad m) => m (Maybe a) -> m a -> m a
 orIfNothingM = flip fromMaybeM
-
-maybeToEither :: a -> Maybe b -> Either a b
-maybeToEither leftValue = maybe (Left leftValue) Right
-
-eitherToMaybe :: Either e a -> Maybe a
-eitherToMaybe (Right x) = Just x
-eitherToMaybe (Left _) = Nothing
 
 orElse :: Maybe a -> a -> a
 orElse = flip fromMaybe
