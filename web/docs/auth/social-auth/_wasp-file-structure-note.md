@@ -1,4 +1,4 @@
-Here's a skeleton of how our `main.wasp.ts` should look like after we're done:
+Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
