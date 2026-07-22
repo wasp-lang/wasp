@@ -1,5 +1,8 @@
 module Wasp.Cli.Command.Watch
-  ( watch,
+  ( ProjectFileChange (..),
+    WatchCompileResult (..),
+    WatchCompileHooks (..),
+    watch,
   )
 where
 
@@ -7,19 +10,32 @@ import Control.Concurrent (MVar, threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
-import Control.Monad (unless)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
+
+newtype ProjectFileChange = ProjectFileChange
+  { _projectFileChangePath :: FilePath
+  }
+
+data WatchCompileHooks = WatchCompileHooks
+  { _onSuccessfulCompile :: WatchCompileResult -> IO (),
+    _onFailedCompile :: WatchCompileResult -> IO ()
+  }
+
+data WatchCompileResult = WatchCompileResult
+  { _watchProjectFileChanges :: [ProjectFileChange],
+    _watchCompileResult :: CompileResult
+  }
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -37,8 +53,9 @@ watch ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
+  WatchCompileHooks ->
   IO ()
-watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
+watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
@@ -71,10 +88,9 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
           listenForEvents chan lastCompileTime
         else do
           -- Recompile, but only after a 1s period of no new events.
-          waitUntilNoNewEvents chan lastCompileTime 1
+          fileChanges <- collectFileChangesUntilQuiet chan lastCompileTime 1 event
           currentTime <- getCurrentTime
-          (warnings, errors) <- recompile
-          updateOngoingCompilationResultMVar (warnings, errors)
+          recompile fileChanges
           listenForEvents chan currentTime
 
     updateOngoingCompilationResultMVar :: ([CompileWarning], [CompileError]) -> IO ()
@@ -89,19 +105,25 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
         >> tryPutMVar ongoingCompilationResultMVar (warnings, errors)
         >> return ()
 
-    -- Blocks until no new events are recieved for a duration of `secondsToDelay`.
-    -- Consumes any new events during an active timer window and then restarts wait.
-    -- If a stale event comes in during an active timer window, we immediately
-    -- return control to the caller.
-    waitUntilNoNewEvents :: Chan FSN.Event -> UTCTime -> Int -> IO ()
-    waitUntilNoNewEvents chan lastCompileTime secondsToDelay = do
-      eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
-      case eventOrDelay of
-        Left event ->
-          unless (isStaleEvent event lastCompileTime) $
-            -- We have a new event, restart waiting process.
-            waitUntilNoNewEvents chan lastCompileTime secondsToDelay
-        Right () -> return ()
+    -- Collects events until no new events are received for a duration of `secondsToDelay`.
+    -- If a stale event arrives during an active timer window, we immediately return control to the caller.
+    collectFileChangesUntilQuiet :: Chan FSN.Event -> UTCTime -> Int -> FSN.Event -> IO [ProjectFileChange]
+    collectFileChangesUntilQuiet chan lastCompileTime secondsToDelay firstEvent =
+      collectEvents [firstEvent]
+      where
+        collectEvents events = do
+          eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
+          case eventOrDelay of
+            Left event
+              | isStaleEvent event lastCompileTime -> return $ eventToProjectFileChange <$> events
+              | otherwise ->
+                  -- We have a new event, restart waiting process.
+                  collectEvents $ event : events
+            Right () -> return $ eventToProjectFileChange <$> events
+
+    eventToProjectFileChange :: FSN.Event -> ProjectFileChange
+    eventToProjectFileChange event =
+      ProjectFileChange $ FP.normalise $ FP.makeRelative (SP.fromAbsDir waspProjectDir) (FSN.eventPath event)
 
     isStaleEvent :: FSN.Event -> UTCTime -> Bool
     isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
@@ -110,22 +132,26 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
-    recompile :: IO ([CompileWarning], [CompileError])
-    recompile = do
+    recompile :: [ProjectFileChange] -> IO ()
+    recompile fileChanges = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      (warnings, errors) <- compileIO waspProjectDir outDir
+      compileResult <- compileIO waspProjectDir outDir
+      let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
+      let watchCompileResult =
+            WatchCompileResult
+              { _watchProjectFileChanges = fileChanges,
+                _watchCompileResult = compileResult
+              }
       if null errors
-        then
-          cliSendMessage $
-            Msg.Success "Recompilation on file change succeeded."
-        else
-          cliSendMessage $
-            Msg.Failure "Recompilation on file change failed." $
-              show (length errors) ++ " errors found"
-
-      return (warnings, errors)
+        then do
+          updateOngoingCompilationResultMVar (warnings, errors)
+          _onSuccessfulCompile watchCompileHooks watchCompileResult
+        else do
+          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+          updateOngoingCompilationResultMVar (warnings, errors)
+          _onFailedCompile watchCompileHooks watchCompileResult
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,

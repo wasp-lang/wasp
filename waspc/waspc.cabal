@@ -161,6 +161,9 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
+  if !os(windows)
+    build-depends:
+      unix
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Analyzer
@@ -347,6 +350,7 @@ library
     Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Node
     Wasp.Job.Process
+    Wasp.Job.Process.LongRunning
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
@@ -423,6 +427,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.GitRev
+    Wasp.Util.Glob
     Wasp.Util.HashMap
     Wasp.Util.InstallMethod
     Wasp.Util.IO
@@ -472,6 +477,9 @@ library cli-lib
     waspc,
     zlib ^>=0.7.1,
 
+  if !os(windows)
+    build-depends:
+      unix
   other-modules:
     Paths_waspc
 
@@ -523,6 +531,7 @@ library cli-lib
     Wasp.Cli.Command.Require.WaspSpecAvailable
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
+    Wasp.Cli.Command.Start.ServerRuntimeInputChange
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
@@ -536,6 +545,7 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.SignalHandling
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
@@ -565,10 +575,12 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
     Diff ^>=0.4.1,
+    directory,
     filepath,
     hspec >=2.11,
     megaparsec,
@@ -611,7 +623,9 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.StartTest
     Generator.WriteFileDraftsTest
+    Job.Process.LongRunningTest
     Job.ProcessTest
     JsImportTest
     Node.InternalTest
@@ -643,11 +657,13 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Process.Util
     Test.Util
     Util.Control.MonadTest
     Util.Diff
     Util.FibTest
     Util.FilePathTest
+    Util.GlobTest
     Util.IO.RetryTest
     Util.Prisma
     Util.StrongPathTest
@@ -668,17 +684,23 @@ test-suite wasp-cli-tests
     cli-lib,
     hspec,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
     time,
     waspc,
 
+  if !os(windows)
+    build-depends:
+      unix
   other-modules:
     DbMigrateTest
     Paths_waspc
+    SignalHandlingTest
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.Command.Start.ServerRuntimeInputChangeTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

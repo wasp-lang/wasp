@@ -1,7 +1,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Wasp.Cli.Command.Compile
-  ( compileIO,
+  ( CompileResult (..),
+    compileIO,
     compile,
     compileWithOptions,
     compileIOWithOptions,
@@ -30,7 +31,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -74,7 +75,8 @@ compileWithOptions options = do
         "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
   liftIO $ printCompilationResult (warnings, errors)
   if null errors
@@ -123,7 +125,7 @@ formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
+  IO CompileResult
 compileIO waspProjectDir outDir =
   compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
 
@@ -131,7 +133,7 @@ compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
+  IO CompileResult
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 

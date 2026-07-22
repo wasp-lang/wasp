@@ -30,7 +30,7 @@ import Wasp.Util (Checksum)
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
-synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO ()
+synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO [FileOrDirPathRelativeTo GeneratedAppDir]
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   return $! assertDstPathsAreUnique fileDrafts
 
@@ -58,6 +58,8 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 
   let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
   writeChecksumFile dstDir relativePathsToChecksums
+
+  return $ (getDstPath <$> fileDraftsToWrite) ++ filesToDelete
 
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo GeneratedAppDir, Checksum)]
 

@@ -9,10 +9,9 @@ import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Conduit.Text as CT
-import System.Exit (ExitCode (..))
-import qualified System.Info
+import System.Exit (ExitCode)
 import qualified System.Process as P
-import UnliftIO.Exception (bracket)
+import UnliftIO.Exception (bracket, finally)
 import qualified Wasp.Job as J
 
 -- TODO:
@@ -30,9 +29,13 @@ runProcessAndStreamOutput :: P.CreateProcess -> J.JobOutputSink -> IO ExitCode
 runProcessAndStreamOutput process outputSink =
   bracket
     (CP.streamingProcess process)
-    (\(_, _, _, sph) -> terminateStreamingProcess sph)
+    cleanUpStreamingProcess
     runStreamingProcessAndStreamOutput
   where
+    cleanUpStreamingProcess (_, _, _, streamingProcessHandle) =
+      terminateStreamingProcess streamingProcessHandle
+        `finally` CP.closeStreamingProcessHandle streamingProcessHandle
+
     runStreamingProcessAndStreamOutput (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardOutput outputType stream =
             runConduit $
@@ -43,16 +46,11 @@ runProcessAndStreamOutput process outputSink =
           *> Concurrently (forwardOutput J.Stderr stderrStream)
           *> Concurrently (CP.waitForStreamingProcess processHandle)
 
-    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
-    -- processes we run will spawn child processes, which themselves may spawn child processes.
-    -- We want to ensure the entire process chain is stopped.
-    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
-    -- but that surfaces an issue where a new process group that needs stdin but is started as a
-    -- background process gets terminated, appearing to hang.
-    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
+    -- This generic runner does not create a process group, so it owns only the
+    -- root process. Group cleanup belongs to LongRunning, which creates one.
+    terminateStreamingProcess :: CP.StreamingProcessHandle -> IO ()
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      if System.Info.os == "mingw32"
-        then P.terminateProcess processHandle
-        else P.interruptProcessGroupOf processHandle
-      return $ ExitFailure 1
+      CP.getStreamingProcessExitCode streamingProcessHandle >>= \case
+        Just _ -> return ()
+        Nothing -> P.terminateProcess processHandle
