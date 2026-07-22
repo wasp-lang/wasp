@@ -13,6 +13,12 @@ import type {
   UserFacingProviderData,
 } from '../../auth/user.js'
 
+/**
+ * FIXME: https://github.com/wasp-lang/wasp/issues/4527 - bad code split.
+ * This module contains the server runtime part.
+ * The runtime agnostic part lives in `auth/` dir.
+ */
+
 // PRIVATE API
 export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
