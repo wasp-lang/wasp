@@ -352,6 +352,9 @@ genServerDbClient spec = do
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     app = snd $ getApp spec
 
+-- | Declares only those virtual user modules that are used by the SDK.
+-- Can be tracked by looking at where the following function is used:
+-- 'Wasp.Generator.SdkGenerator.JsImport.extImportToImportJson'
 genWaspVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
 genWaspVirtualUserModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
