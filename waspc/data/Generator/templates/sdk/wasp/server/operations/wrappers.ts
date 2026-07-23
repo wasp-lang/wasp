@@ -39,34 +39,32 @@ export type UnauthenticatedOperationFor<
 /**
  * Creates the server-side API for an unauthenticated operation.
  *
- * @template OperationDefinition The type of the unauthenticated operation's definition.
- * @param getUserOperation Returns the unauthenticated operation's definition.
+ * The operation definition is accepted through a getter instead of directly to
+ * prevent "use before initialization" errors. When a user's operation definition
+ * imports another operation's server-side API (i.e., imports from `"wasp/server/operations"`),
+ * that module and ours form a cycle. Depending on which side of the cycle the
+ * bundler enters first, it can emit our {@link createUnauthenticatedOperation}
+ * wrapper calls above the user's operation definitions:
+ * ```ts
+ * function badCreateOperation(fn: Function) {
+ *   return () => fn();
+ * }
+ * const badServerOperation = badCreateOperation(someUserOperation);
+ *       ^! ❌ ReferenceError: Cannot access 'someUserOperation' before initialization
+ * const someUserOperation = () => 1;
+ * ```
  * 
- * This function accepts a function getter instead of the function itself to prevent use
- * before initialization errors. This can happen when bundlers decide to insert user's
- * operation definitions below our {@link createUnauthenticatedOperation} wrapper calls:
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized:
  * ```ts
  * function goodCreateOperation(fn: () => Function) {
  *   return () => fn()();
  * }
- * 
- * function badCreateOperation(fn: Function) {
- *   return () => fn();
- * }
- * 
- * const goodOperation = goodCreateOperation(() => someUserOperationDefinition);
- * const badOperation = badCreateOperation(someUserOperationDefinition); 
- *       ^! ❌ (TS2454): Variable 'someUserOperationDefinition' is used before being assigned.
- * 
- * const someUserOperationDefinition = () => 1;
+ * const goodServerOperation = goodCreateOperation(() => someUserOperation);
+ * const someUserOperation = () => 1;
  * ```
- * The getter defers the read until the operation is called, by which point every
- * module is initialized.
- * 
- * This can happen when a user operation definition imports some other operation's
- * server client. This forces the "server operation definitions" to be emitted
- * before the "user operation definitions", leading to the outcome in the code example
- * above.
+ * @template OperationDefinition The type of the unauthenticated operation's definition.
+ * @param getUserOperation Returns the unauthenticated operation's definition.
  * @param entities The unauthenticated operation's entity map.
  * @returns The server-side API for the provided unauthenticated operation.
  */
@@ -120,34 +118,32 @@ export type AuthenticatedOperationContext = { user: AuthUser }
 /**
  * Creates the server-side API for an authenticated operation.
  *
- * @template OperationDefinition The type of the authenticated operation's definition.
- * @param getUserOperation Returns the authenticated operation's definition.
+ * The operation definition is accepted through a getter instead of directly to
+ * prevent "use before initialization" errors. When a user's operation definition
+ * imports another operation's server-side API (i.e., imports from `"wasp/server/operations"`),
+ * that module and ours form a cycle. Depending on which side of the cycle the
+ * bundler enters first, it can emit our {@link createAuthenticatedOperation}
+ * wrapper calls above the user's operation definitions:
+ * ```ts
+ * function badCreateOperation(fn: Function) {
+ *   return () => fn();
+ * }
+ * const badServerOperation = badCreateOperation(someUserOperation);
+ *       ^! ❌ ReferenceError: Cannot access 'someUserOperation' before initialization
+ * const someUserOperation = () => 1;
+ * ```
  * 
- * This function accepts a function getter instead of the function itself to prevent use
- * before initialization errors. This can happen when bundlers decide to insert user's
- * operation definitions below our {@link createAuthenticatedOperation} wrapper calls:
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized:
  * ```ts
  * function goodCreateOperation(fn: () => Function) {
  *   return () => fn()();
  * }
- * 
- * function badCreateOperation(fn: Function) {
- *   return () => fn();
- * }
- * 
- * const goodOperation = goodCreateOperation(() => someUserOperationDefinition);
- * const badOperation = badCreateOperation(someUserOperationDefinition); 
- *       ^! ❌ (TS2454): Variable 'someUserOperationDefinition' is used before being assigned.
- * 
- * const someUserOperationDefinition = () => 1;
+ * const goodServerOperation = goodCreateOperation(() => someUserOperation);
+ * const someUserOperation = () => 1;
  * ```
- * The getter defers the read until the operation is called, by which point every
- * module is initialized.
- * 
- * This can happen when a user operation definition imports some other operation's
- * server client. This forces the "server operation definitions" to be emitted
- * before the "user operation definitions", leading to the outcome in the code example
- * above.
+ * @template OperationDefinition The type of the authenticated operation's definition.
+ * @param getUserOperation Returns the authenticated operation's definition.
  * @param entities The authenticated operation's entity map.
  * @returns The server-side API for the provided authenticated operation.
  */
