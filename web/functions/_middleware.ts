@@ -91,5 +91,5 @@ async function fetchMarkdownVariant(
 }
 
 function generateMarkdownPathname(pathname: string): string {
-  return pathname.replace(/\/+$/, "") + ".md";
+  return pathname.replace(/\/$/, "") + ".md";
 }
