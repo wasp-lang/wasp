@@ -127,7 +127,7 @@ genSdk spec =
       genServerExportedTypesDir,
       genPackageJson spec,
       genServerDbClient spec,
-      genWaspUserVirtualModulesDeclaration spec
+      genWaspVirtualUserModulesDeclaration spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -352,8 +352,8 @@ genServerDbClient spec = do
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     app = snd $ getApp spec
 
-genWaspUserVirtualModulesDeclaration :: AppSpec -> Generator FileDraft
-genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genWaspVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
+genWaspVirtualUserModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =

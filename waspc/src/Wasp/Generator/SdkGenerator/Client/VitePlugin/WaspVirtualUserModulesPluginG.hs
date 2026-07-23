@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.Client.VitePlugin.UserVirtualModulesPluginG
-  ( genUserVirtualModulesPlugin,
+module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualUserModulesPluginG
+  ( genWaspVirtualUserModulesPlugin,
   )
 where
 
@@ -21,15 +21,15 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (getJsImportPathStringFromPath)
 
-genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
-genUserVirtualModulesPlugin spec =
+genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
+genWaspVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
-      (C.vitePluginsDirInSdkTemplatesDir </> [relfile|userVirtualModules.ts|])
-      (object ["userVirtualModules" .= getClientUserVirtualModulesData spec])
+      (C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualUserModules.ts|])
+      (object ["virtualUserModules" .= getClientVirtualUserModulesData spec])
 
-getClientUserVirtualModulesData :: AppSpec -> [Aeson.Value]
-getClientUserVirtualModulesData spec =
+getClientVirtualUserModulesData :: AppSpec -> [Aeson.Value]
+getClientVirtualUserModulesData spec =
   maybeToList (mkVMImportData <$> maybeClientEnvSchema)
     ++ maybeToList (mkVMImportData <$> maybeSetupFn)
     ++ maybeToList (mkVMImportData <$> maybeRootComponent)

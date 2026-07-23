@@ -1,5 +1,5 @@
-module Wasp.Generator.ServerGenerator.UserVirtualModulesPluginG
-  ( genUserVirtualModulesPlugin,
+module Wasp.Generator.ServerGenerator.WaspVirtualUserModulesPluginG
+  ( genWaspVirtualUserModulesPlugin,
   )
 where
 
@@ -35,16 +35,15 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.JsImport (getJsImportPathStringFromPath)
 
-genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
-genUserVirtualModulesPlugin spec =
+genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
+genWaspVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
-      [relfile|src/plugins/userVirtualModules.js|]
-      (Just $ object ["userVirtualModules" .= getServerUserVirtualModulesData spec])
+      [relfile|src/plugins/waspVirtualUserModules.js|]
+      (Just $ object ["virtualUserModules" .= getServerVirtualUserModulesData spec])
 
--- Fetch ext imports which are related to server
-getServerUserVirtualModulesData :: AppSpec -> [Aeson.Value]
-getServerUserVirtualModulesData spec =
+getServerVirtualUserModulesData :: AppSpec -> [Aeson.Value]
+getServerVirtualUserModulesData spec =
   maybeToList (mkVMImportData <$> maybeServerEnvSchema)
     ++ maybeToList (mkVMImportData <$> maybePrismaSetupFn)
     ++ map mkOperationVMImportData allOperations

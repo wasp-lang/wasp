@@ -286,7 +286,7 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.UserVirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualUserModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
@@ -317,7 +317,7 @@ library
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Start
-    Wasp.Generator.ServerGenerator.UserVirtualModulesPluginG
+    Wasp.Generator.ServerGenerator.WaspVirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
     Wasp.Generator.Start

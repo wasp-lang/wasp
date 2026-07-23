@@ -6,7 +6,7 @@ import { validateEnv } from "./validateEnv.js";
 import { envFile } from "./envFile.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { waspVirtualModules } from "./waspVirtualModules.js";
-import { userVirtualModules } from "./userVirtualModules.js";
+import { waspVirtualUserModules } from "./waspVirtualUserModules.js";
 import { typescriptCheck } from "./typescriptCheck.js";
 import { waspConfig } from "./waspConfig.js";
 
@@ -22,7 +22,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     // The `wasp:config` plugin must come first because
     // other plugins may depend on its configuration.
     waspConfig(),
-    userVirtualModules(),
+    waspVirtualUserModules(),
     waspVirtualModules(),
     envFile(),
     detectServerImports(),
