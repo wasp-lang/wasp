@@ -37,23 +37,26 @@ doctor :: IO ()
 doctor = do
   putStrLn $ Term.applyStyles [Term.Bold] "Checking your environment...\n"
 
+  checks <- getChecks
   forM_ checks $ \(title, check) -> do
     result <- runExceptT check
     putStrLn $ renderCheckResult title result
 
 -- | The checks to run, each as a (title, check) pair. A check returns the text
 -- to print after the title: `Right` if it succeeded, `Left` if it failed.
-checks :: [(String, Check String)]
-checks =
-  [ ("Wasp", checkWasp),
-    ("System", checkSystem),
-    ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
-    ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
-    ("Docker", checkDocker >> return "running"),
-    makePortCheck "Client" WebApp.defaultClientPort,
-    makePortCheck "Server" Server.defaultServerPort,
-    makePortCheck "Dev database" Dev.Postgres.defaultDevPort
-  ]
+getChecks :: IO [(String, Check String)]
+getChecks = do
+  checkDevDb <- makeDevDbPortCheck
+  return
+    [ ("Wasp", checkWasp),
+      ("System", checkSystem),
+      ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
+      ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
+      ("Docker", checkDocker >> return "running"),
+      makePortCheck "Client" WebApp.defaultClientPort,
+      makePortCheck "Server" Server.defaultServerPort,
+      checkDevDb
+    ]
   where
     makePortCheck name port =
       ( name ++ " port (" ++ show port ++ ")",
@@ -64,6 +67,13 @@ checks =
       checkToolExists name
         >> checkToolVersion minVersion getCurrentVersion
         <&> show
+
+    makeDevDbPortCheck :: IO (String, Check String)
+    makeDevDbPortCheck = do
+      result <- Dev.Postgres.getDevDbPort
+      return $ case result of
+        Right port -> makePortCheck "Dev database" port
+        Left err -> ("Dev database port", throwError err)
 
 renderCheckResult :: String -> Either String String -> String
 renderCheckResult title result =
@@ -129,3 +139,4 @@ checkPortIsFree port =
       False -> return ()
   where
     checkIfLocalPortIsInuse = Socket.checkIfPortIsInUse . Socket.makeLocalHostSocketAddress . fromIntegral
+

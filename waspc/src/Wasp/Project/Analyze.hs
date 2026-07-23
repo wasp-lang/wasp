@@ -30,6 +30,7 @@ import Wasp.Project.Common
     tsConfigPaths,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
+import qualified Wasp.Project.Db.Dev.Postgres as DevPostgres
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
@@ -86,27 +87,31 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
-  let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
-  serverEnvVars <- readDotEnvServer waspDir
-  clientEnvVars <- readDotEnvClient waspDir
 
-  let appSpec =
-        AS.AppSpec
-          { AS.decls = decls,
-            AS.prismaSchema = parsedPrismaSchema,
-            AS.waspProjectDir = waspDir,
-            AS.externalCodeFiles = externalCodeFiles,
-            AS.migrationsDir = maybeMigrationsDir,
-            AS.devEnvVarsServer = serverEnvVars,
-            AS.devEnvVarsClient = clientEnvVars,
-            AS.buildType = CompileOptions.buildType compileOptions,
-            AS.userDockerfileContents = maybeUserDockerfileContents,
-            AS.devDatabaseUrl = devDbUrl,
-            AS.packageJson = EC._packageJson externalConfigs,
-            AS.srcTsConfigPath = srcTsConfigPath
-          }
+  DevPostgres.getDevDbPort >>= \case
+    Left err -> return (Left [err], [])
+    Right devDbPort -> do
+      let devDbUrl = makeDevDatabaseUrl devDbPort waspDir dbSystem decls
+      serverEnvVars <- readDotEnvServer waspDir
+      clientEnvVars <- readDotEnvClient waspDir
 
-  return $ runValidation ASV.validateAppSpec appSpec
+      let appSpec =
+            AS.AppSpec
+              { AS.decls = decls,
+                AS.prismaSchema = parsedPrismaSchema,
+                AS.waspProjectDir = waspDir,
+                AS.externalCodeFiles = externalCodeFiles,
+                AS.migrationsDir = maybeMigrationsDir,
+                AS.devEnvVarsServer = serverEnvVars,
+                AS.devEnvVarsClient = clientEnvVars,
+                AS.buildType = CompileOptions.buildType compileOptions,
+                AS.userDockerfileContents = maybeUserDockerfileContents,
+                AS.devDatabaseUrl = devDbUrl,
+                AS.packageJson = EC._packageJson externalConfigs,
+                AS.srcTsConfigPath = srcTsConfigPath
+              }
+
+      return $ runValidation ASV.validateAppSpec appSpec
 
 analyzePrismaSchema :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] Psl.Schema.Schema, [CompileWarning])
 analyzePrismaSchema waspProjectDir = do
