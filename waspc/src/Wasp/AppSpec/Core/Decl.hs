@@ -33,6 +33,10 @@ instance ToJSON Decl where
         "declValue" .= value
       ]
 
+instance Inspectable Decl where
+  inspect (Decl name value) =
+    modifyDatapointList (("Name", name) :) <$> inspect value
+
 -- | Extracts all declarations of a certain type from a @[Decl]@s
 takeDecls :: (IsDecl a) => [Decl] -> [(String, a)]
 takeDecls = mapMaybe fromDecl
@@ -45,7 +49,3 @@ fromDecl (Decl name value) = (name,) <$> cast value
 
 getDeclName :: Decl -> String
 getDeclName (Decl name _) = name
-
-instance Inspectable Decl where
-  inspect (Decl name value) =
-    modifyDatapointList (("Name", name) :) <$> inspect value

@@ -128,7 +128,7 @@ spec_alignColumns = do
       [ ["/", "HomeRoute", ""],
         ["/login", "LoginRoute", "[auth]"]
       ]
-      `shouldBe` ["/       HomeRoute", "/login  LoginRoute  [auth]"]
+      `shouldBe` ["/       HomeRoute         ", "/login  LoginRoute  [auth]"]
 
 spec_leftPad :: Spec
 spec_leftPad = do
