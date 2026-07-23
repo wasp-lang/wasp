@@ -4,8 +4,6 @@ module Wasp.Cli.Command.Inspect
 where
 
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.ByteString.Lazy as BSL
-import System.IO (stdout)
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
@@ -25,10 +23,8 @@ inspect = withArguments "wasp inspect" inspectArgsParser $ \args -> do
   InWaspProject waspDir <- require
   WaspSpecAvailable <- require
   appSpec <- analyzeWithDiagnosticsOnStderr waspDir
-  liftIO $
-    if json args
-      then do
-        BSL.hPutStr stdout $ inspectAsJson appSpec
-        putStrLn ""
-      else
-        putStr $ inspectAsTables appSpec
+  liftIO $ putStr $ inspectFn args.json appSpec
+  where
+    inspectFn isJson
+      | isJson = inspectAsJson
+      | otherwise = inspectAsTables

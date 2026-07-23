@@ -121,18 +121,12 @@ printErrorsIfAny errs = do
 formatErrorOrWarningMessages :: [String] -> String
 formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
 
--- The titles of the compilation diagnostics are shared between the CLI (stdout,
--- via 'cliSendMessage') and the machine-readable (stderr) sinks so their wording
--- can't drift apart.
-
 compilationWarningsTitle :: String
 compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
 
 analysisErrorsTitle :: [CompileError] -> String
 analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
 
--- | Prints a diagnostic (a title and its body) to stderr, keeping stdout free
--- for machine-readable output.
 printDiagnosticToStderr :: String -> String -> IO ()
 printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
 
@@ -142,8 +136,7 @@ compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-compileIO waspProjectDir outDir =
-  compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
+compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
 
 compileIOWithOptions ::
   CompileOptions ->
