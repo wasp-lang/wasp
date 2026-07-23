@@ -42,7 +42,6 @@
     "./auth": "./dist/auth/index.js",
     "./auth/jwt": "./dist/auth/jwt.js",
     "./auth/password": "./dist/auth/password.js",
-    "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
     "./auth/session": "./dist/auth/session.js",
     "./auth/user": "./dist/auth/user.js",
@@ -85,9 +84,6 @@
     "./server/webSocket": "./dist/server/webSocket/index.js",
     "./src/*": "./dist/src/*.js"
   },
-  "include": [
-    "src/**/*"
-  ],
   "license": "ISC",
   "name": "wasp",
   "peerDependencies": {},
