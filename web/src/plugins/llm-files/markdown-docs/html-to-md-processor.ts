@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { VFile } from "vfile";
-import { LlmDocsContext } from "../context";
+import { MarkdownDocsContext } from "./context";
 import { docusaurusHtmlToMdHandlers } from "./docusaurus/docusaurus-html-to-md-handlers";
 import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/rehype-reduce-docusaurus-page";
 
@@ -16,7 +16,7 @@ import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/r
  * conversion mangles. This processor recognizes them and emits clean markdown.
  */
 export function createDocusaurusHtmlToMarkdownProcessor(
-  context: LlmDocsContext,
+  context: MarkdownDocsContext,
 ): (htmlFile: VFile) => string {
   const docusaurusHtmlToMarkdownProcessor = unified()
     .use(rehypeParse)

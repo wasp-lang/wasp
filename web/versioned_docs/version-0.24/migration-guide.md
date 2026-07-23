@@ -55,9 +55,9 @@ My app currently uses the Wasp DSL in main.wasp. Please convert the config to th
 
 Use these docs:
 
-- 0.23 to 0.24 migration guide: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/migration-guide.md
-- Wasp DSL to Wasp Spec conversion guide: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/guides/legacy/wasp-dsl.md
-- Wasp Spec docs: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/general/spec.md
+- 0.23 to 0.24 migration guide: https://wasp.sh/docs/0.24/migration-guide.md
+- Wasp DSL to Wasp Spec conversion guide: https://wasp.sh/docs/guides/legacy/wasp-dsl.md
+- Wasp Spec docs: https://wasp.sh/docs/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
 - Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/tsAppSpec.ts
 
@@ -85,9 +85,9 @@ My app currently uses the old class-based Wasp TS Config in \`main.wasp.ts\`. Pl
 
 Use these docs:
 
-- 0.23 to 0.24 migration guide: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/migration-guide.md
-- Wasp TS Config to Wasp Spec conversion guide: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/guides/legacy/wasp-ts-config.md
-- Wasp Spec docs: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/general/spec.md
+- 0.23 to 0.24 migration guide: https://wasp.sh/docs/0.24/migration-guide.md
+- Wasp TS Config to Wasp Spec conversion guide: https://wasp.sh/docs/guides/legacy/wasp-ts-config.md
+- Wasp Spec docs: https://wasp.sh/docs/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
 - Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/waspSpec.ts
 
@@ -101,8 +101,8 @@ Important:
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}
-</LLMPrompt>
-</TabItem>
+    </LLMPrompt>
+  </TabItem>
 </Tabs>
 
 If you want to do it manually, follow the steps below.
@@ -155,7 +155,6 @@ Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest
 - If your app already has a `main.wasp.ts` file using the old class-based `new App(...)` API, follow [Migrating from the Wasp TS Config](./guides/legacy/wasp-ts-config.md). This converts your app from the old TS Config to the Wasp Spec.
 
 After you finish the conversion guide, **come back here** and continue with the shared migration steps below.
-
 
 ### 4. Update client code that uses `api` from `wasp/client/api`
 
