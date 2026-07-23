@@ -77,4 +77,4 @@ renderMustacheTemplate mustacheTemplate templateData = do
   -- conditionals. This is why we ignore these errors.
   if null errors || areAllErrorsSectionDataNotFound errors
     then return fileText
-    else error $ "Unexpected errors occured while rendering template: " ++ show errors
+    else error $ "Unexpected errors occurred while rendering template: " ++ show errors

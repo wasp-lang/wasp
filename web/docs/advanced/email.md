@@ -30,7 +30,8 @@ Choose from one of the providers:
 
 - `Dummy` (development only),
 - `Mailgun`,
-- `SendGrid`
+- `SendGrid`,
+- `Resend`
 - or the good old `SMTP`.
 
 Optionally, define the `defaultFrom` field, so you don't need to provide it whenever sending an email.
@@ -189,6 +190,34 @@ Then, get the SendGrid API key and add it to your `.env.server` file.
 
 ```properties title=".env.server"
 SENDGRID_API_KEY=
+```
+
+### Using the Resend Provider {#resend}
+
+Set the provider field to `Resend` in your `main.wasp.ts` file.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: "Resend",
+  },
+  // ...
+})
+```
+
+Then, get the Resend API key and add it to your `.env.server` file.
+
+#### Getting the API Key
+
+1. Go to [Resend](https://resend.com/) and create an account.
+2. Go to [API Keys](https://resend.com/api-keys) and create a new API key.
+3. Copy the API key and add it to your `.env.server` file.
+
+```properties title=".env.server"
+RESEND_API_KEY=
 ```
 
 ## API Reference

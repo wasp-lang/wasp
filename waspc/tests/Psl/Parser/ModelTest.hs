@@ -68,11 +68,9 @@ spec_parsePslModel = do
                               ]
                           ),
                         Psl.Model.ElementField
-                          ( Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []
-                          ),
+                          (Psl.Model.Field "internets" (Psl.Model.UserType "Internet") [Psl.Model.List] []),
                         Psl.Model.ElementField
-                          ( Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] []
-                          )
+                          (Psl.Model.Field "strings" (Psl.Model.UserType "Strings") [Psl.Model.List] [])
                       ]
             )
 

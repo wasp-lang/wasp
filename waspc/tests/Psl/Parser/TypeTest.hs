@@ -52,8 +52,7 @@ spec_parsePslType = do
                                 ]
                             ),
                           Psl.Model.ElementField
-                            ( Psl.Model.Field "url" Psl.Model.String [] []
-                            )
+                            (Psl.Model.Field "url" Psl.Model.String [] [])
                         ]
               )
 
@@ -86,8 +85,7 @@ spec_parsePslType = do
                                 ]
                             ),
                           Psl.Model.ElementField
-                            ( Psl.Model.Field "url" Psl.Model.String [] []
-                            )
+                            (Psl.Model.Field "url" Psl.Model.String [] [])
                         ]
               )
 

@@ -1,20 +1,17 @@
-min_version = "2026.6.14"
+min_version = "2026.7.1"
 
 [tools]
-"aqua:ghcup" = "0.2.6.1"
+ghcup = "0.2.6.2"
 
-cabal = "3.12.1.0"
+cabal = "3.16.1.0"
 
-# Keep in sync with:
-# - /waspc/cabal.project
-# - /waspc/dev-tool.project
 "mise-ghcup:ghc" = "9.6.7"
 
 # We assume that this HLS version ships prebuilt binaries for the GHC version
 # above. When upgrading GHC or HLS, check
 # https://haskell-language-server.readthedocs.io/en/latest/support/ghc-version-support.html
 # to see which combination of GHC and HLS versions are compatible.
-"mise-ghcup:hls" = "2.12.0.0"
+"mise-ghcup:hls" = "2.14.0.0"
 
 # This should be equal to Wasp's lowest supported Node version.
 # Keep in sync with:
@@ -24,12 +21,29 @@ cabal = "3.12.1.0"
 # (Also just grep for the version in case we forgot somewhere.)
 "node" = "24.14.1"
 
-"github:tfausak/cabal-gild" = "1.5.0.1"
+jq = "1.8.2"
 
-ormolu = "0.7.2.0"
+# TODO: Provide a fallback for Linux ARM64 and macOS x64
+# The upstream repo only distributes prebuilt binaries for Linux x64, macOS
+# arm64, and Windows x64.
+# https://github.com/jdx/mise/discussions/10828
+"github:tfausak/cabal-gild".version = "1.8.4.1"
+"github:tfausak/cabal-gild".os = ["linux/x64", "darwin/arm64", "windows/x64"]
+
+# TODO: Provide a fallback for Linux ARM64
+# The upstream repo only distributes prebuilt binaries for Linux x64, macOS
+# (all, and Windows x64.
+# https://github.com/jdx/mise/discussions/10828
+ormolu.version = "0.8.1.1"
+ormolu.os = ["linux/x64", "darwin", "windows/x64"]
+
+"mise-cabal:hlint" = "3.6.1"
+
+"mise-cabal:stan" = "0.2.1.0"
 
 [plugins]
 "vfox:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
+"vfox:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
@@ -69,7 +83,7 @@ ormolu = "0.7.2.0"
 
 [settings]
 lockfile = true
-experimental = true # Needed for backend plugins (mise-ghcup) to work.
+experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
 
 [settings.node]
 # The Node backend has a knack for compiling from source on Alpine even when

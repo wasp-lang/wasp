@@ -1,11 +1,11 @@
 import type { ESTree as t } from "rolldown/utils";
-import { SpecUserError } from "../../../spec/specUserError.js";
+import { WaspSpecUserError } from "../../../spec/waspSpecUserError.js";
 import { getStringValue } from "../util.js";
 
 export function assertCanTransformImports(ast: t.Program): void {
   const hasRefExports = ast.body.some(isRefExportDeclaration);
   if (hasRefExports) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       "Re-exporting refs is not supported. First import the reference and then re-export it if needed.",
     );
   }

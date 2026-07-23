@@ -133,6 +133,16 @@ If you are using `Mailgun` as your email sender, you need to provide the followi
 ]}
 />
 
+#### Resend Email Sender
+
+If you are using `Resend` as your email sender, you need to provide the following environment variables:
+
+<EnvVarsTable
+  envVars={[
+{ name: "RESEND_API_KEY", type: "String", isRequired: true, note: "The Resend API key." }
+]}
+/>
+
 #### OAuth Providers
 
 If you are using OAuth, you need to provide the following environment variables:

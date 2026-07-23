@@ -34,5 +34,5 @@ makeEntityStmt (name, body) = wrapWithCtx $ Decl "entity" name $ wrapWithCtx $ Q
 generatePrismaModelSources :: Psl.Schema.Schema -> [(ModelName, ModelBody)]
 generatePrismaModelSources schema =
   [ (name, Psl.Model.Generator.generateModelBody body)
-    | (Psl.Model.Model name body) <- Psl.WithCtx.getNode <$> Psl.Schema.getModels schema
+  | (Psl.Model.Model name body) <- Psl.WithCtx.getNode <$> Psl.Schema.getModels schema
   ]

@@ -47,17 +47,18 @@ const config: Config = {
     },
 
     announcementBar: {
-      id: "lw12-ts-spec",
+      id: "wasp-100-typescript",
       content:
-        '🦋 <b>Launch Week #12 — TS Spec</b> · Wasp goes fully TypeScript-native. <a href="/blog/2026/06/05/wasp-launch-week-12-ts-spec">Kickoff Mon, Jun 15 →</a>',
-      backgroundColor: "#111",
-      textColor: "#f5c842",
+        '<a href="/blog/2026/06/15/wasp-typescript-spec" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;"><span style="font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em;">Wasp is now 100% TypeScript</span><span style="display: inline-flex; align-items: center; border: 2px solid #111; background: #F5C842; color: #111; padding: 2px 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px;">Meet TS Spec →</span></a>',
+      backgroundColor: "#3178C6",
+      textColor: "#FAFAFA",
       isCloseable: false,
     },
 
     imageZoom: {
-      // CSS selector to apply the plugin to, defaults to '.markdown img'
-      //selector: '.markdown img',
+      // Opt out any image with the `.no-default-zoom` class (used by our custom
+      // Carousel + ImgGallery components, which have their own lightbox).
+      selector: ".markdown img:not(.no-default-zoom)",
       // Optional medium-zoom options
       // see: https://www.npmjs.com/package/medium-zoom#options
       options: {
