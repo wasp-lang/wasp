@@ -1,6 +1,6 @@
 import type { RefObjectDescriptor } from "@wasp.sh/spec";
 import type { RolldownMagicString } from "rolldown";
-import { SpecUserError } from "../../../spec/specUserError.js";
+import { WaspSpecUserError } from "../../../spec/waspSpecUserError.js";
 import {
   buildImportStatement,
   PUBLIC_REF_HELPER_IMPORT_NAME,
@@ -59,7 +59,7 @@ function getLoweredImportSource(
       );
 
     case "namespace":
-      throw new SpecUserError(
+      throw new WaspSpecUserError(
         [
           "Namespace imports are not supported for reference imports.",
           `Replace \`import * as ${ref.alias} from "${ref.from}" with { type: "ref" }\` with a named or default reference import.`,

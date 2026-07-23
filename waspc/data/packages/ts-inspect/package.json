@@ -22,7 +22,7 @@
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint": "^8.57.0",
-    "vitest": "^4.0.8"
+    "vitest": "^4.1.9"
   },
   "//": [
     "typescript is purposefully a normal dependency, and not a dev dependency:",

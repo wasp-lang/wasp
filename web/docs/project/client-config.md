@@ -94,7 +94,7 @@ export default app({
   </TabItem>
 </Tabs>
 
-You need to import the [`Outlet`](https://reactrouter.com/7.12.0/api/components/Outlet) component from `react-router` and put it where you want the current page to be rendered.
+You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/Outlet) component from `react-router` and put it where you want the current page to be rendered.
 
 ### Setting up a Provider
 
