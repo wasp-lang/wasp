@@ -300,8 +300,8 @@ naiveTrimJSON textContainingJson =
 textToLazyBS :: Text -> BSL.ByteString
 textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
 
-secondsToMicroSeconds :: Int -> Int
-secondsToMicroSeconds = (* 1000000)
+secondsToMicroSeconds :: Double -> Int
+secondsToMicroSeconds seconds = round $ seconds * 1000000
 
 findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort
