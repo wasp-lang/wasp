@@ -356,6 +356,13 @@ function getScripts() {
       src: "/js/fix-multiple-trailing-slashes.js",
       requiresConsent: false,
     },
+    {
+      // Scrolls the docs sidebar so the active page is visible on load.
+      // See issue #4507. Loaded on every page (no-op on pages without a
+      // docs sidebar).
+      src: "/js/fix-sidebar-scroll.js",
+      requiresConsent: false,
+    },
   ];
 
   const devOnlyScripts: ScriptWithConsent[] = [];
