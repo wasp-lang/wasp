@@ -7,8 +7,8 @@ module Wasp.AppSpec.ExtImport
     ExtImportName (..),
     importIdentifier,
     parseExtImportPath,
-    showExtImport,
-    showExtImportPath,
+    showExtImportFromProjectDir,
+    showExtImportPathFromProjectDir,
   )
 where
 
@@ -16,11 +16,12 @@ import Control.Arrow (left)
 import Data.Aeson (FromJSON (parseJSON), object, withObject, (.:), (.:?), (.=))
 import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Data (Data)
-import Data.List (stripPrefix)
+import Data.List (isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP
+import qualified System.FilePath as FP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.Project.Common as Project
 
@@ -39,7 +40,7 @@ instance ToJSON ExtImport where
     object
       [ "kind" .= kindStr,
         "name" .= nameStr,
-        "path" .= showExtImportPath (path extImport),
+        "path" .= showExtImportPathFromProjectDir (path extImport),
         "alias" .= alias extImport
       ]
     where
@@ -90,15 +91,8 @@ parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
   where
     stripImportPrefix = stripPrefix extSrcPrefix
 
-showExtImportPath :: ExtImportPath -> String
-showExtImportPath extImportPath = SP.fromRelFileP (srcDirAsPosix SP.</> extImportPath)
-  where
-    srcDirAsPosix = fromMaybe (error "Internal error. Failed to convert srcDirInWaspProjectDir to POSIX. This should never happen.") $ SP.relDirToPosix Project.srcDirInWaspProjectDir
-
--- | Renders an external import the way the user would write it, e.g.
--- @{ tasks } from "@src/queries.ts"@ or @Main from "@src/pages/Main.tsx"@.
-showExtImport :: ExtImport -> String
-showExtImport extImport = importClause ++ " from \"" ++ showExtImportPath (path extImport) ++ "\""
+showExtImportFromProjectDir :: ExtImport -> String
+showExtImportFromProjectDir extImport = importClause ++ " from \"" ++ showExtImportPathFromProjectDir (path extImport) ++ "\""
   where
     importClause = case name extImport of
       ExtImportModule n -> withAlias n
@@ -106,6 +100,18 @@ showExtImport extImport = importClause ++ " from \"" ++ showExtImportPath (path 
     withAlias n = case alias extImport of
       Just a | a /= n -> n ++ " as " ++ a
       _ -> n
+
+showExtImportPathFromProjectDir :: ExtImportPath -> String
+showExtImportPathFromProjectDir extImportPath
+  | [".."] `isPrefixOf` FP.splitPath relPathStr = relPathStr
+  | otherwise = FP.joinPath [".", relPathStr]
+  where
+    relPathStr = SP.fromRelFileP $ srcDirP SP.</> extImportPath
+
+    srcDirP =
+      fromMaybe
+        (error "Internal error. Failed to convert srcDirInWaspProjectDir to POSIX. This should never happen.")
+        (SP.relDirToPosix Project.srcDirInWaspProjectDir)
 
 -- Filip: We no longer want separation between client and server code
 -- todo (filip): Do we still want to know which is which. We might (because of the reloading).

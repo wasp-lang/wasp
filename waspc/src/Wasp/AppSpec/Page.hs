@@ -12,7 +12,7 @@ import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 
 data Page = Page
   { component :: ExtImport,
@@ -25,6 +25,6 @@ instance IsDecl Page
 instance Inspectable Page where
   inspect page =
     [ InspectionEntry "Pages" $
-        ("Import", showExtImport $ component page)
+        ("Import", showExtImportFromProjectDir $ component page)
           : [("Requires auth", "Yes") | authRequired page == Just True]
     ]

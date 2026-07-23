@@ -23,7 +23,7 @@ import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (Inspect
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
-import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 import Wasp.AppSpec.JSON (JSON (..))
 
 data Job = Job
@@ -41,7 +41,7 @@ instance Inspectable Job where
     [ InspectionEntry "Jobs" $
         [ ("Executor", show $ executor job),
           ("Schedule", maybe "" (show . cron) (schedule job)),
-          ("Import", showExtImport job.perform.fn)
+          ("Import", showExtImportFromProjectDir job.perform.fn)
         ]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities job]]
     ]

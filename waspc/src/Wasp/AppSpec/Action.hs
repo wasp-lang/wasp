@@ -29,7 +29,7 @@ instance IsDecl Action
 instance Inspectable Action where
   inspect action =
     [ InspectionEntry "Actions" $
-        [("Import", showExtImport $ fn action)]
+        [("Import", showExtImportFromProjectDir $ fn action)]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities action]]
           ++ [("Auth", "Enabled") | auth action == Just True]
     ]

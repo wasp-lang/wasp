@@ -18,7 +18,7 @@ import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (Inspect
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
-import Wasp.AppSpec.ExtImport (ExtImport, showExtImport)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 
 data Api = Api
   { fn :: ExtImport,
@@ -36,7 +36,7 @@ instance Inspectable Api where
     [ InspectionEntry "API" $
         [ ("Method", show (method api)),
           ("Route", path api),
-          ("Import", showExtImport $ fn api)
+          ("Import", showExtImportFromProjectDir $ fn api)
         ]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities api]]
           ++ [("Auth", "Enabled") | auth api == Just True]

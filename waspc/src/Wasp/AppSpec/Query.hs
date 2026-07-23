@@ -29,7 +29,7 @@ instance IsDecl Query
 instance Inspectable Query where
   inspect query =
     [ InspectionEntry "Queries" $
-        [("Import", showExtImport $ fn query)]
+        [("Import", showExtImportFromProjectDir $ fn query)]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities query]]
           ++ [("Auth", "Enabled") | auth query == Just True]
     ]
