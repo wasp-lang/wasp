@@ -159,6 +159,12 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
     If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.
 
-    Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more details on building Wasp from the source.
+    Check `waspc/` for more details on building Wasp from the source.
   </TabItem>
 </Tabs>
+
+:::tip Hitting a weird error?
+If anything seems broken, stale, or just doesn't match what the docs say, run `wasp clean` and try again. It's the Wasp equivalent of "turning it off and on again" — clears the generated `.wasp/` directory and forces a re-compile.
+
+If `wasp clean` doesn't fix it, the [Discord](https://discord.gg/rzdnErX) and [GitHub issues](https://github.com/wasp-lang/wasp/issues) are great places to get help.
+:::
