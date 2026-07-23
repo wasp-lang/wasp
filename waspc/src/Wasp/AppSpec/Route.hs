@@ -7,11 +7,12 @@ module Wasp.AppSpec.Route
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.Core.Ref (Ref)
+import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Page
 
 data Route = Route
@@ -26,6 +27,22 @@ data Route = Route
     -- package), so by the time it reaches here it is always a list of paths.
     prerender :: [String]
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Route
+
+instance Inspectable Route where
+  inspect route =
+    InspectionEntry
+      "Routes"
+      ( [ ("Path", path route),
+          ("Destination", refName (to route)),
+          ("Loading", if lazy route == Just False then "Eager" else "Lazy")
+        ]
+          ++ [("Prerender", "Enabled") | not $ null $ prerender route]
+      )
+      : [ InspectionEntry
+            "Prerendered routes"
+            [("Route", prerenderPath)]
+        | prerenderPath <- prerender route
+        ]

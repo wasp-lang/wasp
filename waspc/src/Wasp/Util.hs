@@ -17,6 +17,7 @@ module Wasp.Util
     indent,
     concatShortPrefixAndText,
     concatPrefixAndText,
+    alignColumns,
     insertAt,
     leftPad,
     trim,
@@ -57,7 +58,7 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
-import Data.List (group, intercalate, sort)
+import Data.List (group, intercalate, sort, transpose)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Map (Map)
 import qualified Data.Map.Merge.Lazy as Map.Merge
@@ -81,7 +82,7 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
     kebabHead = toLower camelHead
     kebabTail =
       concatMap
-        (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
+        (\(a, b) -> (['-' | isCamelHump (a, b)]) ++ [toLower b])
         (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
 
@@ -178,6 +179,15 @@ concatShortPrefixAndText prefix text =
 concatPrefixAndText :: String -> String -> String
 concatPrefixAndText prefix text =
   if length (lines text) <= 1 then prefix ++ text else prefix ++ "\n" ++ indent 2 text
+
+-- | Given a table (list of list of strings), computes the maximum width of each
+-- column and pads each cell so that the column has the same width in every row.
+alignColumns :: [[String]] -> [String]
+alignColumns rows = renderRow <$> rows
+  where
+    renderRow = intercalate "  " . zipWith padToWidth columnWidths
+    padToWidth width cell = cell ++ replicate (width - length cell) ' '
+    columnWidths = map (maximum . map length) $ transpose rows
 
 -- | Adds given element to the start of the given list until the list is of specified length.
 -- leftPad ' ' 4 "hi" == "  hi"
@@ -294,8 +304,7 @@ getEnvVarDefinition (name, value) = concat [name, "=", value]
 --   naiveTrimJson "some text { \"a\": 5 } yay" == "{\"a\": 5 }"
 --   naiveTrimJson "some {text} { \"a\": 5 }" -> won't work correctly.
 naiveTrimJSON :: Text -> Text
-naiveTrimJSON textContainingJson =
-  T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{') $ textContainingJson
+naiveTrimJSON = T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{')
 
 textToLazyBS :: Text -> BSL.ByteString
 textToLazyBS = TLE.encodeUtf8 . TL.fromStrict

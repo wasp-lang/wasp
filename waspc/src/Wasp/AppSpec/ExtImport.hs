@@ -7,18 +7,23 @@ module Wasp.AppSpec.ExtImport
     ExtImportName (..),
     importIdentifier,
     parseExtImportPath,
+    showExtImportFromProjectDir,
+    showExtImportPathFromProjectDir,
   )
 where
 
 import Control.Arrow (left)
-import Data.Aeson (FromJSON (parseJSON), withObject, (.:), (.:?))
-import Data.Aeson.Types (ToJSON)
+import Data.Aeson (FromJSON (parseJSON), object, withObject, (.:), (.:?), (.=))
+import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Data (Data)
-import Data.List (stripPrefix)
+import Data.List (isPrefixOf, stripPrefix)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP
+import qualified System.FilePath as FP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import qualified Wasp.Project.Common as Project
 
 data ExtImport = ExtImport
   { -- | What is being imported.
@@ -29,6 +34,19 @@ data ExtImport = ExtImport
     alias :: Maybe Identifier
   }
   deriving (Show, Eq, Data)
+
+instance ToJSON ExtImport where
+  toJSON extImport =
+    object
+      [ "kind" .= kindStr,
+        "name" .= nameStr,
+        "path" .= showExtImportPathFromProjectDir (path extImport),
+        "alias" .= alias extImport
+      ]
+    where
+      (kindStr, nameStr) = case name extImport of
+        ExtImportModule n -> ("default" :: String, n)
+        ExtImportField n -> ("named", n)
 
 instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
@@ -71,14 +89,38 @@ parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
       (("Failed to parse relative posix path to file: " ++) . show)
       $ SP.parseRelFileP relFileFP
   where
-    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
-    -- Filip: We no longer want separation between client and server code
-    -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
-    -- For now, as we'd like (expect):
-    --   - Nodemon watches all files in the user's source folder (client files
-    --   included), but tsc only compiles the server files (I think because it
-    --   knows that the others aren't used). I am not yet sure how it knows this.
-    --   - Vite also only triggers on client files. I am not sure how it knows
-    --   about the difference either.
-    -- todo (filip): investigate
-    extSrcPrefix = "@src/"
+    stripImportPrefix = stripPrefix extSrcPrefix
+
+showExtImportFromProjectDir :: ExtImport -> String
+showExtImportFromProjectDir extImport = importClause ++ " from \"" ++ showExtImportPathFromProjectDir (path extImport) ++ "\""
+  where
+    importClause = case name extImport of
+      ExtImportModule n -> withAlias n
+      ExtImportField n -> "{ " ++ withAlias n ++ " }"
+    withAlias n = case alias extImport of
+      Just a | a /= n -> n ++ " as " ++ a
+      _ -> n
+
+showExtImportPathFromProjectDir :: ExtImportPath -> String
+showExtImportPathFromProjectDir extImportPath
+  | [".."] `isPrefixOf` FP.splitPath relPathStr = relPathStr
+  | otherwise = FP.joinPath [".", relPathStr]
+  where
+    relPathStr = SP.fromRelFileP $ srcDirP SP.</> extImportPath
+
+    srcDirP =
+      fromMaybe
+        (error "Internal error. Failed to convert srcDirInWaspProjectDir to POSIX. This should never happen.")
+        (SP.relDirToPosix Project.srcDirInWaspProjectDir)
+
+-- Filip: We no longer want separation between client and server code
+-- todo (filip): Do we still want to know which is which. We might (because of the reloading).
+-- For now, as we'd like (expect):
+--   - Nodemon watches all files in the user's source folder (client files
+--   included), but tsc only compiles the server files (I think because it
+--   knows that the others aren't used). I am not yet sure how it knows this.
+--   - Vite also only triggers on client files. I am not sure how it knows
+--   about the difference either.
+-- todo (filip): investigate
+extSrcPrefix :: String
+extSrcPrefix = "@src/"

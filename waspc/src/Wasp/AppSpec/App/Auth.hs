@@ -18,13 +18,14 @@ module Wasp.AppSpec.App.Auth
     isGitHubAuthEnabled,
     isMicrosoftAuthEnabled,
     isEmailAuthEnabled,
+    enabledAuthMethodNames,
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.Maybe (isJust)
 import GHC.Generics (Generic)
@@ -47,7 +48,7 @@ data Auth = Auth
     onBeforeLogin :: Maybe ExtImport,
     onAfterLogin :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
@@ -59,18 +60,18 @@ data AuthMethods = AuthMethods
     microsoft :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
   { userSignupFields :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
     userSignupFields :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data EmailAuthConfig = EmailAuthConfig
   { userSignupFields :: Maybe ExtImport,
@@ -78,7 +79,7 @@ data EmailAuthConfig = EmailAuthConfig
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
@@ -116,6 +117,24 @@ isMicrosoftAuthEnabled = isJust . microsoft . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
+
+-- | Names of the auth methods enabled in the app, as the user knows them.
+enabledAuthMethodNames :: AuthMethods -> [String]
+enabledAuthMethodNames authMethods =
+  [ methodName
+  | (methodName, isEnabled) <-
+      -- NOTE: Make sure to add new auth methods here.
+      [ ("usernameAndPassword", isJust $ usernameAndPassword authMethods),
+        ("slack", isJust $ slack authMethods),
+        ("discord", isJust $ discord authMethods),
+        ("google", isJust $ google authMethods),
+        ("gitHub", isJust $ gitHub authMethods),
+        ("keycloak", isJust $ keycloak authMethods),
+        ("microsoft", isJust $ microsoft authMethods),
+        ("email", isJust $ email authMethods)
+      ],
+    isEnabled
+  ]
 
 -- These helper functions are used to avoid ambiguity when using the
 -- `userSignupFields` function (otherwise we need to use DuplicateRecordFields

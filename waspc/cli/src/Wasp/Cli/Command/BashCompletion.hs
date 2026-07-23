@@ -41,6 +41,7 @@ bashCompletion = do
         "deps",
         "dockerfile",
         "info",
+        "inspect",
         "test",
         "studio"
       ]

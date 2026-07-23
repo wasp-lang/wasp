@@ -10,8 +10,10 @@ module Wasp.AppSpec.Entity
   )
 where
 
-import Data.Aeson (FromJSON (parseJSON))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (toJSON), object, (.=))
 import Data.Data (Data)
+import Data.List (intercalate)
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
@@ -30,6 +32,19 @@ instance IsDecl Entity
 
 instance FromJSON Entity where
   parseJSON = const $ fail "Entity declarations in wasp are deprecated, entities are now defined via prisma.schema file."
+
+instance ToJSON Entity where
+  toJSON entity =
+    object
+      [ "fields" .= fields entity
+      ]
+
+instance Inspectable Entity where
+  inspect entity =
+    [ InspectionEntry
+        "Entities"
+        [("Fields", intercalate ", " $ Field.fieldName <$> fields entity)]
+    ]
 
 makeEntity :: Psl.Model.Body -> Entity
 makeEntity body =

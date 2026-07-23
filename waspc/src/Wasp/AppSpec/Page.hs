@@ -7,16 +7,24 @@ module Wasp.AppSpec.Page
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
 
 data Page = Page
   { component :: ExtImport,
     authRequired :: Maybe Bool
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 instance IsDecl Page
+
+instance Inspectable Page where
+  inspect page =
+    [ InspectionEntry "Pages" $
+        ("Import", showExtImportFromProjectDir $ component page)
+          : [("Requires auth", "Yes") | authRequired page == Just True]
+    ]
