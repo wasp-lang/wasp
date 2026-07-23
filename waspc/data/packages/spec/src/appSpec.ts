@@ -151,8 +151,8 @@ export type Wasp = {
 export type Auth = {
   userEntity: Ref<"Entity">;
   methods: AuthMethods;
-  onAuthFailedRedirectTo: Ref<"Route">;
-  onAuthSucceededRedirectTo: Optional<Ref<"Route">>;
+  onAuthFailedRedirectTo: Destination;
+  onAuthSucceededRedirectTo: Optional<Destination>;
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
   onAfterEmailVerified: Optional<ExtImport>;
@@ -207,13 +207,20 @@ export type EmailFromField = {
 
 export type EmailVerificationConfig = {
   getEmailContentFn: Optional<ExtImport>;
-  clientRoute: Ref<"Route">;
+  clientRoute: Destination;
 };
 
 export type PasswordResetConfig = {
   getEmailContentFn: Optional<ExtImport>;
-  clientRoute: Ref<"Route">;
+  clientRoute: Destination;
 };
+
+export type Destination = {
+  kind: DestinationKind;
+  path: string;
+};
+
+export type DestinationKind = "Route" | "Api";
 
 export type Ref<T extends DeclType> = {
   name: string;

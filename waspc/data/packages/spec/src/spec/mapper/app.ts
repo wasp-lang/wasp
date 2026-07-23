@@ -53,13 +53,19 @@ export function mapAuth(
     onAfterLogin,
   } = auth;
 
+  // `auth` auto-registers the destinations it references, the same way a
+  // route auto-registers the page passed to its constructor.
+  ctx.collectSpecElement(onAuthFailedRedirectTo);
+  if (onAuthSucceededRedirectTo) {
+    ctx.collectSpecElement(onAuthSucceededRedirectTo);
+  }
+
   return {
     userEntity: ctx.resolveEntityRef(userEntity),
     methods: mapAuthMethods(methods, ctx),
-    onAuthFailedRedirectTo: ctx.collectSpecElement(onAuthFailedRedirectTo),
+    onAuthFailedRedirectTo: mapDestination(onAuthFailedRedirectTo),
     onAuthSucceededRedirectTo:
-      onAuthSucceededRedirectTo &&
-      ctx.collectSpecElement(onAuthSucceededRedirectTo),
+      onAuthSucceededRedirectTo && mapDestination(onAuthSucceededRedirectTo),
     onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
     onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
     onAfterEmailVerified:
@@ -138,12 +144,34 @@ export function mapEmailFlow(
   ctx: AppMapperContext,
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
+
+  // The email flow auto-registers the client route it references, the same way
+  // a route auto-registers the page passed to its constructor.
+  ctx.collectSpecElement(clientRoute);
+
   return {
     getEmailContentFn:
       getEmailContentFn && ctx.parseRefObject(getEmailContentFn),
-    clientRoute: ctx.collectSpecElement(clientRoute),
+    clientRoute: mapDestination(clientRoute),
   };
 }
+
+export function mapDestination(
+  destination: WaspSpec.Destination,
+): AppSpec.Destination {
+  return {
+    kind: destinationKindForSpecElementKind[destination.kind],
+    path: destination.path,
+  };
+}
+
+const destinationKindForSpecElementKind = {
+  route: "Route",
+  api: "Api",
+} as const satisfies Record<
+  WaspSpec.Destination["kind"],
+  AppSpec.DestinationKind
+>;
 
 export function mapServer(
   server: WaspSpec.Server,

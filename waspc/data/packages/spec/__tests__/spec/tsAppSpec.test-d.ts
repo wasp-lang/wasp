@@ -73,11 +73,11 @@ describe("AuthMethods", () => {
 });
 
 describe("Auth destinations", () => {
-  test("accept routes but not APIs or bare strings", () => {
+  test("accept routes and APIs but not bare strings", () => {
     expectTypeOf<WaspSpec.Route>().toExtend<
       WaspSpec.Auth["onAuthFailedRedirectTo"]
     >();
-    expectTypeOf<WaspSpec.Api>().not.toExtend<
+    expectTypeOf<WaspSpec.Api>().toExtend<
       WaspSpec.Auth["onAuthFailedRedirectTo"]
     >();
     expectTypeOf<string>().not.toExtend<
@@ -87,7 +87,7 @@ describe("Auth destinations", () => {
     expectTypeOf<WaspSpec.Route>().toExtend<
       WaspSpec.EmailFlowConfig["clientRoute"]
     >();
-    expectTypeOf<WaspSpec.Api>().not.toExtend<
+    expectTypeOf<WaspSpec.Api>().toExtend<
       WaspSpec.EmailFlowConfig["clientRoute"]
     >();
     expectTypeOf<string>().not.toExtend<

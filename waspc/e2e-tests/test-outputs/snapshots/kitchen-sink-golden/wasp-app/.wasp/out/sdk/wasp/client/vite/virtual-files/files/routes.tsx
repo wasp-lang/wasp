@@ -213,6 +213,16 @@ const routesMapping = {
       }
     },
   },
+  LoginRoute: {
+    lazy: async () => {
+      const Component = await import('./src/features/auth/pages/Login').then(m => m.default);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
   EmailVerificationRoute: {
     lazy: async () => {
       const Component = await import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification);
@@ -226,16 +236,6 @@ const routesMapping = {
   PasswordResetRoute: {
     lazy: async () => {
       const Component = await import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset);
-
-      return {
-        Component:
-          Component,
-      }
-    },
-  },
-  LoginRoute: {
-    lazy: async () => {
-      const Component = await import('./src/features/auth/pages/Login').then(m => m.default);
 
       return {
         Component:

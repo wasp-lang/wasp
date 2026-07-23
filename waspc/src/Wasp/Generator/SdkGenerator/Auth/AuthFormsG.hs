@@ -5,7 +5,6 @@ where
 
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
-import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
@@ -17,6 +16,7 @@ import Wasp.Generator.AuthProviders
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import Wasp.Generator.Common (makeJsonWithDestinationData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
@@ -28,8 +28,8 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Util ((<++>))
 
-genAuthForms :: AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
-genAuthForms spec auth =
+genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       genFileCopyInAuthForms [relfile|Auth.module.css|],
@@ -38,7 +38,7 @@ genAuthForms spec auth =
       genFileCopyInAuthForms [relfile|Signup.tsx|]
     ]
     <++> genEmailForms auth
-    <++> genInternalAuthComponents spec auth
+    <++> genInternalAuthComponents auth
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
@@ -69,13 +69,13 @@ genEmailForms auth =
   where
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
-genInternalAuthComponents :: AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
-genInternalAuthComponents spec auth =
+genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
+genInternalAuthComponents auth =
   sequence
     [ genFileCopyInAuthFormsInternal [relfile|auth-styles.css|],
       genFileCopyInAuthFormsInternal [relfile|util.ts|]
     ]
-    <++> genLoginSignupForm spec auth
+    <++> genLoginSignupForm auth
     <++> genFormComponent
     <++> genMessageComponent
     <++> genEmailComponents
@@ -130,8 +130,8 @@ genInternalAuthComponents spec auth =
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
-genLoginSignupForm :: AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
-genLoginSignupForm spec auth =
+genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
+genLoginSignupForm auth =
   sequence
     [ genLoginSigunFormComponent,
       genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
@@ -144,7 +144,7 @@ genLoginSignupForm spec auth =
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault spec auth,
+        [ "onAuthSucceededRedirectTo" .= makeJsonWithDestinationData (getOnAuthSucceededRedirectToOrDefault auth),
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,

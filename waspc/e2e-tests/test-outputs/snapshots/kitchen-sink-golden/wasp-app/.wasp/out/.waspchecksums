@@ -683,7 +683,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "9e0a8369613cc6063c35dd5ad085e9b5508a69e3d8e79b4c581be89980a959d1"
+        "9e80934d97f9e5f180b0764b81e7b4c1c4742fbec697e1297efde464ceddc552"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "ea7e9fcaa2ca0418bb3e9b2d11234b8d4951a86b8a8032f87dbb8649d0107e4a"
+        "baf6fa6742d63f88d98b7764cc5769be11511a2974174b5b2df2eb85aeed7488"
     ],
     [
         [
@@ -949,7 +949,7 @@
             "file",
             "sdk/wasp/server/auth/email/utils.ts"
         ],
-        "70058ca2c6ed0fba011f5044936a75537c5fcbff77ff3d32fdeb24b3c2edcd3d"
+        "d34f0d35dcd40ac8e8dc608f0421835e393c644f8e9992e6d5a8a5eb39eec20b"
     ],
     [
         [
@@ -2097,7 +2097,7 @@
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "e8649887b5baef1122b4da2d408a07ca11d3351b9b525d88c801b1940e2c2797"
+        "8d52e49115268fca0654d5dedd09f00d6da791973676a0588fa6a923619da100"
     ],
     [
         [
@@ -2111,7 +2111,7 @@
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "46127f60b4439d1bad905d326922ea39d7d25596b8b55279d80db7a33ba752fc"
+        "ac30cb7149e8e218a97f1ec844c345182cc30529fbc190232ea309ede6594b30"
     ],
     [
         [

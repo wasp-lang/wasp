@@ -12,12 +12,10 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
+import Wasp.Generator.Common (makeJsonWithDestinationData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.Common
-  ( getOnAuthFailedRedirectTo,
-    getOnAuthSucceededRedirectToOrDefault,
-  )
+import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -84,24 +82,24 @@ genAuthPages spec =
     Nothing -> return []
     Just auth ->
       sequence $
-        [genCreateAuthRequiredPage spec auth]
-          ++ [genOAuthCallbackPage spec auth | AS.Auth.isExternalAuthEnabled auth]
+        [genCreateAuthRequiredPage auth]
+          ++ [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
-genCreateAuthRequiredPage :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genCreateAuthRequiredPage spec auth =
+genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
+genCreateAuthRequiredPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/createAuthRequiredPage.jsx|]
-      (object ["onAuthFailedRedirectTo" .= getOnAuthFailedRedirectTo spec auth])
+      (object ["onAuthFailedRedirectTo" .= makeJsonWithDestinationData (AS.Auth.onAuthFailedRedirectTo auth)])
 
-genOAuthCallbackPage :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genOAuthCallbackPage spec auth =
+genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
+genOAuthCallbackPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault spec auth])
+      (object ["onAuthSucceededRedirectTo" .= makeJsonWithDestinationData (getOnAuthSucceededRedirectToOrDefault auth)])
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

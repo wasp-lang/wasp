@@ -1,9 +1,12 @@
 {{={= =}=}}
-import { useState } from "react";
-import { Navigate, useLocation } from 'react-router'
+import { {=# onAuthSucceededRedirectTo.isApi =}useEffect, {=/ onAuthSucceededRedirectTo.isApi =}useState } from "react";
+import { {=^ onAuthSucceededRedirectTo.isApi =}Navigate, {=/ onAuthSucceededRedirectTo.isApi =}useLocation } from 'react-router'
 import { useAuth } from "../../auth";
 import { api } from "../../../api";
 import { initSession } from "../../../auth/helpers/user";
+{=# onAuthSucceededRedirectTo.isApi =}
+import { config } from "../../config";
+{=/ onAuthSucceededRedirectTo.isApi =}
 import { useEffectOnce } from "../../hooks";
 import { MessageLoading, MessageError } from "../components/Message";
 import { FullPageWrapper } from "../components/FullPageWrapper";
@@ -14,7 +17,12 @@ export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
 
   if (user !== undefined && user !== null) {
-    return <Navigate to="{= onAuthSucceededRedirectTo =}" replace />;
+    {=^ onAuthSucceededRedirectTo.isApi =}
+    return <Navigate to="{= onAuthSucceededRedirectTo.path =}" replace />;
+    {=/ onAuthSucceededRedirectTo.isApi =}
+    {=# onAuthSucceededRedirectTo.isApi =}
+    return <NavigateToApiEndpoint />;
+    {=/ onAuthSucceededRedirectTo.isApi =}
   }
 
 
@@ -93,3 +101,17 @@ function isDataWithSessionId(
   const obj = data as any;
   return !!obj && typeof obj.sessionId === 'string'
 }
+{=# onAuthSucceededRedirectTo.isApi =}
+
+function NavigateToApiEndpoint() {
+  useEffect(() => {
+    window.location.replace(`${config.apiUrl}{= onAuthSucceededRedirectTo.path =}`);
+  }, []);
+
+  return (
+    <FullPageWrapper className={oAuthCallbackWrapperClassName}>
+      <MessageLoading>Please wait a moment while we log you in.</MessageLoading>
+    </FullPageWrapper>
+  );
+}
+{=/ onAuthSucceededRedirectTo.isApi =}

@@ -18,10 +18,12 @@ import { HttpError } from 'wasp/server';
 export function getRequestPasswordResetRoute({
    fromField,
    clientRoute,
+   clientRouteBaseUrl,
    getPasswordResetEmailContent,
 }: {
     fromField: EmailFromField;
     clientRoute: string;
+    clientRouteBaseUrl?: string;
     getPasswordResetEmailContent: GetPasswordResetEmailContentFn;
 }) {
     return async function requestPasswordReset(
@@ -53,7 +55,7 @@ export function getRequestPasswordResetRoute({
             throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
         }
 
-        const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
+        const passwordResetLink = await createPasswordResetLink(args.email, clientRoute, clientRouteBaseUrl);
         try {
             const email = authIdentity.providerUserId
             await sendPasswordResetEmail(

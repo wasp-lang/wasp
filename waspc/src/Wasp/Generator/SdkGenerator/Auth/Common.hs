@@ -1,13 +1,15 @@
 module Wasp.Generator.SdkGenerator.Auth.Common where
 
-import Wasp.AppSpec (AppSpec)
+import Data.Maybe (fromMaybe)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Util (getRoutePathFromRef)
+import qualified Wasp.AppSpec.Destination as AS.Destination
 
-getOnAuthFailedRedirectTo :: AppSpec -> AS.Auth.Auth -> String
-getOnAuthFailedRedirectTo spec auth =
-  getRoutePathFromRef spec (AS.Auth.onAuthFailedRedirectTo auth)
-
-getOnAuthSucceededRedirectToOrDefault :: AppSpec -> AS.Auth.Auth -> String
-getOnAuthSucceededRedirectToOrDefault spec auth =
-  maybe "/" (getRoutePathFromRef spec) (AS.Auth.onAuthSucceededRedirectTo auth)
+getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> AS.Destination.Destination
+getOnAuthSucceededRedirectToOrDefault auth =
+  fromMaybe defaultOnAuthSucceededRedirectTo (AS.Auth.onAuthSucceededRedirectTo auth)
+  where
+    defaultOnAuthSucceededRedirectTo =
+      AS.Destination.Destination
+        { AS.Destination.kind = AS.Destination.Route,
+          AS.Destination.path = "/"
+        }

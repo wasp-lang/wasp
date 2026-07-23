@@ -30,12 +30,14 @@ export function getSignupRoute({
   userSignupFields,
   fromField,
   clientRoute,
+  clientRouteBaseUrl,
   getVerificationEmailContent,
   isEmailAutoVerified,
 }: {
   userSignupFields?: UserSignupFields
   fromField: EmailFromField
   clientRoute: string
+  clientRouteBaseUrl?: string
   getVerificationEmailContent: GetVerificationEmailContentFn
   isEmailAutoVerified: boolean
 }) {
@@ -142,6 +144,7 @@ export function getSignupRoute({
     const verificationLink = await createEmailVerificationLink(
       fields.email,
       clientRoute,
+      clientRouteBaseUrl,
     )
     try {
       await sendEmailVerificationEmail(fields.email, {
