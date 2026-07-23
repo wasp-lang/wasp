@@ -1,4 +1,4 @@
-{ {={= = }= } }
+{{={= =}=}}
 import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
 import { waspVirtualUserModules } from "./src/plugins/waspVirtualUserModules.js";
