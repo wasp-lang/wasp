@@ -13,6 +13,8 @@
     "docusaurus": "docusaurus",
     "generate-llm-files": "tsx ./scripts/generate-llm-files.ts",
     "install-spec-package": "npm install --prefix ../waspc/data/packages/spec",
+    "markdown-snapshots:check": "node ./scripts/markdown-snapshots.mts check",
+    "markdown-snapshots:update": "node ./scripts/markdown-snapshots.mts update",
     "remark": "remark",
     "remark:once": "npm run remark -- --quiet --frail --use remark-validate-links docs/",
     "remove-version": "node ./scripts/remove-version.mjs",
