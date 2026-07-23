@@ -71,6 +71,12 @@ If you wish to store more information about the user, you can override the defau
 
 You can create custom signup setups, such as allowing users to define a custom username after they sign up with a social provider.
 
+:::caution Server-side code only
+The `userSignupFields` and `configFn` implementations run **on the server** — they execute during the OAuth handshake, before the user is redirected back to the client. Define them in a **TypeScript** file (`.ts` or `.tsx`); a `.jsx` file will fail to compile against the `wasp/server/auth` import.
+
+If your project mixes `.js`/`.jsx`/`.ts`/`.tsx`, keep the auth files in `.ts`/`.tsx` even if everything else is JavaScript.
+:::
+
 ### Example: Allowing User to Set Their Username
 
 If you want to modify the signup flow (e.g., let users choose their own usernames), you will need to go through three steps:
