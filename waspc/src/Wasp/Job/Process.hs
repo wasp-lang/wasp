@@ -7,13 +7,13 @@ module Wasp.Job.Process
   )
 where
 
-import Control.Concurrent (writeChan)
+import Control.Concurrent (Chan, writeChan)
 import Control.Concurrent.Async (Concurrently (..))
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
+import qualified Data.Conduit.Text as CT
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
@@ -39,30 +39,6 @@ runProcessAsJob process jobType chan =
     runStreamingProcessAsJob
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
-            runConduit $
-              stdoutStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout,
-                            J._jobType = jobType
-                          }
-                  )
-
-      let forwardStderrToChan =
-            runConduit $
-              stderrStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr,
-                            J._jobType = jobType
-                          }
-                  )
-
       exitCode <-
         runConcurrently $
           Concurrently forwardStdoutToChan
@@ -76,6 +52,12 @@ runProcessAsJob process jobType chan =
           }
 
       return exitCode
+      where
+        forwardStdoutToChan =
+          forwardDecodedOutputToChan chan jobType stdoutStream J.Stdout
+
+        forwardStderrToChan =
+          forwardDecodedOutputToChan chan jobType stderrStream J.Stderr
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
@@ -90,6 +72,20 @@ runProcessAsJob process jobType chan =
         then P.terminateProcess processHandle
         else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
+
+    forwardDecodedOutputToChan chan' jobType' outputStream outputType = do
+      runConduit $
+        outputStream
+          .| CT.decodeUtf8Lenient
+          .| CL.mapM_ (emitDecodedTextToChan chan' jobType' outputType)
+
+    emitDecodedTextToChan :: Chan J.JobMessage -> J.JobType -> J.JobOutputType -> T.Text -> IO ()
+    emitDecodedTextToChan chan' jobType' outputType text =
+      writeChan chan' $
+        J.JobMessage
+          { J._data = J.JobOutput text outputType,
+            J._jobType = jobType'
+          }
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
