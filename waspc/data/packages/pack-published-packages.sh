@@ -3,11 +3,14 @@
 set -euxo pipefail
 
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-published_packages_list_file="$current_dir/published-packages.txt"
 
-override_version="$1"
-if [ -z "$override_version" ]; then
-  echo "Error: override_version is not provided."
+publish_packages=(
+  spec
+)
+
+publish_version="$1"
+if [ -z "$publish_version" ]; then
+  echo "Error: publish_version is not provided."
   exit 1
 fi
 
@@ -17,7 +20,7 @@ if [ -z "$output_dir" ]; then
   exit 1
 fi
 
-cat "$published_packages_list_file" | while IFS= read -r package; do
+for package in "${publish_packages[@]}"; do
   echo "Building $package"
 
   pack_dir=$(mktemp -d)
@@ -28,7 +31,7 @@ cat "$published_packages_list_file" | while IFS= read -r package; do
   npm ci
 
   # Override the package version with the one from the workflow.
-  npm pkg set version="$override_version"
+  npm pkg set version="$publish_version"
 
   # `npm pack` puts only the published files in the tarball.
   npm run build

@@ -99,7 +99,7 @@ jobs:
           --input-dir "$PACKAGES_INPUT_DIR_PATH"
           --output-dir "$PACKAGES_OUTPUT_DIR_PATH"
 
-      - name: Build supporting packages
+      - name: Build published packages
         run: |
           override_version=$(jq -r <"$PACKAGES_INPUT_DATA_FILE_PATH" '.version')
           ./waspc/data/packages/pack-published-packages.sh "$override_version" "$PACKAGES_OUTPUT_DIR_PATH"
