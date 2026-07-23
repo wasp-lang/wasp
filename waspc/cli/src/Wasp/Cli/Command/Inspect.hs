@@ -6,13 +6,15 @@ where
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString.Lazy as BSL
 import System.IO (stdout)
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
 import Wasp.Cli.Command.Inspect.ArgumentsParser (InspectArgs (..), inspectArgsParser)
 import Wasp.Cli.Command.Inspect.JSON (inspectAsJson)
 import Wasp.Cli.Command.Inspect.Table (inspectAsTables)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
 
 -- | Prints the evaluated app spec: as a human-readable overview by default, or

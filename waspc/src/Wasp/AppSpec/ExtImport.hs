@@ -17,10 +17,12 @@ import Data.Aeson (FromJSON (parseJSON), object, withObject, (.:), (.:?), (.=))
 import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Data (Data)
 import Data.List (stripPrefix)
+import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import qualified Wasp.Project.Common as Project
 
 data ExtImport = ExtImport
   { -- | What is being imported.
@@ -86,11 +88,12 @@ parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
       (("Failed to parse relative posix path to file: " ++) . show)
       $ SP.parseRelFileP relFileFP
   where
-    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
+    stripImportPrefix = stripPrefix extSrcPrefix
 
--- | Renders the import path the way the user wrote it, e.g. @"@src/queries.ts"@.
 showExtImportPath :: ExtImportPath -> String
-showExtImportPath extImportPath = extSrcPrefix ++ SP.fromRelFileP extImportPath
+showExtImportPath extImportPath = SP.fromRelFileP (srcDirAsPosix SP.</> extImportPath)
+  where
+    srcDirAsPosix = fromMaybe (error "Internal error. Failed to convert srcDirInWaspProjectDir to POSIX. This should never happen.") $ SP.relDirToPosix Project.srcDirInWaspProjectDir
 
 -- | Renders an external import the way the user would write it, e.g.
 -- @{ tasks } from "@src/queries.ts"@ or @Main from "@src/pages/Main.tsx"@.
