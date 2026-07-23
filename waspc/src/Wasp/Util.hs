@@ -20,7 +20,6 @@ module Wasp.Util
     alignColumns,
     insertAt,
     leftPad,
-    rightPad,
     trim,
     wrapString,
     zipMaps,
@@ -194,16 +193,7 @@ alignColumns rows = renderRow <$> rows
 -- leftPad ' ' 4 "hi" == "  hi"
 -- leftPad ' ' 4 "hihihi" == "hihihi"
 leftPad :: a -> Int -> [a] -> [a]
-leftPad padElem n list = getPadding padElem n list ++ list
-
--- | Adds given element to the end of the given list until the list is of specified length.
--- rightPad ' ' 4 "hi" == "hi  "
--- rightPad ' ' 4 "hihihi" == "hihihi"
-rightPad :: a -> Int -> [a] -> [a]
-rightPad padElem n list = list ++ getPadding padElem n list
-
-getPadding :: a -> Int -> [a] -> [a]
-getPadding padElem n str = replicate (max 0 (n - length str)) padElem
+leftPad padElem n list = replicate (max 0 (n - length list)) padElem ++ list
 
 -- | Inserts a given @theInsert@ list into the given @host@ list so that @theInsert@
 -- starts at index @idx@ in the @host@.
