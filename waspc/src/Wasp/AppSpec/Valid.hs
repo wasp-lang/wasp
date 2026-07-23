@@ -38,7 +38,6 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -70,6 +69,7 @@ validateAppSpec spec =
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
           validateCrudOperations spec,
+          validateOperationEntitiesAreUnique spec,
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
@@ -238,7 +238,7 @@ validateCrudOperations spec =
         then []
         else [GenericValidationError $ "CRUD \"" ++ crudName ++ "\" must have at least one operation defined."]
       where
-        crudOperations = crudDeclarationToOperationsList crud
+        crudOperations = AS.Crud.toOperationList crud.operations
 
     checkIfSimpleIdFieldIsDefinedForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
     checkIfSimpleIdFieldIsDefinedForEntity (crudName, crud) = case (maybeIdField, maybeIdBlockAttribute) of
@@ -263,6 +263,28 @@ validateCrudOperations spec =
         maybeIdField = Entity.getIdField entity
         maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
         (entityName, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+
+validateOperationEntitiesAreUnique :: AppSpec -> [ValidationError]
+validateOperationEntitiesAreUnique spec =
+  concatMap validateOperation (AS.getOperations spec)
+  where
+    validateOperation :: AS.Operation.Operation -> [ValidationError]
+    validateOperation operation = case findDuplicateElems entityNames of
+      [] -> []
+      duplicateEntityNames ->
+        [ GenericValidationError $
+            "The "
+              ++ describeOperation operation
+              ++ " lists the same entity more than once in its 'entities' list: "
+              ++ intercalate ", " (map show duplicateEntityNames)
+              ++ ". Please remove the duplicate entity references."
+        ]
+      where
+        entityNames = maybe [] (map AS.refName) (AS.Operation.getEntities operation)
+
+    describeOperation :: AS.Operation.Operation -> String
+    describeOperation (AS.Operation.QueryOp name _) = "query '" ++ name ++ "'"
+    describeOperation (AS.Operation.ActionOp name _) = "action '" ++ name ++ "'"
 
 {- ORMOLU_DISABLE -}
 -- *** MAKE SURE TO UPDATE: Unit tests in `AppSpec.ValidTest` module named "duplicate declarations validation"

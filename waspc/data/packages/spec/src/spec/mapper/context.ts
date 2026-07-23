@@ -2,7 +2,7 @@ import { isEqual } from "es-toolkit";
 import * as AppSpec from "../../appSpec.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { mapRefObject } from "../refObject.js";
-import { SpecUserError } from "../specUserError.js";
+import { WaspSpecUserError } from "../waspSpecUserError.js";
 import {
   AppSpecDeclTypeForWaspSpecElement,
   declToRef,
@@ -71,7 +71,7 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 ): (name: string) => AppSpec.Ref<T> {
   return function parseRef(potentialRef: string): AppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
-      throw new SpecUserError(
+      throw new WaspSpecUserError(
         `Invalid \`${declType}\` reference: \`${potentialRef}\`\n` +
           `Please make sure that \`${potentialRef}\` is actually defined.`,
       );
@@ -86,8 +86,8 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 function makeConflictingDeclsError(
   existingDecl: AppSpec.Decl,
   incomingDecl: AppSpec.Decl,
-): SpecUserError {
-  return new SpecUserError(
+): WaspSpecUserError {
+  return new WaspSpecUserError(
     `Conflicting configurations for the ${declTypeDisplayNames[existingDecl.declType]} \`${existingDecl.declName}\`:\n\n` +
       `\`${existingDecl.declName}\` (A):\n${showDecl(existingDecl)}\n\n` +
       `\`${incomingDecl.declName}\` (B):\n${showDecl(incomingDecl)}\n\n` +

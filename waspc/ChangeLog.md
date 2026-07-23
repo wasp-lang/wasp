@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - We now have a Linux ARM64 build of Wasp available! That means that Wasp can now run on e.g. the Raspberry Pi or Docker on Apple Silicon. `npm install -g @wasp.sh/wasp-cli` will automatically install the correct version for your system. ([#4435](https://github.com/wasp-lang/wasp/pull/4435))
 - A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
 - Added [Resend](https://resend.com) as an email sender provider, usable via `provider: "Resend"` and the `RESEND_API_KEY` environment variable. ([#4381](https://github.com/wasp-lang/wasp/pull/4381))
+- You can now throw your own `WaspSpecUserError` from `@wasp.sh/spec` to report configuration problems the same way Wasp does. ([#4448](https://github.com/wasp-lang/wasp/pull/4448))
 
 ### 🐞 Bug fixes
 
@@ -26,10 +27,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🔧 Small improvements
 
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
+- The `wasp compile` command is now listed in `wasp`'s usage output and bash completion, making it easier to discover. ([#4456](https://github.com/wasp-lang/wasp/pull/4456))
 - `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
 - `tsconfig.wasp.json`'s `include` now accepts extra globs in addition to the required Wasp entries, so you can keep helpers and libraries used by your `.wasp.ts` files in the same TS project. ([#4398](https://github.com/wasp-lang/wasp/pull/4398))
 - Improved some prerendering internals for a faster first paint and more accurate lazy-loading of pages. ([#4428](https://github.com/wasp-lang/wasp/pull/4428))
 - The Wasp Spec package now exports the config object types for its constructors from `@wasp.sh/spec`, so libraries built on top of the Spec can reuse the type of a constructor's optional config argument. ([#4447](https://github.com/wasp-lang/wasp/pull/4447))
+- Listing the same entity more than once in a query or action's `entities` now fails with a clear error. ([#4455](https://github.com/wasp-lang/wasp/pull/4455))
 
 ## 0.24.0
 

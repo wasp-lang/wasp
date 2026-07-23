@@ -138,7 +138,7 @@ bar :: forall a. ((a -> a) -> (Char, Bool))  -- This is usual stuff, we don't ne
 ```
 
 In `foo`, `forall` is applied only to the first argument of `foo`, which is `a -> a`, and not to the rest of the `f`'s type signature. This can be done only with `RankNTypes` extension.
-`bar` on the other hand has `forall` applied to the whole signature, and we could have even ommited this `forall` since it would be there implicitly anyway.
+`bar` on the other hand has `forall` applied to the whole signature, and we could have even omitted this `forall` since it would be there implicitly anyway.
 
 Now, what does this mean? If we now have `specificFunc :: Int -> Int` and `polymorphicFunc :: a -> a`, `foo polymorphicFunc` will compile, while `foo specificFunc` will not! On the other hand both `bar specificFunc` and `bar polymorphicFunc` will compile.
 

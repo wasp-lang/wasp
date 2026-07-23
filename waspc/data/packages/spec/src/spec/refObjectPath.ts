@@ -1,7 +1,7 @@
 import { realpathSync } from "node:fs";
 import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import type * as AppSpec from "../appSpec.js";
-import { SpecUserError } from "./specUserError.js";
+import { WaspSpecUserError } from "./waspSpecUserError.js";
 
 /**
  * Converts a relative ref object path from the user's `.wasp.ts` file into
@@ -59,7 +59,7 @@ function getValidSrcRelativePath({
   const srcRelativePath = path.relative(srcRootDir, importedFilePath);
 
   if (!isValidSrcRelativeFilePath(srcRelativePath)) {
-    throw new SpecUserError(
+    throw new WaspSpecUserError(
       `Reference import path ${JSON.stringify(importPath)} in ${JSON.stringify(importingFilePath)} must resolve to a file inside the app src/ directory.`,
     );
   }

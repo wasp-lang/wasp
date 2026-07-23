@@ -252,7 +252,9 @@ function getSessionIdFromAuthorizationHeader(header) {
 }
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/operations/queryClient.js
-var defaultQueryClientConfig = {}, queryClientConfig, resolveQueryClientInitialized;
+var defaultQueryClientConfig = {};
+var queryClientConfig;
+var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
@@ -361,7 +363,11 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 		}
 		function importMetaResolve(specifier) {
 			if (import.meta.resolve) return import.meta.resolve(specifier);
-			return new URL(specifier, new URL("../../../src/node/plugins/importAnalysisBuild.ts", import.meta.url)).href;
+			return new URL(
+				specifier,
+				/** #__KEEP__ */
+				import.meta.url
+			).href;
 		}
 		promise = allSettled(deps.map((dep) => {
 			dep = assetsURL(dep, importerUrl);
