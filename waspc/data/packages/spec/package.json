@@ -2,9 +2,25 @@
   "name": "@wasp.sh/spec",
   "version": "0.25.0",
   "type": "module",
-  "description": "Wasp TS SDK",
-  "author": "wasp",
+  "description": "Wasp Spec definitions",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "waspc/data/packages/spec"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
   "license": "MIT",
+  "engines": {
+    "node": ">=24.14.1"
+  },
   "bin": {
     "__internal_wasp_spec__": "dist/src/run.js"
   },
@@ -19,8 +35,7 @@
     }
   },
   "files": [
-    "dist/**",
-    "!dist/__tests__/**"
+    "dist/src"
   ],
   "scripts": {
     "build": "tsc",
@@ -49,5 +64,8 @@
     "nodemon": "^3.1.4",
     "typescript-eslint": "^8.1.0",
     "vitest": "^4.1.9"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
