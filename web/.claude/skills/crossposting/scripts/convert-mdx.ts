@@ -325,6 +325,11 @@ function convertLinks(md: string): string {
   );
 }
 
+/** Make root-relative markdown links/images (e.g. [text](/blog/...)) absolute */
+function absolutizeRootRelativeMarkdownLinks(md: string): string {
+  return md.replace(/\]\(\/(?!\/)/g, `](${WASP_BASE_URL}/`);
+}
+
 function convertAnchorTags(md: string): string {
   return md.replace(
     /<a\s+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/g,
@@ -380,6 +385,7 @@ function convertMdxToMarkdown(
     convertFigures,
     convertLinks,
     convertAnchorTags,
+    absolutizeRootRelativeMarkdownLinks,
     stripWrapperHtml,
     stripCodeFenceMeta,
     normalizeWhitespace,
