@@ -15,7 +15,7 @@
     {=! Each export here is always available to users. =}
     {=! However, only the public API for users is documented. =}
     {=! =============================================================== =}
-    {=! Public API for users. =}
+    {=! Public API for users. Documented. =}
     {=! Modules users import in their own code. =}
     {=! Some are also imported by the generated server/client runtime, =}
     {=! those have a comment saying which exports each side uses. =}
@@ -56,12 +56,13 @@
     "./server/webSocket": "./dist/server/webSocket/index.js",
 
     {=! =============================================================== =}
-    {=! Server runtime only. =}
+    {=! Server runtime only. Undocumented. =}
     {=! TODO: ALL of these should be prefixed with `./server/`. =}
     {=! =============================================================== =}
     "./auth/jwt": "./dist/auth/jwt.js",
     "./auth/password": "./dist/auth/password.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/session": "./dist/auth/session.js",
     "./auth/user": "./dist/auth/user.js",
     "./auth/utils": "./dist/auth/utils.js",
@@ -79,7 +80,7 @@
     "./server/utils": "./dist/server/utils.js",
 
     {=! =============================================================== =}
-    {=! Client runtime only. =}
+    {=! Client runtime only. Undocumented. =}
     {=! Imported by the hidden client: the Wasp vite plugin and the =}
     {=! virtual modules it serves into the user's vite project. =}
     {=! =============================================================== =}
