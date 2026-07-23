@@ -147,12 +147,11 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check it out [here](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 
     In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
-    :::caution
-    If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
-    :::
+    :::caution Using Wasp inside WSL2
+    Two things tend to bite WSL2 users, and both are required, not optional:
 
-    :::tip VSCode on WSL
-    If you use VSCode to edit your Wasp project, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl). Without it, VSCode's TypeScript and Wasp language support may not pick up files in the WSL2 Linux file system, leading to confusing red squiggles on every import. Open the project from WSL with `code .` after installing the extension so VSCode knows to run the language server inside WSL.
+    1. **Keep your Wasp project on the Linux file system.** If you put it on the Windows side, Wasp won't detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
+    2. **Install the [VS Code WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) before editing.** Without it, VS Code's TypeScript and Wasp language support won't pick up files in the WSL2 Linux file system, which shows up as red squiggles on every import and is very confusing to debug. After installing the extension, open the project from inside WSL with `code .` so VS Code knows to run the language server inside WSL, not on the Windows host.
     :::
   </TabItem>
 
