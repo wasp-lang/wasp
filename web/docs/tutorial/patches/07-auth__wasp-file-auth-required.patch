@@ -1,9 +1,9 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index 52438c9..6a71803 100644
+index c8b8c83..13dd50a 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -18,7 +18,13 @@ export default app({
-     onAuthFailedRedirectTo: "/login",
+     onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
    },
    spec: [
 -    route("RootRoute", "/", page(MainPage)),
@@ -15,5 +15,5 @@ index 52438c9..6a71803 100644
 +      }),
 +    ),
      route("SignupRoute", "/signup", page(SignupPage)),
-     route("LoginRoute", "/login", page(LoginPage)),
      query(getTasks, { entities: ["Task"] }),
+     action(createTask, { entities: ["Task"] }),

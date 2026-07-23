@@ -50,8 +50,8 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
           getQuery("full"),
           getJob("full"),
           getCrud("full"),
-          getEmailVerifyRoute(),
-          getPasswordResetRoute(),
+          getEmailVerifyRoute("full"),
+          getPasswordResetRoute("full"),
         ],
       });
     default:
@@ -399,14 +399,14 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
       return {
         userEntity: "User",
         methods: getAuthMethods("minimal"),
-        onAuthFailedRedirectTo: "/login",
+        onAuthFailedRedirectTo: getRoute("minimal"),
       } satisfies MinimalConfig<WaspSpec.Auth>;
     case "full":
       return {
         userEntity: "User",
         methods: getAuthMethods("full"),
-        onAuthFailedRedirectTo: "/login",
-        onAuthSucceededRedirectTo: "/profile",
+        onAuthFailedRedirectTo: getRoute("full"),
+        onAuthSucceededRedirectTo: getRoute("full"),
         onBeforeSignup: getRefObject("full", "named"),
         onAfterSignup: getRefObject("full", "named"),
         onAfterEmailVerified: getRefObject("full", "named"),
@@ -514,11 +514,11 @@ export function getEmailVerificationConfig(
   switch (scope) {
     case "minimal":
       return {
-        clientRoute: EMAIL_VERIFY_ROUTE_NAME,
+        clientRoute: getEmailVerifyRoute("minimal"),
       } satisfies MinimalConfig<WaspSpec.EmailFlowConfig>;
     case "full":
       return {
-        clientRoute: EMAIL_VERIFY_ROUTE_NAME,
+        clientRoute: getEmailVerifyRoute("full"),
         getEmailContentFn: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.EmailFlowConfig>;
     default:
@@ -535,11 +535,11 @@ export function getPasswordResetConfig(
   switch (scope) {
     case "minimal":
       return {
-        clientRoute: PASSWORD_RESET_ROUTE_NAME,
+        clientRoute: getPasswordResetRoute("minimal"),
       } satisfies MinimalConfig<WaspSpec.EmailFlowConfig>;
     case "full":
       return {
-        clientRoute: PASSWORD_RESET_ROUTE_NAME,
+        clientRoute: getPasswordResetRoute("full"),
         getEmailContentFn: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.EmailFlowConfig>;
     default:
@@ -573,30 +573,56 @@ export const EMAIL_VERIFY_ROUTE_NAME = "EmailVerifyRoute";
 export const PASSWORD_RESET_ROUTE_PATH = "/password-reset";
 export const PASSWORD_RESET_ROUTE_NAME = "PasswordResetRoute";
 
-export function getEmailVerifyRoute(): WaspSpec.Route {
-  return route(
-    EMAIL_VERIFY_ROUTE_NAME,
-    EMAIL_VERIFY_ROUTE_PATH,
-    page(
-      getRefObjectForMockProject({
-        import: "EmailVerifyPage",
-        from: "./src/auth/pages",
-      }),
-    ),
-  );
+export function getEmailVerifyRoute<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.Route>;
+export function getEmailVerifyRoute(
+  scope: ConfigScope,
+): Config<WaspSpec.Route> {
+  return getAuthPageRoute(scope, {
+    name: EMAIL_VERIFY_ROUTE_NAME,
+    path: EMAIL_VERIFY_ROUTE_PATH,
+    component: { import: "EmailVerifyPage", from: "./src/auth/pages" },
+  });
 }
 
-export function getPasswordResetRoute(): WaspSpec.Route {
-  return route(
-    PASSWORD_RESET_ROUTE_NAME,
-    PASSWORD_RESET_ROUTE_PATH,
-    page(
-      getRefObjectForMockProject({
-        import: "PasswordResetPage",
-        from: "./src/auth/pages",
-      }),
-    ),
-  );
+export function getPasswordResetRoute<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.Route>;
+export function getPasswordResetRoute(
+  scope: ConfigScope,
+): Config<WaspSpec.Route> {
+  return getAuthPageRoute(scope, {
+    name: PASSWORD_RESET_ROUTE_NAME,
+    path: PASSWORD_RESET_ROUTE_PATH,
+    component: { import: "PasswordResetPage", from: "./src/auth/pages" },
+  });
+}
+
+function getAuthPageRoute(
+  scope: ConfigScope,
+  {
+    name,
+    path,
+    component,
+  }: {
+    name: string;
+    path: string;
+    component: Parameters<typeof getRefObjectForMockProject>[0];
+  },
+): Config<WaspSpec.Route> {
+  const pageComponent = getRefObjectForMockProject(component);
+  switch (scope) {
+    case "minimal":
+      return route(name, path, page(pageComponent));
+    case "full":
+      return route(name, path, page(pageComponent, { authRequired: true }), {
+        lazy: true,
+        prerender: true,
+      });
+    default:
+      assertUnreachable(scope);
+  }
 }
 
 export function getRefObject<

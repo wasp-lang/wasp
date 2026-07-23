@@ -16,12 +16,11 @@ export default app({
     methods: {
       usernameAndPassword: {},
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),
     route("SignupRoute", "/signup", page(SignupPage)),
-    route("LoginRoute", "/login", page(LoginPage)),
 
     query(getTasks, { entities: ["Task"] }),
     action(createTask, { entities: ["Task"] }),

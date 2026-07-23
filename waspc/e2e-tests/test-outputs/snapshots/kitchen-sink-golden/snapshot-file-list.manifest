@@ -1200,6 +1200,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/prerender/prerender.wasp.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/streaming.wasp.ts
+wasp-app/.wasp/out/sdk/wasp/src/home.wasp.ts
 wasp-app/.wasp/out/sdk/wasp/src/pages/CatchAllPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/HomePage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/helpers.ts
@@ -1442,6 +1443,7 @@ wasp-app/src/features/prerender/prerender.wasp.ts
 wasp-app/src/features/streaming/api.ts
 wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/features/streaming/streaming.wasp.ts
+wasp-app/src/home.wasp.ts
 wasp-app/src/pages/CatchAllPage.tsx
 wasp-app/src/pages/HomePage.tsx
 wasp-app/src/rpcTests/helpers.ts

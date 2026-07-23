@@ -13,7 +13,6 @@ export interface AppMapperContext {
   parseRefObject(refObject: WaspSpec.Reference<unknown>): AppSpec.ExtImport;
 
   resolveEntityRef(name: string): AppSpec.Ref<"Entity">;
-  resolveRouteRef(name: string): AppSpec.Ref<"Route">;
 
   collectSpecElement<SpecElement extends WaspSpec.SpecElement>(
     specElement: SpecElement,
@@ -23,11 +22,9 @@ export interface AppMapperContext {
 export function makeAppMapperContext({
   entityNames,
   projectRootDir,
-  specElements,
 }: {
   entityNames: string[];
   projectRootDir: string;
-  specElements: WaspSpec.SpecElement[];
 }): {
   ctx: AppMapperContext;
   collectedDeclsByKey: ReadonlyMap<string, AppSpec.Decl>;
@@ -41,13 +38,6 @@ export function makeAppMapperContext({
       mapRefObject(refObject, {
         projectRootDir,
       }),
-
-    resolveRouteRef: makeRefParser(
-      "Route",
-      specElements
-        .filter((el): el is WaspSpec.Route => el.kind === "route")
-        .map((route) => route.name),
-    ),
 
     collectSpecElement: <SpecElement extends WaspSpec.SpecElement>(
       specElement: SpecElement,

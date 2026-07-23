@@ -57,7 +57,12 @@ export default app({
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import {
+  LoginPage,
+  PasswordResetPage,
+  EmailVerificationPage,
+} from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -77,19 +82,28 @@ export default app({
         },
         // 4. Specify the email verification and password reset options (we'll talk about them later)
         emailVerification: {
-          clientRoute: "EmailVerificationRoute",
+          clientRoute: route(
+            "EmailVerificationRoute",
+            "/email-verification",
+            page(EmailVerificationPage)
+          ),
         },
         passwordReset: {
-          clientRoute: "PasswordResetRoute",
+          clientRoute: route(
+            "PasswordResetRoute",
+            "/password-reset",
+            page(PasswordResetPage)
+          ),
         },
       },
     },
-    onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
   },
   // ...
 })
 ```
+
+Note that these routes don't have to be listed in `spec`: referencing them from `auth` registers them automatically.
 
 Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailAuthConfig.md).
 
@@ -129,30 +143,24 @@ The `User` entity can be as simple as including only the `id` field:
 
 Next, we need to define the routes and pages for the authentication pages.
 
-Add the following to the `main.wasp.ts` file:
+The "Login", "Email verification", and "Password reset" routes are already registered: we referenced them from `auth` in step 1. That leaves the "Signup" and "Request password reset" routes, which we add to the `spec` array in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
 import {
-  LoginPage,
   SignupPage,
   RequestPasswordResetPage,
-  PasswordResetPage,
-  EmailVerificationPage,
 } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
-    route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
     route(
       "RequestPasswordResetRoute",
       "/request-password-reset",
       page(RequestPasswordResetPage)
     ),
-    route("PasswordResetRoute", "/password-reset", page(PasswordResetPage)),
-    route("EmailVerificationRoute", "/email-verification", page(EmailVerificationPage)),
   ],
 })
 ```
@@ -414,7 +422,11 @@ Our setup looks like this:
 // ...
 
 emailVerification: {
-  clientRoute: "EmailVerificationRoute",
+  clientRoute: route(
+    "EmailVerificationRoute",
+    "/email-verification",
+    page(EmailVerificationPage)
+  ),
 }
 ```
 
@@ -448,7 +460,11 @@ Our setup in `main.wasp.ts` looks like this:
 // ...
 
 passwordReset: {
-  clientRoute: "PasswordResetRoute",
+  clientRoute: route(
+    "PasswordResetRoute",
+    "/password-reset",
+    page(PasswordResetPage)
+  ),
 }
 ```
 

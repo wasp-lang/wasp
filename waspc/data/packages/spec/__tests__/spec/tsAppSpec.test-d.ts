@@ -12,11 +12,18 @@ describe("AuthMethods", () => {
     usernameAndPassword: {},
   };
 
+  const someRoute: WaspSpec.Route = {
+    kind: "route",
+    name: "SomeRoute",
+    path: "/some",
+    page: { kind: "page", component: () => null },
+  };
+
   const email: Required<Pick<WaspSpec.AuthMethods, "email">> = {
     email: {
       fromField: { email: "noreply@example.com" },
-      emailVerification: { clientRoute: "/verify" },
-      passwordReset: { clientRoute: "/reset" },
+      emailVerification: { clientRoute: someRoute },
+      passwordReset: { clientRoute: someRoute },
     },
   };
 
@@ -62,5 +69,29 @@ describe("AuthMethods", () => {
     expectTypeOf<
       typeof google & typeof usernameAndPassword & typeof email
     >().not.toExtend<WaspSpec.AuthMethods>();
+  });
+});
+
+describe("Auth destinations", () => {
+  test("accept routes but not APIs or bare strings", () => {
+    expectTypeOf<WaspSpec.Route>().toExtend<
+      WaspSpec.Auth["onAuthFailedRedirectTo"]
+    >();
+    expectTypeOf<WaspSpec.Api>().not.toExtend<
+      WaspSpec.Auth["onAuthFailedRedirectTo"]
+    >();
+    expectTypeOf<string>().not.toExtend<
+      WaspSpec.Auth["onAuthFailedRedirectTo"]
+    >();
+
+    expectTypeOf<WaspSpec.Route>().toExtend<
+      WaspSpec.EmailFlowConfig["clientRoute"]
+    >();
+    expectTypeOf<WaspSpec.Api>().not.toExtend<
+      WaspSpec.EmailFlowConfig["clientRoute"]
+    >();
+    expectTypeOf<string>().not.toExtend<
+      WaspSpec.EmailFlowConfig["clientRoute"]
+    >();
   });
 });

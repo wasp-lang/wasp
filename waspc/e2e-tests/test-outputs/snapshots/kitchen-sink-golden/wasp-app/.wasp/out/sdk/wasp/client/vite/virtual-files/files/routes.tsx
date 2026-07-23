@@ -40,36 +40,6 @@ const routesMapping = {
       }
     },
   },
-  LoginRoute: {
-    lazy: async () => {
-      const Component = await import('./src/features/auth/pages/Login').then(m => m.default);
-
-      return {
-        Component:
-          Component,
-      }
-    },
-  },
-  PasswordResetRoute: {
-    lazy: async () => {
-      const Component = await import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset);
-
-      return {
-        Component:
-          Component,
-      }
-    },
-  },
-  EmailVerificationRoute: {
-    lazy: async () => {
-      const Component = await import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification);
-
-      return {
-        Component:
-          Component,
-      }
-    },
-  },
   RequestPasswordResetRoute: {
     lazy: async () => {
       const Component = await import('./src/features/auth/pages/RequestPasswordReset').then(m => m.RequestPasswordReset);
@@ -236,6 +206,36 @@ const routesMapping = {
   HydrationMismatchRoute: {
     lazy: async () => {
       const Component = await import('./src/features/prerender/pages/HydrationMismatchPage').then(m => m.HydrationMismatchPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
+  EmailVerificationRoute: {
+    lazy: async () => {
+      const Component = await import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
+  PasswordResetRoute: {
+    lazy: async () => {
+      const Component = await import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
+  LoginRoute: {
+    lazy: async () => {
+      const Component = await import('./src/features/auth/pages/Login').then(m => m.default);
 
       return {
         Component:

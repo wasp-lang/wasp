@@ -15,7 +15,10 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
-import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.SdkGenerator.Auth.Common
+  ( getOnAuthFailedRedirectTo,
+    getOnAuthSucceededRedirectToOrDefault,
+  )
 import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
@@ -46,7 +49,7 @@ genAuth spec =
             genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
-        <++> genAuthForms auth
+        <++> genAuthForms spec auth
         <++> genLocalAuth auth
         <++> genOAuthAuth auth
         <++> genEmailAuth auth
@@ -58,7 +61,7 @@ genAuth spec =
             genFileCopyInAuth [relfile|jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,
-            genUtils auth,
+            genUtils spec auth,
             genProvidersTypes auth,
             genProvdersIndex auth,
             genIndexTs auth
@@ -112,8 +115,8 @@ genSessionTs auth =
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
-genUtils :: AS.Auth.Auth -> Generator FileDraft
-genUtils auth =
+genUtils :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genUtils spec auth =
   return $
     mkTmplFdWithData
       (authDirInSdkTemplatesDir </> [relfile|utils.ts|])
@@ -130,8 +133,8 @@ genUtils auth =
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "failureRedirectPath" .= getOnAuthFailedRedirectTo spec auth,
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault spec auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
