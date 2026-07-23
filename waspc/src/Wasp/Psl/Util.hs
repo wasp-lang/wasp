@@ -9,11 +9,13 @@ import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Ast.WithCtx (WithCtx (WithCtx))
 
-findIdField :: Psl.Model.Body -> Maybe Psl.Model.Field
-findIdField (Psl.Model.Body elements) = find isIdField fields
-  where
-    fields = [field | WithCtx (Psl.Model.ElementField field) _ <- elements]
+getModelFields :: Psl.Model.Body -> [Psl.Model.Field]
+getModelFields (Psl.Model.Body elements) =
+  [field | WithCtx (Psl.Model.ElementField field) _ <- elements]
 
+findIdField :: Psl.Model.Body -> Maybe Psl.Model.Field
+findIdField body = find isIdField (getModelFields body)
+  where
     isIdField :: Psl.Model.Field -> Bool
     isIdField Psl.Model.Field {_attrs = attrs} = any (\attr -> Psl.Attribute._attrName attr == attrNameAssociatedWitIdField) attrs
 
