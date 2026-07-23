@@ -35,6 +35,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.JsImport (getJsImportPathStringFromPath)
 
+-- The plugin resolves server-side virtual user modules used by the SDK.
 genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
 genWaspVirtualUserModulesPlugin spec =
   return $

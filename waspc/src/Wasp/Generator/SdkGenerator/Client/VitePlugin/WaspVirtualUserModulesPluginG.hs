@@ -21,6 +21,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (getJsImportPathStringFromPath)
 
+-- The plugin resolves client-side virtual user modules used by the SDK.
 genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
 genWaspVirtualUserModulesPlugin spec =
   return $
@@ -31,8 +32,6 @@ genWaspVirtualUserModulesPlugin spec =
 getClientVirtualUserModulesData :: AppSpec -> [Aeson.Value]
 getClientVirtualUserModulesData spec =
   maybeToList (mkVMImportData <$> maybeClientEnvSchema)
-    ++ maybeToList (mkVMImportData <$> maybeSetupFn)
-    ++ maybeToList (mkVMImportData <$> maybeRootComponent)
   where
     mkVMImportData :: EI.ExtImport -> Aeson.Value
     mkVMImportData extImport =
@@ -48,6 +47,4 @@ getClientVirtualUserModulesData spec =
         userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel SourceExternalCodeDir) File'
 
     maybeClientEnvSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    maybeSetupFn = AS.App.Client.setupFn =<< AS.App.client app
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client app
     app = snd $ getApp spec
