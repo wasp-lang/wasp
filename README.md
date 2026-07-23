@@ -135,6 +135,8 @@ Run to install Wasp on OSX/Linux/WSL(Win):
 npm i -g @wasp.sh/wasp-cli@latest
 ```
 
+> **Prerequisite:** Wasp requires **Node.js >= 24.14.1** (and npm, which ships with it). If you don't have it, install via [nvm](https://github.com/nvm-sh/nvm) — see the [Quick Start docs](https://wasp.sh/docs/quick-start#more-details) for the full list.
+
 From there, follow the instructions to run your first app in less than a minute!
 
 For a quick start, check out [this docs page](https://wasp.sh/docs/quick-start).
