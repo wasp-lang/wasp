@@ -40,16 +40,33 @@ export type UnauthenticatedOperationFor<
  * Creates the server-side API for an unauthenticated operation.
  *
  * @template OperationDefinition The type of the unauthenticated operation's definition.
- * @param getUserOperation Returns the user's unauthenticated operation's definition.
- * We take a getter rather than the function itself to stay safe against import cycles.
+ * @param getUserOperation Returns the unauthenticated operation's definition.
  * 
- * A user operation can import another operation, whose wrapped definitions lives in 
- * this module. When the bundler flattens those modules into a single file, 
- * these `createOperation` calls can run before the user's function has been initialized.
- * Reading the value there would throw "Cannot access '...' before initialization".
+ * This function accepts a function getter instead of the function itself to prevent use
+ * before initialization errors. This can happen when bundlers decide to insert user's
+ * operation definitions below our {@link createUnauthenticatedOperation} wrapper calls:
+ * ```ts
+ * function goodCreateOperation(fn: () => Function) {
+ *   return () => fn()();
+ * }
  * 
+ * function badCreateOperation(fn: Function) {
+ *   return () => fn();
+ * }
+ * 
+ * const goodOperation = goodCreateOperation(() => someUserOperationDefinition);
+ * const badOperation = badCreateOperation(someUserOperationDefinition); 
+ *       ^! ❌ (TS2454): Variable 'someUserOperationDefinition' is used before being assigned.
+ * 
+ * const someUserOperationDefinition = () => 1;
+ * ```
  * The getter defers the read until the operation is called, by which point every
  * module is initialized.
+ * 
+ * This can happen when a user operation definition imports some other operation's
+ * server client. This forces the "server operation definitions" to be emitted
+ * before the "user operation definitions", leading to the outcome in the code example
+ * above.
  * @param entities The unauthenticated operation's entity map.
  * @returns The server-side API for the provided unauthenticated operation.
  */
@@ -104,16 +121,33 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  * Creates the server-side API for an authenticated operation.
  *
  * @template OperationDefinition The type of the authenticated operation's definition.
- * @param getUserOperation Returns the user's authenticated operation's definition.
- * We take a getter rather than the function itself to stay safe against import cycles.
+ * @param getUserOperation Returns the authenticated operation's definition.
  * 
- * A user operation can import another operation, whose wrapped definitions lives in 
- * this module. When the bundler flattens those modules into a single file, 
- * these `createOperation` calls can run before the user's function has been initialized.
- * Reading the value there would throw "Cannot access '...' before initialization".
+ * This function accepts a function getter instead of the function itself to prevent use
+ * before initialization errors. This can happen when bundlers decide to insert user's
+ * operation definitions below our {@link createAuthenticatedOperation} wrapper calls:
+ * ```ts
+ * function goodCreateOperation(fn: () => Function) {
+ *   return () => fn()();
+ * }
  * 
+ * function badCreateOperation(fn: Function) {
+ *   return () => fn();
+ * }
+ * 
+ * const goodOperation = goodCreateOperation(() => someUserOperationDefinition);
+ * const badOperation = badCreateOperation(someUserOperationDefinition); 
+ *       ^! ❌ (TS2454): Variable 'someUserOperationDefinition' is used before being assigned.
+ * 
+ * const someUserOperationDefinition = () => 1;
+ * ```
  * The getter defers the read until the operation is called, by which point every
  * module is initialized.
+ * 
+ * This can happen when a user operation definition imports some other operation's
+ * server client. This forces the "server operation definitions" to be emitted
+ * before the "user operation definitions", leading to the outcome in the code example
+ * above.
  * @param entities The authenticated operation's entity map.
  * @returns The server-side API for the provided authenticated operation.
  */
