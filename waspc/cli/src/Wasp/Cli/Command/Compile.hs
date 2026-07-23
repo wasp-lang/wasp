@@ -127,9 +127,6 @@ compilationWarningsTitle = "Your wasp project reported following warnings during
 analysisErrorsTitle :: [CompileError] -> String
 analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
 
-printDiagnosticToStderr :: String -> String -> IO ()
-printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
-
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
@@ -189,3 +186,6 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
       liftIO $ do
         printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
         exitFailure
+
+printDiagnosticToStderr :: String -> String -> IO ()
+printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
