@@ -31,7 +31,6 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.UserVirtualModules (userOperationVMId)
 
 serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
 serverOperationIndexJsFileInSdkRootDir operation =
@@ -165,7 +164,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extImportToImportJson (userOperationVMId operation) (Just $ AS.Operation.getFn operation),
+    [ "jsFn" .= extImportToImportJson (Just $ AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
       "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
       "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,

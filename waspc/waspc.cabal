@@ -331,7 +331,6 @@ library
     Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator.JsImport
     Wasp.Generator.TypeAugmentationGenerator.Common
     Wasp.Generator.TypeAugmentationGenerator.SpecTypeAugmentationGenerator
-    Wasp.Generator.UserVirtualModules
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common

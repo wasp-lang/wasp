@@ -10,29 +10,30 @@ import Data.Maybe
     maybeToList,
   )
 import StrongPath
-  ( relDirToPosix,
+  ( File',
+    Path,
+    Posix,
+    Rel,
+    relDirToPosix,
     relfile,
-    toFilePath,
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (getVirtualUserModuleJsImportPath)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.UserVirtualModules
-  ( UserVirtualModuleId,
-    serverEnvValidationSchemaVMId,
-    userOperationVMId,
-    userPrismaSetupFnVMId,
-  )
+import Wasp.JsImport (getJsImportPathStringFromPath)
 
 genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
 genUserVirtualModulesPlugin spec =
@@ -41,25 +42,29 @@ genUserVirtualModulesPlugin spec =
       [relfile|src/plugins/userVirtualModules.js|]
       (Just $ object ["userVirtualModules" .= getServerUserVirtualModulesData spec])
 
+-- Fetch ext imports which are related to server
 getServerUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getServerUserVirtualModulesData spec =
-  maybeToList (mkVMImportData serverEnvValidationSchemaVMId <$> maybeServerEnvSchema)
-    ++ maybeToList (mkVMImportData userPrismaSetupFnVMId <$> maybePrismaSetupFn)
+  maybeToList (mkVMImportData <$> maybeServerEnvSchema)
+    ++ maybeToList (mkVMImportData <$> maybePrismaSetupFn)
     ++ map mkOperationVMImportData allOperations
   where
     mkOperationVMImportData :: AS.Operation.Operation -> Aeson.Value
     mkOperationVMImportData operation =
-      mkVMImportData (userOperationVMId operation) (AS.Operation.getFn operation)
+      mkVMImportData (AS.Operation.getFn operation)
 
-    mkVMImportData :: UserVirtualModuleId -> EI.ExtImport -> Aeson.Value
-    mkVMImportData virtualModuleId extImport =
+    mkVMImportData :: EI.ExtImport -> Aeson.Value
+    mkVMImportData extImport =
       object
-        [ "virtualModuleId" .= toFilePath virtualModuleId,
+        [ "virtualModuleId" .= virtualModuleId,
           "importJson" .= importJson
         ]
       where
         importJson = extImportToImportJson importLocation (Just extImport)
         importLocation = fromJust $ relDirToPosix serverSrcDirInServerRootDir
+
+        virtualModuleId = getJsImportPathStringFromPath $ getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir
+        userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel SourceExternalCodeDir) File'
 
     maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn

@@ -74,7 +74,6 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.UserVirtualModules (clientEnvValidationSchemaVMId, serverEnvValidationSchemaVMId, userPrismaSetupFnVMId)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -342,7 +341,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
           ]
 
   return $
@@ -359,9 +358,9 @@ genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =
       object
-        [ "clientEnvValidationSchema" .= extImportToImportJson clientEnvValidationSchemaVMId maybeClientEnvValidationSchema,
-          "serverEnvValidationSchema" .= extImportToImportJson serverEnvValidationSchemaVMId maybeServerEnvValidationSchema,
-          "prismaSetupFn" .= extImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn,
+        [ "clientEnvValidationSchema" .= extImportToImportJson maybeClientEnvValidationSchema,
+          "serverEnvValidationSchema" .= extImportToImportJson maybeServerEnvValidationSchema,
+          "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn,
           "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
           "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
