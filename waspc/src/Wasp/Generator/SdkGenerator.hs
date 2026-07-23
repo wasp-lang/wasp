@@ -353,7 +353,7 @@ genServerDbClient spec = do
     app = snd $ getApp spec
 
 -- | Declares only those virtual user modules that are used by the SDK.
--- Can be tracked by looking at where the following function is used:
+-- Can be tracked by looking at all ext imports in the SDK:
 -- 'Wasp.Generator.SdkGenerator.JsImport.extImportToImportJson'
 genWaspVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
 genWaspVirtualUserModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
