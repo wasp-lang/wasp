@@ -5,112 +5,114 @@
   "private": true,
   "type": "module",
   "scripts": {
-      "build": "tsc && node ./scripts/copy-assets.js",
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
-    },
+    "build": "tsc && node ./scripts/copy-assets.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
+  },
   {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
   {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
-      {=! todo(filip): Check all exports when done with SDK generation =}
-      {=!  Some of the statements in the comments might become incorrect. =}
-      {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./core/serialization": "./dist/core/serialization/index.js",
-      "./core/auth": "./dist/core/auth.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/session": "./dist/auth/session.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/user": "./dist/auth/user.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/providers/types": "./dist/auth/providers/types.js",
-      {=!  Used by users, documented. =}
-      "./auth/utils": "./dist/auth/utils.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/password": "./dist/auth/password.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/jwt": "./dist/auth/jwt.js",
-      {=!  Used by user, documented. =}
-      "./auth/validation": "./dist/auth/validation.js",
-      "./src/*": "./dist/src/*.js",
-      {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
-      "./server/utils": "./dist/server/utils.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/auth/email": "./dist/server/auth/email/index.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/crud/*": "./dist/server/crud/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/email/core/types": "./dist/server/email/core/types.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./server/jobs/*": "./dist/server/jobs/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
-      {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
-      "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    {=! Each export here is always available to users. =}
+    {=! However, only the public API for users is documented. =}
+    {=! =============================================================== =}
+    {=! Public API for users. Documented. =}
+    {=! Modules users import in their own code. =}
+    {=! Some are also imported by the generated server/client runtime, =}
+    {=! those have a comment saying which exports each side uses. =}
+    {=! =============================================================== =}
+    "./auth": "./dist/auth/index.js",
+    {=! FIXME: Documented only in example apps, not in docs. Also re-exported through `wasp/server/auth`.=}
+    {=! FIXME: Candidate for removal? =}
+    {=! Users: validators in custom auth actions. =}
+    {=! Server: the same validators in auth provider routes. =}
+    "./auth/validation": "./dist/auth/validation.js",
+    "./client": "./dist/client/index.js",
+    "./client/api": "./dist/api/index.js",
+    "./client/auth": "./dist/client/auth/index.js",
+    "./client/crud": "./dist/client/crud/index.js",
+    {=! Users: operation functions and hooks.  =}
+    {=! Client: initializeQueryClient in the app entry. =}
+    "./client/operations": "./dist/client/operations/index.js",
+    "./client/router": "./dist/client/router/index.js",
+    "./client/test": "./dist/client/test/index.js",
+    "./client/vite": "./dist/client/vite/index.js",
+    "./client/webSocket": "./dist/client/webSocket/index.js",
+    {=! Users: entity types. =}
+    {=! Server: the auth entity type. =}
+    "./entities": "./dist/entities/index.js",
+    "./env": "./dist/env/index.js",
+    {=! FIXME: Documented only in example apps, not in docs. =}
+    "./serialization": "./dist/serialization/index.js",
+    {=! Users: config, prisma, env, HttpError, type ServerSetupFn, type DbSeedFn, type MiddlewareConfigFn. =}
+    {=! Server: config, prisma, env, HttpError, ServerSetupFn, DbSeedFn. =}
+    "./server": "./dist/server/index.js",
+    "./server/api": "./dist/server/api/index.js",
+    {=! Users: signup field helpers and validators.  =}
+    {=! Server: OAuth provider definitions, tokenStore, OAuthData. =}
+    "./server/auth": "./dist/server/auth/index.js",
+    "./server/crud": "./dist/server/crud/index.js",
+    "./server/email": "./dist/server/email/index.js",
+    "./server/jobs": "./dist/server/jobs/index.js",
+    "./server/operations": "./dist/server/operations/index.js",
+    {=! Users: type WebSocketDefinition, type WaspSocketData. =}
+    {=! Server: type ServerType. =}
+    "./server/webSocket": "./dist/server/webSocket/index.js",
 
-      {=! Still needed, reconsider during refactoring. =}
-      "./server/types": "./dist/server/types/index.js",
-      {=! Used by the framework server code, reconsider during refactoring. =}
-      "./server/middleware": "./dist/server/middleware/index.js",
+    {=! =============================================================== =}
+    {=! Server runtime only. Undocumented. =}
+    {=! FIXME: ALL of these should be prefixed with `./server/`. =}
+    {=! =============================================================== =}
+    "./auth/jwt": "./dist/auth/jwt.js",
+    "./auth/password": "./dist/auth/password.js",
+    "./auth/providers/types": "./dist/auth/providers/types.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
+    "./auth/session": "./dist/auth/session.js",
+    "./auth/user": "./dist/auth/user.js",
+    "./auth/utils": "./dist/auth/utils.js",
+    "./core/auth": "./dist/core/auth.js",
+    "./core/serialization": "./dist/core/serialization/index.js",
+    "./server/auth/email": "./dist/server/auth/email/index.js",
+    "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
+    "./server/crud/*": "./dist/server/crud/*.js",
+    "./server/email/core/types": "./dist/server/email/core/types.js",
+    "./server/jobs/*": "./dist/server/jobs/*.js",
+    {=! Todo(filip): This export becomes problematic once we start supporting different executors =}
+    "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    "./server/middleware": "./dist/server/middleware/index.js",
+    "./server/types": "./dist/server/types/index.js",
+    "./server/utils": "./dist/server/utils.js",
 
-      {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
-      {=! Private: [] =}
-      "./server": "./dist/server/index.js",
-      {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
-      {=! Private: [] =}
-      "./server/api": "./dist/server/api/index.js",
-      {=! Public: { api }  =}
-      {=! Private: [sdk] =}
-      "./client/api": "./dist/api/index.js",
-      {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
-      {=! Private: [] =}
-      "./client/webSocket": "./dist/client/webSocket/index.js",
-      {=! Public: { type WebSocketDefinition, type WaspSocketData } =}
-      {=! Private: [server, sdk] =}
-      "./server/webSocket": "./dist/server/webSocket/index.js",
-      "./entities": "./dist/entities/index.js",
-      "./auth": "./dist/auth/index.js",
-      "./auth/providers": "./dist/auth/providers/index.js",
-      "./client/auth": "./dist/client/auth/index.js",
-      "./client/operations": "./dist/client/operations/index.js",
-      "./server/auth": "./dist/server/auth/index.js",
-      "./server/crud": "./dist/server/crud/index.js",
-      "./client/crud": "./dist/client/crud/index.js",
-      "./server/email": "./dist/server/email/index.js",
-      "./server/jobs": "./dist/server/jobs/index.js",
-      "./server/operations": "./dist/server/operations/index.js",
-      "./client/router": "./dist/client/router/index.js",
-      "./client/test": "./dist/client/test/index.js",
-      "./client/test/setup": "./dist/client/test/setup.js",
-      "./client": "./dist/client/index.js",
-      "./env": "./dist/env/index.js",
-      "./serialization": "./dist/serialization/index.js",
-      {=! Private: [client] =}
-      "./client/app": "./dist/client/app/index.jsx",
-      "./client/app/layout": "./dist/client/app/layout.jsx",
-      "./client/app/router": "./dist/client/app/router.jsx",
-      {=! Private: [client] =}
-      "./client/vite": "./dist/client/vite/index.js"
+    {=! =============================================================== =}
+    {=! Client runtime only. Undocumented. =}
+    {=! Imported by the hidden client: the Wasp vite plugin and the =}
+    {=! virtual modules it serves into the user's vite project. =}
+    {=! =============================================================== =}
+    "./client/app": "./dist/client/app/index.jsx",
+    "./client/app/layout": "./dist/client/app/layout.jsx",
+    "./client/app/router": "./dist/client/app/router.jsx",
+    {=! Injected as a vitest setupFiles entry by the vite plugin. =}
+    "./client/test/setup": "./dist/client/test/setup.js",
 
-   },
-   {=!
-     TypeScript doesn't care about the redirects we define above in "exports" field; those
-     are used only in runtime. TypeScript instead follows exact path as stated in an import when
-     trying to find the type declarations. Therefore, when "exports" redirect doesn't match the path
-     it redirects to, we need to also let TypeScript know about it, and that can be done with
-     `typesVersions` field below.
-   =}
-   "typesVersions": {
-     "*": {
-       "client/api": ["api/index.ts"]
-     }
-   },
-   "license": "ISC",
-    "include": [
-      "src/**/*"
-   ],
-   {=& depsChunk =},
-   {=& devDepsChunk =},
-   {=& peerDepsChunk =}
+    {=! =============================================================== =}
+    {=! SDK internal. =}
+    {=! TODO: This section will be removed once we remove SDK <-> user cyclic deps. =}
+    {=! =============================================================== =}
+    "./src/*": "./dist/src/*.js"
+  },
+  {=!
+    TypeScript doesn't care about the redirects we define above in "exports" field; those
+    are used only in runtime. TypeScript instead follows exact path as stated in an import when
+    trying to find the type declarations. Therefore, when "exports" redirect doesn't match the path
+    it redirects to, we need to also let TypeScript know about it, and that can be done with
+    `typesVersions` field below.
+  =}
+  "typesVersions": {
+    "*": {
+      "client/api": ["api/index.ts"]
+    }
+  },
+  "license": "ISC",
+  {=& depsChunk =},
+  {=& devDepsChunk =},
+  {=& peerDepsChunk =}
 }
