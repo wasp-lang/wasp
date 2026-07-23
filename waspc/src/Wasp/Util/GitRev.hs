@@ -3,8 +3,8 @@ module Wasp.Util.GitRev
   )
 where
 
+import Data.Either.Extra (eitherToMaybe)
 import qualified GitHash
-import Wasp.Util (eitherToMaybe)
 
 -- | The `git describe` of the Wasp source tree this binary was built from, or
 -- `Nothing` if it couldn't be determined (e.g. building outside of a git
