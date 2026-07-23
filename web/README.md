@@ -43,7 +43,7 @@ To run this version of code and check that it works correctly, run `npm run serv
 
 ### LLM file snapshots
 
-The build also generates `llms*.txt` files (see [scripts/generate-llm-files.ts](scripts/generate-llm-files.ts)). To catch unintended changes in that output, we keep snapshots of a few representative files in [markdown-snapshots/](markdown-snapshots/) and compare them against the build output in CI on every PR that touches `web/`.
+The build also generates markdown versions of pages (see [src/plugins/llm-files](src/plugins/llm-files/)) and `llms*.txt` files (see [scripts/generate-llm-files.ts](scripts/generate-llm-files.ts)). To catch unintended changes in that output, we keep snapshots of a few representative files in [markdown-snapshots/](markdown-snapshots/) and compare them against the build output in CI on every PR that touches `web/`.
 
 If the check fails and the changes are intended, update the snapshots and commit the result:
 

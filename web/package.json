@@ -53,26 +53,35 @@
     "react-transition-group": "^4.4.5",
     "remotion": "^4.0.441",
     "tailwindcss": "^3.2.4",
-    "ts-blank-space": "^0.9.0"
+    "ts-blank-space": "^0.9.0",
+    "vfile": "^6.0.3"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "~3.10.1",
     "@docusaurus/tsconfig": "~3.10.1",
+    "@types/hast": "^3.0.4",
     "@types/marked": "^5.0.2",
     "@types/mdast": "^4.0.4",
     "@types/node": "~22.12",
     "docusaurus-plugin-typedoc": "^1.4.2",
+    "hast-util-select": "^6.0.4",
     "marked": "^17.0.3",
     "mdast": "^2.3.2",
     "mdast-util-mdx": "^3.0.0",
     "prettier": "3.5.3",
+    "rehype-parse": "^9.0.1",
+    "rehype-remark": "^10.0.1",
     "remark-cli": "^11.0.0",
+    "remark-directive": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-stringify": "^11.0.0",
     "remark-validate-links": "^12.1.1",
     "tsx": "^4.20.3",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "^6.0.3",
-    "unified": "^11.0.5"
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0"
   },
   "browserslist": {
     "production": [

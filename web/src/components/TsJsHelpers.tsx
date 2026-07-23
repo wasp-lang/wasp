@@ -11,7 +11,8 @@ interface Props {
 }
 
 /**
- * Only renders this block if user has selected TS in the codeblocks
+ * Only renders this block if user has not selected JS in the codeblocks.
+ * This is so that the SSR documents render TS content by default.
  * @Note leave a blank space after opening the tag e.g.
  *
  * @example
@@ -22,11 +23,11 @@ interface Props {
  * **/
 export function ShowForTs({ children }: Props) {
   const [jsTs] = useStorageSlot("docusaurus.tab.js-ts");
-  return jsTs === "ts" && <MDXContent>{children}</MDXContent>;
+  return jsTs !== "js" && <MDXContent>{children}</MDXContent>;
 }
 
 /**
- * Only renders this block if user has selected JS in the codeblocks
+ * Only renders this block if user has selected JS in the codeblocks.
  * @Note leave a blank space after opening the tag e.g.
  *
  * @example
