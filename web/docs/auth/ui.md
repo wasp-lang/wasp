@@ -475,15 +475,6 @@ We get this:
 
 ![Vertical social buttons](/img/authui/vertical_social_buttons.png)
 
-## See It In Action
-
-The screenshots above give you a good sense of what each form looks like, but to feel how the social buttons and the rest of the Auth UI behave end-to-end, the fastest way is to see it running in a real app.
-
-- **[OpenSaaS](https://opensaas.sh/)** — Wasp's production-grade SaaS starter template, with GitHub + Google login wired up out of the box. Sign in via the top-right button to see the full Auth UI in action, including how it looks once the user is already authenticated.
-- **Kitchen Sink example** — see [`examples/kitchen-sink/`](https://github.com/wasp-lang/wasp/tree/main/examples/kitchen-sink) in the Wasp repo. The auth UI is rendered on the landing page once you start the dev server.
-
-For each social provider, the visual is consistent across the whole `wasp/client/auth` system — the GitHub button always renders the GitHub logo, the Google button the Google logo, and so on. The only thing that changes is the position (vertical vs. horizontal) and the spacing, both of which are controlled by the props above.
-
 ### Let's Put Everything Together 🪄
 
 If we provide the logo and custom colors:
@@ -543,3 +534,12 @@ We get a form looking like this:
 <div style={{ textAlign: 'center' }}>
   <img src="/img/authui/custom_login.gif" alt="Custom login form" />
 </div>
+
+## See It In Action
+
+The screenshots above give you a good sense of what each form looks like, but to feel how the social buttons and the rest of the Auth UI behave end-to-end, the fastest way is to see it running in a real app.
+
+- **[OpenSaaS](https://opensaas.sh/)** — Wasp's production-grade SaaS starter template, with GitHub + Google login wired up out of the box. Sign in via the top-right button to see the full Auth UI in action, including how it looks once the user is already authenticated.
+- **Kitchen Sink example** — try the live demo at <https://kitchen-sink-server.fly.dev> (the auth UI is rendered on the landing page once you start the dev server), or browse the source at [`examples/kitchen-sink/`](https://github.com/wasp-lang/wasp/tree/main/examples/kitchen-sink) in the Wasp repo.
+
+For each social provider, the visual is consistent across the whole `wasp/client/auth` system — the GitHub button always renders the GitHub logo, the Google button the Google logo, and so on. The only thing that changes is the position (vertical vs. horizontal) and the spacing, both of which are controlled by the props above.
