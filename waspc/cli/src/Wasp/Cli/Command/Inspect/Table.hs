@@ -5,7 +5,7 @@ module Wasp.Cli.Command.Inspect.Table
   )
 where
 
-import Data.List (intercalate, nub)
+import Data.List (intercalate, nub, sortOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, mapMaybe)
 import Wasp.AppSpec (AppSpec)
@@ -20,9 +20,14 @@ inspectAsTables spec = renderEntries $ inspect $ InspectableAppSpec spec
 
 renderEntries :: [InspectionEntry] -> String
 renderEntries entries =
-  intercalate "\n" (renderCategory <$> categoryPairs)
+  intercalate "\n" (renderCategory . fmap sortEntriesByFirstColumnValue <$> categoryPairs)
   where
     categoryPairs = orderedGroupWith heading datapoints entries
+
+    sortEntriesByFirstColumnValue :: [[InspectionDatapoint]] -> [[InspectionDatapoint]]
+    sortEntriesByFirstColumnValue = sortOn $ \case
+      [] -> ""
+      ((_, firstColumnValue) : _) -> firstColumnValue
 
     renderCategory (title', datapointLists) =
       unlines $
