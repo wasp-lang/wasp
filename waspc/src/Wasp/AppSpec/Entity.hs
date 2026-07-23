@@ -28,7 +28,7 @@ instance FromJSON Entity where
   parseJSON = const $ fail "Entity declarations in wasp are deprecated, entities are now defined via prisma.schema file."
 
 makeEntity :: Psl.Model.Body -> Entity
-makeEntity body = Entity {pslModelBody = body}
+makeEntity = Entity
 
 getFields :: Entity -> [Psl.Model.Field]
 getFields = getModelFields . getPslModelBody
