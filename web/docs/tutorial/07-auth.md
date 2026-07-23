@@ -148,9 +148,7 @@ By doing this, Wasp will create:
 - A React hook `useAuth()`.
 - `context.user` for use in Queries and Actions.
 
-:::info
-Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
-:::
+Wasp also supports authentication using [email](../auth/email) and many [social providers](../auth/social-auth/overview.md).
 
 ## Update the Main Page to Require Auth
 

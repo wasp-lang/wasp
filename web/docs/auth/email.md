@@ -143,7 +143,7 @@ The `User` entity can be as simple as including only the `id` field:
 
 Next, we need to define the routes and pages for the authentication pages.
 
-The login, email verification, and password reset routes are already registered: we referenced them from `auth` in step 1. That leaves the signup and request password reset routes, which we add to the `spec` array in the `main.wasp.ts` file:
+The "Login", "Email verification", and "Password reset" routes are already registered: we referenced them from `auth` in step 1. That leaves the "Signup" and "Request password reset" routes, which we add to the `spec` array in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
