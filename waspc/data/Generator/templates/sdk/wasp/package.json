@@ -21,6 +21,8 @@
     {=! those have a comment saying which exports each side uses. =}
     {=! =============================================================== =}
     "./auth": "./dist/auth/index.js",
+    {=! FIXME: Documented only in example apps, not in docs. Also re-exported through `wasp/server/auth`.=}
+    {=! FIXME: Candidate for removal? =}
     {=! Users: validators in custom auth actions. =}
     {=! Server: the same validators in auth provider routes. =}
     "./auth/validation": "./dist/auth/validation.js",
@@ -39,6 +41,7 @@
     {=! Server: the auth entity type. =}
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
+    {=! FIXME: Documented only in example apps, not in docs. =}
     "./serialization": "./dist/serialization/index.js",
     {=! Users: config, prisma, env, HttpError, type ServerSetupFn, type DbSeedFn, type MiddlewareConfigFn. =}
     {=! Server: config, prisma, env, HttpError, ServerSetupFn, DbSeedFn. =}
@@ -57,7 +60,7 @@
 
     {=! =============================================================== =}
     {=! Server runtime only. Undocumented. =}
-    {=! TODO: ALL of these should be prefixed with `./server/`. =}
+    {=! FIXME: ALL of these should be prefixed with `./server/`. =}
     {=! =============================================================== =}
     "./auth/jwt": "./dist/auth/jwt.js",
     "./auth/password": "./dist/auth/password.js",
