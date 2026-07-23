@@ -9,7 +9,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.InLockedWaspProject (InLockedWaspProject (InLockedWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
@@ -19,7 +19,7 @@ import Wasp.Project.Common (WaspProjectDir)
 install :: Command ()
 install = do
   ValidNodeAndNpm <- require
-  InWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir <- require
   liftIO (installIO waspProjectDir)
     >>= either
       (throwError . CommandError "Couldn't install npm dependencies")

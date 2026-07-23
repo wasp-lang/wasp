@@ -16,7 +16,7 @@ import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.InLockedWaspProject (InLockedWaspProject (InLockedWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
@@ -49,7 +49,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Very similar to 'compile'.
 build :: Command ()
 build = do
-  InWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
 

@@ -161,6 +161,11 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
+  if os(windows)
+    build-depends: Win32 ^>=2.13.4
+  else
+    build-depends: unix ^>=2.8.6
+
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Analyzer
@@ -231,6 +236,8 @@ library
     Wasp.AppSpec.Route
     Wasp.AppSpec.Util
     Wasp.AppSpec.Valid
+    Wasp.Cli.ProjectLock
+    Wasp.Cli.ProjectLock.System
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
@@ -461,6 +468,7 @@ library cli-lib
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
+    resourcet ^>=1.3.0,
     strong-path,
     tar ^>=0.6.3,
     temporary ^>=1.3,
@@ -517,6 +525,7 @@ library cli-lib
     Wasp.Cli.Command.News.LocalNewsState
     Wasp.Cli.Command.Require.DbConnectionEstablished
     Wasp.Cli.Command.Require.GeneratedApp
+    Wasp.Cli.Command.Require.InLockedWaspProject
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
@@ -663,10 +672,13 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
+    directory,
     hspec,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
+    temporary,
     time,
     waspc,
 
@@ -676,6 +688,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.ProjectLockTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

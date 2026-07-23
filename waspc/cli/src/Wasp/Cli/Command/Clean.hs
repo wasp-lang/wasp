@@ -7,14 +7,14 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.InLockedWaspProject (InLockedWaspProject (InLockedWaspProject))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
 
 clean :: Command ()
 clean = do
-  InWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir <- require
 
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
