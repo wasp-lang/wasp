@@ -2,7 +2,7 @@ module Wasp.AppSpec.Core.Inspectable
   ( Inspectable (..),
     InspectionEntry (..),
     InspectionDatapoint,
-    mapDatapointList,
+    modifyDatapointList,
   )
 where
 
@@ -22,6 +22,6 @@ data InspectionEntry = InspectionEntry
 
 type InspectionDatapoint = (String, String)
 
-mapDatapointList :: ([InspectionDatapoint] -> [InspectionDatapoint]) -> InspectionEntry -> InspectionEntry
-mapDatapointList f entry@(InspectionEntry {datapoints}) =
+modifyDatapointList :: ([InspectionDatapoint] -> [InspectionDatapoint]) -> InspectionEntry -> InspectionEntry
+modifyDatapointList f entry@(InspectionEntry {datapoints}) =
   entry {datapoints = f datapoints}
