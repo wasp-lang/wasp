@@ -1,9 +1,8 @@
 {
   "$schema": "https://typedoc.org/schema.json",
 
-  // We don't want to show a readme for this package, the current one is the
-  // contributing guide; and there's nothing more relevant we want to show
-  // instead.
+  // We don't want to show a readme for this package: it's an npm-facing README
+  // whose links are redundant on the docs site.
   "readme": "none",
 
   // Linking to the source code is not useful for this package, and might be

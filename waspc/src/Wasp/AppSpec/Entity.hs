@@ -15,16 +15,13 @@ import Data.Data (Data)
 import Data.List (intercalate)
 import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
-import Wasp.AppSpec.Entity.Field (Field)
-import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
-import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
-import Wasp.Psl.Util (findIdBlockAttribute, findIdField)
+import Wasp.Psl.Generator.Model (generateModelFieldTypeAndModifiers)
+import Wasp.Psl.Util (findIdBlockAttribute, findIdField, getModelFields)
 
-data Entity = Entity
-  { fields :: ![Field],
-    pslModelBody :: !Psl.Model.Body
+newtype Entity = Entity
+  { pslModelBody :: Psl.Model.Body
   }
   deriving (Show, Eq, Data)
 
@@ -36,32 +33,27 @@ instance FromJSON Entity where
 instance ToJSON Entity where
   toJSON entity =
     object
-      [ "fields" .= fields entity
+      [ "fields" .= map fieldToJSON (getFields entity)
       ]
+    where
+      fieldToJSON field =
+        object
+          [ "name" .= Psl.Model._name field,
+            "type" .= generateModelFieldTypeAndModifiers field
+          ]
 
 instance Inspectable Entity where
   inspect entity =
     [ InspectionEntry
         "Entities"
-        [("Fields", intercalate ", " $ Field.fieldName <$> fields entity)]
+        [("Fields", intercalate ", " $ Psl.Model._name <$> getFields entity)]
     ]
 
 makeEntity :: Psl.Model.Body -> Entity
-makeEntity body =
-  Entity
-    { fields = makeEntityFieldsFromPslBody body,
-      pslModelBody = body
-    }
-  where
-    makeEntityFieldsFromPslBody :: Psl.Model.Body -> [Field]
-    makeEntityFieldsFromPslBody (Psl.Model.Body pslElements) =
-      Field.pslFieldToEntityField
-        <$> [ field
-            | (Psl.Model.ElementField field) <- Psl.WithCtx.getNode <$> pslElements
-            ]
+makeEntity = Entity
 
-getFields :: Entity -> [Field]
-getFields = fields
+getFields :: Entity -> [Psl.Model.Field]
+getFields = getModelFields . getPslModelBody
 
 getPslModelBody :: Entity -> Psl.Model.Body
 getPslModelBody = pslModelBody
