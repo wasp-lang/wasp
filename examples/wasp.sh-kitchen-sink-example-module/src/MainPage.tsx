@@ -23,8 +23,9 @@ export function MainPage() {
       <p className="fsm-module-declaration-tag">Wasp full-stack module</p>
       <h1>TODO quotes module</h1>
       <p className="fsm-module-intro">
-        This page ships from the <code>@kitchen-sink/module</code> package as
-        its <code>route</code> + <code>page</code> declarations.
+        This page ships from the
+        <code>@wasp.sh/kitchen-sink-example-module</code> package as its{" "}
+        <code>route</code> + <code>page</code> declarations.
       </p>
 
       <OperationsTodoSection />

@@ -14,7 +14,7 @@ import {
   serverSetup,
 } from "./src/serverSetup" with { type: "ref" };
 
-import getFsmModuleSpec from "@kitchen-sink/module/spec";
+import getFsmModuleSpec from "@wasp.sh/kitchen-sink-example-module/spec";
 import { apisSpec } from "./src/features/apis/apis.wasp";
 import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
 import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";

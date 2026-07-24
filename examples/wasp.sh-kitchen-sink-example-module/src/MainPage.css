@@ -1,4 +1,4 @@
-@layer kitchen-sink-module {
+@layer wasp-kitchen-sink-example-module {
   :root {
     --fsm-module-color-accent: #047857;
     --fsm-module-color-accent-strong: #065f46;

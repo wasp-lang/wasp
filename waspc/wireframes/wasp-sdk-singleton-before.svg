@@ -37,7 +37,7 @@
     <text x="696" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Outside the bundle</text>
 
     <rect x="704" y="200" width="496" height="96" rx="4" />
-    <text x="728" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">@kitchen-sink/module</text>
+    <text x="728" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">@wasp.sh/kitchen-sink-example-module</text>
     <text x="728" y="264" font-size="12" stroke="none" fill="#666">Module API and job worker</text>
 
     <line x1="952" y1="296" x2="952" y2="360" marker-end="url(#arrow)" />

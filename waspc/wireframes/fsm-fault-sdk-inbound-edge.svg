@@ -45,12 +45,12 @@
 
     <rect x="704" y="200" width="496" height="80" rx="4" />
     <text x="728" y="232" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink package.json</text>
-    <text x="728" y="260" font-size="12" stroke="none" fill="#666">+ "@kitchen-sink/module": "file:../module/*.tgz"</text>
+    <text x="728" y="260" font-size="12" stroke="none" fill="#666">+ "@wasp.sh/kitchen-sink-example-module": "file:../module/*.tgz"</text>
 
     <line x1="952" y1="280" x2="952" y2="336" marker-end="url(#arrow)" />
 
     <rect x="704" y="344" width="496" height="64" rx="4" />
-    <text x="728" y="372" font-size="14" font-weight="600" stroke="none" fill="#000">@kitchen-sink/module tarball</text>
+    <text x="728" y="372" font-size="14" font-weight="600" stroke="none" fill="#000">@wasp.sh/kitchen-sink-example-module tarball</text>
     <text x="728" y="396" font-size="12" stroke="none" fill="#666">peerDependencies: { "wasp": "*" }</text>
 
     <line x1="952" y1="408" x2="952" y2="464" marker-end="url(#arrow)" />

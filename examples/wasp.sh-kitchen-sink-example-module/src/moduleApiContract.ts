@@ -14,7 +14,7 @@ export type ModulePingResponse = {
 };
 
 export const MODULE_API_HEADER_NAME = "X-Module-Api";
-export const MODULE_API_HEADER_VALUE = "@kitchen-sink/module";
+export const MODULE_API_HEADER_VALUE = "@wasp.sh/kitchen-sink-example-module";
 
 export function getModuleApiPrefix(prefix: string): string {
   return `${prefix.replace(/\/$/, "")}/api`;

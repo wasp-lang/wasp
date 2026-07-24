@@ -59,16 +59,11 @@ const relativeTarballPath = path
   .split(path.sep)
   .join("/");
 
-execFileSync(
-  "npm",
-  [
-    "install",
-    `${packageJson.name}@file:${relativeTarballPath}`,
-    "--save",
-    "--package-lock-only",
-    "--ignore-scripts",
-  ],
-  { cwd: consumerDir, stdio: "inherit" },
+consumerPackageJson.dependencies[packageJson.name] =
+  `file:${relativeTarballPath}`;
+writeFileSync(
+  consumerPackageJsonPath,
+  `${JSON.stringify(consumerPackageJson, null, 2)}\n`,
 );
 
 if (
@@ -88,6 +83,9 @@ if (
 }
 
 console.log(`Packed ${packageJson.name}@${packageJson.version}`);
+console.warn(
+  "Development override active. Restore a published dependency before committing.",
+);
 
 function parseArgs(): [string, string, string] {
   const args = process.argv.slice(2);

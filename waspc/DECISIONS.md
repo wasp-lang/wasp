@@ -55,11 +55,12 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 ## Packaging
 
 - ✅ Published modules contain compiled `dist/` artifacts, package metadata, and documentation. They do not contain `module.wasp.ts` or `src/`. Runtime libraries are dependencies; host-provided libraries are peers.
-- ✅ Kitchen Sink uses a checked-in tarball at `src/modules/` inside the project so the module's dependencies install into the host and the tarball rides the existing `COPY src ./src` into the Docker image.
+- ✅ Kitchen Sink's committed state uses an exact published module version from npm. Local module development temporarily replaces it with an ignored tarball under `src/modules/`; packing installs the module's dependencies into the host, and the tarball rides the existing `COPY src ./src` into the Docker image for local Docker validation.
   - ❌ Default symlinked `file:../module`: the server bundle inlines module code but cannot resolve its bare dependency imports.
+  - ❌ `file:../module` with `install-links=true` as the supported workflow: it works locally, but the sibling directory and project `.npmrc` are absent from the generated Docker context.
   - ❌ Sibling `file:../module/...` tarball: invisible to Docker's build context, so every containerized build (Fly, Railway, BUILD e2e) failed at `npm install`.
   - ❌ `wasp build` scanning package.json for local `file:` deps and staging them into the build context: too much machinery for the skateboard.
-- ✅ Fixture tarballs use `0.0.0-preview-<content hash>` and unique filenames. The changed dependency path makes `wasp install` refresh the lockfile.
+- ✅ Development tarballs use `0.0.0-preview-<content hash>` and unique filenames. The changed dependency path makes `wasp install` refresh the lockfile. Tarballs and their temporary `file:` dependency state are not committed.
 
 ## Styling
 

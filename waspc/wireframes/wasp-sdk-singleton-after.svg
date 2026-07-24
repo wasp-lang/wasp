@@ -25,7 +25,7 @@
 
     <rect x="856" y="176" width="352" height="56" rx="4" fill="#e6e6e6" />
     <text x="1032" y="200" font-size="14" text-anchor="middle" stroke="none" fill="#000">Bundle these packages</text>
-    <text x="1032" y="220" font-size="12" text-anchor="middle" stroke="none" fill="#666">wasp, @kitchen-sink/module</text>
+    <text x="1032" y="220" font-size="12" text-anchor="middle" stroke="none" fill="#666">wasp, @wasp.sh/kitchen-sink-example-module</text>
   </g>
 
   <g data-region="bundle">
@@ -54,7 +54,7 @@
     <line x1="712" y1="432" x2="912" y2="432" />
     <text x="712" y="464" font-size="12" stroke="none" fill="#000">wasp/server/jobs</text>
     <text x="912" y="464" font-size="12" text-anchor="end" stroke="none" fill="#666">bundle</text>
-    <text x="712" y="504" font-size="12" stroke="none" fill="#000">@kitchen-sink/module/*</text>
+    <text x="712" y="504" font-size="12" stroke="none" fill="#000">@wasp.sh/kitchen-sink-example-module/*</text>
     <text x="912" y="504" font-size="12" text-anchor="end" stroke="none" fill="#666">bundle</text>
     <text x="712" y="544" font-size="12" stroke="none" fill="#000">./local.js</text>
     <text x="912" y="544" font-size="12" text-anchor="end" stroke="none" fill="#666">bundle</text>

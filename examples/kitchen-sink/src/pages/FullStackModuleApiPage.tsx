@@ -1,13 +1,13 @@
 import {
   pingModuleApi,
   requestModuleJob,
-} from "@kitchen-sink/module/moduleApiClient";
+} from "@wasp.sh/kitchen-sink-example-module/moduleApiClient";
 import {
   getModuleApiPrefix,
   getModuleJobApiPath,
   getModulePingApiPath,
   MODULE_API_HEADER_NAME,
-} from "@kitchen-sink/module/moduleApiContract";
+} from "@wasp.sh/kitchen-sink-example-module/moduleApiContract";
 import { useState } from "react";
 import { Alert } from "../components/Alert";
 import { Button } from "../components/Button";

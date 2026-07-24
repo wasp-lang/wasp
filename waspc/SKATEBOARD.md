@@ -5,7 +5,7 @@
 - Full-stack modules default-export a function from `module.wasp.ts` that accepts `options` and returns a Wasp `Spec`. Direct `export default` only.
 - The default client-route option is `prefix`.
 - Invariant: spec files (`*.wasp.ts`) are a Wasp dialect. `wasp module build` compiles module specs to JavaScript before publication; host apps never consume package-resident Wasp source.
-- `examples/kitchen-sink-module` is the current skateboard module package: `@kitchen-sink/module`. Kitchen Sink imports it from `@kitchen-sink/module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
+- `examples/wasp.sh-kitchen-sink-example-module` is the current skateboard module package: `@wasp.sh/kitchen-sink-example-module`. Kitchen Sink imports it from `@wasp.sh/kitchen-sink-example-module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
 - The demo module exercises all 8 module-usable declaration kinds: route, page, query, action, crud, api, apiNamespace, and job.
 
 ## Module SDK Shim
@@ -39,17 +39,17 @@
 - The module's `@wasp.sh/spec` import stays external and resolves to the host's copy at spec evaluation time, so there is a single spec package instance.
 - Host SDK Vite config dedupes the generated SDK package name (`wasp`) with React, React DOM, React Query, and React Router.
 - Host SDK TypeScript config maps `wasp/*` to SDK source files during SDK build. This prevents self-imports from resolving through package exports into `dist/`, which otherwise causes TS5055 overwrite-input errors on repeated builds.
-- Kitchen Sink snapshot setup copies `examples/kitchen-sink-module` as sibling `module`, builds it, then runs Kitchen Sink install/compile.
 
-## Local Module Dependencies
+## Module Dependency Workflow
 
 - Symlinked installs (`file:../module`) break at runtime: the generated server bundle follows symlinks and inlines module code, leaving module dependencies as bare imports (e.g. `quote-lib`) that Node then resolves from the host `node_modules`, where npm never installed them (`ERR_MODULE_NOT_FOUND`).
-- Packing the module (`npm pack`) and installing the tarball fixes this: npm installs the module's dependency graph into the host. Kitchen Sink depends on a tarball committed inside `src/modules/` to model published-package behavior without a registry.
-- Local `file:` dependencies must live under the project's `src/` (Kitchen Sink: `src/modules/*.tgz`). `wasp build` already copies `src/` into the Docker build context and the generated Dockerfile ships it (`COPY src ./src`), so the tarball reaches the image's `npm install` with no build-pipeline changes. Paths outside `src/` are invisible to containerized builds.
+- Kitchen Sink's committed state uses an exact published version of `@wasp.sh/kitchen-sink-example-module`. Fresh clones, CI, and normal Docker builds install it from npm.
+- During module development, `scripts/pack-preview.ts` temporarily replaces the registry dependency with a content-addressed tarball under Kitchen Sink's ignored `src/modules/` directory. Packing reproduces npm's package layout and installs the module's dependency graph into the host.
+- The local tarball lives under `src/` so Docker validation works without build-pipeline changes: `wasp build` copies `src/` into the build context and the generated Dockerfile ships it with `COPY src ./src`.
 - npm treats `name@version` tarballs as immutable: `package-lock.json` pins the tarball's `integrity` hash and npm never re-reads changed bytes at the same version and path. A warm npm cache silently installs the stale cached content; a cold cache (CI, e2e) fails with `EINTEGRITY`.
 - npm reports a missing `file:` tarball as "tarball data ... seems to be corrupted. Trying again." before the ENOENT error; the warning does not imply integrity drift.
 - Because modules peer-depend on `wasp`, npm reaches the SDK and its `file:` lib tarball dependencies during plain `wasp install` on a fresh clone, before any compilation. The CLI copies the shipped lib tarballs into `.wasp/out/libs` before running npm.
-- After changing module source, refresh Kitchen Sink like this (from `examples/kitchen-sink-module/`):
+- After changing module source, activate a local Kitchen Sink override like this (from `examples/wasp.sh-kitchen-sink-example-module/`):
 
   ```sh
   ../../waspc/run wasp-cli module build
@@ -59,7 +59,9 @@
   ../../waspc/run wasp-cli install
   ```
 
-- `scripts/pack-preview.ts` assigns `0.0.0-preview-<content hash>`, packs into the consumer, updates its dependency and lockfile with npm, and removes the previous tarball.
+- `scripts/pack-preview.ts` assigns `0.0.0-preview-<content hash>`, packs into the consumer, updates its dependency, and removes the previous tarball. The following `wasp install` updates the lockfile. The tarball, `file:` dependency, and corresponding lockfile state are development artifacts and must not be committed.
+- To finish development, publish a new module version, replace the override with that exact registry version, run local and Docker verification, and commit only the published dependency state.
+- `install-links=true` can pack a sibling directory for local use, but it is not the supported workflow because the sibling directory and project `.npmrc` do not survive Wasp's generated Docker context.
 
 - Do not run plain `npm install` in a Wasp project dir. It prunes the Wasp-managed SDK entries (`.wasp/out/sdk/wasp`) from the lockfile.
 
@@ -78,6 +80,6 @@
 
 - `./run build`
 - `npm run test` from `data/packages/module-builder/`
-- `../../waspc/run wasp-cli module install && npm run typecheck && ../../waspc/run wasp-cli module build` from `examples/kitchen-sink-module/`
+- `../../waspc/run wasp-cli module install && npm run typecheck && ../../waspc/run wasp-cli module build` from `examples/wasp.sh-kitchen-sink-example-module/`
 - `../../waspc/run wasp-cli install && ../../waspc/run wasp-cli compile` from `examples/kitchen-sink/`
 - `./run test:waspc:e2e:accept-all`

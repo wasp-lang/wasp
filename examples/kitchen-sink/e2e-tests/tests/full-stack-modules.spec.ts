@@ -9,7 +9,7 @@ test.describe("full-stack modules", () => {
     await page.getByRole("button", { name: "Ping module API" }).click();
 
     await expect(page.getByTestId("host-module-api-header")).toContainText(
-      "@kitchen-sink/module",
+      "@wasp.sh/kitchen-sink-example-module",
     );
   });
 
@@ -29,7 +29,7 @@ test.describe("full-stack modules", () => {
     await page.getByRole("button", { name: "Ping module API" }).click();
 
     await expect(page.getByTestId("module-api-header")).toContainText(
-      "@kitchen-sink/module",
+      "@wasp.sh/kitchen-sink-example-module",
     );
   });
 

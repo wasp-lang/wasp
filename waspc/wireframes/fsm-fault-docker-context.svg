@@ -15,8 +15,8 @@
     <text x="72" y="168" font-size="20" font-weight="600" stroke="none" fill="#000">Repository</text>
 
     <rect x="80" y="200" width="320" height="80" rx="4" />
-    <text x="104" y="228" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink-module/</text>
-    <text x="104" y="256" font-size="12" stroke="none" fill="#666">kitchen-sink-module-0.0.1.tgz</text>
+    <text x="104" y="228" font-size="14" font-weight="600" stroke="none" fill="#000">examples/wasp.sh-kitchen-sink-example-module/</text>
+    <text x="104" y="256" font-size="12" stroke="none" fill="#666">wasp.sh-kitchen-sink-example-module-0.0.1.tgz</text>
 
     <rect x="80" y="304" width="320" height="288" rx="4" />
     <text x="104" y="336" font-size="14" font-weight="600" stroke="none" fill="#000">examples/kitchen-sink/</text>

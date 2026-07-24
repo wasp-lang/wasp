@@ -139,7 +139,7 @@ describe("mapRefObject", () => {
   test("should map a relative package ref from its logical origin", () => {
     const makePackageRef = _waspMakeRef({
       kind: "package",
-      packageName: "@kitchen-sink/module",
+      packageName: "@wasp.sh/kitchen-sink-example-module",
       specFilePath: "module.wasp.ts",
     });
     const refObject = makePackageRef({
@@ -153,7 +153,7 @@ describe("mapRefObject", () => {
       alias: undefined,
       source: {
         kind: "package",
-        packageName: "@kitchen-sink/module",
+        packageName: "@wasp.sh/kitchen-sink-example-module",
         subpath: "queries",
       },
     } satisfies AppSpec.ExtImport);
