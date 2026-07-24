@@ -2,14 +2,17 @@ import type * as hast from "hast";
 import * as hastSelect from "hast-util-select";
 import type * as hastToMdast from "hast-util-to-mdast";
 import type * as mdast from "mdast";
+import assert from "node:assert";
 import { hastTextContent } from "../hast-helpers";
+
+export const DOCUSAURUS_TABS_CLASS = "tabs-container";
 
 /**
  * Converts Docusaurus tabs to markdown.
  * For JavaScript/TypeScript code switcher, we only keep the TypeScript variant.
  *
  * @example
- * Target HTML:
+ * Source HTML:
  * ```html
  * <div class="tabs-container">
  *   <ul role="tablist"><li role="tab">JavaScript</li><li role="tab">TypeScript</li></ul>
@@ -45,13 +48,14 @@ export function docusaurusTabsToMdast(
     .selectAll('[role="tab"]', tabs)
     .map((tab) => hastTextContent(tab).trim());
   const tabsPanels = hastSelect.selectAll('[role="tabpanel"]', tabs);
-
-  if (tabsLabels.length !== tabsPanels.length) {
-    throw Error("Tabs label count does not equal panel count.");
-  }
-  if (tabsLabels.length < 2) {
-    throw Error("Tabs should require at least 2 different tabs..");
-  }
+  assert(
+    tabsLabels.length === tabsPanels.length,
+    "<Tabs> label count does not equal panel count.",
+  );
+  assert(
+    tabsLabels.length >= 2,
+    "<Tabs> should have at at least 2 different tabs.",
+  );
 
   if (isJsTsTabsPair(tabsLabels)) {
     // For JS / TS tabs, we keep only the TypeScript version.

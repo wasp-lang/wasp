@@ -34,7 +34,7 @@ export const onRequest = async (
   }
 
   const acceptHeader = request.headers.get("Accept");
-  let contentNegotiationResponse = acceptsMarkdown(acceptHeader)
+  const contentNegotiationResponse = acceptsMarkdown(acceptHeader)
     ? await fetchMarkdownVariant(context)
     : await next();
 

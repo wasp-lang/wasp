@@ -3,11 +3,13 @@ import * as hastSelect from "hast-util-select";
 import type * as mdast from "mdast";
 import { getClassNames, hastTextContent } from "../hast-helpers";
 
+export const DOCUSAURUS_CODE_BLOCK_CLASS = "theme-code-block";
+
 /**
  * Converts a Docusaurus code block to a Markdown code block.
  *
  * @example
- * Target HTML:
+ * Source HTML:
  * ```html
  * <div class="theme-code-block language-ts">
  *   <div class="codeBlockTitle">main.wasp.ts</div>

@@ -35,10 +35,10 @@ export async function generateMarkdownFilesForValidHtmlFiles(
     });
 
     const markdownContent = htmlToMarkdown(htmlFile);
-    const markdownConentWithIndex = markdownDocsIndexHeader + markdownContent;
+    const markdownContentWithIndex = markdownDocsIndexHeader + markdownContent;
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
-    await fs.writeFile(markdownFileAbsPath, markdownConentWithIndex, "utf8");
+    await fs.writeFile(markdownFileAbsPath, markdownContentWithIndex, "utf8");
   }
   console.log(
     `Markdown generation complete: generated ${htmlFilesAbsPaths.length} markdown docs from HTML.`,

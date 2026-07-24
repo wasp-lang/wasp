@@ -19,9 +19,7 @@ export function routeHasMarkdownVariant(route: string): boolean {
   return (
     route === "/docs" ||
     route.startsWith("/docs/") ||
-    route === "/blog" ||
     isBlogPostRoute(route) ||
-    route === "/resources" ||
     isResourcesPostRoute(route)
   );
 }

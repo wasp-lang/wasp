@@ -1,6 +1,10 @@
 > Fetch the complete documentation index at: https://wasp.sh/llms.txt
 ---
 
+# Build Your Own Personal Twitter Agent 🧠🐦⛓ with LangChain
+
+June 27, 2023 · 47 min read[![Vince Canger](https://github.com/vincanger.png)](https://vincanger.github.io)[Vince Canger](https://vincanger.github.io)Developer Relations @ Wasp. Creator of OpenSaaS.sh.[](https://vincanger.github.io "GitHub")[](https://x.com/hot_town "X")
+
 ## TL;DR
 
 [LangChain](https://js.langchain.com), ChatGPT, and other emerging technology have made it possible to build some really creative tools.
@@ -1981,3 +1985,16 @@ There’s way more you can do with these tools, but this is a great start.
 Remember, if you want to see a more advanced version of this app which utilizes the official Twitter API to send tweets, gives you the ability to edit and add generated notes on the fly, has manual similarity search for all your notes, and more, then you can check out the [💥 Banger Tweet Bot 🤖](https://github.com/vincanger/banger-tweet-bot).
 
 And, once again, here's the repo for the finished app we built in this tutorial: [Personal Twitter Intern](https://github.com/vincanger/twitter-intern)
+
+**Tags:**
+
+- [wasp](/blog/tags/wasp)
+- [ai](/blog/tags/ai)
+- [gpt](/blog/tags/gpt)
+- [langchain](/blog/tags/langchain)
+- [fullstack](/blog/tags/fullstack)
+- [node](/blog/tags/node)
+- [react](/blog/tags/react)
+- [agent](/blog/tags/agent)
+
+[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/blog/2023-06-27-build-your-own-twitter-agent-langchain.mdx)Last updated on **Feb 13, 2026**

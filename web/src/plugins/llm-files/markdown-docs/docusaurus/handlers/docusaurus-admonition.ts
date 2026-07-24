@@ -2,14 +2,17 @@ import type * as hast from "hast";
 import * as hastSelect from "hast-util-select";
 import type * as hastToMdast from "hast-util-to-mdast";
 import type * as mdastDirective from "mdast-util-directive";
+import assert from "node:assert";
 import { getClassNames, hastTextContent } from "../hast-helpers";
+
+export const DOCUSAURUS_ADMONITION_CLASS = "theme-admonition";
 
 /**
  * Renders an admonition back as the original MDX directive (`:::tip ... :::`),
  * via a remark-directive container node.
  *
  * @example
- * Target HTML:
+ * Source HTML:
  * ```html
  * <div class="theme-admonition theme-admonition-tip">
  *   <div class="admonitionHeading_...">tip</div>
@@ -40,10 +43,7 @@ export function docusaurusAdmonitionToMdast(
     '[class*="admonitionContent"]',
     admonition,
   );
-
-  if (!admonitionContentEl) {
-    throw Error("Empty admonition content.");
-  }
+  assert(admonitionContentEl, "Empty admonition content.");
 
   const children = state.all(
     admonitionContentEl,
@@ -78,8 +78,8 @@ function detectAdmonitionType(admonition: hast.Element): string {
 }
 
 /**
- * Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or an
- * empty string when it just uses the default type label.
+ * Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or
+ * an null when it just uses the default type label.
  */
 function detectAdmonitionCustomTitle(admonition: hast.Element): string | null {
   const heading = hastSelect.select('[class*="admonitionHeading"]', admonition);
