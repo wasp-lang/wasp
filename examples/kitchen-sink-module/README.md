@@ -8,12 +8,13 @@ wasp module install
 wasp module build
 ```
 
-Pack for installing into a host app (the tarball must live inside the host
-project under `src/`, e.g. Kitchen Sink's `src/modules/` dir):
+Pack and install into Kitchen Sink after building:
 
 ```sh
-npm run pack
-cp kitchen-sink-module-0.0.1.tgz ../kitchen-sink/src/modules/
+node ../../scripts/pack-preview.ts . ../kitchen-sink src/modules
+cd ../kitchen-sink
+../../waspc/run wasp-cli clean
+../../waspc/run wasp-cli install
 ```
 
 Import from a Wasp app:

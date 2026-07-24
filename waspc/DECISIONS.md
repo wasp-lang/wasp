@@ -59,7 +59,7 @@ Full-stack modules are npm packages that contribute declarations to a host app t
   - ❌ Default symlinked `file:../module`: the server bundle inlines module code but cannot resolve its bare dependency imports.
   - ❌ Sibling `file:../module/...` tarball: invisible to Docker's build context, so every containerized build (Fly, Railway, BUILD e2e) failed at `npm install`.
   - ❌ `wasp build` scanning package.json for local `file:` deps and staging them into the build context: too much machinery for the skateboard.
-- ✅ Refresh the fixture by building and packing, updating lockfile `integrity`, removing the installed module, and running `wasp install`.
+- ✅ Fixture tarballs use `0.0.0-preview-<content hash>` and unique filenames. The changed dependency path makes `wasp install` refresh the lockfile.
 
 ## Styling
 
