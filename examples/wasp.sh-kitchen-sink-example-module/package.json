@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/kitchen-sink-example-module",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "type": "module",
   "description": "Experimental example full-stack module for Wasp",
   "repository": {
@@ -8,6 +8,7 @@
     "url": "git+https://github.com/wasp-lang/wasp.git",
     "directory": "examples/wasp.sh-kitchen-sink-example-module"
   },
+  "homepage": "https://github.com/wasp-lang/wasp/tree/main/examples/wasp.sh-kitchen-sink-example-module#readme",
   "license": "MIT",
   "exports": {
     "./spec": {
