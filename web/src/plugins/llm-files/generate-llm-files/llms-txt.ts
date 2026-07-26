@@ -31,15 +31,16 @@ export async function generateLlmsTxtFile(
 Use the same URL pattern as the versioned documentation maps: ${context.baseUrl}/llms-full-{version}.txt`;
   const postIndexSections = context.postCollections.map(buildPostsIndexSection);
 
-  const llmsTxtContent = [
-    LLMS_TXT_INTRO,
-    llmFilesIndexSection,
-    llmFullFilesSection,
-    ...postIndexSections,
-    LLMS_TXT_OTHER_RESOURCES,
-  ]
-    .map((content) => content.trimEnd())
-    .join("\n\n");
+  const llmsTxtContent =
+    [
+      LLMS_TXT_INTRO,
+      llmFilesIndexSection,
+      llmFullFilesSection,
+      ...postIndexSections,
+      LLMS_TXT_OTHER_RESOURCES,
+    ]
+      .map((content) => content.trimEnd())
+      .join("\n\n") + "\n";
   const llmsTxtAbsPath = path.join(context.outDir, "llms.txt");
 
   await fs.writeFile(llmsTxtAbsPath, llmsTxtContent, "utf8");

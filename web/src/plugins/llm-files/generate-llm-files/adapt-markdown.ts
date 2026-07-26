@@ -5,6 +5,7 @@ import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
+import { REMARK_STRINGIFY_OPTIONS } from "../markdown-docs/markdown-stringify-options";
 
 /**
  * Adapts the generated markdown docs so that they make sense
@@ -21,15 +22,7 @@ const llmsFullMarkdownProcessor = unified()
   .use(remarkGfm)
   .use(remarkDirective)
   .use(remarkAdaptMarkdownForLlmsFullFiles)
-  .use(remarkStringify, {
-    bullet: "-",
-    emphasis: "*",
-    strong: "*",
-    fence: "`",
-    fences: true,
-    rule: "-",
-    listItemIndent: "one",
-  });
+  .use(remarkStringify, REMARK_STRINGIFY_OPTIONS);
 
 function remarkAdaptMarkdownForLlmsFullFiles(): (tree: mdast.Root) => void {
   return (tree: mdast.Root) => {

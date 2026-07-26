@@ -155,7 +155,7 @@ async function generateLatestVersionLlmsFullTxt(
 /**
  * `llms-full.txt` also includes an index to all other `llms-full-{waspVersion}.txt` variants.
  * This is because LLMs might default to this file even if their user has an outdated
- * Wasp verison (if they skipped the `llms.txt` index).
+ * Wasp version (if they skipped the `llms.txt` index).
  */
 function buildLatestVersionFullDocsHeader(
   context: LlmFilesContext,

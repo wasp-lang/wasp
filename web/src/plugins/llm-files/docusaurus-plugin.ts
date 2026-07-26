@@ -14,15 +14,11 @@ import {
 const DOCUSAURUS_DOCS_PLUGIN_NAME = "docusaurus-plugin-content-docs";
 const DOCUSAURUS_BLOG_PLUGIN_NAME = "docusaurus-plugin-content-blog";
 
-/**
- * Blog-plugin instances whose posts are listed in `llms.txt`.
- * The plugin id matches the `id` set in the Docusaurus config.
- */
-const POST_COLLECTIONS = ["blog", "resources"] as const;
-
 export interface LlmFilesPluginOptions {
   skipElementInMarkdownDocsClass: string;
 }
+
+type BlogContentByPluginId = { [pluginId: string]: BlogContent | undefined };
 
 /**
  * A Docusaurus plugin which generates markdown variant of docs for valid HTML
@@ -38,7 +34,7 @@ export function docusaurusPluginLlmFiles({
     );
 
     let docsLoadedContent: LoadedContent;
-    let blogContentByPluginId: { [pluginId: string]: BlogContent | undefined };
+    let blogContentByPluginId: BlogContentByPluginId;
 
     return {
       name: "wasp-llm-files",
@@ -53,9 +49,9 @@ export function docusaurusPluginLlmFiles({
         }
         docsLoadedContent = maybeDocsLoadedContent;
 
-        blogContentByPluginId = allContent[DOCUSAURUS_BLOG_PLUGIN_NAME] as {
-          [pluginId: string]: BlogContent | undefined;
-        };
+        blogContentByPluginId = allContent[
+          DOCUSAURUS_BLOG_PLUGIN_NAME
+        ] as BlogContentByPluginId;
       },
 
       async postBuild({ outDir, siteConfig }) {
@@ -87,9 +83,15 @@ export function docusaurusPluginLlmFiles({
   };
 }
 
+/**
+ * Blog-plugin instances whose posts are listed in `llms.txt`.
+ * The plugin id matches the `id` set in the Docusaurus config.
+ */
+const POST_COLLECTIONS = ["blog", "resources"] as const;
+
 function collectPostCollections(
   baseUrl: string,
-  blogContentByPluginId: { [pluginId: string]: BlogContent | undefined },
+  blogContentByPluginId: BlogContentByPluginId,
 ): PostCollection[] {
   return POST_COLLECTIONS.map((pluginId) => {
     const blogContent = blogContentByPluginId[pluginId];

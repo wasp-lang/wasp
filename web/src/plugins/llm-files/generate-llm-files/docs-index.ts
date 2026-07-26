@@ -7,7 +7,7 @@ import { stripTrailingSlash } from "../helpers";
 import { adaptMarkdownForLlmsFullFiles } from "./adapt-markdown";
 import type { LlmFilesContext } from "./context";
 
-const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
+const SIDEBAR_CATEGORIES_TO_IGNORE = new Set(["Miscellaneous"]);
 
 /**
  * An index of all markdown docs that we want to be part
@@ -31,7 +31,7 @@ export type IndexItem = IndexCategory | IndexDoc;
 
 /**
  * A sidebar category, e.g.: "Authentication" or "Authentication / Email".
- * Server organizational purpose, has no actual content.
+ * Serves organizational purpose, has no actual content.
  */
 export interface IndexCategory {
   type: "category";
@@ -127,7 +127,7 @@ function resolveSidebarItem(
 ): IndexItem | null {
   switch (sidebarItem.type) {
     case "category":
-      if (SIDEBAR_CATEGORIES_TO_IGNORE.includes(sidebarItem.label)) {
+      if (SIDEBAR_CATEGORIES_TO_IGNORE.has(sidebarItem.label)) {
         return null;
       }
       const items = buildSidebarItems(context, sidebarItem.items, docsById);

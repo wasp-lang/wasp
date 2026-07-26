@@ -9,6 +9,7 @@ import { MarkdownDocsContext } from "./context";
 import { docusaurusHtmlToMdHandlers } from "./docusaurus/docusaurus-html-to-md-handlers";
 import { rehypeAnnotateCustomHeadingAnchors } from "./docusaurus/rehype-annotate-custom-heading-anchors";
 import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/rehype-reduce-docusaurus-page";
+import { REMARK_STRINGIFY_OPTIONS } from "./markdown-stringify-options";
 import { remarkAbsolutizeUrls } from "./remark-absolutize-urls";
 
 /**
@@ -31,15 +32,7 @@ export function createDocusaurusHtmlToMarkdownProcessor(
     .use(remarkAbsolutizeUrls, context.baseUrl)
     .use(remarkGfm)
     .use(remarkDirective)
-    .use(remarkStringify, {
-      bullet: "-",
-      emphasis: "*",
-      strong: "*",
-      fence: "`",
-      fences: true,
-      rule: "-",
-      listItemIndent: "one",
-    });
+    .use(remarkStringify, REMARK_STRINGIFY_OPTIONS);
 
   return (htmlFile) => {
     const htmlContent = htmlFile.toString();
