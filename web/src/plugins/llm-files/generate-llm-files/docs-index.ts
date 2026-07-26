@@ -225,7 +225,7 @@ function resolveIndexDoc(
       throw new Error(`Missing a markdown doc for a document: "${docRoute}"`);
     }
 
-    adaptedMarkdown = adaptMarkdownForLlmsFullFiles(context.baseUrl, markdown);
+    adaptedMarkdown = adaptMarkdownForLlmsFullFiles(markdown);
     adaptedMarkdownByRouteCache.set(docRoute, adaptedMarkdown);
   }
 

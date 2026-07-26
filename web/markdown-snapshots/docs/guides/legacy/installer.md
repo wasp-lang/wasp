@@ -9,9 +9,9 @@ Last checked with Wasp 0.21.
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
 
-Starting from Wasp 0.21, installation is done [through npm](/docs/quick-start#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
+Starting from Wasp 0.21, installation is done [through npm](https://wasp.sh/docs/quick-start#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
 
-## How to migrate off the legacy installer
+## How to migrate off the legacy installer {#migrate}
 
 To switch to the new installation method, you can run our migration tool:
 
@@ -19,7 +19,7 @@ To switch to the new installation method, you can run our migration tool:
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 ```
 
-Afterwards, you can use [the regular installation instructions](/docs/quick-start#detailed-installation) to install Wasp through npm:
+Afterwards, you can use [the regular installation instructions](https://wasp.sh/docs/quick-start#detailed-installation) to install Wasp through npm:
 
 ```shell
 npm i -g @wasp.sh/wasp-cli@latest
@@ -32,7 +32,7 @@ You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greate
 npm i -g @wasp.sh/wasp-cli@x.y.z
 ```
 
-## Keep using the legacy installer
+## Keep using the legacy installer {#keep-using}
 
 If you haven't yet migrated to the npm installer method, you can keep using the legacy installer, by running:
 
@@ -59,7 +59,7 @@ These versions are very out of date and we don't recommend using them. We urge y
 
 In the transition period until these apps are migrated, you will need to [keep using the legacy installer](#keep-using) to install these older versions of Wasp.
 
-### I need to switch back to the legacy installer
+### I need to switch back to the legacy installer {#switch-back}
 
 :::note
 If you found a bug in the npm-based Wasp, or a workflow that is no longer possible, please report it to us so we can fix it as soon as possible. You can do that [through a GitHub issue](https://github.com/wasp-lang/wasp/issues/new/choose), or [on our Discord server](https://discord.gg/rzdnErX).

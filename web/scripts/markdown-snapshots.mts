@@ -52,8 +52,6 @@ const SNAPSHOT_REL_PATHS = [
   "docs/guides/legacy/installer.md",
   // An API docs index page.
   "docs/api/@wasp.sh/spec.md",
-  // A post collection index page.
-  "blog.md",
   // A post.
   "blog/2023/06/27/build-your-own-twitter-agent-langchain.md",
 ];

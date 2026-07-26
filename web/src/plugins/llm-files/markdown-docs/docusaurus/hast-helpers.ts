@@ -1,4 +1,5 @@
 import type * as hast from "hast";
+import assert from "node:assert";
 
 export function hasClass(element: hast.Element, className: string): boolean {
   return getClassNames(element).includes(className);
@@ -13,9 +14,7 @@ export function hastTextContent(node: hast.Nodes): string {
   if (node.type === "text") {
     return node.value;
   }
-  if ("children" in node) {
-    return node.children.map(hastTextContent).join("");
-  }
+  assert("children" in node, "Unknown node text content.");
 
-  throw new Error("Unknown node text content.");
+  return node.children.map(hastTextContent).join("");
 }

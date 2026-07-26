@@ -1,6 +1,7 @@
 import type { BlogContent } from "@docusaurus/plugin-content-blog";
 import type { LoadedContent } from "@docusaurus/plugin-content-docs";
 import type { PluginModule } from "@docusaurus/types";
+import assert from "node:assert";
 
 import { generateLlmFiles } from "./generate-llm-files";
 import type { PostCollection } from "./generate-llm-files/context";
@@ -30,7 +31,12 @@ export interface LlmFilesPluginOptions {
 export function docusaurusPluginLlmFiles({
   skipElementInMarkdownDocsClass,
 }: LlmFilesPluginOptions): PluginModule {
-  return () => {
+  return (context) => {
+    assert(
+      context.siteConfig.trailingSlash === false,
+      "The llm-files plugin requires `trailingSlash: false` in `docusaurus.config.ts`.",
+    );
+
     let docsLoadedContent: LoadedContent;
     let blogContentByPluginId: { [pluginId: string]: BlogContent | undefined };
 
@@ -53,12 +59,6 @@ export function docusaurusPluginLlmFiles({
       },
 
       async postBuild({ outDir, siteConfig }) {
-        if (siteConfig.trailingSlash) {
-          throw new Error(
-            "wasp-llm-files: The plugins only works with `trailingSlash` set to false.",
-          );
-        }
-
         const { loadedVersions } = docsLoadedContent;
         const baseUrl = stripTrailingSlash(siteConfig.url + siteConfig.baseUrl);
 

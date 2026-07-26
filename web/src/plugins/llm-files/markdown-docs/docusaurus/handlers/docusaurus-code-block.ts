@@ -1,13 +1,16 @@
 import type * as hast from "hast";
 import * as hastSelect from "hast-util-select";
 import type * as mdast from "mdast";
+import assert from "node:assert";
 import { getClassNames, hastTextContent } from "../hast-helpers";
+
+export const DOCUSAURUS_CODE_BLOCK_CLASS = "theme-code-block";
 
 /**
  * Converts a Docusaurus code block to a Markdown code block.
  *
  * @example
- * Target HTML:
+ * Source HTML:
  * ```html
  * <div class="theme-code-block language-ts">
  *   <div class="codeBlockTitle">main.wasp.ts</div>
@@ -39,15 +42,14 @@ export function docusaurusCodeBlockToMdast(
 ): mdast.Code {
   const codeLanguage = detectCodeBlockLanguage(codeBlock);
   const codeTitle = detectCodeBlockTitle(codeBlock);
+  // The `.token-line` class comes from `prism-react-renderer`, a transitive
+  // dependency of the Docusaurus code block theme.
   const codeText = hastSelect
     .selectAll(".token-line", codeBlock)
     .map((line) => hastTextContent(line))
     .join("\n")
     .replace(/\s+$/, "");
-
-  if (!codeText) {
-    throw new Error("Empty or missing code block content.");
-  }
+  assert(codeText, "Empty or missing code block content.");
 
   return {
     type: "code",

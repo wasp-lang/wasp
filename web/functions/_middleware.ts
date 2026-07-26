@@ -34,7 +34,7 @@ export const onRequest = async (
   }
 
   const acceptHeader = request.headers.get("Accept");
-  let contentNegotiationResponse = acceptsMarkdown(acceptHeader)
+  const contentNegotiationResponse = acceptsMarkdown(acceptHeader)
     ? await fetchMarkdownVariant(context)
     : await next();
 
@@ -60,6 +60,8 @@ function routeHasFileTypeExtension(pathname: string): boolean {
 }
 
 /**
+ * True if the request accepts markdown content.
+ *
  * We don't really want to bother with format priorities (order of formats or q-values).
  * Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
  */
@@ -77,19 +79,16 @@ async function fetchMarkdownVariant(
   const markdownUrl = new URL(markdownPathname, url);
   const markdownRequest = new Request(markdownUrl, request);
   const markdownResponse = await next(markdownRequest);
-
-  if (!markdownResponse.ok) {
-    console.error("Markdown response failed", {
-      status: markdownResponse.status,
-      statusText: markdownResponse.statusText,
-      pathname: markdownPathname,
-      body: await markdownResponse.clone().text(),
-    });
-  }
-
   return markdownResponse;
 }
 
+/**
+ * Maps an extensionless route pathname to the pathname of its
+ * pre-generated markdown variant file.
+ *
+ * @example "/docs/quick-start" → "/docs/quick-start.md"
+ * @example "/docs/" → "/docs.md"
+ */
 function generateMarkdownPathname(pathname: string): string {
   return pathname.replace(/\/$/, "") + ".md";
 }

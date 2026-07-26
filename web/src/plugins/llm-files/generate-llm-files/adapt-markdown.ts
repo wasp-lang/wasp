@@ -12,51 +12,29 @@ import { visit } from "unist-util-visit";
  *
  * @see {@link remarkAdaptMarkdownForLlmsFullFiles} for more details.
  */
-export function adaptMarkdownForLlmsFullFiles(
-  baseUrl: string,
-  markdown: string,
-): string {
-  return String(getLlmsFullMarkdownProcessor(baseUrl).processSync(markdown));
+export function adaptMarkdownForLlmsFullFiles(markdown: string): string {
+  return String(llmsFullMarkdownProcessor.processSync(markdown));
 }
 
-const llmsFullMarkdownProcessorByBaseUrl = new Map<
-  string,
-  ReturnType<typeof createLlmsFullMarkdownProcessor>
->();
+const llmsFullMarkdownProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkDirective)
+  .use(remarkAdaptMarkdownForLlmsFullFiles)
+  .use(remarkStringify, {
+    bullet: "-",
+    emphasis: "*",
+    strong: "*",
+    fence: "`",
+    fences: true,
+    rule: "-",
+    listItemIndent: "one",
+  });
 
-function getLlmsFullMarkdownProcessor(baseUrl: string) {
-  let processor = llmsFullMarkdownProcessorByBaseUrl.get(baseUrl);
-  if (!processor) {
-    processor = createLlmsFullMarkdownProcessor(baseUrl);
-    llmsFullMarkdownProcessorByBaseUrl.set(baseUrl, processor);
-  }
-  return processor;
-}
-
-function createLlmsFullMarkdownProcessor(baseUrl: string) {
-  return unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkDirective)
-    .use(remarkAdaptMarkdownForLlmsFullFiles, baseUrl)
-    .use(remarkStringify, {
-      bullet: "-",
-      emphasis: "*",
-      strong: "*",
-      fence: "`",
-      fences: true,
-      rule: "-",
-      listItemIndent: "one",
-    });
-}
-
-function remarkAdaptMarkdownForLlmsFullFiles(
-  baseUrl: string,
-): (tree: mdast.Root) => void {
+function remarkAdaptMarkdownForLlmsFullFiles(): (tree: mdast.Root) => void {
   return (tree: mdast.Root) => {
     dropDocumentHeading(tree);
     nestHeadingsDeeper(tree);
-    makeRootRelativeUrlsAbsolute(baseUrl, tree);
   };
 }
 
@@ -84,18 +62,5 @@ function dropDocumentHeading(tree: mdast.Root): void {
 function nestHeadingsDeeper(tree: mdast.Root): void {
   visit(tree, "heading", (heading) => {
     heading.depth = Math.min(heading.depth + 1, 6) as mdast.Heading["depth"];
-  });
-}
-
-function makeRootRelativeUrlsAbsolute(baseUrl: string, tree: mdast.Root): void {
-  visit(tree, (node: mdast.Nodes) => {
-    const hasRootRelativeUrl =
-      (node.type === "link" ||
-        node.type === "image" ||
-        node.type === "definition") &&
-      node.url.startsWith("/");
-    if (hasRootRelativeUrl) {
-      node.url = baseUrl + node.url;
-    }
   });
 }
