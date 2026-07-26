@@ -65,13 +65,13 @@ Once we get those notes, we can pass them to the ChatGPT completion API along wi
 
 This “chain” of prompting is essentially where the LangChain package gets its name 🙂
 
-![The flow of information through the app](/assets/images/Untitled-662487f640ddb1e6c25eab77ac23f72e.png)
+![The flow of information through the app](https://wasp.sh/assets/images/Untitled-662487f640ddb1e6c25eab77ac23f72e.png)
 
 This approach will give us a wealth of new ideas and tweet drafts related to our favorite trend-setting twitter users’ tweets. We can look through these, edit and save our favorite ideas to our “notes” vector store, or maybe send off some tweets.
 
 I’ve personally been using this app for a while now, and not only has it generated some great ideas, but it also helps to inspire new ones (even if some of the ideas it generates are “meh”), which is why I included an “Add Note” feature front and center to the nav bar
 
-![twitter-agent-add-note.png](/assets/images/twitter-agent-add-note-638f8f6501651700f11c37851cc910d0.png)
+![twitter-agent-add-note.png](https://wasp.sh/assets/images/twitter-agent-add-note-638f8f6501651700f11c37851cc910d0.png)
 
 Ok. Enough background. Let’s start building your own personal twitter intern! 🤖
 
@@ -101,7 +101,7 @@ cd twitter-agent && wasp start
 
 Great! When running `wasp start`, Wasp will install all the necessary npm packages, start our server on port 3001, and our React client on port 3000. Head to [localhost:3000](http://localhost:3000) in your browser to check it out.
 
-![Untitled](</assets/images/Untitled 1-17379de3a20e07adb3a2db0b5ccaa36f.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 1-17379de3a20e07adb3a2db0b5ccaa36f.png>)
 
 :::tip[Tip ℹ️]
 you can install the [Wasp vscode extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) for the best developer experience.
@@ -148,7 +148,7 @@ AUTH_TOKEN=
 
 We need a way for us to store all our great ideas. So let’s first head to [Pinecone.io](http://Pinecone.io) and set up a free trial account.
 
-![Untitled](</assets/images/Untitled 2-8c0f54a8fce31101547ab18262df086c.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 2-8c0f54a8fce31101547ab18262df086c.png>)
 
 In the Pinecone dashboard, go to API keys and create a new one. Copy and paste your `Environment` and `API Key` into `.env.server`
 
@@ -472,7 +472,7 @@ But even though we’ve added some style classes, we haven’t set up any css st
 
 🤢 Barf.
 
-![Untitled](</assets/images/Untitled 3-98a581cb23715d6bdd07a7c02bcf34e5.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 3-98a581cb23715d6bdd07a7c02bcf34e5.png>)
 
 ### Adding Tailwind CSS
 
@@ -1120,7 +1120,7 @@ At this point, you. might need to restart the wasp dev server running in your te
 
 You’ll now be prompted with the login / register screen. Go ahead and click on `register` and you will be automatically logged in and redirected to the main page, which at this point only has this:
 
-![Untitled](</assets/images/Untitled 4-3746cd395d77cc114d45fe9d362c1b4a.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 4-3746cd395d77cc114d45fe9d362c1b4a.png>)
 
 Let’s go back to our `MainPage.tsx` file and add the magic!
 
@@ -1294,7 +1294,7 @@ export default MainPage;
 
 This is what you should see on the homepage now! 🎉
 
-![Untitled](data\:image/png;base64,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)
+*(Inlined image: Untitled)*
 
 But, if you clicked ‘generate new ideas’ and nothing happened, well that’s because we haven’t defined any favorite trend-setting twitter users to scrape tweets from. And there’s no way to do that from the UI at the moment, so let’s open up the database manager and add some manually.
 
@@ -1308,7 +1308,7 @@ Then, in a new browswer tab, at [localhost:5555](http://localhost:5555) you shou
 
 Go to `user`, and you should be the only user in there. Add the usernames of a couple of your favorite trend-setting twitter users.
 
-![Untitled](</assets/images/Untitled 6-e9b23cea32b4395ffc1c27e963cc856a.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 6-e9b23cea32b4395ffc1c27e963cc856a.png>)
 
 Make sure the accounts have tweeted recently or your function won’t be able to scrape or generate anything!
 
@@ -1320,7 +1320,7 @@ After adding the twitter usernames, make sure you click `save 1 change`.
 
 Go back to your client and click the `Generate New Ideas` button again. This might take a while depending on how many tweets it’s generating ideas for, so be patient — and watch the console output in your terminal if you’re curious ;)
 
-![Untitled](</assets/images/Untitled 7-0be1acc7318b274a747d1bd2f74192fb.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 7-0be1acc7318b274a747d1bd2f74192fb.png>)
 
 Awesome! Now we should be getting back some generated ideas from our twitter “intern” which will help us brainstorm further notes and generate our own BANGER TWEETS.
 
@@ -1352,7 +1352,7 @@ Let’s try it out now in our `MainPage` by adding the following snippet above o
 
 Great. Now we should be sitting pretty 😻
 
-![Untitled](</assets/images/Untitled 8-65eeeb0b76e575e06900254bd8c07940.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 8-65eeeb0b76e575e06900254bd8c07940.png>)
 
 You might remember from the beginning of the tutorial when we defined the LLM calls, that if your vector store notes don’t turn back a cosine similarity of at least 0.7, your agent will generate its own ideas entirely without using your notes as a guide.
 
@@ -1402,7 +1402,7 @@ export default AccountPage;
 
 When you navigate to <localhost:3000/account>, you’ll notice two things, one of them being a logout button. You can see in our `SettingsPage` above that we imported a Wasp-provided `logout` function. We get this “for free” since we defined our `auth` strategy in the `main.wasp` file — a big time-saver!
 
-![Untitled](</assets/images/Untitled 9-574a4169dc9f5461fce0f374bd242653.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 9-574a4169dc9f5461fce0f374bd242653.png>)
 
 Because we also defined the `AccountPage` route with the `authRequired: true` property, Wasp will automatically pass the logged in user as a prop argument to our page. We can use the user object to display and update our `favUsers`, just as we can see in the image above.
 
@@ -1621,7 +1621,7 @@ function InputFields({ user }: { user: User }) {
 
 And here’s what your `AccountPage` should look like when navigating to [localhost:3000/account](http://localhost:3000/account) (note: the styling may be a bit ugly, but we’ll take care of that later):
 
-![Untitled](</assets/images/Untitled 10-f45502b68be60aa98d7f9a653b9675fb.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 10-f45502b68be60aa98d7f9a653b9675fb.png>)
 
 Fantastic. So we’ve got the majority of the app logic finished — our own personal twitter “intern” to help us all become thought leaders and thread bois 🤣.
 
@@ -1968,7 +1968,7 @@ export default NotesPage;
 
 Cool! Now we should be fetching all our embedded notes and ideas, signified by the `isEmbedded` tag in our postgres database. Your Notes page should now look something like this:
 
-![Untitled](</assets/images/Untitled 11-d87b176d0e50f0da849f071829b910ef.png>)
+![Untitled](<https://wasp.sh/assets/images/Untitled 11-d87b176d0e50f0da849f071829b910ef.png>)
 
 ## You Did it! Your own Twitter Intern 🤖
 
@@ -1988,13 +1988,13 @@ And, once again, here's the repo for the finished app we built in this tutorial:
 
 **Tags:**
 
-- [wasp](/blog/tags/wasp)
-- [ai](/blog/tags/ai)
-- [gpt](/blog/tags/gpt)
-- [langchain](/blog/tags/langchain)
-- [fullstack](/blog/tags/fullstack)
-- [node](/blog/tags/node)
-- [react](/blog/tags/react)
-- [agent](/blog/tags/agent)
+- [wasp](https://wasp.sh/blog/tags/wasp)
+- [ai](https://wasp.sh/blog/tags/ai)
+- [gpt](https://wasp.sh/blog/tags/gpt)
+- [langchain](https://wasp.sh/blog/tags/langchain)
+- [fullstack](https://wasp.sh/blog/tags/fullstack)
+- [node](https://wasp.sh/blog/tags/node)
+- [react](https://wasp.sh/blog/tags/react)
+- [agent](https://wasp.sh/blog/tags/agent)
 
 [Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/blog/2023-06-27-build-your-own-twitter-agent-langchain.mdx)Last updated on **Feb 13, 2026**

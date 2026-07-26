@@ -7,6 +7,8 @@ Auth is an essential piece of any serious application. That's why Wasp provides 
 
 Here's a 1-minute tour of how full-stack auth works in Wasp:
 
+[Embedded content](https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA)
+
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
@@ -39,41 +41,41 @@ We will provide a quick overview of auth in Wasp and link to more detailed docum
 
 Wasp supports the following auth methods:
 
-### [Email »](/docs/auth/email)
+### [Email »](https://wasp.sh/docs/auth/email)
 
-[Email verification, password reset, etc.](/docs/auth/email)
+[Email verification, password reset, etc.](https://wasp.sh/docs/auth/email)
 
-### [Username & Password »](/docs/auth/username-and-pass)
+### [Username & Password »](https://wasp.sh/docs/auth/username-and-pass)
 
-[The simplest way to get started](/docs/auth/username-and-pass)
+[The simplest way to get started](https://wasp.sh/docs/auth/username-and-pass)
 
-### [Google »](/docs/auth/social-auth/google)
+### [Google »](https://wasp.sh/docs/auth/social-auth/google)
 
-[Users sign in with their Google account](/docs/auth/social-auth/google)
+[Users sign in with their Google account](https://wasp.sh/docs/auth/social-auth/google)
 
-### [Github »](/docs/auth/social-auth/github)
+### [Github »](https://wasp.sh/docs/auth/social-auth/github)
 
-[Users sign in with their Github account](/docs/auth/social-auth/github)
+[Users sign in with their Github account](https://wasp.sh/docs/auth/social-auth/github)
 
-### [Keycloak »](/docs/auth/social-auth/keycloak)
+### [Keycloak »](https://wasp.sh/docs/auth/social-auth/keycloak)
 
-[Users sign in with their Keycloak account](/docs/auth/social-auth/keycloak)
+[Users sign in with their Keycloak account](https://wasp.sh/docs/auth/social-auth/keycloak)
 
-### [Slack »](/docs/auth/social-auth/slack)
+### [Slack »](https://wasp.sh/docs/auth/social-auth/slack)
 
-[Users sign in with their Slack account](/docs/auth/social-auth/slack)
+[Users sign in with their Slack account](https://wasp.sh/docs/auth/social-auth/slack)
 
-### [Discord »](/docs/auth/social-auth/discord)
+### [Discord »](https://wasp.sh/docs/auth/social-auth/discord)
 
-[Users sign in with their Discord account](/docs/auth/social-auth/discord)
+[Users sign in with their Discord account](https://wasp.sh/docs/auth/social-auth/discord)
 
 Click on each auth method for more details.
 
-Let's say we enabled the [Username & password](/docs/auth/username-and-pass) authentication.
+Let's say we enabled the [Username & password](https://wasp.sh/docs/auth/username-and-pass) authentication.
 
-We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](/docs/data-model/operations/overview) and we can decide what to do based on whether the user is logged in or not.
+We get an auth backend with signup and login endpoints. We also get the `user` object in our [Operations](https://wasp.sh/docs/data-model/operations/overview) and we can decide what to do based on whether the user is logged in or not.
 
-We would also get the [Auth UI](/docs/auth/ui) generated for us. We can set up our login and signup pages where our users can **create their account** and **login**. We can then protect certain pages by setting `authRequired: true` for them. This will make sure that only logged-in users can access them.
+We would also get the [Auth UI](https://wasp.sh/docs/auth/ui) generated for us. We can set up our login and signup pages where our users can **create their account** and **login**. We can then protect certain pages by setting `authRequired: true` for them. This will make sure that only logged-in users can access them.
 
 We will also have access to the `user` object in our frontend code, so we can show different UI to logged-in and logged-out users. For example, we can show the user's name in the header alongside a **logout button** or a login button if the user is not logged in.
 
@@ -85,21 +87,21 @@ When you have decided which auth methods you want to support, you can also choos
 
 This is the fastest way to ship, with Wasp generating ready-made components for your app. They allow for some customization to make them consistent with your app. You don't need to implement any UI or logic, and they just work.
 
-### [Email »](/docs/auth/email)
+### [Email »](https://wasp.sh/docs/auth/email)
 
-### [Username and password »](/docs/auth/username-and-pass)
+### [Username and password »](https://wasp.sh/docs/auth/username-and-pass)
 
-### [Social Auth »](/docs/auth/social-auth/overview)
+### [Social Auth »](https://wasp.sh/docs/auth/social-auth/overview)
 
-#### Make your own UI
+#### Make your own UI {#custom-auth-ui}
 
 Wasp is flexible enough to let you completely customize your login and signup interface. We give you the auth related functions, and you decide how and when to call them. This allows for total customization of the look-and-feel, and the interaction, but it needs a bit more work.
 
-### [Email »](/docs/auth/email/create-your-own-ui)
+### [Email »](https://wasp.sh/docs/auth/email/create-your-own-ui)
 
-### [Username and password »](/docs/auth/username-and-pass/create-your-own-ui)
+### [Username and password »](https://wasp.sh/docs/auth/username-and-pass/create-your-own-ui)
 
-### [Social Auth »](/docs/auth/social-auth/create-your-own-ui)
+### [Social Auth »](https://wasp.sh/docs/auth/social-auth/create-your-own-ui)
 
 :::tip
 You don't have to choose one *or* the other! Mix-and-match, and use what you need in each moment. For example, you can create a custom signup screen, but use Wasp's generated components for login.
@@ -107,7 +109,7 @@ You don't have to choose one *or* the other! Mix-and-match, and use what you nee
 
 #### Custom login and signup actions
 
-The previously discussed options should cover the vast majority of cases. But, for the few instances where it is not enough, you can [create your own signup flows](/docs/auth/advanced/custom-auth-actions), with completely custom logic. This is not recommended, and reserved for advanced use cases. Please check first if other Wasp features (mainly [auth hooks](/docs/auth/auth-hooks)) can handle your requirements.
+The previously discussed options should cover the vast majority of cases. But, for the few instances where it is not enough, you can [create your own signup flows](https://wasp.sh/docs/auth/advanced/custom-auth-actions), with completely custom logic. This is not recommended, and reserved for advanced use cases. Please check first if other Wasp features (mainly [auth hooks](https://wasp.sh/docs/auth/auth-hooks)) can handle your requirements.
 
 ## Protecting a page with `authRequired`
 
@@ -169,7 +171,7 @@ const user = {
 }
 ```
 
-You can read more about how the `User` is connected to the rest of the auth system and how you can access the user data in the [Accessing User Data](/docs/auth/entities) section of the docs.
+You can read more about how the `User` is connected to the rest of the auth system and how you can access the user data in the [Accessing User Data](https://wasp.sh/docs/auth/entities) section of the docs.
 
 ### On the client
 
@@ -249,7 +251,7 @@ export function Main() {
 
 #### Using the `context.user` object
 
-When authentication is enabled, all [queries and actions](/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields and the auth identities connected to the user. We strip out the `hashedPassword` field from the identities for security reasons.
+When authentication is enabled, all [queries and actions](https://wasp.sh/docs/data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields and the auth identities connected to the user. We strip out the `hashedPassword` field from the identities for security reasons.
 
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
@@ -280,7 +282,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
 
 To implement access control in your app, each operation must check `context.user` and decide what to do. For example, if `context.user` is `undefined` inside a private operation, the user's access should be denied.
 
-When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](/docs/advanced/web-sockets#websocketfn).
+When using WebSockets, the `user` object is also available on the `socket.data` object. Read more in the [WebSockets section](https://wasp.sh/docs/advanced/web-sockets#websocketfn).
 
 ## Sessions
 
@@ -338,15 +340,15 @@ export const updatePassword: UpdatePassword<
 
 ### Default Validations
 
-When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](/docs/auth/ui) or if you use the provided auth actions.
+When you are using the default authentication flow, Wasp validates the fields with some default validations. These validations run if you use Wasp's built-in [Auth UI](https://wasp.sh/docs/auth/ui) or if you use the provided auth actions.
 
-If you decide to create your [custom auth actions](/docs/auth/advanced/custom-auth-actions), you'll need to run the validations yourself.
+If you decide to create your [custom auth actions](https://wasp.sh/docs/auth/advanced/custom-auth-actions), you'll need to run the validations yourself.
 
 Default validations depend on the auth method you use.
 
 #### Username & Password
 
-If you use [Username & password](/docs/auth/username-and-pass) authentication, the default validations are:
+If you use [Username & password](https://wasp.sh/docs/auth/username-and-pass) authentication, the default validations are:
 
 - The `username` must not be empty
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -355,7 +357,7 @@ Note that `username`s are stored in a **case-insensitive** manner.
 
 #### Email
 
-If you use [Email](/docs/auth/email) authentication, the default validations are:
+If you use [Email](https://wasp.sh/docs/auth/email) authentication, the default validations are:
 
 - The `email` must not be empty and a valid email address
 - The `password` must not be empty, have at least 8 characters, and contain a number
@@ -369,7 +371,7 @@ Sometimes you want to include **extra fields** in your signup process, like firs
 For this to happen:
 
 - you need to define the fields that you want saved in the database,
-- you need to customize the `SignupForm` (in the case of [Email](/docs/auth/email) or [Username & Password](/docs/auth/username-and-pass) auth)
+- you need to customize the `SignupForm` (in the case of [Email](https://wasp.sh/docs/auth/email) or [Username & Password](https://wasp.sh/docs/auth/username-and-pass) auth)
 
 Other times, you might need to just add some **extra UI** elements to the form, like a checkbox for terms of service. In this case, customizing only the UI components is enough.
 
@@ -385,7 +387,7 @@ We do that by defining an object where the keys represent the field name, and th
 
 First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp.ts` file. The `{authMethod}` depends on the auth method you are using.
 
-For example, if you are using [Username & Password](/docs/auth/username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
+For example, if you are using [Username & Password](https://wasp.sh/docs/auth/username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -471,7 +473,7 @@ Now that we defined the fields, Wasp knows how to:
 1. Validate the data sent from the client
 2. Save the data to the database
 
-Next, let's see how to customize [Auth UI](/docs/auth/ui) to include those fields.
+Next, let's see how to customize [Auth UI](https://wasp.sh/docs/auth/ui) to include those fields.
 
 ### 2. Customizing the Signup Component
 
@@ -480,8 +482,8 @@ If you are not using Wasp's Auth UI, you can skip this section. Just make sure t
 
 Read more about using the signup actions for:
 
-- [Email auth](/docs/auth/email/create-your-own-ui)
-- [Username & password auth](/docs/auth/username-and-pass/create-your-own-ui)
+- [Email auth](https://wasp.sh/docs/auth/email/create-your-own-ui)
+- [Username & password auth](https://wasp.sh/docs/auth/username-and-pass/create-your-own-ui)
 :::
 
 If you are using Wasp's Auth UI, you can customize the `SignupForm` component by passing the `additionalFields` prop to it. It can be either a list of extra fields or a render function.
@@ -575,11 +577,11 @@ Read more about the render function in the [API Reference](#signupform-customiza
 
 ### Auth Fields
 
-[API reference](/docs/api/@wasp.sh/spec/interfaces/Auth)
+[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
 
-### [Auth »](/docs/api/@wasp.sh/spec/interfaces/Auth)
+### [Auth »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
 
-[All the options for the auth field of the app spec.](/docs/api/@wasp.sh/spec/interfaces/Auth)
+[All the options for the auth field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Auth)
 
 ### Signup Fields Customization
 

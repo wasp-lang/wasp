@@ -11,6 +11,7 @@ import {
   DOCUSAURUS_TABS_CLASS,
   docusaurusTabsToMdast,
 } from "./handlers/docusaurus-tabs";
+import { iframeToMdast, imageToMdast } from "./handlers/media";
 import { hasClass } from "./hast-helpers";
 
 export const docusaurusHtmlToMdHandlers: RehypeRemarkOptions = {
@@ -26,6 +27,12 @@ export const docusaurusHtmlToMdHandlers: RehypeRemarkOptions = {
         return docusaurusTabsToMdast(state, element);
       }
       return state.all(element);
+    },
+    iframe(_state, element) {
+      return iframeToMdast(element);
+    },
+    img(_state, element) {
+      return imageToMdast(element);
     },
   },
 };

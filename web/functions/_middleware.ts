@@ -79,16 +79,6 @@ async function fetchMarkdownVariant(
   const markdownUrl = new URL(markdownPathname, url);
   const markdownRequest = new Request(markdownUrl, request);
   const markdownResponse = await next(markdownRequest);
-
-  if (!markdownResponse.ok) {
-    console.error("Markdown response failed", {
-      status: markdownResponse.status,
-      statusText: markdownResponse.statusText,
-      pathname: markdownPathname,
-      body: await markdownResponse.clone().text(),
-    });
-  }
-
   return markdownResponse;
 }
 
