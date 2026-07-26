@@ -79,7 +79,7 @@ function detectAdmonitionType(admonition: hast.Element): string {
 
 /**
  * Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or
- * an null when it just uses the default type label.
+ * null when it just uses the default type label.
  */
 function detectAdmonitionCustomTitle(admonition: hast.Element): string | null {
   const heading = hastSelect.select('[class*="admonitionHeading"]', admonition);
