@@ -47,16 +47,15 @@ export const onRequest = async (
 };
 
 /**
- * True if the last path segment includes a file extension.
+ * True if the route targets a MD or HTML type directly.
  *
  * @example "/docs.md" → true
  * @example "/docs.html" → true
  * @example "/docs/0.24" → false
- * @example "/docs/2.0" → false
+ * @example "/docs/api/@wasp.sh" → false
  */
 function routeHasFileTypeExtension(pathname: string): boolean {
-  const lastSegment = pathname.split("/").at(-1)!;
-  return /\.[a-z]+$/i.test(lastSegment);
+  return /\.(md|html)$/i.test(pathname);
 }
 
 /**

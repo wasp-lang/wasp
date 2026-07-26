@@ -75,7 +75,7 @@ function buildLlmsTxtBody(
     if (item.type === "doc") {
       lines.push(`- [${item.title}](${item.url})`);
     } else {
-      const headingHashes = "#".repeat(3 + depth);
+      const headingHashes = "#".repeat(Math.min(3 + depth, 6));
       lines.push(`${headingHashes} ${item.title}`);
       buildLlmsTxtBody(lines, item.items, depth + 1);
     }
