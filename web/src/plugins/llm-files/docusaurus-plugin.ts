@@ -1,4 +1,5 @@
 import type { PluginModule } from "@docusaurus/types";
+import assert from "node:assert";
 
 import { generateMarkdownFilesForValidHtmlFiles } from "./markdown-docs";
 
@@ -15,18 +16,25 @@ export interface LlmFilesPluginOptions {
 export function docusaurusPluginLlmFiles({
   skipElementInMarkdownDocsClass,
 }: LlmFilesPluginOptions): PluginModule {
-  return () => ({
-    name: "wasp-llm-files",
-    async postBuild({ outDir, siteConfig }) {
-      const baseUrl = stripTrailingSlash(siteConfig.url + siteConfig.baseUrl);
+  return (context) => {
+    assert(
+      context.siteConfig.trailingSlash === false,
+      "The llm-files plugin requires `trailingSlash: false` in `docusaurus.config.ts`.",
+    );
 
-      await generateMarkdownFilesForValidHtmlFiles({
-        outDir,
-        baseUrl,
-        skipElementInMarkdownDocsClass,
-      });
-    },
-  });
+    return {
+      name: "wasp-llm-files",
+      async postBuild({ outDir, siteConfig }) {
+        const baseUrl = stripTrailingSlash(siteConfig.url + siteConfig.baseUrl);
+
+        await generateMarkdownFilesForValidHtmlFiles({
+          outDir,
+          baseUrl,
+          skipElementInMarkdownDocsClass,
+        });
+      },
+    };
+  };
 }
 
 function stripTrailingSlash(value: string): string {

@@ -4,7 +4,11 @@ import { SKIP, visit } from "unist-util-visit";
 import { hasClass } from "./hast-helpers";
 
 /**
- * Docusaurus content lives in different wrappers depending on the page type.
+ * These selectors mark the HTML containers whose content originated from
+ * markdown (MDX) sources. Docusaurus wraps that content in a different
+ * container depending on the page type.
+ *
+ * If none of them match a page, we fail the build.
  */
 const MARKDOWN_CONTENT_CONTAINER_SELECTORS = [
   // Used by docs. Set by Docusaurus.

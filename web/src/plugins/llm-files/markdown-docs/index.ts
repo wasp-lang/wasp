@@ -26,8 +26,9 @@ export async function generateMarkdownFilesForValidHtmlFiles(
   const markdownDocsIndexHeader = buildMarkdownDocsIndexHeader(baseUrl);
   const htmlToMarkdown = createDocusaurusHtmlToMarkdownProcessor(context);
 
-  const htmlFilesAbsPaths = await findConvertibleHtmlFileAbsPaths(outDir);
-  for (const htmlFileAbsPath of htmlFilesAbsPaths) {
+  const htmlFilesRelPaths = await findConvertibleHtmlFileRelPaths(outDir);
+  for (const htmlFileRelPath of htmlFilesRelPaths) {
+    const htmlFileAbsPath = path.join(outDir, htmlFileRelPath);
     const htmlContent = await fs.readFile(htmlFileAbsPath, "utf8");
     const htmlFile = new VFile({
       path: htmlFileAbsPath,
@@ -41,7 +42,7 @@ export async function generateMarkdownFilesForValidHtmlFiles(
     await fs.writeFile(markdownFileAbsPath, markdownContentWithIndex, "utf8");
   }
   console.log(
-    `Markdown generation complete: generated ${htmlFilesAbsPaths.length} markdown docs from HTML.`,
+    `Markdown generation complete: generated ${htmlFilesRelPaths.length} markdown docs from HTML.`,
   );
 }
 
@@ -53,18 +54,18 @@ function buildMarkdownDocsIndexHeader(baseUrl: string): string {
 `;
 }
 
-async function findConvertibleHtmlFileAbsPaths(
+async function findConvertibleHtmlFileRelPaths(
   outDir: string,
 ): Promise<string[]> {
-  const htmlFileAbsPath: string[] = [];
+  const htmlFileRelPaths: string[] = [];
 
   for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: outDir,
   })) {
     if (htmlFileRelPathHasMarkdownVariant(htmlFileRelPath)) {
-      htmlFileAbsPath.push(path.join(outDir, htmlFileRelPath));
+      htmlFileRelPaths.push(htmlFileRelPath);
     }
   }
 
-  return htmlFileAbsPath;
+  return htmlFileRelPaths;
 }

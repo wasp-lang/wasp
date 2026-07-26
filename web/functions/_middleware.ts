@@ -60,6 +60,8 @@ function routeHasFileTypeExtension(pathname: string): boolean {
 }
 
 /**
+ * True if the request accepts markdown content.
+ *
  * We don't really want to bother with format priorities (order of formats or q-values).
  * Requesting `text/markdown` is a deliberate choice, so we assume it as the top priority.
  */
@@ -90,6 +92,13 @@ async function fetchMarkdownVariant(
   return markdownResponse;
 }
 
+/**
+ * Maps an extensionless route pathname to the pathname of its
+ * pre-generated markdown variant file.
+ *
+ * @example "/docs/quick-start" → "/docs/quick-start.md"
+ * @example "/docs/" → "/docs.md"
+ */
 function generateMarkdownPathname(pathname: string): string {
   return pathname.replace(/\/$/, "") + ".md";
 }

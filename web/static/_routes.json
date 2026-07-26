@@ -1,13 +1,6 @@
 {
   "version": 1,
-  "include": [
-    "/docs",
-    "/docs/*",
-    "/blog",
-    "/blog/*",
-    "/resources",
-    "/resources/*"
-  ],
+  "include": ["/docs", "/docs/*", "/blog/*", "/resources/*"],
   "exclude": [
     "/*.css",
     "/*.js",
