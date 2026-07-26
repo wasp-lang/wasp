@@ -5,7 +5,7 @@ import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
-import { REMARK_STRINGIFY_OPTIONS } from "../markdown-docs/markdown-stringify-options";
+import { REMARK_STRINGIFY_OPTIONS } from "../markdown-docs/remark-stringify-options";
 
 /**
  * Adapts the generated markdown docs so that they make sense

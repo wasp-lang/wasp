@@ -9,8 +9,8 @@ import { MarkdownDocsContext } from "./context";
 import { docusaurusHtmlToMdHandlers } from "./docusaurus/docusaurus-html-to-md-handlers";
 import { rehypeAnnotateCustomHeadingAnchors } from "./docusaurus/rehype-annotate-custom-heading-anchors";
 import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/rehype-reduce-docusaurus-page";
-import { REMARK_STRINGIFY_OPTIONS } from "./markdown-stringify-options";
 import { remarkAbsolutizeUrls } from "./remark-absolutize-urls";
+import { REMARK_STRINGIFY_OPTIONS } from "./remark-stringify-options";
 
 /**
  * Creates a Docusaurus HTML to markdown processor.
