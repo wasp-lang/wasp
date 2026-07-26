@@ -186,7 +186,7 @@ function buildApiSectionItems(
 
 /**
  * Tries to extract the name of some package in API docs.
- * Does it by trying to match a document id to the API docs package index page.
+ * It does so by matching a document id against the API docs package index page.
  *
  * Depends on `typedoc` package generated output format.
  *

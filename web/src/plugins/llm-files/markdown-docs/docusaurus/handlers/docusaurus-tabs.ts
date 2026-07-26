@@ -54,7 +54,7 @@ export function docusaurusTabsToMdast(
   );
   assert(
     tabsLabels.length >= 2,
-    "<Tabs> should have at at least 2 different tabs.",
+    "<Tabs> should have at least 2 different tabs.",
   );
 
   if (isJsTsTabsPair(tabsLabels)) {

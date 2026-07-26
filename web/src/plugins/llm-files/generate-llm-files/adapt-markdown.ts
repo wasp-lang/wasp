@@ -9,7 +9,7 @@ import { REMARK_STRINGIFY_OPTIONS } from "../markdown-docs/remark-stringify-opti
 
 /**
  * Adapts the generated markdown docs so that they make sense
- * in context of `llms-full*.txt` files.
+ * in the context of `llms-full*.txt` files.
  *
  * @see {@link remarkAdaptMarkdownForLlmsFullFiles} for more details.
  */
