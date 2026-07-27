@@ -1,30 +1,22 @@
 {-# LANGUAGE CPP #-}
 
-module Wasp.Job.Process.LongRunning
-  ( LongRunningProcess,
-    ProcessTreeDidNotStop (..),
-    pollRootExit,
-    runAsJob,
-    start,
-    stop,
-    waitForRootExit,
+module Wasp.Job.Subprocess.System
+  ( configureManagedSubprocess,
+    hardStopTimeoutMicroseconds,
+    killStartedProcessGroup,
+    stopProcessTree,
   )
 where
 
-import Control.Concurrent (modifyMVar, newMVar, threadDelay)
+import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (Exception (displayException), SomeException, bracket, finally, mask, onException, throwIO, try)
+import Control.Exception (SomeException, throwIO, try)
 import Control.Monad (unless, void, when)
 import Control.Monad.Extra (anyM)
 import qualified Data.ByteString as BS
-import qualified Data.Text as T
-import Data.Text.Encoding (Decoding (Some), decodeUtf8With, streamDecodeUtf8With)
-import Data.Text.Encoding.Error (lenientDecode)
 import System.Exit (ExitCode)
-import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import qualified Wasp.Job as J
 import Wasp.Util (secondsToMicroSeconds)
 
 #if !mingw32_HOST_OS
@@ -37,131 +29,17 @@ import qualified System.Posix.Signals as Signals
 import Text.Read (readMaybe)
 #endif
 
--- Long-running processes are Wasp-owned children started now and stopped later.
--- They forward output to the job output sink, but don't emit JobExit.
-data LongRunningProcess = LongRunningProcess
-  { waitForRootExit :: IO ExitCode,
-    pollRootExit :: IO (Maybe ExitCode),
-    stop :: IO ()
-  }
-
-data ProcessTreeDidNotStop = ProcessTreeDidNotStop
-  deriving (Eq, Show)
-
-instance Exception ProcessTreeDidNotStop where
-  displayException _ = T.unpack processTreeDidNotStopMessage
-
-runAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runAsJob process jobType =
-  J.makeJob jobType $ \outputSink ->
-    bracket
-      (start process outputSink)
-      stop
-      waitForRootExit
-
-start :: P.CreateProcess -> J.JobOutputSink -> IO LongRunningProcess
-start process outputSink = mask $ \restore -> do
-  processResources@(_, _, _, processHandle) <- P.createProcess $ configureLongRunningProcess process
-  maybeProcessGroupPid <-
-    P.getPid processHandle
-      `onException` emergencyCleanUp Nothing processResources
-  restore (finishInitialization maybeProcessGroupPid processResources)
-    `onException` emergencyCleanUp maybeProcessGroupPid processResources
-  where
-    finishInitialization maybeProcessGroupPid (maybeStdin, maybeStdout, maybeStderr, processHandle) = do
-      rootExitAsync <- Async.async $ P.waitForProcess processHandle
-      stdoutAsync <- Async.async $ forwardOutput outputSink maybeStdout J.Stdout
-      stderrAsync <- Async.async $ forwardOutput outputSink maybeStderr J.Stderr
-      stopWorkerVar <- newMVar Nothing
-      let closeHandles = mapM_ closeHandleIfOpen [maybeStdin, maybeStdout, maybeStderr]
-      let cleanUpOutput =
-            (drainOrCancelOutput stdoutAsync `finally` drainOrCancelOutput stderrAsync)
-              `finally` closeHandles
-      let performStop = do
-            processTreeResult <- try $ stopProcessTree processHandle rootExitAsync maybeProcessGroupPid
-            outputResult <- try cleanUpOutput
-            case (processTreeResult, outputResult) of
-              (Left exception, _) -> throwIO (exception :: SomeException)
-              (Right False, _) -> do
-                J.writeJobOutput outputSink J.Stderr $ processTreeDidNotStopMessage <> "\n"
-                throwIO ProcessTreeDidNotStop
-              (Right True, Left exception) -> throwIO (exception :: SomeException)
-              (Right True, Right ()) -> return ()
-      let stopOnce = mask $ \restoreStop -> do
-            stopWorker <-
-              modifyMVar stopWorkerVar $ \maybeStopWorker ->
-                case maybeStopWorker of
-                  Just existingStopWorker -> return (maybeStopWorker, existingStopWorker)
-                  Nothing -> do
-                    newStopWorker <- Async.async $ restoreStop performStop
-                    return (Just newStopWorker, newStopWorker)
-            restoreStop $ Async.wait stopWorker
-      return $
-        LongRunningProcess
-          { waitForRootExit = Async.wait rootExitAsync,
-            pollRootExit = pollAsync rootExitAsync,
-            stop = stopOnce
-          }
-
-pollAsync :: Async.Async a -> IO (Maybe a)
-pollAsync action = do
-  maybeResult <- Async.poll action
-  case maybeResult of
-    Nothing -> return Nothing
-    Just (Left exception) -> throwIO exception
-    Just (Right result) -> return $ Just result
-
-configureLongRunningProcess :: P.CreateProcess -> P.CreateProcess
-configureLongRunningProcess process =
+configureManagedSubprocess :: P.CreateProcess -> P.CreateProcess
+configureManagedSubprocess process =
   process
     { P.create_group = not isWindows,
       P.use_process_jobs = isWindows,
       -- Isolated process groups cannot safely read the foreground terminal.
-      -- Long-running jobs, including Vite, are intentionally noninteractive.
+      -- Managed subprocesses, including Vite, are intentionally noninteractive.
       P.std_in = P.NoStream,
       P.std_out = P.CreatePipe,
       P.std_err = P.CreatePipe
     }
-
-drainOrCancelOutput :: Async.Async a -> IO ()
-drainOrCancelOutput outputAsync = do
-  maybeResult <- timeout outputDrainTimeoutMicroseconds $ Async.waitCatch outputAsync
-  case maybeResult of
-    Nothing -> Async.cancel outputAsync
-    Just (Left exception) -> throwIO exception
-    Just (Right _) -> return ()
-
-forwardOutput :: J.JobOutputSink -> Maybe Handle -> J.JobOutputType -> IO ()
-forwardOutput _ Nothing _ = return ()
-forwardOutput outputSink (Just handle) outputType =
-  -- Chunks can split a multi-byte UTF-8 sequence, so decoding must carry
-  -- partial sequences over into the next chunk.
-  forwardChunks $ streamDecodeUtf8With lenientDecode
-  where
-    forwardChunks decodeChunk = do
-      chunk <- BS.hGetSome handle chunkSizeInBytes
-      let Some output undecoded decodeNextChunk = decodeChunk chunk
-      emitOutput output
-      if BS.null chunk
-        then emitOutput $ decodeUtf8With lenientDecode undecoded
-        else forwardChunks decodeNextChunk
-
-    emitOutput output =
-      unless (T.null output) $
-        J.writeJobOutput outputSink outputType output
-
-    chunkSizeInBytes = 4096
-
-closeHandleIfOpen :: Maybe Handle -> IO ()
-closeHandleIfOpen Nothing = return ()
-closeHandleIfOpen (Just handle) = void (try $ hClose handle :: IO (Either SomeException ()))
-
-emergencyCleanUp :: Maybe P.Pid -> (Maybe Handle, Maybe Handle, Maybe Handle, P.ProcessHandle) -> IO ()
-emergencyCleanUp maybeProcessGroupPid (maybeStdin, maybeStdout, maybeStderr, processHandle) = do
-  killStartedProcessGroup maybeProcessGroupPid
-  ignoreExceptions $ P.terminateProcess processHandle
-  mapM_ closeHandleIfOpen [maybeStdin, maybeStdout, maybeStderr]
-  void $ timeout hardStopTimeoutMicroseconds $ ignoreExceptions $ P.waitForProcess processHandle
 
 killStartedProcessGroup :: Maybe P.Pid -> IO ()
 #if mingw32_HOST_OS
@@ -171,9 +49,6 @@ killStartedProcessGroup Nothing = return ()
 killStartedProcessGroup (Just processGroupPid) =
   ignoreExceptions $ signalProcessGroupIfAlive Signals.sigKILL processGroupPid
 #endif
-
-ignoreExceptions :: IO a -> IO ()
-ignoreExceptions action = void (try (void action) :: IO (Either SomeException ()))
 
 stopProcessTree :: P.ProcessHandle -> Async.Async ExitCode -> Maybe P.Pid -> IO Bool
 #if mingw32_HOST_OS
@@ -302,17 +177,14 @@ waitForCondition condition = go
               threadDelay pollIntervalMicroseconds
               go $ remainingMicroseconds - pollIntervalMicroseconds
 
+ignoreExceptions :: IO a -> IO ()
+ignoreExceptions action = void (try (void action) :: IO (Either SomeException ()))
+
 gracefulStopTimeoutMicroseconds :: Int
 gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 0.25
 
 hardStopTimeoutMicroseconds :: Int
 hardStopTimeoutMicroseconds = secondsToMicroSeconds 5
-
-outputDrainTimeoutMicroseconds :: Int
-outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
-
-processTreeDidNotStopMessage :: T.Text
-processTreeDidNotStopMessage = "Process tree did not stop after a kill signal; it may still be running."
 
 pollIntervalMicroseconds :: Int
 pollIntervalMicroseconds = secondsToMicroSeconds 0.1

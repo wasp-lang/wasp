@@ -21,6 +21,7 @@ import Wasp.Generator.ServerGenerator.Start
     notifySuccessfulCompile,
     startServer,
   )
+import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_ServerEffect :: Spec
@@ -50,7 +51,7 @@ spec_ServerProcessController =
         chan <- newChan
         controller <- newServerProcessController
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-        withAsync (startServer generatedAppDir controller chan) $ \controllerJob -> do
+        withAsync (Job.runJob (startServer generatedAppDir controller) chan) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -125,7 +126,7 @@ spec_ServerProcessController =
           chan <- newChan
           controller <- newServerProcessController
           generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-          withAsync (startServer generatedAppDir controller chan) $ \controllerJob -> do
+          withAsync (Job.runJob (startServer generatedAppDir controller) chan) $ \controllerJob -> do
             waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
             crashedPid <- readServerPid fixture
             waitUntil "leftover process port file" $ doesFileExist $ leftoverPortFilePath fixture
