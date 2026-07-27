@@ -12,15 +12,15 @@ import InstallInstructions from './\_install-instructions.md'
 
 ### TypeScript 6
 
-Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`, and your project's TypeScript config files need a couple of small updates (see below). Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s `target` and `lib` were also bumped to `ES2025`.
+Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`. Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s we also bumped the `target` and `lib` options to `ES2025`.
 
 ### React Router 8
 
-Wasp now uses **React Router 8**. The upgrade is backwards compatible for typical usage (e.g. `Link`, `NavLink`, `Outlet`), so you only need to bump the `react-router` dependency.
+Wasp now uses **React Router 8**. The upgrade is backwards compatible for Wasp users.
 
 ### Vite 8
 
-Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster builds. Testing moves to **Vitest 4.1** to stay compatible.
+Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster builds. Our testing support is also bumped to **Vitest 4.1**, to stay compatible.
 
 ## How to migrate?
 
@@ -49,6 +49,12 @@ Update the version field in your Wasp config to `^0.25.0`.
   </TabItem>
 </Tabs>
 
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
+
 ### 2. Update your dependencies in `package.json`
 
 Bump Wasp-required dependencies to their latest version:
@@ -63,7 +69,7 @@ Bump Wasp-required dependencies to their latest version:
       },
       "devDependencies": {
         // ...
-        "@tailwindcss/vite": "^4.1.18", // only if present
+        "@tailwindcss/vite": "^4.1.18", // only if already present
         "typescript": "5.9.3",
         "vite": "^7.0.6",
         "vitest": "^4.0.16"
@@ -80,7 +86,7 @@ Bump Wasp-required dependencies to their latest version:
       },
       "devDependencies": {
         // ...
-        "@tailwindcss/vite": "^4.3.1", // only if present
+        "@tailwindcss/vite": "^4.3.1", // only if already present
         "typescript": "6.0.3",
         "vite": "^8.1.0",
         "vitest": "^4.1.9"
@@ -130,7 +136,6 @@ In `tsconfig.src.json`:
     {
       "compilerOptions": {
         // ...
-        "outDir": ".wasp/out/user"
       }
     }
     ```
@@ -140,7 +145,6 @@ In `tsconfig.src.json`:
     {
       "compilerOptions": {
         // ...
-        "outDir": ".wasp/out/user",
         "types": ["react", "node"]
       }
     }
