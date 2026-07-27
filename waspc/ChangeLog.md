@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.26.0
+
+### ⚠️ Breaking Changes
+
+- Moved internal server-only import paths under the `wasp/server/...` prefix: `wasp/auth/jwt`, `wasp/auth/password`, `wasp/auth/session`, `wasp/auth/utils`, `wasp/auth/providers`, and `wasp/auth/providers/types` now live under `wasp/server/auth/...`, and `wasp/core/auth` is now `wasp/server/core/auth`. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+
 ## 0.25.0
 
 ### ⚠️ Breaking Changes
