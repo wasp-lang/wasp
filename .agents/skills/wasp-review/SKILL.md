@@ -1,5 +1,5 @@
 ---
-name: review
+name: wasp-review
 description: Review code changes for correctness, clarity, and potential issues. Use when the user asks for a review, code review, PR review, or wants feedback on a diff or file.
 ---
 
