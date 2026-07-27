@@ -33,7 +33,6 @@ import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
-import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Route as Route
@@ -534,8 +533,8 @@ doesUserEntityContainField spec fieldName = do
   let userEntityFields = Entity.getFields userEntity
   Just $ isJust $ findFieldByName fieldName userEntityFields
 
-findFieldByName :: String -> [Entity.Field.Field] -> Maybe Entity.Field.Field
-findFieldByName name = find ((== name) . Entity.Field.fieldName)
+findFieldByName :: String -> [Psl.Model.Field] -> Maybe Psl.Model.Field
+findFieldByName name = find ((== name) . Psl.Model._name)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
