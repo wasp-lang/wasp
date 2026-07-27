@@ -12,6 +12,7 @@
   {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
   {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
+    {=! =============================================================== =}
     {=! Each export here is always available to users. =}
     {=! However, only the public API for users is documented. =}
     {=! =============================================================== =}
@@ -59,18 +60,22 @@
     "./server/webSocket": "./dist/server/webSocket/index.js",
 
     {=! =============================================================== =}
+    {=! Runtime agnostic. Undocumented. =}
+    {=! =============================================================== =}
+    "./auth/user": "./dist/auth/user.js",
+    "./core/serialization": "./dist/core/serialization/index.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
+    "./auth/providers/types": "./dist/auth/providers/types.js",
+
+    {=! =============================================================== =}
     {=! Server runtime only. Undocumented. =}
     {=! FIXME: ALL of these should be prefixed with `./server/`. =}
     {=! =============================================================== =}
     "./auth/jwt": "./dist/auth/jwt.js",
     "./auth/password": "./dist/auth/password.js",
-    "./auth/providers/types": "./dist/auth/providers/types.js",
-    "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/session": "./dist/auth/session.js",
-    "./auth/user": "./dist/auth/user.js",
     "./auth/utils": "./dist/auth/utils.js",
     "./core/auth": "./dist/core/auth.js",
-    "./core/serialization": "./dist/core/serialization/index.js",
     "./server/auth/email": "./dist/server/auth/email/index.js",
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/crud/*": "./dist/server/crud/*.js",
