@@ -1,6 +1,6 @@
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types.js'
+import type { Expand, Exact } from '../../universal/types'
 import type { ProviderName } from '../utils'
 
 // PUBLIC API
@@ -10,9 +10,12 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-import { emailUserSignupFields as emailUserSignupFields_ext } from 'wasp/src/features/auth/providers/email'
+import type { FromRegister } from '../../types/register'
+
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof emailUserSignupFields_ext>;
+export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
+
+type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 
 
 /**

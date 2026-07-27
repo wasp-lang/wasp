@@ -1,6 +1,6 @@
 import { Response, RequestHandler } from 'express'
 
-import { type AuthUserData } from './auth/user.js'
+import { type AuthUserData } from '../auth/user.js'
 
 // This is explicitly how Express expects extensions to their
 // Request and Response objects to be done.
