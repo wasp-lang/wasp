@@ -6,17 +6,31 @@ import { hastTextContent } from "./hast-helpers";
 const HEADING_TAG_NAMES = ["h1", "h2", "h3", "h4", "h5", "h6"];
 
 /**
- * Docusaurus allows custom heading anchors (`## Title {#custom-id}`),
- * which are lost when converting the rendered HTML back to markdown,
- * breaking `#custom-id` links from other markdown docs.
+ * Re-appends custom heading anchors (`## Title {#custom-id}`) to headings.
+ * Without them, `#custom-id` links from other markdown docs break.
  *
- * Re-appends the `{#id}` suffix to a heading whenever its rendered id
- * differs from the auto-generated slug of its text. Uses the same
- * slugger as Docusaurus, so default anchors stay unannotated.
+ * A heading gets the `{#id}` suffix whenever its rendered id differs from
+ * the auto-generated slug of its text. Uses the same slugger as Docusaurus,
+ * so default anchors stay unannotated.
  *
  * Must run after `rehypeReduceDocusaurusPageToValidMarkdownContent`,
  * so heading text is clean of hash-links when compared against the
  * slugger output.
+ *
+ * @example
+ * Source HTML:
+ * ```html
+ * <h2 id="keep-using">Keep using the legacy installer</h2>
+ * ```
+ *
+ * Generated markdown without this function:
+ * ```md
+ * ## Keep using the legacy installer
+ * ```
+ * Generated markdown with this function:
+ * ```md
+ * ## Keep using the legacy installer {#keep-using}
+ * ```
  */
 export function rehypeAnnotateCustomHeadingAnchors(): (
   root: hast.Root,
