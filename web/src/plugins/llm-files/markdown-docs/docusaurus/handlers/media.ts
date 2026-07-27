@@ -2,8 +2,8 @@ import type * as hast from "hast";
 import type * as mdast from "mdast";
 
 /**
- * Converts an embedded iframe (e.g. a YouTube video) to a markdown link,
- * since markdown has no embeds. Iframes without a `src` are dropped.
+ * Converts an `<iframe>` element (e.g. a YouTube video) to a markdown link.
+ * (markdown has no embeds). Iframes without a `src` are dropped.
  *
  * @example
  * Source HTML:
@@ -32,14 +32,14 @@ export function iframeToMdast(iframe: hast.Element): mdast.Link | undefined {
 }
 
 /**
- * Converts an image to a markdown image.
+ * Converts an `<img>` element to a markdown image.
  *
- * Images inlined as base64 `data:` URIs are replaced with a short
- * placeholder carrying the image title. The bundler inlines small
- * images that way, and the resulting wall of base64 would only clog
- * the context of LLMs reading the markdown.
- *
+ * Bundler inlines small images as base64 `data:` which results
+ * in a lot of "garbage" data. To avoid clogging up the LLM context,
+ * we replace them with small placeholders.
+
  * @example
+ * Inlined image placeholder:
  * ```md
  * *(Inlined image: Forgot password form)*
  * ```
