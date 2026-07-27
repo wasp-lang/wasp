@@ -74,7 +74,7 @@
             "file",
             "sdk/wasp/auth/email/actions/signup.ts"
         ],
-        "5043688bc279f52881b4c314fd29d6646e1491bdd1ec53164b2a8495ca43e96f"
+        "7269867432c12155e9d61039d62f6e55a36baf8da9e08d36e62574323e15510b"
     ],
     [
         [
@@ -320,6 +320,20 @@
             "sdk/wasp/auth/providerData.ts"
         ],
         "0325226f972b575d213046bafc16c3585c87c943a8da64679da773088fd9d77a"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/providers/index.ts"
+        ],
+        "939426c791647133bfafb3c4ced039d64f2ae058e0da60c6ae31901fb903e281"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/providers/types.ts"
+        ],
+        "56888e56483a91942e37e87c8af6c6c06af9a618d8a55933149dcfd516a368e8"
     ],
     [
         [
@@ -837,7 +851,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "b4ad3598d721317a76f935713d742ce847357ac8917bb101ebc1a5d3d79cf443"
+        "5293dd058354c9edaa40ccc9a58605cfc9d9ed2b2ce11f7dc8b19e703ffbd216"
     ],
     [
         [
@@ -914,7 +928,7 @@
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "ff9655a1acaa6c8f84a307dc677da007d8ca64458aef3c23d91ab790312db8ee"
+        "e9455e321485626e9710a20069b4da2188bdb77501aa8acf4274ee985f68e5d1"
     ],
     [
         [
@@ -1003,20 +1017,6 @@
     [
         [
             "file",
-            "sdk/wasp/server/auth/providers/index.ts"
-        ],
-        "939426c791647133bfafb3c4ced039d64f2ae058e0da60c6ae31901fb903e281"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/server/auth/providers/types.ts"
-        ],
-        "9c05876014503a9c7f735e9ff737ffae020ca9e56a842bece9d8f485468300a9"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/server/auth/session.ts"
         ],
         "296b9b87dbde28fecbb6879c947ba20e5ab11b3ae7c5917b19307cde73871b71"
@@ -1026,7 +1026,7 @@
             "file",
             "sdk/wasp/server/auth/utils.ts"
         ],
-        "ff1cefa5f478b84fa1d9e335f8a1c636a0e1d707781ecd64ee3c707574980c56"
+        "5b9841dab9d3247727b5c7c74c5a0b11ac29a419e7571211483af1200fe825bc"
     ],
     [
         [
@@ -2041,42 +2041,42 @@
             "file",
             "server/src/auth/providers/config/discord.ts"
         ],
-        "b7ce92df039044911b178f8f0bdd4a73b6339b51011ce49bcec09896f41ad66f"
+        "e18413bf3013b160deeaa195680086c6ef02a0b470fecea9de75c90afd550365"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/email.ts"
         ],
-        "6754e60e9e2a8631f3b2ffe2a6d5a4a246a50e69738cbf8fcf675abea87e561b"
+        "3e2735d8f5e299df7158f0db563b80f792c252eade168170c7d89e6f64804680"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/github.ts"
         ],
-        "4bc172e83bc6f993a56ba32ab2e9b0eec037c754cb0fb1645bea3498c8bb398b"
+        "ac4ecb92c0c4e00bd8080eaafa4aacfe3a6c36bb9391fc65181f2981502d2328"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "8272bcbcef89f60f3dc2ab8042be87ca4503dd865df94e60b647058b5cae08e7"
+        "4b9e240b8659bddfad56f79fb7d3af5c00c20dab1aca764fdf2d3254d912ff10"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/microsoft.ts"
         ],
-        "90842ca2606b77e450ed92baba9d697474a7df7345776a7ffe1535e0bb6d8b31"
+        "09ffb4ccd5350cf0434ba16c610e96e2253183565862cbf12b8d17147abe1bb7"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/slack.ts"
         ],
-        "f339087c607dd53cca88188080f688d537a561c6c2738c75904f475795014d7b"
+        "546d0faf0a7e4f834c5358e705ca34e0c98a3619350d87587c4a8957a22ac8e7"
     ],
     [
         [
@@ -2104,7 +2104,7 @@
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "0371b7722f5c8e5b4c3d34c111bab06a46e6ee2c4795a4348b31771df9b747a3"
+        "cdddee253eaa8b0fa7fd93004793a3a61c119bf5f2033ecc646e4b7b3e3cd7c2"
     ],
     [
         [
@@ -2132,14 +2132,14 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "617fea5ceb7ceffa39385850a597ec2d5a42547b17d3ba13f7441ba775f2560c"
+        "8171c10fd4a07294f0b1121575bb1a3cfba0859167e3f4dab6004b6eff0d7f73"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "265935b5b4902fa74d5c558ffa8674fac6beb97751a13e6559991002b830e404"
+        "8c087b4a5fed66c878ef5183f4e4368802e46c752245a1697d34052c80651aae"
     ],
     [
         [
@@ -2153,7 +2153,7 @@
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "2d6df0c24b7aed5b05f6c875e3f168dc0f4446abe59438ccd29d8d46ecc817fa"
+        "65b028a240f5eaf7b4553be328b784ccffef05792a1fd5f438b795c506292fde"
     ],
     [
         [
@@ -2167,7 +2167,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "f0ddbb14bd25182b33479baec41a66f08aaa931329febcc830f34542260dd5c5"
+        "ed52ae25dc265ee5928374ad5acf19fc4236e1ff0bb9accc335c7419e4df5eff"
     ],
     [
         [

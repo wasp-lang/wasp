@@ -4,7 +4,7 @@ import {
 } from 'express';
 import * as arctic from 'arctic';
 
-import type { ProviderConfig } from 'wasp/server/auth/providers/types';
+import type { ProviderConfig } from 'wasp/auth/providers/types';
 
 import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
 

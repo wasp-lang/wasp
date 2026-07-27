@@ -24,6 +24,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -36,7 +37,9 @@ genAuth spec =
         [ genUserTs auth,
           genFileCopyInAuth [relfile|providerData.ts|],
           genFileCopyInAuth [relfile|validation.ts|],
-          genIndexTs auth
+          genIndexTs auth,
+          genProvidersTypes auth,
+          genProvdersIndex auth
         ]
         -- client stuff
         <++> sequence
@@ -98,6 +101,40 @@ genIndexTs auth =
         ]
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+
+genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
+genProvdersIndex auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        ]
+    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    authMethods = AS.Auth.methods auth
+
+genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
+genProvidersTypes auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|providers/types.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+    authMethods = AS.Auth.methods auth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 authDirInSdkTemplatesDir = [reldir|auth|]

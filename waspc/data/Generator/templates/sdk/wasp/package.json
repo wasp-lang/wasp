@@ -12,12 +12,13 @@
   {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
   {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
+    {=! =============================================================== =}
     {=! Each export here is always available to users. =}
     {=! However, only the public API for users is documented. =}
     {=! =============================================================== =}
     {=! Public API for users. Documented. =}
     {=! Modules users import in their own code. =}
-    {=! Some are also imported by the generated server/client runtime, =}
+    {=! Some are also imported by the generated server runtime, =}
     {=! those have a comment saying which exports each side uses. =}
     {=! =============================================================== =}
     "./auth": "./dist/auth/index.js",
@@ -59,18 +60,20 @@
     "./server/webSocket": "./dist/server/webSocket/index.js",
 
     {=! =============================================================== =}
+    {=! Runtime agnostic. Undocumented. =}
+    {=! =============================================================== =}
+    "./auth/user": "./dist/auth/user.js",
+    "./core/serialization": "./dist/core/serialization/index.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
+    "./auth/providers/types": "./dist/auth/providers/types.js",
+
+    {=! =============================================================== =}
     {=! Server runtime only. Undocumented. =}
     {=! =============================================================== =}
-    {=! Runtime-agnostic module, kept unprefixed; only the server runtime imports it directly. =}
-    "./auth/user": "./dist/auth/user.js",
-    {=! Runtime-agnostic module, kept unprefixed; only the server runtime imports it directly. =}
-    "./core/serialization": "./dist/core/serialization/index.js",
     "./server/auth/email": "./dist/server/auth/email/index.js",
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
-    "./server/auth/providers/types": "./dist/server/auth/providers/types.js",
-    "./server/auth/providers": "./dist/server/auth/providers/index.js",
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",

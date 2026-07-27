@@ -1,6 +1,6 @@
 {{={= =}=}}
 
-import type { ProviderConfig } from "wasp/server/auth/providers/types";
+import type { ProviderConfig } from "wasp/auth/providers/types";
 import { keycloak } from "wasp/server/auth";
 import { env } from "wasp/server";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";

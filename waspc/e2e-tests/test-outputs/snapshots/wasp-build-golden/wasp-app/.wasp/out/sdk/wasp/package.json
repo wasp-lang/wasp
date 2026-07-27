@@ -32,6 +32,8 @@
   },
   "exports": {
     "./auth": "./dist/auth/index.js",
+    "./auth/providers": "./dist/auth/providers/index.js",
+    "./auth/providers/types": "./dist/auth/providers/types.js",
     "./auth/user": "./dist/auth/user.js",
     "./auth/validation": "./dist/auth/validation.js",
     "./client": "./dist/client/index.js",
@@ -58,8 +60,6 @@
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
-    "./server/auth/providers": "./dist/server/auth/providers/index.js",
-    "./server/auth/providers/types": "./dist/server/auth/providers/types.js",
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",

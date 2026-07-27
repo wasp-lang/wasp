@@ -17,7 +17,7 @@ import {
   providerDataHasPasswordField,
 } from '../../auth/providerData.js'
 
-import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
+import { type UserSignupFields, type PossibleUserFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).

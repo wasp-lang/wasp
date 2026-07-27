@@ -1,7 +1,7 @@
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../../universal/types.js'
-import type { ProviderName } from '../utils'
+import type { Expand, Exact } from '../../universal/types.js'
+import type { ProviderName } from '../../server/auth/utils'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(

@@ -1,6 +1,6 @@
 export {
   defineUserSignupFields,
-} from './providers/types.js'
+} from '../../auth/providers/types.js'
 
 export {
   createProviderId,

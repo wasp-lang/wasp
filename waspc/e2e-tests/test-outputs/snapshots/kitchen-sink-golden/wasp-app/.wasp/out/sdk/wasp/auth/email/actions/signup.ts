@@ -1,6 +1,6 @@
 import { api, handleApiError } from '../../../api/index.js';
 import { SuccessResponseSchema } from '../../responseSchemas';
-import { type UserEmailSignupFields } from '../../../server/auth/providers'
+import { type UserEmailSignupFields } from '../../providers'
 
 type EmailSignupData = {
   email: string

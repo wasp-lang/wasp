@@ -5,7 +5,7 @@ import { rethrowPossibleAuthError } from 'wasp/server/auth/utils'
 import {
   type UserSignupFields,
   type ProviderConfig,
-} from 'wasp/server/auth/providers/types'
+} from 'wasp/auth/providers/types'
 import {
   type OAuthType,
   type OAuthStateFor,
