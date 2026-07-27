@@ -6,12 +6,10 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
-import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -28,7 +26,6 @@ genServerAuth spec =
     Just auth ->
       sequence
         [ genAuthIndex auth,
-          genAuthUser auth,
           genHooks auth
         ]
         <++> genAuthEmail auth
@@ -49,24 +46,6 @@ genAuthIndex auth =
           "isExternalAuthEnabled" .= isExternalAuthEnabled
         ]
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
-
-genAuthUser :: AS.Auth.Auth -> Generator FileDraft
-genAuthUser auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|user.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "userEntityName" .= userEntityName,
-          "authEntityName" .= DbAuth.authEntityName,
-          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
-          "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
-          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
-        ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =

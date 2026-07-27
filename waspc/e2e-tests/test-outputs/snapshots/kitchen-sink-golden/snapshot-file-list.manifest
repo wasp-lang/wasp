@@ -62,6 +62,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/helpers/Slack.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/user.ts
 wasp-app/.wasp/out/sdk/wasp/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/logout.ts
+wasp-app/.wasp/out/sdk/wasp/auth/providerData.ts
 wasp-app/.wasp/out/sdk/wasp/auth/responseSchemas.ts
 wasp-app/.wasp/out/sdk/wasp/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/useAuth.ts
@@ -267,6 +268,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js
@@ -647,10 +652,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/user.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/user.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/user.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/user.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.js
@@ -1098,7 +1099,6 @@ wasp-app/.wasp/out/sdk/wasp/server/auth/password.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/providers/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/providers/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/session.ts
-wasp-app/.wasp/out/sdk/wasp/server/auth/user.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/config.ts
 wasp-app/.wasp/out/sdk/wasp/server/core/auth.ts
