@@ -78,7 +78,9 @@
     "./server/jobs/*": "./dist/server/jobs/*.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    {=! FIXME: Reconsider during refactoring whether this is still needed. =}
     "./server/middleware": "./dist/server/middleware/index.js",
+    {=! FIXME: Reconsider during refactoring whether this is still needed. =}
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
 
