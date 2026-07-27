@@ -17,13 +17,14 @@ const SubscribeForm = ({ className, inputBgColor }) => {
     event.preventDefault();
 
     try {
-      await fetch(createNewEmailSubscriberApiEndpoint, {
+      const res = await fetch(createNewEmailSubscriberApiEndpoint, {
         method: "POST",
         body: "userGroup=&email=" + email,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
       setMessage("Thank you for subscribing! 🙏");
     } catch (error) {
       setMessage("🛑 Oops! Something went wrong. Please try again.");
