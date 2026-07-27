@@ -10,14 +10,14 @@ It consists of three main parts:
 
 ### Installation
 
-```
-$ npm install
+```sh
+npm install
 ```
 
 ### Local Development
 
-```
-$ npm start
+```sh
+npm start
 ```
 
 This command starts a local development server and opens up a browser window.
@@ -33,8 +33,8 @@ We have a few guides on how to write documentation:
 
 ### Build
 
-```
-$ npm build
+```sh
+npm build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
@@ -43,14 +43,16 @@ To run this version of code and check that it works correctly, run `npm run serv
 
 ### LLM file snapshots
 
-The build also generates `llms*.txt` files (see [scripts/generate-llm-files.ts](scripts/generate-llm-files.ts)). To catch unintended changes in that output, we keep snapshots of a few representative files in [markdown-snapshots/](markdown-snapshots/) and compare them against the build output in CI on every PR that touches `web/`.
+The build also generates `llms*.txt` files (see [scripts/generate-llm-files.ts](scripts/generate-llm-files.ts)). To catch unintended changes in that output, we keep snapshots of a few representative files in [markdown-snapshots/](markdown-snapshots/) and compare them against the build output in CI.
 
 If the check fails and the changes are intended, update the snapshots and commit the result:
 
+``` sh
+npm run build
+npm run markdown-snapshots:update
 ```
-$ npm run build
-$ npm run markdown-snapshots:update
-```
+
+NOTE: Files in `static/` dir can override whatever is generate on build. Make sure you don't have any stale static files.
 
 ### Deployment
 
@@ -58,21 +60,21 @@ We deploy the website to Cloudflare Pages. When you want to deploy changes from 
 
 1. Make sure you have the `release` branch ready with all the changes you want to deploy.
 2. Check out the `deploy-web` branch:
-```
+```sh
 git checkout deploy-web
-```
+```sh
 3. Merge the `release` branch into `deploy-web`:
-```
+```sh
 git merge release
 ```
 4. Push the `deploy-web` branch to the remote:
-```
+```sh
 git push
 ```
 5. Cloudflare Pages will automatically pick up the changes and deploy them.
 6. Check that the [Algolia docs search crawler restart](https://github.com/wasp-lang/wasp/actions/workflows/automation-algolia-restart-crawler.yaml) succeeded.
 7. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
-```
+```sh
 git checkout release
 ```
 
