@@ -136,13 +136,9 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp",
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],

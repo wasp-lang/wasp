@@ -18,6 +18,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
     ```python
     .
+    ├── AGENTS.md     # Instructions for AI coding agents.
+    ├── CLAUDE.md     # Symlink to AGENTS.md.
     ├── main.wasp.ts  # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
@@ -42,6 +44,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
     ```python
     .
+    ├── AGENTS.md     # Instructions for AI coding agents.
+    ├── CLAUDE.md     # Symlink to AGENTS.md.
     ├── main.wasp.ts  # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
@@ -95,13 +99,10 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}", // Pins the version of Wasp to use.
-  },
+  // Pins the version of Wasp to use.
+  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp", // Used as the browser tab title.
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   // Add your specs here so Wasp knows to register them.
   spec: [
     route("RootRoute", "/", page(MainPage)),
