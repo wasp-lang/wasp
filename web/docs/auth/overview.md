@@ -11,12 +11,6 @@ import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 
-Here's a 1-minute tour of how full-stack auth works in Wasp:
-
-<div className="video-container">
-  <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
-</div>
-
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
