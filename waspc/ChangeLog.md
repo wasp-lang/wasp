@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
+
 ## 0.25.0
 
 ### ⚠️ Breaking Changes
