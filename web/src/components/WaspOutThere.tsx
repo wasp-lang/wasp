@@ -250,7 +250,10 @@ const FeaturedTestimonial = () => (
 
 const ProjectCard = ({ project }: { project: RealApp }) => (
   <div className="flex h-full flex-col overflow-hidden border border-wasp-black bg-wasp-white transition-shadow hover:shadow-md">
-    <Link to={project.linkUrl} className="block no-underline hover:no-underline">
+    <Link
+      to={project.linkUrl}
+      className="block no-underline hover:no-underline"
+    >
       <img
         src={project.imageSrc}
         alt={project.name}
