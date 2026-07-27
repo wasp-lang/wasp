@@ -220,7 +220,6 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
     Wasp.AppSpec.Entity
-    Wasp.AppSpec.Entity.Field
     Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
