@@ -10,21 +10,15 @@ import Data.Maybe
     maybeToList,
   )
 import StrongPath
-  ( File',
-    Path,
-    Posix,
-    Rel,
-    relDirToPosix,
+  ( relDirToPosix,
     relfile,
   )
-import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -64,7 +58,7 @@ getServerVirtualUserModulesData spec =
         importLocation = fromJust $ relDirToPosix serverSrcDirInServerRootDir
 
         virtualModuleId = getJsImportPathStringFromPath $ getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir
-        userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel SourceExternalCodeDir) File'
+        userDefinedPathInExtSrcDir = EI.path extImport
 
     maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn

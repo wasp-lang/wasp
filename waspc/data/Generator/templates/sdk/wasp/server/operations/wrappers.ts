@@ -50,7 +50,7 @@ export type UnauthenticatedOperationFor<
  *   return () => fn();
  * }
  * const badServerOperation = badCreateOperation(someUserOperation);
- *       ^! ❌ ReferenceError: Cannot access 'someUserOperation' before initialization
+ *       ^! ReferenceError: Cannot access 'someUserOperation' before initialization
  * const someUserOperation = () => 1;
  * ```
  * 
@@ -129,7 +129,7 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  *   return () => fn();
  * }
  * const badServerOperation = badCreateOperation(someUserOperation);
- *       ^! ❌ ReferenceError: Cannot access 'someUserOperation' before initialization
+ *       ^! ReferenceError: Cannot access 'someUserOperation' before initialization
  * const someUserOperation = () => 1;
  * ```
  * 

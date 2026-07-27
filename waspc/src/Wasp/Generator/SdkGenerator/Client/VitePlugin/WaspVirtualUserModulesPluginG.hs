@@ -6,13 +6,11 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (maybeToList)
-import StrongPath (File', Path, Posix, Rel, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getVirtualUserModuleJsImportPath)
@@ -44,7 +42,7 @@ getClientVirtualUserModulesData spec =
         jsImport = GJI.extImportToRelativeSrcImportFromViteExecution extImport
 
         virtualModuleId = getJsImportPathStringFromPath $ getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir
-        userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel SourceExternalCodeDir) File'
+        userDefinedPathInExtSrcDir = EI.path extImport
 
     maybeClientEnvSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
