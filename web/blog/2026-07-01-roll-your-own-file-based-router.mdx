@@ -330,10 +330,10 @@ export default app({
 
     // the above call ⬆️ will turn into the following specs ⬇️
 
-    route("RootPage", "/", page(RootPage), { prerender: true }),
-    route("AboutUsPage", "/about-us", page(AboutUsPage), { prerender: true }),
-    route("ProductIdPage", "/products/:productId", page(ProductIdPage)),
-    route("DashboardPage", "/dashboard", page(DashboardPage), { authRequired: true }),
+    route("RootRoute", "/", page(RootPage), { prerender: true }),
+    route("AboutUsRoute", "/about-us", page(AboutUsPage), { prerender: true }),
+    route("ProductIdRoute", "/products/:productId", page(ProductIdPage)),
+    route("DashboardRoute", "/dashboard", page(DashboardPage), { authRequired: true }),
   ],
 });
 ```
