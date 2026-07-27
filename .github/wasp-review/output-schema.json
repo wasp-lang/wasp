@@ -27,11 +27,6 @@
             "type": "string",
             "enum": ["ERROR", "WARNING", "INFO"]
           },
-          "rule": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 255
-          },
           "path": {
             "type": "string",
             "minLength": 1,
@@ -50,7 +45,6 @@
           "title",
           "body",
           "severity",
-          "rule",
           "path",
           "startLine",
           "endLine"

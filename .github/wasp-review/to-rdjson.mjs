@@ -11,7 +11,6 @@ const limits = {
   findings: findingsSchema.maxItems,
   title: findingProperties.title.maxLength,
   body: findingProperties.body.maxLength,
-  rule: findingProperties.rule.maxLength,
   path: findingProperties.path.maxLength,
 };
 const severities = new Set(findingProperties.severity.enum);
@@ -87,7 +86,6 @@ const diagnostics = review.findings.map((finding, index) => {
 
   const title = validateString(finding.title, `${label} title`, limits.title);
   const body = validateString(finding.body, `${label} body`, limits.body);
-  const rule = validateString(finding.rule, `${label} rule`, limits.rule);
   const findingPath = validatePath(finding.path, label);
 
   if (!Number.isInteger(finding.startLine) || finding.startLine < 1) {
@@ -115,7 +113,6 @@ const diagnostics = review.findings.map((finding, index) => {
       },
     },
     severity: finding.severity,
-    code: { value: rule },
   };
 });
 
