@@ -4,12 +4,9 @@ module Wasp.Generator.SdkGenerator.JsImport
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (File', Path, Posix, Rel)
-import qualified StrongPath.FilePath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport), JsImportPath (RawImportName))
+import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 
 -- | The SDK must not import values from the user project (ext imports)
 -- directly, because that would create a cyclic dependency between the
@@ -40,8 +37,4 @@ extImportToVirtualUserModuleJsImport extImport@(EI.ExtImport extImportName extIm
     }
   where
     importName = GJI.extImportNameToJsImportName extImportName
-    importPath = getVirtualUserModuleJsImportPath extImportPath
-
-getVirtualUserModuleJsImportPath :: Path Posix (Rel SourceExternalCodeDir) File' -> JsImportPath
-getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir =
-  RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP userDefinedPathInExtSrcDir
+    importPath = GJI.getVirtualUserModuleJsImportPath extImportPath

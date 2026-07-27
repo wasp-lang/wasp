@@ -4,13 +4,14 @@ module Wasp.Generator.JsImport
     extImportToRelativeSrcImportFromViteExecution,
     getAliasedExtImportIdentifier,
     extImportNameToJsImportName,
+    getVirtualUserModuleJsImportPath,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir, Path, Posix, Rel, (</>))
+import StrongPath (Dir, File', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
@@ -19,7 +20,7 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (RelativeImportPath),
+    JsImportPath (RawImportName, RelativeImportPath),
     getJsDynamicImportExpression,
     getJsImportIdentifier,
     getJsImportPathString,
@@ -72,9 +73,13 @@ extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportN
     importPath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
     projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
 
-getAliasedExtImportIdentifier :: EI.ExtImport -> String
-getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"
-
 extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
 extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
 extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
+
+getAliasedExtImportIdentifier :: EI.ExtImport -> String
+getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"
+
+getVirtualUserModuleJsImportPath :: Path Posix (Rel SourceExternalCodeDir) File' -> JsImportPath
+getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir =
+  RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP userDefinedPathInExtSrcDir
