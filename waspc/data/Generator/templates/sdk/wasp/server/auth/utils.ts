@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from '../../auth/validation.js'
 
-import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
+import { type UserSignupFields, type PossibleUserFields } from '../../auth/providers/types.js'
 
 // PUBLIC API
 export type EmailProviderData = {

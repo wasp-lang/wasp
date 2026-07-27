@@ -2,7 +2,7 @@
 import { api, handleApiError } from '../../../api/index.js';
 import { SuccessResponseSchema } from '../../responseSchemas';
 {=# emailUserSignupFields.isDefined =}
-import { type UserEmailSignupFields } from '../../../server/auth/providers'
+import { type UserEmailSignupFields } from '../../providers'
 {=/ emailUserSignupFields.isDefined =}
 
 type EmailSignupData = {

@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Router } from "express";
 
-import { ProviderConfig } from "wasp/server/auth/providers/types";
+import { ProviderConfig } from "wasp/auth/providers/types";
 import type { EmailFromField } from "wasp/server/email/core/types";
 
 import { getLoginRoute } from "../email/login.js";

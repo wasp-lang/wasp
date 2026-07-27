@@ -20,7 +20,6 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
@@ -39,9 +38,7 @@ genServerAuth spec =
           genFileCopyInServerAuth [relfile|jwt.ts|],
           genSessionTs auth,
           genLuciaTs auth,
-          genUtils auth,
-          genProvidersTypes auth,
-          genProvdersIndex auth
+          genUtils auth
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
@@ -144,40 +141,6 @@ genUtils auth =
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvdersIndex auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
-        ]
-    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
-    authMethods = AS.Auth.methods auth
-
-genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
-genProvidersTypes auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|providers/types.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
-        ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
-    authMethods = AS.Auth.methods auth
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =

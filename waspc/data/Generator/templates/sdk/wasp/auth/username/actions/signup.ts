@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { api, handleApiError } from '../../../api/index.js'
 {=# usernameAndPasswordUserSignupFields.isDefined =}
-import { type UserUsernameAndPasswordSignupFields } from '../../../server/auth/providers'
+import { type UserUsernameAndPasswordSignupFields } from '../../providers'
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 type UsernameSignupData = {

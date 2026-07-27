@@ -62,6 +62,8 @@ wasp-app/.wasp/out/sdk/wasp/auth/helpers/Slack.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/user.ts
 wasp-app/.wasp/out/sdk/wasp/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/logout.ts
+wasp-app/.wasp/out/sdk/wasp/auth/providers/index.ts
+wasp-app/.wasp/out/sdk/wasp/auth/providers/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/responseSchemas.ts
 wasp-app/.wasp/out/sdk/wasp/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/useAuth.ts
@@ -267,6 +269,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js
@@ -635,14 +645,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/password.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/password.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/password.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/password.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/index.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/index.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/index.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/types.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/types.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/types.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/auth/providers/types.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js
@@ -1095,8 +1097,6 @@ wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/microsoft.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/slack.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/redirect.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/password.ts
-wasp-app/.wasp/out/sdk/wasp/server/auth/providers/index.ts
-wasp-app/.wasp/out/sdk/wasp/server/auth/providers/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/session.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/user.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/utils.ts
