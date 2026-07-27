@@ -18,7 +18,7 @@
     {=! =============================================================== =}
     {=! Public API for users. Documented. =}
     {=! Modules users import in their own code. =}
-    {=! Some are also imported by the generated server/client runtime, =}
+    {=! Some are also imported by the generated server runtime, =}
     {=! those have a comment saying which exports each side uses. =}
     {=! =============================================================== =}
     "./auth": "./dist/auth/index.js",
