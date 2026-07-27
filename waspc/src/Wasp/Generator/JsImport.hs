@@ -2,8 +2,6 @@ module Wasp.Generator.JsImport
   ( extImportToJsImport,
     jsImportToImportJson,
     extImportToRelativeSrcImportFromViteExecution,
-    extImportToVirtualUserModuleJsImport,
-    getVirtualUserModuleJsImportPath,
     getAliasedExtImportIdentifier,
     extImportNameToJsImportName,
   )
@@ -12,7 +10,7 @@ where
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir, File', Path, Posix, Rel, (</>))
+import StrongPath (Dir, Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
@@ -21,7 +19,7 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportKind (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (RawImportName, RelativeImportPath),
+    JsImportPath (RelativeImportPath),
     getJsDynamicImportExpression,
     getJsImportIdentifier,
     getJsImportPathString,
@@ -73,24 +71,6 @@ extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportN
     importName = extImportNameToJsImportName extImportName
     importPath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
     projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
-
-extImportToVirtualUserModuleJsImport ::
-  EI.ExtImport ->
-  JsImport
-extImportToVirtualUserModuleJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
-  JsImport
-    { _kind = ValueImport,
-      _path = importPath,
-      _name = importName,
-      _importAlias = Just $ getAliasedExtImportIdentifier extImport
-    }
-  where
-    importName = extImportNameToJsImportName extImportName
-    importPath = getVirtualUserModuleJsImportPath extImportPath
-
-getVirtualUserModuleJsImportPath :: Path Posix (Rel SourceExternalCodeDir) File' -> JsImportPath
-getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir =
-  RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP userDefinedPathInExtSrcDir
 
 getAliasedExtImportIdentifier :: EI.ExtImport -> String
 getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"

@@ -4,8 +4,12 @@ module Wasp.Generator.SdkGenerator.JsImport
 where
 
 import qualified Data.Aeson as Aeson
+import StrongPath (File', Path, Posix, Rel)
+import qualified StrongPath.FilePath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.Generator.JsImport as GJI
+import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport), JsImportPath (RawImportName))
 
 -- | The SDK must not import values from the user project (ext imports)
 -- directly, because that would create a cyclic dependency between the
@@ -22,4 +26,22 @@ import qualified Wasp.Generator.JsImport as GJI
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
   where
-    jsImport = GJI.extImportToVirtualUserModuleJsImport <$> maybeExtImport
+    jsImport = extImportToVirtualUserModuleJsImport <$> maybeExtImport
+
+extImportToVirtualUserModuleJsImport ::
+  EI.ExtImport ->
+  JsImport
+extImportToVirtualUserModuleJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+  JsImport
+    { _kind = ValueImport,
+      _path = importPath,
+      _name = importName,
+      _importAlias = Just $ GJI.getAliasedExtImportIdentifier extImport
+    }
+  where
+    importName = GJI.extImportNameToJsImportName extImportName
+    importPath = getVirtualUserModuleJsImportPath extImportPath
+
+getVirtualUserModuleJsImportPath :: Path Posix (Rel SourceExternalCodeDir) File' -> JsImportPath
+getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir =
+  RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP userDefinedPathInExtSrcDir
