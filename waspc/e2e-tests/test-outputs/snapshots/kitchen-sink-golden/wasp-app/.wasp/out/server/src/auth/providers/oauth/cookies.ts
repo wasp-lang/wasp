@@ -4,7 +4,7 @@ import {
 } from 'express';
 import { parseCookies } from '@wasp.sh/lib-auth/node';
 
-import type { ProviderConfig } from 'wasp/auth/providers/types';
+import type { ProviderConfig } from 'wasp/server/auth/providers/types';
 import { config } from 'wasp/server';
 
 import type { OAuthStateFieldName } from './state';

@@ -1,15 +1,14 @@
-{{={= =}=}}
 import { hashPassword } from './password.js'
-import { prisma, HttpError } from '../server/index.js'
-import { sleep } from '../server/utils.js'
+import { prisma, HttpError } from '../index.js'
+import { sleep } from '../utils.js'
 import {
-  type {= userEntityUpper =},
-  type {= authEntityUpper =},
-  type {= authIdentityEntityUpper =},
-} from '../entities/index.js'
+  type User,
+  type Auth,
+  type AuthIdentity,
+} from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { throwValidationError } from './validation.js'
+import { throwValidationError } from '../../auth/validation.js'
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
@@ -54,14 +53,14 @@ export type ProviderName = keyof PossibleProviderData
 // PRIVATE API
 export const contextWithUserEntity = {
   entities: {
-    {= userEntityUpper =}: prisma.{= userEntityLower =}
+    User: prisma.user
   }
 }
 
 // PRIVATE API
 export const authConfig = {
-  failureRedirectPath: "{= failureRedirectPath =}",
-  successRedirectPath: "{= successRedirectPath =}",
+  failureRedirectPath: "/login",
+  successRedirectPath: "/",
 }
 
 // PUBLIC API
@@ -118,8 +117,8 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
 }
 
 // PUBLIC API
-export async function findAuthIdentity(providerId: ProviderId): Promise<{= authIdentityEntityUpper =} | null> {
-  return prisma.{= authIdentityEntityLower =}.findUnique({
+export async function findAuthIdentity(providerId: ProviderId): Promise<AuthIdentity | null> {
+  return prisma.authIdentity.findUnique({
     where: {
       providerName_providerUserId: providerId,
     }
@@ -139,7 +138,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   providerId: ProviderId,
   existingProviderData: PossibleProviderData[PN],
   providerDataUpdates: Partial<PossibleProviderData[PN]>,
-): Promise<{= authIdentityEntityUpper =}> {
+): Promise<AuthIdentity> {
   // We are doing the sanitization here only on updates to avoid
   // hashing the password multiple times.
   const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
@@ -148,7 +147,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
     ...sanitizedProviderDataUpdates,
   }
   const serializedProviderData = await serializeProviderData<PN>(newProviderData);
-  return prisma.{= authIdentityEntityLower =}.update({
+  return prisma.authIdentity.update({
     where: {
       providerName_providerUserId: providerId,
     },
@@ -157,15 +156,15 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
 }
 
 // PRIVATE API
-export type FindAuthWithUserResult = {= authEntityUpper =} & {
-  {= userFieldOnAuthEntityName =}: {= userEntityUpper =}
+export type FindAuthWithUserResult = Auth & {
+  user: User
 }
 
 // PRIVATE API
 export async function findAuthWithUserBy(
-  where: Prisma.{= authEntityUpper =}WhereInput
+  where: Prisma.AuthWhereInput
 ): Promise<FindAuthWithUserResult | null> {
-  const result = await prisma.{= authEntityLower =}.findFirst({ where, include: { {= userFieldOnAuthEntityName =}: true }});
+  const result = await prisma.auth.findFirst({ where, include: { user: true }});
 
   if (result === null) {
     return null;
@@ -179,8 +178,8 @@ export async function findAuthWithUserBy(
 }
 
 // PUBLIC API
-export type CreateUserResult = {= userEntityUpper =} & {
-  auth: {= authEntityUpper =} | null
+export type CreateUserResult = User & {
+  auth: Auth | null
 }
 
 // PUBLIC API
@@ -189,14 +188,14 @@ export async function createUser(
   serializedProviderData?: string,
   userFields?: PossibleUserFields,
 ): Promise<CreateUserResult> {
-  return prisma.{= userEntityLower =}.create({
+  return prisma.user.create({
     data: {
       // Using any here to prevent type errors when userFields are not
       // defined. We want Prisma to throw an error in that case.
       ...(userFields ?? {} as any),
-      {= authFieldOnUserEntityName =}: {
+      auth: {
         create: {
-          {= identitiesFieldOnAuthEntityName =}: {
+          identities: {
               create: {
                   providerName: providerId.providerName,
                   providerUserId: providerId.providerUserId,
@@ -209,14 +208,14 @@ export async function createUser(
     // We need to include the Auth entity here because we need `authId`
     // to be able to create a session.
     include: {
-      {= authFieldOnUserEntityName =}: true,
+      auth: true,
     },
   })
 }
 
 // PRIVATE API
 export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
-  return prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
+  return prisma.user.deleteMany({ where: { auth: {
     id: authId,
   } } })
 }
@@ -267,7 +266,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2003 is for foreign key constraint failure
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
     console.error(e)
-    console.info(`🐝 This error can happen if you have some relation on your {= userEntityUpper =} entity
+    console.info(`🐝 This error can happen if you have some relation on your User entity
    but you didn't specify the "onDelete" behaviour to either "Cascade" or "SetNull".
    Read more at: https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions`)
     throw new HttpError(500, 'Save failed', {

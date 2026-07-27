@@ -1,11 +1,12 @@
+{{={= =}=}}
 import { Lucia } from "lucia";
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
-import { prisma } from '../server/index.js'
-import { type User } from "../entities/index.js"
+import { prisma } from '../index.js'
+import { type {= userEntityUpper =} } from "../../entities/index.js"
 
 const prismaAdapter = new PrismaAdapter(
-  prisma.session,
-  prisma.auth,
+  prisma.{= sessionEntityLower =},
+  prisma.{= authEntityLower =},
 );
 
 // PRIVATE API
@@ -21,7 +22,7 @@ const prismaAdapter = new PrismaAdapter(
  *    make fetching the User easier.
  */
 export const auth = new Lucia<{}, {
-  userId: User['id']
+  userId: {= userEntityUpper =}['id']
 }>(prismaAdapter, {
   // Since we are not using cookies, we don't need to set any cookie options.
   // But in the future, if we decide to use cookies, we can set them here.
@@ -46,7 +47,7 @@ declare module "lucia" {
     Lucia: typeof auth;
     DatabaseSessionAttributes: {};
     DatabaseUserAttributes: {
-      userId: User['id']
+      userId: {= userEntityUpper =}['id']
     };
   }
 }

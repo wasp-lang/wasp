@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { createJWT, TimeSpan } from '../../../auth/jwt.js'
+import { createJWT, TimeSpan } from '../jwt.js'
 import { emailSender } from '../../email/index.js';
 import { Email } from '../../email/core/types.js';
 import {
@@ -8,7 +8,7 @@ import {
   findAuthIdentity,
   getProviderDataWithPassword,
   type EmailProviderData,
-} from '../../../auth/utils.js';
+} from '../utils.js';
 import { config as waspServerConfig } from '../../index.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 

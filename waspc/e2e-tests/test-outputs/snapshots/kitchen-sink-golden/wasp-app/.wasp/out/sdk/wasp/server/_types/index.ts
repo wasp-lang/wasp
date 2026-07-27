@@ -96,4 +96,4 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<
   Context<Entities> & { user?: AuthUser }
 >
 
-export type { ProviderName } from '../../auth/utils.js'
+export type { ProviderName } from '../auth/utils.js'

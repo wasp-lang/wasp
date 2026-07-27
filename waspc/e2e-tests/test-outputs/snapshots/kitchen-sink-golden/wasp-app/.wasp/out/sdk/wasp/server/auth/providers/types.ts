@@ -1,7 +1,6 @@
-{{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types.js'
+import type { Expand, Exact } from '../../../universal/types.js'
 import type { ProviderName } from '../utils'
 
 // PUBLIC API
@@ -11,17 +10,10 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-{=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
+import { emailUserSignupFields as emailUserSignupFields_ext } from 'wasp/src/features/auth/providers/email'
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
-{=/ emailUserSignupFields.isDefined =}
+export type UserEmailSignupFields = InferUserSignupFields<typeof emailUserSignupFields_ext>;
 
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
-// PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 /**
  * Extracts the result types from a UserSignupFields object.
@@ -36,7 +28,7 @@ type InferUserSignupFields<T extends UserSignupFields> = {
     : never
 }
 
-type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
+type UserEntityCreateInput = Prisma.UserCreateInput
 
 // PRIVATE API
 export type ProviderConfig = {

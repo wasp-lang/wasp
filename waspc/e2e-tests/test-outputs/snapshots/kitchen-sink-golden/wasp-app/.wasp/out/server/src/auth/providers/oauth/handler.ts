@@ -1,11 +1,11 @@
 import { Router } from 'express'
 
 import { defineHandler, redirect } from 'wasp/server/utils'
-import { rethrowPossibleAuthError } from 'wasp/auth/utils'
+import { rethrowPossibleAuthError } from 'wasp/server/auth/utils'
 import {
   type UserSignupFields,
   type ProviderConfig,
-} from 'wasp/auth/providers/types'
+} from 'wasp/server/auth/providers/types'
 import {
   type OAuthType,
   type OAuthStateFor,

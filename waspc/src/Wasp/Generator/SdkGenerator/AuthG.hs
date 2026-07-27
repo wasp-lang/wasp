@@ -36,7 +36,9 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ genFileCopyInAuth [relfile|user.ts|]
+        [ genFileCopyInAuth [relfile|user.ts|],
+          genFileCopyInAuth [relfile|validation.ts|],
+          genIndexTs auth
         ]
         -- client stuff
         <++> sequence
@@ -52,16 +54,14 @@ genAuth spec =
         <++> genEmailAuth auth
         -- server stuff
         <++> sequence
-          [ genFileCopy [relfile|core/auth.ts|],
-            genFileCopyInAuth [relfile|validation.ts|],
-            genFileCopyInAuth [relfile|password.ts|],
-            genFileCopyInAuth [relfile|jwt.ts|],
+          [ genFileCopy [relfile|server/core/auth.ts|],
+            genFileCopyInServerAuth [relfile|password.ts|],
+            genFileCopyInServerAuth [relfile|jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,
             genUtils auth,
             genProvidersTypes auth,
-            genProvdersIndex auth,
-            genIndexTs auth
+            genProvdersIndex auth
           ]
         <++> genOAuth auth
   where
@@ -84,7 +84,7 @@ genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
 genLuciaTs auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|lucia.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|lucia.ts|])
       tmplData
   where
     tmplData =
@@ -100,7 +100,7 @@ genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|session.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|session.ts|])
       tmplData
   where
     tmplData =
@@ -116,7 +116,7 @@ genUtils :: AS.Auth.Auth -> Generator FileDraft
 genUtils auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|utils.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|utils.ts|])
       tmplData
   where
     tmplData =
@@ -154,7 +154,7 @@ genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvdersIndex auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
       tmplData
   where
     tmplData =
@@ -170,7 +170,7 @@ genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|providers/types.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|providers/types.ts|])
       tmplData
   where
     tmplData =
@@ -187,6 +187,13 @@ genProvidersTypes auth =
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 authDirInSdkTemplatesDir = [reldir|auth|]
 
+serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]
+
 genFileCopyInAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuth =
   genFileCopy . (authDirInSdkTemplatesDir </>)
+
+genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInServerAuth =
+  genFileCopy . (serverAuthDirInSdkTemplatesDir </>)

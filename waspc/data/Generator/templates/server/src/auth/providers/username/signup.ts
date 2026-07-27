@@ -5,14 +5,14 @@ import {
   createUser,
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
-} from 'wasp/auth/utils'
+} from 'wasp/server/auth/utils'
 import {
   ensureValidUsername,
   ensurePasswordIsPresent,
   ensureValidPassword,
 } from 'wasp/auth/validation'
-import { validateAndGetUserFields } from 'wasp/auth/utils'
-import type { UserSignupFields } from 'wasp/auth/providers/types'
+import { validateAndGetUserFields } from 'wasp/server/auth/utils'
+import type { UserSignupFields } from 'wasp/server/auth/providers/types'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
 export function getSignupRoute({

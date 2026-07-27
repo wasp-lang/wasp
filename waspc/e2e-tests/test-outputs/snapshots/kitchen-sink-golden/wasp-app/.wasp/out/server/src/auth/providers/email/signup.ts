@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import type { UserSignupFields } from 'wasp/auth/providers/types'
+import type { UserSignupFields } from 'wasp/server/auth/providers/types'
 import {
   createProviderId,
   createUser,
@@ -10,7 +10,7 @@ import {
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
-} from 'wasp/auth/utils'
+} from 'wasp/server/auth/utils'
 import {
   ensurePasswordIsPresent,
   ensureValidEmail,

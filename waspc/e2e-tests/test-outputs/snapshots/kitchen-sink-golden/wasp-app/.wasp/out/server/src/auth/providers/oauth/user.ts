@@ -6,10 +6,10 @@ import {
   validateAndGetUserFields,
   createProviderId,
   findAuthWithUserBy,
-} from 'wasp/auth/utils'
+} from 'wasp/server/auth/utils'
 import { type Auth } from 'wasp/entities'
 import { prisma } from 'wasp/server'
-import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
+import { type UserSignupFields, type ProviderConfig } from 'wasp/server/auth/providers/types'
 import { type OAuthData } from 'wasp/server/auth'
 import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
 import {

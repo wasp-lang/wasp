@@ -1,6 +1,6 @@
 import { createJWTHelpers } from "@wasp.sh/lib-auth/node";
 
-import { config } from "../server/index.js";
+import { config } from "../index.js";
 
 const JWT_SECRET = new TextEncoder().encode(config.auth.jwtSecret);
 const JWT_ALGORITHM = "HS256";

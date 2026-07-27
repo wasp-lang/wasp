@@ -74,7 +74,7 @@
             "file",
             "sdk/wasp/auth/email/actions/signup.ts"
         ],
-        "7269867432c12155e9d61039d62f6e55a36baf8da9e08d36e62574323e15510b"
+        "5043688bc279f52881b4c314fd29d6646e1491bdd1ec53164b2a8495ca43e96f"
     ],
     [
         [
@@ -310,44 +310,9 @@
     [
         [
             "file",
-            "sdk/wasp/auth/jwt.ts"
-        ],
-        "2dac080ce999bc05b13dde31ffa024188fb780d6a30a7f161aae0a095b6ed290"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/auth/logout.ts"
         ],
         "463e1faa09bc61e2ac9614b3c701d8e7a9ba1333eb01327e10a0b9078ce40df3"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/lucia.ts"
-        ],
-        "ca1000a7376dec292d6d2a3f36a2285178bd3258f8309b2ecd437858a4a71586"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/password.ts"
-        ],
-        "081a715926ee3bd14700d32cfc4d6c27994b205c52ad28e741406f2c9b5ceb84"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/providers/index.ts"
-        ],
-        "939426c791647133bfafb3c4ced039d64f2ae058e0da60c6ae31901fb903e281"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/providers/types.ts"
-        ],
-        "c76ad894f7f8342916370fcd00bb2032a900dc5111c3ff137e159d66d9dd1391"
     ],
     [
         [
@@ -359,16 +324,9 @@
     [
         [
             "file",
-            "sdk/wasp/auth/session.ts"
-        ],
-        "9e5c012cf5e55110e76d6cde45c8c2e0939364283af1cac699e1c85ac7850e24"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/auth/types.ts"
         ],
-        "72a5decb07df6254620d28673cfa3760ba012a8a41a2d67c25102979e9abdbcf"
+        "9b4270ccf2394919a3eae6d22c08079039875773f21472b9b62f719f6529d664"
     ],
     [
         [
@@ -383,13 +341,6 @@
             "sdk/wasp/auth/user.ts"
         ],
         "def17b8f5c4602736fefb2aec8e3773cd368851509211fd1a470ff71b827dc2d"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/utils.ts"
-        ],
-        "59031378776dc0976f534b55d82017a6c63af90044950cee5ce4740cdc25c077"
     ],
     [
         [
@@ -828,13 +779,6 @@
     [
         [
             "file",
-            "sdk/wasp/core/auth.ts"
-        ],
-        "7fec068e7351dba07c69c169de4bf6b0998da26bab93ea8a9057a83fd1386fea"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/core/serialization/custom-register.ts"
         ],
         "38f1a0116cfb33532872d3b5cbb47bd2b695ff59197832758d049151d40c138c"
@@ -886,7 +830,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "88b3f779d7f46c52a8b58cb2098c531e8fbd4a894b23d8fb9de0cc24af4ff9a6"
+        "31fd1794500eb765202015e3717e088c75818f6698e8e8cea0f04061c5467db6"
     ],
     [
         [
@@ -921,7 +865,7 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "103cc7962043d09d1c7913c6e9fc81cdc343cc9b623e99dcae347fa11ac39370"
+        "c9182a97f5e017b7c41889c90686a67bf31c85d66ae50cc163d25b9d9e9a432c"
     ],
     [
         [
@@ -949,21 +893,35 @@
             "file",
             "sdk/wasp/server/auth/email/utils.ts"
         ],
-        "70058ca2c6ed0fba011f5044936a75537c5fcbff77ff3d32fdeb24b3c2edcd3d"
+        "fbfb680c1cfb964be0893f681a7c72150d97631ce1c19bd0543df6903e22b5da"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "eeed54475dc629b87bee0f652ced2fa45268e9464c07438133aebfcafa4069c2"
+        "cc3061d8d51ad18e69f3b15e00174b17d172c989ba583094b8fc5d51023ff527"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "294696cc338792acbb6b9833a51801163947952cb040ef418ea84eeac6048537"
+        "ff9655a1acaa6c8f84a307dc677da007d8ca64458aef3c23d91ab790312db8ee"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/jwt.ts"
+        ],
+        "94ff0c4280ba5ba0f7be0100cc9bf48b528c49f1fb87624dbb5e4da8618160a0"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/lucia.ts"
+        ],
+        "6ad98f2dd688ed660244432f54837a67e7c3534e57a9134994b7dd1a0a579d39"
     ],
     [
         [
@@ -977,7 +935,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/oneTimeCode.ts"
         ],
-        "0cee805003b69e48c01bb1e7bfefb4bc6d0fab504ada926f5c3de6f8a5505335"
+        "ec39ac2441a70aef4b4c54f699cbeaecaa5f4b03639ed4e85727c2edd0d7efd3"
     ],
     [
         [
@@ -1031,9 +989,44 @@
     [
         [
             "file",
+            "sdk/wasp/server/auth/password.ts"
+        ],
+        "081a715926ee3bd14700d32cfc4d6c27994b205c52ad28e741406f2c9b5ceb84"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/providers/index.ts"
+        ],
+        "939426c791647133bfafb3c4ced039d64f2ae058e0da60c6ae31901fb903e281"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/providers/types.ts"
+        ],
+        "9c05876014503a9c7f735e9ff737ffae020ca9e56a842bece9d8f485468300a9"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/session.ts"
+        ],
+        "db6fa4eb8ccdc81a69ca6470ec0a3c7bbe2139a084bfdb7e0acfff8e179466a2"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/auth/user.ts"
         ],
-        "a2a6b38bf27a1324a0cc097b904b4431bbce626dec99f6c53ed7ec95ef13351e"
+        "8de6fa1fc917258a3eef0ba9d37e93716665298ca61a8f365dbeb5446a14dd71"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/utils.ts"
+        ],
+        "b0c00adb46440094b6ab7b4bd563b74b87a39612e132ebec977d005d673aee60"
     ],
     [
         [
@@ -1041,6 +1034,13 @@
             "sdk/wasp/server/config.ts"
         ],
         "9d9b57bd3ad748fe7f63c6487772c1c3386873dc28001565a8cb315b75b1df54"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/core/auth.ts"
+        ],
+        "18b22086a1158c60c47458912de8cc6833004bd6faade1a786a35988c174b2ba"
     ],
     [
         [
@@ -2041,77 +2041,77 @@
             "file",
             "server/src/auth/providers/config/discord.ts"
         ],
-        "e18413bf3013b160deeaa195680086c6ef02a0b470fecea9de75c90afd550365"
+        "b7ce92df039044911b178f8f0bdd4a73b6339b51011ce49bcec09896f41ad66f"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/email.ts"
         ],
-        "3e2735d8f5e299df7158f0db563b80f792c252eade168170c7d89e6f64804680"
+        "6754e60e9e2a8631f3b2ffe2a6d5a4a246a50e69738cbf8fcf675abea87e561b"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/github.ts"
         ],
-        "ac4ecb92c0c4e00bd8080eaafa4aacfe3a6c36bb9391fc65181f2981502d2328"
+        "4bc172e83bc6f993a56ba32ab2e9b0eec037c754cb0fb1645bea3498c8bb398b"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "4b9e240b8659bddfad56f79fb7d3af5c00c20dab1aca764fdf2d3254d912ff10"
+        "8272bcbcef89f60f3dc2ab8042be87ca4503dd865df94e60b647058b5cae08e7"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/microsoft.ts"
         ],
-        "09ffb4ccd5350cf0434ba16c610e96e2253183565862cbf12b8d17147abe1bb7"
+        "90842ca2606b77e450ed92baba9d697474a7df7345776a7ffe1535e0bb6d8b31"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/slack.ts"
         ],
-        "546d0faf0a7e4f834c5358e705ca34e0c98a3619350d87587c4a8957a22ac8e7"
+        "f339087c607dd53cca88188080f688d537a561c6c2738c75904f475795014d7b"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/login.ts"
         ],
-        "0e5e33ebaa449bc28e4e56239f6eabbd2f490bf6c9bb2068df22de39338190b6"
+        "766d2b6a186a1f16e4aba25d53a4ae38f0b7da8730e7827d2ae400c7544faff5"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "e8649887b5baef1122b4da2d408a07ca11d3351b9b525d88c801b1940e2c2797"
+        "3646670b948ccae196e59adf96c46ef4f83781d16b3e87616b3635af8a0553af"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/resetPassword.ts"
         ],
-        "c9be4471a3696179a688300f38b961446986bb17ea708cef7e93ffb16798436f"
+        "7c23987065f0bd9871b76243ec8db87321f23c7e85cfbfe97b8fdbbcf6653d25"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "46127f60b4439d1bad905d326922ea39d7d25596b8b55279d80db7a33ba752fc"
+        "0371b7722f5c8e5b4c3d34c111bab06a46e6ee2c4795a4348b31771df9b747a3"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/verifyEmail.ts"
         ],
-        "d490e638b15584710647492913286203403df77fc9e24c972c5977e490f83186"
+        "97986f2345b92fb41f2dd9983acb501542512da5f3fe97a0cb20756cadb6f202"
     ],
     [
         [
@@ -2132,28 +2132,28 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "8171c10fd4a07294f0b1121575bb1a3cfba0859167e3f4dab6004b6eff0d7f73"
+        "617fea5ceb7ceffa39385850a597ec2d5a42547b17d3ba13f7441ba775f2560c"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "ed664d19bae3a1c00162f47f6f74d296ea7cf5d681ae66ea6de742cc3d8781b3"
+        "265935b5b4902fa74d5c558ffa8674fac6beb97751a13e6559991002b830e404"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/oneTimeCode.ts"
         ],
-        "f3e2e99678628dce42c6ef68581a6689f90aeae7205bb6863d6fe5ec3bca6b80"
+        "52488a7a332fdc827b2f7a11cc3b1a8c6cc117f2c126b9b85988e97e5ace3cad"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "65b028a240f5eaf7b4553be328b784ccffef05792a1fd5f438b795c506292fde"
+        "2d6df0c24b7aed5b05f6c875e3f168dc0f4446abe59438ccd29d8d46ecc817fa"
     ],
     [
         [
@@ -2167,14 +2167,14 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "c9ad77f70a0cfc66c79783e09a2cce9849e4bf03712b5c0b53ef1b73295c230c"
+        "f0ddbb14bd25182b33479baec41a66f08aaa931329febcc830f34542260dd5c5"
     ],
     [
         [
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "ec3743598066198bc985071ef867d97c03ea2e8957e98f96320fab7821f1a293"
+        "5e3cb940d5f6416af6cceff3b17565ad51b6f7c6de2955a489f3dba14c87f50a"
     ],
     [
         [
@@ -2321,21 +2321,21 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "83ef7b37c5b37e337f8eebce4c8f2682811b4ec2ca870954cca51b1315637c09"
+        "dd5557f6ed73b1757ddbfa3af823db02f175c18c2b0e828224185011b9e6023b"
     ],
     [
         [
             "file",
             "server/src/routes/auth/index.js"
         ],
-        "9e57345816199759a42c4d8b37b8621eee587820e679e46278d12204d0cb130a"
+        "2d43a67bcd77538f8c10854ab04af569692a0b64b2f3a888323ae54ab51cbc1c"
     ],
     [
         [
             "file",
             "server/src/routes/auth/logout.ts"
         ],
-        "d8e1a2224fb075256bb7dd222a2c2a4297bda9eddc656f94bfc96e9bf73bfc68"
+        "4593abb1d8235eeba9520facace9f5604109ba8552bf06a658312b3ea74255bd"
     ],
     [
         [
@@ -2356,7 +2356,7 @@
             "file",
             "server/src/routes/crud/tasks.ts"
         ],
-        "5bc63fa09485aa5d95c3ad799702fde6dac649eaaf37059a64fefea8cff89e7c"
+        "bcc4b3e0c7db06c5cccc63ec77e87a9a03c4376a4f38c9a7d5bb738f7519513c"
     ],
     [
         [
@@ -2503,7 +2503,7 @@
             "file",
             "server/src/routes/operations/index.js"
         ],
-        "dc4f461f5d6caa8be0295dbabd6ebf2607c532e6202c90f620bb65e88e69241d"
+        "ddaed59e21739c80725aefa3d37e058d9fcab9cd9dd9f5626e2220eb7c008889"
     ],
     [
         [
@@ -2601,7 +2601,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "1da42b92f03f7d2017e4da2bfa8db24bd90eb29dd716cc10e0c985c30c91a182"
+        "0b15b0069d02f049d4ab08271f5add429244989f0c6925b3bd8b0971d58fbb6b"
     ],
     [
         [
