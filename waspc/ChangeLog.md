@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 0.26.0
 
 ### ⚠️ Breaking Changes
 
