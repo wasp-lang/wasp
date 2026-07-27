@@ -39,11 +39,8 @@ import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
-import Wasp.Job.IO
-  ( collectJobTextOutputUntilExitReceived,
-    printJobMsgsUntilExitReceived,
-    readJobMessagesAndPrintThemPrefixed,
-  )
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Output as Output
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
@@ -62,8 +59,8 @@ migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs generatedAppDirAbs 
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
-      (printJobMsgsUntilExitReceived chan)
-      (DbJobs.migrateDev generatedAppDirAbs migrateArgs chan)
+      (Output.printEventsUntilExit chan)
+      (Job.runJob (DbJobs.migrateDev generatedAppDirAbs migrateArgs) chan)
   case dbExitCode of
     ExitSuccess -> finalizeMigration generatedAppDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
@@ -138,7 +135,7 @@ dbReset generatedAppDir resetArgs = do
   removeDbSchemaChecksumFile generatedAppDir dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.reset generatedAppDir resetArgs chan
+    Output.printEventsPrefixedUntilExit chan `concurrently` Job.runJob (DbJobs.reset generatedAppDir resetArgs) chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
@@ -151,8 +148,8 @@ dbSeed ::
 dbSeed serverRunConfig generatedAppDir seedName = do
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan
-      `concurrently` DbJobs.seed serverRunConfig generatedAppDir seedName chan
+    Output.printEventsPrefixedUntilExit chan
+      `concurrently` Job.runJob (DbJobs.seed serverRunConfig generatedAppDir seedName) chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
@@ -162,12 +159,12 @@ testDbConnection ::
   IO DbConnectionTestResult
 testDbConnection generatedAppDir = do
   chan <- newChan
-  exitCode <- DbJobs.dbExecuteTest generatedAppDir chan
+  exitCode <- Job.runJob (DbJobs.dbExecuteTest generatedAppDir) chan
 
   case exitCode of
     ExitSuccess -> return DbConnectionSuccess
     ExitFailure _ -> do
-      outputLines <- collectJobTextOutputUntilExitReceived chan
+      outputLines <- Output.collectTextUntilExit chan
       let databaseNotCreated = any prismaErrorContainsDbNotCreatedError outputLines
 
       return $
@@ -189,8 +186,8 @@ generatePrismaClient generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.generatePrismaClient generatedAppDir chan)
+      (Output.printEventsPrefixedUntilExit chan)
+      (Job.runJob (DbJobs.generatePrismaClient generatedAppDir) chan)
   case exitCode of
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
     ExitSuccess -> do
@@ -210,8 +207,8 @@ doesSchemaMatchDb generatedAppDirAbs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.migrateDiff generatedAppDirAbs chan)
+      (Output.printEventsPrefixedUntilExit chan)
+      (Job.runJob (DbJobs.migrateDiff generatedAppDirAbs) chan)
   -- Schema in sync: 0, Error: 1, Schema differs: 2
   case dbExitCode of
     ExitSuccess -> return $ Just True
@@ -228,8 +225,8 @@ areAllMigrationsAppliedToDb generatedAppDirAbs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.migrateStatus generatedAppDirAbs chan)
+      (Output.printEventsPrefixedUntilExit chan)
+      (Job.runJob (DbJobs.migrateStatus generatedAppDirAbs) chan)
   case dbExitCode of
     ExitSuccess -> return $ Just True
     ExitFailure _ -> return Nothing
