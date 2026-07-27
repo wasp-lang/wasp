@@ -39,6 +39,8 @@ interface RealApp {
   linkText: string;
   linkUrl: string;
   imageSrc: string;
+  storyText?: string;
+  storyUrl?: string;
 }
 
 const WaspOutThere = () => {
@@ -247,27 +249,42 @@ const FeaturedTestimonial = () => (
 );
 
 const ProjectCard = ({ project }: { project: RealApp }) => (
-  <Link
-    to={project.linkUrl}
-    className="block h-full overflow-hidden border border-wasp-black bg-wasp-white no-underline transition-shadow hover:shadow-md"
-  >
-    <img
-      src={project.imageSrc}
-      alt={project.name}
-      className="aspect-video w-full object-cover object-top"
-    />
-    <div className="p-4">
-      <h4 className="mb-1 font-mono text-base font-bold text-wasp-black">
-        {project.name}
-      </h4>
-      <p className="mb-3 text-sm leading-relaxed text-wasp-g6">
-        {project.description}
-      </p>
-      <span className="font-mono text-xs font-semibold text-wasp-black underline decoration-wasp-yellow decoration-2 underline-offset-2">
+  <div className="flex h-full flex-col overflow-hidden border border-wasp-black bg-wasp-white transition-shadow hover:shadow-md">
+    <Link
+      to={project.linkUrl}
+      className="block no-underline hover:no-underline"
+    >
+      <img
+        src={project.imageSrc}
+        alt={project.name}
+        className="aspect-video w-full object-cover object-top"
+      />
+      <div className="px-4 pb-3 pt-4">
+        <h4 className="mb-1 font-mono text-base font-bold text-wasp-black">
+          {project.name}
+        </h4>
+        <p className="text-sm leading-relaxed text-wasp-g6">
+          {project.description}
+        </p>
+      </div>
+    </Link>
+    <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 px-4 pb-4">
+      <Link
+        to={project.linkUrl}
+        className="font-mono text-xs font-semibold text-wasp-black underline decoration-wasp-yellow decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-yellow-dark"
+      >
         {project.linkText}
-      </span>
+      </Link>
+      {project.storyUrl && (
+        <Link
+          to={project.storyUrl}
+          className="inline-flex items-center gap-1 bg-wasp-yellow px-1.5 py-0.5 font-mono text-xs font-semibold text-wasp-black no-underline transition-colors hover:bg-wasp-yellow-dark hover:text-wasp-black hover:no-underline"
+        >
+          {project.storyText ?? "read the story →"}
+        </Link>
+      )}
     </div>
-  </Link>
+  </div>
 );
 
 /* Bottom action zone of the example-app card: repo link + Demo + See the code. */
@@ -497,6 +514,8 @@ const realApps: RealApp[] = [
     linkText: "visit site →",
     linkUrl: "https://www.searchcraft.io/",
     imageSrc: "/img/lp/examples/searchcraft.webp",
+    storyText: "read the story →",
+    storyUrl: "/blog/2026/07/20/made-with-wasp-searchcraft",
   },
 ];
 

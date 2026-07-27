@@ -2,6 +2,8 @@
 
 exports[`generate-app e2e > should generate app from tutorial actions and match snapshots > file-structure 1`] = `
 [
+  "AGENTS.md",
+  "CLAUDE.md",
   "main.wasp.ts",
   "migrations/NORMALIZED_TIMESTAMP_E2E_migrate_db/migration.sql",
   "migrations/migration_lock.toml",
@@ -11,7 +13,7 @@ exports[`generate-app e2e > should generate app from tutorial actions and match 
   "schema.prisma",
   "src/Main.css",
   "src/MainPage.tsx",
-  "src/assets/logo.svg",
+  "src/assets/wasp-logo-rounded.svg",
   "src/testUtils.ts",
   "src/vite-env.d.ts",
   "tsconfig.json",
@@ -39,15 +41,16 @@ create-test-app
 .npmrc
 .waspignore
 .wasproot
+AGENTS.md
+CLAUDE.md
 main.wasp.ts
 package-lock.json
 package.json
-public/.gitkeep
 public/favicon.ico
 schema.prisma
 src/Main.css
 src/MainPage.tsx
-src/assets/logo.svg
+src/assets/wasp-logo-rounded.svg
 src/vite-env.d.ts
 tsconfig.json
 tsconfig.src.json
