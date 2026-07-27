@@ -7,7 +7,6 @@ import {
   serverEnvValidationSchema,
 } from "./src/env" with { type: "ref" };
 import { CatchAllPage } from "./src/pages/CatchAllPage" with { type: "ref" };
-import { HomePage } from "./src/pages/HomePage" with { type: "ref" };
 import {
   serverMiddlewareFn,
   serverSetup,
@@ -23,6 +22,7 @@ import { lazyLoadingSpec } from "./src/features/lazy-loading/lazyLoading.wasp";
 import { operationsSpec } from "./src/features/operations/operations.wasp";
 import { prerenderSpec } from "./src/features/prerender/prerender.wasp";
 import { streamingSpec } from "./src/features/streaming/streaming.wasp";
+import { homeRoute } from "./src/home.wasp";
 import { rpcTestsSpec } from "./src/rpcTests/rpcTests.wasp";
 
 export default app({
@@ -53,7 +53,7 @@ export default app({
     },
   },
   spec: [
-    route("HomeRoute", "/", page(HomePage), { prerender: true }),
+    homeRoute,
     route("CatchAllRoute", "*", page(CatchAllPage)),
     authSpec,
     operationsSpec,

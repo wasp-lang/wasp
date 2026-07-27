@@ -13,14 +13,12 @@ export function convertWaspSpecToAppSpec(
     entityNames: string[];
   },
 ): AppSpec.Decl[] {
-  const specElements = flattenSpecElements(app.spec);
-
   const { ctx, collectedDeclsByKey } = makeAppMapperContext({
     entityNames,
     projectRootDir,
-    specElements,
   });
 
+  const specElements = flattenSpecElements(app.spec);
   for (const specElement of specElements) {
     ctx.collectSpecElement(specElement);
   }

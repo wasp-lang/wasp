@@ -26,6 +26,8 @@ import { api, app, page, route } from "@wasp.sh/spec"
 import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
+const rootRoute = route("RootRoute", "/", page(MainPage))
+
 export default app({
   name: "SpotifyOauth",
   wasp: { version: "^0.24.0" },
@@ -33,7 +35,7 @@ export default app({
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
-    onAuthFailedRedirectTo: "/",
+    onAuthFailedRedirectTo: rootRoute,
     methods: {
       // highlight-start
       // Enable at least one OAuth provider so Wasp exposes OAuth helpers
@@ -42,7 +44,6 @@ export default app({
     },
   },
   spec: [
-    route("RootRoute", "/", page(MainPage)),
     // highlight-start
     api("GET", "/auth/spotify", authWithSpotify),
     api("GET", "/auth/spotify/callback", authWithSpotifyCallback),
@@ -50,6 +51,8 @@ export default app({
   ],
 })
 ```
+
+Note that `rootRoute` doesn't have to be listed in the `spec` array: referencing it from `auth.onAuthFailedRedirectTo` registers it automatically.
 
 :::note
 The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.

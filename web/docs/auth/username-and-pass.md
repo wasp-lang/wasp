@@ -48,8 +48,9 @@ export default app({
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
-```ts title="main.wasp.ts" {12}
-import { app } from "@wasp.sh/spec"
+```ts title="main.wasp.ts" {13}
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -63,11 +64,13 @@ export default app({
       // 2. Enable username authentication
       usernameAndPassword: {},
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })
 ```
+
+Note that the login route doesn't have to be listed in `spec`: referencing it from `auth` registers it automatically. We'll create its `LoginPage` component in a later step.
 
 Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig.md).
 
@@ -107,16 +110,15 @@ The `User` entity can be as simple as including only the `id` field:
 
 Next, we need to define the routes and pages for the authentication pages.
 
-Add the following to the `main.wasp.ts` file:
+The login route is already registered: we referenced it from `auth` in step 1. That leaves the signup route, which we add to the `spec` array in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
-import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
+import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
-    route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
   ],
 })

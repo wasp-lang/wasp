@@ -81,6 +81,8 @@ import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
+const loginRoute = route("LoginRoute", "/login", page(LoginPage))
+
 export default app({
   name: "tasksCrudApp",
   wasp: { version: "{latestWaspVersion}" },
@@ -93,16 +95,17 @@ export default app({
     methods: {
       usernameAndPassword: {},
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: loginRoute,
   },
   spec: [
     // Tasks app routes
     route("RootRoute", "/", page(MainPage, { authRequired: true, })),
-    route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
   ],
 })
 ```
+
+Note that `loginRoute` isn't listed in the `spec` array: referencing it from `auth` registers it automatically.
 
 And let's define our entities in the `schema.prisma` file:
 

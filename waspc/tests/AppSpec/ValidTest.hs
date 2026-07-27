@@ -140,7 +140,7 @@ spec_AppSpecValid = do
                       AS.Auth.microsoft = Nothing,
                       AS.Auth.email = Nothing
                     },
-                AS.Auth.onAuthFailedRedirectTo = "/",
+                AS.Auth.onAuthFailedRedirectTo = AS.Core.Ref.Ref basicRouteName,
                 AS.Auth.onAuthSucceededRedirectTo = Nothing,
                 AS.Auth.onBeforeSignup = Nothing,
                 AS.Auth.onAfterSignup = Nothing,
@@ -189,7 +189,7 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.methods = authMethods,
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthFailedRedirectTo = AS.Core.Ref.Ref basicRouteName,
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,
@@ -361,7 +361,7 @@ spec_AppSpecValid = do
                                   { AS.Auth.methods =
                                       AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthFailedRedirectTo = AS.Core.Ref.Ref basicRouteName,
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
                                     AS.Auth.onAfterSignup = Nothing,

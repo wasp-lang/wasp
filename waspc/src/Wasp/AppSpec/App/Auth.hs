@@ -34,12 +34,13 @@ import Wasp.AppSpec.App.EmailSender (EmailFromField)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.Route (Route)
 
 data Auth = Auth
   { userEntity :: Ref Entity,
     methods :: AuthMethods,
-    onAuthFailedRedirectTo :: String,
-    onAuthSucceededRedirectTo :: Maybe String,
+    onAuthFailedRedirectTo :: Ref Route,
+    onAuthSucceededRedirectTo :: Maybe (Ref Route),
     onBeforeSignup :: Maybe ExtImport,
     onAfterSignup :: Maybe ExtImport,
     onAfterEmailVerified :: Maybe ExtImport,

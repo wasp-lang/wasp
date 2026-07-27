@@ -27,8 +27,7 @@ Enabling Keycloak Authentication comes down to a series of steps:
 1. Enabling Keycloak authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating a Keycloak client.
-4. Adding the necessary Routes and Pages
-5. Using Auth UI components in our Pages.
+4. Using Auth UI components in our Pages.
 
 <WaspFileStructureNote />
 
@@ -37,7 +36,8 @@ Enabling Keycloak Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -53,13 +53,15 @@ export default app({
       // highlight-next-line
       keycloak: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })
 ```
 
 `userEntity` is explained in [the social auth overview](./overview.md#user-entity).
+
+`onAuthFailedRedirectTo` takes a `route(...)` value. You don't have to list this route in the `spec` array: referencing it from `auth` registers it automatically. We'll define the `LoginPage` component in a later step.
 
 ### 2. Adding the User Entity
 
@@ -114,27 +116,7 @@ KEYCLOAK_REALM_URL=https://your-keycloak-url.com/realms/master
 
 We assumed in the `KEYCLOAK_REALM_URL` env variable that you are using the `master` realm. If you are using a different realm, replace `master` with your realm name.
 
-### 5. Adding the Necessary Routes and Pages
-
-Let's define the necessary authentication Routes and Pages.
-
-Add the following code to your `main.wasp.ts` file:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { LoginPage } from "./src/pages/auth" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("LoginRoute", "/login", page(LoginPage)),
-  ],
-})
-```
-
-We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
-
-### 6. Create the Client Pages
+### 5. Create the Client Pages
 
 <SocialLoginClientPages />
 
@@ -150,7 +132,8 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `keycloak: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -163,7 +146,7 @@ export default app({
       // highlight-next-line
       keycloak: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })
@@ -202,7 +185,8 @@ The fields you receive will depend on the scopes you requested. The default scop
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "ref" }
 
 export default app({
@@ -220,7 +204,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage))
   },
   // ...
 })

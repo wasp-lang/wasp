@@ -1,5 +1,7 @@
 import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
 
+import { homeRoute } from "../../home.wasp";
+
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
   onAfterEmailVerified,
@@ -73,16 +75,24 @@ export const authConfig: Auth = {
       },
       emailVerification: {
         getEmailContentFn: getVerificationEmailContent,
-        clientRoute: "EmailVerificationRoute",
+        clientRoute: route(
+          "EmailVerificationRoute",
+          "/email-verification-",
+          page(EmailVerification),
+        ),
       },
       passwordReset: {
         getEmailContentFn: getPasswordResetEmailContent,
-        clientRoute: "PasswordResetRoute",
+        clientRoute: route(
+          "PasswordResetRoute",
+          "/password-reset",
+          page(PasswordReset),
+        ),
       },
     },
   },
-  onAuthFailedRedirectTo: "/login",
-  onAuthSucceededRedirectTo: "/",
+  onAuthFailedRedirectTo: route("LoginRoute", "/login", page(Login)),
+  onAuthSucceededRedirectTo: homeRoute,
   onBeforeSignup,
   onAfterSignup,
   onAfterEmailVerified,
@@ -92,13 +102,6 @@ export const authConfig: Auth = {
 
 export const authSpec: Spec = [
   route("SignupRoute", "/signup", page(Signup)),
-  route("LoginRoute", "/login", page(Login)),
-  route("PasswordResetRoute", "/password-reset", page(PasswordReset)),
-  route(
-    "EmailVerificationRoute",
-    "/email-verification-",
-    page(EmailVerification),
-  ),
   route(
     "RequestPasswordResetRoute",
     "/request-password-reset",

@@ -1,8 +1,16 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index 4d3c796..cfdf5eb 100644
+index 4d3c796..c8b8c83 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
-@@ -8,6 +8,13 @@ export default app({
+@@ -1,5 +1,7 @@
+ import { action, app, page, query, route } from "@wasp.sh/spec";
+ import { MainPage } from "./src/MainPage" with { type: "ref" };
++import { SignupPage } from "./src/SignupPage" with { type: "ref" };
++import { LoginPage } from "./src/LoginPage" with { type: "ref" };
+ import { getTasks } from "./src/queries" with { type: "ref" };
+ import { createTask, updateTask } from "./src/actions" with { type: "ref" };
+ 
+@@ -8,8 +10,16 @@ export default app({
    wasp: { version: "^0.24.0" },
    title: "TodoApp",
    head: ["<link rel='icon' href='/favicon.ico' />"],
@@ -11,8 +19,11 @@ index 4d3c796..cfdf5eb 100644
 +    methods: {
 +      usernameAndPassword: {},
 +    },
-+    onAuthFailedRedirectTo: "/login",
++    onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
 +  },
    spec: [
      route("RootRoute", "/", page(MainPage)),
++    route("SignupRoute", "/signup", page(SignupPage)),
      query(getTasks, { entities: ["Task"] }),
+     action(createTask, { entities: ["Task"] }),
+     action(updateTask, { entities: ["Task"] }),

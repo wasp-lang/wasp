@@ -22,6 +22,10 @@ Wasp now uses **React Router 8**. The upgrade is backwards compatible for typica
 
 Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster builds. Testing moves to **Vitest 4.1** to stay compatible.
 
+### Type-checked auth routes
+
+Auth route references are now **type-checked**. The `onAuthFailedRedirectTo` and `onAuthSucceededRedirectTo` fields, and the email `emailVerification`/`passwordReset` `clientRoute` fields, now take a `route()` object instead of a path or route-name string. This guarantees every reference points at a route that actually exists. A referenced route that isn't already listed in `spec` is registered automatically, so you can define it in place without repeating it.
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -148,6 +152,87 @@ In `tsconfig.src.json`:
   </TabItem>
 </Tabs>
 
-### 4. Enjoy your updated Wasp app
+### 4. Pass `route()` objects to your `auth` config
+
+If your app uses `auth`, replace the string route references with the matching `route()` object. The redirect fields (`onAuthFailedRedirectTo`, `onAuthSucceededRedirectTo`) and the email `clientRoute` fields no longer accept strings. Since referenced routes are registered automatically, a route that was only listed in `spec` to be referenced here can be defined inline.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    export default app({
+      // ...
+      auth: {
+        // ...
+        methods: {
+          email: {
+            // ...
+            emailVerification: {
+              clientRoute: "EmailVerificationRoute",
+            },
+            passwordReset: {
+              clientRoute: "PasswordResetRoute",
+            },
+          },
+        },
+        onAuthFailedRedirectTo: "/login",
+        onAuthSucceededRedirectTo: "/",
+      },
+      spec: [
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("HomeRoute", "/", page(HomePage)),
+        route(
+          "EmailVerificationRoute",
+          "/email-verification",
+          page(EmailVerificationPage),
+        ),
+        route("PasswordResetRoute", "/password-reset", page(PasswordResetPage)),
+        // ...
+      ],
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    // A route referenced in more than one place can be shared through a variable.
+    const homeRoute = route("HomeRoute", "/", page(HomePage));
+
+    export default app({
+      // ...
+      auth: {
+        // ...
+        methods: {
+          email: {
+            // ...
+            emailVerification: {
+              clientRoute: route(
+                "EmailVerificationRoute",
+                "/email-verification",
+                page(EmailVerificationPage),
+              ),
+            },
+            passwordReset: {
+              clientRoute: route(
+                "PasswordResetRoute",
+                "/password-reset",
+                page(PasswordResetPage),
+              ),
+            },
+          },
+        },
+        onAuthFailedRedirectTo: route("LoginRoute", "/login", page(LoginPage)),
+        onAuthSucceededRedirectTo: homeRoute,
+      },
+      // The routes referenced above are registered automatically, so they no
+      // longer need to be listed here.
+      spec: [
+        homeRoute,
+        // ...
+      ],
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+### 5. Enjoy your updated Wasp app
 
 That's it!
