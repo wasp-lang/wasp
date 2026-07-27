@@ -151,5 +151,5 @@ to ensure nothing has changed unexpectedly.
 When you intentionally change the tutorial action executor behavior, run the tests in update mode:
 
 ```bash
-$ npm run test --update
+$ npm test -- -u
 ```
