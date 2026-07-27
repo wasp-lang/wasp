@@ -1,4 +1,4 @@
-module Job.ProcessTest where
+module Job.SubprocessTest where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import Data.Maybe (isNothing)
@@ -8,22 +8,23 @@ import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn, shouldSatisfy)
 import qualified Wasp.Job as J
-import qualified Wasp.Job.Process as Process
+import qualified Wasp.Job.Subprocess as Subprocess
 import Wasp.Util (secondsToMicroSeconds)
 
-spec_runProcessAsJob :: Spec
-spec_runProcessAsJob =
-  describe "runProcessAsJob" $ do
+spec_runSubprocess :: Spec
+spec_runSubprocess =
+  describe "Subprocess.run" $ do
     it "decodes split and incomplete UTF-8 on stdout" $
       runSplitUtf8Process "stdout" J.Stdout `shouldReturn` "€�"
 
     it "decodes split and incomplete UTF-8 on stderr" $
       runSplitUtf8Process "stderr" J.Stderr `shouldReturn` "€�"
 
-runSplitUtf8Process :: String -> J.JobOutputType -> IO T.Text
+runSplitUtf8Process :: String -> J.JobOutputStream -> IO T.Text
 runSplitUtf8Process streamName expectedOutputType = do
   chan <- newChan
-  exitCode <- Process.runProcessAsJob (P.proc "node" ["-e", splitUtf8Script streamName]) J.Wasp chan
+  let action = Subprocess.run (P.proc "node" ["-e", splitUtf8Script streamName]) >>= J.requireExitSuccess
+  exitCode <- J.runJob (J.makeJob J.Wasp action) chan
   exitCode `shouldBe` ExitSuccess
   output <- collectOutputUntilExit expectedOutputType chan
   remainingMessage <- timeout (secondsToMicroSeconds 0.1) $ readChan chan
@@ -38,16 +39,16 @@ splitUtf8Script streamName =
     <> streamName
     <> ".write(Buffer.from([0x82, 0xac, 0xe2])), 200);"
 
-collectOutputUntilExit :: J.JobOutputType -> Chan J.JobMessage -> IO T.Text
+collectOutputUntilExit :: J.JobOutputStream -> Chan J.JobEvent -> IO T.Text
 collectOutputUntilExit expectedOutputType chan = go []
   where
     go collected = do
-      message <- readChan chan
-      J._jobType message `shouldBe` J.Wasp
-      case J._data message of
+      event <- readChan chan
+      J._jobKind event `shouldBe` J.Wasp
+      case J._eventData event of
         J.JobOutput output outputType -> do
           outputType `shouldBe` expectedOutputType
           go (output : collected)
-        J.JobExit exitCode -> do
+        J.JobExited exitCode -> do
           exitCode `shouldBe` ExitSuccess
           return $ T.concat $ reverse collected

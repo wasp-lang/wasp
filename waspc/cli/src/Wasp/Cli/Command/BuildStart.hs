@@ -11,6 +11,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
+import qualified Wasp.Cli.Command.BuildStart.Job as BuildStartJob
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
@@ -20,9 +21,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Job.Except (ExceptJob)
-import qualified Wasp.Job.Except as ExceptJob
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import qualified Wasp.Job.Output as Output
 import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
@@ -49,30 +48,32 @@ buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
   runAndPrintJob "Building client failed." $
-    buildClient config
+    BuildStartJob.run $
+      buildClient config
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
   runAndPrintJob "Building server failed." $
-    buildServer config
+    BuildStartJob.run $
+      buildServer config
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
   runAndPrintJob "Starting Wasp app failed." $
-    ExceptJob.race_
+    BuildStartJob.race
       (startClient config)
       (startServer config)
   where
-    runAndPrintJob :: String -> ExceptJob -> Command ()
-    runAndPrintJob errorMessage job = do
-      liftIO (runAndPrintJobIO job)
+    runAndPrintJob :: String -> BuildStartJob.JobExecution -> Command ()
+    runAndPrintJob errorMessage executeJob = do
+      liftIO (runAndPrintJobIO executeJob)
         >>= either (throwError . CommandError errorMessage) return
 
-    runAndPrintJobIO :: ExceptJob -> IO (Either String ())
-    runAndPrintJobIO job = do
+    runAndPrintJobIO :: BuildStartJob.JobExecution -> IO (Either String ())
+    runAndPrintJobIO executeJob = do
       chan <- newChan
       (result, _) <-
         concurrently
-          (runExceptT $ job chan)
-          (readJobMessagesAndPrintThemPrefixed chan)
+          (runExceptT $ executeJob chan)
+          (Output.printEventsPrefixedUntilExit chan)
       return result

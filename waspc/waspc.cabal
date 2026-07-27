@@ -150,6 +150,7 @@ library
     pretty-simple ^>=4.1.3,
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
+    resourcet ^>=1.3.0,
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
@@ -160,7 +161,12 @@ library
     utf8-string ^>=1.0.2,
     validation-selective ^>=0.2.0,
 
-  other-modules: Paths_waspc
+  other-modules:
+    Paths_waspc
+    Wasp.Job.Internal
+    Wasp.Job.Output.Internal
+    Wasp.Job.Subprocess.Finite
+
   exposed-modules:
     Wasp.Analyzer
     Wasp.Analyzer.AnalyzeError
@@ -348,12 +354,10 @@ library
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Job
-    Wasp.Job.Common
-    Wasp.Job.Except
-    Wasp.Job.IO
-    Wasp.Job.IO.PrefixedWriter
     Wasp.Job.Node
-    Wasp.Job.Process
+    Wasp.Job.Output
+    Wasp.Job.Output.Prefixed
+    Wasp.Job.Subprocess
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
@@ -491,6 +495,7 @@ library cli-lib
     Wasp.Cli.Command.BuildStart.ArgumentsParser
     Wasp.Cli.Command.BuildStart.Client
     Wasp.Cli.Command.BuildStart.Config
+    Wasp.Cli.Command.BuildStart.Job
     Wasp.Cli.Command.BuildStart.Server
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean
@@ -572,6 +577,7 @@ test-suite waspc-tests
 
   build-depends:
     aeson,
+    async,
     base,
     containers,
     deepseq,
@@ -584,6 +590,7 @@ test-suite waspc-tests
     parsec,
     path,
     process,
+    resourcet,
     split,
     strong-path,
     tasty ^>=1.5.3,
@@ -620,7 +627,8 @@ test-suite waspc-tests
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
-    Job.ProcessTest
+    Job.SubprocessTest
+    JobTest
     JsImportTest
     Node.InternalTest
     Paths_waspc

@@ -8,15 +8,16 @@ import Control.Concurrent.Async (concurrently)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import qualified Wasp.Generator.WebAppGenerator.Test as WebAppTest
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Output as Output
 import Wasp.Project.Common (WaspProjectDir)
 
 testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 testWebApp args waspProjectDir = do
   chan <- newChan
-  let testWebAppJob = WebAppTest.testWebApp args waspProjectDir chan
+  let testWebAppJob = Job.runJob (WebAppTest.testWebApp args waspProjectDir) chan
   (testExitCode, _) <-
-    testWebAppJob `concurrently` readJobMessagesAndPrintThemPrefixed chan
+    testWebAppJob `concurrently` Output.printEventsPrefixedUntilExit chan
   case testExitCode of
     ExitSuccess -> return $ Right ()
     -- Exit code 130 is thrown when user presses Ctrl+C.

@@ -4,26 +4,28 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan, threadDelay)
+import Control.Concurrent (Chan, newChan, threadDelay)
 import Control.Concurrent.Async (concurrently)
+import qualified Control.Concurrent.Async as Async
 import Control.Monad (when)
+import Control.Monad.Catch (finally)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Resource (allocate, release)
 import Data.Functor ((<&>))
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
-import Wasp.Job (JobMessage)
-import qualified Wasp.Job as J
-import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
-import Wasp.Job.Node (runNodeCommandAndStreamOutputWithExtraEnv)
+import qualified Wasp.Job as Job
+import Wasp.Job.Internal (JobOutputEmitter, emitJobOutputIO, getJobOutputEmitter)
+import qualified Wasp.Job.Node as Node
+import qualified Wasp.Job.Output as Job.Output
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUitl
@@ -67,43 +69,30 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
-  Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+  Chan Job.JobEvent -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies messagesChan projectDir =
-  handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob messagesChan
-    <&> snd
+  Job.Output.printEventsPrefixedUntilExit messagesChan `concurrently` Job.runJob installProjectDepsJob messagesChan
     <&> \case
-      ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
-      _success -> Right ()
+      (_, ExitFailure code) -> Left $ "Project setup failed with exit code " ++ show code ++ "."
+      (_, ExitSuccess) -> Right ()
   where
-    installProjectDepsJob =
-      J.makeJob J.Wasp $ \outputSink ->
-        installNpmDependenciesAndReport
-          (runNodeCommandAndStreamOutputWithExtraEnv [] projectDir "npm" ["install"] outputSink)
-          outputSink
-    handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
-    handleProjectInstallMessages = runPrefixedWriter . processMessages
-      where
-        processMessages :: Chan J.JobMessage -> PrefixedWriter ()
-        processMessages chan = do
-          jobMsg <- liftIO $ readChan chan
-          case J._data jobMsg of
-            J.JobOutput {} -> printJobMessagePrefixed jobMsg >> processMessages chan
-            J.JobExit {} -> return ()
+    installProjectDepsJob = Job.makeJob Job.Wasp $ do
+      exitCode <- installNpmDependenciesAndReport $ Node.run projectDir "npm" ["install"]
+      Job.requireExitSuccess exitCode
 
-installNpmDependenciesAndReport :: IO ExitCode -> J.JobOutputSink -> IO ExitCode
-installNpmDependenciesAndReport install outputSink = do
-  J.writeJobOutput outputSink J.Stdout "Starting npm install\n"
-  result <- install `race` reportInstallationProgress outputSink
-  case result of
-    Left exitCode -> return exitCode
-    Right _ -> error "This should never happen, reporting installation progress should run forever."
+installNpmDependenciesAndReport :: Job.JobAction ExitCode -> Job.JobAction ExitCode
+installNpmDependenciesAndReport install = do
+  Job.emitJobOutput Job.Stdout "Starting npm install\n"
+  outputEmitter <- getJobOutputEmitter
+  (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputEmitter) Async.cancel
+  install `finally` release progressReporterKey
 
-reportInstallationProgress :: J.JobOutputSink -> IO ()
-reportInstallationProgress outputSink = reportPeriodically allPossibleMessages
+reportInstallationProgress :: JobOutputEmitter -> IO ()
+reportInstallationProgress outputEmitter = reportPeriodically allPossibleMessages
   where
     reportPeriodically messages = do
       threadDelay $ secondsToMicroSeconds 5
-      J.writeJobOutput outputSink J.Stdout $ T.append (head messages) "\n"
+      emitJobOutputIO outputEmitter Job.Stdout $ T.append (head messages) "\n"
       threadDelay $ secondsToMicroSeconds 5
       reportPeriodically $ drop 1 messages
     allPossibleMessages =
