@@ -153,7 +153,7 @@ replaceServerProcess serverDir controller serverStateRef nextServerProcessIdRef 
   startServerProcess serverDir controller serverStateRef nextServerProcessIdRef
 
 bundleServer :: Path' Abs (Dir ServerRootDir) -> Job.JobAction ExitCode
-bundleServer serverDir = Node.run serverDir "npm" ["run", "bundle"]
+bundleServer serverDir = Node.runReturningExitCode serverDir "npm" ["run", "bundle"]
 
 startServerProcess ::
   Path' Abs (Dir ServerRootDir) ->
