@@ -10,6 +10,8 @@ import InstallInstructions from './\_install-instructions.md'
 
 ## What's new in 0.26?
 
+<!-- TBA -->
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version

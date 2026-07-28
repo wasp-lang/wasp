@@ -1,6 +1,5 @@
 ---
 title: Railway
-title-llm: Automated Deployment to Railway with Wasp CLI
 ---
 
 import { Required } from '@site/src/components/Tag';

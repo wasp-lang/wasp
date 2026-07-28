@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "//": "Keep in sync with `src/plugins/llm-files/markdown-docs/markdown-routes.ts`.",
+  "include": ["/docs", "/docs/*", "/blog/*", "/resources/*"],
+  "//": "We ignore any explicit file type routes. Since they already define the file type, we don't need to negotiate for it.",
+  "exclude": [
+    "/*.css",
+    "/*.js",
+    "/*.mjs",
+    "/*.map",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.gif",
+    "/*.svg",
+    "/*.webp",
+    "/*.avif",
+    "/*.ico",
+    "/*.woff",
+    "/*.woff2",
+    "/*.ttf",
+    "/*.pdf",
+    "/*.md",
+    "/*.html"
+  ]
+}
