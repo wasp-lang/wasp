@@ -3,6 +3,7 @@ module Wasp.Job.Node
     makeCreateProcessWithExtraEnv,
     run,
     runWithExtraEnv,
+    runReturningExitCode,
     makeJob,
     makeJobWithExtraEnv,
   )
@@ -13,9 +14,10 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode)
 import qualified System.Process as P
 import qualified Wasp.Job as Job
+import Wasp.Job.Internal (failWithExitCode)
 import qualified Wasp.Job.Subprocess as Subprocess
 import qualified Wasp.Node.Version as NodeVersion
 
@@ -24,22 +26,34 @@ makeJob = makeJobWithExtraEnv []
 
 makeJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobKind -> Job.Job
 makeJobWithExtraEnv extraEnvVars fromDir command args jobKind =
-  Job.makeJob jobKind $ do
-    exitCode <- runWithExtraEnv extraEnvVars fromDir command args
-    Job.requireExitSuccess exitCode
+  Job.makeJob jobKind $
+    runWithExtraEnv extraEnvVars fromDir command args
 
-run :: Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode
+-- | Runs the command to completion, failing the Job on a nonzero child exit.
+run :: Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ()
 run = runWithExtraEnv []
 
-runWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode
+runWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ()
 runWithExtraEnv extraEnvVars fromDir command args =
+  runWithExtraEnvReturningExitCode extraEnvVars fromDir command args >>= Job.requireExitSuccess
+
+-- | Runs the command and returns the child process's exit status for explicit handling.
+runReturningExitCode :: Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode
+runReturningExitCode = runWithExtraEnvReturningExitCode []
+
+runWithExtraEnvReturningExitCode :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode
+runWithExtraEnvReturningExitCode extraEnvVars fromDir command args = do
+  requireValidNodeAndNpm
+  nodeCommandProcess <- liftIO $ makeCreateProcessWithExtraEnv extraEnvVars fromDir command args
+  Subprocess.runReturningExitCode nodeCommandProcess
+
+requireValidNodeAndNpm :: Job.JobAction ()
+requireValidNodeAndNpm =
   liftIO NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
     NodeVersion.VersionCheckFail errorMsg -> do
       Job.emitJobOutput Job.Stderr $ T.pack errorMsg
-      return $ ExitFailure 1
-    NodeVersion.VersionCheckSuccess -> do
-      nodeCommandProcess <- liftIO $ makeCreateProcessWithExtraEnv extraEnvVars fromDir command args
-      Subprocess.run nodeCommandProcess
+      failWithExitCode 1
+    NodeVersion.VersionCheckSuccess -> return ()
 
 makeCreateProcess :: Path' Abs (Dir a) -> String -> [String] -> IO P.CreateProcess
 makeCreateProcess = makeCreateProcessWithExtraEnv []

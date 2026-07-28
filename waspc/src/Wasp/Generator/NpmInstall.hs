@@ -75,18 +75,19 @@ installProjectNpmDependencies messagesChan projectDir =
       (_, ExitFailure code) -> Left $ "Project setup failed with exit code " ++ show code ++ "."
       (_, ExitSuccess) -> Right ()
   where
-    installProjectDepsJob = Job.makeJob Job.Wasp $ do
-      exitCode <- installNpmDependenciesAndReport $ Node.run projectDir "npm" ["install"]
-      Job.requireExitSuccess exitCode
+    installProjectDepsJob =
+      Job.makeJob Job.Wasp $
+        installNpmDependenciesAndReport $
+          Node.run projectDir "npm" ["install"]
 
-installNpmDependenciesAndReport :: Job.JobAction ExitCode -> Job.JobAction ExitCode
+installNpmDependenciesAndReport :: Job.JobAction a -> Job.JobAction a
 installNpmDependenciesAndReport install = do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
   outputSink <- getJobOutputSink
   (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputSink) Async.cancel
-  exitCode <- install
+  result <- install
   release progressReporterKey
-  return exitCode
+  return result
 
 reportInstallationProgress :: JobOutputSink -> IO ()
 reportInstallationProgress outputSink = reportPeriodically allPossibleMessages

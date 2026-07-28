@@ -1,6 +1,7 @@
 module Job.SubprocessTest where
 
 import Control.Concurrent (Chan, newChan, readChan)
+import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isNothing)
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
@@ -20,10 +21,22 @@ spec_runSubprocess =
     it "decodes split and incomplete UTF-8 on stderr" $
       runSplitUtf8Process "stderr" J.Stderr `shouldReturn` "€�"
 
+    it "fails the Job on a nonzero child exit" $ do
+      chan <- newChan
+      let action = Subprocess.run $ P.proc "node" ["-e", "process.exit(7)"]
+      J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitFailure 7
+
+    it "can return a nonzero child exit for explicit handling" $ do
+      chan <- newChan
+      let action = do
+            exitCode <- Subprocess.runReturningExitCode $ P.proc "node" ["-e", "process.exit(7)"]
+            liftIO $ exitCode `shouldBe` ExitFailure 7
+      J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitSuccess
+
 runSplitUtf8Process :: String -> J.JobOutputStream -> IO T.Text
 runSplitUtf8Process streamName expectedOutputType = do
   chan <- newChan
-  let action = Subprocess.run (P.proc "node" ["-e", splitUtf8Script streamName]) >>= J.requireExitSuccess
+  let action = Subprocess.run $ P.proc "node" ["-e", splitUtf8Script streamName]
   exitCode <- J.runJob (J.makeJob J.Wasp action) chan
   exitCode `shouldBe` ExitSuccess
   output <- collectOutputUntilExit expectedOutputType chan
