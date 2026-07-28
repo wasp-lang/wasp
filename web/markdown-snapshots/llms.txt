@@ -6,7 +6,8 @@
 
 ## Documentation Maps by Version
 *IMPORTANT:* You should run `wasp version` to get the installed Wasp CLI version before choosing the correct link.
-- [0.24 (latest)](https://wasp.sh/llms-0.24.txt)
+- [0.25 (latest)](https://wasp.sh/llms-0.25.txt)
+- [0.24](https://wasp.sh/llms-0.24.txt)
 - [0.23](https://wasp.sh/llms-0.23.txt)
 - [0.22](https://wasp.sh/llms-0.22.txt)
 - [0.21](https://wasp.sh/llms-0.21.txt)
@@ -25,7 +26,7 @@
 Use the same URL pattern as the versioned documentation maps: https://wasp.sh/llms-full-{version}.txt
 
 ## Blog
-- [Made with Wasp: how Searchcraft built a full-stack SaaS for their Rust search engine](https://wasp.sh/blog/2026/07/20/made-with-wasp-searchcraft.md)
+- [Made with Wasp: how Searchcraft built a full-stack SaaS around their Rust search engine](https://wasp.sh/blog/2026/07/20/made-with-wasp-searchcraft.md)
 - [Why design matters for a web framework: a 7-year evolution](https://wasp.sh/blog/2026/07/13/why-design-matters-for-a-web-framework.md)
 - [Roll your own file-based router in under 50 lines of code](https://wasp.sh/blog/2026/07/01/roll-your-own-file-based-router.md)
 - [JavaScript still can't ship a full-stack module](https://wasp.sh/blog/2026/06/22/javascript-still-cant-ship-a-full-stack-module.md)

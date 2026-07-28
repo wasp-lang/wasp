@@ -1,0 +1,17 @@
+diff --git a/schema.prisma b/schema.prisma
+index 9a2d4ef..904237f 100644
+--- a/schema.prisma
++++ b/schema.prisma
+@@ -13,8 +13,11 @@ model Task {
+     id          Int     @id @default(autoincrement())
+     description String
+     isDone      Boolean @default(false)
++    user        User?   @relation(fields: [userId], references: [id])
++    userId      Int?
+ }
+ 
+ model User {
+-  id Int @id @default(autoincrement())
++  id    Int    @id @default(autoincrement())
++  tasks Task[]
+ }

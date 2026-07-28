@@ -10,7 +10,7 @@ import {
   rethrowPossibleAuthError,
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
-} from 'wasp/auth/utils'
+} from 'wasp/server/auth/utils'
 import {
   ensurePasswordIsPresent,
   ensureValidEmail,

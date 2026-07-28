@@ -5,10 +5,6 @@
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 
-Here's a 1-minute tour of how full-stack auth works in Wasp:
-
-[Embedded content](https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA)
-
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
@@ -16,7 +12,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24" },
+  wasp: { version: "^0.25" },
   title: "My app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
