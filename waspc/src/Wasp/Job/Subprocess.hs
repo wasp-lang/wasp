@@ -12,7 +12,7 @@ where
 import Control.Monad.Trans.Resource (ReleaseKey, allocate, release)
 import System.Exit (ExitCode)
 import qualified System.Process as P
-import Wasp.Job.Internal (JobAction, getJobOutputEmitter, requireExitSuccess)
+import Wasp.Job.Internal (JobAction, getJobOutputSink, requireExitSuccess)
 import qualified Wasp.Job.Subprocess.Finite as Finite
 import qualified Wasp.Job.Subprocess.Managed as Managed
 
@@ -28,8 +28,8 @@ runReturningExitCode = Finite.run
 
 spawn :: P.CreateProcess -> JobAction Subprocess
 spawn createProcess = do
-  outputEmitter <- getJobOutputEmitter
-  (releaseKey, subprocess) <- allocate (Managed.start createProcess outputEmitter) Managed.stop
+  outputSink <- getJobOutputSink
+  (releaseKey, subprocess) <- allocate (Managed.start createProcess outputSink) Managed.stop
   return $ Subprocess releaseKey subprocess
 
 wait :: Subprocess -> IO ExitCode
