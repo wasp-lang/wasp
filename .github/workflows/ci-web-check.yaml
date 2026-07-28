@@ -1,0 +1,34 @@
+name: "Check - Web Markdown Output"
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check-web-markdown:
+    name: Build web and check markdown snapshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-tools
+        with:
+          # We only need Node here, so we skip the Haskell tools.
+          haskell: false
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build website
+        working-directory: web
+        run: npm run build
+
+      - name: Check markdown snapshots
+        working-directory: web
+        run: npm run markdown-snapshots:check

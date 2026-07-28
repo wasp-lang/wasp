@@ -21,7 +21,8 @@ yarn-error.log*
 .vercel
 
 # LLM files
-llms*.txt
+# Scoped to `static/` so the copies in `markdown-snapshots/` can be tracked.
+/static/llms*.txt
 
 # Blog drafts
 _blog_drafts
