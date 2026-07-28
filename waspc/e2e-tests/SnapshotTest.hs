@@ -7,7 +7,7 @@ module SnapshotTest
   )
 where
 
-import Context (SnapshotTestContext (..), WaspProjectContext (..))
+import Context (SnapshotTestContext (..), makeWaspProjectContext)
 import Control.Exception (Exception, throwIO)
 import Control.Monad (filterM, forM_, unless)
 import qualified Data.Aeson as Aeson
@@ -31,7 +31,7 @@ import FileSystem
     snapshotLogFileInSnapshotsDir,
   )
 import Step (Step, runSteps)
-import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
+import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
@@ -99,11 +99,7 @@ testTreeFromSnapshotTest snapshotTest =
       let snapshotTestContext =
             SnapshotTestContext
               { snapshotDir = currentSnapshotDir,
-                waspProjectContext =
-                  WaspProjectContext
-                    { waspProjectDir = currentSnapshotDir </> (fromJust . parseRelDir $ "wasp-app"),
-                      waspProjectName = "wasp-app"
-                    }
+                waspProjectContext = makeWaspProjectContext currentSnapshotDir
               }
 
       result <- runSteps snapshotTest.name logFile snapshotTestContext snapshotTest.steps
@@ -211,31 +207,41 @@ updateGoldenSnapshotContents snapshotTestName contents = do
 
 -- Snapshot file listing
 
+-- | File path filters applied to both the existence check (manifest) and the
+-- content check, so a file ignored here is invisible to the snapshot entirely.
+commonIgnoredFilePathFilters :: [FilePathFilter]
+commonIgnoredFilePathFilters =
+  map isBasenameOf [".DS_Store", "node_modules"]
+    ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+         -- what we ship in waspc/data/packages/spec.
+         -- It is only copied into .wasp because we need to reach it with `npm install`.
+         -- If there are errors in this package, they will surface either during package tests or
+         -- manifest in the project snapshot. We can therefore skip it.
+         isSubpathOf ".wasp/spec",
+         isExtensionOf ".tgz"
+       ]
+
 getSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
 getSnapshotFilesForContentCheck snapshotDir =
   sort <$> getSnapshotFiles snapshotDir filterIgnoredFilePaths
   where
+    -- On top of the common filters, files whose existence we track in the
+    -- manifest but whose contents we don't compare.
     filterIgnoredFilePaths =
       keepUnlessMatched
-        ( map
-            isBasenameOf
-            [ ".DS_Store",
-              "CLAUDE.md",
-              "node_modules",
-              "dev.db",
-              "dev.db-journal",
-              ".gitignore",
-              ".waspinfo",
-              "package-lock.json",
-              "tsconfig.wasp.tsbuildinfo",
-              "tsconfig.src.tsbuildinfo",
-              "dist"
-            ]
-            ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-                 -- what we ship in waspc/data/packages/spec, so we skip it.
-                 isSubpathOf ".wasp/spec",
-                 isExtensionOf ".tgz"
-               ]
+        ( commonIgnoredFilePathFilters
+            ++ map
+              isBasenameOf
+              [ "CLAUDE.md",
+                "dev.db",
+                "dev.db-journal",
+                ".gitignore",
+                ".waspinfo",
+                "package-lock.json",
+                "tsconfig.wasp.tsbuildinfo",
+                "tsconfig.src.tsbuildinfo",
+                "dist"
+              ]
         )
 
 generateSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> IO ()
@@ -243,21 +249,8 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
   getSnapshotFilesForExistenceCheck >>= writeSnapshotFileListManifest
   where
     getSnapshotFilesForExistenceCheck :: IO [Path' Abs (File SnapshotFile)]
-    getSnapshotFilesForExistenceCheck = getSnapshotFiles snapshotDir filterIgnoredFilePaths
-      where
-        filterIgnoredFilePaths =
-          keepUnlessMatched
-            ( map isBasenameOf [".DS_Store", "node_modules"]
-                ++ [
-                     -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec.
-                     -- It is only copied into .wasp because we need to reach it with `npm install`.
-                     -- If there are errors in this package, they will surface either during package tests or
-                     -- manifest in the project snapshot. We can therefore skip it.
-                     isSubpathOf ".wasp/spec",
-                     isExtensionOf ".tgz"
-                   ]
-            )
+    getSnapshotFilesForExistenceCheck =
+      getSnapshotFiles snapshotDir (keepUnlessMatched commonIgnoredFilePathFilters)
 
     -- Creates a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.

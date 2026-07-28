@@ -159,11 +159,14 @@ startCommand logger commandWorkingDir command = do
           P.create_group = True
         }
 
-  writeStdin maybeStdinHandle
-
   combinedChunksRef <- newIORef []
   stdoutDrain <- async $ drainHandle combinedChunksRef (expectHandle maybeStdoutHandle)
   stderrDrain <- async $ drainHandle combinedChunksRef (expectHandle maybeStderrHandle)
+
+  -- Write stdin only once the output drains are running: a child blocked on
+  -- writing to a full, undrained output pipe would never read stdin, and a
+  -- large enough stdin write would then block us forever too.
+  writeStdin maybeStdinHandle
 
   return
     StartedCommand

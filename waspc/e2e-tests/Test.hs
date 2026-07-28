@@ -7,11 +7,10 @@ module Test
   )
 where
 
-import Context (TestContext (..), WaspProjectContext (..))
-import Data.Maybe (fromJust)
+import Context (TestContext (..), makeWaspProjectContext)
 import FileSystem (getTestCaseDir, testCaseLogFileInTestCaseDir)
 import Step (Step, runSteps)
-import StrongPath (fromAbsDir, parseRelDir, (</>))
+import StrongPath (fromAbsDir, (</>))
 import qualified System.Directory as SD
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertFailure, testCase)
@@ -43,11 +42,7 @@ runTestCase test testCase' = do
   let testCaseContext =
         TestContext
           { testCaseDir,
-            waspProjectContext =
-              WaspProjectContext
-                { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
-                  waspProjectName = "wasp-app"
-                }
+            waspProjectContext = makeWaspProjectContext testCaseDir
           }
       testName = test.name ++ " / " ++ testCase'.name
       logFile = testCaseDir </> testCaseLogFileInTestCaseDir

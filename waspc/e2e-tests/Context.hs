@@ -2,6 +2,7 @@
 
 module Context
   ( WaspProjectContext (..),
+    makeWaspProjectContext,
     TestContext (..),
     SnapshotTestContext (..),
     HasWorkingDir (..),
@@ -9,8 +10,9 @@ module Context
   )
 where
 
+import Data.Maybe (fromJust)
 import FileSystem (SnapshotDir, TestCaseDir)
-import StrongPath (Abs, Dir, Dir', Path', castDir)
+import StrongPath (Abs, Dir, Dir', Path', castDir, parseRelDir, (</>))
 import Wasp.Project (WaspProjectDir)
 
 -- | Context for steps which are run from inside of a Wasp app project.
@@ -18,6 +20,17 @@ data WaspProjectContext = WaspProjectContext
   { waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     waspProjectName :: String
   }
+
+-- | The context for the conventionally-named Wasp project that every test
+-- creates directly inside its own directory (test case dir or snapshot dir).
+makeWaspProjectContext :: Path' Abs (Dir d) -> WaspProjectContext
+makeWaspProjectContext parentDir =
+  WaspProjectContext
+    { waspProjectDir = parentDir </> (fromJust . parseRelDir $ waspProjectName),
+      waspProjectName
+    }
+  where
+    waspProjectName = "wasp-app"
 
 -- | Context for steps of a 'Test.Test', run from the 'FileSystem.TestCaseDir' directory.
 data TestContext = TestContext
