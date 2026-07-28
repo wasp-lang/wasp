@@ -1,9 +1,10 @@
-# Wasp 0.24 Full Documentation
+# Wasp 0.25 Full Documentation
 
 > This is the full documentation for the latest version of Wasp.
 > For other versions, see the links below.
 
 ## Full Documentation by Version
+- [0.24](https://wasp.sh/llms-full-0.24.txt)
 - [0.23](https://wasp.sh/llms-full-0.23.txt)
 - [0.22](https://wasp.sh/llms-full-0.22.txt)
 - [0.21](https://wasp.sh/llms-full-0.21.txt)
@@ -296,7 +297,7 @@ Check [More Details](#more-details) section below if anything went wrong with th
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
 <!--
   NOTE: Don't change Wasp's lowest supported Node version without updating it in
-  all required places. Check /.nvmrc for the full list.
+  all required places. Check /mise.toml for the full list.
 -->
 A version of Node.js must be >= 24.14.1.
 
@@ -366,6 +367,7 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
     :::caution
     If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
+    If you use VS Code, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) and open the project from inside WSL (run `code .` in the project directory). Without it, TypeScript support in VS Code won't work on WSL2.
     :::
   </TabItem>
 
@@ -413,7 +415,7 @@ You'll need to have the latest version of Wasp installed locally to follow this 
 
 In this section, we'll guide you through the process of creating a simple Todo app with Wasp. In the process, we'll take you through the most important and useful features of Wasp.
 
-<img alt="How Todo App will work once it is done" src={useBaseUrl('img/todo-app-tutorial-intro.gif')} className="tutorial-image" />
+<img alt="How the Todo App will work once it is finished" src={useBaseUrl('img/todo-app-tutorial-intro.gif')} className="tutorial-image" />
 
 <br />
 
@@ -503,6 +505,8 @@ Try it out:
     <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
     ```python
     .
+    ├── AGENTS.md     # Instructions for AI coding agents.
+    ├── CLAUDE.md     # Symlink to AGENTS.md.
     ├── main.wasp.ts  # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
@@ -513,7 +517,7 @@ Try it out:
     # highlight-next-line
     │   ├── MainPage.jsx
     │   ├── assets
-    │   │   └── logo.svg
+    │   │   └── wasp-logo-rounded.svg
     │   └── vite-env.d.ts
     ├── tsconfig.json
     ├── tsconfig.src.json
@@ -527,6 +531,8 @@ Try it out:
 
     ```python
     .
+    ├── AGENTS.md     # Instructions for AI coding agents.
+    ├── CLAUDE.md     # Symlink to AGENTS.md.
     ├── main.wasp.ts  # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
@@ -536,7 +542,7 @@ Try it out:
     │   ├── Main.css
     │   ├── MainPage.tsx
     │   ├── assets
-    │   │   └── logo.svg
+    │   │   └── wasp-logo-rounded.svg
     │   └── vite-env.d.ts
     ├── tsconfig.json
     ├── tsconfig.src.json
@@ -579,13 +585,10 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
 
 export default app({
   name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}", // Pins the version of Wasp to use.
-  },
+  // Pins the version of Wasp to use.
+  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp", // Used as the browser tab title.
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   // Add your specs here so Wasp knows to register them.
   spec: [
     route("RootRoute", "/", page(MainPage)),
@@ -728,7 +731,7 @@ At this point, the main page should look like this:
 
 <img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
-You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
+You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
 
@@ -738,13 +741,9 @@ Your Wasp file should now look like this:
 
 export default app({
   name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp",
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
@@ -1079,7 +1078,7 @@ const NewTaskForm = () => {
 Unlike Queries, you can call Actions directly (without wrapping them in a hook) because they don't need reactivity. The rest is just regular React code.
 
 <ShowForTs>
-  Finally, because we've previously annotated the Action's server implementation with the correct type, Wasp knows that the `createTask` Action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` Action returns a `Task` but are not using it in this example.
+  Finally, because we've previously annotated the Action's server implementation with the correct type, Wasp knows that the `createTask` Action expects a value of type `{ description: string }` (try changing the argument and reading the error message). Wasp also knows that a call to the `createTask` Action returns a `Task` but we are not using it in this example.
 </ShowForTs>
 
 All that's left now is adding this form to the page component:
@@ -1728,7 +1727,7 @@ The above Prisma `model` definition tells Wasp to create a table for storing Tas
   }
   ```
 
-  Using the `Task` type in `getInfoMessageInfo`'s definition connects the argument's type with the `Task` entity.
+  Using the `Task` type in `getInfoMessage`'s definition connects the argument's type with the `Task` entity.
 
   This coupling removes duplication and ensures the function keeps the correct signature even if you change the entity. Of course, the function might throw type errors depending on how you change it, but that's precisely what you want!
 
@@ -1739,7 +1738,7 @@ The above Prisma `model` definition tells Wasp to create a table for storing Tas
 
   export function ExamplePage() {
     const task: Task = {
-      id: 123,
+      id: "some-uuid-1234",
       description: "Some random task",
       isDone: false,
     }
@@ -1759,7 +1758,7 @@ Let's see how you can define and work with Wasp Entities:
 1. Create/update some Entities in the `schema.prisma` file.
 2. Run `wasp db migrate-dev`. This command syncs the database model with the Entity definitions the `schema.prisma` file. It does this by creating migration scripts.
 3. Migration scripts are automatically placed in the `migrations/` folder. Make sure to commit this folder into version control.
-4. Use Wasp's JavasScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](../data-model/operations/overview)).
+4. Use Wasp's JavaScript API to work with the database when implementing Operations (we'll cover this in detail when we talk about [operations](../data-model/operations/overview)).
 
 ##### Using Entities in Operations
 
@@ -4551,12 +4550,6 @@ Read more about preview features in the Prisma docs [here](https://www.prisma.io
 ## Authentication Overview
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
-
-Here's a 1-minute tour of how full-stack auth works in Wasp:
-
-<div className="video-container">
-  <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
-</div>
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
@@ -11309,7 +11302,7 @@ export default app({
   </TabItem>
 </Tabs>
 
-You need to import the [`Outlet`](https://reactrouter.com/7.12.0/api/components/Outlet) component from `react-router` and put it where you want the current page to be rendered.
+You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/Outlet) component from `react-router` and put it where you want the current page to be rendered.
 
 #### Setting up a Provider
 
@@ -11368,6 +11361,10 @@ For the full description of the `rootComponent` field, check the [`Client` API R
 
 `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs> function that Wasp executes on the client before everything else.
 
+:::caution The setup function can also run on the server
+The setup function can also run during server-side rendering, like when [prerendering](../advanced/prerendering.md) pages, where browser APIs like `window` are not available. See [Running Code Only on the Client](#running-code-only-on-the-client).
+:::
+
 #### Running Some Code
 
 We can run any code we want in the setup function.
@@ -11399,6 +11396,23 @@ For example, here's a setup function that logs a message every hour:
     ```
   </TabItem>
 </Tabs>
+
+#### Running Code Only on the Client {#running-code-only-on-the-client}
+
+If your app uses [prerendering](../advanced/prerendering.md), Wasp also executes the setup function while rendering your pages on the server. There, browser APIs like `window`, `document`, or `localStorage` don't exist, so using them would crash the prerender. Side effects like timers or event listeners would also run in the Node.js process.
+
+To run some code only in the browser, check Vite's [`import.meta.env.SSR`](https://vite.dev/guide/env-and-mode.html#env-variables) flag, which is `true` during server-side rendering and `false` on the client:
+
+```ts title="src/myClientSetupCode.ts" auto-js
+export default async function mySetupFunction(): Promise<void> {
+  if (import.meta.env.SSR) {
+    // We're rendering on the server, skip the browser-only setup.
+    return
+  }
+
+  window.addEventListener("online", () => console.log("You are back online!"))
+}
+```
 
 #### Overriding Default Behaviour for Queries
 
@@ -11827,6 +11841,16 @@ If you are using `Mailgun` as your email sender, you need to provide the followi
 ]}
 />
 
+##### Resend Email Sender
+
+If you are using `Resend` as your email sender, you need to provide the following environment variables:
+
+<EnvVarsTable
+  envVars={[
+{ name: "RESEND_API_KEY", type: "String", isRequired: true, note: "The Resend API key." }
+]}
+/>
+
 ##### OAuth Providers
 
 If you are using OAuth, you need to provide the following environment variables:
@@ -12231,7 +12255,7 @@ Make sure your `devDependencies` include the Vitest dependency. Wasp starters co
 ```json title="package.json"
 {
   "devDependencies": {
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.9"
   }
 }
 ```
@@ -14439,7 +14463,8 @@ Choose from one of the providers:
 
 - `Dummy` (development only),
 - `Mailgun`,
-- `SendGrid`
+- `SendGrid`,
+- `Resend`
 - or the good old `SMTP`.
 
 Optionally, define the `defaultFrom` field, so you don't need to provide it whenever sending an email.
@@ -14593,6 +14618,33 @@ Then, get the SendGrid API key and add it to your `.env.server` file.
 
 ```properties title=".env.server"
 SENDGRID_API_KEY=
+```
+
+#### Using the Resend Provider {#resend}
+
+Set the provider field to `Resend` in your `main.wasp.ts` file.
+
+```ts title="main.wasp.ts"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: "Resend",
+  },
+  // ...
+})
+```
+
+Then, get the Resend API key and add it to your `.env.server` file.
+
+##### Getting the API Key
+
+1. Go to [Resend](https://resend.com/) and create an account.
+2. Go to [API Keys](https://resend.com/api-keys) and create a new API key.
+3. Copy the API key and add it to your `.env.server` file.
+
+```properties title=".env.server"
+RESEND_API_KEY=
 ```
 
 ### API Reference
@@ -16010,7 +16062,7 @@ Everything below applies to both `Link` and `NavLink`.
 
 #### Catch-all routes
 
-If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/7.12.0/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
+If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/8.0.1/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
 
 ```ts title="main.wasp.ts"
 
@@ -16121,7 +16173,7 @@ The `Link` component accepts the following props:
 
 - `hash: string`
 
-- all other props that the `react-router`'s [Link](https://reactrouter.com/7.12.0/api/components/Link) component accepts
+- all other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
 
 #### `NavLink` Component
 
@@ -16145,7 +16197,7 @@ The `NavLink` component accepts the following props:
 
 - `hash: string`
 
-- all other props that the `react-router`'s [NavLink](https://reactrouter.com/7.12.0/api/components/NavLink) component accepts
+- all other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
 
   - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
 
@@ -16220,7 +16272,9 @@ const linkToCatchAll = routes.CatchAllRoute.build({
 
 Wasp uses [React Router](https://reactrouter.com) under the hood. Route paths support all the standard patterns described below.
 
-### Dynamic Segments
+### Dynamic route segments {#dynamic-segments}
+
+#### Parameter Segments
 
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`.
 
@@ -16242,9 +16296,9 @@ export function PhotoPage() {
 }
 ```
 
-Read more in the [React Router docs on dynamic segments](https://reactrouter.com/7.12.0/start/data/routing#dynamic-segments).
+Read more in the [React Router docs on dynamic segments](https://reactrouter.com/8.0.1/start/data/routing#dynamic-segments).
 
-### Optional Segments
+#### Optional Segments
 
 Append `?` to a path segment to make it optional. The route will match whether or not the segment is present.
 
@@ -16268,9 +16322,9 @@ export function PhotoPage() {
 }
 ```
 
-Read more in the [React Router docs on optional segments](https://reactrouter.com/7.12.0/start/data/routing#optional-segments).
+Read more in the [React Router docs on optional segments](https://reactrouter.com/8.0.1/start/data/routing#optional-segments).
 
-### Splats
+#### Splats
 
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param.
 
@@ -16293,7 +16347,7 @@ export function FilesPage() {
 }
 ```
 
-Read more in the [React Router docs on splats](https://reactrouter.com/7.12.0/start/data/routing#splats).
+Read more in the [React Router docs on splats](https://reactrouter.com/8.0.1/start/data/routing#splats).
 
 ### Lazy-Loaded Routes
 
@@ -16318,7 +16372,7 @@ Most apps won't need to change this. Disabling lazy loading is useful when you w
 
 ### Prerendered routes
 
-You can prerender specific routes at build time by setting `prerender: true`. This generates static HTML that is served immediately, giving faster load times and better SEO.
+You can prerender specific routes at build time by setting the `prerender` property. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
 
@@ -16330,7 +16384,7 @@ export default app({
 })
 ```
 
-Prerendering works on static paths only and cannot be used with `authRequired` pages. See the [Prerendering](./prerendering.md) page for the full documentation.
+See the [Prerendering](./prerendering.md) page for the full documentation.
 
 ## Prerendering
 
@@ -16347,29 +16401,83 @@ This gives you:
 
 ### Enabling prerendering
 
-Add `prerender: true` to any route spec:
+You can add the `prerender` option to a Route spec to enable prerendering. The only [limitation](#limitations) is that the route must **not** have the `authRequired` property turned on.
+
+Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp build`. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
+
+#### Static routes
+
+For routes with no [dynamic segments](./routing.md#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
 
 export default app({
   // ...
   spec: [
-    route("LandingRoute", "/", page(LandingPage), { prerender: true }),
+    route("LandingRoute", "/", page(LandingPage), {
+      // highlight-next-line
+      prerender: true,
+    }),
+    route("AboutRoute", "/about", page(AboutPage), {
+      // highlight-next-line
+      prerender: true,
+    }),
   ],
 })
 ```
 
-That's it. When you run `wasp build`, Wasp renders this route's HTML at build time. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
+#### Dynamic routes
+
+If your route has [dynamic segments](./routing.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
+
+```ts title="main.wasp.ts"
+
+export default app({
+  // ...
+  spec: [
+    route("CountryRoute", "/supported-countries/:country", page(CountryPage), {
+      // highlight-next-line
+      prerender: ["/supported-countries/us", "/supported-countries/es"],
+    }),
+  ],
+})
+```
+
+The prerendered paths must match the route's pattern, with all dynamic segments replaced by concrete values. All paths not declared in the `prerender` array will still work, but they will be rendered on the client as normal, instead of being prerendered.
+
+#### Generating prerendered paths from data
+
+If you have a lot of dynamic paths to prerender, you can generate the list of paths from your data or other sources. For example, if you want to prerender the routes for your Top 10 countries, you can fetch them from your analytics and generate the paths:
+
+```ts title="main.wasp.ts"
+
+async function getTopCountries(): Promise<string[]> {
+  const response = await fetch("https://api.my-analytics.com/top-countries")
+  return await response.json()
+}
+
+export default app({
+  // ...
+  spec: [
+    route("CountryRoute", "/supported-countries/:country", page(CountryPage), {
+      // highlight-next-line
+      prerender: (await getTopCountries()).map(country => `/supported-countries/${country}`),
+    }),
+  ],
+})
+```
+
+[Wasp Spec files](../general/spec.md) run like regular Node.js scripts, so you can use any Node.js APIs (like `fs`, `path`, or `fetch`), or npm libraries, to generate the prerendered paths.
 
 ### How it works
 
 By default, `wasp build` generates a single `200.html` file that serves as the entry point for all routes. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
 
-But for `prerender: true` routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is then written to a file placed in the build output alongside the SPA file.
+But for prerendered routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is then written to a file placed in the build output alongside the SPA file.
 
 When a request hits a prerendered route's path, the server sends the pre-built HTML directly. Once the browser loads the JavaScript bundle, React hydrates the static HTML into a fully interactive app, no second render needed.
 
-Routes without `prerender: true` continue to work as before: the server sends the SPA file, and the client renders the page from scratch.
+Routes that haven't enabled prerendering continue to work as before: the server sends the SPA file, and the client renders the page from scratch.
 
 ### When to use prerendering
 
@@ -16384,24 +16492,16 @@ Prerendering works best for pages where the content is known at build time:
 Prerendering is especially valuable if you want your content to be indexed by search engines or readable by AI assistants like ChatGPT, Perplexity, or Claude.
 :::
 
-### Limitations
+You can learn more in our SEO guide, which explains exactly how prerendering helps search engines index your content:
 
-#### Static paths only
+<CardLink
+  to="/docs/guides/optimization/seo"
+  kind="guide"
+  title="SEO guide"
+  description="Learn how to make your Wasp app more discoverable by search engines."
+/>
 
-Prerendering only works on routes with static paths. Routes with dynamic segments (`:paramName`), optional segments (`?`), or splats (`*`) cannot be prerendered, because the HTML must be generated at build time for a known URL.
-
-```ts title="main.wasp.ts"
-
-export default app({
-  // ...
-  spec: [
-    // ✅ Works (static path)
-    route("AboutRoute", "/about", page(AboutPage), { prerender: true }),
-    // ❌ Won't compile (dynamic segment)
-    route("UserRoute", "/user/:id", page(UserPage), { prerender: true }),
-  ],
-})
-```
+### Limitations {#limitations}
 
 #### No auth-required pages
 
@@ -16423,9 +16523,7 @@ export default app({
 })
 ```
 
-:::caution
-Wasp reports an error at compile time if you try to prerender a route with a dynamic path or an auth-required page.
-:::
+Wasp reports an error at compile time if you try to prerender an auth-required page.
 
 ### Troubleshooting
 
@@ -16545,7 +16643,7 @@ If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration gu
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -16656,7 +16754,7 @@ Then `main.wasp.ts` imports it and joins in into the `spec`:
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -16715,7 +16813,7 @@ COMMANDS
            Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
-    waspls                Run Wasp Language Server. Add --help to get more info.
+    doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
@@ -16727,6 +16825,7 @@ COMMANDS
     install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
+    compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
     deploy                Deploys your Wasp app to cloud hosting providers.
@@ -16813,6 +16912,8 @@ $ wasp clean
 
 ```
 
+- `wasp compile` compiles your Wasp project and reports any errors, without running the app. It's a quick way to check that your project is valid, which makes it especially handy in CI or for AI agents.
+
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
 - `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
@@ -16877,6 +16978,25 @@ npm i -g @wasp.sh/wasp-cli@x.y.z
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
 ```
+
+- `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, whether Docker is installed and running, and whether the ports Wasp uses (the web client, server, and dev database) are free. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
+
+```
+
+$ wasp doctor
+
+Running Wasp doctor...
+
+[✓] Wasp: 0.14.0 (git v0.23.0-136-g874e208c13)
+[✓] System: darwin 25.5.0 aarch64
+[✓] Node.js: 24.14.1
+[✓] npm: 11.16.0
+[✓] Docker: installed and running
+[✓] Port 3000 (web client): free
+[✓] Port 3001 (server): free
+[✓] Port 5432 (dev database): free
+```
+
 - `wasp uninstall` removes Wasp from your system.
 
 ```
@@ -17083,6 +17203,160 @@ When you want to migrate a file, follow the procedure outlined above:
 ------
 
 # Migration guides
+
+## From 0.24 to 0.25
+
+## Migration from 0.24 to 0.25
+
+<InstallInstructions version="0.25" />
+
+### What's new in 0.25?
+
+#### TypeScript 6
+
+Wasp now uses **TypeScript 6**. Your projects will be built with TypeScript `6.0.3`. Since Wasp runs on Node 24+, `tsconfig.wasp.json`'s we also bumped the `target` and `lib` options to `ES2025`.
+
+#### React Router 8
+
+Wasp now uses **React Router 8**. The upgrade is backwards compatible for Wasp users.
+
+#### Vite 8
+
+Wasp now uses **Vite 8**, which is powered by a new native bundler, for faster builds. Our testing support is also bumped to **Vitest 4.1**, to stay compatible.
+
+### How to migrate?
+
+#### 1. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.25.0`.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    export default app({
+      // highlight-next-line
+      wasp: { version: "^0.24.0" },
+      // ...
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    export default app({
+      // highlight-next-line
+      wasp: { version: "^0.25.0" },
+      // ...
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+And run the following command to update the Wasp libraries in your project:
+
+```bash
+wasp install
+```
+
+#### 2. Update your dependencies in `package.json`
+
+Bump Wasp-required dependencies to their latest version:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // ...
+        "react-router": "^7.12.0"
+      },
+      "devDependencies": {
+        // ...
+        "@tailwindcss/vite": "^4.1.18", // only if already present
+        "typescript": "5.9.3",
+        "vite": "^7.0.6",
+        "vitest": "^4.0.16"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // ...
+        "react-router": "^8.0.1"
+      },
+      "devDependencies": {
+        // ...
+        "@tailwindcss/vite": "^4.3.1", // only if already present
+        "typescript": "6.0.3",
+        "vite": "^8.1.0",
+        "vitest": "^4.1.9"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+#### 3. Update your TypeScript config for TypeScript 6
+
+TypeScript 6 no longer automatically includes `@types/*` packages, so you must list the required type packages explicitly. In `tsconfig.wasp.json`, also bump `target` and `lib` to `ES2025`.
+
+In `tsconfig.wasp.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="tsconfig.wasp.json"
+    {
+      "compilerOptions": {
+        // ...
+        "target": "ES2022",
+        "lib": ["ES2023"]
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="tsconfig.wasp.json"
+    {
+      "compilerOptions": {
+        // ...
+        "target": "ES2025",
+        "lib": ["ES2025"],
+        "types": ["node"]
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+In `tsconfig.src.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="tsconfig.src.json"
+    {
+      "compilerOptions": {
+        // ...
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="tsconfig.src.json"
+    {
+      "compilerOptions": {
+        // ...
+        "types": ["react", "node"]
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+#### 4. Enjoy your updated Wasp app
+
+That's it!
 
 ## Migration from 0.23.X to 0.24.X
 

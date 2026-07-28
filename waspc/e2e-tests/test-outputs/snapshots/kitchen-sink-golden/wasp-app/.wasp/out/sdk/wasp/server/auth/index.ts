@@ -16,7 +16,7 @@ export {
   type EmailProviderData,
   type UsernameProviderData,
   type OAuthProviderData,
-} from '../../auth/utils.js'
+} from './utils.js'
 
 export {
   ensurePasswordIsPresent,
