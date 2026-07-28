@@ -20,7 +20,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Internal (JobOutputEmitter, JobOutputStream (..), emitJobOutputIO)
+import Wasp.Job.Internal (JobOutputSink, JobOutputStream (..), writeJobOutput)
 import qualified Wasp.Job.Subprocess.System as System
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -38,8 +38,8 @@ data ProcessTreeDidNotStop = ProcessTreeDidNotStop
 instance Exception ProcessTreeDidNotStop where
   displayException _ = T.unpack processTreeDidNotStopMessage
 
-start :: P.CreateProcess -> JobOutputEmitter -> IO ManagedSubprocess
-start process outputEmitter = mask $ \restore -> do
+start :: P.CreateProcess -> JobOutputSink -> IO ManagedSubprocess
+start process outputSink = mask $ \restore -> do
   processResources@(_, _, _, processHandle) <- P.createProcess $ System.configureManagedSubprocess process
   maybeProcessGroupPid <-
     P.getPid processHandle
@@ -49,8 +49,8 @@ start process outputEmitter = mask $ \restore -> do
   where
     finishInitialization maybeProcessGroupPid (maybeStdin, maybeStdout, maybeStderr, processHandle) = do
       rootExitAsync <- Async.async $ P.waitForProcess processHandle
-      stdoutAsync <- Async.async $ forwardOutput outputEmitter maybeStdout Stdout
-      stderrAsync <- Async.async $ forwardOutput outputEmitter maybeStderr Stderr
+      stdoutAsync <- Async.async $ forwardOutput outputSink maybeStdout Stdout
+      stderrAsync <- Async.async $ forwardOutput outputSink maybeStderr Stderr
       stopWorkerVar <- newMVar Nothing
       let closeHandles = mapM_ closeHandleIfOpen [maybeStdin, maybeStdout, maybeStderr]
       let cleanUpOutput =
@@ -62,7 +62,7 @@ start process outputEmitter = mask $ \restore -> do
             case (processTreeResult, outputResult) of
               (Left exception, _) -> throwIO (exception :: SomeException)
               (Right False, _) -> do
-                emitJobOutputIO outputEmitter Stderr $ processTreeDidNotStopMessage <> "\n"
+                writeJobOutput outputSink Stderr $ processTreeDidNotStopMessage <> "\n"
                 throwIO ProcessTreeDidNotStop
               (Right True, Left exception) -> throwIO (exception :: SomeException)
               (Right True, Right ()) -> return ()
@@ -98,9 +98,9 @@ drainOrCancelOutput outputAsync = do
     Just (Left exception) -> throwIO exception
     Just (Right _) -> return ()
 
-forwardOutput :: JobOutputEmitter -> Maybe Handle -> JobOutputStream -> IO ()
+forwardOutput :: JobOutputSink -> Maybe Handle -> JobOutputStream -> IO ()
 forwardOutput _ Nothing _ = return ()
-forwardOutput outputEmitter (Just handle) outputStream =
+forwardOutput outputSink (Just handle) outputStream =
   -- Chunks can split a multi-byte UTF-8 sequence, so decoding must carry
   -- partial sequences over into the next chunk.
   forwardChunks $ streamDecodeUtf8With lenientDecode
@@ -115,7 +115,7 @@ forwardOutput outputEmitter (Just handle) outputStream =
 
     emitOutput output =
       unless (T.null output) $
-        emitJobOutputIO outputEmitter outputStream output
+        writeJobOutput outputSink outputStream output
 
     chunkSizeInBytes = 4096
 
