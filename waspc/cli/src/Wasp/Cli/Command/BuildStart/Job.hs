@@ -1,7 +1,5 @@
 module Wasp.Cli.Command.BuildStart.Job
-  ( BuildStartJob,
-    JobExecution,
-    make,
+  ( JobExecution,
     run,
     race,
   )
@@ -14,15 +12,10 @@ import Data.Functor ((<&>))
 import System.Exit (ExitCode (..))
 import qualified Wasp.Job as Job
 
-data BuildStartJob = BuildStartJob Job.Job (Int -> String)
-
 type JobExecution = Chan Job.JobEvent -> ExceptT String IO ()
 
-make :: (Int -> String) -> Job.Job -> BuildStartJob
-make = flip BuildStartJob
-
-run :: BuildStartJob -> JobExecution
-run (BuildStartJob job exitCodeToErrorMessage) events =
+run :: (Int -> String) -> Job.Job -> JobExecution
+run exitCodeToErrorMessage job events =
   ExceptT $
     Job.runJob job events
       <&> fromExitCode exitCodeToErrorMessage
@@ -30,10 +23,10 @@ run (BuildStartJob job exitCodeToErrorMessage) events =
     fromExitCode _ ExitSuccess = Right ()
     fromExitCode toErrorMessage (ExitFailure code) = Left $ toErrorMessage code
 
-race :: BuildStartJob -> BuildStartJob -> JobExecution
+race :: JobExecution -> JobExecution -> JobExecution
 race first second events =
   ExceptT $
     either id id
       <$> Async.race
-        (runExceptT $ run first events)
-        (runExceptT $ run second events)
+        (runExceptT $ first events)
+        (runExceptT $ second events)

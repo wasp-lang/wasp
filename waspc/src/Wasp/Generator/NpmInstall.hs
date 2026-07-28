@@ -8,7 +8,6 @@ import Control.Concurrent (Chan, newChan, threadDelay)
 import Control.Concurrent.Async (concurrently)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad (when)
-import Control.Monad.Catch (finally)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (allocate, release)
@@ -85,7 +84,9 @@ installNpmDependenciesAndReport install = do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
   outputEmitter <- getJobOutputEmitter
   (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputEmitter) Async.cancel
-  install `finally` release progressReporterKey
+  exitCode <- install
+  release progressReporterKey
+  return exitCode
 
 reportInstallationProgress :: JobOutputEmitter -> IO ()
 reportInstallationProgress outputEmitter = reportPeriodically allPossibleMessages

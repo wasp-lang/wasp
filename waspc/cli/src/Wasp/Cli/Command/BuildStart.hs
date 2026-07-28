@@ -48,14 +48,12 @@ buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
   runAndPrintJob "Building client failed." $
-    BuildStartJob.run $
-      buildClient config
+    buildClient config
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
   runAndPrintJob "Building server failed." $
-    BuildStartJob.run $
-      buildServer config
+    buildServer config
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
