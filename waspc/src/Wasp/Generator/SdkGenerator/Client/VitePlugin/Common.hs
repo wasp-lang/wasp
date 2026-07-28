@@ -8,8 +8,9 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
   )
 where
 
-import StrongPath (Dir, Path', Rel, reldir, (</>))
+import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, relfileP, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.WebAppGenerator (WebAppViteBuildDir)
 
 data VirtualFilesDir
 
@@ -30,5 +31,5 @@ routesEntryPointPath = "/@wasp/routes.tsx"
 ssrEntryPointPath :: String
 ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
-spaFallbackFile :: String
-spaFallbackFile = "200.html"
+spaFallbackFile :: Path Posix (Rel WebAppViteBuildDir) File'
+spaFallbackFile = [relfileP|200.html|]

@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { createInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 import type {
   RegisteredGetAllQuery,
   RegisteredGetQuery,

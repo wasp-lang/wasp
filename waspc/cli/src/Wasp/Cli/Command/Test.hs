@@ -9,10 +9,10 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg

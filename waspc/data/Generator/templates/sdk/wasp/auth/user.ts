@@ -1,63 +1,42 @@
 {{={= =}=}}
-import type {
-  {= userEntityName =},
-  {= authEntityName =},
-  {= authIdentityEntityName =},
+import {
+  type {= userEntityName =},
+  type {= authEntityName =},
+  type {= authIdentityEntityName =},
 } from '../entities/index.js'
-import type { PossibleProviderData, ProviderName } from './utils.js'
-import type { Expand } from '../universal/types.js'
+import {
+  type PossibleProviderData,
+  type ProviderName,
+  getProviderData,
+} from './providerData.js'
+import { Expand } from '../universal/types.js'
 import { isNotNull } from '../universal/predicates.js'
 
-/**
- * FIXME: https://github.com/wasp-lang/wasp/issues/4527 - bad code split.
- * This module contains runtime-agnostic part.
- * The server runtime part lives in `server/auth/` dir.
- */
+// PUBLIC API
+export function getEmail(user: UserEntityWithAuth): string | null {
+  return findUserIdentity(user, "email")?.providerUserId ?? null;
+}
 
-/**
- * {@link AuthUser} must be declared in a module which is directly reachable
- * through the package's `exports` map (this module is reachable as
- * `"wasp/auth/user"`).
- *
- * User code is compiled with declaration emit enabled (`declaration: true`).
- * This is because the server and the client TypeScript project reference
- * the user's TypeScript project. As such, the user project must have
- * `composite: true` flag which makes `declaration` default to `true`.
- *
- * When declaration emit is enabled, every exported binding without an
- * explicit type annotation gets its inferred type serialized into a
- * `.d.ts` file.
- * 
- * A common example is users defining operations while typing them with
- * the `satisfies` keyword:
- * ```ts
- * import type { GetNumberOfTasks } from "wasp/server/operations";
- * 
- * export const GetNumberOfTasks = (async (_args, context) => {
- *   return context.entities.Task.count();
- * }) satisfies GetNumberOfTasks<void>;
- * ```
- *
- * If that inferred type structurally contains a type symbol from a
- * dependency package, `tsc` must synthesize a portable reference to
- * that symbol.
- * E.g., an authenticated operation's context contains a type symbol for
- * {@link AuthUser}. So we must be able to create a portable reference to
- * {@link AuthUser}.
- *
- * Because {@link AuthUser} is declared here, in an exports-reachable module,
- * `tsc` can always create a portable reference to it, no matter what the
- * user's code imports. If it were declared in a non-exported module (e.g.
- * `wasp/server/auth/user`), `tsc` could name it only when the user's program
- * happened to load some module re-exporting it, which is not guaranteed.
- */
+// PUBLIC API
+export function getUsername(user: UserEntityWithAuth): string | null {
+  return findUserIdentity(user, "username")?.providerUserId ?? null;
+}
+
+// PUBLIC API
+export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
+  if (!user || !user.auth || !user.auth.identities || user.auth.identities.length === 0) {
+    return null;
+  }
+
+  return user.auth.identities[0].providerUserId ?? null;
+}
 
 // PUBLIC API
 export type AuthUser = AuthUserData & {
   getFirstProviderUserId: () => string | null,
 }
 
-// PRIVATE API
+// PRIVATE API (used in SDK and server)
 /*
  * Ideally, we'd do something like this:
  * ```
@@ -99,8 +78,7 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
   },
 }
 
-// PRIVATE API (used in SDK and server)
-export type UserFacingProviderData<PN extends ProviderName> = {
+type UserFacingProviderData<PN extends ProviderName> = {
   id: string
 } & Omit<PossibleProviderData[PN], 'hashedPassword'>
 
@@ -133,25 +111,6 @@ type MakeAuthEntityWithIdentities<IdentityType> = {= authEntityName =} & {
   {= identitiesFieldOnAuthEntityName =}: IdentityType[]
 }
 
-// PUBLIC API
-export function getEmail(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "email")?.providerUserId ?? null;
-}
-
-// PUBLIC API
-export function getUsername(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "username")?.providerUserId ?? null;
-}
-
-// PUBLIC API
-export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
-  if (!user || !user.auth || !user.auth.identities || user.auth.identities.length === 0) {
-    return null;
-  }
-
-  return user.auth.identities[0].providerUserId ?? null;
-}
-
 // PRIVATE API (used in SDK and server)
 export function makeAuthUserIfPossible(user: null): null
 export function makeAuthUserIfPossible(user: AuthUserData): AuthUser
@@ -170,6 +129,68 @@ function makeAuthUser(data: AuthUserData): AuthUser {
       return identities.length > 0 ? identities[0].id : null;
     },
   };
+}
+
+// PRIVATE API
+export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
+  const { {= authFieldOnUserEntityName =}, ...rest } = user
+  if (!{= authFieldOnUserEntityName =}) {
+    throw new Error(`🐝 Error: trying to create a user without auth data.
+This should never happen, but it did which means there is a bug in the code.`)
+  }
+  const identities = {
+    {=# enabledProviders.isEmailAuthEnabled =}
+    email: getProviderInfo<'email'>({= authFieldOnUserEntityName =}, 'email'),
+    {=/ enabledProviders.isEmailAuthEnabled =}
+    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    username: getProviderInfo<'username'>({= authFieldOnUserEntityName =}, 'username'),
+    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isSlackAuthEnabled =}
+    slack: getProviderInfo<'slack'>({= authFieldOnUserEntityName =}, 'slack'),
+    {=/ enabledProviders.isSlackAuthEnabled =}
+    {=# enabledProviders.isDiscordAuthEnabled =}
+    discord: getProviderInfo<'discord'>({= authFieldOnUserEntityName =}, 'discord'),
+    {=/ enabledProviders.isDiscordAuthEnabled =}
+    {=# enabledProviders.isGoogleAuthEnabled =}
+    google: getProviderInfo<'google'>({= authFieldOnUserEntityName =}, 'google'),
+    {=/ enabledProviders.isGoogleAuthEnabled =}
+    {=# enabledProviders.isKeycloakAuthEnabled =}
+    keycloak: getProviderInfo<'keycloak'>({= authFieldOnUserEntityName =}, 'keycloak'),
+    {=/ enabledProviders.isKeycloakAuthEnabled =}
+    {=# enabledProviders.isGitHubAuthEnabled =}
+    github: getProviderInfo<'github'>({= authFieldOnUserEntityName =}, 'github'),
+    {=/ enabledProviders.isGitHubAuthEnabled =}
+    {=# enabledProviders.isMicrosoftAuthEnabled =}
+    microsoft: getProviderInfo<'microsoft'>({= authFieldOnUserEntityName =}, 'microsoft'),
+    {=/ enabledProviders.isMicrosoftAuthEnabled =}
+  }
+  return {
+    ...rest,
+    identities,
+  }
+}
+
+function getProviderInfo<PN extends ProviderName>(
+  auth: CompleteAuthEntityWithIdentities,
+  providerName: PN
+):
+  | UserFacingProviderData<PN>
+  | null {
+  const identity = getIdentity(auth, providerName)
+  if (!identity) {
+    return null
+  }
+  return {
+    ...getProviderData<PN>(identity.providerData),
+    id: identity.providerUserId,
+  }
+}
+
+function getIdentity(
+  auth: CompleteAuthEntityWithIdentities,
+  providerName: ProviderName
+): {= authIdentityEntityName =} | null {
+  return auth.{= identitiesFieldOnAuthEntityName =}.find((i) => i.providerName === providerName) ?? null
 }
 
 function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): NonNullable<UserEntityWithAuth['auth']>['identities'][number] | null {

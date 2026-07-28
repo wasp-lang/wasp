@@ -6,8 +6,10 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
-import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
