@@ -4,7 +4,7 @@ import {
     findAuthIdentity,
     doFakeWork,
     getProviderDataWithPassword,
-} from 'wasp/auth/utils';
+} from 'wasp/server/auth/utils';
 import {
     createPasswordResetLink,
     sendPasswordResetEmail,

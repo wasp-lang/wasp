@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { validateJWT } from 'wasp/auth/jwt';
+import { validateJWT } from 'wasp/server/auth/jwt';
 import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
   getProviderDataWithPassword,
   updateAuthIdentityProviderData,
-} from 'wasp/auth/utils';
+} from 'wasp/server/auth/utils';
 import { HttpError } from 'wasp/server';
 import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
