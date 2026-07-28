@@ -11,6 +11,7 @@ module Wasp.Job.Internal
     makeJob,
     runJob,
     emitJobOutput,
+    failWithExitCode,
     requireExitSuccess,
     getJobOutputSink,
     writeJobOutput,
@@ -70,7 +71,10 @@ emitJobOutput outputStream output = do
 
 requireExitSuccess :: ExitCode -> JobAction ()
 requireExitSuccess ExitSuccess = return ()
-requireExitSuccess (ExitFailure exitCode) = throwError $ JobFailure exitCode
+requireExitSuccess (ExitFailure exitCode) = failWithExitCode exitCode
+
+failWithExitCode :: Int -> JobAction a
+failWithExitCode = throwError . JobFailure
 
 getJobOutputSink :: JobAction JobOutputSink
 getJobOutputSink = ask
