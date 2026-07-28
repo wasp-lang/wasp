@@ -65,8 +65,8 @@ runReturningExitCode process = do
 
 spawn :: P.CreateProcess -> JobAction Subprocess
 spawn createProcess = do
-  outputEmitter <- getJobOutputEmitter
-  (releaseKey, subprocess) <- allocate (Managed.start createProcess outputEmitter) Managed.stop
+  outputSink <- getJobOutputSink
+  (releaseKey, subprocess) <- allocate (Managed.start createProcess outputSink) Managed.stop
   return $ Subprocess releaseKey subprocess
 
 wait :: Subprocess -> IO ExitCode
