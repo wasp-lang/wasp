@@ -5,11 +5,12 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { VFile } from "vfile";
-import { LlmDocsContext } from "../context";
+import { MarkdownDocsContext } from "./context";
 import { docusaurusHtmlToMdHandlers } from "./docusaurus/docusaurus-html-to-md-handlers";
 import { rehypeAnnotateCustomHeadingAnchors } from "./docusaurus/rehype-annotate-custom-heading-anchors";
 import { rehypeReduceDocusaurusPageToValidMarkdownContent } from "./docusaurus/rehype-reduce-docusaurus-page";
 import { remarkAbsolutizeUrls } from "./remark-absolutize-urls";
+import { REMARK_STRINGIFY_OPTIONS } from "./remark-stringify-options";
 
 /**
  * Creates a Docusaurus HTML to markdown processor.
@@ -18,7 +19,7 @@ import { remarkAbsolutizeUrls } from "./remark-absolutize-urls";
  * conversion mangles. This processor recognizes them and emits clean markdown.
  */
 export function createDocusaurusHtmlToMarkdownProcessor(
-  context: LlmDocsContext,
+  context: MarkdownDocsContext,
 ): (htmlFile: VFile) => string {
   const docusaurusHtmlToMarkdownProcessor = unified()
     .use(rehypeParse)
@@ -31,15 +32,7 @@ export function createDocusaurusHtmlToMarkdownProcessor(
     .use(remarkAbsolutizeUrls, context.baseUrl)
     .use(remarkGfm)
     .use(remarkDirective)
-    .use(remarkStringify, {
-      bullet: "-",
-      emphasis: "*",
-      strong: "*",
-      fence: "`",
-      fences: true,
-      rule: "-",
-      listItemIndent: "one",
-    });
+    .use(remarkStringify, REMARK_STRINGIFY_OPTIONS);
 
   return (htmlFile) => {
     const htmlContent = htmlFile.toString();
