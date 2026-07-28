@@ -12,7 +12,7 @@ import qualified Data.Conduit.Text as CT
 import System.Exit (ExitCode)
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
-import Wasp.Job.Internal (JobAction, JobOutputStream (..), emitJobOutputIO, getJobOutputEmitter)
+import Wasp.Job.Internal (JobAction, JobOutputStream (..), getJobOutputSink, writeJobOutput)
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -20,21 +20,21 @@ import Wasp.Job.Internal (JobAction, JobOutputStream (..), emitJobOutputIO, getJ
 
 run :: P.CreateProcess -> JobAction ExitCode
 run process = do
-  outputEmitter <- getJobOutputEmitter
+  outputSink <- getJobOutputSink
   liftIO $
     bracket
       (CP.streamingProcess process)
       cleanUpStreamingProcess
-      (runStreamingProcessAndStreamOutput outputEmitter)
+      (runStreamingProcessAndStreamOutput outputSink)
   where
     cleanUpStreamingProcess (_, _, _, streamingProcessHandle) =
       terminateStreamingProcess streamingProcessHandle
         `finally` CP.closeStreamingProcessHandle streamingProcessHandle
 
-    runStreamingProcessAndStreamOutput outputEmitter (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
+    runStreamingProcessAndStreamOutput outputSink (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardOutput outputStream stream =
             runConduit $
-              stream .| CT.decodeUtf8Lenient .| CL.mapM_ (emitJobOutputIO outputEmitter outputStream)
+              stream .| CT.decodeUtf8Lenient .| CL.mapM_ (writeJobOutput outputSink outputStream)
 
       runConcurrently $
         Concurrently (forwardOutput Stdout stdoutStream)
