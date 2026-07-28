@@ -1,7 +1,6 @@
 module Wasp.Job
   ( Job,
     JobAction,
-    JobError,
     JobEvent (..),
     JobEventData (..),
     JobOutputStream (..),
@@ -16,7 +15,6 @@ where
 import Wasp.Job.Internal
   ( Job,
     JobAction,
-    JobError,
     JobEvent (..),
     JobEventData (..),
     JobKind (..),
