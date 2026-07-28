@@ -1,6 +1,5 @@
 /**
  * This module allows the SDK to use the user project types.
- * It acts as a bridge between the SDK and the user project types.
  * 
  * If the SDK tried to import types from the user project directly,
  * it would create a cyclic dependency between TypeScript projects.
@@ -33,14 +32,15 @@
  * 
  * The purpose of conditional types in SDK is two-fold:
  * 
- * 1. The SDK must be compilable on its own (without a user project).
- *    Conditioanl types allow exactly that. If a user project didn't push
- *    any types to the SDK, we use a fallback type. The fallback type
- *    still satisfies the general type structure that we expect.
- * 
- *    E.g., if a user didn't define a custom Prisma client instance, the
- *    `PrismaClient` will return a fallback type, which is a Prisma client
- *    with default settings.
+ * 1. They allow the SDK to compile on its own (without a user project).
+ *    The SDK compiles before any other TypeScript project, so at that
+ *    point {@link Register} is always empty and every conditional type
+ *    resolves to its fallback. By having the fallback types satisfy
+ *    everything the SDK expects of them, the SDK compiles on its own.
+ *
+ *    E.g., during SDK compilation, the `PrismaClient` type resolves to
+ *    its fallback: a Prisma client with default settings. This satisfies
+ *    all SDK's expectations of `PrismaClient` type.
  * 
  * 2. The conditional types allow for the propagation of types from the SDK
  *    back to the user project. Since we force the types to stay in their
@@ -50,7 +50,25 @@
  * 
  *    E.g., if a user defines a custom Prisma client instance, the
  *    `PrismaClient` type will instead return the user's custom client.
- * 
+ *
+ * Above we said we "force the types to stay in their conditional (rather
+ * than resolved) form". Why force?
+ *
+ * TypeScript resolves inferred types when emitting declaration files.
+ * Since the SDK compiles with an empty {@link Register}, an inferred type
+ * ends up in the emitted `.d.ts` file as the already-resolved fallback
+ * and never recalculates for the user:
+ * ```ts
+ * // Inferred: emitted already resolved to the fallback.
+ * declare const dbClient: InternalPrismaClient;
+ * // Explicitly typed: emitted in its conditional form.
+ * declare const dbClient: ReturnType<FromRegister<'prismaSetupFn', () => InternalPrismaClient>>;
+ * ```
+ * Therefore, everything in the SDK derived from a registered type must be
+ * explicitly typed (`: RegisteredType`, `as RegisteredType`, or
+ * `<T extends RegisteredType>`) to keep it in its conditional form in the
+ * emitted declarations.
+ *
  * As a result, users can see their own user-defined types in the SDK,
  * without SDK, directly depending on the user code.
  *
