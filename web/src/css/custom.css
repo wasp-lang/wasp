@@ -826,4 +826,9 @@ html.blog-wrapper {
 div[class*="announcementBarContent_"] {
   font-family: "IBM Plex Mono", monospace;
   font-size: 15px;
+  font-weight: 400;
+}
+
+div[class*="announcementBarContent_"] a {
+  font-weight: 400;
 }

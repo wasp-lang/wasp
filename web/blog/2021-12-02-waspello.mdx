@@ -5,7 +5,6 @@ tags: [webdev, wasp]
 ---
 
 import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import WaspIntro from './_wasp-intro.md';
 import { ImgWithCaption } from './components/ImgWithCaption';
@@ -13,9 +12,9 @@ import { InBlogCta } from './components/InBlogCta';
 
 ![Enter Waspello](../static/img/waspello-screenshot.png)
 
-<p align="center">
+<div align="center">
   <Link to={'https://waspello-app-client.fly.dev/'}>Try Waspello here!</Link> | <Link to={'https://github.com/wasp-lang/wasp/blob/release/examples/waspello/main.wasp'}>See the code</Link>
-</p>
+</div>
 
 We've built a Trello clone using Wasp! Read on to learn how it went and how you can contribute.
 
@@ -37,11 +36,11 @@ So let's dig in and see and how it went - what works, what doesn't and, what's m
 
 The good news is all the basic functionality is here - Waspello users can signup/log in which brings them to their project board where they can perform CRUD operations on lists and cards - create them, edit them, move them around, etc. Let's see it in action:
 
-![Waspello in action](../static/img/waspello-in-action.gif)
-
-<p align="center" class="image-caption">
-  Waspello in action!
-</p>
+<ImgWithCaption
+  alt="Waspello in action"
+  source="img/waspello-in-action.gif"
+  caption="Waspello in action!"
+/>
 
 As you can see things work, but not everything is perfect (e.g. there is a delay when creating/moving a card) - we'll examine why is that so a bit later.
 
@@ -49,11 +48,11 @@ As you can see things work, but not everything is perfect (e.g. there is a delay
 
 Here is a simple visual overview of Waspello's code anatomy (which applies to every Wasp app):
 
-![Waspello code anatomy](../static/img/waspello-code-anatomy.png)
-
-<p align="center" class="image-caption">
-  Waspello code anatomy
-</p>
+<ImgWithCaption
+  alt="Waspello code anatomy"
+  source="img/waspello-code-anatomy.png"
+  caption="Waspello code anatomy"
+/>
 
 Let's now dig in a bit deeper and shortly examine each of the concepts Wasp supports (page, query, entity, ...) and learn through code samples how to use it to implement Waspello.
 
@@ -194,13 +193,11 @@ That is why upon dropping on "Done", the card first goes back to the original li
 
 A typical approach for solving this issue is to **make the client a bit more self-confident, in a way that it doesn't wait for the confirmation from the server but rather immediately updates the UI, at the same time or even before the API request is fired**. If it then turns out something went wrong on the server (which typically shouldn't happen), it reverses the change and shows an error message. Thus the name optimistic UI update, since the client assumes in advance that everything will go well to provide a nicer UX.
 
-<p align="center">
-  <figure>
-    <img alt="Waspello - the client being brave" src={useBaseUrl('img/waspello-client-being-brave.gif')} />
-
-    <figcaption class="image-caption">The client when performing an optimistic UI update</figcaption>
-  </figure>
-</p>
+<ImgWithCaption
+  alt="Waspello - the client being brave"
+  source="img/waspello-client-being-brave.gif"
+  caption="The client when performing an optimistic UI update"
+/>
 
 This is one of the most complex and error-prone features when developing web apps today and that is why we are super excited to tackle it in Wasp and make the experience as smooth as possible! We are currently in the "figuring out the solution" stage and you can [track/join the discussion on GitHub](https://github.com/wasp-lang/wasp/issues/63)!
 
@@ -217,13 +214,12 @@ And many more - e.g. support for workspaces (next level of the hierarchy, a coll
 
 ## Become a Waspeller!
 
-<p align="center">
-  <figure style={{width: '55%'}}>
-    <img alt="Waspello propaganda" src={useBaseUrl('img/waspello-propaganda.png')} />
-
-    <figcaption class="image-caption">Lightweight Waspello propaganda</figcaption>
-  </figure>
-</p>
+<ImgWithCaption
+  alt="Waspello propaganda"
+  source="img/waspello-propaganda.png"
+  width="55%"
+  caption="Lightweight Waspello propaganda"
+/>
 
 If you want to get involved with OSS and at the same time familiarize yourself with Wasp, this is a great way to get started - feel free to [choose one of the features listed here or add your own](https://github.com/wasp-lang/wasp/issues/337) and help us make Waspello the best demo productivity app out there!
 

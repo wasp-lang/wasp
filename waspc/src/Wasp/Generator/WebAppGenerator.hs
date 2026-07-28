@@ -2,6 +2,7 @@ module Wasp.Generator.WebAppGenerator
   ( webAppRootDirInGeneratedAppDir,
     createWebAppRootDir,
     viteBuildDirPath,
+    WebAppViteBuildDir,
   )
 where
 

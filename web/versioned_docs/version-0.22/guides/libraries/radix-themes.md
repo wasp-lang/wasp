@@ -1,11 +1,12 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.21"
-  "Radix Themes": 3
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Radix Themes
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.21", "Radix Themes": 3 }} />
 
 This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.com/themes) component library into your Wasp application.
 

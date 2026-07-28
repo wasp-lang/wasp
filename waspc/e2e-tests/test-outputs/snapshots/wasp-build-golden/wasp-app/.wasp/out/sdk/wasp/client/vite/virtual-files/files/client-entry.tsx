@@ -11,23 +11,43 @@ import { routeObjects } from '/@wasp/routes.tsx'
 const router = createBrowserRouter(routeObjects, {
   basename: "/",
   // React Router will put hydration data on this property of the `window` object.
-  // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
+  // https://reactrouter.com/8.0.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData,
 })
 
 // We embed this data at prerendering time.
 const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
 
-function App() {
-  return (
-    <Layout isFallbackPage={isFallbackPage}>
-      <WaspApp>
-        <RouterProvider router={router} />
-      </WaspApp>
-    </Layout>
-  );
-}
+const routerProviderPromise =
+  waitForRouterInitialized(router).then(() => (
+    <RouterProvider router={router} />
+  ))
+
+const fullAppTree = (
+  <Layout isFallbackPage={isFallbackPage}>
+    <WaspApp>
+      {routerProviderPromise}
+    </WaspApp>
+  </Layout>
+)
 
 startTransition(() => {
-  hydrateRoot(document, <App />);
+  hydrateRoot(document, fullAppTree);
 });
+
+async function waitForRouterInitialized(
+  router: ReturnType<typeof createBrowserRouter>,
+): Promise<void> {
+  if (router.state.initialized) {
+    return;
+  }
+
+  return new Promise((resolve) => {
+    const unsubscribe = router.subscribe(() => {
+      if (router.state.initialized) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}

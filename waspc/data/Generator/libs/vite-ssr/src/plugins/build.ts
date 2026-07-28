@@ -23,12 +23,12 @@ export const ssrBuild = (
           [ENVIRONMENT_NAMES.SSR]: {
             build: {
               ssr: true,
-              rollupOptions: { input: ssrEntrySrc },
+              rolldownOptions: { input: ssrEntrySrc },
             },
           },
           [ENVIRONMENT_NAMES.CLIENT]: {
             build: {
-              rollupOptions: {
+              rolldownOptions: {
                 input: routes.getAllIds(),
               },
             },
@@ -52,10 +52,12 @@ export const ssrBuild = (
               "Watch mode is not supported for ssr production builds",
             );
 
-            const entryChunk = ssrOutput.output[0];
+            const entryChunk = ssrOutput.output.find(
+              (chunk) => chunk.type === "chunk" && chunk.isEntry,
+            );
             assert(
-              entryChunk,
-              "Expected ssr build output to have at least one chunk",
+              entryChunk?.type === "chunk",
+              "Expected ssr build output to have an entry chunk",
             );
             assert(
               entryChunk.exports.includes("default"),

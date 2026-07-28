@@ -103,8 +103,7 @@ genOAuthCallbackPage auth =
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =
   sequence
-    [ genLayoutFile,
-      genUtilsFile
+    [ genLayoutFile
     ]
   where
     genLayoutFile =
@@ -116,9 +115,6 @@ genLayout spec =
                 "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
               ]
           )
-
-    genUtilsFile =
-      return $ genFileCopy [relfile|client/app/hooks/useIsClient.ts|]
 
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 genFileCopy = C.mkTmplFd

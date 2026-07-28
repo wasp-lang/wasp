@@ -32,20 +32,15 @@ spec_parsePslView = do
               ( Psl.Model.Body $
                   Psl.WithCtx.empty
                     <$> [ Psl.Model.ElementField
-                            ( Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []
-                            ),
+                            (Psl.Model.Field "id" Psl.Model.Int [Psl.Model.Optional] []),
                           Psl.Model.ElementField
-                            ( Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []
-                            ),
+                            (Psl.Model.Field "email" Psl.Model.String [Psl.Model.Optional] []),
                           Psl.Model.ElementField
-                            ( Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []
-                            ),
+                            (Psl.Model.Field "name" Psl.Model.String [Psl.Model.Optional] []),
                           Psl.Model.ElementField
-                            ( Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []
-                            ),
+                            (Psl.Model.Field "bio" Psl.Model.String [Psl.Model.Optional] []),
                           Psl.Model.ElementBlockAttribute
-                            ( Psl.Attribute.Attribute "ignore" []
-                            )
+                            (Psl.Attribute.Attribute "ignore" [])
                         ]
               )
 
@@ -94,8 +89,7 @@ spec_parsePslView = do
                                 []
                             ),
                           Psl.Model.ElementBlockAttribute
-                            ( Psl.Attribute.Attribute "ignore" []
-                            )
+                            (Psl.Attribute.Attribute "ignore" [])
                         ]
               )
 

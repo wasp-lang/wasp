@@ -1,11 +1,13 @@
 ---
 title: Meta tags
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Adding `<meta>` tags to your Wasp app
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
 This guide shows you how to set up meta tags for your Wasp application to improve SEO and enable rich previews when your app is shared on platforms like Slack, X, or Discord.
 

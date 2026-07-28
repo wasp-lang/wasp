@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import type { Plugin } from "rolldown";
 import ts from "typescript";
-import { SpecUserError } from "../../spec/specUserError.js";
+import { WaspSpecUserError } from "../../spec/waspSpecUserError.js";
 import { WASP_SPEC_FILE_REGEX } from "../common.js";
 import { typecheckProject } from "./project.js";
 
@@ -44,7 +44,7 @@ export function typecheckPlugin({
       );
 
       if (hasErrorDiagnostic) {
-        throw new SpecUserError(formattedDiagnostics);
+        throw new WaspSpecUserError(formattedDiagnostics);
       } else if (formattedDiagnostics) {
         console.warn(formattedDiagnostics);
       }

@@ -5,7 +5,7 @@ where
 
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
@@ -22,7 +22,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (ValidNodeAndNpm (ValidNodeAndNpm), require)
+import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg

@@ -2,7 +2,7 @@ import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import { transformRefHelper_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/refHelper/index.js";
-import { SpecUserError } from "../../../src/spec/specUserError.js";
+import { WaspSpecUserError } from "../../../src/spec/waspSpecUserError.js";
 
 describe("transformRefHelper", () => {
   test("leaves files without a public ref import untouched", () => {
@@ -166,7 +166,7 @@ describe("transformRefHelper", () => {
   test("throws when transforming re-exports of the ref helper", () => {
     expect(() =>
       transformRefHelper(`export { ref } from "@wasp.sh/spec";`),
-    ).toThrow(SpecUserError);
+    ).toThrow(WaspSpecUserError);
   });
 });
 

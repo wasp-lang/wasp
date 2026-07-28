@@ -1,14 +1,14 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
-  "Cloudflare Workers": 2026-04-06
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Cloudflare
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Cloudflare Workers": new Date("2026-04-06") }} />
 
 ## Deploy Wasp to Cloudflare Workers <Client />
 

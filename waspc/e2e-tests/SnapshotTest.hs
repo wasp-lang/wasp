@@ -165,9 +165,9 @@ compareSnapshotContents goldenContents currentContents =
 
     contentMismatches =
       [ "file contents differ: " ++ path ++ "\n" ++ renderContentDiff goldenContent currentContent
-        | (path, goldenContent) <- goldenContents,
-          Just currentContent <- [lookup path currentContents],
-          goldenContent /= currentContent
+      | (path, goldenContent) <- goldenContents,
+        Just currentContent <- [lookup path currentContents],
+        goldenContent /= currentContent
       ]
 
     mismatchReports =

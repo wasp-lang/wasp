@@ -6,6 +6,7 @@ where
 import Control.Monad (forM_, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Either.Extra (eitherToMaybe)
 import Data.Functor ((<&>))
 import Data.Maybe (catMaybes)
 import System.Directory (findExecutable)
@@ -18,7 +19,7 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util (eitherToMaybe, trim)
+import Wasp.Util (trim)
 import Wasp.Util.GitRev (gitRevDescription)
 import qualified Wasp.Util.Network.Socket as Socket
 import qualified Wasp.Util.Terminal as Term

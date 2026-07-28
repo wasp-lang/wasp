@@ -89,7 +89,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
         >> tryPutMVar ongoingCompilationResultMVar (warnings, errors)
         >> return ()
 
-    -- Blocks until no new events are recieved for a duration of `secondsToDelay`.
+    -- Blocks until no new events are received for a duration of `secondsToDelay`.
     -- Consumes any new events during an active timer window and then restarts wait.
     -- If a stale event comes in during an active timer window, we immediately
     -- return control to the caller.

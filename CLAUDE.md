@@ -14,7 +14,6 @@ Wasp is a full-stack web framework that compiles TypeScript config (`main.wasp.t
   - `run` — **Main development script** (run `./run` with no args to see all commands)
 - `wasp-app-runner/` — Node.js CLI for running Wasp apps in e2e tests
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
-- `mage/` — Archived GPT app generator for Wasp DSL apps from a description. Do not update it unless the task explicitly targets Mage.
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
 
@@ -26,8 +25,7 @@ Key things to know:
 
 - Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
-- Toolchain versions (GHC, HLS) are specified in `waspc/cabal.project` and `waspc/dev-tool.project`. Use `./run ghcup-set` to set the correct versions.
-- Node.js minimum version is in `.nvmrc`.
+- Toolchain versions are specified in `mise.toml`.
 
 ## Code Conventions
 

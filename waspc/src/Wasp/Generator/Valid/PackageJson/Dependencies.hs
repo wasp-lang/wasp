@@ -41,10 +41,10 @@ dependenciesValidator spec =
     optionalDepsValidator =
       V.all $
         [ makeOptionalDepValidator depType dep
-          | depType <- [Runtime, Development],
-            -- We check all the Wasp dependencies everywhere in case they are used
-            -- in the user's package.json, to avoid conflicts.
-            dep <- M.toList onlyOptionalWaspDeps
+        | depType <- [Runtime, Development],
+          -- We check all the Wasp dependencies everywhere in case they are used
+          -- in the user's package.json, to avoid conflicts.
+          dep <- M.toList onlyOptionalWaspDeps
         ]
 
     -- We don't check for dependencies as optional that are already going to be
@@ -57,6 +57,6 @@ dependenciesValidator spec =
     forbiddenDepsValidator =
       V.all $
         [ makeForbiddenDepValidator depType pkgName
-          | depType <- [Runtime, Development],
-            pkgName <- forbiddenUserDeps
+        | depType <- [Runtime, Development],
+          pkgName <- forbiddenUserDeps
         ]

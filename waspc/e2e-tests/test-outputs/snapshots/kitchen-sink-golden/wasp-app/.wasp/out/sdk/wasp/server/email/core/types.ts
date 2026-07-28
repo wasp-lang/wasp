@@ -1,5 +1,5 @@
 // PRIVATE API
-export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider | DummyEmailProvider;
+export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider | ResendEmailProvider | DummyEmailProvider;
 
 // PRIVATE API
 export type SMTPEmailProvider = {
@@ -22,6 +22,12 @@ export type MailgunEmailProvider = {
   apiKey: string;
   domain: string;
   apiUrl?: string;
+};
+
+// PRIVATE API
+export type ResendEmailProvider = {
+  type: "resend";
+  apiKey: string;
 };
 
 // PRIVATE API

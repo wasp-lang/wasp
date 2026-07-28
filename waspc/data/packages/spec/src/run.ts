@@ -4,7 +4,7 @@ import { writeFileSync } from "fs";
 import { Decl } from "./appSpec.js";
 import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./spec/appAnalyzer.js";
-import { SpecUserError } from "./spec/specUserError.js";
+import { WaspSpecUserError } from "./spec/waspSpecUserError.js";
 
 await main(process.argv);
 
@@ -37,7 +37,7 @@ async function analyze(args: {
     const decls = await analyzeApp(args);
     return { status: "ok", value: decls };
   } catch (error) {
-    if (error instanceof SpecUserError) {
+    if (error instanceof WaspSpecUserError) {
       return { status: "error", error: error.message };
     }
     throw error;

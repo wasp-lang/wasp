@@ -1,10 +1,12 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # WebSocket Namespaces
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
 This guide shows you how to use Socket.IO namespaces with Wasp's WebSocket support for organizing your real-time communication channels.
 

@@ -6,6 +6,7 @@ module Wasp.Generator.NpmInstall.InstalledNpmDepsLog
 where
 
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString.Lazy as B
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
@@ -29,7 +30,7 @@ loadInstalledNpmDepsLog dstDir = do
 -- Save the record of the Wasp's (webapp + server) npm dependencies we installed, to disk.
 saveInstalledNpmDepsLog :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO ()
 saveInstalledNpmDepsLog deps dstDir =
-  B.writeFile (SP.fromAbsFile $ getInstalledNpmDepsLogFilePath dstDir) (Aeson.encode deps)
+  B.writeFile (SP.fromAbsFile $ getInstalledNpmDepsLogFilePath dstDir) (AesonPretty.encodePretty deps)
 
 forgetInstalledNpmDepsLog :: Path' Abs (Dir GeneratedAppDir) -> IO ()
 forgetInstalledNpmDepsLog dstDir =

@@ -45,6 +45,11 @@ const waspCommonServerEnvSchema = z.object({
   }),
   MAILGUN_API_URL: z.string().optional(),
   {=/ enabledEmailSenders.isMailgunProviderEnabled =}
+  {=# enabledEmailSenders.isResendProviderEnabled =}
+  RESEND_API_KEY: z.string({
+    error: getRequiredEnvVarErrorMessage('Resend email sender', 'RESEND_API_KEY'),
+  }),
+  {=/ enabledEmailSenders.isResendProviderEnabled =}
   {=/ isEmailSenderEnabled =}
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {

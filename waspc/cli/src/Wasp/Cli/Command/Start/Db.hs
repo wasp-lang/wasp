@@ -16,12 +16,13 @@ import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg

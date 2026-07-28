@@ -23,16 +23,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
         ],
-        "8c38eb0a94b6005701d231ed13d75d1869af441a0f061d56374fb49392379b18"
+        "c6f765e681683f621442eb1a4a8045d8d4f92853d3ccd3477dad8f7fa5ede3a5"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
         ],
-        "59b166f322b5af0919da3c6618f7249cec73db38e2fc3fa338d904f49c565d82"
+        "5861342fc44ba43a186562a67b729c98a140f69aef4efb1b33474832dbeba466"
     ],
     [
         [
@@ -93,13 +93,6 @@
     [
         [
             "file",
-            "sdk/wasp/client/app/hooks/useIsClient.ts"
-        ],
-        "d6912c04aaee762cc62a3d811d6253fc8b31732ea80d1e757e2480d6c37e3931"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/client/app/index.tsx"
         ],
         "6bcaf8f893b0c1e55ee09411ddb6e36871ebae371fab829aa3046c48054c8bfb"
@@ -109,14 +102,14 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "e2e453d10b129803681e6cec3dccead055cfde26a20a1a81b374a0a1ed43001c"
+        "42932382c6e025c863a4a3e131cff1a4aa910d3173d372e55b3bd061f4a2c986"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "2b5dc997d1f01dfb8121e415a2d41ea035ce18ae877403036eec61009967f92b"
+        "3f8db611f300550058764b1ea3c453710828d335fb909ba7069e44f6eebda416"
     ],
     [
         [
@@ -319,7 +312,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "0fdf894207303eb8f9b072786a2fa3b69da84795db85631fdf32394686f3d863"
+        "c172e926843b4ab12f96ebe79a70124d233d9d7fd948de0cdcd3388565402400"
     ],
     [
         [
@@ -347,21 +340,21 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
+        "91715e7d9d9b7b30c81fe61f801cc544472b8f944148a3b7aa5cff93be3fa8b8"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
+        "a8800054838706f2099e575b0378762a94cbb0c82a1e94d98f0e27f38cf51a44"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "f1b19e131b16c7dc39254a841ad836ba5ea7200cb7e11d06999c3b276bca30f6"
+        "9a0c1f4032ce91549bbcd95630c9da24e27cbc710c95c3c9150bdcf570210b03"
     ],
     [
         [
@@ -375,7 +368,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/resolver.ts"
         ],
-        "dcd995f6dceb185ac518ddd168ccc299dd3d1560593d9f37b931087da29f73b6"
+        "a8bc680361ce67794cb2becf7213cd1c95d0909044f267db266d235ad4e5ab1b"
     ],
     [
         [
@@ -431,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "0a9648eccbf1afc87d0f7b98f519b1a70a4579e2c330801c4efafc60e4ca394d"
+        "f4dcd8a2f83407dbce78a64a5cae62dc37edcdbd8fd477767cb2d115eeb407d1"
     ],
     [
         [
@@ -606,7 +599,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "911ea00b85a30de03a5ff87ac4505d23fa2700199683a9468690ac25a0ac88bf"
+        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
     ],
     [
         [
@@ -683,7 +676,7 @@
             "file",
             "server/package.json"
         ],
-        "1553391565e9f281d3155b59aea8e92641ba471021f8343446065534c4ee22b9"
+        "2fd7bb4a0a7d34c3634e2a1056e638f2b6316d3cf2219f1e50b522b79d31be20"
     ],
     [
         [
@@ -753,7 +746,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "ed0d16bf761ad18f0837ddaed868f149c70814903bd46cc0c841289bcb6b68df"
+        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
     ],
     [
         [

@@ -11,6 +11,10 @@ export { initSendGridEmailSender as initEmailSender } from "./providers/sendgrid
 // PRIVATE API
 export { initMailgunEmailSender as initEmailSender } from "./providers/mailgun.js";
 {=/ isMailgunProviderEnabled =}
+{=# isResendProviderEnabled =}
+// PRIVATE API
+export { initResendEmailSender as initEmailSender } from "./providers/resend.js";
+{=/ isResendProviderEnabled =}
 {=# isDummyProviderEnabled =}
 // PRIVATE API
 export { initDummyEmailSender as initEmailSender } from "./providers/dummy.js";

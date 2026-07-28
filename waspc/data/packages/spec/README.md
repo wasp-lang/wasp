@@ -1,18 +1,28 @@
-# @wasp.sh/spec
+The Wasp Spec, as an npm package.
 
-Wasp Spec is a library for defining a Wasp application specification in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
+## For Wasp users
 
-## Important Notes
+If you are creating a Wasp app, you don't need to install this package yourself. The Wasp CLI will install and manage it for you.
 
-The `appSpec.ts` type definitions in this package are meant to mirror the AppSpec declarations defined in the `waspc` Haskell codebase. When making changes to this package, ensure that they align with the corresponding Haskell implementation.
+- Learn more about Wasp: https://wasp.sh/
+- Read the docs: https://wasp.sh/docs
+- Read about the Wasp spec: https://wasp.sh/docs/general/spec
+- Browse the API reference: https://wasp.sh/docs/api/@wasp.sh/spec
+- Join our community: https://discord.gg/rzdnErX
 
-When linking to other Wasp docs from TSDoc comments in this package, write the full `https://wasp.sh/docs/...` URL rather than a relative path. The website build rewrites those URLs to relative links via the `fix-api-links` remark plugin (see [Writing Docs](../../../../web/WRITING-DOCS.md)), so they resolve correctly both on the rendered website and in the raw markdown that consumers of this package read.
+## For Wasp Spec library authors
 
-## Testing
+If you are creating a Wasp Spec helper or library outside of a Wasp project, you can install this package as a dependency in your project. For best results, add it to both your `devDependencies` and `peerDependencies` in your `package.json`, so you have a local copy during development, but your library users will use the version of the package that is installed in their Wasp project.
 
-```bash
-npm run test
-npm run test:unit
-npm run test:integration
-npm run coverage
+In `package.json`:
+
+```json
+{
+  "peerDependencies": {
+    "@wasp.sh/spec": "^0.25.0"
+  },
+  "devDependencies": {
+    "@wasp.sh/spec": "^0.25.0"
+  }
+}
 ```

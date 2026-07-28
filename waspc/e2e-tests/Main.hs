@@ -1,3 +1,4 @@
+import Control.Concurrent (getNumCapabilities)
 import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
 import StrongPath ((</>))
@@ -6,7 +7,8 @@ import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
-import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty (TestTree, defaultMain, localOption, testGroup)
+import Test.Tasty.Runners (NumThreads (..))
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -31,6 +33,7 @@ import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
+import Text.Read (readMaybe)
 
 main :: IO ()
 main = do
@@ -39,7 +42,9 @@ main = do
     else do
       ensureE2eTestsEnvironment
       warmUpWaspCli
-      defaultMain e2eTests
+      maxConcurrentTests <- getMaxConcurrentTests
+      putStrLn $ "Running up to " ++ show maxConcurrentTests ++ " test case(s) concurrently. Override with WASP_E2E_TEST_MAX_JOBS."
+      defaultMain $ localOption (NumThreads maxConcurrentTests) e2eTests
 
 ensureE2eTestsEnvironment :: IO ()
 ensureE2eTestsEnvironment = do
@@ -52,6 +57,23 @@ ensureE2eTestsEnvironment = do
       let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
       setEnv "WASP_CLI_CMD" devWaspCliCmd
 
+-- | How many test cases we run concurrently.
+--
+-- Each test case shells out to Node tooling (`npm install`, `tsc`,
+-- `vite build`, ...) that already parallelizes across every core, so running
+-- all of them at once oversubscribes the CPU. We therefore cap the fan-out.
+--
+-- The default scales with the number of available cores (a fraction of them,
+-- since each build is itself multi-core). Set @WASP_E2E_TEST_MAX_JOBS@ to a
+-- positive integer to override it (e.g. @1@ to run the test cases serially).
+getMaxConcurrentTests :: IO Int
+getMaxConcurrentTests = do
+  numCores <- getNumCapabilities
+  override <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS"
+  return $ case override of
+    Just n | n >= 1 -> n
+    _ -> max 1 (numCores `div` 4)
+
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
 -- concurrently (tasty runs the test cases in parallel).
 --
@@ -62,7 +84,7 @@ ensureE2eTestsEnvironment = do
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: IO ()
-warmUpWaspCli = callCommand "$WASP_CLI_CMD version > /dev/null"
+warmUpWaspCli = callCommand "$WASP_CLI_CMD version 2>&1 >/dev/null" -- We don't need any output.
 
 -- TODO: Investigate automatically discovering the tests.
 e2eTests :: TestTree

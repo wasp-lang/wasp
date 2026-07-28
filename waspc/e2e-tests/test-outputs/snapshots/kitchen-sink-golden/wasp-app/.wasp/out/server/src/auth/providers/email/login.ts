@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { createInvalidCredentialsError } from 'wasp/auth/utils'
-import { verifyPassword } from 'wasp/auth/password'
+import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
+import { verifyPassword } from 'wasp/server/auth/password'
 import {
     createProviderId,
     findAuthIdentity,
     findAuthWithUserBy,
     getProviderDataWithPassword,
-} from 'wasp/auth/utils'
-import { createSession } from 'wasp/auth/session'
+} from 'wasp/server/auth/utils'
+import { createSession } from 'wasp/server/auth/session'
 import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
 import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 

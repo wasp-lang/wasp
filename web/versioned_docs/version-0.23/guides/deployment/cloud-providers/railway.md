@@ -1,15 +1,15 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.23"
-  Railway: 2026-04-06
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
 import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Railway
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.23", Railway: new Date("2026-04-06") }} />
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 

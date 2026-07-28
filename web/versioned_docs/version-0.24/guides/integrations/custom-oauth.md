@@ -1,10 +1,12 @@
 ---
 comments: true
-last_checked_with_versions:
-  Wasp: "0.24"
 ---
 
+import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+
 # Custom OAuth Provider
+
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
 This guide shows you how to implement a custom OAuth provider in your Wasp application. We'll use Spotify as an example, but the same approach works for any OAuth provider.
 

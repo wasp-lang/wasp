@@ -10,6 +10,7 @@
     ],
     "skipLibCheck": true,
     "allowJs": true,
+    "types": ["node", "react"],
     "rootDir": ".",
     "outDir": "dist",
 

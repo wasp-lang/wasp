@@ -1,6 +1,6 @@
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
-import { lazy } from "react"
+import { Outlet } from "react-router"
 
 
 
@@ -8,11 +8,14 @@ import { lazy } from "react"
 
 const routesMapping = {
   RootRoute: {
-    Component:
-      lazy(() =>
-        import('./src/MainPage').then(m => m.MainPage)
-        .then(component => ({ default: component }))
-      ),
+    lazy: async () => {
+      const Component = await import('./src/MainPage').then(m => m.MainPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
   },
 } as const;
 
@@ -20,7 +23,11 @@ const routesMapping = {
 initializeQueryClient()
 
 const rootElement =
-  undefined
+  // We don't really need to wrap the app in a div nor name it "root", but we
+  // keep it for backwards compatibility with older Wasp versions.
+  <div id="root">
+    <Outlet />
+  </div>
 
 export const routeObjects = getRouteObjects({
   routesMapping,
