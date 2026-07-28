@@ -74,6 +74,33 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
+      # NOTE: Temporary diagnostics for flaky e2e tests: the deployed server
+      # briefly stops responding a few minutes after deploy (suspected
+      # postgres-flex 18.1 hiccup or Fly proxy machine downscaling). Capture
+      # machine logs and states during the test run so we can see what the
+      # infrastructure did when a test fails. The background processes are
+      # cleaned up automatically when the job ends.
+      - name: Capture Fly logs and machine states during tests
+        run: |
+          mkdir -p fly-debug-logs
+          for app_suffix in server db client; do
+            app="$APP_PREFIX-$app_suffix"
+            flyctl logs -a "$app" > "fly-debug-logs/$app_suffix.log" 2>&1 &
+          done
+          (
+            while true; do
+              {
+                date -u
+                for app_suffix in server db client; do
+                  app="$APP_PREFIX-$app_suffix"
+                  flyctl machine list -a "$app" --json \
+                    | jq -r --arg app "$app" '.[] | "\($app) \(.id) state=\(.state)"'
+                done
+              } >> fly-debug-logs/machine-states.log 2>&1
+              sleep 15
+            done
+          ) &
+
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         env:
@@ -81,6 +108,16 @@ jobs:
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
         run: npm test
+
+      - name: Upload Fly debug logs and test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fly-deploy-test-debug-${{ github.run_attempt }}
+          path: |
+            fly-debug-logs/
+            ${{ env.APP_TO_DEPLOY }}/e2e-tests/test-results/
+          if-no-files-found: ignore
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
