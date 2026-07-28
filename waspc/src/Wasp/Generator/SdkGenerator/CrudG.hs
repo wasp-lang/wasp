@@ -50,13 +50,3 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
 
         actionTsType :: String
         actionTsType = if isAuthEnabled spec then "AuthenticatedActionDefinition" else "UnauthenticatedActionDefinition"
-        
-        overrides :: [Aeson.Types.Pair]
-        overrides = map operationToOverrideImport crudOperations
-
-        crudOperations = AS.Crud.toOperationList crud.operations
-
-        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
-        operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
-          where
-            importJson = extImportToImportJson $ AS.Crud.overrideFn options

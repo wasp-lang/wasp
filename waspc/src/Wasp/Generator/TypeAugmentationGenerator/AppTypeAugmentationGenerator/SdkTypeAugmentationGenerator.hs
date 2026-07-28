@@ -16,7 +16,7 @@ import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Crud (crudDeclarationToOperationsList, makeCrudOperationKeyAndJsonPair)
+import Wasp.Generator.Crud (makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator.Common (mkTmplFdWithData)
@@ -58,7 +58,7 @@ genSdkTypeAugmentation spec =
     mkCrudData (name, crud) =
       object
         [ "name" .= name,
-          "overrides" .= object (map operationToOverrideImport (crudDeclarationToOperationsList crud))
+          "overrides" .= object (map operationToOverrideImport (AS.Crud.toOperationList crud.operations))
         ]
 
     operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
