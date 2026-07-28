@@ -6,10 +6,18 @@
 ## Wasp Spec
 
 - [App](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
+- [AppConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AppConfig)
 - [app](https://wasp.sh/docs/api/@wasp.sh/spec/functions/app)
 
 ## Constructors
 
+- [ActionConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ActionConfig)
+- [ApiConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ApiConfig)
+- [ApiNamespaceConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ApiNamespaceConfig)
+- [JobConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobConfig)
+- [PageConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/PageConfig)
+- [QueryConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/QueryConfig)
+- [RouteConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RouteConfig)
 - [action](https://wasp.sh/docs/api/@wasp.sh/spec/functions/action)
 - [api](https://wasp.sh/docs/api/@wasp.sh/spec/functions/api)
 - [apiNamespace](https://wasp.sh/docs/api/@wasp.sh/spec/functions/apiNamespace)
@@ -31,6 +39,20 @@
 - [Route](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Route)
 - [Spec](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Spec)
 - [SpecElement](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/SpecElement)
+
+## References
+
+- [DefaultRefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/DefaultRefObjectDescriptor)
+- [NamedRefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/NamedRefObjectDescriptor)
+- [Reference](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Reference)
+- [RefObject](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RefObject)
+- [RefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RefObjectDescriptor)
+- [ZodSchema](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ZodSchema)
+- [ref](https://wasp.sh/docs/api/@wasp.sh/spec/functions/ref)
+
+## Errors
+
+- [WaspSpecUserError](https://wasp.sh/docs/api/@wasp.sh/spec/classes/WaspSpecUserError)
 
 ## Fields
 
@@ -57,13 +79,3 @@
 - [EntityName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/EntityName)
 - [HttpMethod](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/HttpMethod)
 - [JobExecutor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobExecutor)
-
-## References
-
-- [DefaultRefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/DefaultRefObjectDescriptor)
-- [NamedRefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/NamedRefObjectDescriptor)
-- [Reference](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/Reference)
-- [RefObject](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RefObject)
-- [RefObjectDescriptor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/RefObjectDescriptor)
-- [ZodSchema](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/ZodSchema)
-- [ref](https://wasp.sh/docs/api/@wasp.sh/spec/functions/ref)
