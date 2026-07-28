@@ -8,66 +8,76 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 
--- | The SDK must not import values from the user project (ext imports) directly,
--- because that would create a cyclic dependency between the TypeScript projects.
+-- | This function allows the SDK to use the user project values (ext imports).
+--
+-- If the SDK tried to import values from the user project directly,
+-- it would create a cyclic dependency between TypeScript projects.
 -- TypeScript can't compile projects that have cyclic dependencies.
--- So we must find a way to use the user project values without the SDK depending
--- on the user project.
+-- So we must find a way to use the user project values without the
+-- SDK depending on the user project.
 --
--- Copying the user project and making the SDK depend on the copy is not an option,
--- because it forces the user's project to compile with the SDK's TypeScript config.
--- ({@link https://github.com/wasp-lang/wasp/issues/2247 Old issue about the problem})
+-- Copying the user project and making the SDK depend on the copy
+-- is not an option, because it forces the user's project to compile
+-- with the SDK's TypeScript config.
+-- (Old issue about the problem: https://github.com/wasp-lang/wasp/issues/2247)
 --
--- The direct way to do that would be to use DI (dependency injection).
--- However, DI systems are fragile to module initialization order; we must push
--- the user project values before the SDK tries to use them.
+-- The direct way to do that would be DI (dependency injection).
+-- However, DI is fragile to module initialization order (values must be
+-- registered before they can be used), so we want to avoid that approach.
 --
--- Instead, we will proxy the user project imports through virtual modules.
--- Virtual modules are resolved bundle time, ....
+-- Instead, the solution is to proxy the user project imports through
+-- virtual modules. Bundler resolves virtual user modules at bundle time,
+-- which happens after all TypeScript projects have been compiled.
+-- This delays the resolution of the SDK's user project imports until
+-- after compilation, so the compiler never sees a cycle.
 --
--- What we esentially do, is to delay SDK's user project imports resolution
--- to bundle time which happens after the TypeScript projects have been compiled.
+-- Vurtual user module import look almost identical to direct imports,
+-- just the module is virtual user module instead of relative path:
 --
--- The generates templates code is almost identical to direct imports.
--- The only difference is that we import from a virtual module:
--- ```ts title="./sdk/wasp/client/env/schema.ts"
--- import { clientEnvValidationSchema as clientEnvValidationSchema_ext } from "virtual:wasp/user/env";
--- const userClientEnvSchema: UserClientEnvSchema = clientEnvValidationSchema_ext;
--- ```
+-- > // ./sdk/wasp/client/env/schema.ts
+-- > export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
+-- > type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
+-- >
+-- > import { clientEnvValidationSchema as clientEnvValidationSchema_ext } from "virtual:wasp/user/env";
+-- > const userClientEnvSchema: UserClientEnvSchema = clientEnvValidationSchema_ext;
 --
--- For virtual modules to be resolved properly, each runtime that uses the SDK
--- (the server and the client) must equip its bundler with a plugin that resolves
--- the virtual user modules the SDK references into actual user files.
--- E.g., client virtual user modules plugin:
--- ```ts title="./sdk/wasp/client/vite/plugins/waspVirtualUserModules.ts"
--- const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
---   'virtual:wasp/user/env': './src/env',
--- };
+-- For virtual modules to be resolved properly, each runtime that uses
+-- the SDK (the server and the client) must equip its bundler with a
+-- plugin that resolves virtual user modules into actual user files.
 --
--- export function waspVirtualUserModules(): Plugin {
---    // ...
---     async resolveId(id, importer, options) {
---       if (id in clientVirtualUserModuleMap) {
---         const absPath = path.resolve(clientRootDir, clientVirtualUserModuleMap[id]);
---         return this.resolve(absPath, importer, { ...options, skipSelf: true });
---       }
---       return null;
---     },
---   };
--- }
--- ```ts
+-- Each plugin resolves only the virtual user modules that end up in its
+-- runtime's bundle. E.g., the server plugin resolves server-side user modules
+-- like operations, but not the client env validation schema.
+-- E.g., the client plugin:
 --
--- While this makes everything work in the runtime, it would fail TypeScript
--- compilation because virtual modules are still `undefined`.
--- So the last thing to do is module declaration of the virtual user modules
--- used by the SDK:
--- ```ts title="./sdk/wasp/wasp-user-virtual-modules.d.ts"
--- declare module "virtual:wasp/user/env" {
---   import type { RegisteredClientEnvValidationSchema } from "./client/env/schema";
+-- > // ./sdk/wasp/client/vite/plugins/waspVirtualUserModules.ts
+-- > const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
+-- >   'virtual:wasp/user/env': './src/env',
+-- > };
+-- >
+-- > export function waspVirtualUserModules(): Plugin {
+-- >   // ...
+-- >   async resolveId(id, importer, options) {
+-- >     if (id in clientVirtualUserModuleMap) {
+-- >       const absPath = path.resolve(clientRootDir, clientVirtualUserModuleMap[id]);
+-- >       return this.resolve(absPath, importer, { ...options, skipSelf: true });
+-- >     }
+-- >     return null;
+-- >   },
+-- > }
 --
---   export const clientEnvValidationSchema: RegisteredClientEnvValidationSchema;
--- }
--- ```
+-- While this makes everything work at runtime, TypeScript compilation
+-- would still fail because the virtual modules don't exist at compile
+-- time. The last step is a module declaration for every virtual user
+-- module the SDK uses:
+--
+-- > // ./sdk/wasp/wasp-user-virtual-modules.d.ts
+-- > declare module "virtual:wasp/user/env" {
+-- >   import type { RegisteredClientEnvValidationSchema } from "./client/env/schema";
+-- >
+-- >   export const clientEnvValidationSchema: RegisteredClientEnvValidationSchema;
+-- > }
+-- > // Many other declarations....
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
   where

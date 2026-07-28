@@ -1,6 +1,5 @@
 /**
  * This module allows the SDK to use the user project types.
- * It acts as a bridge between the SDK and the user project types.
  * 
  * If the SDK tried to import types from the user project directly,
  * it would create a cyclic dependency between TypeScript projects.
