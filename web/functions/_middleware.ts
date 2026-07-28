@@ -86,7 +86,7 @@ async function fetchMarkdownVariant(
   const markdownResponse = await next(markdownRequest);
 
   if (!markdownResponse.ok) {
-    return next();
+    return next(request);
   }
 
   return markdownResponse;
