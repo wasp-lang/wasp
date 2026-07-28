@@ -58,7 +58,6 @@
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     "./core/serialization": "./dist/core/serialization/index.js",
-    "./core/storage": "./dist/core/storage.js",
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
     "./serialization": "./dist/serialization/index.js",
