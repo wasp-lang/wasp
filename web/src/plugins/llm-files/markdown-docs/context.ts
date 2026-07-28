@@ -1,4 +1,4 @@
-export interface LlmDocsContext {
+export interface MarkdownDocsContext {
   baseUrl: string;
   outDir: string;
   skipElementInMarkdownDocsClass: string;

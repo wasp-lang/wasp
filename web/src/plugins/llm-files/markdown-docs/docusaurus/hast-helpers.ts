@@ -14,7 +14,10 @@ export function hastTextContent(node: hast.Nodes): string {
   if (node.type === "text") {
     return node.value;
   }
-  assert("children" in node, "Unknown node text content.");
+  assert(
+    "children" in node,
+    `Cannot extract text content from a "${node.type}" node.`,
+  );
 
   return node.children.map(hastTextContent).join("");
 }
