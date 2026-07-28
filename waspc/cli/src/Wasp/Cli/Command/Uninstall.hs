@@ -10,7 +10,6 @@ import qualified StrongPath as SP
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -19,6 +18,7 @@ import Wasp.Cli.FileSystem
     waspInstallationDirInHomeDir,
   )
 import Wasp.Message (Message)
+import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
 import qualified Wasp.Message as Msg
 import Wasp.Util (indent)
 import Wasp.Util.IO
