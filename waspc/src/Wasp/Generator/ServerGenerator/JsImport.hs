@@ -54,5 +54,9 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ waspProjectSrcDirFromServerSrcDir
   where
+    -- NOTE: We reference the user project in the generated server project.
+    -- This gives us proper error messages (user's file names and line numbers).
+    -- The only problem is that file paths are relative from the server project,
+    -- resulting in something like `../../../src/foo/bar.ts`.
     waspProjectSrcDirFromServerSrcDir = waspProjectDirFromServerSrcDir </> srcDirInWaspProjectDir
     waspProjectDirFromServerSrcDir = invertRelDir (generatedAppDirInWaspProjectDir </> serverSrcDirInGeneratedAppDir)

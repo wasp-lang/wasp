@@ -56,6 +56,19 @@ genAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
+-- | Generates React hook that Wasp developer can use in a component to get
+--   access to the currently logged in user (and check whether user is logged in
+--   ot not).
+genUseAuth :: AS.Auth.Auth -> Generator FileDraft
+genUseAuth auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|useAuth.ts|])
+      tmplData
+  where
+    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
 genUserTs :: AS.Auth.Auth -> Generator FileDraft
 genUserTs auth =
   return $
@@ -72,19 +85,6 @@ genUserTs auth =
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-
--- | Generates React hook that Wasp developer can use in a component to get
---   access to the currently logged in user (and check whether user is logged in
---   ot not).
-genUseAuth :: AS.Auth.Auth -> Generator FileDraft
-genUseAuth auth =
-  return $
-    mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|useAuth.ts|])
-      tmplData
-  where
-    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
