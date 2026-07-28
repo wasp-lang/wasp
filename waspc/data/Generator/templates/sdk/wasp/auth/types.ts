@@ -1,2 +1,2 @@
 // todo(filip): turn into a proper import/path
-export type { ProviderName } from './utils.js'
+export type { ProviderName } from '../server/auth/utils.js'

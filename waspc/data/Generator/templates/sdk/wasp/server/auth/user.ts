@@ -7,7 +7,7 @@ import {
 import {
   type PossibleProviderData,
   getProviderData,
-} from '../../auth/utils.js'
+} from './utils.js'
 import { type ProviderName } from '../_types/index.js'
 import { Expand } from '../../universal/types.js'
 

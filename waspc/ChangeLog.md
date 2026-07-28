@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.26.0
+
+### ⚠️ Breaking Changes
+
+- Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 
 ### 🔧 Small improvements
 

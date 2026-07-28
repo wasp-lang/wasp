@@ -1,6 +1,6 @@
 import { getSessionAndUserFromBearerToken } from '../auth/session.js'
 import { createInvalidCredentialsError } from '../auth/utils.js'
-import { defineHandler } from '../server/utils.js'
+import { defineHandler } from '../utils.js'
 
 /**
  * Auth middleware
