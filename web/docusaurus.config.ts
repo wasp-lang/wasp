@@ -2,8 +2,10 @@ import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
+import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
+import { docusaurusPluginLlmFiles } from "./src/plugins/llm-files/docusaurus-plugin";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
@@ -294,8 +296,7 @@ const config: Config = {
         onUntruncatedBlogPosts: "throw",
       },
     ],
-
-    async function tailwindPlugin(context, options) {
+    async function tailwindPlugin() {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -306,7 +307,6 @@ const config: Config = {
         },
       };
     },
-
     [
       "docusaurus-plugin-typedoc",
       {
@@ -327,6 +327,9 @@ const config: Config = {
         // https://typedoc.org/documents/Options.Package_Options.html.
       },
     ],
+    docusaurusPluginLlmFiles({
+      skipElementInMarkdownDocsClass: SKIP_IN_MARKDOWN_DOCS_CLASS,
+    }),
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
