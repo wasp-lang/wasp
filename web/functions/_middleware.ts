@@ -1,3 +1,4 @@
+import { getRedirects } from "../redirects";
 import { routeHasMarkdownVariant } from "../src/plugins/llm-files/markdown-docs/markdown-routes";
 
 interface CloudflarePagesContext {
@@ -21,11 +22,17 @@ export const onRequest = async (
 ): Promise<Response> => {
   const { request, next } = context;
 
-  if (request.method !== "GET") {
+  if (!["GET", "HEAD"].includes(request.method)) {
     return next();
   }
 
   const url = new URL(request.url);
+
+  // We let `_redirects` handle the routes with a redirect rule.
+  if (routeHasRedirectRule(url.pathname)) {
+    return next();
+  }
+
   const canNegotiateContentType =
     routeHasMarkdownVariant(url.pathname) &&
     !routeHasFileTypeExtension(url.pathname);
@@ -38,13 +45,33 @@ export const onRequest = async (
     ? await fetchMarkdownVariant(context)
     : await next();
 
-  // The response varies based on the `Accept` header, so we set the
-  // `Vary: Accept` header to ensure caches maintain separate entries
+  // The response varies based on the `Accept` header, so we add `Accept`
+  // to the `Vary` header to ensure caches maintain separate entries
   // for different `Accept` values.
-  contentNegotiationResponse.headers.set("Vary", "Accept");
+  contentNegotiationResponse.headers.append("Vary", "Accept");
 
   return contentNegotiationResponse;
 };
+
+/**
+ * Redirects used to generate the `_redirects` file.
+ */
+const REDIRECT_FROM_PATTERNS = getRedirects({
+  redirectCurrentVersionToCanonical: true,
+}).map(({ from }) => redirectSourceToRegExp(from));
+
+function routeHasRedirectRule(pathname: string): boolean {
+  return REDIRECT_FROM_PATTERNS.some((pattern) => pattern.test(pathname));
+}
+
+function redirectSourceToRegExp(source: string): RegExp {
+  const sourcePattern = source.split("*").map(escapeRegExp).join("(.*)");
+  return new RegExp(`^${sourcePattern}$`);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 /**
  * True if the route targets a MD or HTML type directly.
@@ -70,9 +97,8 @@ function acceptsMarkdown(acceptHeader: string | null): boolean {
 
 /**
  * Fetches the pre-generated markdown variant of the requested page.
- *
- * When the variant is missing, falls back to the original request.
- * This keeps the `_redirects` rules working.
+ * A route missing its markdown variant intentionally results in a
+ * 404 response.
  */
 async function fetchMarkdownVariant(
   context: CloudflarePagesContext,
@@ -83,13 +109,7 @@ async function fetchMarkdownVariant(
   const markdownPathname = generateMarkdownPathname(url.pathname);
   const markdownUrl = new URL(markdownPathname, url);
   const markdownRequest = new Request(markdownUrl, request);
-  const markdownResponse = await next(markdownRequest);
-
-  if (!markdownResponse.ok) {
-    return next(request);
-  }
-
-  return markdownResponse;
+  return next(markdownRequest);
 }
 
 /**
