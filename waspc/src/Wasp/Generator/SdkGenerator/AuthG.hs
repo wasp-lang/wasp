@@ -10,7 +10,9 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
+import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
@@ -32,7 +34,8 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ genFileCopyInAuth [relfile|user.ts|],
+        [ genUserTs auth,
+          genFileCopyInAuth [relfile|providerData.ts|],
           genFileCopyInAuth [relfile|validation.ts|],
           genIndexTs auth,
           genProvidersTypes auth,
@@ -64,6 +67,24 @@ genUseAuth auth =
       tmplData
   where
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+genUserTs :: AS.Auth.Auth -> Generator FileDraft
+genUserTs auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|user.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "userEntityName" .= userEntityName,
+          "authEntityName" .= DbAuth.authEntityName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+        ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft

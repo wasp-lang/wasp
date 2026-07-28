@@ -1,14 +1,14 @@
 import { Request as ExpressRequest } from "express";
 
 import { type User } from '../../entities/index.js';
-import { type AuthUserData } from './user.js';
+import { type AuthUserData } from '../../auth/user.js';
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
 import { createInvalidCredentialsError } from "./utils.js";
 
 import { prisma } from '../index.js';
-import { createAuthUserData } from "./user.js";
+import { createAuthUserData } from "../../auth/user.js";
 
 // PRIVATE API
 // Creates a new session for the `authId` in the database

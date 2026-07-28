@@ -32,7 +32,6 @@ genServerAuth spec =
       sequence
         [ genFileCopy [relfile|server/core/auth.ts|],
           genAuthIndex auth,
-          genAuthUser auth,
           genHooks auth,
           genFileCopyInServerAuth [relfile|password.ts|],
           genFileCopyInServerAuth [relfile|jwt.ts|],
@@ -59,24 +58,6 @@ genAuthIndex auth =
           "isExternalAuthEnabled" .= isExternalAuthEnabled
         ]
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
-
-genAuthUser :: AS.Auth.Auth -> Generator FileDraft
-genAuthUser auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|user.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "userEntityName" .= userEntityName,
-          "authEntityName" .= DbAuth.authEntityName,
-          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
-          "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
-          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
-        ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =

@@ -7,7 +7,7 @@ import {
 } from 'express-serve-static-core'
 import { prisma } from '../index.js'
 {=# isAuthEnabled =}
-import { type AuthUser } from '../auth/user.js'
+import { type AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
 import { type _Entity } from './taggedEntities'
 import { type Payload } from '../../core/serialization/index.js'
@@ -101,5 +101,5 @@ type ContextWithUser<Entities extends _Entity[]> = Expand<
   Context<Entities> & { user?: AuthUser }
 >
 
-export type { ProviderName } from '../auth/utils.js'
+export type { ProviderName } from '../../auth/providerData.js'
 {=/ isAuthEnabled =}
