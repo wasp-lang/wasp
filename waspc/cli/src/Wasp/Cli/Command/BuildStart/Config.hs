@@ -1,15 +1,8 @@
 module Wasp.Cli.Command.BuildStart.Config
-  ( BuildStartConfig,
-    buildDir,
-    projectDir,
-    clientEnvVars,
-    clientPort,
-    clientUrl,
+  ( BuildStartConfig (..),
     dockerContainerName,
     dockerImageName,
     makeBuildStartConfig,
-    serverEnvVars,
-    serverUrl,
   )
 where
 
@@ -23,61 +16,54 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
-import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
+import Wasp.Cli.Util.AppSides (AppSides (..))
+import qualified Wasp.Cli.Util.AppSides as AppSides
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    serverUrl :: String,
-    clientPort :: Int,
-    clientUrl :: String,
-    serverEnvVars :: [EnvVar],
-    clientEnvVars :: [EnvVar],
+    ports :: AppSides Int,
+    urls :: AppSides String,
+    envVars :: AppSides [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  userServerEnvVars <-
-    liftIO $
-      combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
-  userClientEnvVars <-
-    liftIO $
-      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
-  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
+  userEnvVars <- traverse (liftIO . combineEnvVarsWithEnvFiles) args.envInputs
+  when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspClientEnvVars =
-        [ (WebApp.serverUrlEnvVarName, serverUrl')
-        ]
-      waspServerEnvVars =
-        [ (Server.clientUrlEnvVarName, clientUrl'),
-          (Server.serverUrlEnvVarName, serverUrl')
-        ]
-  clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
-  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
+  let waspEnvVars =
+        AppSides
+          { client =
+              [ (WebApp.serverUrlEnvVarName, urls.server)
+              ],
+            server =
+              [ (Server.clientUrlEnvVarName, urls.client),
+                (Server.serverUrlEnvVarName, urls.server)
+              ]
+          }
+
+  envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        serverUrl = serverUrl',
-        clientPort = clientPort',
-        clientUrl = clientUrl',
-        serverEnvVars = serverEnvVars',
-        clientEnvVars = clientEnvVars'
+        ports = ports,
+        urls = urls,
+        envVars = envVars
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' appName
@@ -91,10 +77,9 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     -- This assumes that `getDefaultDevClientUrl` uses `defaultClientPort` internally.
     -- If that changes, we also need to change this.
-    clientPort' = defaultClientPort
-    clientUrl' = getDefaultDevClientUrl appSpec
+    ports = AppSides.defaultPorts
+    urls = AppSides.defaultDevUrls appSpec
 
-    serverUrl' = defaultDevServerUrl
     noEnvVarsSpecifiedMsg =
       CommandError
         "No env vars specified"
@@ -110,12 +95,14 @@ makeBuildStartConfig appSpec args projectDir' = do
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
-  map toLower $ -- Lowercase because Docker image names require it.
+  -- Lowercase because Docker image names require it.
+  map toLower $
     appUniqueId config <> "-server"
 
 dockerContainerName :: BuildStartConfig -> String
 dockerContainerName config =
-  map toLower $ -- Lowercase because Docker container names require it.
+  -- Lowercase because Docker container names require it.
+  map toLower $
     appUniqueId config <> "-server-container"
 
 overrideEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
@@ -128,8 +115,8 @@ overrideEnvVarsCommand forced existing =
             intercalate ", " duplicateNames
     Right combined -> return combined
 
-combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
-combineEnvVarsWithEnvFiles inlineEnvVars files = do
+combineEnvVarsWithEnvFiles :: ([EnvVar], [FilePathArgument]) -> IO [EnvVar]
+combineEnvVarsWithEnvFiles (inlineEnvVars, files) = do
   envVarsFromFiles <- mapM readEnvVarsFromFile files
   let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
