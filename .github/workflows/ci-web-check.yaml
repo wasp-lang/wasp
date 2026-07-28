@@ -15,6 +15,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          # Docusaurus resolves `showLastUpdateTime` dates from git history,
+          # and those dates end up in the generated blog post markdown.
+          # With the default shallow clone every file appears last-updated at
+          # the current merge commit, so the markdown snapshots never match.
+          fetch-depth: 0
 
       - uses: ./.github/actions/setup-tools
         with:
