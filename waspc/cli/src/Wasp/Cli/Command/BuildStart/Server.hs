@@ -13,9 +13,9 @@ import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Subprocess as Subprocess
 
-buildServer :: BuildStartConfig -> BuildStartJob.BuildStartJob
+buildServer :: BuildStartConfig -> BuildStartJob.JobExecution
 buildServer config =
-  BuildStartJob.make (("Building the server failed with exit code: " <>) . show) $
+  BuildStartJob.run (("Building the server failed with exit code: " <>) . show) $
     Job.makeJob Job.Server $ do
       exitCode <- Subprocess.run (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
       Job.requireExitSuccess exitCode
@@ -24,9 +24,9 @@ buildServer config =
     buildDir = config.buildDir
     dockerImageName = Config.dockerImageName config
 
-startServer :: BuildStartConfig -> BuildStartJob.BuildStartJob
+startServer :: BuildStartConfig -> BuildStartJob.JobExecution
 startServer config =
-  BuildStartJob.make (("Running the server failed with exit code: " <>) . show) $
+  BuildStartJob.run (("Running the server failed with exit code: " <>) . show) $
     Job.makeJob Job.Server $ do
       exitCode <-
         Subprocess.run $

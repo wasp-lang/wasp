@@ -10,9 +10,9 @@ import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
 
-buildClient :: BuildStartConfig -> BuildStartJob.BuildStartJob
+buildClient :: BuildStartConfig -> BuildStartJob.JobExecution
 buildClient config =
-  BuildStartJob.make (("Building the client failed with exit code: " <>) . show) $
+  BuildStartJob.run (("Building the client failed with exit code: " <>) . show) $
     Node.makeJobWithExtraEnv
       envVars
       projectDir
@@ -23,9 +23,9 @@ buildClient config =
     envVars = getEnvVars config.clientRunConfig
     projectDir = config.projectDir
 
-startClient :: BuildStartConfig -> BuildStartJob.BuildStartJob
+startClient :: BuildStartConfig -> BuildStartJob.JobExecution
 startClient config =
-  BuildStartJob.make (("Serving the client failed with exit code: " <>) . show) $
+  BuildStartJob.run (("Serving the client failed with exit code: " <>) . show) $
     Node.makeJob
       projectDir
       "npx"
