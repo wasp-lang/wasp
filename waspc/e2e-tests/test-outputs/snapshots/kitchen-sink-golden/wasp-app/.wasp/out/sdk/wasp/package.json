@@ -85,9 +85,6 @@
     "./server/webSocket": "./dist/server/webSocket/index.js",
     "./src/*": "./dist/src/*.js"
   },
-  "include": [
-    "src/**/*"
-  ],
   "license": "ISC",
   "name": "wasp",
   "peerDependencies": {},
