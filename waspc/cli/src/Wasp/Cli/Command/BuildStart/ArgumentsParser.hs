@@ -24,8 +24,8 @@ buildStartArgsParser =
     envInputsParser = for AppSides.names $ \name ->
       liftA2
         (,)
-        (Opt.many $ makeEnvironmentVariableParser name ("env-" <> name) (head name))
-        (Opt.many $ makeEnvironmentFileParser name ("env-file-" <> name))
+        (Opt.many $ makeEnvironmentVariableParser name (name ++ "-env") (head name))
+        (Opt.many $ makeEnvironmentFileParser name (name ++ "-env-file"))
 
     makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser EnvVar
     makeEnvironmentVariableParser targetName longOptionName shortOptionName =
