@@ -68,6 +68,12 @@ function acceptsMarkdown(acceptHeader: string | null): boolean {
   return !!acceptHeader && acceptHeader.includes("text/markdown");
 }
 
+/**
+ * Fetches the pre-generated markdown variant of the requested page.
+ *
+ * When the variant is missing, falls back to the original request.
+ * This keeps the `_redirects` rules working.
+ */
 async function fetchMarkdownVariant(
   context: CloudflarePagesContext,
 ): Promise<Response> {
@@ -78,6 +84,11 @@ async function fetchMarkdownVariant(
   const markdownUrl = new URL(markdownPathname, url);
   const markdownRequest = new Request(markdownUrl, request);
   const markdownResponse = await next(markdownRequest);
+
+  if (!markdownResponse.ok) {
+    return next();
+  }
+
   return markdownResponse;
 }
 

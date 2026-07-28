@@ -13,7 +13,7 @@ export function htmlFileRelPathHasMarkdownVariant(
 
 /**
  * Whether a route supports markdown variant of content.
- * Keep in sync with `_routes.json` in `static/` dir.
+ * Keep in sync with `static/_routes.json`.
  */
 export function routeHasMarkdownVariant(route: string): boolean {
   return (
