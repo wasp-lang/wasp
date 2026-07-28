@@ -1,11 +1,12 @@
 /**
- * This module acts as a bridge between SDK and user project types.
+ * This module allows the SDK to use the user project types.
+ * It acts as a bridge between the SDK and the user project types.
  * 
  * If the SDK tried to import types from the user project directly,
  * it would create a cyclic dependency between TypeScript projects.
  * TypeScript can't compile projects that have cyclic dependencies.
- * So we must find a way to bridge the types without the SDK depending
- * on the user project.
+ * So we must find a way to use the user project types without the
+ * SDK depending on the user project.
  * 
  * Copying the user project and making the SDK depend on the copy
  * is not an option, because it forces the user's project to compile
@@ -13,7 +14,7 @@
  * ({@link https://github.com/wasp-lang/wasp/issues/2247 Old issue about the problem})
  *
  * Instead, the solution is for the user project to push types into
- * the SDK. That way the SDK can use the user's types, without 
+ * the SDK. That way the SDK can use the user's types, without
  * depending on the user project.
  * 
  * The SDK defines empty {@link Register} interface, which is publicly
