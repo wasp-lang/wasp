@@ -97,13 +97,7 @@
     "./client/app/layout": "./dist/client/app/layout.jsx",
     "./client/app/router": "./dist/client/app/router.jsx",
     {=! Injected as a vitest setupFiles entry by the vite plugin. =}
-    "./client/test/setup": "./dist/client/test/setup.js",
-
-    {=! =============================================================== =}
-    {=! SDK internal. =}
-    {=! TODO: This section will be removed once we remove SDK <-> user cyclic deps. =}
-    {=! =============================================================== =}
-    "./src/*": "./dist/src/*.js"
+    "./client/test/setup": "./dist/client/test/setup.js"
   },
   {=!
     TypeScript doesn't care about the redirects we define above in "exports" field; those
