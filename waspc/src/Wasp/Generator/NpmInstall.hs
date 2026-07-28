@@ -22,7 +22,7 @@ import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
-import Wasp.Job.Internal (JobOutputEmitter, emitJobOutputIO, getJobOutputEmitter)
+import Wasp.Job.Internal (JobOutputSink, getJobOutputSink, writeJobOutput)
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
@@ -82,18 +82,18 @@ installProjectNpmDependencies messagesChan projectDir =
 installNpmDependenciesAndReport :: Job.JobAction ExitCode -> Job.JobAction ExitCode
 installNpmDependenciesAndReport install = do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
-  outputEmitter <- getJobOutputEmitter
-  (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputEmitter) Async.cancel
+  outputSink <- getJobOutputSink
+  (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputSink) Async.cancel
   exitCode <- install
   release progressReporterKey
   return exitCode
 
-reportInstallationProgress :: JobOutputEmitter -> IO ()
-reportInstallationProgress outputEmitter = reportPeriodically allPossibleMessages
+reportInstallationProgress :: JobOutputSink -> IO ()
+reportInstallationProgress outputSink = reportPeriodically allPossibleMessages
   where
     reportPeriodically messages = do
       threadDelay $ secondsToMicroSeconds 5
-      emitJobOutputIO outputEmitter Job.Stdout $ T.append (head messages) "\n"
+      writeJobOutput outputSink Job.Stdout $ T.append (head messages) "\n"
       threadDelay $ secondsToMicroSeconds 5
       reportPeriodically $ drop 1 messages
     allPossibleMessages =
