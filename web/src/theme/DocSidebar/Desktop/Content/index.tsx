@@ -10,24 +10,8 @@ import clsx from "clsx";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./styles.module.css";
 
-const ACTIVE_LINK_SELECTOR = "a.menu__link--active";
+const ACTIVE_LINK_SELECTOR = 'a[aria-current="page"]';
 const SCROLL_PADDING_PX = 8;
-
-function useShowAnnouncementBar() {
-  const { isActive } = useAnnouncementBar();
-  const [showAnnouncementBar, setShowAnnouncementBar] = useState(isActive);
-
-  useScrollPosition(
-    ({ scrollY }) => {
-      if (isActive) {
-        setShowAnnouncementBar(scrollY === 0);
-      }
-    },
-    [isActive],
-  );
-
-  return isActive && showAnnouncementBar;
-}
 
 export default function DocSidebarDesktopContent({
   path,
@@ -41,7 +25,7 @@ export default function DocSidebarDesktopContent({
     const container = containerRef.current;
 
     if (!container) {
-      return undefined;
+      return;
     }
 
     const animationFrameId = window.requestAnimationFrame(() => {
@@ -75,6 +59,22 @@ export default function DocSidebarDesktopContent({
   );
 }
 
+function useShowAnnouncementBar() {
+  const { isActive } = useAnnouncementBar();
+  const [showAnnouncementBar, setShowAnnouncementBar] = useState(isActive);
+
+  useScrollPosition(
+    ({ scrollY }) => {
+      if (isActive) {
+        setShowAnnouncementBar(scrollY === 0);
+      }
+    },
+    [isActive],
+  );
+
+  return isActive && showAnnouncementBar;
+}
+
 function scrollActiveLinkIntoView(container: HTMLElement): void {
   const activeLink = container.querySelector<HTMLElement>(ACTIVE_LINK_SELECTOR);
 
@@ -87,10 +87,9 @@ function scrollActiveLinkIntoView(container: HTMLElement): void {
 
   if (activeLinkRect.top < containerRect.top) {
     container.scrollTop +=
-      Math.floor(activeLinkRect.top - containerRect.top) - SCROLL_PADDING_PX;
+      activeLinkRect.top - containerRect.top - SCROLL_PADDING_PX;
   } else if (activeLinkRect.bottom > containerRect.bottom) {
     container.scrollTop +=
-      Math.ceil(activeLinkRect.bottom - containerRect.bottom) +
-      SCROLL_PADDING_PX;
+      activeLinkRect.bottom - containerRect.bottom + SCROLL_PADDING_PX;
   }
 }
