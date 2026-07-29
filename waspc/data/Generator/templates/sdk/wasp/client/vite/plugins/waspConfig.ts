@@ -20,7 +20,7 @@ const forcedOptions = {
   'base': "{= baseDir =}",
   'envPrefix': "REACT_APP_",
   'build.outDir': "{= clientBuildDirPath =}",
-  'server.port': Number.parseInt(process.env["{= clientDevPortEnvVarName =}"]),
+  'server.port': process.env["{= clientDevPortEnvVarName =}"],
   'server.strictPort': true,
 } as const;
 

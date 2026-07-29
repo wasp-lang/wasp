@@ -10,15 +10,20 @@ import InstallInstructions from './\_install-instructions.md'
 
 ## What's new in 0.26?
 
-### Wasp picks the dev ports
+### Running multiple Wasp apps side by side
 
-`wasp start` now decides which ports the client and the server run on. If the default ports (3000 and 3001) are taken, it moves the app to free ones instead of failing, so you can run several Wasp apps side by side. You can also pick the ports yourself:
+`wasp start` now decides which ports the client and the server run on. If the default ports (`3000` and `3001`) are taken, it moves the app to free ones instead of failing, so you can run several Wasp apps side by side.
+
+This is great for using agents in parallel worktrees, as each one won't conflict with the other.
+
+You can also pick the ports yourself:
 
 ```bash
 wasp start --client-port 4000 --server-port 4001
+wasp build start --client-port 4000 --server-port 4001
 ```
 
-Because Wasp needs to tell each side where the other one is running, it has to be the one choosing the ports, and the URLs that follow from them. Setting any of those yourself in development now fails with an error that points you to these options. In production nothing changes: you still set the URLs and the port yourself.
+In development, setting the ports manually in the env vars or the Vite config now fails, and you should use these new CLI flags. In production nothing changes: you still set the URLs and the port yourself.
 
 ## How to migrate?
 
@@ -57,18 +62,18 @@ wasp install
 
 Wasp now picks the ports your app runs on in development and derives its URLs from them, so it fails if you also set them.
 
-If your `vite.config.ts` sets `server.port` (or `server.strictPort`), remove it:
+If your `vite.config.ts` sets `server.port` or `server.strictPort`, remove it:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```ts title="vite.config.ts"
     export default defineConfig({
-      plugins: [wasp()],
       // highlight-start
       server: {
         port: 4000,
       },
       // highlight-end
+      plugins: [wasp()],
     });
     ```
   </TabItem>
@@ -81,7 +86,7 @@ If your `vite.config.ts` sets `server.port` (or `server.strictPort`), remove it:
   </TabItem>
 </Tabs>
 
-Then remove `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server`:
+You should also remove `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting those manually:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -101,7 +106,7 @@ Then remove `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.
   </TabItem>
 </Tabs>
 
-And `REACT_APP_API_URL` from your `.env.client`:
+And `REACT_APP_API_URL` from your `.env.client` if present:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -118,7 +123,7 @@ And `REACT_APP_API_URL` from your `.env.client`:
   </TabItem>
 </Tabs>
 
-To keep running on those ports, pass them to `wasp start` instead:
+To keep running on those ports, pass them to `wasp start` or `wasp build start` instead:
 
 ```bash
 wasp start --client-port 4000 --server-port 4001

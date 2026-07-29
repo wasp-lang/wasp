@@ -608,7 +608,6 @@ test-suite waspc-tests
     Generator.CommonTest
     Generator.CrudTest
     Generator.DbGeneratorTest
-    Generator.DevEnvVarsTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.CopyLibDraftTest

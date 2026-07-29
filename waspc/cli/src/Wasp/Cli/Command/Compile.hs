@@ -53,7 +53,7 @@ compile = do
 -- At the end, prints a report on how compilation went (by printing warnings, errors,
 -- success/failure message, ...).
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings
--- along with the AppSpec it compiled. Callers that don't need the AppSpec can discard it.
+-- along with the AppSpec it compiled.
 compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
   ValidNodeAndNpm <- require
