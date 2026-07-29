@@ -23,7 +23,7 @@ wasp start --client-port 4000 --server-port 4001
 wasp build start --client-port 4000 --server-port 4001
 ```
 
-In development, setting the ports manually in the env vars or the Vite config now fails, and you should use these new CLI flags. In production nothing changes: you still set the URLs and the port yourself.
+In development, setting the ports manually in the env vars or the Vite config now fails, and you should use these new CLI flags. In production, the `PORT` variable is now required.
 
 ## How to migrate?
 
@@ -131,10 +131,23 @@ wasp start --client-port 4000 --server-port 4001
 
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
 
-:::info Production is unaffected
-These env vars still work the same way when you deploy. Wasp only takes them over in development, where it is the one starting your app.
+:::info
+
+Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
 :::
 
-### 3. Enjoy your updated Wasp app
+### 3. Set `PORT` in deployment
+
+**If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
+
+`PORT` used to fall back to `3001` when you didn't set it. It no longer has a default, so the server refuses to start without it.
+
+Most deployment platforms set `PORT` for you, but it's worth it to check it in their documentation or your deployment configuration.
+
+```env title="Server env vars"
+PORT=3001
+```
+
+### 4. Enjoy your updated Wasp app
 
 That's it!
