@@ -3,8 +3,6 @@
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
   ( serverOperationIndexJsFileInSdkRootDir,
     genOperations,
-    getQueryData,
-    getActionData,
   )
 where
 
