@@ -1,10 +1,11 @@
 {{={= =}=}}
-// Declares the virtual user modules the SDK imports.
-// Without declarations the SDK would fail the typecheck.
-//
-// The types are written as inline `import("...")` types on purpose.
-// Ambient module declarations can't reach another module through a
-// relative import statement (TS2439).
+/**
+ * Declares the virtual user modules the SDK imports.
+ * 
+ * The types are written as inline `import("...")` types on purpose.
+ * Ambient module declarations can't reach another module through a
+ * relative import statement (TS2439).
+ */
 {=# virtualUserModules =}
 
 declare module "{=& virtualModuleId =}" {

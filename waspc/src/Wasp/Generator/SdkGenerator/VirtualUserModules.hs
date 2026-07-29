@@ -28,11 +28,11 @@ import Wasp.Generator.JsImport (getVirtualUserModuleJsImportPath)
 import Wasp.Generator.SdkGenerator.Common (getRegisteredOperationTypeName)
 import Wasp.JsImport (getJsImportPathStringFromPath)
 
--- | A user module the SDK reaches at runtime through a virtual module.
+-- | Virtual user module is user module the SDK reaches through a proxy
+-- virtual module.
 --
--- Two generated artifact have to agree on every virtual user module:
---
---   * the client/server bundler plugins, which resolve its id to a user file,
+-- For a virtual user module to work, it needs to be registered by:
+--   * the client/server bundler plugin, which resolve its id to a user file,
 --   * @wasp-user-virtual-modules.d.ts@, which declares its type for TypeScript.
 data VirtualUserModule = VirtualUserModule
   { extImport :: EI.ExtImport,
@@ -86,19 +86,17 @@ getVirtualUserModuleId :: VirtualUserModule -> String
 getVirtualUserModuleId =
   getJsImportPathStringFromPath . getVirtualUserModuleJsImportPath . EI.path . extImport
 
--- | Name under which the user's module exports the value, ignoring any alias
---   used in the Wasp config.
+-- | Name under which the user's module exports the value.
 getVirtualUserModuleExportName :: VirtualUserModule -> String
 getVirtualUserModuleExportName virtualUserModule = case EI.name $ extImport virtualUserModule of
   EI.ExtImportModule name -> name
   EI.ExtImportField name -> name
 
 -- | Type the SDK expects the module's export to have, written as an inline import
---   type (e.g. @import("./server/env").RegisteredServerEnvValidationSchema@).
+-- type (e.g. @import("./server/env").RegisteredServerEnvValidationSchema@).
 --
--- It has to be inline because the declarations live in @declare module@ blocks, and
--- an ambient module declaration can't reach another module through a relative import
--- statement (TS2439).
+-- It has to be inline because the ambient module declaration can't reach another
+-- module through a relative import statement (TS2439).
 getDeclaredTypeExpression :: VirtualUserModule -> String
 getDeclaredTypeExpression virtualUserModule =
   "import(\"" ++ declaredTypeModulePath virtualUserModule ++ "\")." ++ declaredTypeName virtualUserModule
