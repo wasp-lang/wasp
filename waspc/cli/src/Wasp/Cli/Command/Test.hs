@@ -34,7 +34,7 @@ watchAndTest testRunner = do
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-  warnings <- compile
+  (warnings, _appSpec) <- compile
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
