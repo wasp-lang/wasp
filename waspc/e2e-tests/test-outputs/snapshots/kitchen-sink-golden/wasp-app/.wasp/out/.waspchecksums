@@ -515,7 +515,7 @@
             "file",
             "sdk/wasp/client/crud/index.ts"
         ],
-        "ca3b06b6c04c38c69523f435f6a15e9984414b440648708ea7227cd619b2f918"
+        "465b03093bff7d9ea5728dcfde886741429588f3ec98ae8e5bff7f50e951ece6"
     ],
     [
         [
@@ -527,9 +527,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/crud/taskVotes.ts"
+        ],
+        "c0c1716feec6c519fe14cd343b813b922aa8fc2d2b0c8dc27780009138d9a8c5"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/crud/tasks.ts"
         ],
-        "f60e84c8c59c7af8e190f2405c5d37d238ed4dc424be8ded5318081c4bf58203"
+        "f99648bbb2f957248b7fa75d36c32d8b29d613beafdb2b884c5884f6622115b5"
     ],
     [
         [
@@ -1054,14 +1061,21 @@
             "file",
             "sdk/wasp/server/crud/index.ts"
         ],
-        "7dda71528ee183839082ecfad97fb862b4ec2bced1d6539bec2d166387051442"
+        "7525490100bebe3d7c7b71f7cb941fb5b0ca2a211822e3bd8e1ac8692cfc9583"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/crud/taskVotes.ts"
+        ],
+        "a4f0e8220780bb68f2d5868ffe4513a605d5db8ac3677c288a52594ec4751b25"
     ],
     [
         [
             "file",
             "sdk/wasp/server/crud/tasks.ts"
         ],
-        "7a01f36d75be95ef6acd44844d7ebf48cb931302af18739fd9b1de4854adf8b0"
+        "d5f66d5c5b013f4464972fb20d0d50e736c7e8de248d6a8db2264cb12680d279"
     ],
     [
         [
@@ -1201,7 +1215,7 @@
             "file",
             "sdk/wasp/server/operations/actions/index.ts"
         ],
-        "09872ce5b190b02e42ab339abd125835e6569640b8388da7d98e312a701e000a"
+        "3d12112bea0552bed30e7dba5280a83718665628a6e0584c8b73d02b73d628b6"
     ],
     [
         [
@@ -1222,7 +1236,7 @@
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "a3971e1e496751c1972d58a82bdab5c2336f7e7ab54d43623f3fda2769c55f85"
+        "60773e8f707984fd37f5244e031c5f5c45a221e19a8bf04deea3490d3daac95a"
     ],
     [
         [
@@ -1230,13 +1244,6 @@
             "sdk/wasp/server/operations/queries/types.ts"
         ],
         "8628743fcad9b0b8ebb210439efe3039d9b7987cff3b3d32b99bb5c374f221d7"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/server/operations/register.ts"
-        ],
-        "1390f128206d1a1279c4261a0ab13a05af22f1722f5110bf084157c14e0689c1"
     ],
     [
         [
@@ -1285,7 +1292,7 @@
             "file",
             "sdk/wasp/types/register.ts"
         ],
-        "ef3bfd79a36d78330373ba554a461737c8089895e9739638302f321c06459eeb"
+        "9e85486629fe858fda128a5dbf194e0020a3964cb1991d8c2cf8f06f3e5f34c7"
     ],
     [
         [
@@ -1341,7 +1348,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "36995918ac68e5a6a426c493f8de3f33c84e94de887ad2249cb887800998f639"
+        "d2a10cd1901988732cc50fe29f78622147a65c5054847ae7fec65d2c674947d9"
     ],
     [
         [
@@ -1661,6 +1668,13 @@
     [
         [
             "file",
+            "server/src/crud/taskVotes.ts"
+        ],
+        "7bff95fa0c7536eec637a1e157129659ec1c9e6280bcf099e9c77e5a4fd3e242"
+    ],
+    [
+        [
+            "file",
             "server/src/crud/tasks.ts"
         ],
         "f90555abfafa5dceb76e43b94ca0a8558efbb10b84d2c1186f44fd0a0f787efd"
@@ -1852,7 +1866,14 @@
             "file",
             "server/src/routes/crud/index.ts"
         ],
-        "b66ff949dbdaa892a354f3a60dc59ce229323ef55fad38239f8b335ec1e71b8d"
+        "8114e52e1bd168277f588e325078b209a6983dd68371320820ca5ea70d890d32"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/crud/taskVotes.ts"
+        ],
+        "4185ac1c4791b3af7a0651fb35c6777a33617341e41c9b7c6a055923b8230c2c"
     ],
     [
         [
@@ -2125,7 +2146,7 @@
             "file",
             "types/app/sdk/register.ts"
         ],
-        "d4d8754c9064c0e1be51c9c732e2a961aa3642ef44c19a140f713dcbe6d3df35"
+        "256726d1bc623e965cf03707814372c20b94f23930c031e2414c1a01f3f439d0"
     ],
     [
         [

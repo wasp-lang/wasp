@@ -1,10 +1,9 @@
-// Declares the virtual user modules the SDK imports, so it can typecheck before
-// the bundler resolves them into actual user files.
+// Declares the virtual user modules the SDK imports.
+// Without declarations the SDK would fail the typecheck.
 //
-// The types are written as inline `import("...")` types on purpose. These are
-// ambient module declarations, and those cannot reach another module through a
-// relative import statement (TypeScript reports TS2439). `skipLibCheck` hides
-// that error, so getting it wrong silently types every export below as `any`.
+// The types are written as inline `import("...")` types on purpose.
+// Ambient module declarations can't reach another module through a
+// relative import statement (TS2439).
 
 declare module "virtual:wasp/user/env" {
   export const clientEnvValidationSchema: import("./client/env/schema").RegisteredClientEnvValidationSchema;

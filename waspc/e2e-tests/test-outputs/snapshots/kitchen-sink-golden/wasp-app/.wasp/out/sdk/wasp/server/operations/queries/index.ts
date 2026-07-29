@@ -6,7 +6,7 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
 } from '../wrappers'
-import type { OperationFromRegister } from '../register'
+import type { FromRegisterPath } from '../../../types/register'
 import type {
   GetTasks,
   GetNumTasks,
@@ -37,7 +37,7 @@ import { getAnyAuth as getAnyAuth_ext } from 'virtual:wasp/user/rpcTests/operati
 import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
 
 // PRIVATE API
-export type RegisteredGetTasks = OperationFromRegister<'getTasks', GetTasks>
+export type RegisteredGetTasks = FromRegisterPath<['operations', 'getTasks'], GetTasks>
 
 // PUBLIC API
 export const getTasks: AuthenticatedOperationFor<RegisteredGetTasks> =
@@ -50,7 +50,7 @@ export const getTasks: AuthenticatedOperationFor<RegisteredGetTasks> =
 
 
 // PRIVATE API
-export type RegisteredGetNumTasks = OperationFromRegister<'getNumTasks', GetNumTasks>
+export type RegisteredGetNumTasks = FromRegisterPath<['operations', 'getNumTasks'], GetNumTasks>
 
 // PUBLIC API
 export const getNumTasks: UnauthenticatedOperationFor<RegisteredGetNumTasks> =
@@ -63,7 +63,7 @@ export const getNumTasks: UnauthenticatedOperationFor<RegisteredGetNumTasks> =
 
 
 // PRIVATE API
-export type RegisteredGetTask = OperationFromRegister<'getTask', GetTask>
+export type RegisteredGetTask = FromRegisterPath<['operations', 'getTask'], GetTask>
 
 // PUBLIC API
 export const getTask: AuthenticatedOperationFor<RegisteredGetTask> =
@@ -76,7 +76,7 @@ export const getTask: AuthenticatedOperationFor<RegisteredGetTask> =
 
 
 // PRIVATE API
-export type RegisteredGetOldestTask = OperationFromRegister<'getOldestTask', GetOldestTask>
+export type RegisteredGetOldestTask = FromRegisterPath<['operations', 'getOldestTask'], GetOldestTask>
 
 // PUBLIC API
 export const getOldestTask: AuthenticatedOperationFor<RegisteredGetOldestTask> =
@@ -89,7 +89,7 @@ export const getOldestTask: AuthenticatedOperationFor<RegisteredGetOldestTask> =
 
 
 // PRIVATE API
-export type RegisteredGetSerializedObjects = OperationFromRegister<'getSerializedObjects', GetSerializedObjects>
+export type RegisteredGetSerializedObjects = FromRegisterPath<['operations', 'getSerializedObjects'], GetSerializedObjects>
 
 // PUBLIC API
 export const getSerializedObjects: AuthenticatedOperationFor<RegisteredGetSerializedObjects> =
@@ -101,7 +101,7 @@ export const getSerializedObjects: AuthenticatedOperationFor<RegisteredGetSerial
 
 
 // PRIVATE API
-export type RegisteredGetTextUppercaseRequests = OperationFromRegister<'getTextUppercaseRequests', GetTextUppercaseRequests>
+export type RegisteredGetTextUppercaseRequests = FromRegisterPath<['operations', 'getTextUppercaseRequests'], GetTextUppercaseRequests>
 
 // PUBLIC API
 export const getTextUppercaseRequests: AuthenticatedOperationFor<RegisteredGetTextUppercaseRequests> =
@@ -114,7 +114,7 @@ export const getTextUppercaseRequests: AuthenticatedOperationFor<RegisteredGetTe
 
 
 // PRIVATE API
-export type RegisteredGetDate = OperationFromRegister<'getDate', GetDate>
+export type RegisteredGetDate = FromRegisterPath<['operations', 'getDate'], GetDate>
 
 // PUBLIC API
 export const getDate: AuthenticatedOperationFor<RegisteredGetDate> =
@@ -126,7 +126,7 @@ export const getDate: AuthenticatedOperationFor<RegisteredGetDate> =
 
 
 // PRIVATE API
-export type RegisteredGetAnythingNoAuth = OperationFromRegister<'getAnythingNoAuth', GetAnythingNoAuth>
+export type RegisteredGetAnythingNoAuth = FromRegisterPath<['operations', 'getAnythingNoAuth'], GetAnythingNoAuth>
 
 // PUBLIC API
 export const getAnythingNoAuth: UnauthenticatedOperationFor<RegisteredGetAnythingNoAuth> =
@@ -138,7 +138,7 @@ export const getAnythingNoAuth: UnauthenticatedOperationFor<RegisteredGetAnythin
 
 
 // PRIVATE API
-export type RegisteredGetAnythingAuth = OperationFromRegister<'getAnythingAuth', GetAnythingAuth>
+export type RegisteredGetAnythingAuth = FromRegisterPath<['operations', 'getAnythingAuth'], GetAnythingAuth>
 
 // PUBLIC API
 export const getAnythingAuth: AuthenticatedOperationFor<RegisteredGetAnythingAuth> =
@@ -150,7 +150,7 @@ export const getAnythingAuth: AuthenticatedOperationFor<RegisteredGetAnythingAut
 
 
 // PRIVATE API
-export type RegisteredGetTrueVoid = OperationFromRegister<'getTrueVoid', GetTrueVoid>
+export type RegisteredGetTrueVoid = FromRegisterPath<['operations', 'getTrueVoid'], GetTrueVoid>
 
 // PUBLIC API
 export const getTrueVoid: AuthenticatedOperationFor<RegisteredGetTrueVoid> =
@@ -162,7 +162,7 @@ export const getTrueVoid: AuthenticatedOperationFor<RegisteredGetTrueVoid> =
 
 
 // PRIVATE API
-export type RegisteredGetAnyNoAuth = OperationFromRegister<'getAnyNoAuth', GetAnyNoAuth>
+export type RegisteredGetAnyNoAuth = FromRegisterPath<['operations', 'getAnyNoAuth'], GetAnyNoAuth>
 
 // PUBLIC API
 export const getAnyNoAuth: UnauthenticatedOperationFor<RegisteredGetAnyNoAuth> =
@@ -174,7 +174,7 @@ export const getAnyNoAuth: UnauthenticatedOperationFor<RegisteredGetAnyNoAuth> =
 
 
 // PRIVATE API
-export type RegisteredGetAnyAuth = OperationFromRegister<'getAnyAuth', GetAnyAuth>
+export type RegisteredGetAnyAuth = FromRegisterPath<['operations', 'getAnyAuth'], GetAnyAuth>
 
 // PUBLIC API
 export const getAnyAuth: AuthenticatedOperationFor<RegisteredGetAnyAuth> =
@@ -186,7 +186,7 @@ export const getAnyAuth: AuthenticatedOperationFor<RegisteredGetAnyAuth> =
 
 
 // PRIVATE API
-export type RegisteredGetAnyToNumberSpecified = OperationFromRegister<'getAnyToNumberSpecified', GetAnyToNumberSpecified>
+export type RegisteredGetAnyToNumberSpecified = FromRegisterPath<['operations', 'getAnyToNumberSpecified'], GetAnyToNumberSpecified>
 
 // PUBLIC API
 export const getAnyToNumberSpecified: AuthenticatedOperationFor<RegisteredGetAnyToNumberSpecified> =

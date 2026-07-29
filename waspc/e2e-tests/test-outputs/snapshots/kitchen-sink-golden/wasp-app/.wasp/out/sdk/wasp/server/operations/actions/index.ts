@@ -6,7 +6,7 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
 } from '../wrappers'
-import type { OperationFromRegister } from '../register'
+import type { FromRegisterPath } from '../../../types/register'
 import type {
   CustomSignup,
   CreateTask,
@@ -47,7 +47,7 @@ import { boolToVoidAuth as boolToVoidAuth_ext } from 'virtual:wasp/user/rpcTests
 import { jsActionWithArgs as jsActionWithArgs_ext } from 'virtual:wasp/user/rpcTests/operations/jsDefinitions'
 
 // PRIVATE API
-export type RegisteredCustomSignup = OperationFromRegister<'customSignup', CustomSignup>
+export type RegisteredCustomSignup = FromRegisterPath<['operations', 'customSignup'], CustomSignup>
 
 // PUBLIC API
 export const customSignup: AuthenticatedOperationFor<RegisteredCustomSignup> =
@@ -58,7 +58,7 @@ export const customSignup: AuthenticatedOperationFor<RegisteredCustomSignup> =
   )
 
 // PRIVATE API
-export type RegisteredCreateTask = OperationFromRegister<'createTask', CreateTask>
+export type RegisteredCreateTask = FromRegisterPath<['operations', 'createTask'], CreateTask>
 
 // PUBLIC API
 export const createTask: AuthenticatedOperationFor<RegisteredCreateTask> =
@@ -70,7 +70,7 @@ export const createTask: AuthenticatedOperationFor<RegisteredCreateTask> =
   )
 
 // PRIVATE API
-export type RegisteredUpdateTaskIsDone = OperationFromRegister<'updateTaskIsDone', UpdateTaskIsDone>
+export type RegisteredUpdateTaskIsDone = FromRegisterPath<['operations', 'updateTaskIsDone'], UpdateTaskIsDone>
 
 // PUBLIC API
 export const updateTaskIsDone: AuthenticatedOperationFor<RegisteredUpdateTaskIsDone> =
@@ -82,7 +82,7 @@ export const updateTaskIsDone: AuthenticatedOperationFor<RegisteredUpdateTaskIsD
   )
 
 // PRIVATE API
-export type RegisteredDeleteCompletedTasks = OperationFromRegister<'deleteCompletedTasks', DeleteCompletedTasks>
+export type RegisteredDeleteCompletedTasks = FromRegisterPath<['operations', 'deleteCompletedTasks'], DeleteCompletedTasks>
 
 // PUBLIC API
 export const deleteCompletedTasks: AuthenticatedOperationFor<RegisteredDeleteCompletedTasks> =
@@ -94,7 +94,7 @@ export const deleteCompletedTasks: AuthenticatedOperationFor<RegisteredDeleteCom
   )
 
 // PRIVATE API
-export type RegisteredToggleAllTasks = OperationFromRegister<'toggleAllTasks', ToggleAllTasks>
+export type RegisteredToggleAllTasks = FromRegisterPath<['operations', 'toggleAllTasks'], ToggleAllTasks>
 
 // PUBLIC API
 export const toggleAllTasks: AuthenticatedOperationFor<RegisteredToggleAllTasks> =
@@ -106,7 +106,7 @@ export const toggleAllTasks: AuthenticatedOperationFor<RegisteredToggleAllTasks>
   )
 
 // PRIVATE API
-export type RegisteredRequestUppercaseText = OperationFromRegister<'requestUppercaseText', RequestUppercaseText>
+export type RegisteredRequestUppercaseText = FromRegisterPath<['operations', 'requestUppercaseText'], RequestUppercaseText>
 
 // PUBLIC API
 export const requestUppercaseText: AuthenticatedOperationFor<RegisteredRequestUppercaseText> =
@@ -118,7 +118,7 @@ export const requestUppercaseText: AuthenticatedOperationFor<RegisteredRequestUp
   )
 
 // PRIVATE API
-export type RegisteredTestingAction = OperationFromRegister<'testingAction', TestingAction>
+export type RegisteredTestingAction = FromRegisterPath<['operations', 'testingAction'], TestingAction>
 
 // PUBLIC API
 export const testingAction: AuthenticatedOperationFor<RegisteredTestingAction> =
@@ -129,7 +129,7 @@ export const testingAction: AuthenticatedOperationFor<RegisteredTestingAction> =
   )
 
 // PRIVATE API
-export type RegisteredTaskToTaskUnspecified = OperationFromRegister<'taskToTaskUnspecified', TaskToTaskUnspecified>
+export type RegisteredTaskToTaskUnspecified = FromRegisterPath<['operations', 'taskToTaskUnspecified'], TaskToTaskUnspecified>
 
 // PUBLIC API
 export const taskToTaskUnspecified: AuthenticatedOperationFor<RegisteredTaskToTaskUnspecified> =
@@ -141,7 +141,7 @@ export const taskToTaskUnspecified: AuthenticatedOperationFor<RegisteredTaskToTa
   )
 
 // PRIVATE API
-export type RegisteredTaskToTaskSatisfies = OperationFromRegister<'taskToTaskSatisfies', TaskToTaskSatisfies>
+export type RegisteredTaskToTaskSatisfies = FromRegisterPath<['operations', 'taskToTaskSatisfies'], TaskToTaskSatisfies>
 
 // PUBLIC API
 export const taskToTaskSatisfies: AuthenticatedOperationFor<RegisteredTaskToTaskSatisfies> =
@@ -153,7 +153,7 @@ export const taskToTaskSatisfies: AuthenticatedOperationFor<RegisteredTaskToTask
   )
 
 // PRIVATE API
-export type RegisteredTaskToTaskSpecified = OperationFromRegister<'taskToTaskSpecified', TaskToTaskSpecified>
+export type RegisteredTaskToTaskSpecified = FromRegisterPath<['operations', 'taskToTaskSpecified'], TaskToTaskSpecified>
 
 // PUBLIC API
 export const taskToTaskSpecified: AuthenticatedOperationFor<RegisteredTaskToTaskSpecified> =
@@ -165,7 +165,7 @@ export const taskToTaskSpecified: AuthenticatedOperationFor<RegisteredTaskToTask
   )
 
 // PRIVATE API
-export type RegisteredVoidToStringAuth = OperationFromRegister<'voidToStringAuth', VoidToStringAuth>
+export type RegisteredVoidToStringAuth = FromRegisterPath<['operations', 'voidToStringAuth'], VoidToStringAuth>
 
 // PUBLIC API
 export const voidToStringAuth: AuthenticatedOperationFor<RegisteredVoidToStringAuth> =
@@ -177,7 +177,7 @@ export const voidToStringAuth: AuthenticatedOperationFor<RegisteredVoidToStringA
   )
 
 // PRIVATE API
-export type RegisteredVoidToStringNoAuth = OperationFromRegister<'voidToStringNoAuth', VoidToStringNoAuth>
+export type RegisteredVoidToStringNoAuth = FromRegisterPath<['operations', 'voidToStringNoAuth'], VoidToStringNoAuth>
 
 // PUBLIC API
 export const voidToStringNoAuth: UnauthenticatedOperationFor<RegisteredVoidToStringNoAuth> =
@@ -189,7 +189,7 @@ export const voidToStringNoAuth: UnauthenticatedOperationFor<RegisteredVoidToStr
   )
 
 // PRIVATE API
-export type RegisteredUnspecifiedToNumber = OperationFromRegister<'unspecifiedToNumber', UnspecifiedToNumber>
+export type RegisteredUnspecifiedToNumber = FromRegisterPath<['operations', 'unspecifiedToNumber'], UnspecifiedToNumber>
 
 // PUBLIC API
 export const unspecifiedToNumber: AuthenticatedOperationFor<RegisteredUnspecifiedToNumber> =
@@ -201,7 +201,7 @@ export const unspecifiedToNumber: AuthenticatedOperationFor<RegisteredUnspecifie
   )
 
 // PRIVATE API
-export type RegisteredBoolToStringAuth = OperationFromRegister<'boolToStringAuth', BoolToStringAuth>
+export type RegisteredBoolToStringAuth = FromRegisterPath<['operations', 'boolToStringAuth'], BoolToStringAuth>
 
 // PUBLIC API
 export const boolToStringAuth: AuthenticatedOperationFor<RegisteredBoolToStringAuth> =
@@ -213,7 +213,7 @@ export const boolToStringAuth: AuthenticatedOperationFor<RegisteredBoolToStringA
   )
 
 // PRIVATE API
-export type RegisteredBoolToStringNoAuth = OperationFromRegister<'boolToStringNoAuth', BoolToStringNoAuth>
+export type RegisteredBoolToStringNoAuth = FromRegisterPath<['operations', 'boolToStringNoAuth'], BoolToStringNoAuth>
 
 // PUBLIC API
 export const boolToStringNoAuth: UnauthenticatedOperationFor<RegisteredBoolToStringNoAuth> =
@@ -225,7 +225,7 @@ export const boolToStringNoAuth: UnauthenticatedOperationFor<RegisteredBoolToStr
   )
 
 // PRIVATE API
-export type RegisteredBoolToVoidNoAuth = OperationFromRegister<'boolToVoidNoAuth', BoolToVoidNoAuth>
+export type RegisteredBoolToVoidNoAuth = FromRegisterPath<['operations', 'boolToVoidNoAuth'], BoolToVoidNoAuth>
 
 // PUBLIC API
 export const boolToVoidNoAuth: UnauthenticatedOperationFor<RegisteredBoolToVoidNoAuth> =
@@ -237,7 +237,7 @@ export const boolToVoidNoAuth: UnauthenticatedOperationFor<RegisteredBoolToVoidN
   )
 
 // PRIVATE API
-export type RegisteredBoolToVoidAuth = OperationFromRegister<'boolToVoidAuth', BoolToVoidAuth>
+export type RegisteredBoolToVoidAuth = FromRegisterPath<['operations', 'boolToVoidAuth'], BoolToVoidAuth>
 
 // PUBLIC API
 export const boolToVoidAuth: AuthenticatedOperationFor<RegisteredBoolToVoidAuth> =
@@ -249,7 +249,7 @@ export const boolToVoidAuth: AuthenticatedOperationFor<RegisteredBoolToVoidAuth>
   )
 
 // PRIVATE API
-export type RegisteredJsActionWithArgs = OperationFromRegister<'jsActionWithArgs', JsActionWithArgs>
+export type RegisteredJsActionWithArgs = FromRegisterPath<['operations', 'jsActionWithArgs'], JsActionWithArgs>
 
 // PUBLIC API
 export const jsActionWithArgs: AuthenticatedOperationFor<RegisteredJsActionWithArgs> =

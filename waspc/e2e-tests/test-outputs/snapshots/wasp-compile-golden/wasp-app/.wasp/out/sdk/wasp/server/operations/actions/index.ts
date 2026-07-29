@@ -4,6 +4,6 @@ import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
 } from '../wrappers'
-import type { OperationFromRegister } from '../register'
+import type { FromRegisterPath } from '../../../types/register'
 import type {
 } from './types'

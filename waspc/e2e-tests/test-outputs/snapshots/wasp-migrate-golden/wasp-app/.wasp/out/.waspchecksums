@@ -522,7 +522,7 @@
             "file",
             "sdk/wasp/server/operations/actions/index.ts"
         ],
-        "e037f2c00743139a3d6a7d578c75d9c3a3f507c697020705bebb3adec8cd1e2e"
+        "771cdb183a8311bafbe8fc929d3ff0187e9829a970a49efd51ac2ef26c8b3c9d"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "e037f2c00743139a3d6a7d578c75d9c3a3f507c697020705bebb3adec8cd1e2e"
+        "771cdb183a8311bafbe8fc929d3ff0187e9829a970a49efd51ac2ef26c8b3c9d"
     ],
     [
         [
@@ -551,13 +551,6 @@
             "sdk/wasp/server/operations/queries/types.ts"
         ],
         "dd1eb9d2fc6651128358bc73190f8e0cf1a1e5093c821bde0a3acfe51afadc9e"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/server/operations/register.ts"
-        ],
-        "1390f128206d1a1279c4261a0ab13a05af22f1722f5110bf084157c14e0689c1"
     ],
     [
         [
@@ -599,7 +592,7 @@
             "file",
             "sdk/wasp/types/register.ts"
         ],
-        "ef3bfd79a36d78330373ba554a461737c8089895e9739638302f321c06459eeb"
+        "9e85486629fe858fda128a5dbf194e0020a3964cb1991d8c2cf8f06f3e5f34c7"
     ],
     [
         [
@@ -655,7 +648,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "9554704d854dba88822b1bbd803ec993eb9feded4b08f8e3834f5e6d1018210e"
+        "b8fa2a2d1b3c9b3d1fc4c4717465a5db231b7d2ca348f0e9c039d311752e1cce"
     ],
     [
         [

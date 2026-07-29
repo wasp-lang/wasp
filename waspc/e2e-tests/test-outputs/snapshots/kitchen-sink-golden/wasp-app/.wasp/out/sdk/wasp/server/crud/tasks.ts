@@ -8,7 +8,7 @@ import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   Task,
 } from "wasp/entities";
-import type { Register } from '../../types/register'
+import type { FromRegisterPath } from '../../types/register'
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task
@@ -33,18 +33,18 @@ export declare namespace tasks {
  */
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
-export type RegisteredGetAllQuery = CrudOverrideFromRegister<'tasks', 'GetAll', tasks.GetAllQuery<GetAllInput, GetAllOutput>>
+export type RegisteredGetAllQuery = FromRegisterPath<['crudOverrides', 'tasks', 'GetAll'], tasks.GetAllQuery<GetAllInput, GetAllOutput>>
 
 type GetInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
-export type RegisteredGetQuery = CrudOverrideFromRegister<'tasks', 'Get', tasks.GetQuery<GetInput, GetOutput>>
+export type RegisteredGetQuery = FromRegisterPath<['crudOverrides', 'tasks', 'Get'], tasks.GetQuery<GetInput, GetOutput>>
 
 type CreateInput = SuperJSONObject & Prisma.XOR<
   Prisma.TaskCreateInput,
   Prisma.TaskUncheckedCreateInput
 >
 type CreateOutput = _WaspEntity
-export type RegisteredCreateAction = CrudOverrideFromRegister<'tasks', 'Create', tasks.CreateAction<CreateInput, CreateOutput>>
+export type RegisteredCreateAction = FromRegisterPath<['crudOverrides', 'tasks', 'Create'], tasks.CreateAction<CreateInput, CreateOutput>>
 
 type UpdateInput = SuperJSONObject & Prisma.XOR<
     Prisma.TaskUpdateInput,
@@ -53,21 +53,9 @@ type UpdateInput = SuperJSONObject & Prisma.XOR<
   & Prisma.TaskWhereUniqueInput
 
 type UpdateOutput = _WaspEntity
-export type RegisteredUpdateAction = CrudOverrideFromRegister<'tasks', 'Update', tasks.UpdateAction<UpdateInput, UpdateOutput>>
+export type RegisteredUpdateAction = FromRegisterPath<['crudOverrides', 'tasks', 'Update'], tasks.UpdateAction<UpdateInput, UpdateOutput>>
 
 type DeleteInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type DeleteOutput = _WaspEntity
-export type RegisteredDeleteAction = CrudOverrideFromRegister<'tasks', 'Delete', tasks.DeleteAction<DeleteInput, DeleteOutput>>
+export type RegisteredDeleteAction = FromRegisterPath<['crudOverrides', 'tasks', 'Delete'], tasks.DeleteAction<DeleteInput, DeleteOutput>>
 
-type CrudOverrideFromRegister<
-  CrudName extends string,
-  CrudOperation extends string,
-  Fallback,
-  Subregister = "crudOverrides",
->  = Subregister extends keyof Register
-  ? CrudName extends keyof Register[Subregister]
-    ? CrudOperation extends keyof Register[Subregister][CrudName]
-      ? Register[Subregister][CrudName][CrudOperation]
-      : Fallback
-    : Fallback
-  : Fallback;

@@ -330,10 +330,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/queries/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/queries/types.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/operations/register.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/operations/register.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/operations/register.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/operations/register.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/operations/wrappers.js
@@ -396,7 +392,6 @@ wasp-app/.wasp/out/sdk/wasp/server/operations/actions/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/queries/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/queries/types.ts
-wasp-app/.wasp/out/sdk/wasp/server/operations/register.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 wasp-app/.wasp/out/sdk/wasp/server/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/utils.ts

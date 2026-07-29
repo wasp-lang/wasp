@@ -17,11 +17,11 @@ export const tasks: TaskCrud = createCrud();
 export type TaskCrud = {
   get: {
     query: QueryFor<RegisteredGetQuery>,
-    useQuery: UseQueryFor<RegisteredGetQuery>
+    useQuery: UseQueryFor<RegisteredGetQuery>,
   },
   getAll: {
     query: QueryFor<RegisteredGetAllQuery>,
-    useQuery: UseQueryFor<RegisteredGetAllQuery>
+    useQuery: UseQueryFor<RegisteredGetAllQuery>,
   },
   create: {
     action: ActionFor<RegisteredCreateAction>,
@@ -34,7 +34,7 @@ export type TaskCrud = {
   delete: {
     action: ActionFor<RegisteredDeleteAction>,
     useAction: UseActionFor<RegisteredDeleteAction>,
-  }
+  },
 };
 
 function createCrud(): TaskCrud {

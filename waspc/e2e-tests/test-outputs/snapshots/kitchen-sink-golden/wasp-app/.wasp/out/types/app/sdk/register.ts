@@ -47,6 +47,8 @@ declare module "wasp/types" {
         GetAll: typeof import('../../../../../src/features/crud/crud').crudGetAllTasks
         Create: typeof import('../../../../../src/features/crud/crud').crudCreateTask
       }
+      'taskVotes': {
+      }
     }
   }
 }
