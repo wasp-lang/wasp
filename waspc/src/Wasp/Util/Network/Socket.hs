@@ -1,5 +1,7 @@
 module Wasp.Util.Network.Socket
-  ( checkIfPortIsAcceptingConnections,
+  ( checkIfLocalPortIsTaken,
+    findFirstFreeLocalPort,
+    checkIfPortIsAcceptingConnections,
     checkIfPortIsInUse,
     checkIfPortCanBeOpened,
     makeSocketAddress,
@@ -13,6 +15,31 @@ import Foreign.C.Error (Errno (..), eADDRINUSE, eCONNREFUSED)
 import GHC.IO.Exception (IOException (..))
 import qualified Network.Socket as S
 import UnliftIO.Exception (bracket, throwIO, try)
+import Wasp.Util (ifM)
+
+-- | True if some process on this machine is already listening on the given port.
+checkIfLocalPortIsTaken :: S.PortNumber -> IO Bool
+checkIfLocalPortIsTaken port =
+  -- We check both conditions because of Docker having a virtual network on Mac,
+  -- which always gives precedence to native ports: checking only if we can open
+  -- the port is not enough because we can open it even if a Docker container is
+  -- already bound to it.
+  ifM
+    (checkIfPortIsInUse socketAddress)
+    (return True)
+    (checkIfPortIsAcceptingConnections socketAddress)
+  where
+    socketAddress = makeLocalHostSocketAddress port
+
+-- | Returns the first port from the given list that no process on this machine
+-- is listening on, or 'Nothing' if they are all taken.
+findFirstFreeLocalPort :: [S.PortNumber] -> IO (Maybe S.PortNumber)
+findFirstFreeLocalPort [] = return Nothing
+findFirstFreeLocalPort (port : remainingPorts) =
+  ifM
+    (checkIfLocalPortIsTaken port)
+    (findFirstFreeLocalPort remainingPorts)
+    (return $ Just port)
 
 -- | Tests if port is accepting connections.
 -- Does so by trying to connect via socket to it (connection is closed immediately).
