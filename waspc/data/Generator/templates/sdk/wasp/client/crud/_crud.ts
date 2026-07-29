@@ -26,26 +26,36 @@ export const {= name =}: {= entityUpper =}Crud = createCrud();
 
 // PUBLIC API
 export type {= entityUpper =}Crud = {
+  {=# operations.Get =}
   get: {
     query: QueryFor<RegisteredGetQuery>,
-    useQuery: UseQueryFor<RegisteredGetQuery>
+    useQuery: UseQueryFor<RegisteredGetQuery>,
   },
+  {=/ operations.Get =}
+  {=# operations.GetAll =}
   getAll: {
     query: QueryFor<RegisteredGetAllQuery>,
-    useQuery: UseQueryFor<RegisteredGetAllQuery>
+    useQuery: UseQueryFor<RegisteredGetAllQuery>,
   },
+  {=/ operations.GetAll =}
+  {=# operations.Create =}
   create: {
     action: ActionFor<RegisteredCreateAction>,
     useAction: UseActionFor<RegisteredCreateAction>,
   },
+  {=/ operations.Create =}
+  {=# operations.Update =}
   update: {
     action: ActionFor<RegisteredUpdateAction>,
     useAction: UseActionFor<RegisteredUpdateAction>,
   },
+  {=/ operations.Update =}
+  {=# operations.Delete =}
   delete: {
     action: ActionFor<RegisteredDeleteAction>,
     useAction: UseActionFor<RegisteredDeleteAction>,
-  }
+  },
+  {=/ operations.Delete =}
 };
 
 function createCrud(): {= entityUpper =}Crud {
