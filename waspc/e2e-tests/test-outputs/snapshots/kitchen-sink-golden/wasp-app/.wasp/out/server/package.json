@@ -9,7 +9,7 @@
     "dotenv": "^16.6.1",
     "express": "~5.1.0",
     "helmet": "^6.0.0",
-    "morgan": "~1.10.0",
+    "morgan": "~1.11.0",
     "socket.io": "^4.6.1",
     "superjson": "^2.2.1"
   },
