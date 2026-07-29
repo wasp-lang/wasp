@@ -12,18 +12,15 @@
  * with the SDK's TypeScript config.
  * ({@link https://github.com/wasp-lang/wasp/issues/2247 Old issue about the problem})
  *
- * Instead, the solution is for the user project to push types into
- * the SDK. That way the SDK can use the user's types, without
- * depending on the user project.
- * 
- * The SDK defines empty {@link Register} interface, which is publicly
- * exported through the `wasp/types` module.
- * 
- * During compilation, Wasp generates additional type declarations in
- * `.wasp/out/types/app/sdk/register.ts` (which is part of the user project)
- * that extend empty {@link Register} interface via module augmentation
- * and declaration merging. This essentially pushes user project types
- * into the SDK.
+ * Instead, the SDK defines an extension point (empty {@link Register}
+ * interface) that the user project extends. The SDK never imports from
+ * the user project, it only references the extension point, which
+ * resolves to the user's types when TypeScript compiles the user project.
+ *
+ * {@link Register} is publicly exported through the `wasp/types` module.
+ * During compilation, Wasp generates type declarations in 
+ * `.wasp/out/types/app/sdk/register.ts` (part of the user project) that
+ * extend {@link Register} via module augmentation and declaration merging.
  * 
  * On the SDK side, all user project dependent types are defined as
  * conditional types. If a user-defined type for something exists in
@@ -36,42 +33,47 @@
  *    The SDK compiles before any other TypeScript project, so at that
  *    point {@link Register} is always empty and every conditional type
  *    resolves to its fallback. By having the fallback types satisfy
- *    everything the SDK expects of them, the SDK compiles on its own.
+ *    everything the SDK expects of them, the SDK can compile on its own.
  *
  *    E.g., during SDK compilation, the `PrismaClient` type resolves to
  *    its fallback: a Prisma client with default settings. This satisfies
- *    all SDK's expectations of `PrismaClient` type.
+ *    all SDK's expectations of the `PrismaClient` type.
  * 
  * 2. The conditional types allow for the propagation of types from the SDK
  *    back to the user project. Since we force the types to stay in their
  *    conditional (rather than resolved) form, as soon as the condition
  *    changes the type itself is recalculated. That means as soon as users
- *    updates their types, the SDK types will also recalculate.
+ *    updates their types, the SDK's types will also recalculate.
+ * 
+ * 2. They let the same SDK declarations resolve to different types in
+ *    different projects. We force SDK's emitted declarations to stay
+ *    in their conditional (rather than resolved) form, so when
+ *    TypeScript checks the user project, where {@link Register} is
+ *    extended, those same conditional types resolve to the user's
+ *    types instead of the fallbacks.
  * 
  *    E.g., if a user defines a custom Prisma client instance, the
  *    `PrismaClient` type will instead return the user's custom client.
  *
  * Above we said we "force the types to stay in their conditional (rather
- * than resolved) form". Why force?
+ * than resolved) form". Why do we have to force them?
  *
  * TypeScript resolves inferred types when emitting declaration files.
  * Since the SDK compiles with an empty {@link Register}, an inferred type
- * ends up in the emitted `.d.ts` file as the already-resolved fallback
- * and never recalculates for the user:
+ * ends up in the emitted `.d.ts` file as the already-resolved fallback:
  * ```ts
  * // Inferred: emitted already resolved to the fallback.
  * declare const dbClient: InternalPrismaClient;
- * // Explicitly typed: emitted in its conditional form.
- * declare const dbClient: ReturnType<FromRegister<'prismaSetupFn', () => InternalPrismaClient>>;
  * ```
  * Therefore, everything in the SDK derived from a registered type must be
  * explicitly typed (`: RegisteredType`, `as RegisteredType`, or
- * `<T extends RegisteredType>`) to keep it in its conditional form in the
- * emitted declarations.
- *
- * As a result, users can see their own user-defined types in the SDK,
- * without SDK, directly depending on the user code.
- *
+ * `<T extends RegisteredType>`) to force TypeScript to keep its conditional
+ * form in the emitted declarations:
+ * ```ts
+ * // Explicitly typed: emitted in its conditional form.
+ * declare const dbClient: ReturnType<FromRegister<'prismaSetupFn', () => InternalPrismaClient>>;
+ * ```
+ * 
  * @see {@link https://github.com/wasp-lang/wasp/pull/4049 PR implementing the change}
  */
 
