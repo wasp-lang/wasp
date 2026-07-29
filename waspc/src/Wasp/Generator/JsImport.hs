@@ -4,7 +4,6 @@ module Wasp.Generator.JsImport
     extImportToRelativeSrcImportFromViteExecution,
     getAliasedExtImportIdentifier,
     extImportNameToJsImportName,
-    getVirtualUserModuleJsImportPath,
   )
 where
 
@@ -80,6 +79,3 @@ extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 getAliasedExtImportIdentifier :: EI.ExtImport -> String
 getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"
 
-getVirtualUserModuleJsImportPath :: Path Posix (Rel SourceExternalCodeDir) File' -> JsImportPath
-getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir =
-  RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP userDefinedPathInExtSrcDir

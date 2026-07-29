@@ -5,6 +5,7 @@ module Wasp.Generator.SdkGenerator.VirtualUserModules
     getClientVirtualUserModules,
     getServerVirtualUserModules,
     getVirtualUserModuleId,
+    getVirtualUserModuleJsImportPath,
     getVirtualUserModuleExportName,
     getDeclaredTypeExpression,
     isDefaultExport,
@@ -24,16 +25,16 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.JsImport (getVirtualUserModuleJsImportPath)
 import Wasp.Generator.SdkGenerator.Common (getRegisteredOperationTypeName)
 import Wasp.JsImport (getJsImportPathStringFromPath)
 
--- | Virtual user module is user module the SDK reaches through a proxy
--- virtual module.
+-- | Virtual user modules are virtual modules pointing to the user's project files.
 --
--- For a virtual user module to work, it needs to be registered by:
---   * the client/server bundler plugin, which resolve its id to a user file,
---   * @wasp-user-virtual-modules.d.ts@, which declares its type for TypeScript.
+-- For a virtual user module to work, we need to:
+--   1. Register it at the client or server bundler plugin (whichever it is
+--      supposed to end up in), which resolves its module ID to a user file.
+--   2. Generate an ambient module declaration for it in 
+--      @wasp-user-virtual-modules.d.ts@.
 data VirtualUserModule = VirtualUserModule
   { extImport :: EI.ExtImport,
     -- | Path, relative to the SDK root, of the module declaring 'declaredTypeName'.
@@ -80,11 +81,14 @@ getServerVirtualUserModules spec =
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     app = snd $ getApp spec
 
--- | The module specifier the SDK imports this user module through, e.g.
---   @virtual:wasp/user/queries.ts@.
 getVirtualUserModuleId :: VirtualUserModule -> String
 getVirtualUserModuleId =
   getJsImportPathStringFromPath . getVirtualUserModuleJsImportPath . EI.path . extImport
+
+-- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
+getVirtualUserModuleJsImportPath :: Path Posix (Rel SourceExternalCodeDir) File' -> JsImportPath
+getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir =
+  RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP userDefinedPathInExtSrcDir
 
 -- | Name under which the user's module exports the value.
 getVirtualUserModuleExportName :: VirtualUserModule -> String
@@ -95,8 +99,11 @@ getVirtualUserModuleExportName virtualUserModule = case EI.name $ extImport virt
 -- | Type the SDK expects the module's export to have, written as an inline import
 -- type (e.g. @import("./server/env").RegisteredServerEnvValidationSchema@).
 --
--- It has to be inline because the ambient module declaration can't reach another
+-- It has to be inline because ambient module declaration can't reach another
 -- module through a relative import statement (TS2439).
+--
+-- @skipLibCheck@ tsconfig flag hides that error, so writing it as an import
+-- statement instead would silently type every declared export as @any@.
 getDeclaredTypeExpression :: VirtualUserModule -> String
 getDeclaredTypeExpression virtualUserModule =
   "import(\"" ++ declaredTypeModulePath virtualUserModule ++ "\")." ++ declaredTypeName virtualUserModule
@@ -106,7 +113,7 @@ isDefaultExport virtualUserModule = case EI.name $ extImport virtualUserModule o
   EI.ExtImportModule _ -> True
   EI.ExtImportField _ -> False
 
--- | Data for one entry of a bundler plugin's virtual module id to user file map.
+-- | Data for one entry of a bundler plugin's virtual module ID to user file map.
 mkVirtualUserModulePluginData ::
   (EI.ExtImport -> Aeson.Value) ->
   VirtualUserModule ->
