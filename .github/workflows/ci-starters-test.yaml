@@ -7,6 +7,19 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 jobs:
+  check-starter-lockfiles:
+    name: Check starter lockfiles are up to date
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-tools
+
+      - name: Check starter lockfiles
+        working-directory: waspc
+        run: ./run check:starter-lockfiles
+
   test-starters:
     name: Test starters
     runs-on: ubuntu-22.04

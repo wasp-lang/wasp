@@ -36,6 +36,10 @@ function bumpWaspVersion(bumpType: BumpType): void {
   bumpPackagesVersion(nextVersion);
   rebuildPackages();
 
+  // The starter lockfiles embed the @wasp.sh/spec version, so they must be
+  // regenerated after the packages' versions are bumped.
+  regenerateStarterLockfiles();
+
   bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
 }
@@ -124,6 +128,13 @@ function rebuildLibs(): void {
 
 function rebuildPackages(): void {
   runCmd("node", [join("tools", "packages", "build.ts")], {
+    cwd: waspcDirPath,
+    stdio: "inherit",
+  });
+}
+
+function regenerateStarterLockfiles(): void {
+  runCmd("node", [join("tools", "starters", "generate-lockfiles.ts")], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });

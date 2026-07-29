@@ -23,6 +23,7 @@ DEFAULT_COLOR="\033[39m"
 WASP_PACKAGES_COMPILE="node ${SCRIPT_DIR}/tools/packages/build.ts"
 WASP_LIBS_COMPILE="node ${SCRIPT_DIR}/tools/libs/build.ts"
 WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
+WASP_STARTER_LOCKFILES_CMD="node ${SCRIPT_DIR}/tools/starters/generate-lockfiles.ts"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
@@ -171,6 +172,11 @@ print_usage() {
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under data/Generator/libs/."
   echo ""
+  print_usage_cmd "update:starter-lockfiles" \
+    "Regenerates the package-lock.json files shipped with the bundled starter templates. Pass \`--refresh\` (via \`./run update:starter-lockfiles --refresh\`) to re-pin all deps to the latest versions their ranges allow."
+  print_usage_cmd "check:starter-lockfiles" \
+    "Reports whether the starter templates' package-lock.json files are up to date."
+  echo ""
   print_usage_cmd "bust-libs-cache" \
     "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
   echo ""
@@ -255,6 +261,12 @@ case $COMMAND in
     ;;
   build:libs)
     echo_and_eval "$WASP_LIBS_COMPILE"
+    ;;
+  update:starter-lockfiles)
+    echo_and_eval "$WASP_STARTER_LOCKFILES_CMD ${ARGS[*]}"
+    ;;
+  check:starter-lockfiles)
+    echo_and_eval "$WASP_STARTER_LOCKFILES_CMD --check"
     ;;
   install)
     echo_and_eval "$INSTALL_CMD"

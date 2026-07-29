@@ -13,7 +13,7 @@ import Wasp.NodePackageFFI
   ( InstallablePackage (WaspSpecPackage),
     getPackageJsonSpecifierForPackage,
   )
-import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, packageLockJsonInWaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util (camelToKebabCase)
@@ -23,6 +23,7 @@ replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectNam
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
   replaceTemplatePlaceholdersInWaspFile appName projectName projectDir
   replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir
+  replaceTemplatePlaceholdersInPackageLockJsonFile appName projectName projectDir
 
 -- | Template file for wasp file has placeholders in it that we want to replace
 -- in the .wasp file we have written to the disk.
@@ -44,9 +45,24 @@ replaceTemplatePlaceholdersInPackageJsonFile ::
 replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
   findUserPackageJsonFile projectDir >>= \case
     Nothing -> return ()
-    Just absPackageJsonFile -> do
-      let kebabCaseAppName = NewProjectAppName . camelToKebabCase . show $ appName
-      replaceTemplatePlaceholdersInFileOnDisk kebabCaseAppName projectName absPackageJsonFile
+    Just absPackageJsonFile ->
+      replaceTemplatePlaceholdersInFileOnDisk (kebabCasedAppName appName) projectName absPackageJsonFile
+
+-- | Bundled starter templates ship a package-lock.json with the same
+-- placeholders as package.json. Both files must end up with the identical
+-- app name, otherwise npm considers the lockfile stale and re-resolves it.
+-- If no package-lock.json file was found in the project, do nothing.
+replaceTemplatePlaceholdersInPackageLockJsonFile ::
+  NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
+replaceTemplatePlaceholdersInPackageLockJsonFile appName projectName projectDir =
+  findFileInWaspProjectDir projectDir packageLockJsonInWaspProjectDir >>= \case
+    Nothing -> return ()
+    Just absPackageLockJsonFile ->
+      replaceTemplatePlaceholdersInFileOnDisk (kebabCasedAppName appName) projectName absPackageLockJsonFile
+
+-- | npm package names can't contain uppercase letters.
+kebabCasedAppName :: NewProjectAppName -> NewProjectAppName
+kebabCasedAppName = NewProjectAppName . camelToKebabCase . show
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
 replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
