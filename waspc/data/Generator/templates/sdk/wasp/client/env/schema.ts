@@ -20,8 +20,7 @@ const serverUrlSchema =
   )
 
 const waspDevClientEnvSchema = z.object({
-  "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default("{= defaultServerUrl =}"),
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
 });
 
 const waspProdClientEnvSchema = z.object({

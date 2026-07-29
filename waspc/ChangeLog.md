@@ -5,6 +5,12 @@
 ### ⚠️ Breaking Changes
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- Wasp now decides which ports and URLs your app uses in development, so it can tell the client and the server where to find each other. Setting them yourself is now an error: that goes for `server.port` (and `server.strictPort`) in `vite.config.ts`, and for `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` in `.env.server` and `REACT_APP_API_URL` in `.env.client`. Use `wasp start --client-port <port>` and `wasp start --server-port <port>` instead.
+- The server's `PORT` env var no longer defaults to `3001` in production, since Wasp now always provides it in development. If you deploy your app yourself, make sure your hosting sets `PORT`. Deploying with `wasp deploy` is unaffected, as it already sets it for you.
+
+### 🎉 New Features
+
+- `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>`, and when a default port is already taken they automatically run on the next free one instead of failing. This makes it possible to run several Wasp apps at the same time. ([#4471](https://github.com/wasp-lang/wasp/issues/4471), [#2427](https://github.com/wasp-lang/wasp/issues/2427))
 
 ### 🔧 Small improvements
 

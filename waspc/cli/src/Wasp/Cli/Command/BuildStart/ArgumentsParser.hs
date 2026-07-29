@@ -5,23 +5,27 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
 where
 
 import Data.Traversable (for)
+import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.AppSides (AppSides)
-import qualified Wasp.Cli.Util.AppSides as AppSides
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
+import Wasp.Cli.Util.PortArgument (appPortsParser)
 import Wasp.Env (EnvVar)
+import Wasp.Project.Apps (Apps)
+import qualified Wasp.Project.Apps as Apps
 
-{- HLINT ignore BuildStartArgs "Use newtype instead of data" -}
 data BuildStartArgs = BuildStartArgs
-  { envInputs :: AppSides ([EnvVar], [FilePathArgument])
+  { envInputs :: Apps ([EnvVar], [FilePathArgument]),
+    ports :: Apps (Maybe PortNumber)
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
-  BuildStartArgs <$> envInputsParser
+  BuildStartArgs
+    <$> envInputsParser
+    <*> appPortsParser
   where
-    envInputsParser = for AppSides.names $ \name ->
+    envInputsParser = for Apps.names $ \name ->
       liftA2
         (,)
         (Opt.many $ makeEnvironmentVariableParser name (name ++ "-env") (head name))

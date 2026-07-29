@@ -352,6 +352,7 @@ library
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
+    Wasp.Project.Apps
     Wasp.Project.BuildType
     Wasp.Project.Common
     Wasp.Project.Db
@@ -457,6 +458,7 @@ library cli-lib
     lens-aeson ^>=1.2.3,
     mtl,
     neat-interpolation,
+    network,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -520,6 +522,7 @@ library cli-lib
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
     Wasp.Cli.Command.Start
+    Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
@@ -535,10 +538,11 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.Terminal
-    Wasp.Cli.Util.AppSides
+    Wasp.Cli.Util.Apps
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
+    Wasp.Cli.Util.PortArgument
 
 executable wasp-cli
   import: common-all, common-exe
@@ -573,6 +577,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    network,
     parsec,
     path,
     split,
@@ -603,6 +608,7 @@ test-suite waspc-tests
     Generator.CommonTest
     Generator.CrudTest
     Generator.DbGeneratorTest
+    Generator.DevEnvVarsTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.CopyLibDraftTest
@@ -664,6 +670,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    optparse-applicative,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -676,6 +683,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.Command.Start.ArgumentsParserTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

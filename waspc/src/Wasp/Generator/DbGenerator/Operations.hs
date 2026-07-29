@@ -22,6 +22,7 @@ import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified Text.Regex.TDFA as TR
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
@@ -143,13 +144,14 @@ dbReset generatedAppDir resetArgs = do
     ExitFailure c -> Left $ "Failed with exit code " <> show c
 
 dbSeed ::
+  [EnvVar] ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed generatedAppDir seedName = do
+dbSeed waspEnvVars generatedAppDir seedName = do
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed generatedAppDir seedName chan
+    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed waspEnvVars generatedAppDir seedName chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c

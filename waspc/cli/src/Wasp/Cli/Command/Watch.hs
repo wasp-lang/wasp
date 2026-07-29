@@ -8,6 +8,7 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
 import Control.Monad (unless)
+import Data.Either (fromLeft)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
@@ -113,7 +114,8 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     recompile :: IO ([CompileWarning], [CompileError])
     recompile = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      (warnings, errors) <- compileIO waspProjectDir outDir
+      (warnings, appSpecOrErrors) <- compileIO waspProjectDir outDir
+      let errors = fromLeft [] appSpecOrErrors
 
       printCompilationResult (warnings, errors)
       if null errors

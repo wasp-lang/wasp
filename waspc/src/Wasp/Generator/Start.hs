@@ -8,11 +8,13 @@ import Control.Concurrent.Async (concurrently, race)
 import Control.Concurrent.Extra (threadDelay)
 import Control.Monad (void)
 import StrongPath (Abs, Dir, Path')
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Start (startServer)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
@@ -20,10 +22,12 @@ import Wasp.Project.Common (WaspProjectDir)
 --   It alo receives 'onJobsQuietDown' IO action, which it executes every time all the processes
 --   go quiet (don't produce any stdout/err) for some time (5s), after they have previously
 --   produced some output.
-start :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> IO () -> IO (Either String ())
-start waspProjectDir outDir onJobsQuietDown = do
+start :: Apps [EnvVar] -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> IO () -> IO (Either String ())
+start waspEnvVars waspProjectDir outDir onJobsQuietDown = do
   chan <- newChan
-  let runStartJobs = startServer outDir chan `race` startWebApp waspProjectDir chan
+  let runStartJobs =
+        startServer waspEnvVars.server outDir chan
+          `race` startWebApp waspEnvVars.client waspProjectDir chan
   ((serverOrWebExitCode, _), _) <-
     runStartJobs
       `concurrently` readJobMessagesAndPrintThemPrefixed chan

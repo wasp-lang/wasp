@@ -6,10 +6,10 @@ where
 
 import Data.Function ((&))
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Cli.Util.AppSides (client)
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
+import Wasp.Project.Apps (client)
 
 buildClient :: BuildStartConfig -> ExceptJob
 buildClient config =

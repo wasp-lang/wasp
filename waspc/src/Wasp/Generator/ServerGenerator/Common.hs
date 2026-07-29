@@ -17,18 +17,21 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    defaultDevServerUrl,
-    defaultServerPort,
+    makeDevServerUrl,
+    serverPortEnvVarName,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
+    getDevServerEnvVars,
   )
 where
 
 import qualified Data.Aeson as Aeson
+import Network.Socket (PortNumber)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
@@ -39,6 +42,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
+import Wasp.Project.Apps (Apps (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -89,7 +93,7 @@ mkTmplFdWithData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath dstPath tmplData
+mkTmplFdWithData relSrcPath = mkTmplFdWithDstAndData relSrcPath dstPath
   where
     dstPath = SP.castRel relSrcPath :: Path' (Rel ServerRootDir) File'
 
@@ -98,11 +102,10 @@ mkTmplFdWithDstAndData ::
   Path' (Rel ServerRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInGeneratedAppDir </> relDstPath)
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
 
 mkUniversalTmplFdWithDst ::
   Path' (Rel UniversalTemplatesDir) File' ->
@@ -138,11 +141,18 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
-defaultServerPort :: Int
-defaultServerPort = 3001
+serverPortEnvVarName :: String
+serverPortEnvVarName = "PORT"
 
-defaultDevServerUrl :: String
-defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+makeDevServerUrl :: PortNumber -> String
+makeDevServerUrl port = "http://localhost:" ++ show port
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
+
+getDevServerEnvVars :: Apps (PortNumber, String) -> [EnvVar]
+getDevServerEnvVars (Apps {client = (_, clientUrl), server = (serverPort, serverUrl)}) =
+  [ (serverPortEnvVarName, show serverPort),
+    (serverUrlEnvVarName, serverUrl),
+    (clientUrlEnvVarName, clientUrl)
+  ]
