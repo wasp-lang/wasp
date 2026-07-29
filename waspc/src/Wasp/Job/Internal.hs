@@ -1,11 +1,9 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 module Wasp.Job.Internal
   ( Job,
     JobAction,
     JobEvent (..),
     JobEventData (..),
-    JobOutputStream (..),
+    JobOutputKind (..),
     JobKind (..),
     JobOutputSink,
     makeJob,
@@ -19,25 +17,21 @@ module Wasp.Job.Internal
 where
 
 import Control.Concurrent (Chan, writeChan)
-import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Control.Monad.Reader (MonadReader, ReaderT, ask, runReaderT)
-import Control.Monad.Trans.Resource (MonadResource, ResourceT, runResourceT)
+import Control.Monad.Reader (ReaderT, ask, runReaderT)
+import Control.Monad.Trans.Resource (ResourceT, runResourceT)
 import Data.Text (Text)
 import System.Exit (ExitCode (..))
 
 data Job = Job JobKind (JobAction ())
 
-newtype JobAction a = JobAction
-  { unJobAction :: ReaderT JobOutputSink (ExceptT JobFailure (ResourceT IO)) a
-  }
-  deriving (Functor, Applicative, Monad, MonadIO, MonadReader JobOutputSink, MonadError JobFailure, MonadThrow, MonadCatch, MonadMask, MonadResource)
+type JobAction = ReaderT JobOutputSink (ExceptT JobFailure (ResourceT IO))
 
 newtype JobFailure = JobFailure Int
 
 newtype JobOutputSink = JobOutputSink
-  { writeJobOutput :: JobOutputStream -> Text -> IO ()
+  { writeJobOutput :: JobOutputKind -> Text -> IO ()
   }
 
 data JobEvent = JobEvent
@@ -47,11 +41,11 @@ data JobEvent = JobEvent
   deriving (Show)
 
 data JobEventData
-  = JobOutput Text JobOutputStream
+  = JobOutput JobOutputKind Text
   | JobExited ExitCode
   deriving (Show)
 
-data JobOutputStream = Stdout | Stderr deriving (Show, Eq)
+data JobOutputKind = Stdout | Stderr deriving (Show, Eq)
 
 data JobKind = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
 
@@ -63,12 +57,12 @@ runJob (Job jobKind action) chan = do
   result <-
     runResourceT $
       runExceptT $
-        runReaderT (unJobAction action) outputSink
+        runReaderT action outputSink
   let exitCode = either jobFailureExitCode (const ExitSuccess) result
   emitEvent $ JobExited exitCode
   return exitCode
   where
-    outputSink = JobOutputSink $ \outputStream output -> emitEvent $ JobOutput output outputStream
+    outputSink = JobOutputSink $ \outputKind output -> emitEvent $ JobOutput outputKind output
     emitEvent eventData =
       writeChan chan $
         JobEvent
@@ -79,10 +73,10 @@ runJob (Job jobKind action) chan = do
 jobFailureExitCode :: JobFailure -> ExitCode
 jobFailureExitCode (JobFailure exitCode) = ExitFailure exitCode
 
-emitJobOutput :: JobOutputStream -> Text -> JobAction ()
-emitJobOutput outputStream output = do
+emitJobOutput :: JobOutputKind -> Text -> JobAction ()
+emitJobOutput outputKind output = do
   outputSink <- getJobOutputSink
-  liftIO $ writeJobOutput outputSink outputStream output
+  liftIO $ writeJobOutput outputSink outputKind output
 
 requireExitSuccess :: ExitCode -> JobAction ()
 requireExitSuccess ExitSuccess = return ()
