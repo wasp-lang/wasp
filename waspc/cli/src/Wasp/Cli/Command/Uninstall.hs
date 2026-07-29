@@ -18,8 +18,8 @@ import Wasp.Cli.FileSystem
     waspInstallationDirInHomeDir,
   )
 import Wasp.Message (Message)
-import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
 import Wasp.Util (indent)
 import Wasp.Util.IO
   ( deleteDirectoryIfExists,
