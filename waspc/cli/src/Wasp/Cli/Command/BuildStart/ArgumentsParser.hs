@@ -6,21 +6,21 @@ where
 
 import Data.Traversable (for)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.AppSides (AppSides)
-import qualified Wasp.Cli.Util.AppSides as AppSides
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
+import Wasp.Project.Apps (Apps)
+import qualified Wasp.Project.Apps as Apps
 
 newtype BuildStartArgs = BuildStartArgs
-  { envInputs :: AppSides ([EnvVar], [FilePathArgument])
+  { envInputs :: Apps ([EnvVar], [FilePathArgument])
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs <$> envInputsParser
   where
-    envInputsParser = for AppSides.names $ \name ->
+    envInputsParser = for Apps.names $ \name ->
       liftA2
         (,)
         (Opt.many $ makeEnvironmentVariableParser name (name ++ "-env") (head name))
