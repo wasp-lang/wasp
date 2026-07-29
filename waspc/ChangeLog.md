@@ -9,6 +9,7 @@
 ### 🔧 Small improvements
 
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
+- Newly created projects now come with a pre-resolved `package-lock.json`, making the initial `npm install` faster and pinning dependencies to known-good versions. ([#4570](https://github.com/wasp-lang/wasp/pull/4570))
 
 ## 0.25.0
 
