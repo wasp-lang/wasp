@@ -2,9 +2,9 @@ module Tests.WaspCompletionTest (waspCompletionTest) where
 
 import Command (withEnvVars)
 import Context (TestContext)
-import Step (Step)
-import Steps (assertCommandStdoutTrimmedEquals, waspCliCompletionList)
+import SharedActions (assertCommandStdoutTrimmedEquals, waspCli)
 import Test (Test (..), TestCase (..))
+import TestAction (TestAction)
 
 waspCompletionTest :: Test
 waspCompletionTest =
@@ -22,8 +22,8 @@ waspCompletionTest =
         assertWaspCliCompletion "wasp-cli unknown" ""
     ]
   where
-    assertWaspCliCompletion :: String -> String -> Step TestContext ()
+    assertWaspCliCompletion :: String -> String -> TestAction TestContext ()
     assertWaspCliCompletion query expectedCompletion =
       assertCommandStdoutTrimmedEquals
-        (withEnvVars [("COMP_LINE", query)] waspCliCompletionList)
+        (withEnvVars [("COMP_LINE", query)] (waspCli ["completion:list"]))
         expectedCompletion

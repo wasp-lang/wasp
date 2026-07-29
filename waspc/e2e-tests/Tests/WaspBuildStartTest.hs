@@ -1,6 +1,6 @@
 module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
-import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
+import SharedActions (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 

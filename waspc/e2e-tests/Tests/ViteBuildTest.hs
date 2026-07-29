@@ -2,10 +2,10 @@ module Tests.ViteBuildTest (viteBuildTest) where
 
 import Command (Command, cmd, withEnvVars)
 import Context (TestContext, WaspProjectContext (..))
+import Control.Monad.Reader (ask)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Step (Step, askStepContext)
-import Steps
+import SharedActions
   ( appendToFile,
     createWaspProject,
     inWaspProjectDir,
@@ -18,6 +18,7 @@ import Steps
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
+import TestAction (TestAction)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
@@ -62,14 +63,14 @@ viteBuildTest =
           runCommand viteBuildWithApiUrl
     ]
   where
-    createViteBuildTestCase :: Step WaspProjectContext () -> Step TestContext ()
-    createViteBuildTestCase steps = do
+    createViteBuildTestCase :: TestAction WaspProjectContext () -> TestAction TestContext ()
+    createViteBuildTestCase actions = do
       createWaspProject minimalStarterTemplate
       inWaspProjectDir $ do
         setWaspDbToPSQL
         writeMainPageTsx
         runCommand waspCliBuild
-        steps
+        actions
 
     viteBuild :: Command
     viteBuild = cmd "npx" ["vite", "build"]
@@ -80,9 +81,9 @@ viteBuildTest =
     assertBuildOutputContains :: String -> Command
     assertBuildOutputContains value = cmd "grep" ["-r", value, SP.fromRelDir viteBuildDirPath]
 
-    writeMainPageTsx :: Step WaspProjectContext ()
+    writeMainPageTsx :: TestAction WaspProjectContext ()
     writeMainPageTsx = do
-      waspProjectContext <- askStepContext
+      waspProjectContext <- ask
       let testEnvVarKeyText = T.pack testEnvVarKey
       writeToFile
         (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|])
@@ -92,17 +93,17 @@ viteBuildTest =
           }
         |]
 
-    writeDotEnvClientFile :: String -> Step WaspProjectContext ()
+    writeDotEnvClientFile :: String -> TestAction WaspProjectContext ()
     writeDotEnvClientFile value = do
-      waspProjectContext <- askStepContext
+      waspProjectContext <- ask
       writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
         T.pack $
           testEnvVarKey ++ "=" ++ value
 
-    addTypeErrorToSrcFile :: Step WaspProjectContext ()
+    addTypeErrorToSrcFile :: TestAction WaspProjectContext ()
     addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError
 
-    addTypeErrorToWaspTsFile :: Step WaspProjectContext ()
+    addTypeErrorToWaspTsFile :: TestAction WaspProjectContext ()
     addTypeErrorToWaspTsFile = appendToFile "main.wasp.ts" typeError
 
     typeError :: T.Text

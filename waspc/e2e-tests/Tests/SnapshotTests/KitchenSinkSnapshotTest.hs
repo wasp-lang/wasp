@@ -1,7 +1,6 @@
 module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import Steps
+import SharedActions
   ( appendToFile,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
     copyFile,
@@ -10,6 +9,7 @@ import Steps
     waspCliCompile,
     waspCliInstall,
   )
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (reldir)
 import Tests.SdkPackageExportsTest (assertSdkPackageExports)
 

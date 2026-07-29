@@ -8,7 +8,7 @@ module SnapshotTest
 where
 
 import Context (SnapshotTestContext (..), makeWaspProjectContext)
-import Control.Exception (Exception, throwIO)
+import Control.Exception (throwIO)
 import Control.Monad (filterM, forM_, unless)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -28,9 +28,7 @@ import FileSystem
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
-    snapshotLogFileInSnapshotsDir,
   )
-import Step (Step, runSteps)
 import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
@@ -40,16 +38,17 @@ import qualified System.FilePath as FP
 import System.IO.Error (doesNotExistErrorType, mkIOError)
 import Test.Tasty (TestTree)
 import Test.Tasty.Golden.Advanced (goldenTest)
+import TestAction (TestAction, runTestAction)
 
 data SnapshotTest = SnapshotTest
   { name :: String,
-    steps :: Step SnapshotTestContext ()
+    actions :: TestAction SnapshotTestContext ()
   }
 
-makeSnapshotTest :: String -> Step SnapshotTestContext () -> SnapshotTest
-makeSnapshotTest name steps = SnapshotTest {name, steps}
+makeSnapshotTest :: String -> TestAction SnapshotTestContext () -> SnapshotTest
+makeSnapshotTest name actions = SnapshotTest {name, actions}
 
--- | A snapshot test is a single golden test: it runs the test's steps in the
+-- | A snapshot test is a single golden test: it runs the test's actions in the
 -- "current" snapshot dir and then compares the current snapshot against the
 -- "golden" (expected) snapshot dir, all at test runtime.
 --
@@ -65,7 +64,7 @@ testTreeFromSnapshotTest snapshotTest =
   goldenTest
     snapshotTest.name
     getGoldenSnapshotContents
-    runStepsAndGetCurrentSnapshotContents
+    runActionsAndGetCurrentSnapshotContents
     compareSnapshotContents
     (updateGoldenSnapshotContents snapshotTest.name)
   where
@@ -85,12 +84,10 @@ testTreeFromSnapshotTest snapshotTest =
       readSnapshotContents goldenSnapshotDir
 
     -- The tested value is the contents of the current snapshot, produced by
-    -- running the snapshot test's steps in the current snapshot dir.
-    runStepsAndGetCurrentSnapshotContents :: IO SnapshotContents
-    runStepsAndGetCurrentSnapshotContents = do
-      snapshotsDir <- getSnapshotsDir
+    -- running the snapshot test's actions in the current snapshot dir.
+    runActionsAndGetCurrentSnapshotContents :: IO SnapshotContents
+    runActionsAndGetCurrentSnapshotContents = do
       currentSnapshotDir <- getSnapshotDir snapshotTest.name Current
-      let logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
 
       -- Remove any leftovers of a previous run of this snapshot test.
       removePathForcibly $ SP.fromAbsDir currentSnapshotDir
@@ -102,8 +99,7 @@ testTreeFromSnapshotTest snapshotTest =
                 waspProjectContext = makeWaspProjectContext currentSnapshotDir
               }
 
-      result <- runSteps snapshotTest.name logFile snapshotTestContext snapshotTest.steps
-      either (throwIO . SnapshotTestStepsFailure) return result
+      runTestAction snapshotTestContext snapshotTest.actions
 
       generateSnapshotFileListManifest
         currentSnapshotDir
@@ -116,15 +112,6 @@ getSnapshotDir :: String -> SnapshotType -> IO (Path' Abs (Dir SnapshotDir))
 getSnapshotDir snapshotTestName snapshotType = do
   snapshotsDir <- getSnapshotsDir
   return $ snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
-
--- | Thrown when the steps of a snapshot test fail: the snapshot comparison is
--- skipped and the test fails with the (already formatted) step failure message.
-newtype SnapshotTestStepsFailure = SnapshotTestStepsFailure String
-
-instance Show SnapshotTestStepsFailure where
-  show (SnapshotTestStepsFailure message) = message
-
-instance Exception SnapshotTestStepsFailure
 
 -- Snapshot comparison
 

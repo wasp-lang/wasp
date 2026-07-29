@@ -1,6 +1,6 @@
 module Tests.WaspVersionTest (waspVersionTest) where
 
-import Steps (assertCommandStdoutFirstLineEquals, waspCliVersion)
+import SharedActions (assertCommandStdoutFirstLineEquals, waspCliVersion)
 import Test (Test (..), TestCase (..))
 import Wasp.Version (waspVersion)
 

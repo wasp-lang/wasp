@@ -1,7 +1,7 @@
 module Tests.WaspTelemetryTest (waspTelemetryTest) where
 
 import Command (withEnvVars, withoutEnvVars)
-import Steps (assertCommandSucceedsWithOutputContaining, waspCliTelemetry)
+import SharedActions (assertCommandSucceedsWithOutputContaining, waspCliTelemetry)
 import Test (Test (..), TestCase (..))
 
 waspTelemetryTest :: Test

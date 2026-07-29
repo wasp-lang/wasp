@@ -1,12 +1,12 @@
 module Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest) where
 
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import Steps
+import SharedActions
   ( createWaspProject,
     inWaspProjectDir,
     runCommand,
     waspCliCompile,
   )
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspCompileSnapshotTest :: SnapshotTest

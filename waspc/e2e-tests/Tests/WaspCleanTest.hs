@@ -1,6 +1,6 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
-import Steps
+import SharedActions
   ( assertDirDoesNotExist,
     createWaspProject,
     inWaspProjectDir,

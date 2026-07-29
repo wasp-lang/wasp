@@ -1,8 +1,11 @@
 module Tests.WaspNewTest (waspNewTest) where
 
-import Steps (runCommand, waspCliNew, waspCliNewInteractive)
+import Command (Command, withStdin)
+import qualified Data.Text as T
+import SharedActions (runCommand, waspCli, waspCliNew)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 
 waspNewTest :: Test
 waspNewTest =
@@ -27,3 +30,8 @@ waspNewTest =
           -- TestCase "create-saas-interactive" $
           --   runCommand $ waspCliNewInteractive "wasp-app" SaaS
     ]
+
+-- | Runs `wasp new` without arguments, answering its prompts through stdin.
+waspCliNewInteractive :: String -> StarterTemplate -> Command
+waspCliNewInteractive appName starterTemplate =
+  withStdin (T.pack $ appName ++ "\n" ++ show starterTemplate ++ "\n") (waspCli ["new"])

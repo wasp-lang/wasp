@@ -3,35 +3,31 @@ module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
 import Command (Command, cmd, inRelativeDir)
 import Context (WaspProjectContext)
 import Control.Monad (forM_)
-import Step (Step)
-import Steps
+import SharedActions
   ( assertCommandFailsWithOutputContaining,
     createWaspProject,
     inWaspProjectDir,
     removeDirRecursively,
     runCommand,
     setWaspDbToPSQL,
+    waspCli,
     waspCliBuild,
     waspCliBuildStart,
     waspCliClean,
     waspCliCompile,
-    waspCliCompletion,
     waspCliDbReset,
-    waspCliDeploy,
     waspCliDeps,
     waspCliDockerfile,
     waspCliInfo,
     waspCliInstall,
-    waspCliNews,
     waspCliStart,
-    waspCliStartDb,
     waspCliStudio,
     waspCliTelemetry,
-    waspCliTestClient,
     waspCliVersion,
   )
 import StrongPath (reldir)
 import Test (Test (..), TestCase (..))
+import TestAction (TestAction)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Util.Terminal (styleCode)
 
@@ -52,10 +48,10 @@ waspSpecAvailableTest =
               waspCliDockerfile,
               waspCliStudio,
               waspCliDbReset,
-              waspCliDeploy ["fly", "setup"],
-              waspCliStartDb,
+              waspCli ["deploy", "fly", "setup"],
+              waspCli ["start", "db"],
               waspCliStart,
-              waspCliTestClient []
+              waspCli ["test", "client"]
             ],
       TestCase "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli" $ do
         createWaspProject minimalStarterTemplate
@@ -82,9 +78,9 @@ waspSpecAvailableTest =
               -- Project-agnostic commands. They don't read the project,
               -- so they should be unaffected by wasp-spec presence.
               waspCliVersion,
-              waspCliCompletion,
+              waspCli ["completion"],
               waspCliTelemetry,
-              waspCliNews
+              waspCli ["news"]
             ]
           $ \command -> do
             removeNodeModules
@@ -92,14 +88,14 @@ waspSpecAvailableTest =
     ]
   where
     -- Putting the project in a "wasp-spec missing" state without invoking any wasp command.
-    removeNodeModules :: Step WaspProjectContext ()
+    removeNodeModules :: TestAction WaspProjectContext ()
     removeNodeModules = removeDirRecursively "node_modules"
 
-    corruptWaspSpecVersion :: Step WaspProjectContext ()
+    corruptWaspSpecVersion :: TestAction WaspProjectContext ()
     corruptWaspSpecVersion =
       runCommand $ inRelativeDir [reldir|.wasp/spec|] $ cmd "npm" ["pkg", "set", "version=9.9.9"]
 
-    assertCommandFailsWithInstallHint :: Command -> Step WaspProjectContext ()
+    assertCommandFailsWithInstallHint :: Command -> TestAction WaspProjectContext ()
     assertCommandFailsWithInstallHint command =
       -- The assertion holds when the command fails (exits non-zero)
       -- AND its output contains the "Run `wasp install`" hint.

@@ -708,10 +708,9 @@ test-suite waspc-e2e-tests
     Context
     FileSystem
     SnapshotTest
-    Step
-    Steps
+    SharedActions
     Test
-    TestLogger
+    TestAction
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest

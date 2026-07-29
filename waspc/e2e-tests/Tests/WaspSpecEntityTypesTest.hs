@@ -3,7 +3,7 @@ module Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest) where
 import Command (Command, cmd)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Steps
+import SharedActions
   ( appendToPrismaFile,
     assertCommandFailsWithOutputContaining,
     createWaspProject,

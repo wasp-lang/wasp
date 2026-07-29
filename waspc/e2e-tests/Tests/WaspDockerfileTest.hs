@@ -1,6 +1,6 @@
 module Tests.WaspDockerfileTest (waspDockerfileTest) where
 
-import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliDockerfile)
+import SharedActions (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliDockerfile)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 

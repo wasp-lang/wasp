@@ -2,30 +2,32 @@ module Tests.SdkPackageExportsTest (assertSdkPackageExports) where
 
 import Context (WaspProjectContext (..))
 import Control.Monad (filterM, unless)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader (ask)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Key as AesonKey
 import qualified Data.Aeson.KeyMap as AesonKeyMap
 import qualified Data.ByteString as BS
 import Data.List (isInfixOf, isSuffixOf, stripPrefix)
 import qualified Data.Text as T
-import Step (Step, failStep, makeStep)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified System.FilePath as FP
+import Test.Tasty.HUnit (assertFailure)
+import TestAction (TestAction)
 
-assertSdkPackageExports :: Step WaspProjectContext ()
-assertSdkPackageExports =
-  makeStep stepDescription $ \_ context -> do
+-- | Asserts that the SDK package exports point at generated source files.
+assertSdkPackageExports :: TestAction WaspProjectContext ()
+assertSdkPackageExports = do
+  context <- ask
+  liftIO $ do
     let sdkPackageDir = getGeneratedSdkPackageDir context
     packageExports <- readPackageExports sdkPackageDir
     missingExportTargets <- filterM (fmap not . exportTargetExists sdkPackageDir) packageExports
 
     unless (null missingExportTargets) $
-      failStep
-        stepDescription
-        ("Broken SDK package exports:\n" ++ unlines (map formatPackageExport missingExportTargets))
-  where
-    stepDescription = "assert SDK package exports point at generated source files"
+      assertFailure $
+        "Broken SDK package exports:\n" ++ unlines (map formatPackageExport missingExportTargets)
 
 data PackageExport = PackageExport
   { exportName :: String,

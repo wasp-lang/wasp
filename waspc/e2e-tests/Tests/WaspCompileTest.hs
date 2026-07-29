@@ -1,6 +1,6 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import Steps
+import SharedActions
   ( assertDirExists,
     createWaspProject,
     inWaspProjectDir,

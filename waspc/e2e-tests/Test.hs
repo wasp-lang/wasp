@@ -8,12 +8,12 @@ module Test
 where
 
 import Context (TestContext (..), makeWaspProjectContext)
-import FileSystem (getTestCaseDir, testCaseLogFileInTestCaseDir)
-import Step (Step, runSteps)
-import StrongPath (fromAbsDir, (</>))
+import FileSystem (getTestCaseDir)
+import StrongPath (fromAbsDir)
 import qualified System.Directory as SD
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (Assertion, assertFailure, testCase)
+import Test.Tasty.HUnit (Assertion, testCase)
+import TestAction (TestAction, runTestAction)
 
 data Test = Test
   { name :: String,
@@ -23,7 +23,7 @@ data Test = Test
 -- | Represent a single test case of some 'Test'.
 data TestCase = TestCase
   { name :: String,
-    steps :: Step TestContext ()
+    actions :: TestAction TestContext ()
   }
 
 testTreeFromTest :: Test -> TestTree
@@ -44,8 +44,5 @@ runTestCase test testCase' = do
           { testCaseDir,
             waspProjectContext = makeWaspProjectContext testCaseDir
           }
-      testName = test.name ++ " / " ++ testCase'.name
-      logFile = testCaseDir </> testCaseLogFileInTestCaseDir
 
-  result <- runSteps testName logFile testCaseContext testCase'.steps
-  either assertFailure return result
+  runTestAction testCaseContext testCase'.actions

@@ -2,7 +2,7 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Steps (appendToPrismaFile, createSeedFile, createWaspProject, inWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCli, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import SharedActions (appendToPrismaFile, createSeedFile, createWaspProject, inWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCli, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)

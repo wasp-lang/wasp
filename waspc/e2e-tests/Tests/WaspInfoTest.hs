@@ -1,6 +1,6 @@
 module Tests.WaspInfoTest (waspInfoTest) where
 
-import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliInfo)
+import SharedActions (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliInfo)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 

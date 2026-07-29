@@ -33,7 +33,6 @@ import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
 import System.IO (Handle, hClose)
 import qualified System.Process as P
-import TestLogger (TestLogger, logOutputChunk)
 
 -- | A command to be executed as a separate process (without a shell).
 -- Commands are plain values, so wrappers like 'withEnvVars' or expecting
@@ -133,19 +132,19 @@ data StartedCommand = StartedCommand
     terminate :: IO ()
   }
 
--- | Runs a command to completion in the given working directory, streaming its
--- output to the test log and capturing it for assertions. If the executing
--- thread is interrupted (e.g. a concurrent test failed), the command's whole
--- process group is terminated.
-executeCommand :: TestLogger -> Path' Abs Dir' -> Command -> IO CommandResult
-executeCommand logger commandWorkingDir command =
+-- | Runs a command to completion in the given working directory, capturing its
+-- output for assertions and failure messages. If the executing thread is
+-- interrupted (e.g. a concurrent test failed), the command's whole process
+-- group is terminated.
+executeCommand :: Path' Abs Dir' -> Command -> IO CommandResult
+executeCommand commandWorkingDir command =
   bracketOnError
-    (startCommand logger commandWorkingDir command)
+    (startCommand commandWorkingDir command)
     (.terminate)
     (.waitForResult)
 
-startCommand :: TestLogger -> Path' Abs Dir' -> Command -> IO StartedCommand
-startCommand logger commandWorkingDir command = do
+startCommand :: Path' Abs Dir' -> Command -> IO StartedCommand
+startCommand commandWorkingDir command = do
   envVars <- resolveEnvVars
   resolvedProgram <- resolveProgram
   (maybeStdinHandle, maybeStdoutHandle, maybeStderrHandle, processHandle) <-
@@ -214,8 +213,8 @@ startCommand logger commandWorkingDir command = do
         hClose stdinHandle
       _ -> return ()
 
-    -- Reads the handle until EOF, teeing each chunk to the test log and to the
-    -- shared combined-output accumulator, and returns the handle's full output.
+    -- Reads the handle until EOF, teeing each chunk to the shared
+    -- combined-output accumulator, and returns the handle's full output.
     drainHandle :: IORef [BS.ByteString] -> Handle -> IO BS.ByteString
     drainHandle combinedChunksRef handle = go []
       where
@@ -224,7 +223,6 @@ startCommand logger commandWorkingDir command = do
           if BS.null chunk
             then return $ BS.concat $ reverse chunks
             else do
-              logOutputChunk logger chunk
               atomicModifyIORef' combinedChunksRef (\allChunks -> (chunk : allChunks, ()))
               go (chunk : chunks)
 

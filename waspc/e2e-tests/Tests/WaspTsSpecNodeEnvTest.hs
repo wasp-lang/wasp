@@ -4,7 +4,7 @@ module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Steps
+import SharedActions
   ( assertCommandSucceedsWithOutputContaining,
     createWaspProject,
     inWaspProjectDir,

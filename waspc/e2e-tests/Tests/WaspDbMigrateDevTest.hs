@@ -3,8 +3,7 @@ module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 import Context (WaspProjectContext)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Step (Step)
-import Steps
+import SharedActions
   ( appendToPrismaFile,
     assertDirExists,
     createWaspProject,
@@ -16,6 +15,7 @@ import Steps
 import StrongPath (fromRelDir, (</>))
 import qualified System.FilePath as FP
 import Test (Test (..), TestCase (..))
+import TestAction (TestAction)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
@@ -60,7 +60,7 @@ waspDbMigrateDevTest =
 -- | After 'waspCliDbMigrateDev' runs, it normalizes the migration directory
 -- name to @no-date-<migrationName>@, so we assert that exact directory exists
 -- (both in the Wasp project and in the generated app).
-assertMigrationDirsExist :: String -> Step WaspProjectContext ()
+assertMigrationDirsExist :: String -> TestAction WaspProjectContext ()
 assertMigrationDirsExist migrationName = do
   assertMigrationDirExists (fromRelDir dbMigrationsDirInWaspProjectDir)
   assertMigrationDirExists (fromRelDir waspOutMigrationsDir)

@@ -2,8 +2,7 @@ module Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) whe
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import Steps
+import SharedActions
   ( appendToPrismaFile,
     createWaspProject,
     inWaspProjectDir,
@@ -11,6 +10,7 @@ import Steps
     waspCliCompile,
     waspCliDbMigrateDev,
   )
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspMigrateSnapshotTest :: SnapshotTest

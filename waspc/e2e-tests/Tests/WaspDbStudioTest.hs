@@ -1,6 +1,7 @@
 module Tests.WaspDbStudioTest (waspDbStudioTest) where
 
-import Steps (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliDbStudio)
+import Command (Command)
+import SharedActions (createWaspProject, inWaspProjectDir, runCommand, runCommandExpectingFailure, waspCli)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -17,3 +18,6 @@ waspDbStudioTest =
         inWaspProjectDir $
           runCommand waspCliDbStudio
     ]
+
+waspCliDbStudio :: Command
+waspCliDbStudio = waspCli ["db", "studio"]

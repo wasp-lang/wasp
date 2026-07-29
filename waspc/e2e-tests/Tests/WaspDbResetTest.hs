@@ -2,7 +2,7 @@ module Tests.WaspDbResetTest (waspDbResetTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Steps (appendToPrismaFile, createSeedFile, createWaspProject, inWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
+import SharedActions (appendToPrismaFile, createSeedFile, createWaspProject, inWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)

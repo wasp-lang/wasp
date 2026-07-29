@@ -1,9 +1,9 @@
 module Tests.ViteConfigTest (viteConfigTest) where
 
 import Context (WaspProjectContext (..))
+import Control.Monad.Reader (ask)
 import NeatInterpolation (trimming)
-import Step (Step, askStepContext)
-import Steps
+import SharedActions
   ( createWaspProject,
     deleteFile,
     inWaspProjectDir,
@@ -13,6 +13,7 @@ import Steps
   )
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
+import TestAction (TestAction)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 viteConfigTest :: Test
@@ -31,9 +32,9 @@ viteConfigTest =
           runCommandExpectingFailure waspCliCompile
     ]
 
-writeViteConfigWithoutPlugin :: Step WaspProjectContext ()
+writeViteConfigWithoutPlugin :: TestAction WaspProjectContext ()
 writeViteConfigWithoutPlugin = do
-  context <- askStepContext
+  context <- ask
   writeToFile
     (context.waspProjectDir </> [relfile|vite.config.ts|])
     [trimming|

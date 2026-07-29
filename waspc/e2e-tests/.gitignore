@@ -1,4 +1,3 @@
 test-outputs/*
 !test-outputs/snapshots/
 test-outputs/snapshots/*-current
-test-outputs/snapshots/*.log

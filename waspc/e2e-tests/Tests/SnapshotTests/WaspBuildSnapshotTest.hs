@@ -2,11 +2,10 @@ module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import Command (Command, cmd, withEnvVars)
 import Context (WaspProjectContext (..))
+import Control.Monad.Reader (ask)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import Step (Step, askStepContext)
-import Steps
+import SharedActions
   ( buildAndRemoveWaspProjectDockerImage,
     createWaspProject,
     inWaspProjectDir,
@@ -15,9 +14,11 @@ import Steps
     waspCliBuild,
     writeToFile,
   )
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified StrongPath.FilePath as FP
+import TestAction (TestAction)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (WaspProjectDir)
 
@@ -35,9 +36,9 @@ waspBuildSnapshotTest =
 -- | Renames the generated vite.config.ts and wraps it with a config that adds
 -- deterministic build options (no minification, no hashes, externalized deps),
 -- so the snapshot output is stable and easy to diff.
-wrapViteConfigForDeterministicBuild :: Step WaspProjectContext ()
+wrapViteConfigForDeterministicBuild :: TestAction WaspProjectContext ()
 wrapViteConfigForDeterministicBuild = do
-  context <- askStepContext
+  context <- ask
 
   writeToFile
     (context.waspProjectDir </> wrapperViteFile)
