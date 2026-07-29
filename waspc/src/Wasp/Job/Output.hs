@@ -7,7 +7,7 @@ module Wasp.Job.Output
 where
 
 import Control.Concurrent (Chan, readChan)
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush)
@@ -16,20 +16,18 @@ import Wasp.Job.Output.Internal (getEventContent, getEventOutHandle)
 import Wasp.Job.Output.Prefixed (printEventPrefixed, runPrefixedWriter)
 
 printEventsUntilExit :: Chan Job.JobEvent -> IO ()
-printEventsUntilExit chan = do
-  event <- readChan chan
-  case Job._eventData event of
-    Job.JobOutput {} -> printEvent event >> printEventsUntilExit chan
-    Job.JobExited {} -> return ()
+printEventsUntilExit = consumeEventsUntilExit $ liftIO . printEvent
 
 printEventsPrefixedUntilExit :: Chan Job.JobEvent -> IO ()
-printEventsPrefixedUntilExit chan = runPrefixedWriter go
-  where
-    go = do
-      event <- liftIO $ readChan chan
-      case Job._eventData event of
-        Job.JobOutput {} -> printEventPrefixed event >> go
-        Job.JobExited {} -> return ()
+printEventsPrefixedUntilExit chan =
+  runPrefixedWriter $ consumeEventsUntilExit printEventPrefixed chan
+
+consumeEventsUntilExit :: (MonadIO m) => (Job.JobEvent -> m ()) -> Chan Job.JobEvent -> m ()
+consumeEventsUntilExit consumeEvent chan = do
+  event <- liftIO $ readChan chan
+  case Job._eventData event of
+    Job.JobOutput {} -> consumeEvent event >> consumeEventsUntilExit consumeEvent chan
+    Job.JobExited {} -> return ()
 
 collectTextUntilExit :: Chan Job.JobEvent -> IO [Text]
 collectTextUntilExit = go []
@@ -38,7 +36,7 @@ collectTextUntilExit = go []
       event <- readChan chan
       case Job._eventData event of
         Job.JobExited {} -> return textOutput
-        Job.JobOutput text _ -> go (text : textOutput) chan
+        Job.JobOutput _ text -> go (text : textOutput) chan
 
 printEvent :: Job.JobEvent -> IO ()
 printEvent event = do

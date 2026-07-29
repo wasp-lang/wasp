@@ -5,7 +5,7 @@ where
 
 import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
-import Control.Monad.Except (MonadError (throwError), runExceptT)
+import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
@@ -72,6 +72,6 @@ buildAndStartServerAndClient config = do
       chan <- newChan
       (result, _) <-
         concurrently
-          (runExceptT $ executeJob chan)
+          (executeJob chan)
           (Output.printEventsPrefixedUntilExit chan)
       return result

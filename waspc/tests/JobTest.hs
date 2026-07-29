@@ -28,7 +28,7 @@ spec_Job =
       firstEvent <- readChan events
       Job._jobKind firstEvent `shouldBe` Job.Wasp
       case Job._eventData firstEvent of
-        Job.JobOutput output Job.Stdout -> output `shouldBe` "before failure"
+        Job.JobOutput Job.Stdout output -> output `shouldBe` "before failure"
         eventData -> expectationFailure $ "Expected stdout output, got: " <> show eventData
 
       secondEvent <- readChan events

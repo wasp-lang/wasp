@@ -33,7 +33,7 @@ spec_runSubprocess =
             liftIO $ exitCode `shouldBe` ExitFailure 7
       J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitSuccess
 
-runSplitUtf8Process :: String -> J.JobOutputStream -> IO T.Text
+runSplitUtf8Process :: String -> J.JobOutputKind -> IO T.Text
 runSplitUtf8Process streamName expectedOutputType = do
   chan <- newChan
   let action = Subprocess.run $ P.proc "node" ["-e", splitUtf8Script streamName]
@@ -52,15 +52,15 @@ splitUtf8Script streamName =
     <> streamName
     <> ".write(Buffer.from([0x82, 0xac, 0xe2])), 200);"
 
-collectOutputUntilExit :: J.JobOutputStream -> Chan J.JobEvent -> IO T.Text
+collectOutputUntilExit :: J.JobOutputKind -> Chan J.JobEvent -> IO T.Text
 collectOutputUntilExit expectedOutputType chan = go []
   where
     go collected = do
       event <- readChan chan
       J._jobKind event `shouldBe` J.Wasp
       case J._eventData event of
-        J.JobOutput output outputType -> do
-          outputType `shouldBe` expectedOutputType
+        J.JobOutput outputKind output -> do
+          outputKind `shouldBe` expectedOutputType
           go (output : collected)
         J.JobExited exitCode -> do
           exitCode `shouldBe` ExitSuccess
