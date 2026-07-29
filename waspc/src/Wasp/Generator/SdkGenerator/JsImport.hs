@@ -6,7 +6,7 @@ where
 import qualified Data.Aeson as Aeson
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkGenerator.VirtualUserModules (getVirtualUserModuleJsImportPath)
+import Wasp.Generator.SdkGenerator.VirtualUserModules (extImportToVirtualUserModuleJsImportPath)
 import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 
 -- | Converts a 'EI.ExtImport' to virtual user module JS import JSON.
@@ -30,4 +30,4 @@ extImportToVirtualUserModuleJsImport extImport@(EI.ExtImport extImportName extIm
     }
   where
     importName = GJI.extImportNameToJsImportName extImportName
-    importPath = getVirtualUserModuleJsImportPath extImportPath
+    importPath = extImportToVirtualUserModuleJsImportPath extImportPath

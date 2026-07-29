@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.VirtualUserModules
   ( VirtualUserModule,
     getClientVirtualUserModules,
     getServerVirtualUserModules,
-    getVirtualUserModuleJsImportPath,
+    extImportToVirtualUserModuleJsImportPath,
     mkVirtualUserModulePluginData,
     mkVirtualUserModulesDeclarationData,
   )
@@ -13,6 +13,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (maybeToList)
+import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -23,8 +24,8 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.SdkGenerator.Common (getRegisteredOperationTypeName)
-import Wasp.JsImport (JsImportPath (RawImportName), getJsImportPathStringFromPath)
+import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
+import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
 
 {-
 This module allows the SDK to use the user project values (ext imports).
@@ -76,10 +77,10 @@ data VirtualUserModule = VirtualUserModule
   { -- | Runtime whose bundle the module ends up in.
     runtime :: Runtime,
     extImport :: EI.ExtImport,
-    -- | Path, relative to the SDK root, of the module declaring 'declaredTypeName'.
-    declaredTypeModulePath :: String,
+    -- | Path of the module declaring 'registeredTypeName'.
+    registeredTypeModule :: Path Posix (Rel SdkRootDir) File',
     -- | Type the SDK expects this module's export to have.
-    declaredTypeName :: String
+    registeredTypeName :: String
   }
 
 data Runtime = ClientRuntime | ServerRuntime
@@ -98,21 +99,21 @@ getVirtualUserModules spec =
       VirtualUserModule
         ClientRuntime
         extImport'
-        "./client/env/schema"
+        [relfileP|./client/env/schema|]
         "RegisteredClientEnvValidationSchema"
 
     mkServerEnvValidationSchemaModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
-        "./server/env"
+        [relfileP|./server/env|]
         "RegisteredServerEnvValidationSchema"
 
     mkPrismaSetupFnModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
-        "./server/dbClient"
+        [relfileP|./server/dbClient|]
         "RegisteredPrismaSetupFn"
 
     mkOperationModule operation =
@@ -123,8 +124,8 @@ getVirtualUserModules spec =
         (getRegisteredOperationTypeName operation)
 
     getOperationsIndexModulePath = \case
-      AS.Operation.QueryOp _ _ -> "./server/operations/queries/index"
-      AS.Operation.ActionOp _ _ -> "./server/operations/actions/index"
+      AS.Operation.QueryOp _ _ -> [relfileP|./server/operations/queries/index|]
+      AS.Operation.ActionOp _ _ -> [relfileP|./server/operations/actions/index|]
 
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
@@ -140,8 +141,8 @@ getServerVirtualUserModules :: AppSpec -> [VirtualUserModule]
 getServerVirtualUserModules = filter ((== ServerRuntime) . runtime) . getVirtualUserModules
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
-getVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
-getVirtualUserModuleJsImportPath extImportPath =
+extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
+extImportToVirtualUserModuleJsImportPath extImportPath =
   RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP extImportPath
 
 -- | Data for one entry of a bundler plugin's virtual module ID to user file map.
@@ -190,8 +191,12 @@ mkVirtualUserModulesDeclarationData spec =
     -- statement instead would silently type every declared export as @any@.
     getDeclaredTypeExpression :: VirtualUserModule -> String
     getDeclaredTypeExpression virtualUserModule =
-      "import(\"" ++ declaredTypeModulePath virtualUserModule ++ "\")." ++ declaredTypeName virtualUserModule
+      "import(\"" ++ getVirtualUserModuleRegisteredTypeModulePath virtualUserModule ++ "\")." ++ virtualUserModule.registeredTypeName
+
+    getVirtualUserModuleRegisteredTypeModulePath :: VirtualUserModule -> String
+    getVirtualUserModuleRegisteredTypeModulePath virtualUserModule =
+      getJsImportPathStringFromPath (RelativeImportPath $ SP.castRel virtualUserModule.registeredTypeModule)
 
 getVirtualUserModuleId :: VirtualUserModule -> String
 getVirtualUserModuleId =
-  getJsImportPathStringFromPath . getVirtualUserModuleJsImportPath . EI.path . extImport
+  getJsImportPathStringFromPath . extImportToVirtualUserModuleJsImportPath . EI.path . extImport
