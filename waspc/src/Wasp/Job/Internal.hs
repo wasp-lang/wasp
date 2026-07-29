@@ -40,6 +40,21 @@ newtype JobOutputSink = JobOutputSink
   { writeJobOutput :: JobOutputStream -> Text -> IO ()
   }
 
+data JobEvent = JobEvent
+  { _eventData :: JobEventData,
+    _jobKind :: JobKind
+  }
+  deriving (Show)
+
+data JobEventData
+  = JobOutput Text JobOutputStream
+  | JobExited ExitCode
+  deriving (Show)
+
+data JobOutputStream = Stdout | Stderr deriving (Show, Eq)
+
+data JobKind = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
+
 makeJob :: JobKind -> JobAction () -> Job
 makeJob = Job
 
@@ -78,18 +93,3 @@ failWithExitCode = throwError . JobFailure
 
 getJobOutputSink :: JobAction JobOutputSink
 getJobOutputSink = ask
-
-data JobEvent = JobEvent
-  { _eventData :: JobEventData,
-    _jobKind :: JobKind
-  }
-  deriving (Show)
-
-data JobEventData
-  = JobOutput Text JobOutputStream
-  | JobExited ExitCode
-  deriving (Show)
-
-data JobOutputStream = Stdout | Stderr deriving (Show, Eq)
-
-data JobKind = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
