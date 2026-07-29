@@ -15,7 +15,7 @@ import type { Payload, SuperJSONObject } from "../../core/serialization/index";
 import type {
   {= crud.entityUpper =},
 } from "wasp/entities";
-import type { Register } from '../../types/register'
+import type { FromRegisterPath } from '../../types/register'
 
 type _WaspEntityTagged = _{= crud.entityUpper =}
 type _WaspEntity = {= crud.entityUpper =}
@@ -51,13 +51,13 @@ export declare namespace {= crud.name =} {
 {=# crud.operations.GetAll =}
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
-export type RegisteredGetAllQuery = CrudOverrideFromRegister<'{= crud.name =}', 'GetAll', {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput>>
+export type RegisteredGetAllQuery = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'GetAll'], {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput>>
 {=/ crud.operations.GetAll =}
 
 {=# crud.operations.Get =}
 type GetInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
-export type RegisteredGetQuery = CrudOverrideFromRegister<'{= crud.name =}', 'Get', {= crud.name =}.GetQuery<GetInput, GetOutput>>
+export type RegisteredGetQuery = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Get'], {= crud.name =}.GetQuery<GetInput, GetOutput>>
 {=/ crud.operations.Get =}
 
 {=# crud.operations.Create =}
@@ -66,7 +66,7 @@ type CreateInput = SuperJSONObject & Prisma.XOR<
   Prisma.{= crud.entityUpper =}UncheckedCreateInput
 >
 type CreateOutput = _WaspEntity
-export type RegisteredCreateAction = CrudOverrideFromRegister<'{= crud.name =}', 'Create', {= crud.name =}.CreateAction<CreateInput, CreateOutput>>
+export type RegisteredCreateAction = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Create'], {= crud.name =}.CreateAction<CreateInput, CreateOutput>>
 {=/ crud.operations.Create =}
 
 {=# crud.operations.Update =}
@@ -77,24 +77,12 @@ type UpdateInput = SuperJSONObject & Prisma.XOR<
   & Prisma.{= crud.entityUpper =}WhereUniqueInput
 
 type UpdateOutput = _WaspEntity
-export type RegisteredUpdateAction = CrudOverrideFromRegister<'{= crud.name =}', 'Update', {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>>
+export type RegisteredUpdateAction = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Update'], {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>>
 {=/ crud.operations.Update =}
 
 {=# crud.operations.Delete =}
 type DeleteInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
-export type RegisteredDeleteAction = CrudOverrideFromRegister<'{= crud.name =}', 'Delete', {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>>
+export type RegisteredDeleteAction = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Delete'], {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>>
 {=/ crud.operations.Delete =}
 
-type CrudOverrideFromRegister<
-  CrudName extends string,
-  CrudOperation extends string,
-  Fallback,
-  Subregister = "crudOverrides",
->  = Subregister extends keyof Register
-  ? CrudName extends keyof Register[Subregister]
-    ? CrudOperation extends keyof Register[Subregister][CrudName]
-      ? Register[Subregister][CrudName][CrudOperation]
-      : Fallback
-    : Fallback
-  : Fallback;

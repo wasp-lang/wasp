@@ -25,7 +25,6 @@ import Wasp.Generator.SdkGenerator.Common
     SdkTemplatesDir,
     getGenericOperationDefinitionTypeName,
     getRegisteredOperationTypeName,
-    mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
@@ -44,8 +43,7 @@ genOperations spec =
       genQueriesIndex spec,
       genActionsIndex spec,
       genWrappers spec,
-      genIndexTs spec,
-      genRegister
+      genIndexTs spec
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
@@ -61,9 +59,6 @@ genIndexTs spec =
           "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
-
-genRegister :: Generator FileDraft
-genRegister = return $ mkTmplFd (serverOpsDirInSdkTemplatesDir </> [relfile|register.ts|])
 
 genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =

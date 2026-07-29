@@ -14,7 +14,7 @@ import {
   createAuthenticatedOperation,
   {=/ isAuthEnabled =}
 } from '../wrappers'
-import type { OperationFromRegister } from '../register'
+import type { FromRegisterPath } from '../../../types/register'
 import type {
   {=# operations =}
   {= genericOperationDefinitionTypeName =},
@@ -26,7 +26,7 @@ import type {
 {=# operations =}
 
 // PRIVATE API
-export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= genericOperationDefinitionTypeName =}>
+export type {= registeredOperationTypeName =} = FromRegisterPath<['operations', '{= operationName =}'], {= genericOperationDefinitionTypeName =}>
 
 // PUBLIC API
 {=# usesAuth =}
