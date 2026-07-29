@@ -12,9 +12,9 @@ import qualified Data.Conduit.Text as CT
 import System.Exit (ExitCode)
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
-import Wasp.Job.Internal (JobAction, JobOutputStream (..), getJobOutputSink, writeJobOutput)
+import Wasp.Job.Internal (JobAction, JobOutputKind (..), getJobOutputSink, writeJobOutput)
 
--- TODO:
+-- TODO(#4575):
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
@@ -32,9 +32,9 @@ run process = do
         `finally` CP.closeStreamingProcessHandle streamingProcessHandle
 
     runStreamingProcessAndStreamOutput outputSink (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
-      let forwardOutput outputStream stream =
+      let forwardOutput outputKind stream =
             runConduit $
-              stream .| CT.decodeUtf8Lenient .| CL.mapM_ (writeJobOutput outputSink outputStream)
+              stream .| CT.decodeUtf8Lenient .| CL.mapM_ (writeJobOutput outputSink outputKind)
 
       runConcurrently $
         Concurrently (forwardOutput Stdout stdoutStream)
