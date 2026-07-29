@@ -12,8 +12,7 @@ import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
 
-{- HLINT ignore BuildStartArgs "Use newtype instead of data" -}
-data BuildStartArgs = BuildStartArgs
+newtype BuildStartArgs = BuildStartArgs
   { envInputs :: AppSides ([EnvVar], [FilePathArgument])
   }
 
