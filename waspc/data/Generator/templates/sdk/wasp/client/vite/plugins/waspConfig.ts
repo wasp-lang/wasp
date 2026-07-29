@@ -16,11 +16,15 @@ import { defaultExclude } from "vitest/config"
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
+// Wasp only picks a client port when it is the one starting the client, so
+// outside of that there is no port to force.
+const clientDevPort = process.env["{= clientDevPortEnvVarName =}"];
+
 const forcedOptions = {
   'base': "{= baseDir =}",
   'envPrefix': "REACT_APP_",
   'build.outDir': "{= clientBuildDirPath =}",
-  'server.port': process.env["{= clientDevPortEnvVarName =}"],
+  'server.port': clientDevPort === undefined ? undefined : Number.parseInt(clientDevPort),
   'server.strictPort': true,
 } as const;
 

@@ -48,7 +48,7 @@ makeBuildStartConfig appSpec args projectDir' = do
   let urls = getDevUrlMakers appSpec <*> ports
       waspEnvVars = getWaspEnvVars appSpec ports
 
-  envVars <- sequence $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
+  envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
 
   return $
     BuildStartConfig
