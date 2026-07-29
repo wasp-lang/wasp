@@ -4,20 +4,16 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualUserModulesPlugi
 where
 
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
-import Data.Maybe (maybeToList)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getVirtualUserModuleJsImportPath)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport (getJsImportPathStringFromPath)
+import Wasp.Generator.SdkGenerator.VirtualUserModules
+  ( getClientVirtualUserModules,
+    mkVirtualUserModulePluginData,
+  )
 
 -- The plugin resolves client-side virtual user modules used by the SDK.
 genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
@@ -25,24 +21,8 @@ genWaspVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
       (C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualUserModules.ts|])
-      (object ["virtualUserModules" .= getClientVirtualUserModulesData spec])
-
-getClientVirtualUserModulesData :: AppSpec -> [Aeson.Value]
-getClientVirtualUserModulesData spec =
-  maybeToList (mkVMImportData <$> maybeClientEnvSchema)
+      (object ["virtualUserModules" .= map mkPluginData (getClientVirtualUserModules spec)])
   where
-    mkVMImportData :: EI.ExtImport -> Aeson.Value
-    mkVMImportData extImport =
-      object
-        [ "virtualModuleId" .= virtualModuleId,
-          "importJson" .= importJson
-        ]
-      where
-        importJson = GJI.jsImportToImportJson (Just jsImport)
-        jsImport = GJI.extImportToRelativeSrcImportFromViteExecution extImport
-
-        virtualModuleId = getJsImportPathStringFromPath $ getVirtualUserModuleJsImportPath userDefinedPathInExtSrcDir
-        userDefinedPathInExtSrcDir = EI.path extImport
-
-    maybeClientEnvSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    app = snd $ getApp spec
+    mkPluginData = mkVirtualUserModulePluginData extImportToImportJson
+    extImportToImportJson =
+      GJI.jsImportToImportJson . Just . GJI.extImportToRelativeSrcImportFromViteExecution

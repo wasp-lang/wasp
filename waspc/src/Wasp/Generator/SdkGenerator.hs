@@ -18,9 +18,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -70,6 +68,7 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
+import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -357,16 +356,15 @@ genWaspVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
 genWaspVirtualUserModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
-    tmplData =
+    tmplData = object ["virtualUserModules" .= map mkDeclarationData allVirtualUserModules]
+
+    allVirtualUserModules =
+      VUM.getClientVirtualUserModules spec ++ VUM.getServerVirtualUserModules spec
+
+    mkDeclarationData virtualUserModule =
       object
-        [ "clientEnvValidationSchema" .= extImportToImportJson maybeClientEnvValidationSchema,
-          "serverEnvValidationSchema" .= extImportToImportJson maybeServerEnvValidationSchema,
-          "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn,
-          "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
-          "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+        [ "virtualModuleId" .= VUM.getVirtualUserModuleId virtualUserModule,
+          "exportName" .= VUM.getVirtualUserModuleExportName virtualUserModule,
+          "isDefaultExport" .= VUM.isDefaultExport virtualUserModule,
+          "declaredType" .= VUM.getDeclaredTypeExpression virtualUserModule
         ]
-    maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    isAuthEnabledGlobally = isAuthEnabled spec
-    app = snd $ getApp spec

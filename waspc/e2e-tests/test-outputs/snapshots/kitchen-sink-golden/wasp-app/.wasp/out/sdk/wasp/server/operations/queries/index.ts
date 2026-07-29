@@ -11,6 +11,7 @@ import type {
   GetTasks,
   GetNumTasks,
   GetTask,
+  GetOldestTask,
   GetSerializedObjects,
   GetTextUppercaseRequests,
   GetDate,
@@ -24,6 +25,7 @@ import type {
 import { getTasks as getTasks_ext } from 'virtual:wasp/user/features/operations/queries'
 import { getNumTasks as getNumTasks_ext } from 'virtual:wasp/user/features/operations/queries'
 import { getTask as getTask_ext } from 'virtual:wasp/user/features/operations/queries'
+import getOldestTask_ext from 'virtual:wasp/user/features/operations/getOldestTask'
 import { getSerializedObjects as getSerializedObjects_ext } from 'virtual:wasp/user/features/operations/queries'
 import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from 'virtual:wasp/user/features/jobs/uppercaseText'
 import { getDate as getDate_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
@@ -67,6 +69,19 @@ export type RegisteredGetTask = OperationFromRegister<'getTask', GetTask>
 export const getTask: AuthenticatedOperationFor<RegisteredGetTask> =
   createAuthenticatedOperation<RegisteredGetTask>(
     () => getTask_ext,
+    {
+      Task: prisma.task,
+    },
+  )
+
+
+// PRIVATE API
+export type RegisteredGetOldestTask = OperationFromRegister<'getOldestTask', GetOldestTask>
+
+// PUBLIC API
+export const getOldestTask: AuthenticatedOperationFor<RegisteredGetOldestTask> =
+  createAuthenticatedOperation<RegisteredGetOldestTask>(
+    () => getOldestTask_ext,
     {
       Task: prisma.task,
     },

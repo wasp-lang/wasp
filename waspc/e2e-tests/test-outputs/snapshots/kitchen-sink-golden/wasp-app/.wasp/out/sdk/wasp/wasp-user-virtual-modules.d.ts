@@ -1,198 +1,144 @@
+// Declares the virtual user modules the SDK imports, so it can typecheck before
+// the bundler resolves them into actual user files.
+//
+// The types are written as inline `import("...")` types on purpose. These are
+// ambient module declarations, and those cannot reach another module through a
+// relative import statement (TypeScript reports TS2439). `skipLibCheck` hides
+// that error, so getting it wrong silently types every export below as `any`.
 
 declare module "virtual:wasp/user/env" {
-  import type { RegisteredClientEnvValidationSchema } from "./client/env/schema";
-
-  export const clientEnvValidationSchema: RegisteredClientEnvValidationSchema;
+  export const clientEnvValidationSchema: import("./client/env/schema").RegisteredClientEnvValidationSchema;
 }
 
 declare module "virtual:wasp/user/env" {
-  import type { RegisteredServerEnvValidationSchema } from "./server/env";
-
-  export const serverEnvValidationSchema: RegisteredServerEnvValidationSchema;
+  export const serverEnvValidationSchema: import("./server/env").RegisteredServerEnvValidationSchema;
 }
 
 declare module "virtual:wasp/user/features/db/prisma" {
-  import type { RegisteredPrismaSetupFn } from "./server/dbClient"
+  export const setUpPrisma: import("./server/dbClient").RegisteredPrismaSetupFn;
+}
 
-  export const setUpPrisma: RegisteredPrismaSetupFn;
+declare module "virtual:wasp/user/features/operations/queries" {
+  export const getTasks: import("./server/operations/queries/index").RegisteredGetTasks;
+}
+
+declare module "virtual:wasp/user/features/operations/queries" {
+  export const getNumTasks: import("./server/operations/queries/index").RegisteredGetNumTasks;
+}
+
+declare module "virtual:wasp/user/features/operations/queries" {
+  export const getTask: import("./server/operations/queries/index").RegisteredGetTask;
+}
+
+declare module "virtual:wasp/user/features/operations/getOldestTask" {
+  const _default: import("./server/operations/queries/index").RegisteredGetOldestTask;
+  export default _default;
+}
+
+declare module "virtual:wasp/user/features/operations/queries" {
+  export const getSerializedObjects: import("./server/operations/queries/index").RegisteredGetSerializedObjects;
+}
+
+declare module "virtual:wasp/user/features/jobs/uppercaseText" {
+  export const getTextUppercaseRequests: import("./server/operations/queries/index").RegisteredGetTextUppercaseRequests;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getDate: import("./server/operations/queries/index").RegisteredGetDate;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getAnythingNoAuth: import("./server/operations/queries/index").RegisteredGetAnythingNoAuth;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getAnythingAuth: import("./server/operations/queries/index").RegisteredGetAnythingAuth;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getTrueVoid: import("./server/operations/queries/index").RegisteredGetTrueVoid;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getAnyNoAuth: import("./server/operations/queries/index").RegisteredGetAnyNoAuth;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getAnyAuth: import("./server/operations/queries/index").RegisteredGetAnyAuth;
+}
+
+declare module "virtual:wasp/user/rpcTests/operations/definitions" {
+  export const getAnyToNumberSpecified: import("./server/operations/queries/index").RegisteredGetAnyToNumberSpecified;
 }
 
 declare module "virtual:wasp/user/features/auth/customSignup" {
-  import { RegisteredCustomSignup } from "./server/operations/actions/index";
-
-  export const customSignup: RegisteredCustomSignup;
+  export const customSignup: import("./server/operations/actions/index").RegisteredCustomSignup;
 }
 
 declare module "virtual:wasp/user/features/operations/actions" {
-  import { RegisteredCreateTask } from "./server/operations/actions/index";
-
-  export const createTask: RegisteredCreateTask;
+  export const createTask: import("./server/operations/actions/index").RegisteredCreateTask;
 }
 
 declare module "virtual:wasp/user/features/operations/actions" {
-  import { RegisteredUpdateTaskIsDone } from "./server/operations/actions/index";
-
-  export const updateTaskIsDone: RegisteredUpdateTaskIsDone;
+  export const updateTaskIsDone: import("./server/operations/actions/index").RegisteredUpdateTaskIsDone;
 }
 
 declare module "virtual:wasp/user/features/operations/actions" {
-  import { RegisteredDeleteCompletedTasks } from "./server/operations/actions/index";
-
-  export const deleteCompletedTasks: RegisteredDeleteCompletedTasks;
+  export const deleteCompletedTasks: import("./server/operations/actions/index").RegisteredDeleteCompletedTasks;
 }
 
 declare module "virtual:wasp/user/features/operations/actions" {
-  import { RegisteredToggleAllTasks } from "./server/operations/actions/index";
-
-  export const toggleAllTasks: RegisteredToggleAllTasks;
+  export const toggleAllTasks: import("./server/operations/actions/index").RegisteredToggleAllTasks;
 }
 
 declare module "virtual:wasp/user/features/jobs/uppercaseText" {
-  import { RegisteredRequestUppercaseText } from "./server/operations/actions/index";
-
-  export const requestUppercaseText: RegisteredRequestUppercaseText;
+  export const requestUppercaseText: import("./server/operations/actions/index").RegisteredRequestUppercaseText;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/server" {
-  import { RegisteredTestingAction } from "./server/operations/actions/index";
-
-  export const testingAction: RegisteredTestingAction;
+  export const testingAction: import("./server/operations/actions/index").RegisteredTestingAction;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredTaskToTaskUnspecified } from "./server/operations/actions/index";
-
-  export const taskToTaskUnspecified: RegisteredTaskToTaskUnspecified;
+  export const taskToTaskUnspecified: import("./server/operations/actions/index").RegisteredTaskToTaskUnspecified;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredTaskToTaskSatisfies } from "./server/operations/actions/index";
-
-  export const taskToTaskSatisfies: RegisteredTaskToTaskSatisfies;
+  export const taskToTaskSatisfies: import("./server/operations/actions/index").RegisteredTaskToTaskSatisfies;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredTaskToTaskSpecified } from "./server/operations/actions/index";
-
-  export const taskToTaskSpecified: RegisteredTaskToTaskSpecified;
+  export const taskToTaskSpecified: import("./server/operations/actions/index").RegisteredTaskToTaskSpecified;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredVoidToStringAuth } from "./server/operations/actions/index";
-
-  export const voidToStringAuth: RegisteredVoidToStringAuth;
+  export const voidToStringAuth: import("./server/operations/actions/index").RegisteredVoidToStringAuth;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredVoidToStringNoAuth } from "./server/operations/actions/index";
-
-  export const voidToStringNoAuth: RegisteredVoidToStringNoAuth;
+  export const voidToStringNoAuth: import("./server/operations/actions/index").RegisteredVoidToStringNoAuth;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredUnspecifiedToNumber } from "./server/operations/actions/index";
-
-  export const unspecifiedToNumber: RegisteredUnspecifiedToNumber;
+  export const unspecifiedToNumber: import("./server/operations/actions/index").RegisteredUnspecifiedToNumber;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredBoolToStringAuth } from "./server/operations/actions/index";
-
-  export const boolToStringAuth: RegisteredBoolToStringAuth;
+  export const boolToStringAuth: import("./server/operations/actions/index").RegisteredBoolToStringAuth;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredBoolToStringNoAuth } from "./server/operations/actions/index";
-
-  export const boolToStringNoAuth: RegisteredBoolToStringNoAuth;
+  export const boolToStringNoAuth: import("./server/operations/actions/index").RegisteredBoolToStringNoAuth;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredBoolToVoidNoAuth } from "./server/operations/actions/index";
-
-  export const boolToVoidNoAuth: RegisteredBoolToVoidNoAuth;
+  export const boolToVoidNoAuth: import("./server/operations/actions/index").RegisteredBoolToVoidNoAuth;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredBoolToVoidAuth } from "./server/operations/actions/index";
-
-  export const boolToVoidAuth: RegisteredBoolToVoidAuth;
+  export const boolToVoidAuth: import("./server/operations/actions/index").RegisteredBoolToVoidAuth;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/jsDefinitions" {
-  import { RegisteredJsActionWithArgs } from "./server/operations/actions/index";
-
-  export const jsActionWithArgs: RegisteredJsActionWithArgs;
-}
-
-declare module "virtual:wasp/user/features/operations/queries" {
-  import { RegisteredGetTasks } from "./server/operations/queries/index";
-
-  export const getTasks: RegisteredGetTasks;
-}
-
-declare module "virtual:wasp/user/features/operations/queries" {
-  import { RegisteredGetNumTasks } from "./server/operations/queries/index";
-
-  export const getNumTasks: RegisteredGetNumTasks;
-}
-
-declare module "virtual:wasp/user/features/operations/queries" {
-  import { RegisteredGetTask } from "./server/operations/queries/index";
-
-  export const getTask: RegisteredGetTask;
-}
-
-declare module "virtual:wasp/user/features/operations/queries" {
-  import { RegisteredGetSerializedObjects } from "./server/operations/queries/index";
-
-  export const getSerializedObjects: RegisteredGetSerializedObjects;
-}
-
-declare module "virtual:wasp/user/features/jobs/uppercaseText" {
-  import { RegisteredGetTextUppercaseRequests } from "./server/operations/queries/index";
-
-  export const getTextUppercaseRequests: RegisteredGetTextUppercaseRequests;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetDate } from "./server/operations/queries/index";
-
-  export const getDate: RegisteredGetDate;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetAnythingNoAuth } from "./server/operations/queries/index";
-
-  export const getAnythingNoAuth: RegisteredGetAnythingNoAuth;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetAnythingAuth } from "./server/operations/queries/index";
-
-  export const getAnythingAuth: RegisteredGetAnythingAuth;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetTrueVoid } from "./server/operations/queries/index";
-
-  export const getTrueVoid: RegisteredGetTrueVoid;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetAnyNoAuth } from "./server/operations/queries/index";
-
-  export const getAnyNoAuth: RegisteredGetAnyNoAuth;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetAnyAuth } from "./server/operations/queries/index";
-
-  export const getAnyAuth: RegisteredGetAnyAuth;
-}
-
-declare module "virtual:wasp/user/rpcTests/operations/definitions" {
-  import { RegisteredGetAnyToNumberSpecified } from "./server/operations/queries/index";
-
-  export const getAnyToNumberSpecified: RegisteredGetAnyToNumberSpecified;
+  export const jsActionWithArgs: import("./server/operations/actions/index").RegisteredJsActionWithArgs;
 }

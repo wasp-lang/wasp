@@ -3,6 +3,7 @@ import {
   type RegisteredGetTasks,
   type RegisteredGetNumTasks,
   type RegisteredGetTask,
+  type RegisteredGetOldestTask,
   type RegisteredGetSerializedObjects,
   type RegisteredGetTextUppercaseRequests,
   type RegisteredGetDate,
@@ -29,6 +30,12 @@ export const getNumTasks: QueryFor<RegisteredGetNumTasks> = createQuery<Register
 // PUBLIC API
 export const getTask: QueryFor<RegisteredGetTask> = createQuery<RegisteredGetTask>(
   "operations/get-task",
+  ['Task'],
+)
+
+// PUBLIC API
+export const getOldestTask: QueryFor<RegisteredGetOldestTask> = createQuery<RegisteredGetOldestTask>(
+  "operations/get-oldest-task",
   ['Task'],
 )
 

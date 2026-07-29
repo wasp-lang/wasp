@@ -13,6 +13,7 @@ declare module "wasp/types" {
       'getTasks': typeof import('../../../../../src/features/operations/queries').getTasks
       'getNumTasks': typeof import('../../../../../src/features/operations/queries').getNumTasks
       'getTask': typeof import('../../../../../src/features/operations/queries').getTask
+      'getOldestTask': typeof import('../../../../../src/features/operations/getOldestTask').default
       'getSerializedObjects': typeof import('../../../../../src/features/operations/queries').getSerializedObjects
       'getTextUppercaseRequests': typeof import('../../../../../src/features/jobs/uppercaseText').getTextUppercaseRequests
       'getDate': typeof import('../../../../../src/rpcTests/operations/definitions').getDate

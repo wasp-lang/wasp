@@ -13,7 +13,7 @@ const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
  */
 const serverVirtualUserModuleMap = {
   {=# virtualUserModules =}
-  "{= virtualModuleId =}": "{=& importJson.importPath =}",
+  "{=& virtualModuleId =}": "{=& importJson.importPath =}",
   {=/ virtualUserModules =}
 };
 
@@ -26,7 +26,7 @@ export function waspVirtualUserModules() {
   return {
     name: "wasp:virtual-user-modules",
     async resolveId(id) {
-      if (id in serverVirtualUserModuleMap) {
+      if (Object.hasOwn(serverVirtualUserModuleMap, id)) {
         const absPath = path.resolve(serverRootDir, serverVirtualUserModuleMap[id]);
         return await this.resolve(absPath, undefined, { skipSelf: true });
       }

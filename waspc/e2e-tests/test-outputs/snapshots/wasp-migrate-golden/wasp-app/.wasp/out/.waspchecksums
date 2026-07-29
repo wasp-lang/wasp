@@ -340,7 +340,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspVirtualUserModules.ts"
         ],
-        "34946594e2926c588cacb8197f8481ca44ba53489b2dbb4a7dd0777b8481cb03"
+        "ab0bf24c375267207d009c454fa6681c87333c0df71e8718810378087e547fda"
     ],
     [
         [
@@ -655,7 +655,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "9554704d854dba88822b1bbd803ec993eb9feded4b08f8e3834f5e6d1018210e"
     ],
     [
         [
@@ -732,7 +732,7 @@
             "file",
             "server/src/plugins/waspVirtualUserModules.js"
         ],
-        "0ffe25eaa2cb639c0ba6f44d7d53d12df1fc1b4de2c5720c041ceac2d2e6e53f"
+        "90a14f6b85e2bdcaaa6ac60447d293f415b28458bbc77eee2017c4d4d53a67d3"
     ],
     [
         [

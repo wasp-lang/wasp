@@ -16,6 +16,7 @@ const serverVirtualUserModuleMap = {
   "virtual:wasp/user/features/operations/queries": "../../../src/features/operations/queries",
   "virtual:wasp/user/features/operations/queries": "../../../src/features/operations/queries",
   "virtual:wasp/user/features/operations/queries": "../../../src/features/operations/queries",
+  "virtual:wasp/user/features/operations/getOldestTask": "../../../src/features/operations/getOldestTask",
   "virtual:wasp/user/features/operations/queries": "../../../src/features/operations/queries",
   "virtual:wasp/user/features/jobs/uppercaseText": "../../../src/features/jobs/uppercaseText",
   "virtual:wasp/user/rpcTests/operations/definitions": "../../../src/rpcTests/operations/definitions",
@@ -54,7 +55,7 @@ export function waspVirtualUserModules() {
   return {
     name: "wasp:virtual-user-modules",
     async resolveId(id) {
-      if (id in serverVirtualUserModuleMap) {
+      if (Object.hasOwn(serverVirtualUserModuleMap, id)) {
         const absPath = path.resolve(serverRootDir, serverVirtualUserModuleMap[id]);
         return await this.resolve(absPath, undefined, { skipSelf: true });
       }

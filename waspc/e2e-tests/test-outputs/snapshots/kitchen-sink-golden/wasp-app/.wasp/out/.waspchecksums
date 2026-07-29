@@ -620,7 +620,7 @@
             "file",
             "sdk/wasp/client/operations/queries/index.ts"
         ],
-        "d26f1dc2ec82c640a16e06f0a156f78dafd8d1418a3a2076af861d2ac6094ecf"
+        "8eeff10a14adec481f250937bd20218f516a45566ae6834dbc287559e3fce41a"
     ],
     [
         [
@@ -753,7 +753,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspVirtualUserModules.ts"
         ],
-        "afdf4d156dee37b4d6e6c398d3d4d33bcaa4a98a57984dc93ff57e4578e56925"
+        "cbe9d649a9eb709a54b1f53d68c751ae84ef32ccb4ac969d67f55a844cda8907"
     ],
     [
         [
@@ -1215,21 +1215,21 @@
             "file",
             "sdk/wasp/server/operations/index.ts"
         ],
-        "f273b0599556a529a244438678c149b1fafb75546611db405cafa4d3bbef3235"
+        "3128d1af3bbc91274a568986a36c4dd0840c941c1e25f417022592cfd563a913"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/queries/index.ts"
         ],
-        "fc8a85509f5068d82eb43f65e915fcae0f128da4a0ca56cbc84d22907d99ed5c"
+        "a3971e1e496751c1972d58a82bdab5c2336f7e7ab54d43623f3fda2769c55f85"
     ],
     [
         [
             "file",
             "sdk/wasp/server/operations/queries/types.ts"
         ],
-        "b70715278fe2e841748f4a7e080963d63b56a56be8bc831facc409f196556767"
+        "8628743fcad9b0b8ebb210439efe3039d9b7987cff3b3d32b99bb5c374f221d7"
     ],
     [
         [
@@ -1341,7 +1341,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "2b6f043a1c20ac3be69ce769c73f5a26c7ade2932b617ccc1102fb96587d2774"
+        "36995918ac68e5a6a426c493f8de3f33c84e94de887ad2249cb887800998f639"
     ],
     [
         [
@@ -1726,7 +1726,7 @@
             "file",
             "server/src/plugins/waspVirtualUserModules.js"
         ],
-        "cf28b0abe619e4269c5f9e9bb5c9956f8c7eaab0ec6d1802c1ca4ef355cc41a5"
+        "7432f0b23c6cbead24e8187f79c2d08e2ff9a2597cb5126f6e99c0368127d1e7"
     ],
     [
         [
@@ -1776,6 +1776,13 @@
             "server/src/queries/getNumTasks.ts"
         ],
         "a9a29055e91fb31b5ecd2c461a464170ae172a5ffba87689c8957c4772415bd9"
+    ],
+    [
+        [
+            "file",
+            "server/src/queries/getOldestTask.ts"
+        ],
+        "f9f01e31dba982c7450b03fe580050929a5209d153e450eae8bcd193cee4bcf0"
     ],
     [
         [
@@ -1962,6 +1969,13 @@
     [
         [
             "file",
+            "server/src/routes/operations/getOldestTask.js"
+        ],
+        "8ece32eca2d914c97b1af27d352858389dee662346a2b96dca3439cf87f5e7cb"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/operations/getSerializedObjects.js"
         ],
         "17e92ac9dffda9be6deb764ef9c8cfdd1699d6d74a68cc3c800ebb4ae18342d8"
@@ -1999,7 +2013,7 @@
             "file",
             "server/src/routes/operations/index.js"
         ],
-        "ddaed59e21739c80725aefa3d37e058d9fcab9cd9dd9f5626e2220eb7c008889"
+        "d3e481b23c2cc9faff2745d675ca27e724c5ee512667e5e5f20b49bbe70f9791"
     ],
     [
         [
@@ -2111,7 +2125,7 @@
             "file",
             "types/app/sdk/register.ts"
         ],
-        "dfb0345bbfe2ed78b5f5c62879e760175fda4dc47bc7cb36655e23c37137e881"
+        "d4d8754c9064c0e1be51c9c732e2a961aa3642ef44c19a140f713dcbe6d3df35"
     ],
     [
         [

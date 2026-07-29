@@ -1,41 +1,19 @@
 {{={= =}=}}
-{=# clientEnvValidationSchema.isDefined =}
+// Declares the virtual user modules the SDK imports.
+// Without declarations the SDK would fail the typecheck.
+//
+// The types are written as inline `import("...")` types on purpose.
+// Ambient module declarations can't reach another module through a
+// relative import statement (TS2439).
+{=# virtualUserModules =}
 
-declare module "{= clientEnvValidationSchema.importPath =}" {
-  import type { RegisteredClientEnvValidationSchema } from "./client/env/schema";
-
-  export const {= clientEnvValidationSchema.exportName =}: RegisteredClientEnvValidationSchema;
+declare module "{=& virtualModuleId =}" {
+  {=# isDefaultExport =}
+  const _default: {=& declaredType =};
+  export default _default;
+  {=/ isDefaultExport =}
+  {=^ isDefaultExport =}
+  export const {=& exportName =}: {=& declaredType =};
+  {=/ isDefaultExport =}
 }
-{=/ clientEnvValidationSchema.isDefined =}
-{=# serverEnvValidationSchema.isDefined =}
-
-declare module "{= serverEnvValidationSchema.importPath =}" {
-  import type { RegisteredServerEnvValidationSchema } from "./server/env";
-
-  export const {= serverEnvValidationSchema.exportName =}: RegisteredServerEnvValidationSchema;
-}
-{=/ serverEnvValidationSchema.isDefined =}
-{=# prismaSetupFn.isDefined =}
-
-declare module "{= prismaSetupFn.importPath =}" {
-  import type { RegisteredPrismaSetupFn } from "./server/dbClient"
-
-  export const {= prismaSetupFn.exportName =}: RegisteredPrismaSetupFn;
-}
-{=/ prismaSetupFn.isDefined =}
-{=# actions =}
-
-declare module "{= jsFn.importPath =}" {
-  import { {= registeredOperationTypeName =} } from "./server/operations/actions/index";
-
-  export const {= jsFn.exportName =}: {= registeredOperationTypeName =};
-}
-{=/ actions =}
-{=# queries =}
-
-declare module "{= jsFn.importPath =}" {
-  import { {= registeredOperationTypeName =} } from "./server/operations/queries/index";
-
-  export const {= jsFn.exportName =}: {= registeredOperationTypeName =};
-}
-{=/ queries =}
+{=/ virtualUserModules =}

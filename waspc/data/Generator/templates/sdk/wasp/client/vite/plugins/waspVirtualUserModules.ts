@@ -11,7 +11,7 @@ import { type Plugin } from "vite";
  */
 const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
   {=# virtualUserModules =}
-  '{= virtualModuleId =}': '{=& importJson.importPath =}',
+  '{=& virtualModuleId =}': '{=& importJson.importPath =}',
   {=/ virtualUserModules =}
 };
 
@@ -30,7 +30,7 @@ export function waspVirtualUserModules(): Plugin {
       clientRootDir = config.root;
     },
     async resolveId(id, importer, options) {
-      if (id in clientVirtualUserModuleMap) {
+      if (Object.hasOwn(clientVirtualUserModuleMap, id)) {
         const absPath = path.resolve(clientRootDir, clientVirtualUserModuleMap[id]);
         return this.resolve(absPath, importer, { ...options, skipSelf: true });
       }

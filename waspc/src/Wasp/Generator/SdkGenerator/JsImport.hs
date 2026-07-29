@@ -31,8 +31,8 @@ import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 -- This delays the resolution of the SDK's user project imports until
 -- after compilation, so the compiler never sees a cycle.
 --
--- Vurtual user module import look almost identical to direct imports,
--- just the module is virtual user module instead of relative path:
+-- Virtual user module imports look almost identical to direct imports,
+-- just the module is a virtual user module instead of a relative path:
 --
 -- > // ./sdk/wasp/client/env/schema.ts
 -- > export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
@@ -58,7 +58,7 @@ import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 -- > export function waspVirtualUserModules(): Plugin {
 -- >   // ...
 -- >   async resolveId(id, importer, options) {
--- >     if (id in clientVirtualUserModuleMap) {
+-- >     if (Object.hasOwn(clientVirtualUserModuleMap, id)) {
 -- >       const absPath = path.resolve(clientRootDir, clientVirtualUserModuleMap[id]);
 -- >       return this.resolve(absPath, importer, { ...options, skipSelf: true });
 -- >     }
@@ -73,11 +73,12 @@ import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 --
 -- > // ./sdk/wasp/wasp-user-virtual-modules.d.ts
 -- > declare module "virtual:wasp/user/env" {
--- >   import type { RegisteredClientEnvValidationSchema } from "./client/env/schema";
--- >
--- >   export const clientEnvValidationSchema: RegisteredClientEnvValidationSchema;
+-- >   export const clientEnvValidationSchema: import("./client/env/schema").RegisteredClientEnvValidationSchema;
 -- > }
 -- > // Many other declarations....
+--
+-- The type must be an inline @import("...")@ type because ambient module
+-- declarations can't reach another module through a relative import statement.
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
   where
