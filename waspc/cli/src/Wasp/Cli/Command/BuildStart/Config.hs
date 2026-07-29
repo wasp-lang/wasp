@@ -17,8 +17,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.AppSides (AppSides (..))
-import qualified Wasp.Cli.Util.AppSides as AppSides
+import qualified Wasp.Cli.Util.Apps as Apps
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
@@ -26,14 +25,15 @@ import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    ports :: AppSides Int,
-    urls :: AppSides String,
-    envVars :: AppSides [EnvVar],
+    ports :: Apps Int,
+    urls :: Apps String,
+    envVars :: Apps [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -44,7 +44,7 @@ makeBuildStartConfig appSpec args projectDir' = do
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let waspEnvVars =
-        AppSides
+        Apps
           { client =
               [ (WebApp.serverUrlEnvVarName, urls.server)
               ],
@@ -77,8 +77,8 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     -- This assumes that `getDefaultDevClientUrl` uses `defaultClientPort` internally.
     -- If that changes, we also need to change this.
-    ports = AppSides.defaultPorts
-    urls = AppSides.defaultDevUrls appSpec
+    ports = Apps.defaultPorts
+    urls = Apps.defaultDevUrls appSpec
 
     noEnvVarsSpecifiedMsg =
       CommandError
