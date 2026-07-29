@@ -2,7 +2,6 @@ module Wasp.Job.Node
   ( makeCreateProcess,
     makeCreateProcessWithExtraEnv,
     run,
-    runWithExtraEnv,
     runReturningExitCode,
     makeJob,
     makeJobWithExtraEnv,
@@ -25,27 +24,23 @@ makeJob :: Path' Abs (Dir a) -> String -> [String] -> Job.JobKind -> Job.Job
 makeJob = makeJobWithExtraEnv []
 
 makeJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobKind -> Job.Job
-makeJobWithExtraEnv extraEnvVars fromDir command args jobKind =
+makeJobWithExtraEnv extraEnvVars workingDir executable arguments jobKind =
   Job.makeJob jobKind $
-    runWithExtraEnv extraEnvVars fromDir command args
+    runCommandUsing Subprocess.run extraEnvVars workingDir executable arguments
 
 -- | Runs the command to completion, failing the Job on a nonzero child exit.
 run :: Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ()
-run = runWithExtraEnv []
-
-runWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ()
-runWithExtraEnv extraEnvVars fromDir command args =
-  runWithExtraEnvReturningExitCode extraEnvVars fromDir command args >>= Job.requireExitSuccess
+run = runCommandUsing Subprocess.run []
 
 -- | Runs the command and returns the child process's exit status for explicit handling.
 runReturningExitCode :: Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode
-runReturningExitCode = runWithExtraEnvReturningExitCode []
+runReturningExitCode = runCommandUsing Subprocess.runReturningExitCode []
 
-runWithExtraEnvReturningExitCode :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode
-runWithExtraEnvReturningExitCode extraEnvVars fromDir command args = do
+runCommandUsing :: (P.CreateProcess -> Job.JobAction a) -> [(String, String)] -> Path' Abs (Dir dir) -> String -> [String] -> Job.JobAction a
+runCommandUsing runProcess extraEnvVars workingDir executable arguments = do
   requireValidNodeAndNpm
-  nodeCommandProcess <- liftIO $ makeCreateProcessWithExtraEnv extraEnvVars fromDir command args
-  Subprocess.runReturningExitCode nodeCommandProcess
+  process <- liftIO $ makeCreateProcessWithExtraEnv extraEnvVars workingDir executable arguments
+  runProcess process
 
 requireValidNodeAndNpm :: Job.JobAction ()
 requireValidNodeAndNpm =
@@ -59,9 +54,9 @@ makeCreateProcess :: Path' Abs (Dir a) -> String -> [String] -> IO P.CreateProce
 makeCreateProcess = makeCreateProcessWithExtraEnv []
 
 makeCreateProcessWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> IO P.CreateProcess
-makeCreateProcessWithExtraEnv extraEnvVars fromDir command args = do
+makeCreateProcessWithExtraEnv extraEnvVars workingDir executable arguments = do
   envVars <- getAllEnvVars
-  return $ (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+  return $ (P.proc executable arguments) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir workingDir}
   where
     -- Haskell will use the first value for variable name it finds. Since env
     -- vars in 'extraEnvVars' should override the inherited env vars, we
