@@ -9,6 +9,7 @@
 ### 🔧 Small improvements
 
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
+- Upgraded the `morgan` request logger in your app's server to 1.11, which brings in a fix for a log injection vulnerability ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Your app's logs are unaffected, since Wasp's default log format doesn't use the vulnerable token. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
 
 ## 0.25.0
 
