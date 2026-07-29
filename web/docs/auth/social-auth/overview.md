@@ -1,6 +1,5 @@
 ---
 title: Overview
-title-llm: Social Auth Overview
 ---
 
 import { CardLink } from '@site/src/components/CardLink';
