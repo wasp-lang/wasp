@@ -1,27 +1,24 @@
 module Wasp.Project.Env
-  ( readDotEnvServer,
-    readDotEnvClient,
+  ( readDotEnvFiles,
     warnIfTheDotEnvPresent,
-    dotEnvServer,
-    dotEnvClient,
+    dotEnvFiles,
   )
 where
 
 import StrongPath (Abs, Dir, File', Path', Rel, relfile)
 import Wasp.Env (EnvVar, parseDotEnvFile)
+import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common (CompileWarning, WaspProjectDir, findFileInWaspProjectDir)
 
-dotEnvServer :: Path' (Rel WaspProjectDir) File'
-dotEnvServer = [relfile|.env.server|]
+dotEnvFiles :: Apps (Path' (Rel WaspProjectDir) File')
+dotEnvFiles =
+  Apps
+    { client = [relfile|.env.client|],
+      server = [relfile|.env.server|]
+    }
 
-dotEnvClient :: Path' (Rel WaspProjectDir) File'
-dotEnvClient = [relfile|.env.client|]
-
-readDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO [EnvVar]
-readDotEnvServer waspDir = readDotEnvFileInWaspProjectDir waspDir dotEnvServer
-
-readDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO [EnvVar]
-readDotEnvClient waspDir = readDotEnvFileInWaspProjectDir waspDir dotEnvClient
+readDotEnvFiles :: Path' Abs (Dir WaspProjectDir) -> IO (Apps [EnvVar])
+readDotEnvFiles waspDir = traverse (readDotEnvFileInWaspProjectDir waspDir) dotEnvFiles
 
 -- | Checks if .env exists in wasp dir, and produces a warning if so.
 -- We have this function because Wasp doesn't use ".env", but still user

@@ -32,7 +32,7 @@ import Wasp.Project.Common
 import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
-import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import Wasp.Project.Env (readDotEnvFiles)
 import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.WaspFile (analyzeWaspFile, findWaspFile)
@@ -87,8 +87,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
-  serverEnvVars <- readDotEnvServer waspDir
-  clientEnvVars <- readDotEnvClient waspDir
+  devEnvVars <- readDotEnvFiles waspDir
 
   let appSpec =
         AS.AppSpec
@@ -97,8 +96,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.waspProjectDir = waspDir,
             AS.externalCodeFiles = externalCodeFiles,
             AS.migrationsDir = maybeMigrationsDir,
-            AS.devEnvVarsServer = serverEnvVars,
-            AS.devEnvVarsClient = clientEnvVars,
+            AS.devEnvVars = devEnvVars,
             AS.buildType = CompileOptions.buildType compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.devDatabaseUrl = devDbUrl,
