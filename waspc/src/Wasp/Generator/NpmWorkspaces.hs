@@ -1,6 +1,5 @@
 module Wasp.Generator.NpmWorkspaces
-  ( serverPackageName,
-    webAppPackageName,
+  ( packageNames,
     requiredWorkspaceGlobs,
   )
 where
@@ -11,6 +10,7 @@ import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
+import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
@@ -44,11 +44,9 @@ requiredWorkspaceGlobs =
           ++ show inputDir
           ++ ")"
 
-serverPackageName :: String
-serverPackageName = workspacePackageName "server"
-
-webAppPackageName :: String
-webAppPackageName = workspacePackageName "webapp"
-
-workspacePackageName :: String -> String
-workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName
+packageNames :: Apps String
+packageNames =
+  Apps
+    { client = "@wasp.sh/generated-webapp",
+      server = "@wasp.sh/generated-server"
+    }
