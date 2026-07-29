@@ -495,7 +495,6 @@ library cli-lib
     Wasp.Cli.Command.BuildStart.ArgumentsParser
     Wasp.Cli.Command.BuildStart.Client
     Wasp.Cli.Command.BuildStart.Config
-    Wasp.Cli.Command.BuildStart.Job
     Wasp.Cli.Command.BuildStart.Server
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean

@@ -8,31 +8,28 @@ import qualified StrongPath as SP
 import System.Process (proc)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
-import qualified Wasp.Cli.Command.BuildStart.Job as BuildStartJob
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Subprocess as Subprocess
 
-buildServer :: BuildStartConfig -> BuildStartJob.JobExecution
+buildServer :: BuildStartConfig -> Job.Job
 buildServer config =
-  BuildStartJob.run (("Building the server failed with exit code: " <>) . show) $
-    Job.makeJob Job.Server $
-      Subprocess.run (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  Job.makeJob Job.Server $
+    Subprocess.run (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = Config.buildDir config
     dockerImageName = Config.dockerImageName config
 
-startServer :: BuildStartConfig -> BuildStartJob.JobExecution
+startServer :: BuildStartConfig -> Job.Job
 startServer config =
-  BuildStartJob.run (("Running the server failed with exit code: " <>) . show) $
-    Job.makeJob Job.Server $
-      Subprocess.run $
-        proc
-          "docker"
-          ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
-              <> envVarParams
-              <> [dockerImageName]
-          )
+  Job.makeJob Job.Server $
+    Subprocess.run $
+      proc
+        "docker"
+        ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
+            <> envVarParams
+            <> [dockerImageName]
+        )
   where
     envVarParams = toEnvVarParams $ Config.serverEnvVars config
     dockerContainerName = Config.dockerContainerName config
