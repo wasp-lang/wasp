@@ -10,10 +10,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.SdkGenerator.VirtualUserModules
-  ( getClientVirtualUserModules,
-    mkVirtualUserModulePluginData,
-  )
+import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 
 -- The plugin resolves client-side virtual user modules used by the SDK.
 genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
@@ -21,8 +18,8 @@ genWaspVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
       (C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualUserModules.ts|])
-      (object ["virtualUserModules" .= map mkPluginData (getClientVirtualUserModules spec)])
+      (object ["virtualUserModules" .= map mkPluginData (VUM.getClientVirtualUserModules spec)])
   where
-    mkPluginData = mkVirtualUserModulePluginData extImportToImportJson
+    mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson
     extImportToImportJson =
       GJI.jsImportToImportJson . Just . GJI.extImportToRelativeSrcImportFromViteExecution

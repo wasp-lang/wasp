@@ -592,7 +592,7 @@
             "file",
             "sdk/wasp/types/register.ts"
         ],
-        "9e85486629fe858fda128a5dbf194e0020a3964cb1991d8c2cf8f06f3e5f34c7"
+        "645fc9d1ba9eb1438b75ad3d2df2193adef09f1095acd98291e93942da85367d"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "b8fa2a2d1b3c9b3d1fc4c4717465a5db231b7d2ca348f0e9c039d311752e1cce"
+        "b0a5adfb8a11352cc6dac1e30e1a404e7a1fc929081250bd2d0f88b01320c06b"
     ],
     [
         [
@@ -767,7 +767,7 @@
             "file",
             "types/app/sdk/register.ts"
         ],
-        "4e98f58641773165fe86fd71d91623a69479e1ca427f954bd16389842869cf99"
+        "670e891604d8b6a65bb3b5e9d901afc14b18aa12a5eb316cc860fecaec6cc4ec"
     ],
     [
         [

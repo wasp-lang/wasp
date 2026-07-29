@@ -1,7 +1,7 @@
 /**
  * This module allows the SDK to use the user project types.
- * The other part, values, is document in
- * `waspc/src/Wasp/Generator/SdkGenerator/JsImport.hs`.
+ * The other part, values, is documented in
+ * `waspc/src/Wasp/Generator/SdkGenerator/VirtualUserModules.hs`.
  *
  * If the SDK tried to import types from the user project directly,
  * it would create a cyclic dependency between TypeScript projects.

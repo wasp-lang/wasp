@@ -12,10 +12,7 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.VirtualUserModules
-  ( getServerVirtualUserModules,
-    mkVirtualUserModulePluginData,
-  )
+import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.Generator.ServerGenerator.JsImport as ServerJI
@@ -26,8 +23,8 @@ genWaspVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
       [relfile|src/plugins/waspVirtualUserModules.js|]
-      (Just $ object ["virtualUserModules" .= map mkPluginData (getServerVirtualUserModules spec)])
+      (Just $ object ["virtualUserModules" .= map mkPluginData (VUM.getServerVirtualUserModules spec)])
   where
-    mkPluginData = mkVirtualUserModulePluginData extImportToImportJson
+    mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson
     extImportToImportJson = ServerJI.extImportToImportJson importLocation . Just
     importLocation = fromJust $ relDirToPosix serverSrcDirInServerRootDir

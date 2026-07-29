@@ -353,18 +353,8 @@ genServerDbClient spec = do
 
 -- | Declares only those virtual user modules that are used by the SDK.
 genWaspVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
-genWaspVirtualUserModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
-    tmplData = object ["virtualUserModules" .= map mkDeclarationData allVirtualUserModules]
-
-    allVirtualUserModules =
-      VUM.getClientVirtualUserModules spec ++ VUM.getServerVirtualUserModules spec
-
-    mkDeclarationData virtualUserModule =
-      object
-        [ "virtualModuleId" .= VUM.getVirtualUserModuleId virtualUserModule,
-          "exportName" .= VUM.getVirtualUserModuleExportName virtualUserModule,
-          "isDefaultExport" .= VUM.isDefaultExport virtualUserModule,
-          "declaredType" .= VUM.getDeclaredTypeExpression virtualUserModule
-        ]
+genWaspVirtualUserModulesDeclaration spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|wasp-user-virtual-modules.d.ts|]
+      (VUM.mkVirtualUserModulesDeclarationData spec)
