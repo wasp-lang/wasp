@@ -126,8 +126,7 @@ compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO ([CompileWarning], Either [CompileError] AS.AppSpec)
-compileIO waspProjectDir outDir =
-  compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
+compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
 
 compileIOWithOptions ::
   CompileOptions ->

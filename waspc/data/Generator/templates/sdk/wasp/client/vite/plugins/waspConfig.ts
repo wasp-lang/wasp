@@ -20,17 +20,14 @@ const forcedOptions = {
   'base': "{= baseDir =}",
   'envPrefix': "REACT_APP_",
   'build.outDir': "{= clientBuildDirPath =}",
-  // Wasp owns the dev server port: it can auto-pick a free one when the default
-  // is taken, and it tells the server about the client's URL. Letting the port
-  // be set here too would make those two disagree.
-  'server.port': getClientDevPort(),
-  // Without this, Vite silently moves to the next free port when the one it was
-  // given is taken, which would make the client run on a URL the server doesn't
-  // know about. We'd rather fail loudly.
+  'server.port': Number.parseInt(process.env["{= clientDevPortEnvVarName =}"]),
   'server.strictPort': true,
 } as const;
 
-const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
+const forcedOptionHints: Record<keyof typeof forcedOptions, string> = {
+  'base': "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config. Wasp gives the router the same value.",
+  'envPrefix': "Wasp only exposes client env vars with this prefix, and validates them by it.",
+  'build.outDir': "Wasp looks for the built client here when you deploy it.",
   'server.port': "To run the client on a different port, use `wasp start --client-port <port>`.",
   'server.strictPort': "Wasp needs the client to fail on a taken port instead of silently moving to another one.",
 };
@@ -95,26 +92,6 @@ function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;
 }
 
-// Wasp passes the dev server port through an env var instead of `vite --port`
-// because CLI args end up in the same user config object we inspect above, which
-// would make a Wasp-set port indistinguishable from a user-set one.
-//
-// It is unset whenever Vite runs outside of `wasp start` (`vite build`, Vitest,
-// ...), where there is no dev server that needs a port.
-function getClientDevPort(): number | undefined {
-  const rawPort = process.env["{= clientDevPortEnvVarName =}"];
-  if (rawPort === undefined) {
-    return undefined;
-  }
-  const port = Number(rawPort);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error(
-      `Wasp set {= clientDevPortEnvVarName =} to ${JSON.stringify(rawPort)}, which is not a valid port.`
-    );
-  }
-  return port;
-}
-
 function throwIfOverridingForcedOptions(config: Record<string, any>): void {
   const conflicts: string[] = [];
   for (const [path, forcedValue] of Object.entries(forcedOptions)) {
@@ -128,8 +105,7 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
           ? "but Wasp sets it itself"
           : `but Wasp requires ${JSON.stringify(forcedValue)}`;
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, ${requirement}` +
-          (hint ? `\n    ${hint}` : "")
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, ${requirement}\n    ${hint}`
       );
     }
   }
