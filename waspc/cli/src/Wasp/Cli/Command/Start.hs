@@ -12,7 +12,7 @@ import Data.Foldable (toList)
 import Data.List (intercalate, nub)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, isJust)
-import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile, (</>))
+import StrongPath (Abs, Dir, Path', fromRelFile, (</>))
 import System.Environment (lookupEnv)
 import Text.Printf (printf)
 import Wasp.Cli.Command (Command, CommandError (..), require)
@@ -34,7 +34,6 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
-import Wasp.Project.Env (dotEnvClient, dotEnvServer)
 import qualified Wasp.Project.Env as Env
 import Wasp.Util.Terminal (styleCode)
 
@@ -123,20 +122,17 @@ waspOwnedDevEnvVarNames = map fst <$> (envVarMakers <*> pure irrelevantLocations
         }
     irrelevantLocations = pure (0, "")
 
-dotEnvFiles :: Apps (Path' (Rel WaspProjectDir) File')
-dotEnvFiles = Apps {client = dotEnvClient, server = dotEnvServer}
-
 -- | Wasp injects the env vars above into the processes it starts, and injected values
 -- win over whatever the user wrote down. A value the user set would therefore be
 -- silently ignored, so we stop and point at the flags instead.
 throwIfWaspOwnedEnvVarsAreSet :: Path' Abs (Dir WaspProjectDir) -> Command ()
 throwIfWaspOwnedEnvVarsAreSet waspProjectDir = do
-  dotEnvVars <- liftIO $ sequenceA $ readDotEnvVars <*> pure waspProjectDir
+  dotEnvVars <- liftIO $ Env.readDotEnvFiles waspProjectDir
   envVarsSetByUser <-
     liftIO $
       fmap (mergeSourcesPerEnvVar . concat . toList) $
         sequenceA $
-          findEnvVarsSetByUser <$> waspOwnedDevEnvVarNames <*> dotEnvFiles <*> dotEnvVars
+          findEnvVarsSetByUser <$> waspOwnedDevEnvVarNames <*> Env.dotEnvFiles <*> dotEnvVars
 
   unless (null envVarsSetByUser) $
     throwError $
@@ -154,8 +150,6 @@ throwIfWaspOwnedEnvVarsAreSet waspProjectDir = do
                    (styleCode "wasp start --client-port <port> --server-port <port>")
                ]
   where
-    readDotEnvVars = Apps {client = Env.readDotEnvClient, server = Env.readDotEnvServer}
-
     -- The client and the server take their port through the same env var name, so a
     -- var can turn up once per app. We report it once, listing everywhere it came from.
     mergeSourcesPerEnvVar =
