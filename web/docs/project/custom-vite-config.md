@@ -46,7 +46,7 @@ Here's the minimal required configuration:
 The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
 :::
 
-## Enforced Options
+## Enforced Options {#enforced-options}
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 

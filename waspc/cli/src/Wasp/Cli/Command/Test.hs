@@ -28,8 +28,6 @@ import Wasp.Project.Common
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
 test ("client" : args) = watchAndTest $ \appSpec ->
-  -- The test runner doesn't serve the app, but the client's env schema still wants
-  -- to know where the app would live, so we hand it the ports it would get.
   Wasp.Generator.testWebApp (getWaspEnvVars appSpec defaultAppPorts).client args
 test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
