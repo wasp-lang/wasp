@@ -18,7 +18,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.Apps (defaultAppPorts, getDevUrlMakers, getWaspEnvVars)
+import Wasp.Cli.Util.Apps (getDevUrlMakers, getWaspEnvVars)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
@@ -39,7 +39,7 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  let ports = defaultAppPorts
+  let ports = args.ports
 
   userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envInputs
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg

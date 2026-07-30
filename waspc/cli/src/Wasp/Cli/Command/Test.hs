@@ -15,7 +15,8 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
+import Wasp.Cli.Util.Apps (getWaspEnvVars)
+import Wasp.Cli.Util.PortArgument (defaultAppPorts)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project.Apps (client)

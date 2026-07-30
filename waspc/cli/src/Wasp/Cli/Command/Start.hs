@@ -16,13 +16,16 @@ import StrongPath (Abs, Dir, Path', fromRelFile, (</>))
 import System.Environment (lookupEnv)
 import Text.Printf (printf)
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
+import Wasp.Cli.Util.Apps (getWaspEnvVars)
+import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -35,8 +38,8 @@ import Wasp.Util.Terminal (styleCode)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
-start :: Command ()
-start = do
+start :: Arguments -> Command ()
+start = withArguments "wasp start" startArgsParser $ \args -> do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -52,7 +55,7 @@ start = do
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   throwIfWaspOwnedEnvVarsAreSet waspProjectDir
-  let ports = defaultAppPorts
+  let ports = args.ports
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
@@ -120,7 +123,7 @@ waspOwnedDevEnvVarNames = map fst <$> (envVarMakers <*> pure irrelevantLocations
 
 -- | Wasp injects the env vars above into the processes it starts, and injected values
 -- win over whatever the user wrote down. A value the user set would therefore be
--- silently ignored, so we stop instead.
+-- silently ignored, so we stop and point at the flags instead.
 throwIfWaspOwnedEnvVarsAreSet :: Path' Abs (Dir WaspProjectDir) -> Command ()
 throwIfWaspOwnedEnvVarsAreSet waspProjectDir = do
   dotEnvVars <- liftIO $ Env.readDotEnvFiles waspProjectDir
@@ -141,7 +144,9 @@ throwIfWaspOwnedEnvVarsAreSet waspProjectDir = do
           ]
             ++ map describeEnvVarSetByUser envVarsSetByUser
             ++ [ "",
-                 "Remove them, and let Wasp manage the ports and URLs for you."
+                 printf
+                   "Remove them, and run %s if you want to pick the ports yourself."
+                   (styleCode "wasp start --client-port <port> --server-port <port>")
                ]
   where
     -- The client and the server take their port through the same env var name, so a

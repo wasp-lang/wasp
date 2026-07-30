@@ -8,6 +8,10 @@
 - Wasp now manages the port and URL of your app in development, so setting them yourself is now an error.
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory.
 
+### 🎉 New Features
+
+- `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on.
+
 ### 🔧 Small improvements
 
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))

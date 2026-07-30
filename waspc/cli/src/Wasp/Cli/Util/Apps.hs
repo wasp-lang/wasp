@@ -24,12 +24,3 @@ getWaspEnvVars spec ports =
   where
     locations = liftA2 (,) ports urls
     urls = getDevUrlMakers spec <*> ports
-
--- | The ports the apps run on in development. Processes that never bind a port
--- (like the test runner) also use these to build the app's URLs.
-defaultAppPorts :: Apps PortNumber
-defaultAppPorts =
-  Apps
-    { client = 3000,
-      server = 3001
-    }

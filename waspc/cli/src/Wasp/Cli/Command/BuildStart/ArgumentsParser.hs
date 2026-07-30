@@ -5,21 +5,25 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
 where
 
 import Data.Traversable (for)
+import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
+import Wasp.Cli.Util.PortArgument (appPortsParser)
 import Wasp.Env (EnvVar)
 import Wasp.Project.Apps (Apps)
 import qualified Wasp.Project.Apps as Apps
 
-newtype BuildStartArgs = BuildStartArgs
-  { envInputs :: Apps ([EnvVar], [FilePathArgument])
+data BuildStartArgs = BuildStartArgs
+  { envInputs :: Apps ([EnvVar], [FilePathArgument]),
+    ports :: Apps PortNumber
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
     <$> envInputsParser
+    <*> appPortsParser
   where
     envInputsParser = for Apps.names $ \name ->
       liftA2
