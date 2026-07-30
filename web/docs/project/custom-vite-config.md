@@ -46,7 +46,7 @@ Here's the minimal required configuration:
 The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
 :::
 
-## Enforced Options
+## Enforced Options {#enforced-options}
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
@@ -55,7 +55,7 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
 | `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
-| `server.port` | `3000`, or the port Wasp picked for this run | Wasp tells the server where to find the client, so it has to know the client's port. Use [`wasp start --client-port`](../general/cli.md#project-commands) instead. |
+| `server.port` | dynamically assigned | Wasp tells the server where to find the client, so it has to know the client's port. Use [`wasp start --client-port`](../general/cli.md#project-commands) instead. |
 | `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
 
 ## Customization
@@ -106,20 +106,6 @@ export default defineConfig({
   },
 })
 ```
-
-### Custom Dev Server Port
-
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config, except for `server.port` and `server.strictPort`, which Wasp controls. Setting either of them in your Vite config makes `wasp start` fail with an error.
-
-To change the **client** dev server port, use the `--client-port` option instead:
-
-```bash
-wasp start --client-port 4000
-```
-
-Wasp then tells the server where to find the client, so you don't have to keep `WASP_WEB_CLIENT_URL` in sync yourself. In fact, setting it (or `WASP_SERVER_URL`, `REACT_APP_API_URL` or [`PORT`](./env-vars.md#server-general-configuration)) in development fails for the same reason: Wasp derives all of them from the ports it picked.
-
-To change the **server** port, use `--server-port`.
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 

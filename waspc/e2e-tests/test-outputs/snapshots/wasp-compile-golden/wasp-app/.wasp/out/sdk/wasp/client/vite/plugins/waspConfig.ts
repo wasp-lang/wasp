@@ -15,16 +15,11 @@ import { defaultExclude } from "vitest/config";
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
-// Wasp only picks a client port when it is the one starting the client, so
-// outside of that there is no port to force.
-const clientDevPort = process.env["PORT"];
-
 const forcedOptions = {
   base: "/",
   envPrefix: "REACT_APP_",
   "build.outDir": ".wasp/out/web-app/build/",
-  "server.port":
-    clientDevPort === undefined ? undefined : Number.parseInt(clientDevPort),
+  "server.port": Number.parseInt(process.env["PORT"]!),
   "server.strictPort": true,
 } as const;
 
@@ -32,8 +27,6 @@ const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
   base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
   "server.port":
     "To run the client on a different port, use `wasp start --client-port <port>`.",
-  "server.strictPort":
-    "Wasp needs the client to fail on a taken port instead of silently moving to another one.",
 };
 
 export function waspConfig(): PluginOption {
@@ -107,14 +100,8 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
     const userValue = getByPath(config, path);
     if (userValue !== undefined && userValue !== forcedValue) {
       const hint = forcedOptionHints[path as keyof typeof forcedOptions];
-      // Wasp only sets some of these while it is starting your app, so there isn't
-      // always a value we can point at as the one it requires.
-      const requirement =
-        forcedValue === undefined
-          ? "but Wasp sets it itself"
-          : `but Wasp requires ${JSON.stringify(forcedValue)}`;
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, ${requirement}` +
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp will override it with ${JSON.stringify(forcedValue)}` +
           (hint ? `\n    ${hint}` : ""),
       );
     }
