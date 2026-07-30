@@ -51,7 +51,7 @@ getDevDbPort = do
   where
     parseDevDbPort :: String -> Either String Int
     parseDevDbPort portStr = case readMaybe portStr of
-      Nothing -> Left $ devDbPortEnvVarName <> " must be a valid number, but it is set to empty"
+      Nothing -> Left $ devDbPortEnvVarName <> " must be a valid number, but it is empty"
       Just port
         | port > 0 && port <= 65535 -> Right port
         | otherwise -> Left $ devDbPortEnvVarName <> " must be a TCP port number between 1 and 65535, but it is set to: " <> portStr
