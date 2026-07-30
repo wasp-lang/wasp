@@ -8,7 +8,7 @@ import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
 import qualified Options.Applicative as Opt
-import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
+import StrongPath (Abs, Dir, Path', fromRelFile)
 import System.Environment (lookupEnv)
 import System.Process (callCommand)
 import Text.Printf (printf)
@@ -25,10 +25,11 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Apps (server)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
-import Wasp.Project.Env (dotEnvServer)
+import Wasp.Project.Env (dotEnvFiles)
 import Wasp.Util (whenM)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Network.Socket as Socket
@@ -108,10 +109,10 @@ throwIfCustomDbAlreadyInUse spec = do
                   <> "To have Wasp run the dev database for you, make sure you remove that env var first."
               )
               databaseUrlEnvVarName
-              (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
+              (fromRelFile dotEnvFiles.server)
           )
       where
-        isThereDbUrlInServerDotEnv = any ((== databaseUrlEnvVarName) . fst) . AS.devEnvVarsServer
+        isThereDbUrlInServerDotEnv = any ((== databaseUrlEnvVarName) . fst) . (.devEnvVars.server)
 
     throwCustomDbAlreadyInUseError :: String -> Command ()
     throwCustomDbAlreadyInUseError msg =
