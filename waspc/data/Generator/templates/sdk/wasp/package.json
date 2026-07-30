@@ -20,12 +20,12 @@
     below exist only to satisfy this, so don't remove an export just
     because nothing imports it directly.
 
-    Why: user code is compiled with declaration emit enabled
-    (`declaration: true`). This is because the server and the client
-    TypeScript project reference the user's TypeScript project. As such,
-    the user project must have the `composite: true` flag, which makes
-    `declaration` default to `true`.
-
+    Why?
+    Server's and client's TypeScript project files reference the user's
+    TypeScript project through project references. This forces the user's
+    tsconfig to set `composite: true` flag which automatically implies
+    `declaration: true`.
+    
     When declaration emit is enabled, every exported binding without an
     explicit type annotation gets its inferred type serialized into a
     `.d.ts` file. A common example is users defining operations while
