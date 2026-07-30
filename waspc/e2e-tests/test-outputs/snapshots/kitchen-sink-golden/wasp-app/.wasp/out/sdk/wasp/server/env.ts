@@ -5,7 +5,7 @@ import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from 'wasp
 const userServerEnvSchema = serverEnvValidationSchema_ext;
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number().default(3001),
+  PORT: z.coerce.number(),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
   }),
@@ -88,14 +88,12 @@ const jwtTokenSchema = z
     error: 'JWT_SECRET is required',
   })
 
-// In development, we provide default values for some environment variables
-// to make the development process easier.
+// In development, Wasp sets the app's ports and URLs itself when it starts your app,
+// and defaults the few remaining values to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
-  "WASP_SERVER_URL": serverUrlSchema
-    .default("http://localhost:3001"),
-  "WASP_WEB_CLIENT_URL": clientUrlSchema
-    .default("http://localhost:3000/"),
+  "WASP_SERVER_URL": serverUrlSchema,
+  "WASP_WEB_CLIENT_URL": clientUrlSchema,
   "JWT_SECRET": jwtTokenSchema
     .default("DEVJWTSECRET"),
 });

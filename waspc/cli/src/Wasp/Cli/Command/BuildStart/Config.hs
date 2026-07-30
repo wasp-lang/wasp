@@ -11,26 +11,27 @@ import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import Network.Socket (PortNumber)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.Apps (getWaspEnvVars)
+import Wasp.Cli.Util.Apps (defaultAppPorts, getDevUrlMakers, getWaspEnvVars)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
-import Wasp.Project.Apps (Apps)
+import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientPort :: Int,
+    ports :: Apps PortNumber,
+    urls :: Apps String,
     envVars :: Apps [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
@@ -38,10 +39,13 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
+  let ports = defaultAppPorts
+
   userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envInputs
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspEnvVars = getWaspEnvVars appSpec
+  let urls = getDevUrlMakers appSpec <*> ports
+      waspEnvVars = getWaspEnvVars appSpec ports
 
   envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
 
@@ -50,7 +54,8 @@ makeBuildStartConfig appSpec args projectDir' = do
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        clientPort = clientPort',
+        ports = ports,
+        urls = urls,
         envVars = envVars
       }
   where
@@ -58,14 +63,6 @@ makeBuildStartConfig appSpec args projectDir' = do
     (appName, _) = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
-
-    -- NOTE(carlos): For now, this port (and the URLs inside 'getWaspEnvVars') uses
-    -- the default values we've hardcoded in the generator. In the future, we might
-    -- want to make these configurable via the Wasp app spec or command line arguments.
-
-    -- This assumes that the client URL in 'getWaspEnvVars' uses `defaultClientPort`
-    -- internally. If that changes, we also need to change this.
-    clientPort' = defaultClientPort
 
     noEnvVarsSpecifiedMsg =
       CommandError

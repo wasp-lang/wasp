@@ -1,28 +1,35 @@
 module Wasp.Cli.Util.Apps where
 
+import Network.Socket (PortNumber)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Apps (Apps (..))
 
-getDevUrls :: AppSpec -> Apps String
-getDevUrls spec =
+getDevUrlMakers :: AppSpec -> Apps (PortNumber -> String)
+getDevUrlMakers spec =
   Apps
-    { client = WebApp.getDefaultDevClientUrl spec,
-      server = Server.defaultDevServerUrl
+    { client = WebApp.getDevClientUrl spec,
+      server = Server.makeDevServerUrl
     }
 
-getWaspEnvVars :: AppSpec -> Apps [EnvVar]
-getWaspEnvVars spec =
+getWaspEnvVars :: AppSpec -> Apps PortNumber -> Apps [EnvVar]
+getWaspEnvVars spec ports =
   Apps
-    { client =
-        [ (WebApp.serverUrlEnvVarName, urls.server)
-        ],
-      server =
-        [ (Server.clientUrlEnvVarName, urls.client),
-          (Server.serverUrlEnvVarName, urls.server)
-        ]
+    { client = WebApp.getDevClientEnvVars,
+      server = Server.getDevServerEnvVars
     }
+    <*> pure locations
   where
-    urls = getDevUrls spec
+    locations = liftA2 (,) ports urls
+    urls = getDevUrlMakers spec <*> ports
+
+-- | The ports the apps run on in development. Processes that never bind a port
+-- (like the test runner) also use these to build the app's URLs.
+defaultAppPorts :: Apps PortNumber
+defaultAppPorts =
+  Apps
+    { client = 3000,
+      server = 3001
+    }

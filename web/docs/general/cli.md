@@ -104,6 +104,7 @@ wasp db start
 
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
+  Wasp decides which ports the app runs on: the client gets 3000 and the server 3001. Because Wasp has to know both ports to tell each side where the other one is running, it also derives the app's dev URLs from them. Setting any of those yourself fails: that means `server.port` in `vite.config.ts`, and the `PORT`, `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL` and `REACT_APP_API_URL` env vars. In production you set these env vars yourself, and all of them are required.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
