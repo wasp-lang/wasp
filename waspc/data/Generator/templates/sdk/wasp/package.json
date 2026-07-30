@@ -9,18 +9,59 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
   },
-  {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
-  {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
+  {=!
+    IMPORTANT: If you modify this list, remember to update the spreadsheet at:
+    https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit
+  =}
+  {=!
+    TYPE PORTABILITY CONSTRAINT:
+    Any type that can appear in a user's inferred exported types must be
+    declared in a module reachable through this exports map. Some exports
+    below exist only to satisfy this, so don't remove an export just
+    because nothing imports it directly.
+
+    Why: user code is compiled with declaration emit enabled
+    (`declaration: true`). This is because the server and the client
+    TypeScript project reference the user's TypeScript project. As such,
+    the user project must have the `composite: true` flag, which makes
+    `declaration` default to `true`.
+
+    When declaration emit is enabled, every exported binding without an
+    explicit type annotation gets its inferred type serialized into a
+    `.d.ts` file. A common example is users defining operations while
+    typing them with the `satisfies` keyword:
+
+    ```ts
+    import type { GetNumberOfTasks } from "wasp/server/operations";
+
+    export const getNumberOfTasks = (async (_args, context) => {
+      return context.entities.Task.count();
+    }) satisfies GetNumberOfTasks<void>;
+    ```
+
+    If that inferred type structurally contains a type symbol from this
+    package, `tsc` must synthesize a portable reference to that symbol.
+    E.g., an authenticated operation's context contains a type symbol
+    for `AuthUser`. So we must be able to create a portable reference
+    to `AuthUser`.
+
+    Because `AuthUser` is declared in an exports-reachable module
+    ("./auth/user"), `tsc` can always create a portable reference to it,
+    no matter what the user's code imports. If it were declared in a
+    non-exported module (e.g. `wasp/server/auth/user`), `tsc` could name
+    it only when the user's program happened to load some module
+    re-exporting it, which is not guaranteed, and declaration emit
+    would fail.
+  =}
   "exports": {
-    {=! =============================================================== =}
-    {=! Each export here is always available to users. =}
-    {=! However, only the public API for users is documented. =}
-    {=! =============================================================== =}
-    {=! Public API for users. Documented. =}
-    {=! Modules users import in their own code. =}
-    {=! Some are also imported by the generated server runtime, =}
-    {=! those have a comment saying which exports each side uses. =}
-    {=! =============================================================== =}
+    {=!
+      ===============================================================
+      Public API for users. Documented.
+      Modules users import in their own code.
+      Some are also imported by the generated server runtime,
+      those have a comment saying which exports each side uses.
+      ===============================================================
+    =}
     "./auth": "./dist/auth/index.js",
     {=! FIXME: Documented only in example apps, not in docs. Also re-exported through `wasp/server/auth`.=}
     {=! FIXME: Candidate for removal? =}
@@ -34,7 +75,7 @@
     {=! Users: operation functions and hooks.  =}
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
-    "./client/router": "./dist/client/router/index.js",
+    "./client/router": "./dist/client/router/index.js", 
     "./client/test": "./dist/client/test/index.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
@@ -59,18 +100,22 @@
     {=! Server: type ServerType. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
 
-    {=! =============================================================== =}
-    {=! Runtime agnostic. Undocumented. =}
-    {=! =============================================================== =}
+    {=!
+      ===============================================================
+      Internal runtime agnostic API. Undocumented.
+      ===============================================================
+    =}
     "./auth/user": "./dist/auth/user.js",
     "./core/serialization": "./dist/core/serialization/index.js",
     "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
     "./types": "./dist/types/index.js",
 
-    {=! =============================================================== =}
-    {=! Server runtime only. Undocumented. =}
-    {=! =============================================================== =}
+    {=!
+      ===============================================================
+      Internal server runtime API. Undocumented.
+      ===============================================================
+    =}
     "./server/auth/email": "./dist/server/auth/email/index.js",
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
@@ -89,11 +134,12 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
 
-    {=! =============================================================== =}
-    {=! Client runtime only. Undocumented. =}
-    {=! Imported by the hidden client: the Wasp vite plugin and the =}
-    {=! virtual modules it serves into the user's vite project. =}
-    {=! =============================================================== =}
+    {=!
+      ===============================================================
+      Internal client runtime API. Undocumented.
+      Client is hidden in Wasp's vite plugin virtual modules.
+      ===============================================================
+    =}
     "./client/app": "./dist/client/app/index.jsx",
     "./client/app/layout": "./dist/client/app/layout.jsx",
     "./client/app/router": "./dist/client/app/router.jsx",
