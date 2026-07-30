@@ -150,7 +150,7 @@ printUsage =
         cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom Docker image or Docker volume mount path.",
-              "                          Set WASP_DEV_DB_PORT to use a port other than the default 5432.",
+              "                          Set WASP_DEV_DB_PORT to use a port other than the default (5432).",
               "                          Use the same value when running 'wasp start'.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
