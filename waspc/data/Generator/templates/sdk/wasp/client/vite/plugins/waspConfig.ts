@@ -1,7 +1,7 @@
 {{={= =}=}}
 /// <reference types="vitest/config" />
 import { type PluginOption } from "vite";
-import { defaultExclude } from "vitest/config"
+import { defaultExclude } from "vitest/config";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -17,27 +17,25 @@ import { defaultExclude } from "vitest/config"
 //    appends them to whatever the user already has.
 
 const forcedOptions = {
-  'base': "{= baseDir =}",
-  'envPrefix': "REACT_APP_",
-  'build.outDir': "{= clientBuildDirPath =}",
+  base: "{= baseDir =}",
+  envPrefix: "REACT_APP_",
+  "build.outDir": "{= clientBuildDirPath =}",
 } as const;
 
-const forcedOptionHints: Record<keyof typeof forcedOptions, string> = {
-  'base': "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config. Wasp gives the router the same value.",
-  'envPrefix': "Wasp only exposes client env vars with this prefix, and validates them by it.",
-  'build.outDir': "Wasp looks for the built client here when you deploy it.",
+const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
+  base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
 };
 
 export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
-    enforce: 'pre',
+    enforce: "pre",
     config(config) {
       throwIfOverridingForcedOptions(config);
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
-        base: forcedOptions['base'],
+        base: forcedOptions["base"],
         optimizeDeps: {
           exclude: {=& depsExcludedFromOptimization =}
         },
@@ -45,15 +43,20 @@ export function waspConfig(): PluginOption {
           port: useUserValue(config.server?.port, {= defaultClientPort =}),
           host: useUserValue(config.server?.host, "0.0.0.0"),
         },
-        envPrefix: forcedOptions['envPrefix'],
+        envPrefix: forcedOptions["envPrefix"],
         build: {
-          outDir: forcedOptions['build.outDir'],
+          outDir: forcedOptions["build.outDir"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
           // causes runtime errors (e.g., hook rule violation in react, QueryClient
           // instance error in react-query, Invariant Error in react-router).
-          dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router"],
+          dedupe: [
+            "react",
+            "react-dom",
+            "@tanstack/react-query",
+            "react-router",
+          ],
           alias: [
             {
               // Vite doesn't look for `.prisma/client` imports in the `node_modules`
@@ -76,10 +79,10 @@ export function waspConfig(): PluginOption {
           exclude: [
             ...defaultExclude,
             "{= vitest.excludeWaspArtefactsPattern =}",
-          ]
+          ],
         },
       };
-    }
+    },
   };
 }
 
@@ -94,17 +97,18 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
     if (userValue !== undefined && userValue !== forcedValue) {
       const hint = forcedOptionHints[path as keyof typeof forcedOptions];
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}\n    ${hint}`
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}` +
+          (hint ? `\n    ${hint}` : ""),
       );
     }
   }
   if (conflicts.length > 0) {
     throw new Error(
-      `Your vite.config.ts sets options that Wasp controls:\n${conflicts.join('\n')}\n\nRemove these from your Vite config, Wasp sets them automatically.`
+      `Your vite.config.ts sets options that Wasp controls:\n${conflicts.join("\n")}\n\nRemove these from your Vite config, Wasp sets them automatically.`,
     );
   }
 }
 
 function getByPath(obj: Record<string, any>, path: string): unknown {
-  return path.split('.').reduce<any>((node, segment) => node?.[segment], obj);
+  return path.split(".").reduce<any>((node, segment) => node?.[segment], obj);
 }
