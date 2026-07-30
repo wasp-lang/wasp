@@ -24,11 +24,9 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
 import qualified Wasp.Generator
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Apps (Apps (..))
+import Wasp.Project.Apps (Apps)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 import Wasp.Util.Terminal (styleCode)
@@ -51,12 +49,12 @@ start = do
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-  throwIfWaspOwnedEnvVarsAreSet waspProjectDir
-  let ports = defaultAppPorts
-
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
+
+  let waspEnvVars = getWaspEnvVars appSpec defaultAppPorts
+  throwIfWaspOwnedEnvVarsAreSet waspProjectDir (map fst <$> waspEnvVars)
 
   DbConnectionEstablished <- require
 
@@ -72,7 +70,7 @@ start = do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
-          Wasp.Generator.start (getWaspEnvVars appSpec ports) waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+          Wasp.Generator.start waspEnvVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -103,32 +101,19 @@ start = do
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
--- | The env vars Wasp derives from the ports it picked and injects into the processes
--- it starts. We read the names off the injection itself, so the two can't drift apart.
+-- | Wasp injects the env vars it derives from the ports it picked into the processes it
+-- starts, and injected values win over whatever the user wrote down. A value the user set
+-- would therefore be silently ignored, so we stop instead.
 --
--- The ports and URLs we pass in are throwaway: which vars get injected never depends
--- on their values, only the names matter here.
-waspOwnedDevEnvVarNames :: Apps [String]
-waspOwnedDevEnvVarNames = map fst <$> (envVarMakers <*> pure irrelevantLocations)
-  where
-    envVarMakers =
-      Apps
-        { client = WebApp.getDevClientEnvVars,
-          server = Server.getDevServerEnvVars
-        }
-    irrelevantLocations = pure (0, "")
-
--- | Wasp injects the env vars above into the processes it starts, and injected values
--- win over whatever the user wrote down. A value the user set would therefore be
--- silently ignored, so we stop instead.
-throwIfWaspOwnedEnvVarsAreSet :: Path' Abs (Dir WaspProjectDir) -> Command ()
-throwIfWaspOwnedEnvVarsAreSet waspProjectDir = do
+-- The names come straight from the vars we inject, so the two can't drift apart.
+throwIfWaspOwnedEnvVarsAreSet :: Path' Abs (Dir WaspProjectDir) -> Apps [String] -> Command ()
+throwIfWaspOwnedEnvVarsAreSet waspProjectDir waspOwnedEnvVarNames = do
   dotEnvVars <- liftIO $ Env.readDotEnvFiles waspProjectDir
   envVarsSetByUser <-
     liftIO $
       fmap (mergeSourcesPerEnvVar . concat . toList) $
         sequenceA $
-          findEnvVarsSetByUser <$> waspOwnedDevEnvVarNames <*> Env.dotEnvFiles <*> dotEnvVars
+          findEnvVarsSetByUser <$> waspOwnedEnvVarNames <*> Env.dotEnvFiles <*> dotEnvVars
 
   unless (null envVarsSetByUser) $
     throwError $
