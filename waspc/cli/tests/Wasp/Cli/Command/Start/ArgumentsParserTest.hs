@@ -3,29 +3,28 @@ module Wasp.Cli.Command.Start.ArgumentsParserTest where
 import qualified Options.Applicative as Opt
 import Test.Hspec
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
-import Wasp.Cli.Util.PortArgument (defaultAppPorts)
 import Wasp.Project.Apps (Apps (Apps))
 
 spec_startArgsParser :: Spec
 spec_startArgsParser = do
   describe "startArgsParser" $ do
     describe "valid arguments" $ do
-      it "uses the default ports when no arguments are given" $ do
-        parse [] `shouldBe` Just (StartArgs defaultAppPorts)
+      it "asks for no ports when no arguments are given" $ do
+        parse [] `shouldBe` Just (StartArgs $ Apps Nothing Nothing)
 
       it "parses --client-port" $ do
-        parse ["--client-port", "4000"] `shouldBe` Just (StartArgs $ Apps 4000 3001)
+        parse ["--client-port", "4000"] `shouldBe` Just (StartArgs $ Apps (Just 4000) Nothing)
 
       it "parses --server-port" $ do
-        parse ["--server-port", "4001"] `shouldBe` Just (StartArgs $ Apps 3000 4001)
+        parse ["--server-port", "4001"] `shouldBe` Just (StartArgs $ Apps Nothing (Just 4001))
 
       it "parses both ports" $ do
         parse ["--client-port", "4000", "--server-port", "4001"]
-          `shouldBe` Just (StartArgs $ Apps 4000 4001)
+          `shouldBe` Just (StartArgs $ Apps (Just 4000) (Just 4001))
 
       it "accepts the port number bounds" $ do
         parse ["--client-port", "1", "--server-port", "65535"]
-          `shouldBe` Just (StartArgs $ Apps 1 65535)
+          `shouldBe` Just (StartArgs $ Apps (Just 1) (Just 65535))
 
     describe "invalid arguments" $ do
       it "rejects a non-numeric port" $ do

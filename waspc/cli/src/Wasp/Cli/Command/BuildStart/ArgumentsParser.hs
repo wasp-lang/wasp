@@ -16,7 +16,7 @@ import qualified Wasp.Project.Apps as Apps
 
 data BuildStartArgs = BuildStartArgs
   { envInputs :: Apps ([EnvVar], [FilePathArgument]),
-    ports :: Apps PortNumber
+    ports :: Apps (Maybe PortNumber)
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs

@@ -10,7 +10,7 @@ import Wasp.Cli.Util.PortArgument (appPortsParser)
 import Wasp.Project.Apps (Apps (..))
 
 newtype StartArgs = StartArgs
-  { ports :: Apps PortNumber
+  { ports :: Apps (Maybe PortNumber)
   }
   deriving (Eq, Show)
 

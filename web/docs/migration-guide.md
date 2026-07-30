@@ -10,11 +10,13 @@ import InstallInstructions from './\_install-instructions.md'
 
 ## What's new in 0.26?
 
-### Wasp now manages your app's dev ports and URLs
+### Running multiple Wasp apps side by side
 
-`wasp start` now decides which ports the client and the server run on (`3000` and `3001` by default), and derives the app's dev URLs from them.
+`wasp start` now decides which ports the client and the server run on. If the default ports (`3000` and `3001`) are taken, it moves the app to free ones instead of failing, so you can run several Wasp apps side by side.
 
-You can pick the ports yourself:
+This is great for using agents in parallel worktrees, as each one won't conflict with the other.
+
+You can also pick the ports yourself:
 
 ```bash
 wasp start --client-port 4000 --server-port 4001

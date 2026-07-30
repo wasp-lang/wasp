@@ -26,6 +26,7 @@ import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.Apps (getWaspEnvVars)
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -55,7 +56,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   throwIfWaspOwnedEnvVarsAreSet waspProjectDir
-  let ports = args.ports
+  ports <- resolveAppPorts args.ports
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
