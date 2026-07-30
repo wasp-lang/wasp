@@ -1,11 +1,13 @@
 ---
-title: "I sent one chat message and got a live full-stack app"
+title: "I sent one message in Buzz and got a live full-stack app"
 authors: [vinny]
 image: /img/buzz-wasp-one-message-app/banner.webp
 tags: [wasp, buzz, ai agents, ai, full-stack]
 keywords: ["buzz", "ai agents", "wasp framework", "railway deploy", "agentic chat", "full-stack ai app", "claude code", "vibe coding", "one command deploy", "crm app"]
-description: "I typed one message into a chat channel and an agent scaffolded, deployed, and shipped a live full-stack CRM with Wasp. Here's the recipe, written so a human or an agent can follow it."
+description: "I typed one message into a chat channel in Buzz and an agent scaffolded, deployed, and shipped a live full-stack CRM with Wasp. Here's the recipe, written so a human or an agent can follow it."
 ---
+
+![The original Prompt in Buzz](/img/buzz-wasp-one-message-app/prompt.webp)
 
 A couple of weeks ago I typed this into a chat channel:
 
@@ -13,25 +15,27 @@ A couple of weeks ago I typed this into a chat channel:
 
 Then I went back to what I was doing. Before I'd even checked in on it, an agent named Fizz had scaffolded the app, wired up auth and a Postgres database, pushed the code to a repo, deployed it to Railway, and posted back **screenshots and a live URL**.
 
-![The deployed Buzz CRM dashboard](/img/buzz-wasp-one-message-app/banner.webp)
+![The deployed Buzz CRM dashboard](/img/buzz-wasp-one-message-app/crm.webp)
 
 {/* truncate */}
 
 When I showed the chat log on a podcast, the host's reaction was: *"That's insane. We're kind of glossing over it, but look what we built. It's live on the internet already."*
 
-That app is still live: [buzz-crm-client-production.up.railway.app](https://buzz-crm-client-production.up.railway.app) (log in with `vinny` / `buzzcrm-2026`). The code is here: [github.com/vincanger/buzz-crm](https://github.com/vincanger/buzz-crm).
+[![The Startup Ideas podcast reaction](/img/buzz-wasp-one-message-app/podcast.webp)](https://www.youtube.com/watch?v=jGSgzBkzrY)
+
+That app is still live: [buzz-crm-client-production.up.railway.app](https://buzz-crm-client-production.up.railway.app). The code is here: [github.com/vincanger/buzz-crm](https://github.com/vincanger/buzz-crm).
 
 This post is the recipe, so you can do it yourself. And if even the recipe feels like work, skip to the [last section](#too-lazy-good) and make your agent follow it for you.
 
-## What just happened
+## What's happening here?
 
-Two tools met in the middle.
+Two awesome tools are meeting in the middle:
 
 **[Buzz](https://buzz.xyz)** is the free, open-source, agent-native chat platform from Jack Dorsey's team at Block. Agents aren't bolted-on integrations, they're teammates in your channels, running on the coding subscriptions you already pay for (Claude Code, Codex, whatever). You talk to them; they do the work and report back where everyone can see it.
 
 **[Wasp](https://wasp.sh)** is our full-stack TypeScript framework. You declare the big pieces (auth, database, jobs, deployment) at the config level, and Wasp wires them up. That's pleasant for humans, but it turns out to be *huge* for agents: fewer decisions means fewer wrong decisions, and shipping is one command the agent can actually run instead of forty minutes of dashboard clicking.
 
-Chat platform where agents finish tasks + framework that does the heavy lifting = one message, live app.
+So you're getting a chat + agent orchestration platform where agents finish tasks + a framework that does the heavy lifting!
 
 ## The recipe
 
@@ -39,7 +43,7 @@ Each step ends with a ✅ check, so you (or your agent, see below) know it actua
 
 ### 1. Get Buzz and plug in an agent
 
-Download Buzz from [buzz.xyz](https://buzz.xyz) (free). On first run it detects the coding harnesses installed on your machine (Claude Code, Codex, and friends) and connects them, so your agents run on the subscription you already have. Create a channel, add an agent.
+Download Buzz from [buzz.xyz](https://buzz.xyz) (free). On first run it detects the coding harnesses installed on your machine (Claude Code, Codex, Cursor, OpenCode, Hermes, etc. ) and connects them, so your agents run on the subscription you already have. Create a channel, add an agent.
 
 ✅ **Check:** say hi to your agent in a channel and get a reply.
 
@@ -57,7 +61,11 @@ One catch worth knowing up front: Wasp needs a recent Node (0.24 requires ≥ 24
 
 Mine, nearly verbatim:
 
-> spin up a simple CRM app using the Wasp full-stack framework and deploy it to Railway. send screenshots and the live URL when it's up.
+```sh
+> spin up a simple CRM app using the Wasp full-stack framework
+> deploy it to Railway. 
+> send screenshots and the live URL when it's up.
+```
 
 A good prompt here names three things: **the framework** (so the agent doesn't hand-roll an Express app), **the deploy target** (Wasp has one-command deploys to Railway and Fly), and **proof of done** (screenshots + URL, make the agent show its work).
 
@@ -89,12 +97,14 @@ We're an honest bunch, so: this is early-preview territory, and these three thin
 
 ## Why Wasp is the right tool for agents
 
-One tight argument: agents are great at writing application code and mediocre at plumbing decisions (which auth library, how to structure the deploy, where the job queue goes). Wasp moves exactly those decisions into a declarative config with sane defaults, and gives back one-command answers for the scary parts (`wasp deploy railway launch`). The agent's effort goes into *your* app (the data model, the pages, the features) instead of boilerplate it might get subtly wrong. That's why one message was enough.
+Agents are great at writing application code and mediocre at plumbing decisions (which auth library, how to structure the deploy, where the job queue goes). 
+
+Wasp moves exactly those decisions into a declarative config with sane defaults, and gives back one-command answers for the scary parts (e.g. `wasp deploy railway launch`). The agent's effort goes into what makes *your app unique* (the data model, the pages, the features) instead of boilerplate. That's why one message was enough.
 
 <a name="too-lazy-good"></a>
 ## Too lazy to follow the recipe? Good.
 
-You're reading a markdown file, and your agent can read it too. Copy the raw version of this exact post:
+Just give your agent a raw, AI-friendly copy of this post:
 
 ```
 https://raw.githubusercontent.com/wasp-lang/wasp/release/web/blog/2026-07-30-buzz-wasp-one-message-app.mdx
@@ -106,4 +116,4 @@ https://raw.githubusercontent.com/wasp-lang/wasp/release/web/blog/2026-07-30-buz
 
 [Install Wasp](https://wasp.sh) → grab [Buzz](https://buzz.xyz) → send the message. If you ship something, tag [@wasplang](https://twitter.com/wasplang), we collect these.
 
-*Want the longer story? I talked through the whole Buzz + Wasp workflow on two podcasts: [The Startup Project, with Greg](https://www.youtube.com/watch?v=jGSgzBkzrY) and [Riley Brown](https://www.youtube.com/watch?v=P1KpxzLVg7c).*
+*Want the longer story? I talked through the whole Buzz + Wasp workflow on two podcasts: [Agent Native, with Riley Brown](https://www.youtube.com/watch?v=P1KpxzLVg7c). and [The Startup Ideas, with Greg Isenberg](https://www.youtube.com/watch?v=jGSgzBkzrY) and ook *
