@@ -1,7 +1,3 @@
--- | Choosing which ports 'wasp start' should run the client and the server on.
---
--- The ports come from the @--client-port@ and @--server-port@ flags, and default
--- to the ports Wasp apps have always used when the user doesn't pass them.
 module Wasp.Cli.Util.PortArgument
   ( defaultAppPorts,
     appPortsParser,
