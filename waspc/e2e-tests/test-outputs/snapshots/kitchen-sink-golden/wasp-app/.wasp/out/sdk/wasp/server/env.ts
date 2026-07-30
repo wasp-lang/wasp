@@ -88,8 +88,8 @@ const jwtTokenSchema = z
     error: 'JWT_SECRET is required',
   })
 
-// In development, Wasp sets the app's ports and URLs itself when it starts your app,
-// and defaults the few remaining values to make the development process easier.
+// In development, we provide default values for some environment variables
+// to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
   "WASP_SERVER_URL": serverUrlSchema,
