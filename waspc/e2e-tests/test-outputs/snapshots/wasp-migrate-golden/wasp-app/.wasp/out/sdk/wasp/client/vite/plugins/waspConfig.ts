@@ -7,8 +7,9 @@ import { defaultExclude } from "vitest/config"
 // arrays are concatenated.
 //
 // This allows us to treat config values differently:
-//  - Forced: hardcoded in the return object so they always win. If the
-//    user set one of these in their vite.config.ts, we throw an error.
+//  - Forced: taken from `forcedOptions` in the return object so they
+//    always win. If the user set one of these in their vite.config.ts,
+//    we throw an error.
 //  - Overridable: we read the user's value and use it or fall back to
 //    our default.
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
@@ -19,6 +20,12 @@ const forcedOptions = {
   'envPrefix': "REACT_APP_",
   'build.outDir': ".wasp/out/web-app/build/",
 } as const;
+
+const forcedOptionHints: Record<keyof typeof forcedOptions, string> = {
+  'base': "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config. Wasp gives the router the same value.",
+  'envPrefix': "Wasp only exposes client env vars with this prefix, and validates them by it.",
+  'build.outDir': "Wasp looks for the built client here when you deploy it.",
+};
 
 export function waspConfig(): PluginOption {
   return {
@@ -84,8 +91,9 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
   for (const [path, forcedValue] of Object.entries(forcedOptions)) {
     const userValue = getByPath(config, path);
     if (userValue !== undefined && userValue !== forcedValue) {
+      const hint = forcedOptionHints[path as keyof typeof forcedOptions];
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}`
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}\n    ${hint}`
       );
     }
   }
