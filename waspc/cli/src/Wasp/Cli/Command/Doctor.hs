@@ -4,7 +4,7 @@ module Wasp.Cli.Command.Doctor
 where
 
 import Control.Monad (forM_, when)
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
+import Control.Monad.Except (ExceptT (ExceptT), catchError, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either.Extra (eitherToMaybe)
 import Data.Functor ((<&>))
@@ -37,43 +37,37 @@ doctor :: IO ()
 doctor = do
   putStrLn $ Term.applyStyles [Term.Bold] "Checking your environment...\n"
 
-  checks <- getChecks
   forM_ checks $ \(title, check) -> do
     result <- runExceptT check
     putStrLn $ renderCheckResult title result
 
 -- | The checks to run, each as a (title, check) pair. A check returns the text
 -- to print after the title: `Right` if it succeeded, `Left` if it failed.
-getChecks :: IO [(String, Check String)]
-getChecks = do
-  checkDevDb <- makeDevDbPortCheck
-  return
-    [ ("Wasp", checkWasp),
-      ("System", checkSystem),
-      ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
-      ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
-      ("Docker", checkDocker >> return "running"),
-      makePortCheck "Client" WebApp.defaultClientPort,
-      makePortCheck "Server" Server.defaultServerPort,
-      checkDevDb
-    ]
+checks :: [(String, Check String)]
+checks =
+  [ ("Wasp", checkWasp),
+    ("System", checkSystem),
+    ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
+    ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
+    ("Docker", checkDocker >> return "running"),
+    makePortCheck "Client" $ pure WebApp.defaultClientPort,
+    makePortCheck "Server" $ pure Server.defaultServerPort,
+    makePortCheck "Dev database" $ ExceptT Dev.Postgres.getDevDbPort
+  ]
   where
-    makePortCheck name port =
-      ( name ++ " port (" ++ show port ++ ")",
-        checkPortIsFree port >> return "free"
+    makePortCheck :: String -> Check Int -> (String, Check String)
+    makePortCheck name getPort =
+      ( name ++ " port",
+        do
+          port <- getPort
+          checkPortIsFree port `catchError` \err -> throwError $ err ++ " (" ++ show port ++ ")"
+          return $ "free (" ++ show port ++ ")"
       )
 
     makeToolVersionCheck name minVersion getCurrentVersion =
       checkToolExists name
         >> checkToolVersion minVersion getCurrentVersion
         <&> show
-
-    makeDevDbPortCheck :: IO (String, Check String)
-    makeDevDbPortCheck = do
-      result <- Dev.Postgres.getDevDbPort
-      return $ case result of
-        Right port -> makePortCheck "Dev database" port
-        Left err -> ("Dev database port", throwError err)
 
 renderCheckResult :: String -> Either String String -> String
 renderCheckResult title result =
