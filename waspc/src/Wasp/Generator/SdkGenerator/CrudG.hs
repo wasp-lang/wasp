@@ -16,7 +16,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
-import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
+import Wasp.Generator.Crud (getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (mkTmplFdWithDstAndData)
@@ -63,7 +63,7 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
         overrides :: [Aeson.Types.Pair]
         overrides = map operationToOverrideImport crudOperations
 
-        crudOperations = crudDeclarationToOperationsList crud
+        crudOperations = AS.Crud.toOperationList crud.operations
 
         operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson

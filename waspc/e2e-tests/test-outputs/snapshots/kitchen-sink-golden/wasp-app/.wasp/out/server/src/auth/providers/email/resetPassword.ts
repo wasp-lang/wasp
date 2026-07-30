@@ -4,8 +4,8 @@ import {
     findAuthIdentity,
     updateAuthIdentityProviderData,
     getProviderDataWithPassword,
-} from 'wasp/auth/utils';
-import { validateJWT } from 'wasp/auth/jwt'
+} from 'wasp/server/auth/utils';
+import { validateJWT } from 'wasp/server/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
 import { HttpError } from 'wasp/server';
 

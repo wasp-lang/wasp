@@ -7,7 +7,8 @@ import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
 
 const AI = () => (
-  <SectionContainer>
+  // scroll-mt offsets the sticky nav when jumping here via the #ai anchor.
+  <SectionContainer id="ai" className="scroll-mt-24">
     <SectionLabel
       text="ai"
       bgColorClassName="bg-wasp-purple"

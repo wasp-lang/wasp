@@ -1,4 +1,5 @@
 import Link from "@docusaurus/Link";
+import classNames from "classnames";
 import { useState } from "react";
 import { BookOpen, Check, Copy, Terminal } from "react-feather";
 
@@ -208,7 +209,18 @@ const Hero = () => {
               React, Node.js, and Prisma — wired together with auth, jobs, and
               deployment built in. Ship in a day and own every line.
               <span className="mt-1 block font-bold">
-                Designed for humans, works beautifully with AI.
+                Designed for humans,{" "}
+                <a
+                  href="#ai"
+                  className={classNames(
+                    "box-decoration-clone px-0.5 text-wasp-g6",
+                    "underline decoration-wasp-purple decoration-2 underline-offset-4",
+                    "transition-colors duration-200 ease-out",
+                    "hover:bg-wasp-purple-light hover:text-wasp-black hover:no-underline",
+                  )}
+                >
+                  works beautifully with AI.
+                </a>
               </span>
             </p>
           </div>{" "}

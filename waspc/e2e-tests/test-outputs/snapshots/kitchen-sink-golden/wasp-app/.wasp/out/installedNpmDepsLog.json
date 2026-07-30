@@ -224,11 +224,11 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
+                "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
+                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             }
         ],
         "devDependencies": [
@@ -267,11 +267,11 @@
             },
             {
                 "name": "@wasp.sh/lib-auth",
-                "version": "file:../libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
+                "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
+                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             },
             {
                 "name": "cookie-parser",
@@ -295,7 +295,7 @@
             },
             {
                 "name": "morgan",
-                "version": "~1.10.0"
+                "version": "~1.11.0"
             },
             {
                 "name": "socket.io",

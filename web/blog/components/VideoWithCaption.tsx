@@ -18,7 +18,12 @@ export function VideoWithCaption(props: VideoWithCaptionProps) {
         {props.caption && (
           <figcaption
             className="image-caption"
-            style={{ fontStyle: "italic", opacity: 0.6, fontSize: "0.9rem" }}
+            style={{
+              fontStyle: "italic",
+              opacity: 0.8,
+              fontSize: "1.1rem",
+              marginTop: "0.2em",
+            }}
           >
             {props.caption}
           </figcaption>

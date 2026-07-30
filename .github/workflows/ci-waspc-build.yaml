@@ -123,6 +123,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
+        with:
+          haskell: true
 
       - name: Compute artifact names
         uses: ./.github/actions/compute-artifact-names
