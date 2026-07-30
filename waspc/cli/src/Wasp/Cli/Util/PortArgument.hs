@@ -1,8 +1,3 @@
--- | Deciding which ports 'wasp start' should run the client and the server on.
---
--- A side that the user pinned with a flag either gets that exact port or fails.
--- A side that Wasp is free to move keeps its intended port when that port is
--- available, and otherwise moves to the first free port above it.
 module Wasp.Cli.Util.PortArgument
   ( resolveAppPorts,
     defaultAppPorts,
@@ -46,14 +41,9 @@ portOption optionName helpText =
     rejectAnyPort 0 = Opt.readerError "0 is not a valid port"
     rejectAnyPort port = return port
 
--- | The lowest port we consider. Apps land on it whenever nothing is in the way,
--- which is what makes 3000 and 3001 the ports people expect from a Wasp app.
 defaultMinPort :: PortNumber
 defaultMinPort = 3000
 
--- | The ports an app gets when nothing is in the way. Processes that never bind a
--- port (like the test runner) use these to build the app's URLs, since there is
--- nothing to resolve against.
 defaultAppPorts :: Apps PortNumber
 defaultAppPorts = Apps defaultMinPort (defaultMinPort + 1)
 
