@@ -221,7 +221,7 @@ printDbUsage =
               "                               Alias for `wasp start db`.",
               "                               Starts managed development database for you.",
               "                               Optionally specify a custom Docker image or Docker volume mount path.",
-              "                               Set WASP_DEV_DB_PORT to use a port other than the default 5432."
+              "                               Set WASP_DEV_DB_PORT to use a DB port other than the default (5432)."
         ],
         cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
