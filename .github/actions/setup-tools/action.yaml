@@ -39,7 +39,7 @@ runs:
       with:
         # Mise 2026.7.17 broke aqua version-override matching, which makes it
         # install a broken `cabal` binary on Linux ("Exec format error").
-        # Unpin once fixed upstream: TODO: issue URL
+        # Unpin once fixed upstream: https://github.com/jdx/mise/discussions/11494
         version: 2026.7.16
         bootstrap: true
         bootstrap_args: --update --yes
