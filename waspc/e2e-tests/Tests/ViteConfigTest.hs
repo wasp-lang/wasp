@@ -47,9 +47,6 @@ viteConfigTest =
               inTestWaspProjectDir
                 [ writeViteConfigOverridingForcedOptions,
                   waspCliCompile,
-                  -- Wasp's Vite plugin throws while Vite resolves the config, so
-                  -- we assert on the hint to make sure the build failed for that
-                  -- reason and not for an unrelated one.
                   assertCommandOutputContains
                     (expectCommandFailure <$> viteBuild)
                     "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config."
