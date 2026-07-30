@@ -173,6 +173,7 @@ printUsage =
               "  wasp start",
               "  wasp db migrate-dev",
               "  WASP_DEV_DB_PORT=8080 wasp start",
+              "",
         Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
         Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
