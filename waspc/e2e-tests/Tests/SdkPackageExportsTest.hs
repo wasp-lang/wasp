@@ -1,53 +1,46 @@
-module Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree) where
+module Tests.SdkPackageExportsTest (assertSdkPackageExports) where
 
+import Context (WaspProjectContext (..))
 import Control.Monad (filterM, unless)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Reader (ask)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Key as AesonKey
 import qualified Data.Aeson.KeyMap as AesonKeyMap
 import qualified Data.ByteString as BS
 import Data.List (isInfixOf, isSuffixOf, stripPrefix)
 import qualified Data.Text as T
-import FileSystem (SnapshotType (Current), getSnapshotsDir, snapshotDirInSnapshotsDir)
-import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified System.FilePath as FP
-import Test.Hspec (Spec, expectationFailure, it)
-import Test.Tasty (TestTree)
-import Test.Tasty.Hspec (testSpec)
+import Test.Tasty.HUnit (assertFailure)
+import TestAction (TestAction)
 
-makeSdkPackageExportsTestTree :: IO TestTree
-makeSdkPackageExportsTestTree =
-  testSpec "SDK package exports" sdkPackageExportsSpec
-
-sdkPackageExportsSpec :: Spec
-sdkPackageExportsSpec = do
-  it "points kitchen-sink SDK exports at generated source files" $ do
-    sdkPackageDir <- getGeneratedKitchenSinkSdkPackageDir
+-- | Asserts that the SDK package exports point at generated source files.
+assertSdkPackageExports :: TestAction WaspProjectContext ()
+assertSdkPackageExports = do
+  context <- ask
+  liftIO $ do
+    let sdkPackageDir = getGeneratedSdkPackageDir context
     packageExports <- readPackageExports sdkPackageDir
     missingExportTargets <- filterM (fmap not . exportTargetExists sdkPackageDir) packageExports
 
     unless (null missingExportTargets) $
-      expectationFailure $
-        "Broken SDK package exports:\n"
-          ++ unlines (map formatPackageExport missingExportTargets)
+      assertFailure $
+        "Broken SDK package exports:\n" ++ unlines (map formatPackageExport missingExportTargets)
 
 data PackageExport = PackageExport
   { exportName :: String,
     exportTarget :: String
   }
 
-getGeneratedKitchenSinkSdkPackageDir :: IO FilePath
-getGeneratedKitchenSinkSdkPackageDir = do
-  snapshotsDir <- getSnapshotsDir
-  return $
-    SP.fromAbsDir
-      (snapshotsDir </> snapshotDirInSnapshotsDir "kitchen-sink" Current)
-      FP.</> "wasp-app"
-      FP.</> ".wasp"
-      FP.</> "out"
-      FP.</> "sdk"
-      FP.</> "wasp"
+getGeneratedSdkPackageDir :: WaspProjectContext -> FilePath
+getGeneratedSdkPackageDir context =
+  SP.fromAbsDir context.waspProjectDir
+    FP.</> ".wasp"
+    FP.</> "out"
+    FP.</> "sdk"
+    FP.</> "wasp"
 
 readPackageExports :: FilePath -> IO [PackageExport]
 readPackageExports sdkPackageDir = do

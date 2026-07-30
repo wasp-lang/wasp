@@ -7,8 +7,8 @@ import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
-import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
+import Test.Tasty (TestTree, defaultMain, localOption, testGroup)
+import Test.Tasty.Runners (NumThreads (..))
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -34,7 +34,6 @@ import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
 import Text.Read (readMaybe)
-import UnliftIO.Async (pooledMapConcurrentlyN)
 
 main :: IO ()
 main = do
@@ -43,7 +42,9 @@ main = do
     else do
       ensureE2eTestsEnvironment
       warmUpWaspCli
-      e2eTests >>= defaultMain
+      maxConcurrentTests <- getMaxConcurrentTests
+      putStrLn $ "Running up to " ++ show maxConcurrentTests ++ " test case(s) concurrently. Override with WASP_E2E_TEST_MAX_JOBS."
+      defaultMain $ localOption (NumThreads maxConcurrentTests) e2eTests
 
 ensureE2eTestsEnvironment :: IO ()
 ensureE2eTestsEnvironment = do
@@ -56,8 +57,25 @@ ensureE2eTestsEnvironment = do
       let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
       setEnv "WASP_CLI_CMD" devWaspCliCmd
 
--- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
--- invoking it concurrently (via 'pooledMapConcurrentlyN' in 'e2eTests').
+-- | How many test cases we run concurrently.
+--
+-- Each test case shells out to Node tooling (`npm install`, `tsc`,
+-- `vite build`, ...) that already parallelizes across every core, so running
+-- all of them at once oversubscribes the CPU. We therefore cap the fan-out.
+--
+-- The default scales with the number of available cores (a fraction of them,
+-- since each build is itself multi-core). Set @WASP_E2E_TEST_MAX_JOBS@ to a
+-- positive integer to override it (e.g. @1@ to run the test cases serially).
+getMaxConcurrentTests :: IO Int
+getMaxConcurrentTests = do
+  numCores <- getNumCapabilities
+  override <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS"
+  return $ case override of
+    Just n | n >= 1 -> n
+    _ -> max 1 (numCores `div` 4)
+
+-- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
+-- concurrently (tasty runs the test cases in parallel).
 --
 -- The dev CLI runs through `cabal run`, and Cabal does not support several
 -- concurrent invocations sharing a single `dist-newstyle`: if the first build
@@ -69,79 +87,56 @@ warmUpWaspCli :: IO ()
 warmUpWaspCli = callCommand "$WASP_CLI_CMD version 2>&1 >/dev/null" -- We don't need any output.
 
 -- TODO: Investigate automatically discovering the tests.
--- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
---       See: github.com/wasp-lang/wasp/issues/3404
-e2eTests :: IO TestTree
-e2eTests = do
-  maxConcurrentSnapshotBuilds <- getMaxConcurrentSnapshotBuilds
-  putStrLn $ "Preparing snapshot tests with up to " ++ show maxConcurrentSnapshotBuilds ++ " concurrent build(s). Override with WASP_E2E_TEST_MAX_JOBS."
-  snapshotTestTrees <-
-    pooledMapConcurrentlyN
-      maxConcurrentSnapshotBuilds
-      testTreeFromSnapshotTest
-      [ waspNewSnapshotTest,
-        waspCompileSnapshotTest,
-        waspBuildSnapshotTest,
-        waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
-      ]
-  shellTestTrees <-
-    mapM
-      testTreeFromTest
-      [ -- general Wasp commads
-        waspNewTest,
-        waspTelemetryTest,
-        waspCompletionTest,
-        waspVersionTest,
-        -- Wasp project commands
-        waspCompileTest,
-        -- NOTE(Franjo): The following tests have the `FIXME` comment because they
-        -- are long running processes, which we haven't implmemented support for yet.
-        -- These will be fixed as part of the refactor to pure Haskell tests.
-        -- FIXME: waspStartTest,
-        waspBuildTest,
-        waspTsSpecNodeEnvTest,
-        viteBuildTest,
-        viteConfigTest,
-        -- FIXME: waspBuildStartTest,
-        waspCleanTest,
-        waspSpecAvailableTest,
-        waspInfoTest,
-        waspInstallTest,
-        waspDepsTest,
-        waspDockerfileTest,
-        -- FIXME: waspStudioTest,
-        -- Wasp project db commands
-        -- FIXME: waspDbStartTest,
-        -- FIXME: waspDbStudioTest,
-        waspDbSeedTest,
-        waspDbResetTest,
-        waspDbMigrateDevTest,
-        waspSpecEntityTypesTest
-      ]
-  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
-
-  return $
-    testGroup
-      "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTestTrees,
-        testGroup "Shell tests" shellTestTrees,
-        testGroup "Tests" [sdkPackageExportsTestTree]
-      ]
-
--- | How many snapshot tests we prepare concurrently.
---
--- Each snapshot test shells out to Node tooling (`npm install`, `tsc`,
--- `vite build`, ...) that already parallelizes across every core, so preparing
--- all of them at once oversubscribes the CPU. We therefore cap the fan-out.
---
--- The default scales with the number of available cores (a fraction of them,
--- since each build is itself multi-core). Set @WASP_E2E_TEST_MAX_JOBS@ to a
--- positive integer to override it (e.g. @1@ for fully serial preparation).
-getMaxConcurrentSnapshotBuilds :: IO Int
-getMaxConcurrentSnapshotBuilds = do
-  numCores <- getNumCapabilities
-  override <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS"
-  return $ case override of
-    Just n | n >= 1 -> n
-    _ -> max 1 (numCores `div` 4)
+e2eTests :: TestTree
+e2eTests =
+  testGroup
+    "E2E tests"
+    [ testGroup
+        "Snapshot Tests"
+        ( map
+            testTreeFromSnapshotTest
+            [ waspNewSnapshotTest,
+              waspCompileSnapshotTest,
+              waspBuildSnapshotTest,
+              waspMigrateSnapshotTest,
+              kitchenSinkSnapshotTest
+            ]
+        ),
+      testGroup
+        "Tests"
+        ( map
+            testTreeFromTest
+            [ -- general Wasp commads
+              waspNewTest,
+              waspTelemetryTest,
+              waspCompletionTest,
+              waspVersionTest,
+              -- Wasp project commands
+              waspCompileTest,
+              -- NOTE(Franjo): The following tests have the `FIXME` comment because they
+              -- are long running processes, which we haven't implmemented support for yet.
+              -- Adding support should now be a matter of building on 'Command.startCommand'
+              -- (e.g. a step that starts a command, waits for some output, and terminates it).
+              -- FIXME: waspStartTest,
+              waspBuildTest,
+              waspTsSpecNodeEnvTest,
+              viteBuildTest,
+              viteConfigTest,
+              -- FIXME: waspBuildStartTest,
+              waspCleanTest,
+              waspSpecAvailableTest,
+              waspInfoTest,
+              waspInstallTest,
+              waspDepsTest,
+              waspDockerfileTest,
+              -- FIXME: waspStudioTest,
+              -- Wasp project db commands
+              -- FIXME: waspDbStartTest,
+              -- FIXME: waspDbStudioTest,
+              waspDbSeedTest,
+              waspDbResetTest,
+              waspDbMigrateDevTest,
+              waspSpecEntityTypesTest
+            ]
+        )
+    ]
