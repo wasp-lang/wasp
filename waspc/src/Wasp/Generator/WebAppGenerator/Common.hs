@@ -26,11 +26,6 @@ getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "REACT_APP_API_URL"
 
--- | Env var through which Wasp tells the client's Vite dev server which port to
--- run on. It is read by the generated waspConfig Vite plugin.
---
--- Same name as the server's, since the two run as separate processes and each only
--- ever sees its own.
 clientDevPortEnvVarName :: String
 clientDevPortEnvVarName = "PORT"
 

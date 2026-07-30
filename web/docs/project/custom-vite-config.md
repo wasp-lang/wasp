@@ -46,7 +46,7 @@ Here's the minimal required configuration:
 The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
 :::
 
-## Enforced Options
+## Enforced Options {#enforced-options}
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
@@ -106,12 +106,6 @@ export default defineConfig({
   },
 })
 ```
-
-### Custom Dev Server Port
-
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config, except for `server.port` and `server.strictPort`, which Wasp controls. Setting either of them in your Vite config makes `wasp start` fail with an error.
-
-Wasp tells the server where to find the client, so you don't have to keep `WASP_WEB_CLIENT_URL` in sync yourself. In fact, setting it (or `WASP_SERVER_URL`, `REACT_APP_API_URL` or [`PORT`](./env-vars.md#server-general-configuration)) in development fails for the same reason: Wasp derives all of them from the ports it picked.
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 

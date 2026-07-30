@@ -52,7 +52,7 @@ These are some general env variables used for various Wasp features:
 
 <EnvVarsTable
   envVars={[
-{ name: "REACT_APP_API_URL", type: "URL", isRequired: true, note: <>The client uses this as the server URL. Only for production: in development Wasp sets it itself from the port it picked for the server, and setting it makes <code>wasp start</code> fail.</> }
+{ name: "REACT_APP_API_URL", type: "URL", isRequired: true, note: <>The client uses this as the server URL. This is set by Wasp in development, but required in production.</> }
 ]}
 />
 
@@ -91,10 +91,10 @@ These are some general env variables used for various Wasp features:
 <EnvVarsTable
   envVars={[
 { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
-{ name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: <>Server uses this value as your client URL in various features e.g. linking to your app in e-mails. Only for production: in development Wasp sets it itself from the port it picked for the client, and setting it makes <code>wasp start</code> fail.</> },
-{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: <>Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. Only for production: in development Wasp sets it itself from the port it picked for the server, and setting it makes <code>wasp start</code> fail.</> },
+{ name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: <>Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production.</> },
+{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: <>Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production.</> },
 { name: "JWT_SECRET", type: "String", isRequired: true, note: <>A random string of at least 32 characters. Needed to generate secure tokens. Defaults to <code>DEVJWTSECRET</code> in development.<br /><SecretGeneratorBlock /></> },
-{ name: "PORT", type: "Integer", isRequired: true, note: <>This is where the server listens for requests. Only for production: in development Wasp picks the port itself, and setting <code>PORT</code> makes <code>wasp start</code> fail.</> }
+{ name: "PORT", type: "Integer", isRequired: true, note: <>This is where the server listens for requests. This is set by Wasp in development, but required in production.</> }
 ]}
 />
 
