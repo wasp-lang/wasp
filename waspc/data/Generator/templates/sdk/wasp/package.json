@@ -75,7 +75,7 @@
     {=! Users: operation functions and hooks.  =}
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
-    "./client/router": "./dist/client/router/index.js", 
+    "./client/router": "./dist/client/router/index.js",
     "./client/test": "./dist/client/test/index.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
