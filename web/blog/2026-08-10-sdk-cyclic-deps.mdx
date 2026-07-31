@@ -1,17 +1,19 @@
 ---
-title: "TODO: name"
+# NOTE(claude): title and description are my (AI) suggestions, replace freely.
+title: "Faking Cyclic Dependencies Between TypeScript Projects"
 authors: ["franjomindek"]
 image: /img/blog/sdk-cyclic-deps/banner.png
 tags: [wasp, frameworks, typescript, DX]
 keywords: ["wasp", "web frameworks", "framework DX", "TS cyclic deps", "TS circular deps", "typescript frameworks"]
-description: "How Wasp...."
+description: "How Wasp's SDK uses the types and values of your project without depending on it: declaration merging, conditional types that survive declaration emit, and virtual modules."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
 
+{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/banner.png"
-  alt="TODO"
+  alt="Wasp SDK and user project pointing at each other in a dependency cycle"
 />
 
 ## Intro
@@ -146,9 +148,10 @@ Wasp locates the operations through `spec`, where it can find all of the informa
 Operation definitions were left out in both examples on purpose, since those more-or-less overlap.
 Let's take a look at what you have to do in each scenario:
 
+{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/framework-magic.svg"
-  alt="TODO"
+  alt="Comparison of the steps a user does in tRPC versus in Wasp"
 />
 
 While magic helps you by making you faster (user has to do less operations), it is also misdirection.
@@ -185,9 +188,10 @@ But why all of this “magic” introduction? Well, let’s circle back to the �
     This whole thing shouldn’t be possible! 
     But it still is? How?
     
+    {/* NOTE(claude): alt text is my (AI) suggestion. */}
     <ImgWithCaption
       source="img/blog/sdk-cyclic-deps/cyclic-deps-paradox.png"
-      alt="TODO"
+      alt="User project depends on the SDK while the SDK depends on the user project, forming an impossible cycle"
     />
 
 ## Cyclic dependencies in TypeScript
@@ -199,9 +203,10 @@ We need to be aware of the distinction of cyclic dependencies between TypeScript
 When importing in context of a single TypeScript project, cyclic imports are allowed.
 The problem is when you import between TypeScript projects, where the [dependency graph must be acyclical](https://github.com/microsoft/TypeScript/issues/33685) (DAG).
 
+{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/typescript-cyclic-imports.png"
-  alt="TODO"
+  alt="Cyclic imports are allowed between modules of one TypeScript project, but not between TypeScript projects"
 />
 
 The SDK and the user project are two different TypeScript projects. So it is illegal.
@@ -342,7 +347,7 @@ So let’s show an actual example how Wasp does it:
     
 2. In a file which is part of user’s project (we made it so in their `tsconfig` file):
     
-    ```ts title="tsconfig.src.json" ".wasp/out/types/app"
+    ```ts title="tsconfig.src.json"
     {
       // ...
       "include": ["src", ".wasp/out/types/app"],
@@ -369,23 +374,37 @@ So let’s show an actual example how Wasp does it:
     ```
     This "pushes" types of user defined code to the SDK.
     
-3. The SDK dervies all the user-code dependent types from the `Register` interface.
-   We check if a value exists for the specified key, and if it does, we use it.
-   If not, we falls back to our default value.
+3. The SDK derives all the user-code dependent types from the `Register` interface.
+   We check if a type exists at the specified path, and if it does, we use it.
+   If not, we fall back to our default type.
+   The path can be nested (e.g., operations live under the `operations` key), so the reading
+   type walks it step by step:
     
     ```ts title="sdk/wasp/types/register.ts"
-    /** 
-     * Safely reads values from {@link Register}.
-     * Returns the registered type for a given {@link Key}, or falls back to {@link Fallback}.
+    /**
+     * Safely reads a value from {@link Register} by following {@link Path}.
+     * Returns the registered type, or {@link Fallback} if any step of the path is missing.
+     * The path can be of any depth.
      */
-    export type FromRegister<Key extends string, Fallback> = Key extends keyof Register
-      ? Register[Key]
-      : Fallback;
+    export type FromRegisterPath<Path extends readonly string[], Fallback> =
+      WalkRegisterPath<Register, Path, Fallback>;
+
+    type WalkRegisterPath<Current, Path extends readonly string[], Fallback> =
+      Path extends readonly [infer Key extends string, ...infer Rest extends readonly string[]]
+        ? Key extends keyof Current
+          ? WalkRegisterPath<Current[Key], Rest, Fallback>
+          : Fallback
+        : Current;
+
+    /**
+     * Shorthand for reading a top-level {@link Register} value.
+     */
+    export type FromRegister<Key extends string, Fallback> = FromRegisterPath<[Key], Fallback>;
     ```
     
-    This fallback is really important. As previously mentioned, the SDK is compiled independently.
-    That means, that even without any module augmentation, the SDK still must be valid TypeScript project.
-    The default value must satisfy all the constraints that we expect of some type.
+    This fallback is really important. The SDK compiles before any other TypeScript project,
+    so at that point `Register` is always empty and every conditional type resolves to its fallback.
+    By having the fallback types satisfy everything the SDK expects of them, the SDK can compile on its own.
     
     E.g. for `serverEnvValidationSchema`, if user didn’t specify anything, we default to a empty `zod` object schema: 
     
@@ -395,7 +414,7 @@ So let’s show an actual example how Wasp does it:
       z.ZodObject<{}>
     >;
     ```
-    Since the server env validation code excepts “any” `zod` schema, this is enough for TypeScript to compile.
+    Since the server env validation code accepts “any” `zod` schema, this is enough for TypeScript to compile.
     
     Same pattern is applied for any SDK code that depends on the user project types.
     
@@ -512,16 +531,17 @@ So the SDK must accept values from a consumer.
 And what it can accept is defined by a contract / interface.
 This is usually known as dependency inversion.
 
-#### The staightforward approach
+#### The straightforward approach
 
-A staightforward way to implement this would be to use dependency injection.
+A straightforward way to implement this would be to use dependency injection.
 You export a function to “register” external dependencies, and your SDK handles logic depending if the dependencies had been registered.
 
 Suppose a full-stack framework’s dependency graph looks like this:
 
+{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/full-stack-app-deps.png"
-  alt="TODO"
+  alt="Dependency graph of a Wasp app: the user project depends on the SDK, and the generated client and server depend on both"
 />
 
 The SDK depends on nothing, the user project depends on the SDK, and the generated client and server depend on both the user project and the SDK.
@@ -529,73 +549,81 @@ The SDK depends on nothing, the user project depends on the SDK, and the generat
 Either the user can do it manually (but we don’t want that) or we can do it for user in the generated client and server projects.
 This also creates a nice runtime split, e.g. for operations, the generated server project would register the user’s operations into the SDK.
 
-Though, one big problem of this approach is race conditions.
+Though, one big problem of this approach is that it's fragile to module initialization order.
 The dependencies must be registered before they are used for the first time.
-This requires precise balancing of module initializaiton order, which is a chore.
-I’d be best if we could avoid it.
+This requires precise balancing of module initialization order, which is a chore.
+It'd be best if we could avoid it.
 
 #### The proxy approach
 
-One thing to remember is that cyclic dependencies are a problem only in TypeScript projects.
-TypeScript itself has no problems with cyclic imports between modules.
+One thing to remember is that cyclic dependencies are a problem only between TypeScript projects.
+Inside a bundle, cyclic imports between modules are business as usual.
 
-And in the end, our code will be nothing but bunch of JavaScript bundles in the end. 
+And in the end, our code will be nothing but a bunch of JavaScript bundles. 
 The server bundle will be a mix of generated server code, SDK code, and user project code. 
-Can we somehow, in e.g. server, use a variable from the user project it will have in server bundle, but without strictly depending on the user project? Well, yes we can! 
+Can we somehow, in e.g. the server, use a variable from the user project (it will be in the server bundle anyway), but without strictly depending on the user project? Well, yes we can! 
 
-This is the problem that virtual modules can solve.
-We will create a module under a name, e.g. `virutal:wasp/user/action/userGetAll`. And we will import user variables form it, e.g. `import { userGetAll } from "virutal:wasp/user/action/userGetAll"`, all while excepting that this magical name gets resolved to the actual user file where the operation is defined during bundle time. 
+This is the problem that virtual modules solve.
+The SDK imports user values through made-up module names: e.g., a definition in `src/operations.ts` is imported as `import { userGetAll } from "virtual:wasp/user/operations"`.
+The bundler resolves that magical name to the actual user file at bundle time.
+And bundling happens after all TypeScript projects have been compiled, so the compiler never sees a cycle.
 
-And it works like this:
+For that resolution to happen, each runtime that uses the SDK (the server and the client) must equip its bundler with a plugin that resolves virtual user modules into actual user files.
+Each plugin resolves only the virtual user modules that end up in its runtime's bundle.
+E.g., the server plugin resolves server-side user modules like operations, but not the client env validation schema.
 
-```tsx
+Here is the server one:
+
+```js title=".wasp/out/server/src/plugins/virtualUserModules.js"
 /**
- * Maps the name of a virtual module pointing to the user's file to
- * that file's relative import path from the server project root.
+ * Maps virtual module IDs (pointing to user's server modules)
+ * to their relative import paths from the server project root.
  * 
- * @example serverUserVirtualModuleMap["virtual:wasp/user/server-env-schema"] // resolves to "../../../src/env"
+ * @example 
+ * serverVirtualUserModuleMap["virtual:wasp/user/env"] // => "../../../src/env"
  */
-const serverUserVirtualModuleMap: { [userVirtualModuleId: string]: string } =  {
+const serverVirtualUserModuleMap = {
+  "virtual:wasp/user/env": "../../../src/env",
+  "virtual:wasp/user/operations": "../../../src/operations",
   // ...
 };
 
 /**
- * Resolves virtual modules pointing to user's files.
- * User virtual modules allow Wasp code to depend on user code at runtime,
- * without depending on the user's project during TypeScript compile time.
+ * Resolves virtual modules pointing to user's modules.
+ * Virtual user modules allow Wasp code to depend on user code at runtime,
+ * without depending on the user's project during compile time.
  */
-export function userVirtualModules() {
+export function virtualUserModules() {
   return {
-    name: "wasp:user-virtual-modules",
+    name: "wasp:virtual-user-modules",
     async resolveId(id) {
-      if (id in serverUserVirtualModuleMap) {
-        const absPath = path.resolve(serverRootDir, serverUserVirtualModuleMap[id]);
+      if (Object.hasOwn(serverVirtualUserModuleMap, id)) {
+        const absPath = path.resolve(serverRootDir, serverVirtualUserModuleMap[id]);
         return await this.resolve(absPath, undefined, { skipSelf: true });
       }
       return null;
     },
   };
 }
-
 ```
 
-So for each time we encounter virtual modules pointing to user’s files, we just resolve them to user’s files. That’s it.
+So each time the bundler encounters a virtual module pointing to a user's file, we just resolve it to that file. That’s it.
 
 Only detail left to do is to make this compilable in TypeScript.
-Since we import from “non-existant” module, we need to either ignore the type error, or declare module type declarations.
+Since the SDK imports from modules that don't exist at compile time, we generate an ambient module declaration for every virtual user module the SDK uses:
 
-```tsx
-// @ts-expect-error
-import { customSignup as customSignup_ext } from 'virtual:wasp/user/action/customSignup'
-
-// or
-
-declare module "virtual:wasp/user/action/customSignup" {
-  import { RegisteredCustomSignup } from "./server/operations/actions/index";
-
-  export const customSignup: RegisteredCustomSignup;
+```ts title=".wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts"
+declare module "virtual:wasp/user/operations" {
+  export const userGetAll: import("./server/operations/queries/index").RegisteredUserGetAll;
 }
 ```
+
+Notice the declared type: `RegisteredUserGetAll` is the conditional type from the previous section, so the value read through the virtual module is typed by the user's own operation definition.
+
+{/* NOTE(claude): paragraph below is my (AI) text, based on the comment in VirtualUserModules.hs. */}
+One detail: the type is written as an inline `import("...")` type on purpose.
+An ambient module declaration can't reach another module through a relative import statement (TS2439).
+And since the `skipLibCheck` tsconfig flag hides that error, writing it as an import statement would silently type every declared export as `any`.
 
 ### Recap of putting everything together
 
