@@ -2,7 +2,7 @@
 import { prisma } from 'wasp/server'
 
 {=# isAuthEnabled =}
-import { createInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 {=/ isAuthEnabled =}
 import type {
   {=# crud.operations.GetAll =}

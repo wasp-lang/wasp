@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.Start.Db
   ( start,
-    waspDevDbDockerVolumePrefix,
   )
 where
 
@@ -26,7 +25,7 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
@@ -158,8 +157,8 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
           ]
   liftIO $ callCommand command
   where
-    dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
-    dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
+    dockerVolumeName = Dev.Postgres.makeWaspDevDbDockerVolumeName waspProjectDir appName
+    dockerContainerName = Dev.Postgres.makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
 
@@ -180,24 +179,3 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
                   "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
                   Dev.Postgres.defaultDevPort
               )
-
--- | Docker volume name unique for the Wasp project with specified path and name.
-makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String
-makeWaspDevDbDockerVolumeName waspProjectDir appName =
-  take maxDockerVolumeNameLength $
-    waspDevDbDockerVolumePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
-
-waspDevDbDockerVolumePrefix :: String
-waspDevDbDockerVolumePrefix = "wasp-dev-db"
-
-maxDockerVolumeNameLength :: Int
-maxDockerVolumeNameLength = 255
-
--- | Docker container name unique for the Wasp project with specified path and name.
-makeWaspDevDbDockerContainerName :: Path' Abs (Dir WaspProjectDir) -> String -> String
-makeWaspDevDbDockerContainerName waspProjectDir appName =
-  take maxDockerContainerNameLength $
-    waspDevDbDockerVolumePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
-
-maxDockerContainerNameLength :: Int
-maxDockerContainerNameLength = 63

@@ -1,0 +1,19 @@
+diff --git a/src/actions.ts b/src/actions.ts
+new file mode 100644
+index 0000000..b8b2026
+--- /dev/null
++++ b/src/actions.ts
+@@ -0,0 +1,13 @@
++import type { Task } from "wasp/entities";
++import type { CreateTask } from "wasp/server/operations";
++
++type CreateTaskPayload = Pick<Task, "description">;
++
++export const createTask: CreateTask<CreateTaskPayload, Task> = async (
++  args,
++  context,
++) => {
++  return context.entities.Task.create({
++    data: { description: args.description },
++  });
++};

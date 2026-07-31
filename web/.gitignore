@@ -20,9 +20,6 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 
-# LLM files
-llms*.txt
-
 # Blog drafts
 _blog_drafts
 
