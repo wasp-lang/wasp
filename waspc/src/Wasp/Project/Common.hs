@@ -51,6 +51,9 @@ data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
+-- | This file has some information about any process currently running in the
+-- project, and is protected by a OS advisory lock to avoid multiple processes
+-- working at the same time.
 data WaspProjectLockfile
 
 data UserPackageJsonFile
