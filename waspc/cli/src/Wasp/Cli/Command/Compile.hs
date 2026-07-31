@@ -56,7 +56,7 @@ compile = do
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   ValidNodeAndNpm <- require
-  InLockedWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir _ <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

@@ -1,17 +1,25 @@
+{-# LANGUAGE CPP #-}
+
 module Wasp.Cli.ProjectLockTest where
 
+import Control.Exception (bracket)
+import Control.Monad (unless)
 import Data.Maybe (fromJust)
+import qualified Lukko
 import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as Directory
 import System.IO.Temp (withSystemTempDirectory)
+import System.Process (getCurrentPid)
 import Test.Hspec
+import Text.Read (readMaybe)
 import Wasp.Cli.ProjectLock
-  ( ProjectLockError (..),
+  ( ProjectLock,
+    ProjectLockError (..),
+    WaspProcessId,
     acquireProjectLock,
     releaseProjectLock,
   )
-import Wasp.Cli.ProjectLock.System (getCurrentWaspProcessId)
 import Wasp.Project.Common
   ( WaspProjectDir,
     WaspProjectLockfile,
@@ -21,41 +29,76 @@ import Wasp.Project.Common
 spec_projectLock :: Spec
 spec_projectLock = do
   describe "project lock file" $ do
-    it "rejects a lock owned by a running process" $
+    it "rejects an acquire while another process holds the lock" $
       withTempWaspProject $ \waspProjectDir -> do
-        processId <- getCurrentWaspProcessId
-        writeLockFile waspProjectDir $ show processId
+        writeLockFile waspProjectDir $ show foreignOwnerProcessId
+        withForeignLock (lockFilePath waspProjectDir) $
+          acquireProjectLock (projectLockFilePath waspProjectDir) >>= \case
+            Right _ -> expectationFailure "Expected the lock to be held"
+            Left lockError -> lockError `shouldBe` ProjectLockHeld expectedForeignOwner
 
-        acquireProjectLock (projectLockFilePath waspProjectDir)
-          `shouldReturn` Left (ProjectLockHeld processId)
-
-    it "reclaims a lock owned by a dead process" $
+    it "acquires a lock whose previous owner died" $
       withTempWaspProject $ \waspProjectDir -> do
+        -- A leftover lock file without a process holding the OS-level lock is
+        -- exactly what a dead owner leaves behind.
         writeLockFile waspProjectDir "999999999"
+        releaseProjectLock =<< expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
 
-        acquireProjectLock (projectLockFilePath waspProjectDir) >>= \case
-          Left lockError -> expectationFailure $ "Expected to acquire lock, got: " ++ show lockError
-          Right _ -> releaseProjectLock (projectLockFilePath waspProjectDir)
-
-    it "fails safely when the lock file is malformed" $
+    it "acquires a lock even if the lock file contents are malformed" $
       withTempWaspProject $ \waspProjectDir -> do
         writeLockFile waspProjectDir "not a process ID"
+        releaseProjectLock =<< expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
 
-        acquireProjectLock (projectLockFilePath waspProjectDir) >>= \case
-          Left (ProjectLockMalformed _) -> return ()
-          other -> expectationFailure $ "Expected ProjectLockMalformed, got: " ++ show other
+    it "writes the current process's PID into the lock file" $
+      withTempWaspProject $ \waspProjectDir -> do
+        releaseProjectLock =<< expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
+        expectedProcessId <- fromIntegral <$> getCurrentPid
+        contents <- readFile (lockFilePath waspProjectDir)
+        readMaybe contents `shouldBe` Just (expectedProcessId :: WaspProcessId)
 
     it "can be acquired again after release" $
       withTempWaspProject $ \waspProjectDir -> do
-        _ <- expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
-        releaseProjectLock (projectLockFilePath waspProjectDir)
-        _ <- expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
-        releaseProjectLock (projectLockFilePath waspProjectDir)
+        releaseProjectLock =<< expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
+        releaseProjectLock =<< expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
 
-expectAcquired :: Either ProjectLockError processId -> IO processId
+    it "does not delete the lock file on release" $
+      withTempWaspProject $ \waspProjectDir -> do
+        releaseProjectLock =<< expectAcquired =<< acquireProjectLock (projectLockFilePath waspProjectDir)
+        Directory.doesFileExist (lockFilePath waspProjectDir) `shouldReturn` True
+
+foreignOwnerProcessId :: WaspProcessId
+foreignOwnerProcessId = 424242
+
+-- | The owner PID that 'acquireProjectLock' is expected to report for a lock
+-- held by 'withForeignLock'.
+expectedForeignOwner :: Maybe WaspProcessId
+#ifdef mingw32_HOST_OS
+-- On Windows, a locked file can't be read through other handles, so the
+-- owner's PID can't be reported.
+expectedForeignOwner = Nothing
+#else
+expectedForeignOwner = Just foreignOwnerProcessId
+#endif
+
+-- | Simulates another process holding the lock. We can't use
+-- 'acquireProjectLock' for the holder because GHC forbids opening a file for
+-- writing twice within the same process. Lukko's FD API bypasses GHC's handle
+-- bookkeeping, so from this process's point of view the lock behaves exactly
+-- like one taken by a different process.
+withForeignLock :: FilePath -> IO a -> IO a
+withForeignLock path action = bracket takeLock dropLock (const action)
+  where
+    takeLock = do
+      fd <- Lukko.fdOpen path
+      acquired <- Lukko.fdTryLock fd Lukko.ExclusiveLock
+      unless acquired $ expectationFailure "Test setup: expected to take the foreign lock"
+      return fd
+    dropLock fd = Lukko.fdUnlock fd >> Lukko.fdClose fd
+
+expectAcquired :: Either ProjectLockError ProjectLock -> IO ProjectLock
 expectAcquired = \case
   Left lockError -> expectationFailure ("Expected to acquire lock, got: " ++ show lockError) >> error "unreachable"
-  Right processId -> return processId
+  Right lock -> return lock
 
 withTempWaspProject :: (Path' Abs (Dir WaspProjectDir) -> IO a) -> IO a
 withTempWaspProject action =
@@ -65,9 +108,8 @@ withTempWaspProject action =
 
 writeLockFile :: Path' Abs (Dir WaspProjectDir) -> String -> IO ()
 writeLockFile waspProjectDir contents = do
-  let lockFile = lockFilePath waspProjectDir
   Directory.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent $ projectLockFilePath waspProjectDir
-  writeFile lockFile contents
+  writeFile (lockFilePath waspProjectDir) contents
 
 projectLockFilePath :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (File WaspProjectLockfile)
 projectLockFilePath waspProjectDir = waspProjectDir </> projectLockFileInWaspProjectDir

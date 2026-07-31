@@ -1,68 +1,81 @@
 module Wasp.Cli.ProjectLock
-  ( WaspProcessId,
+  ( ProjectLock,
     ProjectLockError (..),
+    WaspProcessId,
     acquireProjectLock,
     releaseProjectLock,
   )
 where
 
-import Control.Exception (try)
-import Control.Monad (when)
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError, withExceptT)
-import Control.Monad.IO.Class (liftIO)
-import Data.Bifunctor (bimap)
+import Control.Exception (IOException, try)
+import qualified Data.Text as T
+import qualified Lukko
 import StrongPath (Abs, File, Path')
 import qualified StrongPath as SP
 import qualified System.Directory as Directory
-import System.IO.Error (isDoesNotExistError)
-import Text.Read (readEither)
-import Wasp.Cli.ProjectLock.System (getCurrentWaspProcessId, isProcessAlive)
-import Wasp.Project.Common
-  ( WaspProjectLockfile,
-  )
-import Wasp.Util (trim)
+import System.IO (Handle, IOMode (ReadWriteMode), hClose, hFlush, hPutStr, hSetFileSize, openFile)
+import System.Process (getCurrentPid)
+import Text.Read (readMaybe)
+import Wasp.Project.Common (WaspProjectLockfile)
 import qualified Wasp.Util.IO as Wasp.IO
-import Prelude hiding (writeFile)
 
 type WaspProcessId = Integer
 
-data ProjectLockError
-  = ProjectLockHeld WaspProcessId
-  | ProjectLockMalformed String
-  | ProjectLockOwnerCheckFailed WaspProcessId String
+-- | Proof that this process holds the lock on a Wasp project.
+--
+-- Holds the open handle backing the OS-level lock: the lock is held for
+-- exactly as long as the handle stays open, so keep this value reachable for
+-- as long as the project should stay locked (GHC closes handles that become
+-- unreachable). The OS releases the lock when the process exits, even if it
+-- crashes.
+newtype ProjectLock = ProjectLock Handle
+
+newtype ProjectLockError
+  = -- | Another process holds the lock. Carries that process's PID as read
+    -- from the lock file, if it could be read and parsed.
+    ProjectLockHeld (Maybe WaspProcessId)
   deriving (Eq, Show)
 
-acquireProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO (Either ProjectLockError ())
-acquireProjectLock lockFilePath = runExceptT $ do
-  lockExists <- liftIO $ Wasp.IO.doesFileExist lockFilePath
-  when lockExists $ do
-    lockOwner <- readLockOwner lockFilePath
-    maybe (pure ()) assertProcessIsDead lockOwner
-  acquire
+-- | Tries to take an exclusive OS-level advisory lock on the project's lock
+-- file, creating the file if needed. On success, writes our PID into the lock
+-- file, purely as information for the error message other processes show.
+--
+-- NOTE: The lock file is intentionally never deleted, not even on release. An
+-- advisory lock protects the open file, but not its directory entry: if we
+-- deleted the file, another process could re-create the path and lock the new
+-- file while a third process still holds the lock on the old, now-unlinked
+-- one, leaving two processes convinced they hold the project lock.
+-- See https://theworld.com/~swmcd/steven/tech/flock.html for details.
+acquireProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO (Either ProjectLockError ProjectLock)
+acquireProjectLock lockFilePath = do
+  Directory.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent lockFilePath
+  lockFileHandle <- openFile (SP.fromAbsFile lockFilePath) ReadWriteMode
+  Lukko.hTryLock lockFileHandle Lukko.ExclusiveLock >>= \case
+    True -> do
+      writeOwnerProcessId lockFileHandle
+      return $ Right $ ProjectLock lockFileHandle
+    False -> do
+      hClose lockFileHandle
+      Left . ProjectLockHeld <$> readOwnerProcessId
   where
-    assertProcessIsDead processId = do
-      processIsAlive <-
-        withExceptT (ProjectLockOwnerCheckFailed processId) $
-          ExceptT (isProcessAlive processId)
+    -- We write through the handle holding the lock because, on Windows, a
+    -- locked file can't be written to through other handles.
+    writeOwnerProcessId lockFileHandle = do
+      processId <- getCurrentPid
+      hSetFileSize lockFileHandle 0
+      hPutStr lockFileHandle $ show (fromIntegral processId :: WaspProcessId)
+      hFlush lockFileHandle
 
-      when processIsAlive $
-        throwError (ProjectLockHeld processId)
+    -- Reading can fail (on Windows, a locked file can't be read through other
+    -- handles) and parsing can fail (e.g. the owner hasn't written its PID
+    -- yet), in which case we just don't know who the owner is.
+    readOwnerProcessId :: IO (Maybe WaspProcessId)
+    readOwnerProcessId =
+      try (Wasp.IO.readFileStrict lockFilePath) >>= \case
+        Left (_ :: IOException) -> return Nothing
+        Right contents -> return $ readMaybe $ T.unpack $ T.strip contents
 
-    acquire = liftIO $ do
-      Directory.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent lockFilePath
-      processId <- getCurrentWaspProcessId
-      Wasp.IO.writeFile lockFilePath (show processId)
-
-releaseProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO ()
-releaseProjectLock = Wasp.IO.deleteFileIfExists
-
-readLockOwner :: Path' Abs (File WaspProjectLockfile) -> ExceptT ProjectLockError IO (Maybe WaspProcessId)
-readLockOwner lockFilePath = ExceptT $ do
-  try (Wasp.IO.readFile lockFilePath) >>= \case
-    Left ioException
-      | isDoesNotExistError ioException -> pure $ Right Nothing
-      | otherwise -> (liftIO $ ioError ioException)
-    Right contents ->
-      return $
-        bimap ProjectLockMalformed Just $
-          readEither (trim contents)
+-- | Releases the lock by closing the handle holding it. The lock file itself
+-- stays behind; see 'acquireProjectLock' for why it must not be deleted.
+releaseProjectLock :: ProjectLock -> IO ()
+releaseProjectLock (ProjectLock lockFileHandle) = hClose lockFileHandle

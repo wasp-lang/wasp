@@ -29,7 +29,6 @@ import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
-import Control.Monad.Trans.Resource (MonadResource, ResourceT, runResourceT)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
@@ -38,13 +37,13 @@ import qualified Wasp.Message as Msg
 
 newtype Command a = Command
   { _runCommand ::
-      StateT [Requirement] (ExceptT CommandError (ResourceT IO)) a
+      StateT [Requirement] (ExceptT CommandError IO) a
   }
-  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadResource)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do
-  result <- runResourceT $ runExceptT $ (`evalStateT` []) $ _runCommand cmd
+  result <- runExceptT $ (`evalStateT` []) $ _runCommand cmd
   case result of
     Left cmdError -> do
       cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)

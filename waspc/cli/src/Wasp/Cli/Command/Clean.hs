@@ -14,13 +14,15 @@ import Wasp.Util.Terminal (styleCode)
 
 clean :: Command ()
 clean = do
-  InLockedWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir _ <- require
 
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
 
-  deleteDirectoryIfExistsVerbosely dotWaspDir
   deleteDirectoryIfExistsVerbosely nodeModulesDir
+  -- We delete the .wasp dir last because it holds the project lock, so until
+  -- it's gone, other Wasp commands can't start working on this project.
+  deleteDirectoryIfExistsVerbosely dotWaspDir
 
   cliSendMessageC $
     Msg.Info $

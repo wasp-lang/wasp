@@ -19,7 +19,7 @@ import Wasp.Project.Common (WaspProjectDir)
 install :: Command ()
 install = do
   ValidNodeAndNpm <- require
-  InLockedWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir _ <- require
   liftIO (installIO waspProjectDir)
     >>= either
       (throwError . CommandError "Couldn't install npm dependencies")

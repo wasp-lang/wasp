@@ -49,7 +49,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Very similar to 'compile'.
 build :: Command ()
 build = do
-  InLockedWaspProject waspProjectDir <- require
+  InLockedWaspProject waspProjectDir _ <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
 
