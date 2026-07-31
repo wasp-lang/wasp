@@ -35,16 +35,12 @@ import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 
-newtype Command a = Command
-  { _runCommand ::
-      StateT [Requirement] (ExceptT CommandError IO) a
-  }
+newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do
-  result <- runExceptT $ (`evalStateT` []) $ _runCommand cmd
-  case result of
+  runExceptT (flip evalStateT [] $ _runCommand cmd) >>= \case
     Left cmdError -> do
       cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
       exitFailure
