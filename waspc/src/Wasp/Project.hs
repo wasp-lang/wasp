@@ -10,7 +10,7 @@ module Wasp.Project
   )
 where
 
-import Control.Arrow (ArrowChoice (left), first)
+import Control.Arrow (ArrowChoice (left))
 import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
@@ -27,19 +27,20 @@ compile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
-  IO ([CompileWarning], [CompileError])
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 compile waspDir outDir options = do
-  compileWarningsAndErrors <-
+  (compileWarnings, appSpecOrCompileErrors) <-
     analyzeWaspProject waspDir options >>= \case
-      (Left analyzerErrors, analyzerWarnings) -> return (analyzerWarnings, analyzerErrors)
-      (Right appSpec, analyzerWarnings) ->
-        first (<> analyzerWarnings) <$> generateCode appSpec outDir options
+      (Left analyzerErrors, analyzerWarnings) ->
+        return (analyzerWarnings, Left analyzerErrors)
+      (Right appSpec, analyzerWarnings) -> do
+        (generatorWarnings, generatorErrors) <- generateCode appSpec outDir options
+        return
+          ( generatorWarnings <> analyzerWarnings,
+            if null generatorErrors then Right appSpec else Left generatorErrors
+          )
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
-  return $
-    mconcat
-      [ compileWarningsAndErrors,
-        (dotEnvWarnings, [])
-      ]
+  return (compileWarnings <> dotEnvWarnings, appSpecOrCompileErrors)
 
 generateCode ::
   AS.AppSpec ->

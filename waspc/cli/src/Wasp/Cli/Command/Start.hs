@@ -40,7 +40,7 @@ start = do
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-  warnings <- compile
+  (warnings, _) <- compile
 
   DbConnectionEstablished <- require
 
