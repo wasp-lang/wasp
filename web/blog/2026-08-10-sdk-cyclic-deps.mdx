@@ -8,7 +8,6 @@ description: "How Wasp...."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
-import { VideoWithCaption } from './components/VideoWithCaption';
 
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/banner.png"
@@ -410,9 +409,9 @@ And TypeScript really does not want to keep it that way.
 Remember, the SDK is a standalone project, it compiles alone.
 Module augmentation is not a part of the SDK compilation.
 So, whenever the compiler sees `FromRegister<"someKey", Fallback>`, it resolves it on the spot.
-`Register` is always empty,so  the whole conditional collapses to `Fallback`. No need for complexity.
+`Register` is always empty, so the whole conditional collapses to `Fallback`. No need for complexity.
 
-While that alone is fine (the SDK still compiles), the problem is how the user project seessees the SDK.
+While that alone is fine (the SDK still compiles), the problem is how the user project sees the SDK.
 In emitted `.d.ts` files, for every value whose type is *inferred*, TypeScript emits the *resolved* type.
 
 Consider the following code (`Schema` is a minimal `zod` stand-in, to keep the compiled output readable):
@@ -426,9 +425,16 @@ declare function getUserSchema<Key extends string, Fallback>(
   fallback: Fallback,
 ): FromRegister<Key, Fallback>;
 
-// Everything below is inferred. No explicit type annotations.
-const userServerEnvSchema = getUserSchema("serverEnvValidationSchema", makeSchema<{}>());
-const serverEnvSchema = intersectSchemas(userServerEnvSchema, waspServerEnvSchema);
+// Everything below is inferred.
+// No explicit type annotations.
+const userServerEnvSchema = getUserSchema(
+  "serverEnvValidationSchema",
+  makeSchema<{}>(),
+);
+const serverEnvSchema = intersectSchemas(
+  userServerEnvSchema,
+  waspServerEnvSchema,
+);
 
 export const env = serverEnvSchema.parse(process.env);
 ```
@@ -442,17 +448,19 @@ export declare const env: {
 ```
 
 `FromRegister` left no trace. And that is a problem.
-The user project will always see thee `Fallback`, even if it does module augmentation.
+The user project will always see the `Fallback`, even if it does module augmentation.
 The conditional type is gone, so there is nothing left to react to the augmented `Register`.
 The type can never switch to its "user derived type" variant. It's `Fallback`, forever.
 
 How do we stop this? A compiler flag? Well, there is nothing like that.
 We have to exploit that TypeScript only computes the types it has to infer.
 **A type annotation you write out EXPLICITLY is copied into the declaration file verbatim**.
-So we must explicitly set the conditional type on every type derived from the `Register`:
+So we must explicitly set the conditional type on every type derived from the `Register`.
+The runtime `env.js` output stays exactly the same, this whole fight is only about the declaration file:
 
 ```ts title="sdk/wasp/server/env.ts (simplified)"
-// This one can still be inferred, it comes from the SDK itself.
+// This one can still be inferred,
+// it comes from the SDK itself.
 const waspServerEnvSchema = makeSchema<{ PORT: number }>();
 
 // We must explicitly set the conditional type here.
@@ -464,21 +472,25 @@ type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
 const userServerEnvSchema: UserServerEnvSchema = makeSchema<{}>();
 
 // We must explicitly set the type here.
-type CompleteServerEnvSchema = SchemaIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+type CompleteServerEnvSchema = SchemaIntersection<
+  UserServerEnvSchema,
+  typeof waspServerEnvSchema
+>;
 const serverEnvSchema: CompleteServerEnvSchema = intersectSchemas(
   userServerEnvSchema,
   waspServerEnvSchema,
 );
 
 // We must explicitly set the type here.
-export const env: Infer<CompleteServerEnvSchema> = serverEnvSchema.parse(process.env);
+export const env: Infer<CompleteServerEnvSchema> =
+  serverEnvSchema.parse(process.env);
 ```
 
 And now the compiled declaration file keeps everything:
 
 ```ts title="sdk/wasp/server/env.d.ts (compiled, explicit)"
 import { FromRegister } from "../types/register.js";
-import { Infer, Schema, SchemaIntersection } from "shema-package";
+import { Infer, Schema, SchemaIntersection } from "schema-package";
 declare const waspServerEnvSchema: Schema<{
     PORT: number;
 }>;
@@ -524,10 +536,12 @@ I’d be best if we could avoid it.
 
 #### The proxy approach
 
-One thing to remember is that cyclic dependencies are a problem only in TypeScript projects. 
-JavaScript itself has no problems with cyclic imports between modules. Aa long as we don’t have cyclic value initialization.
+One thing to remember is that cyclic dependencies are a problem only in TypeScript projects.
+TypeScript itself has no problems with cyclic imports between modules.
 
-And in the end, the code will be nothing but bunch of javascript bundles in the end. The server bundle will be mix of original server code, SDK code and user project code. Can we somehow, in e.g. server, use a variable from the user project it will have in server bundle, but without strictly depending on the user project? Well, yes we can! 
+And in the end, our code will be nothing but bunch of JavaScript bundles in the end. 
+The server bundle will be a mix of generated server code, SDK code, and user project code. 
+Can we somehow, in e.g. server, use a variable from the user project it will have in server bundle, but without strictly depending on the user project? Well, yes we can! 
 
 This is the problem that virtual modules can solve.
 We will create a module under a name, e.g. `virutal:wasp/user/action/userGetAll`. And we will import user variables form it, e.g. `import { userGetAll } from "virutal:wasp/user/action/userGetAll"`, all while excepting that this magical name gets resolved to the actual user file where the operation is defined during bundle time. 
