@@ -49,10 +49,10 @@ import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
-import Wasp.Project.Apps (Apps)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import Wasp.Project.PerService (PerService)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.SemanticVersion as SV
 
@@ -77,7 +77,7 @@ data AppSpec = AppSpec
     externalCodeFiles :: [ExternalFiles.CodeFile],
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Env variables to be provided to each app only during the development.
-    devEnvVars :: Apps [EnvVar],
+    devEnvVars :: PerService [EnvVar],
     buildType :: BuildType.BuildType,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,

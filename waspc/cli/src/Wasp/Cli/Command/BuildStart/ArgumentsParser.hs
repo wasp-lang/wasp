@@ -9,11 +9,11 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
-import Wasp.Project.Apps (Apps)
-import qualified Wasp.Project.Apps as Apps
+import Wasp.Project.PerService (PerService)
+import qualified Wasp.Project.PerService as PerService
 
 newtype BuildStartArgs = BuildStartArgs
-  { envInputs :: Apps ([EnvVar], [FilePathArgument])
+  { envInputs :: PerService ([EnvVar], [FilePathArgument])
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
@@ -21,7 +21,7 @@ buildStartArgsParser =
   BuildStartArgs
     <$> envInputsParser
   where
-    envInputsParser = for Apps.names $ \name ->
+    envInputsParser = for PerService.names $ \name ->
       liftA2
         (,)
         (Opt.many $ makeEnvironmentVariableParser name (name ++ "-env") (head name))
