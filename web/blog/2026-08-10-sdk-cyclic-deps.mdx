@@ -600,3 +600,32 @@ declare module "virtual:wasp/user/action/customSignup" {
 ### Recap of putting everything together
 
 ## Conclusion
+## Addendum: type portability, the price of the package boundary
+
+There is one more constraint the new architecture bought us, and it's subtle enough to deserve its own note.
+
+The server and client projects reference the user's project through TypeScript project references.
+That forces the user's tsconfig to set `composite: true`, which implies `declaration: true`.
+So user code is now declaration-emitted: every exported binding without an explicit type annotation gets its inferred type serialized into a `.d.ts` file.
+
+If that inferred type contains a type symbol from the SDK, `tsc` must write a reference to that symbol.
+E.g., an authenticated operation's context contains `AuthUser`.
+And since the user's project sits outside the `wasp` package, the only references `tsc` is allowed to synthesize are package specifiers that resolve through the package's `exports` map, like `import("wasp/auth/user").AuthUser`.
+If the declaring module is not reachable through the `exports` map, there is no legal spelling for the type, and declaration emit fails (the "The inferred type of X cannot be named" family of errors).
+
+So the SDK must respect a rule we call the type portability constraint:
+**any type that can appear in a user's inferred exported types must be declared in a module reachable through the SDK's `exports` map.**
+Some entries in the SDK's `exports` exist only to satisfy this rule, nothing imports them directly.
+
+The interesting part: the old copy architecture did not have this problem, and not by luck.
+Back then the user's `src/` was copied into the SDK package itself and compiled as part of the SDK's own TypeScript project.
+The `exports` map only constrains importers outside a package; inside the package it doesn't apply at all.
+When declaration emit needed to name `AuthUser`, it could always synthesize a relative import type like `import("../server/auth/user").AuthUser`, pointing at a sibling file in the same `dist`.
+Every module in a package is addressable relatively from every other module, so every symbol was always nameable.
+
+In other words: `tsc` didn't change, we did.
+The old approach paid for this convenience by compiling the user's code under the SDK's tsconfig, the exact problem we set out to fix.
+The new approach frees the user's tsconfig, but moves their code to the far side of the package boundary, and type references that cross a package boundary must be portable.
+
+One last nuance: this class of error was always possible for symbols coming from third-party packages with restrictive `exports` (a Prisma type in an inferred return type, say).
+What's new is only that `wasp` itself joined that category.
