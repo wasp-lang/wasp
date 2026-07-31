@@ -53,11 +53,14 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-  ports <- resolveAppPorts args.ports
-
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
+
+  -- Nothing holds on to the ports we pick until the generated app binds them, so somebody
+  -- else can take them in the meantime. We resolve them as late as we can (compiling can
+  -- take a while, especially on the first run) to keep that window short.
+  ports <- resolveAppPorts args.ports
 
   let waspEnvVars = getWaspEnvVars appSpec ports
   throwIfWaspOwnedEnvVarsAreSet waspProjectDir (map fst <$> waspEnvVars)
