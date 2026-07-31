@@ -11,7 +11,7 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 import { VideoWithCaption } from './components/VideoWithCaption';
 
 <ImgWithCaption
-      source="img/blog/sdk-cyclic-deps/banner.png"
+  source="img/blog/sdk-cyclic-deps/banner.png"
   alt="TODO"
 />
 
@@ -248,7 +248,7 @@ Well, we can:
 {/* FIXME: Filip does not like the word "push" in this context, Martin did not understand the word "bridge". Find something third? */}
 So to emulate project dependencies, we must figure out how to push user values and types to SDK. In that way SDK can access them without directly depending on them.
 
-### Pushing types from user project to SDK
+### Pushing types from the user project to the SDK
 
 So, how to push user types form the user project to the SDK?
 TypeScript provides functionalities out of box that allow that. 
@@ -494,27 +494,38 @@ The conditional type survives, written out exactly as we wrote it.
 Yep, a lot of forced types, but that is the whole trick.
 You can get away with this approach as long as every type derived from the `Register` is set explicitly, be it `: RegisteredType`, `as RegisteredType` or `T extends RegisteredType`. 
 
-### Pushing values from user project to SDK
+### Pushing values from the user project to the SDK
 
-So the SDK must accept values from a consumer. And what it can accept is defined by a contract / interface. This is usually known as dependency inversion. 
+So the SDK must accept values from a consumer.
+And what it can accept is defined by a contract / interface.
+This is usually known as dependency inversion.
 
-The easy approach
+#### The staightforward approach
 
-A easy way to implement this would be to use dependency injection. You export a function to “register” external dependencies, and your SDK handles logic depending if the dependencies has been registered.
+A staightforward way to implement this would be to use dependency injection.
+You export a function to “register” external dependencies, and your SDK handles logic depending if the dependencies had been registered.
 
 Suppose a full-stack framework’s dependency graph looks like this:
 
-!image.png
+<ImgWithCaption
+  source="img/blog/sdk-cyclic-deps/full-stack-app-deps.png"
+  alt="TODO"
+/>
 
-SDK depends no nothing. User project depends on the SDK. Generated client and server depend on both the user project and the SDK.
+The SDK depends on nothing, the user project depends on the SDK, and the generated client and server depend on both the user project and the SDK.
 
-So the project which does dependency injection must depend on the SDK. Either the user can do it manually (but we don’t want that) or we can do it for user in the generate client and server projects. In case of operations, the generate server project would register user’s operations into the SDK.
+Either the user can do it manually (but we don’t want that) or we can do it for user in the generated client and server projects.
+This also creates a nice runtime split, e.g. for operations, the generated server project would register the user’s operations into the SDK.
 
-Though, one big problem of this approach is race conditions. The dependencies must be registered before they are used for the first time. This requires precise balancing of module execution and import order.  Which is a chore. I’d be best if we could avoid them.
+Though, one big problem of this approach is race conditions.
+The dependencies must be registered before they are used for the first time.
+This requires precise balancing of module initializaiton order, which is a chore.
+I’d be best if we could avoid it.
 
-Avoiding problems of the easy approach
+#### The proxy approach
 
-One thing to remember is that cyclic dependencies are a problem only in TypeScript projects. JavaScript itself has no problems with cyclic imports between modules. Aa long as we don’t have cyclic value initialization.
+One thing to remember is that cyclic dependencies are a problem only in TypeScript projects. 
+JavaScript itself has no problems with cyclic imports between modules. Aa long as we don’t have cyclic value initialization.
 
 And in the end, the code will be nothing but bunch of javascript bundles in the end. The server bundle will be mix of original server code, SDK code and user project code. Can we somehow, in e.g. server, use a variable from the user project it will have in server bundle, but without strictly depending on the user project? Well, yes we can! 
 
