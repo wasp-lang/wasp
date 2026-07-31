@@ -284,9 +284,9 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
