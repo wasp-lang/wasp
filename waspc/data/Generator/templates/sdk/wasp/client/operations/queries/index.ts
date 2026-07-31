@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { type QueryFor, createQuery } from "./core";
-import {
+import type {
 {=# queries =}
-  type {= registeredOperationTypeName =},
+  {= registeredOperationTypeName =},
 {=/ queries =}
 } from "../../../server/operations/queries/index";
 {=# queries =}
