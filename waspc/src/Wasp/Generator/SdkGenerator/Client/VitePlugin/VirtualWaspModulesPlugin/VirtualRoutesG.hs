@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG
+module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG
   ( genVirtualRoutesTsx,
   )
 where

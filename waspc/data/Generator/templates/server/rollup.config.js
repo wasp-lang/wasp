@@ -1,7 +1,7 @@
 {{={= =}=}}
 import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
-import { waspVirtualUserModules } from "./src/plugins/waspVirtualUserModules.js";
+import { virtualUserModules } from "./src/plugins/virtualUserModules.js";
 
 export default [
   createBundle("src/server.ts", "bundle/server.js"),
@@ -19,7 +19,7 @@ function createBundle(inputFilePath, outputFilePath) {
       sourcemap: true,
     },
     plugins: [
-      waspVirtualUserModules(),
+      virtualUserModules(),
       // We added `".ts"` to the default `extensions` array value.
       // This is because the `virtualUserModules` plugin
       // can resolve user virtual modules to TypeScript files.

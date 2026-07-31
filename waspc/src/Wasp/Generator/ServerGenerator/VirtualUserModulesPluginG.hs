@@ -1,5 +1,5 @@
-module Wasp.Generator.ServerGenerator.WaspVirtualUserModulesPluginG
-  ( genWaspVirtualUserModulesPlugin,
+module Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
+  ( genVirtualUserModulesPlugin,
   )
 where
 
@@ -18,11 +18,11 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.Generator.ServerGenerator.JsImport as ServerJI
 
 -- The plugin resolves server-side virtual user modules used by the SDK.
-genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
-genWaspVirtualUserModulesPlugin spec =
+genVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
+genVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
-      [relfile|src/plugins/waspVirtualUserModules.js|]
+      [relfile|src/plugins/virtualUserModules.js|]
       (Just $ object ["virtualUserModules" .= map mkPluginData (VUM.getServerVirtualUserModules spec)])
   where
     mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson

@@ -12,11 +12,11 @@ const resolveVirtualFiles = makeVirtualFilesResolver([
   { id: "/@wasp/ssr-entry.tsx", load: getSsrEntryTsxContent },
 ]);
 
-export function waspVirtualModules(): Plugin {
+export function virtualWaspModules(): Plugin {
   let virtualFiles!: VirtualFiles;
 
   return {
-    name: "wasp:virtual-modules",
+    name: "wasp:virtual-wasp-modules",
     enforce: "pre",
     configResolved(config) {
       virtualFiles = resolveVirtualFiles(config.root);

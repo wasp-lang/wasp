@@ -1,4 +1,3 @@
-{{={= =}=}}
 import { type Plugin } from "vite";
 import {
   getClientEntryTsxContent,
@@ -8,16 +7,16 @@ import {
 import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
-  { id: "{= clientEntryPointPath =}", load: getClientEntryTsxContent },
-  { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
-  { id: "{= ssrEntryPointPath =}", load: getSsrEntryTsxContent },
+  { id: "/@wasp/client-entry.tsx", load: getClientEntryTsxContent },
+  { id: "/@wasp/routes.tsx", load: getRoutesTsxContent },
+  { id: "/@wasp/ssr-entry.tsx", load: getSsrEntryTsxContent },
 ]);
 
-export function waspVirtualModules(): Plugin {
+export function virtualWaspModules(): Plugin {
   let virtualFiles!: VirtualFiles;
 
   return {
-    name: "wasp:virtual-modules",
+    name: "wasp:virtual-wasp-modules",
     enforce: "pre",
     configResolved(config) {
       virtualFiles = resolveVirtualFiles(config.root);

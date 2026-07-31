@@ -18,7 +18,7 @@ const serverVirtualUserModuleMap = {
  * Virtual user modules allow Wasp code to depend on user code at runtime,
  * without depending on the user's project during compile time.
  */
-export function waspVirtualUserModules() {
+export function virtualUserModules() {
   return {
     name: "wasp:virtual-user-modules",
     async resolveId(id) {

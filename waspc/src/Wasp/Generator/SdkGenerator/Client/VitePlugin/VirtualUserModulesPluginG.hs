@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualUserModulesPluginG
-  ( genWaspVirtualUserModulesPlugin,
+module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG
+  ( genVirtualUserModulesPlugin,
   )
 where
 
@@ -13,11 +13,11 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 
 -- The plugin resolves client-side virtual user modules used by the SDK.
-genWaspVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
-genWaspVirtualUserModulesPlugin spec =
+genVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
+genVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
-      (C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualUserModules.ts|])
+      (C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualUserModules.ts|])
       (object ["virtualUserModules" .= map mkPluginData (VUM.getClientVirtualUserModules spec)])
   where
     mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson

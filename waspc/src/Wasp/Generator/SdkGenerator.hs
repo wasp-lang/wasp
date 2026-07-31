@@ -126,7 +126,7 @@ genSdk spec =
       genServerExportedTypesDir,
       genPackageJson spec,
       genServerDbClient spec,
-      genWaspVirtualUserModulesDeclaration spec
+      genVirtualUserModulesDeclaration spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -352,8 +352,8 @@ genServerDbClient spec = do
     app = snd $ getApp spec
 
 -- | Declares only those virtual user modules that are used by the SDK.
-genWaspVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
-genWaspVirtualUserModulesDeclaration spec =
+genVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
+genVirtualUserModulesDeclaration spec =
   return $
     C.mkTmplFdWithData
       [relfile|wasp-user-virtual-modules.d.ts|]

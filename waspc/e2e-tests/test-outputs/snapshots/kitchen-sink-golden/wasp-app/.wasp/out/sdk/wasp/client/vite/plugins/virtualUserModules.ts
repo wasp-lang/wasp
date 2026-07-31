@@ -1,4 +1,3 @@
-{{={= =}=}}
 import path from "node:path";
 import { type Plugin } from "vite";
 
@@ -10,9 +9,7 @@ import { type Plugin } from "vite";
  * clientVirtualUserModuleMap["virtual:wasp/user/env"] // => "./src/env"
  */
 const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
-  {=# virtualUserModules =}
-  '{=& virtualModuleId =}': '{=& importJson.importPath =}',
-  {=/ virtualUserModules =}
+  'virtual:wasp/user/env': './src/env',
 };
 
 /**
@@ -20,7 +17,7 @@ const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
  * Virtual user modules allow Wasp code to depend on user code at runtime,
  * without depending on the user's project during compile time.
  */
-export function waspVirtualUserModules(): Plugin {
+export function virtualUserModules(): Plugin {
   let clientRootDir!: string;
 
   return {

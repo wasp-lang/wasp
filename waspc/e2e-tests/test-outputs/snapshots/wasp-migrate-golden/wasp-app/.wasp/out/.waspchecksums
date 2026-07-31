@@ -317,9 +317,23 @@
     [
         [
             "file",
+            "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
+        ],
+        "1b3926387257ed4e1b45bd10fc6e490cead654d494376d61ee8af6ff4fd4e4ae"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/vite/plugins/virtualWaspModules.ts"
+        ],
+        "4aede5b77417f38713a8f8b72b119d8a060e1ef1984945ceca249119b528b38a"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "828e38590f284e311c258e1a441b605c879145b835cfaebc53bd251d39b4c038"
+        "0e57fda79b9a03182c4d08788ea390f6af0604b4a59f107f778a23a2878d4e5b"
     ],
     [
         [
@@ -327,20 +341,6 @@
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
         "a8e6a5cbffb010d02729e3cb4046de73ede1844b773417b8f394f60bdd9312cc"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/waspVirtualModules.ts"
-        ],
-        "64aba2d2b2135503606db815795b1e6b2f91fb68372188aeee11c29ca9a2d768"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/waspVirtualUserModules.ts"
-        ],
-        "ab0bf24c375267207d009c454fa6681c87333c0df71e8718810378087e547fda"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "server/rollup.config.js"
         ],
-        "5feac812c247813f37f4e01ede683cec8abf1ec4011dbf9c8e4335fe00881881"
+        "2ccfaf31605c6647b59e03d13fd84719b852c36541b52a4256a7a50bb33cf564"
     ],
     [
         [
@@ -723,9 +723,9 @@
     [
         [
             "file",
-            "server/src/plugins/waspVirtualUserModules.js"
+            "server/src/plugins/virtualUserModules.js"
         ],
-        "90a14f6b85e2bdcaaa6ac60447d293f415b28458bbc77eee2017c4d4d53a67d3"
+        "c54b770823bcfad9bea0df4d4fabd12af7b58cab67b462972cad829c472a011e"
     ],
     [
         [

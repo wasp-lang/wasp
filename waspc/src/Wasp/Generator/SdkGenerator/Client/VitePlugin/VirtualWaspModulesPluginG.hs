@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG
-  ( genWaspVirtualModulesPlugin,
+module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG
+  ( genVirtualWaspModulesPlugin,
   )
 where
 
@@ -13,15 +13,15 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
 
-genWaspVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
-genWaspVirtualModulesPlugin spec =
+genVirtualWaspModulesPlugin :: AppSpec -> Generator [FileDraft]
+genVirtualWaspModulesPlugin spec =
   sequence
-    [ genWaspVirtualModulesTs,
+    [ genVirtualWaspModulesTs,
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
@@ -43,12 +43,12 @@ genVirtualFilesResolverTs =
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
-genWaspVirtualModulesTs :: Generator FileDraft
-genWaspVirtualModulesTs =
+genVirtualWaspModulesTs :: Generator FileDraft
+genVirtualWaspModulesTs =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualModules.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualWaspModules.ts|]
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,

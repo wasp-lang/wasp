@@ -16,7 +16,7 @@ const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
  * Virtual user modules allow Wasp code to depend on user code at runtime,
  * without depending on the user's project during compile time.
  */
-export function waspVirtualUserModules(): Plugin {
+export function virtualUserModules(): Plugin {
   let clientRootDir!: string;
 
   return {
