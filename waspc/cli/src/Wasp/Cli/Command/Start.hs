@@ -5,13 +5,9 @@ where
 
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
-import Control.Monad (filterM)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust)
-import StrongPath (File', Path', Rel, fromRelFile, (</>))
-import System.Environment (lookupEnv)
-import qualified Wasp.AppSpec as AS
+import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -20,12 +16,12 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
-import Wasp.Cli.Util.EnvVars (EnvVarSource, throwIfWaspOwnedEnvVarsAreSet)
-import Wasp.Env (EnvVar, EnvVarName)
+import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
+import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
@@ -51,12 +47,14 @@ start = do
   (warnings, appSpec) <- compile
 
   let waspEnvVars = getWaspEnvVars appSpec defaultAppPorts
-      waspOwnedEnvVarNames = map fst <$> waspEnvVars
-  envVarNamesSetByUser <-
-    liftIO $
-      sequenceA $
-        findEnvVarNamesSetByUser <$> waspOwnedEnvVarNames <*> Env.dotEnvFiles <*> AS.devEnvVars appSpec
-  throwIfWaspOwnedEnvVarsAreSet "wasp start" waspOwnedEnvVarNames envVarNamesSetByUser
+
+  envVars <-
+    sequence $
+      resolveEnvVarInputs waspProjectDir
+        <$> waspEnvVars
+        <*> ( (\file -> [EnvVarInputs.Inherit, EnvVarInputs.FromProjectFile file])
+                <$> Env.dotEnvFiles
+            )
 
   DbConnectionEstablished <- require
 
@@ -72,7 +70,7 @@ start = do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
-          Wasp.Generator.start waspEnvVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+          Wasp.Generator.start envVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -87,20 +85,6 @@ start = do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
-    -- The processes Wasp starts in development inherit the shell env, so a var set
-    -- there would be overridden just like one set in a dotenv file.
-    findEnvVarNamesSetByUser ::
-      [EnvVarName] ->
-      Path' (Rel WaspProjectDir) File' ->
-      [EnvVar] ->
-      IO [(EnvVarSource, [EnvVarName])]
-    findEnvVarNamesSetByUser waspOwnedNames dotEnvFile dotEnvVars = do
-      namesSetInShellEnv <- filterM (fmap isJust . lookupEnv) waspOwnedNames
-      return
-        [ (fromRelFile dotEnvFile, map fst dotEnvVars),
-          ("your environment", namesSetInShellEnv)
-        ]
-
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
