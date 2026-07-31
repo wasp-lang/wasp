@@ -8,7 +8,7 @@
     "dotenv": "^16.6.1",
     "express": "~5.1.0",
     "helmet": "^6.0.0",
-    "morgan": "~1.10.0",
+    "morgan": "~1.11.0",
     "superjson": "^2.2.1"
   },
   "devDependencies": {

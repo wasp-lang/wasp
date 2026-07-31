@@ -5,6 +5,9 @@ module Wasp.Project.Db.Dev.Postgres
     defaultDevPass,
     defaultDevPort,
     makeDevConnectionUrl,
+    makeWaspDevDbDockerContainerName,
+    makeWaspDevDbDockerVolumeName,
+    waspDevDbDockerVolumePrefix,
   )
 where
 
@@ -35,3 +38,24 @@ defaultDevPort = 5432 -- 5432 is default port for PostgreSQL db.
 makeDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> String
 makeDevConnectionUrl waspProjectDir appName =
   makeConnectionUrl defaultDevUser defaultDevPass defaultDevPort $ makeDevDbName waspProjectDir appName
+
+-- | Docker volume name unique for the Wasp project with specified path and name.
+makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String
+makeWaspDevDbDockerVolumeName waspProjectDir appName =
+  take maxDockerVolumeNameLength $
+    waspDevDbDockerVolumePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
+
+waspDevDbDockerVolumePrefix :: String
+waspDevDbDockerVolumePrefix = "wasp-dev-db"
+
+maxDockerVolumeNameLength :: Int
+maxDockerVolumeNameLength = 255
+
+-- | Docker container name unique for the Wasp project with specified path and name.
+makeWaspDevDbDockerContainerName :: Path' Abs (Dir WaspProjectDir) -> String -> String
+makeWaspDevDbDockerContainerName waspProjectDir appName =
+  take maxDockerContainerNameLength $
+    waspDevDbDockerVolumePrefix <> "-" <> makeAppUniqueId waspProjectDir appName
+
+maxDockerContainerNameLength :: Int
+maxDockerContainerNameLength = 63
