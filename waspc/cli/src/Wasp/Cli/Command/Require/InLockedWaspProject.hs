@@ -17,7 +17,7 @@ import Wasp.Project.Common (WaspProjectDir, projectLockFileInWaspProjectDir)
 -- stored for the command's lifetime), so the OS lock stays held until the
 -- process exits. The lock file itself is never removed; see
 -- 'ProjectLock.acquireProjectLock'.
-data InLockedWaspProject = InLockedWaspProject (Path' Abs (Dir WaspProjectDir)) ProjectLock.ProjectLock deriving (Typeable)
+newtype InLockedWaspProject = InLockedWaspProject (Path' Abs (Dir WaspProjectDir)) deriving (Typeable)
 
 instance Requirable InLockedWaspProject where
   checkRequirement = do
@@ -25,7 +25,7 @@ instance Requirable InLockedWaspProject where
     let lockFilePath = waspProjectDir </> projectLockFileInWaspProjectDir
 
     liftIO (ProjectLock.acquireProjectLock lockFilePath) >>= \case
-      Right lock -> return $ InLockedWaspProject waspProjectDir lock
+      Right _ -> return $ InLockedWaspProject waspProjectDir
       Left (ProjectLock.ProjectLockHeld maybeProcessId) ->
         throwError $
           CommandError "Wasp project is already in use" $

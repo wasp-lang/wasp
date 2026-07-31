@@ -14,7 +14,7 @@ import Wasp.Util.Terminal (styleCode)
 
 clean :: Command ()
 clean = do
-  InLockedWaspProject waspProjectDir _ <- require
+  InLockedWaspProject waspProjectDir <- require
 
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
