@@ -1,4 +1,4 @@
-module Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator.Common
+module Wasp.Generator.TypeAugmentationGenerator.App.Sdk.Common
   ( SdkTypeAugmentationRootDir,
     SdkTypeAugmentationTemplatesDir,
     mkTmplFdWithDstAndData,
@@ -15,7 +15,7 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.Common
+import Wasp.Generator.TypeAugmentationGenerator.App.Common
   ( appTypeAugmentationRootDirInTypeAugmentationRootDir,
     appTypeAugmentationTemplatesDirInTypeAugmentationTemplatesDir,
   )

@@ -1,4 +1,4 @@
-module Wasp.Generator.TypeAugmentationGenerator.SpecTypeAugmentationGenerator
+module Wasp.Generator.TypeAugmentationGenerator.Spec
   ( genSpecTypeAugmentation,
   )
 where

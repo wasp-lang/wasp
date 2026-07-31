@@ -1,4 +1,4 @@
-module Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.Common
+module Wasp.Generator.TypeAugmentationGenerator.App.Common
   ( AppTypeAugmentationRootDir,
     AppTypeAugmentationTemplatesDir,
     appTypeAugmentationRootDirInTypeAugmentationRootDir,
