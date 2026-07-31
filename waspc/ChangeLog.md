@@ -10,7 +10,7 @@
 
 ### 🎉 New Features
 
-- `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on.
+- `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 
 ### 🔧 Small improvements
 

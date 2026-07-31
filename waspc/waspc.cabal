@@ -668,7 +668,6 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
-    optparse-applicative,
     QuickCheck,
     tasty,
     tasty-hspec,
