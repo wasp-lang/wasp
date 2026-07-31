@@ -400,57 +400,99 @@ So let’s show an actual example how Wasp does it:
     
     Same pattern is applied for any SDK code that depends on the user project types.
     
-Seems easy enough. But there is still one last catch. TypeScript compiler optimizations!
+Seems easy enough. But there is still one last catch. Emitted declaration files.
 
-#### Foricng the conditional types to survive
+#### Forcing the conditional types to survive
 
-One last blocker to this approach is, that TypeScript does not like our `FromRegister` conditional type. It’s “complex”.
+The whole approach depends on `FromRegister` staying a conditional type.
+And TypeScript really does not want to keep it that way.
 
-Consider the following code:
+Remember, the SDK is a standalone project, it compiles alone.
+Module augmentation is not a part of the SDK compilation.
+So, whenever the compiler sees `FromRegister<"someKey", Fallback>`, it resolves it on the spot.
+`Register` is always empty,so  the whole conditional collapses to `Fallback`. No need for complexity.
 
-```ts
-// TODO: examples, show compiled output when inferring types
+While that alone is fine (the SDK still compiles), the problem is how the user project seessees the SDK.
+In emitted `.d.ts` files, for every value whose type is *inferred*, TypeScript emits the *resolved* type.
+
+Consider the following code (`Schema` is a minimal `zod` stand-in, to keep the compiled output readable):
+
+```ts title="sdk/wasp/server/env.ts (simplified)"
+// The env vars Wasp itself needs.
+const waspServerEnvSchema = makeSchema<{ PORT: number }>();
+
+declare function getUserSchema<Key extends string, Fallback>(
+  key: Key,
+  fallback: Fallback,
+): FromRegister<Key, Fallback>;
+
+// Everything below is inferred. No explicit type annotations.
+const userServerEnvSchema = getUserSchema("serverEnvValidationSchema", makeSchema<{}>());
+const serverEnvSchema = intersectSchemas(userServerEnvSchema, waspServerEnvSchema);
+
+export const env = serverEnvSchema.parse(process.env);
 ```
 
-Since the SDK is a standalone project, it compiles alone. Module augmentation is not part of SDK compilation. 
-Typescript will see all the conditional types we have, and optimize them out.
-Why do you need a ternary operator in types?
-It can see that `Key` does not exist on `Register`.
-So it will compile the type as `Fallback`.
-No need for complexity.
+Here is the compiled declaration file. In full:
 
-The problem is, that because of that, the user project will still see `Fallback` even if it does module augmentation.
-Because the conditional type is gone, the type can never switch to its “user derived type” variant. It’s always just `Fallback`. 
-
-How do stop this? A compiler flag? Well there is nothing like that.
-The only way to stop this compiler optimization, is to EXPLICITLY set the conditional type for any type derived from the `Register`.
-That will force TypeScript to keep the whole type in compiled output.
-
-```ts
-// TODO: examplee, show compiled output when forcing type
+```ts title="sdk/wasp/server/env.d.ts (compiled, inferred)"
+export declare const env: {
+    PORT: number;
+};
 ```
 
-E.g. here is how we build out our server env type:
+`FromRegister` left no trace. And that is a problem.
+The user project will always see thee `Fallback`, even if it does module augmentation.
+The conditional type is gone, so there is nothing left to react to the augmented `Register`.
+The type can never switch to its "user derived type" variant. It's `Fallback`, forever.
 
-```tsx
+How do we stop this? A compiler flag? Well, there is nothing like that.
+We have to exploit that TypeScript only computes the types it has to infer.
+**A type annotation you write out EXPLICITLY is copied into the declaration file verbatim**.
+So we must explicitly set the conditional type on every type derived from the `Register`:
 
-// This once can be inferred, since it comes from SDK itself.
-const waspServerEnvSchema = // ...
+```ts title="sdk/wasp/server/env.ts (simplified)"
+// This one can still be inferred, it comes from the SDK itself.
+const waspServerEnvSchema = makeSchema<{ PORT: number }>();
+
+// We must explicitly set the conditional type here.
+type RegisteredServerEnvValidationSchema = FromRegister<
+  "serverEnvValidationSchema",
+  Schema<{}>
+>;
+type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
+const userServerEnvSchema: UserServerEnvSchema = makeSchema<{}>();
 
 // We must explicitly set the type here.
-export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
-type UserServerEnvSchema = RegisteredServerEnvValidationSchema; // just an alias
-const userServerEnvSchema: UserServerEnvSchema = // ...
+type CompleteServerEnvSchema = SchemaIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+const serverEnvSchema: CompleteServerEnvSchema = intersectSchemas(
+  userServerEnvSchema,
+  waspServerEnvSchema,
+);
 
 // We must explicitly set the type here.
-type CompleteServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
-const serverEnvSchema: CompleteServerEnvSchema = // ...
-
-// We must explicitly set the type here.
-export const env: z.infer<CompleteServerEnvSchema> = // ...
+export const env: Infer<CompleteServerEnvSchema> = serverEnvSchema.parse(process.env);
 ```
 
-Yep. A lot of forced types. You can get away with this approach as long as you either set type explicitly, be it: `: RegisteredType` , `as RegisteredType` or `T extends RegisteredType`. 
+And now the compiled declaration file keeps everything:
+
+```ts title="sdk/wasp/server/env.d.ts (compiled, explicit)"
+import { FromRegister } from "../types/register.js";
+import { Infer, Schema, SchemaIntersection } from "shema-package";
+declare const waspServerEnvSchema: Schema<{
+    PORT: number;
+}>;
+type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", Schema<{}>>;
+type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
+type CompleteServerEnvSchema = SchemaIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+export declare const env: Infer<CompleteServerEnvSchema>;
+export {};
+```
+
+The conditional type survives, written out exactly as we wrote it.
+
+Yep, a lot of forced types, but that is the whole trick.
+You can get away with this approach as long as every type derived from the `Register` is set explicitly, be it `: RegisteredType`, `as RegisteredType` or `T extends RegisteredType`. 
 
 ### Pushing values from user project to SDK
 
