@@ -16,11 +16,18 @@ import { defaultExclude } from "vitest/config";
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
+// Wasp sets this env var when it runs the dev server. It's absent in other
+// contexts (e.g., `vite build`), which don't need a port.
+const clientDevPortEnvVarValue = process.env["{= clientDevPortEnvVarName =}"];
+
 const forcedOptions = {
   base: "{= baseDir =}",
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
-  "server.port": Number.parseInt(process.env["{= clientDevPortEnvVarName =}"]!),
+  "server.port":
+    clientDevPortEnvVarValue === undefined
+      ? undefined
+      : Number.parseInt(clientDevPortEnvVarValue),
   "server.strictPort": true,
 } as const;
 
@@ -101,8 +108,14 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
     const userValue = getByPath(config, path);
     if (userValue !== undefined && userValue !== forcedValue) {
       const hint = forcedOptionHints[path as keyof typeof forcedOptions];
+      // Wasp only knows the value it forces in the contexts where it needs the
+      // option, so we mention it only when we have it.
+      const override =
+        forcedValue === undefined
+          ? "but Wasp will override it"
+          : `but Wasp will override it with ${JSON.stringify(forcedValue)}`;
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp will override it with ${JSON.stringify(forcedValue)}` +
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, ${override}` +
           (hint ? `\n    ${hint}` : ""),
       );
     }

@@ -12,9 +12,10 @@ import Data.Foldable (toList)
 import Data.List (intercalate, nub)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, isJust)
-import StrongPath (Abs, Dir, Path', fromRelFile, (</>))
+import StrongPath (fromRelFile, (</>))
 import System.Environment (lookupEnv)
 import Text.Printf (printf)
+import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -23,11 +24,12 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
+import Wasp.Env (EnvVar)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Apps (Apps)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 import Wasp.Util.Terminal (styleCode)
 
@@ -54,7 +56,7 @@ start = do
   (warnings, appSpec) <- compile
 
   let waspEnvVars = getWaspEnvVars appSpec defaultAppPorts
-  throwIfWaspOwnedEnvVarsAreSet waspProjectDir (map fst <$> waspEnvVars)
+  throwIfWaspOwnedEnvVarsAreSet (AS.devEnvVars appSpec) (map fst <$> waspEnvVars)
 
   DbConnectionEstablished <- require
 
@@ -106,9 +108,8 @@ start = do
 -- would therefore be silently ignored, so we stop instead.
 --
 -- The names come straight from the vars we inject, so the two can't drift apart.
-throwIfWaspOwnedEnvVarsAreSet :: Path' Abs (Dir WaspProjectDir) -> Apps [String] -> Command ()
-throwIfWaspOwnedEnvVarsAreSet waspProjectDir waspOwnedEnvVarNames = do
-  dotEnvVars <- liftIO $ Env.readDotEnvFiles waspProjectDir
+throwIfWaspOwnedEnvVarsAreSet :: Apps [EnvVar] -> Apps [String] -> Command ()
+throwIfWaspOwnedEnvVarsAreSet dotEnvVars waspOwnedEnvVarNames = do
   envVarsSetByUser <-
     liftIO $
       fmap (mergeSourcesPerEnvVar . concat . toList) $
