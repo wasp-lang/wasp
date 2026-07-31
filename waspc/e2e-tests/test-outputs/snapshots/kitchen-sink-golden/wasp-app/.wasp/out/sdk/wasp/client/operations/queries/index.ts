@@ -1,18 +1,18 @@
 import { type QueryFor, createQuery } from "./core";
-import {
-  type RegisteredGetTasks,
-  type RegisteredGetNumTasks,
-  type RegisteredGetTask,
-  type RegisteredGetOldestTask,
-  type RegisteredGetSerializedObjects,
-  type RegisteredGetTextUppercaseRequests,
-  type RegisteredGetDate,
-  type RegisteredGetAnythingNoAuth,
-  type RegisteredGetAnythingAuth,
-  type RegisteredGetTrueVoid,
-  type RegisteredGetAnyNoAuth,
-  type RegisteredGetAnyAuth,
-  type RegisteredGetAnyToNumberSpecified,
+import type {
+  RegisteredGetTasks,
+  RegisteredGetNumTasks,
+  RegisteredGetTask,
+  RegisteredGetOldestTask,
+  RegisteredGetSerializedObjects,
+  RegisteredGetTextUppercaseRequests,
+  RegisteredGetDate,
+  RegisteredGetAnythingNoAuth,
+  RegisteredGetAnythingAuth,
+  RegisteredGetTrueVoid,
+  RegisteredGetAnyNoAuth,
+  RegisteredGetAnyAuth,
+  RegisteredGetAnyToNumberSpecified,
 } from "../../../server/operations/queries/index";
 
 // PUBLIC API

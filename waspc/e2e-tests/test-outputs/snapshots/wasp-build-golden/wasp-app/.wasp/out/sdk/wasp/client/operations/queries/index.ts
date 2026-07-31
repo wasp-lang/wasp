@@ -1,5 +1,5 @@
 import { type QueryFor, createQuery } from "./core";
-import {
+import type {
 } from "../../../server/operations/queries/index";
 
 // PRIVATE API (used in SDK)

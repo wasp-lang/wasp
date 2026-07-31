@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/client/operations/queries/index.ts"
         ],
-        "8eeff10a14adec481f250937bd20218f516a45566ae6834dbc287559e3fce41a"
+        "41be64bbe0abdebdce43598694967a1926220794e6b582cbc550442126a41208"
     ],
     [
         [
@@ -746,7 +746,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "b5db741e0d7b953cd7f6f70ace2172c35c8123bd4ff60c9d43a14bbb7a5bd03c"
+        "a8e6a5cbffb010d02729e3cb4046de73ede1844b773417b8f394f60bdd9312cc"
     ],
     [
         [
@@ -865,7 +865,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "9f0f5890a3d1371cc5f6ef6d3a0c1b2f0815258282db6092d990a8d49655348f"
+        "51dbfb69a530319fa40e9eeda98c1f1a9b64713f5712eec93493ea1739bec3ff"
     ],
     [
         [
