@@ -5,16 +5,12 @@ where
 
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
-import Control.Monad (forM, unless)
+import Control.Monad (filterM)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Foldable (toList)
-import Data.List (intercalate, nub)
-import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, isJust)
-import StrongPath (fromRelFile, (</>))
+import Data.Maybe (isJust)
+import StrongPath (File', Path', Rel, fromRelFile, (</>))
 import System.Environment (lookupEnv)
-import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -24,14 +20,13 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
-import Wasp.Env (EnvVar)
+import Wasp.Cli.Util.EnvVars (EnvVarSource, throwIfWaspOwnedEnvVarsAreSet)
+import Wasp.Env (EnvVar, EnvVarName)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Apps (Apps)
-import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Util.Terminal (styleCode)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -56,7 +51,12 @@ start = do
   (warnings, appSpec) <- compile
 
   let waspEnvVars = getWaspEnvVars appSpec defaultAppPorts
-  throwIfWaspOwnedEnvVarsAreSet (AS.devEnvVars appSpec) (map fst <$> waspEnvVars)
+      waspOwnedEnvVarNames = map fst <$> waspEnvVars
+  envVarNamesSetByUser <-
+    liftIO $
+      sequenceA $
+        findEnvVarNamesSetByUser <$> waspOwnedEnvVarNames <*> Env.dotEnvFiles <*> AS.devEnvVars appSpec
+  throwIfWaspOwnedEnvVarsAreSet "wasp start" waspOwnedEnvVarNames envVarNamesSetByUser
 
   DbConnectionEstablished <- require
 
@@ -87,6 +87,20 @@ start = do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
+    -- The processes Wasp starts in development inherit the shell env, so a var set
+    -- there would be overridden just like one set in a dotenv file.
+    findEnvVarNamesSetByUser ::
+      [EnvVarName] ->
+      Path' (Rel WaspProjectDir) File' ->
+      [EnvVar] ->
+      IO [(EnvVarSource, [EnvVarName])]
+    findEnvVarNamesSetByUser waspOwnedNames dotEnvFile dotEnvVars = do
+      namesSetInShellEnv <- filterM (fmap isJust . lookupEnv) waspOwnedNames
+      return
+        [ (fromRelFile dotEnvFile, map fst dotEnvVars),
+          ("your environment", namesSetInShellEnv)
+        ]
+
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
@@ -102,48 +116,3 @@ start = do
           putStrLn ""
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
-
--- | Wasp injects the env vars it derives from the ports it picked into the processes it
--- starts, and injected values win over whatever the user wrote down. A value the user set
--- would therefore be silently ignored, so we stop instead.
---
--- The names come straight from the vars we inject, so the two can't drift apart.
-throwIfWaspOwnedEnvVarsAreSet :: Apps [EnvVar] -> Apps [String] -> Command ()
-throwIfWaspOwnedEnvVarsAreSet dotEnvVars waspOwnedEnvVarNames = do
-  envVarsSetByUser <-
-    liftIO $
-      fmap (mergeSourcesPerEnvVar . concat . toList) $
-        sequenceA $
-          findEnvVarsSetByUser <$> waspOwnedEnvVarNames <*> Env.dotEnvFiles <*> dotEnvVars
-
-  unless (null envVarsSetByUser) $
-    throwError $
-      CommandError "Wasp controls some of the env vars you set" $
-        intercalate "\n" $
-          [ printf
-              "Wasp figures out the app's ports and URLs itself when you run %s, so it would ignore the values you set:"
-              (styleCode "wasp start"),
-            ""
-          ]
-            ++ map describeEnvVarSetByUser envVarsSetByUser
-            ++ [ "",
-                 "Remove them, and let Wasp manage the ports and URLs for you."
-               ]
-  where
-    -- The client and the server take their port through the same env var name, so a
-    -- var can turn up once per app. We report it once, listing everywhere it came from.
-    mergeSourcesPerEnvVar =
-      Map.toAscList . Map.fromListWith (\newSources sources -> nub $ sources ++ newSources)
-
-    findEnvVarsSetByUser envVarNames dotEnvFile dotEnvFileVars =
-      fmap catMaybes $
-        forM envVarNames $ \envVarName -> do
-          isSetInShellEnv <- isJust <$> lookupEnv envVarName
-          let isSetInDotEnvFile = any ((== envVarName) . fst) dotEnvFileVars
-              sources =
-                [fromRelFile dotEnvFile | isSetInDotEnvFile]
-                  ++ ["your environment" | isSetInShellEnv]
-          return $ if null sources then Nothing else Just (envVarName, sources)
-
-    describeEnvVarSetByUser (envVarName, sources) =
-      printf "  - %s, set in %s" (styleCode envVarName) (intercalate " and " sources)

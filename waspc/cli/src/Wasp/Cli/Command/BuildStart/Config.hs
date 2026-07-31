@@ -10,7 +10,6 @@ import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
-import Data.List (intercalate)
 import Network.Socket (PortNumber)
 import StrongPath ((</>))
 import qualified StrongPath as SP
@@ -19,12 +18,14 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.Util.Apps (defaultAppPorts, getDevUrlMakers, getWaspEnvVars)
+import Wasp.Cli.Util.EnvVars (EnvVarSource, throwIfWaspOwnedEnvVarsAreSet)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, nubEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Project.Apps (Apps (..))
+import qualified Wasp.Project.Apps as Apps
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
@@ -41,13 +42,18 @@ makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir Was
 makeBuildStartConfig appSpec args projectDir' = do
   let ports = defaultAppPorts
 
-  userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envInputs
+  userEnvVarsPerSource <- liftIO $ sequenceA $ readEnvInputs <$> Apps.names <*> args.envInputs
+  let userEnvVars = nubEnvVars . concatMap snd <$> userEnvVarsPerSource
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let urls = getDevUrlMakers appSpec <*> ports
       waspEnvVars = getWaspEnvVars appSpec ports
 
-  envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
+  throwIfWaspOwnedEnvVarsAreSet
+    "wasp build start"
+    (map fst <$> waspEnvVars)
+    (map (fmap (map fst)) <$> userEnvVarsPerSource)
+  let envVars = liftA2 (<>) waspEnvVars userEnvVars
 
   return $
     BuildStartConfig
@@ -89,21 +95,15 @@ dockerContainerName config =
   map toLower $
     appUniqueId config <> "-server-container"
 
-overrideEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
-overrideEnvVarsCommand forced existing =
-  case forced `overrideEnvVars` existing of
-    Left duplicateNames ->
-      throwError $
-        CommandError "Duplicate environment variables" $
-          ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
-            intercalate ", " duplicateNames
-    Right combined -> return combined
+-- | Reads an app's env var inputs, keeping track of where each var came from so
+-- collisions with wasp-owned vars can be attributed to their source.
+readEnvInputs :: String -> ([EnvVar], [FilePathArgument]) -> IO [(EnvVarSource, [EnvVar])]
+readEnvInputs appName (inlineEnvVars, files) = do
+  fileEnvVars <- mapM readEnvVarsFromFile files
+  return $ ("the --" <> appName <> "-env option", inlineEnvVars) : fileEnvVars
 
-combineEnvVarsWithEnvFiles :: ([EnvVar], [FilePathArgument]) -> IO [EnvVar]
-combineEnvVarsWithEnvFiles (inlineEnvVars, files) = do
-  envVarsFromFiles <- mapM readEnvVarsFromFile files
-  let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
-  return $ nubEnvVars allEnvVars
-
-readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
-readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
+readEnvVarsFromFile :: FilePathArgument -> IO (EnvVarSource, [EnvVar])
+readEnvVarsFromFile pathArg = do
+  envFile <- PathArgument.getFilePath pathArg
+  envVars <- parseDotEnvFile envFile
+  return (SP.fromAbsFile envFile, envVars)
