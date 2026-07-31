@@ -322,13 +322,13 @@ library
     Wasp.Generator.Templates
     Wasp.Generator.Test
     Wasp.Generator.TypeAugmentationGenerator
-    Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator
-    Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.Common
-    Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator
-    Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator.Common
-    Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator.JsImport
+    Wasp.Generator.TypeAugmentationGenerator.App
+    Wasp.Generator.TypeAugmentationGenerator.App.Common
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk.Common
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk.JsImport
     Wasp.Generator.TypeAugmentationGenerator.Common
-    Wasp.Generator.TypeAugmentationGenerator.SpecTypeAugmentationGenerator
+    Wasp.Generator.TypeAugmentationGenerator.Spec
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common

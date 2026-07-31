@@ -1,4 +1,4 @@
-module Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator
+module Wasp.Generator.TypeAugmentationGenerator.App
   ( genAppTypeAugmentation,
   )
 where
@@ -6,7 +6,7 @@ where
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.TypeAugmentationGenerator.AppTypeAugmentationGenerator.SdkTypeAugmentationGenerator (genSdkTypeAugmentation)
+import Wasp.Generator.TypeAugmentationGenerator.App.Sdk (genSdkTypeAugmentation)
 
 genAppTypeAugmentation :: AppSpec -> Generator [FileDraft]
 genAppTypeAugmentation spec = genSdkTypeAugmentation spec
