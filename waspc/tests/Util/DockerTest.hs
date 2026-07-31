@@ -1,7 +1,7 @@
-module Project.Db.Dev.PostgresTest where
+module Util.DockerTest where
 
 import Test.Hspec
-import Wasp.Project.Db.Dev.Postgres (parseDockerPortOutput)
+import Wasp.Util.Docker (parseDockerPortOutput)
 
 spec_parseDockerPortOutput :: Spec
 spec_parseDockerPortOutput = do

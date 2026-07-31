@@ -611,7 +611,6 @@ test-suite waspc-tests
     JsImportTest
     Node.InternalTest
     Paths_waspc
-    Project.Db.Dev.PostgresTest
     Project.DbTest
     Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
@@ -642,6 +641,7 @@ test-suite waspc-tests
     Test.Util
     Util.Control.MonadTest
     Util.Diff
+    Util.DockerTest
     Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest
