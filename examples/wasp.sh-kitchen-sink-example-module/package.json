@@ -10,24 +10,13 @@
   },
   "homepage": "https://github.com/wasp-lang/wasp/tree/main/examples/wasp.sh-kitchen-sink-example-module#readme",
   "license": "MIT",
-  "exports": {
-    "./spec": {
-      "types": "./dist/spec.d.ts",
-      "import": "./dist/spec.js",
-      "default": "./dist/spec.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js",
-      "default": "./dist/*.js"
-    }
-  },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "wasp module build",
     "pack": "npm pack --pack-destination .",
+    "prepack": "npm run build",
     "typecheck": "tsc -p tsconfig.wasp.json && tsc -p tsconfig.src.json"
   },
   "peerDependencies": {

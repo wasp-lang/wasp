@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.Message as Msg
+import Wasp.Project.ExternalConfig.PackageJson (isValidNpmPackageName)
 import qualified Wasp.Project.Module as ProjectModule
 
 module_ :: Arguments -> Command ()
@@ -28,6 +29,9 @@ module_ = \case
 
 new :: String -> Command ()
 new packageName = do
+  if isValidNpmPackageName packageName
+    then pure ()
+    else throwError $ CommandError "Invalid module name" $ show packageName ++ " is not a valid npm package name."
   currentDir <- getCurrentDir
   moduleDirName <- case SP.parseRelDir $ ProjectModule.packageNameToDirName packageName of
     Just dirName -> return dirName

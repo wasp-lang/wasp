@@ -22,6 +22,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
+import Wasp.AppSpec.ExtImport.Source (ProjectSrcExtImportPath)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
@@ -145,7 +146,7 @@ getServerVirtualUserModules :: AppSpec -> [VirtualUserModule]
 getServerVirtualUserModules = filter ((== ServerRuntime) . runtime) . getVirtualUserModules
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
-extImportToVirtualUserModuleJsImportPath :: EI.ProjectSrcExtImportPath -> JsImportPath
+extImportToVirtualUserModuleJsImportPath :: ProjectSrcExtImportPath -> JsImportPath
 extImportToVirtualUserModuleJsImportPath extImportPath =
   RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP extImportPath
 

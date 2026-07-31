@@ -26,7 +26,8 @@ import Wasp.Analyzer.TypeDefinitions.Class.HasCustomEvaluation (HasCustomEvaluat
 import Wasp.Analyzer.TypeDefinitions.TH
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref (..))
-import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..), ExtImportSource (..))
+import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import Wasp.AppSpec.ExtImport.Source (ExtImportSource (..))
 import Wasp.AppSpec.JSON (JSON (..))
 
 fromRight :: (Show a) => Either a b -> b

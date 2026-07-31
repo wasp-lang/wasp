@@ -1,6 +1,7 @@
 module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
     WaspConfig (..),
+    WaspModuleConfig (..),
     DependenciesMap,
     PackageName,
     PackageVersion,
@@ -25,8 +26,11 @@ import qualified Wasp.Util.IO as IOUtil
 data PackageJson = PackageJson
   { name :: !String,
     version :: !(Maybe String),
+    packageType :: !(Maybe String),
+    files :: !(Maybe [String]),
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
+    peerDependencies :: !DependenciesMap,
     workspaces :: !(Maybe [String]),
     wasp :: !(Maybe WaspConfig)
   }
@@ -37,11 +41,14 @@ instance FromJSON PackageJson where
     PackageJson
       <$> v .: "name"
       <*> v .:? "version"
+      <*> v .:? "type"
+      <*> v .:? "files"
       -- `dependencies` and `devDependencies` are both optional, so a missing
       -- field is read as an empty map rather than a parse error. This saves us
       -- from dealing with two "empty" states (Nothing + an empty map).
       <*> v .:? "dependencies" .!= M.empty
       <*> v .:? "devDependencies" .!= M.empty
+      <*> v .:? "peerDependencies" .!= M.empty
       <*> v .:? "workspaces"
       <*> v .:? "wasp"
 
@@ -54,9 +61,7 @@ data WaspConfig = WaspConfig
     -- they're deviating from tested versions, and must update their overrides
     -- when Wasp's requirements change.
     overriddenDeps :: !(Maybe DependenciesMap),
-    -- | An object marks this package as a Wasp full-stack module. Its contents
-    -- are reserved for future module configuration.
-    module_ :: !(Maybe Aeson.Object)
+    module_ :: !(Maybe WaspModuleConfig)
   }
   deriving (Show)
 
@@ -65,6 +70,18 @@ instance FromJSON WaspConfig where
     WaspConfig
       <$> v .:? "overriddenDeps"
       <*> v .:? "module"
+
+data WaspModuleConfig = WaspModuleConfig
+  { runtimeExports :: ![FilePath]
+  }
+  deriving (Show)
+
+instance FromJSON WaspModuleConfig where
+  parseJSON = Aeson.withObject "WaspModuleConfig" $ \v ->
+    WaspModuleConfig <$> v .:? "runtimeExports" .!= defaultRuntimeExports
+
+defaultRuntimeExports :: [FilePath]
+defaultRuntimeExports = ["./src/**/*.{ts,tsx}"]
 
 type DependenciesMap = Map PackageName PackageVersion
 

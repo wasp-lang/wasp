@@ -3,6 +3,7 @@ import { transformWaspTsSpecFilesPlugin } from "./spec-pipeline/transformWaspTsS
 import { typecheckPlugin } from "./spec-pipeline/typecheckPlugin/index.js";
 import type { RefOrigin } from "./spec/refObject.js";
 
+export { getRootRelativeSpecFilePath } from "./spec-pipeline/refOrigin.js";
 export type { RefOrigin };
 
 export function createWaspTsSpecPlugins({

@@ -6,7 +6,7 @@ import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
-import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForModule, validatePackageJsonForProject)
+import Wasp.Project.ExternalConfig.PackageJson (isValidNpmPackageName, validatePackageJsonForModule, validatePackageJsonForProject)
 
 spec_PackageJson :: Spec
 spec_PackageJson = do
@@ -19,7 +19,7 @@ spec_PackageJson = do
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
 
   describe "validatePackageJsonForModule" $ do
-    it "returns no errors when wasp.module is an object" $
+    it "returns no errors for valid module metadata" $
       validatePackageJsonForModule validModulePackageJson `shouldBe` []
 
     it "returns an error when wasp is missing" $
@@ -35,6 +35,15 @@ spec_PackageJson = do
         validModulePackageJson {P.name = ""}
         `shouldSatisfy` any ("name" `isInfixOf`)
 
+  describe "isValidNpmPackageName" $ do
+    it "accepts scoped and unscoped npm package names" $ do
+      isValidNpmPackageName "my-module" `shouldBe` True
+      isValidNpmPackageName "@wasp.sh/my-module" `shouldBe` True
+
+    it "rejects names npm cannot publish" $
+      map isValidNpmPackageName ["", "MyModule", ".hidden", "@scope", "@scope/bad/name", "has space"]
+        `shouldBe` replicate 6 False
+
 validate :: TsConfigPaths -> P.PackageJson -> [String]
 validate = validatePackageJsonForProject
 
@@ -47,8 +56,11 @@ validPackageJson =
   P.PackageJson
     { P.name = "test-app",
       P.version = Nothing,
+      P.packageType = Nothing,
+      P.files = Nothing,
       P.dependencies = M.empty,
       P.devDependencies = M.empty,
+      P.peerDependencies = M.empty,
       P.workspaces = Nothing,
       P.wasp = Nothing
     }
@@ -56,10 +68,13 @@ validPackageJson =
 validModulePackageJson :: P.PackageJson
 validModulePackageJson =
   validPackageJson
-    { P.wasp =
+    { P.packageType = Just "module",
+      P.files = Just ["dist"],
+      P.peerDependencies = M.fromList [("@wasp.sh/spec", "^0.25.0"), ("react", "^19.2.1"), ("wasp", "*")],
+      P.wasp =
         Just
           emptyWaspConfig
-            { P.module_ = Just mempty
+            { P.module_ = Just $ P.WaspModuleConfig ["./src/**/*.{ts,tsx}"]
             }
     }
 

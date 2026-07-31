@@ -1,6 +1,5 @@
 module Wasp.Project.Module
   ( createModuleOnDisk,
-    installWaspDependenciesIO,
     installModuleIO,
     buildModuleIO,
     packageNameToDirName,
@@ -23,12 +22,13 @@ import qualified System.Process as P
 import Validation (Validation (..))
 import qualified Wasp.Data as Data
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import Wasp.Generator.WaspLibs (ensureWaspLibsAreInGeneratedAppDir)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions, tryGettingInstalledPackageVersion)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions)
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (parseAndValidateModulePackageJson)
 import Wasp.Project.ExternalConfig.SrcTsConfig (parseAndValidateModuleSrcTsConfig)
 import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
+import Wasp.Project.Install (isInstalledWaspSpecMatchingCliVersion)
+import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
@@ -54,33 +54,14 @@ installModuleIO moduleDir = do
         Left errorMessage -> return $ Left errorMessage
         Right () -> installModuleDependenciesIO moduleDir
 
-installWaspDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-installWaspDependenciesIO projectDir = do
-  ensureWaspOwnedNpmArtifactsInProject projectDir
-  messageChan <- newChan
-  installProjectNpmDependencies messageChan projectDir
-
 installModuleDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installModuleDependenciesIO moduleDir = do
   ensureWaspOwnedNpmArtifactsInModule moduleDir
   messageChan <- newChan
   installProjectNpmDependencies messageChan moduleDir
 
--- | Materializes every Wasp-owned artifact that a project's npm install
--- resolves from disk. The lockfile references these as @file:@ dependencies,
--- so they must exist before npm runs, even on a fresh clone that was never
--- compiled. Any new Wasp-owned npm artifact must be added here.
-ensureWaspOwnedNpmArtifactsInProject :: Path' Abs (Dir WaspProjectDir) -> IO ()
-ensureWaspOwnedNpmArtifactsInProject projectDir = do
-  ensurePackageIsAtInstallationPathInProject projectDir WaspSpecPackage
-  -- Module packages peer-depend on the `wasp` SDK package. npm auto-installs
-  -- required peers, so the SDK's `file:` lib tarball dependencies are resolved
-  -- during plain `wasp install`, before the first compilation.
-  ensureWaspLibsAreInGeneratedAppDir $ projectDir </> generatedAppDirInWaspProjectDir
-
--- | Module counterpart of 'ensureWaspOwnedNpmArtifactsInProject': modules
--- resolve the spec package and the `wasp` type shim from disk instead of the
--- lib tarballs.
+-- | Modules resolve the spec package and the `wasp` type shim from disk instead
+-- of the lib tarballs used by generated apps.
 ensureWaspOwnedNpmArtifactsInModule :: Path' Abs (Dir WaspProjectDir) -> IO ()
 ensureWaspOwnedNpmArtifactsInModule moduleDir = do
   ensurePackageIsAtInstallationPathInProject moduleDir WaspSpecPackage
@@ -108,12 +89,9 @@ ensureValidModuleTsConfigs moduleDir = do
     Failure errors -> Left $ intercalate "\n" errors
 
 ensureInstalledModuleDependencies :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-ensureInstalledModuleDependencies moduleDir =
-  tryGettingInstalledPackageVersion moduleDir WaspSpecPackage >>= \case
-    Left _ -> return $ Left missingDepsError
-    Right installedWaspSpecVersion
-      | installedWaspSpecVersion == WV.waspVersion -> return $ Right ()
-      | otherwise -> return $ Left missingDepsError
+ensureInstalledModuleDependencies moduleDir = do
+  isCurrent <- isInstalledWaspSpecMatchingCliVersion moduleDir
+  return $ if isCurrent then Right () else Left missingDepsError
   where
     missingDepsError =
       "Your module dependencies are out of date. Run " ++ styleCode "wasp module install" ++ " to fix this."
@@ -167,7 +145,10 @@ replaceModuleTemplatePlaceholders moduleDir packageName = do
   forM_ ["package.json", "README.md"] $ \fileName -> do
     let filePath = fromAbsDir moduleDir FP.</> fileName
     contents <- TIO.readFile filePath
-    TIO.writeFile filePath $ T.replace "__waspModulePackageName__" (T.pack packageName) contents
+    TIO.writeFile filePath $ replacePackageName $ replaceWaspVersion contents
+  where
+    replacePackageName = T.replace "__waspModulePackageName__" $ T.pack packageName
+    replaceWaspVersion = T.replace "__waspVersion__" $ T.pack $ show $ SV.backwardsCompatibleWith WV.waspVersion
 
 packageNameToDirName :: String -> FilePath
 packageNameToDirName name = case sanitized of

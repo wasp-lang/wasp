@@ -10,6 +10,7 @@ import Test.Hspec
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
+import qualified Wasp.AppSpec.ExtImport.Source as AS.ExtImportSource
 import Wasp.Generator.Crud (getCrudOperationJson)
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -79,7 +80,7 @@ spec_GeneratorCrudTest = do
                               Just $
                                 AS.ExtImport.ExtImport
                                   { AS.ExtImport.name = AS.ExtImport.ExtImportField "getTask",
-                                    AS.ExtImport.source = AS.ExtImport.ProjectSrcExtImportSource $ SP.castRel [relfileP|bla/tasks.js|],
+                                    AS.ExtImport.source = AS.ExtImportSource.ProjectSrcExtImportSource $ SP.castRel [relfileP|bla/tasks.js|],
                                     AS.ExtImport.alias = Nothing
                                   }
                           }

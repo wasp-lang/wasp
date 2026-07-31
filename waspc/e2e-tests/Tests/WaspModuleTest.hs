@@ -85,7 +85,7 @@ packModuleIntoHost = do
   let hostModulesDir = context.waspProjectContext.waspProjectDir </> [reldir|src/modules|]
   return $
     ("mkdir -p " ++ shellSingleQuote (fromAbsDir hostModulesDir))
-      ~&& ("npm pack --pack-destination " ++ shellSingleQuote (fromAbsDir hostModulesDir))
+      ~&& ("npm pack --ignore-scripts --pack-destination " ++ shellSingleQuote (fromAbsDir hostModulesDir))
 
 assertPackedModuleExists :: ShellCommandBuilder TestContext ShellCommand
 assertPackedModuleExists = do

@@ -15,6 +15,7 @@ import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExtImport as ExtImport
+import qualified Wasp.AppSpec.ExtImport.Source as ExtImportSource
 import qualified Wasp.AppSpec.Job as Job
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
@@ -30,7 +31,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.source = ExtImport.ProjectSrcExtImportSource [relfileP|folder/file.js|],
+                ExtImport.source = ExtImportSource.ProjectSrcExtImportSource [relfileP|folder/file.js|],
                 ExtImport.alias = Nothing
               }
           )
@@ -39,7 +40,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.source = ExtImport.PackageExtImportSource $ ExtImport.PackageImportSource "@scope/pkg" (Just "folder/file.js"),
+                ExtImport.source = ExtImportSource.PackageExtImportSource $ ExtImportSource.PackageImportSource "@scope/pkg" (Just "folder/file.js"),
                 ExtImport.alias = Nothing
               }
           )
@@ -48,7 +49,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.source = ExtImport.ProjectSrcExtImportSource [relfileP|folder/file.js|],
+                ExtImport.source = ExtImportSource.ProjectSrcExtImportSource [relfileP|folder/file.js|],
                 ExtImport.alias = Just "bar"
               }
           )
@@ -57,7 +58,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportModule "foo",
-                ExtImport.source = ExtImport.ProjectSrcExtImportSource [relfileP|folder/subfolder/file.js|],
+                ExtImport.source = ExtImportSource.ProjectSrcExtImportSource [relfileP|folder/subfolder/file.js|],
                 ExtImport.alias = Nothing
               }
           )

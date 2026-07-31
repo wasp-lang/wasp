@@ -1,23 +1,11 @@
-import { createWaspTsSpecPlugins } from "@wasp.sh/spec/compiler";
-import assert from "node:assert/strict";
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  realpathSync,
-  statSync,
-} from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseAst } from "rolldown/parseAst";
 import type { ESTree as t } from "rolldown/utils";
-import { build } from "tsdown";
+import { buildWithConfigs, resolveUserConfig } from "tsdown";
 import ts from "typescript";
-import { cssPassthroughPlugin } from "./cssPassthroughPlugin.js";
-
-type PackageJson = {
-  name: string;
-};
+import { getModuleBuildConfigs } from "./moduleBuildConfigs.js";
 
 async function main(): Promise<void> {
   const { moduleDir } = parseArgs(process.argv.slice(2));
@@ -27,7 +15,6 @@ async function main(): Promise<void> {
 
 export async function buildModule(moduleDir: string): Promise<void> {
   moduleDir = realpathSync(moduleDir);
-  const packageName = readPackageName(moduleDir);
 
   const moduleSpecPath = path.join(moduleDir, "module.wasp.ts");
   if (!existsSync(moduleSpecPath)) {
@@ -38,59 +25,19 @@ export async function buildModule(moduleDir: string): Promise<void> {
   assertHasDefaultExport(moduleSpecPath, moduleSpec);
   typecheckModuleSpec(moduleDir);
 
-  await build({
-    config: false,
-    cwd: moduleDir,
-    outDir: "dist",
-    format: "esm",
-    sourcemap: false,
-    dts: { sourcemap: false },
-    fixedExtension: false,
-    clean: true,
-    entry: { spec: "./module.wasp.ts" },
-    platform: "node",
-    target: "node24",
-    tsconfig: "tsconfig.wasp.json",
-    plugins: createWaspTsSpecPlugins({
-      tsconfigPath: path.join(moduleDir, "tsconfig.wasp.json"),
-      getRefOrigin: (filePath) => ({
-        kind: "package",
-        packageName,
-        specFilePath: getModuleRelativePath(moduleDir, filePath),
-      }),
-    }),
-    deps: {
-      neverBundle: [/^[^./]/],
-    },
-  });
+  const configDependencies = new Set<string>();
+  const inlineConfig = { cwd: moduleDir, config: false };
+  const configs = (
+    await Promise.all(
+      getModuleBuildConfigs(moduleDir).map((config) =>
+        resolveUserConfig(config, inlineConfig, configDependencies),
+      ),
+    )
+  ).flat();
 
-  const sourceEntries = getSourceEntries(moduleDir);
-  if (Object.keys(sourceEntries).length > 0) {
-    await build({
-      config: false,
-      cwd: moduleDir,
-      outDir: "dist",
-      format: "esm",
-      sourcemap: true,
-      dts: true,
-      fixedExtension: false,
-      clean: false,
-      entry: sourceEntries,
-      platform: "neutral",
-      // The root tsconfig.json is a solution file with references, which the
-      // dts plugin can't consume. Source code compiles under tsconfig.src.json.
-      tsconfig: "tsconfig.src.json",
-      plugins: [
-        cssPassthroughPlugin({
-          sourceDir: path.join(moduleDir, "src"),
-          outDir: path.join(moduleDir, "dist"),
-        }),
-      ],
-      deps: {
-        neverBundle: ["react", "react/jsx-runtime", /^wasp\//],
-      },
-    });
-  }
+  // tsdown's public build API accepts only one inline config. These internal
+  // APIs preserve its coordinated cleaning and package-export generation.
+  await buildWithConfigs(configs, configDependencies, () => undefined);
 }
 
 function typecheckModuleSpec(moduleDir: string): void {
@@ -164,91 +111,6 @@ function hasDefaultExport(ast: t.Program): boolean {
   return ast.body.some((node) => node.type === "ExportDefaultDeclaration");
 }
 
-export function getSourceEntries(moduleDir: string): Record<string, string> {
-  const sourceDir = path.join(moduleDir, "src");
-  if (!existsSync(sourceDir)) {
-    return {};
-  }
-
-  return listSourceEntryFiles(sourceDir).reduce<Record<string, string>>(
-    (entries, sourceFilePath) => {
-      const entryName = stripKnownExtension(
-        path.relative(sourceDir, sourceFilePath),
-      ).replaceAll(path.sep, "/");
-
-      assert(
-        entryName.toLowerCase() !== "spec",
-        'Module source entry "spec" conflicts with the compiled module spec.',
-      );
-      assert(
-        entries[entryName] === undefined,
-        `Duplicate module source entry ${JSON.stringify(entryName)}.`,
-      );
-
-      entries[entryName] = `./${path
-        .relative(moduleDir, sourceFilePath)
-        .replaceAll(path.sep, "/")}`;
-
-      return entries;
-    },
-    {},
-  );
-}
-
-function getModuleRelativePath(moduleDir: string, filePath: string): string {
-  const relativePath = tryGetModuleRelativePath(moduleDir, filePath);
-  if (relativePath === undefined) {
-    throw new Error(
-      `Module spec file ${JSON.stringify(filePath)} must be inside ${JSON.stringify(moduleDir)}.`,
-    );
-  }
-
-  return relativePath;
-}
-
-function tryGetModuleRelativePath(
-  moduleDir: string,
-  filePath: string,
-): string | undefined {
-  const relativePath = path.relative(moduleDir, filePath);
-  if (
-    path.isAbsolute(relativePath) ||
-    relativePath === ".." ||
-    relativePath.startsWith(`..${path.sep}`)
-  ) {
-    return undefined;
-  }
-
-  return relativePath.replaceAll(path.sep, "/");
-}
-
-function listSourceEntryFiles(sourceDir: string): string[] {
-  return readdirSync(sourceDir)
-    .flatMap((entryName) => {
-      const entryPath = path.join(sourceDir, entryName);
-      const entryStats = statSync(entryPath);
-
-      if (entryStats.isDirectory()) {
-        return listSourceEntryFiles(entryPath);
-      }
-
-      if (entryStats.isFile() && isSourceEntryFile(entryName)) {
-        return [entryPath];
-      }
-
-      return [];
-    })
-    .sort();
-}
-
-function isSourceEntryFile(fileName: string): boolean {
-  return (
-    (fileName.endsWith(".ts") || fileName.endsWith(".tsx")) &&
-    !fileName.endsWith(".d.ts") &&
-    !fileName.endsWith(".wasp.ts")
-  );
-}
-
 export function parseArgs(args: string[]): {
   moduleDir: string;
 } {
@@ -261,24 +123,6 @@ export function parseArgs(args: string[]): {
   return {
     moduleDir: realpathSync(path.resolve(args[1]!)),
   };
-}
-
-function readPackageName(moduleDir: string): string {
-  const packageJsonPath = path.join(moduleDir, "package.json");
-
-  if (!existsSync(packageJsonPath)) {
-    throw new Error(`Couldn't find package.json in ${moduleDir}.`);
-  }
-
-  const packageJson = JSON.parse(
-    readFileSync(packageJsonPath, "utf8"),
-  ) as PackageJson;
-
-  return packageJson.name;
-}
-
-function stripKnownExtension(filePath: string): string {
-  return filePath.replace(/\.(tsx?|jsx?)$/, "");
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

@@ -30,6 +30,7 @@ import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.AppSpec.Core.Ref (Ref)
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import qualified Wasp.AppSpec.ExtImport as AppSpec.ExtImport
+import qualified Wasp.AppSpec.ExtImport.Source as ExtImportSource
 import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 
 -- | An evaluation that expects a "StringLiteral".
@@ -159,9 +160,9 @@ extImport = evaluation' . withCtx $ \ctx -> \case
     --   for being somewhat simpler to implement.
     --   So we might want to move it to Parser at some point in the future, if we
     --   figure out that is better (it sounds/feels like it could be).
-    case AppSpec.ExtImport.parseExtImportPath extImportPath of
+    case ExtImportSource.parseProjectSrcExtImportPath extImportPath of
       Left err -> mkParseError ctx err
-      Right importPath -> pure $ AppSpec.ExtImport.ExtImport name (AppSpec.ExtImport.ProjectSrcExtImportSource importPath) Nothing
+      Right importPath -> pure $ AppSpec.ExtImport.ExtImport name (ExtImportSource.ProjectSrcExtImportSource importPath) Nothing
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
   where
     mkParseError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg

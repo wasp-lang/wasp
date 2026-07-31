@@ -207,8 +207,11 @@ emptyPackageJson =
   P.PackageJson
     { P.name = "mock-package",
       P.version = Nothing,
+      P.packageType = Nothing,
+      P.files = Nothing,
       P.dependencies = M.empty,
       P.devDependencies = M.empty,
+      P.peerDependencies = M.empty,
       P.workspaces = Nothing,
       P.wasp = Nothing
     }

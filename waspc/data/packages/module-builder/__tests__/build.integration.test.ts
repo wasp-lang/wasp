@@ -20,7 +20,7 @@ import { buildModule } from "../src/index.js";
 vi.setConfig({ testTimeout: 60_000 });
 
 test("a source-free build removes stale output and emits the compiled spec", async () => {
-  const moduleDir = scaffoldModule();
+  const moduleDir = scaffoldModule([]);
   const staleOutputPath = path.join(moduleDir, "dist", "stale.js");
   mkdirSync(path.dirname(staleOutputPath), { recursive: true });
   writeFileSync(staleOutputPath, "stale");
@@ -34,6 +34,10 @@ test("a source-free build removes stale output and emits the compiled spec", asy
       "prefix: string",
     );
     expect(existsSync(path.join(moduleDir, "dist", "__wasp"))).toBe(false);
+    expect(readPackageExports(moduleDir)).toEqual({
+      "./spec": "./dist/spec.js",
+      "./package.json": "./package.json",
+    });
   } finally {
     rmSync(moduleDir, { recursive: true, force: true });
   }
@@ -105,6 +109,12 @@ test("compiled refs carry package-relative logical origins", async () => {
     expect(specDeclaration).not.toContain("./src/");
     expect(specDeclaration).not.toContain("./features/");
     expect(existsSync(path.join(moduleDir, "dist", "__wasp"))).toBe(false);
+    expect(Object.keys(readPackageExports(moduleDir))).toEqual([
+      "./options",
+      "./queries",
+      "./spec",
+      "./package.json",
+    ]);
     expectDeclarationFilesResolve(moduleDir);
 
     const specModule: unknown = await import(
@@ -209,7 +219,7 @@ test("rejects CSS imports of files that do not exist", async () => {
   }
 });
 
-function scaffoldModule(): string {
+function scaffoldModule(runtimeExports?: string[]): string {
   const moduleDir = mkdtempSync(
     path.join(tmpdir(), "wasp-module-builder-test-"),
   );
@@ -218,7 +228,9 @@ function scaffoldModule(): string {
     JSON.stringify({
       name: "test-module",
       type: "module",
-      wasp: { module: {} },
+      wasp: {
+        module: runtimeExports === undefined ? {} : { runtimeExports },
+      },
     }),
   );
   writeFileSync(
@@ -269,6 +281,13 @@ function specDeclarationPath(moduleDir: string): string {
 
 function specJavaScriptPath(moduleDir: string): string {
   return path.join(moduleDir, "dist", "spec.js");
+}
+
+function readPackageExports(moduleDir: string): Record<string, unknown> {
+  const packageJson = JSON.parse(
+    readFileSync(path.join(moduleDir, "package.json"), "utf8"),
+  ) as { exports: Record<string, unknown> };
+  return packageJson.exports;
 }
 
 function installSpecPackage(moduleDir: string): void {

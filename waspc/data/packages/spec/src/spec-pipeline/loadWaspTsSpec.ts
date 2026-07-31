@@ -1,7 +1,9 @@
 import { realpathSync } from "node:fs";
-import * as path from "node:path";
 import { unrun } from "unrun";
-import { createWaspTsSpecPlugins } from "../compiler.js";
+import {
+  createWaspTsSpecPlugins,
+  getRootRelativeSpecFilePath,
+} from "../compiler.js";
 import { WaspSpecUserError } from "../spec/waspSpecUserError.js";
 
 export async function loadWaspTsSpecDefaultExport({
@@ -20,23 +22,14 @@ export async function loadWaspTsSpecDefaultExport({
       plugins: createWaspTsSpecPlugins({
         tsconfigPath,
         getRefOrigin: (filePath) => {
-          const specFilePath = path.relative(
+          const specFilePath = getRootRelativeSpecFilePath(
             canonicalProjectRootDir,
             realpathSync(filePath),
           );
-          if (
-            path.isAbsolute(specFilePath) ||
-            specFilePath === ".." ||
-            specFilePath.startsWith(`..${path.sep}`)
-          ) {
-            throw new Error(
-              `Project spec file ${JSON.stringify(filePath)} must be inside ${JSON.stringify(projectRootDir)}.`,
-            );
-          }
 
           return {
             kind: "project",
-            specFilePath: specFilePath.replaceAll(path.sep, "/"),
+            specFilePath,
           };
         },
       }),

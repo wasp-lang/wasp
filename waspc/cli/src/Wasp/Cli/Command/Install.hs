@@ -11,7 +11,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Project.Common (WaspProjectDir)
-import qualified Wasp.Project.Module as ProjectModule
+import qualified Wasp.Project.Install as ProjectInstall
 
 -- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
 install :: Command ()
@@ -24,4 +24,4 @@ install = do
       return
 
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-installIO = ProjectModule.installWaspDependenciesIO
+installIO = ProjectInstall.installWaspDependenciesIO

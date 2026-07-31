@@ -28,6 +28,7 @@ import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
+import qualified Wasp.AppSpec.ExtImport.Source as AS.ExtImportSource
 import qualified Wasp.AppSpec.Job as AS.Job
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Query as AS.Query
@@ -669,8 +670,11 @@ spec_AppSpecValid = do
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.version = Nothing,
+                Npm.PackageJson.packageType = Nothing,
+                Npm.PackageJson.files = Nothing,
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
+                Npm.PackageJson.peerDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
                 Npm.PackageJson.wasp = Nothing
               },
@@ -701,7 +705,7 @@ spec_AppSpecValid = do
         { AS.Page.component =
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
-              (AS.ExtImport.ProjectSrcExtImportSource $ fromJust $ SP.parseRelFileP "pages/Main")
+              (AS.ExtImportSource.ProjectSrcExtImportSource $ fromJust $ SP.parseRelFileP "pages/Main")
               Nothing,
           AS.Page.authRequired = Nothing
         }
@@ -808,5 +812,5 @@ spec_AppSpecValid = do
     dummyExtImport =
       AS.ExtImport.ExtImport
         (AS.ExtImport.ExtImportModule "Dummy")
-        (AS.ExtImport.ProjectSrcExtImportSource $ fromJust $ SP.parseRelFileP "dummy/File")
+        (AS.ExtImportSource.ProjectSrcExtImportSource $ fromJust $ SP.parseRelFileP "dummy/File")
         Nothing
