@@ -21,7 +21,6 @@ import Wasp.JsImport
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
     getJsDynamicImportExpression,
-    getJsImportIdentifier,
     getJsImportPathString,
     getJsImportStmtAndIdentifier,
     makeValueJsImport,
@@ -51,7 +50,6 @@ jsImportToImportJson = maybe notDefinedImportJsonData mkImportJsonData
       object
         [ "isDefined" .= True,
           "importPath" .= getJsImportPathString jsImport,
-          "exportName" .= getJsImportIdentifier jsImport,
           "importIdentifier" .= jsImportIdentifier,
           "importStatement" .= jsImportStatement,
           "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
