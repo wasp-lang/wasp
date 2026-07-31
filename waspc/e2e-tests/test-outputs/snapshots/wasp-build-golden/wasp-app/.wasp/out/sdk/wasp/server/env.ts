@@ -4,7 +4,9 @@ import { ensureEnvSchema } from "../env/validation.js"
 const userServerEnvSchema = z.object({});
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number(),
+  PORT: z.coerce.number({
+    error: 'PORT is required',
+  }),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
   }),
@@ -38,8 +40,8 @@ const clientUrlSchema =
   )
 
 
-// In development, Wasp sets the app's ports and URLs itself when it starts your app,
-// and defaults the few remaining values to make the development process easier.
+// In development, we provide default values for some environment variables
+// to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
   "WASP_SERVER_URL": serverUrlSchema,
