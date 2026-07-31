@@ -13,7 +13,6 @@ author: Wasp Team
 maintainer: team@wasp-lang.dev
 copyright: Wasp, Inc.
 license: MIT
-license-file: LICENSE
 build-type: Simple
 extra-source-files:
   ChangeLog.md

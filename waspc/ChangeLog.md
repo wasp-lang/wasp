@@ -9,6 +9,7 @@
 ### 🔧 Small improvements
 
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
+- Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
 
 ## 0.25.0
 
