@@ -12,11 +12,6 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Project.Common (WaspProjectDir, projectLockFileInWaspProjectDir)
 
--- | Carrying the acquired 'ProjectLock.ProjectLock' here keeps its underlying
--- handle reachable for as long as the command runs (checked requirements are
--- stored for the command's lifetime), so the OS lock stays held until the
--- process exits. The lock file itself is never removed; see
--- 'ProjectLock.acquireProjectLock'.
 newtype InLockedWaspProject = InLockedWaspProject (Path' Abs (Dir WaspProjectDir)) deriving (Typeable)
 
 instance Requirable InLockedWaspProject where
