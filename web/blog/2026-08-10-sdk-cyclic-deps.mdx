@@ -1,11 +1,10 @@
 ---
-# NOTE(claude): title and description are my (AI) suggestions, replace freely.
-title: "Faking Cyclic Dependencies Between TypeScript Projects"
+title: "TODO"
 authors: ["franjomindek"]
 image: /img/blog/sdk-cyclic-deps/banner.png
 tags: [wasp, frameworks, typescript, DX]
 keywords: ["wasp", "web frameworks", "framework DX", "TS cyclic deps", "TS circular deps", "typescript frameworks"]
-description: "How Wasp's SDK uses the types and values of your project without depending on it: declaration merging, conditional types that survive declaration emit, and virtual modules."
+description: "TODO"
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
@@ -13,7 +12,7 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 {/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/banner.png"
-  alt="Wasp SDK and user project pointing at each other in a dependency cycle"
+  alt="Abstract image of the blog posts banner featuring Wasp mascot daboi"
 />
 
 ## Intro
@@ -148,7 +147,6 @@ Wasp locates the operations through `spec`, where it can find all of the informa
 Operation definitions were left out in both examples on purpose, since those more-or-less overlap.
 Let's take a look at what you have to do in each scenario:
 
-{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/framework-magic.svg"
   alt="Comparison of the steps a user does in tRPC versus in Wasp"
@@ -188,7 +186,6 @@ But why all of this “magic” introduction? Well, let’s circle back to the �
     This whole thing shouldn’t be possible! 
     But it still is? How?
     
-    {/* NOTE(claude): alt text is my (AI) suggestion. */}
     <ImgWithCaption
       source="img/blog/sdk-cyclic-deps/cyclic-deps-paradox.png"
       alt="User project depends on the SDK while the SDK depends on the user project, forming an impossible cycle"
@@ -203,7 +200,6 @@ We need to be aware of the distinction of cyclic dependencies between TypeScript
 When importing in context of a single TypeScript project, cyclic imports are allowed.
 The problem is when you import between TypeScript projects, where the [dependency graph must be acyclical](https://github.com/microsoft/TypeScript/issues/33685) (DAG).
 
-{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-cyclic-deps/typescript-cyclic-imports.png"
   alt="Cyclic imports are allowed between modules of one TypeScript project, but not between TypeScript projects"
@@ -377,29 +373,16 @@ So let’s show an actual example how Wasp does it:
 3. The SDK derives all the user-code dependent types from the `Register` interface.
    We check if a type exists at the specified path, and if it does, we use it.
    If not, we fall back to our default type.
-   The path can be nested (e.g., operations live under the `operations` key), so the reading
-   type walks it step by step:
     
     ```ts title="sdk/wasp/types/register.ts"
-    /**
-     * Safely reads a value from {@link Register} by following {@link Path}.
-     * Returns the registered type, or {@link Fallback} if any step of the path is missing.
-     * The path can be of any depth.
-     */
-    export type FromRegisterPath<Path extends readonly string[], Fallback> =
-      WalkRegisterPath<Register, Path, Fallback>;
+    /** 
+     * Safely reads values from {@link Register}.
+     * Returns the registered type for a given {@link Key}, or falls back to {@link Fallback}.
 
-    type WalkRegisterPath<Current, Path extends readonly string[], Fallback> =
-      Path extends readonly [infer Key extends string, ...infer Rest extends readonly string[]]
-        ? Key extends keyof Current
-          ? WalkRegisterPath<Current[Key], Rest, Fallback>
-          : Fallback
-        : Current;
-
-    /**
-     * Shorthand for reading a top-level {@link Register} value.
      */
-    export type FromRegister<Key extends string, Fallback> = FromRegisterPath<[Key], Fallback>;
+    export type FromRegister<Key extends string, Fallback> = Key extends keyof Register
+      ? Register[Key]
+      : Fallback;
     ```
     
     This fallback is really important. The SDK compiles before any other TypeScript project,
@@ -557,7 +540,7 @@ It'd be best if we could avoid it.
 #### The proxy approach
 
 One thing to remember is that cyclic dependencies are a problem only between TypeScript projects.
-Inside a bundle, cyclic imports between modules are business as usual.
+Once the code is bundle, there are no more cyclic dependencies.
 
 And in the end, our code will be nothing but a bunch of JavaScript bundles. 
 The server bundle will be a mix of generated server code, SDK code, and user project code. 
@@ -623,11 +606,11 @@ Notice the declared type: `RegisteredUserGetAll` is the conditional type from th
 {/* NOTE(claude): paragraph below is my (AI) text, based on the comment in VirtualUserModules.hs. */}
 One detail: the type is written as an inline `import("...")` type on purpose.
 An ambient module declaration can't reach another module through a relative import statement (TS2439).
-And since the `skipLibCheck` tsconfig flag hides that error, writing it as an import statement would silently type every declared export as `any`.
 
 ### Recap of putting everything together
 
 ## Conclusion
+
 ## Addendum: type portability, the price of the package boundary
 
 There is one more constraint the new architecture bought us, and it's subtle enough to deserve its own note.
