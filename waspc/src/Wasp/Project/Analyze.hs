@@ -87,6 +87,9 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
+  devDbUrl <- makeDevDatabaseUrl waspDir dbSystem decls
+  serverEnvVars <- readDotEnvServer waspDir
+  clientEnvVars <- readDotEnvClient waspDir
 
   DevPostgres.getDevDbPort >>= \case
     Left err -> return (Left [err], [])

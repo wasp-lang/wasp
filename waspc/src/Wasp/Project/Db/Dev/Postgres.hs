@@ -1,6 +1,7 @@
 -- | This module captures how Wasp runs a PostgreSQL dev database.
 module Wasp.Project.Db.Dev.Postgres
-  ( defaultDevUser,
+  ( discoverDevConnectionUrl,
+    defaultDevUser,
     makeDevDbName,
     defaultDevPass,
     defaultDevPort,
@@ -18,6 +19,18 @@ import System.Environment (lookupEnv)
 import Text.Read (readMaybe)
 import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
+import Wasp.Util.Docker (getDockerContainerHostPort)
+
+-- | Returns the connection URL of this Wasp project's dev db if it is up,
+-- 'Nothing' otherwise.
+discoverDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe String)
+discoverDevConnectionUrl waspProjectDir appName = do
+  devDbPort <- getDockerContainerHostPort devDbContainerName 5432
+  return $ makeUrlOnPort <$> devDbPort
+  where
+    makeUrlOnPort port = makeConnectionUrl defaultDevUser defaultDevPass port devDbName
+    devDbName = makeDevDbName waspProjectDir appName
+    devDbContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
 
 defaultDevUser :: String
 defaultDevUser = "postgresWaspDevUser"
