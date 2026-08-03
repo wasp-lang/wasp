@@ -15186,51 +15186,6 @@ This happens when the TypeScript Language Server gets out of sync with the curre
 :::
 
 
-## Migration guides / From 0.25 to Next
-
-To install the latest Wasp version, open your terminal and run:
-
-```sh
-npm i -g @wasp.sh/wasp-cli@latest
-```
-
-You can install Wasp 0.26 specifically by passing the version to the install script:
-
-```sh
-npm i -g @wasp.sh/wasp-cli@0.26
-```
-
-### What's new in 0.26?
-
-### How to migrate?
-
-#### 1. Bump the Wasp version
-
-Update the version field in your Wasp config to `^0.26.0`.
-
-**Before**
-
-```ts title="main.wasp.ts"
-export default app({
-  wasp: { version: "^0.25.0" },
-  // ...
-});
-```
-
-**After**
-
-```ts title="main.wasp.ts"
-export default app({
-  wasp: { version: "^0.26.0" },
-  // ...
-});
-```
-
-#### 2. Enjoy your updated Wasp app
-
-That's it!
-
-
 ## Migration guides / From 0.24 to 0.25
 
 To install the latest Wasp version, open your terminal and run:

@@ -202,11 +202,6 @@ const sidebars: SidebarsConfig = {
         { type: "doc", id: "migration-guide" },
         {
           type: "link",
-          label: "From 0.24 to 0.25",
-          href: "/docs/0.25/migration-guide",
-        },
-        {
-          type: "link",
           label: "From 0.23 to 0.24",
           href: "/docs/0.24/migration-guide",
         },
