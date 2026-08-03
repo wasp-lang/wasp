@@ -612,7 +612,7 @@ The type is written as an inline `import("...")` type on purpose.
 
 Relative import statements are banned inside an ambient module declaration (TS2439), since the declared module has no location to be relative to.
 We *could* use package imports (e.g. `from "wasp/server/operations"`), those are allowed, but then every module holding a `Registered` type would have to be part of the package's public API.
-Inline `import("...")` types dodge both problems. They resolve relative to the declaration file itself, which does have a location.
+Inline `import("...")` types dodge both problems. They're legal, and they resolve relative to the declaration file itself, which does have a location.
 :::
 
 ### Recap of putting everything together
