@@ -20,8 +20,8 @@ import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
-import Wasp.Project.Apps (client)
 import Wasp.Project.Env (dotEnvFiles)
+import Wasp.Project.PerService (client)
 
 viteBuildTest :: Test
 viteBuildTest =

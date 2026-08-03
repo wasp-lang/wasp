@@ -15,20 +15,20 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.Apps (getWaspEnvVars)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import Wasp.Cli.Util.PerService (getWaspEnvVars)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
-import Wasp.Project.Apps (Apps)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Project.PerService (PerService)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
     clientPort :: Int,
-    envVars :: Apps [EnvVar],
+    envVars :: PerService [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }

@@ -19,13 +19,13 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Project.Apps (client)
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
     generatedAppDirInWaspProjectDir,
     srcDirInWaspProjectDir,
   )
 import Wasp.Project.Env (dotEnvFiles)
+import Wasp.Project.PerService (client)
 import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]

@@ -1,9 +1,38 @@
 module Wasp.Util.Docker
-  ( DockerImageName,
+  ( DockerContainerName,
+    DockerImageName,
     DockerVolumeMountPath,
+    getDockerContainerHostPort,
+
+    -- * Exported for testing only
+    parseDockerPortOutput,
   )
 where
+
+import Control.Exception (SomeException, try)
+import Data.List.Extra (takeWhileEnd)
+import System.Exit (ExitCode (..))
+import System.Process (readProcessWithExitCode)
+import Text.Read (readMaybe)
+
+type DockerContainerName = String
 
 type DockerImageName = String
 
 type DockerVolumeMountPath = String
+
+getDockerContainerHostPort :: DockerContainerName -> Int -> IO (Maybe Int)
+getDockerContainerHostPort containerName containerPort = do
+  result <-
+    try $ readProcessWithExitCode "docker" ["port", containerName, show containerPort] ""
+  return $ case result of
+    Right (ExitSuccess, stdout, _stderr) -> parseDockerPortOutput stdout
+    Right (ExitFailure _, _stdout, _stderr) -> Nothing
+    Left (_ :: SomeException) -> Nothing
+
+-- | Parses the output of @docker port \<container\> \<port\>@ into the host port.
+-- The output has a line per network interface, e.g. "0.0.0.0:5433\n[::]:5433\n".
+parseDockerPortOutput :: String -> Maybe Int
+parseDockerPortOutput output = case lines output of
+  (firstLine : _) -> readMaybe $ takeWhileEnd (/= ':') firstLine
+  [] -> Nothing

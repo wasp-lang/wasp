@@ -86,7 +86,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   let dbSystem = getValidDbSystemFromPrismaSchema parsedPrismaSchema
-  let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
+  devDbUrl <- makeDevDatabaseUrl waspDir dbSystem decls
   devEnvVars <- readDotEnvFiles waspDir
 
   let appSpec =

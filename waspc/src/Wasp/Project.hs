@@ -23,9 +23,6 @@ import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project.Env as Project.Env
 
--- | Compiles the Wasp project, returning any warnings along with either the errors
--- that stopped it or the AppSpec it compiled. Callers that don't need the AppSpec
--- can discard it.
 compile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->

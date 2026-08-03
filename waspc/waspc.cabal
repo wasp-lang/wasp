@@ -351,7 +351,6 @@ library
     Wasp.NodePackageFFI
     Wasp.Project
     Wasp.Project.Analyze
-    Wasp.Project.Apps
     Wasp.Project.BuildType
     Wasp.Project.Common
     Wasp.Project.Db
@@ -368,6 +367,7 @@ library
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
+    Wasp.Project.PerService
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -535,11 +535,11 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.Terminal
-    Wasp.Cli.Util.Apps
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.EnvVarInputs
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
+    Wasp.Cli.Util.PerService
 
 executable wasp-cli
   import: common-all, common-exe
@@ -610,6 +610,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
@@ -644,6 +645,7 @@ test-suite waspc-tests
     Test.Util
     Util.Control.MonadTest
     Util.Diff
+    Util.DockerTest
     Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest
