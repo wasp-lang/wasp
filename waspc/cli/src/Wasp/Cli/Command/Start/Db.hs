@@ -21,7 +21,6 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
@@ -124,25 +123,25 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
   throwIfDevDbPortIsAlreadyInUse
 
-  liftIO $
-    Dev.Postgres.startDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath printDevDbInfo
+  cliSendMessageC . Msg.Info $
+    unlines
+      [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
+        "",
+        "Additional info:",
+        " ℹ Using Docker image: " <> dbDockerImage,
+        "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
+        " ℹ Connection URL, in case you might want to connect with external tools:",
+        "     " <> devPostgresDb.connectionUrl,
+        " ℹ Database data is persisted in a Docker volume with the following name"
+          <> " (useful to know if you will want to delete it at some point):",
+        "     " <> devPostgresDb.dockerVolumeName
+      ]
+
+  cliSendMessageC $ Msg.Info "..."
+
+  liftIO $ Dev.Postgres.runDevPostgresDb devPostgresDb
   where
-    printDevDbInfo :: Dev.Postgres.DevPostgresDb -> IO ()
-    printDevDbInfo devPostgresDb = do
-      cliSendMessage . Msg.Info $
-        unlines
-          [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
-            "",
-            "Additional info:",
-            " ℹ Using Docker image: " <> dbDockerImage,
-            "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
-            " ℹ Connection URL, in case you might want to connect with external tools:",
-            "     " <> devPostgresDb.connectionUrl,
-            " ℹ Database data is persisted in a Docker volume with the following name"
-              <> " (useful to know if you will want to delete it at some point):",
-            "     " <> devPostgresDb.dockerVolumeName
-          ]
-      cliSendMessage $ Msg.Info "..."
+    devPostgresDb = Dev.Postgres.makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
