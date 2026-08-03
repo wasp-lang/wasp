@@ -611,7 +611,8 @@ An ambient module declaration can't reach another module through a relative impo
 
 ## Conclusion
 
-## Addendum: type portability, the price of the package boundary
+{/* TODO: convert to another blog post instead, a lot to expand */}
+{/* ## Addendum: type portability, the price of the package boundary
 
 During Wasp's transition from copying to user's project to making the SDK standalone, we encountered a new challenge.
 
@@ -641,4 +642,4 @@ The old approach paid for this convenience by compiling the user's code under th
 The new approach frees the user's tsconfig, but moves their code to the far side of the package boundary, and type references that cross a package boundary must be portable.
 
 One last nuance: this class of error was always possible for symbols coming from third-party packages with restrictive `exports` (a Prisma type in an inferred return type, say).
-What's new is only that `wasp` itself joined that category.
+What's new is only that `wasp` itself joined that category. */}
