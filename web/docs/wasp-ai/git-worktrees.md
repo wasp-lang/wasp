@@ -1,18 +1,18 @@
 ---
-title: Using Wasp with Git worktrees
+title: Working with Git worktrees
 ---
 
-Git worktrees let you work on several branches without cloning the repository again. This is useful when several coding agents work on the app in parallel. A new worktree contains tracked files, but not ignored files such as `node_modules`, `.wasp`, `.env.server`, and `.env.client`.
+Git worktrees let you work on several isolated instances of the same repository. This is useful when several coding agents work on the app in parallel. A new worktree contains tracked files, but not ignored files such as `node_modules`, `.wasp`, `.env.server`, and `.env.client`.
 
 ## Preparing a worktree
 
-From the Wasp project directory, install the project dependencies:
+After you create a worktree, first run:
 
 ```bash
 wasp install
 ```
 
-`wasp new` runs this step for a new app, but for a fresh clone or worktree we need to run it ourselves.
+This installs the project dependencies. `wasp new` runs this command automatically, but in a fresh clone or worktree you need to run it manually.
 
 Prepare the environment files required by the app. For example, if example files exist:
 
@@ -25,13 +25,17 @@ Follow the app's setup instructions or use its secret manager. See [Environment 
 
 ## Preparing the database
 
+#### SQLite
+
 SQLite needs no separate database process. Apply the migrations:
 
 ```bash
 wasp db migrate-dev
 ```
 
-For PostgreSQL, start the database in one terminal:
+#### PostgreSQL
+
+Start the database in one terminal:
 
 ```bash
 wasp start db
@@ -43,7 +47,7 @@ Then apply the migrations from another terminal:
 wasp db migrate-dev
 ```
 
-Wasp gives each worktree a separate [managed database](/data-model/databases.md#using-the-dev-database-provided-by-wasp) volume.
+Wasp gives each worktree a unique [development database](/data-model/databases.md#using-the-dev-database-provided-by-wasp) name and Docker volume.
 
 Optionally, if the app's README defines this, run the seed command:
 
