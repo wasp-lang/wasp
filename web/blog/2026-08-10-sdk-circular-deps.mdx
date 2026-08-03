@@ -25,7 +25,7 @@ As it turns out, *emulating* circular dependencies in Typescript is an interesti
 
 {/* truncate */}
 
-We will start with why do we even need to solve this problem, why our SDK depends on the user code.
+We will start with why do we even need to solve this problem, abd why our SDK depends on the user code.
 We will look at how you usually solve circular dependencies, why that is not possible here, and how can we emulate the same behavior without circular dependencies.
 
 ## Framework magic is a tradeoff
@@ -374,7 +374,7 @@ So let’s show an actual example how Wasp does it:
    We check if a type exists at the specified path, and if it does, we use it.
    If not, we fall back to our default type.
     
-    ```ts title="sdk/wasp/types/register.ts"
+    ```ts title="sdk/wasp/types/register.ts (simplified)"
     /** 
      * Safely reads values from {@link Register}.
      * Returns the registered type for a given {@link Key}, or falls back to {@link Fallback}.
@@ -411,32 +411,31 @@ And TypeScript really does not want to keep it that way.
 Remember, the SDK is a standalone project, it compiles alone.
 Module augmentation is not a part of the SDK compilation.
 So, whenever the compiler sees `FromRegister<"someKey", Fallback>`, it resolves it on the spot.
-`Register` is always empty, so the whole conditional collapses to `Fallback`. No need for complexity.
+`Register` is always empty, so the whole conditional collapses to `Fallback`. 
+No need for all that extra `FromRegister` complexity.
 
 While that alone is fine (the SDK still compiles), the problem is how the user project sees the SDK.
 In emitted `.d.ts` files, for every value whose type is *inferred*, TypeScript emits the *resolved* type.
 
-Consider the following code (`Schema` is a minimal `zod` stand-in, to keep the compiled output readable):
+Consider the following code (`getUserSchema` is a stand-in for reading the user's schema):
 
 ```ts title="sdk/wasp/server/env.ts (simplified)"
 // The env vars Wasp itself needs.
-const waspServerEnvSchema = makeSchema<{ PORT: number }>();
+const waspServerEnvSchema = z.object({
+  PORT: z.coerce.number().default(3001),
+});
 
 declare function getUserSchema<Key extends string, Fallback>(
   key: Key,
   fallback: Fallback,
 ): FromRegister<Key, Fallback>;
 
-// Everything below is inferred.
-// No explicit type annotations.
+// Everything below is inferred. No explicit type annotations.
 const userServerEnvSchema = getUserSchema(
   "serverEnvValidationSchema",
-  makeSchema<{}>(),
+  z.object({}),
 );
-const serverEnvSchema = intersectSchemas(
-  userServerEnvSchema,
-  waspServerEnvSchema,
-);
+const serverEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
 export const env = serverEnvSchema.parse(process.env);
 ```
@@ -444,10 +443,15 @@ export const env = serverEnvSchema.parse(process.env);
 Here is the compiled declaration file. In full:
 
 ```ts title="sdk/wasp/server/env.d.ts (compiled, inferred)"
-export declare const env: {
+export declare const env: Record<string, never> & {
     PORT: number;
 };
 ```
+
+:::tip
+`Record<string, never>` is how TypeScript spells "an empty object".
+Weird on first look, but the `{}` type can't be used for that, since it represents any non-nullish value.
+:::
 
 `FromRegister` left no trace. And that is a problem.
 The user project will always see the `Fallback`, even if it does module augmentation.
@@ -461,45 +465,44 @@ So we must explicitly set the conditional type on every type derived from the `R
 The runtime `env.js` output stays exactly the same, this whole fight is only about the declaration file:
 
 ```ts title="sdk/wasp/server/env.ts (simplified)"
-// This one can still be inferred,
-// it comes from the SDK itself.
-const waspServerEnvSchema = makeSchema<{ PORT: number }>();
+// This one can still be inferred, it comes from the SDK itself.
+const waspServerEnvSchema = z.object({
+  PORT: z.coerce.number().default(3001),
+});
 
 // We must explicitly set the conditional type here.
 type RegisteredServerEnvValidationSchema = FromRegister<
   "serverEnvValidationSchema",
-  Schema<{}>
+  z.ZodObject<{}>
 >;
 type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
-const userServerEnvSchema: UserServerEnvSchema = makeSchema<{}>();
+const userServerEnvSchema: UserServerEnvSchema = z.object({});
 
 // We must explicitly set the type here.
-type CompleteServerEnvSchema = SchemaIntersection<
+type CompleteServerEnvSchema = z.ZodIntersection<
   UserServerEnvSchema,
   typeof waspServerEnvSchema
 >;
-const serverEnvSchema: CompleteServerEnvSchema = intersectSchemas(
-  userServerEnvSchema,
-  waspServerEnvSchema,
-);
+const serverEnvSchema: CompleteServerEnvSchema =
+  userServerEnvSchema.and(waspServerEnvSchema);
 
 // We must explicitly set the type here.
-export const env: Infer<CompleteServerEnvSchema> =
+export const env: z.infer<CompleteServerEnvSchema> =
   serverEnvSchema.parse(process.env);
 ```
 
 And now the compiled declaration file keeps everything:
 
 ```ts title="sdk/wasp/server/env.d.ts (compiled, explicit)"
-import { FromRegister } from "../types/register.js";
-import { Infer, Schema, SchemaIntersection } from "schema-package";
-declare const waspServerEnvSchema: Schema<{
-    PORT: number;
-}>;
-type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", Schema<{}>>;
+import * as z from "zod";
+import { FromRegister } from "./types.js";
+declare const waspServerEnvSchema: z.ZodObject<{
+    PORT: z.ZodDefault<z.ZodCoercedNumber<unknown>>;
+}, z.core.$strip>;
+export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
 type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
-type CompleteServerEnvSchema = SchemaIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
-export declare const env: Infer<CompleteServerEnvSchema>;
+type CompleteServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+export declare const env: z.infer<CompleteServerEnvSchema>;
 export {};
 ```
 
@@ -538,11 +541,12 @@ This requires precise balancing of module initialization order, which is a chore
 It'd be best if we could avoid it.
 
 #### The proxy approach
+{/* FIXME: AI generated, tidy up */}
 
 One thing to remember is that circular dependencies are a problem only between TypeScript projects.
 Once the code is bundle, there are no more circular dependencies.
 
-And in the end, our code will be nothing but a bunch of JavaScript bundles. 
+And in the end, our code will be nothing but a bunch of JavaScript bundles.
 The server bundle will be a mix of generated server code, SDK code, and user project code. 
 Can we somehow, in e.g. the server, use a variable from the user project (it will be in the server bundle anyway), but without strictly depending on the user project? Well, yes we can! 
 
@@ -603,9 +607,13 @@ declare module "virtual:wasp/user/operations" {
 
 Notice the declared type: `RegisteredUserGetAll` is the conditional type from the previous section, so the value read through the virtual module is typed by the user's own operation definition.
 
-{/* NOTE(claude): paragraph below is my (AI) text, based on the comment in VirtualUserModules.hs. */}
-One detail: the type is written as an inline `import("...")` type on purpose.
-An ambient module declaration can't reach another module through a relative import statement (TS2439).
+:::tip
+The type is written as an inline `import("...")` type on purpose.
+
+Relative import statements are banned inside an ambient module declaration (TS2439), since the declared module has no location to be relative to.
+We *could* use package imports (e.g. `from "wasp/server/operations"`), those are allowed, but then every module holding a `Registered` type would have to be part of the package's public API.
+Inline `import("...")` types dodge both problems. They resolve relative to the declaration file itself, which does have a location.
+:::
 
 ### Recap of putting everything together
 
