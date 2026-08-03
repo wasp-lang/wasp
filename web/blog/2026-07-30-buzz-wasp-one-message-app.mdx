@@ -1,0 +1,118 @@
+---
+title: "Buzz + Wasp: from one chat message to a deployed full-stack app"
+authors: [vinny]
+image: /img/buzz-wasp-one-message-app/banner.webp
+tags: [wasp, buzz, ai agents, ai, full-stack]
+keywords: ["buzz", "ai agents", "wasp framework", "railway deploy", "agentic chat", "full-stack ai app", "claude code", "vibe coding", "one command deploy", "crm app"]
+description: "I typed one message into a chat channel in Buzz and an agent scaffolded, deployed, and shipped a live full-stack CRM with Wasp. Here's the recipe, written so a human or an agent can follow it."
+---
+
+![The original Prompt in Buzz](/img/buzz-wasp-one-message-app/prompt.webp)
+
+A couple of weeks ago I typed this into a chat channel:
+
+> spin up a simple CRM app using the Wasp full-stack framework and deploy it to Railway
+
+Then I went back to what I was doing. Before I'd even checked in on it, an agent named Fizz had scaffolded the app, wired up auth and a Postgres database, pushed the code to a repo, deployed it to Railway, and posted back **screenshots and a live URL**.
+
+![The deployed Buzz CRM dashboard](/img/buzz-wasp-one-message-app/crm.webp)
+
+{/* truncate */}
+
+When I showed the chat log on a podcast, the host's reaction was: *"That's insane. We're kind of glossing over it, but look what we built. It's live on the internet already."*
+
+[![The Startup Ideas podcast reaction](/img/buzz-wasp-one-message-app/podcast.webp)](https://www.youtube.com/watch?v=jGSgzBkzrY)
+
+That app is still live: [buzz-crm-client-production.up.railway.app](https://buzz-crm-client-production.up.railway.app). The code is here: [github.com/vincanger/buzz-crm](https://github.com/vincanger/buzz-crm).
+
+This post is the recipe, so you can do it yourself. And if even the recipe feels like work, skip to the [last section](#too-lazy-good) and make your agent follow it for you.
+
+## What's happening here?
+
+Two awesome tools are meeting in the middle:
+
+**[Buzz](https://buzz.xyz)** is the free, open-source, agent-native chat platform from Jack Dorsey's team at Block. Agents aren't bolted-on integrations, they're teammates in your channels, running on the coding subscriptions you already pay for (Claude Code, Codex, whatever). You talk to them; they do the work and report back where everyone can see it.
+
+**[Wasp](https://wasp.sh)** is our full-stack TypeScript framework. You declare the big pieces (auth, database, jobs, deployment) at the config level, and Wasp wires them up. That's pleasant for humans, but it turns out to be *huge* for agents: fewer decisions means fewer wrong decisions, and shipping is one command the agent can actually run instead of forty minutes of dashboard clicking.
+
+So you're getting a chat + agent orchestration platform where agents finish tasks + a framework that does the heavy lifting!
+
+## The recipe
+
+Each step ends with a ✅ check, so you (or your agent, see below) know it actually worked before moving on.
+
+### 1. Get Buzz and plug in an agent
+
+Download Buzz from [buzz.xyz](https://buzz.xyz) (free). On first run it detects the coding harnesses installed on your machine (Claude Code, Codex, Cursor, OpenCode, Hermes, etc. ) and connects them, so your agents run on the subscription you already have. Create a channel, add an agent.
+
+✅ **Check:** say hi to your agent in a channel and get a reply.
+
+### 2. Install Wasp
+
+```bash
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+One catch worth knowing up front: Wasp needs a recent Node (0.24 requires ≥ 24.14.1), and agent runtimes sometimes ship their own older Node on PATH. If the agent hits a version error, tell it to use your nvm-installed Node explicitly (that one line fixes the most common failure in this whole flow).
+
+✅ **Check:** `wasp version` prints a version.
+
+### 3. Send the message
+
+Mine, nearly verbatim:
+
+```sh
+> spin up a simple CRM app using the Wasp full-stack framework
+> deploy it to Railway. 
+> send screenshots and the live URL when it's up.
+```
+
+A good prompt here names three things: **the framework** (so the agent doesn't hand-roll an Express app), **the deploy target** (Wasp has one-command deploys to Railway and Fly), and **proof of done** (screenshots + URL, make the agent show its work).
+
+✅ **Check:** the agent replies with a plan and starts working. Now leave it alone.
+
+### 4. Trust, but verify the deploy
+
+Here's the honest part. Deploy CLIs sometimes report success while the build is still running, the agent sees exit code 0, declares victory, and posts a URL that 404s. So the finish line is not "the deploy command succeeded." The finish line is:
+
+✅ **Check:** the app URL returns a real page (have the agent poll the deploy status until it leaves `BUILDING`, then curl the URL), and the agent posts a screenshot of the logged-in app.
+
+That's the whole recipe. Mine took one message and a coffee's worth of waiting.
+
+## Then keep talking (this is the actual magic)
+
+The deploy isn't the end; it's the beginning of a conversation that never leaves your team's context.
+
+![The CRM's deals pipeline view](/img/buzz-wasp-one-message-app/pipeline.webp)
+
+"Add a kanban view for deals." "The contacts table needs search." Teammates join the channel, argue about what's missing, and tag the agent (which has the entire history of the project *in the chat*). The repo, the decisions, the screenshots, and the discussion all live in one place. No handoff documents, no "wait, why did we do it this way?", scroll up.
+
+## Real-talk gotchas
+
+We're an honest bunch, so: this is early-preview territory, and these three things will save you an afternoon.
+
+- **Node versions.** The #1 stumble. Agent harnesses can ship their own Node; Wasp wants a recent one. Tell the agent which Node to use if it errors (see step 2).
+- **"Deployed" isn't deployed.** Exit code 0 from a deploy CLI can just mean "upload accepted." Make the agent verify with a real HTTP request (step 4).
+- **Buzz is young.** Workflows/automations are still rough, and chatting through a relay is slower than working in a terminal directly. For a complex existing codebase, use your harness straight. For going zero-to-shipped with your team watching? This flow is unbeatable.
+
+## Why Wasp is the right tool for agents
+
+Agents are great at writing application code and mediocre at plumbing decisions (which auth library, how to structure the deploy, where the job queue goes). 
+
+Wasp moves exactly those decisions into a declarative config with sane defaults, and gives back one-command answers for the scary parts (e.g. `wasp deploy railway launch`). The agent's effort goes into what makes *your app unique* (the data model, the pages, the features) instead of boilerplate. That's why one message was enough.
+
+## Too lazy to follow the recipe? Good. {#too-lazy-good}
+
+Just give your agent a raw, AI-friendly copy of this post:
+
+```
+https://raw.githubusercontent.com/wasp-lang/wasp/release/web/blog/2026-07-30-buzz-wasp-one-message-app.mdx
+```
+
+…paste it to your Buzz agent, and say: **"follow this recipe and build me a [your app idea]."** The ✅ checks above are written so an agent can verify each step itself (including not trusting the deploy CLI). The blogpost *is* the runbook. Report back with what you shipped.
+
+## Try it
+
+[Install Wasp](https://wasp.sh) → grab [Buzz](https://buzz.xyz) → send the message. If you ship something, tag [@wasplang](https://twitter.com/wasplang), we collect these.
+
+*Want the longer story? I talked through the whole Buzz + Wasp workflow on two podcasts: [Agent Native, with Riley Brown](https://www.youtube.com/watch?v=P1KpxzLVg7c). and [The Startup Ideas, with Greg Isenberg](https://www.youtube.com/watch?v=jGSgzBkzrY) and ook *
