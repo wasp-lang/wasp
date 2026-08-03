@@ -7,15 +7,15 @@ where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Project.Apps (Apps (..))
-import qualified Wasp.Project.Apps as Apps
+import Wasp.Project.PerService (PerService (..))
+import qualified Wasp.Project.PerService as PerService
 
-appPortsParser :: Opt.Parser (Apps PortNumber)
+appPortsParser :: Opt.Parser (PerService PortNumber)
 appPortsParser =
   sequenceA $
     liftA2
       (\name defaultPort -> portOption (name ++ "-port") ("Port to run the " ++ name ++ " on") defaultPort)
-      Apps.names
+      PerService.names
       defaultAppPorts
 
 portOption :: String -> String -> PortNumber -> Opt.Parser PortNumber
@@ -37,9 +37,9 @@ portOption optionName helpText defaultPort =
 
 -- | The ports an app runs on when the user doesn't choose any. 3000 and 3001
 -- are the ports people expect from a Wasp app.
-defaultAppPorts :: Apps PortNumber
+defaultAppPorts :: PerService PortNumber
 defaultAppPorts =
-  Apps
+  PerService
     { client = 3000,
       server = 3001
     }

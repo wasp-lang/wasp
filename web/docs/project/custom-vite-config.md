@@ -19,7 +19,7 @@ You have **full control** over your `vite.config.ts` file. Wasp doesn't manage t
 Here's the minimal required configuration:
 
 <Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
+<TabItem value="js" label="JavaScript">
     ```js title="vite.config.js"
     import { wasp } from 'wasp/client/vite'
     import { defineConfig } from 'vite'
@@ -68,6 +68,14 @@ Vite config customization can be useful for things like:
 - Customizing the dev server behavior.
 - Customizing the build process.
 
+### Custom Dev Server Port {#custom-dev-server-port}
+
+`wasp start` automatically chooses a port for the client dev server. By default, it'll use `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
+
+```bash
+wasp start --client-port 4000
+```
+
 ## Plugin Options
 
 The `wasp()` plugin accepts options allowing you to customize the underlying React plugin behavior if needed:
@@ -85,14 +93,6 @@ export default defineConfig({
     })
   ],
 })
-```
-
-### Custom Dev Server Port {#custom-dev-server-port}
-
-`wasp start` automatically chooses a port for the client dev server. By default, it'll use `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
-
-```bash
-wasp start --client-port 4000
 ```
 
 ## Examples
