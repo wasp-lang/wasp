@@ -21,8 +21,8 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require.InLockedWaspProject (InLockedWaspProject (InLockedWaspProject))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -37,17 +37,17 @@ import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
--- | Same like 'compileWithOptions', but with default compile options.
+-- | Same like 'compileWithOptions', but with default compile options and with
+-- the project locked for the duration of the compilation. Meant for the
+-- standalone `wasp compile` command: commands that hold the project lock
+-- themselves should call 'compileWithOptions' instead.
 compile :: Command [CompileWarning]
-compile = do
-  -- TODO: Consider a way to remove the redundancy of finding the project root
-  -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
-  -- add make externalCodeDirPath a helper function, along with any others we typically need.
-  InWaspProject waspProjectDir <- require
+compile = withLockedProject $ \waspProjectDir -> do
   WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
+-- Expects the calling command to hold the project lock (via 'withLockedProject').
 -- Does all the steps, from analysis to generation, and at the end writes generated code
 -- to the disk, to the .wasp dir.
 -- At the end, prints a report on how compilation went (by printing warnings, errors,
@@ -56,7 +56,7 @@ compile = do
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   ValidNodeAndNpm <- require
-  InLockedWaspProject waspProjectDir <- require
+  InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

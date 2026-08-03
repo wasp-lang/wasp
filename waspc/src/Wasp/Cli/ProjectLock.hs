@@ -1,9 +1,7 @@
 module Wasp.Cli.ProjectLock
-  ( ProjectLock,
-    ProjectLockError (..),
+  ( ProjectLockError (..),
     WaspProcessId,
     acquireProjectLock,
-    releaseProjectLock,
   )
 where
 
@@ -21,15 +19,6 @@ import qualified Wasp.Util.IO as Wasp.IO
 
 type WaspProcessId = Integer
 
--- | Proof that this process holds the lock on a Wasp project.
---
--- Holds the open handle backing the OS-level lock: the lock is held for
--- exactly as long as the handle stays open, so keep this value reachable for
--- as long as the project should stay locked (GHC closes handles that become
--- unreachable). The OS releases the lock when the process exits, even if it
--- crashes.
-newtype ProjectLock = ProjectLock Handle
-
 newtype ProjectLockError
   = -- | Another process holds the lock. Carries that process's PID as read
     -- from the lock file, if it could be read and parsed.
@@ -38,7 +27,11 @@ newtype ProjectLockError
 
 -- | Tries to take an exclusive OS-level advisory lock on the project's lock
 -- file, creating the file if needed. On success, writes our PID into the lock
--- file, purely as information for the error message other processes show.
+-- file, purely as information for the error message other processes show, and
+-- returns the open handle backing the lock: the lock is held for exactly as
+-- long as the handle stays open and locked, so release it by unlocking and
+-- closing the handle. The OS releases the lock when the process exits, even
+-- if it crashes.
 --
 -- NOTE: The lock file is intentionally never deleted, not even on release. An
 -- advisory lock protects the open file, but not its directory entry: if we
@@ -46,14 +39,14 @@ newtype ProjectLockError
 -- file while a third process still holds the lock on the old, now-unlinked
 -- one, leaving two processes convinced they hold the project lock.
 -- See https://theworld.com/~swmcd/steven/tech/flock.html for details.
-acquireProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO (Either ProjectLockError ProjectLock)
+acquireProjectLock :: Path' Abs (File WaspProjectLockfile) -> IO (Either ProjectLockError Handle)
 acquireProjectLock lockFilePath = do
   Directory.createDirectoryIfMissing True $ SP.fromAbsDir $ SP.parent lockFilePath
   lockFileHandle <- openFile (SP.fromAbsFile lockFilePath) ReadWriteMode
   Lukko.hTryLock lockFileHandle Lukko.ExclusiveLock >>= \case
     True -> do
       writeOwnerProcessId lockFileHandle
-      return $ Right $ ProjectLock lockFileHandle
+      return $ Right lockFileHandle
     False -> do
       hClose lockFileHandle
       Left . ProjectLockHeld <$> readOwnerProcessId
@@ -74,8 +67,3 @@ acquireProjectLock lockFilePath = do
       try (Wasp.IO.readFileStrict lockFilePath) >>= \case
         Left (_ :: IOException) -> return Nothing
         Right contents -> return $ readMaybe $ T.unpack $ T.strip contents
-
--- | Releases the lock by closing the handle holding it. The lock file itself
--- stays behind; see 'acquireProjectLock' for why it must not be deleted.
-releaseProjectLock :: ProjectLock -> IO ()
-releaseProjectLock (ProjectLock lockFileHandle) = hClose lockFileHandle

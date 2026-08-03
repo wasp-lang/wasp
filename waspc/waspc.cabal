@@ -456,6 +456,7 @@ library cli-lib
     http-conduit,
     lens,
     lens-aeson ^>=1.2.3,
+    lukko,
     mtl,
     neat-interpolation,
     optparse-applicative ^>=0.18.1,
@@ -508,6 +509,7 @@ library cli-lib
     Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
+    Wasp.Cli.Command.LockedProject
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
@@ -517,7 +519,6 @@ library cli-lib
     Wasp.Cli.Command.News.LocalNewsState
     Wasp.Cli.Command.Require.DbConnectionEstablished
     Wasp.Cli.Command.Require.GeneratedApp
-    Wasp.Cli.Command.Require.InLockedWaspProject
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
@@ -664,15 +665,10 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
-    directory,
     hspec,
-    lukko,
-    process,
     QuickCheck,
-    strong-path,
     tasty,
     tasty-hspec,
-    temporary,
     time,
     waspc,
 
@@ -741,6 +737,7 @@ test-suite waspc-e2e-tests
     Tests.WaspInfoTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspProjectLockTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
