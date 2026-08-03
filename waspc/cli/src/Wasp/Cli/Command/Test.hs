@@ -15,14 +15,14 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Util.Apps (defaultAppPorts, getWaspEnvVars)
+import Wasp.Cli.Util.PerService (defaultAppPorts, getWaspEnvVars)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
-import Wasp.Project.Apps (client)
 import Wasp.Project.Common
   ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
   )
+import Wasp.Project.PerService (client)
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"

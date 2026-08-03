@@ -16,7 +16,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (EnvVar)
-import Wasp.Project.Apps (Apps (..))
+import Wasp.Project.PerService (PerService (..))
 
 getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
 getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
@@ -32,8 +32,8 @@ clientDevPortEnvVarName = "PORT"
 getDevClientUrl :: AppSpec -> PortNumber -> String
 getDevClientUrl spec port = "http://localhost:" ++ show port ++ SP.fromAbsDirP (getBaseDir spec)
 
-getDevClientEnvVars :: Apps (PortNumber, String) -> [EnvVar]
-getDevClientEnvVars (Apps {client = (clientPort, _), server = (_, serverUrl)}) =
+getDevClientEnvVars :: PerService (PortNumber, String) -> [EnvVar]
+getDevClientEnvVars (PerService {client = (clientPort, _), server = (_, serverUrl)}) =
   [ (clientDevPortEnvVarName, show clientPort),
     (serverUrlEnvVarName, serverUrl)
   ]

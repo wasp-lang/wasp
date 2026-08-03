@@ -19,10 +19,10 @@ import Wasp.Project.Common (WaspProjectDir)
 spec_readEnvVarInput :: Spec
 spec_readEnvVarInput = do
   describe "readEnvVarInput" $ do
-    it "labels a var coming from a CLI option with that option's name" $ do
+    it "labels a var coming from a CLI option with that option's flag" $ do
       withProjectDir $ \projectDir ->
-        readEnvVarInput projectDir (FromFlag "server-env" ("FOO", "bar"))
-          `shouldReturn` ("server-env", [("FOO", "bar")])
+        readEnvVarInput projectDir (FromFlag "--server-env" ("FOO", "bar"))
+          `shouldReturn` ("--server-env", [("FOO", "bar")])
 
     it "reads a project's dotenv file, labeling its vars with the file's path" $ do
       withProjectDir $ \projectDir -> do
@@ -51,7 +51,7 @@ spec_resolveEnvVars = do
     it "keeps the wasp-owned vars and appends the ones the user set" $ do
       resolveEnvVars
         [("PORT", "3001")]
-        [(".env.server", [("FOO", "bar")]), ("server-env", [("BAZ", "qux")])]
+        [(".env.server", [("FOO", "bar")]), ("--server-env", [("BAZ", "qux")])]
         `shouldBe` Right [("PORT", "3001"), ("FOO", "bar"), ("BAZ", "qux")]
 
     it "lets the earlier source win when two sources set the same var" $ do
