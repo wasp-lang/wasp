@@ -5,7 +5,9 @@ import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from 'wasp
 const userServerEnvSchema = serverEnvValidationSchema_ext;
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number(),
+  PORT: z.coerce.number({
+    error: 'PORT is required',
+  }),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
   }),

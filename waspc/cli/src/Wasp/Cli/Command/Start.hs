@@ -5,16 +5,9 @@ where
 
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
-import Control.Monad (forM, unless)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Foldable (toList)
-import Data.List (intercalate, nub)
-import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, isJust)
-import StrongPath (Abs, Dir, Path', fromRelFile, (</>))
-import System.Environment (lookupEnv)
-import Text.Printf (printf)
+import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -24,16 +17,16 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Util.Apps (getWaspEnvVars)
+import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
+import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.PerService (getWaspEnvVars)
 import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Apps (Apps)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Util.Terminal (styleCode)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -63,7 +56,11 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
   ports <- resolveAppPorts args.ports
 
   let waspEnvVars = getWaspEnvVars appSpec ports
-  throwIfWaspOwnedEnvVarsAreSet waspProjectDir (map fst <$> waspEnvVars)
+      envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
+
+  envVars <-
+    sequence $
+      resolveEnvVarInputs waspProjectDir <$> waspEnvVars <*> envVarInputs
 
   DbConnectionEstablished <- require
 
@@ -79,7 +76,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
-          Wasp.Generator.start waspEnvVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+          Wasp.Generator.start envVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -94,6 +91,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
+    getEnvVarInputs file = [EnvVarInputs.FromProjectFile file, EnvVarInputs.Inherit]
+
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
@@ -109,51 +108,3 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
           putStrLn ""
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
-
--- | Wasp injects the env vars it derives from the ports it picked into the processes it
--- starts, and injected values win over whatever the user wrote down. A value the user set
--- would therefore be silently ignored, so we stop and point at the flags instead.
---
--- The names come straight from the vars we inject, so the two can't drift apart.
-throwIfWaspOwnedEnvVarsAreSet :: Path' Abs (Dir WaspProjectDir) -> Apps [String] -> Command ()
-throwIfWaspOwnedEnvVarsAreSet waspProjectDir waspOwnedEnvVarNames = do
-  dotEnvVars <- liftIO $ Env.readDotEnvFiles waspProjectDir
-  envVarsSetByUser <-
-    liftIO $
-      fmap (mergeSourcesPerEnvVar . concat . toList) $
-        sequenceA $
-          findEnvVarsSetByUser <$> waspOwnedEnvVarNames <*> Env.dotEnvFiles <*> dotEnvVars
-
-  unless (null envVarsSetByUser) $
-    throwError $
-      CommandError "Wasp controls some of the env vars you set" $
-        intercalate "\n" $
-          [ printf
-              "Wasp figures out the app's ports and URLs itself when you run %s, so it would ignore the values you set:"
-              (styleCode "wasp start"),
-            ""
-          ]
-            ++ map describeEnvVarSetByUser envVarsSetByUser
-            ++ [ "",
-                 printf
-                   "Remove them, and run %s if you want to pick the ports yourself."
-                   (styleCode "wasp start --client-port <port> --server-port <port>")
-               ]
-  where
-    -- The client and the server take their port through the same env var name, so a
-    -- var can turn up once per app. We report it once, listing everywhere it came from.
-    mergeSourcesPerEnvVar =
-      Map.toAscList . Map.fromListWith (\newSources sources -> nub $ sources ++ newSources)
-
-    findEnvVarsSetByUser envVarNames dotEnvFile dotEnvFileVars =
-      fmap catMaybes $
-        forM envVarNames $ \envVarName -> do
-          isSetInShellEnv <- isJust <$> lookupEnv envVarName
-          let isSetInDotEnvFile = any ((== envVarName) . fst) dotEnvFileVars
-              sources =
-                [fromRelFile dotEnvFile | isSetInDotEnvFile]
-                  ++ ["your environment" | isSetInShellEnv]
-          return $ if null sources then Nothing else Just (envVarName, sources)
-
-    describeEnvVarSetByUser (envVarName, sources) =
-      printf "  - %s, set in %s" (styleCode envVarName) (intercalate " and " sources)

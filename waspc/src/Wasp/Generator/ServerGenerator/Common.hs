@@ -42,7 +42,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
-import Wasp.Project.Apps (Apps (..))
+import Wasp.Project.PerService (PerService (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -150,8 +150,8 @@ makeDevServerUrl port = "http://localhost:" ++ show port
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
 
-getDevServerEnvVars :: Apps (PortNumber, String) -> [EnvVar]
-getDevServerEnvVars (Apps {client = (_, clientUrl), server = (serverPort, serverUrl)}) =
+getDevServerEnvVars :: PerService (PortNumber, String) -> [EnvVar]
+getDevServerEnvVars (PerService {client = (_, clientUrl), server = (serverPort, serverUrl)}) =
   [ (serverPortEnvVarName, show serverPort),
     (serverUrlEnvVarName, serverUrl),
     (clientUrlEnvVarName, clientUrl)

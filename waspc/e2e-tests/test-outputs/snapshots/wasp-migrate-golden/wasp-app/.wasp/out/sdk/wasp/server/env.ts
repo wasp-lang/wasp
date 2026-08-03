@@ -4,7 +4,9 @@ import { ensureEnvSchema } from "../env/validation.js"
 const userServerEnvSchema = z.object({});
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number(),
+  PORT: z.coerce.number({
+    error: 'PORT is required',
+  }),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
   }),

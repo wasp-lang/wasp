@@ -15,14 +15,14 @@ import Data.Traversable (for)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Project.Apps (Apps (..))
-import qualified Wasp.Project.Apps as Apps
+import Wasp.Project.PerService (PerService (..))
+import qualified Wasp.Project.PerService as PerService
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as S
 
-appPortsParser :: Opt.Parser (Apps (Maybe PortNumber))
+appPortsParser :: Opt.Parser (PerService (Maybe PortNumber))
 appPortsParser =
-  for Apps.names $ \name ->
+  for PerService.names $ \name ->
     portOption (name ++ "-port") ("Port to run the " ++ name ++ " on")
 
 portOption :: String -> String -> Opt.Parser (Maybe PortNumber)
@@ -44,10 +44,10 @@ portOption optionName helpText =
 defaultMinPort :: PortNumber
 defaultMinPort = 3000
 
-defaultAppPorts :: Apps PortNumber
-defaultAppPorts = Apps defaultMinPort (defaultMinPort + 1)
+defaultAppPorts :: PerService PortNumber
+defaultAppPorts = PerService defaultMinPort (defaultMinPort + 1)
 
-resolveAppPorts :: Apps (Maybe PortNumber) -> Command (Apps PortNumber)
+resolveAppPorts :: PerService (Maybe PortNumber) -> Command (PerService PortNumber)
 resolveAppPorts requestedPorts = do
   let portsAreTheSame = isJust requestedPorts.client && (requestedPorts.client == requestedPorts.server)
   when portsAreTheSame $ throwResolvingError "The client and the server can't both run on the same port."
@@ -64,7 +64,7 @@ resolveAppPorts requestedPorts = do
       (resolvedClientPort + 1)
       (catMaybes [requestedPorts.client])
 
-  return $ Apps resolvedClientPort resolvedServerPort
+  return $ PerService resolvedClientPort resolvedServerPort
   where
     resolvePort (Just port) _ _ = do
       whenM (liftIO $ isLocalPortTaken port) $ do

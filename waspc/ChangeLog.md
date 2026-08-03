@@ -10,10 +10,11 @@
 
 ### 🎉 New Features
 
-- `wasp start` and `wasp build start` now intelligently choose ports so that you can run multiple apps in your system simultaneously. You can also control this with the `--client-port <port>` and `--server-port <port>` arguments.
+- `wasp start` and `wasp build start` now intelligently choose ports so that you can run multiple apps in your system simultaneously. You can also control this with the `--client-port <port>` and `--server-port <port>` arguments. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 
 ### 🔧 Small improvements
 
+- `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
 - The `<region>` argument of `wasp deploy fly` is now case-insensitive, so e.g. `MIA` is accepted instead of being rejected as an invalid region. ([#4588](https://github.com/wasp-lang/wasp/pull/4588))

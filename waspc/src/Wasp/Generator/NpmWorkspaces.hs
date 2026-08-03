@@ -10,12 +10,12 @@ import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
-import Wasp.Project.Apps (Apps (..))
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedAppDirInDotWaspDir,
   )
+import Wasp.Project.PerService (PerService (..))
 
 -- | Returns the set of workspaces that should be included in the user's `package.json` file. Each
 -- workspace is a glob that matches all packages in a certain directory.
@@ -44,9 +44,9 @@ requiredWorkspaceGlobs =
           ++ show inputDir
           ++ ")"
 
-packageNames :: Apps String
+packageNames :: PerService String
 packageNames =
-  Apps
+  PerService
     { client = "@wasp.sh/generated-webapp",
       server = "@wasp.sh/generated-server"
     }

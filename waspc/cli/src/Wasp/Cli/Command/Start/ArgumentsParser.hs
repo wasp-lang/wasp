@@ -7,10 +7,10 @@ where
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.PortArgument (appPortsParser)
-import Wasp.Project.Apps (Apps (..))
+import Wasp.Project.PerService (PerService (..))
 
 newtype StartArgs = StartArgs
-  { ports :: Apps (Maybe PortNumber)
+  { ports :: PerService (Maybe PortNumber)
   }
   deriving (Eq, Show)
 
