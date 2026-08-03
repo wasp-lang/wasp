@@ -55,7 +55,7 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
 | `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
-| `server.port` | dynamically assigned | Wasp tells the server where to find the client, so it has to know the client's port. Use [`wasp start --client-port`](../general/cli.md#project-commands) instead. |
+| `server.port` | dynamically assigned | Wasp tells the server where to find the client, so it has to know the client's port. Use [`wasp start --client-port`](#custom-dev-server-port) instead. |
 | `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
 
 ## Customization
@@ -85,6 +85,14 @@ export default defineConfig({
     })
   ],
 })
+```
+
+### Custom Dev Server Port {#custom-dev-server-port}
+
+`wasp start` automatically chooses a port for the client dev server. By default, it'll use `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
+
+```bash
+wasp start --client-port 4000
 ```
 
 ## Examples
