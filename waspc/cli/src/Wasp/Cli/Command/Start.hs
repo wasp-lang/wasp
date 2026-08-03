@@ -47,14 +47,11 @@ start = do
   (warnings, appSpec) <- compile
 
   let waspEnvVars = getWaspEnvVars appSpec defaultAppPorts
+      envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
 
   envVars <-
     sequence $
-      resolveEnvVarInputs waspProjectDir
-        <$> waspEnvVars
-        <*> ( (\file -> [EnvVarInputs.Inherit, EnvVarInputs.FromProjectFile file])
-                <$> Env.dotEnvFiles
-            )
+      resolveEnvVarInputs waspProjectDir <$> waspEnvVars <*> envVarInputs
 
   DbConnectionEstablished <- require
 
@@ -85,6 +82,8 @@ start = do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
+    getEnvVarInputs file = [EnvVarInputs.FromProjectFile file, EnvVarInputs.Inherit]
+
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
