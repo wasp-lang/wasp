@@ -197,15 +197,19 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
     formatPackageJsonFiles = mapM_ formatPackageJsonFile . filter isPackageJsonFile
       where
         formatPackageJsonFile :: Path' Abs (File file) -> IO ()
-        formatPackageJsonFile packageJsonFile =
-          BS.readFile (SP.fromAbsFile packageJsonFile)
-            >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
+        formatPackageJsonFile packageJsonFile = do
+          fileContents <- BS.readFile (SP.fromAbsFile packageJsonFile)
+          case Aeson.decodeStrict fileContents of
+            Just json -> BSL.writeFile (SP.fromAbsFile packageJsonFile) $ formatJson json
+            Nothing ->
+              fail $
+                "Failed to decode JSON in "
+                  ++ SP.fromAbsFile packageJsonFile
+                  ++ ", which starts with: "
+                  ++ show (BS.take 100 fileContents)
 
         isPackageJsonFile :: Path' Abs (File file) -> Bool
         isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
-
-        unsafeDecodeJson :: BS.ByteString -> Aeson.Value
-        unsafeDecodeJson = fromJust . Aeson.decodeStrict
 
         formatJson :: Aeson.Value -> BSL.ByteString
         formatJson =
