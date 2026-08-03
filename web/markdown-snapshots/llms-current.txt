@@ -1,4 +1,4 @@
-# Wasp 0.25 Documentation
+# Wasp Next Documentation
 
 ## Docs
 ### Getting Started
@@ -88,7 +88,8 @@
 - [CLI Reference](https://wasp.sh/docs/general/cli.md)
 - [TypeScript Support](https://wasp.sh/docs/general/typescript.md)
 ### Migration guides
-- [From 0.24 to 0.25](https://wasp.sh/docs/migration-guide.md)
+- [From 0.25 to Next](https://wasp.sh/docs/migration-guide.md)
+- [From 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide.md)
 - [From 0.23 to 0.24](https://wasp.sh/docs/0.24/migration-guide.md)
 - [From 0.22 to 0.23](https://wasp.sh/docs/0.23/migration-guide.md)
 - [From 0.21 to 0.22](https://wasp.sh/docs/0.22/migration-guide.md)
