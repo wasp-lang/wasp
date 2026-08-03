@@ -36,5 +36,5 @@ withLockedProject action = do
           catMaybes
             [ Just "Another Wasp command",
               ("(PID " ++) . (++ ")") . show <$> maybeProcessId,
-              Just "is already running for this project."
+              Just "is already running for this project. Stop it before running this command."
             ]
