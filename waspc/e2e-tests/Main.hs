@@ -1,11 +1,12 @@
 import Control.Concurrent (getNumCapabilities)
 import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
+import ShellCommands (bashProc, toShellPath)
 import SnapshotTest (testTreeFromSnapshotTest)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Environment (lookupEnv, setEnv)
-import System.Info (os)
-import System.Process (callCommand)
+import System.Exit (ExitCode (..))
+import System.Process (waitForProcess, withCreateProcess)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
@@ -38,12 +39,9 @@ import UnliftIO.Async (pooledMapConcurrentlyN)
 
 main :: IO ()
 main = do
-  if os == "mingw32"
-    then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
-    else do
-      ensureE2eTestsEnvironment
-      warmUpWaspCli
-      e2eTests >>= defaultMain
+  ensureE2eTestsEnvironment
+  warmUpWaspCli
+  e2eTests >>= defaultMain
 
 ensureE2eTestsEnvironment :: IO ()
 ensureE2eTestsEnvironment = do
@@ -53,7 +51,7 @@ ensureE2eTestsEnvironment = do
     Nothing -> do
       -- Runs the tests using the current state of the `waspc` project.
       waspcDir <- getWaspcDirPath
-      let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
+      let devWaspCliCmd = toShellPath $ SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
       setEnv "WASP_CLI_CMD" devWaspCliCmd
 
 -- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
@@ -66,7 +64,13 @@ ensureE2eTestsEnvironment = do
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: IO ()
-warmUpWaspCli = callCommand "$WASP_CLI_CMD version 2>&1 >/dev/null" -- We don't need any output.
+warmUpWaspCli =
+  -- We don't need any output.
+  withCreateProcess (bashProc "$WASP_CLI_CMD version 2>&1 >/dev/null") $ \_ _ _ ph -> do
+    exitCode <- waitForProcess ph
+    case exitCode of
+      ExitSuccess -> return ()
+      ExitFailure code -> fail $ "Warming up the Wasp CLI failed with exit code " ++ show code
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.

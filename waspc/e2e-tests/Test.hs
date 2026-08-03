@@ -9,10 +9,11 @@ where
 
 import Data.Maybe (fromJust)
 import FileSystem (TestCaseDir, TestLogFile, getTestCaseDir, testCaseLogFileInTestCaseDir)
-import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), bashProc, buildShellCommand, (~&&))
 import StrongPath (Abs, Dir, File, Path', fromAbsDir, parseRelDir, (</>))
+import System.Directory (createDirectoryIfMissing, removePathForcibly)
 import System.Exit (ExitCode (..))
-import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
+import System.Process (CreateProcess (..), StdStream (..), createProcess, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
@@ -60,8 +61,8 @@ createTestCaseCommand testCaseDir testCase =
 
 setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
 setupTestCase testCaseDir = do
-  callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
-  callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
+  removePathForcibly $ fromAbsDir testCaseDir
+  createDirectoryIfMissing True $ fromAbsDir testCaseDir
 
 executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String -> IO (ExitCode, Path' Abs (File TestLogFile))
 executeTestCaseCommand testCaseDir testCaseCommand testName = do
@@ -69,7 +70,7 @@ executeTestCaseCommand testCaseDir testCaseCommand testName = do
   (logOut, logErr) <- openLogForCommand logFile testName testCaseCommand
   (_, _, _, processHandle) <-
     createProcess
-      (shell testCaseCommand)
+      (bashProc testCaseCommand)
         { cwd = Just $ fromAbsDir testCaseDir,
           std_in = Inherit,
           std_out = UseHandle logOut,

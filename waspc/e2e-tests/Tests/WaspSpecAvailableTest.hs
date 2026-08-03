@@ -9,6 +9,7 @@ import ShellCommands
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
+    toShellPath,
     waspCliBuild,
     waspCliBuildStart,
     waspCliClean,
@@ -113,7 +114,7 @@ waspSpecAvailableTest =
     corruptWaspSpecVersion = do
       context <- ask
       let waspSpecDir = context.waspProjectDir </> [reldir|.wasp/spec|]
-      return $ "(cd " ++ fromAbsDir waspSpecDir ++ " && npm pkg set version=9.9.9)"
+      return $ "(cd " ++ toShellPath (fromAbsDir waspSpecDir) ++ " && npm pkg set version=9.9.9)"
 
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->

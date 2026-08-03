@@ -3,7 +3,7 @@ module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 import Control.Monad.Reader (MonadReader (ask))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, toShellPath, waspCliDbMigrateDev, (~&&))
 import StrongPath (fromAbsDir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -71,7 +71,7 @@ assertMigrationDirsExist migrationName = do
           </> dbRootDirInGeneratedAppDir
           </> dbMigrationsDirInDbRootDir
   return $
-    ("cd " ++ fromAbsDir waspMigrationsDir)
+    ("cd " ++ toShellPath (fromAbsDir waspMigrationsDir))
       ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")
-      ~&& ("cd " ++ fromAbsDir waspOutMigrationsDir)
+      ~&& ("cd " ++ toShellPath (fromAbsDir waspOutMigrationsDir))
       ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")

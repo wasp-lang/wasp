@@ -26,14 +26,14 @@ import FileSystem
     snapshotFileListManifestFileInSnapshotDir,
     snapshotLogFileInSnapshotsDir,
   )
-import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), bashProc, buildShellCommand, toShellPath, (~&&))
 import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
+import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeFileName)
-import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
+import System.Process (CreateProcess (..), StdStream (..), createProcess, interruptProcessGroupOf, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 import TestLogging (formatCommandFailure, openLogForCommand)
@@ -99,17 +99,17 @@ createSnapshotTestTree snapshotTestData =
 -- 2. Ensuring the current and golden snapshot directories exist.
 setupSnapshotTestEnvironment :: Path' Abs (Dir SnapshotDir) -> Path' Abs (Dir SnapshotDir) -> IO ()
 setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
-  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
+  removePathForcibly $ SP.fromAbsDir currentSnapshotDir
 
-  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
-  callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
+  createDirectoryIfMissing False $ SP.fromAbsDir currentSnapshotDir
+  createDirectoryIfMissing True $ SP.fromAbsDir goldenSnapshotDir
 
 executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs (File TestLogFile) -> IO ()
 executeSnapshotTestCommand snapshotTest snapshotDir logFile =
   callCommandInProcessGroup fullCommand logFile snapshotTest.name
   where
     fullCommand :: ShellCommand
-    fullCommand = "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+    fullCommand = "cd " ++ toShellPath (SP.fromAbsDir snapshotDir) ~&& snapshotTestCommand
 
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
@@ -259,7 +259,7 @@ callCommandInProcessGroup cmd logFile testName = do
   (logOut, logErr) <- openLogForCommand logFile testName cmd
   bracket
     ( createProcess
-        (shell cmd)
+        (bashProc cmd)
           { create_group = True,
             std_out = UseHandle logOut,
             std_err = UseHandle logErr

@@ -12,6 +12,7 @@ import ShellCommands
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
+    toShellPath,
     waspCliBuild,
     writeToFile,
   )
@@ -93,7 +94,7 @@ viteBuildTest =
     viteBuildWithApiUrl = appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
 
     assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
-    assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
+    assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ toShellPath (SP.fromRelDir viteBuildDirPath)
 
     writeMainPageTsx :: ShellCommandBuilder WaspProjectContext ShellCommand
     writeMainPageTsx = do

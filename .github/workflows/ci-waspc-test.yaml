@@ -23,12 +23,14 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          # TEMPORARY (Windows e2e smoke check): only windows-latest.
+          # Restore the full matrix before un-drafting the PR.
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
           # prevent the version from changing on its own.
-          - ubuntu-22.04
-          - ubuntu-24.04-arm
-          - macos-15-intel
-          - macos-15 # Apple Silicon
+          # - ubuntu-22.04
+          # - ubuntu-24.04-arm
+          # - macos-15-intel
+          # - macos-15 # Apple Silicon
           - windows-latest
         extra-tools:
           - node@latest
@@ -37,10 +39,10 @@ jobs:
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
         # Ubuntu 22.04.
-        include:
-          - # No extra tool here, so we use our default Node.js version, which
-            # comes from mise and is equal to our lowest supported one.
-            os: ubuntu-22.04
+        # include:
+        #   - # No extra tool here, so we use our default Node.js version, which
+        #     # comes from mise and is equal to our lowest supported one.
+        #     os: ubuntu-22.04
 
     steps:
       - # For waspc parser tests, we need to make sure git doesn't convert line
@@ -75,12 +77,28 @@ jobs:
       - name: Build wasp code
         run: cabal build all
 
-      - name: Run unit tests
-        run: cabal test wasp-cli-tests waspc-tests
+      # TEMPORARY (Windows e2e smoke check): unit tests are skipped to get to
+      # the e2e tests quicker. Restore before un-drafting the PR.
+      # - name: Run unit tests
+      #   run: cabal test wasp-cli-tests waspc-tests
+
+      - # Git Bash (which our e2e shell commands run under on Windows) ships
+        # most POSIX tools but not rsync, which the kitchen-sink snapshot test
+        # uses. We borrow rsync from the runner's preinstalled MSYS2.
+        name: Install rsync (Windows)
+        if: runner.os == 'Windows'
+        run: /c/msys64/usr/bin/pacman.exe -S --noconfirm rsync
 
       - name: Run `waspc` e2e tests
         env:
-          WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
+          # GitHub's Windows runners can't run the Linux Docker containers our
+          # Docker steps need, and macOS runners don't have Docker at all.
+          WASP_E2E_TESTS_SKIP_DOCKER: ${{ (runner.os == 'macOS' || runner.os == 'Windows') && '1' || '' }}
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # Appended (not prepended) so Git Bash's own tools stay first and
+            # only rsync gets picked up from MSYS2.
+            export PATH="$PATH:/c/msys64/usr/bin"
+          fi
           mise x "${EXTRA_TOOLS[@]}" -- bash ./run test:waspc:e2e

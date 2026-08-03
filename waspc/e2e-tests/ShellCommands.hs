@@ -5,6 +5,8 @@ module ShellCommands
   ( ShellCommand,
     ShellCommandBuilder (..),
     buildShellCommand,
+    bashProc,
+    toShellPath,
     (~|),
     (~&&),
     (~?),
@@ -58,8 +60,10 @@ import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, parent, (</>))
+import qualified StrongPath as SP
 import System.FilePath (joinPath)
+import System.Process (CreateProcess, proc)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
@@ -78,6 +82,34 @@ newtype ShellCommandBuilder context a = ShellCommandBuilder (Reader context a)
 
 buildShellCommand :: context -> ShellCommandBuilder context a -> a
 buildShellCommand context (ShellCommandBuilder reader) = runReader reader context
+
+-- | Runs a built shell command through bash on all platforms. We can't use
+-- 'System.Process.shell' because on Windows it runs commands through cmd.exe,
+-- which can't execute our POSIX commands. Bash is a requirement for developing
+-- Wasp on Windows, so we can rely on it being present.
+bashProc :: ShellCommand -> CreateProcess
+bashProc command = proc "bash" ["-c", command]
+
+-- | Makes a path safe for embedding into a bash command. On Windows, paths are
+-- backslash-separated, but bash interprets backslashes as escape characters.
+-- Bash on Windows accepts forward-slash-separated Windows paths (@C:/foo/bar@).
+toShellPath :: FilePath -> FilePath
+toShellPath = map toForwardSlash
+  where
+    toForwardSlash '\\' = '/'
+    toForwardSlash c = c
+
+-- The wrappers below shadow StrongPath's functions of the same name so that
+-- every path embedded into a shell command in this module is bash-safe.
+
+fromAbsDir :: Path' Abs (Dir a) -> FilePath
+fromAbsDir = toShellPath . SP.fromAbsDir
+
+fromAbsFile :: Path' Abs (File a) -> FilePath
+fromAbsFile = toShellPath . SP.fromAbsFile
+
+fromRelDir :: Path' (Rel a) (Dir b) -> FilePath
+fromRelDir = toShellPath . SP.fromRelDir
 
 -- Command utilities
 
