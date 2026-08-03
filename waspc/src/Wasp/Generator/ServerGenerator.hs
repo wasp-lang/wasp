@@ -7,6 +7,9 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
+
+    -- * Exported for testing only
+    genDotEnv,
   )
 where
 
@@ -107,7 +110,7 @@ genDotEnv spec =
   where
     envVars = waspEnvVars ++ userEnvVars
     userEnvVars = spec.devEnvVars.server
-    waspEnvVars = case AS.devDatabaseUrl spec of
+    waspEnvVars = case spec.devDatabaseUrl of
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
     isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
