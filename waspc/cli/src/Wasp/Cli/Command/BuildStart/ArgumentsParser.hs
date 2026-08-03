@@ -29,7 +29,7 @@ buildStartArgsParser =
 
     makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser EnvVarInput
     makeEnvironmentVariableParser targetName longOptionName shortOptionName =
-      FromFlag longOptionName
+      FromFlag ("--" ++ longOptionName)
         <$> Opt.option
           envVarReader
           ( Opt.long longOptionName
