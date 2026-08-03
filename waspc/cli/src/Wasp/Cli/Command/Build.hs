@@ -18,6 +18,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
@@ -49,7 +50,8 @@ import Wasp.Util.Json (updateJsonFile)
 -- Finally, throws if there was a compile/build error.
 -- Very similar to 'compile'.
 build :: Command ()
-build = withLockedProject $ \waspProjectDir -> do
+build = withLockedProject $ do
+  InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
 

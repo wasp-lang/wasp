@@ -9,12 +9,12 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -24,7 +24,7 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
-start = do
+start = withLockedProject $ do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -36,41 +36,40 @@ start = do
   -- expected. This way we know exactly which workflows it could possibly
   -- interrupt (LLMs, CIs, people...).
   liftIO fetchAndListMustSeeNewsIfDue
-  withLockedProject $ \waspProjectDir -> do
-    let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
+  InWaspProject waspProjectDir <- require
+  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-    cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
+  cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-    WaspSpecAvailable <- require
-    (warnings, _) <- compileWithOptions $ defaultCompileOptions waspProjectDir
+  (warnings, _) <- compile
 
-    DbConnectionEstablished <- require
+  DbConnectionEstablished <- require
 
-    cliSendMessageC $ Msg.Start "Listening for file changes..."
-    cliSendMessageC $ Msg.Start "Starting up generated project..."
+  cliSendMessageC $ Msg.Start "Listening for file changes..."
+  cliSendMessageC $ Msg.Start "Starting up generated project..."
 
-    watchOrStartResult <- liftIO $ do
-      -- This MVar is used to exchange information between the two processes below running in
-      -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
-      -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
-      -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
-      -- 'watch') once jobs from 'start' quiet down a bit.
-      ongoingCompilationResultMVar <- newMVar (warnings, [])
-      let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-      let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
-      -- In parallel:
-      -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
-      --    code. On any change, Wasp is recompiled (and generated app is re-generated).
-      -- 2. start web app in dev mode, which will then also watch for changes but in the generated
-      --    code, and will also react to them by restarting the web app.
-      -- Both of these should run forever, unless some super serious error happens.
-      watchWaspProjectSource `race` startGeneratedWebApp
+  watchOrStartResult <- liftIO $ do
+    -- This MVar is used to exchange information between the two processes below running in
+    -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
+    -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
+    -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
+    -- 'watch') once jobs from 'start' quiet down a bit.
+    ongoingCompilationResultMVar <- newMVar (warnings, [])
+    let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
+    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    -- In parallel:
+    -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
+    --    code. On any change, Wasp is recompiled (and generated app is re-generated).
+    -- 2. start web app in dev mode, which will then also watch for changes but in the generated
+    --    code, and will also react to them by restarting the web app.
+    -- Both of these should run forever, unless some super serious error happens.
+    watchWaspProjectSource `race` startGeneratedWebApp
 
-    case watchOrStartResult of
-      Left () -> error "This should never happen, listening for file changes should never end but it did."
-      Right startResult -> case startResult of
-        Left startError -> throwError $ CommandError "Start failed" startError
-        Right () -> error "This should never happen, start should never end but it did."
+  case watchOrStartResult of
+    Left () -> error "This should never happen, listening for file changes should never end but it did."
+    Right startResult -> case startResult of
+      Left startError -> throwError $ CommandError "Start failed" startError
+      Right () -> error "This should never happen, start should never end but it did."
   where
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do

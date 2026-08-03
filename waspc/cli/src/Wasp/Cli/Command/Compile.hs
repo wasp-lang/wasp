@@ -2,6 +2,7 @@
 
 module Wasp.Cli.Command.Compile
   ( compileIO,
+    compileCommand,
     compile,
     compileWithOptions,
     compileIOWithOptions,
@@ -38,17 +39,22 @@ import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
--- | Same like 'compileWithOptions', but with default compile options and with
--- the project locked for the duration of the compilation. Meant for the
--- standalone `wasp compile` command: commands that hold the project lock
--- themselves should call 'compileWithOptions' instead.
+-- | Meant for the standalone `wasp compile` command: commands that hold the
+-- project lock themselves should call 'compile' instead.
+compileCommand :: Command ([CompileWarning], AS.AppSpec)
+compileCommand = withLockedProject compile
+
+-- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
-compile = withLockedProject $ \waspProjectDir -> do
+compile = do
+  -- TODO: Consider a way to remove the redundancy of finding the project root
+  -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
+  -- add make externalCodeDirPath a helper function, along with any others we typically need.
+  InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
--- Expects the calling command to hold the project lock (via 'withLockedProject').
 -- Does all the steps, from analysis to generation, and at the end writes generated code
 -- to the disk, to the .wasp dir.
 -- At the end, prints a report on how compilation went (by printing warnings, errors,

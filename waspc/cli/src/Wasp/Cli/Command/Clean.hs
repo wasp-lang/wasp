@@ -4,16 +4,19 @@ module Wasp.Cli.Command.Clean
 where
 
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
 import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
 
 clean :: Command ()
-clean = withLockedProject $ \waspProjectDir -> do
+clean = withLockedProject $ do
+  InWaspProject waspProjectDir <- require
+
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
 

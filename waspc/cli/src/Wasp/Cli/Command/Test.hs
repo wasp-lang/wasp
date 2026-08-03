@@ -10,10 +10,10 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
+import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -29,13 +29,13 @@ test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server 
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
 watchAndTest :: (Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
-watchAndTest testRunner = withLockedProject $ \waspRoot -> do
+watchAndTest testRunner = withLockedProject $ do
+  InWaspProject waspRoot <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-  WaspSpecAvailable <- require
-  (warnings, _) <- compileWithOptions $ defaultCompileOptions waspRoot
+  (warnings, _) <- compile
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
