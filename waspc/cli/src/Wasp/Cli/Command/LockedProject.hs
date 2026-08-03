@@ -6,9 +6,8 @@ where
 import Control.Monad.Catch (bracket)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Lukko
+import Data.Maybe (catMaybes)
 import StrongPath ((</>))
-import System.IO (hClose)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -20,24 +19,23 @@ import qualified Wasp.Cli.ProjectLock as ProjectLock
 withLockedProject :: Command a -> Command a
 withLockedProject action = do
   InWaspProject waspProjectDir <- require
-  let lockFilePath = waspProjectDir </> ProjectLock.projectLockFileInWaspProjectDir
+
   bracket
-    (acquireProjectLockOrThrow lockFilePath)
-    unlockAndClose
+    (acquireProjectLockOrThrow $ waspProjectDir </> ProjectLock.projectLockFileInWaspProjectDir)
+    (liftIO . ProjectLock.releaseProjectLock)
     (const action)
   where
     acquireProjectLockOrThrow lockFilePath =
       liftIO (ProjectLock.acquireProjectLock lockFilePath) >>= \case
         Right lockFileHandle -> return lockFileHandle
         Left (ProjectLock.ProjectLockHeld maybeProcessId) ->
-          throwError $
-            CommandError "Wasp project is already in use" $
-              "Another Wasp command"
-                ++ maybe "" (\processId -> " (PID " ++ show processId ++ ")") maybeProcessId
-                ++ " is already running for this project. Stop it before running this command."
+          throwError $ makeLockedProjectError maybeProcessId
 
-    -- The lock file itself stays behind; see 'ProjectLock.acquireProjectLock'
-    -- for why it must not be deleted.
-    unlockAndClose lockFileHandle = liftIO $ do
-      Lukko.hUnlock lockFileHandle
-      hClose lockFileHandle
+    makeLockedProjectError maybeProcessId =
+      CommandError "Wasp project is already in use" $
+        unwords $
+          catMaybes
+            [ Just "Another Wasp command",
+              ("(PID " ++) . (++ ")") . show <$> maybeProcessId,
+              Just "is already running for this project."
+            ]

@@ -4,6 +4,7 @@ module Wasp.Cli.ProjectLock
     WaspProjectLockfile,
     projectLockFileInWaspProjectDir,
     acquireProjectLock,
+    releaseProjectLock,
   )
 where
 
@@ -77,3 +78,8 @@ acquireProjectLock lockFilePath = do
       try (Wasp.IO.readFileStrict lockFilePath) >>= \case
         Left (_ :: IOException) -> return Nothing
         Right contents -> return $ readMaybe $ T.unpack $ T.strip contents
+
+releaseProjectLock :: Handle -> IO ()
+releaseProjectLock lockFileHandle = do
+  Lukko.hUnlock lockFileHandle
+  hClose lockFileHandle
