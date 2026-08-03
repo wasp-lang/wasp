@@ -42,7 +42,7 @@ start = do
     cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
     WaspSpecAvailable <- require
-    warnings <- compileWithOptions $ defaultCompileOptions waspProjectDir
+    (warnings, _) <- compileWithOptions $ defaultCompileOptions waspProjectDir
 
     DbConnectionEstablished <- require
 

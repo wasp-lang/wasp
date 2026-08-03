@@ -35,7 +35,7 @@ watchAndTest testRunner = withLockedProject $ \waspRoot -> do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   WaspSpecAvailable <- require
-  warnings <- compileWithOptions $ defaultCompileOptions waspRoot
+  (warnings, _) <- compileWithOptions $ defaultCompileOptions waspRoot
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
