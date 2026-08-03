@@ -17,25 +17,26 @@ import Wasp.Generator.Monad (runGenerator)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator (genDotEnv)
 import qualified Wasp.Project.BuildType as BuildType
+import Wasp.Project.Db (databaseUrlEnvVarName)
 
 spec_genDotEnv :: Spec
 spec_genDotEnv = do
   describe "genDotEnv" $ do
-    it "writes DATABASE_URL when the dev database url is known" $ do
+    it ("writes " <> databaseUrlEnvVarName <> " when the dev database url is known") $ do
       genDotEnvContent basicAppSpec {AS.devDatabaseUrl = Just devDbUrl}
-        `shouldBe` Just (T.pack $ "DATABASE_URL=" <> devDbUrl)
+        `shouldBe` Just (T.pack $ databaseUrlEnvVarName <> "=" <> devDbUrl)
 
-    it "omits DATABASE_URL when the dev database url is not known" $ do
+    it ("omits " <> databaseUrlEnvVarName <> " when the dev database url is not known") $ do
       genDotEnvContent basicAppSpec {AS.devDatabaseUrl = Nothing}
         `shouldBe` Just ""
 
-    it "prefers the user-provided DATABASE_URL over the dev database one" $ do
+    it ("prefers the user-provided " <> databaseUrlEnvVarName <> " over the dev database one") $ do
       genDotEnvContent
         basicAppSpec
           { AS.devDatabaseUrl = Just devDbUrl,
-            AS.devEnvVarsServer = [("DATABASE_URL", userDbUrl)]
+            AS.devEnvVarsServer = [(databaseUrlEnvVarName, userDbUrl)]
           }
-        `shouldBe` Just (T.pack $ "DATABASE_URL=" <> userDbUrl)
+        `shouldBe` Just (T.pack $ databaseUrlEnvVarName <> "=" <> userDbUrl)
 
     it "generates no .env for production builds" $ do
       case runGenerator $ genDotEnv basicAppSpec {AS.buildType = BuildType.Production, AS.devDatabaseUrl = Just devDbUrl} of

@@ -17,12 +17,12 @@ import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (getDockerContainerHostPort)
 
--- | Returns the connection URL of this Wasp project's dev db if it is up and
--- operational, Nothing otherwise.
+-- | Returns the connection URL of this Wasp project's dev db if it is up,
+-- 'Nothing' otherwise.
 discoverDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe String)
 discoverDevConnectionUrl waspProjectDir appName = do
-  exposedContainerPort <- getDockerContainerHostPort devDbContainerName 5432
-  return $ makeUrlOnPort <$> exposedContainerPort
+  devDbPort <- getDockerContainerHostPort devDbContainerName 5432
+  return $ makeUrlOnPort <$> devDbPort
   where
     makeUrlOnPort port = makeConnectionUrl defaultDevUser defaultDevPass port devDbName
     devDbName = makeDevDbName waspProjectDir appName
