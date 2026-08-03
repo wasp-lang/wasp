@@ -1,4 +1,4 @@
-# Wasp 0.25 Documentation
+# Wasp Next Documentation
 
 ## Docs
 ### Getting Started

@@ -1,10 +1,11 @@
-# Wasp 0.25 Full Documentation
+# Wasp Next Full Documentation
 
 This is the full documentation for the latest version of Wasp.
 For other versions, see the links below.
 
 ## Full Documentation by Version
-- [latest (currently 0.25)](https://wasp.sh/llms-full.txt)
+- [latest (currently Next)](https://wasp.sh/llms-full.txt)
+- [Next](https://wasp.sh/llms-full-current.txt)
 - [0.25](https://wasp.sh/llms-full-0.25.txt)
 - [0.24](https://wasp.sh/llms-full-0.24.txt)
 - [0.23](https://wasp.sh/llms-full-0.23.txt)
@@ -10109,7 +10110,7 @@ These are some general env variables used for various Wasp features:
 | `DATABASE_URL`        | Stringrequired                 | The URL of the PostgreSQL database you want your app to use.                                                                                                                                         |
 | `WASP_WEB_CLIENT_URL` | URLrequired                    | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. Defaults to `http://localhost:3000` in development.                                               |
 | `WASP_SERVER_URL`     | URLrequired                    | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. Defaults to `http://localhost:3001` in development. |
-| `JWT_SECRET`          | Stringrequired                 | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development. Generate secret                                                              |
+| `JWT_SECRET`          | Stringrequired                 | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                              |
 | `PORT`                | IntegeroptionalDefault: `3001` | This is where the server listens for requests.                                                                                                                                                       |
 
 ##### SMTP Email Sender
@@ -11138,7 +11139,7 @@ wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_
 ```
 
 :::tip
-For `JWT_SECRET`, you can generate a random secret here: Generate secret.
+For `JWT_SECRET`, you can generate a random secret here: .
 
 You might need to pass other environment variables as well, depending on your app's configuration. Check our [Environment variables reference](https://wasp.sh/docs/project/env-vars) for more details.
 :::
@@ -14601,7 +14602,7 @@ The Wasp Spec replaces two older ways of configuring a Wasp app:
 - The **Wasp DSL** (`main.wasp`).
 - The **TS Config** (`main.wasp.ts`, with the class-based `new App(...)` API).
 
-If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration guide](https://wasp.sh/docs/migration-guide). Then pick the conversion guide matching your old config:
+If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration guide](https://wasp.sh/docs/0.24/migration-guide). Then pick the conversion guide matching your old config:
 
 - **Wasp DSL** → [Migrating from the Wasp DSL](https://wasp.sh/docs/guides/legacy/wasp-dsl)
 - **TS Config** → [Migrating from the TS Config](https://wasp.sh/docs/guides/legacy/wasp-ts-config)
@@ -19706,8 +19707,7 @@ fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
 fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
-We can help you generate a `JWT_SECRET`:\
-Generate secret
+We can help you generate a `JWT_SECRET`:
 
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
@@ -19806,8 +19806,7 @@ heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will
 heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
 ```
 
-We can help you generate a `JWT_SECRET`:\
-Generate secret
+We can help you generate a `JWT_SECRET`:
 
 :::note
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
@@ -20074,8 +20073,7 @@ You'll deploy the server first:
 
    3. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
 
-   4. Add `JWT_SECRET` with a random string at least 32 characters long\
-      Generate secret
+   4. Add `JWT_SECRET` with a random string at least 32 characters long
 
    :::tip[Using an external auth method?]
    If your app is using an external authentication method(s) supported by Wasp (such as [Google](https://wasp.sh/docs/auth/social-auth/google#4-adding-environment-variables) or [GitHub](https://wasp.sh/docs/auth/social-auth/github#4-adding-environment-variables)), make sure to additionally set the necessary environment variables specifically required by these method(s).
@@ -20463,7 +20461,7 @@ In the server app, go to **App Configs > Environment Variables** and add:
 | Variable              | Value                                                                  |
 | --------------------- | ---------------------------------------------------------------------- |
 | `DATABASE_URL`        | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
-| `JWT_SECRET`          | Random string at least 32 characters long: Generate secret             |
+| `JWT_SECRET`          | Random string at least 32 characters long:                             |
 | `PORT`                | `3001`                                                                 |
 | `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
 | `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
@@ -20712,13 +20710,13 @@ Point your DNS A records to your server IP:
 
 In the server app, go to **Environment Variables** and add:
 
-| Variable              | Value                                                      |
-| --------------------- | ---------------------------------------------------------- |
-| `DATABASE_URL`        | The Postgres URL (internal) from step 2                    |
-| `JWT_SECRET`          | Random string at least 32 characters long: Generate secret |
-| `PORT`                | `3001`                                                     |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                    |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                |
+| Variable              | Value                                      |
+| --------------------- | ------------------------------------------ |
+| `DATABASE_URL`        | The Postgres URL (internal) from step 2    |
+| `JWT_SECRET`          | Random string at least 32 characters long: |
+| `PORT`                | `3001`                                     |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                    |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>`                |
 
 Add any other environment variables your app needs (from `.env.server`).
 
@@ -21068,7 +21066,7 @@ Create an `.env.production` environment file in your project directory and add:
 | Variable              | Value                                                        |
 | --------------------- | ------------------------------------------------------------ |
 | `DATABASE_URL`        | `postgresql://postgres:mysecretpassword@myapp-db:5432/myapp` |
-| `JWT_SECRET`          | Random string at least 32 characters long: Generate secret   |
+| `JWT_SECRET`          | Random string at least 32 characters long:                   |
 | `PORT`                | `3001`                                                       |
 | `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                      |
 | `WASP_SERVER_URL`     | `https://api.<your-domain>`                                  |
