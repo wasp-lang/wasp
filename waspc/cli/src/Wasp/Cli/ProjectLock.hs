@@ -1,6 +1,8 @@
 module Wasp.Cli.ProjectLock
   ( ProjectLockError (..),
     WaspProcessId,
+    WaspProjectLockfile,
+    projectLockFileInWaspProjectDir,
     acquireProjectLock,
   )
 where
@@ -8,16 +10,24 @@ where
 import Control.Exception (IOException, try)
 import qualified Data.Text as T
 import qualified Lukko
-import StrongPath (Abs, File, Path')
+import StrongPath (Abs, File, Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as Directory
 import System.IO (Handle, IOMode (ReadWriteMode), hClose, hFlush, hPutStr, hSetFileSize, openFile)
 import System.Process (getCurrentPid)
 import Text.Read (readMaybe)
-import Wasp.Project.Common (WaspProjectLockfile)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir)
 import qualified Wasp.Util.IO as Wasp.IO
 
 type WaspProcessId = Integer
+
+-- | This file has some information about any process currently running in the
+-- project, and is protected by a OS advisory lock to avoid multiple processes
+-- working at the same time.
+data WaspProjectLockfile
+
+projectLockFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspProjectLockfile)
+projectLockFileInWaspProjectDir = dotWaspDirInWaspProjectDir </> [relfile|.lock|]
 
 newtype ProjectLockError
   = -- | Another process holds the lock. Carries that process's PID as read

@@ -12,7 +12,6 @@ import System.IO (hClose)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
-import Wasp.Project.Common (projectLockFileInWaspProjectDir)
 
 -- | Runs the given action while holding an exclusive lock on the Wasp project
 -- the current working directory is part of, so no other Wasp process can work
@@ -21,7 +20,7 @@ import Wasp.Project.Common (projectLockFileInWaspProjectDir)
 withLockedProject :: Command a -> Command a
 withLockedProject action = do
   InWaspProject waspProjectDir <- require
-  let lockFilePath = waspProjectDir </> projectLockFileInWaspProjectDir
+  let lockFilePath = waspProjectDir </> ProjectLock.projectLockFileInWaspProjectDir
   bracket
     (acquireProjectLockOrThrow lockFilePath)
     unlockAndClose

@@ -1,7 +1,6 @@
 module Wasp.Project.Common
   ( WaspProjectDir,
     DotWaspDir,
-    WaspProjectLockfile,
     NodeModulesDir,
     CompileError,
     CompileWarning,
@@ -11,7 +10,6 @@ module Wasp.Project.Common
     mainWaspTsFileInWaspProjectDir,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
-    projectLockFileInWaspProjectDir,
     generatedAppDirInDotWaspDir,
     waspProjectDirFromGeneratedAppDir,
     dotWaspRootFileInWaspProjectDir,
@@ -51,11 +49,6 @@ data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
--- | This file has some information about any process currently running in the
--- project, and is protected by a OS advisory lock to avoid multiple processes
--- working at the same time.
-data WaspProjectLockfile
-
 data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
@@ -86,9 +79,6 @@ data TsConfigPaths = TsConfigPaths
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
-
-projectLockFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspProjectLockfile)
-projectLockFileInWaspProjectDir = dotWaspDirInWaspProjectDir </> [relfile|.lock|]
 
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
