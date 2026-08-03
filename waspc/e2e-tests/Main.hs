@@ -64,9 +64,10 @@ ensureE2eTestsEnvironment = do
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: IO ()
-warmUpWaspCli =
+warmUpWaspCli = do
   -- We don't need any output.
-  withCreateProcess (bashProc "$WASP_CLI_CMD version 2>&1 >/dev/null") $ \_ _ _ ph -> do
+  warmUpProcess <- bashProc "$WASP_CLI_CMD version 2>&1 >/dev/null"
+  withCreateProcess warmUpProcess $ \_ _ _ ph -> do
     exitCode <- waitForProcess ph
     case exitCode of
       ExitSuccess -> return ()

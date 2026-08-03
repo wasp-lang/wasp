@@ -68,9 +68,10 @@ executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String 
 executeTestCaseCommand testCaseDir testCaseCommand testName = do
   let logFile = testCaseDir </> testCaseLogFileInTestCaseDir
   (logOut, logErr) <- openLogForCommand logFile testName testCaseCommand
+  testCaseProcess <- bashProc testCaseCommand
   (_, _, _, processHandle) <-
     createProcess
-      (bashProc testCaseCommand)
+      testCaseProcess
         { cwd = Just $ fromAbsDir testCaseDir,
           std_in = Inherit,
           std_out = UseHandle logOut,

@@ -257,9 +257,10 @@ isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirecto
 callCommandInProcessGroup :: String -> Path' Abs (File TestLogFile) -> String -> IO ()
 callCommandInProcessGroup cmd logFile testName = do
   (logOut, logErr) <- openLogForCommand logFile testName cmd
+  cmdProcess <- bashProc cmd
   bracket
     ( createProcess
-        (bashProc cmd)
+        cmdProcess
           { create_group = True,
             std_out = UseHandle logOut,
             std_err = UseHandle logErr

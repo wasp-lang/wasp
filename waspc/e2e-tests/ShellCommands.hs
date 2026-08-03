@@ -62,7 +62,8 @@ import qualified Data.Text as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File, Path', Rel, parent, (</>))
 import qualified StrongPath as SP
-import System.FilePath (joinPath)
+import System.Directory (findExecutablesInDirectories)
+import System.FilePath (getSearchPath, joinPath)
 import System.Process (CreateProcess, proc)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
@@ -87,8 +88,22 @@ buildShellCommand context (ShellCommandBuilder reader) = runReader reader contex
 -- 'System.Process.shell' because on Windows it runs commands through cmd.exe,
 -- which can't execute our POSIX commands. Bash is a requirement for developing
 -- Wasp on Windows, so we can rely on it being present.
-bashProc :: ShellCommand -> CreateProcess
-bashProc command = proc "bash" ["-c", command]
+bashProc :: ShellCommand -> IO CreateProcess
+bashProc command = do
+  bashExe <- findBashExe
+  return $ proc bashExe ["-c", command]
+
+-- | Finds the bash executable by searching PATH.
+-- We can't just pass @"bash"@ to 'proc': on Windows, CreateProcess searches
+-- System32 before PATH, and System32 contains WSL's bash stub, which would
+-- shadow the real bash (e.g. Git Bash) from PATH.
+findBashExe :: IO FilePath
+findBashExe = do
+  searchPathDirs <- getSearchPath
+  bashExes <- findExecutablesInDirectories searchPathDirs "bash"
+  case bashExes of
+    bashExe : _ -> return bashExe
+    [] -> fail "Could not find bash on PATH. Bash is required to run the e2e tests."
 
 -- | Makes a path safe for embedding into a bash command. On Windows, paths are
 -- backslash-separated, but bash interprets backslashes as escape characters.
