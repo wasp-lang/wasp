@@ -18,19 +18,18 @@ const validReview = {
 
 test("rejects unsafe paths", () => {
   assert.throws(() =>
-    ReviewSchema.parse(reviewWith({ path: "../secret.txt" })),
+    ReviewSchema.parse({
+      ...validReview,
+      findings: [{ ...validReview.findings[0], path: "../secret.txt" }],
+    }),
   );
 });
 
 test("rejects an end line before the start line", () => {
   assert.throws(() =>
-    ReviewSchema.parse(reviewWith({ startLine: 2, endLine: 1 })),
+    ReviewSchema.parse({
+      ...validReview,
+      findings: [{ ...validReview.findings[0], startLine: 2, endLine: 1 }],
+    }),
   );
 });
-
-function reviewWith(findingOverrides) {
-  return {
-    ...validReview,
-    findings: [{ ...validReview.findings[0], ...findingOverrides }],
-  };
-}
