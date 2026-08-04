@@ -3,10 +3,17 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "check": "node --test",
-    "generate-schema": "node generate-schema.mjs"
+    "check": "npm run typecheck && node --test \"tests/*.test.ts\"",
+    "generate-inputs": "node commands/generate-inputs.ts",
+    "load-review-context": "node commands/load-review-context.ts",
+    "publish-review": "node commands/publish-review.ts",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
   }
 }

@@ -1,5 +1,7 @@
 .wasp/
 .github/code-review/output-schema.json
+.github/code-review/review-prompt.md
+.code-review-context.json
 dist/
 dist-newstyle/
 waspc/data/*/templates/

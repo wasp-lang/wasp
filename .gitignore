@@ -1,5 +1,7 @@
 .dir-locals.el
 .github/code-review/output-schema.json
+.github/code-review/review-prompt.md
+.code-review-context.json
 # Local Netlify folder
 .netlify
 
