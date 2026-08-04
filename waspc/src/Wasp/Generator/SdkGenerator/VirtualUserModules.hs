@@ -70,6 +70,8 @@ virtual user module the SDK uses:
 >   export const clientEnvValidationSchema: import("./client/env/schema").RegisteredClientEnvValidationSchema;
 > }
 > // Many other declarations...
+
+To find out more about the types, check @sdk/wasp/types/register.ts@.
 -}
 
 -- | Virtual user modules are virtual modules pointing to the user project files.

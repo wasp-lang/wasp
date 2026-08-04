@@ -6,22 +6,18 @@ where
 import qualified Data.Aeson as Aeson
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkGenerator.VirtualUserModules (extImportToVirtualUserModuleJsImportPath)
+import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport))
 
--- | Converts a 'EI.ExtImport' to virtual user module JS import JSON.
--- See "Wasp.Generator.SdkGenerator.VirtualUserModules" for more details.
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
   where
-    jsImport = extImportToVirtualUserModuleJsImport <$> maybeExtImport
+    jsImport = extImportToJsImport <$> maybeExtImport
 
--- | Converts a 'EI.ExtImport' to virtual user module JS import.
---  See "Wasp.Generator.SdkGenerator.VirtualUserModules" for more details.
-extImportToVirtualUserModuleJsImport ::
+extImportToJsImport ::
   EI.ExtImport ->
   JsImport
-extImportToVirtualUserModuleJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
   JsImport
     { _kind = ValueImport,
       _path = importPath,
@@ -30,4 +26,4 @@ extImportToVirtualUserModuleJsImport extImport@(EI.ExtImport extImportName extIm
     }
   where
     importName = GJI.extImportNameToJsImportName extImportName
-    importPath = extImportToVirtualUserModuleJsImportPath extImportPath
+    importPath = VUM.extImportToVirtualUserModuleJsImportPath extImportPath
