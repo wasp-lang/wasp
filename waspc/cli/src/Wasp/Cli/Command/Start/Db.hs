@@ -10,7 +10,6 @@ import Data.Maybe (isJust)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', fromRelFile)
 import System.Environment (lookupEnv)
-import System.Process (callCommand)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
@@ -133,39 +132,21 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
         " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> connectionUrl,
+        "     " <> devPostgresDb.connectionUrl,
         " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
-        "     " <> dockerVolumeName
+        "     " <> devPostgresDb.dockerVolumeName
       ]
 
   cliSendMessageC $ Msg.Info "..."
 
-  -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
-  --   only when initializing the database -> if it already exists, they will be ignored.
-  --   This is how the postgres Docker image works.
-  let command =
-        unwords
-          [ "docker run",
-            printf "--name %s" dockerContainerName,
-            "--rm",
-            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
-            printf "-v %s:%s" dockerVolumeName dbDockerVolumeMountPath,
-            printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
-            printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
-            printf "--env POSTGRES_DB=%s" dbName,
-            dbDockerImage
-          ]
-  liftIO $ callCommand command
+  liftIO $ Dev.Postgres.runDevPostgresDb devPostgresDb
   where
-    dockerVolumeName = Dev.Postgres.makeWaspDevDbDockerVolumeName waspProjectDir appName
-    dockerContainerName = Dev.Postgres.makeWaspDevDbDockerContainerName waspProjectDir appName
-    dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
-    connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
+    devPostgresDb = Dev.Postgres.makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
     throwIfDevDbPortIsAlreadyInUse = do
-      -- I am checking both conditions because of Docker having virtual network on Mac which
+      -- We check both conditions because of Docker having virtual network on Mac which
       -- always gives precedence to native ports so checking only if we can open the port is
       -- not enough because we can open it even if Docker container is already bound to that port.
       whenM (liftIO $ Socket.checkIfPortIsInUse devDbSocketAddress) throwPortAlreadyInUseError
