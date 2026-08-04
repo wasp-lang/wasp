@@ -15,34 +15,27 @@ export const CodexOutputSchema = z.strictObject({
   findings: z.array(FindingSchema).max(10),
 });
 
-export const ReviewSchema = CodexOutputSchema.superRefine(validateReview);
+export const ReviewSchema = CodexOutputSchema.superRefine(
+  ({ findings }, context) => {
+    findings.forEach((finding, index) => {
+      if (!isNormalizedRelativePosixPath(finding.path)) {
+        context.addIssue({
+          code: "custom",
+          path: ["findings", index, "path"],
+          message: "Path must be a normalized, relative POSIX path.",
+        });
+      }
 
-function validateReview({ findings }, context) {
-  findings.forEach((finding, index) => {
-    validateFindingPath(finding, index, context);
-    validateFindingRange(finding, index, context);
-  });
-}
-
-function validateFindingPath(finding, index, context) {
-  if (!isNormalizedRelativePosixPath(finding.path)) {
-    context.addIssue({
-      code: "custom",
-      path: ["findings", index, "path"],
-      message: "Path must be a normalized, relative POSIX path.",
+      if (finding.endLine < finding.startLine) {
+        context.addIssue({
+          code: "custom",
+          path: ["findings", index, "endLine"],
+          message: "End line must not precede start line.",
+        });
+      }
     });
-  }
-}
-
-function validateFindingRange(finding, index, context) {
-  if (finding.endLine < finding.startLine) {
-    context.addIssue({
-      code: "custom",
-      path: ["findings", index, "endLine"],
-      message: "End line must not precede start line.",
-    });
-  }
-}
+  },
+);
 
 function isNormalizedRelativePosixPath(filePath) {
   const normalizedPath = path.posix.normalize(filePath);
