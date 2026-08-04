@@ -3,15 +3,13 @@ name: wasp-review
 description: Review code changes for correctness, clarity, and potential issues. Use when the user asks for a review, code review, PR review, or wants feedback on a diff or file.
 ---
 
-Review the specified PR, diff, or files. If none are specified, review the staged and unstaged changes.
-
 # Rules
 
 ## Naming And Vocabulary
 
 - Demand precise, informative names. Names must not misdirect, omit relevant behavior, or assume unavailable context.
 - Make names accurately reflect what their declarations represent.
-- Context is kind: evaluate names within their scope and surrounding vocabulary.
+- Context is king: evaluate names within their scope and surrounding vocabulary.
 - Use established codebase terminology consistently.
 - Follow established naming conventions e.g. `is...` for booleans and `ensure...` for idempotent setup operations.
 - Treat awkward names as evidence of design problems. If an accurate name becomes excessively long or complicated, inspect whether the declaration has too many responsibilities.
@@ -34,17 +32,17 @@ Review the specified PR, diff, or files. If none are specified, review the stage
 - Make sure the code is DRY. Introduce helpers for commonly repeated concepts.
 - Identify hidden assumptions. Require assumptions to be enforced through types, runtime checks, or comments, in that order.
 - Check for Effective TypeScript defined problems.
+- Avoid NIH: check existing code and dependencies before introducing abstractions or helpers, share code once it has multiple consumers.
 
 ## Comments And Writing
 
 - Prefer improving design or naming; use comments only when code cannot communicate enough.
+- Remove comments that preserve session-specific context unnecessary to a fresh reader.
 - Use comments only for information that names, arguments, and types cannot express.
 - Remove comments that merely narrate obvious code or exhibit generated filler.
 - Suggest pruning fluff and no-op sentences from prose.
 
 ## Code Smells
-
-<!-- Based on Martin Fowler's Refactoring -->
 
 - **Primitive Obsession:** identify strings and primitives representing domain concepts that need dedicated types.
 - **Shotgun Surgery:** flag one logical change scattered across unrelated files.
@@ -56,8 +54,8 @@ Review the specified PR, diff, or files. If none are specified, review the stage
 ## Other
 
 - Check whether requested improvements justify their implementation cost.
-- Run `shellcheck` when shell scripts change.
 
 # Findings And Reporting
 
 - Make every finding actionable. Include the file and line, explain the problem, and suggest a concrete fix.
+- Use code snippets when they make the problem or proposed fix clearer.
