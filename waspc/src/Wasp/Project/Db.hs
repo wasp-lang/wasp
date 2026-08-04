@@ -24,17 +24,16 @@ import Wasp.Psl.Generator.Argument (generateExpression)
 import Wasp.Psl.Util (findPrismaConfigBlockKeyValuePair)
 
 makeDevDatabaseUrl ::
-  Int ->
   Path' Abs (Dir WaspProjectDir) ->
   AS.Db.DbSystem ->
   [AS.Decl] ->
   IO (Maybe String)
-makeDevDatabaseUrl devDbPort waspProjectDir dbSystem decls =
+makeDevDatabaseUrl waspProjectDir dbSystem decls =
   case AS.getApp decls of
     Nothing -> return Nothing
     Just (appName, _) -> case dbSystem of
       AS.Db.SQLite -> return $ Just DevSqlite.defaultDevDbFile
-      AS.Db.PostgreSQL -> DevPostgres.discoverDevConnectionUrl devDbPort waspProjectDir appName
+      AS.Db.PostgreSQL -> DevPostgres.discoverDevConnectionUrl waspProjectDir appName
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"

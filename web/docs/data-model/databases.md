@@ -86,10 +86,6 @@ Also, make sure that:
 ```bash
 export WASP_DEV_DB_PORT=8080
 wasp start db
-
-# Remember to use the same value when starting your app:
-export WASP_DEV_DB_PORT=8080
-wasp start
 ```
 
 :::tip
