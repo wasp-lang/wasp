@@ -27,16 +27,16 @@ const unresolvedThread: ReviewThread = {
   path: "src/old.ts",
   line: 3,
   startLine: null,
-  canResolve: true,
+  viewerCanResolve: true,
   comments: [
     {
       id: "comment-1",
-      authorLogin: "github-actions[bot]",
+      author: { login: "github-actions[bot]" },
       body: `${REVIEW_MARKER}\nOriginal finding`,
     },
     {
       id: "comment-2",
-      authorLogin: "developer",
+      author: { login: "developer" },
       body: "Fixed.",
     },
   ],
@@ -134,6 +134,35 @@ test("omits a finding already published by this reviewer", () => {
   });
 
   assert.deepEqual(plan.newFindings, []);
+});
+
+test("retries after publishing findings without requiring new decisions", () => {
+  const partiallyPublishedFinding: ReviewThread = {
+    ...unresolvedThread,
+    id: "thread-2",
+    comments: [
+      {
+        ...unresolvedThread.comments[0],
+        id: "comment-3",
+        body: formatFindingComment(finding, reviewContext.pullRequest.headSha),
+      },
+    ],
+  };
+
+  const plan = buildPublicationPlan({
+    reviewContext: {
+      ...reviewContext,
+      reviewThreads: [unresolvedThread, partiallyPublishedFinding],
+    },
+    codexReview,
+    pullRequestDiff,
+  });
+
+  assert.deepEqual(plan.newFindings, []);
+  assert.equal(plan.newFindingCount, 1);
+  assert.deepEqual(plan.threadsToResolve, [
+    { threadId: unresolvedThread.id, lastCommentId: "comment-2" },
+  ]);
 });
 
 test("allows the same finding on a later commit", () => {

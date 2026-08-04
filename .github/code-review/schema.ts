@@ -18,7 +18,7 @@ export const PullRequestSchema = z.strictObject({
 
 export const ReviewThreadCommentSchema = z.strictObject({
   id: z.string().trim().min(1),
-  authorLogin: z.string().trim().min(1).nullable(),
+  author: z.strictObject({ login: z.string().trim().min(1) }).nullable(),
   body: z.string(),
 });
 
@@ -29,7 +29,7 @@ export const ReviewThreadSchema = z.strictObject({
   path: z.string().trim().min(1),
   line: z.int().positive().nullable(),
   startLine: z.int().positive().nullable(),
-  canResolve: z.boolean(),
+  viewerCanResolve: z.boolean(),
   comments: z.array(ReviewThreadCommentSchema).min(1),
 });
 
@@ -145,6 +145,7 @@ export type InlineReviewComment = Pick<
 export type PublicationPlan = {
   reviewedHeadSha: string;
   summary: string;
+  newFindingCount: number;
   newFindings: NewFinding[];
   threadIdsToKeep: string[];
   threadsToResolve: { threadId: string; lastCommentId: string }[];

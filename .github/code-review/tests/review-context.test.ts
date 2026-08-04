@@ -12,11 +12,11 @@ function reviewThread(authorLogin: string, body: string): ReviewThread {
     path: "src/example.ts",
     line: 1,
     startLine: null,
-    canResolve: true,
+    viewerCanResolve: true,
     comments: [
       {
         id: "comment-1",
-        authorLogin,
+        author: { login: authorLogin },
         body,
       },
     ],

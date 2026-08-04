@@ -28,7 +28,6 @@ jobs:
       - name: Checkout pull request merge
         uses: actions/checkout@v7
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
           persist-credentials: false
 
       - name: Fetch exact review range
@@ -42,6 +41,7 @@ jobs:
 
       - name: Generate Codex inputs
         env:
+          EXPECTED_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GH_TOKEN: ${{ github.token }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -77,35 +77,30 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: Checkout trusted publisher
+      - name: Checkout pull request merge
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          path: trusted-publisher
           persist-credentials: false
 
-      # The trusted publisher is unavailable only while this workflow is first
-      # being introduced, before these files exist on the base branch.
-      - name: Check trusted publisher availability
-        id: trusted-publisher
+      - name: Fetch exact review range
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [[ -f trusted-publisher/.github/code-review/review-publisher.ts ]]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
+          git fetch --no-tags origin \
+            "$PR_BASE_SHA" \
+            "$PR_HEAD_SHA"
 
       - name: Install publisher dependencies
-        if: ${{ steps.trusted-publisher.outputs.available == 'true' }}
-        working-directory: trusted-publisher/.github/code-review
+        working-directory: .github/code-review
         run: npm ci --ignore-scripts
 
       - name: Publish review lifecycle
-        if: ${{ steps.trusted-publisher.outputs.available == 'true' }}
         env:
           CODEX_REVIEW_JSON: ${{ needs.review.outputs.review }}
+          EXPECTED_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPOSITORY: ${{ github.repository }}
-        run: npm --prefix trusted-publisher/.github/code-review run publish-review
+        run: npm --prefix .github/code-review run publish-review
