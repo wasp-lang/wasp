@@ -1,0 +1,12 @@
+{
+  "name": "code-review",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "node --test",
+    "generate-schema": "node generate-schema.mjs"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
