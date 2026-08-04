@@ -27,12 +27,13 @@ makeDevDatabaseUrl ::
   Path' Abs (Dir WaspProjectDir) ->
   AS.Db.DbSystem ->
   [AS.Decl] ->
-  Maybe String
-makeDevDatabaseUrl waspProjectDir dbSystem decls = do
-  (appName, _) <- AS.getApp decls
-  case dbSystem of
-    AS.Db.PostgreSQL -> Just $ DevPostgres.makeDevConnectionUrl waspProjectDir appName
-    AS.Db.SQLite -> Just DevSqlite.defaultDevDbFile
+  IO (Maybe String)
+makeDevDatabaseUrl waspProjectDir dbSystem decls =
+  case AS.getApp decls of
+    Nothing -> return Nothing
+    Just (appName, _) -> case dbSystem of
+      AS.Db.SQLite -> return $ Just DevSqlite.defaultDevDbFile
+      AS.Db.PostgreSQL -> DevPostgres.discoverDevConnectionUrl waspProjectDir appName
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"

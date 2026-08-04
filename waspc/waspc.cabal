@@ -614,6 +614,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
@@ -648,6 +649,7 @@ test-suite waspc-tests
     Test.Util
     Util.Control.MonadTest
     Util.Diff
+    Util.DockerTest
     Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest
