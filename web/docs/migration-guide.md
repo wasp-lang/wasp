@@ -79,7 +79,7 @@ In `tsconfig.src.json`, update the `include` field:
 
 ### 3. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](/docs/0.26/deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
+If you are using a [custom Dockerfile](./deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
 you'll have to add a one new additional line to it:
 
 <Tabs sideBySide>
