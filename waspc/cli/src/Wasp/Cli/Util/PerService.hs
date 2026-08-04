@@ -1,14 +1,11 @@
 module Wasp.Cli.Util.PerService where
 
-import Data.Foldable (toList)
-import Data.List (intercalate, isSuffixOf)
 import Network.Socket (PortNumber)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Project.PerService (PerService (..), names)
-import Wasp.Util (toUpperFirst)
+import Wasp.Project.PerService (PerService (..))
 
 getDevUrlMakers :: AppSpec -> PerService (PortNumber -> String)
 getDevUrlMakers spec =
@@ -27,16 +24,3 @@ getWaspEnvVars spec ports =
   where
     locations = liftA2 (,) ports urls
     urls = getDevUrlMakers spec <*> ports
-
--- | Tells the user where each of the app's parts is running. Wasp picks the
--- ports itself, so users can't know them in advance.
-makeAppUrlsMessage :: PerService String -> String
-makeAppUrlsMessage urls = intercalate "\n" . toList $ makeUrlLine <$> names <*> urls
-  where
-    makeUrlLine name url = " ℹ " ++ toUpperFirst name ++ ": " ++ ensureTrailingSlash url
-
-    -- The client's URL ends with a slash (it's the app's base directory) while
-    -- the server's doesn't, and showing the pair like that looks like a typo.
-    -- We add the slash rather than drop it because a client with a custom base
-    -- directory only serves the app on the path that ends with one.
-    ensureTrailingSlash url = if "/" `isSuffixOf` url then url else url ++ "/"
