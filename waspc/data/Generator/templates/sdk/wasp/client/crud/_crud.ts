@@ -18,45 +18,64 @@ import type {
   {=# operations.Delete =}
   RegisteredDeleteAction,
   {=/ operations.Delete =}
-} from '../../server/crud/{= name =}'
-
+} from "../../server/crud/{= name =}";
 
 // PUBLIC API
 export const {= name =}: {= entityUpper =}Crud = createCrud();
 
 // PUBLIC API
-export type {= entityUpper =}Crud = {
+export interface {= entityUpper =}Crud {
   {=# operations.Get =}
-  get: {
-    query: QueryFor<RegisteredGetQuery>,
-    useQuery: UseQueryFor<RegisteredGetQuery>,
-  },
+  get: {= entityUpper =}Get;
   {=/ operations.Get =}
   {=# operations.GetAll =}
-  getAll: {
-    query: QueryFor<RegisteredGetAllQuery>,
-    useQuery: UseQueryFor<RegisteredGetAllQuery>,
-  },
+  getAll: {= entityUpper =}GetAll;
   {=/ operations.GetAll =}
   {=# operations.Create =}
-  create: {
-    action: ActionFor<RegisteredCreateAction>,
-    useAction: UseActionFor<RegisteredCreateAction>,
-  },
+  create: {= entityUpper =}Create;
   {=/ operations.Create =}
   {=# operations.Update =}
-  update: {
-    action: ActionFor<RegisteredUpdateAction>,
-    useAction: UseActionFor<RegisteredUpdateAction>,
-  },
+  update: {= entityUpper =}Update;
   {=/ operations.Update =}
   {=# operations.Delete =}
-  delete: {
-    action: ActionFor<RegisteredDeleteAction>,
-    useAction: UseActionFor<RegisteredDeleteAction>,
-  },
+  delete: {= entityUpper =}Delete;
   {=/ operations.Delete =}
 };
+{=# operations.Get =}
+
+export interface {= entityUpper =}Get {
+  query: QueryFor<RegisteredGetQuery>;
+  useQuery: UseQueryFor<RegisteredGetQuery>;
+}
+{=/ operations.Get =}
+{=# operations.GetAll =}
+
+export interface {= entityUpper =}GetAll {
+  query: QueryFor<RegisteredGetAllQuery>;
+  useQuery: UseQueryFor<RegisteredGetAllQuery>;
+};
+{=/ operations.GetAll =}
+{=# operations.Create =}
+
+export interface {= entityUpper =}Create {
+  action: ActionFor<RegisteredCreateAction>;
+  useAction: UseActionFor<RegisteredCreateAction>;
+};
+{=/ operations.Create =}
+{=# operations.Update =}
+
+export interface {= entityUpper =}Update {
+  action: ActionFor<RegisteredUpdateAction>;
+  useAction: UseActionFor<RegisteredUpdateAction>;
+};
+{=/ operations.Update =}
+{=# operations.Delete =}
+
+export interface {= entityUpper =}Delete {
+  action: ActionFor<RegisteredDeleteAction>;
+  useAction: UseActionFor<RegisteredDeleteAction>;
+};
+{=/ operations.Delete =}
 
 function createCrud(): {= entityUpper =}Crud {
   {=# operations.Get =}
