@@ -134,7 +134,7 @@ jobs:
         env:
           REVIEW_JSON: ${{ needs.review.outputs.review }}
         run: |
-          printf '%s' "$REVIEW_JSON" | node .github/code-review/to-rdjson.mjs \
+          echo "$REVIEW_JSON" | node .github/code-review/to-rdjson.mjs \
             - \
             reviewdog.json \
             summary.md
