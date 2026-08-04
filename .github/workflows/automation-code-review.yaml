@@ -28,6 +28,7 @@ jobs:
       - name: Checkout pull request merge
         uses: actions/checkout@v7
         with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
           persist-credentials: false
 
       - name: Fetch exact review range
@@ -80,6 +81,7 @@ jobs:
       - name: Checkout pull request merge
         uses: actions/checkout@v7
         with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
           persist-credentials: false
 
       - name: Fetch exact review range
