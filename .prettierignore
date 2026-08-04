@@ -1,4 +1,5 @@
 .wasp/
+.github/code-review/output-schema.json
 dist/
 dist-newstyle/
 waspc/data/*/templates/

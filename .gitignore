@@ -1,4 +1,5 @@
 .dir-locals.el
+.github/code-review/output-schema.json
 # Local Netlify folder
 .netlify
 
