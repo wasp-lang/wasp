@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { type ActionFor, createAction } from "./core";
-import {
+import type {
 {=# actions =}
-  type {= registeredOperationTypeName =},
+  {= registeredOperationTypeName =},
 {=/ actions =}
 } from "../../../server/operations/actions/index";
 {=# actions =}

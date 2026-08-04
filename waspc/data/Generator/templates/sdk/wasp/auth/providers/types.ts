@@ -3,6 +3,12 @@ import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from '../../universal/types'
 import type { ProviderName } from '../../server/auth/utils'
+{=# isEmailUserSignupFieldsDefined =}
+import type { FromRegister } from '../../types/register'
+{=/ isEmailUserSignupFieldsDefined =}
+{=# isUsernameAndPasswordUserSignupFieldsDefined =}
+import type { FromRegister } from '../../types/register'
+{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -12,8 +18,6 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 {=# isEmailUserSignupFieldsDefined =}
-import type { FromRegister } from '../../types/register'
-
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
 
@@ -21,8 +25,6 @@ type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 {=/ isEmailUserSignupFieldsDefined =}
 
 {=# isUsernameAndPasswordUserSignupFieldsDefined =}
-import type { FromRegister } from '../../types/register'
-
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
 
