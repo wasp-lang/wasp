@@ -17,7 +17,8 @@ function createBundle(inputFilePath, outputFilePath) {
     },
     plugins: [
       virtualUserModules(),
-      // We added `".ts"` to the default `extensions` array value.
+      // We added `".ts"` to the default `extensions` array value
+      // (default is `[".mjs", ".js", ".json", ".node"]`).
       // This is because the `virtualUserModules` plugin
       // can resolve user virtual modules to TypeScript files.
       resolve({ extensions: [".mjs", ".js", ".ts", ".json", ".node"] }),
