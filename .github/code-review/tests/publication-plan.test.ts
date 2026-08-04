@@ -15,7 +15,9 @@ import type {
 
 const finding: NewFinding = {
   title: "Finding",
-  body: "Description",
+  problem: "The value is incorrect.",
+  impact: "The result is misleading.",
+  fix: "Use the correct value.",
   path: "src/example.ts",
   startLine: 2,
   endLine: 2,
@@ -58,11 +60,10 @@ const reviewContext: ReviewContext = {
 
 const codexReview: CodexReview = {
   summary: "One issue remains.",
-  existingThreadDecisions: [
+  threadsToResolve: [
     {
       threadId: unresolvedThread.id,
       lastCommentId: "comment-2",
-      disposition: "resolve",
     },
   ],
   newFindings: [finding],
@@ -76,7 +77,7 @@ const pullRequestDiff = `diff --git a/src/example.ts b/src/example.ts
 +const added = true;
 `;
 
-test("formats a finding with only its body visible", () => {
+test("formats a finding as a bullet list", () => {
   const fingerprint = fingerprintFinding(
     finding,
     reviewContext.pullRequest.headSha,
@@ -84,11 +85,11 @@ test("formats a finding with only its body visible", () => {
 
   assert.equal(
     formatFindingComment(finding, reviewContext.pullRequest.headSha),
-    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprint} -->\nDescription`,
+    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprint} -->\n- **Problem:** The value is incorrect.\n- **Impact:** The result is misleading.\n- **Fix:** Use the correct value.`,
   );
 });
 
-test("builds additions, keeps, and resolutions from one review snapshot", () => {
+test("builds findings and resolutions from one review snapshot", () => {
   const plan = buildPublicationPlan({
     reviewContext,
     codexReview,
@@ -96,23 +97,22 @@ test("builds additions, keeps, and resolutions from one review snapshot", () => 
   });
 
   assert.deepEqual(plan.newFindings, [finding]);
-  assert.deepEqual(plan.threadIdsToKeep, []);
   assert.deepEqual(plan.threadsToResolve, [
     { threadId: unresolvedThread.id, lastCommentId: "comment-2" },
   ]);
   assert.equal(plan.reviewedHeadSha, reviewContext.pullRequest.headSha);
 });
 
-test("rejects a decision made before the latest thread reply", () => {
+test("rejects a resolution made before the latest thread reply", () => {
   assert.throws(
     () =>
       buildPublicationPlan({
         reviewContext,
         codexReview: {
           ...codexReview,
-          existingThreadDecisions: [
+          threadsToResolve: [
             {
-              ...codexReview.existingThreadDecisions[0],
+              ...codexReview.threadsToResolve[0],
               lastCommentId: "comment-1",
             },
           ],
@@ -149,7 +149,7 @@ test("omits a finding already published by this reviewer", () => {
   assert.deepEqual(plan.newFindings, []);
 });
 
-test("retries after publishing findings without requiring new decisions", () => {
+test("retries after publishing findings without requiring resolutions", () => {
   const partiallyPublishedFinding: ReviewThread = {
     ...unresolvedThread,
     id: "thread-2",
@@ -172,7 +172,6 @@ test("retries after publishing findings without requiring new decisions", () => 
   });
 
   assert.deepEqual(plan.newFindings, []);
-  assert.equal(plan.newFindingCount, 1);
   assert.deepEqual(plan.threadsToResolve, [
     { threadId: unresolvedThread.id, lastCommentId: "comment-2" },
   ]);
@@ -205,7 +204,7 @@ test("allows the same finding on a later commit", () => {
   assert.deepEqual(plan.newFindings, [finding]);
 });
 
-test("ignores a decision for a thread resolved while Codex was running", () => {
+test("ignores a resolution for a thread resolved while Codex was running", () => {
   const plan = buildPublicationPlan({
     reviewContext: {
       ...reviewContext,
@@ -215,7 +214,16 @@ test("ignores a decision for a thread resolved while Codex was running", () => {
     pullRequestDiff,
   });
 
-  assert.deepEqual(plan.threadIdsToKeep, []);
   assert.deepEqual(plan.threadsToResolve, []);
   assert.deepEqual(plan.newFindings, [finding]);
+});
+
+test("keeps omitted unresolved threads without requiring a decision", () => {
+  const plan = buildPublicationPlan({
+    reviewContext,
+    codexReview: { ...codexReview, threadsToResolve: [] },
+    pullRequestDiff,
+  });
+
+  assert.deepEqual(plan.threadsToResolve, []);
 });

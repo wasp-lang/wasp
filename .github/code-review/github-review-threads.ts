@@ -1,3 +1,4 @@
+import { MAX_RECENT_THREAD_COMMENTS } from "./config.ts";
 import type { GitHubOctokit } from "./github.ts";
 import type { Repository, ReviewThread } from "./schema.ts";
 
@@ -9,7 +10,9 @@ type PageInfo = {
 type ReviewThreadResponse = Omit<ReviewThread, "comments"> & {
   comments: {
     nodes: (ReviewThread["comments"][number] | null)[];
-    totalCount: number;
+  };
+  recentComments: {
+    nodes: (ReviewThread["comments"][number] | null)[];
   };
 };
 
@@ -27,15 +30,6 @@ type ReviewThreadsResponse = {
 
 type ReviewThreadResponseData = {
   node: ReviewThreadResponse | null;
-};
-
-type ThreadCommentsResponse = {
-  node: {
-    comments: {
-      nodes: (ReviewThread["comments"][number] | null)[];
-      pageInfo: PageInfo;
-    };
-  } | null;
 };
 
 export type ReviewSnapshot = {
@@ -61,10 +55,8 @@ export async function fetchReviewSnapshot(
     throw new Error(`Pull request #${pullNumber} was not found.`);
   }
 
-  const reviewThreads = await Promise.all(
-    compact(pullRequest.reviewThreads.nodes).map((thread) =>
-      completeReviewThread(octokit, thread),
-    ),
+  const reviewThreads = compact(pullRequest.reviewThreads.nodes).map(
+    normalizeReviewThread,
   );
   return { reviewerLogin: response.viewer.login, reviewThreads };
 }
@@ -80,7 +72,7 @@ export async function fetchReviewThread(
   if (!response.node) {
     throw new Error(`Review thread ${threadId} was not found.`);
   }
-  return completeReviewThread(octokit, response.node);
+  return normalizeReviewThread(response.node);
 }
 
 export async function resolveReviewThread(
@@ -99,14 +91,15 @@ export async function resolveReviewThread(
   }
 }
 
-async function completeReviewThread(
-  octokit: GitHubOctokit,
-  thread: ReviewThreadResponse,
-): Promise<ReviewThread> {
-  const comments =
-    thread.comments.totalCount > thread.comments.nodes.length
-      ? await fetchAllThreadComments(octokit, thread.id)
-      : compact(thread.comments.nodes);
+function normalizeReviewThread(thread: ReviewThreadResponse): ReviewThread {
+  const firstComments = compact(thread.comments.nodes);
+  const recentComments = thread.isResolved
+    ? []
+    : compact(thread.recentComments.nodes);
+  const comments = [...firstComments, ...recentComments].filter(
+    (comment, index, allComments) =>
+      allComments.findIndex(({ id }) => id === comment.id) === index,
+  );
 
   return {
     id: thread.id,
@@ -118,20 +111,6 @@ async function completeReviewThread(
     viewerCanResolve: thread.viewerCanResolve,
     comments,
   };
-}
-
-async function fetchAllThreadComments(
-  octokit: GitHubOctokit,
-  threadId: string,
-): Promise<ReviewThread["comments"]> {
-  const response = await octokit.graphql.paginate<ThreadCommentsResponse>(
-    THREAD_COMMENTS_QUERY,
-    { threadId },
-  );
-  if (!response.node) {
-    throw new Error(`Review thread ${threadId} was not found.`);
-  }
-  return compact(response.node.comments.nodes);
 }
 
 function compact<Value>(values: (Value | null)[]): Value[] {
@@ -146,9 +125,11 @@ const REVIEW_THREAD_FIELDS = `
   line
   startLine
   viewerCanResolve
-  comments(first: 100) {
+  comments(first: 1) {
     nodes { id author { login } body }
-    totalCount
+  }
+  recentComments: comments(last: ${MAX_RECENT_THREAD_COMMENTS}) {
+    nodes { id author { login } body }
   }
 `;
 
@@ -175,19 +156,6 @@ const REVIEW_THREAD_QUERY = `
   query ReviewThread($threadId: ID!) {
     node(id: $threadId) {
       ... on PullRequestReviewThread { ${REVIEW_THREAD_FIELDS} }
-    }
-  }
-`;
-
-const THREAD_COMMENTS_QUERY = `
-  query ThreadComments($threadId: ID!, $cursor: String) {
-    node(id: $threadId) {
-      ... on PullRequestReviewThread {
-        comments(first: 100, after: $cursor) {
-          nodes { id author { login } body }
-          pageInfo { endCursor hasNextPage }
-        }
-      }
     }
   }
 `;

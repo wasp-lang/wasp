@@ -47,12 +47,24 @@ export const NewFindingSchema = z.strictObject({
     .min(1)
     .max(80)
     .describe("Concise internal issue identity; not rendered in the comment."),
-  body: z
+  problem: z
     .string()
     .trim()
     .min(1)
-    .max(5_000)
-    .describe("Problem, impact, and suggested fix in at most three sentences."),
+    .max(1_500)
+    .describe("One short sentence describing the defect and its trigger."),
+  impact: z
+    .string()
+    .trim()
+    .min(1)
+    .max(1_500)
+    .describe("One short sentence describing the observable consequence."),
+  fix: z
+    .string()
+    .trim()
+    .min(1)
+    .max(1_500)
+    .describe("One short sentence describing a concrete correction."),
   path: z
     .string()
     .trim()
@@ -66,7 +78,7 @@ export const NewFindingSchema = z.strictObject({
   endLine: z.int().min(1).describe("Last changed line covered by the issue."),
 });
 
-export const ExistingThreadDecisionSchema = z.strictObject({
+export const ThreadResolutionSchema = z.strictObject({
   threadId: z
     .string()
     .trim()
@@ -77,11 +89,6 @@ export const ExistingThreadDecisionSchema = z.strictObject({
     .trim()
     .min(1)
     .describe("ID of the thread's last comment when it was reviewed."),
-  disposition: z
-    .enum(["keep", "resolve"])
-    .describe(
-      "Keep an open concern untouched, or resolve an addressed concern.",
-    ),
 });
 
 export const CodexOutputSchema = z.strictObject({
@@ -91,9 +98,9 @@ export const CodexOutputSchema = z.strictObject({
     .min(1)
     .max(10_000)
     .describe("One-sentence summary of the current review result."),
-  existingThreadDecisions: z
-    .array(ExistingThreadDecisionSchema)
-    .describe("Exactly one decision for every unresolved reviewer thread."),
+  threadsToResolve: z
+    .array(ThreadResolutionSchema)
+    .describe("Addressed reviewer threads to resolve; omission means keep."),
   newFindings: z
     .array(NewFindingSchema)
     .max(5)
@@ -101,14 +108,14 @@ export const CodexOutputSchema = z.strictObject({
 });
 
 export const ReviewSchema = CodexOutputSchema.superRefine(
-  ({ existingThreadDecisions, newFindings }, context) => {
+  ({ threadsToResolve, newFindings }, context) => {
     const seenThreadIds = new Set<string>();
-    existingThreadDecisions.forEach(({ threadId }, index) => {
+    threadsToResolve.forEach(({ threadId }, index) => {
       if (seenThreadIds.has(threadId)) {
         context.addIssue({
           code: "custom",
-          path: ["existingThreadDecisions", index, "threadId"],
-          message: "Each existing thread must have exactly one decision.",
+          path: ["threadsToResolve", index, "threadId"],
+          message: "Each thread may be resolved at most once.",
         });
       }
       seenThreadIds.add(threadId);
@@ -139,20 +146,12 @@ export type PullRequest = z.infer<typeof PullRequestSchema>;
 export type ReviewThread = z.infer<typeof ReviewThreadSchema>;
 export type ReviewContext = z.infer<typeof ReviewContextSchema>;
 export type NewFinding = z.infer<typeof NewFindingSchema>;
-export type ExistingThreadDecision = z.infer<
-  typeof ExistingThreadDecisionSchema
->;
+export type ThreadResolution = z.infer<typeof ThreadResolutionSchema>;
 export type CodexReview = z.infer<typeof ReviewSchema>;
-export type InlineReviewComment = Pick<
-  NewFinding,
-  "body" | "endLine" | "path" | "startLine"
->;
 export type PublicationPlan = {
   reviewedHeadSha: string;
   summary: string;
-  newFindingCount: number;
   newFindings: NewFinding[];
-  threadIdsToKeep: string[];
   threadsToResolve: { threadId: string; lastCommentId: string }[];
 };
 
