@@ -9,7 +9,7 @@ import type { FromRegister } from '../types/register'
 // PUBLIC API
 export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
 
-type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
+export type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
 
 {=# prismaSetupFn.isDefined =}
 const dbClient: PrismaClient =  {= prismaSetupFn.importIdentifier =}();

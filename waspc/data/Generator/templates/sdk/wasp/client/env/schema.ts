@@ -5,7 +5,7 @@ import { FromRegister } from "../../types/register";
 {=& envValidationSchema.importStatement =}
 {=/ envValidationSchema.isDefined =}
 
-type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
+export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
 type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}

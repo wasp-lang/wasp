@@ -11,7 +11,7 @@ import {
   type OptimisticUpdateDefinition,
 } from "wasp/client/operations";
 
-import { ChangeEventHandler, FormEventHandler, useState } from "react";
+import { ChangeEventHandler, SubmitEventHandler, useState } from "react";
 import { getEmail } from "wasp/auth";
 import { cn } from "../../../cn";
 import { Button } from "../../../components/Button";
@@ -204,7 +204,7 @@ const NewTaskForm = () => {
     await createTaskFn(task);
   };
 
-  const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (
+  const handleNewTaskSubmit: SubmitEventHandler<HTMLFormElement> = async (
     event,
   ) => {
     event.preventDefault();
