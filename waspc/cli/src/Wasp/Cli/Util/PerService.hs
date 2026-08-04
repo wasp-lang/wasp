@@ -1,7 +1,7 @@
 module Wasp.Cli.Util.PerService where
 
 import Data.Foldable (toList)
-import Data.List (intercalate)
+import Data.List (intercalate, isSuffixOf)
 import Network.Socket (PortNumber)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Env (EnvVar)
@@ -33,4 +33,10 @@ getWaspEnvVars spec ports =
 makeAppUrlsMessage :: PerService String -> String
 makeAppUrlsMessage urls = intercalate "\n" . toList $ makeUrlLine <$> names <*> urls
   where
-    makeUrlLine name url = " ℹ " ++ toUpperFirst name ++ ": " ++ url
+    makeUrlLine name url = " ℹ " ++ toUpperFirst name ++ ": " ++ ensureTrailingSlash url
+
+    -- The client's URL ends with a slash (it's the app's base directory) while
+    -- the server's doesn't, and showing the pair like that looks like a typo.
+    -- We add the slash rather than drop it because a client with a custom base
+    -- directory only serves the app on the path that ends with one.
+    ensureTrailingSlash url = if "/" `isSuffixOf` url then url else url ++ "/"
