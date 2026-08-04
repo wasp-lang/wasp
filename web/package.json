@@ -8,6 +8,7 @@
   "scripts": {
     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
     "build": "npm run install-spec-package && docusaurus build",
+    "build-dev": "DOCS_INCLUDE_CURRENT_VERSION=true npm run build",
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
