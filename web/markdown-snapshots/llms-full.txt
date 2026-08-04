@@ -15232,7 +15232,58 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-#### 2. Enjoy your updated Wasp app
+#### 2. Update your TypeScript config
+
+Due to `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
+
+In `tsconfig.src.json`, update the `include` field:
+
+**Before**
+
+```json title="tsconfig.src.json"
+{
+  "compilerOptions": {
+    // ...
+  },
+  "include": ["src"]
+}
+```
+
+**After**
+
+```json title="tsconfig.src.json"
+{
+  "compilerOptions": {
+    // ...
+  }, 
+  "include": ["src", ".wasp/out/types/app"]
+}
+```
+
+#### 3. Update your custom Dockerfile
+
+If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
+
+**Before**
+
+```dockerfile title="Dockerfile"
+# ...
+COPY sdk .wasp/out/sdk
+COPY libs .wasp/out/libs
+# ...
+```
+
+**After**
+
+```dockerfile title="Dockerfile"
+# ...
+COPY sdk .wasp/out/sdk
+COPY types .wasp/out/types
+COPY libs .wasp/out/libs
+# ...
+```
+
+#### 4. Enjoy your updated Wasp app
 
 That's it!
 
