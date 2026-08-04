@@ -94,7 +94,6 @@ export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
   updateQuery: UpdateQuery<ActionInput, CachedData>;
 };
 
-// PRIVATE API
 /**
  * An options object passed into the `useAction` hook and used to enhance the
  * action with extra options.

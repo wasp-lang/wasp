@@ -1,12 +1,14 @@
 {{={= =}=}}
 import * as z from "zod"
 import { FromRegister } from "../../types/register";
+{=# envValidationSchema.isDefined =}
+{=& envValidationSchema.importStatement =}
+{=/ envValidationSchema.isDefined =}
 
 export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
 type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}
-{=& envValidationSchema.importStatement =}
 const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}

@@ -1,8 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( serverOperationIndexJsFileInSdkRootDir,
-    genOperations,
+  ( genOperations,
   )
 where
 
@@ -29,11 +28,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
-serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
-serverOperationIndexJsFileInSdkRootDir operation =
-  serverOpsDirInSdkRootDir </> case operation of
-    (AS.Operation.QueryOp _ _) -> [relfile|queries/index.js|]
-    (AS.Operation.ActionOp _ _) -> [relfile|actions/index.js|]
+
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
