@@ -117,31 +117,9 @@ export type AuthenticatedOperationContext = { user: AuthUser }
 // PRIVATE API (used in SDK)
 /**
  * Creates the server-side API for an authenticated operation.
- *
- * The operation definition is accepted through a getter instead of directly to
- * prevent "use before initialization" errors. When a user's operation definition
- * imports another operation's server-side API (i.e., imports from `"wasp/server/operations"`),
- * that module and ours form a cycle. Depending on which side of the cycle the
- * bundler enters first, it can emit our {@link createAuthenticatedOperation}
- * wrapper calls above the user's operation definitions:
- * ```ts
- * function badCreateOperation(fn: Function) {
- *   return () => fn();
- * }
- * const badServerOperation = badCreateOperation(someUserOperation);
- *       ^! ReferenceError: Cannot access 'someUserOperation' before initialization
- * const someUserOperation = () => 1;
- * ```
+ * For an explanation of why we accept an operation definition getter instead
+ * of the value directly, check {@link createUnauthenticatedOperation}.
  * 
- * The getter defers the read until the operation is called, by which point every
- * module is initialized:
- * ```ts
- * function goodCreateOperation(fn: () => Function) {
- *   return () => fn()();
- * }
- * const goodServerOperation = goodCreateOperation(() => someUserOperation);
- * const someUserOperation = () => 1;
- * ```
  * @template OperationDefinition The type of the authenticated operation's definition.
  * @param getUserOperation Returns the authenticated operation's definition.
  * @param entities The authenticated operation's entity map.
