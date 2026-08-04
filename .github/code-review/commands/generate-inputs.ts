@@ -27,10 +27,22 @@ thread, return exactly one decision with its thread ID and last comment ID:
 Report only actionable issues introduced by the pull request. Anchor each
 finding to an added or modified line. Omit praise and style-only feedback.
 
+Review in two phases. First, inspect the diff to identify changed behavior,
+contracts, values, and side effects. For each plausible issue, inspect the
+minimum necessary surrounding code to trace the change through relevant
+callers, consumers, tests, generated output, configuration, and user-visible
+effects.
+
+Before reporting, try to disprove each candidate. Verify that the pull request
+introduces it, that it has a concrete trigger and observable impact, and that
+existing code does not already handle it. Merge findings with the same root
+cause.
+
 Report at most five meaningful new findings. This is a ceiling, not a target;
 zero new findings is valid. Keep each finding concise: use at most three short
 sentences. State the problem, impact, and fix without restating the code. Keep
-the summary to one sentence. Follow the output schema.
+the summary to one sentence. Use plain, direct technical English with active
+voice and consistent terminology. Follow the output schema.
 `;
 
 fs.writeFileSync(new URL("../review-prompt.md", import.meta.url), prompt);

@@ -95,8 +95,6 @@ export function formatFindingComment(
   const fingerprint = fingerprintFinding(finding, reviewedHeadSha);
   return `${REVIEW_MARKER}
 <!-- wasp-code-review:fingerprint=${fingerprint} -->
-**${finding.title}**
-
 ${finding.body}`;
 }
 
