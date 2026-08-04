@@ -2,7 +2,7 @@
 import { createAction, type ActionFor } from "../operations/actions/core";
 import { createQuery, type QueryFor } from "../operations/queries/core";
 import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers";
-import {
+import type {
   {=# operations.Get =}
   RegisteredGetQuery,
   {=/ operations.Get =}
