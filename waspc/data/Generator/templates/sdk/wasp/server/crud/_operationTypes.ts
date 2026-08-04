@@ -53,14 +53,14 @@ type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
 export type RegisteredGetAllQuery = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'GetAll'], {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput>>
 {=/ crud.operations.GetAll =}
-
 {=# crud.operations.Get =}
+
 type GetInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
 export type RegisteredGetQuery = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Get'], {= crud.name =}.GetQuery<GetInput, GetOutput>>
 {=/ crud.operations.Get =}
-
 {=# crud.operations.Create =}
+
 type CreateInput = SuperJSONObject & Prisma.XOR<
   Prisma.{= crud.entityUpper =}CreateInput,
   Prisma.{= crud.entityUpper =}UncheckedCreateInput
@@ -68,8 +68,8 @@ type CreateInput = SuperJSONObject & Prisma.XOR<
 type CreateOutput = _WaspEntity
 export type RegisteredCreateAction = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Create'], {= crud.name =}.CreateAction<CreateInput, CreateOutput>>
 {=/ crud.operations.Create =}
-
 {=# crud.operations.Update =}
+
 type UpdateInput = SuperJSONObject & Prisma.XOR<
     Prisma.{= crud.entityUpper =}UpdateInput,
     Prisma.{= crud.entityUpper =}UncheckedUpdateInput
@@ -79,10 +79,9 @@ type UpdateInput = SuperJSONObject & Prisma.XOR<
 type UpdateOutput = _WaspEntity
 export type RegisteredUpdateAction = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Update'], {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>>
 {=/ crud.operations.Update =}
-
 {=# crud.operations.Delete =}
+
 type DeleteInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
 export type RegisteredDeleteAction = FromRegisterPath<['crudOverrides', '{= crud.name =}', 'Delete'], {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>>
 {=/ crud.operations.Delete =}
-

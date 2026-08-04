@@ -78,8 +78,8 @@ export async function getAllFn(args, context) {
 {=!
 // That's it! It is similar for all other operations.
 =}  
-
 {=# crud.operations.Get =}
+
 // Get query
 {=^ overrides.Get.isDefined =}
 const _waspGetQuery: RegisteredGetQuery = ((args, context) => {
@@ -100,8 +100,8 @@ export async function getFn(args, context) {
   });
 }
 {=/ crud.operations.Get =}
-
 {=# crud.operations.Create =}
+
 // Create action
 {=^ overrides.Create.isDefined =}
 const _waspCreateAction: RegisteredCreateAction = ((args, context) => {
@@ -122,8 +122,8 @@ export async function createFn(args, context) {
   });
 }
 {=/ crud.operations.Create =}
-
 {=# crud.operations.Update =}
+
 // Update action
 {=^ overrides.Update.isDefined =}
 const _waspUpdateAction: RegisteredUpdateAction = ((args, context) => {
@@ -148,8 +148,8 @@ export async function updateFn(args, context) {
   });
 }
 {=/ crud.operations.Update =}
-
 {=# crud.operations.Delete =}
+
 // Delete action
 {=^ overrides.Delete.isDefined =}
 const _waspDeleteAction: RegisteredDeleteAction = ((args, context) => {
