@@ -5,14 +5,9 @@ module Wasp.Cli.Terminal
     asWaspSuccessMessage,
     asWaspFailureMessage,
     asWaspWarningMessage,
-    asWaspAppUrlsMessage,
   )
 where
 
-import Data.Foldable (toList)
-import Data.List (intercalate, isSuffixOf)
-import Wasp.Project.PerService (PerService, names)
-import Wasp.Util (toUpperFirst)
 import qualified Wasp.Util.Terminal as Term
 
 title :: String -> String
@@ -38,19 +33,6 @@ asWaspFailureMessage :: String -> String
 asWaspFailureMessage str = concat ["\n", waspMessageWithEmoji "❌" errorStr, "\n"]
   where
     errorStr = "[Error] " ++ str
-
--- | Tells the user where each of the app's parts is running. Wasp picks the
--- ports itself, so users can't know them in advance.
-asWaspAppUrlsMessage :: PerService String -> String
-asWaspAppUrlsMessage urls = intercalate "\n" . toList $ makeUrlLine <$> names <*> urls
-  where
-    makeUrlLine name url = " ℹ " ++ toUpperFirst name ++ ": " ++ ensureTrailingSlash url
-
-    -- The client's URL ends with a slash (it's the app's base directory) while
-    -- the server's doesn't, and showing the pair like that looks like a typo.
-    -- We add the slash rather than drop it because a client with a custom base
-    -- directory only serves the app on the path that ends with one.
-    ensureTrailingSlash url = if "/" `isSuffixOf` url then url else url ++ "/"
 
 waspMessageWithEmoji :: String -> String -> String
 waspMessageWithEmoji emoji message = concat ["\n", prefix, " ", message, " ", suffix, "\n"]

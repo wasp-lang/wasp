@@ -17,7 +17,6 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Terminal (asWaspAppUrlsMessage)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
@@ -28,6 +27,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
+import Wasp.Project.PerService (client, server)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -56,7 +56,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
   -- take a while, especially on the first run) to keep that window short.
   ports <- resolveAppPorts args.ports
 
-  let waspEnvVars = getWaspEnvVars appSpec ports
+  let urls = getDevUrlMakers appSpec <*> ports
+      waspEnvVars = getWaspEnvVars appSpec ports
       envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
 
   envVars <-
@@ -67,7 +68,14 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ asWaspAppUrlsMessage $ getDevUrlMakers appSpec <*> ports
+  cliSendMessageC $
+    Msg.Info $
+      unlines
+        -- The client's URL already ends with a slash (it's the app's base
+        -- directory), so we add one to the server's to keep the pair consistent.
+        [ " ℹ Client: " ++ urls.client,
+          " ℹ Server: " ++ urls.server ++ "/"
+        ]
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
