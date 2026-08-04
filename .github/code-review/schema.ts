@@ -41,7 +41,12 @@ export const ReviewContextSchema = z.strictObject({
 });
 
 export const NewFindingSchema = z.strictObject({
-  title: z.string().trim().min(1).max(80).describe("Concise issue title."),
+  title: z
+    .string()
+    .trim()
+    .min(1)
+    .max(80)
+    .describe("Concise internal issue identity; not rendered in the comment."),
   body: z
     .string()
     .trim()

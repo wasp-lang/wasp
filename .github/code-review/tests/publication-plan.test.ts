@@ -3,6 +3,7 @@ import test from "node:test";
 import { REVIEW_MARKER } from "../config.ts";
 import {
   buildPublicationPlan,
+  fingerprintFinding,
   formatFindingComment,
 } from "../publication-plan.ts";
 import type {
@@ -74,6 +75,18 @@ const pullRequestDiff = `diff --git a/src/example.ts b/src/example.ts
  const before = true;
 +const added = true;
 `;
+
+test("formats a finding with only its body visible", () => {
+  const fingerprint = fingerprintFinding(
+    finding,
+    reviewContext.pullRequest.headSha,
+  );
+
+  assert.equal(
+    formatFindingComment(finding, reviewContext.pullRequest.headSha),
+    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprint} -->\nDescription`,
+  );
+});
 
 test("builds additions, keeps, and resolutions from one review snapshot", () => {
   const plan = buildPublicationPlan({
