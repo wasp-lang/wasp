@@ -16,15 +16,15 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 ): T {
   return fields
 }
-
 {=# isEmailUserSignupFieldsDefined =}
+
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
 
 type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 {=/ isEmailUserSignupFieldsDefined =}
-
 {=# isUsernameAndPasswordUserSignupFieldsDefined =}
+
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
 
