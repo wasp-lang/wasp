@@ -20,7 +20,7 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Cli.Util.PerService (getWaspEnvVars)
+import Wasp.Cli.Util.PerService (getDevUrlMakers, getWaspEnvVars, makeAppUrlsMessage)
 import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -66,6 +66,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
+  cliSendMessageC $ Msg.Info $ makeAppUrlsMessage $ getDevUrlMakers appSpec <*> ports
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
