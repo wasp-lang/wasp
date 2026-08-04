@@ -11,6 +11,6 @@ const getOldestTask = (async (_args, context) => {
     where: { user: { id: context.user.id } },
     orderBy: { id: "asc" },
   });
-}) satisfies GetOldestTask<void, unknown>;
+}) satisfies GetOldestTask<void>;
 
 export default getOldestTask;
