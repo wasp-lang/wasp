@@ -7,34 +7,43 @@ import type {
   RegisteredCreateAction,
   RegisteredUpdateAction,
   RegisteredDeleteAction,
-} from '../../server/crud/tasks'
-
+} from "../../server/crud/tasks";
 
 // PUBLIC API
 export const tasks: TaskCrud = createCrud();
 
 // PUBLIC API
-export type TaskCrud = {
-  get: {
-    query: QueryFor<RegisteredGetQuery>,
-    useQuery: UseQueryFor<RegisteredGetQuery>,
-  },
-  getAll: {
-    query: QueryFor<RegisteredGetAllQuery>,
-    useQuery: UseQueryFor<RegisteredGetAllQuery>,
-  },
-  create: {
-    action: ActionFor<RegisteredCreateAction>,
-    useAction: UseActionFor<RegisteredCreateAction>,
-  },
-  update: {
-    action: ActionFor<RegisteredUpdateAction>,
-    useAction: UseActionFor<RegisteredUpdateAction>,
-  },
-  delete: {
-    action: ActionFor<RegisteredDeleteAction>,
-    useAction: UseActionFor<RegisteredDeleteAction>,
-  },
+export interface TaskCrud {
+  get: TaskGet;
+  getAll: TaskGetAll;
+  create: TaskCreate;
+  update: TaskUpdate;
+  delete: TaskDelete;
+};
+
+export interface TaskGet {
+  query: QueryFor<RegisteredGetQuery>;
+  useQuery: UseQueryFor<RegisteredGetQuery>;
+}
+
+export interface TaskGetAll {
+  query: QueryFor<RegisteredGetAllQuery>;
+  useQuery: UseQueryFor<RegisteredGetAllQuery>;
+};
+
+export interface TaskCreate {
+  action: ActionFor<RegisteredCreateAction>;
+  useAction: UseActionFor<RegisteredCreateAction>;
+};
+
+export interface TaskUpdate {
+  action: ActionFor<RegisteredUpdateAction>;
+  useAction: UseActionFor<RegisteredUpdateAction>;
+};
+
+export interface TaskDelete {
+  action: ActionFor<RegisteredDeleteAction>;
+  useAction: UseActionFor<RegisteredDeleteAction>;
 };
 
 function createCrud(): TaskCrud {
