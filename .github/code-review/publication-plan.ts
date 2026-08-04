@@ -25,8 +25,16 @@ export function buildPublicationPlan({
   codexReview: CodexReview;
   pullRequestDiff: string;
 }): PublicationPlan {
+  const proposedFingerprints = new Set(
+    codexReview.newFindings.map((finding) =>
+      fingerprintFinding(finding, reviewContext.pullRequest.headSha),
+    ),
+  );
+  const threadsRequiringDecision = reviewContext.reviewThreads.filter(
+    (thread) => !proposedFingerprints.has(findThreadFingerprint(thread) ?? ""),
+  );
   const currentThreadDecisions = getCurrentThreadDecisions(
-    reviewContext.reviewThreads,
+    threadsRequiringDecision,
     codexReview.existingThreadDecisions,
   );
 
@@ -55,6 +63,7 @@ export function buildPublicationPlan({
   return {
     reviewedHeadSha: reviewContext.pullRequest.headSha,
     summary: codexReview.summary,
+    newFindingCount: proposedFingerprints.size,
     newFindings,
     threadIdsToKeep: currentThreadDecisions
       .filter(({ disposition }) => disposition === "keep")
@@ -131,7 +140,7 @@ function getCurrentThreadDecisions(
         `Review thread ${thread.id} changed while the review was running.`,
       );
     }
-    if (decision.disposition === "resolve" && !thread.canResolve) {
+    if (decision.disposition === "resolve" && !thread.viewerCanResolve) {
       throw new Error(
         `Review thread ${thread.id} cannot be resolved by this token.`,
       );
@@ -145,9 +154,13 @@ function findExistingFingerprints(reviewThreads: ReviewThread[]): Set<string> {
   const fingerprints = new Set<string>();
 
   for (const thread of reviewThreads) {
-    const match = thread.comments[0]?.body.match(FINGERPRINT_PATTERN);
-    if (match) fingerprints.add(match[1]);
+    const fingerprint = findThreadFingerprint(thread);
+    if (fingerprint) fingerprints.add(fingerprint);
   }
 
   return fingerprints;
+}
+
+function findThreadFingerprint(thread: ReviewThread): string | null {
+  return thread.comments[0]?.body.match(FINGERPRINT_PATTERN)?.[1] ?? null;
 }

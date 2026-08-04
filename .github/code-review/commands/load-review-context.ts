@@ -1,11 +1,12 @@
 import fs from "node:fs";
 import * as z from "zod";
 import { REVIEW_CONTEXT_FILE } from "../config.ts";
-import { createGitHubClient } from "../github-api.ts";
+import { GitHubOctokit } from "../github.ts";
 import { loadReviewContext } from "../review-context.ts";
 import { GitShaSchema, parseRepositorySlug } from "../schema.ts";
 
 const EnvironmentSchema = z.object({
+  EXPECTED_BASE_SHA: GitShaSchema,
   EXPECTED_HEAD_SHA: GitShaSchema,
   GH_TOKEN: z.string().min(1),
   PR_NUMBER: z.coerce.number().int().positive(),
@@ -14,11 +15,12 @@ const EnvironmentSchema = z.object({
 
 const environment = EnvironmentSchema.parse(process.env);
 const repository = parseRepositorySlug(environment.REPOSITORY);
-const github = createGitHubClient({ token: environment.GH_TOKEN });
+const octokit = new GitHubOctokit({ auth: environment.GH_TOKEN });
 const reviewContext = await loadReviewContext({
-  github,
+  octokit,
   repository,
   pullNumber: environment.PR_NUMBER,
+  expectedBaseSha: environment.EXPECTED_BASE_SHA,
   expectedHeadSha: environment.EXPECTED_HEAD_SHA,
 });
 const repositoryRoot = new URL("../../../", import.meta.url);

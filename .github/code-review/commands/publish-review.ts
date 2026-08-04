@@ -1,10 +1,12 @@
+import { execFileSync } from "node:child_process";
 import * as z from "zod";
-import { createGitHubClient } from "../github-api.ts";
+import { GitHubOctokit } from "../github.ts";
 import { publishCodeReview } from "../review-publisher.ts";
 import { GitShaSchema, ReviewSchema, parseRepositorySlug } from "../schema.ts";
 
 const EnvironmentSchema = z.object({
   CODEX_REVIEW_JSON: z.string().min(1),
+  EXPECTED_BASE_SHA: GitShaSchema,
   EXPECTED_HEAD_SHA: GitShaSchema,
   GH_TOKEN: z.string().min(1),
   PR_NUMBER: z.coerce.number().int().positive(),
@@ -12,13 +14,24 @@ const EnvironmentSchema = z.object({
 });
 
 const environment = EnvironmentSchema.parse(process.env);
-const github = createGitHubClient({ token: environment.GH_TOKEN });
+const octokit = new GitHubOctokit({ auth: environment.GH_TOKEN });
+const pullRequestDiff = execFileSync(
+  "git",
+  [
+    "diff",
+    "--no-ext-diff",
+    `${environment.EXPECTED_BASE_SHA}...${environment.EXPECTED_HEAD_SHA}`,
+  ],
+  { encoding: "utf8", maxBuffer: 100 * 1024 * 1024 },
+);
 
 await publishCodeReview({
-  github,
+  octokit,
   repository: parseRepositorySlug(environment.REPOSITORY),
   pullNumber: environment.PR_NUMBER,
+  expectedBaseSha: environment.EXPECTED_BASE_SHA,
   expectedHeadSha: environment.EXPECTED_HEAD_SHA,
+  pullRequestDiff,
   codexReview: ReviewSchema.parse(
     JSON.parse(environment.CODEX_REVIEW_JSON) as unknown,
   ),
