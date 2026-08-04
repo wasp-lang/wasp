@@ -123,7 +123,7 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "de98f4443c6455d6bb63c68c29939369c285f15cf49165f2dea725d4aa5f8d62"
+        "376a0376f927458a3052eee04d5ac0f4c6ace0daaa4f4016900df382839fdf59"
     ],
     [
         [
@@ -158,7 +158,7 @@
             "file",
             "sdk/wasp/client/operations/actions/index.ts"
         ],
-        "db90e9281405936d42bd1a9d962230c0b59cb7553906b9680600904d2d718d88"
+        "641c1db1e4e746a683ad2b755e5eccbca66c2497c4b83e419a83ec6a4b0af74e"
     ],
     [
         [
@@ -494,7 +494,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "35ab63e4eaeb6ec7f7d8e205cad8fec0ccd79dd86e79ce4c094b4904f996b700"
+        "04da539c5de39d5424208af837f642eefe62c7647abddf150840bb62e396c51c"
     ],
     [
         [

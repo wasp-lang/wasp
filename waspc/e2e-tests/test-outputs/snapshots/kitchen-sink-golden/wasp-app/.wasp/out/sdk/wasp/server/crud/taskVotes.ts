@@ -26,8 +26,3 @@ export declare namespace taskVotes {
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
 export type RegisteredGetAllQuery = FromRegisterPath<['crudOverrides', 'taskVotes', 'GetAll'], taskVotes.GetAllQuery<GetAllInput, GetAllOutput>>
-
-
-
-
-

@@ -2,6 +2,7 @@ import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from '../../universal/types'
 import type { ProviderName } from '../../server/auth/utils'
+import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -9,8 +10,6 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 ): T {
   return fields
 }
-
-import type { FromRegister } from '../../types/register'
 
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;

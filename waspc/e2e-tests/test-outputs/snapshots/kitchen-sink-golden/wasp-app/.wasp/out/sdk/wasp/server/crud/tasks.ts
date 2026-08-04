@@ -58,4 +58,3 @@ export type RegisteredUpdateAction = FromRegisterPath<['crudOverrides', 'tasks',
 type DeleteInput = SuperJSONObject & Prisma.TaskWhereUniqueInput
 type DeleteOutput = _WaspEntity
 export type RegisteredDeleteAction = FromRegisterPath<['crudOverrides', 'tasks', 'Delete'], tasks.DeleteAction<DeleteInput, DeleteOutput>>
-

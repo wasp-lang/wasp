@@ -333,7 +333,7 @@
             "file",
             "sdk/wasp/auth/providers/types.ts"
         ],
-        "3058b4d9e0377e6ddd05dfae6ace1ad111e33aff8c3305479a90cabd74ff1ae8"
+        "8c767e7c44f6c0b63d72e45a83290acd97efe202c248b9720087c8e5d5ae661e"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "de98f4443c6455d6bb63c68c29939369c285f15cf49165f2dea725d4aa5f8d62"
+        "376a0376f927458a3052eee04d5ac0f4c6ace0daaa4f4016900df382839fdf59"
     ],
     [
         [
@@ -578,7 +578,7 @@
             "file",
             "sdk/wasp/client/operations/actions/index.ts"
         ],
-        "884e9370b3d02ad609ce4cfb1da7833938cd7d04cedf1a24b5c1b027dbf9193f"
+        "76ddba12c80abe8cc65230f029feaca36ae07c34871a2393a26a56e40a08ff2c"
     ],
     [
         [
@@ -1068,21 +1068,21 @@
             "file",
             "sdk/wasp/server/crud/taskVotes.ts"
         ],
-        "c7d4cfc7fb47295ccfd8454f6c69f2eca86f86d7868bd2581a33e9dd3181fefe"
+        "5c6401b8d4f9ba3afc235efc1cd2667bef9f9b37f0fcbb3ca88789cd4d33e59b"
     ],
     [
         [
             "file",
             "sdk/wasp/server/crud/tasks.ts"
         ],
-        "d5f66d5c5b013f4464972fb20d0d50e736c7e8de248d6a8db2264cb12680d279"
+        "8d9e8d5df335dae754b7af129a57c2af61c0633af151502d24696c068c1c3790"
     ],
     [
         [
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "e939440b2633e4bdcbbc1ed263be18412cf908a8c50ebf6ab0db2b6546676a3c"
+        "972236a462b392feaf89a6845b709dd436e13333daa5ffa9d46a26e5e5031bc5"
     ],
     [
         [
@@ -1124,7 +1124,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "ff76183976be6a1371983bbadb9f41b531acda71a16b63a45ba22aa6a061b40f"
+        "da5f13c40473f597a9bc5e5d61ee29f3e37fa02a31a18ddc8fdd121b77425371"
     ],
     [
         [
@@ -1670,14 +1670,14 @@
             "file",
             "server/src/crud/taskVotes.ts"
         ],
-        "7bff95fa0c7536eec637a1e157129659ec1c9e6280bcf099e9c77e5a4fd3e242"
+        "b12e5eedb5cf9dc9d4316bdd731a142172fd59c9b51f94faa3361f0e2a294c45"
     ],
     [
         [
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "f90555abfafa5dceb76e43b94ca0a8558efbb10b84d2c1186f44fd0a0f787efd"
+        "49d9674d370841c88e7a773dee506f264c866c475d4bc78c1a416599e7ef9a0c"
     ],
     [
         [

@@ -22,10 +22,6 @@ export async function getAllFn(args, context) {
   });
 }
 
-
-
-
-
 function throwIfNotAuthenticated (context) {
   if (!context.user) {
     throw createInvalidCredentialsError()
