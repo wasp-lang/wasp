@@ -2,7 +2,10 @@ import fs from "node:fs";
 import * as z from "zod";
 import { REVIEW_CONTEXT_FILE } from "../config.ts";
 import { GitHubOctokit } from "../github.ts";
-import { loadReviewContext } from "../review-context.ts";
+import {
+  loadReviewContext,
+  serializeReviewContextForCodex,
+} from "../review-context.ts";
 import { GitShaSchema, parseRepositorySlug } from "../schema.ts";
 
 const EnvironmentSchema = z.object({
@@ -27,5 +30,5 @@ const repositoryRoot = new URL("../../../", import.meta.url);
 
 fs.writeFileSync(
   new URL(REVIEW_CONTEXT_FILE, repositoryRoot),
-  `${JSON.stringify(reviewContext, null, 2)}\n`,
+  serializeReviewContextForCodex(reviewContext),
 );

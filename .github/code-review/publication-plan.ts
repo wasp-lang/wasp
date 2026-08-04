@@ -6,11 +6,11 @@ import {
 } from "./pull-request-diff.ts";
 import {
   type CodexReview,
-  type ExistingThreadDecision,
   type NewFinding,
   type PublicationPlan,
   type ReviewContext,
   type ReviewThread,
+  type ThreadResolution,
 } from "./schema.ts";
 
 const FINGERPRINT_PATTERN =
@@ -25,17 +25,9 @@ export function buildPublicationPlan({
   codexReview: CodexReview;
   pullRequestDiff: string;
 }): PublicationPlan {
-  const proposedFingerprints = new Set(
-    codexReview.newFindings.map((finding) =>
-      fingerprintFinding(finding, reviewContext.pullRequest.headSha),
-    ),
-  );
-  const threadsRequiringDecision = reviewContext.reviewThreads.filter(
-    (thread) => !proposedFingerprints.has(findThreadFingerprint(thread) ?? ""),
-  );
-  const currentThreadDecisions = getCurrentThreadDecisions(
-    threadsRequiringDecision,
-    codexReview.existingThreadDecisions,
+  const currentThreadResolutions = getCurrentThreadResolutions(
+    reviewContext.reviewThreads,
+    codexReview.threadsToResolve,
   );
 
   const parsedDiff = parsePullRequestDiff(pullRequestDiff);
@@ -63,14 +55,8 @@ export function buildPublicationPlan({
   return {
     reviewedHeadSha: reviewContext.pullRequest.headSha,
     summary: codexReview.summary,
-    newFindingCount: proposedFingerprints.size,
     newFindings,
-    threadIdsToKeep: currentThreadDecisions
-      .filter(({ disposition }) => disposition === "keep")
-      .map(({ threadId }) => threadId),
-    threadsToResolve: currentThreadDecisions
-      .filter(({ disposition }) => disposition === "resolve")
-      .map(({ threadId, lastCommentId }) => ({ threadId, lastCommentId })),
+    threadsToResolve: currentThreadResolutions,
   };
 }
 
@@ -95,57 +81,43 @@ export function formatFindingComment(
   const fingerprint = fingerprintFinding(finding, reviewedHeadSha);
   return `${REVIEW_MARKER}
 <!-- wasp-code-review:fingerprint=${fingerprint} -->
-${finding.body}`;
+- **Problem:** ${formatFindingDetail(finding.problem)}
+- **Impact:** ${formatFindingDetail(finding.impact)}
+- **Fix:** ${formatFindingDetail(finding.fix)}`;
 }
 
-function getCurrentThreadDecisions(
+function getCurrentThreadResolutions(
   reviewThreads: ReviewThread[],
-  threadDecisions: ExistingThreadDecision[],
-): ExistingThreadDecision[] {
+  threadResolutions: ThreadResolution[],
+): ThreadResolution[] {
   const threadsById = new Map(
     reviewThreads.map((thread) => [thread.id, thread]),
   );
-  const currentDecisions = threadDecisions.filter((decision) => {
-    const thread = threadsById.get(decision.threadId);
+  return threadResolutions.filter((resolution) => {
+    const thread = threadsById.get(resolution.threadId);
     if (!thread) {
       throw new Error(
-        `Codex returned an unknown review thread: ${decision.threadId}.`,
+        `Codex returned an unknown review thread: ${resolution.threadId}.`,
       );
     }
-    return !thread.isResolved;
-  });
-  const unresolvedThreads = reviewThreads.filter(
-    (thread) => !thread.isResolved,
-  );
-  const decisionsByThreadId = new Map(
-    currentDecisions.map((decision) => [decision.threadId, decision]),
-  );
-
-  if (
-    decisionsByThreadId.size !== currentDecisions.length ||
-    decisionsByThreadId.size !== unresolvedThreads.length
-  ) {
-    throw new Error(
-      "Codex must return exactly one decision for every unresolved review thread.",
-    );
-  }
-
-  for (const thread of unresolvedThreads) {
-    const decision = decisionsByThreadId.get(thread.id);
+    if (thread.isResolved) return false;
     const lastComment = thread.comments.at(-1);
-    if (!decision || decision.lastCommentId !== lastComment?.id) {
+    if (resolution.lastCommentId !== lastComment?.id) {
       throw new Error(
         `Review thread ${thread.id} changed while the review was running.`,
       );
     }
-    if (decision.disposition === "resolve" && !thread.viewerCanResolve) {
+    if (!thread.viewerCanResolve) {
       throw new Error(
         `Review thread ${thread.id} cannot be resolved by this token.`,
       );
     }
-  }
+    return true;
+  });
+}
 
-  return currentDecisions;
+function formatFindingDetail(detail: string): string {
+  return detail.replace(/\s+/g, " ").trim();
 }
 
 function findExistingFingerprints(reviewThreads: ReviewThread[]): Set<string> {

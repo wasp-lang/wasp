@@ -187,18 +187,10 @@ async function createOrUpdateReviewSummary({
 }
 
 function formatReviewSummary(publicationPlan: PublicationPlan): string {
-  const newCount = publicationPlan.newFindingCount;
-  const openCount = publicationPlan.threadIdsToKeep.length + newCount;
-  const resolvedCount = publicationPlan.threadsToResolve.length;
-
   return `${REVIEW_SUMMARY_MARKER}
 ## Code review
 
 ${publicationPlan.summary}
-
-| New | Open | Resolved |
-| ---: | ---: | -------: |
-| ${newCount} | ${openCount} | ${resolvedCount} |
 
 Reviewed commit \`${publicationPlan.reviewedHeadSha}\`.
 `;

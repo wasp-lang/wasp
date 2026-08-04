@@ -4,11 +4,13 @@ import { ReviewSchema } from "../schema.ts";
 
 const validReview = {
   summary: "No issues found.",
-  existingThreadDecisions: [],
+  threadsToResolve: [],
   newFindings: [
     {
       title: "Finding",
-      body: "Description",
+      problem: "The value is incorrect.",
+      impact: "The result is misleading.",
+      fix: "Use the correct value.",
       path: "src/example.ts",
       startLine: 1,
       endLine: 2,
@@ -36,20 +38,18 @@ test("rejects an end line before the start line", () => {
   );
 });
 
-test("rejects duplicate decisions for an existing thread", () => {
+test("rejects duplicate resolutions for an existing thread", () => {
   assert.throws(() =>
     ReviewSchema.parse({
       ...validReview,
-      existingThreadDecisions: [
+      threadsToResolve: [
         {
           threadId: "thread-1",
           lastCommentId: "comment-1",
-          disposition: "keep",
         },
         {
           threadId: "thread-1",
           lastCommentId: "comment-1",
-          disposition: "resolve",
         },
       ],
     }),
