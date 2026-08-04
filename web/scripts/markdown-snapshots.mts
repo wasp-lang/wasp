@@ -1,5 +1,7 @@
 /**
  * Guards against drift in the generated markdown docs and `llms*.txt` files.
+ * The snapshots track the "current" (next, unreleased) docs version so
+ * drift shows up in the PR that changes the docs, not at release time.
  *
  * These files only exist in `build/` and can't be tracked by git directly.
  * Instead we keep snapshots of a few representative files in
@@ -7,15 +9,14 @@
  *
  * Usage: node ./scripts/markdown-snapshots.mts <check|update>
  *
- * Run `npm run build` first, then `update` to (re)create the snapshots or
- * `check` to compare the build output against them.
+ * Run `npm run build-dev` first, then `update` to (re)create the snapshots
+ * or `check` to compare the build output against them.
  */
 
 import assert from "node:assert";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { parseArgs } from "node:util";
-import waspVersions from "../versions.json" with { type: "json" };
 
 const { positionals } = parseArgs({
   options: {},
@@ -31,8 +32,11 @@ const [MODE] = positionals;
 const WEB_ROOT = path.resolve(import.meta.dirname, "..");
 const BUILD_DIR = path.join(WEB_ROOT, "build");
 const SNAPSHOTS_DIR = path.join(WEB_ROOT, "markdown-snapshots");
-
-const latestWaspVersion = waspVersions[0];
+/**
+ * Docusaurus's name for the "next" (unreleased) docs version.
+ * Included in the build only when `DOCS_INCLUDE_CURRENT_VERSION=true`
+ */
+const NEXT_DOCS_VERSION = "current";
 
 /**
  * Lists relative paths of all different file "situations" we want
@@ -41,9 +45,9 @@ const latestWaspVersion = waspVersions[0];
 const SNAPSHOT_REL_PATHS = [
   // Universal index, including the blog and resources post collections.
   "llms.txt",
-  // Docs index for some Wasp version.
-  `llms-${latestWaspVersion}.txt`,
-  // Full docs content of some Wasp version.
+  // Docs index for the next docs version.
+  `llms-${NEXT_DOCS_VERSION}.txt`,
+  // Full docs content of the "next" docs version.
   // Renders markdown with some additional transformations.
   "llms-full.txt",
   // A docs page. Renders markdown normally.
@@ -58,10 +62,23 @@ const SNAPSHOT_REL_PATHS = [
   "resources/2026/02/24/best-frameworks-web-dev-2026.md",
 ];
 
+await assertBuildIncludesNextDocsVersion();
+
 if (MODE === "check") {
   await checkSnapshots();
 } else {
   await updateSnapshots();
+}
+
+async function assertBuildIncludesNextDocsVersion(): Promise<void> {
+  assert(
+    await fileExists(path.join(BUILD_DIR, "llms.txt")),
+    "No build output found. Run `npm run build-dev` first.",
+  );
+  assert(
+    await fileExists(path.join(BUILD_DIR, `llms-${NEXT_DOCS_VERSION}.txt`)),
+    "Build output does not include the next docs version. Rebuild with `npm run build-dev`.",
+  );
 }
 
 async function checkSnapshots(): Promise<void> {
@@ -110,7 +127,7 @@ async function updateSnapshots(): Promise<void> {
     );
     assert(
       snapshotContent !== null,
-      `Missing "${snapshotRelPath}" in build output. Run \`npm run build\` first, or update the snapshot list.`,
+      `Missing "${snapshotRelPath}" in build output. Run \`npm run build-dev\` first, or update the snapshot list.`,
     );
 
     const snapshotFilePath = path.join(SNAPSHOTS_DIR, snapshotRelPath);
@@ -121,6 +138,15 @@ async function updateSnapshots(): Promise<void> {
 
   console.log(`Updated ${SNAPSHOT_REL_PATHS.length} markdown snapshots.`);
   console.log("Review the changes with git before committing them.");
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function readFileOrNull(filePath: string): Promise<string | null> {
