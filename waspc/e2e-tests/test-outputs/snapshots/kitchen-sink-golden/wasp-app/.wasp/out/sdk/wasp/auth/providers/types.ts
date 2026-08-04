@@ -16,7 +16,6 @@ export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupF
 
 type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
 
-
 /**
  * Extracts the result types from a UserSignupFields object.
  * 
