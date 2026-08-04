@@ -4,7 +4,7 @@ module Wasp.Cli.Command.Doctor
 where
 
 import Control.Monad (forM_, when)
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
+import Control.Monad.Except (ExceptT (ExceptT), catchError, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either.Extra (eitherToMaybe)
 import Data.Functor ((<&>))
@@ -50,14 +50,18 @@ checks =
     ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
     ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
     ("Docker", checkDocker >> return "running"),
-    makePortCheck "Client" WebApp.defaultClientPort,
-    makePortCheck "Server" Server.defaultServerPort,
-    makePortCheck "Dev database" Dev.Postgres.defaultDevPort
+    makePortCheck "Client" $ pure WebApp.defaultClientPort,
+    makePortCheck "Server" $ pure Server.defaultServerPort,
+    makePortCheck "Dev database" $ ExceptT Dev.Postgres.getDevDbPort
   ]
   where
-    makePortCheck name port =
-      ( name ++ " port (" ++ show port ++ ")",
-        checkPortIsFree port >> return "free"
+    makePortCheck :: String -> Check Int -> (String, Check String)
+    makePortCheck name getPort =
+      ( name ++ " port",
+        do
+          port <- getPort
+          checkPortIsFree port `catchError` \err -> throwError $ err ++ " (" ++ show port ++ ")"
+          return $ "free (" ++ show port ++ ")"
       )
 
     makeToolVersionCheck name minVersion getCurrentVersion =
@@ -129,3 +133,4 @@ checkPortIsFree port =
       False -> return ()
   where
     checkIfLocalPortIsInuse = Socket.checkIfPortIsInUse . Socket.makeLocalHostSocketAddress . fromIntegral
+
