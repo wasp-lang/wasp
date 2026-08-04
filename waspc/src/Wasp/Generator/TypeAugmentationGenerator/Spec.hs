@@ -1,5 +1,5 @@
-module Wasp.Generator.SpecTypesGenerator
-  ( genSpecTypes,
+module Wasp.Generator.TypeAugmentationGenerator.Spec
+  ( genSpecTypeAugmentation,
   )
 where
 
@@ -11,10 +11,14 @@ import Wasp.Generator.Common (GeneratedAppDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Generator.TypeAugmentationGenerator.Common
+  ( typeAugmentationRootDirInGeneratedCodeDir,
+    typeAugmentationTemplatesDirInTemplatesDir,
+  )
 import Wasp.NodePackageFFI (InstallablePackage (..), getInstallablePackageName)
 
-genSpecTypes :: AppSpec -> Generator [FileDraft]
-genSpecTypes spec =
+genSpecTypeAugmentation :: AppSpec -> Generator [FileDraft]
+genSpecTypeAugmentation spec =
   if null entities
     then return []
     else
@@ -59,7 +63,7 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     tmplData
 
 specTypesRootDirInGeneratedCodeDir :: Path' (Rel GeneratedAppDir) (Dir SpecTypesRootDir)
-specTypesRootDirInGeneratedCodeDir = [reldir|types/spec|]
+specTypesRootDirInGeneratedCodeDir = typeAugmentationRootDirInGeneratedCodeDir </> [reldir|spec|]
 
 specTypesTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SpecTypesTemplatesDir)
-specTypesTemplatesDirInTemplatesDir = [reldir|types/spec|]
+specTypesTemplatesDirInTemplatesDir = typeAugmentationTemplatesDirInTemplatesDir </> [reldir|spec|]

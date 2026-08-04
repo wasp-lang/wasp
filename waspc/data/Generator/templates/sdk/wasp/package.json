@@ -66,6 +66,7 @@
     "./core/serialization": "./dist/core/serialization/index.js",
     "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
+    "./types": "./dist/types/index.js",
 
     {=! =============================================================== =}
     {=! Server runtime only. Undocumented. =}

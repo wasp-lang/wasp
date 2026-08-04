@@ -11,7 +11,7 @@ module Wasp.JsImport
     makeTypeJsImport,
     makeValueJsImport,
     applyJsImportAlias,
-    getImportIdentifier,
+    getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
     getJsImportPathStringFromPath,
@@ -72,8 +72,8 @@ type JsImportClause = String
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
 
-getImportIdentifier :: JsImport -> JsImportIdentifier
-getImportIdentifier JsImport {_name = name} = case name of
+getJsImportIdentifier :: JsImport -> JsImportIdentifier
+getJsImportIdentifier JsImport {_name = name} = case name of
   JsImportModule identifier -> identifier
   JsImportField identifier -> identifier
 
@@ -126,11 +126,11 @@ getJsImportPathStringFromPath = \case
 --   * named value export: @import('./path').then(m => m.Name)@
 getJsDynamicImportExpression :: JsImport -> String
 getJsDynamicImportExpression jsImport = case jsImport._kind of
-  TypeImport -> "import('" ++ importPath ++ "')." ++ memberName
-  ValueImport -> "import('" ++ importPath ++ "').then(m => m." ++ memberName ++ ")"
+  TypeImport -> "import('" ++ importPath ++ "')." ++ importName
+  ValueImport -> "import('" ++ importPath ++ "').then(m => m." ++ importName ++ ")"
   where
     importPath = getJsImportPathString jsImport
-    memberName = case jsImport._name of
+    importName = case jsImport._name of
       JsImportModule _ -> "default"
       JsImportField name -> name
 
