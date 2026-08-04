@@ -28,8 +28,6 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
-
-
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence

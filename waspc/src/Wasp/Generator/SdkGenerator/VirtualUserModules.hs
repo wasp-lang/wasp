@@ -29,7 +29,8 @@ import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImp
 
 {-
 This module allows the SDK to use the user project values (ext imports).
-The other part, types, is documented in @sdk/wasp/types/register.ts@.
+The other part, types, is documented in
+"Wasp.Generator.TypeAugmentationGenerator.App.Sdk".
 
 If the SDK tried to import values from the user project directly,
 it would create a cyclic dependency between TypeScript projects.
@@ -71,7 +72,8 @@ virtual user module the SDK uses:
 > }
 > // Many other declarations...
 
-To find out more about the types, check @sdk/wasp/types/register.ts@.
+For more details about the types side, check the
+"Wasp.Generator.TypeAugmentationGenerator.App.Sdk".
 -}
 
 -- | Virtual user modules are virtual modules pointing to the user project files.
