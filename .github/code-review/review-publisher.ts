@@ -188,7 +188,7 @@ async function createOrUpdateReviewSummary({
 
 function formatReviewSummary(publicationPlan: PublicationPlan): string {
   const newCount = publicationPlan.newFindingCount;
-  const openCount = publicationPlan.threadIdsToKeep.length + newCount;
+  const openCount = publicationPlan.threadIdsToKeep.length;
   const resolvedCount = publicationPlan.threadsToResolve.length;
 
   return `${REVIEW_SUMMARY_MARKER}
