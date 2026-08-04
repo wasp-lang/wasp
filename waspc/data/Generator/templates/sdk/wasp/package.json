@@ -57,9 +57,9 @@
     {=!
       ===============================================================
       Public API for users. Documented.
-      Modules users import in their own code.
-      Some are also imported by the generated server runtime,
-      those have a comment saying which exports each side uses.
+      These are the modules that users import in their own code.
+      Some of the modules are also imported by the generated server project.
+      Those have additioanl comments saying which exports user/server uses.
       ===============================================================
     =}
     "./auth": "./dist/auth/index.js",
