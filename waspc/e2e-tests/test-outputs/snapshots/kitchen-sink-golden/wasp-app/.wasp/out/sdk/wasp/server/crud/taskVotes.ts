@@ -18,10 +18,6 @@ type _WaspEntity = TaskVote
  */
 export declare namespace taskVotes {
   export type GetAllQuery<Input extends Payload = never, Output extends Payload = Payload> = AuthenticatedQueryDefinition<[_WaspEntityTagged], Input, Output>
-
-
-
-
 }
 
 /**

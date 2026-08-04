@@ -550,7 +550,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "00d8f010588a4c7159c618534e744ccecbf44142752e1c7c1b5c16bb052520b0"
+        "fd701ae001ba7fbd8c1814a0d516d6c171dd291f714d2ad695a6631ba6c278e0"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "32cf7819fea0737b56ceb3fdb8c4d6dd67e018562d0b5e5330aead420c3cb757"
+        "d8a5332bf2a03dcde8025f7312c9449e7a1c91069dfe1e743df88874044e48d7"
     ],
     [
         [
@@ -1068,7 +1068,7 @@
             "file",
             "sdk/wasp/server/crud/taskVotes.ts"
         ],
-        "a4f0e8220780bb68f2d5868ffe4513a605d5db8ac3677c288a52594ec4751b25"
+        "c7d4cfc7fb47295ccfd8454f6c69f2eca86f86d7868bd2581a33e9dd3181fefe"
     ],
     [
         [
