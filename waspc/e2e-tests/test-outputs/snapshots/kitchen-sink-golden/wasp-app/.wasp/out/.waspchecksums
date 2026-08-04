@@ -585,7 +585,7 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "d8a5332bf2a03dcde8025f7312c9449e7a1c91069dfe1e743df88874044e48d7"
+        "d2016f949fb6915b1b05e96020f4aba285f5e48bbcd6a4b26462b1f93302c8d2"
     ],
     [
         [
@@ -1250,7 +1250,7 @@
             "file",
             "sdk/wasp/server/operations/wrappers.ts"
         ],
-        "6f0337597ee6be1af15672ec96428f657d4a3b4e8ff3d81f42afd97874e6000d"
+        "d432a04339fd8f26de89613fbd0661153b2b87e29b7e85a2e0cd4cf730cedfcc"
     ],
     [
         [
