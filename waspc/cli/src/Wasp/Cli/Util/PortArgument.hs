@@ -1,6 +1,6 @@
 module Wasp.Cli.Util.PortArgument
   ( resolveAppPorts,
-    appPortsParser,
+    servicePortsParser,
     portOption,
   )
 where
@@ -14,14 +14,14 @@ import Data.Traversable (for)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Services (devPorts)
+import Wasp.Cli.Services (defaultDevPorts)
 import Wasp.Project.PerService (PerService (..))
 import qualified Wasp.Project.PerService as PerService
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as S
 
-appPortsParser :: Opt.Parser (PerService (Maybe PortNumber))
-appPortsParser =
+servicePortsParser :: Opt.Parser (PerService (Maybe PortNumber))
+servicePortsParser =
   for PerService.names $ \name ->
     portOption (name ++ "-port") ("Port to run the " ++ name ++ " on")
 
@@ -40,7 +40,6 @@ portOption optionName helpText =
     -- that, since we have to tell the other side where this one is running.
     rejectAnyPort 0 = Opt.readerError "0 is not a valid port"
     rejectAnyPort port = return port
-
 resolveAppPorts :: PerService (Maybe PortNumber) -> Command (PerService PortNumber)
 resolveAppPorts requestedPorts = do
   let portsAreTheSame = isJust requestedPorts.client && (requestedPorts.client == requestedPorts.server)
@@ -49,7 +48,7 @@ resolveAppPorts requestedPorts = do
   resolvedClientPort <-
     resolvePort
       requestedPorts.client
-      devPorts.client
+      defaultDevPorts.client
       (catMaybes [requestedPorts.server])
 
   resolvedServerPort <-

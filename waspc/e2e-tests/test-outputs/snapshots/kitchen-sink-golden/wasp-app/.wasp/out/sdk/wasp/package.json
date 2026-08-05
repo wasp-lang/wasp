@@ -83,7 +83,7 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
-    "./src/*": "./dist/src/*.js"
+    "./types": "./dist/types/index.js"
   },
   "license": "ISC",
   "name": "wasp",
