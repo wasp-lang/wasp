@@ -57,19 +57,13 @@ export async function publishCodeReview({
     octokit,
     publicationPlan,
   );
-  const postedCommentCount = await publishNewFindings(
-    octokit,
-    repository,
-    pullNumber,
-    publicationPlan,
-  );
+  await publishNewFindings(octokit, repository, pullNumber, publicationPlan);
   await createOrUpdateReviewSummary({
     octokit,
     repository,
     pullNumber,
     reviewerLogin: reviewContext.reviewerLogin,
     publicationPlan,
-    postedCommentCount,
     resolvedThreadCount,
   });
 }
@@ -125,8 +119,8 @@ async function publishNewFindings(
   repository: Repository,
   pullNumber: number,
   publicationPlan: PublicationPlan,
-): Promise<number> {
-  if (publicationPlan.newFindings.length === 0) return 0;
+): Promise<void> {
+  if (publicationPlan.newFindings.length === 0) return;
 
   await octokit.rest.pulls.createReview({
     owner: repository.owner,
@@ -139,7 +133,6 @@ async function publishNewFindings(
       toGitHubReviewComment(finding, publicationPlan.reviewedHeadSha),
     ),
   });
-  return publicationPlan.newFindings.length;
 }
 
 function toGitHubReviewComment(finding: NewFinding, reviewedHeadSha: string) {
@@ -163,7 +156,6 @@ async function createOrUpdateReviewSummary({
   pullNumber,
   reviewerLogin,
   publicationPlan,
-  postedCommentCount,
   resolvedThreadCount,
 }: {
   octokit: GitHubOctokit;
@@ -171,7 +163,6 @@ async function createOrUpdateReviewSummary({
   pullNumber: number;
   reviewerLogin: string;
   publicationPlan: PublicationPlan;
-  postedCommentCount: number;
   resolvedThreadCount: number;
 }): Promise<void> {
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
@@ -186,8 +177,9 @@ async function createOrUpdateReviewSummary({
       comment.body?.includes(REVIEW_SUMMARY_MARKER),
   );
   const body = formatReviewSummary({
+    repository,
     reviewedHeadSha: publicationPlan.reviewedHeadSha,
-    postedCommentCount,
+    publishedFindings: publicationPlan.newFindings,
     resolvedThreadCount,
   });
 
@@ -209,21 +201,52 @@ async function createOrUpdateReviewSummary({
 }
 
 export function formatReviewSummary({
+  repository,
   reviewedHeadSha,
-  postedCommentCount,
+  publishedFindings,
   resolvedThreadCount,
 }: {
+  repository: Repository;
   reviewedHeadSha: string;
-  postedCommentCount: number;
+  publishedFindings: NewFinding[];
   resolvedThreadCount: number;
 }): string {
-  return `${REVIEW_SUMMARY_MARKER}
-## Code review
+  const postedCommentCount = publishedFindings.length;
+  const commentedFileCount = new Set(publishedFindings.map(({ path }) => path))
+    .size;
+  const suggestedChangeCount = publishedFindings.filter(
+    ({ suggestion }) => suggestion !== null,
+  ).length;
+  const shortSha = reviewedHeadSha.slice(0, 7);
+  const commitUrl = `https://github.com/${repository.owner}/${repository.name}/commit/${reviewedHeadSha}`;
+  const commentDetails =
+    postedCommentCount === 0
+      ? ""
+      : ` Comments cover ${formatCount(commentedFileCount, "file")}${
+          suggestedChangeCount === 0
+            ? ""
+            : ` and include ${formatCount(suggestedChangeCount, "suggested change")}`
+        }.`;
 
-Finished review of \`${reviewedHeadSha}\`: posted ${formatCount(postedCommentCount, "comment")} and resolved ${formatCount(resolvedThreadCount, "thread")}.
+  const activity: string[] = [];
+  if (postedCommentCount > 0) {
+    activity.push(`Posted ${formatCount(postedCommentCount, "comment")}`);
+  }
+  if (resolvedThreadCount > 0) {
+    activity.push(
+      `${activity.length === 0 ? "Resolved" : "resolved"} ${formatCount(resolvedThreadCount, "thread")}`,
+    );
+  }
+
+  return `${REVIEW_SUMMARY_MARKER}
+## Latest code review status
+
+${activity.length === 0 ? "No new comments or thread updates." : `${activity.join(" and ")}.`}
+
+Reviewed commit [\`${shortSha}\`](${commitUrl}).${commentDetails}
 `;
 }
 
 function formatCount(count: number, singular: string): string {
-  return `${count} ${singular}${count === 1 ? "" : "s"}`;
+  return `**${count} ${singular}${count === 1 ? "" : "s"}**`;
 }

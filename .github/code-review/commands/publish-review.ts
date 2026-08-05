@@ -2,7 +2,11 @@ import { execFileSync } from "node:child_process";
 import * as z from "zod";
 import { GitHubOctokit } from "../github.ts";
 import { publishCodeReview } from "../review-publisher.ts";
-import { GitShaSchema, ReviewSchema, parseRepositorySlug } from "../schema.ts";
+import {
+  CodexOutputSchema,
+  GitShaSchema,
+  parseRepositorySlug,
+} from "../schema.ts";
 
 const EnvironmentSchema = z.object({
   CODEX_REVIEW_JSON: z.string().min(1),
@@ -18,6 +22,8 @@ const octokit = new GitHubOctokit({ auth: environment.GH_TOKEN });
 const pullRequestDiff = execFileSync(
   "git",
   [
+    "-c",
+    "core.quotePath=false",
     "diff",
     "--no-ext-diff",
     `${environment.EXPECTED_BASE_SHA}...${environment.EXPECTED_HEAD_SHA}`,
@@ -32,7 +38,7 @@ await publishCodeReview({
   expectedBaseSha: environment.EXPECTED_BASE_SHA,
   expectedHeadSha: environment.EXPECTED_HEAD_SHA,
   pullRequestDiff,
-  codexReview: ReviewSchema.parse(
+  codexReview: CodexOutputSchema.parse(
     JSON.parse(environment.CODEX_REVIEW_JSON) as unknown,
   ),
 });

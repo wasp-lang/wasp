@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ReviewSchema } from "../schema.ts";
+import { CodexOutputSchema } from "../schema.ts";
 
 const validReview = {
   threadsToResolve: [],
@@ -15,19 +15,8 @@ const validReview = {
   ],
 };
 
-test("rejects an end line before the start line", () => {
-  assert.throws(() =>
-    ReviewSchema.parse({
-      ...validReview,
-      newFindings: [
-        { ...validReview.newFindings[0], startLine: 2, endLine: 1 },
-      ],
-    }),
-  );
-});
-
 test("preserves code suggestion indentation", () => {
-  const review = ReviewSchema.parse({
+  const review = CodexOutputSchema.parse({
     ...validReview,
     newFindings: [
       { ...validReview.newFindings[0], suggestion: "  const value = true;" },

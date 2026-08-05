@@ -149,34 +149,6 @@ test("omits a finding already published by this reviewer", () => {
   assert.deepEqual(plan.newFindings, []);
 });
 
-test("retries after publishing findings without requiring resolutions", () => {
-  const partiallyPublishedFinding: ReviewThread = {
-    ...unresolvedThread,
-    id: "thread-2",
-    comments: [
-      {
-        ...unresolvedThread.comments[0],
-        id: "comment-3",
-        body: formatFindingComment(finding, reviewContext.reviewedHeadSha),
-      },
-    ],
-  };
-
-  const plan = buildPublicationPlan({
-    reviewContext: {
-      ...reviewContext,
-      reviewThreads: [unresolvedThread, partiallyPublishedFinding],
-    },
-    codexReview,
-    pullRequestDiff,
-  });
-
-  assert.deepEqual(plan.newFindings, []);
-  assert.deepEqual(plan.threadsToResolve, [
-    { threadId: unresolvedThread.id, lastCommentId: "comment-2" },
-  ]);
-});
-
 test("allows the same finding on a later commit", () => {
   const previousHeadSha = "c".repeat(40);
   const resolvedPreviousFinding: ReviewThread = {

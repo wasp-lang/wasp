@@ -47,6 +47,22 @@ test("rejects a finding outside the changed hunk", () => {
   );
 });
 
+test("rejects a reversed line range", () => {
+  assert.equal(
+    isFindingOnChangedLines(
+      {
+        body: "Description",
+        suggestion: null,
+        path: "src/example.ts",
+        startLine: 2,
+        endLine: 1,
+      },
+      diff,
+    ),
+    false,
+  );
+});
+
 test("treats added content beginning with pluses as content", () => {
   const plusContentDiff = parsePullRequestDiff(`diff --git a/notes.md b/notes.md
 --- a/notes.md
@@ -65,30 +81,6 @@ test("treats added content beginning with pluses as content", () => {
         endLine: 1,
       },
       plusContentDiff,
-    ),
-    true,
-  );
-});
-
-test("decodes non-ASCII Git paths", () => {
-  const quotedPathDiff =
-    parsePullRequestDiff(`diff --git "a/src/\\303\\244.ts" "b/src/\\303\\244.ts"
---- "a/src/\\303\\244.ts"
-+++ "b/src/\\303\\244.ts"
-@@ -0,0 +1 @@
-+export {};
-`);
-
-  assert.equal(
-    isFindingOnChangedLines(
-      {
-        body: "Description",
-        suggestion: null,
-        path: "src/ä.ts",
-        startLine: 1,
-        endLine: 1,
-      },
-      quotedPathDiff,
     ),
     true,
   );
