@@ -535,12 +535,12 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.Services
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.EnvVarInputs
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
-    Wasp.Cli.Util.Services
 
 executable wasp-cli
   import: common-all, common-exe

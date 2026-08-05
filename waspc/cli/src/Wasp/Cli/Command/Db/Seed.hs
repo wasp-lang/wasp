@@ -19,7 +19,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Util.Services (defaultAppPorts, getWaspEnvVars)
+import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -36,7 +36,7 @@ seed maybeUserProvidedSeedName = do
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  let waspEnvVars = server $ getWaspEnvVars appSpec defaultAppPorts
+  let waspEnvVars = server $ devEnvVars devPorts (devUrls appSpec devPorts)
 
   liftIO (dbSeed waspEnvVars genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg

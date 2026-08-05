@@ -15,9 +15,9 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
-import Wasp.Cli.Util.Services (defaultAppPorts, getWaspEnvVars)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
@@ -46,7 +46,7 @@ start = do
 
   (warnings, appSpec) <- compile
 
-  let waspEnvVars = getWaspEnvVars appSpec defaultAppPorts
+  let waspEnvVars = devEnvVars devPorts (devUrls appSpec devPorts)
       envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
 
   envVars <-
