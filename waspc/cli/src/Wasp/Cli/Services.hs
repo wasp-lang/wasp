@@ -12,8 +12,6 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.PerService (PerService (..))
 
--- | The ports the apps run on in development. Processes that never bind a port
--- (like the test runner) also use these to build the app's URLs.
 devPorts :: PerService PortNumber
 devPorts =
   PerService
