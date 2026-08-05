@@ -14,7 +14,7 @@ import InstallInstructions from './\_install-instructions.md'
 
 `wasp start` now decides which ports the client and the server run on (`3000` and `3001` by default), and derives the app's dev URLs from them.
 
-You can pick the ports yourself:
+You can also pick the ports yourself:
 
 ```bash
 wasp start --client-port 4000 --server-port 4001
