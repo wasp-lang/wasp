@@ -122,9 +122,9 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
 
-  maybeAlreadyRunningPort <- liftIO $ Dev.Postgres.discoverDevDbPort waspProjectDir appName
-  case maybeAlreadyRunningPort of
-    Just port -> noteDbIsAlreadyRunning port
+  maybeRunningDbConnectionUrl <- liftIO $ Dev.Postgres.discoverDevConnectionUrl waspProjectDir appName
+  case maybeRunningDbConnectionUrl of
+    Just runningDbConnectionUrl -> noteDbIsAlreadyRunning runningDbConnectionUrl
     Nothing -> do
       maybeFreePort <- liftIO $ Socket.findFirstFreeLocalPort candidatePorts
       maybe throwNoFreePortError startDbOnPort maybeFreePort
@@ -137,16 +137,14 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     makeDevPostgresDbOnPort :: PortNumber -> Dev.Postgres.DevPostgresDb
     makeDevPostgresDbOnPort = Dev.Postgres.makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath
 
-    noteDbIsAlreadyRunning :: PortNumber -> Command ()
-    noteDbIsAlreadyRunning port =
+    noteDbIsAlreadyRunning :: String -> Command ()
+    noteDbIsAlreadyRunning runningDbConnectionUrl =
       cliSendMessageC . Msg.Info $
         unlines
-          [ printf "Your dev database is already running on port %s." (show port),
+          [ "Your dev database is already running.",
             "Connection URL, in case you might want to connect with external tools:",
-            "  " <> devPostgresDb.connectionUrl
+            "  " <> runningDbConnectionUrl
           ]
-      where
-        devPostgresDb = makeDevPostgresDbOnPort port
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do

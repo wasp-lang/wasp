@@ -3,7 +3,6 @@ module Wasp.Project.Db.Dev.Postgres
   ( makeDevPostgresDb,
     runDevPostgresDb,
     DevPostgresDb (connectionUrl, dockerVolumeName),
-    discoverDevDbPort,
     discoverDevConnectionUrl,
     defaultDevPort,
     waspDevDbDockerVolumePrefix,
@@ -59,20 +58,15 @@ makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath p
 runDevPostgresDb :: DevPostgresDb -> IO ()
 runDevPostgresDb devPostgresDb = callCommand devPostgresDb.runDbCommand
 
--- | Returns the host port on which this Wasp project's dev db container is
--- currently published, or 'Nothing' if it is not running.
-discoverDevDbPort :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe PortNumber)
-discoverDevDbPort waspProjectDir appName =
-  getDockerContainerHostPort devDbContainerName 5432
-  where
-    devDbContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
-
 -- | Returns the connection URL of this Wasp project's dev db if it is up,
 -- 'Nothing' otherwise.
 discoverDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe String)
 discoverDevConnectionUrl waspProjectDir appName = do
-  devDbPort <- discoverDevDbPort waspProjectDir appName
+  devDbPort <- discoverDevDbPort
   return $ makeDevConnectionUrl waspProjectDir appName <$> devDbPort
+  where
+    discoverDevDbPort = getDockerContainerHostPort devDbContainerName 5432
+    devDbContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
 
 defaultDevUser :: String
 defaultDevUser = "postgresWaspDevUser"
