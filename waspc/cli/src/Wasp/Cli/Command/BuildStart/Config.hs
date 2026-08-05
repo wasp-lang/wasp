@@ -16,9 +16,9 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
+import Wasp.Cli.Services (devEnvVars, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
-import Wasp.Cli.Util.Services (getDevUrlMakers, getWaspEnvVars)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
@@ -39,8 +39,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   when (all null args.envVarInputs) $ throwError noEnvVarsSpecifiedMsg
 
   let ports = args.ports
-      urls = getDevUrlMakers appSpec <*> ports
-      waspEnvVars = getWaspEnvVars appSpec ports
+      urls = devUrls appSpec ports
+      waspEnvVars = devEnvVars ports urls
 
   envVars <- sequence $ resolveEnvVarInputs projectDir' <$> waspEnvVars <*> args.envVarInputs
 

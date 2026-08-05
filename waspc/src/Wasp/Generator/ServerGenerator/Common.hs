@@ -17,7 +17,7 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    makeDevServerUrl,
+    getDevServerUrl,
     serverPortEnvVarName,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
@@ -144,15 +144,15 @@ serverUrlEnvVarName = "WASP_SERVER_URL"
 serverPortEnvVarName :: String
 serverPortEnvVarName = "PORT"
 
-makeDevServerUrl :: PortNumber -> String
-makeDevServerUrl port = "http://localhost:" ++ show port
+getDevServerUrl :: PortNumber -> String
+getDevServerUrl port = "http://localhost:" ++ show port
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
 
-getDevServerEnvVars :: PerService (PortNumber, String) -> [EnvVar]
-getDevServerEnvVars (PerService {client = (_, clientUrl), server = (serverPort, serverUrl)}) =
+getDevServerEnvVars :: PortNumber -> PerService String -> [EnvVar]
+getDevServerEnvVars serverPort urls =
   [ (serverPortEnvVarName, show serverPort),
-    (serverUrlEnvVarName, serverUrl),
-    (clientUrlEnvVarName, clientUrl)
+    (serverUrlEnvVarName, urls.server),
+    (clientUrlEnvVarName, urls.client)
   ]

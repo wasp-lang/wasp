@@ -1,13 +1,13 @@
 module Wasp.Cli.Util.PortArgument
-  ( defaultAppPorts,
-    appPortsParser,
+  ( appPortsParser,
     portOption,
   )
 where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Project.PerService (PerService (..))
+import Wasp.Cli.Services (devPorts)
+import Wasp.Project.PerService (PerService)
 import qualified Wasp.Project.PerService as PerService
 
 appPortsParser :: Opt.Parser (PerService PortNumber)
@@ -16,7 +16,7 @@ appPortsParser =
     liftA2
       (\name defaultPort -> portOption (name ++ "-port") ("Port to run the " ++ name ++ " on") defaultPort)
       PerService.names
-      defaultAppPorts
+      devPorts
 
 portOption :: String -> String -> PortNumber -> Opt.Parser PortNumber
 portOption optionName helpText defaultPort =
@@ -34,12 +34,3 @@ portOption optionName helpText defaultPort =
     -- that, since we have to tell the other side where this one is running.
     rejectAnyPort 0 = Opt.readerError "0 is not a valid port"
     rejectAnyPort port = return port
-
--- | The ports an app runs on when the user doesn't choose any. 3000 and 3001
--- are the ports people expect from a Wasp app.
-defaultAppPorts :: PerService PortNumber
-defaultAppPorts =
-  PerService
-    { client = 3000,
-      server = 3001
-    }
