@@ -12,7 +12,8 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG (getVirtualModulesPlugin)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
@@ -37,9 +38,10 @@ genVitePlugins spec =
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
       genValidateEnvPlugin,
-      genFileCopy [relfile|typescriptCheck.ts|]
+      genFileCopy [relfile|typescriptCheck.ts|],
+      genVirtualUserModulesPlugin spec
     ]
-    <++> getVirtualModulesPlugin spec
+    <++> genVirtualWaspModulesPlugin spec
   where
     genFileCopy = return . C.mkTmplFd . (C.vitePluginsDirInSdkTemplatesDir </>)
 
