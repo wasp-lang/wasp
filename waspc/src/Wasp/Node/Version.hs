@@ -33,7 +33,7 @@ nodeTypesVersionRangeMatchingNodeMajor nodeVersion =
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =
-  SV.versionBounds range `SV.isSubintervalOf` waspVersionInterval
+  waspVersionInterval `SV.isSubintervalOf` SV.versionBounds range
   where
     waspVersionInterval = SV.versionBounds $ SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion
 

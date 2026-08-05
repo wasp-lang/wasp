@@ -31,7 +31,7 @@ getNotIgnoredRelFilePaths ::
   IO [Path' (Rel d) File']
 getNotIgnoredRelFilePaths waspignoreFilePath externalDirPath = do
   waspignoreFile <- readWaspignoreFile waspignoreFilePath
-  filter (not . ignores waspignoreFile . SP.toFilePath) <$> IOUtil.listDirectoryDeep externalDirPath
+  filter (ignores waspignoreFile . SP.toFilePath) <$> IOUtil.listDirectoryDeep externalDirPath
 
 waspIgnorePathInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 waspIgnorePathInWaspProjectDir = [relfile|.waspignore|]
