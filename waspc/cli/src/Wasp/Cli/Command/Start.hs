@@ -17,7 +17,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
-import Wasp.Cli.Util.PerService (defaultAppPorts, getWaspEnvVars)
+import Wasp.Cli.Util.Services (defaultAppPorts, getWaspEnvVars)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
