@@ -1,15 +1,15 @@
 {{={= =}=}}
-import { createInvalidCredentialsError } from 'wasp/auth/utils'
+import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 import { defineHandler } from 'wasp/server/utils'
-import { verifyPassword } from 'wasp/auth/password'
+import { verifyPassword } from 'wasp/server/auth/password'
 
 import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
   getProviderDataWithPassword,
-} from 'wasp/auth/utils'
-import { createSession } from 'wasp/auth/session'
+} from 'wasp/server/auth/utils'
+import { createSession } from 'wasp/server/auth/session'
 import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
 import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 

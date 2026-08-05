@@ -24,6 +24,7 @@ class FlyCommand extends Command {
     return this.argument(
       "<region>",
       "3 letter deployment region to use on Fly.io",
+      (region) => region.toLowerCase(),
     );
   }
   addDbOptions(): this {
@@ -144,13 +145,13 @@ export function createFlyCommand(): Command {
 
   // Add command-specific hooks.
   flyLaunchCommand.hook("preAction", (_thisCommand, actionCommand) =>
-    assertRegionIsValid(actionCommand.args[1]),
+    assertRegionIsValid(actionCommand.processedArgs[1]),
   );
   flySetupCommand.hook("preAction", (_thisCommand, actionCommand) =>
-    assertRegionIsValid(actionCommand.args[1]),
+    assertRegionIsValid(actionCommand.processedArgs[1]),
   );
   createFlyDbCommand.hook("preAction", (_thisCommand, actionCommand) =>
-    assertRegionIsValid(actionCommand.args[0]),
+    assertRegionIsValid(actionCommand.processedArgs[0]),
   );
 
   return fly;

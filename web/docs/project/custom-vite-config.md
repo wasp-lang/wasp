@@ -91,7 +91,7 @@ Below are some examples of how you can customize the Vite config.
 
 ### Changing the Dev Server Behaviour
 
-If you want to stop Vite from opening the browser automatically when you run `wasp start`, you can do that by customizing the `open` option.
+If you want Vite to open the browser automatically when you run `wasp start`, you can do that by customizing the `open` option.
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
@@ -100,7 +100,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [wasp()],
   server: {
-    open: false,
+    open: true,
   },
 })
 ```

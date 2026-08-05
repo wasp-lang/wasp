@@ -4,7 +4,7 @@ cabal-version: 2.4
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
 --    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.25.0
+version: 0.26.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -13,7 +13,6 @@ author: Wasp Team
 maintainer: team@wasp-lang.dev
 copyright: Wasp, Inc.
 license: MIT
-license-file: LICENSE
 build-type: Simple
 extra-source-files:
   ChangeLog.md
@@ -258,7 +257,6 @@ library
     Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
-    Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
@@ -288,8 +286,9 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
@@ -303,6 +302,7 @@ library
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
+    Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -318,12 +318,20 @@ library
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
-    Wasp.Generator.SpecTypesGenerator
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.TypeAugmentationGenerator
+    Wasp.Generator.TypeAugmentationGenerator.App
+    Wasp.Generator.TypeAugmentationGenerator.App.Common
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk.Common
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk.JsImport
+    Wasp.Generator.TypeAugmentationGenerator.Common
+    Wasp.Generator.TypeAugmentationGenerator.Spec
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common
@@ -614,6 +622,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
@@ -648,6 +657,7 @@ test-suite waspc-tests
     Test.Util
     Util.Control.MonadTest
     Util.Diff
+    Util.DockerTest
     Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest

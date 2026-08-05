@@ -7,6 +7,9 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
+
+    -- * Exported for testing only
+    genDotEnv,
   )
 where
 
@@ -64,6 +67,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
@@ -78,6 +82,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
+      genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
       genGitignore,
@@ -105,8 +110,8 @@ genDotEnv spec =
     ]
   where
     envVars = waspEnvVars ++ userEnvVars
-    userEnvVars = AS.devEnvVarsServer spec
-    waspEnvVars = case AS.devDatabaseUrl spec of
+    userEnvVars = spec.devEnvVarsServer
+    waspEnvVars = case spec.devDatabaseUrl of
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
     isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
@@ -168,7 +173,7 @@ npmDepsFromWasp spec =
             [ ("cookie-parser", "~1.4.6"),
               ("cors", "^2.8.5"),
               ("express", show expressVersionRange),
-              ("morgan", "~1.10.0"),
+              ("morgan", "~1.11.0"),
               ("dotenv", show dotenvVersionRange),
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersionRange)

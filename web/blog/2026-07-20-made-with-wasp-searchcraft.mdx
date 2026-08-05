@@ -1,11 +1,10 @@
 ---
-title: "Made with Wasp: how Searchcraft built a full-stack SaaS for their Rust search engine"
+title: "Made with Wasp: how Searchcraft built a full-stack SaaS around their Rust search engine"
 authors: [matijasos]
 image: /img/searchcraft-vektron/searchcraft-hero.webp
 tags: [showcase, wasp, saas, rust, web dev]
 keywords: ["rust search engine", "algolia alternative", "elasticsearch alternative", "self-hosted search engine", "open source search engine alternative", "wasp framework production app", "full-stack react node prisma app", "saas dashboard framework", "open saas template", "search engine on raspberry pi", "build saas dashboard fast", "rust and react architecture", "multi-tenant saas example", "wasp use case"]
-description: "How Searchcraft, a Rust-based Algolia alternative, built Vektron - their full-stack user dashboard - with Wasp and the Open SaaS template."
-unlisted: true
+description: "How Searchcraft, a Rust-based Algolia alternative, built their full-stack customer dashboard with Wasp and the Open SaaS template."
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
@@ -13,14 +12,14 @@ import { VideoWithCaption } from './components/VideoWithCaption';
 
 <ImgWithCaption
     source="img/searchcraft-vektron/searchcraft-hero.webp"
-    alt="Searchcraft - a Rust-based search engine, with Vektron, its Wasp-powered user dashboard"
+    alt="Searchcraft - a Rust-based search engine, with its Wasp-powered customer dashboard"
 />
 
 
 ## TL;DR
 
 - **[Searchcraft](https://searchcraft.io)** is a search engine written in Rust: an Algolia / Elasticsearch alternative that's light enough to run full-text search over all of English Wikipedia [on a single Raspberry Pi](https://www.youtube.com/watch?v=SjuPn6_yl2s).
-- **Vektron**, their full-stack user dashboard (auth, billing, analytics, index management), is built with **Wasp** and the [Open SaaS](https://opensaas.sh) template.
+- Their full-stack customer dashboard (auth, billing, analytics, index management) is built with **Wasp** and the [Open SaaS](https://opensaas.sh) template.
 - They could have built the SaaS layer themselves, but chose not to, so their engineering time stays in the Rust engine where they actually compete.
 - Wasp compiles to standard React + Node.js + Prisma, deployed on their own AWS and CI/CD. No lock-in, no restructuring.
 
@@ -40,7 +39,7 @@ And they're in production. Their first customer is a publisher running 22 local 
 
 <ImgWithCaption
     source="img/searchcraft-vektron/vektron-documents-onboarding.webp"
-    alt="Vektron's onboarding screen: import documents from a feed URL, a file, or WordPress"
+    alt="The onboarding screen: import documents from a feed URL, a file, or WordPress"
     caption="The onboarding screen - Searchcraft's design is super cool!"
 />
 
@@ -50,29 +49,27 @@ They could have built it, but chose not to. The SaaS layer is a hundred solved p
 
 The answer came from inside the house: Don, the CTO, had been following Wasp. [Open SaaS](https://opensaas.sh), Wasp's open-source template, meant auth, payments, and an admin panel existed on day one, as code they own, not services they rent. And they evaluated it like engineers: everything Wasp generates is standard React, Node.js, and Prisma they could read, trust, and run themselves, no magic to open up. **It's their code**, and it compiles to one integrated stack built to keep holding together as the app grows.
 
-## What they built: Vektron
+## What they built: the full-stack customer dashboard
 
-Vektron is Searchcraft's control room, "a product within a product," where customers run everything from document ingestion to search tuning, team management, and analytics.
+The dashboard is Searchcraft's control room, "a product within a product," where customers run everything from document ingestion to search tuning, team management, and analytics.
 
-> **"Vektron is our Wasp app, it's the user portal. We just like to give things cool code names."**
-
-Three moments show what's actually running under the UI, because Vektron isn't a static admin panel, it's a full-stack app where Wasp is doing real work end to end:
+Three moments show what's actually running under the UI, because the dashboard isn't a static admin panel, it's a full-stack app where Wasp is doing real work end to end:
 
 <ImgWithCaption
     source="img/searchcraft-vektron/vektron-dashboard-analytics.webp"
-    alt="Vektron organization dashboard with live usage stats, conversion and retention scores"
+    alt="Organization dashboard with live usage stats, conversion and retention scores"
     caption="What's behind this screen: server-side queries turning raw search events into live stats and multi-tenant access control, all in one Wasp codebase."
 />
 
 <ImgWithCaption
     source="img/searchcraft-vektron/vektron-app-searches.webp"
-    alt="Vektron application view with the index registry and total searches chart"
+    alt="Application view with the index registry and total searches chart"
     caption="What's behind this screen: a multi-tenant index registry in Prisma, kept in sync with the Rust engine over one API, with search events rolled up into the time windows above. The chart is React; the plumbing is Wasp's type-safe operations."
 />
 
 <VideoWithCaption
     source="img/searchcraft-vektron/vektron-subscription-settings.mp4"
-    alt="Vektron organization settings with subscription plans and upgrades"
+    alt="Organization settings with subscription plans and upgrades"
     caption="What's behind this screen: subscription plans and upgrades, the billing machinery every SaaS needs and nobody wants to hand-roll, running in the same Wasp app and wired into the quotas from the first screen."
 />
 
@@ -80,14 +77,14 @@ Around those three screens sits the rest of a real SaaS: an ingestion pipeline t
 
 ## How it runs: Wasp next to Rust
 
-The shape is the interesting part. On one side, the Searchcraft engine and its supporting services (provisioning, ingestion), all Rust, all theirs. On the other, Vektron: a Wasp app (React + Node.js + Prisma) that talks to the engine over an API. Customer apps consume search through the SDKs and never know the portal exists.
+The shape is the interesting part. On one side, the Searchcraft engine and its supporting services (provisioning, ingestion), all Rust, all theirs. On the other, the customer dashboard: a Wasp app (React + Node.js + Prisma) that talks to the engine over an API. Customer apps consume search through the SDKs and never know the portal exists.
 
 Here's the architecture, drawn by the Searchcraft team:
 
 <ImgWithCaption
     source="img/searchcraft-vektron/searchcraft-architecture.webp"
-    alt="Architecture diagram: Vektron (Wasp app), Searchcraft Server (Rust), provisioning and ingestion services (Rust), SDKs, customer apps"
-    caption="Vektron, the Wasp app, handles users, configuration, and analytics; the Searchcraft engine and its Rust services do the search. One API connects them, and customer apps reach search through the SDKs."
+    alt="Architecture diagram: the customer dashboard (Wasp app), Searchcraft Server (Rust), provisioning and ingestion services (Rust), SDKs, customer apps"
+    caption="The dashboard, a Wasp app, handles users, configuration, and analytics; the Searchcraft engine and its Rust services do the search. One API connects them, and customer apps reach search through the SDKs."
 />
 
 **Two systems, one product, one API between them.**

@@ -5,6 +5,7 @@
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
     ExtImportName (..),
+    ExtImportPath,
     importIdentifier,
     parseExtImportPath,
     showExtImportFromProjectDir,

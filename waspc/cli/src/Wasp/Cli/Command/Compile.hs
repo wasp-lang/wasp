@@ -17,6 +17,7 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Either (fromLeft)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -40,7 +41,7 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Same like 'compileWithOptions', but with default compile options.
-compile :: Command [CompileWarning]
+compile :: Command ([CompileWarning], AS.AppSpec)
 compile = do
   -- TODO: Consider a way to remove the redundancy of finding the project root
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
@@ -54,8 +55,9 @@ compile = do
 -- to the disk, to the .wasp dir.
 -- At the end, prints a report on how compilation went (by printing warnings, errors,
 -- success/failure message, ...).
--- Finally, throws if there was a compile error, otherwise returns any compile warnings.
-compileWithOptions :: CompileOptions -> Command [CompileWarning]
+-- Finally, throws if there was a compile error, otherwise returns any compile warnings
+-- along with the AppSpec it compiled.
+compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
@@ -77,12 +79,12 @@ compileWithOptions options = do
         "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  (warnings, appSpecOrErrors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
 
-  liftIO $ printCompilationResult (warnings, errors)
-  if null errors
-    then return warnings
-    else
+  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
+  case appSpecOrErrors of
+    Right appSpec -> return (warnings, appSpec)
+    Left errors ->
       throwError $
         CommandError "Compilation of wasp project failed" $
           show (length errors) ++ " errors found"
@@ -132,14 +134,14 @@ analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length e
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 compileIO waspProjectDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir
 
 compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 
