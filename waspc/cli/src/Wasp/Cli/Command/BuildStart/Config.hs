@@ -38,7 +38,7 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envInputs
+  userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envVarInputs
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let waspEnvVars = devEnvVars appSpec

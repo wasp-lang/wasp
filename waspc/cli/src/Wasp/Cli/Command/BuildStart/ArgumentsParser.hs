@@ -13,15 +13,15 @@ import Wasp.Project.PerService (PerService)
 import qualified Wasp.Project.PerService as PerService
 
 newtype BuildStartArgs = BuildStartArgs
-  { envInputs :: PerService ([EnvVar], [FilePathArgument])
+  { envVarInputs :: PerService ([EnvVar], [FilePathArgument])
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
-    <$> envInputsParser
+    <$> envVarInputsParser
   where
-    envInputsParser = for PerService.names $ \name ->
+    envVarInputsParser = for PerService.names $ \name ->
       liftA2
         (,)
         (Opt.many $ makeEnvironmentVariableParser name (name ++ "-env") (head name))
