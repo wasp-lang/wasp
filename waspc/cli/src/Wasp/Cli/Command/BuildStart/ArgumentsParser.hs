@@ -10,7 +10,7 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.EnvVarInputs (EnvVarInput (..))
 import Wasp.Cli.Util.PathArgument (filePathReader)
-import Wasp.Cli.Util.PortArgument (appPortsParser)
+import Wasp.Cli.Util.PortArgument (servicePortsParser)
 import Wasp.Project.PerService (PerService)
 import qualified Wasp.Project.PerService as PerService
 
@@ -23,7 +23,7 @@ buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
     <$> envVarInputsParser
-    <*> appPortsParser
+    <*> servicePortsParser
   where
     envVarInputsParser = for PerService.names $ \name ->
       liftA2
