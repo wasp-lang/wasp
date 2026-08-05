@@ -122,9 +122,9 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
 
-  maybeRunningDbConnectionUrl <- liftIO $ Dev.Postgres.discoverDevConnectionUrl waspProjectDir appName
-  case maybeRunningDbConnectionUrl of
-    Just runningDbConnectionUrl -> noteDbIsAlreadyRunning runningDbConnectionUrl
+  maybeRunningDb <- liftIO $ Dev.Postgres.discoverDevDb waspProjectDir appName
+  case maybeRunningDb of
+    Just runningDb -> noteDbIsAlreadyRunning runningDb
     Nothing -> do
       maybeFreePort <- liftIO $ Socket.findFirstFreeLocalPort candidatePorts
       maybe throwNoFreePortError startDbOnPort maybeFreePort
@@ -134,36 +134,33 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     candidatePorts = take numOfPortsToScan [Dev.Postgres.defaultDevPort ..]
     numOfPortsToScan = 20
 
-    makeDevPostgresDbOnPort :: PortNumber -> Dev.Postgres.DevPostgresDb
-    makeDevPostgresDbOnPort = Dev.Postgres.makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath
-
-    noteDbIsAlreadyRunning :: String -> Command ()
-    noteDbIsAlreadyRunning runningDbConnectionUrl =
-      cliSendMessageC . Msg.Info $
-        unlines
-          [ "Your dev database is already running.",
-            "Connection URL, in case you might want to connect with external tools:",
-            "  " <> runningDbConnectionUrl
-          ]
+    noteDbIsAlreadyRunning :: Dev.Postgres.DevDbInfo -> Command ()
+    noteDbIsAlreadyRunning devDbInfo =
+      cliSendMessageC . Msg.Info . unlines $
+        "Your PostgreSQL dev database is already running."
+          : devDbAdditionalInfoLines devDbInfo
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
-      let devPostgresDb = makeDevPostgresDbOnPort port
-      cliSendMessageC . Msg.Info $
-        unlines
-          [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
-            "",
-            "Additional info:",
-            " ℹ Using Docker image: " <> dbDockerImage,
-            "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
-            " ℹ Connection URL, in case you might want to connect with external tools:",
-            "     " <> devPostgresDb.connectionUrl,
-            " ℹ Database data is persisted in a Docker volume with the following name"
-              <> " (useful to know if you will want to delete it at some point):",
-            "     " <> devPostgresDb.dockerVolumeName
-          ]
+      let devDbInfo = Dev.Postgres.makeDevPostgresDb waspProjectDir appName port
+      cliSendMessageC . Msg.Info . unlines $
+        "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
+          : devDbAdditionalInfoLines devDbInfo
       cliSendMessageC $ Msg.Info "..."
-      liftIO $ Dev.Postgres.runDevPostgresDb devPostgresDb
+      liftIO $ Dev.Postgres.runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath
+
+    devDbAdditionalInfoLines :: Dev.Postgres.DevDbInfo -> [String]
+    devDbAdditionalInfoLines devDbInfo =
+      [ "",
+        "Additional info:",
+        " ℹ Using Docker image: " <> dbDockerImage,
+        "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
+        " ℹ Connection URL, in case you might want to connect with external tools:",
+        "     " <> devDbInfo.connectionUrl,
+        " ℹ Database data is persisted in a Docker volume with the following name"
+          <> " (useful to know if you will want to delete it at some point):",
+        "     " <> devDbInfo.dockerVolumeName
+      ]
 
     throwNoFreePortError :: Command ()
     throwNoFreePortError =
