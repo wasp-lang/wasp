@@ -6,6 +6,10 @@
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 
+### 🎉 New Features
+
+- Added a `wasp inspect` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. With `--json`, it prints the full evaluated app spec as JSON, for scripts and AI tools. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
+
 ### 🔧 Small improvements
 
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
@@ -31,7 +35,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
 - Added [Resend](https://resend.com) as an email sender provider, usable via `provider: "Resend"` and the `RESEND_API_KEY` environment variable. ([#4381](https://github.com/wasp-lang/wasp/pull/4381))
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
-- Added a `wasp inspect` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. With `--json`, it prints the full evaluated app spec as JSON, for scripts and AI tools. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 
 ### 🐞 Bug fixes
 
