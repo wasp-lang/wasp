@@ -1,4 +1,3 @@
-import path from "node:path";
 import * as z from "zod";
 
 export const RepositorySchema = z.strictObject({
@@ -7,14 +6,6 @@ export const RepositorySchema = z.strictObject({
 });
 
 export const GitShaSchema = z.string().regex(/^[0-9a-f]{40}$/i);
-
-export const PullRequestSchema = z.strictObject({
-  number: z.int().positive(),
-  baseSha: GitShaSchema,
-  headSha: GitShaSchema,
-  state: z.enum(["OPEN", "CLOSED", "MERGED"]),
-  isDraft: z.boolean(),
-});
 
 export const ReviewThreadCommentSchema = z.strictObject({
   id: z.string().trim().min(1),
@@ -34,19 +25,12 @@ export const ReviewThreadSchema = z.strictObject({
 });
 
 export const ReviewContextSchema = z.strictObject({
-  repository: RepositorySchema,
-  pullRequest: PullRequestSchema,
+  reviewedHeadSha: GitShaSchema,
   reviewerLogin: z.string().trim().min(1),
   reviewThreads: z.array(ReviewThreadSchema),
 });
 
 export const NewFindingSchema = z.strictObject({
-  title: z
-    .string()
-    .trim()
-    .min(1)
-    .max(80)
-    .describe("Concise internal issue identity; not rendered in the comment."),
   body: z
     .string()
     .trim()
@@ -101,28 +85,8 @@ export const CodexOutputSchema = z.strictObject({
 });
 
 export const ReviewSchema = CodexOutputSchema.superRefine(
-  ({ threadsToResolve, newFindings }, context) => {
-    const seenThreadIds = new Set<string>();
-    threadsToResolve.forEach(({ threadId }, index) => {
-      if (seenThreadIds.has(threadId)) {
-        context.addIssue({
-          code: "custom",
-          path: ["threadsToResolve", index, "threadId"],
-          message: "Each thread may be resolved at most once.",
-        });
-      }
-      seenThreadIds.add(threadId);
-    });
-
+  ({ newFindings }, context) => {
     newFindings.forEach((finding, index) => {
-      if (!isNormalizedRelativePosixPath(finding.path)) {
-        context.addIssue({
-          code: "custom",
-          path: ["newFindings", index, "path"],
-          message: "Path must be a normalized, relative POSIX path.",
-        });
-      }
-
       if (finding.endLine < finding.startLine) {
         context.addIssue({
           code: "custom",
@@ -135,7 +99,6 @@ export const ReviewSchema = CodexOutputSchema.superRefine(
 );
 
 export type Repository = z.infer<typeof RepositorySchema>;
-export type PullRequest = z.infer<typeof PullRequestSchema>;
 export type ReviewThread = z.infer<typeof ReviewThreadSchema>;
 export type ReviewContext = z.infer<typeof ReviewContextSchema>;
 export type NewFinding = z.infer<typeof NewFindingSchema>;
@@ -154,16 +117,4 @@ export function parseRepositorySlug(repositorySlug: string): Repository {
   }
 
   return RepositorySchema.parse({ owner, name });
-}
-
-function isNormalizedRelativePosixPath(filePath: string): boolean {
-  const normalizedPath = path.posix.normalize(filePath);
-  return (
-    normalizedPath === filePath &&
-    normalizedPath !== "." &&
-    !normalizedPath.startsWith("../") &&
-    !path.posix.isAbsolute(normalizedPath) &&
-    !path.win32.isAbsolute(filePath) &&
-    !filePath.includes("\\")
-  );
 }

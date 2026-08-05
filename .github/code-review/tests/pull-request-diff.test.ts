@@ -19,7 +19,6 @@ test("accepts a finding ending on an added line", () => {
   assert.equal(
     isFindingOnChangedLines(
       {
-        title: "Finding",
         body: "Description",
         suggestion: null,
         path: "src/example.ts",
@@ -36,7 +35,6 @@ test("rejects a finding outside the changed hunk", () => {
   assert.equal(
     isFindingOnChangedLines(
       {
-        title: "Finding",
         body: "Description",
         suggestion: null,
         path: "src/example.ts",
@@ -60,7 +58,6 @@ test("treats added content beginning with pluses as content", () => {
   assert.equal(
     isFindingOnChangedLines(
       {
-        title: "Finding",
         body: "Description",
         suggestion: null,
         path: "notes.md",
@@ -85,7 +82,6 @@ test("decodes non-ASCII Git paths", () => {
   assert.equal(
     isFindingOnChangedLines(
       {
-        title: "Finding",
         body: "Description",
         suggestion: null,
         path: "src/ä.ts",

@@ -14,7 +14,6 @@ import type {
 } from "../schema.ts";
 
 const finding: NewFinding = {
-  title: "Finding",
   body: "If the value is false, this branch returns the wrong result. Use the correct value instead.",
   suggestion: null,
   path: "src/example.ts",
@@ -45,14 +44,7 @@ const unresolvedThread: ReviewThread = {
 };
 
 const reviewContext: ReviewContext = {
-  repository: { owner: "wasp-lang", name: "wasp" },
-  pullRequest: {
-    number: 42,
-    baseSha: "a".repeat(40),
-    headSha: "b".repeat(40),
-    state: "OPEN",
-    isDraft: false,
-  },
+  reviewedHeadSha: "b".repeat(40),
   reviewerLogin: "github-actions[bot]",
   reviewThreads: [unresolvedThread],
 };
@@ -78,11 +70,11 @@ const pullRequestDiff = `diff --git a/src/example.ts b/src/example.ts
 test("formats a finding as a concise paragraph", () => {
   const fingerprint = fingerprintFinding(
     finding,
-    reviewContext.pullRequest.headSha,
+    reviewContext.reviewedHeadSha,
   );
 
   assert.equal(
-    formatFindingComment(finding, reviewContext.pullRequest.headSha),
+    formatFindingComment(finding, reviewContext.reviewedHeadSha),
     `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprint} -->\n${finding.body}`,
   );
 });
@@ -91,9 +83,9 @@ test("appends a complete GitHub code suggestion", () => {
   assert.equal(
     formatFindingComment(
       { ...finding, suggestion: "  const added = false;" },
-      reviewContext.pullRequest.headSha,
+      reviewContext.reviewedHeadSha,
     ),
-    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprintFinding(finding, reviewContext.pullRequest.headSha)} -->\n${finding.body}\n\n\`\`\`suggestion\n  const added = false;\n\`\`\``,
+    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprintFinding(finding, reviewContext.reviewedHeadSha)} -->\n${finding.body}\n\n\`\`\`suggestion\n  const added = false;\n\`\`\``,
   );
 });
 
@@ -108,7 +100,7 @@ test("builds findings and resolutions from one review snapshot", () => {
   assert.deepEqual(plan.threadsToResolve, [
     { threadId: unresolvedThread.id, lastCommentId: "comment-2" },
   ]);
-  assert.equal(plan.reviewedHeadSha, reviewContext.pullRequest.headSha);
+  assert.equal(plan.reviewedHeadSha, reviewContext.reviewedHeadSha);
 });
 
 test("rejects a resolution made before the latest thread reply", () => {
@@ -140,7 +132,7 @@ test("omits a finding already published by this reviewer", () => {
       {
         ...unresolvedThread.comments[0],
         id: "comment-3",
-        body: formatFindingComment(finding, reviewContext.pullRequest.headSha),
+        body: formatFindingComment(finding, reviewContext.reviewedHeadSha),
       },
     ],
   };
@@ -165,7 +157,7 @@ test("retries after publishing findings without requiring resolutions", () => {
       {
         ...unresolvedThread.comments[0],
         id: "comment-3",
-        body: formatFindingComment(finding, reviewContext.pullRequest.headSha),
+        body: formatFindingComment(finding, reviewContext.reviewedHeadSha),
       },
     ],
   };

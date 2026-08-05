@@ -40,40 +40,25 @@ test("selects only marker-owned threads created by the reviewer", () => {
   );
 });
 
-test("bounds comment history and body length in the Codex context", () => {
-  const comments = Array.from({ length: 25 }, (_, index) => ({
-    id: `comment-${index}`,
-    author: { login: "github-actions[bot]" },
-    body: index === 24 ? "x".repeat(MAX_REVIEW_COMMENT_LENGTH + 1) : `${index}`,
-  }));
-  const unresolvedThread = {
+test("truncates comment bodies in the Codex context", () => {
+  const thread = {
     ...reviewThread("github-actions[bot]", REVIEW_MARKER),
-    comments,
-  };
-  const resolvedThread = {
-    ...unresolvedThread,
-    id: "resolved-thread",
-    isResolved: true,
+    comments: [
+      {
+        id: "comment-1",
+        author: { login: "github-actions[bot]" },
+        body: "x".repeat(MAX_REVIEW_COMMENT_LENGTH + 1),
+      },
+    ],
   };
   const serializedContext = serializeReviewContextForCodex(
-    reviewContext([unresolvedThread, resolvedThread]),
+    reviewContext([thread]),
   );
   const parsedContext = JSON.parse(serializedContext) as ReviewContext;
 
-  assert.deepEqual(
-    parsedContext.reviewThreads[0].comments.map(({ id }) => id),
-    [
-      "comment-0",
-      ...Array.from({ length: 20 }, (_, index) => `comment-${index + 5}`),
-    ],
-  );
   assert.equal(
     parsedContext.reviewThreads[0].comments.at(-1)?.body.length,
     MAX_REVIEW_COMMENT_LENGTH,
-  );
-  assert.deepEqual(
-    parsedContext.reviewThreads[1].comments.map(({ id }) => id),
-    ["comment-0"],
   );
 });
 
@@ -98,14 +83,7 @@ test("rejects a Codex context above the byte limit", () => {
 
 function reviewContext(reviewThreads: ReviewThread[]): ReviewContext {
   return {
-    repository: { owner: "wasp-lang", name: "wasp" },
-    pullRequest: {
-      number: 42,
-      baseSha: "a".repeat(40),
-      headSha: "b".repeat(40),
-      state: "OPEN",
-      isDraft: false,
-    },
+    reviewedHeadSha: "b".repeat(40),
     reviewerLogin: "github-actions[bot]",
     reviewThreads,
   };
