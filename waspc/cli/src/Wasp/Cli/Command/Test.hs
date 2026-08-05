@@ -15,7 +15,7 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
+import Wasp.Cli.Services (defaultDevPorts, devEnvVars, devUrls)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
@@ -27,7 +27,7 @@ import Wasp.Project.PerService (client)
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
 test ("client" : args) = watchAndTest $ \appSpec ->
-  Wasp.Generator.testWebApp (devEnvVars devPorts $ devUrls appSpec devPorts).client args
+  Wasp.Generator.testWebApp (devEnvVars defaultDevPorts $ devUrls appSpec defaultDevPorts).client args
 test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 

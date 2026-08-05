@@ -16,18 +16,14 @@ import { defaultExclude } from "vitest/config";
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
-// Wasp sets this env var when it runs the dev server. It's absent in other
-// contexts (e.g., `vite build`), which don't need a port.
-const clientDevPortEnvVarValue = process.env["{= clientDevPortEnvVarName =}"];
-
 const forcedOptions = {
   base: "{= baseDir =}",
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
   "server.port":
-    clientDevPortEnvVarValue === undefined
-      ? undefined
-      : Number.parseInt(clientDevPortEnvVarValue),
+    // This can be empty. Environment variables in the server are not set when
+    // running `wasp build`.
+    envVarAsNumber("{= clientDevPortEnvVarName =}"),
   "server.strictPort": true,
 } as const;
 
@@ -108,14 +104,8 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
     const userValue = getByPath(config, path);
     if (userValue !== undefined && userValue !== forcedValue) {
       const hint = forcedOptionHints[path as keyof typeof forcedOptions];
-      // Wasp only knows the value it forces in the contexts where it needs the
-      // option, so we mention it only when we have it.
-      const override =
-        forcedValue === undefined
-          ? "but Wasp will override it"
-          : `but Wasp will override it with ${JSON.stringify(forcedValue)}`;
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, ${override}` +
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}` +
           (hint ? `\n    ${hint}` : ""),
       );
     }
@@ -129,4 +119,16 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
 
 function getByPath(obj: Record<string, any>, path: string): unknown {
   return path.split(".").reduce<any>((node, segment) => node?.[segment], obj);
+}
+
+function envVarAsNumber(envName: string): number | undefined {
+  const strValue = process.env[envName];
+  if (strValue === undefined) {
+    return undefined;
+  }
+  const numValue = Number.parseInt(strValue);
+  if (Number.isNaN(numValue)) {
+    throw new Error(`Environment variable ${envName} is not a valid number.`);
+  }
+  return numValue;
 }

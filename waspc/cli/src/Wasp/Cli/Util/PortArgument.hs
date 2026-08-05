@@ -1,6 +1,6 @@
 module Wasp.Cli.Util.PortArgument
   ( resolveAppPorts,
-    appPortsParser,
+    servicePortsParser,
     portOption,
   )
 where
@@ -14,14 +14,14 @@ import Data.Traversable (for)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Services (devPorts)
+import Wasp.Cli.Services (defaultDevPorts)
 import Wasp.Project.PerService (PerService (..))
 import qualified Wasp.Project.PerService as PerService
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as S
 
-appPortsParser :: Opt.Parser (PerService (Maybe PortNumber))
-appPortsParser =
+servicePortsParser :: Opt.Parser (PerService (Maybe PortNumber))
+servicePortsParser =
   for PerService.names $ \name ->
     portOption (name ++ "-port") ("Port to run the " ++ name ++ " on")
 
@@ -49,12 +49,15 @@ resolveAppPorts requestedPorts = do
   resolvedClientPort <-
     resolvePort
       requestedPorts.client
-      devPorts.client
+      defaultDevPorts.client
       (catMaybes [requestedPorts.server])
 
   resolvedServerPort <-
     resolvePort
       requestedPorts.server
+      -- We already know all ports lower than the client port are taken, so we
+      -- can start looking for a free port from the next one. This also has the
+      -- nice effect of keeping the server port close to the client port.
       (resolvedClientPort + 1)
       (catMaybes [requestedPorts.client])
 

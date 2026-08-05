@@ -32,19 +32,43 @@ export type UnauthenticatedOperationFor<
 /**
  * Creates the server-side API for an unauthenticated operation.
  *
+ * The operation definition is accepted through a getter instead of directly to
+ * prevent "use before initialization" errors. When a user's operation definition
+ * imports another operation's server-side API (i.e., imports from `"wasp/server/operations"`),
+ * that module and ours form a cycle. Depending on which side of the cycle the
+ * bundler enters first, it can emit our {@link createUnauthenticatedOperation}
+ * wrapper calls above the user's operation definitions:
+ * ```ts
+ * function badCreateOperation(fn: Function) {
+ *   return () => fn();
+ * }
+ * const badServerOperation = badCreateOperation(someUserOperation);
+ *       ^! ReferenceError: Cannot access 'someUserOperation' before initialization
+ * const someUserOperation = () => 1;
+ * ```
+ * 
+ * The getter defers the read until the operation is called, by which point every
+ * module is initialized:
+ * ```ts
+ * function goodCreateOperation(fn: () => Function) {
+ *   return () => fn()();
+ * }
+ * const goodServerOperation = goodCreateOperation(() => someUserOperation);
+ * const someUserOperation = () => 1;
+ * ```
  * @template OperationDefinition The type of the unauthenticated operation's definition.
- * @param userOperation The unauthenticated operation's definition.
- * @param entities The unauthenticated operation's entity map .
+ * @param getUserOperation Returns the unauthenticated operation's definition.
+ * @param entities The unauthenticated operation's entity map.
  * @returns The server-side API for the provided unauthenticated operation.
  */
 export function createUnauthenticatedOperation<
   OperationDefinition extends GenericUnauthenticatedOperationDefinition
 >(
-  userOperation: OperationDefinition,
+  getUserOperation: () => OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
 ): UnauthenticatedOperationFor<OperationDefinition> {
   async function operation(payload: Parameters<OperationDefinition>[0]) {
-    return userOperation(payload, {
+    return getUserOperation()(payload, {
       entities,
     })
   }

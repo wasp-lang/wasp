@@ -19,6 +19,7 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import qualified Wasp.Cli.Services as Services
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
@@ -59,14 +60,8 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $
-    Msg.Info $
-      unlines
-        -- The client's URL already ends with a slash (it's the app's base
-        -- directory), so we add one to the server's to keep the pair consistent.
-        [ " ℹ Client: " ++ config.urls.client,
-          " ℹ Server: " ++ config.urls.server ++ "/"
-        ]
+  cliSendMessageC $ Msg.Info $ Services.showServiceUrls config.urls
+
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_
       (startClient config)

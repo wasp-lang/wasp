@@ -6,7 +6,7 @@ where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.PortArgument (appPortsParser)
+import Wasp.Cli.Util.PortArgument (servicePortsParser)
 import Wasp.Project.PerService (PerService (..))
 
 newtype StartArgs = StartArgs
@@ -15,4 +15,4 @@ newtype StartArgs = StartArgs
   deriving (Eq, Show)
 
 startArgsParser :: Opt.Parser StartArgs
-startArgsParser = StartArgs <$> appPortsParser
+startArgsParser = StartArgs <$> servicePortsParser
