@@ -40,6 +40,7 @@ portOption optionName helpText =
     -- that, since we have to tell the other side where this one is running.
     rejectAnyPort 0 = Opt.readerError "0 is not a valid port"
     rejectAnyPort port = return port
+
 resolveAppPorts :: PerService (Maybe PortNumber) -> Command (PerService PortNumber)
 resolveAppPorts requestedPorts = do
   let portsAreTheSame = isJust requestedPorts.client && (requestedPorts.client == requestedPorts.server)
@@ -54,6 +55,9 @@ resolveAppPorts requestedPorts = do
   resolvedServerPort <-
     resolvePort
       requestedPorts.server
+      -- We already know all ports lower than the client port are taken, so we
+      -- can start looking for a free port from the next one. This also has the
+      -- nice effect of keeping the server port close to the client port.
       (resolvedClientPort + 1)
       (catMaybes [requestedPorts.client])
 

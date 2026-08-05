@@ -16,8 +16,6 @@ import InstallInstructions from './\_install-instructions.md'
 
 This is great for using agents in parallel worktrees, as each one won't conflict with the other.
 
-Since Wasp picks the ports, it also prints the client and server URLs when it starts your app.
-
 You can also pick the ports yourself:
 
 ```bash
