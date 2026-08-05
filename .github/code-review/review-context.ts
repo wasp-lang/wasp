@@ -1,5 +1,4 @@
 import {
-  MAX_RECENT_THREAD_COMMENTS,
   MAX_REVIEW_COMMENT_LENGTH,
   MAX_REVIEW_CONTEXT_BYTES,
   REVIEW_MARKER,
@@ -7,7 +6,6 @@ import {
 import { fetchReviewSnapshot } from "./github-review-threads.ts";
 import type { GitHubOctokit } from "./github.ts";
 import {
-  PullRequestSchema,
   ReviewContextSchema,
   type Repository,
   type ReviewContext,
@@ -35,31 +33,27 @@ export async function loadReviewContext({
     }),
     fetchReviewSnapshot(octokit, repository, pullNumber),
   ]);
-  const pullRequest = PullRequestSchema.parse({
-    number: pullRequestResponse.number,
-    baseSha: pullRequestResponse.base.sha,
-    headSha: pullRequestResponse.head.sha,
-    state: pullRequestResponse.merged
-      ? "MERGED"
-      : pullRequestResponse.state.toUpperCase(),
-    isDraft: pullRequestResponse.draft ?? false,
-  });
+  const currentBaseSha = pullRequestResponse.base.sha;
+  const currentHeadSha = pullRequestResponse.head.sha;
 
   if (
-    pullRequest.baseSha !== expectedBaseSha ||
-    pullRequest.headSha !== expectedHeadSha
+    currentBaseSha !== expectedBaseSha ||
+    currentHeadSha !== expectedHeadSha
   ) {
     throw new Error(
-      `Pull request range changed from ${expectedBaseSha}...${expectedHeadSha} to ${pullRequest.baseSha}...${pullRequest.headSha}.`,
+      `Pull request range changed from ${expectedBaseSha}...${expectedHeadSha} to ${currentBaseSha}...${currentHeadSha}.`,
     );
   }
-  if (pullRequest.state !== "OPEN" || pullRequest.isDraft) {
+  if (
+    pullRequestResponse.state !== "open" ||
+    pullRequestResponse.merged ||
+    pullRequestResponse.draft
+  ) {
     throw new Error(`Pull request #${pullNumber} is not ready for review.`);
   }
 
   return ReviewContextSchema.parse({
-    repository,
-    pullRequest,
+    reviewedHeadSha: currentHeadSha,
     reviewerLogin: reviewSnapshot.reviewerLogin,
     reviewThreads: selectCodeReviewThreads(
       reviewSnapshot.reviewThreads,
@@ -86,7 +80,7 @@ export function serializeReviewContextForCodex(
     ...reviewContext,
     reviewThreads: reviewContext.reviewThreads.map((thread) => ({
       ...thread,
-      comments: selectContextComments(thread).map((comment) => ({
+      comments: thread.comments.map((comment) => ({
         ...comment,
         body: truncateComment(comment.body),
       })),
@@ -102,16 +96,6 @@ export function serializeReviewContextForCodex(
   }
 
   return serializedContext;
-}
-
-function selectContextComments(thread: ReviewThread) {
-  if (thread.isResolved) return thread.comments.slice(0, 1);
-
-  const [firstComment, ...remainingComments] = thread.comments;
-  return [
-    ...(firstComment ? [firstComment] : []),
-    ...remainingComments.slice(-MAX_RECENT_THREAD_COMMENTS),
-  ];
 }
 
 function truncateComment(body: string): string {

@@ -34,7 +34,7 @@ export function buildPublicationPlan({
   for (const finding of codexReview.newFindings) {
     if (!isFindingOnChangedLines(finding, parsedDiff)) {
       throw new Error(
-        `Finding "${finding.title}" is not anchored to changed lines in ${finding.path}.`,
+        `Finding is not anchored to changed lines in ${finding.path}.`,
       );
     }
   }
@@ -45,7 +45,7 @@ export function buildPublicationPlan({
   const newFindings = codexReview.newFindings.filter((finding) => {
     const fingerprint = fingerprintFinding(
       finding,
-      reviewContext.pullRequest.headSha,
+      reviewContext.reviewedHeadSha,
     );
     if (existingFingerprints.has(fingerprint)) return false;
     existingFingerprints.add(fingerprint);
@@ -53,7 +53,7 @@ export function buildPublicationPlan({
   });
 
   return {
-    reviewedHeadSha: reviewContext.pullRequest.headSha,
+    reviewedHeadSha: reviewContext.reviewedHeadSha,
     newFindings,
     threadsToResolve: currentThreadResolutions,
   };
@@ -68,7 +68,7 @@ export function fingerprintFinding(
     path: finding.path,
     startLine: finding.startLine,
     endLine: finding.endLine,
-    title: finding.title.trim().toLocaleLowerCase("en-US"),
+    body: finding.body.trim().toLocaleLowerCase("en-US"),
   });
   return crypto.createHash("sha256").update(identity).digest("hex");
 }
