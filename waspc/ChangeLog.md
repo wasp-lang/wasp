@@ -5,13 +5,15 @@
 ### ⚠️ Breaking Changes
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 
 ### 🎉 New Features
 
-- Added a `wasp show` command. `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. With `--json`, it prints the full evaluated app spec as JSON, for scripts and AI tools. `wasp show build` prints information about your app's current build, and also supports `--json`. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
+- Added a `wasp show spec` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. With `--json`, it prints the full evaluated app spec as JSON, for scripts and AI tools. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 
 ### 🔧 Small improvements
 
+- Added a `wasp show build` command that prints information about your app's current build: build type, generation time, generating Wasp version, and project dir size. With `--json`, it prints the same information as JSON. ([#4623](https://github.com/wasp-lang/wasp/pull/4623))
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))

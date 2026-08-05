@@ -22,7 +22,7 @@ COMMANDS
            Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
-    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).
+    doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
@@ -41,7 +41,6 @@ COMMANDS
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
-    info                  Prints basic information about the current Wasp project.
     show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
                           With --json, prints the full evaluated app spec as JSON.
     show build [--json]   Prints information about your app's current build.
@@ -149,7 +148,6 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
 ```
 - `wasp deps` lists the dependencies that Wasp uses in your project.
-- `wasp info` provides basic details about the current Wasp project.
 - `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs.
 
   With the `--json` flag, it instead prints the full evaluated app spec as JSON, which is handy for scripts and AI tools. The JSON schema follows Wasp's internal spec format and may change between Wasp versions.

@@ -13,7 +13,7 @@ waspShowTest =
         (return [waspCliShowFails]),
       TestCase
         "fail-outside-project"
-        (return [waspCliShowSpecFails]),
+        (return [waspCliShowSpecFails, waspCliShowBuildFails]),
       TestCase
         "succeed-inside-project"
         ( sequence
@@ -33,3 +33,6 @@ waspShowTest =
 
     waspCliShowSpecFails :: ShellCommand
     waspCliShowSpecFails = "! $WASP_CLI_CMD show spec"
+
+    waspCliShowBuildFails :: ShellCommand
+    waspCliShowBuildFails = "! $WASP_CLI_CMD show build"

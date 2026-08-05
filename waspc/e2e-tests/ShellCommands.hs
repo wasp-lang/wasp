@@ -34,7 +34,6 @@ module ShellCommands
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
-    waspCliInfo,
     waspCliShowSpec,
     waspCliShowSpecJson,
     waspCliShowBuild,
@@ -234,9 +233,6 @@ waspCliDbReset =
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"
-
-waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInfo = return "$WASP_CLI_CMD info"
 
 waspCliShowSpec :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliShowSpec = return "$WASP_CLI_CMD show spec"

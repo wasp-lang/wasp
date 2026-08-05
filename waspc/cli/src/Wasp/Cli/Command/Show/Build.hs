@@ -6,14 +6,17 @@ where
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath ((</>))
+import StrongPath (Abs, Dir, Path', (</>))
+import qualified StrongPath as SP
+import System.Directory (getFileSize)
 import Wasp.AppSpec.Core.Inspectable (InspectionDatapoint, InspectionEntry (InspectionEntry))
 import Wasp.Cli.Command (Command, require)
-import Wasp.Cli.Command.Common (readDirectorySizeMB)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 import qualified Wasp.Generator.WaspInfo as WI
+import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
+import qualified Wasp.Util.IO as IOUtil
 
 -- | Shows information about the project's current build: as a human-readable
 -- overview by default, or as JSON with --json.
@@ -42,6 +45,11 @@ getBuildInfo = do
       waspDir
         </> Project.Common.dotWaspDirInWaspProjectDir
         </> Project.Common.generatedAppDirInDotWaspDir
+
+readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
+readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> allFileSizes
+  where
+    allFileSizes = IOUtil.listDirectoryDeep path >>= mapM (getFileSize . SP.fromRelFile)
 
 buildAsEntries :: BuildInfo -> [InspectionEntry]
 buildAsEntries (waspInfoOrError, projectDirSize) =
