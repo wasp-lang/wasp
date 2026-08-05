@@ -122,23 +122,20 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
 
-  maybeRunningDb <- liftIO $ Dev.Postgres.discoverDevDb waspProjectDir appName
-  case maybeRunningDb of
+  liftIO (Dev.Postgres.discoverDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunning runningDb
     Nothing -> do
       maybeFreePort <- liftIO $ Socket.findFirstFreeLocalPort candidatePorts
       maybe throwNoFreePortError startDbOnPort maybeFreePort
   where
-    -- We scan sequentially from the default port so that behavior is predictable:
-    -- a lone Wasp app on a machine with a free 5432 always gets 5432.
-    candidatePorts = take numOfPortsToScan [Dev.Postgres.defaultDevPort ..]
-    numOfPortsToScan = 20
-
     noteDbIsAlreadyRunning :: Dev.Postgres.DevDbInfo -> Command ()
     noteDbIsAlreadyRunning devDbInfo =
       cliSendMessageC . Msg.Info . unlines $
-        "Your PostgreSQL dev database is already running."
+        ("Your PostgreSQL dev database is already running on port " ++ show devDbInfo.port ++ ".")
           : devDbAdditionalInfoLines devDbInfo
+
+    candidatePorts = take numOfPortsToScan [Dev.Postgres.defaultDevPort ..]
+    numOfPortsToScan = 20
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
