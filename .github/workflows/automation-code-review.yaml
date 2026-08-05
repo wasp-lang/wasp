@@ -10,6 +10,9 @@ concurrency:
   group: code-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+env:
+  CODE_REVIEW_MODEL: gpt-5.6-sol
+
 jobs:
   review:
     name: Review pull request
@@ -62,7 +65,7 @@ jobs:
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           codex-version: 0.145.0
-          model: gpt-5.6-sol
+          model: ${{ env.CODE_REVIEW_MODEL }}
           effort: high
           permission-profile: ":read-only"
           safety-strategy: drop-sudo
@@ -100,6 +103,7 @@ jobs:
       - name: Publish review lifecycle
         env:
           CODEX_REVIEW_JSON: ${{ needs.review.outputs.review }}
+          CODEX_MODEL: ${{ env.CODE_REVIEW_MODEL }}
           EXPECTED_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           GH_TOKEN: ${{ github.token }}

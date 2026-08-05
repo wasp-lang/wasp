@@ -31,8 +31,9 @@ test("reports comments, resolutions, files, and suggestions", () => {
       reviewedHeadSha,
       publishedFindings,
       resolvedThreadCount: 1,
+      modelUsed: "gpt-5.6-sol",
     }),
-    `${REVIEW_SUMMARY_MARKER}\n## Latest code review status\n\nPosted **2 comments** and resolved **1 thread**. Comments cover **1 file** and include **2 suggested changes**.\n\nReviewed commit [\`aaaaaaa\`](${commitUrl}).\n`,
+    `${REVIEW_SUMMARY_MARKER}\n## Latest code review status\n\nPosted **2 comments** and resolved **1 thread**. Comments cover **1 file** and include **2 suggested changes**.\n\nModel used: \`gpt-5.6-sol\`.\n\nReviewed commit [\`aaaaaaa\`](${commitUrl}).\n`,
   );
 });
 
@@ -43,7 +44,8 @@ test("omits empty activity details", () => {
       reviewedHeadSha,
       publishedFindings: [],
       resolvedThreadCount: 0,
+      modelUsed: "gpt-5.6-sol",
     }),
-    `${REVIEW_SUMMARY_MARKER}\n## Latest code review status\n\nNo new comments or thread updates.\n\nReviewed commit [\`aaaaaaa\`](${commitUrl}).\n`,
+    `${REVIEW_SUMMARY_MARKER}\n## Latest code review status\n\nNo new comments or thread updates.\n\nModel used: \`gpt-5.6-sol\`.\n\nReviewed commit [\`aaaaaaa\`](${commitUrl}).\n`,
   );
 });

@@ -23,6 +23,7 @@ export async function publishCodeReview({
   expectedBaseSha,
   expectedHeadSha,
   pullRequestDiff,
+  modelUsed,
   codexReview,
 }: {
   octokit: GitHubOctokit;
@@ -31,6 +32,7 @@ export async function publishCodeReview({
   expectedBaseSha: string;
   expectedHeadSha: string;
   pullRequestDiff: string;
+  modelUsed: string;
   codexReview: CodexReview;
 }): Promise<void> {
   const reviewContext = await loadReviewContext({
@@ -65,6 +67,7 @@ export async function publishCodeReview({
     reviewerLogin: reviewContext.reviewerLogin,
     publicationPlan,
     resolvedThreadCount,
+    modelUsed,
   });
 }
 
@@ -157,6 +160,7 @@ async function createOrUpdateReviewSummary({
   reviewerLogin,
   publicationPlan,
   resolvedThreadCount,
+  modelUsed,
 }: {
   octokit: GitHubOctokit;
   repository: Repository;
@@ -164,6 +168,7 @@ async function createOrUpdateReviewSummary({
   reviewerLogin: string;
   publicationPlan: PublicationPlan;
   resolvedThreadCount: number;
+  modelUsed: string;
 }): Promise<void> {
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
     owner: repository.owner,
@@ -181,6 +186,7 @@ async function createOrUpdateReviewSummary({
     reviewedHeadSha: publicationPlan.reviewedHeadSha,
     publishedFindings: publicationPlan.newFindings,
     resolvedThreadCount,
+    modelUsed,
   });
 
   if (existingSummary) {
@@ -205,11 +211,13 @@ export function formatReviewSummary({
   reviewedHeadSha,
   publishedFindings,
   resolvedThreadCount,
+  modelUsed,
 }: {
   repository: Repository;
   reviewedHeadSha: string;
   publishedFindings: NewFinding[];
   resolvedThreadCount: number;
+  modelUsed: string;
 }): string {
   const postedCommentCount = publishedFindings.length;
   const commentedFileCount = new Set(publishedFindings.map(({ path }) => path))
@@ -242,6 +250,8 @@ export function formatReviewSummary({
 ## Latest code review status
 
 ${activity.length === 0 ? "No new comments or thread updates." : `${activity.join(" and ")}.`}${commentDetails}
+
+Model used: \`${modelUsed}\`.
 
 Reviewed commit [\`${shortSha}\`](${commitUrl}).
 `;

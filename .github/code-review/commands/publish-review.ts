@@ -9,6 +9,7 @@ import {
 } from "../schema.ts";
 
 const EnvironmentSchema = z.object({
+  CODEX_MODEL: z.string().min(1),
   CODEX_REVIEW_JSON: z.string().min(1),
   EXPECTED_BASE_SHA: GitShaSchema,
   EXPECTED_HEAD_SHA: GitShaSchema,
@@ -38,6 +39,7 @@ await publishCodeReview({
   expectedBaseSha: environment.EXPECTED_BASE_SHA,
   expectedHeadSha: environment.EXPECTED_HEAD_SHA,
   pullRequestDiff,
+  modelUsed: environment.CODEX_MODEL,
   codexReview: CodexOutputSchema.parse(
     JSON.parse(environment.CODEX_REVIEW_JSON) as unknown,
   ),
