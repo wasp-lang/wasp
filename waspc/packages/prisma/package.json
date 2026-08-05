@@ -11,7 +11,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc",
     "format": "npm start format",
     "test": "vitest run",
     "test:watch": "vitest"
