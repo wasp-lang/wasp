@@ -7,6 +7,7 @@ import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
+import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
@@ -28,7 +29,6 @@ import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
-import Wasp.Util (whenM)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Network.Socket as Socket
 
@@ -121,42 +121,54 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
-  throwIfDevDbPortIsAlreadyInUse
 
-  cliSendMessageC . Msg.Info $
-    unlines
-      [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
-        "",
+  maybeRunningDb <- liftIO $ Dev.Postgres.discoverDevDb waspProjectDir appName
+  case maybeRunningDb of
+    Just runningDb -> noteDbIsAlreadyRunning runningDb
+    Nothing -> do
+      maybeFreePort <- liftIO $ Socket.findFirstFreeLocalPort candidatePorts
+      maybe throwNoFreePortError startDbOnPort maybeFreePort
+  where
+    -- We scan sequentially from the default port so that behavior is predictable:
+    -- a lone Wasp app on a machine with a free 5432 always gets 5432.
+    candidatePorts = take numOfPortsToScan [Dev.Postgres.defaultDevPort ..]
+    numOfPortsToScan = 20
+
+    noteDbIsAlreadyRunning :: Dev.Postgres.DevDbInfo -> Command ()
+    noteDbIsAlreadyRunning devDbInfo =
+      cliSendMessageC . Msg.Info . unlines $
+        "Your PostgreSQL dev database is already running."
+          : devDbAdditionalInfoLines devDbInfo
+
+    startDbOnPort :: PortNumber -> Command ()
+    startDbOnPort port = do
+      let devDbInfo = Dev.Postgres.makeDevPostgresDb waspProjectDir appName port
+      cliSendMessageC . Msg.Info . unlines $
+        "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
+          : devDbAdditionalInfoLines devDbInfo
+      cliSendMessageC $ Msg.Info "..."
+      liftIO $ Dev.Postgres.runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath
+
+    devDbAdditionalInfoLines :: Dev.Postgres.DevDbInfo -> [String]
+    devDbAdditionalInfoLines devDbInfo =
+      [ "",
         "Additional info:",
         " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> devPostgresDb.connectionUrl,
+        "     " <> devDbInfo.connectionUrl,
         " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
-        "     " <> devPostgresDb.dockerVolumeName
+        "     " <> devDbInfo.dockerVolumeName
       ]
 
-  cliSendMessageC $ Msg.Info "..."
-
-  liftIO $ Dev.Postgres.runDevPostgresDb devPostgresDb
-  where
-    devPostgresDb = Dev.Postgres.makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath
-
-    throwIfDevDbPortIsAlreadyInUse :: Command ()
-    throwIfDevDbPortIsAlreadyInUse = do
-      -- We check both conditions because of Docker having virtual network on Mac which
-      -- always gives precedence to native ports so checking only if we can open the port is
-      -- not enough because we can open it even if Docker container is already bound to that port.
-      whenM (liftIO $ Socket.checkIfPortIsInUse devDbSocketAddress) throwPortAlreadyInUseError
-      whenM (liftIO $ Socket.checkIfPortIsAcceptingConnections devDbSocketAddress) throwPortAlreadyInUseError
-      where
-        devDbSocketAddress = Socket.makeLocalHostSocketAddress $ fromIntegral Dev.Postgres.defaultDevPort
-        throwPortAlreadyInUseError =
-          E.throwError $
-            CommandError
-              "Port already in use"
-              ( printf
-                  "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
-                  Dev.Postgres.defaultDevPort
-              )
+    throwNoFreePortError :: Command ()
+    throwNoFreePortError =
+      E.throwError $
+        CommandError
+          "No free port"
+          ( printf
+              "Wasp can't run PostgreSQL dev database for you since all ports from %s to %s are already in use."
+              (show Dev.Postgres.defaultDevPort)
+              (show $ Dev.Postgres.defaultDevPort + fromIntegral numOfPortsToScan - 1)
+          )

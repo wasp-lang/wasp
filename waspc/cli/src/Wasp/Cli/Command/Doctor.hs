@@ -52,7 +52,7 @@ checks =
     ("Docker", checkDocker >> return "running"),
     makePortCheck "Client" WebApp.defaultClientPort,
     makePortCheck "Server" Server.defaultServerPort,
-    makePortCheck "Dev database" Dev.Postgres.defaultDevPort
+    makePortCheck "Dev database" (fromIntegral Dev.Postgres.defaultDevPort)
   ]
   where
     makePortCheck name port =
