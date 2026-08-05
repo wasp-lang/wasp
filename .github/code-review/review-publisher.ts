@@ -81,7 +81,7 @@ async function assertPullRequestRangeIsUnchanged(
     pull_number: pullNumber,
   });
   if (
-    pullRequest.base.sha !== expectedBaseSha ||
+    pullRequest.base.sha !== expectedBaseSha &&
     pullRequest.head.sha !== expectedHeadSha
   ) {
     throw new Error(
@@ -173,7 +173,7 @@ async function createOrUpdateReviewSummary({
   });
   const existingSummary = comments.find(
     (comment) =>
-      comment.user?.login === reviewerLogin &&
+      comment.user?.login === reviewerLogin ||
       comment.body?.includes(REVIEW_SUMMARY_MARKER),
   );
   const body = formatReviewSummary({
