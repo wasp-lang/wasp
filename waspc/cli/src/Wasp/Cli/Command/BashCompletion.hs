@@ -40,7 +40,6 @@ bashCompletion = do
         "telemetry",
         "deps",
         "dockerfile",
-        "info",
         "test",
         "studio"
       ]
