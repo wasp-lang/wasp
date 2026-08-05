@@ -32,8 +32,8 @@ clientDevPortEnvVarName = "PORT"
 getDevClientUrl :: AppSpec -> PortNumber -> String
 getDevClientUrl spec port = "http://localhost:" ++ show port ++ SP.fromAbsDirP (getBaseDir spec)
 
-getDevClientEnvVars :: PerService (PortNumber, String) -> [EnvVar]
-getDevClientEnvVars (PerService {client = (clientPort, _), server = (_, serverUrl)}) =
+getDevClientEnvVars :: PortNumber -> PerService String -> [EnvVar]
+getDevClientEnvVars clientPort urls =
   [ (clientDevPortEnvVarName, show clientPort),
-    (serverUrlEnvVarName, serverUrl)
+    (serverUrlEnvVarName, urls.server)
   ]
