@@ -84,26 +84,12 @@ export const CodexOutputSchema = z.strictObject({
     .describe("Up to five meaningful issues not covered by existing threads."),
 });
 
-export const ReviewSchema = CodexOutputSchema.superRefine(
-  ({ newFindings }, context) => {
-    newFindings.forEach((finding, index) => {
-      if (finding.endLine < finding.startLine) {
-        context.addIssue({
-          code: "custom",
-          path: ["newFindings", index, "endLine"],
-          message: "End line must not precede start line.",
-        });
-      }
-    });
-  },
-);
-
 export type Repository = z.infer<typeof RepositorySchema>;
 export type ReviewThread = z.infer<typeof ReviewThreadSchema>;
 export type ReviewContext = z.infer<typeof ReviewContextSchema>;
 export type NewFinding = z.infer<typeof NewFindingSchema>;
 export type ThreadResolution = z.infer<typeof ThreadResolutionSchema>;
-export type CodexReview = z.infer<typeof ReviewSchema>;
+export type CodexReview = z.infer<typeof CodexOutputSchema>;
 export type PublicationPlan = {
   reviewedHeadSha: string;
   newFindings: NewFinding[];

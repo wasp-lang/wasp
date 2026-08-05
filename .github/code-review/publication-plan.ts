@@ -68,7 +68,7 @@ export function fingerprintFinding(
     path: finding.path,
     startLine: finding.startLine,
     endLine: finding.endLine,
-    body: finding.body.trim().toLocaleLowerCase("en-US"),
+    body: finding.body,
   });
   return crypto.createHash("sha256").update(identity).digest("hex");
 }
