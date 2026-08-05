@@ -45,6 +45,17 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Enjoy your updated Wasp app
+### 2. Recreate your dev database
+
+The database started by `wasp db start` now uses a password unique to your project, instead of a hardcoded value shared by all Wasp apps. This prevents one Wasp app from accidentally connecting to another app's dev database.
+
+Existing dev databases were initialized with the old password and won't accept the new one, so if you use `wasp db start`, you'll need to recreate your dev database:
+
+1. Delete its Docker volume with `docker volume rm <volume-name>`. You can find the volume name in the output of `wasp db start`, or by looking for a name starting with `wasp-dev-db-` in `docker volume ls`.
+2. Run `wasp db start` to create a fresh database, and apply your migrations and seeds as usual.
+
+Note that this deletes your dev database's data. Your production database is not affected.
+
+### 3. Enjoy your updated Wasp app
 
 That's it!

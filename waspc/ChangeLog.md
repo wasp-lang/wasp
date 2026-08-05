@@ -5,6 +5,7 @@
 ### ⚠️ Breaking Changes
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- The dev database started by `wasp db start` now uses a password unique to your project instead of a hardcoded one, so one Wasp app can no longer accidentally connect to another Wasp app's dev database. Existing dev databases were initialized with the old password and won't accept the new one, so you'll need to recreate yours: delete its Docker volume with `docker volume rm <volume-name>` (`wasp db start` prints the volume name) and run `wasp db start` again. ([#4572](https://github.com/wasp-lang/wasp/issues/4572))
 
 ### 🔧 Small improvements
 
