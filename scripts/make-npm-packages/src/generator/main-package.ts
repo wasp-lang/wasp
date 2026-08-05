@@ -1,7 +1,11 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { TEMPLATES_DIR, copyStaticFiles } from "../common.ts";
+import {
+  RUNNABLE_PACKAGE_NAMES,
+  TEMPLATES_DIR,
+  copyStaticFiles,
+} from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
@@ -62,6 +66,11 @@ function generatePackageJson(
 
   pkg.name = packageName;
   pkg.version = packageVersion;
+
+  pkg.dependencies ??= {};
+  for (const runnablePkgName of RUNNABLE_PACKAGE_NAMES) {
+    pkg.dependencies[runnablePkgName] = packageVersion;
+  }
 
   pkg.optionalDependencies = {};
   for (const subPkgName of subPackages) {

@@ -2,7 +2,11 @@ import { execaSync } from "execa";
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { TEMPLATES_DIR, copyStaticFiles } from "../common.ts";
+import {
+  RUNNABLE_PACKAGE_NAMES,
+  TEMPLATES_DIR,
+  copyStaticFiles,
+} from "../common.ts";
 import type { NpmTarget } from "../schema/input-data.ts";
 import { UNDEFINED_LIBC_NAME } from "../schema/output-data.ts";
 import type { Path } from "../schema/util.ts";
@@ -75,6 +79,11 @@ function generatePackageJson(
     [`__internal_wasp-${target.os}-${target.cpu}-${target.libc ?? UNDEFINED_LIBC_NAME}`]:
       "wasp-bin",
   };
+
+  pkg.peerDependencies ??= {};
+  for (const runnablePkgName of RUNNABLE_PACKAGE_NAMES) {
+    pkg.peerDependencies[runnablePkgName] = packageVersion;
+  }
 
   console.log("Filled out package.json fields");
   console.groupEnd();
