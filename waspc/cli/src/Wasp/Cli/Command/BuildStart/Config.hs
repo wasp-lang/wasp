@@ -17,10 +17,10 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
+import Wasp.Cli.Services (devEnvVars)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Cli.Util.Services (getWaspEnvVars)
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
@@ -41,7 +41,7 @@ makeBuildStartConfig appSpec args projectDir' = do
   userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envInputs
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspEnvVars = getWaspEnvVars appSpec
+  let waspEnvVars = devEnvVars appSpec
 
   envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
 
@@ -59,11 +59,11 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
-    -- NOTE(carlos): For now, this port (and the URLs inside 'getWaspEnvVars') uses
+    -- NOTE(carlos): For now, this port (and the URLs inside 'devEnvVars') uses
     -- the default values we've hardcoded in the generator. In the future, we might
     -- want to make these configurable via the Wasp app spec or command line arguments.
 
-    -- This assumes that the client URL in 'getWaspEnvVars' uses `defaultClientPort`
+    -- This assumes that the client URL in 'devEnvVars' uses `defaultClientPort`
     -- internally. If that changes, we also need to change this.
     clientPort' = defaultClientPort
 
