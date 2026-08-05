@@ -23,6 +23,7 @@ export function discoverSubDirs(baseDirPath: string): string[] {
 export function getPackageJson(dir: string): {
   name: string;
   version: string;
+  private?: boolean;
   scripts?: Record<string, string>;
 } {
   const packageJsonPath = join(dir, "package.json");

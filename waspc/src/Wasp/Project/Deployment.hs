@@ -28,7 +28,7 @@ deploy ::
   IO (Either String ())
 deploy waspExe waspDir cmdArgs = do
   let deployScriptArgs = concat [cmdArgs, ["--wasp-exe", waspExe, "--wasp-project-dir", toFilePath waspDir]]
-  cp <- getPackageProcessOptions DeployPackage deployScriptArgs
+  let cp = getPackageProcessOptions DeployPackage deployScriptArgs
   -- Set up the process so that it:
   -- - Inherits handles from the waspc process (it will print and read from stdin/out/err)
   -- - Delegates Ctrl+C: when waspc receives Ctrl+C while this process is running,

@@ -167,7 +167,7 @@ print_usage() {
   print_usage_cmd "build:hs" \
     "Builds the Haskell project only. Run with the \`BUILD_STATIC=1\` env to build statically."
   print_usage_cmd "build:packages" \
-    "Builds the TypeScript projects under data/packages/."
+    "Builds the TypeScript projects under packages/."
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under data/Generator/libs/."
   echo ""

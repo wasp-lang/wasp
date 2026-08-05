@@ -15,7 +15,7 @@ startStudio ::
 startStudio pathToDataFile = do
   let startStudioArgs = ["--data-file", pathToDataFile]
 
-  cp <- getPackageProcessOptions WaspStudioPackage startStudioArgs
+  let cp = getPackageProcessOptions WaspStudioPackage startStudioArgs
   -- Set up the process so that it:
   -- - Inherits handles from the waspc process (it will print and read from stdin/out/err)
   -- - Delegates Ctrl+C: when waspc receives Ctrl+C while this process is running,

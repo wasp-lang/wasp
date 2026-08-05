@@ -25,7 +25,7 @@ import Wasp.Util.Aeson (decodeFromString)
 -- It works even for a prisma schema that has only model declarations!
 prismaFormat :: Text -> IO PrismaFormatResult
 prismaFormat prismaSchema = do
-  cp <- WP.getPackageProcessOptions WP.PrismaPackage ["format"]
+  let cp = WP.getPackageProcessOptions WP.PrismaPackage ["format"]
   (exitCode, response, stderr) <- P.readCreateProcessWithExitCode cp $ T.unpack prismaSchema
   case exitCode of
     ExitSuccess ->

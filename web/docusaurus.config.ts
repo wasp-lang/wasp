@@ -319,7 +319,7 @@ const config: Config = {
 
         // input packages
         entryPointStrategy: "packages",
-        entryPoints: ["../waspc/data/packages/spec"],
+        entryPoints: ["../waspc/packages/spec"],
 
         // If you want to set an option to a specific package, you can create a
         // `typedoc.jsonc` file in that package's folder with the desired

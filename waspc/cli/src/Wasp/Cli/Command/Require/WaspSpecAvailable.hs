@@ -9,7 +9,7 @@ import Data.Data (Typeable)
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
+import Wasp.NodePackageFFI (tryGettingInstalledWaspSpecVersion)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
@@ -27,7 +27,7 @@ instance Requirable WaspSpecAvailable where
     return WaspSpecAvailable
     where
       ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
-        liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage) >>= \case
+        liftIO (tryGettingInstalledWaspSpecVersion waspProjectDir) >>= \case
           Left _ -> throwError missingDepsError
           Right installedWaspSpecVersion
             | installedWaspSpecVersion == WV.waspVersion -> return ()

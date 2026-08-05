@@ -16,10 +16,12 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-tools
 
+      # The packages are npm workspaces of `waspc/`, so the install has to
+      # happen at the workspace root.
       - name: Install @wasp.sh/spec dependencies
-        working-directory: waspc/data/packages/spec
+        working-directory: waspc
         run: npm ci
 
       - name: Run @wasp.sh/spec tests
-        working-directory: waspc/data/packages/spec
+        working-directory: waspc/packages/spec
         run: npm run test

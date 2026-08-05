@@ -36,7 +36,7 @@ import Wasp.NodePackageFFI (RunnablePackage (TsInspectPackage), getPackageProces
 getExportsOfTsFiles :: [TsExportsRequest] -> IO (Either String TsExportsResponse)
 getExportsOfTsFiles requests = do
   let requestJSON = BS.toString $ encode $ groupExportRequestsByTsconfig requests
-  cp <- getPackageProcessOptions TsInspectPackage []
+  let cp = getPackageProcessOptions TsInspectPackage []
   (exitCode, response, err) <- P.readCreateProcessWithExitCode cp requestJSON
   case exitCode of
     ExitSuccess -> case decode $ BS.fromString response of

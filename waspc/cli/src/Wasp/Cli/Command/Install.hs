@@ -12,10 +12,9 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
--- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
+-- | Standalone `wasp install` command: runs npm install in the user's project.
 install :: Command ()
 install = do
   ValidNodeAndNpm <- require
@@ -27,6 +26,5 @@ install = do
 
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do
-  ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
   messageChan <- newChan
   installProjectNpmDependencies messageChan waspProjectDir

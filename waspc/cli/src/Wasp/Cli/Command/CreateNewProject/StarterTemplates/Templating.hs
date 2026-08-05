@@ -9,15 +9,12 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), NewProjectName)
-import Wasp.NodePackageFFI
-  ( InstallablePackage (WaspSpecPackage),
-    getPackageJsonSpecifierForPackage,
-  )
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util (camelToKebabCase)
 import qualified Wasp.Util.IO as IOUtil
+import qualified Wasp.Version as WV
 
 replaceTemplatePlaceholdersInTemplateFiles :: NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInTemplateFiles appName projectName projectDir = do
@@ -50,7 +47,10 @@ replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
 replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
-  let waspSpecPackageSpecifier = getPackageJsonSpecifierForPackage WaspSpecPackage
+  -- We pin `@wasp.sh/spec` to this CLI's exact version, because the CLI refuses
+  -- to run against a project with any other version of it installed. See
+  -- 'Wasp.Cli.Command.Require.WaspSpecAvailable'.
+  let waspSpecPackageSpecifier = show WV.waspVersion
   let waspTemplateReplacements =
         [ ("__waspSpecPackageSpecifier__", waspSpecPackageSpecifier),
           ("__waspAppName__", show appName),

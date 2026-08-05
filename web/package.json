@@ -12,7 +12,7 @@
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
-    "install-spec-package": "npm install --prefix ../waspc/data/packages/spec",
+    "install-spec-package": "cd ../waspc && npm install",
     "markdown-snapshots:check": "node ./scripts/markdown-snapshots.mts check",
     "markdown-snapshots:update": "node ./scripts/markdown-snapshots.mts update",
     "remark": "remark",

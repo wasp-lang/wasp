@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
-    "directory": "waspc/data/packages/spec"
+    "directory": "waspc/packages/spec"
   },
   "homepage": "https://wasp.sh/",
   "bugs": {

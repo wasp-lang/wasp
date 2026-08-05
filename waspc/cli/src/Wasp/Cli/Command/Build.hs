@@ -25,7 +25,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
+import Wasp.NodePackageFFI (waspSpecPackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -121,11 +121,10 @@ build = do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
-      -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
-      -- We strip `@wasp.sh/spec` from the build's `devDependencies` so that Docker's
-      -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
-      -- and proceeds without trying to resolve the missing `file:` path.
+      -- `@wasp.sh/spec` is only needed to typecheck the user's `*.wasp.ts` files,
+      -- which already happened by the time we get here. We strip it from the
+      -- build's `devDependencies` so that Docker's `npm install` doesn't have to
+      -- download it.
       --
       -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
       -- The proper fix(es) are tracked in:
@@ -143,9 +142,6 @@ build = do
     removeWaspSpecFromDevDependencies :: Value -> Value
     removeWaspSpecFromDevDependencies original =
       original & key "devDependencies" . _Object . at (Key.fromString waspSpecPackageName) .~ Nothing
-
-    waspSpecPackageName :: String
-    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
