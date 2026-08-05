@@ -50,9 +50,9 @@ Avoid: "The conjunction weakens the range invariant and permits stale review
 publication."
 
 Set \`suggestion\` only when you can provide the complete, safe replacement for
-the selected lines. Return raw replacement code without Markdown fences;
-otherwise use null. Keep the summary to one sentence and follow the output
-schema.
+the selected lines. Preserve their exact leading indentation. Return raw
+replacement code without Markdown fences; otherwise use null. Follow the
+output schema.
 `;
 
 fs.writeFileSync(new URL("../review-prompt.md", import.meta.url), prompt);

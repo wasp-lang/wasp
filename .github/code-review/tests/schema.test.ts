@@ -3,7 +3,6 @@ import test from "node:test";
 import { ReviewSchema } from "../schema.ts";
 
 const validReview = {
-  summary: "No issues found.",
   threadsToResolve: [],
   newFindings: [
     {
@@ -53,4 +52,15 @@ test("rejects duplicate resolutions for an existing thread", () => {
       ],
     }),
   );
+});
+
+test("preserves code suggestion indentation", () => {
+  const review = ReviewSchema.parse({
+    ...validReview,
+    newFindings: [
+      { ...validReview.newFindings[0], suggestion: "  const value = true;" },
+    ],
+  });
+
+  assert.equal(review.newFindings[0].suggestion, "  const value = true;");
 });
