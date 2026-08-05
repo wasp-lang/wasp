@@ -54,25 +54,6 @@ data-files:
   Lsp/templates/**/*.js
   Lsp/templates/**/*.jsx
   Lsp/templates/**/*.ts
-  packages/deploy/dist/**/*.js
-  packages/deploy/package-lock.json
-  packages/deploy/package.json
-  packages/prisma/dist/**/*.js
-  packages/prisma/package-lock.json
-  packages/prisma/package.json
-  packages/spec/dist/**/*.d.ts
-  packages/spec/dist/**/*.js
-  packages/spec/dist/**/*.map
-  packages/spec/package-lock.json
-  packages/spec/package.json
-  packages/studio/dist/**/*.css
-  packages/studio/dist/**/*.html
-  packages/studio/dist/**/*.js
-  packages/studio/package-lock.json
-  packages/studio/package.json
-  packages/ts-inspect/dist/**/*.js
-  packages/ts-inspect/package-lock.json
-  packages/ts-inspect/package.json
 
 data-dir: data/
 
