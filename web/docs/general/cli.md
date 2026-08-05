@@ -41,6 +41,7 @@ COMMANDS
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
+    show build [--json]   Prints information about your app's current build.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
@@ -145,6 +146,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
 ```
 - `wasp deps` lists the dependencies that Wasp uses in your project.
+- `wasp show build` prints information about your app's current build: when it was last compiled and how big the project directory is. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 ### Database Commands

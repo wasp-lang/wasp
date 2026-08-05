@@ -34,6 +34,8 @@ module ShellCommands
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
+    waspCliShowBuild,
+    waspCliShowBuildJson,
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
@@ -229,6 +231,31 @@ waspCliDbReset =
 
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"
+
+waspCliShowBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuild = return "$WASP_CLI_CMD show build"
+
+-- | Runs `wasp show build --json` and asserts that stdout alone is valid JSON
+-- with the expected {lastCompile, projectDirSize} envelope, where lastCompile
+-- is null (no build yet) or a {buildType, generatedAt, waspVersion} object.
+waspCliShowBuildJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuildJson =
+  return $
+    "$WASP_CLI_CMD show build --json"
+      ~| ( "node -e \""
+             ++ "let d = '';"
+             ++ " process.stdin.on('data', (c) => (d += c));"
+             ++ " process.stdin.on('end', () => {"
+             ++ " const s = JSON.parse(d);"
+             ++ " const lastCompileOk ="
+             ++ " s.lastCompile === null ||"
+             ++ " (typeof s.lastCompile === 'object' &&"
+             ++ " typeof s.lastCompile.buildType === 'string' &&"
+             ++ " typeof s.lastCompile.generatedAt === 'string' &&"
+             ++ " typeof s.lastCompile.waspVersion === 'string');"
+             ++ " if (!lastCompileOk || typeof s.projectDirSize !== 'string') process.exit(1);"
+             ++ " });\""
+         )
 
 waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDeps = return "$WASP_CLI_CMD deps"
