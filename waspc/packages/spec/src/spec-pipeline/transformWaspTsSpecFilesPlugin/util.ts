@@ -9,8 +9,11 @@ export const PUBLIC_REF_HELPER_IMPORT_NAME = "ref";
 export const INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE = "@wasp.sh/spec/internal";
 export const INTERNAL_MAKE_REF_HELPER_IMPORT_NAME = "_waspMakeRef";
 
+// `BindingIdentifier` is what Rolldown gives us for the binding side of an
+// import specifier. It's shaped like an `IdentifierName`, except it can also
+// carry a type annotation.
 export function getStringValue(
-  node: t.IdentifierName | t.StringLiteral,
+  node: t.IdentifierName | t.BindingIdentifier | t.StringLiteral,
 ): string {
   return node.type === "Identifier" ? node.name : node.value;
 }
