@@ -1,4 +1,9 @@
-module Wasp.Cli.Services where
+module Wasp.Cli.Services
+  ( devPorts,
+    devUrls,
+    devEnvVars,
+  )
+where
 
 import Network.Socket (PortNumber)
 import Wasp.AppSpec (AppSpec)
@@ -17,20 +22,21 @@ devPorts =
     }
 
 devUrls :: AppSpec -> PerService PortNumber -> PerService String
-devUrls spec ports =
-  PerService
-    { client = WebApp.getDevClientUrl spec,
-      server = Server.getDevServerUrl
-    }
-    <*> ports
+devUrls spec ports = getDevServiceUrl <*> pure spec <*> ports
 
--- | Each app gets its own port and the URLs of both apps, since they need to
--- know where to reach each other.
 devEnvVars :: PerService PortNumber -> PerService String -> PerService [EnvVar]
-devEnvVars ports urls =
+devEnvVars ports urls = getDevServiceEnvVars <*> ports <*> pure urls
+
+getDevServiceUrl :: PerService (AppSpec -> PortNumber -> String)
+getDevServiceUrl =
+  PerService
+    { client = WebApp.getDevClientUrl,
+      server = const Server.getDevServerUrl
+    }
+
+getDevServiceEnvVars :: PerService (PortNumber -> PerService String -> [EnvVar])
+getDevServiceEnvVars =
   PerService
     { client = WebApp.getDevClientEnvVars,
       server = Server.getDevServerEnvVars
     }
-    <*> ports
-    <*> pure urls
