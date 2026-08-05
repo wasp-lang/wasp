@@ -14,7 +14,7 @@
   "keywords": [],
   "scripts": {
     "build": "npm run build:client && npm run remove:dist && tsc && npm run copy:public",
-    "build:client": "npm --prefix ./client install && npm --prefix ./client run copy",
+    "build:client": "npm --prefix ./client install && npm --prefix ./client run build",
     "copy:public": "node -e \"require('fs').cpSync('./public', './dist/public', { recursive: true });\"",
     "dev": "tsx --watch ./src/index.ts",
     "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\""
