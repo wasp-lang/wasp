@@ -17,11 +17,11 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Services (devEnvVars, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Cli.Util.PortArgument (resolveAppPorts)
-import Wasp.Cli.Util.Services (getDevUrlMakers, getWaspEnvVars)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
@@ -56,8 +56,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
   -- take a while, especially on the first run) to keep that window short.
   ports <- resolveAppPorts args.ports
 
-  let urls = getDevUrlMakers appSpec <*> ports
-      waspEnvVars = getWaspEnvVars appSpec ports
+  let urls = devUrls appSpec ports
+      waspEnvVars = devEnvVars ports urls
       envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
 
   envVars <-
