@@ -7,6 +7,7 @@ import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
+import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
@@ -126,30 +127,28 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     Just port -> noteDbIsAlreadyRunning port
     Nothing -> do
       maybeFreePort <- liftIO $ Socket.findFirstFreeLocalPort candidatePorts
-      case maybeFreePort of
-        Just freePort -> startDbOnPort $ fromIntegral freePort
-        Nothing -> throwNoFreePortError
+      maybe throwNoFreePortError startDbOnPort maybeFreePort
   where
     -- We scan sequentially from the default port so that behavior is predictable:
     -- a lone Wasp app on a machine with a free 5432 always gets 5432.
-    candidatePorts = take numOfPortsToScan [fromIntegral Dev.Postgres.defaultDevPort ..]
+    candidatePorts = take numOfPortsToScan [Dev.Postgres.defaultDevPort ..]
     numOfPortsToScan = 20
 
-    makeDevPostgresDbOnPort :: Int -> Dev.Postgres.DevPostgresDb
+    makeDevPostgresDbOnPort :: PortNumber -> Dev.Postgres.DevPostgresDb
     makeDevPostgresDbOnPort = Dev.Postgres.makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath
 
-    noteDbIsAlreadyRunning :: Int -> Command ()
+    noteDbIsAlreadyRunning :: PortNumber -> Command ()
     noteDbIsAlreadyRunning port =
       cliSendMessageC . Msg.Info $
         unlines
-          [ printf "Your dev database is already running on port %d." port,
+          [ printf "Your dev database is already running on port %s." (show port),
             "Connection URL, in case you might want to connect with external tools:",
             "  " <> devPostgresDb.connectionUrl
           ]
       where
         devPostgresDb = makeDevPostgresDbOnPort port
 
-    startDbOnPort :: Int -> Command ()
+    startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
       let devPostgresDb = makeDevPostgresDbOnPort port
       cliSendMessageC . Msg.Info $
@@ -174,7 +173,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
         CommandError
           "No free port"
           ( printf
-              "Wasp can't run PostgreSQL dev database for you since all ports from %d to %d are already in use."
-              Dev.Postgres.defaultDevPort
-              (Dev.Postgres.defaultDevPort + numOfPortsToScan - 1)
+              "Wasp can't run PostgreSQL dev database for you since all ports from %s to %s are already in use."
+              (show Dev.Postgres.defaultDevPort)
+              (show $ Dev.Postgres.defaultDevPort + fromIntegral numOfPortsToScan - 1)
           )

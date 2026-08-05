@@ -10,6 +10,7 @@ module Wasp.Project.Db.Dev.Postgres
   )
 where
 
+import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import System.Process (callCommand)
 import Text.Printf (printf)
@@ -28,7 +29,7 @@ makeDevPostgresDb ::
   String ->
   DockerImageName ->
   DockerVolumeMountPath ->
-  Int ->
+  PortNumber ->
   DevPostgresDb
 makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath port =
   DevPostgresDb
@@ -42,7 +43,7 @@ makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath p
           [ "docker run",
             printf "--name %s" dockerContainerName,
             "--rm",
-            printf "--publish %d:5432" port,
+            printf "--publish %s:5432" (show port),
             printf "-v %s:%s" volumeName dbDockerVolumeMountPath,
             printf "--env POSTGRES_PASSWORD=%s" defaultDevPass,
             printf "--env POSTGRES_USER=%s" defaultDevUser,
@@ -60,7 +61,7 @@ runDevPostgresDb devPostgresDb = callCommand devPostgresDb.runDbCommand
 
 -- | Returns the host port on which this Wasp project's dev db container is
 -- currently published, or 'Nothing' if it is not running.
-discoverDevDbPort :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe Int)
+discoverDevDbPort :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe PortNumber)
 discoverDevDbPort waspProjectDir appName =
   getDockerContainerHostPort devDbContainerName 5432
   where
@@ -90,10 +91,10 @@ makeDevDbName waspProjectDir appName =
   -- can't connect to it by accident.
   take postgresMaxDbNameLength $ makeAppUniqueId waspProjectDir appName
 
-defaultDevPort :: Int
+defaultDevPort :: PortNumber
 defaultDevPort = 5432 -- 5432 is default port for PostgreSQL db.
 
-makeDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> Int -> String
+makeDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> PortNumber -> String
 makeDevConnectionUrl waspProjectDir appName port =
   makeConnectionUrl defaultDevUser defaultDevPass port $ makeDevDbName waspProjectDir appName
 
