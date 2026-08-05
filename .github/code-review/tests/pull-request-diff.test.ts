@@ -20,9 +20,8 @@ test("accepts a finding ending on an added line", () => {
     isFindingOnChangedLines(
       {
         title: "Finding",
-        problem: "Problem",
-        impact: "Impact",
-        fix: "Fix",
+        body: "Description",
+        suggestion: null,
         path: "src/example.ts",
         startLine: 1,
         endLine: 2,
@@ -38,9 +37,8 @@ test("rejects a finding outside the changed hunk", () => {
     isFindingOnChangedLines(
       {
         title: "Finding",
-        problem: "Problem",
-        impact: "Impact",
-        fix: "Fix",
+        body: "Description",
+        suggestion: null,
         path: "src/example.ts",
         startLine: 20,
         endLine: 20,
@@ -63,9 +61,8 @@ test("treats added content beginning with pluses as content", () => {
     isFindingOnChangedLines(
       {
         title: "Finding",
-        problem: "Problem",
-        impact: "Impact",
-        fix: "Fix",
+        body: "Description",
+        suggestion: null,
         path: "notes.md",
         startLine: 1,
         endLine: 1,
@@ -89,9 +86,8 @@ test("decodes non-ASCII Git paths", () => {
     isFindingOnChangedLines(
       {
         title: "Finding",
-        problem: "Problem",
-        impact: "Impact",
-        fix: "Fix",
+        body: "Description",
+        suggestion: null,
         path: "src/ä.ts",
         startLine: 1,
         endLine: 1,

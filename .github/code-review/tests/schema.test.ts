@@ -8,9 +8,8 @@ const validReview = {
   newFindings: [
     {
       title: "Finding",
-      problem: "The value is incorrect.",
-      impact: "The result is misleading.",
-      fix: "Use the correct value.",
+      body: "If the value is false, this returns the wrong result.",
+      suggestion: null,
       path: "src/example.ts",
       startLine: 1,
       endLine: 2,

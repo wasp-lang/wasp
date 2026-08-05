@@ -79,11 +79,12 @@ export function formatFindingComment(
   reviewedHeadSha: string,
 ): string {
   const fingerprint = fingerprintFinding(finding, reviewedHeadSha);
+  const suggestion = finding.suggestion
+    ? `\n\n\`\`\`suggestion\n${finding.suggestion}\n\`\`\``
+    : "";
   return `${REVIEW_MARKER}
 <!-- wasp-code-review:fingerprint=${fingerprint} -->
-- **Problem:** ${formatFindingDetail(finding.problem)}
-- **Impact:** ${formatFindingDetail(finding.impact)}
-- **Fix:** ${formatFindingDetail(finding.fix)}`;
+${finding.body}${suggestion}`;
 }
 
 function getCurrentThreadResolutions(
@@ -114,10 +115,6 @@ function getCurrentThreadResolutions(
     }
     return true;
   });
-}
-
-function formatFindingDetail(detail: string): string {
-  return detail.replace(/\s+/g, " ").trim();
 }
 
 function findExistingFingerprints(reviewThreads: ReviewThread[]): Set<string> {
