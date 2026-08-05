@@ -1,12 +1,10 @@
 module Wasp.Cli.Command.Show.Spec
-  ( showSpec,
+  ( specShowSubcommand,
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
-import Data.Aeson.Encode.Pretty (encodePretty)
-import qualified Data.ByteString.Lazy.Char8 as BSL8
+import qualified Data.Aeson as Aeson
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Inspectable (inspect)
@@ -16,33 +14,33 @@ import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Command.Show.ArgumentsParser (ShowSubcommandArgs (..))
-import Wasp.Cli.Command.Show.Table (renderEntriesAsTables)
+import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 import Wasp.Version (waspVersion)
 
--- | Prints the evaluated app spec: as a human-readable overview by default, or
+-- | Shows the evaluated app spec: as a human-readable overview by default, or
 -- as full JSON with --json.
-showSpec :: ShowSubcommandArgs -> Command ()
-showSpec args = do
+specShowSubcommand :: ShowSubcommand
+specShowSubcommand =
+  ShowSubcommand
+    { name = "spec",
+      description = "Prints an overview of your app: routes, pages, queries, actions, and more",
+      jsonHelp =
+        "Print the full evaluated app spec as JSON. The schema follows Wasp's "
+          <> "internal spec format and may change between Wasp versions.",
+      getInspectionEntries = inspect . InspectableAppSpec <$> analyzeAppSpec,
+      getJson = specAsJson <$> analyzeAppSpec
+    }
+
+analyzeAppSpec :: Command AppSpec
+analyzeAppSpec = do
   ValidNodeAndNpm <- require
   InWaspProject waspDir <- require
   WaspSpecAvailable <- require
-  appSpec <- analyzeWithDiagnosticsOnStderr waspDir
-  liftIO $ putStr $ renderFn args.json appSpec
-  where
-    renderFn isJson
-      | isJson = specAsJson
-      | otherwise = specAsTables
+  analyzeWithDiagnosticsOnStderr waspDir
 
-specAsTables :: AppSpec -> String
-specAsTables = renderEntriesAsTables . inspect . InspectableAppSpec
-
-specAsJson :: AppSpec -> String
+specAsJson :: AppSpec -> Aeson.Value
 specAsJson appSpec =
-  BSL8.unpack $ encodePretty outputObject <> "\n"
-  where
-    outputObject =
-      object
-        [ "waspVersion" .= show waspVersion,
-          "decls" .= AS.decls appSpec
-        ]
+  object
+    [ "waspVersion" .= show waspVersion,
+      "decls" .= AS.decls appSpec
+    ]

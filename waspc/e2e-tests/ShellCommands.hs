@@ -260,7 +260,8 @@ waspCliShowBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliShowBuild = return "$WASP_CLI_CMD show build"
 
 -- | Runs `wasp show build --json` and asserts that stdout alone is valid JSON
--- with the expected {lastCompile, projectDirSize} envelope.
+-- with the expected {lastCompile, projectDirSize} envelope, where lastCompile
+-- is null (no build yet) or a {buildType, generatedAt, waspVersion} object.
 waspCliShowBuildJson :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliShowBuildJson =
   return $
@@ -270,7 +271,13 @@ waspCliShowBuildJson =
              ++ " process.stdin.on('data', (c) => (d += c));"
              ++ " process.stdin.on('end', () => {"
              ++ " const s = JSON.parse(d);"
-             ++ " if (typeof s.lastCompile !== 'string' || typeof s.projectDirSize !== 'string') process.exit(1);"
+             ++ " const lastCompileOk ="
+             ++ " s.lastCompile === null ||"
+             ++ " (typeof s.lastCompile === 'object' &&"
+             ++ " typeof s.lastCompile.buildType === 'string' &&"
+             ++ " typeof s.lastCompile.generatedAt === 'string' &&"
+             ++ " typeof s.lastCompile.waspVersion === 'string');"
+             ++ " if (!lastCompileOk || typeof s.projectDirSize !== 'string') process.exit(1);"
              ++ " });\""
          )
 

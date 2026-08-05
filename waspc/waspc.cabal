@@ -530,9 +530,9 @@ library cli-lib
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
     Wasp.Cli.Command.Show
-    Wasp.Cli.Command.Show.ArgumentsParser
     Wasp.Cli.Command.Show.Build
     Wasp.Cli.Command.Show.Spec
+    Wasp.Cli.Command.Show.Subcommand
     Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
