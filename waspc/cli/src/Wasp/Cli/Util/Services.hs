@@ -1,4 +1,4 @@
-module Wasp.Cli.Util.PerService where
+module Wasp.Cli.Util.Services where
 
 import Wasp.AppSpec (AppSpec)
 import Wasp.Env (EnvVar)

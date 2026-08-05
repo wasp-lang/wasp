@@ -20,7 +20,7 @@ import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildSt
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Cli.Util.PerService (getWaspEnvVars)
+import Wasp.Cli.Util.Services (getWaspEnvVars)
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)

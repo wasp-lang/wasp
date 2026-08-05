@@ -538,7 +538,7 @@ library cli-lib
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
-    Wasp.Cli.Util.PerService
+    Wasp.Cli.Util.Services
 
 executable wasp-cli
   import: common-all, common-exe
