@@ -215,6 +215,7 @@ library
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
+    Wasp.AppSpec.Core.Inspectable
     Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
@@ -513,6 +514,7 @@ library cli-lib
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
+    Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
@@ -526,6 +528,10 @@ library cli-lib
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
+    Wasp.Cli.Command.Show
+    Wasp.Cli.Command.Show.Build
+    Wasp.Cli.Command.Show.Subcommand
+    Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
@@ -740,8 +746,10 @@ test-suite waspc-e2e-tests
     Tests.WaspDbStudioTest
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
+    Tests.WaspInfoTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspShowTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
