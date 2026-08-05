@@ -18,6 +18,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Services (devEnvVars, devUrls)
+import qualified Wasp.Cli.Services as Services
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
@@ -51,9 +52,6 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   (warnings, appSpec) <- compile
 
-  -- Nothing holds on to the ports we pick until the generated app binds them, so somebody
-  -- else can take them in the meantime. We resolve them as late as we can (compiling can
-  -- take a while, especially on the first run) to keep that window short.
   ports <- resolveAppPorts args.ports
 
   let urls = devUrls appSpec ports
@@ -68,12 +66,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $
-    Msg.Info $
-      unlines
-        [ " ℹ Client: " ++ urls.client,
-          " ℹ Server: " ++ urls.server
-        ]
+  cliSendMessageC $ Msg.Info $ Services.showServiceUrls urls
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
