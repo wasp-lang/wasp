@@ -20,8 +20,8 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Cli.Util.PerService (getDevUrlMakers, getWaspEnvVars)
 import Wasp.Cli.Util.PortArgument (resolveAppPorts)
+import Wasp.Cli.Util.Services (getDevUrlMakers, getWaspEnvVars)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
