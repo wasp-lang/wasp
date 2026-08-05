@@ -241,9 +241,9 @@ export function formatReviewSummary({
   return `${REVIEW_SUMMARY_MARKER}
 ## Latest code review status
 
-${activity.length === 0 ? "No new comments or thread updates." : `${activity.join(" and ")}.`}
+${activity.length === 0 ? "No new comments or thread updates." : `${activity.join(" and ")}.`}${commentDetails}
 
-Reviewed commit [\`${shortSha}\`](${commitUrl}).${commentDetails}
+Reviewed commit [\`${shortSha}\`](${commitUrl}).
 `;
 }
 

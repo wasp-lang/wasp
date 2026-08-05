@@ -32,7 +32,7 @@ test("reports comments, resolutions, files, and suggestions", () => {
       publishedFindings,
       resolvedThreadCount: 1,
     }),
-    `${REVIEW_SUMMARY_MARKER}\n## Latest code review status\n\nPosted **2 comments** and resolved **1 thread**.\n\nReviewed commit [\`aaaaaaa\`](${commitUrl}). Comments cover **1 file** and include **2 suggested changes**.\n`,
+    `${REVIEW_SUMMARY_MARKER}\n## Latest code review status\n\nPosted **2 comments** and resolved **1 thread**. Comments cover **1 file** and include **2 suggested changes**.\n\nReviewed commit [\`aaaaaaa\`](${commitUrl}).\n`,
   );
 });
 
