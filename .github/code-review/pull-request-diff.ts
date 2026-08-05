@@ -67,17 +67,14 @@ export function isFindingOnChangedLines(
 
   return hunks.some((hunk) => {
     const rangeLength = finding.endLine - finding.startLine + 1;
-    if (
-      rangeLength > hunk.visibleLines.size ||
-      !hunk.addedLines.has(finding.endLine)
-    ) {
-      return false;
-    }
+    if (rangeLength > hunk.visibleLines.size) return false;
 
+    let containsAddedLine = false;
     for (let line = finding.startLine; line <= finding.endLine; line += 1) {
       if (!hunk.visibleLines.has(line)) return false;
+      if (hunk.addedLines.has(line)) containsAddedLine = true;
     }
-    return true;
+    return containsAddedLine;
   });
 }
 

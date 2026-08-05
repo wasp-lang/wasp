@@ -15,15 +15,15 @@ index 1111111..2222222 100644
  const after = true;
 `);
 
-test("accepts a finding ending on an added line", () => {
+test("accepts a visible range containing an added line", () => {
   assert.equal(
     isFindingOnChangedLines(
       {
         body: "Description",
         suggestion: null,
         path: "src/example.ts",
-        startLine: 1,
-        endLine: 2,
+        startLine: 2,
+        endLine: 3,
       },
       diff,
     ),
