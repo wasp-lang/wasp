@@ -8,7 +8,7 @@
 
 ### 🎉 New Features
 
-- Added a `wasp inspect` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. With `--json`, it prints the full evaluated app spec as JSON, for scripts and AI tools. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
+- Added a `wasp show` command. `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. With `--json`, it prints the full evaluated app spec as JSON, for scripts and AI tools. `wasp show build` prints information about your app's current build, and also supports `--json`. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 
 ### 🔧 Small improvements
 

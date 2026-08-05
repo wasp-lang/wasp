@@ -21,8 +21,10 @@ bashCompletion = do
   case inputArgs of
     [] -> listCommands commands
     ["db"] -> listCommands dbSubCommands
+    ["show"] -> listCommands showSubCommands
     [cmdPrefix] -> listMatchingCommands cmdPrefix commands
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
+    ["show", cmdPrefix] -> listMatchingCommands cmdPrefix showSubCommands
     _ -> liftIO . putStrLn $ ""
   where
     commands =
@@ -41,11 +43,12 @@ bashCompletion = do
         "deps",
         "dockerfile",
         "info",
-        "inspect",
+        "show",
         "test",
         "studio"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
+    showSubCommands = ["spec", "build"]
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()

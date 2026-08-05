@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Common
   ( readWaspCompileInfo,
+    readDirectorySizeMB,
     throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
   )
@@ -12,7 +13,7 @@ import NeatInterpolation (trimming)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import StrongPath.Operations
-import System.Directory (findExecutable)
+import System.Directory (findExecutable, getFileSize)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Generator.WaspInfo as WI
@@ -43,6 +44,11 @@ readWaspCompileInfo waspDir =
       waspDir
         </> Project.Common.dotWaspDirInWaspProjectDir
         </> Project.Common.generatedAppDirInDotWaspDir
+
+readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
+readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> allFileSizes
+  where
+    allFileSizes = IOUtil.listDirectoryDeep path >>= mapM (getFileSize . SP.fromRelFile)
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do

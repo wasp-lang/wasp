@@ -35,8 +35,10 @@ module ShellCommands
     waspCliStudio,
     waspCliDbStudio,
     waspCliInfo,
-    waspCliInspect,
-    waspCliInspectJson,
+    waspCliShowSpec,
+    waspCliShowSpecJson,
+    waspCliShowBuild,
+    waspCliShowBuildJson,
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
@@ -236,21 +238,39 @@ waspCliDbStudio = return "$WASP_CLI_CMD db studio"
 waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInfo = return "$WASP_CLI_CMD info"
 
-waspCliInspect :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInspect = return "$WASP_CLI_CMD inspect"
+waspCliShowSpec :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowSpec = return "$WASP_CLI_CMD show spec"
 
--- | Runs `wasp inspect --json` and asserts that stdout alone is valid JSON
+-- | Runs `wasp show spec --json` and asserts that stdout alone is valid JSON
 -- with the expected {waspVersion, decls} envelope.
-waspCliInspectJson :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInspectJson =
+waspCliShowSpecJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowSpecJson =
   return $
-    "$WASP_CLI_CMD inspect --json"
+    "$WASP_CLI_CMD show spec --json"
       ~| ( "node -e \""
              ++ "let d = '';"
              ++ " process.stdin.on('data', (c) => (d += c));"
              ++ " process.stdin.on('end', () => {"
              ++ " const s = JSON.parse(d);"
              ++ " if (typeof s.waspVersion !== 'string' || !Array.isArray(s.decls) || s.decls.length === 0) process.exit(1);"
+             ++ " });\""
+         )
+
+waspCliShowBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuild = return "$WASP_CLI_CMD show build"
+
+-- | Runs `wasp show build --json` and asserts that stdout alone is valid JSON
+-- with the expected {lastCompile, projectDirSize} envelope.
+waspCliShowBuildJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuildJson =
+  return $
+    "$WASP_CLI_CMD show build --json"
+      ~| ( "node -e \""
+             ++ "let d = '';"
+             ++ " process.stdin.on('data', (c) => (d += c));"
+             ++ " process.stdin.on('end', () => {"
+             ++ " const s = JSON.parse(d);"
+             ++ " if (typeof s.lastCompile !== 'string' || typeof s.projectDirSize !== 'string') process.exit(1);"
              ++ " });\""
          )
 

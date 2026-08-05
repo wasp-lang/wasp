@@ -1,25 +1,22 @@
 {-# LANGUAGE TupleSections #-}
 
-module Wasp.Cli.Command.Inspect.Table
-  ( inspectAsTables,
+module Wasp.Cli.Command.Show.Table
+  ( renderEntriesAsTables,
   )
 where
 
 import Data.List (intercalate, nub, sortOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, mapMaybe)
-import Wasp.AppSpec (AppSpec)
-import Wasp.AppSpec.Core.Inspectable (InspectionDatapoint, InspectionEntry (..), inspect)
-import Wasp.AppSpec.Inspectable (InspectableAppSpec (InspectableAppSpec))
+import Wasp.AppSpec.Core.Inspectable (InspectionDatapoint, InspectionEntry (..))
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (alignColumns)
 import qualified Wasp.Util.Terminal as Term
 
-inspectAsTables :: AppSpec -> String
-inspectAsTables spec = renderEntries $ inspect $ InspectableAppSpec spec
-
-renderEntries :: [InspectionEntry] -> String
-renderEntries entries =
+-- | Renders inspection entries as per-category tables: entries are grouped by
+-- their heading, and each group becomes a table with one row per entry.
+renderEntriesAsTables :: [InspectionEntry] -> String
+renderEntriesAsTables entries =
   intercalate "\n" (renderCategory . fmap sortEntriesByFirstColumnValue <$> categoryPairs)
   where
     categoryPairs = orderedGroupWith heading datapoints entries

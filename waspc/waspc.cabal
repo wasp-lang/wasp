@@ -516,10 +516,6 @@ library cli-lib
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
-    Wasp.Cli.Command.Inspect
-    Wasp.Cli.Command.Inspect.ArgumentsParser
-    Wasp.Cli.Command.Inspect.JSON
-    Wasp.Cli.Command.Inspect.Table
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
@@ -533,6 +529,11 @@ library cli-lib
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
+    Wasp.Cli.Command.Show
+    Wasp.Cli.Command.Show.ArgumentsParser
+    Wasp.Cli.Command.Show.Build
+    Wasp.Cli.Command.Show.Spec
+    Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
@@ -748,9 +749,9 @@ test-suite waspc-e2e-tests
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
     Tests.WaspInfoTest
-    Tests.WaspInspectTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspShowTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest

@@ -26,9 +26,9 @@ import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInfoTest (waspInfoTest)
-import Tests.WaspInspectTest (waspInspectTest)
 import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
+import Tests.WaspShowTest (waspShowTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
@@ -108,7 +108,7 @@ e2eTests = do
         waspCleanTest,
         waspSpecAvailableTest,
         waspInfoTest,
-        waspInspectTest,
+        waspShowTest,
         waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,

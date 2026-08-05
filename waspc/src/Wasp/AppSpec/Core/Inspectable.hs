@@ -6,7 +6,7 @@ module Wasp.AppSpec.Core.Inspectable
   )
 where
 
--- | Types that can describe themselves for `wasp inspect`.
+-- | Types that can describe themselves for `wasp show spec`.
 class Inspectable a where
   inspect :: a -> [InspectionEntry]
 
