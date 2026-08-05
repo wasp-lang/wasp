@@ -54,7 +54,6 @@ export function buildPublicationPlan({
 
   return {
     reviewedHeadSha: reviewContext.pullRequest.headSha,
-    summary: codexReview.summary,
     newFindings,
     threadsToResolve: currentThreadResolutions,
   };
