@@ -53,14 +53,24 @@ export async function publishCodeReview({
     expectedBaseSha,
     expectedHeadSha,
   );
-  await resolveAddressedThreads(octokit, publicationPlan);
-  await publishNewFindings(octokit, repository, pullNumber, publicationPlan);
+  const resolvedThreadCount = await resolveAddressedThreads(
+    octokit,
+    publicationPlan,
+  );
+  const postedCommentCount = await publishNewFindings(
+    octokit,
+    repository,
+    pullNumber,
+    publicationPlan,
+  );
   await createOrUpdateReviewSummary({
     octokit,
     repository,
     pullNumber,
     reviewerLogin: reviewContext.reviewerLogin,
     publicationPlan,
+    postedCommentCount,
+    resolvedThreadCount,
   });
 }
 
@@ -89,7 +99,8 @@ async function assertPullRequestRangeIsUnchanged(
 async function resolveAddressedThreads(
   octokit: GitHubOctokit,
   publicationPlan: PublicationPlan,
-): Promise<void> {
+): Promise<number> {
+  let resolvedThreadCount = 0;
   for (const { threadId, lastCommentId } of publicationPlan.threadsToResolve) {
     const thread = await fetchReviewThread(octokit, threadId);
     if (thread.isResolved) continue;
@@ -104,7 +115,9 @@ async function resolveAddressedThreads(
       );
     }
     await resolveReviewThread(octokit, threadId);
+    resolvedThreadCount += 1;
   }
+  return resolvedThreadCount;
 }
 
 async function publishNewFindings(
@@ -112,8 +125,8 @@ async function publishNewFindings(
   repository: Repository,
   pullNumber: number,
   publicationPlan: PublicationPlan,
-): Promise<void> {
-  if (publicationPlan.newFindings.length === 0) return;
+): Promise<number> {
+  if (publicationPlan.newFindings.length === 0) return 0;
 
   await octokit.rest.pulls.createReview({
     owner: repository.owner,
@@ -126,6 +139,7 @@ async function publishNewFindings(
       toGitHubReviewComment(finding, publicationPlan.reviewedHeadSha),
     ),
   });
+  return publicationPlan.newFindings.length;
 }
 
 function toGitHubReviewComment(finding: NewFinding, reviewedHeadSha: string) {
@@ -149,12 +163,16 @@ async function createOrUpdateReviewSummary({
   pullNumber,
   reviewerLogin,
   publicationPlan,
+  postedCommentCount,
+  resolvedThreadCount,
 }: {
   octokit: GitHubOctokit;
   repository: Repository;
   pullNumber: number;
   reviewerLogin: string;
   publicationPlan: PublicationPlan;
+  postedCommentCount: number;
+  resolvedThreadCount: number;
 }): Promise<void> {
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
     owner: repository.owner,
@@ -167,7 +185,11 @@ async function createOrUpdateReviewSummary({
       comment.user?.login === reviewerLogin ||
       comment.body?.includes(REVIEW_SUMMARY_MARKER),
   );
-  const body = formatReviewSummary(publicationPlan);
+  const body = formatReviewSummary({
+    reviewedHeadSha: publicationPlan.reviewedHeadSha,
+    postedCommentCount,
+    resolvedThreadCount,
+  });
 
   if (existingSummary) {
     await octokit.rest.issues.updateComment({
@@ -186,12 +208,22 @@ async function createOrUpdateReviewSummary({
   }
 }
 
-function formatReviewSummary(publicationPlan: PublicationPlan): string {
+export function formatReviewSummary({
+  reviewedHeadSha,
+  postedCommentCount,
+  resolvedThreadCount,
+}: {
+  reviewedHeadSha: string;
+  postedCommentCount: number;
+  resolvedThreadCount: number;
+}): string {
   return `${REVIEW_SUMMARY_MARKER}
 ## Code review
 
-${publicationPlan.summary}
-
-Reviewed commit \`${publicationPlan.reviewedHeadSha}\`.
+Finished review of \`${reviewedHeadSha}\`: posted ${formatCount(postedCommentCount, "comment")} and resolved ${formatCount(resolvedThreadCount, "thread")}.
 `;
+}
+
+function formatCount(count: number, singular: string): string {
+  return `${count} ${singular}${count === 1 ? "" : "s"}`;
 }

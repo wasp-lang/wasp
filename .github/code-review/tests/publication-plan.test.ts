@@ -58,7 +58,6 @@ const reviewContext: ReviewContext = {
 };
 
 const codexReview: CodexReview = {
-  summary: "One issue remains.",
   threadsToResolve: [
     {
       threadId: unresolvedThread.id,
@@ -91,10 +90,10 @@ test("formats a finding as a concise paragraph", () => {
 test("appends a complete GitHub code suggestion", () => {
   assert.equal(
     formatFindingComment(
-      { ...finding, suggestion: "const added = false;" },
+      { ...finding, suggestion: "  const added = false;" },
       reviewContext.pullRequest.headSha,
     ),
-    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprintFinding(finding, reviewContext.pullRequest.headSha)} -->\n${finding.body}\n\n\`\`\`suggestion\nconst added = false;\n\`\`\``,
+    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprintFinding(finding, reviewContext.pullRequest.headSha)} -->\n${finding.body}\n\n\`\`\`suggestion\n  const added = false;\n\`\`\``,
   );
 });
 

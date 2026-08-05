@@ -57,12 +57,12 @@ export const NewFindingSchema = z.strictObject({
     ),
   suggestion: z
     .string()
-    .trim()
     .min(1)
     .max(5_000)
+    .regex(/\S/, "Suggestion must contain code.")
     .nullable()
     .describe(
-      "Complete replacement for the selected lines, without Markdown fences; null when no safe replacement is available.",
+      "Complete replacement with exact indentation for the selected lines, without Markdown fences; null when no safe replacement is available.",
     ),
   path: z
     .string()
@@ -91,12 +91,6 @@ export const ThreadResolutionSchema = z.strictObject({
 });
 
 export const CodexOutputSchema = z.strictObject({
-  summary: z
-    .string()
-    .trim()
-    .min(1)
-    .max(10_000)
-    .describe("One-sentence summary of the current review result."),
   threadsToResolve: z
     .array(ThreadResolutionSchema)
     .describe("Addressed reviewer threads to resolve; omission means keep."),
@@ -149,7 +143,6 @@ export type ThreadResolution = z.infer<typeof ThreadResolutionSchema>;
 export type CodexReview = z.infer<typeof ReviewSchema>;
 export type PublicationPlan = {
   reviewedHeadSha: string;
-  summary: string;
   newFindings: NewFinding[];
   threadsToResolve: { threadId: string; lastCommentId: string }[];
 };
