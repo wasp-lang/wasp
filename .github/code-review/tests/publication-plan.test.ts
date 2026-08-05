@@ -15,9 +15,8 @@ import type {
 
 const finding: NewFinding = {
   title: "Finding",
-  problem: "The value is incorrect.",
-  impact: "The result is misleading.",
-  fix: "Use the correct value.",
+  body: "If the value is false, this branch returns the wrong result. Use the correct value instead.",
+  suggestion: null,
   path: "src/example.ts",
   startLine: 2,
   endLine: 2,
@@ -77,7 +76,7 @@ const pullRequestDiff = `diff --git a/src/example.ts b/src/example.ts
 +const added = true;
 `;
 
-test("formats a finding as a bullet list", () => {
+test("formats a finding as a concise paragraph", () => {
   const fingerprint = fingerprintFinding(
     finding,
     reviewContext.pullRequest.headSha,
@@ -85,7 +84,17 @@ test("formats a finding as a bullet list", () => {
 
   assert.equal(
     formatFindingComment(finding, reviewContext.pullRequest.headSha),
-    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprint} -->\n- **Problem:** The value is incorrect.\n- **Impact:** The result is misleading.\n- **Fix:** Use the correct value.`,
+    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprint} -->\n${finding.body}`,
+  );
+});
+
+test("appends a complete GitHub code suggestion", () => {
+  assert.equal(
+    formatFindingComment(
+      { ...finding, suggestion: "const added = false;" },
+      reviewContext.pullRequest.headSha,
+    ),
+    `${REVIEW_MARKER}\n<!-- wasp-code-review:fingerprint=${fingerprintFinding(finding, reviewContext.pullRequest.headSha)} -->\n${finding.body}\n\n\`\`\`suggestion\nconst added = false;\n\`\`\``,
   );
 });
 

@@ -47,24 +47,23 @@ export const NewFindingSchema = z.strictObject({
     .min(1)
     .max(80)
     .describe("Concise internal issue identity; not rendered in the comment."),
-  problem: z
+  body: z
     .string()
     .trim()
     .min(1)
-    .max(1_500)
-    .describe("One short sentence describing the defect and its trigger."),
-  impact: z
+    .max(3_000)
+    .describe(
+      "A concise, natural paragraph explaining the trigger, incorrect behavior, consequence, and correction.",
+    ),
+  suggestion: z
     .string()
     .trim()
     .min(1)
-    .max(1_500)
-    .describe("One short sentence describing the observable consequence."),
-  fix: z
-    .string()
-    .trim()
-    .min(1)
-    .max(1_500)
-    .describe("One short sentence describing a concrete correction."),
+    .max(5_000)
+    .nullable()
+    .describe(
+      "Complete replacement for the selected lines, without Markdown fences; null when no safe replacement is available.",
+    ),
   path: z
     .string()
     .trim()
