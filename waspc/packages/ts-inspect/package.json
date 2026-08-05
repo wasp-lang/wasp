@@ -1,14 +1,17 @@
 {
-  "name": "wasp-ts-inspect",
+  "name": "@wasp.sh/internal-ts-inspect",
   "version": "0.26.0",
   "type": "module",
   "author": "Wasp Team",
   "license": "MIT",
-  "bin": "dist/index.js",
-  "main": "dist/index.js",
+  "bin": {
+    "__internal_wasp_ts-inspect__": "dist/index.js"
+  },
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "npx tsc",
-    "start": "node ./dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
