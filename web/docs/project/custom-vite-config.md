@@ -87,10 +87,6 @@ export default defineConfig({
 })
 ```
 
-### Custom Dev Server Port
-
-`wasp start` automatically chooses a port for the client dev server (`3000`).
-
 ## Examples
 
 Below are some examples of how you can customize the Vite config.
@@ -110,6 +106,11 @@ export default defineConfig({
   },
 })
 ```
+
+### Custom Dev Server Port
+
+`wasp start` automatically chooses a port for the client dev server (`3000`).
+
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 
