@@ -14,12 +14,15 @@ spec_fibonacci =
     it "fibonacci element #2 is 1" $ do
       fibonacci 2 `shouldBe` 1
     it "fibonacci element #3 is 2" $ do
-      fibonacci 3 `shouldBe` 2
+      fibonacci 3 `shouldBe` 3
+    it "fibonacci element #4 is 3" $ do
+      fibonacci 4 `shouldBe` 3
 
 -- NOTE: Most likely not the best way to write QuickCheck test, I just did this in order
 --   to get something working as an example.
 prop_fibonacci :: Property
-prop_fibonacci = forAll (choose (0, 10)) testFibSequence
+prop_fibonacci = forAll (choose (0, 10)) info
   where
-    testFibSequence :: Int -> Bool
-    testFibSequence x = fibonacci x + fibonacci (x + 1) == fibonacci (x + 2)
+    -- Check whether two Fibonacci numbers produce the following number.
+    info :: Int -> Bool
+    info x = fibonacci x + fibonacci (x + 1) == fibonacci (x + 2)
