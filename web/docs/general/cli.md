@@ -152,7 +152,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
   With the `--json` flag, it instead prints the full evaluated app spec as JSON, which is handy for scripts and AI tools. The JSON schema follows Wasp's internal spec format and may change between Wasp versions.
 
-- `wasp show build` prints information about your app's current build: when it was last compiled and how big the project directory is. It also supports the `--json` flag.
+- `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 ### Database Commands

@@ -29,8 +29,6 @@ import Wasp.Project.Common
   )
 import qualified Wasp.Util.IO as IOUtil
 
--- | Shows information about the project's current build: as a human-readable
--- overview by default, or as JSON with --json.
 buildShowSubcommand :: ShowSubcommand
 buildShowSubcommand =
   ShowSubcommand
