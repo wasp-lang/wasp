@@ -20,7 +20,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Internal (JobOutputSink, JobOutputStream (..), writeJobOutput)
+import Wasp.Job.Internal (JobOutputKind (..), JobOutputSink, writeJobOutput)
 import qualified Wasp.Job.Subprocess.System as System
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -98,7 +98,7 @@ drainOrCancelOutput outputAsync = do
     Just (Left exception) -> throwIO exception
     Just (Right _) -> return ()
 
-forwardOutput :: JobOutputSink -> Maybe Handle -> JobOutputStream -> IO ()
+forwardOutput :: JobOutputSink -> Maybe Handle -> JobOutputKind -> IO ()
 forwardOutput _ Nothing _ = return ()
 forwardOutput outputSink (Just handle) outputStream =
   -- Chunks can split a multi-byte UTF-8 sequence, so decoding must carry
