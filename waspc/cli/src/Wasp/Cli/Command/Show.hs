@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Show
   ( showCommand,
+    subcommands,
   )
 where
 

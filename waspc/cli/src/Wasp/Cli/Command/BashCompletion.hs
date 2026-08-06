@@ -9,6 +9,8 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
+import qualified Wasp.Cli.Command.Show as Command.Show
+import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
 import Wasp.Util.Terminal (styleCode)
 
 -- generate bash completion depending on commands input
@@ -47,7 +49,7 @@ bashCompletion = do
         "studio"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
-    showSubCommands = ["build"]
+    showSubCommands = Command.Show.Subcommand.name <$> Command.Show.subcommands
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()

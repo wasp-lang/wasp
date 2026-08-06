@@ -44,7 +44,5 @@ parseArguments cmdName parser args =
   where
     parserInfo = Opt.info (parser <**> Opt.helper) Opt.fullDesc
 
--- | We show the full help on parse errors (instead of only the usage line) so
--- that e.g. `wasp show` without a subcommand tells you which subcommands exist.
 parserPreferences :: Opt.ParserPrefs
-parserPreferences = Opt.prefs Opt.showHelpOnError
+parserPreferences = Opt.defaultPrefs
