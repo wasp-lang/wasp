@@ -8,8 +8,8 @@ where
 import Data.List (intercalate, nub, sortOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, mapMaybe)
-import Wasp.AppSpec.Core.Inspectable (InspectionDatapoint, InspectionEntry (..))
 import Wasp.Cli.Terminal (title)
+import Wasp.Inspectable (InspectionDatapoint, InspectionEntry (..))
 import Wasp.Util (alignColumns)
 import qualified Wasp.Util.Terminal as Term
 
