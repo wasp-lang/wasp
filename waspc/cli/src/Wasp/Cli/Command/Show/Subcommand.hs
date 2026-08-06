@@ -24,10 +24,10 @@ data ShowSubcommand where
 
 runShowSubcommand :: ShowSubcommand -> Bool -> Command ()
 runShowSubcommand (ShowSubcommand {getData}) asJson =
-  liftIO . putStr =<< render
+  (liftIO . putStr) . render =<< getData
   where
     render
-      | asJson = renderJson <$> getData
-      | otherwise = renderEntriesAsTables . inspect <$> getData
+      | asJson = renderJson
+      | otherwise = renderEntriesAsTables . inspect
 
     renderJson value = BSL8.unpack $ encodePretty value <> "\n"
