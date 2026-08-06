@@ -9,6 +9,9 @@ spec_parseDockerPortOutput = do
     it "parses single-line output" $ do
       parseDockerPortOutput "0.0.0.0:5432\n" `shouldBe` Just 5432
 
+    it "parses single-line output without a trailing newline" $ do
+      parseDockerPortOutput "0.0.0.0:5432" `shouldBe` Just 5432
+
     it "parses multi-line output by using the first line" $ do
       parseDockerPortOutput "0.0.0.0:5433\n[::]:5434\n" `shouldBe` Just 5433
 
