@@ -7,7 +7,7 @@ where
 
 import Data.Aeson (ToJSON)
 import Data.Typeable (Proxy (Proxy), Typeable, typeRep)
-import Wasp.AppSpec.Core.Inspectable (Inspectable)
+import Wasp.Inspectable (Inspectable)
 
 class (Typeable a, ToJSON a, Inspectable a) => IsDecl a where
   -- | Returns the name of the Wasp declaration type.

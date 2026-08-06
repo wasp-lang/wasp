@@ -3,18 +3,27 @@ module Wasp.AppSpec.Inspectable
   )
 where
 
-import Wasp.AppSpec (AppSpec (decls))
-import Wasp.AppSpec.Core.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
+import Data.Aeson (ToJSON (..), object, (.=))
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
-import qualified Wasp.Version
+import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
+import Wasp.Version (waspVersion)
 
-newtype InspectableAppSpec = InspectableAppSpec {getAppSpec :: AppSpec}
+newtype InspectableAppSpec
+  = InspectableAppSpec {getAppSpec :: AS.AppSpec}
+
+instance ToJSON InspectableAppSpec where
+  toJSON (InspectableAppSpec spec) =
+    object
+      [ "waspVersion" .= show waspVersion,
+        "decls" .= AS.decls spec
+      ]
 
 instance Inspectable InspectableAppSpec where
   inspect (InspectableAppSpec spec) =
     InspectionEntry
       "Spec"
-      [ ("Version", show Wasp.Version.waspVersion),
+      [ ("Version", show waspVersion),
         ("Database", show (ASV.getValidDbSystem spec))
       ]
-      : concatMap inspect (decls spec)
+      : concatMap inspect (AS.decls spec)
