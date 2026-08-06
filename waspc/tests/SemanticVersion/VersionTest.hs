@@ -38,7 +38,7 @@ spec_SemanticVersion_Version = do
       isLeft (parseVersion "") `shouldBe` True
 
   describe "versionParser" $ do
-    let looseParseVersion = P.parse versionParser ""
+    let looseParseVersion = P.parse (versionParser <* P.eof) ""
 
     it "parses full versions with trailing content" $ do
       looseParseVersion "1.2.3.4.5.6.7.8.9.0" `shouldBe` Right (Version 1 2 3)
