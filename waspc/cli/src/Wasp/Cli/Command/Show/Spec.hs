@@ -11,8 +11,6 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 
--- | Shows the evaluated app spec: as a human-readable overview by default, or
--- as full JSON with --json.
 specShowSubcommand :: ShowSubcommand
 specShowSubcommand =
   ShowSubcommand

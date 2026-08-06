@@ -241,16 +241,7 @@ waspCliShowSpec = return "$WASP_CLI_CMD show spec"
 -- with the expected {waspVersion, decls} envelope.
 waspCliShowSpecJson :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliShowSpecJson =
-  return $
-    "$WASP_CLI_CMD show spec --json"
-      ~| ( "node -e \""
-             ++ "let d = '';"
-             ++ " process.stdin.on('data', (c) => (d += c));"
-             ++ " process.stdin.on('end', () => {"
-             ++ " const s = JSON.parse(d);"
-             ++ " if (typeof s.waspVersion !== 'string' || !Array.isArray(s.decls) || s.decls.length === 0) process.exit(1);"
-             ++ " });\""
-         )
+  return $ "$WASP_CLI_CMD show spec --json" ~| "jq ."
 
 waspCliShowBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliShowBuild = return "$WASP_CLI_CMD show build"

@@ -42,7 +42,6 @@ COMMANDS
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
-                          With --json, prints the full evaluated app spec as JSON.
     show build [--json]   Prints information about your app's current build.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
@@ -148,10 +147,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
 ```
 - `wasp deps` lists the dependencies that Wasp uses in your project.
-- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs.
-
-  With the `--json` flag, it instead prints the full evaluated app spec as JSON, which is handy for scripts and AI tools. The JSON schema follows Wasp's internal spec format and may change between Wasp versions.
-
+- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
 - `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 

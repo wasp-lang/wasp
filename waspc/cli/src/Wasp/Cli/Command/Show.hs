@@ -13,8 +13,8 @@ import Wasp.Cli.Command.Show.Spec (specShowSubcommand)
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..), runShowSubcommand)
 import Wasp.Cli.Util.Parser (withArguments)
 
--- | Prints information about the project: the evaluated app spec with
--- `wasp show spec`, or the current build with `wasp show build`.
+-- | Prints information about the project, e.g. its current build with
+-- `wasp show build`.
 showCommand :: Arguments -> Command ()
 showCommand = withArguments "wasp show" showParser id
 

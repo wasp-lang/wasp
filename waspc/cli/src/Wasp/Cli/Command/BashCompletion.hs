@@ -13,6 +13,7 @@ import qualified Wasp.Cli.Command.Show as Command.Show
 import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
 import Wasp.Util.Terminal (styleCode)
 
+-- generate bash completion depending on commands input
 bashCompletion :: Command ()
 bashCompletion = do
   -- COMP_LINE is exposed by the bash `complete` builtin (https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html)
