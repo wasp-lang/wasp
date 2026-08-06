@@ -25,11 +25,11 @@ showParser =
   where
     toOptCommand subcommand =
       Opt.command subcommand.name $
-        Opt.info (runShowSubcommand subcommand <$> jsonFlagParser subcommand) $
+        Opt.info (runShowSubcommand subcommand <$> jsonFlagParser) $
           Opt.progDesc subcommand.description
 
-    jsonFlagParser subcommand =
-      Opt.switch (Opt.long "json" <> Opt.help subcommand.jsonHelp)
+    jsonFlagParser =
+      Opt.switch (Opt.long "json" <> Opt.help "Render output as JSON")
 
     subcommandsMetavar =
       Opt.metavar $ "<" <> intercalate "|" ((.name) <$> subcommands) <> ">"
