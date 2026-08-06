@@ -1,4 +1,4 @@
-module Wasp.AppSpec.Core.Inspectable
+module Wasp.Inspectable
   ( Inspectable (..),
     InspectionEntry (..),
     InspectionDatapoint,
