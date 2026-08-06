@@ -13,8 +13,8 @@ where
 import Data.Aeson (FromJSON (parseJSON), ToJSON (toJSON), object, (.=))
 import Data.Data (Data)
 import Data.List (intercalate)
-import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
+import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
 import Wasp.Psl.Generator.Model (generateModelFieldTypeAndModifiers)

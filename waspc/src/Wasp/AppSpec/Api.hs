@@ -14,11 +14,11 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
+import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Api = Api
   { fn :: ExtImport,

@@ -11,11 +11,11 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity
 import Wasp.AppSpec.ExtImport
+import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Query = Query
   { fn :: ExtImport,

@@ -14,8 +14,8 @@ where
 import Data.Aeson (ToJSON (toJSON), object, (.=))
 import Data.Maybe (mapMaybe)
 import Data.Typeable (cast)
-import Wasp.Inspectable (Inspectable (..), modifyDatapointList)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
+import Wasp.Inspectable (Inspectable (..), modifyDatapointList)
 
 -- | A container for any (IsDecl a) type, allowing you to have a heterogenous list of
 --   Wasp declarations as [Decl].

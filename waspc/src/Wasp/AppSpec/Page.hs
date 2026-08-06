@@ -10,9 +10,9 @@ where
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
-import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.ExtImport (ExtImport, showExtImportFromProjectDir)
+import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data Page = Page
   { component :: ExtImport,
