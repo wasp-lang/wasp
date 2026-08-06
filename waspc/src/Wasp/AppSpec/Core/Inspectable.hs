@@ -1,8 +1,13 @@
 module Wasp.AppSpec.Core.Inspectable
-  ( InspectionEntry (..),
+  ( Inspectable (..),
+    InspectionEntry (..),
     InspectionDatapoint,
   )
 where
+
+-- | Types that can describe themselves for `wasp show spec`.
+class Inspectable a where
+  inspect :: a -> [InspectionEntry]
 
 data InspectionEntry = InspectionEntry
   { -- | The category heading for this inspection entry. This is used to group
