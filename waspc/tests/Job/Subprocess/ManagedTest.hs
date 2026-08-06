@@ -197,7 +197,7 @@ collectQueuedOutput chan = go []
       maybeMessage <- timeout (secondsToMicroSeconds 0.2) $ readChan chan
       case maybeMessage of
         Nothing -> return $ T.concat $ reverse collected
-        Just J.JobEvent {J._eventData = J.JobOutput output _} -> go (output : collected)
+        Just J.JobEvent {J._eventData = J.JobOutput _ output} -> go (output : collected)
         Just _ -> go collected
 
 jsString :: String -> String
