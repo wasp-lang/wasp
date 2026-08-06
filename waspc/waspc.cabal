@@ -215,7 +215,6 @@ library
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
-    Wasp.AppSpec.Core.Inspectable
     Wasp.AppSpec.Core.IsDecl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
@@ -349,6 +348,7 @@ library
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
+    Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
     Wasp.Job.Except

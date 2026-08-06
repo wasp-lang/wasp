@@ -17,8 +17,8 @@ import Data.Version (showVersion)
 import GHC.Generics (Generic)
 import qualified Paths_waspc
 import StrongPath (Abs, Dir, File, Path', Rel, relfile, toFilePath, (</>))
-import Wasp.AppSpec.Core.Inspectable (Inspectable (inspect), InspectionEntry (InspectionEntry))
 import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Inspectable (Inspectable (inspect), InspectionEntry (InspectionEntry))
 import Wasp.Project.BuildType (BuildType)
 import Wasp.Util.IO (doesFileExist)
 

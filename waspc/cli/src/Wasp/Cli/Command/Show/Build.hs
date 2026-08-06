@@ -12,15 +12,15 @@ import GHC.Generics (Generic)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (getFileSize)
-import Wasp.AppSpec.Core.Inspectable
-  ( Inspectable (inspect),
-    InspectionEntry (InspectionEntry),
-  )
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 import qualified Wasp.Generator.WaspInfo as WI
+import Wasp.Inspectable
+  ( Inspectable (inspect),
+    InspectionEntry (InspectionEntry),
+  )
 import Wasp.Message (Message (Info))
 import Wasp.Project.Common
   ( WaspProjectDir,
