@@ -1,21 +1,32 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Wasp.Cli.Command.Show.Build
   ( buildShowSubcommand,
   )
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
+import Data.Aeson (ToJSON)
+import GHC.Generics (Generic)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (getFileSize)
-import Wasp.AppSpec.Core.Inspectable (InspectionDatapoint, InspectionEntry (InspectionEntry))
+import Wasp.AppSpec.Core.Inspectable
+  ( Inspectable (inspect),
+    InspectionEntry (InspectionEntry),
+  )
 import Wasp.Cli.Command (Command, require)
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 import qualified Wasp.Generator.WaspInfo as WI
-import Wasp.Project (WaspProjectDir)
-import qualified Wasp.Project.Common as Project.Common
+import Wasp.Message (Message (Info))
+import Wasp.Project.Common
+  ( WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
+    generatedAppDirInDotWaspDir,
+  )
 import qualified Wasp.Util.IO as IOUtil
 
 -- | Shows information about the project's current build: as a human-readable
@@ -24,52 +35,49 @@ buildShowSubcommand :: ShowSubcommand
 buildShowSubcommand =
   ShowSubcommand
     { name = "build",
-      description = "Prints information about your app's current build",
-      jsonHelp = "Print the build information as JSON.",
-      getInspectionEntries = buildAsEntries <$> getBuildInfo,
-      getJson = buildAsJson <$> getBuildInfo
+      description = "Information about the last build, if any.",
+      getData = getBuildInfo
     }
 
--- | The compile information of the current build (if any), and the project dir
--- size.
-type BuildInfo = (WI.ReadResult, String)
+data BuildInfo = BuildInfo
+  { lastCompile :: Maybe WI.WaspInfo,
+    projectDirSize :: String
+  }
+  deriving (Generic, ToJSON)
+
+instance Inspectable BuildInfo where
+  inspect BuildInfo {lastCompile = maybeWaspInfo, projectDirSize} =
+    InspectionEntry
+      "Project"
+      [ ("Project dir size", projectDirSize)
+      ]
+      : maybe [] inspect maybeWaspInfo
 
 getBuildInfo :: Command BuildInfo
 getBuildInfo = do
   InWaspProject waspDir <- require
-  waspInfoOrError <- liftIO $ WI.safeRead $ generatedAppDir waspDir
+
   projectDirSize <- liftIO $ readDirectorySizeMB waspDir
-  return (waspInfoOrError, projectDirSize)
-  where
-    generatedAppDir waspDir =
-      waspDir
-        </> Project.Common.dotWaspDirInWaspProjectDir
-        </> Project.Common.generatedAppDirInDotWaspDir
+
+  let generatedAppDir = waspDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir
+  waspInfoOrError <- liftIO $ WI.safeRead generatedAppDir
+
+  lastCompile <- case waspInfoOrError of
+    Left WI.NotFound ->
+      cliSendMessageC (Info "No compile information found")
+        >> return Nothing
+    Left WI.IncompatibleFormat ->
+      cliSendMessageC (Info "Incompatible compile information")
+        >> return Nothing
+    Right waspInfo -> return $ Just waspInfo
+
+  return
+    BuildInfo
+      { lastCompile = lastCompile,
+        projectDirSize = projectDirSize
+      }
 
 readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
 readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> allFileSizes
   where
     allFileSizes = IOUtil.listDirectoryDeep path >>= mapM (getFileSize . SP.fromRelFile)
-
-buildAsEntries :: BuildInfo -> [InspectionEntry]
-buildAsEntries (waspInfoOrError, projectDirSize) =
-  [ InspectionEntry "Build" $
-      lastCompileDatapoints ++ [("Project dir size", projectDirSize)]
-  ]
-  where
-    lastCompileDatapoints :: [InspectionDatapoint]
-    lastCompileDatapoints = case waspInfoOrError of
-      Left WI.NotFound -> [("Last compile", "No compile information found")]
-      Left WI.IncompatibleFormat -> [("Last compile", "Incompatible compile information")]
-      Right waspInfo ->
-        [ ("Type", show $ WI.buildType waspInfo),
-          ("Generated at", show $ WI.generatedAt waspInfo),
-          ("Wasp version", WI.waspVersion waspInfo)
-        ]
-
-buildAsJson :: BuildInfo -> Aeson.Value
-buildAsJson (waspInfoOrError, projectDirSize) =
-  object
-    [ "lastCompile" .= either (const Nothing) Just waspInfoOrError,
-      "projectDirSize" .= projectDirSize
-    ]
