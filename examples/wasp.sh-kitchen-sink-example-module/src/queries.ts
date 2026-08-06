@@ -1,7 +1,7 @@
-import type { Query } from "wasp/server/operations";
+import type { QueryFn } from "wasp/server/types";
 import type { HostContext, TodoItems } from "./types";
 
-export const getTodoItems: Query<void, TodoItems, HostContext> = async (
+export const getTodoItems: QueryFn<void, TodoItems, HostContext> = async (
   _args,
   context,
 ) => {

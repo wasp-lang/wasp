@@ -1,4 +1,5 @@
 import * as jobs from "wasp/server/jobs";
+import type { ApiFn, JobFn } from "wasp/server/types";
 import type {
   ModuleJobRequest,
   ModuleJobResponse,
@@ -14,19 +15,17 @@ type ApiResponse<Body> = {
   json(body: Body): void;
 };
 
-export function handleModulePing(
-  _req: unknown,
-  res: ApiResponse<ModulePingResponse>,
-  _context: unknown,
-): void {
+export const handleModulePing: ApiFn<
+  unknown,
+  ApiResponse<ModulePingResponse>
+> = (_req, res) => {
   res.status(200).json({ ok: true });
-}
+};
 
-export async function startModuleJob(
-  req: ApiRequest,
-  res: ApiResponse<ModuleJobResponse>,
-  _context: unknown,
-): Promise<void> {
+export const startModuleJob: ApiFn<
+  ApiRequest,
+  ApiResponse<ModuleJobResponse>
+> = async (req, res) => {
   const source = req.query.source;
   const requestedAt = req.query.requestedAt;
   if (
@@ -38,10 +37,10 @@ export async function startModuleJob(
 
   const submittedJob = await jobs.moduleJob.submit({ source, requestedAt });
   res.status(202).json({ jobId: submittedJob.jobId });
-}
+};
 
-export async function moduleJob(args: ModuleJobRequest): Promise<void> {
+export const moduleJob: JobFn<ModuleJobRequest, void> = async (args) => {
   console.log(
     `Full-stack module job requested by ${args.source} at ${args.requestedAt}.`,
   );
-}
+};

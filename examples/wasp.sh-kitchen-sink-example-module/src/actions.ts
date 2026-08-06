@@ -1,8 +1,8 @@
 import { getRandomQuote } from "quote-lib";
-import type { Action } from "wasp/server/operations";
+import type { ActionFn } from "wasp/server/types";
 import type { HostContext } from "./types";
 
-export const addRandomTodo: Action<void, void, HostContext> = async (
+export const addRandomTodo: ActionFn<void, void, HostContext> = async (
   _args,
   context,
 ) => {

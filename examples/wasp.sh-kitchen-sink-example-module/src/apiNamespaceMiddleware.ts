@@ -1,17 +1,18 @@
+import type { MiddlewareConfigFn } from "wasp/server/types";
 import {
   MODULE_API_HEADER_NAME,
   MODULE_API_HEADER_VALUE,
 } from "./moduleApiContract";
 
-type MiddlewareConfig = Map<string, any>;
+type ModuleMiddlewareConfig = Map<string, any>;
 
 type ModuleApiResponse = {
   setHeader(name: string, value: string): void;
 };
 
-export function moduleApiNamespaceMiddlewareFn(
-  config: MiddlewareConfig,
-): MiddlewareConfig {
+export const moduleApiNamespaceMiddlewareFn: MiddlewareConfigFn<
+  ModuleMiddlewareConfig
+> = (config) => {
   config.set(
     "module.api",
     (_req: unknown, res: ModuleApiResponse, next: () => void) => {
@@ -22,4 +23,4 @@ export function moduleApiNamespaceMiddlewareFn(
     },
   );
   return config;
-}
+};

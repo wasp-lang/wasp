@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/module-builder",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "type": "module",
   "description": "Wasp module builder",
   "author": "wasp",

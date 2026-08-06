@@ -8,13 +8,13 @@
 - `examples/wasp.sh-kitchen-sink-example-module` is the current skateboard module package: `@wasp.sh/kitchen-sink-example-module`. Kitchen Sink imports it from `@wasp.sh/kitchen-sink-example-module/spec`, calls it with `{ prefix: "/fsm" }`, and exposes the module route at `/fsm`.
 - The demo module exercises all 8 module-usable declaration kinds: route, page, query, action, crud, api, apiNamespace, and job.
 
-## Module SDK Shim
+## Module Development SDK
 
-- `wasp module install` and `wasp module build` copy the static shim from `data/Generator/templates/sdk/wasp/module-shim/` into `.wasp/wasp`. Nothing in the shim is generated per module.
-- Modules type server code with generic `Query` / `Action` types (`<Args, Result, Context>`). The real SDK's `wasp/server/operations` exports the same generics, so module operation code is valid host app code.
-- `ambient.d.ts` declares the wildcard `declare module "wasp/*";`, so every other `wasp/*` import typechecks as `any`. Real declaration files (e.g. `wasp/server/operations`) win over the wildcard. Both module tsconfigs must include `.wasp/wasp/ambient.d.ts`.
-- The shim is for module typechecking. Runtime `wasp/*` imports are provided by the host app SDK.
-- An operation named `query` or `action` would generate a `Query`/`Action` SDK type colliding with the generics. Wasp does not validate this yet.
+- The full SDK defines dependency-free server function types in `wasp/server/types`. Generated query, action, API, job, and middleware types specialize this shared base with host-specific details.
+- `wasp module install` and `wasp module build` assemble a partial SDK in `.wasp/wasp`. It copies the same base types used by the full SDK and adds module-only package metadata, an ambient fallback, and a runtime guard.
+- Modules use `QueryFn`, `ActionFn`, `ApiFn`, `JobFn`, and `MiddlewareConfigFn` from `wasp/server/types` for basic implementation structure.
+- `ambient.d.ts` declares `wasp/*` as `any` for host-generated SDK names that are unavailable during module development. Both module tsconfigs include this file.
+- Runtime `wasp/*` imports are externalized from module builds and provided by the host app SDK.
 
 ## Module Builder
 
@@ -67,7 +67,7 @@
 
 ## Known Limitations
 
-- Only `wasp/server/operations` is typed in the shim. All other `wasp/*` imports are `any` via the ambient wildcard.
+- Only the shared `wasp/server/types` contracts are concrete in the module development SDK. Host-generated `wasp/*` imports are `any` through the ambient fallback.
 - Module refs are static exports, so referenced behavior (e.g. middleware) cannot be parameterized by `options`. Only plain-data declaration values, such as the apiNamespace path, can derive from `options`.
 - Module host app contracts are structural and local to the module. There is no generated type that proves the host app actually provides the expected Prisma model shape.
 - npm aliases for module packages are not supported because compiled logical origins carry the canonical `package.json` name used in generated imports.

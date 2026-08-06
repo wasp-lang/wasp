@@ -15,7 +15,7 @@ import qualified Data.Text.IO as TIO
 import Path.IO (copyDirRecur)
 import StrongPath (Abs, Dir, Dir', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
-import System.Directory (doesFileExist, doesPathExist)
+import System.Directory (createDirectoryIfMissing, doesFileExist, doesPathExist)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import qualified System.Process as P
@@ -60,12 +60,12 @@ installModuleDependenciesIO moduleDir = do
   messageChan <- newChan
   installProjectNpmDependencies messageChan moduleDir
 
--- | Modules resolve the spec package and the `wasp` type shim from disk instead
+-- | Modules resolve the spec package and a development SDK from disk instead
 -- of the lib tarballs used by generated apps.
 ensureWaspOwnedNpmArtifactsInModule :: Path' Abs (Dir WaspProjectDir) -> IO ()
 ensureWaspOwnedNpmArtifactsInModule moduleDir = do
   ensurePackageIsAtInstallationPathInProject moduleDir WaspSpecPackage
-  ensureWaspSdkTypeShimIO moduleDir
+  ensureModuleDevelopmentSdkIO moduleDir
 
 buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 buildModuleIO moduleDir = do
@@ -75,7 +75,7 @@ buildModuleIO moduleDir = do
       ensureValidModuleTsConfigs moduleDir >>= \case
         Left errorMessage -> return $ Left errorMessage
         Right () -> do
-          ensureWaspSdkTypeShimIO moduleDir
+          ensureModuleDevelopmentSdkIO moduleDir
           ensureInstalledModuleDependencies moduleDir >>= \case
             Left errorMessage -> return $ Left errorMessage
             Right () -> runModuleBuilder moduleDir
@@ -130,15 +130,19 @@ moduleTemplateDirInDataDir = [reldir|Cli/module-template|]
 moduleTemplateDotfiles :: [String]
 moduleTemplateDotfiles = ["gitignore"]
 
-waspSdkModuleShimTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
-waspSdkModuleShimTemplateDirInDataDir = [reldir|Generator/templates/sdk/wasp/module-shim|]
+moduleDevelopmentSdkTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
+moduleDevelopmentSdkTemplateDirInDataDir = [reldir|Generator/templates/sdk/wasp/module-development-sdk|]
 
-ensureWaspSdkTypeShimIO :: Path' Abs (Dir WaspProjectDir) -> IO ()
-ensureWaspSdkTypeShimIO moduleDir = do
+ensureModuleDevelopmentSdkIO :: Path' Abs (Dir WaspProjectDir) -> IO ()
+ensureModuleDevelopmentSdkIO moduleDir = do
   dataDir <- Data.getAbsDataDirPath
-  let waspShimDir = moduleDir </> [reldir|.wasp/wasp|]
-  IOUtil.deleteDirectoryIfExists waspShimDir
-  IOUtil.copyDirectory (dataDir </> waspSdkModuleShimTemplateDirInDataDir) waspShimDir
+  let sdkDir = moduleDir </> [reldir|.wasp/wasp|]
+      baseTypesSource = dataDir </> [relfile|Generator/templates/sdk/wasp/server/types/base.ts|]
+      baseTypesDestination = sdkDir </> [relfile|server/types/base.ts|]
+  IOUtil.deleteDirectoryIfExists sdkDir
+  IOUtil.copyDirectory (dataDir </> moduleDevelopmentSdkTemplateDirInDataDir) sdkDir
+  createDirectoryIfMissing True $ FP.takeDirectory $ fromAbsFile baseTypesDestination
+  IOUtil.copyFile baseTypesSource baseTypesDestination
 
 replaceModuleTemplatePlaceholders :: Path' Abs (Dir WaspProjectDir) -> String -> IO ()
 replaceModuleTemplatePlaceholders moduleDir packageName = do

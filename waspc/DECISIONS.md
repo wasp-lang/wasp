@@ -87,4 +87,4 @@ Full-stack modules are npm packages that contribute declarations to a host app t
 - ✅ Every `src/**/*.ts` and `src/**/*.tsx` file becomes a public entry. JavaScript is not built, although ref mapping strips `.js` and `.jsx`.
 - ✅ `tsdown` bundles module spec declarations after `wasp module build` performs module spec typechecking. `npm run typecheck` remains available for both module tsconfigs.
 - ✅ npm package aliases are unsupported; generated imports use the module's canonical `package.json` name.
-- ✅ Operations named `query` or `action` collide with the generic SDK aliases.
+- ✅ The module development SDK provides shared function contracts through `wasp/server/types`; host-generated SDK imports remain permissive until the module is compiled in an app.
