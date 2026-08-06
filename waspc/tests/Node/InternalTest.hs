@@ -8,8 +8,8 @@ spec_NodeInternal :: Spec
 spec_NodeInternal =
   describe "parseVersionFromCommandOutput" $ do
     it "parses a version when the version string is at the end" $ do
-      let info = "Some informational output...\nVersion: 20.3.1"
-      parseVersionFromCommandOutput info `shouldBe` Right (Version 20 3 1)
+      let output = "Some informational output...\nVersion: 20.3.1"
+      parseVersionFromCommandOutput output `shouldBe` Right (Version 20 3 1)
 
     it "parses a version when the version string is in the middle" $ do
       let output = "Starting up v20.3.1 and initializing modules"

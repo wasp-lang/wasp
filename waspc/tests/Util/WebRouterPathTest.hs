@@ -40,6 +40,5 @@ spec_WebRouterPathTest = do
       matches "/users/:id?" "/users/42"
       matches "/users/:id?" "/users"
   where
-    -- Check that the route pattern matches the path.
     matches routePattern path = doesConcretePathMatchRoutePattern routePattern path `shouldBe` True
     doesNotMatch routePattern path = doesConcretePathMatchRoutePattern routePattern path `shouldBe` False
