@@ -25,7 +25,6 @@ import Tests.WaspDbResetTest (waspDbResetTest)
 import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
-import Tests.WaspInfoTest (waspInfoTest)
 import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspProjectLockTest (waspProjectLockTest)
@@ -109,7 +108,6 @@ e2eTests = do
         waspCleanTest,
         waspProjectLockTest,
         waspSpecAvailableTest,
-        waspInfoTest,
         waspShowTest,
         waspInstallTest,
         waspDepsTest,
