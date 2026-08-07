@@ -464,6 +464,7 @@ library cli-lib
     http-conduit,
     lens,
     lens-aeson ^>=1.2.3,
+    lukko ^>=0.1.2,
     mtl,
     neat-interpolation,
     optparse-applicative ^>=0.18.1,
@@ -515,6 +516,7 @@ library cli-lib
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Install
+    Wasp.Cli.Command.LockedProject
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
@@ -546,6 +548,7 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.ProjectLock
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
@@ -747,6 +750,7 @@ test-suite waspc-e2e-tests
     Tests.WaspDockerfileTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspProjectLockTest
     Tests.WaspShowTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
