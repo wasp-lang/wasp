@@ -129,34 +129,34 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
       maybeFreePort <- liftIO $ findFirstFreeLocalPort candidatePorts
       maybe throwNoFreePortError startDbOnPort maybeFreePort
   where
-    noteDbIsAlreadyRunning :: Dev.Postgres.DevDbInfo -> Command ()
-    noteDbIsAlreadyRunning devDbInfo = do
+    noteDbIsAlreadyRunning :: Dev.Postgres.DevDbSpec -> Command ()
+    noteDbIsAlreadyRunning devDbSpec = do
       cliSendMessageC . Msg.Info . unlines $
-        ("Your PostgreSQL dev database is already running on port " ++ show devDbInfo.port ++ ".")
-          : devDbAdditionalInfoLines devDbInfo
+        ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
+          : additionalInfoLines devDbSpec
       liftIO exitFailure
 
     candidatePorts = take defaultNumberOfPortsToScan [Dev.Postgres.defaultPostgresPort ..]
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
-      let devDbInfo = Dev.Postgres.makeDevPostgresDb waspProjectDir appName port
+      let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
       cliSendMessageC . Msg.Info . unlines $
         "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
-          : devDbAdditionalInfoLines devDbInfo
+          : additionalInfoLines devDbSpec
             <> dockerRunInfoLines
       cliSendMessageC $ Msg.Info "..."
-      liftIO $ Dev.Postgres.runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath
+      liftIO $ Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath
 
-    devDbAdditionalInfoLines :: Dev.Postgres.DevDbInfo -> [String]
-    devDbAdditionalInfoLines devDbInfo =
+    additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
+    additionalInfoLines devDbSpec =
       [ "",
         "Additional info:",
         " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> Dev.Postgres.getDevConnectionUrl devDbInfo,
+        "     " <> Dev.Postgres.getDevConnectionUrl devDbSpec,
         " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
-        "     " <> devDbInfo.dockerVolumeName
+        "     " <> devDbSpec.dockerVolumeName
       ]
 
     -- These lines describe what `docker run` is about to use, so we print them
