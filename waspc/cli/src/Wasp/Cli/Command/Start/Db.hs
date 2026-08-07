@@ -144,6 +144,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
       cliSendMessageC . Msg.Info . unlines $
         "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
           : devDbAdditionalInfoLines devDbInfo
+            <> dockerRunInfoLines
       cliSendMessageC $ Msg.Info "..."
       liftIO $ Dev.Postgres.runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath
 
@@ -151,13 +152,21 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     devDbAdditionalInfoLines devDbInfo =
       [ "",
         "Additional info:",
-        " ℹ Using Docker image: " <> dbDockerImage,
-        "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> Dev.Postgres.getDevConnectionUrl devDbInfo,
         " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
         "     " <> devDbInfo.dockerVolumeName
+      ]
+
+    -- These lines describe what `docker run` is about to use, so we print them
+    -- only when starting the database: an already running container might have
+    -- been started with a different image or mount path than the current
+    -- invocation's arguments.
+    dockerRunInfoLines :: [String]
+    dockerRunInfoLines =
+      [ " ℹ Using Docker image: " <> dbDockerImage,
+        "   with the data volume mounted at: " <> dbDockerVolumeMountPath
       ]
 
     throwNoFreePortError :: Command ()
