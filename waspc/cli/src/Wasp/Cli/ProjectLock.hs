@@ -42,9 +42,9 @@ projectLockFileInWaspProjectDir = dotWaspDirInWaspProjectDir </> [relfile|.lock|
 -- error message other processes show, and returns the open handle backing the
 -- lock so we can hold onto it.
 --
--- NOTE: The lock file is intentionally **not** deleted when the lock is
--- released, by common convention, to avoid very subtle race conditions enabled
--- by the POSIX semantics for file handles. See
+-- NOTE: By common convention, the lock file is intentionally **never deleted**,
+-- even when the lock is released. This avoids subtle race conditions enabled by
+-- POSIX's file handle semantics. See
 -- https://theworld.com/~swmcd/steven/tech/flock.html#:~:text=DON%27T%20unlink
 -- for an example.
 acquireProjectLock :: Path' Abs (Dir WaspProjectDir) -> IO (Either (Maybe WaspProcessId) Handle)
