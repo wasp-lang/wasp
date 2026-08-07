@@ -46,7 +46,7 @@ runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath =
   callCommand runDbCommand
   where
     -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
-    --   only when initializing the database -> if it already exists, they will be ignored.
+    --   only when initializing the database -> if the volume was created previously, they will be ignored.
     --   This is how the postgres Docker image works.
     runDbCommand =
       unwords

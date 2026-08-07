@@ -11,6 +11,7 @@ import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
+import System.Exit (exitFailure)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
@@ -23,6 +24,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.Port (findFirstFreeLocalPort)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -30,7 +32,6 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
-import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
@@ -125,14 +126,15 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
   liftIO (Dev.Postgres.discoverDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunning runningDb
     Nothing -> do
-      maybeFreePort <- liftIO $ Socket.findFirstFreeLocalPort candidatePorts
+      maybeFreePort <- liftIO $ findFirstFreeLocalPort candidatePorts
       maybe throwNoFreePortError startDbOnPort maybeFreePort
   where
     noteDbIsAlreadyRunning :: Dev.Postgres.DevDbInfo -> Command ()
-    noteDbIsAlreadyRunning devDbInfo =
+    noteDbIsAlreadyRunning devDbInfo = do
       cliSendMessageC . Msg.Info . unlines $
         ("Your PostgreSQL dev database is already running on port " ++ show devDbInfo.port ++ ".")
           : devDbAdditionalInfoLines devDbInfo
+      liftIO exitFailure
 
     candidatePorts = take numOfPortsToScan [Dev.Postgres.defaultDevPort ..]
     numOfPortsToScan = 20
@@ -165,7 +167,9 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
         CommandError
           "No free port"
           ( printf
-              "Wasp can't run PostgreSQL dev database for you since all ports from %s to %s are already in use."
+              ( "Wasp tried to start a PostgreSQL dev database but couldn't find a free port (checked from %s to %s). "
+                  <> "Free at least one of these ports by exiting the program listening on it."
+              )
               (show Dev.Postgres.defaultDevPort)
               (show $ Dev.Postgres.defaultDevPort + fromIntegral numOfPortsToScan - 1)
           )
