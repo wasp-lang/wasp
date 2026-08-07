@@ -4,7 +4,7 @@ module Wasp.Project.Db.Dev.Postgres
     runDevPostgresDb,
     DevDbInfo (..),
     discoverDevDb,
-    defaultDevPort,
+    defaultPostgresPort,
     waspDevDbDockerVolumePrefix,
   )
 where
@@ -53,7 +53,7 @@ runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath =
         [ "docker run",
           printf "--name %s" devDbInfo.dockerContainerName,
           "--rm",
-          printf "--publish %s:5432" (show devDbInfo.port),
+          printf "--publish %s:%s" (show devDbInfo.port) (show defaultPostgresPort),
           printf "-v %s:%s" devDbInfo.dockerVolumeName dbDockerVolumeMountPath,
           printf "--env POSTGRES_PASSWORD=%s" devDbInfo.password,
           printf "--env POSTGRES_USER=%s" devDbInfo.user,
@@ -87,8 +87,8 @@ makeDevDbName waspProjectDir appName =
   -- can't connect to it by accident.
   take postgresMaxDbNameLength $ makeAppUniqueId waspProjectDir appName
 
-defaultDevPort :: PortNumber
-defaultDevPort = 5432 -- 5432 is default port for PostgreSQL db.
+defaultPostgresPort :: PortNumber
+defaultPostgresPort = 5432
 
 -- | Docker volume name unique for the Wasp project with specified path and name.
 makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String

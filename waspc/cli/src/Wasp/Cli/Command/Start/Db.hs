@@ -136,7 +136,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
           : devDbAdditionalInfoLines devDbInfo
       liftIO exitFailure
 
-    candidatePorts = take defaultNumberOfPortsToScan [Dev.Postgres.defaultDevPort ..]
+    candidatePorts = take defaultNumberOfPortsToScan [Dev.Postgres.defaultPostgresPort ..]
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
@@ -169,6 +169,6 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
               ( "Wasp tried to start a PostgreSQL dev database but couldn't find a free port (checked from %s to %s). "
                   <> "Free at least one of these ports by exiting the program listening on it."
               )
-              (show Dev.Postgres.defaultDevPort)
-              (show $ Dev.Postgres.defaultDevPort + fromIntegral defaultNumberOfPortsToScan - 1)
+              (show Dev.Postgres.defaultPostgresPort)
+              (show $ last candidatePorts)
           )
