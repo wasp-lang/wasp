@@ -12,8 +12,8 @@ import GHC.Generics (Generic)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (getFileSize)
+import System.IO (hPutStrLn, stderr)
 import Wasp.Cli.Command (Command, require)
-import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 import qualified Wasp.Generator.WaspInfo as WI
@@ -21,7 +21,6 @@ import Wasp.Inspectable
   ( Inspectable (inspect),
     InspectionEntry (InspectionEntry),
   )
-import Wasp.Message (Message (Info))
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
@@ -62,10 +61,10 @@ getBuildInfo = do
 
   lastCompile <- case waspInfoOrError of
     Left WI.NotFound ->
-      cliSendMessageC (Info "No compile information found")
+      liftIO (hPutStrLn stderr "No compile information found")
         >> return Nothing
     Left WI.IncompatibleFormat ->
-      cliSendMessageC (Info "Incompatible compile information")
+      liftIO (hPutStrLn stderr "Incompatible compile information")
         >> return Nothing
     Right waspInfo -> return $ Just waspInfo
 
