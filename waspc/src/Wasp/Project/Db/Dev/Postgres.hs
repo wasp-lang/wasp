@@ -4,7 +4,7 @@ module Wasp.Project.Db.Dev.Postgres
     runDevPostgresDb,
     DevDbInfo (..),
     getDevConnectionUrl,
-    discoverDevDb,
+    discoverProjectsRunningDevDb,
     defaultPostgresPort,
     waspDevDbDockerVolumePrefix,
   )
@@ -62,11 +62,11 @@ runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath =
           dbDockerImage
         ]
 
--- | Returns info about this Wasp project's dev db if it is up,
--- 'Nothing' otherwise.
-discoverDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe DevDbInfo)
-discoverDevDb waspProjectDir appName = do
-  devDbPort <- discoverHostPortForDockerContainersInternalPort devDbContainerName 5432
+-- | Returns all relevant info about this Wasp project's dev detabase if its
+-- container is running, 'Nothing' otherwise.
+discoverProjectsRunningDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe DevDbInfo)
+discoverProjectsRunningDevDb waspProjectDir appName = do
+  devDbPort <- discoverHostPortForDockerContainersInternalPort devDbContainerName defaultPostgresPort
   return $ makeDevPostgresDb waspProjectDir appName <$> devDbPort
   where
     devDbContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
