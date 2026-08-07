@@ -10,7 +10,6 @@ import Control.Exception (IOException, try)
 import Control.Monad.Catch (bracket)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (catMaybes)
 import qualified Data.Text as T
 import qualified Lukko
 import StrongPath (Abs, Dir, File, Path', Rel, relfile, (</>))
