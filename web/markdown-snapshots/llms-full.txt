@@ -14819,7 +14819,8 @@ COMMANDS
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
-    info                  Prints basic information about the current Wasp project.
+    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
+    show build [--json]   Prints information about your app's current build.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
@@ -14924,7 +14925,8 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 ```
 
 - `wasp deps` lists the dependencies that Wasp uses in your project.
-- `wasp info` provides basic details about the current Wasp project.
+- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
+- `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 #### Database Commands
@@ -15232,7 +15234,58 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-#### 2. Enjoy your updated Wasp app
+#### 2. Update your TypeScript config
+
+Due to `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
+
+In `tsconfig.src.json`, update the `include` field:
+
+**Before**
+
+```json title="tsconfig.src.json"
+{
+  "compilerOptions": {
+    // ...
+  },
+  "include": ["src"]
+}
+```
+
+**After**
+
+```json title="tsconfig.src.json"
+{
+  "compilerOptions": {
+    // ...
+  }, 
+  "include": ["src", ".wasp/out/types/app"]
+}
+```
+
+#### 3. Update your custom Dockerfile
+
+If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
+
+**Before**
+
+```dockerfile title="Dockerfile"
+# ...
+COPY sdk .wasp/out/sdk
+COPY libs .wasp/out/libs
+# ...
+```
+
+**After**
+
+```dockerfile title="Dockerfile"
+# ...
+COPY sdk .wasp/out/sdk
+COPY types .wasp/out/types
+COPY libs .wasp/out/libs
+# ...
+```
+
+#### 4. Enjoy your updated Wasp app
 
 That's it!
 

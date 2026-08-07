@@ -25,9 +25,10 @@ import Tests.WaspDbResetTest (waspDbResetTest)
 import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
-import Tests.WaspInfoTest (waspInfoTest)
 import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
+import Tests.WaspProjectLockTest (waspProjectLockTest)
+import Tests.WaspShowTest (waspShowTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
@@ -66,7 +67,7 @@ ensureE2eTestsEnvironment = do
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: IO ()
-warmUpWaspCli = callCommand "$WASP_CLI_CMD version 2>&1 >/dev/null" -- We don't need any output.
+warmUpWaspCli = callCommand "$WASP_CLI_CMD version >/dev/null 2>&1" -- We don't need any output.
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
@@ -105,8 +106,9 @@ e2eTests = do
         viteConfigTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
+        waspProjectLockTest,
         waspSpecAvailableTest,
-        waspInfoTest,
+        waspShowTest,
         waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,
