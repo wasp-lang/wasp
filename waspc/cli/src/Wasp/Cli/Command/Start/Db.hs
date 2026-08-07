@@ -154,7 +154,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
         " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
         " ℹ Connection URL, in case you might want to connect with external tools:",
-        "     " <> devDbInfo.connectionUrl,
+        "     " <> Dev.Postgres.getDevConnectionUrl devDbInfo,
         " ℹ Database data is persisted in a Docker volume with the following name"
           <> " (useful to know if you will want to delete it at some point):",
         "     " <> devDbInfo.dockerVolumeName

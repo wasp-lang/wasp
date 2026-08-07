@@ -34,7 +34,7 @@ makeDevDatabaseUrl waspProjectDir dbSystem decls =
     Just (appName, _) -> case dbSystem of
       AS.Db.SQLite -> return $ Just DevSqlite.defaultDevDbFile
       AS.Db.PostgreSQL ->
-        fmap DevPostgres.connectionUrl <$> DevPostgres.discoverDevDb waspProjectDir appName
+        fmap DevPostgres.getDevConnectionUrl <$> DevPostgres.discoverDevDb waspProjectDir appName
 
 databaseUrlEnvVarName :: String
 databaseUrlEnvVarName = "DATABASE_URL"

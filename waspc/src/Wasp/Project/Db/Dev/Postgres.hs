@@ -3,6 +3,7 @@ module Wasp.Project.Db.Dev.Postgres
   ( makeDevPostgresDb,
     runDevPostgresDb,
     DevDbInfo (..),
+    getDevConnectionUrl,
     discoverDevDb,
     defaultPostgresPort,
     waspDevDbDockerVolumePrefix,
@@ -18,8 +19,7 @@ import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 
 data DevDbInfo = DevDbInfo
-  { connectionUrl :: String,
-    dockerVolumeName :: String,
+  { dockerVolumeName :: String,
     dockerContainerName :: String,
     dbName :: String,
     user :: String,
@@ -30,16 +30,17 @@ data DevDbInfo = DevDbInfo
 makeDevPostgresDb :: Path' Abs (Dir WaspProjectDir) -> String -> PortNumber -> DevDbInfo
 makeDevPostgresDb waspProjectDir appName port =
   DevDbInfo
-    { connectionUrl = makeConnectionUrl defaultDevUser defaultDevPass port dbName,
-      dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName,
+    { dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName,
       dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName,
-      dbName,
+      dbName = makeDevDbName waspProjectDir appName,
       user = defaultDevUser,
       password = defaultDevPass,
       port
     }
-  where
-    dbName = makeDevDbName waspProjectDir appName
+
+getDevConnectionUrl :: DevDbInfo -> String
+getDevConnectionUrl devDbInfo =
+  makeConnectionUrl devDbInfo.user devDbInfo.password devDbInfo.port devDbInfo.dbName
 
 runDevPostgresDb :: DevDbInfo -> DockerImageName -> DockerVolumeMountPath -> IO ()
 runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath =
