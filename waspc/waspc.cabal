@@ -516,7 +516,6 @@ library cli-lib
     Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
-    Wasp.Cli.Command.LockedProject
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core

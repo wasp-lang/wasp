@@ -1,13 +1,16 @@
 module Wasp.Cli.ProjectLock
-  ( WaspProcessId,
+  ( withProjectLock,
+    WaspProcessId,
     WaspProjectLockfile,
     projectLockFileInWaspProjectDir,
-    acquireProjectLock,
-    releaseProjectLock,
   )
 where
 
 import Control.Exception (IOException, try)
+import Control.Monad.Catch (bracket)
+import Control.Monad.Error.Class (throwError)
+import Control.Monad.IO.Class (liftIO)
+import Data.Maybe (catMaybes)
 import qualified Data.Text as T
 import qualified Lukko
 import StrongPath (Abs, Dir, File, Path', Rel, relfile, (</>))
@@ -16,10 +19,10 @@ import qualified System.Directory as Directory
 import System.IO (Handle, IOMode (ReadWriteMode), hClose, hFlush, hPutStr, hSetFileSize, openFile)
 import System.Process (getCurrentPid)
 import Text.Read (readMaybe)
+import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir)
 import qualified Wasp.Util.IO as Wasp.IO
-
-type WaspProcessId = Integer
 
 -- | This file has some information about any process currently running in the
 -- project, and is protected by a OS advisory lock to avoid multiple processes
@@ -28,6 +31,36 @@ data WaspProjectLockfile
 
 projectLockFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspProjectLockfile)
 projectLockFileInWaspProjectDir = dotWaspDirInWaspProjectDir </> [relfile|.projectlock|]
+
+type WaspProcessId = Integer
+
+-- | Runs the given action while holding an exclusive lock on the Wasp project
+-- the current working directory is part of, so no other Wasp process can work
+-- on the project at the same time. Throws a 'CommandError' if another process
+-- already holds the lock.
+withProjectLock :: Command a -> Command a
+withProjectLock action = do
+  InWaspProject waspProjectDir <- require
+
+  bracket
+    (acquireProjectLockOrThrow waspProjectDir)
+    (liftIO . releaseProjectLock)
+    (const action)
+  where
+    acquireProjectLockOrThrow waspProjectDir =
+      liftIO (acquireProjectLock waspProjectDir) >>= \case
+        Right lockFileHandle -> return lockFileHandle
+        Left maybeProcessId ->
+          throwError $ makeLockedProjectError maybeProcessId
+
+    makeLockedProjectError maybeProcessId =
+      CommandError "Wasp project is already in use" $
+        unwords $
+          catMaybes
+            [ Just "Another Wasp command",
+              ("(PID " ++) . (++ ")") . show <$> maybeProcessId,
+              Just "is already running for this project. Stop it before running this command."
+            ]
 
 -- | Tries to take an exclusive OS-level advisory lock on the project's lock
 -- file, creating the file if needed.
