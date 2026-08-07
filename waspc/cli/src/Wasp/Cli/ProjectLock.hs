@@ -55,12 +55,9 @@ withProjectLock action = do
 
     makeLockedProjectError maybeProcessId =
       CommandError "Wasp project is already in use" $
-        unwords $
-          catMaybes
-            [ Just "Another Wasp command",
-              ("(PID " ++) . (++ ")") . show <$> maybeProcessId,
-              Just "is already running for this project. Stop it before running this command."
-            ]
+        "Another Wasp command"
+          ++ maybe "" (\pid -> " (PID " ++ show pid ++ ")") maybeProcessId
+          ++ " is already running for this project. Stop it before running this command."
 
 -- | Tries to take an exclusive OS-level advisory lock on the project's lock
 -- file, creating the file if needed.
