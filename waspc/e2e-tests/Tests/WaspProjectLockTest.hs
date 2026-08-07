@@ -19,6 +19,15 @@ waspProjectLockTest =
     "wasp-project-lock"
     [ TestCase
         "fail-while-another-wasp-command-holds-the-lock"
+        -- To test the lock we need a Wasp command that holds it for as long as
+        -- we want. We get that by running `wasp install` in the background and
+        -- stalling the `npm install` it does, via an npm preinstall hook that
+        -- waits for a signal file we create. In short:
+        --   1. `wasp install` starts, acquires the lock, and gets stuck inside
+        --      `npm install`, so it keeps holding the lock.
+        --   2. Meanwhile, `wasp clean` must fail and name the holder's PID.
+        --   3. We signal the hook to stop waiting, so `wasp install` finishes
+        --      and drops the lock, and `wasp clean` works again.
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
@@ -60,7 +69,7 @@ waspProjectLockTest =
       "touch "
         ++ lockAcquiredMarkerFile
         ++ " && i=0 && until [ -f "
-        ++ lockReleasedMarkerFile
+        ++ releaseLockSignalFile
         ++ " ]; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done"
 
     startWaspInstallInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -85,10 +94,12 @@ waspProjectLockTest =
 
     releaseLockAndAwaitWaspInstall :: ShellCommand
     releaseLockAndAwaitWaspInstall =
-      "touch " ++ lockReleasedMarkerFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
+      "touch " ++ releaseLockSignalFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
 
     lockAcquiredMarkerFile :: FilePath
     lockAcquiredMarkerFile = ".wasp-e2e-lock-acquired"
 
-    lockReleasedMarkerFile :: FilePath
-    lockReleasedMarkerFile = ".wasp-e2e-lock-released"
+    -- Created by the test to tell the preinstall hook to stop waiting, which
+    -- lets `wasp install` (and with it the lock) finish.
+    releaseLockSignalFile :: FilePath
+    releaseLockSignalFile = ".wasp-e2e-release-lock"
