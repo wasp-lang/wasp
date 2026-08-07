@@ -169,6 +169,6 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
               ( "Wasp tried to start a PostgreSQL dev database but couldn't find a free port (checked from %s to %s). "
                   <> "Free at least one of these ports by exiting the program listening on it."
               )
-              (show Dev.Postgres.defaultPostgresPort)
+              (show $ head candidatePorts)
               (show $ last candidatePorts)
           )
