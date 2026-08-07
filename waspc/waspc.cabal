@@ -347,6 +347,7 @@ library
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
+    Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
     Wasp.Job.Except
@@ -528,6 +529,10 @@ library cli-lib
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
+    Wasp.Cli.Command.Show
+    Wasp.Cli.Command.Show.Build
+    Wasp.Cli.Command.Show.Subcommand
+    Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
@@ -747,6 +752,7 @@ test-suite waspc-e2e-tests
     Tests.WaspInstallTest
     Tests.WaspNewTest
     Tests.WaspProjectLockTest
+    Tests.WaspShowTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest

@@ -21,6 +21,7 @@ import ShellCommands
     waspCliInfo,
     waspCliInstall,
     waspCliNews,
+    waspCliShowBuild,
     waspCliStart,
     waspCliStartDb,
     waspCliStudio,
@@ -94,6 +95,7 @@ waspSpecAvailableTest =
                   -- Project-scoped commands that don't require wasp-spec to be installed.
                   [ waspCliClean,
                     waspCliInstall,
+                    waspCliShowBuild,
                     -- Project-agnostic commands. They don't read the project,
                     -- so they should be unaffected by wasp-spec presence.
                     waspCliVersion,
