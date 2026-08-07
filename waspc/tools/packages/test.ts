@@ -1,21 +1,17 @@
 /// <reference types="node" />
 // Helper to test the waspc/data/packages/* locally and in CI.
 
-import { join } from "node:path";
-import {
-  discoverSubDirs,
-  getPackageJson,
-  getWaspcDirPath,
-  runCmd,
-} from "../utils.ts";
-
-const waspcDirPath = getWaspcDirPath();
-const dataPackagesDirPath = join(waspcDirPath, "data", "packages");
+import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
+import { getDataPackagesDirPath, orderPackageDirs } from "./utils.ts";
 
 testPackages();
 
 function testPackages(): void {
-  const packageDirs = discoverSubDirs(dataPackagesDirPath);
+  // Package test scripts build their package, so dependency order matters:
+  // module-builder resolves @wasp.sh/spec/compiler from spec's built dist.
+  const packageDirs = orderPackageDirs(
+    discoverSubDirs(getDataPackagesDirPath()),
+  );
 
   for (const packageDir of packageDirs) {
     testPackage(packageDir);

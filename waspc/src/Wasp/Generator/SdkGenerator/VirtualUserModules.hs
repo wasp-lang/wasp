@@ -22,6 +22,8 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
+import Wasp.AppSpec.ExtImport.Source (ProjectSrcExtImportPath)
+import qualified Wasp.AppSpec.ExtImport.Source as ExtImportSource
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
@@ -92,13 +94,18 @@ data Runtime = ClientRuntime | ServerRuntime
 
 getVirtualUserModules :: AppSpec -> [VirtualUserModule]
 getVirtualUserModules spec =
-  concat
-    [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
-      maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
-      maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
-      map mkOperationModule (AS.getOperations spec)
-    ]
+  filter hasProjectSource $
+    concat
+      [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
+        maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
+        maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
+        map mkOperationModule (AS.getOperations spec)
+      ]
   where
+    hasProjectSource virtualUserModule = case EI.source $ extImport virtualUserModule of
+      ExtImportSource.ProjectSrcExtImportSource _ -> True
+      ExtImportSource.PackageExtImportSource _ -> False
+
     mkClientEnvValidationSchemaModule extImport' =
       VirtualUserModule
         ClientRuntime
@@ -145,7 +152,7 @@ getServerVirtualUserModules :: AppSpec -> [VirtualUserModule]
 getServerVirtualUserModules = filter ((== ServerRuntime) . runtime) . getVirtualUserModules
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
-extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
+extImportToVirtualUserModuleJsImportPath :: ProjectSrcExtImportPath -> JsImportPath
 extImportToVirtualUserModuleJsImportPath extImportPath =
   RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP extImportPath
 
@@ -202,5 +209,8 @@ mkVirtualUserModulesDeclarationData spec =
       getJsImportPathStringFromPath (RelativeImportPath $ SP.castRel virtualUserModule.registeredTypeModule)
 
 getVirtualUserModuleId :: VirtualUserModule -> String
-getVirtualUserModuleId =
-  getJsImportPathStringFromPath . extImportToVirtualUserModuleJsImportPath . EI.path . extImport
+getVirtualUserModuleId virtualUserModule = case EI.source $ extImport virtualUserModule of
+  ExtImportSource.ProjectSrcExtImportSource projectSrcPath ->
+    getJsImportPathStringFromPath $ extImportToVirtualUserModuleJsImportPath projectSrcPath
+  ExtImportSource.PackageExtImportSource _ ->
+    error "Package imports must not enter the virtual user module registry."

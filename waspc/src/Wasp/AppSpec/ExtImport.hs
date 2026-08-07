@@ -5,27 +5,21 @@
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
     ExtImportName (..),
-    ExtImportPath,
     importIdentifier,
-    parseExtImportPath,
   )
 where
 
-import Control.Arrow (left)
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:), (.:?))
 import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
-import Data.List (stripPrefix)
 import GHC.Generics (Generic)
-import StrongPath (File', Path, Posix, Rel)
-import qualified StrongPath as SP
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import Wasp.AppSpec.ExtImport.Source (ExtImportSource)
 
 data ExtImport = ExtImport
   { -- | What is being imported.
     name :: ExtImportName,
-    -- | Path from which we are importing.
-    path :: ExtImportPath,
+    -- | Source from which we are importing.
+    source :: ExtImportSource,
     -- | Local alias used in the Wasp config.
     alias :: Maybe Identifier
   }
@@ -35,18 +29,15 @@ instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
     kindStr <- o .: "kind"
     nameStr <- o .: "name"
-    pathStr <- o .: "path"
+    source <- o .: "source"
     aliasStr <- o .:? "alias"
     extImportName <- parseExtImportName kindStr nameStr
-    extImportPath <- either fail pure $ parseExtImportPath pathStr
-    return $ ExtImport extImportName extImportPath aliasStr
+    return $ ExtImport extImportName source aliasStr
     where
       parseExtImportName kindStr nameStr = case kindStr of
         "default" -> pure $ ExtImportModule nameStr
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
-
-type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
 type Identifier = String
 
@@ -63,23 +54,3 @@ importIdentifier (ExtImport importName _ maybeAlias) = case maybeAlias of
   Nothing -> case importName of
     ExtImportModule n -> n
     ExtImportField n -> n
-
-parseExtImportPath :: String -> Either String ExtImportPath
-parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
-  Nothing -> Left $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
-  Just relFileFP ->
-    left
-      (("Failed to parse relative posix path to file: " ++) . show)
-      $ SP.parseRelFileP relFileFP
-  where
-    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
-    -- Filip: We no longer want separation between client and server code
-    -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
-    -- For now, as we'd like (expect):
-    --   - Nodemon watches all files in the user's source folder (client files
-    --   included), but tsc only compiles the server files (I think because it
-    --   knows that the others aren't used). I am not yet sure how it knows this.
-    --   - Vite also only triggers on client files. I am not sure how it knows
-    --   about the difference either.
-    -- todo (filip): investigate
-    extSrcPrefix = "@src/"

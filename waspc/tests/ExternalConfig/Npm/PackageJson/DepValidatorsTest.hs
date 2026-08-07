@@ -207,8 +207,11 @@ emptyPackageJson =
   P.PackageJson
     { P.name = "mock-package",
       P.version = Nothing,
+      P.packageType = Nothing,
+      P.files = Nothing,
       P.dependencies = M.empty,
       P.devDependencies = M.empty,
+      P.peerDependencies = M.empty,
       P.workspaces = Nothing,
       P.wasp = Nothing
     }
@@ -229,7 +232,11 @@ withOverriddenDep pkgJson (name, version) =
     updatedWaspConfig = existingWaspConfig {P.overriddenDeps = Just updatedOverrides}
 
 emptyWaspConfig :: P.WaspConfig
-emptyWaspConfig = P.WaspConfig {P.overriddenDeps = Nothing}
+emptyWaspConfig =
+  P.WaspConfig
+    { P.overriddenDeps = Nothing,
+      P.module_ = Nothing
+    }
 
 depTypeToFieldName :: DependencyType -> String
 depTypeToFieldName Runtime = "dependencies"

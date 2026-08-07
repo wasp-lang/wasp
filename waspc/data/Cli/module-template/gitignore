@@ -1,0 +1,3 @@
+.wasp/
+dist/
+node_modules/

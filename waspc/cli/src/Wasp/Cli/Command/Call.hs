@@ -11,6 +11,7 @@ data Call
   | Db Arguments -- db args
   | Build
   | BuildStart Arguments
+  | Module Arguments
   | Version
   | Doctor
   | Telemetry
