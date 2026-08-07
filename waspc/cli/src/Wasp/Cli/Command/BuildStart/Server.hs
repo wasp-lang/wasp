@@ -12,7 +12,7 @@ import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
-import Wasp.Project.PerService (server)
+import Wasp.Project.PerAppComponent (server)
 
 buildServer :: BuildStartConfig -> ExceptJob
 buildServer config =

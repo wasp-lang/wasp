@@ -74,7 +74,7 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.PerService (server)
+import Wasp.Project.PerAppComponent (server)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 

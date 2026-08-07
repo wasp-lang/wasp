@@ -1,21 +1,21 @@
-module Wasp.Cli.Services where
+module Wasp.Cli.AppComponents where
 
 import Wasp.AppSpec (AppSpec)
 import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Project.PerService (PerService (..))
+import Wasp.Project.PerAppComponent (PerAppComponent (..))
 
-devUrls :: AppSpec -> PerService String
+devUrls :: AppSpec -> PerAppComponent String
 devUrls spec =
-  PerService
+  PerAppComponent
     { client = WebApp.getDefaultDevClientUrl spec,
       server = Server.defaultDevServerUrl
     }
 
-devEnvVars :: AppSpec -> PerService [EnvVar]
+devEnvVars :: AppSpec -> PerAppComponent [EnvVar]
 devEnvVars spec =
-  PerService
+  PerAppComponent
     { client =
         [ (WebApp.serverUrlEnvVarName, urls.server)
         ],

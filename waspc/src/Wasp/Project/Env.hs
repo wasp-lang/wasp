@@ -8,16 +8,16 @@ where
 import StrongPath (Abs, Dir, File', Path', Rel, relfile)
 import Wasp.Env (EnvVar, parseDotEnvFile)
 import Wasp.Project.Common (CompileWarning, WaspProjectDir, findFileInWaspProjectDir)
-import Wasp.Project.PerService (PerService (..))
+import Wasp.Project.PerAppComponent (PerAppComponent (..))
 
-dotEnvFiles :: PerService (Path' (Rel WaspProjectDir) File')
+dotEnvFiles :: PerAppComponent (Path' (Rel WaspProjectDir) File')
 dotEnvFiles =
-  PerService
+  PerAppComponent
     { client = [relfile|.env.client|],
       server = [relfile|.env.server|]
     }
 
-readDotEnvFiles :: Path' Abs (Dir WaspProjectDir) -> IO (PerService [EnvVar])
+readDotEnvFiles :: Path' Abs (Dir WaspProjectDir) -> IO (PerAppComponent [EnvVar])
 readDotEnvFiles waspDir = traverse (readDotEnvFileInWaspProjectDir waspDir) dotEnvFiles
 
 -- | Checks if .env exists in wasp dir, and produces a warning if so.

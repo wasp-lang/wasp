@@ -21,7 +21,7 @@ import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvFiles)
-import Wasp.Project.PerService (client)
+import Wasp.Project.PerAppComponent (client)
 
 viteBuildTest :: Test
 viteBuildTest =

@@ -26,7 +26,7 @@ import Wasp.Project.Common
     srcDirInWaspProjectDir,
   )
 import Wasp.Project.Env (dotEnvFiles)
-import Wasp.Project.PerService (client)
+import Wasp.Project.PerAppComponent (client)
 import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
