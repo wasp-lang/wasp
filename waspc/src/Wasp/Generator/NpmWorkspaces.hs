@@ -1,6 +1,5 @@
 module Wasp.Generator.NpmWorkspaces
-  ( serverPackageName,
-    webAppPackageName,
+  ( packageNames,
     requiredWorkspaceGlobs,
   )
 where
@@ -16,6 +15,7 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     generatedAppDirInDotWaspDir,
   )
+import Wasp.Project.PerService (PerService (..))
 
 -- | Returns the set of workspaces that should be included in the user's `package.json` file. Each
 -- workspace is a glob that matches all packages in a certain directory.
@@ -44,11 +44,9 @@ requiredWorkspaceGlobs =
           ++ show inputDir
           ++ ")"
 
-serverPackageName :: String
-serverPackageName = workspacePackageName "server"
-
-webAppPackageName :: String
-webAppPackageName = workspacePackageName "webapp"
-
-workspacePackageName :: String -> String
-workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName
+packageNames :: PerService String
+packageNames =
+  PerService
+    { client = "@wasp.sh/generated-webapp",
+      server = "@wasp.sh/generated-server"
+    }
