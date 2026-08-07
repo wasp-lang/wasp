@@ -35,7 +35,7 @@ It installs the Wasp app dependencies. When creating a new project, `wasp new` i
 
 Most apps need environment variables set up before they work. We can set up the server and client environment variables in different ways:
 
-1. Copy the example environment files to `.env.server` and `.env.client`.
+- Copy the example environment files to `.env.server` and `.env.client`.
 
     ```bash
     cp .env.server.example .env.server
@@ -44,11 +44,11 @@ Most apps need environment variables set up before they work. We can set up the 
 
     Sometimes, this is enough to get the app running if the example files contain dummy values but features like OAuth might not work.
 
-2. Copy the environment files from the existing `.env.server` and `.env.client` files.
+- Copy the environment files from the existing `.env.server` and `.env.client` files.
 
     Reusing these files is convenient, but it also reuses all configured secrets and services. Make sure this does not cause unintended side effects, such as connecting to a production database.
 
-3. If you are using a secrets manager like [Dotenvx](https://dotenvx.com/), use its CLI to set up the environment files.
+- If you are using a secrets manager like [Dotenvx](https://dotenvx.com/), use its CLI to set up the environment files.
 
 See [Environment variables](../project/env-vars.md) for Wasp's environment file rules.
 
