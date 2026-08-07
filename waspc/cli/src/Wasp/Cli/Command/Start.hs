@@ -18,14 +18,17 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Services (devEnvVars, devUrls)
+import qualified Wasp.Cli.Services as Services
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
+import Wasp.Project.PerService (client, server)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -49,7 +52,10 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   (warnings, appSpec) <- compile
 
-  let waspEnvVars = devEnvVars args.ports (devUrls appSpec args.ports)
+  ports <- resolveAppPorts args.ports
+
+  let urls = devUrls appSpec ports
+      waspEnvVars = devEnvVars ports urls
       envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
 
   envVars <-
@@ -60,6 +66,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
+  cliSendMessageC $ Msg.Info $ Services.showServiceUrls urls
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in

@@ -10,7 +10,7 @@ import Wasp.Cli.Util.PortArgument (servicePortsParser)
 import Wasp.Project.PerService (PerService (..))
 
 newtype StartArgs = StartArgs
-  { ports :: PerService PortNumber
+  { ports :: PerService (Maybe PortNumber)
   }
   deriving (Eq, Show)
 

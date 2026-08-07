@@ -16,7 +16,7 @@ import qualified Wasp.Project.PerService as PerService
 
 data BuildStartArgs = BuildStartArgs
   { envVarInputs :: PerService [EnvVarInput],
-    ports :: PerService PortNumber
+    ports :: PerService (Maybe PortNumber)
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs

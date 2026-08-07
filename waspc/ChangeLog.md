@@ -10,7 +10,7 @@
 
 ### 🎉 New Features
 
-- `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
+- `wasp start` and `wasp build start` now intelligently choose ports, so that you can run multiple apps in your system simultaneously. You can also choose the ports yourself with the `--client-port <port>` and `--server-port <port>` arguments. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 
 ### 🔧 Small improvements
 

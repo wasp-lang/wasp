@@ -19,6 +19,7 @@ import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildSt
 import Wasp.Cli.Services (devEnvVars, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
+import qualified Wasp.Cli.Util.PortArgument as PortArgument
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
@@ -38,8 +39,9 @@ makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir Was
 makeBuildStartConfig appSpec args projectDir' = do
   when (all null args.envVarInputs) $ throwError noEnvVarsSpecifiedMsg
 
-  let ports = args.ports
-      urls = devUrls appSpec ports
+  ports <- PortArgument.resolveAppPorts args.ports
+
+  let urls = devUrls appSpec ports
       waspEnvVars = devEnvVars ports urls
 
   envVars <- sequence $ resolveEnvVarInputs projectDir' <$> waspEnvVars <*> args.envVarInputs

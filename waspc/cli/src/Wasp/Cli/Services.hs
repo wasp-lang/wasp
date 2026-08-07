@@ -2,6 +2,7 @@ module Wasp.Cli.Services
   ( defaultDevPorts,
     devUrls,
     devEnvVars,
+    showServiceUrls,
   )
 where
 
@@ -41,3 +42,14 @@ getDevServiceEnvVars =
     { client = WebApp.getDevClientEnvVars,
       server = Server.getDevServerEnvVars
     }
+
+showServiceUrls :: PerService String -> String
+showServiceUrls urls =
+  unlines
+    [ " ℹ Client: " ++ ensureTrailingSlash urls.client,
+      " ℹ Server: " ++ ensureTrailingSlash urls.server
+    ]
+  where
+    -- The server and client URLs have different expectations for trailing
+    -- slashes, so for display consistency we just ensure they both have it.
+    ensureTrailingSlash url = if last url == '/' then url else url ++ "/"
