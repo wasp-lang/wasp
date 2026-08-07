@@ -161,6 +161,7 @@ printUsage =
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
+        cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
         cmd   "    show build [--json]   Prints information about your app's current build.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",

@@ -9,6 +9,7 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Show.Build (buildShowSubcommand)
+import Wasp.Cli.Command.Show.Spec (specShowSubcommand)
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..), runShowSubcommand)
 import Wasp.Cli.Util.Parser (withArguments)
 
@@ -18,7 +19,7 @@ showCommand :: Arguments -> Command ()
 showCommand = withArguments "wasp show" showParser id
 
 subcommands :: [ShowSubcommand]
-subcommands = [buildShowSubcommand]
+subcommands = [specShowSubcommand, buildShowSubcommand]
 
 showParser :: Opt.Parser (Command ())
 showParser =

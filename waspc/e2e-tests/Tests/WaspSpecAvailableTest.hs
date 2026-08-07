@@ -21,6 +21,7 @@ import ShellCommands
     waspCliInstall,
     waspCliNews,
     waspCliShowBuild,
+    waspCliShowSpec,
     waspCliStart,
     waspCliStartDb,
     waspCliStudio,
@@ -47,6 +48,7 @@ waspSpecAvailableTest =
                     assertCommandFailsWithInstallHint
                     [ waspCliCompile,
                       waspCliBuild,
+                      waspCliShowSpec,
                       waspCliDeps,
                       waspCliDockerfile,
                       waspCliStudio,

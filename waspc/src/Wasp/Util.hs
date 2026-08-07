@@ -82,7 +82,7 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
     kebabHead = toLower camelHead
     kebabTail =
       concatMap
-        (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
+        (\(a, b) -> (['-' | isCamelHump (a, b)]) ++ [toLower b])
         (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
 
@@ -304,8 +304,7 @@ getEnvVarDefinition (name, value) = concat [name, "=", value]
 --   naiveTrimJson "some text { \"a\": 5 } yay" == "{\"a\": 5 }"
 --   naiveTrimJson "some {text} { \"a\": 5 }" -> won't work correctly.
 naiveTrimJSON :: Text -> Text
-naiveTrimJSON textContainingJson =
-  T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{') $ textContainingJson
+naiveTrimJSON = T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{')
 
 textToLazyBS :: Text -> BSL.ByteString
 textToLazyBS = TLE.encodeUtf8 . TL.fromStrict

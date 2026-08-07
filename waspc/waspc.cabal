@@ -221,6 +221,7 @@ library
     Wasp.AppSpec.Entity
     Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
+    Wasp.AppSpec.Inspectable
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
@@ -530,6 +531,7 @@ library cli-lib
     Wasp.Cli.Command.Require.WaspSpecAvailable
     Wasp.Cli.Command.Show
     Wasp.Cli.Command.Show.Build
+    Wasp.Cli.Command.Show.Spec
     Wasp.Cli.Command.Show.Subcommand
     Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
