@@ -456,7 +456,7 @@ library cli-lib
     lens-aeson ^>=1.2.3,
     mtl,
     neat-interpolation,
-    network ^>=3.1.4,
+    network,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -538,6 +538,7 @@ library cli-lib
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
+    Wasp.Cli.Util.Port
 
 executable wasp-cli
   import: common-all, common-exe
