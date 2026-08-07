@@ -27,7 +27,7 @@ type WaspProcessId = Integer
 data WaspProjectLockfile
 
 projectLockFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspProjectLockfile)
-projectLockFileInWaspProjectDir = dotWaspDirInWaspProjectDir </> [relfile|.lock|]
+projectLockFileInWaspProjectDir = dotWaspDirInWaspProjectDir </> [relfile|.projectlock|]
 
 -- | Tries to take an exclusive OS-level advisory lock on the project's lock
 -- file, creating the file if needed.

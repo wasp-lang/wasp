@@ -39,7 +39,7 @@ waspProjectLockTest =
               inTestWaspProjectDir
                 [ -- A lock file whose owner died: the file exists, but no
                   -- process holds the OS-level lock on it.
-                  return "mkdir -p .wasp && printf 999999999 > .wasp/.lock",
+                  return "mkdir -p .wasp && printf 999999999 > .wasp/.projectlock",
                   waspCliClean
                 ]
             ]
@@ -81,7 +81,7 @@ waspProjectLockTest =
       cleanCommand <- waspCliClean
       return $
         ("! " ++ cleanCommand ++ " > .wasp-e2e-clean.log 2>&1")
-          ~&& "grep -qF \"Another Wasp command (PID $(cat .wasp/.lock)) is already running for this project.\" .wasp-e2e-clean.log"
+          ~&& "grep -qF \"Another Wasp command (PID $(cat .wasp/.projectlock)) is already running for this project.\" .wasp-e2e-clean.log"
 
     releaseLockAndAwaitWaspInstall :: ShellCommand
     releaseLockAndAwaitWaspInstall =
