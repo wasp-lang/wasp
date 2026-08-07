@@ -16,6 +16,7 @@ instance ToJSON InspectableAppSpec where
   toJSON (InspectableAppSpec spec) =
     object
       [ "waspVersion" .= show waspVersion,
+        "dbSystem" .= ASV.getValidDbSystem spec,
         "decls" .= AS.decls spec
       ]
 
