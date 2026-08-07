@@ -466,6 +466,7 @@ library cli-lib
     lens-aeson ^>=1.2.3,
     mtl,
     neat-interpolation,
+    network,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,

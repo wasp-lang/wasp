@@ -1,28 +1,40 @@
-module Wasp.Cli.Services where
+module Wasp.Cli.Services
+  ( devPorts,
+    devUrls,
+    devEnvVars,
+  )
+where
 
+import Network.Socket (PortNumber)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.PerService (PerService (..))
 
-devUrls :: AppSpec -> PerService String
-devUrls spec =
+devPorts :: PerService PortNumber
+devPorts =
   PerService
-    { client = WebApp.getDefaultDevClientUrl spec,
-      server = Server.defaultDevServerUrl
+    { client = 3000,
+      server = 3001
     }
 
-devEnvVars :: AppSpec -> PerService [EnvVar]
-devEnvVars spec =
+devUrls :: AppSpec -> PerService PortNumber -> PerService String
+devUrls spec ports = getDevServiceUrl <*> pure spec <*> ports
+
+devEnvVars :: PerService PortNumber -> PerService String -> PerService [EnvVar]
+devEnvVars ports urls = getDevServiceEnvVars <*> ports <*> pure urls
+
+getDevServiceUrl :: PerService (AppSpec -> PortNumber -> String)
+getDevServiceUrl =
   PerService
-    { client =
-        [ (WebApp.serverUrlEnvVarName, urls.server)
-        ],
-      server =
-        [ (Server.clientUrlEnvVarName, urls.client),
-          (Server.serverUrlEnvVarName, urls.server)
-        ]
+    { client = WebApp.getDevClientUrl,
+      server = const Server.getDevServerUrl
     }
-  where
-    urls = devUrls spec
+
+getDevServiceEnvVars :: PerService (PortNumber -> PerService String -> [EnvVar])
+getDevServiceEnvVars =
+  PerService
+    { client = WebApp.getDevClientEnvVars,
+      server = Server.getDevServerEnvVars
+    }

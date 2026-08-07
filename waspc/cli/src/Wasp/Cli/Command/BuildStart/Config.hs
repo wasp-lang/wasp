@@ -9,25 +9,26 @@ where
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
 import Data.Char (toLower)
+import Network.Socket (PortNumber)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Services (devEnvVars)
+import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Project.PerService (PerService)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientPort :: Int,
+    ports :: PerService PortNumber,
+    urls :: PerService String,
     envVars :: PerService [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
@@ -37,7 +38,9 @@ makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir Was
 makeBuildStartConfig appSpec args projectDir' = do
   when (all null args.envVarInputs) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspEnvVars = devEnvVars appSpec
+  let ports = devPorts
+      urls = devUrls appSpec ports
+      waspEnvVars = devEnvVars ports urls
 
   envVars <- sequence $ resolveEnvVarInputs projectDir' <$> waspEnvVars <*> args.envVarInputs
 
@@ -46,7 +49,8 @@ makeBuildStartConfig appSpec args projectDir' = do
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        clientPort = clientPort',
+        ports = ports,
+        urls = urls,
         envVars = envVars
       }
   where
@@ -54,14 +58,6 @@ makeBuildStartConfig appSpec args projectDir' = do
     (appName, _) = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
-
-    -- NOTE(carlos): For now, this port (and the URLs inside 'devEnvVars') uses
-    -- the default values we've hardcoded in the generator. In the future, we might
-    -- want to make these configurable via the Wasp app spec or command line arguments.
-
-    -- This assumes that the client URL in 'devEnvVars' uses `defaultClientPort`
-    -- internally. If that changes, we also need to change this.
-    clientPort' = defaultClientPort
 
     noEnvVarsSpecifiedMsg =
       CommandError

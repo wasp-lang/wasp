@@ -77,6 +77,13 @@ viteBuildTest =
             [ addTypeErrorToWaspTsFile,
               viteBuildWithApiUrl
             ]
+        ),
+      TestCase
+        "fail-on-user-defined-client-port"
+        ( createViteBuildTestCase
+            [ writeViteConfigWithServerPort,
+              expectCommandFailure <$> viteBuildWithApiUrl
+            ]
         )
     ]
   where
@@ -106,6 +113,25 @@ viteBuildTest =
           export function MainPage() {
             return <h2>{import.meta.env.${testEnvVarKeyText}}</h2>
           }
+        |]
+
+    -- Wasp controls the client's dev port (users change it with
+    -- `wasp start --client-port`), so setting it in the Vite config must fail.
+    writeViteConfigWithServerPort :: ShellCommandBuilder WaspProjectContext ShellCommand
+    writeViteConfigWithServerPort = do
+      waspProjectContext <- ask
+      writeToFile
+        (waspProjectContext.waspProjectDir </> [relfile|vite.config.ts|])
+        [trimming|
+          import { wasp } from "wasp/client/vite";
+          import { defineConfig } from "vite";
+
+          export default defineConfig({
+            plugins: [wasp()],
+            server: {
+              port: 4000,
+            },
+          });
         |]
 
     writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand

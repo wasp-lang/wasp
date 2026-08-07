@@ -15,10 +15,14 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
+import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
+import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -40,7 +44,14 @@ start = do
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-  (warnings, _) <- compile
+  (warnings, appSpec) <- compile
+
+  let waspEnvVars = devEnvVars devPorts (devUrls appSpec devPorts)
+      envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
+
+  envVars <-
+    sequence $
+      resolveEnvVarInputs waspProjectDir <$> waspEnvVars <*> envVarInputs
 
   DbConnectionEstablished <- require
 
@@ -55,7 +66,8 @@ start = do
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    let startGeneratedWebApp =
+          Wasp.Generator.start envVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -70,6 +82,8 @@ start = do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
+    getEnvVarInputs file = [EnvVarInputs.FromProjectFile file, EnvVarInputs.Inherit]
+
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the

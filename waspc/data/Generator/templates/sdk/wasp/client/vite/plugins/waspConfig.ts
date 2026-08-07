@@ -20,10 +20,17 @@ const forcedOptions = {
   base: "{= baseDir =}",
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
+  "server.port":
+    // This can be empty. Environment variables in the server are not set when
+    // running `wasp build`.
+    envVarAsNumber("{= clientDevPortEnvVarName =}"),
+  "server.strictPort": true,
 } as const;
 
 const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
   base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
+  "server.port":
+    "To run the client on a different port, use `wasp start --client-port <port>`.",
 };
 
 export function waspConfig(): PluginOption {
@@ -40,7 +47,8 @@ export function waspConfig(): PluginOption {
           exclude: {=& depsExcludedFromOptimization =}
         },
         server: {
-          port: useUserValue(config.server?.port, {= defaultClientPort =}),
+          port: forcedOptions["server.port"],
+          strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
         },
         envPrefix: forcedOptions["envPrefix"],
@@ -111,4 +119,16 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
 
 function getByPath(obj: Record<string, any>, path: string): unknown {
   return path.split(".").reduce<any>((node, segment) => node?.[segment], obj);
+}
+
+function envVarAsNumber(envName: string): number | undefined {
+  const strValue = process.env[envName];
+  if (strValue === undefined) {
+    return undefined;
+  }
+  const numValue = Number.parseInt(strValue);
+  if (Number.isNaN(numValue)) {
+    throw new Error(`Environment variable ${envName} is not a valid number.`);
+  }
+  return numValue;
 }

@@ -5,6 +5,8 @@
 ### ⚠️ Breaking Changes
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- Wasp now manages the port and URL of your app in development, so setting them yourself (e.g. in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
+- In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 
 ### 🔧 Small improvements
 
