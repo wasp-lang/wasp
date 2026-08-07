@@ -15,7 +15,7 @@ import System.Process (callCommand)
 import Text.Printf (printf)
 import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
-import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, getDockerContainerHostPort)
+import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 
 data DevDbInfo = DevDbInfo
   { connectionUrl :: String,
@@ -65,7 +65,7 @@ runDevPostgresDb devDbInfo dbDockerImage dbDockerVolumeMountPath =
 -- 'Nothing' otherwise.
 discoverDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe DevDbInfo)
 discoverDevDb waspProjectDir appName = do
-  devDbPort <- getDockerContainerHostPort devDbContainerName 5432
+  devDbPort <- discoverHostPortForDockerContainersInternalPort devDbContainerName 5432
   return $ makeDevPostgresDb waspProjectDir appName <$> devDbPort
   where
     devDbContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName

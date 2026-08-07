@@ -1,11 +1,15 @@
 module Wasp.Cli.Util.Port
   ( findFirstFreeLocalPort,
+    defaultNumberOfPortsToScan,
   )
 where
 
 import Network.Socket (PortNumber)
 import Wasp.Util (ifM)
 import qualified Wasp.Util.Network.Socket as Socket
+
+defaultNumberOfPortsToScan :: Int
+defaultNumberOfPortsToScan = 20
 
 findFirstFreeLocalPort :: [PortNumber] -> IO (Maybe PortNumber)
 findFirstFreeLocalPort [] = return Nothing
