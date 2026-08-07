@@ -530,6 +530,7 @@ library cli-lib
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
     Wasp.Cli.Command.Start
+    Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
@@ -550,6 +551,7 @@ library cli-lib
     Wasp.Cli.Util.EnvVarInputs
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
+    Wasp.Cli.Util.PortArgument
 
 executable wasp-cli
   import: common-all, common-exe

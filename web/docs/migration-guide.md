@@ -14,7 +14,14 @@ import InstallInstructions from './\_install-instructions.md'
 
 `wasp start` now decides which ports the client and the server run on (`3000` and `3001` by default), and derives the app's dev URLs from them.
 
-In development, setting the ports or URLs manually in the env vars or the Vite config now fails. In production, the `PORT` variable is now required.
+You can also pick the ports yourself:
+
+```bash
+wasp start --client-port 4000 --server-port 4001
+wasp build start --client-port 4000 --server-port 4001
+```
+
+In development, setting the ports manually in the env vars or the Vite config now fails, and you should use these new CLI flags. In production, the `PORT` variable is now required.
 
 ## How to migrate?
 
@@ -145,7 +152,13 @@ And `REACT_APP_API_URL` from your `.env.client` if present:
   </TabItem>
 </Tabs>
 
-Wasp fills in the ports and URLs for you, so you no longer have to keep them in sync by hand.
+To keep running on those ports, pass them to `wasp start` or `wasp build start` instead:
+
+```bash
+wasp start --client-port 4000 --server-port 4001
+```
+
+Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
 
 :::info
 

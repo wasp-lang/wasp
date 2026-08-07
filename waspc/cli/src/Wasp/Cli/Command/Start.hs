@@ -9,15 +9,18 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
+import Wasp.Cli.Services (devEnvVars, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
+import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
@@ -26,8 +29,8 @@ import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
-start :: Command ()
-start = do
+start :: Arguments -> Command ()
+start = withArguments "wasp start" startArgsParser $ \args -> do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -46,7 +49,7 @@ start = do
 
   (warnings, appSpec) <- compile
 
-  let waspEnvVars = devEnvVars devPorts (devUrls appSpec devPorts)
+  let waspEnvVars = devEnvVars args.ports (devUrls appSpec args.ports)
       envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
 
   envVars <-

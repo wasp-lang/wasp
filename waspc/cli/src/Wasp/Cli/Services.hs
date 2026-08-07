@@ -1,5 +1,5 @@
 module Wasp.Cli.Services
-  ( devPorts,
+  ( defaultDevPorts,
     devUrls,
     devEnvVars,
   )
@@ -12,8 +12,11 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.PerService (PerService (..))
 
-devPorts :: PerService PortNumber
-devPorts =
+-- | The ports the apps run on in development when the user doesn't choose any.
+-- Processes that never bind a port (like the test runner) also use these as
+-- placeholders.
+defaultDevPorts :: PerService PortNumber
+defaultDevPorts =
   PerService
     { client = 3000,
       server = 3001
