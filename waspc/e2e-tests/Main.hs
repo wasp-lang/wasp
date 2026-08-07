@@ -27,6 +27,7 @@ import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
+import Tests.WaspProjectLockTest (waspProjectLockTest)
 import Tests.WaspShowTest (waspShowTest)
 import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
@@ -105,6 +106,7 @@ e2eTests = do
         viteConfigTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
+        waspProjectLockTest,
         waspSpecAvailableTest,
         waspShowTest,
         waspInstallTest,
