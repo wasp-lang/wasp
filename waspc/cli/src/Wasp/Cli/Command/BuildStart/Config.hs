@@ -8,9 +8,7 @@ where
 
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
-import Data.List (intercalate)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -18,10 +16,9 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.Services (devEnvVars)
+import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
-import Wasp.Cli.Util.PathArgument (FilePathArgument)
-import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
@@ -38,12 +35,11 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envVarInputs
-  when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
+  when (all null args.envVarInputs) $ throwError noEnvVarsSpecifiedMsg
 
   let waspEnvVars = devEnvVars appSpec
 
-  envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
+  envVars <- sequence $ resolveEnvVarInputs projectDir' <$> waspEnvVars <*> args.envVarInputs
 
   return $
     BuildStartConfig
@@ -91,22 +87,3 @@ dockerContainerName config =
   -- Lowercase because Docker container names require it.
   map toLower $
     appUniqueId config <> "-server-container"
-
-overrideEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
-overrideEnvVarsCommand forced existing =
-  case forced `overrideEnvVars` existing of
-    Left duplicateNames ->
-      throwError $
-        CommandError "Duplicate environment variables" $
-          ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
-            intercalate ", " duplicateNames
-    Right combined -> return combined
-
-combineEnvVarsWithEnvFiles :: ([EnvVar], [FilePathArgument]) -> IO [EnvVar]
-combineEnvVarsWithEnvFiles (inlineEnvVars, files) = do
-  envVarsFromFiles <- mapM readEnvVarsFromFile files
-  let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
-  return $ nubEnvVars allEnvVars
-
-readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
-readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile

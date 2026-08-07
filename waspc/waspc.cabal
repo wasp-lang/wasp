@@ -546,6 +546,7 @@ library cli-lib
     Wasp.Cli.Services
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.EnvVarInputs
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
 
@@ -676,8 +677,10 @@ test-suite wasp-cli-tests
     cli-lib,
     hspec,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
+    temporary,
     time,
     waspc,
 
@@ -688,6 +691,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Util.EnvVarInputsTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
