@@ -38,7 +38,7 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  userEnvVars <- liftIO $ traverse (uncurry combineEnvVarsWithEnvFiles) args.envVarInputs
+  userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envVarInputs
   when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let waspEnvVars = devEnvVars appSpec
@@ -102,8 +102,8 @@ overrideEnvVarsCommand forced existing =
             intercalate ", " duplicateNames
     Right combined -> return combined
 
-combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
-combineEnvVarsWithEnvFiles inlineEnvVars files = do
+combineEnvVarsWithEnvFiles :: ([EnvVar], [FilePathArgument]) -> IO [EnvVar]
+combineEnvVarsWithEnvFiles (inlineEnvVars, files) = do
   envVarsFromFiles <- mapM readEnvVarsFromFile files
   let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars
