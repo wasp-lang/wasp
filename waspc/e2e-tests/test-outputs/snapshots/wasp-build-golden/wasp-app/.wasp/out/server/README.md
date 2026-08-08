@@ -1,1 +1,1 @@
-`npm start` to run server in development mode (it reloads on changes).
+`npm start` runs the already bundled server in development mode. Use `wasp start` for automatic rebuilds and restarts while developing.
