@@ -378,6 +378,7 @@ library
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
+    Wasp.Project.PerAppComponent
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -550,6 +551,7 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.ProjectLock
+    Wasp.Cli.AppComponents
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
