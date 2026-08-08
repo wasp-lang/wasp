@@ -82,8 +82,8 @@ When you want to test how they integrate with the Wasp CLI and the generated app
 you need to make sure the Wasp CLI can find them.
 To do that, you need to copy the compiled libs to the `waspc/data/` folder, which is
 packaged with the Wasp CLI.
-Run `./run build:libs` to compile the libs and copy them into `data/`.
-Then you can use `./run wasp-cli` as you normally would.
+Run `nix run .#build-libs` to compile the libs and copy them into `data/`.
+Then you can use `nix run .#wasp-cli` as you normally would.
 
 ### `npm` cache busting
 
@@ -92,7 +92,7 @@ Then you can use `./run wasp-cli` as you normally would.
 To bust the cache, use the `bust-libs-cache` command from the root of the Wasp app:
 
 ```bash
-./run bust-libs-cache
+nix run .#bust-libs-cache
 ```
 
 This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
@@ -110,7 +110,7 @@ Keep in mind:
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
-The package will be packaged using `npm pack` by the `./run build:libs` script.
+The package will be packaged using `npm pack` by the `nix run .#build-libs` script.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
 module so that the Wasp CLI knows about it.
