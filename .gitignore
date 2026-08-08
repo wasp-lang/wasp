@@ -12,3 +12,8 @@
 .vscode/
 
 node_modules/
+
+# Nix build outputs and direnv cache
+result
+result-*
+.direnv/
