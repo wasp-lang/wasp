@@ -76,9 +76,9 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Node as Node
+import qualified Wasp.Job.Output as Output
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
@@ -91,8 +91,8 @@ buildSdk generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
+      (Output.printEventsPrefixedUntilExit chan)
+      (Job.runJob (Node.makeJob sdkRootDir "npm" ["run", "build"] Job.Wasp) chan)
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code

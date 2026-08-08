@@ -1,8 +1,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TupleSections #-}
 
-module Wasp.Job.IO.PrefixedWriter
-  ( printJobMessagePrefixed,
+module Wasp.Job.Output.Prefixed
+  ( printEventPrefixed,
     runPrefixedWriter,
     PrefixedWriter,
   )
@@ -17,9 +17,9 @@ import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (hFlush, stderr)
-import Wasp.Job (JobType)
-import qualified Wasp.Job as J
-import Wasp.Job.Common (getJobMessageContent, getJobMessageOutHandle)
+import Wasp.Job (JobKind)
+import qualified Wasp.Job as Job
+import Wasp.Job.Output.Internal (getEventContent, getEventOutHandle)
 import qualified Wasp.Util.Terminal as Term
 
 -- |
@@ -67,27 +67,27 @@ import qualified Wasp.Util.Terminal as Term
 -- If not, or there was no previous message, then we ensure there is prefix at the start of
 -- the message. This helps with situations where output from one job was interrupted by the
 -- output from another job, or when message is the very first message.
-printJobMessagePrefixed :: J.JobMessage -> PrefixedWriter ()
-printJobMessagePrefixed jobMessage = do
-  (PrefixedWriterState outputsWithPendingNewline lastJobMessage) <- get
+printEventPrefixed :: Job.JobEvent -> PrefixedWriter ()
+printEventPrefixed event = do
+  (PrefixedWriterState outputsWithPendingNewline lastEvent) <- get
 
   let (outputsWithPendingNewline', messageContent) =
-        applyPendingNewline outputsWithPendingNewline jobMessage
-  let prefixedMessageContent = addPrefixWhereNeeded lastJobMessage messageContent
+        applyPendingNewline outputsWithPendingNewline event
+  let prefixedMessageContent = addPrefixWhereNeeded lastEvent messageContent
 
-  put $ PrefixedWriterState outputsWithPendingNewline' (Just jobMessage)
+  put $ PrefixedWriterState outputsWithPendingNewline' (Just event)
 
   liftIO $ printPrefixedMessageContent prefixedMessageContent
   where
     printPrefixedMessageContent :: T.Text -> IO ()
     printPrefixedMessageContent content = T.IO.hPutStr outHandle content >> hFlush outHandle
       where
-        outHandle = getJobMessageOutHandle jobMessage
+        outHandle = getEventOutHandle event
 
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
-    addPrefixWhereNeeded :: Maybe J.JobMessage -> T.Text -> T.Text
-    addPrefixWhereNeeded lastJobMessage =
+    addPrefixWhereNeeded :: Maybe Job.JobEvent -> T.Text -> T.Text
+    addPrefixWhereNeeded lastEvent =
       ensureNewlineAtStartIfInterruptingAnotherOutput
         . ensurePrefixAtStartIfNotContinuingOnSameOutput
         . addPrefixAfterSubstr "\r"
@@ -99,7 +99,7 @@ printJobMessagePrefixed jobMessage = do
         ensurePrefixAtStartIfNotContinuingOnSameOutput :: T.Text -> T.Text
         ensurePrefixAtStartIfNotContinuingOnSameOutput text =
           let continuingOnSameOutput =
-                (getJobMessageOutput <$> lastJobMessage) == Just (getJobMessageOutput jobMessage)
+                (getEventOutput <$> lastEvent) == Just (getEventOutput event)
               prefixAtStart =
                 or [(delimiter <> prefix) `T.isPrefixOf` text | delimiter <- ["\r", "\n", ""]]
            in if not continuingOnSameOutput && not prefixAtStart then prefix <> text else text
@@ -107,19 +107,19 @@ printJobMessagePrefixed jobMessage = do
         ensureNewlineAtStartIfInterruptingAnotherOutput :: T.Text -> T.Text
         ensureNewlineAtStartIfInterruptingAnotherOutput text =
           let interruptingAnotherOutput =
-                (getJobMessageOutput <$> lastJobMessage) /= Just (getJobMessageOutput jobMessage)
+                (getEventOutput <$> lastEvent) /= Just (getEventOutput event)
               newlineAtStart = "\n" `T.isPrefixOf` text
            in if interruptingAnotherOutput && not newlineAtStart then "\n" <> text else text
 
         prefix :: T.Text
-        prefix = makeJobMessagePrefix jobMessage
+        prefix = makeEventPrefix event
 
 newtype PrefixedWriter a = PrefixedWriter {_runPrefixedWriter :: StateT PrefixedWriterState IO a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadState PrefixedWriterState)
 
 data PrefixedWriterState = PrefixedWriterState
   { _outputsWithPendingNewline :: !OutputsWithPendingNewline,
-    _lastJobMessage :: !(Maybe J.JobMessage)
+    _lastEvent :: !(Maybe Job.JobEvent)
   }
 
 runPrefixedWriter :: PrefixedWriter a -> IO a
@@ -128,12 +128,12 @@ runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initState
     initState =
       PrefixedWriterState
         { _outputsWithPendingNewline = S.empty,
-          _lastJobMessage = Nothing
+          _lastEvent = Nothing
         }
 
 -- Job message output type.
 data Output = Output
-  { _outputJobType :: !J.JobType,
+  { _outputJobKind :: !Job.JobKind,
     _outputIsStderr :: !Bool
   }
   deriving (Eq, Ord)
@@ -146,14 +146,14 @@ type OutputsWithPendingNewline = S.Set Output
 -- and in that case adds it to the set of pending newlines (while removing used pending newline).
 -- It returns this updated content and updated set of pending newlines.
 applyPendingNewline ::
-  OutputsWithPendingNewline -> J.JobMessage -> (OutputsWithPendingNewline, T.Text)
-applyPendingNewline outputsWithPendingNewline jobMessage = (outputsWithPendingNewline', content')
+  OutputsWithPendingNewline -> Job.JobEvent -> (OutputsWithPendingNewline, T.Text)
+applyPendingNewline outputsWithPendingNewline event = (outputsWithPendingNewline', content')
   where
     content' = addPendingNewlineToStartIfAny $ removeTrailingNewlineIfAny content
       where
         removeTrailingNewlineIfAny = if contentEndsWithNewline then T.init else id
         addPendingNewlineToStartIfAny =
-          if getJobMessageOutput jobMessage `S.member` outputsWithPendingNewline then ("\n" <>) else id
+          if getEventOutput event `S.member` outputsWithPendingNewline then ("\n" <>) else id
 
     outputsWithPendingNewline' = updateOp output outputsWithPendingNewline
       where
@@ -161,18 +161,18 @@ applyPendingNewline outputsWithPendingNewline jobMessage = (outputsWithPendingNe
 
     contentEndsWithNewline = "\n" `T.isSuffixOf` content
 
-    output = getJobMessageOutput jobMessage
-    content = getJobMessageContent jobMessage
+    output = getEventOutput event
+    content = getEventContent event
 
-getJobMessageOutput :: J.JobMessage -> Output
-getJobMessageOutput jm =
+getEventOutput :: Job.JobEvent -> Output
+getEventOutput event =
   Output
-    { _outputJobType = J._jobType jm,
-      _outputIsStderr = getJobMessageOutHandle jm == stderr
+    { _outputJobKind = Job._jobKind event,
+      _outputIsStderr = getEventOutHandle event == stderr
     }
 
-makeJobMessagePrefix :: J.JobMessage -> T.Text
-makeJobMessagePrefix jobMsg =
+makeEventPrefix :: Job.JobEvent -> T.Text
+makeEventPrefix event =
   T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
     [ [(startDelimiter, jobStyles)],
       [unstyled namePaddingFront],
@@ -195,21 +195,21 @@ makeJobMessagePrefix jobMsg =
         minPrefixLength = length $ startDelimiter <> " " <> longestJobName <> " " <> endDelimiter
         longestJobName =
           maximumBy (comparing length) $
-            fst . getJobNameAndStyles <$> [(minBound :: JobType) .. maxBound]
+            fst . getJobNameAndStyles <$> [(minBound :: JobKind) .. maxBound]
 
     (startDelimiter, endDelimiter) = ("[", "]")
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | getJobMessageOutHandle jobMsg == stderr]
+      [("!", [Term.Red, Term.Bold]) | getEventOutHandle event == stderr]
 
-    (jobName, jobStyles) = getJobNameAndStyles $ J._jobType jobMsg
+    (jobName, jobStyles) = getJobNameAndStyles $ Job._jobKind event
 
     getJobNameAndStyles = \case
-      J.Wasp -> ("Wasp", [Term.Yellow])
-      J.Server -> ("Server", [Term.Magenta])
-      J.WebApp -> ("Client", [Term.Cyan])
-      J.Db -> ("Db", [Term.Blue])
+      Job.Wasp -> ("Wasp", [Term.Yellow])
+      Job.Server -> ("Server", [Term.Magenta])
+      Job.WebApp -> ("Client", [Term.Cyan])
+      Job.Db -> ("Db", [Term.Blue])
 
     unstyled = (,[])
 

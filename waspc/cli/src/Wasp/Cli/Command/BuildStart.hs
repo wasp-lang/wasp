@@ -3,10 +3,11 @@ module Wasp.Cli.Command.BuildStart
   )
 where
 
-import Control.Concurrent.Async (concurrently)
-import Control.Concurrent.Chan (newChan)
-import Control.Monad.Except (MonadError (throwError), runExceptT)
+import Control.Concurrent (Chan, newChan)
+import qualified Control.Concurrent.Async as Async
+import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
+import System.Exit (ExitCode (..))
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
@@ -20,9 +21,8 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Job.Except (ExceptJob)
-import qualified Wasp.Job.Except as ExceptJob
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Output as Output
 import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
@@ -48,31 +48,37 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
-  runAndPrintJob "Building client failed." $
-    buildClient config
+  runAndPrintJobOutput (Job.runJob $ buildClient config)
+    >>= throwOnExitFailure "Building client failed."
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  runAndPrintJob "Building server failed." $
-    buildServer config
+  runAndPrintJobOutput (Job.runJob $ buildServer config)
+    >>= throwOnExitFailure "Building server failed."
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  runAndPrintJob "Starting Wasp app failed." $
-    ExceptJob.race_
-      (startClient config)
-      (startServer config)
+  firstExit <-
+    runAndPrintJobOutput $ \events ->
+      Async.race
+        (Job.runJob (startClient config) events)
+        (Job.runJob (startServer config) events)
+  case firstExit of
+    Left clientExit -> throwOnExitFailure "Serving client failed." clientExit
+    Right serverExit -> throwOnExitFailure "Running server failed." serverExit
   where
-    runAndPrintJob :: String -> ExceptJob -> Command ()
-    runAndPrintJob errorMessage job = do
-      liftIO (runAndPrintJobIO job)
-        >>= either (throwError . CommandError errorMessage) return
-
-    runAndPrintJobIO :: ExceptJob -> IO (Either String ())
-    runAndPrintJobIO job = do
+    runAndPrintJobOutput :: (Chan Job.JobEvent -> IO a) -> Command a
+    runAndPrintJobOutput run = liftIO $ do
       chan <- newChan
-      (result, _) <-
-        concurrently
-          (runExceptT $ job chan)
-          (readJobMessagesAndPrintThemPrefixed chan)
-      return result
+      fst
+        <$> Async.concurrently
+          (run chan)
+          (Output.printEventsPrefixedUntilExit chan)
+
+    throwOnExitFailure :: String -> ExitCode -> Command ()
+    throwOnExitFailure _ ExitSuccess = return ()
+    throwOnExitFailure errorTitle (ExitFailure code) =
+      throwError $
+        CommandError
+          errorTitle
+          ("Process exited with code " <> show code <> ".")
