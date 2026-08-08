@@ -30,13 +30,28 @@ runs:
       shell: bash
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
-      # Builds the requested dev shell and exports its PATH, which makes the
-      # shell's tools available to all subsequent steps (like the old mise
-      # activation did).
-      run:
-        # We control the value passed here completely.
-        # zizmor: ignore[github-env]
-        nix develop ".#$DEV_SHELL" --command bash -c 'echo "PATH=$PATH"' >> "$GITHUB_ENV"
+      # Builds the requested dev shell and puts its tool directories on the
+      # PATH of all subsequent steps (like the old mise activation did).
+      #
+      # NOTE: this must go through GITHUB_PATH — the runner composes each
+      # step's PATH itself and silently ignores PATH set via GITHUB_ENV.
+      # GITHUB_PATH prepends LIFO (the last written line ends up first), so
+      # we write the shell's additions in reverse to preserve their order.
+      run: |
+        set -euo pipefail
+        shell_path="$(nix develop ".#$DEV_SHELL" --command bash -c 'echo "$PATH"')"
+
+        added="${shell_path%"$PATH"}"
+        if [ "$added" == "$shell_path" ]; then
+          # The shell PATH doesn't end with the invoking PATH (unexpected);
+          # fall back to prepending all of it. Duplicates are harmless.
+          added="$shell_path"
+        fi
+
+        IFS=':' read -ra added_dirs <<< "${added%:}"
+        for ((i = ${#added_dirs[@]} - 1; i >= 0; i--)); do
+          echo "${added_dirs[i]}" >> "$GITHUB_PATH"
+        done
 
     - name: Cache npm dependencies
       uses: actions/setup-node@v6
