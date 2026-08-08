@@ -11,7 +11,7 @@
 exe:
 pkgs.runCommand "wasp-macos-bundle"
   {
-    nativeBuildInputs = [ pkgs.sigtool ];
+    nativeBuildInputs = [ pkgs.darwin.sigtool ];
   }
   ''
     set -euo pipefail

@@ -37,7 +37,10 @@ runs:
       # step's PATH itself and silently ignores PATH set via GITHUB_ENV.
       # GITHUB_PATH prepends LIFO (the last written line ends up first), so
       # we write the shell's additions in reverse to preserve their order.
-      run: |
+      #
+      # The written values are the Nix store paths of our own dev shell, not
+      # user-controllable input.
+      run: | # zizmor: ignore[github-env]
         set -euo pipefail
         shell_path="$(nix develop ".#$DEV_SHELL" --command bash -c 'echo "$PATH"')"
 
