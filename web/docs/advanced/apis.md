@@ -182,7 +182,7 @@ export default app({
 })
 ```
 
-Wasp will inject the specified Entity into the APIs `context` argument, giving you access to the Entity's Prisma API:
+Wasp injects the listed Entities into the API's `context` argument, so you can read and write them through `context.entities`:
 
 ```ts title="src/apis.ts" auto-js
 import type { FooBar } from "wasp/server/api";
@@ -192,7 +192,7 @@ export const fooBar: FooBar = async (req, res, context) => {
 };
 ```
 
-The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+For a full explanation of how `context.entities` is populated and what `context.entities.Task` exposes, see [Using Entities in server code](../data-model/entities.md#using-entities-in-server-code).
 
 ## Streaming Responses
 

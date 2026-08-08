@@ -167,6 +167,55 @@ You can see more information in the overview of [supported Prisma Schema feature
 
 :::
 
+## Using Entities in server code
+
+Most of your server code — [Queries](./operations/queries.md) and [Actions](./operations/actions.md), but also [APIs](../advanced/apis.md) and [Jobs](../advanced/jobs.md) — needs to read from or write to the database. Instead of setting up a database client yourself, you let Wasp hand each function the Entities it needs through its `context`.
+
+You tell Wasp which Entities a function needs by listing them in the `entities` field of its declaration. Here's a Query asking for the `Task` Entity:
+
+```ts title="main.wasp.ts"
+import { app, query } from "@wasp.sh/spec"
+import { getTasks } from "./src/queries" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    query(getTasks, { entities: ["Task"] }),
+  ],
+})
+```
+
+Actions, APIs, and Jobs list their Entities the same way, each in its own declaration.
+
+Wasp then injects the listed Entities into the function's `context` argument, under `context.entities`. You access an Entity by name, for example `context.entities.Task`:
+
+<Tabs groupId="js-ts">
+  <TabItem value="js" label="JavaScript">
+    ```js title="src/queries.js"
+    export const getTasks = async (args, context) => {
+      return context.entities.Task.findMany()
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="ts" label="TypeScript">
+    ```ts title="src/queries.ts"
+    import { type Task } from "wasp/entities"
+    import { type GetTasks } from "wasp/server/operations"
+
+    export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
+      return context.entities.Task.findMany()
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud), so you get the full Prisma Client for that model — `findMany`, `create`, `update`, and the rest.
+
+<ShowForTs>
+  Because you list the Entities explicitly, Wasp can type `context.entities` for you: it holds exactly the Entities you declared, each with its correct Prisma type.
+</ShowForTs>
+
 ### Next steps
 
 Now that we've seen how to define Entities that represent Wasp's core data model, we'll see how to make the most of them in other parts of Wasp. Keep reading to learn all about Wasp Operations!

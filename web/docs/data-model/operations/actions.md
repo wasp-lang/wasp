@@ -446,7 +446,7 @@ export default app({
 })
 ```
 
-Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API.
+Wasp injects the listed Entities into the Action's `context` argument, so you can read and write them through `context.entities`.
 Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
 
 <Tabs groupId="js-ts">
@@ -506,7 +506,7 @@ Wasp invalidates frontend Query caches by looking at the Entities used by each A
   </TabItem>
 </Tabs>
 
-The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+For a full explanation of how `context.entities` is populated and what `context.entities.Task` exposes, see [Using Entities in server code](../../data-model/entities.md#using-entities-in-server-code).
 
 ## Cache Invalidation
 

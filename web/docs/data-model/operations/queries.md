@@ -464,7 +464,7 @@ export default app({
 })
 ```
 
-Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
+Wasp injects the listed Entities into the Query's `context` argument, so you can read and write them through `context.entities`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -504,7 +504,7 @@ Wasp will inject the specified Entity into the Query's `context` argument, givin
   </TabItem>
 </Tabs>
 
-The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+For a full explanation of how `context.entities` is populated and what `context.entities.Task` exposes, see [Using Entities in server code](../../data-model/entities.md#using-entities-in-server-code).
 
 ## API Reference
 
