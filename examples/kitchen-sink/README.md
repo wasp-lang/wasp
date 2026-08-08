@@ -64,7 +64,7 @@ wasp start
 
 ### Development
 
-To run the application with the development version of Wasp, please use the `./run wasp-cli` script located in the `waspc/` directory.
+To run the application with the development version of Wasp, please use the `nix run .#wasp-cli` command from anywhere inside the repository.
 
 For example:
 

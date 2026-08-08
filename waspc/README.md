@@ -33,52 +33,47 @@ Clone this repo (or its fork) to your machine.
 
 Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
 
-### `run` script
+### `nix run` commands
 
-[`./run`](run) script captures the most common commands/workflows for the development of `waspc` (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `./run build`, `./run test`, ... .
+The most common commands/workflows for the development of `waspc` are defined as Nix flake apps (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `nix run .#build`, `nix run .#test`, ... . They are defined in [`nix/apps.nix`](../nix/apps.nix), which also serves as a sort of documentation on how we develop `waspc`. You will see us mentioning these commands often in the rest of this README.
 
-It serves both as a convenient way to easily run common development tasks and also as a sort of documentation on how we develop `waspc`. You will see us mentioning it often in the rest of this README.
+Running `nix flake show` lists all of them, which is a good way to discover the typical `waspc` development workflows. The commands run against your working tree, and work from any directory inside the repo.
 
-Running `./run` without any arguments will print help/usage, which is a good way to discover the typical `waspc` development workflows.
+Arguments are passed after `--`, e.g. `nix run .#test-waspc-unit -- "Some test description"`.
 
 > [!TIP]
-> To make it easy to run the `./run` script from any place in your waspc codebase, you can create a bash alias that points to it, e.g.:
+> To save some typing, you can create a small shell function, e.g.:
 >
 > ```sh
-> alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
+> wrun() { nix run "/home/martin/git/wasp-lang/wasp#$1" -- "${@:2}"; }
+> # And then: wrun build, wrun test-waspc-unit "Some test", ...
 > ```
 
 ### Setup
 
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> **On Windows**, develop Wasp using the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt.
->
-> If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux setup instructions instead.
+> **On Windows**, develop Wasp inside WSL2 (Windows Subsystem for Linux): Nix doesn't run natively on Windows. Inside WSL you are effectively on Linux, so follow the Linux setup instructions.
 
 #### Dev tooling
 
-We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
+We use [Nix](https://nixos.org) to manage our development tools (e.g. Haskell, Node, and code formatters). Everything is declared in the flake at the root of the repo (see [`nix/toolchain.nix`](../nix/toolchain.nix) for the tool set), and every developer gets the exact same environment from it. Our CI uses the same flake, so it always runs the same versions of the tools as you do.
 
-Run `mise install` from the root of the repo to install all the required tools. Then, you can access the mise-managed tools in different ways:
+First, install Nix — we recommend the [Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer), which enables flakes out of the box. Then, from anywhere in the repo, you can:
 
-- **(Recommended for local development)** You can set up your shell to automatically call the `mise activate` script. This will make sure that the specified tools and versions are in your `PATH` when you go into the repo. Check their installation instructions at https://mise.jdx.dev/installing-mise.html#shells.
+- **(Recommended for local development)** Use [direnv](https://direnv.net) (ideally with [nix-direnv](https://github.com/nix-community/nix-direnv)): run `direnv allow` once, and the dev shell tools will be on your `PATH` automatically whenever you are inside the repo (the [`.envrc`](../.envrc) file is already set up).
 
-- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into an one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
+- Run `nix develop` to enter a one-off shell with all the dev tools available (similar to `virtualenv`).
 
-- If you don't want to add a shell hook, you can use the [Shims mode](https://mise.jdx.dev/dev-tools/shims.html), which lets you just add a single directory to your `PATH`, which will get populated with intelligent redirectors to the correct versions of the tools for the current working directory.
-
-- For one-off commands, you can use [the `mise exec` command](https://mise.jdx.dev/cli/exec.html) (or `mise x`) to run a specific command with the repo tools available, e.g. `mise x -- ghc --version`, `mise x -- node --version`, `mise x -- ./run build`, etc.
-
-You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
+- Run the `nix run .#<command>` commands described above directly — each one brings along the tools it needs, so they work even outside the dev shell.
 
 > [!NOTE]
-> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](../mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+> There are no hard dependencies on Nix for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`nix/toolchain.nix`](../nix/toolchain.nix) as a reference (plus `nix/apps.nix` for what each command runs under the hood). But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
 
 ### Build
 
 ```sh
-./run build
+nix run .#build
 ```
 
 to build the whole `waspc` project.
@@ -89,7 +84,7 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 ### Run tests
 
 ```sh
-./run test
+nix run .#test
 ```
 
 to ensure all the tests are passing.
@@ -97,10 +92,10 @@ to ensure all the tests are passing.
 ### Run the `wasp` CLI
 
 ```sh
-./run wasp-cli
+nix run .#wasp-cli
 ```
 
-to run the `wasp-cli` executable (that you previously built with `./run build`)!
+to run the `wasp-cli` executable (that you previously built with `nix run .#build`)!
 
 Since you provided no arguments, you should see help/usage.
 
@@ -114,13 +109,13 @@ First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-s
 Then, run the dev database:
 
 ```sh
-./run wasp-cli db start
+nix run .#wasp-cli db start
 ```
 
 Leave it running, open a new terminal (tab), and run
 
 ```sh
-./run wasp-cli db migrate-dev
+nix run .#wasp-cli db migrate-dev
 ```
 
 to update the database schema.
@@ -136,7 +131,7 @@ to set up some mock env vars for the server, just to get the things running.
 Finally, run
 
 ```sh
-./run wasp-cli start
+nix run .#wasp-cli start
 ```
 
 to run the example app in the development mode.
@@ -151,14 +146,13 @@ When done, new tab in your browser should open and you will see the Kitchen Sink
 ## Typical development workflow
 
 1. Create a new feature branch from `main`.
-2. If you don't have a good/reliable working HLS (Haskell Language Server) connected to your IDE (which we strongly recommend), you will want to instead run `./run ghcid` from the root of the `waspc` project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.
-   - NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
+2. If you don't have a good/reliable working HLS (Haskell Language Server) connected to your IDE (which we strongly recommend; the dev shell provides a matching HLS), you will want to instead run `nix run .#ghcid`: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
-4. Use `./run build:hs` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `data/packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
+4. Use `nix run .#build-hs` to build the Haskell/cabal project, and `nix run .#wasp-cli` to both build and run it. If you changed code in `data/packages/`, you will also need to run `nix run .#build-packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `nix run .#build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
-6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
+6. Run `nix run .#test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `nix run .#test-waspc-e2e-accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
 9. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
@@ -239,7 +233,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 `waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `data/packages/` and are normal npm projects. See `data/packages/README.md` for how the projects are expected to be set up.
 
 In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), they need to be correctly installed/built in the `waspc_datadir` dir.
-To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
+To do so in development, run `nix run .#build-packages` when any changes are made to these packages. We also run it in CI when building the release.
 
 ### WaspLibs
 
@@ -277,15 +271,15 @@ Haskell build tools don't have a good support for mixing them with source files.
 
 To run tests:
 
-- To run all tests, you can do `./run test`
-- To run `waspc` tests only, you can do `./run test:waspc`.
-- To run `waspc` unit tests only, you can do `./run test:waspc:unit`.
-- To run individual unit test, you can do `./run test:waspc:unit "Some test description to match"`.
-- To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
-- To run Wasp CLI tests only, you can do `./run test:cli`.
-- To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
-- To run examples e2e tests, you can do `./run test:examples`.
-- To run starter templates e2e tests, you can do `./run test:starters`.
+- To run all tests, you can do `nix run .#test`
+- To run `waspc` tests only, you can do `nix run .#test-waspc`.
+- To run `waspc` unit tests only, you can do `nix run .#test-waspc-unit`.
+- To run individual unit test, you can do `nix run .#test-waspc-unit "Some test description to match"`.
+- To run `waspc` e2e tests only, you can do `nix run .#test-waspc-e2e`.
+- To run Wasp CLI tests only, you can do `nix run .#test-cli`.
+- To run `kitchen-sink` e2e tests, you can do `nix run .#test-kitchen-sink`.
+- To run examples e2e tests, you can do `nix run .#test-examples`.
+- To run starter templates e2e tests, you can do `nix run .#test-starters`.
 
 ### Waspc e2e tests
 
@@ -301,7 +295,7 @@ Basically, you want to say "I am ok with the changes and I accept them as the ne
 Easiest way to do this is to use the convenient command from the `./run` script:
 
 ```sh
-./run test:waspc:e2e:accept-all
+nix run .#test-waspc-e2e-accept-all
 ```
 
 ## Code analysis
@@ -309,7 +303,7 @@ Easiest way to do this is to use the convenient command from the `./run` script:
 To run the Haskell code analysis, run:
 
 ```sh
-./run code-check
+nix run .#code-check
 ```
 
 This will check if code is correctly formatted, if it satisfies linter, and if it passes static analysis.
@@ -328,13 +322,13 @@ Normally we set it up in our editors to run on file save.
 You can also run it manually with
 
 ```sh
-./run check:ormolu
+nix run .#check-ormolu
 ```
 
 to see if there is any formatting that needs to be fixed, or with
 
 ```sh
-./run format:ormolu
+nix run .#format-ormolu
 ```
 
 to have Ormolu actually format (in-place) all files that need formatting.
@@ -349,7 +343,7 @@ We use [hlint](https://github.com/ndmitchell/hlint) for linting our Haskell code
 You can use
 
 ```sh
-./run hlint
+nix run .#hlint
 ```
 
 to run the hlint on Wasp codebase.
@@ -364,10 +358,10 @@ We use [stan](https://github.com/kowainik/stan) to statically analyze our codeba
 The easiest way to run it is to use
 
 ```sh
-./run stan
+nix run .#stan
 ```
 
-This will build the codebase, run stan on it (while installing it first, if needed, with the correct version of GHC) and then write results to the CLI and also generate report in the `stan.html`.
+This will build the codebase, run stan on it and then write results to the CLI and also generate report in the `stan.html`.
 
 NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
 The subsequent runs will be much faster.
@@ -403,7 +397,7 @@ We use Github Actions for CI.
 
 CI runs for any commits on `main` branch, for pull requests, and for any commits tagged with tag that starts with `v`.
 
-During CI, we build and test Wasp code on Linux, MacOS and Windows.
+During CI, we build and test Wasp code on Linux and macOS, and cross-compile (plus run unit tests under wine) for Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages, and the Wasp npm packages are uploaded to npm's staging queue (see [Typical Release Process](#typical-release-process) for how they get approved).
 
@@ -424,7 +418,7 @@ You can run this workflow:
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
-We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
+We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`, from within the dev shell since it needs `cabal`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
 
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.

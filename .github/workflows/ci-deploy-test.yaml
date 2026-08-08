@@ -32,7 +32,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: ./.github/actions/setup-nix
+        with:
+          dev-shell: ci-no-haskell
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 
@@ -115,7 +117,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
+      - uses: ./.github/actions/setup-nix
+        with:
+          dev-shell: ci-no-haskell
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 
@@ -124,7 +128,7 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: mise use -g github:railwayapp/cli@4.11.1
+        run: npm i -g @railway/cli@4.11.1
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}

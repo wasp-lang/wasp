@@ -1,0 +1,136 @@
+name: Setup Nix
+description: >
+  This action installs Nix and (optionally) puts one of the flake's dev
+  shells on the PATH of subsequent steps, so they can call the tools (cabal,
+  node, ormolu, ...) directly. It also sets up caches for package manager
+  dependencies. It is the successor of the Mise-based setup-tools action:
+  tool versions now come from the Nix flake at the repo root.
+
+inputs:
+  dev-shell:
+    description: >
+      Which dev shell to put on the PATH: "ci" (Haskell + Node tools),
+      "ci-no-haskell" (Node tools only), or "none" (just Nix itself, for
+      jobs that only run `nix build` / `nix run`).
+    required: false
+    default: "none"
+
+runs:
+  using: composite
+
+  steps:
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v22
+      with:
+        extra-conf: |
+          accept-flake-config = true
+
+    - name: Enter Nix dev shell
+      if: ${{ inputs.dev-shell != 'none' }}
+      shell: bash
+      env:
+        DEV_SHELL: ${{ inputs.dev-shell }}
+      # Builds the requested dev shell and puts its tool directories on the
+      # PATH of all subsequent steps (like the old mise activation did).
+      #
+      # NOTE: this must go through GITHUB_PATH — the runner composes each
+      # step's PATH itself and silently ignores PATH set via GITHUB_ENV.
+      # GITHUB_PATH prepends LIFO (the last written line ends up first), so
+      # we write the shell's additions in reverse to preserve their order.
+      #
+      # The written values are the Nix store paths of our own dev shell, not
+      # user-controllable input.
+      run: | # zizmor: ignore[github-env]
+        set -euo pipefail
+        shell_path="$(nix develop ".#$DEV_SHELL" --command bash -c 'echo "$PATH"')"
+
+        added="${shell_path%"$PATH"}"
+        if [ "$added" == "$shell_path" ]; then
+          # The shell PATH doesn't end with the invoking PATH (unexpected);
+          # fall back to prepending all of it. Duplicates are harmless.
+          added="$shell_path"
+        fi
+
+        IFS=':' read -ra added_dirs <<< "${added%:}"
+        for ((i = ${#added_dirs[@]} - 1; i >= 0; i--)); do
+          echo "${added_dirs[i]}" >> "$GITHUB_PATH"
+        done
+
+    - name: Cache npm dependencies
+      uses: actions/setup-node@v6
+      with:
+        # We don't specify a node-version here because we already have it
+        # installed. We use this step to setup the npm cache.
+        cache: npm
+        package-manager-cache: true
+
+    # We can't have the following steps in a different action because of a
+    # GitHub Actions bug with how caches interact with nested composite actions:
+    # https://github.com/actions/runner/issues/2030
+
+    - name: Probe GHC and Cabal
+      if: ${{ inputs.dev-shell == 'ci' }}
+      id: probe-ghc-cabal
+      shell: bash
+      run: |
+        set -euxo pipefail
+        echo "GHC_VERSION=$(ghc --numeric-version)" >> $GITHUB_OUTPUT
+        echo "CABAL_STORE=$(cabal path -v0 --store-dir)" >> $GITHUB_OUTPUT
+        echo "CABAL_INDEX=$(cabal path -v0 --remote-repo-cache)" >> $GITHUB_OUTPUT
+
+    # Based on the official recipe for Cabal caching:
+    # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
+    - name: Cache Cabal dependencies
+      if: ${{ inputs.dev-shell == 'ci' }}
+      uses: actions/cache@v5
+      with:
+        path:
+          # While commonly cached, we've decided not to cache:
+          #
+          # - `./dist-newstyle`: Our internal code builds quite fast, and
+          #   changes often enough that a cache would need to be invalidated on
+          #   every run, and make our cache much bigger.
+          #
+          # We do cache the Cabal store and index files, which is where the
+          # actual built packages are stored, as it is the most expensive part
+          # of the build, and easily reusable.
+          |
+          ${{ steps.probe-ghc-cabal.outputs.CABAL_STORE }}
+          ${{ steps.probe-ghc-cabal.outputs.CABAL_INDEX }}
+        key:
+          # The `v3` prefix keeps us away from the caches of the pre-Nix
+          # toolchain: the Nix-provisioned GHC has a different ABI than the
+          # ghcup one, so their Cabal stores must not mix. All CI runners are
+          # glibc now (the musl builds moved to `nix build`), so the old libc
+          # key component is gone.
+          >
+          ${{
+            format(
+              'cabal-v3-{0}-{1}-{2}-{3}-{4}',
+              'waspc',
+              runner.os,
+              runner.arch,
+              steps.probe-ghc-cabal.outputs.GHC_VERSION,
+              hashFiles(
+                'waspc/*.cabal',
+                'waspc/*.project',
+                'waspc/*.project.freeze'
+              )
+            )
+          }}
+        restore-keys: >
+          ${{
+            format(
+              'cabal-v3-{0}-{1}-{2}-{3}-',
+              'waspc',
+              runner.os,
+              runner.arch,
+              steps.probe-ghc-cabal.outputs.GHC_VERSION
+            )
+          }}
+
+    - name: Update Cabal package index
+      if: ${{ inputs.dev-shell == 'ci' }}
+      shell: bash
+      working-directory: waspc
+      run: cabal update

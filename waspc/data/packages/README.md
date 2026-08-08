@@ -1,7 +1,7 @@
 # Testing Packages Locally
 
-Run `./run build:packages` to compile the packages. Then you can use `./run wasp-cli`
-as normal, or you can `./run install` and then use `wasp-cli`.
+Run `nix run .#build-packages` to compile the packages. Then you can use `nix run .#wasp-cli`
+as normal, or you can `nix run .#install` and then use `wasp-cli`.
 
 # Adding a New Package
 
