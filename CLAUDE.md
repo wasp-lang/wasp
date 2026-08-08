@@ -11,7 +11,7 @@ Wasp is a full-stack web framework that compiles TypeScript config (`main.wasp.t
   - `data/Generator/libs/` — TypeScript libraries embedded into generated project code
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
-  - `run` — **Main development script** (run `./run` with no args to see all commands)
+- `nix/` — **Build system and dev tooling** (Nix flake modules: toolchain, dev commands, packaging)
 - `wasp-app-runner/` — Node.js CLI for running Wasp apps in e2e tests
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
@@ -19,13 +19,14 @@ Wasp is a full-stack web framework that compiles TypeScript config (`main.wasp.t
 
 ## Build & Development
 
-All waspc development commands run from the `waspc/` directory via the `./run` script. Run `./run` with no arguments to see the full list of available commands (build, test, format, lint, etc.).
+All development commands are Nix flake apps, runnable from anywhere inside the repo as `nix run .#<command>` (build, test, format, lint, etc.). They are defined in `nix/apps.nix`; `nix flake show` lists them all. `nix develop` enters a shell with all dev tools (GHC, cabal, node, formatters).
 
 Key things to know:
 
-- Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
-- Run the dev CLI with `./run wasp-cli <args>`.
-- Toolchain versions are specified in `mise.toml`.
+- Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `nix run .#build` for the full build.
+- Run the dev CLI with `nix run .#wasp-cli -- <args>`.
+- Toolchain versions are specified in the Nix flake (`nix/toolchain.nix`).
+- `nix build .#wasp-cli` builds the fully-packaged CLI; release tarballs come from `nix/release.nix`.
 
 ## Code Conventions
 
@@ -35,12 +36,12 @@ Key things to know:
 - Default extensions are listed in `waspc/waspc.cabal`.
 - CamelCase for types/modules, camelCase for functions/values.
 - Qualified imports preferred.
-- Formatting: Ormolu (`./run check:ormolu` / `./run format:ormolu`). Linting: HLint (`./run hlint`, config in `waspc/.hlint.yaml`).
+- Formatting: Ormolu (`nix run .#check-ormolu` / `nix run .#format-ormolu`). Linting: HLint (`nix run .#hlint`, config in `waspc/.hlint.yaml`).
 - Tests use `tasty` + `hspec` + `QuickCheck`, mirroring source module paths with a `Test` suffix.
 
 ### TypeScript/JavaScript
 
-- Prettier-formatted (config in `prettier.config.mjs`). Check/fix with `./run check:prettier` / `./run format:prettier`.
+- Prettier-formatted (config in `prettier.config.mjs`). Check/fix with `nix run .#check-prettier` / `nix run .#format-prettier`.
 - camelCase for files/functions, PascalCase for components/types.
 
 ### Architecture
@@ -50,6 +51,6 @@ Key things to know:
 
 ## Important Rules
 
-- **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `cd waspc && ./run build && ./run test:waspc:e2e:accept-all`.
+- **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `nix run .#build && nix run .#test-waspc-e2e-accept-all`.
 - **Documentation**: Only edit `web/docs/` (the latest version). Do not modify `web/versioned_docs/` — those are auto-generated snapshots of previous versions.
 - **Pull requests**: Always use the repo's `PULL_REQUEST_TEMPLATE.md`. Never delete any checkbox from the template — leave irrelevant ones unchecked.
