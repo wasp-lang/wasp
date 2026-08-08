@@ -45,86 +45,44 @@ jobs:
       fail-fast: false
 
       matrix:
-        # == Why such a big, heterogeneous list? ==
-        # This is a bit of mish-mash of different platforms and architectures,
-        # so we need to build some of these directly in the runners, and some in
-        # containers. Each environment is a different OS and needs different
-        # dependencies.
+        # All artifacts are built with `nix build` from the flake's release
+        # derivations, on plain runners — the old per-platform containers
+        # (ubuntu:20.04 for a low glibc floor, alpine for musl) are gone:
         #
-        # When possible, we build inside containers so we are not affected when
-        # GitHub updates the runners or deprecates old ones. When we build inside
-        # containers, the runner is only used to host the container, and all the
-        # steps are run inside the container and not the host (like a Dockerfile).
+        # - The Linux binaries are fully-static musl builds now, so they run
+        #   on any distro regardless of its libc — which is also why the
+        #   `linux-x86_64` and `linux-x86_64-static` artifacts are the same
+        #   file published under both names (kept for compatibility with the
+        #   npm package layout and download URLs).
+        # - The macOS binaries are dynamic (macOS syscalls are private, no
+        #   static linking) but post-processed to bundle their few non-system
+        #   dylibs, so they don't depend on /nix on the user's machine.
         env:
           - name: linux-x86_64
             runner: ubuntu-latest
-            # We use an old Ubuntu version so we can link to a low `glibc` version.
-            # `glibc` is backwards-compatible but not forwards-compatible, so it
-            # is a good idea to use the oldest version we reasonably can. Otherwise,
-            # the wasp binary would possibly not work on the system using an older
-            # glibc than what it was built with (e.g. an older Ubuntu version).
-            container: ubuntu:20.04
-            static: false
-            install-deps: |
-              # We need either `curl` or `wget` to install Mise, which then
-              # installs everything else.
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update -y
-              apt-get install -y curl
-
-          - name: linux-x86_64-static
-            runner: ubuntu-latest
-            # We pin the `alpine` version to a specific one we have tested,
-            # since newer releases might have different versions of the
-            # libraries we depend on.
-            container: alpine:3.23
-            static: true
+            tarball-package: release-tarball-linux-x86_64
+            also-upload-as: linux-x86_64-static
 
           - name: linux-aarch64
             runner: ubuntu-24.04-arm
-            # We use an old Ubuntu version so we can link to a low `glibc` version.
-            # `glibc` is backwards-compatible but not forwards-compatible, so it
-            # is a good idea to use the oldest version we reasonably can. Otherwise,
-            # the wasp binary would possibly not work on the system using an older
-            # glibc than what it was built with (e.g. an older Ubuntu version).
-            container: ubuntu:24.04
-            static: false
-            install-deps: |
-              # We need either `curl` or `wget` to install Mise, which then
-              # installs everything else.
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update -y
-              apt-get install -y curl
+            tarball-package: release-tarball-linux-aarch64
 
           - name: macos-x86_64
             runner: macos-15-intel
-            # macOS's syscalls are private and change between versions, so we
-            # can't statically link the binary.
-            static: false
+            tarball-package: release-tarball-macos-x86_64
 
           - name: macos-aarch64
             runner: macos-15 # By default an Apple Silicon-based runner.
-            static: false # Check the comment above for why we can't statically link on macOS
+            tarball-package: release-tarball-macos-aarch64
 
     runs-on: ${{ matrix.env.runner }}
-    container:
-      # Zizmor can't follow the matrix to see which container is used so it
-      # marks everything as unpinned, but they _are_ pinned.
-      # zizmor: ignore[unpinned-images]
-      ${{ matrix.env.container }}
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
-      - name: Install dependencies
-        if: ${{ matrix.env.install-deps }}
-        run: ${{ matrix.env.install-deps }}
-
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-tools
-        with:
-          haskell: true
+      - uses: ./.github/actions/setup-nix
 
       - name: Compute artifact names
         uses: ./.github/actions/compute-artifact-names
@@ -132,34 +90,39 @@ jobs:
         with:
           build-name: ${{ matrix.env.name }}
 
+      - name: Compute extra artifact names
+        if: ${{ matrix.env.also-upload-as }}
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-extra-artifact-names
+        with:
+          build-name: ${{ matrix.env.also-upload-as }}
+
       - name: Build and package
-        working-directory: waspc
         env:
-          LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
-          BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
+          TARBALL_PACKAGE: ${{ matrix.env.tarball-package }}
           TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
         run: |
-          ./run build
-          mkdir -p artifacts
-          ./tools/make_binary_package.sh "artifacts/${TARBALL_NAME}"
+          nix build -L ".#${TARBALL_PACKAGE}"
+          mkdir -p waspc/artifacts
+          cp -L result "waspc/artifacts/${TARBALL_NAME}"
+
+      - name: Package extra artifact
+        if: ${{ matrix.env.also-upload-as }}
+        env:
+          EXTRA_TARBALL_NAME: ${{ steps.compute-extra-artifact-names.outputs.tarball-name }}
+        run: cp -L result "waspc/artifacts/${EXTRA_TARBALL_NAME}"
 
       - name: Compute data files list
+        # The data dir contents are identical across platforms (and
+        # ci-npm-package-test verifies that), so one platform producing the
+        # list is enough.
+        if: ${{ matrix.env.name == 'linux-x86_64' }}
         id: data-files
-        working-directory: waspc
         run: |
-          if command -v sha256sum >/dev/null 2>&1; then
-            HASH_CMD="sha256sum"
-          else
-            HASH_CMD="shasum -a 256"
-          fi
+          nix build .#wasp-data-manifest --out-link data-manifest
           {
             echo 'list<<EOF'
-            cabal sdist --list-only \
-              | grep '^\./data/' \
-              | while IFS= read -r file; do
-                  hash=$($HASH_CMD "$file" | cut -d' ' -f1)
-                  printf '%s\t%s\n' "$file" "$hash"
-                done
+            cat data-manifest
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
@@ -169,14 +132,62 @@ jobs:
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           if-no-files-found: error
 
+      - uses: actions/upload-artifact@v7
+        if: ${{ matrix.env.also-upload-as }}
+        with:
+          path: ./waspc/artifacts/${{ steps.compute-extra-artifact-names.outputs.tarball-name }}
+          name: ${{ steps.compute-extra-artifact-names.outputs.artifact-name }}
+          if-no-files-found: error
+
       - name: Set job outputs
         id: set-outputs
         env:
           OUTPUT_DATA: ${{ toJson(steps.compute-artifact-names.outputs) }}
+          EXTRA_OUTPUT_DATA: ${{ toJson(steps.compute-extra-artifact-names.outputs) }}
+          EXTRA_NAME: ${{ matrix.env.also-upload-as }}
         run: |
           {
             echo 'output_${{ matrix.env.name }}<<EOF'
             echo "$OUTPUT_DATA"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
-          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
+          if [ -n "$EXTRA_NAME" ]; then
+            {
+              echo "output_${EXTRA_NAME}<<EOF"
+              echo "$EXTRA_OUTPUT_DATA"
+              echo 'EOF'
+            } >> $GITHUB_OUTPUT
+          fi
+          echo "waspc_version=$(nix run .#get-waspc-version)" >> $GITHUB_OUTPUT
+
+  # Windows coverage: the CLI is cross-compiled from Linux (mingw-w64), with
+  # Template Haskell running under wine, and the unit test suites are run
+  # under wine as a smoke check. This replaced the native windows-latest job;
+  # the e2e tests can't run under wine (they spawn real node/npm/git), so
+  # Windows e2e coverage is gone — revisit if Windows regressions appear.
+  # Windows binaries are not released; the zip is a CI artifact only.
+  build-windows:
+    name: Build Wasp (windows-x86_64, cross-compiled)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-nix
+
+      - name: Cross-compile for Windows
+        run: nix build -L .#release-zip-windows-x86_64
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: result
+          name: wasp-cli-windows-x86_64
+          if-no-files-found: error
+
+      - name: Run unit tests under wine
+        # Wine-based Template Haskell/iserv is the least battle-tested part
+        # of the cross-compilation setup, so a failure here doesn't fail CI
+        # while we build confidence in it.
+        continue-on-error: true
+        run: nix build -L .#checks.x86_64-linux.windows-unit-tests

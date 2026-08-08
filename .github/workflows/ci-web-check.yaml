@@ -21,10 +21,10 @@ jobs:
           # the current merge commit, so the markdown snapshots never match.
           fetch-depth: 0
 
-      - uses: ./.github/actions/setup-tools
+      - uses: ./.github/actions/setup-nix
         with:
-          # We only need Node here, so we skip the Haskell tools.
-          haskell: false
+          # We only need Node here.
+          dev-shell: ci-no-haskell
 
       - name: Install web dependencies
         working-directory: web
