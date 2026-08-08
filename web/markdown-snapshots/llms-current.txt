@@ -72,6 +72,7 @@
 - [Extras](https://wasp.sh/docs/deployment/extras.md)
 ### AI & Coding Agents
 - [Agent Plugin / Skills](https://wasp.sh/docs/wasp-ai/coding-agent-plugin.md)
+- [Worktrees](https://wasp.sh/docs/wasp-ai/git-worktrees.md)
 ### Advanced Features
 - [Sending Emails](https://wasp.sh/docs/advanced/email.md)
 - [Recurring Jobs](https://wasp.sh/docs/advanced/jobs.md)
