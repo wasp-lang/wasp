@@ -11050,7 +11050,7 @@ In this section, we'll discuss what happens with the database when your app goes
 
 The server app that Wasp generates uses a PostgreSQL database. The only requirement from Wasp's point of view is that the database is accessible from the server via the `DATABASE_URL` server env variable.
 
-It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service.
+It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service. PostgreSQL can behave differently across major versions, so development and production work best when they use the same major version.
 
 ### Migrations
 
@@ -11526,7 +11526,7 @@ If you want to build locally, supply the `--build-locally` option to `wasp deplo
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL Docker image provided by Fly.io when creating a new database for your app. However, if you have a need for a custom Docker image, e.g., your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Fly.io databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the `flyio/postgres-flex:18` image. If your app needs another PostgreSQL image, for example, to add an extension such as PostGIS, use `--db-image <docker-image>`.
 
 Your custom PostgreSQL image must be compatible with Fly.io, as their platform has some requirements to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
 
@@ -11583,7 +11583,7 @@ All database options are optional.
 
 - `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
 
-- `--db-image <dbImage>` sets a custom PostgreSQL Docker image.
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
 
 Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
 
@@ -11673,7 +11673,7 @@ All database options are optional.
 
 - `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
 
-- `--db-image <dbImage>` sets a custom PostgreSQL Docker image.
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
 
 Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
 
@@ -11757,8 +11757,6 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
-
 When you run the `launch` command, Wasp CLI knows how to connect different parts of your Wasp app together, so it sets up the required environment variables for your server app:
 
 1. `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` which are required to connect your client and server apps.
@@ -11820,7 +11818,9 @@ wasp deploy railway deploy <project-name>
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11828,15 +11828,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+wasp deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands.
 
 ##### Explicitly providing the Railway project ID
 
@@ -11950,11 +11945,13 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-client`
 - `<project-name>-server`
 
-Railway also creates a PostgreSQL database service named `Postgres`.
+Railway also creates a PostgreSQL database service.
 
 ##### Using a custom PostgreSQL database {#using-a-custom-postgresql-database}
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11962,15 +11959,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway setup my-wasp-app --db-image postgis/postgis
+wasp deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands.
 
 ##### Explicitly providing the Railway project ID
 

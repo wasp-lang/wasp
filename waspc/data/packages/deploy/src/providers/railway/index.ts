@@ -14,6 +14,9 @@ import {
 } from "./railwayCli.js";
 import { retryOnRailwayAPIError } from "./retry.js";
 
+// Keep this Postgres major in sync with Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
+const defaultDbImage = "ghcr.io/railwayapp-templates/postgres-ssl:18";
+
 class RailwayCommand extends Command {
   addProjectNameArgument(): this {
     return this.argument("<project-name>", "project name to use on Railway");
@@ -38,6 +41,13 @@ class RailwayCommand extends Command {
     return this.option(
       "--custom-server-url <url>",
       "URL of the server that the client will connect to",
+    );
+  }
+  addDbImageOption(): this {
+    return this.option(
+      "--db-image <dbImage>",
+      "Docker image for the PostgreSQL database",
+      defaultDbImage,
     );
   }
 }
@@ -118,10 +128,7 @@ function makeRailwaySetupCommand(): Command {
       "--workspace [workspace]",
       "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
-    .option(
-      "--db-image <dbImage>",
-      "custom Docker image for the PostgreSQL database",
-    )
+    .addDbImageOption()
     .action((...args: Parameters<typeof setupFn>) =>
       retryOnRailwayAPIError(() => setupFn(...args)),
     );
@@ -156,10 +163,7 @@ function makeRailwayLaunchCommand(): Command {
       "--workspace [workspace]",
       "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
-    .option(
-      "--db-image <dbImage>",
-      "custom Docker image for the PostgreSQL database",
-    )
+    .addDbImageOption()
     .addCustomServerUrlOption()
     .action(launchFn);
 }

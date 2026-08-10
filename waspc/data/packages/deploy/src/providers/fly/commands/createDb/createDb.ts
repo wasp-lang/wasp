@@ -50,6 +50,8 @@ export async function createDb(
     cmdOptions.dbInitialClusterSize,
     "--volume-size",
     cmdOptions.dbVolumeSize,
+    "--image-ref",
+    cmdOptions.dbImage,
   ];
 
   if (cmdOptions.dbVmMemory) {
@@ -62,10 +64,6 @@ export async function createDb(
 
   if (cmdOptions.dbVmCpuKind) {
     createArgs.push("--vm-cpu-kind", cmdOptions.dbVmCpuKind);
-  }
-
-  if (cmdOptions.dbImage) {
-    createArgs.push("--image-ref", cmdOptions.dbImage);
   }
 
   if (deploymentInstructions.cmdOptions.org) {

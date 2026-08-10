@@ -13,6 +13,9 @@ import { ContextOption } from "./CommonOps.js";
 import { assertRegionIsValid, ensureFlyReady } from "./flyCli.js";
 import { assertFlyTomlDirIsAbsoluteAndPresent } from "./tomlFile.js";
 
+// Keep this Postgres major in sync with Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
+const defaultDbImage = "flyio/postgres-flex:18";
+
 class FlyCommand extends Command {
   addBasenameArgument(): this {
     return this.argument(
@@ -48,7 +51,8 @@ class FlyCommand extends Command {
       )
       .option(
         "--db-image <dbImage>",
-        "custom Docker image for the PostgreSQL database",
+        "Docker image for the PostgreSQL database",
+        defaultDbImage,
       );
   }
   addLocalBuildOption(): this {

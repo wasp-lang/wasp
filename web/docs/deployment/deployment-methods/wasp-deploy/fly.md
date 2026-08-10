@@ -199,7 +199,7 @@ If you want to build locally, supply the `--build-locally` option to `wasp deplo
 
 #### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL Docker image provided by Fly.io when creating a new database for your app. However, if you have a need for a custom Docker image, e.g., your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Fly.io databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the `flyio/postgres-flex:18` image. If your app needs another PostgreSQL image, for example, to add an extension such as PostGIS, use `--db-image <docker-image>`.
 
 Your custom PostgreSQL image must be compatible with Fly.io, as their platform has some requirements to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
 

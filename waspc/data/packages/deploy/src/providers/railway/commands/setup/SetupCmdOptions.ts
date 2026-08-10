@@ -7,5 +7,5 @@ import {
 export interface SetupCmdOptions extends CommonCmdOptions, SecretsOptions {
   existingProjectId?: RailwayProjectId;
   workspace?: string;
-  dbImage?: string;
+  dbImage: string;
 }

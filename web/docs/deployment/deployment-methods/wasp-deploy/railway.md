@@ -41,8 +41,6 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
-
 <LaunchCommandEnvVars />
 
 If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables) section.
@@ -200,7 +198,7 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-client`
 - `<project-name>-server`
 
-Railway also creates a PostgreSQL database service named `Postgres`.
+Railway also creates a PostgreSQL database service.
 
 <CustomPostgresOption command="setup" />
 

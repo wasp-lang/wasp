@@ -11,10 +11,15 @@
 
 ### 🎉 New Features
 
+- Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Wasp Deploy for Railway now requires Railway CLI 4.51.0 or newer. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
+
+### 🐞 Bug fixes
+
+- Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 
 ### 🔧 Small improvements
 

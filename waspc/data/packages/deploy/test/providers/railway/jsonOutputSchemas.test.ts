@@ -9,10 +9,7 @@ import {
   cliProjectWithServices,
   cliProjectWithoutServices,
 } from "./fixtures/railwayCliProject.js";
-import {
-  cliProjectStatusInNewFormat,
-  cliProjectStatusInOldFormat,
-} from "./fixtures/railwayCliProjectStatus.js";
+import { cliProjectStatus } from "./fixtures/railwayCliProjectStatus.js";
 
 describe("RailwayCliDomainSchema", () => {
   test("parses new format with domains array", () => {
@@ -25,10 +22,13 @@ describe("RailwayCliDomainSchema", () => {
     });
   });
 
-  test("parses legacy format with single domain and normalizes", () => {
-    const input = { domain: "my-app.up.railway.app" };
-    const result = RailwayCliDomainSchema.parse(input);
-    expect(result).toEqual({ domains: ["my-app.up.railway.app"] });
+  test("normalizes Railway CLI 4.51 single-domain output", () => {
+    const result = RailwayCliDomainSchema.parse({
+      domain: "https://my-app.up.railway.app",
+    });
+    expect(result).toEqual({
+      domains: ["https://my-app.up.railway.app"],
+    });
   });
 
   test("rejects domains array that is empty", () => {
@@ -51,19 +51,9 @@ describe("RailwayCliProjectSchema", () => {
 });
 
 describe("RailwayCliProjectStatusSchema", () => {
-  test("parses new CLI output with instances under environments", () => {
-    const result = RailwayCliProjectStatusSchema.parse(
-      cliProjectStatusInNewFormat,
-    );
+  test("parses CLI output with instances under environments", () => {
+    const result = RailwayCliProjectStatusSchema.parse(cliProjectStatus);
     expect(result.environments.edges).toHaveLength(1);
-  });
-
-  test("converts old CLI output with instances under services to the new format", () => {
-    const result = RailwayCliProjectStatusSchema.parse(
-      cliProjectStatusInOldFormat,
-    );
-    expect(result.environments.edges).toHaveLength(2);
-    expect(result).not.toHaveProperty("services");
   });
 });
 
