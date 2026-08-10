@@ -19,7 +19,14 @@ let
   haskellTools = [
     toolchain.ghc
     toolchain.cabal
+    pkgs.pkg-config
   ];
+
+  # C libraries of waspc's Haskell dependencies (just zlib today), which
+  # cabal discovers through pkg-config — the Nix equivalent of the old mise
+  # bootstrap's apt/apk zlib dev packages. These must be buildInputs (host
+  # dependencies) for the pkg-config hook to expose their .pc files.
+  haskellCLibs = [ pkgs.zlib ];
 
   formatters = [
     toolchain.ormolu
@@ -39,11 +46,13 @@ in
         toolchain.ghcid
         toolchain.haskell-language-server
       ];
+    buildInputs = haskellCLibs;
   };
 
   ci = pkgs.mkShell {
     name = "wasp-ci";
     packages = nodeTools ++ haskellTools ++ formatters;
+    buildInputs = haskellCLibs;
   };
 
   ci-no-haskell = pkgs.mkShell {

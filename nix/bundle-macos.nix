@@ -11,7 +11,12 @@
 exe:
 pkgs.runCommand "wasp-macos-bundle"
   {
-    nativeBuildInputs = [ pkgs.darwin.sigtool ];
+    # cctools provides otool, install_name_tool, and codesign_allocate
+    # (which sigtool's codesign spawns under the hood).
+    nativeBuildInputs = [
+      pkgs.darwin.cctools
+      pkgs.darwin.sigtool
+    ];
   }
   ''
     set -euo pipefail

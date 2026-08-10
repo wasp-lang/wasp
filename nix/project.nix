@@ -69,7 +69,8 @@ let
       )
       # Fully-static executable for the musl cross-builds (the Linux release
       # binaries). Mirrors the old Alpine/BUILD_STATIC=1 setup, with the
-      # static gmp/zlib/libffi coming from nixpkgs instead of apk packages.
+      # static gmp/zlib/libffi coming from nixpkgs' static package set
+      # instead of apk packages.
       (
         { pkgs, lib, ... }:
         lib.mkIf pkgs.stdenv.hostPlatform.isMusl {
@@ -79,11 +80,20 @@ let
               "--disable-executable-dynamic"
               "--ghc-option=-optl=-static"
               "--ghc-option=-optl=-pthread"
-              "--ghc-option=-optl=-L${pkgs.gmp6.override { withStatic = true; }}/lib"
-              "--ghc-option=-optl=-L${pkgs.zlib.static}/lib"
-              "--ghc-option=-optl=-L${pkgs.libffi.overrideAttrs (_: { dontDisableStatic = true; })}/lib"
+              "--ghc-option=-optl=-L${lib.getLib pkgs.pkgsStatic.gmp6}/lib"
+              "--ghc-option=-optl=-L${lib.getLib pkgs.pkgsStatic.zlib}/lib"
+              "--ghc-option=-optl=-L${lib.getLib pkgs.pkgsStatic.libffi}/lib"
             ];
           };
+        }
+      )
+      # The mingw-w64 GCC treats old-style C in basement's cbits as an error
+      # (-Wint-conversion became a hard error in GCC 14+); relax it for that
+      # one package so the Windows cross-build compiles.
+      (
+        { pkgs, lib, ... }:
+        lib.mkIf pkgs.stdenv.hostPlatform.isWindows {
+          packages.basement.components.library.ghcOptions = [ "-optc-Wno-int-conversion" ];
         }
       )
     ];
