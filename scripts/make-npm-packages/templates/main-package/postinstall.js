@@ -17,7 +17,7 @@ async function sendAnalytics() {
     distinct_id: generateDistinctId(),
     properties: {
       os: getOS(),
-      arch: process.arch,
+      arch: getArch(),
       context:
         (process.env.WASP_TELEMETRY_CONTEXT ?? "") + (isCI() ? " CI" : ""),
     },
@@ -37,6 +37,10 @@ function generateDistinctId() {
   return `${random}${timestamp}`;
 }
 
+// We report the OS and the CPU architecture under the same names everywhere we
+// send telemetry from. Keep in sync with:
+// - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+// - https://github.com/wasp-lang/wasp/blob/main/waspc/cli/src/Wasp/Cli/Command/Telemetry/Project.hs
 function getOS() {
   switch (process.platform) {
     case "linux":
@@ -45,6 +49,17 @@ function getOS() {
       return "osx";
     case "win32":
       return "windows";
+    default:
+      return "Unknown";
+  }
+}
+
+function getArch() {
+  switch (process.arch) {
+    case "x64":
+      return "x86_64";
+    case "arm64":
+      return "aarch64";
     default:
       return "Unknown";
   }

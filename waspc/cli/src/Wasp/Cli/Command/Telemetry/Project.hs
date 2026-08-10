@@ -146,6 +146,7 @@ data ProjectTelemetryData = ProjectTelemetryData
     _projectHash :: ProjectHash,
     _waspVersion :: String,
     _os :: String,
+    _arch :: String,
     _isBuild :: Bool,
     _deployCmdArgs :: String,
     _context :: String
@@ -158,7 +159,8 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
     { _userSignature = userSignature,
       _projectHash = projectHash,
       _waspVersion = showVersion version,
-      _os = System.Info.os,
+      _os = getOS,
+      _arch = getArch,
       _isBuild = case cmdCall of
         Command.Call.Build -> True
         _ -> False,
@@ -167,6 +169,23 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
         _ -> "",
       _context = context
     }
+
+-- | We report the OS and the CPU architecture under the same names everywhere we
+-- send telemetry from, so that the data lines up. Keep in sync with:
+-- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+-- - scripts/make-npm-packages/templates/main-package/postinstall.js
+getOS :: String
+getOS = case System.Info.os of
+  "linux" -> "linux"
+  "darwin" -> "osx"
+  "mingw32" -> "windows"
+  _ -> "Unknown"
+
+getArch :: String
+getArch = case System.Info.arch of
+  "x86_64" -> "x86_64"
+  "aarch64" -> "aarch64"
+  _ -> "Unknown"
 
 -- | To preserve user's privacy, we capture only args (from `wasp deploy ...` cmd)
 -- that are from the predefined set of keywords.
@@ -190,6 +209,7 @@ sendTelemetryData telemetryData = do
                   "project_hash" .= _projectHashValue (_projectHash telemetryData),
                   "wasp_version" .= _waspVersion telemetryData,
                   "os" .= _os telemetryData,
+                  "arch" .= _arch telemetryData,
                   "is_build" .= _isBuild telemetryData,
                   "deploy_cmd_args" .= _deployCmdArgs telemetryData,
                   "context" .= _context telemetryData

@@ -19,6 +19,7 @@
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
 - The `<region>` argument of `wasp deploy fly` is now case-insensitive, so e.g. `MIA` is accepted instead of being rejected as an invalid region. ([#4588](https://github.com/wasp-lang/wasp/pull/4588))
+- Our anonymous [telemetry](https://wasp.sh/docs/telemetry) now also reports the CPU architecture (e.g. `x86_64`), so we know which platforms to prioritize. You can disable telemetry by setting `WASP_TELEMETRY_DISABLE=1`. ([#4641](https://github.com/wasp-lang/wasp/pull/4641))
 
 ## 0.25.0
 

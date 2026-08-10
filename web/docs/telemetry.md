@@ -29,6 +29,8 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
     "deploy_cmd_args": "fly;deploy",
     "wasp_version": "0.1.9.1",
     "os": "linux",
+    // CPU architecture: "x86_64", "aarch64", or "Unknown".
+    "arch": "x86_64",
     // "CI" if running on CI, and whatever is the content of "WASP_TELEMETRY_CONTEXT" env var.
     // We use this to track when execution is happening in some special context, like on Gitpod, Replit or similar.
     "context": "CI"
@@ -50,6 +52,8 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
     // Randomly generated id.
     "distinct_id": "274701613078193779564259",
     "os": "linux",
+    // CPU architecture: "x86_64", "aarch64", or "Unknown".
+    "arch": "x86_64",
     // "CI" if running on CI, empty string otherwise.
     "context": "CI"
   }
