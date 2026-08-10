@@ -17,6 +17,7 @@ async function sendAnalytics() {
     distinct_id: generateDistinctId(),
     properties: {
       os: getOS(),
+      arch: process.arch,
       context:
         (process.env.WASP_TELEMETRY_CONTEXT ?? "") + (isCI() ? " CI" : ""),
     },
