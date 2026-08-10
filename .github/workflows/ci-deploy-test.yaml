@@ -59,7 +59,9 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+          # - We give the database 512 MB of RAM because Fly's default is not
+          # enough for our e2e test bursts.
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" --db-vm-memory 512 "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
