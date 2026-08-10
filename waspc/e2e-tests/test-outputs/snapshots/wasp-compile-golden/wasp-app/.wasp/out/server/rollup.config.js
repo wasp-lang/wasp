@@ -1,10 +1,13 @@
 import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
 import { resolve as resolvePath } from "node:path";
-import { virtualUserModules } from "./src/plugins/virtualUserModules.js";
+import {
+  isVirtualUserModuleId,
+  virtualUserModules,
+} from "./src/plugins/virtualUserModules.js";
 import {
   discoverWaspModulePackages,
-  shouldExternalize,
+  shouldExternalize as shouldExternalizePackageImport,
 } from "./rollupPackages.js";
 
 const appRootDir = resolvePath(import.meta.dirname, "../../..");
@@ -38,7 +41,7 @@ function createBundle(inputFilePath, outputFilePath) {
     ],
     // Wasp modules must share the host's bundled Wasp runtime. Their own
     // third-party dependencies remain external.
-    external: (id) => shouldExternalize(id, packagesToBundle),
+    external: shouldExternalize,
     // 'preserveSymlinks: false' tells Rollup to fully follow symlinks when
     // resolving modules. This is the default option, but we're setting it
     // explicitly because we rely on it.
@@ -54,4 +57,12 @@ function createBundle(inputFilePath, outputFilePath) {
     // Source: https://rollupjs.org/configuration-options/#preservesymlinks
     preserveSymlinks: false,
   }
+}
+
+function shouldExternalize(moduleId) {
+  if (isVirtualUserModuleId(moduleId)) {
+    return false;
+  }
+
+  return shouldExternalizePackageImport(moduleId, packagesToBundle);
 }

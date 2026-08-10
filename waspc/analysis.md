@@ -25,14 +25,16 @@ quote-lib                             external
 pg-boss                               external
 ```
 
-The package's `peerDependencies.wasp` entry is the module marker. The generated Rollup configuration discovers matching direct dependencies once and uses a static package allowlist while building. This avoids per-import package resolution and adding module provenance to AppSpec.
+The package's `wasp.module` object is the module marker. The generated Rollup configuration discovers matching direct dependencies once and uses a static package allowlist while building. This avoids per-import package resolution and adding module provenance to AppSpec.
+
+The generated virtual user module map is the source of truth for both plugin resolution and externalization. IDs owned by that map must reach the virtual user module plugin; only other imports proceed to package externalization. This prevents `virtual:wasp/user/*` imports from surviving into the runtime bundle without introducing policy for unrelated URL schemes.
 
 Transitive full-stack module composition is intentionally unsupported until there is a concrete requirement. A full-stack module contributing a spec to an app must be installed as a direct app dependency.
 
 ## Risks
 
 - Bundling changes package semantics for code that relies on its installed filesystem location, package-local assets, `import.meta.url`, or runtime-computed imports.
-- A non-module package that declares a `wasp` peer will also be bundled. That is currently acceptable because it is explicitly integrating with the Wasp runtime.
+- Any direct dependency with a `wasp.module` object is bundled. The marker is reserved for packages that intentionally integrate with the Wasp runtime.
 - Package discovery assumes Wasp's npm workspace layout, where direct app dependencies are installed under the app's root `node_modules` directory.
 - A module dependency nested only below that module's own `node_modules` directory may not resolve after the module entry point is bundled. This remains an explicit limitation until a real package requires dependency relocation or recursive bundling.
 - Different incompatible Wasp peer ranges are still a package-installation and validation concern; bundling does not solve version compatibility.
@@ -52,6 +54,7 @@ Bare dependencies of the bundled package remain external, limiting the risk for 
 - The server bundle contains module server code instead of an external module entry-point import.
 - The module and host share one `pgBossStarted` lifecycle.
 - Module third-party dependencies remain external.
+- Virtual user module IDs are resolved and do not remain in the server bundle.
 - A module-owned API can submit a module-owned job and return its job ID.
 - Existing host-owned jobs continue to work.
 - Development and production server builds both resolve the module package correctly.
