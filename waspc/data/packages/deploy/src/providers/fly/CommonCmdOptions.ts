@@ -8,9 +8,12 @@ export interface CommonCmdOptions {
 }
 
 export interface DbOptions {
-  vmSize: string;
-  initialClusterSize: string;
-  volumeSize: string;
+  dbVmSize: string;
+  dbVmMemory?: string;
+  dbVmCpus?: string;
+  dbVmCpuKind?: string;
+  dbInitialClusterSize: string;
+  dbVolumeSize: string;
   dbImage?: string;
 }
 
