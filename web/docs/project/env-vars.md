@@ -251,6 +251,10 @@ Defining env variables in production will depend on where you are deploying your
 
 We talk about how to define env vars for each deployment option in the [deployment section](../deployment/env-vars.md).
 
+## Git Worktrees
+
+If you use Git worktrees, see [Git worktree setup](../wasp-ai/git-worktrees.md#setting-up-environment-variables) for guidance on managing environment variables in each worktree.
+
 ## JSON Env Vars {#json-env-vars}
 
 Some of the environment variables you pass to Wasp are parsed as JSON values. This is useful for features needing more in-depth configuration, but it comes with the caveat of ensuring that the JSON syntax is valid.

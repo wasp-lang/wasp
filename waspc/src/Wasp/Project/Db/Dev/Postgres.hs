@@ -1,21 +1,60 @@
 -- | This module captures how Wasp runs a PostgreSQL dev database.
 module Wasp.Project.Db.Dev.Postgres
-  ( discoverDevConnectionUrl,
-    defaultDevUser,
-    makeDevDbName,
-    defaultDevPass,
+  ( makeDevPostgresDb,
+    runDevPostgresDb,
+    DevPostgresDb (connectionUrl, dockerVolumeName),
+    discoverDevConnectionUrl,
     defaultDevPort,
-    makeDevConnectionUrl,
-    makeWaspDevDbDockerContainerName,
-    makeWaspDevDbDockerVolumeName,
     waspDevDbDockerVolumePrefix,
   )
 where
 
 import StrongPath (Abs, Dir, Path')
+import System.Process (callCommand)
+import Text.Printf (printf)
 import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
-import Wasp.Util.Docker (getDockerContainerHostPort)
+import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, getDockerContainerHostPort)
+
+data DevPostgresDb = DevPostgresDb
+  { connectionUrl :: String,
+    dockerVolumeName :: String,
+    runDbCommand :: String
+  }
+
+makeDevPostgresDb ::
+  Path' Abs (Dir WaspProjectDir) ->
+  String ->
+  DockerImageName ->
+  DockerVolumeMountPath ->
+  DevPostgresDb
+makeDevPostgresDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath =
+  DevPostgresDb
+    { connectionUrl = makeDevConnectionUrl waspProjectDir appName,
+      dockerVolumeName = volumeName,
+      -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
+      --   only when initializing the database -> if it already exists, they will be ignored.
+      --   This is how the postgres Docker image works.
+      runDbCommand =
+        unwords
+          [ "docker run",
+            printf "--name %s" dockerContainerName,
+            "--rm",
+            printf "--publish %d:5432" defaultDevPort,
+            printf "-v %s:%s" volumeName dbDockerVolumeMountPath,
+            printf "--env POSTGRES_PASSWORD=%s" defaultDevPass,
+            printf "--env POSTGRES_USER=%s" defaultDevUser,
+            printf "--env POSTGRES_DB=%s" dbName,
+            dbDockerImage
+          ]
+    }
+  where
+    volumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
+    dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
+    dbName = makeDevDbName waspProjectDir appName
+
+runDevPostgresDb :: DevPostgresDb -> IO ()
+runDevPostgresDb devPostgresDb = callCommand devPostgresDb.runDbCommand
 
 -- | Returns the connection URL of this Wasp project's dev db if it is up,
 -- 'Nothing' otherwise.
