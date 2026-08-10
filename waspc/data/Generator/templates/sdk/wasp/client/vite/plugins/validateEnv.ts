@@ -6,6 +6,7 @@ import {
   createServer as createViteServer,
   isRunnableDevEnvironment
 } from "vite";
+import { ENVIRONMENT_NAMES } from "../../../vite/constants.js";
 
 const PLUGIN_NAME = "wasp:validate-env";
 const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "{= clientEnvSchemaValidationModulePath =}"
@@ -15,10 +16,14 @@ export function validateEnv(): Plugin {
 
   return {
     name: PLUGIN_NAME,
+    // `buildStart` runs once per environment, but the client env schema only
+    // needs to be validated once, so we only do it in the client environment.
+    applyToEnvironment: (environment) =>
+      environment.name === ENVIRONMENT_NAMES.CLIENT,
     configResolved(config) {
       resolvedConfig = config;
     },
-    // We validate just before any artifacts are built.
+    // We validate just before the client artifacts are built.
     async buildStart() {
       // We need to import the client env schema validation module
       // through a Vite server, because both the user and the Wasp schema

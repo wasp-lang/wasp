@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { readFile, access, constants } from 'node:fs/promises'
 import { parse as parseDotenv } from 'dotenv'
 import { expand, type DotenvPopulateInput } from 'dotenv-expand'
+import { ENVIRONMENT_NAMES } from '../../../vite/constants.js'
 
 const envFileName = '.env.client'
 
@@ -25,16 +26,29 @@ export function envFile(): Plugin {
       })
       envFilePath = resolve(rootDir, envFileName)
 
-      const prefixedVars = Object.entries(envVars)
-        .reduce((acc, [key, value]) => {
-          acc[`import.meta.env.${key}`] = JSON.stringify(value)
-          return acc
-        }, {} as Record<string, string>)
+      const makeDefine = () =>
+        Object.entries(envVars).reduce(
+          (acc, [key, value]) => {
+            acc[`import.meta.env.${key}`] = JSON.stringify(value)
+            return acc
+          },
+          {} as Record<string, string>
+        )
 
       return {
         // Disable Vite's default .env loading.
         envDir: false,
-        define: prefixedVars,
+        // We only inline the client env variables into the environments that
+        // process client code: `client` and `ssr` (which prerenders the client
+        // app). Defining them at the top level would leak them into every other
+        // environment (e.g. the server environment).
+        //
+        // We build a fresh `define` object per environment because Vite merges
+        // (and sometimes mutates) each environment's options separately.
+        environments: {
+          [ENVIRONMENT_NAMES.CLIENT]: { define: makeDefine() },
+          [ENVIRONMENT_NAMES.SSR]: { define: makeDefine() },
+        },
       }
     },
     configureServer(server) {
