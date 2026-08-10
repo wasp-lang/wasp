@@ -1,5 +1,6 @@
 module Wasp.Psl.Generator.Model
   ( generateModelBody,
+    generateModelFieldTypeAndModifiers,
   )
 where
 
@@ -15,11 +16,17 @@ generateModelElement :: Psl.Model.Element -> PslSource
 generateModelElement (Psl.Model.ElementField field) =
   Psl.Model._name field
     ++ " "
-    ++ generateModelFieldType (Psl.Model._type field)
-    ++ concatMap generateModelFieldTypeModifier (Psl.Model._typeModifiers field)
+    ++ generateModelFieldTypeAndModifiers field
     ++ concatMap ((" " ++) . generateAttribute) (Psl.Model._attrs field)
 generateModelElement (Psl.Model.ElementBlockAttribute attribute) =
   "@" ++ generateAttribute attribute
+
+-- | Renders the field's type the way it is written in the Prisma schema,
+-- e.g. "Int", "String?", "Tag[]".
+generateModelFieldTypeAndModifiers :: Psl.Model.Field -> PslSource
+generateModelFieldTypeAndModifiers field =
+  generateModelFieldType (Psl.Model._type field)
+    ++ concatMap generateModelFieldTypeModifier (Psl.Model._typeModifiers field)
 
 generateModelFieldType :: Psl.Model.FieldType -> PslSource
 generateModelFieldType fieldType = case fieldType of

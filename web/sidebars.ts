@@ -161,7 +161,7 @@ const sidebars: SidebarsConfig = {
       label: "AI & Coding Agents",
       collapsed: false,
       collapsible: true,
-      items: ["wasp-ai/coding-agent-plugin"],
+      items: ["wasp-ai/coding-agent-plugin", "wasp-ai/git-worktrees"],
     },
     {
       type: "category",

@@ -1,4 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
@@ -6,10 +8,12 @@
 module Analyzer.EvaluatorTest where
 
 import qualified Analyzer.TestUtil as TestUtil
+import Data.Aeson (ToJSON)
 import qualified Data.Aeson as Aeson
 import Data.Data (Data)
 import Data.List.Split (splitOn)
 import Data.Maybe (fromJust)
+import GHC.Generics (Generic)
 import qualified StrongPath as SP
 import Test.Hspec
 import Text.Read (readMaybe)
@@ -29,6 +33,7 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.ExtImport.Source (ExtImportSource (..))
 import Wasp.AppSpec.JSON (JSON (..))
+import Wasp.Inspectable (Inspectable (..), InspectionEntry)
 
 fromRight :: (Show a) => Either a b -> b
 fromRight (Right x) = x
@@ -42,9 +47,14 @@ dummyCtx = TestUtil.ctx (1, 1) (1, 1)
 wctx :: a -> WithCtx a
 wctx = WithCtx dummyCtx
 
+emptyInspect :: a -> [InspectionEntry]
+emptyInspect = const []
+
 ------- Simple -------
 
-newtype Simple = Simple String deriving (Eq, Show, Data)
+newtype Simple = Simple String deriving (Eq, Show, Data, Generic, ToJSON)
+
+instance Inspectable Simple where inspect = emptyInspect
 
 instance IsDecl Simple
 
@@ -52,7 +62,9 @@ makeDeclType ''Simple
 
 ------- Fields -------
 
-data Fields = Fields {a :: String, b :: Maybe Double} deriving (Eq, Show, Data)
+data Fields = Fields {a :: String, b :: Maybe Double} deriving (Eq, Show, Data, Generic, ToJSON)
+
+instance Inspectable Fields where inspect = emptyInspect
 
 instance IsDecl Fields
 
@@ -60,13 +72,15 @@ makeDeclType ''Fields
 
 ------ Business ------
 
-data Person = Person {name :: String, age :: Integer} deriving (Eq, Show, Data)
+data Person = Person {name :: String, age :: Integer} deriving (Eq, Show, Data, Generic, ToJSON)
+
+instance Inspectable Person where inspect = emptyInspect
 
 instance IsDecl Person
 
 makeDeclType ''Person
 
-data BusinessType = Manufacturer | Seller | Store deriving (Eq, Show, Data)
+data BusinessType = Manufacturer | Seller | Store deriving (Eq, Show, Data, Generic, ToJSON)
 
 makeEnumType ''BusinessType
 
@@ -76,7 +90,9 @@ data Business = Business
     businessType :: BusinessType,
     location :: Maybe String
   }
-  deriving (Eq, Show, Data)
+  deriving (Eq, Show, Data, Generic, ToJSON)
+
+instance Inspectable Business where inspect = emptyInspect
 
 instance IsDecl Business
 
@@ -84,7 +100,9 @@ makeDeclType ''Business
 
 -------- Special --------
 
-data Special = Special {imps :: [ExtImport], json :: JSON} deriving (Eq, Show)
+data Special = Special {imps :: [ExtImport], json :: JSON} deriving (Eq, Show, Generic, ToJSON)
+
+instance Inspectable Special where inspect = emptyInspect
 
 instance IsDecl Special
 
@@ -93,7 +111,7 @@ makeDeclType ''Special
 ------ HasCustomEvaluation ------
 
 data SemanticVersion = SemanticVersion Int Int Int
-  deriving (Eq, Show, Data)
+  deriving (Eq, Show, Data, Generic, ToJSON)
 
 instance HasCustomEvaluation SemanticVersion where
   waspType = T.StringType
@@ -126,7 +144,9 @@ instance HasCustomEvaluation SemanticVersion where
 
 data Custom = Custom
   {version :: SemanticVersion}
-  deriving (Eq, Show, Data)
+  deriving (Eq, Show, Data, Generic, ToJSON)
+
+instance Inspectable Custom where inspect = emptyInspect
 
 instance IsDecl Custom
 
@@ -140,7 +160,9 @@ data Tuples = Tuples
     triple :: (String, Integer, Integer),
     quadruple :: (String, Integer, Integer, [Bool])
   }
-  deriving (Eq, Show, Data)
+  deriving (Eq, Show, Data, Generic, ToJSON)
+
+instance Inspectable Tuples where inspect = emptyInspect
 
 instance IsDecl Tuples
 
@@ -157,7 +179,9 @@ data AllJson = AllJson
     nullValue :: JSON,
     booleanValue :: JSON
   }
-  deriving (Eq, Show)
+  deriving (Eq, Show, Generic, ToJSON)
+
+instance Inspectable AllJson where inspect = emptyInspect
 
 instance IsDecl AllJson
 
