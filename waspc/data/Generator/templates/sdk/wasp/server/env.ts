@@ -192,7 +192,22 @@ const waspProdServerEnvSchema = z.object({
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
   z.object({...waspCommonServerEnvSchema.shape, ...waspDevServerEnvSchema.shape}),
   z.object({...waspCommonServerEnvSchema.shape, ...waspProdServerEnvSchema.shape}),
-]);
+]){=# isEmailSenderEnabled =}{=# enabledEmailSenders.isMailtrapProviderEnabled =}.superRefine((data, ctx) => {
+  const hasValidMailtrapTestInboxId =
+    typeof data.MAILTRAP_TEST_INBOX_ID === "number" &&
+    Number.isInteger(data.MAILTRAP_TEST_INBOX_ID) &&
+    data.MAILTRAP_TEST_INBOX_ID > 0;
+  if (data.MAILTRAP_SANDBOX && !hasValidMailtrapTestInboxId) {
+    ctx.addIssue({
+      code: "custom",
+      message: getRequiredEnvVarErrorMessage(
+        "Mailtrap email sender in sandbox mode",
+        "MAILTRAP_TEST_INBOX_ID"
+      ),
+      path: ["MAILTRAP_TEST_INBOX_ID"],
+    });
+  }
+}){=/ enabledEmailSenders.isMailtrapProviderEnabled =}{=/ isEmailSenderEnabled =};
 
 type CompleteServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
 

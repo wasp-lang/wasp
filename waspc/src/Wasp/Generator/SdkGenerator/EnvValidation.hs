@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.EnvValidation
   ( genEnvValidation,
     depsRequiredByEnvValidation,
+    genServerEnv,
   )
 where
 
