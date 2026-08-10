@@ -198,6 +198,7 @@ export type EmailProvider =
   | "SendGrid"
   | "Mailgun"
   | "Resend"
+  | "Mailtrap"
   | "Dummy";
 
 export type EmailFromField = {

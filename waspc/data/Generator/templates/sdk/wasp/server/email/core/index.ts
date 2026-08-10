@@ -15,6 +15,10 @@ export { initMailgunEmailSender as initEmailSender } from "./providers/mailgun.j
 // PRIVATE API
 export { initResendEmailSender as initEmailSender } from "./providers/resend.js";
 {=/ isResendProviderEnabled =}
+{=# isMailtrapProviderEnabled =}
+// PRIVATE API
+export { initMailtrapEmailSender as initEmailSender } from "./providers/mailtrap.js";
+{=/ isMailtrapProviderEnabled =}
 {=# isDummyProviderEnabled =}
 // PRIVATE API
 export { initDummyEmailSender as initEmailSender } from "./providers/dummy.js";

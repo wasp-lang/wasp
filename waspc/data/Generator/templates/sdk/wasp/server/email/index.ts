@@ -32,6 +32,14 @@ const emailProvider = {
   apiKey: env.RESEND_API_KEY,
 } as const;
 {=/ isResendProviderEnabled =}
+{=# isMailtrapProviderEnabled =}
+const emailProvider = {
+  type: "mailtrap",
+  apiToken: env.MAILTRAP_API_TOKEN,
+  sandbox: env.MAILTRAP_SANDBOX,
+  testInboxId: env.MAILTRAP_TEST_INBOX_ID,
+} as const;
+{=/ isMailtrapProviderEnabled =}
 {=# isDummyProviderEnabled =}
 const emailProvider = {
   type: "dummy",

@@ -747,6 +747,7 @@ export type EmailSenderProviderName =
   | "SendGrid"
   | "Mailgun"
   | "Resend"
+  | "Mailtrap"
   | "Dummy";
 
 /**

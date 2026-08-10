@@ -6,6 +6,10 @@
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 
+### 🎉 New Features
+
+- Added [Mailtrap](https://mailtrap.io) as an email sender provider, usable via `provider: "Mailtrap"` and the `MAILTRAP_API_TOKEN` environment variable. Supports Mailtrap's Email Sandbox via `MAILTRAP_SANDBOX` and `MAILTRAP_TEST_INBOX_ID`.
+
 ### 🔧 Small improvements
 
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))

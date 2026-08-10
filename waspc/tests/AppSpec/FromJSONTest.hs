@@ -334,6 +334,7 @@ spec_AppSpecFromJSON = do
       "\"SendGrid\"" `shouldDecodeTo` Just EmailSender.SendGrid
       "\"Mailgun\"" `shouldDecodeTo` Just EmailSender.Mailgun
       "\"Resend\"" `shouldDecodeTo` Just EmailSender.Resend
+      "\"Mailtrap\"" `shouldDecodeTo` Just EmailSender.Mailtrap
       "\"Dummy\"" `shouldDecodeTo` Just EmailSender.Dummy
     it "fails to parse an invalid EmailProvider JSON" $ do
       "IMadeThisUp" `shouldDecodeTo` (Nothing :: Maybe EmailSender.EmailProvider)

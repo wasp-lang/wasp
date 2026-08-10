@@ -50,6 +50,18 @@ const waspCommonServerEnvSchema = z.object({
     error: getRequiredEnvVarErrorMessage('Resend email sender', 'RESEND_API_KEY'),
   }),
   {=/ enabledEmailSenders.isResendProviderEnabled =}
+  {=# enabledEmailSenders.isMailtrapProviderEnabled =}
+  MAILTRAP_API_TOKEN: z.string({
+    error: getRequiredEnvVarErrorMessage('Mailtrap email sender', 'MAILTRAP_API_TOKEN'),
+  }),
+  MAILTRAP_SANDBOX: z
+    .enum(['true', 'false'], {
+      error: 'MAILTRAP_SANDBOX must be either "true" or "false"',
+    })
+    .default('false')
+    .transform((value) => value === 'true'),
+  MAILTRAP_TEST_INBOX_ID: z.coerce.number().optional(),
+  {=/ enabledEmailSenders.isMailtrapProviderEnabled =}
   {=/ isEmailSenderEnabled =}
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {

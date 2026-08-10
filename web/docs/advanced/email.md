@@ -31,7 +31,8 @@ Choose from one of the providers:
 - `Dummy` (development only),
 - `Mailgun`,
 - `SendGrid`,
-- `Resend`
+- `Resend`,
+- `Mailtrap`
 - or the good old `SMTP`.
 
 Optionally, define the `defaultFrom` field, so you don't need to provide it whenever sending an email.
@@ -218,6 +219,43 @@ Then, get the Resend API key and add it to your `.env.server` file.
 
 ```properties title=".env.server"
 RESEND_API_KEY=
+```
+
+### Using the Mailtrap Provider {#mailtrap}
+
+Set the provider field to `Mailtrap` in your `main.wasp.ts` file.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    provider: "Mailtrap",
+  },
+  // ...
+})
+```
+
+Then, get the Mailtrap API token and add it to your `.env.server` file.
+
+#### Getting the API Token
+
+1. Go to [Mailtrap](https://mailtrap.io/signup) and create an account.
+2. Go to [API Tokens](https://mailtrap.io/api-tokens) and create a new API token.
+3. Copy the token and add it to your `.env.server` file.
+
+```properties title=".env.server"
+MAILTRAP_API_TOKEN=
+```
+
+#### Using the Email Sandbox
+
+Mailtrap's [Email Sandbox](https://mailtrap.io/sandbox) lets you test email sending without delivering real emails. To use it, set `MAILTRAP_SANDBOX` to `true` and provide the ID of your sandbox test inbox:
+
+```properties title=".env.server"
+MAILTRAP_SANDBOX=true
+MAILTRAP_TEST_INBOX_ID=
 ```
 
 ## API Reference

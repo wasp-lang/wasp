@@ -3,6 +3,7 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     resend,
+    mailtrap,
     dummy,
     EmailSenderProvider (..),
     getEmailSenderProvider,
@@ -74,6 +75,19 @@ resend =
     resendDependency :: Npm.Dependency.Dependency
     resendDependency = Npm.Dependency.make ("resend", show resendVersionRange)
 
+mailtrap :: EmailSenderProvider
+mailtrap =
+  EmailSenderProvider
+    { npmDependency = Just mailtrapDependency,
+      setupFnFile = [relfile|mailtrap.ts|]
+    }
+  where
+    mailtrapVersionRange :: SV.Range
+    mailtrapVersionRange = [SV.r|^4.8.0|]
+
+    mailtrapDependency :: Npm.Dependency.Dependency
+    mailtrapDependency = Npm.Dependency.make ("mailtrap", show mailtrapVersionRange)
+
 dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
@@ -87,4 +101,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SendGrid -> sendGrid
   AS.EmailSender.Mailgun -> mailgun
   AS.EmailSender.Resend -> resend
+  AS.EmailSender.Mailtrap -> mailtrap
   AS.EmailSender.Dummy -> dummy

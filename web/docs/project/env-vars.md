@@ -143,6 +143,18 @@ If you are using `Resend` as your email sender, you need to provide the followin
 ]}
 />
 
+#### Mailtrap Email Sender
+
+If you are using `Mailtrap` as your email sender, you need to provide the following environment variables:
+
+<EnvVarsTable
+  envVars={[
+{ name: "MAILTRAP_API_TOKEN", type: "String", isRequired: true, note: "The Mailtrap API token." },
+{ name: "MAILTRAP_SANDBOX", type: "Boolean", isRequired: false, defaultValue: "false", note: "If set to true, sends emails to the Mailtrap Email Sandbox instead of real recipients." },
+{ name: "MAILTRAP_TEST_INBOX_ID", type: "Integer", isRequired: false, note: <>The ID of the Mailtrap sandbox inbox to send test emails to. Required if <code>MAILTRAP_SANDBOX</code> is <code>true</code>.</> }
+]}
+/>
+
 #### OAuth Providers
 
 If you are using OAuth, you need to provide the following environment variables:
