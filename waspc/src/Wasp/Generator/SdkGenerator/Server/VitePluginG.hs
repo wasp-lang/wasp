@@ -5,6 +5,7 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
@@ -23,10 +24,12 @@ genServerVitePlugins :: AppSpec -> Generator [FileDraft]
 genServerVitePlugins spec =
   sequence
     [ genViteIndex,
+      genLogging,
       genWaspServerConfigPlugin spec,
       genDetectClientImportsPlugin,
       genDevRunnerPlugin,
       genEnvFilePlugin,
+      genTypescriptCheckPlugin spec,
       genVirtualUserModulesPlugin spec
     ]
 
@@ -34,6 +37,11 @@ genViteIndex :: Generator FileDraft
 genViteIndex = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.serverViteDirInSdkTemplatesDir </> [relfile|index.ts|]
+
+genLogging :: Generator FileDraft
+genLogging = return $ C.mkTmplFd tmplPath
+  where
+    tmplPath = C.serverViteDirInSdkTemplatesDir </> [relfile|logging.ts|]
 
 genWaspServerConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspServerConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
@@ -67,6 +75,12 @@ genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.serverVitePluginsDirInSdkTemplatesDir </> [relfile|envFile.ts|]
     tmplData = object ["serverEnvFilePath" .= toPosixFilePath serverEnvFileInWaspProjectDir]
+
+genTypescriptCheckPlugin :: AppSpec -> Generator FileDraft
+genTypescriptCheckPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.serverVitePluginsDirInSdkTemplatesDir </> [relfile|typescriptCheck.ts|]
+    tmplData = object ["srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec)]
 
 serverRootDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir Server.ServerRootDir)
 serverRootDirInWaspProjectDir =

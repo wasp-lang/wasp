@@ -352,6 +352,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/vite/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/logging.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/logging.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/logging.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/logging.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.js
@@ -364,6 +368,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/typescriptCheck.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/typescriptCheck.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/typescriptCheck.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/typescriptCheck.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/virtualUserModules.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/virtualUserModules.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/virtualUserModules.js
@@ -431,9 +439,11 @@ wasp-app/.wasp/out/sdk/wasp/server/operations/wrappers.ts
 wasp-app/.wasp/out/sdk/wasp/server/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/index.ts
+wasp-app/.wasp/out/sdk/wasp/server/vite/logging.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/detectClientImports.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/devRunner.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/envFile.ts
+wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/typescriptCheck.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/virtualUserModules.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/waspServerConfig.ts
 wasp-app/.wasp/out/sdk/wasp/tsconfig.json
