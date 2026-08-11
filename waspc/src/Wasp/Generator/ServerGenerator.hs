@@ -57,7 +57,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.NpmWorkspaces (packageNames)
+import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -74,7 +74,6 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.PerAppComponent (server)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -111,7 +110,7 @@ genDotEnv spec =
     ]
   where
     envVars = waspEnvVars ++ userEnvVars
-    userEnvVars = spec.devEnvVars.server
+    userEnvVars = spec.devEnvVarsServer
     waspEnvVars = case spec.devDatabaseUrl of
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
@@ -144,7 +143,7 @@ genPackageJson spec waspDependencies =
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= packageNames.server,
+            [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),

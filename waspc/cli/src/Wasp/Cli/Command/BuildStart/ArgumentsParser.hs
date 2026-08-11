@@ -4,36 +4,35 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
   )
 where
 
-import Data.Traversable (for)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
-import Wasp.Project.PerAppComponent (PerAppComponent, appComponentNames)
 
-newtype BuildStartArgs = BuildStartArgs
-  { envVarInputs :: PerAppComponent ([EnvVar], [FilePathArgument])
+data BuildStartArgs = BuildStartArgs
+  { clientEnvironmentVariables :: [EnvVar],
+    clientEnvironmentFiles :: [FilePathArgument],
+    serverEnvironmentVariables :: [EnvVar],
+    serverEnvironmentFiles :: [FilePathArgument]
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
-    <$> envVarInputsParser
+    <$> Opt.many clientEnvironmentVariableParser
+    <*> Opt.many clientEnvironmentFileParser
+    <*> Opt.many serverEnvironmentVariableParser
+    <*> Opt.many serverEnvironmentFileParser
   where
-    envVarInputsParser = for appComponentNames $ \appComponentName ->
-      liftA2
-        (,)
-        ( Opt.many $
-            makeEnvironmentVariableParser
-              appComponentName
-              (appComponentName ++ "-env")
-              (head appComponentName)
-        )
-        ( Opt.many $
-            makeEnvironmentFileParser
-              appComponentName
-              (appComponentName ++ "-env-file")
-        )
+    clientEnvironmentVariableParser =
+      makeEnvironmentVariableParser "client" "client-env" 'c'
+    clientEnvironmentFileParser =
+      makeEnvironmentFileParser "client" "client-env-file"
+
+    serverEnvironmentVariableParser =
+      makeEnvironmentVariableParser "server" "server-env" 's'
+    serverEnvironmentFileParser =
+      makeEnvironmentFileParser "server" "server-env-file"
 
     makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser EnvVar
     makeEnvironmentVariableParser targetName longOptionName shortOptionName =

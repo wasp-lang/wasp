@@ -12,7 +12,6 @@ import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runProcessAsJob)
-import Wasp.Project.PerAppComponent (server)
 
 buildServer :: BuildStartConfig -> ExceptJob
 buildServer config =
@@ -38,7 +37,7 @@ startServer config =
     J.Server
     & toExceptJob (("Running the server failed with exit code: " <>) . show)
   where
-    envVarParams = toEnvVarParams config.envVars.server
+    envVarParams = toEnvVarParams config.serverEnvVars
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config
 

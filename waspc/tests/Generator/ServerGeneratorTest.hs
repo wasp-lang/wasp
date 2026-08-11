@@ -18,7 +18,6 @@ import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.ServerGenerator (genDotEnv)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.PerAppComponent (PerAppComponent (..))
 
 spec_genDotEnv :: Spec
 spec_genDotEnv = do
@@ -35,7 +34,7 @@ spec_genDotEnv = do
       genDotEnvContent
         basicAppSpec
           { AS.devDatabaseUrl = Just devDbUrl,
-            AS.devEnvVars = PerAppComponent {client = [], server = [(databaseUrlEnvVarName, userDbUrl)]}
+            AS.devEnvVarsServer = [(databaseUrlEnvVarName, userDbUrl)]
           }
         `shouldBe` Just (T.pack $ databaseUrlEnvVarName <> "=" <> userDbUrl)
 
@@ -69,7 +68,8 @@ spec_genDotEnv = do
               },
           AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,
-          AS.devEnvVars = PerAppComponent {client = [], server = []},
+          AS.devEnvVarsClient = [],
+          AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.devDatabaseUrl = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|]

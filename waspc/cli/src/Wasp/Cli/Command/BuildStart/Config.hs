@@ -15,57 +15,60 @@ import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.AppComponents (devEnvVars)
+import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
+import qualified Wasp.Generator.Client as Client
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
+import qualified Wasp.Generator.Server as Server
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
-import Wasp.Project.PerAppComponent (PerAppComponent)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientPort :: Int,
-    envVars :: PerAppComponent [EnvVar],
+    client :: Client.ClientRunConfig,
+    server :: Server.ServerRunConfig,
+    clientEnvVars :: [EnvVar],
+    serverEnvVars :: [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  userEnvVars <- liftIO $ traverse combineEnvVarsWithEnvFiles args.envVarInputs
-  when (all null userEnvVars) $ throwError noEnvVarsSpecifiedMsg
+  userClientEnvVars <-
+    liftIO $ combineEnvVarsWithEnvFiles args.clientEnvironmentVariables args.clientEnvironmentFiles
+  userServerEnvVars <-
+    liftIO $ combineEnvVarsWithEnvFiles args.serverEnvironmentVariables args.serverEnvironmentFiles
+  when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspEnvVars = devEnvVars appSpec
-
-  envVars <- sequenceA $ liftA2 overrideEnvVarsCommand waspEnvVars userEnvVars
+  clientEnvVars' <- overrideEnvVarsCommand (Client.devEnvVars client') userClientEnvVars
+  serverEnvVars' <- overrideEnvVarsCommand (Server.devEnvVars server') userServerEnvVars
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
+        client = client',
+        server = server',
+        clientEnvVars = clientEnvVars',
+        serverEnvVars = serverEnvVars',
         buildDir = buildDir',
-        projectDir = projectDir',
-        clientPort = clientPort',
-        envVars = envVars
+        projectDir = projectDir'
       }
   where
+    -- NOTE(carlos): For now, the run configs use the default ports we've
+    -- hardcoded in the generator. In the future, we might want to make these
+    -- configurable via the Wasp app spec or command line arguments.
+    (client', server') = makeDevRunConfigs appSpec
+
     appUniqueId' = makeAppUniqueId projectDir' appName
     (appName, _) = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
-
-    -- NOTE(carlos): For now, this port (and the URLs inside 'devEnvVars') uses
-    -- the default values we've hardcoded in the generator. In the future, we might
-    -- want to make these configurable via the Wasp app spec or command line arguments.
-
-    -- This assumes that the client URL in 'devEnvVars' uses `defaultClientPort`
-    -- internally. If that changes, we also need to change this.
-    clientPort' = defaultClientPort
 
     noEnvVarsSpecifiedMsg =
       CommandError
@@ -102,8 +105,8 @@ overrideEnvVarsCommand forced existing =
             intercalate ", " duplicateNames
     Right combined -> return combined
 
-combineEnvVarsWithEnvFiles :: ([EnvVar], [FilePathArgument]) -> IO [EnvVar]
-combineEnvVarsWithEnvFiles (inlineEnvVars, files) = do
+combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
+combineEnvVarsWithEnvFiles inlineEnvVars files = do
   envVarsFromFiles <- mapM readEnvVarsFromFile files
   let allEnvVars = inlineEnvVars <> concat envVarsFromFiles
   return $ nubEnvVars allEnvVars

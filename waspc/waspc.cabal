@@ -244,6 +244,7 @@ library
     Wasp.Generator.AuthProviders.Email
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.OAuth
+    Wasp.Generator.Client
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -302,6 +303,7 @@ library
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
+    Wasp.Generator.Server
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
@@ -376,7 +378,6 @@ library
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
-    Wasp.Project.PerAppComponent
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -484,6 +485,7 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
+    Wasp.Cli.AppComponents
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -546,7 +548,6 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.ProjectLock
-    Wasp.Cli.AppComponents
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
@@ -677,8 +678,10 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
+    filepath,
     hspec,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
     time,
@@ -688,6 +691,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     Paths_waspc
     TerminalTest
+    Wasp.Cli.AppComponentsTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
