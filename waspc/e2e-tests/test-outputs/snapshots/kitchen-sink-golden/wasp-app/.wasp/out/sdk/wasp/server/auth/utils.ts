@@ -169,7 +169,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
     throw new HttpError(422, 'Save failed', {
-      message: `user with the same identity already exists`,
+      message: getUniqueConstraintViolationMessage(e),
     })
   }
 
@@ -206,6 +206,46 @@ export function rethrowPossibleAuthError(e: unknown): void {
   }
 
   throw e
+}
+
+// A P2002 can come either from the AuthIdentity primary key
+// (the identity really does already exist) or from a unique field on the
+// developer's own User entity (e.g. `email` written by
+// `userSignupFields`). Those are different problems and need different messages.
+//
+// We only ever name the constraint's fields, never the value that collided.
+function getUniqueConstraintViolationMessage(
+  e: Prisma.PrismaClientKnownRequestError,
+): string {
+  const fields = getUniqueConstraintFields(e)
+
+  if (fields.length === 0) {
+    return 'a record with the same unique field already exists'
+  }
+
+  const isAuthIdentityConstraint = fields.every((field) =>
+    ['providerName', 'providerUserId'].includes(field),
+  )
+  if (isAuthIdentityConstraint) {
+    return 'user with the same identity already exists'
+  }
+
+  return `user with the same ${fields.join(', ')} already exists`
+}
+
+function getUniqueConstraintFields(
+  e: Prisma.PrismaClientKnownRequestError,
+): string[] {
+  // `target` is an array of column names on most connectors, and a single
+  // string on some (e.g. SQLite reports "Model.field").
+  const target = e.meta?.target
+  if (Array.isArray(target)) {
+    return target.filter((field): field is string => typeof field === 'string')
+  }
+  if (typeof target === 'string') {
+    return target.split(',').map((field) => field.trim().split('.').pop()!)
+  }
+  return []
 }
 
 // PRIVATE API
