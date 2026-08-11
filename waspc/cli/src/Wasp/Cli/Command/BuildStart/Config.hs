@@ -110,13 +110,13 @@ makeBuildStartConfig appSpec args projectDir' = do
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
-  map toLower $ -- Lowercase because Docker image names require it.
-    appUniqueId config <> "-server"
+  -- Lowercase because Docker image names require it.
+  map toLower $ appUniqueId config <> "-server"
 
 dockerContainerName :: BuildStartConfig -> String
 dockerContainerName config =
-  map toLower $ -- Lowercase because Docker container names require it.
-    appUniqueId config <> "-server-container"
+  -- Lowercase because Docker container names require it.
+  map toLower $ appUniqueId config <> "-server-container"
 
 overrideEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
 overrideEnvVarsCommand forced existing =
