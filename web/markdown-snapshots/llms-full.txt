@@ -8484,6 +8484,7 @@ model AuthIdentity {
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
+  @@unique([authId, providerName])
 }
 ```
 
@@ -8504,6 +8505,8 @@ The `AuthIdentity` fields:
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
 
 - `auth` is a relation to the `Auth` entity.
+
+- `@@unique([authId, providerName])` means an account can have at most one identity per provider, enforced by the database.
 
 #### `Session` Entity internal {#session-entity-}
 
@@ -15420,7 +15423,22 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Enjoy your updated Wasp app
+#### 4. Check for duplicate auth identities (only if you wrote them with raw Prisma)
+
+Wasp now enforces that an account has at most one identity per auth provider, by adding a `@@unique([authId, providerName])` constraint to the [`AuthIdentity` entity](https://wasp.sh/docs/auth/entities#authidentity-entity-). The database migration that adds this constraint **will fail if your database contains duplicates**.
+
+No built-in Wasp flow can create a duplicate, so you only need to check this if your app writes `AuthIdentity` rows directly through raw Prisma or custom SQL insertions. If it doesn't, you're good to go!
+
+To find duplicates, run this query against your database:
+
+```sql
+SELECT "authId", "providerName", COUNT(*)
+FROM "AuthIdentity" GROUP BY 1, 2 HAVING COUNT(*) > 1;
+```
+
+If it returns rows, decide which identity to keep for each `(authId, providerName)` pair and delete the rest before migrating.
+
+#### 5. Enjoy your updated Wasp app
 
 That's it!
 
