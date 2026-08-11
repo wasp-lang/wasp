@@ -93,7 +93,7 @@ scriptInPackageDir = [relfile|dist/index.js|]
 
 -- | Get a 'P.CreateProcess' for a particular package.
 --
--- These packages are built during CI/locally via the @./run build:packages@
+-- These packages are built during CI/locally via the @nix run .#build-packages@
 -- script.
 --
 -- If the package does not have its dependencies installed yet (for example,

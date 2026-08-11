@@ -16,7 +16,7 @@ Wasp's compiler is built with Haskell and under the hood it generates a web appl
 
 <!-- prettier-ignore -->
 > [!NOTE]
-> **Developing on Windows?** Use the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). Wasp's development scripts are Bash scripts and won't run in PowerShell or Command Prompt. If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux instructions instead.
+> **Developing on Windows?** Develop inside WSL2 (Windows Subsystem for Linux): our dev tooling is managed with Nix, which doesn't run natively on Windows. Inside WSL you are effectively on Linux, so follow the Linux instructions.
 
 Let's jump right in!
 
