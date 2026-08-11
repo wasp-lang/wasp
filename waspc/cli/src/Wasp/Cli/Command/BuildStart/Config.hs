@@ -55,10 +55,10 @@ makeBuildStartConfig appSpec args projectDir' = do
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
-        clientRunConfig = clientRunConfig',
-        serverRunConfig = serverRunConfig',
         buildDir = buildDir',
-        projectDir = projectDir'
+        projectDir = projectDir',
+        clientRunConfig = clientRunConfig',
+        serverRunConfig = serverRunConfig'
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' appName
