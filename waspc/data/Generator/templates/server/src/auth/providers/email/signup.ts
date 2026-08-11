@@ -150,8 +150,10 @@ export function getSignupRoute({
         ...getVerificationEmailContent({ verificationLink }),
       })
     } catch (e: unknown) {
-      console.error('Failed to send email verification email:', e)
-      throw new HttpError(500, 'Failed to send email verification email.')
+      // `sendEmailVerificationEmail` handles delivery failures itself, so
+      // anything reaching here comes from preparing or recording the email.
+      console.error('Failed to prepare the email verification email:', e)
+      throw new HttpError(500, 'Failed to prepare the email verification email.')
     }
 
     res.json({ success: true })
