@@ -15,15 +15,16 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Services (devEnvVars, devPorts, devUrls)
+import qualified Wasp.Generator.Client as Client
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
+import qualified Wasp.Generator.Server as Server
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
-import Wasp.Project.PerService (server)
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
@@ -36,9 +37,9 @@ seed maybeUserProvidedSeedName = do
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  let waspEnvVars = server $ devEnvVars devPorts (devUrls appSpec devPorts)
+  let (_, server) = makeDevRunConfigs appSpec Client.defaultPort Server.defaultPort
 
-  liftIO (dbSeed waspEnvVars genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed (Server.devEnvVars server) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 

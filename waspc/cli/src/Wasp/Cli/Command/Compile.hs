@@ -2,6 +2,7 @@
 
 module Wasp.Cli.Command.Compile
   ( compileIO,
+    compileCommand,
     compile,
     compileWithOptions,
     compileIOWithOptions,
@@ -22,6 +23,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -36,6 +38,11 @@ import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+
+-- | Meant for the standalone `wasp compile` command: commands that hold the
+-- project lock themselves should call 'compile' instead.
+compileCommand :: Command ([CompileWarning], AS.AppSpec)
+compileCommand = withLockedProject compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
