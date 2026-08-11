@@ -10,13 +10,63 @@ import {
 import { RailwayCliOptions } from "../railwayCli.js";
 
 const databaseVolumeMountPath = "/var/lib/postgresql/data";
-// PGDATA must be a subdirectory of the volume mount because initdb refuses
-// to initialize into the non-empty mount root.
+// PGDATA must be a subdirectory of the volume mount.
 const databasePgDataPath = `${databaseVolumeMountPath}/pgdata`;
 
-type RailwayCli = ReturnType<typeof createCommandWithCwd>;
-
 export async function createDatabaseServiceWithVolume(
+  dbServiceName: DbServiceName,
+  dbImage: string,
+  options: RailwayCliOptions,
+): Promise<RailwayCliService> {
+  const dbService = await createDatabaseService(
+    dbServiceName,
+    dbImage,
+    options,
+  );
+
+  if (dbService.name !== dbServiceName) {
+    return rollbackDatabaseService(
+      dbService,
+      new Error(
+        `Railway created database service "${dbService.name}" instead of "${dbServiceName}".`,
+      ),
+      options,
+    );
+  }
+
+  try {
+    await addDatabaseVolume(dbService, options);
+  } catch (volumeError) {
+    // Railway can report a failure even though it created the volume, so
+    // confirm the volume is really missing before tearing the service down.
+    if (await hasDatabaseVolume(dbService, options).catch(() => false)) {
+      return dbService;
+    }
+
+    return rollbackDatabaseService(dbService, volumeError, options);
+  }
+
+  return dbService;
+}
+
+export async function assertDatabaseServiceHasVolume(
+  dbService: RailwayCliService,
+  options: RailwayCliOptions,
+): Promise<void> {
+  if (await hasDatabaseVolume(dbService, options)) {
+    return;
+  }
+
+  throw new Error(
+    [
+      `Railway database service "${dbService.name}" (${dbService.id}) has no volume mounted at ${databaseVolumeMountPath}.`,
+      "Mounting a volume there now would hide the database's existing data, so Wasp won't do it automatically.",
+      "Back up any existing data before changing the service in Railway. Then add the required volume and restore the backup, or remove the service before trying again.",
+    ].join("\n"),
+  );
+}
+
+async function createDatabaseService(
   dbServiceName: DbServiceName,
   dbImage: string,
   options: RailwayCliOptions,
@@ -28,7 +78,7 @@ export async function createDatabaseServiceWithVolume(
 
   // Image-backed services don't get the variables from Railway's Postgres
   // template, so we configure them explicitly.
-  const createResult = await railwayCli(
+  const result = await railwayCli(
     [
       "add",
       ...["--service", dbServiceName],
@@ -49,48 +99,10 @@ export async function createDatabaseServiceWithVolume(
     ],
     { verbose: false },
   );
-  const dbService = RailwayCliServiceSchema.parse(createResult.json());
-
-  if (dbService.name !== dbServiceName) {
-    return rollbackDatabaseService(
-      railwayCli,
-      dbService,
-      new Error(
-        `Railway created database service "${dbService.name}" instead of "${dbServiceName}".`,
-      ),
-    );
-  }
-
-  try {
-    // Adding the volume triggers a second deployment on top of the one
-    // `railway add` started. `--service` must be the service ID: `railway
-    // volume` resolves services by ID only.
-    await railwayCli(
-      [
-        "volume",
-        ...["--service", dbService.id],
-        "add",
-        ...["--mount-path", databaseVolumeMountPath],
-        "--json",
-      ],
-      { verbose: false },
-    );
-  } catch (volumeError) {
-    // Railway can report a failure even though it created the volume, so
-    // confirm the volume is really missing before tearing the service down.
-    if (
-      await hasExpectedDatabaseVolume(railwayCli, dbService).catch(() => false)
-    ) {
-      return dbService;
-    }
-
-    return rollbackDatabaseService(railwayCli, dbService, volumeError);
-  }
-
-  return dbService;
+  return RailwayCliServiceSchema.parse(result.json());
 }
 
-export async function assertDatabaseServiceHasVolume(
+async function addDatabaseVolume(
   dbService: RailwayCliService,
   options: RailwayCliOptions,
 ): Promise<void> {
@@ -99,23 +111,27 @@ export async function assertDatabaseServiceHasVolume(
     options.waspProjectDir,
   );
 
-  if (await hasExpectedDatabaseVolume(railwayCli, dbService)) {
-    return;
-  }
-
-  throw new Error(
+  await railwayCli(
     [
-      `Railway database service "${dbService.name}" (${dbService.id}) has no volume mounted at ${databaseVolumeMountPath}.`,
-      "Wasp won't add an empty volume automatically because that could hide existing data.",
-      "Back up any existing data before changing the service in Railway. Then add the required volume and restore the backup, or remove the service before trying again.",
-    ].join("\n"),
+      "volume",
+      ...["--service", dbService.id],
+      "add",
+      ...["--mount-path", databaseVolumeMountPath],
+      "--json",
+    ],
+    { verbose: false },
   );
 }
 
-async function hasExpectedDatabaseVolume(
-  railwayCli: RailwayCli,
+async function hasDatabaseVolume(
   dbService: RailwayCliService,
+  options: RailwayCliOptions,
 ): Promise<boolean> {
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    options.waspProjectDir,
+  );
+
   const result = await railwayCli(["service", "list", "--json"], {
     verbose: false,
   });
@@ -130,10 +146,15 @@ async function hasExpectedDatabaseVolume(
 }
 
 async function rollbackDatabaseService(
-  railwayCli: RailwayCli,
   dbService: RailwayCliService,
   provisioningError: unknown,
+  options: RailwayCliOptions,
 ): Promise<never> {
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    options.waspProjectDir,
+  );
+
   try {
     await railwayCli(
       ["service", "delete", ...["--service", dbService.id], "--yes", "--json"],
