@@ -23,15 +23,17 @@ import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Generator.Server.RunConfig (ServerRunConfig)
 import qualified Wasp.Generator.Server.RunConfig as Server
+import Wasp.Generator.WebApp.RunConfig (ClientRunConfig)
 import qualified Wasp.Generator.WebApp.RunConfig as Client
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    client :: Client.ClientRunConfig,
-    server :: Server.ServerRunConfig,
+    client :: ClientRunConfig,
+    server :: ServerRunConfig,
     clientEnvVars :: [EnvVar],
     serverEnvVars :: [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
