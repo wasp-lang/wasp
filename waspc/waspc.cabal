@@ -683,10 +683,8 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
-    filepath,
     hspec,
     QuickCheck,
-    strong-path,
     tasty,
     tasty-hspec,
     time,
@@ -696,7 +694,6 @@ test-suite wasp-cli-tests
     DbMigrateTest
     Paths_waspc
     TerminalTest
-    Wasp.Cli.AppComponentsTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest

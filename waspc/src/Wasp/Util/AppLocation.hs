@@ -33,7 +33,4 @@ url loc =
       ":",
       show (port loc)
     ]
-      ++ maybe
-        []
-        (\bd -> ["/", SP.fromAbsDirP bd])
-        loc.baseDir
+      ++ [SP.fromAbsDirP bd | Just bd <- [loc.baseDir]]
