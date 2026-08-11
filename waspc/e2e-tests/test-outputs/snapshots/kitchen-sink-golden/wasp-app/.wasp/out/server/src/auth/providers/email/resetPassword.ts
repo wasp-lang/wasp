@@ -6,6 +6,7 @@ import {
     getProviderDataWithPassword,
 } from 'wasp/server/auth/utils';
 import { validateJWT } from 'wasp/server/auth/jwt'
+import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
 import { HttpError } from 'wasp/server';
 
@@ -37,6 +38,10 @@ export async function resetPassword(
         // in the DB
         hashedPassword: password,
     });
+
+    // Changing the password invalidates all the existing sessions, so that
+    // somebody who got hold of a session can't keep using it.
+    await invalidateAllSessionsForAuthId(authIdentity.authId);
 
     res.json({ success: true });
 };
