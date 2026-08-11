@@ -106,7 +106,6 @@ describe("createDatabaseServiceWithVolume", () => {
     await expect(failedCreation).rejects.toThrow(volumeError.message);
     await expect(failedCreation).rejects.toThrow(rollbackError.message);
   });
-
 });
 
 describe("assertDatabaseServiceHasVolume", () => {
