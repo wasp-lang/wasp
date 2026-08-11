@@ -17,7 +17,7 @@ import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
-import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
@@ -82,7 +82,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
-    Command.Call.Compile -> runCommand compile
+    Command.Call.Compile -> runCommand compileCommand
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor

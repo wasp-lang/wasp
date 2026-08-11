@@ -6,13 +6,18 @@ where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.PortArgument (servicePortsParser)
-import Wasp.Project.PerService (PerService (..))
+import Wasp.Cli.Util.PortArgument (portOption)
+import qualified Wasp.Generator.Client as Client
+import qualified Wasp.Generator.Server as Server
 
-newtype StartArgs = StartArgs
-  { ports :: PerService PortNumber
+data StartArgs = StartArgs
+  { clientPort :: PortNumber,
+    serverPort :: PortNumber
   }
   deriving (Eq, Show)
 
 startArgsParser :: Opt.Parser StartArgs
-startArgsParser = StartArgs <$> servicePortsParser
+startArgsParser =
+  StartArgs
+    <$> portOption "client-port" "Port to run the client on" Client.defaultPort
+    <*> portOption "server-port" "Port to run the server on" Server.defaultPort

@@ -1,22 +1,10 @@
 module Wasp.Cli.Util.PortArgument
-  ( servicePortsParser,
-    portOption,
+  ( portOption,
   )
 where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Services (defaultDevPorts)
-import Wasp.Project.PerService (PerService)
-import qualified Wasp.Project.PerService as PerService
-
-servicePortsParser :: Opt.Parser (PerService PortNumber)
-servicePortsParser =
-  sequenceA $
-    liftA2
-      (\name defaultPort -> portOption (name ++ "-port") ("Port to run the " ++ name ++ " on") defaultPort)
-      PerService.names
-      defaultDevPorts
 
 portOption :: String -> String -> PortNumber -> Opt.Parser PortNumber
 portOption optionName helpText defaultPort =
