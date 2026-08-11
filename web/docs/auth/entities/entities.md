@@ -544,6 +544,7 @@ model AuthIdentity {
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
+  @@unique([authId, providerName])
 }
 ```
 
@@ -559,6 +560,7 @@ The `AuthIdentity` fields:
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
 - `auth` is a relation to the `Auth` entity.
+- `@@unique([authId, providerName])` means an account can have at most one identity per provider, enforced by the database.
 
 ### `Session` Entity <Internal />
 
