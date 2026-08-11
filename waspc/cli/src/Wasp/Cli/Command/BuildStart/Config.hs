@@ -85,14 +85,12 @@ makeBuildStartConfig appSpec args projectDir' = do
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
   -- Lowercase because Docker image names require it.
-  map toLower $
-    appUniqueId config <> "-server"
+  map toLower $ appUniqueId config <> "-server"
 
 dockerContainerName :: BuildStartConfig -> String
 dockerContainerName config =
   -- Lowercase because Docker container names require it.
-  map toLower $
-    appUniqueId config <> "-server-container"
+  map toLower $ appUniqueId config <> "-server-container"
 
 combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
 combineEnvVarsWithEnvFiles inlineEnvVars files = do
