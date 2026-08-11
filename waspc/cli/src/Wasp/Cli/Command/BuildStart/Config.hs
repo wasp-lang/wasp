@@ -16,9 +16,10 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.EnvVarInputs (EnvVarsBySource, describeEnvVarSources, mergeEnvVars, resolveEnvVarInputs)
+import Wasp.Cli.Util.EnvVarSource (EnvVarSource, resolveEnvVarArguments, resolveEnvVarFile, throwOverriddenVarsError, toEnvVarList)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
-import Wasp.Env (EnvVarName)
+import Wasp.Cli.Util.PathArgument (FilePathArgument)
+import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
@@ -38,17 +39,17 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  when (null args.clientEnvVarInputs && null args.serverEnvVarInputs) $ throwError noEnvVarsSpecifiedMsg
+  when noEnvVarsSpecified $ throwError noEnvVarsSpecifiedMsg
 
-  serverEnvVars <- liftIO $ resolveEnvVarInputs projectDir' args.serverEnvVarInputs
-  clientEnvVars <- liftIO $ resolveEnvVarInputs projectDir' args.clientEnvVarInputs
-
+  serverEnvVars <- liftIO $ resolveEnvVarSources args.serverEnvVarSources
   serverRunConfig' <-
-    mapOverriddenEnvVarsError serverEnvVars $
-      makeServerRunConfig serverLocation (AL.url clientLocation) (mergeEnvVars serverEnvVars)
+    either (throwOverriddenVarsError serverEnvVars) pure $
+      makeServerRunConfig serverLocation (AL.url clientLocation) (toEnvVarList serverEnvVars)
+
+  clientEnvVars <- liftIO $ resolveEnvVarSources args.clientEnvVarSources
   clientRunConfig' <-
-    mapOverriddenEnvVarsError clientEnvVars $
-      makeClientRunConfig clientLocation (AL.url serverLocation) (mergeEnvVars clientEnvVars)
+    either (throwOverriddenVarsError clientEnvVars) pure $
+      makeClientRunConfig clientLocation (AL.url serverLocation) (toEnvVarList clientEnvVars)
 
   return $
     BuildStartConfig
@@ -67,6 +68,12 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
+    noEnvVarsSpecified =
+      null (fst args.clientEnvVarSources)
+        && null (snd args.clientEnvVarSources)
+        && null (fst args.serverEnvVarSources)
+        && null (snd args.serverEnvVarSources)
+
     noEnvVarsSpecifiedMsg =
       CommandError
         "No env vars specified"
@@ -80,16 +87,13 @@ makeBuildStartConfig appSpec args projectDir' = do
           ++ " files unless you explicitly tell it. "
           ++ getParserHelpMessage buildStartArgsParser
 
--- | The run config only tells us which env var names the user isn't allowed to
--- set, so we look them up in the inputs they came from to point the user at
--- the exact place they have to remove them from.
-mapOverriddenEnvVarsError :: EnvVarsBySource -> Either [EnvVarName] a -> Command a
-mapOverriddenEnvVarsError _ (Right runConfig) = return runConfig
-mapOverriddenEnvVarsError envVarsBySource (Left overriddenNames) =
-  throwError $
-    CommandError "Overridden environment variables" $
-      "The following env vars are set by Wasp and cannot be overridden by the user: "
-        ++ describeEnvVarSources envVarsBySource overriddenNames
+resolveEnvVarSources :: ([EnvVar], [FilePathArgument]) -> IO [EnvVarSource]
+resolveEnvVarSources (argEnvVarSource, fileEnvVarSources) =
+  concat
+    <$> sequence
+      [ return [resolveEnvVarArguments argEnvVarSource],
+        mapM resolveEnvVarFile fileEnvVarSources
+      ]
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
