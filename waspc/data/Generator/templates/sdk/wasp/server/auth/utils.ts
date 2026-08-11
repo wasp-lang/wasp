@@ -276,3 +276,61 @@ export function createInvalidCredentialsError(message?: string): HttpError {
 export function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
+
+// PRIVATE API
+/**
+ * Atomically consumes a one-time token (email verification / password reset).
+ *
+ * The outstanding-token check is embedded in the WHERE clause of a single
+ * UPDATE statement (matching the JSON `providerData` fragment
+ * `"<field>":"<sha256(token)>"`), so at most one concurrent request can claim
+ * the token: once the winning request clears the field, any racing request's
+ * WHERE no longer matches and is rejected (count === 0). Each token is globally
+ * unique (minted with a random `jwtId`), and `field` selects the correct
+ * purpose slot.
+ *
+ * `updates` are other provider-data changes applied atomically with the consume
+ * (e.g. `isEmailVerified: true`, or a new raw password under `hashedPassword`,
+ * which is hashed here). The already-stored password hash is left untouched, so
+ * it is not re-hashed.
+ */
+export async function consumeOneTimeToken(
+  providerId: ProviderId,
+  field: 'outstandingEmailVerificationToken' | 'outstandingPasswordResetToken',
+  token: string,
+  updates: Partial<PossibleProviderData['email']>,
+  invalidTokenMessage: string,
+): Promise<{= authIdentityEntityUpper =}> {
+  const authIdentity = await findAuthIdentity(providerId);
+  if (!authIdentity) {
+    throw new HttpError(400, invalidTokenMessage);
+  }
+  const existingProviderData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
+
+  // Only hash the password coming in via `updates` (if any) to avoid re-hashing
+  // the already-stored password hash. Mirrors `updateAuthIdentityProviderData`.
+  const hashedUpdates = await ensurePasswordIsHashed(updates);
+
+  const newProviderData = {
+    ...existingProviderData,
+    ...hashedUpdates,
+    [field]: null,
+  };
+  const serializedProviderData = serializeProviderData<'email'>(newProviderData);
+
+  // Compare-and-set: only update if the stored data still holds this exact
+  // outstanding token hash, and reject (count === 0) if it was already consumed
+  // or replaced by a newer token.
+  const result = await prisma.{= authIdentityEntityLower =}.updateMany({
+    where: {
+      providerName_providerUserId: providerId,
+      providerData: { contains: `"${field}":"${sha256(token)}"` },
+    },
+    data: { providerData: serializedProviderData },
+  });
+  if (result.count === 0) {
+    throw new HttpError(400, invalidTokenMessage);
+  }
+
+  return authIdentity;
+}
