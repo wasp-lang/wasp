@@ -94,14 +94,6 @@ dockerContainerName config =
   map toLower $
     appUniqueId config <> "-server-container"
 
-mapDuplicateEnvVarsError :: Either [EnvVarName] a -> Command a
-mapDuplicateEnvVarsError (Left duplicateNames) =
-  throwError $
-    CommandError "Duplicate environment variables" $
-      ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
-        intercalate ", " duplicateNames
-mapDuplicateEnvVarsError (Right value) = return value
-
 combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
 combineEnvVarsWithEnvFiles inlineEnvVars files = do
   envVarsFromFiles <- mapM readEnvVarsFromFile files
@@ -110,3 +102,11 @@ combineEnvVarsWithEnvFiles inlineEnvVars files = do
 
 readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
 readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
+
+mapDuplicateEnvVarsError :: Either [EnvVarName] a -> Command a
+mapDuplicateEnvVarsError (Left duplicateNames) =
+  throwError $
+    CommandError "Duplicate environment variables" $
+      ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
+        intercalate ", " duplicateNames
+mapDuplicateEnvVarsError (Right value) = return value
