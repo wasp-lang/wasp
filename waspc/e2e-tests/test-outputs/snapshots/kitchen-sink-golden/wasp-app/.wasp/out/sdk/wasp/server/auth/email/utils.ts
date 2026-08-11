@@ -71,9 +71,7 @@ async function sendEmailAndSaveMetadata(
   const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
   await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
 
-  emailSender.send(content).catch((e) => {
-    console.error('Failed to send email', e);
-  });
+  await emailSender.send(content);
 }
 
 // PUBLIC API
