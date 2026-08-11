@@ -7,6 +7,7 @@ import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
+import Wasp.Cli.AppComponents (showAppUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
@@ -19,13 +20,11 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import qualified Wasp.Cli.Services as Services
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
-import Wasp.Project.PerService (client, server)
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
@@ -60,7 +59,7 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $ Msg.Info $ Services.showServiceUrls config.urls
+  cliSendMessageC $ Msg.Info $ showAppUrls config.client config.server
 
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_

@@ -17,21 +17,17 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    getDevServerUrl,
     serverPortEnvVarName,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
-    getDevServerEnvVars,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import Network.Socket (PortNumber)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
-import Wasp.Env (EnvVar)
 import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
@@ -42,7 +38,6 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
-import Wasp.Project.PerService (PerService (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -144,15 +139,5 @@ serverUrlEnvVarName = "WASP_SERVER_URL"
 serverPortEnvVarName :: String
 serverPortEnvVarName = "PORT"
 
-getDevServerUrl :: PortNumber -> String
-getDevServerUrl port = "http://localhost:" ++ show port
-
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
-
-getDevServerEnvVars :: PortNumber -> PerService String -> [EnvVar]
-getDevServerEnvVars serverPort urls =
-  [ (serverPortEnvVarName, show serverPort),
-    (serverUrlEnvVarName, urls.server),
-    (clientUrlEnvVarName, urls.client)
-  ]

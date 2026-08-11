@@ -8,32 +8,33 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
+import Wasp.Cli.AppComponents (makeDevRunConfigs, showAppUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Services (devEnvVars, devUrls)
-import qualified Wasp.Cli.Services as Services
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
+import qualified Wasp.Generator.Client as Client
+import qualified Wasp.Generator.Server as Server
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Project.PerService (client, server)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> do
+start = withArguments "wasp start" startArgsParser $ \args -> withLockedProject $ do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -52,21 +53,20 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
 
   (warnings, appSpec) <- compile
 
-  ports <- resolveAppPorts args.ports
+  (clientPort, serverPort) <- resolveAppPorts args.clientPort args.serverPort
 
-  let urls = devUrls appSpec ports
-      waspEnvVars = devEnvVars ports urls
-      envVarInputs = getEnvVarInputs <$> Env.dotEnvFiles
+  let (client, server) = makeDevRunConfigs appSpec clientPort serverPort
 
-  envVars <-
-    sequence $
-      resolveEnvVarInputs waspProjectDir <$> waspEnvVars <*> envVarInputs
+  clientEnvVars <-
+    resolveEnvVarInputs waspProjectDir (Client.devEnvVars client) (devEnvVarInputs Env.dotEnvClient)
+  serverEnvVars <-
+    resolveEnvVarInputs waspProjectDir (Server.devEnvVars server) (devEnvVarInputs Env.dotEnvServer)
 
   DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ Services.showServiceUrls urls
+  cliSendMessageC $ Msg.Info $ showAppUrls client server
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
@@ -77,7 +77,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
-          Wasp.Generator.start envVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+          Wasp.Generator.start clientEnvVars serverEnvVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -92,7 +92,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
-    getEnvVarInputs file = [EnvVarInputs.FromProjectFile file, EnvVarInputs.Inherit]
+    devEnvVarInputs dotEnvFile = [EnvVarInputs.FromProjectFile dotEnvFile, EnvVarInputs.Inherit]
 
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do

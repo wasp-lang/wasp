@@ -10,29 +10,32 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import qualified Wasp.AppSpec as AS
+import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Services (defaultDevPorts, devEnvVars, devUrls)
 import qualified Wasp.Generator
+import qualified Wasp.Generator.Client as Client
+import qualified Wasp.Generator.Server as Server
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
   )
-import Wasp.Project.PerService (client)
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
 test ("client" : args) = watchAndTest $ \appSpec ->
-  Wasp.Generator.testWebApp (devEnvVars defaultDevPorts $ devUrls appSpec defaultDevPorts).client args
+  let (client, _) = makeDevRunConfigs appSpec Client.defaultPort Server.defaultPort
+   in Wasp.Generator.testWebApp (Client.devEnvVars client) args
 test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
 watchAndTest :: (AS.AppSpec -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
-watchAndTest makeTestRunner = do
+watchAndTest makeTestRunner = withLockedProject $ do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
