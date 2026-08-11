@@ -14,14 +14,14 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Util.AppLocation (AppLocation (..))
 
+getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
+getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
+  where
+    maybeBaseDir = SP.parseAbsDirP =<< (AS.App.Client.baseDir =<< AS.App.client (snd $ getApp spec))
+
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "REACT_APP_API_URL"
 
 makeDefaultDevClientLocation :: AppSpec -> AppLocation
 makeDefaultDevClientLocation spec =
   Local {port = 3000, baseDir = Just $ getBaseDir spec}
-
-getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
-getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
-  where
-    maybeBaseDir = SP.parseAbsDirP =<< (AS.App.Client.baseDir =<< AS.App.client (snd $ getApp spec))
