@@ -3,6 +3,7 @@ module Wasp.Generator.ServerGenerator.Common
     serverSrcDirInServerRootDir,
     serverSrcDirInGeneratedAppDir,
     serverBundleDirInServerRootDir,
+    dotEnvFileInServerRootDir,
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
@@ -28,7 +29,7 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Generator.Common
@@ -81,6 +82,11 @@ serverSrcDirInGeneratedAppDir = serverRootDirInGeneratedAppDir </> serverSrcDirI
 -- to this dir by name too.
 serverBundleDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir ServerBundleDir)
 serverBundleDirInServerRootDir = [reldir|bundle|]
+
+-- | Path to the env file Wasp generates for the development server.
+-- NOTE: The server's Vite plugins read this file, so they refer to it too.
+dotEnvFileInServerRootDir :: Path' (Rel ServerRootDir) File'
+dotEnvFileInServerRootDir = [relfile|.env|]
 
 mkTmplFd :: Path' (Rel ServerTemplatesDir) File' -> FileDraft
 mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing

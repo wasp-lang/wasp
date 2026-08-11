@@ -28,4 +28,7 @@ data JobMessageData
 
 data JobOutputType = Stdout | Stderr deriving (Show, Eq)
 
-data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
+-- | 'App' is the development server, which runs the client and the server in a
+-- single process. 'WebApp' and 'Server' are the separate processes of a built
+-- app.
+data JobType = App | WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)

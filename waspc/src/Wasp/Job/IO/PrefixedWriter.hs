@@ -207,6 +207,7 @@ makeJobMessagePrefix jobMsg =
 
     getJobNameAndStyles = \case
       J.Wasp -> ("Wasp", [Term.Yellow])
+      J.App -> ("App", [Term.Cyan])
       J.Server -> ("Server", [Term.Magenta])
       J.WebApp -> ("Client", [Term.Cyan])
       J.Db -> ("Db", [Term.Blue])

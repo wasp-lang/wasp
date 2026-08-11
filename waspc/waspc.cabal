@@ -319,7 +319,6 @@ library
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
-    Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
     Wasp.Generator.Start
@@ -346,7 +345,6 @@ library
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts

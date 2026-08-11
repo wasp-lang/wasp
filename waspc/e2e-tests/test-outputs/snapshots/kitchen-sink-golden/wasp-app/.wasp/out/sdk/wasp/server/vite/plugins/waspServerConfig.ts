@@ -1,5 +1,9 @@
 import path from "node:path";
-import { type PluginOption, type UserConfig } from "vite";
+import {
+  createRunnableDevEnvironment,
+  type PluginOption,
+  type UserConfig,
+} from "vite";
 import { ENVIRONMENT_NAMES } from "../../../vite/constants.js";
 
 /**
@@ -46,6 +50,17 @@ export function waspServerConfig(): PluginOption {
               // imports, which Node.js can't resolve.
               // See https://github.com/wasp-lang/wasp/issues/2492.
               noExternal: ["wasp"],
+            },
+            dev: {
+              // In development Wasp runs the server inside the Vite dev
+              // server's process, which requires an environment that can run
+              // the modules it processes.
+              createEnvironment: (name, config) =>
+                createRunnableDevEnvironment(name, config, {
+                  // The server never updates itself in place, Wasp restarts it
+                  // on every change.
+                  hot: false,
+                }),
             },
             build: {
               outDir: resolveInWaspProjectDir(".wasp/out/server/bundle/"),
