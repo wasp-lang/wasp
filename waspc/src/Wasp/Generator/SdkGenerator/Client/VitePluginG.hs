@@ -25,8 +25,7 @@ import Wasp.Project.Common
     generatedAppDirInWaspProjectDir,
     srcDirInWaspProjectDir,
   )
-import Wasp.Project.Env (dotEnvFiles)
-import Wasp.Project.PerService (client)
+import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
@@ -101,7 +100,7 @@ genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|envFile.ts|]
-    tmplData = object ["clientEnvFileName" .= SP.fromRelFile dotEnvFiles.client]
+    tmplData = object ["clientEnvFileName" .= SP.fromRelFile dotEnvClient]
 
 genDetectServerImportsPlugin :: Generator FileDraft
 genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData

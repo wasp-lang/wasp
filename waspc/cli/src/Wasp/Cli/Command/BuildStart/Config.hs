@@ -13,55 +13,55 @@ import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Services (devEnvVars)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Env (EnvVar)
+import qualified Wasp.Generator.Client as Client
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort)
+import qualified Wasp.Generator.Server as Server
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
-import Wasp.Project.PerService (PerService)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientPort :: Int,
-    envVars :: PerService [EnvVar],
+    client :: Client.ClientRunConfig,
+    server :: Server.ServerRunConfig,
+    clientEnvVars :: [EnvVar],
+    serverEnvVars :: [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  when (all null args.envVarInputs) $ throwError noEnvVarsSpecifiedMsg
+  when (null args.clientEnvVarInputs && null args.serverEnvVarInputs) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspEnvVars = devEnvVars appSpec
-
-  envVars <- sequence $ resolveEnvVarInputs projectDir' <$> waspEnvVars <*> args.envVarInputs
+  clientEnvVars' <- resolveEnvVarInputs projectDir' (Client.devEnvVars client') args.clientEnvVarInputs
+  serverEnvVars' <- resolveEnvVarInputs projectDir' (Server.devEnvVars server') args.serverEnvVarInputs
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
+        client = client',
+        server = server',
+        clientEnvVars = clientEnvVars',
+        serverEnvVars = serverEnvVars',
         buildDir = buildDir',
-        projectDir = projectDir',
-        clientPort = clientPort',
-        envVars = envVars
+        projectDir = projectDir'
       }
   where
+    -- NOTE(carlos): For now, the run configs use the default ports we've
+    -- hardcoded in the generator. In the future, we might want to make these
+    -- configurable via the Wasp app spec or command line arguments.
+    (client', server') = makeDevRunConfigs appSpec
+
     appUniqueId' = makeAppUniqueId projectDir' appName
     (appName, _) = ASV.getApp appSpec
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
-
-    -- NOTE(carlos): For now, this port (and the URLs inside 'devEnvVars') uses
-    -- the default values we've hardcoded in the generator. In the future, we might
-    -- want to make these configurable via the Wasp app spec or command line arguments.
-
-    -- This assumes that the client URL in 'devEnvVars' uses `defaultClientPort`
-    -- internally. If that changes, we also need to change this.
-    clientPort' = defaultClientPort
 
     noEnvVarsSpecifiedMsg =
       CommandError

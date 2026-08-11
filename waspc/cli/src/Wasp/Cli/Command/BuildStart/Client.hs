@@ -6,10 +6,10 @@ where
 
 import Data.Function ((&))
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
+import Wasp.Generator.Client (ClientRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
-import Wasp.Project.PerService (client)
 
 buildClient :: BuildStartConfig -> ExceptJob
 buildClient config =
@@ -21,7 +21,7 @@ buildClient config =
     J.WebApp
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
-    envVars = config.envVars.client
+    envVars = config.clientEnvVars
     projectDir = config.projectDir
 
 startClient :: BuildStartConfig -> ExceptJob
@@ -32,11 +32,11 @@ startClient config =
     [ "vite",
       "preview", -- `preview` launches a static file server for the built client.
       "--port",
-      port,
+      clientPort,
       "--strictPort" -- This will make it fail if the port is already in use.
     ]
     J.WebApp
     & toExceptJob (("Serving the client failed with exit code: " <>) . show)
   where
-    port = show config.clientPort
+    clientPort = show config.client.port
     projectDir = config.projectDir
