@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 import { verifyPassword } from 'wasp/server/auth/password'
 import {
@@ -13,7 +14,7 @@ import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 
 export function getLoginRoute() {
     return async function login(
-        req: Request<{ email: string; password: string; }>,
+        req: Request<ParamsDictionary, unknown, { email: string; password: string }>,
         res: Response,
     ): Promise<void> {
         const fields = req.body ?? {}

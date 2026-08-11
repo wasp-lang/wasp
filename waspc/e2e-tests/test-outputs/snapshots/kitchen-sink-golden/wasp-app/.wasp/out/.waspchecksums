@@ -1159,7 +1159,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "5e8b2278584065be0d0b42bb311d00158cc72a96520eafcb77b60b53ba16a76f"
+        "e8f58788311ebc655480049516fa7570daf13bcc4cc157aaf50c3841f8448597"
     ],
     [
         [
@@ -1383,7 +1383,7 @@
             "file",
             "server/package.json"
         ],
-        "91c935f3dc70f466c41f4071f70912ba46cbe622103e10033cec3ac8b7a2f2e2"
+        "da775531701651e145ad0c38ba29de01c6f3cdb089c10e404954a77f58e79e81"
     ],
     [
         [
@@ -1397,126 +1397,126 @@
             "file",
             "server/src/actions/boolToStringAuth.ts"
         ],
-        "dc09fa4cf670a8573c0ee4d6169ba8e7019890741751ae61012a58d6ad8f2539"
+        "9b1d2ff517de485ab4466ab53bc3c28e08bbf55dfaf1b859e1cd3366161cb457"
     ],
     [
         [
             "file",
             "server/src/actions/boolToStringNoAuth.ts"
         ],
-        "30332a90cf8bd63a20ef7d214506170c09b1574586e58bb0c4ea381f76d8ff47"
+        "dc14863de451b2711ddb5a5ed46a0b7d8cb0725637bad8a5e89ceaea6d2e7468"
     ],
     [
         [
             "file",
             "server/src/actions/boolToVoidAuth.ts"
         ],
-        "2cd657f9e78ec347f1b10a1c780f3d05924225c0ce0b6fbec2e7feece632f447"
+        "0b9ec5dea8276fc0727676a4d654a8bb7ff6238c4d4f7fcddd25646a934e5665"
     ],
     [
         [
             "file",
             "server/src/actions/boolToVoidNoAuth.ts"
         ],
-        "a23b6d112e6b680700b576db66192dd1a3b1cccbbc147f14a8a0e5248b2bbc3c"
+        "a6791e20756247694e94dcb4f6afeb660537d2bc319ab990a97cba5bac1ce6ce"
     ],
     [
         [
             "file",
             "server/src/actions/createTask.ts"
         ],
-        "5df0bd15c68313eafda135c7be587d70fa111f7bd951b8727b2399a33f912774"
+        "745848b7cd83555a8b014da27b336e19e60c9c6bf57d99969a4c3348d18e3b2c"
     ],
     [
         [
             "file",
             "server/src/actions/customSignup.ts"
         ],
-        "8f0b9840f65eae9275462bcc3ce0f8ba3b38c799f675674445958042fd8d2bd4"
+        "b384829ec8389386ca6a8fac993be7a5edb504c8b3c61f781a957213cf0e9368"
     ],
     [
         [
             "file",
             "server/src/actions/deleteCompletedTasks.ts"
         ],
-        "a5656c9196b5630879fc86194f1c52d0e8544d90a376e3c514b4d01ab7d26e6d"
+        "1b8a0342248ee565efdc7bdfc5271806b01547877eb91c852c083bca9d1d66bb"
     ],
     [
         [
             "file",
             "server/src/actions/jsActionWithArgs.ts"
         ],
-        "7593c7827cc600b102557167ad60857b7987fc41a45086fcebe0c5d00d87a812"
+        "ae05bd9ec31602492cfe4337ff3456fcd019210e047e3b4e552798c7ab35ec4e"
     ],
     [
         [
             "file",
             "server/src/actions/requestUppercaseText.ts"
         ],
-        "ba1d8476ac28da7a35d384ffbc1b7a65d2d4399356d1c7c61c3a4d7fb7af2963"
+        "e8172819c593b6f102a8c43ae0a739cfde57abceafecb4ecbbb219fcb8d4f2b5"
     ],
     [
         [
             "file",
             "server/src/actions/taskToTaskSatisfies.ts"
         ],
-        "2b3217bed9d70b10ca5fc4dec0a6a96c98bd0f0a1873cec9d6d569aa71b677e9"
+        "27d1f7097dd0565772c88a499cab76afa3abbb77a5254ba6fdb693b314d7db55"
     ],
     [
         [
             "file",
             "server/src/actions/taskToTaskSpecified.ts"
         ],
-        "83e0b6b6b573420714a41a53db82fa5cf1188c2d8c70669e6aa9abc7138c2d2c"
+        "55e9f57d0ea76e0de23499db51f1d7a0aecb39fc0a378fc015f29aa8c63be2f4"
     ],
     [
         [
             "file",
             "server/src/actions/taskToTaskUnspecified.ts"
         ],
-        "1ecf735f2fcc4eb2b75d77ba647e3ea8f9296967c0e90c8e5c4048dde500f4f5"
+        "819925e65f8fa492611cc9eb54186813a0579e646d45f23a090120244faf8b9f"
     ],
     [
         [
             "file",
             "server/src/actions/testingAction.ts"
         ],
-        "1eba146c0c7afe905c06c04386a54f9e68f2961c501aaad83d8d85e5267fe07f"
+        "f59264cc546671c6b05b808ab0422cf76711411f9abc6fc45f467b6846654dd1"
     ],
     [
         [
             "file",
             "server/src/actions/toggleAllTasks.ts"
         ],
-        "3e8a86849658849a48505916e093b914480f304d516fb6f9e7c428fe47593b35"
+        "67894af6d0d2cec86d57134ec1e1f97d6b6edf064647cbacae21c366ae596357"
     ],
     [
         [
             "file",
             "server/src/actions/unspecifiedToNumber.ts"
         ],
-        "0a7b129566294048480f9afde2af404f3c2b67d2d88440ec457b6ab3b4394559"
+        "d8a4a5f66b75fa36fe91551d711a09bb499768703efc1d0c624848a2c21afa6d"
     ],
     [
         [
             "file",
             "server/src/actions/updateTaskIsDone.ts"
         ],
-        "1dad776f4345322ebb7d80ea04934eda403c47ed50fa9477639221a3f17fd858"
+        "6521a861f1e2532d368f97c56aec8a641c8872c57033e9ed79f6bdb8b8ea309d"
     ],
     [
         [
             "file",
             "server/src/actions/voidToStringAuth.ts"
         ],
-        "2b69b5ec490ed1882bf8caa9612fbad503f1d4c8e55c39ffeaf762b5c7f32f86"
+        "b4316dad83cad0a09c566ef2b3a3e09de329878c82bf6f0f027379771fb15f43"
     ],
     [
         [
             "file",
             "server/src/actions/voidToStringNoAuth.ts"
         ],
-        "02640a9ed09308b2c57359787b1838f8833d8d0fec18636ead48638b05d0dd97"
+        "8966bd7f0be8a9a9a355f3d6010154e51ec9f9fccb44d7f2062934c7292f141b"
     ],
     [
         [
@@ -1579,35 +1579,35 @@
             "file",
             "server/src/auth/providers/email/login.ts"
         ],
-        "766d2b6a186a1f16e4aba25d53a4ae38f0b7da8730e7827d2ae400c7544faff5"
+        "1da151ec2386446f8c2adf5c31767d02b15071743982ecf5e797bda3e5c1e553"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "3646670b948ccae196e59adf96c46ef4f83781d16b3e87616b3635af8a0553af"
+        "a79a0d0b95068fd463c246b5809d7012809bb5f88682efb26fbca5f508a8c486"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/resetPassword.ts"
         ],
-        "f280cb3434c959b47f9fc7ba3ad8ba8921d7f24813c44be8ed8e80538f1fff9c"
+        "751f48f61c2b59dd2a99107e4d7ef012adbc7af429b11585565e0bbd8d0dae84"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "36980d460729b3ae58c2bbee24144cf21909ea77e642f4ad65c75b107455fad8"
+        "67c19cf10306acb7ec7fbc9fd2b566288d6bd614d1f28b81ead98776c4cda745"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/verifyEmail.ts"
         ],
-        "d3b75adf041988926a97b741a5d7cf01d9c96904411ba34242f673c5da02e572"
+        "2de2a791f9e19c5d9d6a71b1b59b2081ac327696338be1ac4ad65ca0257beef4"
     ],
     [
         [
@@ -1621,7 +1621,7 @@
             "file",
             "server/src/auth/providers/oauth/config.ts"
         ],
-        "b5901b3c8067b9d5f83ba4e67dc3360e102bd246f57d502227051b66df1b5915"
+        "35c3146dabca4c9e8903f3b8dc903a3220c782b1201a87d934dbedbb722c10f5"
     ],
     [
         [
@@ -1649,7 +1649,7 @@
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "859a7a244cffb3c6bf6e308b43293c9ad06122dcc73a3fbaa362add8a9ebd3c5"
+        "4ed4e4f942328bdea8618777b6314d30797136580056a9c0dc7c16280eba918d"
     ],
     [
         [
@@ -1663,28 +1663,28 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "70c10d31134efc795abb2f38a3c1a81dbbb21a2806551d74867df1f8a80dee42"
+        "f0e543e5f93115a89f95a5c0149f46c797ed1e5f26ece1bd62b0fb62771decf7"
     ],
     [
         [
             "file",
             "server/src/crud/taskVotes.ts"
         ],
-        "b12e5eedb5cf9dc9d4316bdd731a142172fd59c9b51f94faa3361f0e2a294c45"
+        "196a0874ad218f37d385e009265e3ac7dcfa9e638dd8a987e4adff61265741ca"
     ],
     [
         [
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "49d9674d370841c88e7a773dee506f264c866c475d4bc78c1a416599e7ef9a0c"
+        "69567b2e09976ed1db66e8305bf1274e3040eaefee22d145119b27a93ab00f60"
     ],
     [
         [
             "file",
             "server/src/dbSeed.ts"
         ],
-        "ccd397ac12cb928d3c86f245437686503e1c6ea6b362b9bbfca9bf98be57150b"
+        "cc0246f6dd20de53bc1b2a713072093974a6a317473b2ab2dbba7d484f376597"
     ],
     [
         [
@@ -1733,7 +1733,7 @@
             "file",
             "server/src/middleware/operations.ts"
         ],
-        "b7e2dc990c87a962e9ad624af77e4885f2915d4c0abceb9b7772d4d63ecceef3"
+        "dde7c602a0fc6de1eb42e53bbf5e939a4635a0bf61eb2a28eb123e8721d914b7"
     ],
     [
         [
@@ -1747,98 +1747,98 @@
             "file",
             "server/src/queries/getAnyAuth.ts"
         ],
-        "65ad064f12796a2136390fa1890955cd5d206cab62ce98800b0257ffe72d2712"
+        "44d561c73de60968d99b0bbe780c85e43f002dbf9a7218e4c2dab3a1647c7735"
     ],
     [
         [
             "file",
             "server/src/queries/getAnyNoAuth.ts"
         ],
-        "e96f4471b2af2e08fecb4499cf78826d5a61ce9bfe02b34a291846d51896acc6"
+        "15e48983fd9fe727d471f30eda7539b8134205d1f8407637ae31a099a2b3789d"
     ],
     [
         [
             "file",
             "server/src/queries/getAnyToNumberSpecified.ts"
         ],
-        "9aed059698e8cae7af4d8b94054fa35487459bf12b404eb9f5ec268711d38e8c"
+        "3aed429df936f36036681dbc9b99fcca58161140920215ee9a508193abb49c69"
     ],
     [
         [
             "file",
             "server/src/queries/getAnythingAuth.ts"
         ],
-        "efaa0d0ed8741342178e2eae6304c5f85d755b126f5fe612f86d9636abeaa7b3"
+        "948cda23a98d3662ff80960b8ff2998bb1305132aac31f5927a32a6c5c07b58d"
     ],
     [
         [
             "file",
             "server/src/queries/getAnythingNoAuth.ts"
         ],
-        "6d080a81b3064c00e26b4c834a4f1f5f14bbecaffc0c4dcba3b621b29e3cf842"
+        "03f6767e1cc03ed12ad223e6cd2d71144de27aec623fad4c076cd96b5db4dc33"
     ],
     [
         [
             "file",
             "server/src/queries/getDate.ts"
         ],
-        "53aadf9bef62ee44018c34c98e7d2445e7297b470e592953dbd7bdbb10259dff"
+        "142cb5309986dd88646fcb265ef6542a5091df318d3176065449d8ba07963151"
     ],
     [
         [
             "file",
             "server/src/queries/getNumTasks.ts"
         ],
-        "a9a29055e91fb31b5ecd2c461a464170ae172a5ffba87689c8957c4772415bd9"
+        "ccd1d2bacb3d726c09aaea90e31a490c4746de6e7f5c7235cca30d2e74f294e1"
     ],
     [
         [
             "file",
             "server/src/queries/getOldestTask.ts"
         ],
-        "f9f01e31dba982c7450b03fe580050929a5209d153e450eae8bcd193cee4bcf0"
+        "39319e8d0bbd3c9a7a6a60d647d49d196e0106f0f0d998b1830a064511866aae"
     ],
     [
         [
             "file",
             "server/src/queries/getSerializedObjects.ts"
         ],
-        "a75fe00067a0c84831c3fb7650a24a811357da650564577d6d26b2eeeba36039"
+        "cf9060e09d564a1fd8c4e97c9dc41447c8b0ca74a2e796f1eaa79ab93331c176"
     ],
     [
         [
             "file",
             "server/src/queries/getTask.ts"
         ],
-        "2ac3547bbcdf924577894c1a5a4a4f9eac2b3aa546ac62de62948ed6214dd6ac"
+        "9d19e31a774a4ee3757d86d5b2ecd183aa25db467e5ec7297727a1b32f4200de"
     ],
     [
         [
             "file",
             "server/src/queries/getTasks.ts"
         ],
-        "17a8e37db09b1f058b70c05169f403cbc0bdf4d50d4504dc864fdd3b2e3ce919"
+        "65b57ae0ddb1bf907376294f57b0f9503066d13821cd9fb27e6a3f14bd5dd7cd"
     ],
     [
         [
             "file",
             "server/src/queries/getTextUppercaseRequests.ts"
         ],
-        "5747f0698cfb754c1ac86cd38a62b593b625da3b0bbfe60ceeca1ed64a65d162"
+        "4b7a4f64f252fec817c7625fbe1ea30a842d00ec844c84f878ed01184f8ebb67"
     ],
     [
         [
             "file",
             "server/src/queries/getTrueVoid.ts"
         ],
-        "26259e17df51d0deaa9ec8b4fe0cfd8b91e515652a3f42feec52710a3b753237"
+        "933bab2e93d4b83a36210e304bd71fcc070df9996a7b748a4b42b63966fd3f0c"
     ],
     [
         [
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "dd5557f6ed73b1757ddbfa3af823db02f175c18c2b0e828224185011b9e6023b"
+        "9a31113cefa5e3a073296d763b4e317c694c5d44f165ef0be32d6dd71ebd7470"
     ],
     [
         [
@@ -2118,7 +2118,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "6236e531606fc6432114a206eafe0206ebe2805ff81e6077eaeb594471a2f6f1"
+        "a7d326e73607f480fe634ad22505fa85d78cfc9c2fb262b519aee639184260ac"
     ],
     [
         [
@@ -2139,7 +2139,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "11e78e8f4bb5d416b1685637d373b10833273b7faa92fc889f616948bfd6b687"
     ],
     [
         [

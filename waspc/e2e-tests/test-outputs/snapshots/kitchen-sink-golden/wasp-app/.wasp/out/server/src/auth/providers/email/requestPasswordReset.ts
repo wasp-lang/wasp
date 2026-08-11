@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import {
     createProviderId,
     findAuthIdentity,
@@ -25,7 +26,7 @@ export function getRequestPasswordResetRoute({
     getPasswordResetEmailContent: GetPasswordResetEmailContentFn;
 }) {
     return async function requestPasswordReset(
-        req: Request<{ email: string; }>,
+        req: Request<ParamsDictionary, unknown, { email: string }>,
         res: Response,
     ): Promise<void> {
         const args = req.body ?? {};

@@ -316,6 +316,10 @@
                 "version": "latest"
             },
             {
+                "name": "@types/cookie-parser",
+                "version": "~1.4.6"
+            },
+            {
                 "name": "@types/cors",
                 "version": "^2.8.5"
             },
@@ -326,6 +330,10 @@
             {
                 "name": "@types/express-serve-static-core",
                 "version": "^5.0.0"
+            },
+            {
+                "name": "@types/morgan",
+                "version": "~1.9.9"
             },
             {
                 "name": "@types/node",
