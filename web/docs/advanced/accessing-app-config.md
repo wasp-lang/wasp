@@ -2,24 +2,23 @@
 title: Accessing the configuration 
 ---
 
-Whenever you start a Wasp app, you are starting two processes.
+Whenever you start a Wasp app, you are starting two parts of it.
 
-- **The client process** - A React app that implements your app's frontend.
+- **The client** - A React app that implements your app's frontend.
 
-  During development, this is a dev server with hot reloading. In production,
+  During development, Vite serves it with hot reloading. In production,
   it's a simple process that serves pre-built static files with environment variables
   embedded during the build (details depend on [how you deploy it](../deployment/intro.md)).
 
-- **The server process** - An Express server that implements your app's backend.
+- **The server** - An Express server that implements your app's backend.
 
-  During development, this is an Express server controlled by a
-  [`nodemon`](https://www.npmjs.com/package/nodemon) process that takes care of
-  hot reloading and restarts. In production, it's a regular Express server run
-  using Node.
+  During development, `wasp start` runs it inside the Vite dev server's process and
+  restarts it whenever you change server code. In production, it's a regular Express
+  server run using Node.
 
 Check [the introduction](/introduction/introduction.md) for a more in-depth explanation of Wasp's runtime architecture.
 
-You can configure both processes through environment variables. See [the deployment instructions](../project/env-vars.md) for a full list of supported variables.
+You can configure both of them through environment variables. See [the deployment instructions](../project/env-vars.md) for a full list of supported variables.
 
 Wasp gives you runtime access to the processes' configurations through **configuration objects**.
 

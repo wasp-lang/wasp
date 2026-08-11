@@ -114,14 +114,11 @@ showExtImportPathFromProjectDir extImportPath
         (error "Internal error. Failed to convert srcDirInWaspProjectDir to POSIX. This should never happen.")
         (SP.relDirToPosix Project.srcDirInWaspProjectDir)
 
--- Filip: We no longer want separation between client and server code
--- todo (filip): Do we still want to know which is which. We might (because of the reloading).
--- For now, as we'd like (expect):
---   - Nodemon watches all files in the user's source folder (client files
---   included), but tsc only compiles the server files (I think because it
---   knows that the others aren't used). I am not yet sure how it knows this.
---   - Vite also only triggers on client files. I am not sure how it knows
---   about the difference either.
--- todo (filip): investigate
+-- Filip: We no longer want separation between client and server code.
+-- We don't have to know which is which: in development, Vite tells them apart
+-- on its own because each of its environments only tracks the modules in its
+-- own graph. A change to client-only code updates the client through HMR
+-- without restarting the server, and a change to server-only code restarts the
+-- server without reloading the client.
 extSrcPrefix :: String
 extSrcPrefix = "@src/"

@@ -1,6 +1,5 @@
 {
   "comment-bundle": "The `bundle` script builds the `server` Vite environment. It runs from the Wasp project's dir (three levels up) because that's where the Vite config declaring that environment lives.",
-  "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz",
     "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz",
@@ -18,7 +17,6 @@
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^24.0.0",
-    "nodemon": "^2.0.19",
     "typescript": "6.0.3"
   },
   "engineStrict": true,

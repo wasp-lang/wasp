@@ -5,16 +5,24 @@ title: Custom Vite Config
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { Optional } from '@site/src/components/Tag'
 
-Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.{js,ts}` file in your project root directory.
+Wasp uses [Vite](https://vitejs.dev/) to run your app during development and to bundle it for production, both the client and the server. If you want to customize the Vite config, you can do that by editing the `vite.config.{js,ts}` file in your project root directory.
 
 ## Required Configuration
 
-You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
+You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use two plugins in your Vite configuration: `wasp()` from `wasp/client/vite` and `waspServer()` from `wasp/server/vite`.
+
+The `wasp()` plugin takes care of the client:
 
 - Configuration required for Wasp full-stack apps to work.
 - Environment variables validation.
 - Prevention of server imports in client code.
 - TypeScript type checking during production builds.
+
+The `waspServer()` plugin takes care of the server:
+
+- Declaration of the [`server` environment](#the-server-environment) Wasp runs and bundles your backend with.
+- Running your server inside the Vite dev server during development.
+- Prevention of client imports in server code.
 
 Here's the minimal required configuration:
 
@@ -22,10 +30,11 @@ Here's the minimal required configuration:
   <TabItem value="js" label="JavaScript">
     ```js title="vite.config.js"
     import { wasp } from 'wasp/client/vite'
+    import { waspServer } from 'wasp/server/vite'
     import { defineConfig } from 'vite'
 
     export default defineConfig({
-      plugins: [wasp()],
+      plugins: [wasp(), waspServer()],
     })
     ```
   </TabItem>
@@ -33,22 +42,34 @@ Here's the minimal required configuration:
   <TabItem value="ts" label="TypeScript">
     ```ts title="vite.config.ts"
     import { wasp } from 'wasp/client/vite'
+    import { waspServer } from 'wasp/server/vite'
     import { defineConfig } from 'vite'
 
     export default defineConfig({
-      plugins: [wasp()],
+      plugins: [wasp(), waspServer()],
     })
     ```
   </TabItem>
 </Tabs>
 
 :::warning Plugin order
-The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
+The `wasp()` and `waspServer()` plugins must be the **first** plugins in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after them.
 :::
+
+## The Server Environment
+
+The `waspServer()` plugin declares a [Vite environment](https://vite.dev/guide/api-environment) named `server`. Wasp uses it in two places:
+
+- During development, `wasp start` runs a **single Vite process** that serves your client and runs your server. Both print their logs under the same prefix, and Wasp restarts the server in place whenever you change server code. Changing client-only code doesn't restart the server.
+- For production, the `npm run bundle` script in `.wasp/out/server` bundles your server through the same environment into `.wasp/out/server/bundle`. Your deployment runs it for you, for example in the Dockerfile `wasp build` generates.
+
+Running `vite build` yourself still means "build the client", it never builds the server.
 
 ## Enforced Options
 
-The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
+The Wasp plugins enforce certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
+
+The `wasp()` plugin enforces:
 
 | Option | Internal value | Why you can't customize it |
 |---|---|---|
@@ -56,9 +77,16 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
 | `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
 
+The `waspServer()` plugin enforces:
+
+| Option | Internal value | Why you can't customize it |
+|---|---|---|
+| `environments.server.build.outDir` | `".wasp/out/server/bundle"` | Wasp and the deployment setup expect the server bundle in that location. |
+| `environments.server.build.rolldownOptions.input` | Wasp's generated server entry points | Wasp generates the code that starts your server and runs your database seeds. |
+
 ## Customization
 
-You can add additional configuration and plugins as needed. The `wasp()` plugin will use your config and merge it with the built-in defaults.
+You can add additional configuration and plugins as needed. The Wasp plugins will use your config and merge it with the built-in defaults.
 
 Vite config customization can be useful for things like:
 
@@ -72,6 +100,7 @@ The `wasp()` plugin accepts options allowing you to customize the underlying Rea
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
+import { waspServer } from 'wasp/server/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -80,7 +109,8 @@ export default defineConfig({
       reactOptions: {
         // Pass any @vitejs/plugin-react options here
       }
-    })
+    }),
+    waspServer()
   ],
 })
 ```
@@ -95,10 +125,11 @@ If you want Vite to open the browser automatically when you run `wasp start`, yo
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
+import { waspServer } from 'wasp/server/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [wasp()],
+  plugins: [wasp(), waspServer()],
   server: {
     open: true,
   },
@@ -111,10 +142,11 @@ You have access to all of the [Vite dev server options](https://vitejs.dev/confi
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
+import { waspServer } from 'wasp/server/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [wasp()],
+  plugins: [wasp(), waspServer()],
   server: {
     port: 4000,
   },
@@ -143,12 +175,14 @@ npm i -D vite-plugin-devtools-json
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
+import { waspServer } from 'wasp/server/vite'
 import { defineConfig } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
 
 export default defineConfig({
   plugins: [
     wasp(),
+    waspServer(),
     devtoolsJson({ root: import.meta.dirname })
   ]
 })
@@ -164,6 +198,7 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
+import { waspServer } from 'wasp/server/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -173,6 +208,7 @@ export default defineConfig({
         // ...
       },
     }),
+    waspServer(),
   ],
 })
 ```
@@ -184,3 +220,5 @@ The `wasp()` plugin accepts the following options:
   Object to customize the underlying [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react) plugin.
 
   This allows you to configure React-specific options like Babel plugins, Fast Refresh settings, and JSX configuration.
+
+The `waspServer()` plugin doesn't accept any options.
