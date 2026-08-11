@@ -64,9 +64,6 @@ makeBuildStartConfig appSpec args projectDir' = do
         clientRunConfig = clientRunConfig'
       }
   where
-    serverLocation = Server.defaultDevServerLocation
-    clientLocation = WebApp.makeDefaultDevClientLocation appSpec
-
     appUniqueId' = makeAppUniqueId projectDir' appName
     (appName, _) = ASV.getApp appSpec
 
