@@ -142,10 +142,10 @@ async function setupDb({
     options,
   );
 
-  // `railway add` returns before the database finishes deploying, and a
-  // Railway reference to a service that isn't fully set up silently resolves
-  // to an empty string and never recovers. So don't configure the server
-  // service until the database deployment succeeds.
+  // The database service deploys asynchronously and `railway add` doesn't wait
+  // for it. The server service references the database's DATABASE_URL env
+  // variable, and Railway references to a service that isn't fully set up
+  // silently resolve to an empty string and never recover.
   await waitForServiceDeploymentSuccess(dbService, options);
 }
 

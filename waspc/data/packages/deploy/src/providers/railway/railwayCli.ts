@@ -10,9 +10,7 @@ import {
 import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
 import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
-// Wasp needs the machine-readable (`--json`) output that Railway CLI 4.51.0
-// added to the commands it runs (`add`, `service list/status/delete`,
-// `volume add`): https://github.com/railwayapp/cli/releases/tag/v4.51.0
+// Wasp relies on the `--json` output added in Railway CLI 4.51.0.
 const minSupportedRailwayCliVersion = new SemVer("4.51.0");
 
 export type RailwayCliOptions = {

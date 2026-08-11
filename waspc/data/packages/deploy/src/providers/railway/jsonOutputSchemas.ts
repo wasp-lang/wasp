@@ -51,9 +51,9 @@ export const DeploymentStatusSchema = z.enum([
 
 export type DeploymentStatus = z.infer<typeof DeploymentStatusSchema>;
 
-// A service that was never deployed has no status, and a status value Wasp
-// doesn't know must not crash the deployment poll loop.
 export const RailwayCliServiceStatusSchema = z.object({
+  // A missing status (service never deployed) or an unrecognized status
+  // defaults to `null`.
   status: DeploymentStatusSchema.nullable().catch(null).default(null),
 });
 
