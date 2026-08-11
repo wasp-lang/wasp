@@ -76,3 +76,9 @@ async function getAuthUserData(userId: {= userEntityUpper =}['id']): Promise<Aut
 export function invalidateSession(sessionId: string): Promise<void> {
   return auth.invalidateSession(sessionId);
 }
+
+// PRIVATE API
+// Invalidates all sessions belonging to the `authId` in the database
+export function invalidateAllSessionsForAuthId(authId: string): Promise<void> {
+  return auth.invalidateUserSessions(authId);
+}
