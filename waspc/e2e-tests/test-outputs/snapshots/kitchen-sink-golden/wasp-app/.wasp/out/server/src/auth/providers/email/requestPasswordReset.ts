@@ -65,8 +65,10 @@ export function getRequestPasswordResetRoute({
                 },
             );
         } catch (e: any) {
-            console.error("Failed to send password reset email:", e);
-            throw new HttpError(500, "Failed to send password reset email.");
+            // `sendPasswordResetEmail` handles delivery failures itself, so
+            // anything reaching here comes from preparing or recording the email.
+            console.error("Failed to prepare the password reset email:", e);
+            throw new HttpError(500, "Failed to prepare the password reset email.");
         }
     
         res.json({ success: true });

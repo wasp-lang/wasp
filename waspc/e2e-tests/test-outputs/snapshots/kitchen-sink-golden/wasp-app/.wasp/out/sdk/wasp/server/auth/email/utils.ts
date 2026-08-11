@@ -71,9 +71,16 @@ async function sendEmailAndSaveMetadata(
   const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
   await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
 
-  emailSender.send(content).catch((e) => {
+  // Delivery failures must not change the response. Both `signup` and
+  // `requestPasswordReset` return `{ success: true }` on branches that send
+  // nothing at all (an already-verified account, an unknown address), so
+  // surfacing a send error here would let a caller tell those branches apart
+  // and enumerate registered addresses. Log it for the operator instead.
+  try {
+    await emailSender.send(content);
+  } catch (e) {
     console.error('Failed to send email', e);
-  });
+  }
 }
 
 // PUBLIC API
