@@ -1,10 +1,10 @@
-import Link from "@docusaurus/Link";
 import classNames from "classnames";
 import { ReactNode } from "react";
 import { Zap } from "react-feather";
 
 import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
+import TextLink from "./TextLink";
 
 const AI = () => (
   // scroll-mt offsets the sticky nav when jumping here via the #ai anchor.
@@ -78,12 +78,13 @@ const AI = () => (
     </div>
 
     <div className="mt-8 text-center">
-      <Link
+      <TextLink
         to="/vibe-coding"
-        className="inline-flex items-center gap-2 border-2 border-wasp-purple bg-wasp-white px-5 py-2 font-mono text-sm font-bold text-wasp-purple hover:bg-wasp-purple hover:text-wasp-white"
+        variant="purple"
+        className="inline-flex items-center gap-2 font-mono text-sm font-bold"
       >
         See how Wasp supercharges vibe coding <Zap size={14} />
-      </Link>
+      </TextLink>
     </div>
   </SectionContainer>
 );
