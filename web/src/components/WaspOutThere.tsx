@@ -6,6 +6,7 @@ import { ArrowUpRight, GitHub, Monitor } from "react-feather";
 
 import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
+import TextLink from "./TextLink";
 
 const EXAMPLES_ID = "examples";
 const SHOWCASES_ID = "showcases";
@@ -66,13 +67,13 @@ const WaspOutThere = () => {
           ))}
         </div>
         <div className="mt-8">
-          <Link
+          <TextLink
             to="https://github.com/wasp-lang/wasp/tree/release/examples"
-            className="inline-flex items-center gap-1 font-mono text-sm font-semibold text-wasp-black underline decoration-wasp-yellow decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-yellow-dark"
+            className="inline-flex items-center gap-1 font-mono text-sm font-semibold"
           >
             <span>See all examples</span>
             <ArrowUpRight size={14} />
-          </Link>
+          </TextLink>
         </div>
       </SectionContainer>
 
@@ -94,12 +95,13 @@ const WaspOutThere = () => {
           <SectionLabel text="join the community" />
           <p className="mb-10 max-w-2xl text-base leading-relaxed text-wasp-g7">
             Real builders, real apps, real conversations.{" "}
-            <Link
+            <TextLink
               to="https://discord.gg/rzdnErX"
-              className="bg-wasp-yellow px-1 font-semibold text-wasp-black underline decoration-wasp-black decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-black"
+              variant="yellow-dark"
+              className="font-semibold"
             >
               Drop into Discord
-            </Link>{" "}
+            </TextLink>{" "}
             to ask questions, share what you're working on, or just hang out.
           </p>
           <CommunityGrid />
@@ -269,12 +271,12 @@ const ProjectCard = ({ project }: { project: RealApp }) => (
       </div>
     </Link>
     <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 px-4 pb-4">
-      <Link
+      <TextLink
         to={project.linkUrl}
-        className="font-mono text-xs font-semibold text-wasp-black underline decoration-wasp-yellow decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-yellow-dark"
+        className="font-mono text-xs font-semibold"
       >
         {project.linkText}
-      </Link>
+      </TextLink>
       {project.storyUrl && (
         <Link
           to={project.storyUrl}

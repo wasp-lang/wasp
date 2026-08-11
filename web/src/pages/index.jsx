@@ -9,6 +9,7 @@ import Hero from "../components/Hero";
 import HowItWorks from "../components/HowItWorks";
 import Nav from "../components/Nav/index";
 import Newsletter from "../components/Newsletter";
+import NoLockIn from "../components/NoLockIn";
 import Philosophy from "../components/Philosophy";
 import Properties from "../components/Properties";
 import Roadmap from "../components/Roadmap";
@@ -53,6 +54,7 @@ const Index = () => {
             <FeaturesExplorer />
             <AI />
             <HowItWorks />
+            <NoLockIn />
             <WaspOutThere />
             <Philosophy />
             <Newsletter />
