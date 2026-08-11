@@ -39,7 +39,7 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  when noEnvVarsSpecified $ throwError noEnvVarsSpecifiedMsg
+  when noEnvVarsSourcesSpecified $ throwError noEnvVarsSourcesSpecifiedMsg
 
   serverEnvVars <- liftIO $ resolveEnvVarSources args.serverEnvVarSources
   serverRunConfig' <-
@@ -68,13 +68,13 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
-    noEnvVarsSpecified =
+    noEnvVarsSourcesSpecified =
       null (fst args.clientEnvVarSources)
         && null (snd args.clientEnvVarSources)
         && null (fst args.serverEnvVarSources)
         && null (snd args.serverEnvVarSources)
 
-    noEnvVarsSpecifiedMsg =
+    noEnvVarsSourcesSpecifiedMsg =
       CommandError
         "No env vars specified"
         $ "You called "
