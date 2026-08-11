@@ -187,5 +187,8 @@ export type OAuthData = {
   {=# enabledProviders.isMicrosoftAuthEnabled =}
   | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
   {=/ enabledProviders.isMicrosoftAuthEnabled =}
+  {=# enabledProviders.isSlackAuthEnabled =}
+  | { providerName: 'slack'; tokens: import('arctic').SlackTokens }
+  {=/ enabledProviders.isSlackAuthEnabled =}
   | never
 )
