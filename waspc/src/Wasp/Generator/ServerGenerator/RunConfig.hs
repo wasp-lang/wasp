@@ -4,7 +4,6 @@ module Wasp.Generator.ServerGenerator.RunConfig
   )
 where
 
-import Network.Socket (PortNumber)
 import Wasp.Env (EnvVar, EnvVarName, overrideEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import qualified Wasp.Util.AppLocation as AL
