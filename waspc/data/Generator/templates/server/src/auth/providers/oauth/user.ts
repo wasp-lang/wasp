@@ -137,6 +137,10 @@ async function getAuthIdFromProviderDetails({
       oauth,
     })
 
+    if (user.auth === null) {
+      throw new Error('Auth entity not found after creating a user with OAuth')
+    }
+
     return user.auth.id
   }
 }

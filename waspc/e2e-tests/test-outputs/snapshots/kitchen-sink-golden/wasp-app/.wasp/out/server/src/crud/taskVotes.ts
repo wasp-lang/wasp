@@ -15,14 +15,14 @@ const _waspGetAllQuery: RegisteredGetAllQuery = ((args, context) => {
   return context.entities.TaskVote.findMany();
 });
 
-export async function getAllFn(args, context) {
+export async function getAllFn(args: any, context: any) {
   return (_waspGetAllQuery as any)(args, {
     ...context,
     entities,
   });
 }
 
-function throwIfNotAuthenticated (context) {
+function throwIfNotAuthenticated (context: any) {
   if (!context.user) {
     throw createInvalidCredentialsError()
   }

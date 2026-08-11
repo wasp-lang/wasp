@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import type { ParamsDictionary } from 'express-serve-static-core';
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
   createProviderId,
@@ -40,7 +41,7 @@ export function getSignupRoute({
   isEmailAutoVerified: boolean
 }) {
   return async function signup(
-    req: Request<{ email: string; password: string }>,
+    req: Request<ParamsDictionary, unknown, { email: string; password: string }>,
     res: Response,
   ): Promise<void> {
     const fields = req.body

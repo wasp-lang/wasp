@@ -18,7 +18,7 @@ const entities = {
 // Get All query
 const _waspGetAllQuery = crudGetAllTasks
 
-export async function getAllFn(args, context) {
+export async function getAllFn(args: any, context: any) {
   return (_waspGetAllQuery as any)(args, {
     ...context,
     entities,
@@ -31,7 +31,7 @@ const _waspGetQuery: RegisteredGetQuery = ((args, context) => {
   return context.entities.Task.findUnique({ where: { id: args.id } });
 });
 
-export async function getFn(args, context) {
+export async function getFn(args: any, context: any) {
   return (_waspGetQuery as any)(args, {
     ...context,
     entities,
@@ -41,7 +41,7 @@ export async function getFn(args, context) {
 // Create action
 const _waspCreateAction = crudCreateTask
 
-export async function createFn(args, context) {
+export async function createFn(args: any, context: any) {
   return (_waspCreateAction as any)(args, {
     ...context,
     entities,
@@ -58,7 +58,7 @@ const _waspUpdateAction: RegisteredUpdateAction = ((args, context) => {
   });
 });
 
-export async function updateFn(args, context) {
+export async function updateFn(args: any, context: any) {
   return (_waspUpdateAction as any)(args, {
     ...context,
     entities,
@@ -72,14 +72,14 @@ const _waspDeleteAction: RegisteredDeleteAction = ((args, context) => {
   return context.entities.Task.delete({ where:  { id: idFieldValue } });
 });
 
-export async function deleteFn(args, context) {
+export async function deleteFn(args: any, context: any) {
   return (_waspDeleteAction as any)(args, {
     ...context,
     entities,
   });
 }
 
-function throwIfNotAuthenticated (context) {
+function throwIfNotAuthenticated (context: any) {
   if (!context.user) {
     throw createInvalidCredentialsError()
   }

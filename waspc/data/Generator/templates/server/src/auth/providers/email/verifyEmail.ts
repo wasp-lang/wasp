@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import { validateJWT } from 'wasp/server/auth/jwt';
 import {
   createInvalidCredentialsError,
@@ -13,7 +14,7 @@ import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
 
 export async function verifyEmail(
-    req: Request<{ token: string }>,
+    req: Request<ParamsDictionary, unknown, { token: string }>,
     res: Response,
 ): Promise<void> {
     const { token } = req.body;

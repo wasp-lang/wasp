@@ -2,8 +2,9 @@ export function mergeDefaultAndUserConfig<DefaultConfig extends object, UserConf
   defaultConfig: DefaultConfig,
   userConfigFn: () => UserConfig,
 ): DefaultConfig & UserConfig;
-export function mergeDefaultAndUserConfig<DefaultConfig extends object, UserConfig extends object>(
-  defaultConfig: DefaultConfig
+export function mergeDefaultAndUserConfig<DefaultConfig extends object>(
+  defaultConfig: DefaultConfig,
+  userConfigFn?: undefined,
 ): DefaultConfig;
 export function mergeDefaultAndUserConfig<DefaultConfig extends object, UserConfig extends object>(
   defaultConfig: DefaultConfig,

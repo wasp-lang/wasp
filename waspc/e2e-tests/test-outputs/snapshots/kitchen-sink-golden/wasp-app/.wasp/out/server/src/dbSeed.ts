@@ -10,19 +10,26 @@ import { prisma, DbSeedFn } from 'wasp/server'
 import { devSeedSimple } from '../../../../src/features/db/seeds'
 import { prodSeed } from '../../../../src/features/db/seeds'
 
-const seeds = {
+const seeds: Record<string, DbSeedFn> = {
   devSeedSimple,
   prodSeed,
 }
 
 async function main() {
   const nameOfSeedToRun = process.env.WASP_DB_SEED_NAME
-  if (nameOfSeedToRun) {
-    console.log(`Running seed: ${nameOfSeedToRun}`)
-  } else {
+  if (!nameOfSeedToRun) {
     console.error('Name of the seed to run not specified!')
+    process.exit(1)
   }
-  await (seeds[nameOfSeedToRun] satisfies DbSeedFn)(prisma)
+  console.log(`Running seed: ${nameOfSeedToRun}`)
+
+  const seed = seeds[nameOfSeedToRun]
+  if (!seed) {
+    console.error(`No seed named "${nameOfSeedToRun}" found!`)
+    process.exit(1)
+  }
+
+  await seed(prisma)
 }
 
 main()

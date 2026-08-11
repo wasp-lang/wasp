@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import type { ParamsDictionary } from 'express-serve-static-core';
 import {
     createProviderId,
     findAuthIdentity,
@@ -11,7 +12,7 @@ import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } fr
 import { HttpError } from 'wasp/server';
 
 export async function resetPassword(
-    req: Request<{ token: string; password: string; }>,
+    req: Request<ParamsDictionary, unknown, { token: string; password: string }>,
     res: Response,
 ): Promise<void> {
     const args = req.body ?? {};

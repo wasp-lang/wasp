@@ -49,10 +49,12 @@ export function generateAndStoreOAuthState<OT extends OAuthType>({
   provider: ProviderConfig,
   res: ExpressResponse
 }): OAuthStateFor<OT> {
-  const state: OAuthStateFor<OT> = {
+  // TS can't relate the value of `oAuthType` back to the generic `OT`, so the
+  // assertion carries what the conditional spread guarantees at runtime.
+  const state = {
     ...generateState(),
-    ...(oAuthType === 'OAuth2WithPKCE' && generateCodeVerifier()),
-  };
+    ...(oAuthType === 'OAuth2WithPKCE' ? generateCodeVerifier() : {}),
+  } as OAuthStateFor<OT>;
 
   storeOAuthState(provider, res, state);
 
@@ -68,11 +70,12 @@ export function validateAndGetOAuthState<OT extends OAuthType>({
   provider: ProviderConfig,
   req: ExpressRequest
 }): OAuthStateWithCodeFor<OT> {
-  const state: OAuthStateWithCodeFor<OT> = {
+  // See the note in `generateAndStoreOAuthState` about the assertion.
+  const state = {
     ...getCode(req),
     ...getState(req),
-    ...(oAuthType === 'OAuth2WithPKCE' && getCodeVerifier(provider, req)),
-  };
+    ...(oAuthType === 'OAuth2WithPKCE' ? getCodeVerifier(provider, req) : {}),
+  } as OAuthStateWithCodeFor<OT>;
 
   validateOAuthState(provider, req, state);
 

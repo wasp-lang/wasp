@@ -5,7 +5,7 @@ import { defineHandler } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from 'wasp/server/core/auth'
-import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
+import { makeAuthUserIfPossible } from 'wasp/auth/user'
 {=/ isAuthEnabled =}
 
 {=# apiNamespaces =}
@@ -45,12 +45,16 @@ router.{= routeMethod =}(
   {=/ usesAuth =}
   defineHandler(
     (
-      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: AuthUserData | null }{=/ usesAuth =},
+      req: Parameters<typeof {= importIdentifier =}>[0],
       res: Parameters<typeof {= importIdentifier =}>[1],
     ) => {
       const context = {
         {=# usesAuth =}
-        user: makeAuthUserIfPossible(req.user),
+        // `req.user` is declared by our global Express Request augmentation
+        // (see `wasp/server/utils`), where it is optional. The `auth`
+        // middleware has already rejected the request if there is no user, and
+        // `ContextWithUser` declares `user` as optional, not nullable.
+        user: makeAuthUserIfPossible(req.user ?? null) ?? undefined,
         {=/ usesAuth =}
         entities: {
           {=# entities =}

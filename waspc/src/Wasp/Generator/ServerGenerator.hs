@@ -191,6 +191,8 @@ npmDepsFromWasp spec =
               ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
               ("@types/cors", "^2.8.5"),
+              ("@types/cookie-parser", "~1.4.6"),
+              ("@types/morgan", "~1.9.9"),
               ("rollup", "^4.9.6"),
               ("rollup-plugin-esbuild", "^6.1.1"),
               ("@rollup/plugin-node-resolve", "^16.0.0")

@@ -56,7 +56,10 @@ export function registerJob<
   Output extends JSONValue | void,
   Entities extends Partial<PrismaDelegate>
 >({ job, jobFn }: {
-  job: PgBossJob<Input, Output, Entities>,
+  // `Input` and `Output` are inferred from `jobFn` alone. The generated job
+  // definition is built without them (it is `PgBossJob<JSONObject, JSONValue |
+  // void, Entities>`), and nothing read off `job` here depends on them.
+  job: PgBossJob<JSONObject, JSONValue | void, Entities>,
   jobFn: JobFn<Input, Output, Entities>,
 }) {
   // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job

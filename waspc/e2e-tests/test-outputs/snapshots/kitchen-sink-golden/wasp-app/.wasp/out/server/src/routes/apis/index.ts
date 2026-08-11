@@ -3,7 +3,7 @@ import { prisma } from 'wasp/server'
 import { defineHandler } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 import auth from 'wasp/server/core/auth'
-import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
+import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
 import { barNamespaceMiddlewareFn as _waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from '../../../../../../src/features/streaming/api'
@@ -31,11 +31,15 @@ router.all(
   [auth, ...fooBarMiddleware],
   defineHandler(
     (
-      req: Parameters<typeof _waspfooBarfn>[0] & { user: AuthUserData | null },
+      req: Parameters<typeof _waspfooBarfn>[0],
       res: Parameters<typeof _waspfooBarfn>[1],
     ) => {
       const context = {
-        user: makeAuthUserIfPossible(req.user),
+        // `req.user` is declared by our global Express Request augmentation
+        // (see `wasp/server/utils`), where it is optional. The `auth`
+        // middleware has already rejected the request if there is no user, and
+        // `ContextWithUser` declares `user` as optional, not nullable.
+        user: makeAuthUserIfPossible(req.user ?? null) ?? undefined,
         entities: {
           Task: prisma.task,
         },
@@ -85,11 +89,15 @@ router.get(
   [auth, ...streamingTextMiddleware],
   defineHandler(
     (
-      req: Parameters<typeof _waspstreamingTextfn>[0] & { user: AuthUserData | null },
+      req: Parameters<typeof _waspstreamingTextfn>[0],
       res: Parameters<typeof _waspstreamingTextfn>[1],
     ) => {
       const context = {
-        user: makeAuthUserIfPossible(req.user),
+        // `req.user` is declared by our global Express Request augmentation
+        // (see `wasp/server/utils`), where it is optional. The `auth`
+        // middleware has already rejected the request if there is no user, and
+        // `ContextWithUser` declares `user` as optional, not nullable.
+        user: makeAuthUserIfPossible(req.user ?? null) ?? undefined,
         entities: {
         },
       }
