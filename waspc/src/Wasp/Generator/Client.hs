@@ -49,5 +49,5 @@ url config = "http://localhost:" ++ show config.port ++ SP.fromAbsDirP config.ba
 -- URL is omitted while the client isn't wired to a server.
 devEnvVars :: ClientRunConfig -> [EnvVar]
 devEnvVars config =
-  [(Common.clientDevPortEnvVarName, show config.port)]
-    ++ [(Common.serverUrlEnvVarName, serverUrl) | serverUrl <- maybeToList config.serverUrl]
+  (Common.clientDevPortEnvVarName, show config.port)
+    : [(Common.serverUrlEnvVarName, serverUrl) | serverUrl <- maybeToList config.serverUrl]
