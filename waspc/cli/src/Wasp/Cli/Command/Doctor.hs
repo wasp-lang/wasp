@@ -50,8 +50,6 @@ checks =
     ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
     ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
     ("Docker", checkDocker >> return "running"),
-    makePortCheck "Client" WebApp.defaultClientPort,
-    makePortCheck "Server" Server.defaultServerPort,
     makePortCheck "Dev database" Dev.Postgres.defaultDevPort
   ]
   where

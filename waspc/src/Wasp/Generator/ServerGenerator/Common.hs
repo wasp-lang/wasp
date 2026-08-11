@@ -17,8 +17,7 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    defaultDevServerUrl,
-    defaultServerPort,
+    defaultDevServerLocation,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
@@ -39,6 +38,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
+import Wasp.Util.AppLocation (AppLocation (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -89,7 +89,7 @@ mkTmplFdWithData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath dstPath tmplData
+mkTmplFdWithData relSrcPath = mkTmplFdWithDstAndData relSrcPath dstPath
   where
     dstPath = SP.castRel relSrcPath :: Path' (Rel ServerRootDir) File'
 
@@ -98,11 +98,10 @@ mkTmplFdWithDstAndData ::
   Path' (Rel ServerRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInGeneratedAppDir </> relDstPath)
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
 
 mkUniversalTmplFdWithDst ::
   Path' (Rel UniversalTemplatesDir) File' ->
@@ -138,11 +137,9 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
-defaultServerPort :: Int
-defaultServerPort = 3001
-
-defaultDevServerUrl :: String
-defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+defaultDevServerLocation :: AppLocation
+defaultDevServerLocation =
+  Local {port = 3001, baseDir = Nothing}
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

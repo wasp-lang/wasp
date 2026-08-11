@@ -27,6 +27,7 @@ import Wasp.Project.Common
   )
 import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
+import qualified Wasp.Util.AppLocation as AL
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
@@ -71,7 +72,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
-          "defaultClientPort" .= WebApp.defaultClientPort,
+          "defaultClientPort" .= show (AL.port $ WebApp.makeDefaultDevClientLocation spec),
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"

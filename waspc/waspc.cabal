@@ -303,7 +303,6 @@ library
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
-    Wasp.Generator.Server.RunConfig
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
@@ -317,6 +316,7 @@ library
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
+    Wasp.Generator.ServerGenerator.RunConfig
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
@@ -343,9 +343,9 @@ library
     Wasp.Generator.WaspLibs.AvailableLibs
     Wasp.Generator.WaspLibs.Common
     Wasp.Generator.WaspLibs.WaspLib
-    Wasp.Generator.WebApp.RunConfig
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
@@ -427,6 +427,7 @@ library
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
+    Wasp.Util.AppLocation
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
     Wasp.Util.Docker
@@ -487,7 +488,6 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
-    Wasp.Cli.AppComponents
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
