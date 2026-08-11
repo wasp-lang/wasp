@@ -64,6 +64,7 @@ model AuthIdentity {
   auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
+  @@unique([authId, providerName])
 }
 
 model Session {
