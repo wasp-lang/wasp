@@ -4,6 +4,7 @@ import {
     findAuthIdentity,
     updateAuthIdentityProviderData,
     getProviderDataWithPassword,
+    sha256,
 } from 'wasp/server/auth/utils';
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
@@ -30,9 +31,17 @@ export async function resetPassword(
 
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
 
+    // The token must match the currently outstanding (unused) password reset
+    // token. This makes each password reset link one-time use only.
+    if (providerData.outstandingPasswordResetToken !== sha256(token)) {
+        throw new HttpError(400, "Password reset failed, invalid token");
+    }
+
     await updateAuthIdentityProviderData(providerId, providerData, {
         // The act of resetting the password verifies the email
         isEmailVerified: true,
+        // Consume the token so the same link can't be used again.
+        outstandingPasswordResetToken: null,
         // The password will be hashed when saving the providerData
         // in the DB
         hashedPassword: password,

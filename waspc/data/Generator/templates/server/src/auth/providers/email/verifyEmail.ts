@@ -5,6 +5,7 @@ import {
   findAuthIdentity,
   findAuthWithUserBy,
   getProviderDataWithPassword,
+  sha256,
   updateAuthIdentityProviderData,
 } from 'wasp/server/auth/utils';
 import { HttpError } from 'wasp/server';
@@ -29,8 +30,16 @@ export async function verifyEmail(
 
     const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
 
+    // The token must match the currently outstanding (unused) email
+    // verification token. This makes each verification URL one-time use only.
+    if (providerData.outstandingEmailVerificationToken !== sha256(token)) {
+        throw new HttpError(400, "Email verification failed, invalid token");
+    }
+
     await updateAuthIdentityProviderData(providerId, providerData, {
         isEmailVerified: true,
+        // Consume the token so the same URL can't be used again.
+        outstandingEmailVerificationToken: null,
     });
 
     const auth = await findAuthWithUserBy({ id: authIdentity.authId })
