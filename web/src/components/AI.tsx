@@ -13,8 +13,7 @@ const AI = () => {
   useBrokenLinks().collectAnchor(AI_SECTION_ID);
 
   return (
-    // scroll-mt offsets the sticky nav when jumping here via the #ai anchor.
-    <SectionContainer id={AI_SECTION_ID} className="scroll-mt-24">
+    <SectionContainer id={AI_SECTION_ID}>
       <SectionLabel
         text="ai"
         bgColorClassName="bg-wasp-purple"
