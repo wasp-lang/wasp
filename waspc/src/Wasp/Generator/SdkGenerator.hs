@@ -67,6 +67,7 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator
   )
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
+import Wasp.Generator.SdkGenerator.Server.VitePluginG (genServerVitePlugins)
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
@@ -106,6 +107,7 @@ genSdk spec =
       C.genFileCopy [relfile|vite-env.d.ts|],
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
       C.genFileCopy [relfile|scripts/copy-assets.js|],
+      C.genFileCopy [relfile|scripts/build-server.mjs|],
       C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|types/register.ts|],
       C.genFileCopy [relfile|api/index.ts|],
@@ -151,6 +153,7 @@ genSdk spec =
     <++> genEnvValidation spec
     <++> genClientApp spec
     <++> genVitePlugins spec
+    <++> genServerVitePlugins spec
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =

@@ -96,6 +96,8 @@
     "./server/email": "./dist/server/email/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/operations": "./dist/server/operations/index.js",
+    {=! Users: the `waspServer` plugin in their vite.config.ts. =}
+    "./server/vite": "./dist/server/vite/index.js",
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
     {=! Server: type ServerType. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
