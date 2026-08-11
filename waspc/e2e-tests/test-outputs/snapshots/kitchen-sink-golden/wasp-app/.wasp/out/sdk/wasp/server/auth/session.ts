@@ -45,6 +45,11 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
     return null;
   }
 
+  // Such a session can't identify a user, so we treat it as unauthenticated.
+  if (authEntity.userId === null) {
+    return null;
+  }
+
   return {
     session,
     user: await getAuthUserData(authEntity.userId)
