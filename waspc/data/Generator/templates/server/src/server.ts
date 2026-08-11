@@ -58,7 +58,7 @@ const startServer = async () => {
 
   server.on('listening', () => {
     const addr = server.address()
-    const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
+    const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr?.port
     console.log('Server listening on ' + bind)
   })
 }
@@ -68,8 +68,8 @@ startServer().catch(e => console.error(e))
 /**
  * Normalize a port into a number, string, or false.
  */
-function normalizePort (val) {
-  const port = parseInt(val, 10)
+function normalizePort (val: string | number): number | string | false {
+  const port = typeof val === 'number' ? val : parseInt(val, 10)
   if (isNaN(port)) return val // named pipe
   if (port >= 0) return port // port number
   return false
