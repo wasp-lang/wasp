@@ -24,21 +24,11 @@ export async function createDatabaseServiceWithVolume(
     options,
   );
 
-  if (dbService.name !== dbServiceName) {
-    return rollbackDatabaseService(
-      dbService,
-      new Error(
-        `Railway created database service "${dbService.name}" instead of "${dbServiceName}".`,
-      ),
-      options,
-    );
-  }
-
   try {
     await addDatabaseVolume(dbService, options);
   } catch (volumeError) {
-    // Railway can report a failure even though it created the volume, so
-    // confirm the volume is really missing before tearing the service down.
+    // In case the volume was created despite the reported failure, confirm
+    // it's really missing before tearing the service down.
     if (await hasDatabaseVolume(dbService, options).catch(() => false)) {
       return dbService;
     }

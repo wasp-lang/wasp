@@ -1,11 +1,11 @@
-import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
+import { WaspCliExe } from "../../common/brandedTypes.js";
 import {
   ClientServiceName,
   DbServiceName,
-  RailwayCliExe,
   RailwayProjectName,
   ServerServiceName,
 } from "./brandedTypes.js";
+import { RailwayCliOptions } from "./railwayCli.js";
 import {
   createRailwayClientServiceName,
   createRailwayDbServiceName,
@@ -38,10 +38,8 @@ export function createDeploymentInstructions<
 
 // These common cmd options are similar to the ones for the Fly provider:
 // We use both the Wasp CLI, Wasp project directory, and the provider CLI (Railway CLI).
-export interface CommonCmdOptions {
+export interface CommonCmdOptions extends RailwayCliOptions {
   waspExe: WaspCliExe;
-  railwayExe: RailwayCliExe;
-  waspProjectDir: WaspProjectDir;
 }
 
 export interface SecretsOptions {

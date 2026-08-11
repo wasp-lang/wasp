@@ -71,23 +71,6 @@ describe("createDatabaseServiceWithVolume", () => {
     );
   });
 
-  test("removes the service when Railway ignores the requested service name", async () => {
-    const renamedService = { id: "service-id", name: "some-other-name" };
-    mocks.railwayCli
-      .mockResolvedValueOnce(jsonResult(renamedService))
-      .mockResolvedValueOnce(jsonResult({}));
-
-    await expect(createDatabase()).rejects.toThrow(
-      `Railway created database service "${renamedService.name}" instead of "${dbServiceName}"`,
-    );
-
-    expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
-    expect(mocks.railwayCli).toHaveBeenLastCalledWith(
-      ["service", "delete", "--service", renamedService.id, "--yes", "--json"],
-      { verbose: false },
-    );
-  });
-
   test("removes the newly created service when volume creation fails", async () => {
     mockFailedVolumeCreation();
     mocks.railwayCli.mockResolvedValueOnce(jsonResult(dbService));

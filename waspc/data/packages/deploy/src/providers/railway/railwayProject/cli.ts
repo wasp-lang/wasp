@@ -8,6 +8,7 @@ import {
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
 } from "../jsonOutputSchemas.js";
+import { RailwayCliOptions } from "../railwayCli.js";
 import { createRailwayProject, RailwayProject } from "./RailwayProject.js";
 
 /**
@@ -56,13 +57,7 @@ export async function initRailwayProject({
  */
 export async function linkRailwayProjectToWaspProjectDir(
   project: RailwayProject,
-  {
-    railwayExe,
-    waspProjectDir,
-  }: {
-    railwayExe: RailwayCliExe;
-    waspProjectDir: WaspProjectDir;
-  },
+  { railwayExe, waspProjectDir }: RailwayCliOptions,
 ): Promise<RailwayProject> {
   const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
 

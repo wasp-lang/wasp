@@ -1,13 +1,9 @@
 import { ProcessOutput } from "zx";
 
-import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
-import {
-  ClientServiceName,
-  RailwayCliExe,
-  ServerServiceName,
-} from "../../brandedTypes.js";
+import { ClientServiceName, ServerServiceName } from "../../brandedTypes.js";
+import { RailwayCliOptions } from "../../railwayCli.js";
 
 export enum ServiceDeploymentStatus {
   SUCCESS = "SUCCESS",
@@ -19,10 +15,7 @@ export async function deployServiceWithStreamingLogs(
     name: ClientServiceName | ServerServiceName;
     dirToDeploy: string;
   },
-  options: {
-    railwayExe: RailwayCliExe;
-    waspProjectDir: WaspProjectDir;
-  },
+  options: RailwayCliOptions,
 ): Promise<ServiceDeploymentStatus> {
   try {
     const railwayCli = createCommandWithCwd(
