@@ -6,7 +6,7 @@ where
 
 import Data.Function ((&))
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Generator.Client (ClientRunConfig (..))
+import Wasp.Generator.WebApp.RunConfig (ClientRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)

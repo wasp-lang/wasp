@@ -22,9 +22,9 @@ import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
-import qualified Wasp.Generator.Client as Client
 import Wasp.Generator.Common (GeneratedAppDir)
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.Server.RunConfig as Server
+import qualified Wasp.Generator.WebApp.RunConfig as Client
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 

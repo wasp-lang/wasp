@@ -1,6 +1,6 @@
-module Wasp.Generator.Server
+module Wasp.Generator.Server.RunConfig
   ( ServerRunConfig (..),
-    make,
+    makeDefault,
     url,
     devEnvVars,
   )
@@ -23,8 +23,8 @@ data ServerRunConfig = ServerRunConfig
 
 -- | For now, the server always runs on the default port. Making it
 -- configurable comes later.
-make :: ServerRunConfig
-make =
+makeDefault :: ServerRunConfig
+makeDefault =
   ServerRunConfig
     { port = fromIntegral Common.defaultServerPort,
       clientUrl = Nothing

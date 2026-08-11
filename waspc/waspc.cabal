@@ -244,7 +244,6 @@ library
     Wasp.Generator.AuthProviders.Email
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.OAuth
-    Wasp.Generator.Client
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -303,7 +302,7 @@ library
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
-    Wasp.Generator.Server
+    Wasp.Generator.Server.RunConfig
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
@@ -343,6 +342,7 @@ library
     Wasp.Generator.WaspLibs.AvailableLibs
     Wasp.Generator.WaspLibs.Common
     Wasp.Generator.WaspLibs.WaspLib
+    Wasp.Generator.WebApp.RunConfig
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.Start

@@ -12,8 +12,8 @@ import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
-import qualified Wasp.Generator.Client as Client
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.Server.RunConfig as Server
+import qualified Wasp.Generator.WebApp.RunConfig as Client
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Version as WV
@@ -32,8 +32,8 @@ spec_makeDevRunConfigs = do
       Server.clientUrl server `shouldBe` Just "http://localhost:3000/app/"
 
     it "omits the peer URL env vars while the components aren't wired" $ do
-      Client.devEnvVars (Client.make basicAppSpec) `shouldBe` []
-      Server.devEnvVars Server.make
+      Client.devEnvVars (Client.makeDefault basicAppSpec) `shouldBe` []
+      Server.devEnvVars Server.makeDefault
         `shouldBe` [("WASP_SERVER_URL", "http://localhost:3001")]
 
     it "sets the peer URL env vars once the components are wired" $ do

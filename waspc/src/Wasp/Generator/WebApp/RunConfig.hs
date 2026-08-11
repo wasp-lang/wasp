@@ -1,6 +1,6 @@
-module Wasp.Generator.Client
+module Wasp.Generator.WebApp.RunConfig
   ( ClientRunConfig (..),
-    make,
+    makeDefault,
     url,
     devEnvVars,
   )
@@ -28,8 +28,8 @@ data ClientRunConfig = ClientRunConfig
 -- | Takes the 'AppSpec' because the client may be served under a custom base
 -- dir, which is part of its URL. For now, the client always runs on the
 -- default port. Making it configurable comes later.
-make :: AppSpec -> ClientRunConfig
-make spec =
+makeDefault :: AppSpec -> ClientRunConfig
+makeDefault spec =
   ClientRunConfig
     { port = fromIntegral Common.defaultClientPort,
       baseDir = Common.getBaseDir spec,

@@ -4,8 +4,8 @@ module Wasp.Cli.AppComponents
 where
 
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.Generator.Client as Client
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.Server.RunConfig as Server
+import qualified Wasp.Generator.WebApp.RunConfig as Client
 
 -- | Makes the run configs for a development-style run of the app and wires
 -- them together: each component learns the other's URL, so the client knows
@@ -19,5 +19,5 @@ makeDevRunConfigs spec =
     server {Server.clientUrl = Just (Client.url client)}
   )
   where
-    client = Client.make spec
-    server = Server.make
+    client = Client.makeDefault spec
+    server = Server.makeDefault
