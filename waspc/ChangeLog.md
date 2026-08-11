@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp now runs and bundles your server with Vite, the same way it already did with your client. ([#4645](https://github.com/wasp-lang/wasp/pull/4645), [#4646](https://github.com/wasp-lang/wasp/pull/4646), [#4665](https://github.com/wasp-lang/wasp/pull/4665), [#4667](https://github.com/wasp-lang/wasp/pull/4667), [#4668](https://github.com/wasp-lang/wasp/pull/4668))
+- Wasp now runs and bundles your server with Vite, the same way it already did with your client. ([#4645](https://github.com/wasp-lang/wasp/pull/4645), [#4646](https://github.com/wasp-lang/wasp/pull/4646), [#4665](https://github.com/wasp-lang/wasp/pull/4665), [#4667](https://github.com/wasp-lang/wasp/pull/4667), [#4668](https://github.com/wasp-lang/wasp/pull/4668), [#4669](https://github.com/wasp-lang/wasp/pull/4669))
 
   You must add the `waspServer()` plugin from `wasp/server/vite` to your `vite.config.ts`, otherwise Wasp won't compile your app:
 
