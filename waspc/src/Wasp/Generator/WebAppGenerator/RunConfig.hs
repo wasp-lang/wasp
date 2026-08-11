@@ -11,7 +11,6 @@ import qualified Wasp.Util.AppLocation as AL
 
 data ClientRunConfig = ClientRunConfig
   { port :: PortNumber,
-    url :: String,
     envVars :: [EnvVar]
   }
   deriving (Show, Eq)
@@ -24,7 +23,6 @@ makeClientRunConfig ::
 makeClientRunConfig location serverUrl extraEnvVars =
   ClientRunConfig
     location.port
-    (AL.url location)
     <$> overrideEnvVars requiredEnvVars extraEnvVars
   where
     requiredEnvVars =

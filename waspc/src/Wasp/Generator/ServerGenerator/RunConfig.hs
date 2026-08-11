@@ -9,10 +9,8 @@ import Wasp.Env (EnvVar, EnvVarName, overrideEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import qualified Wasp.Util.AppLocation as AL
 
-data ServerRunConfig = ServerRunConfig
-  { port :: PortNumber,
-    url :: String,
-    envVars :: [EnvVar]
+newtype ServerRunConfig = ServerRunConfig
+  { envVars :: [EnvVar]
   }
   deriving (Show, Eq)
 
@@ -23,8 +21,6 @@ makeServerRunConfig ::
   Either [EnvVarName] ServerRunConfig
 makeServerRunConfig location clientUrl extraEnvVars =
   ServerRunConfig
-    location.port
-    (AL.url location)
     <$> overrideEnvVars requiredEnvVars extraEnvVars
   where
     requiredEnvVars =
