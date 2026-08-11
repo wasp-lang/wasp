@@ -9,11 +9,11 @@ import {
   RailwayCliServiceSchema,
 } from "../jsonOutputSchemas.js";
 
-const databaseVolumeMountPath = "/var/lib/postgresql/data";
+const dbVolumeMountPath = "/var/lib/postgresql/data";
 // PGDATA must be a subdirectory of the volume mount.
-const databasePgDataPath = `${databaseVolumeMountPath}/pgdata`;
+const dbPgDataPath = `${dbVolumeMountPath}/pgdata`;
 
-export async function createDatabaseServiceWithVolume(
+export async function createDatabaseService(
   dbServiceName: DbServiceName,
   dbImage: string,
   options: {
@@ -21,7 +21,7 @@ export async function createDatabaseServiceWithVolume(
     waspProjectDir: WaspProjectDir;
   },
 ): Promise<RailwayCliService> {
-  const dbService = await createDatabaseService(
+  const dbService = await addImageBackedService(
     dbServiceName,
     dbImage,
     options,
@@ -30,7 +30,8 @@ export async function createDatabaseServiceWithVolume(
   try {
     await addDatabaseVolume(dbService, options);
   } catch (volumeError) {
-    return rollbackDatabaseService(dbService, volumeError, options);
+    await deleteIncompleteDatabaseService(dbService, volumeError, options);
+    throw volumeError;
   }
 
   return dbService;
@@ -43,20 +44,18 @@ export async function assertDatabaseServiceHasVolume(
     waspProjectDir: WaspProjectDir;
   },
 ): Promise<void> {
-  if (await hasDatabaseVolume(dbService, options)) {
-    return;
+  if (!(await hasDatabaseVolume(dbService, options))) {
+    throw new Error(
+      [
+        `Railway database service "${dbService.name}" (${dbService.id}) has no volume mounted at ${dbVolumeMountPath}.`,
+        "Mounting a volume there now would hide the database's existing data, so Wasp won't do it automatically.",
+        "Back up any existing data before changing the service in Railway. Then add the required volume and restore the backup, or remove the service before trying again.",
+      ].join("\n"),
+    );
   }
-
-  throw new Error(
-    [
-      `Railway database service "${dbService.name}" (${dbService.id}) has no volume mounted at ${databaseVolumeMountPath}.`,
-      "Mounting a volume there now would hide the database's existing data, so Wasp won't do it automatically.",
-      "Back up any existing data before changing the service in Railway. Then add the required volume and restore the backup, or remove the service before trying again.",
-    ].join("\n"),
-  );
 }
 
-async function createDatabaseService(
+async function addImageBackedService(
   dbServiceName: DbServiceName,
   dbImage: string,
   options: {
@@ -83,7 +82,7 @@ async function createDatabaseService(
         `POSTGRES_PASSWORD=${getRailwayEnvVarValueReference("secret()")}`,
       ],
       ...["--variables", "PORT=5432"],
-      ...["--variables", `PGDATA=${databasePgDataPath}`],
+      ...["--variables", `PGDATA=${dbPgDataPath}`],
       ...[
         "--variables",
         `DATABASE_URL=postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
@@ -112,11 +111,43 @@ async function addDatabaseVolume(
       "volume",
       ...["--service", dbService.id],
       "add",
-      ...["--mount-path", databaseVolumeMountPath],
+      ...["--mount-path", dbVolumeMountPath],
       "--json",
     ],
     { verbose: false },
   );
+}
+
+async function deleteIncompleteDatabaseService(
+  dbService: RailwayCliService,
+  volumeError: unknown,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
+): Promise<void> {
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    options.waspProjectDir,
+  );
+
+  try {
+    await railwayCli(
+      ["service", "delete", ...["--service", dbService.id], "--yes", "--json"],
+      { verbose: false },
+    );
+  } catch (cleanupError) {
+    throw new Error(
+      [
+        `Wasp couldn't finish setting up Railway database service "${dbService.name}" (${dbService.id}).`,
+        "Wasp also couldn't remove the incomplete service. Remove it from Railway before trying again.",
+        `Volume error: ${getErrorMessage(volumeError)}`,
+        `Cleanup error: ${getErrorMessage(cleanupError)}`,
+      ].join("\n"),
+    );
+  }
+
+  waspSays(`Removed incomplete database service "${dbService.name}".`);
 }
 
 async function hasDatabaseVolume(
@@ -138,43 +169,8 @@ async function hasDatabaseVolume(
   return services.some(
     (service) =>
       service.id === dbService.id &&
-      service.volumes.some(
-        (volume) => volume.mountPath === databaseVolumeMountPath,
-      ),
+      service.volumes.some((volume) => volume.mountPath === dbVolumeMountPath),
   );
-}
-
-async function rollbackDatabaseService(
-  dbService: RailwayCliService,
-  provisioningError: unknown,
-  options: {
-    railwayExe: RailwayCliExe;
-    waspProjectDir: WaspProjectDir;
-  },
-): Promise<never> {
-  const railwayCli = createCommandWithCwd(
-    options.railwayExe,
-    options.waspProjectDir,
-  );
-
-  try {
-    await railwayCli(
-      ["service", "delete", ...["--service", dbService.id], "--yes", "--json"],
-      { verbose: false },
-    );
-  } catch (rollbackError) {
-    throw new Error(
-      [
-        `Wasp couldn't finish setting up Railway database service "${dbService.name}" (${dbService.id}).`,
-        "Wasp also couldn't remove the incomplete service. Remove it from Railway before trying again.",
-        `Setup error: ${getErrorMessage(provisioningError)}`,
-        `Cleanup error: ${getErrorMessage(rollbackError)}`,
-      ].join("\n"),
-    );
-  }
-
-  waspSays(`Removed incomplete database service "${dbService.name}".`);
-  throw provisioningError;
 }
 
 function getErrorMessage(error: unknown): string {

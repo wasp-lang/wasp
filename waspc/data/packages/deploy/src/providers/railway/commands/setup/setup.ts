@@ -31,7 +31,7 @@ import {
 import { RailwayProject } from "../../railwayProject/RailwayProject.js";
 import {
   assertDatabaseServiceHasVolume,
-  createDatabaseServiceWithVolume,
+  createDatabaseService,
 } from "../../railwayService/database.js";
 import { waitForServiceDeploymentSuccess } from "../../railwayService/deployment.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
@@ -58,9 +58,7 @@ export async function setup(
 
   await ensureWaspProjectIsBuilt(options);
 
-  const dbService = project.services.find(
-    (service) => service.name === deploymentInstructions.dbServiceName,
-  );
+  const dbService = project.findService(deploymentInstructions.dbServiceName);
   if (dbService) {
     waspSays("Postgres service already exists. Skipping database creation.");
     await assertDatabaseServiceHasVolume(dbService, options);
@@ -136,7 +134,7 @@ async function setupDb({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up database using image: ${options.dbImage}`);
 
-  const dbService = await createDatabaseServiceWithVolume(
+  const dbService = await createDatabaseService(
     dbServiceName,
     options.dbImage,
     options,

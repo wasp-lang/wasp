@@ -54,7 +54,7 @@ class FlyCommand extends Command {
       )
       .option(
         "--db-image <dbImage>",
-        "Docker image for the PostgreSQL database",
+        "Fly Postgres Docker image",
         defaultDbImage,
       );
   }
