@@ -109,6 +109,10 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
 
           @@id([providerName, providerUserId])
+          // `AuthUserData.identities` is keyed by provider name, so at most one
+          // identity per provider can be attached to an `Auth`. The database
+          // enforces that instead of leaving it to a `.find()` in the SDK.
+          @@unique([authId, providerName])
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType
