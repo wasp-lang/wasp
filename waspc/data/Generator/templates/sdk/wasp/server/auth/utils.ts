@@ -278,21 +278,26 @@ export function sha256(value: string): string {
 }
 
 // PRIVATE API
+const ONE_TIME_TOKEN_CONSUME_RETRIES = 5;
+
+// PRIVATE API
 /**
  * Atomically consumes a one-time token (email verification / password reset).
  *
- * The outstanding-token check is embedded in the WHERE clause of a single
- * UPDATE statement (matching the JSON `providerData` fragment
- * `"<field>":"<sha256(token)>"`), so at most one concurrent request can claim
- * the token: once the winning request clears the field, any racing request's
- * WHERE no longer matches and is rejected (count === 0). Each token is globally
- * unique (minted with a random `jwtId`), and `field` selects the correct
- * purpose slot.
+ * This is an optimistic compare-and-set: the single `updateMany` only writes
+ * when the `providerData` value is byte-for-byte unchanged since it was read,
+ * so at most one concurrent request can claim a token, and a concurrent consume
+ * of the *other* purpose can't be overwritten (which would resurrect a consumed
+ * hash). If the write loses the race (the blob changed), we re-read the
+ * authoritative value and retry, up to `ONE_TIME_TOKEN_CONSUME_RETRIES`.
  *
- * `updates` are other provider-data changes applied atomically with the consume
- * (e.g. `isEmailVerified: true`, or a new raw password under `hashedPassword`,
- * which is hashed here). The already-stored password hash is left untouched, so
- * it is not re-hashed.
+ * Tokens are globally unique (minted with a random `jwtId`) and stored only as
+ * SHA-256 hashes; `field` selects the correct purpose slot.
+ *
+ * `updates` are other provider-data changes applied with the consume (e.g.
+ * `isEmailVerified: true`, or a new raw password under `hashedPassword`, which
+ * is hashed here). The already-stored password hash is left untouched, so it is
+ * not re-hashed.
  */
 export async function consumeOneTimeToken(
   providerId: ProviderId,
@@ -301,36 +306,45 @@ export async function consumeOneTimeToken(
   updates: Partial<PossibleProviderData['email']>,
   invalidTokenMessage: string,
 ): Promise<{= authIdentityEntityUpper =}> {
-  const authIdentity = await findAuthIdentity(providerId);
-  if (!authIdentity) {
-    throw new HttpError(400, invalidTokenMessage);
+  const tokenHash = sha256(token);
+
+  for (let attempt = 0; attempt < ONE_TIME_TOKEN_CONSUME_RETRIES; attempt++) {
+    const authIdentity = await findAuthIdentity(providerId);
+    if (!authIdentity) {
+      throw new HttpError(400, invalidTokenMessage);
+    }
+    const existingProviderData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
+
+    // Reject immediately if this is no longer the current outstanding token
+    // (already consumed, or superseded by a newly issued token).
+    if (existingProviderData[field] !== tokenHash) {
+      throw new HttpError(400, invalidTokenMessage);
+    }
+
+    // Only hash the password coming in via `updates` (if any) to avoid re-hashing
+    // the already-stored password hash. Mirrors `updateAuthIdentityProviderData`.
+    const hashedUpdates = await ensurePasswordIsHashed(updates);
+
+    const serializedProviderData = serializeProviderData<'email'>({
+      ...existingProviderData,
+      ...hashedUpdates,
+      [field]: null,
+    });
+
+    // Compare-and-set on the exact `providerData` value we read above. If any
+    // field changed concurrently, this matches 0 rows and we loop to re-read.
+    const result = await prisma.{= authIdentityEntityLower =}.updateMany({
+      where: {
+        providerName: providerId.providerName,
+        providerUserId: providerId.providerUserId,
+        providerData: authIdentity.providerData,
+      },
+      data: { providerData: serializedProviderData },
+    });
+    if (result.count === 1) {
+      return authIdentity;
+    }
   }
-  const existingProviderData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
 
-  // Only hash the password coming in via `updates` (if any) to avoid re-hashing
-  // the already-stored password hash. Mirrors `updateAuthIdentityProviderData`.
-  const hashedUpdates = await ensurePasswordIsHashed(updates);
-
-  const newProviderData = {
-    ...existingProviderData,
-    ...hashedUpdates,
-    [field]: null,
-  };
-  const serializedProviderData = serializeProviderData<'email'>(newProviderData);
-
-  // Compare-and-set: only update if the stored data still holds this exact
-  // outstanding token hash, and reject (count === 0) if it was already consumed
-  // or replaced by a newer token.
-  const result = await prisma.{= authIdentityEntityLower =}.updateMany({
-    where: {
-      providerName_providerUserId: providerId,
-      providerData: { contains: `"${field}":"${sha256(token)}"` },
-    },
-    data: { providerData: serializedProviderData },
-  });
-  if (result.count === 0) {
-    throw new HttpError(400, invalidTokenMessage);
-  }
-
-  return authIdentity;
+  throw new HttpError(400, invalidTokenMessage);
 }
