@@ -80,7 +80,12 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
 
 type UserFacingProviderData<PN extends ProviderName> = {
   id: string
-} & Omit<PossibleProviderData[PN], 'hashedPassword'>
+} & Omit<
+  PossibleProviderData[PN],
+  | 'hashedPassword'
+  | 'outstandingEmailVerificationToken'
+  | 'outstandingPasswordResetToken'
+>
 
 // PRIVATE API
 export type CompleteUserEntityWithAuth =

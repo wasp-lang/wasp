@@ -4,6 +4,19 @@ export type EmailProviderData = {
   isEmailVerified: boolean;
   emailVerificationSentAt: string | null;
   passwordResetSentAt: string | null;
+  /**
+   * SHA-256 hash of the most recently issued email verification token that
+   * hasn't been used yet. Present only while a token is outstanding and cleared
+   * once it is consumed, so each link/URL can be used at most once. We store the
+   * hash (not the raw token) so a leaked provider data doesn't expose usable
+   * tokens.
+   */
+  outstandingEmailVerificationToken?: string | null;
+  /**
+   * SHA-256 hash of the most recently issued password reset token that hasn't
+   * been used yet. Same semantics as `outstandingEmailVerificationToken`.
+   */
+  outstandingPasswordResetToken?: string | null;
 }
 
 // PUBLIC API
@@ -92,7 +105,12 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
 // PUBLIC API
 export function getProviderData<PN extends ProviderName>(
   providerData: string,
-):  Omit<PossibleProviderData[PN], 'hashedPassword'> {
+): Omit<
+  PossibleProviderData[PN],
+  | 'hashedPassword'
+  | 'outstandingEmailVerificationToken'
+  | 'outstandingPasswordResetToken'
+> {
   return sanitizeProviderData(getProviderDataWithPassword(providerData));
 }
 
@@ -106,9 +124,26 @@ export function getProviderDataWithPassword<PN extends ProviderName>(
 
 function sanitizeProviderData<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
-): Omit<PossibleProviderData[PN], 'hashedPassword'> {
+): Omit<
+  PossibleProviderData[PN],
+  | 'hashedPassword'
+  | 'outstandingEmailVerificationToken'
+  | 'outstandingPasswordResetToken'
+> {
   if (providerDataHasPasswordField(providerData)) {
-    const { hashedPassword, ...rest } = providerData;
+    // The provider stores a password (email or username). Besides the password
+    // hash, we also drop the outstanding one-time token hashes so that they
+    // never reach the client via `getProviderData`.
+    const {
+      hashedPassword,
+      outstandingEmailVerificationToken: _outstandingEmailVerificationToken,
+      outstandingPasswordResetToken: _outstandingPasswordResetToken,
+      ...rest
+    } = providerData as PossibleProviderData[PN] & {
+      hashedPassword: string;
+      outstandingEmailVerificationToken?: string | null;
+      outstandingPasswordResetToken?: string | null;
+    };
     return rest;
   } else {
     return providerData;
