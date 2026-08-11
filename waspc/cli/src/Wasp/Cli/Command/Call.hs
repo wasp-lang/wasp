@@ -16,7 +16,7 @@ data Call
   | Telemetry
   | Deps
   | Dockerfile
-  | Info
+  | Show Arguments
   | News
   | Studio
   | PrintBashCompletionInstruction

@@ -14,8 +14,6 @@ import System.Exit (ExitCode (ExitSuccess))
 import System.IO.Error (catchIOError, tryIOError)
 import qualified System.Info
 import System.Process (readProcessWithExitCode)
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import qualified Wasp.SemanticVersion as SV
@@ -50,8 +48,6 @@ checks =
     ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
     ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
     ("Docker", checkDocker >> return "running"),
-    makePortCheck "Client" WebApp.defaultClientPort,
-    makePortCheck "Server" Server.defaultServerPort,
     makePortCheck "Dev database" Dev.Postgres.defaultDevPort
   ]
   where
