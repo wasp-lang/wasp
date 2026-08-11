@@ -21,11 +21,7 @@ export async function createDatabaseService(
     waspProjectDir: WaspProjectDir;
   },
 ): Promise<RailwayCliService> {
-  const dbService = await addImageBackedService(
-    dbServiceName,
-    dbImage,
-    options,
-  );
+  const dbService = await addDatabaseService(dbServiceName, dbImage, options);
 
   try {
     await addDatabaseVolume(dbService, options);
@@ -55,7 +51,7 @@ export async function assertDatabaseServiceHasVolume(
   }
 }
 
-async function addImageBackedService(
+async function addDatabaseService(
   dbServiceName: DbServiceName,
   dbImage: string,
   options: {
