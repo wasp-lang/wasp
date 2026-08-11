@@ -42,11 +42,15 @@ makeBuildStartConfig appSpec args projectDir' = do
   when noEnvVarsSourcesSpecified $ throwError noEnvVarsSourcesSpecifiedMsg
 
   serverEnvVars <- liftIO $ resolveEnvVarSources args.serverEnvVarSources
+  clientEnvVars <- liftIO $ resolveEnvVarSources args.clientEnvVarSources
+
+  let serverLocation = Server.defaultDevServerLocation
+      clientLocation = WebApp.makeDefaultDevClientLocation appSpec
+
   serverRunConfig' <-
     either (throwOverriddenVarsError serverEnvVars) pure $
       makeServerRunConfig serverLocation (AL.url clientLocation) (toEnvVarList serverEnvVars)
 
-  clientEnvVars <- liftIO $ resolveEnvVarSources args.clientEnvVarSources
   clientRunConfig' <-
     either (throwOverriddenVarsError clientEnvVars) pure $
       makeClientRunConfig clientLocation (AL.url serverLocation) (toEnvVarList clientEnvVars)
