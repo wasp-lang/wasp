@@ -1,13 +1,13 @@
+import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
-import { DbServiceName } from "../brandedTypes.js";
+import { DbServiceName, RailwayCliExe } from "../brandedTypes.js";
 import { getRailwayEnvVarValueReference } from "../env.js";
 import {
   RailwayCliService,
   RailwayCliServiceListSchema,
   RailwayCliServiceSchema,
 } from "../jsonOutputSchemas.js";
-import { RailwayCliOptions } from "../railwayCli.js";
 
 const databaseVolumeMountPath = "/var/lib/postgresql/data";
 // PGDATA must be a subdirectory of the volume mount.
@@ -16,7 +16,10 @@ const databasePgDataPath = `${databaseVolumeMountPath}/pgdata`;
 export async function createDatabaseServiceWithVolume(
   dbServiceName: DbServiceName,
   dbImage: string,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<RailwayCliService> {
   const dbService = await createDatabaseService(
     dbServiceName,
@@ -41,7 +44,10 @@ export async function createDatabaseServiceWithVolume(
 
 export async function assertDatabaseServiceHasVolume(
   dbService: RailwayCliService,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<void> {
   if (await hasDatabaseVolume(dbService, options)) {
     return;
@@ -59,7 +65,10 @@ export async function assertDatabaseServiceHasVolume(
 async function createDatabaseService(
   dbServiceName: DbServiceName,
   dbImage: string,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<RailwayCliService> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
@@ -94,7 +103,10 @@ async function createDatabaseService(
 
 async function addDatabaseVolume(
   dbService: RailwayCliService,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<void> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
@@ -115,7 +127,10 @@ async function addDatabaseVolume(
 
 async function hasDatabaseVolume(
   dbService: RailwayCliService,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<boolean> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
@@ -138,7 +153,10 @@ async function hasDatabaseVolume(
 async function rollbackDatabaseService(
   dbService: RailwayCliService,
   provisioningError: unknown,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<never> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,

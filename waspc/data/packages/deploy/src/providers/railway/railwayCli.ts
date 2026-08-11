@@ -2,7 +2,6 @@ import { SemVer } from "semver";
 import { $ } from "zx";
 
 import { confirm } from "@inquirer/prompts";
-import { WaspProjectDir } from "../../common/brandedTypes.js";
 import {
   assertCliVersionMeetsMinimum,
   parseCliVersion,
@@ -12,11 +11,6 @@ import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
 // Wasp relies on the `--json` output added in Railway CLI 4.51.0.
 const minSupportedRailwayCliVersion = new SemVer("4.51.0");
-
-export type RailwayCliOptions = {
-  railwayExe: RailwayCliExe;
-  waspProjectDir: WaspProjectDir;
-};
 
 export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,

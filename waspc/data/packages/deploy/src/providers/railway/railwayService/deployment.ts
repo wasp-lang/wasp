@@ -1,13 +1,14 @@
 import { setTimeout } from "node:timers/promises";
 
+import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
+import { RailwayCliExe } from "../brandedTypes.js";
 import {
   DeploymentStatus,
   RailwayCliService,
   RailwayCliServiceStatusSchema,
 } from "../jsonOutputSchemas.js";
-import { RailwayCliOptions } from "../railwayCli.js";
 
 const POLL_INTERVAL_MS = 5_000;
 const TIMEOUT_MS = 5 * 60 * 1_000;
@@ -18,7 +19,10 @@ const FAILURE_STATUSES: DeploymentStatus[] = ["FAILED", "CRASHED"];
 
 export async function waitForServiceDeploymentSuccess(
   service: RailwayCliService,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<void> {
   const deadline = Date.now() + TIMEOUT_MS;
   while (Date.now() < deadline) {
@@ -48,7 +52,10 @@ export async function waitForServiceDeploymentSuccess(
 
 async function getLatestServiceDeploymentStatus(
   service: RailwayCliService,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<DeploymentStatus | null> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,

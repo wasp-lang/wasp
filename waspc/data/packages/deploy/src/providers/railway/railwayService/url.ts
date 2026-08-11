@@ -1,8 +1,13 @@
+import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspInfo } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
-import { ClientServiceName, Port, ServerServiceName } from "../brandedTypes.js";
+import {
+  ClientServiceName,
+  Port,
+  RailwayCliExe,
+  ServerServiceName,
+} from "../brandedTypes.js";
 import { RailwayCliDomainSchema } from "../jsonOutputSchemas.js";
-import { RailwayCliOptions } from "../railwayCli.js";
 
 export enum ServiceUrlStatus {
   URL_CREATED = "URL_CREATED",
@@ -12,7 +17,10 @@ export enum ServiceUrlStatus {
 export async function generateServiceUrl(
   serviceName: ClientServiceName | ServerServiceName,
   port: Port,
-  options: RailwayCliOptions,
+  options: {
+    railwayExe: RailwayCliExe;
+    waspProjectDir: WaspProjectDir;
+  },
 ): Promise<string> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
