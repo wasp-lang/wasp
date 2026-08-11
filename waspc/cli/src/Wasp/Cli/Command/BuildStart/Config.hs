@@ -17,6 +17,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
+import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
@@ -40,25 +41,27 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  userClientEnvVars <-
-    liftIO $ combineEnvVarsWithEnvFiles args.clientEnvironmentVariables args.clientEnvironmentFiles
   userServerEnvVars <-
-    liftIO $ combineEnvVarsWithEnvFiles args.serverEnvironmentVariables args.serverEnvironmentFiles
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.serverEnvironmentVariables args) (Args.serverEnvironmentFiles args)
+  userClientEnvVars <-
+    liftIO $
+      combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
   when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let clientLocation = WebApp.makeDefaultDevClientLocation appSpec
-      serverLocation = Server.defaultDevServerLocation
+  let serverLocation = Server.defaultDevServerLocation
+      clientLocation = WebApp.makeDefaultDevClientLocation appSpec
 
-  clientRunConfig' <- mapDuplicateEnvVarsError $ makeClientRunConfig clientLocation (AL.url serverLocation) userClientEnvVars
   serverRunConfig' <- mapDuplicateEnvVarsError $ makeServerRunConfig serverLocation (AL.url clientLocation) userServerEnvVars
+  clientRunConfig' <- mapDuplicateEnvVarsError $ makeClientRunConfig clientLocation (AL.url serverLocation) userClientEnvVars
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        clientRunConfig = clientRunConfig',
-        serverRunConfig = serverRunConfig'
+        serverRunConfig = serverRunConfig',
+        clientRunConfig = clientRunConfig'
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' appName
