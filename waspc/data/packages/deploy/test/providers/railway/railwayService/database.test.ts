@@ -107,12 +107,6 @@ describe("createDatabaseServiceWithVolume", () => {
     await expect(failedCreation).rejects.toThrow(rollbackError.message);
   });
 
-  test("continues when Railway created the volume before returning an error", async () => {
-    mockFailedVolumeCreation([databaseVolumeMountPath]);
-
-    await expect(createDatabase()).resolves.toEqual(dbService);
-    expect(mocks.railwayCli).toHaveBeenCalledTimes(3);
-  });
 });
 
 describe("assertDatabaseServiceHasVolume", () => {
@@ -149,11 +143,10 @@ function createDatabase() {
   );
 }
 
-function mockFailedVolumeCreation(mountPaths: string[] = []): void {
+function mockFailedVolumeCreation(): void {
   mocks.railwayCli
     .mockResolvedValueOnce(jsonResult(dbService))
-    .mockRejectedValueOnce(volumeError)
-    .mockResolvedValueOnce(jsonResult([withVolumes(dbService, mountPaths)]));
+    .mockRejectedValueOnce(volumeError);
 }
 
 function withVolumes(service: RailwayCliService, mountPaths: string[] = []) {

@@ -30,12 +30,6 @@ export async function createDatabaseServiceWithVolume(
   try {
     await addDatabaseVolume(dbService, options);
   } catch (volumeError) {
-    // In case the volume was created despite the reported failure, confirm
-    // it's really missing before tearing the service down.
-    if (await hasDatabaseVolume(dbService, options).catch(() => false)) {
-      return dbService;
-    }
-
     return rollbackDatabaseService(dbService, volumeError, options);
   }
 
