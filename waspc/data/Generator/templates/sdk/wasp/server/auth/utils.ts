@@ -72,20 +72,61 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   existingProviderData: PossibleProviderData[PN],
   providerDataUpdates: Partial<PossibleProviderData[PN]>,
 ): Promise<{= authIdentityEntityUpper =}> {
-  // We are doing the sanitization here only on updates to avoid
-  // hashing the password multiple times.
+  // We do the sanitization here only on updates, and early (before the retry
+  // loop) so the retries below never hash the password a second time.
   const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
-  const newProviderData = {
-    ...existingProviderData,
-    ...sanitizedProviderDataUpdates,
+
+  // `providerData` is the shared, mutable state of an auth identity, and several
+  // flows (token issuance, send-metadata, email verification, password reset)
+  // read-modify-write the same blob. Persisting a whole blob built from a
+  // snapshot can silently overwrite a change another flow just committed (e.g.
+  // restoring a just-consumed token hash, or the old password hash). We therefore
+  // write the full blob with an optimistic compare-and-set: only write when it is
+  // unchanged since it was read, and otherwise re-read the authoritative value,
+  // re-apply our own updates, and retry (bounded).
+  const RETRIES = 5;
+  // The caller's snapshot is the optimistic baseline; on a conflict we fall back
+  // to a fresh read so a concurrent change is never overwritten.
+  let providerData = existingProviderData;
+  let serializedProviderData = serializeProviderData<PN>(providerData);
+
+  for (let attempt = 0; attempt < RETRIES; attempt++) {
+    const newProviderData: PossibleProviderData[PN] = {
+      ...providerData,
+      ...sanitizedProviderDataUpdates,
+    };
+    const newSerializedProviderData = serializeProviderData<PN>(newProviderData);
+
+    const result = await prisma.{= authIdentityEntityLower =}.updateMany({
+      where: {
+        providerName: providerId.providerName,
+        providerUserId: providerId.providerUserId,
+        providerData: serializedProviderData,
+      },
+      data: { providerData: newSerializedProviderData },
+    });
+    if (result.count === 1) {
+      // updateMany doesn't return the row; re-read it so callers get the updated
+      // identity.
+      const updated = await findAuthIdentity(providerId);
+      if (updated === null) {
+        throw new HttpError(500, 'Auth identity not found after update');
+      }
+      return updated;
+    }
+
+    // Lost the race: providerData changed after we read it. Re-read the
+    // authoritative value and retry, applying our updates on top of it so the
+    // concurrent change is preserved.
+    const fresh = await findAuthIdentity(providerId);
+    if (fresh === null) {
+      throw new HttpError(404, 'Auth identity not found');
+    }
+    providerData = getProviderDataWithPassword<PN>(fresh.providerData);
+    serializedProviderData = fresh.providerData;
   }
-  const serializedProviderData = await serializeProviderData<PN>(newProviderData);
-  return prisma.{= authIdentityEntityLower =}.update({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    data: { providerData: serializedProviderData },
-  });
+
+  throw new HttpError(409, 'Failed to update auth identity provider data');
 }
 
 // PRIVATE API
