@@ -4,32 +4,34 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
   )
 where
 
-import Data.Traversable (for)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.EnvVarArgument (envVarReader)
 import Wasp.Cli.Util.EnvVarInputs (EnvVarInput (..))
 import Wasp.Cli.Util.PathArgument (filePathReader)
-import Wasp.Cli.Util.PortArgument (servicePortsParser)
-import Wasp.Project.PerService (PerService)
-import qualified Wasp.Project.PerService as PerService
+import Wasp.Cli.Util.PortArgument (portOption)
 
 data BuildStartArgs = BuildStartArgs
-  { envVarInputs :: PerService [EnvVarInput],
-    ports :: PerService (Maybe PortNumber)
+  { clientEnvVarInputs :: [EnvVarInput],
+    serverEnvVarInputs :: [EnvVarInput],
+    clientPort :: Maybe PortNumber,
+    serverPort :: Maybe PortNumber
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
-    <$> envVarInputsParser
-    <*> servicePortsParser
+    <$> makeEnvVarInputsParser "client" 'c'
+    <*> makeEnvVarInputsParser "server" 's'
+    <*> portOption "client-port" "Port to run the client on"
+    <*> portOption "server-port" "Port to run the server on"
   where
-    envVarInputsParser = for PerService.names $ \name ->
+    makeEnvVarInputsParser :: String -> Char -> Opt.Parser [EnvVarInput]
+    makeEnvVarInputsParser targetName shortOptionName =
       liftA2
         (<>)
-        (Opt.many $ makeEnvironmentVariableParser name (name ++ "-env") (head name))
-        (Opt.many $ makeEnvironmentFileParser name (name ++ "-env-file"))
+        (Opt.many $ makeEnvironmentVariableParser targetName (targetName ++ "-env") shortOptionName)
+        (Opt.many $ makeEnvironmentFileParser targetName (targetName ++ "-env-file"))
 
     makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser EnvVarInput
     makeEnvironmentVariableParser targetName longOptionName shortOptionName =

@@ -9,51 +9,52 @@ where
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
 import Data.Char (toLower)
-import Network.Socket (PortNumber)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Services (devEnvVars, devUrls)
 import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import qualified Wasp.Cli.Util.PortArgument as PortArgument
 import Wasp.Env (EnvVar)
+import qualified Wasp.Generator.Client as Client
 import Wasp.Generator.Common (GeneratedAppDir)
+import qualified Wasp.Generator.Server as Server
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
-import Wasp.Project.PerService (PerService)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    ports :: PerService PortNumber,
-    urls :: PerService String,
-    envVars :: PerService [EnvVar],
+    client :: Client.ClientRunConfig,
+    server :: Server.ServerRunConfig,
+    clientEnvVars :: [EnvVar],
+    serverEnvVars :: [EnvVar],
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  when (all null args.envVarInputs) $ throwError noEnvVarsSpecifiedMsg
+  when (null args.clientEnvVarInputs && null args.serverEnvVarInputs) $ throwError noEnvVarsSpecifiedMsg
 
-  ports <- PortArgument.resolveAppPorts args.ports
+  (clientPort, serverPort) <- PortArgument.resolveAppPorts args.clientPort args.serverPort
+  let (client', server') = makeDevRunConfigs appSpec clientPort serverPort
 
-  let urls = devUrls appSpec ports
-      waspEnvVars = devEnvVars ports urls
-
-  envVars <- sequence $ resolveEnvVarInputs projectDir' <$> waspEnvVars <*> args.envVarInputs
+  clientEnvVars' <- resolveEnvVarInputs projectDir' (Client.devEnvVars client') args.clientEnvVarInputs
+  serverEnvVars' <- resolveEnvVarInputs projectDir' (Server.devEnvVars server') args.serverEnvVarInputs
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
+        client = client',
+        server = server',
+        clientEnvVars = clientEnvVars',
+        serverEnvVars = serverEnvVars',
         buildDir = buildDir',
-        projectDir = projectDir',
-        ports = ports,
-        urls = urls,
-        envVars = envVars
+        projectDir = projectDir'
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' appName

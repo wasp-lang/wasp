@@ -676,7 +676,8 @@ spec_AppSpecValid = do
               },
           AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,
-          AS.devEnvVars = pure [],
+          AS.devEnvVarsClient = [],
+          AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.devDatabaseUrl = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|]

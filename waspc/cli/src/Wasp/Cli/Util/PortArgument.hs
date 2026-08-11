@@ -1,6 +1,5 @@
 module Wasp.Cli.Util.PortArgument
   ( resolveAppPorts,
-    servicePortsParser,
     portOption,
   )
 where
@@ -10,20 +9,12 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List ((\\))
 import Data.Maybe (catMaybes, isJust)
-import Data.Traversable (for)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Services (defaultDevPorts)
-import Wasp.Project.PerService (PerService (..))
-import qualified Wasp.Project.PerService as PerService
+import qualified Wasp.Generator.Client as Client
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as S
-
-servicePortsParser :: Opt.Parser (PerService (Maybe PortNumber))
-servicePortsParser =
-  for PerService.names $ \name ->
-    portOption (name ++ "-port") ("Port to run the " ++ name ++ " on")
 
 portOption :: String -> String -> Opt.Parser (Maybe PortNumber)
 portOption optionName helpText =
@@ -41,27 +32,27 @@ portOption optionName helpText =
     rejectAnyPort 0 = Opt.readerError "0 is not a valid port"
     rejectAnyPort port = return port
 
-resolveAppPorts :: PerService (Maybe PortNumber) -> Command (PerService PortNumber)
-resolveAppPorts requestedPorts = do
-  let portsAreTheSame = isJust requestedPorts.client && (requestedPorts.client == requestedPorts.server)
+resolveAppPorts :: Maybe PortNumber -> Maybe PortNumber -> Command (PortNumber, PortNumber)
+resolveAppPorts requestedClientPort requestedServerPort = do
+  let portsAreTheSame = isJust requestedClientPort && (requestedClientPort == requestedServerPort)
   when portsAreTheSame $ throwResolvingError "The client and the server can't both run on the same port."
 
   resolvedClientPort <-
     resolvePort
-      requestedPorts.client
-      defaultDevPorts.client
-      (catMaybes [requestedPorts.server])
+      requestedClientPort
+      Client.defaultPort
+      (catMaybes [requestedServerPort])
 
   resolvedServerPort <-
     resolvePort
-      requestedPorts.server
+      requestedServerPort
       -- We already know all ports lower than the client port are taken, so we
       -- can start looking for a free port from the next one. This also has the
       -- nice effect of keeping the server port close to the client port.
       (resolvedClientPort + 1)
-      (catMaybes [requestedPorts.client])
+      (catMaybes [requestedClientPort])
 
-  return $ PerService resolvedClientPort resolvedServerPort
+  return (resolvedClientPort, resolvedServerPort)
   where
     resolvePort (Just port) _ _ = do
       whenM (liftIO $ isLocalPortTaken port) $ do

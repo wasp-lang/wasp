@@ -244,6 +244,7 @@ library
     Wasp.Generator.AuthProviders.Email
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.OAuth
+    Wasp.Generator.Client
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -302,6 +303,7 @@ library
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
+    Wasp.Generator.Server
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
@@ -376,7 +378,6 @@ library
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
-    Wasp.Project.PerService
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -464,6 +465,7 @@ library cli-lib
     http-conduit,
     lens,
     lens-aeson ^>=1.2.3,
+    lukko ^>=0.1.2,
     mtl,
     neat-interpolation,
     network,
@@ -484,6 +486,7 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
+    Wasp.Cli.AppComponents
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -517,6 +520,7 @@ library cli-lib
     Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
+    Wasp.Cli.Command.LockedProject
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
@@ -545,7 +549,7 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
-    Wasp.Cli.Services
+    Wasp.Cli.ProjectLock
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.EnvVarInputs
@@ -678,6 +682,7 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
+    filepath,
     hspec,
     QuickCheck,
     strong-path,
@@ -691,6 +696,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     Paths_waspc
     TerminalTest
+    Wasp.Cli.AppComponentsTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
@@ -753,6 +759,7 @@ test-suite waspc-e2e-tests
     Tests.WaspInfoTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspProjectLockTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest

@@ -16,6 +16,7 @@ import Data.Either (fromLeft)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
+import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -49,7 +50,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Finally, throws if there was a compile/build error.
 -- Very similar to 'compile'.
 build :: Command ()
-build = do
+build = withLockedProject $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require

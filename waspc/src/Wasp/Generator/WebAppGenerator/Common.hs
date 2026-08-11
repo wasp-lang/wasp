@@ -1,22 +1,17 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
-    getDevClientUrl,
     clientDevPortEnvVarName,
     serverUrlEnvVarName,
-    getDevClientEnvVars,
   )
 where
 
 import Data.Maybe (fromMaybe)
-import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path, Posix, absdirP)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Env (EnvVar)
-import Wasp.Project.PerService (PerService (..))
 
 getBaseDir :: AppSpec -> Path Posix Abs (Dir ())
 getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
@@ -28,12 +23,3 @@ serverUrlEnvVarName = "REACT_APP_API_URL"
 
 clientDevPortEnvVarName :: String
 clientDevPortEnvVarName = "PORT"
-
-getDevClientUrl :: AppSpec -> PortNumber -> String
-getDevClientUrl spec port = "http://localhost:" ++ show port ++ SP.fromAbsDirP (getBaseDir spec)
-
-getDevClientEnvVars :: PortNumber -> PerService String -> [EnvVar]
-getDevClientEnvVars clientPort urls =
-  [ (clientDevPortEnvVarName, show clientPort),
-    (serverUrlEnvVarName, urls.server)
-  ]
