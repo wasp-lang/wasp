@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
 import {
     createProviderId,
-    findAuthIdentity,
-    updateAuthIdentityProviderData,
-    getProviderDataWithPassword,
-    sha256,
+    consumeOneTimeToken,
 } from 'wasp/server/auth/utils';
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
@@ -18,34 +15,28 @@ export async function resetPassword(
     ensureValidArgs(args);
 
     const { token, password } = args;
-    const { email } = await validateJWT<{ email: string }>(token)
+    const { email, purpose } = await validateJWT<{ email: string; purpose: string }>(token)
         .catch(() => {
             throw new HttpError(400, "Password reset failed, invalid token");
         });
 
+    // Only a token minted for password reset is accepted here.
+    if (purpose !== 'reset') {
+        throw new HttpError(400, "Password reset failed, invalid token");
+    }
+
     const providerId = createProviderId('email', email);
-    const authIdentity = await findAuthIdentity(providerId);
-    if (!authIdentity) {
-        throw new HttpError(400, "Password reset failed, invalid token");
-    }
 
-    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-
-    // The token must match the currently outstanding (unused) password reset
-    // token. This makes each password reset link one-time use only.
-    if (providerData.outstandingPasswordResetToken !== sha256(token)) {
-        throw new HttpError(400, "Password reset failed, invalid token");
-    }
-
-    await updateAuthIdentityProviderData(providerId, providerData, {
-        // The act of resetting the password verifies the email
-        isEmailVerified: true,
-        // Consume the token so the same link can't be used again.
-        outstandingPasswordResetToken: null,
-        // The password will be hashed when saving the providerData
-        // in the DB
-        hashedPassword: password,
-    });
+    // Atomically check + consume the token (one-time use only, even under
+    // concurrent requests). Throws if the token is invalid or already used.
+    // The new password is hashed when the provider data is persisted.
+    await consumeOneTimeToken(
+        providerId,
+        'outstandingPasswordResetToken',
+        token,
+        { isEmailVerified: true, hashedPassword: password },
+        "Password reset failed, invalid token",
+    );
 
     res.json({ success: true });
 };

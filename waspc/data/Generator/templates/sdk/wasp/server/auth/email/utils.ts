@@ -1,4 +1,5 @@
 {{={= =}=}}
+import { randomUUID } from "node:crypto";
 import { createJWT, TimeSpan } from '../jwt.js'
 import { emailSender } from '../../email/index.js';
 import { Email } from '../../email/core/types.js';
@@ -18,7 +19,7 @@ export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,
 ): Promise<string> {
-  const { jwtToken } = await createEmailJWT(email);
+  const { jwtToken } = await createEmailJWT(email, 'verify');
   // Record this token as the outstanding (unused) email verification token so
   // that it can only be used once. Issuing a new token invalidates the previous
   // one, since there is only a single outstanding slot.
@@ -31,15 +32,24 @@ export async function createPasswordResetLink(
   email: string,
   clientRoute: string,
 ): Promise<string>  {
-  const { jwtToken } = await createEmailJWT(email);
+  const { jwtToken } = await createEmailJWT(email, 'reset');
   // Record this token as the outstanding (unused) password reset token so that
   // it can only be used once. Issuing a new token invalidates the previous one.
   await setOutstandingEmailToken(email, jwtToken, 'outstandingPasswordResetToken');
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
-async function createEmailJWT(email: string): Promise<{ jwtToken: string; }> {
-  const jwtToken = await createJWT({ email }, { expiresIn: new TimeSpan(30, "m") });
+type EmailTokenPurpose = 'verify' | 'reset';
+
+// A token is globally unique (via a random `jwtId`) and bound to a single
+// purpose (`verify` or `reset`). This prevents two tokens minted in the same
+// second from colliding, and stops a verification token from being used to
+// reset a password (and vice versa).
+async function createEmailJWT(email: string, purpose: EmailTokenPurpose): Promise<{ jwtToken: string; }> {
+  const jwtToken = await createJWT(
+    { email, purpose },
+    { expiresIn: new TimeSpan(30, "m"), jwtId: randomUUID() },
+  );
   return { jwtToken };
 }
 
