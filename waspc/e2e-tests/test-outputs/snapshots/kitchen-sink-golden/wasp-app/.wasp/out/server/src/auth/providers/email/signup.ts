@@ -91,7 +91,7 @@ export function getSignupRoute({
       // we are not checking if the email was sent or not!
       const { isResendAllowed, timeLeft } = isEmailResendAllowed(
         providerData,
-        'passwordResetSentAt',
+        'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
         throw new HttpError(
