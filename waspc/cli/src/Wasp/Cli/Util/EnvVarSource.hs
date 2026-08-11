@@ -21,13 +21,6 @@ resolveEnvVarFile filePath =
   ("file " ++ showFilePathArgument filePath,)
     <$> (parseDotEnvFile =<< getFilePath filePath)
 
-resolveEnvVarProjectFile :: Path' Abs (Dir WaspProjectDir) -> Path' (Rel WaspProjectDir) File' -> IO EnvVarSource
-resolveEnvVarProjectFile projectDir filePath =
-  (SP.fromRelFile filePath,)
-    <$> ( maybe (return []) parseDotEnvFile
-            =<< findFileInWaspProjectDir projectDir filePath
-        )
-
 throwOverriddenVarsError :: [EnvVarSource] -> [EnvVarName] -> Command a
 throwOverriddenVarsError sources overriddenNames =
   throwError $
