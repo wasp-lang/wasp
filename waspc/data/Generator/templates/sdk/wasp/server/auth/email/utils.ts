@@ -7,6 +7,7 @@ import {
   updateAuthIdentityProviderData,
   findAuthIdentity,
   getProviderDataWithPassword,
+  sha256,
   type EmailProviderData,
 } from '../utils.js';
 import { config as waspServerConfig } from '../../index.js';
@@ -18,6 +19,10 @@ export async function createEmailVerificationLink(
   clientRoute: string,
 ): Promise<string> {
   const { jwtToken } = await createEmailJWT(email);
+  // Record this token as the outstanding (unused) email verification token so
+  // that it can only be used once. Issuing a new token invalidates the previous
+  // one, since there is only a single outstanding slot.
+  await setOutstandingEmailToken(email, jwtToken, 'outstandingEmailVerificationToken');
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
@@ -27,12 +32,35 @@ export async function createPasswordResetLink(
   clientRoute: string,
 ): Promise<string>  {
   const { jwtToken } = await createEmailJWT(email);
+  // Record this token as the outstanding (unused) password reset token so that
+  // it can only be used once. Issuing a new token invalidates the previous one.
+  await setOutstandingEmailToken(email, jwtToken, 'outstandingPasswordResetToken');
   return `${waspServerConfig.frontendUrl}${clientRoute}?token=${jwtToken}`;
 }
 
 async function createEmailJWT(email: string): Promise<{ jwtToken: string; }> {
   const jwtToken = await createJWT({ email }, { expiresIn: new TimeSpan(30, "m") });
   return { jwtToken };
+}
+
+// Stores the SHA-256 hash of the freshly issued one-time token in the user's
+// provider data. We store the hash (not the raw token) so a leaked provider
+// data doesn't expose usable tokens. Overwriting the field invalidates any
+// previously issued token for the same purpose.
+async function setOutstandingEmailToken(
+  email: string,
+  token: string,
+  field: 'outstandingEmailVerificationToken' | 'outstandingPasswordResetToken',
+): Promise<void> {
+  const providerId = createProviderId('email', email);
+  const authIdentity = await findAuthIdentity(providerId);
+  if (!authIdentity) {
+    return;
+  }
+  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
+  await updateAuthIdentityProviderData<'email'>(providerId, providerData, {
+    [field]: sha256(token),
+  });
 }
 
 // PUBLIC API
