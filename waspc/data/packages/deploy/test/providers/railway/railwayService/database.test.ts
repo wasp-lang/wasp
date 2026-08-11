@@ -47,6 +47,43 @@ describe("createDatabaseService", () => {
     ).resolves.toEqual(dbService);
 
     expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
+    expect(mocks.railwayCli).toHaveBeenNthCalledWith(
+      1,
+      [
+        "add",
+        "--service",
+        dbServiceName,
+        "--image",
+        dbImage,
+        "--variables",
+        "POSTGRES_DB=railway",
+        "--variables",
+        "POSTGRES_USER=postgres",
+        "--variables",
+        "POSTGRES_PASSWORD=${{secret()}}",
+        "--variables",
+        "PORT=5432",
+        "--variables",
+        `PGDATA=${dbVolumeMountPath}/pgdata`,
+        "--variables",
+        "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
+        "--json",
+      ],
+      { verbose: false },
+    );
+    expect(mocks.railwayCli).toHaveBeenNthCalledWith(
+      2,
+      [
+        "volume",
+        "--service",
+        dbService.id,
+        "add",
+        "--mount-path",
+        dbVolumeMountPath,
+        "--json",
+      ],
+      { verbose: false },
+    );
   });
 
   test("deletes the incomplete service when adding the volume fails", async () => {
@@ -96,13 +133,9 @@ describe("assertDatabaseServiceHasVolume", () => {
     ).resolves.toBeUndefined();
   });
 
-  test("throws when only another service with the same name has the volume", async () => {
-    const otherService = { id: "other-service-id", name: dbServiceName };
+  test("throws when the service has no volume", async () => {
     mocks.railwayCli.mockResolvedValueOnce(
-      jsonResult([
-        { ...otherService, volumes: [{ mountPath: dbVolumeMountPath }] },
-        { ...dbService, volumes: [] },
-      ]),
+      jsonResult([{ ...dbService, volumes: [] }]),
     );
 
     await expect(
