@@ -16,7 +16,7 @@ To deploy to Railway using Wasp CLI:
 
 1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account,
 
-1. Install the [`railway` CLI](https://docs.railway.com/guides/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli) on your machine.
+1. Install the [`railway` CLI](https://docs.railway.com/guides/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli) (version `4.51.0` or newer) on your machine.
 
 ## Deploying
 
@@ -40,6 +40,8 @@ The project name is used as a base for your server and client service names on R
 
 - `my-wasp-app-client`
 - `my-wasp-app-server`
+
+The database service is always named `Postgres`, regardless of the project name.
 
 <LaunchCommandEnvVars />
 
@@ -198,7 +200,7 @@ The project name is used as a base for your server and client service names on R
 - `<project-name>-client`
 - `<project-name>-server`
 
-Railway also creates a PostgreSQL database service.
+Railway also creates a PostgreSQL database service named `Postgres`.
 
 <CustomPostgresOption command="setup" />
 

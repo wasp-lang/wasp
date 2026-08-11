@@ -17,6 +17,7 @@ vi.mock("../../../../src/common/terminal.js", () => ({
   waspSays: vi.fn(),
 }));
 
+import { RailwayCliService } from "../../../../src/providers/railway/jsonOutputSchemas.js";
 import {
   assertDatabaseServiceHasVolume,
   createDatabaseServiceWithVolume,
@@ -36,6 +37,57 @@ beforeEach(() => {
 });
 
 describe("createDatabaseServiceWithVolume", () => {
+  test("creates the service with Postgres variables and adds a volume", async () => {
+    mocks.railwayCli
+      .mockResolvedValueOnce(jsonResult(dbService))
+      .mockResolvedValueOnce(jsonResult({}));
+
+    await expect(createDatabase()).resolves.toEqual(dbService);
+
+    expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
+    expect(mocks.railwayCli).toHaveBeenNthCalledWith(
+      1,
+      [
+        "add",
+        "--service",
+        dbServiceName,
+        "--image",
+        "postgres-image",
+        "--variables",
+        "POSTGRES_DB=railway",
+        "--variables",
+        "POSTGRES_USER=postgres",
+        "--variables",
+        "POSTGRES_PASSWORD=${{secret()}}",
+        "--variables",
+        "PORT=5432",
+        "--variables",
+        `PGDATA=${databaseVolumeMountPath}/pgdata`,
+        "--variables",
+        "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
+        "--json",
+      ],
+      { verbose: false },
+    );
+  });
+
+  test("removes the service when Railway ignores the requested service name", async () => {
+    const renamedService = { id: "service-id", name: "some-other-name" };
+    mocks.railwayCli
+      .mockResolvedValueOnce(jsonResult(renamedService))
+      .mockResolvedValueOnce(jsonResult({}));
+
+    await expect(createDatabase()).rejects.toThrow(
+      `Railway created database service "${renamedService.name}" instead of "${dbServiceName}"`,
+    );
+
+    expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
+    expect(mocks.railwayCli).toHaveBeenLastCalledWith(
+      ["service", "delete", "--service", renamedService.id, "--yes", "--json"],
+      { verbose: false },
+    );
+  });
+
   test("removes the newly created service when volume creation fails", async () => {
     mockFailedVolumeCreation();
     mocks.railwayCli.mockResolvedValueOnce(jsonResult(dbService));
@@ -61,23 +113,36 @@ describe("createDatabaseServiceWithVolume", () => {
     );
   });
 
-  test("reports the service ID when volume creation and cleanup both fail", async () => {
+  test("reports both errors and the service ID when volume creation and cleanup both fail", async () => {
     const rollbackError = new Error("Failed to delete service");
     mockFailedVolumeCreation();
     mocks.railwayCli.mockRejectedValueOnce(rollbackError);
 
-    await expect(createDatabase()).rejects.toThrow(dbService.id);
+    const failedCreation = createDatabase();
+    await expect(failedCreation).rejects.toThrow(dbService.id);
+    await expect(failedCreation).rejects.toThrow(volumeError.message);
+    await expect(failedCreation).rejects.toThrow(rollbackError.message);
   });
 
   test("continues when Railway created the volume before returning an error", async () => {
     mockFailedVolumeCreation([databaseVolumeMountPath]);
 
-    await expect(createDatabase()).resolves.toBeUndefined();
+    await expect(createDatabase()).resolves.toEqual(dbService);
     expect(mocks.railwayCli).toHaveBeenCalledTimes(3);
   });
 });
 
 describe("assertDatabaseServiceHasVolume", () => {
+  test("passes when the service has the required volume", async () => {
+    mocks.railwayCli.mockResolvedValueOnce(
+      jsonResult([withVolumes(dbService, [databaseVolumeMountPath])]),
+    );
+
+    await expect(
+      assertDatabaseServiceHasVolume(dbService, options),
+    ).resolves.toBeUndefined();
+  });
+
   test("rejects the exact service when only another service has the volume", async () => {
     const otherService = { id: "other-service-id", name: dbServiceName };
     mocks.railwayCli.mockResolvedValueOnce(
@@ -93,7 +158,7 @@ describe("assertDatabaseServiceHasVolume", () => {
   });
 });
 
-function createDatabase(): Promise<void> {
+function createDatabase() {
   return createDatabaseServiceWithVolume(
     dbServiceName,
     "postgres-image",
@@ -108,7 +173,7 @@ function mockFailedVolumeCreation(mountPaths: string[] = []): void {
     .mockResolvedValueOnce(jsonResult([withVolumes(dbService, mountPaths)]));
 }
 
-function withVolumes(service: typeof dbService, mountPaths: string[] = []) {
+function withVolumes(service: RailwayCliService, mountPaths: string[] = []) {
   return {
     ...service,
     volumes: mountPaths.map((mountPath) => ({ mountPath })),
@@ -116,5 +181,9 @@ function withVolumes(service: typeof dbService, mountPaths: string[] = []) {
 }
 
 function jsonResult(value: unknown) {
-  return { stdout: JSON.stringify(value) };
+  return {
+    stdout: JSON.stringify(value),
+    exitCode: 0,
+    json: () => value,
+  };
 }

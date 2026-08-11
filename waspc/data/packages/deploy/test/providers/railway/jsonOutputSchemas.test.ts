@@ -2,14 +2,13 @@ import { describe, expect, test } from "vitest";
 import {
   RailwayCliDomainSchema,
   RailwayCliProjectSchema,
-  RailwayCliProjectStatusSchema,
+  RailwayCliServiceStatusSchema,
   RailwayProjectListSchema,
 } from "../../../src/providers/railway/jsonOutputSchemas.js";
 import {
   cliProjectWithServices,
   cliProjectWithoutServices,
 } from "./fixtures/railwayCliProject.js";
-import { cliProjectStatus } from "./fixtures/railwayCliProjectStatus.js";
 
 describe("RailwayCliDomainSchema", () => {
   test("parses new format with domains array", () => {
@@ -50,10 +49,13 @@ describe("RailwayCliProjectSchema", () => {
   });
 });
 
-describe("RailwayCliProjectStatusSchema", () => {
-  test("parses CLI output with instances under environments", () => {
-    const result = RailwayCliProjectStatusSchema.parse(cliProjectStatus);
-    expect(result.environments.edges).toHaveLength(1);
+describe("RailwayCliServiceStatusSchema", () => {
+  test("treats a missing or unknown status as not ready", () => {
+    expect(RailwayCliServiceStatusSchema.parse({}).status).toBeNull();
+    expect(
+      RailwayCliServiceStatusSchema.parse({ status: "BRAND_NEW_STATUS" })
+        .status,
+    ).toBeNull();
   });
 });
 

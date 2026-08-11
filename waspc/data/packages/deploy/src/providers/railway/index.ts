@@ -14,7 +14,8 @@ import {
 } from "./railwayCli.js";
 import { retryOnRailwayAPIError } from "./retry.js";
 
-// Keep this Postgres major in sync with Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
+// Pinned to the same Postgres major as Wasp's dev database. Keep in sync with
+// Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
 const defaultDbImage = "ghcr.io/railwayapp-templates/postgres-ssl:18";
 
 class RailwayCommand extends Command {

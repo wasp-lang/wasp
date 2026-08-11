@@ -13,7 +13,10 @@ import { ContextOption } from "./CommonOps.js";
 import { assertRegionIsValid, ensureFlyReady } from "./flyCli.js";
 import { assertFlyTomlDirIsAbsoluteAndPresent } from "./tomlFile.js";
 
-// Keep this Postgres major in sync with Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
+// Pinned to the same Postgres major as Wasp's dev database (keep in sync with
+// Wasp.Db.Postgres.defaultPostgresDockerImageSpec). Without an explicit image,
+// flyctl uses a server-side default that Fly can bump across majors
+// (wasp-lang/wasp#4564). Major tag only: Fly re-pushes minor tags in place.
 const defaultDbImage = "flyio/postgres-flex:18";
 
 class FlyCommand extends Command {

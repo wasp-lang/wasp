@@ -42,6 +42,7 @@ export const serviceNameSuffixes: Record<ServiceWithSuffixedName, string> = {
 };
 
 export function createRailwayDbServiceName(): DbServiceName {
-  // Railway doesn't allow us to choose the database service name.
+  // Unlike the client and server services, the database service name isn't
+  // derived from the project name.
   return "Postgres" as DbServiceName;
 }

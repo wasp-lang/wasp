@@ -2,6 +2,7 @@ import { SemVer } from "semver";
 import { $ } from "zx";
 
 import { confirm } from "@inquirer/prompts";
+import { WaspProjectDir } from "../../common/brandedTypes.js";
 import {
   assertCliVersionMeetsMinimum,
   parseCliVersion,
@@ -9,7 +10,15 @@ import {
 import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
 import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
+// Wasp needs the machine-readable (`--json`) output that Railway CLI 4.51.0
+// added to the commands it runs (`add`, `service list/status/delete`,
+// `volume add`): https://github.com/railwayapp/cli/releases/tag/v4.51.0
 const minSupportedRailwayCliVersion = new SemVer("4.51.0");
+
+export type RailwayCliOptions = {
+  railwayExe: RailwayCliExe;
+  waspProjectDir: WaspProjectDir;
+};
 
 export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,

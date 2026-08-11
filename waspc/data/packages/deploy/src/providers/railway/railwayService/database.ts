@@ -1,27 +1,26 @@
-import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
-import { DbServiceName, RailwayCliExe } from "../brandedTypes.js";
+import { DbServiceName } from "../brandedTypes.js";
 import { getRailwayEnvVarValueReference } from "../env.js";
 import {
   RailwayCliService,
   RailwayCliServiceListSchema,
   RailwayCliServiceSchema,
 } from "../jsonOutputSchemas.js";
+import { RailwayCliOptions } from "../railwayCli.js";
 
 const databaseVolumeMountPath = "/var/lib/postgresql/data";
+// PGDATA must be a subdirectory of the volume mount because initdb refuses
+// to initialize into the non-empty mount root.
+const databasePgDataPath = `${databaseVolumeMountPath}/pgdata`;
 
 type RailwayCli = ReturnType<typeof createCommandWithCwd>;
-type DatabaseServiceOptions = {
-  railwayExe: RailwayCliExe;
-  waspProjectDir: WaspProjectDir;
-};
 
 export async function createDatabaseServiceWithVolume(
   dbServiceName: DbServiceName,
   dbImage: string,
-  options: DatabaseServiceOptions,
-): Promise<void> {
+  options: RailwayCliOptions,
+): Promise<RailwayCliService> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
     options.waspProjectDir,
@@ -41,7 +40,7 @@ export async function createDatabaseServiceWithVolume(
         `POSTGRES_PASSWORD=${getRailwayEnvVarValueReference("secret()")}`,
       ],
       ...["--variables", "PORT=5432"],
-      ...["--variables", "PGDATA=/var/lib/postgresql/data/pgdata"],
+      ...["--variables", `PGDATA=${databasePgDataPath}`],
       ...[
         "--variables",
         `DATABASE_URL=postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
@@ -50,12 +49,10 @@ export async function createDatabaseServiceWithVolume(
     ],
     { verbose: false },
   );
-  const dbService = RailwayCliServiceSchema.parse(
-    JSON.parse(createResult.stdout),
-  );
+  const dbService = RailwayCliServiceSchema.parse(createResult.json());
 
   if (dbService.name !== dbServiceName) {
-    await rollbackDatabaseService(
+    return rollbackDatabaseService(
       railwayCli,
       dbService,
       new Error(
@@ -65,6 +62,9 @@ export async function createDatabaseServiceWithVolume(
   }
 
   try {
+    // Adding the volume triggers a second deployment on top of the one
+    // `railway add` started. `--service` must be the service ID: `railway
+    // volume` resolves services by ID only.
     await railwayCli(
       [
         "volume",
@@ -76,19 +76,23 @@ export async function createDatabaseServiceWithVolume(
       { verbose: false },
     );
   } catch (volumeError) {
+    // Railway can report a failure even though it created the volume, so
+    // confirm the volume is really missing before tearing the service down.
     if (
       await hasExpectedDatabaseVolume(railwayCli, dbService).catch(() => false)
     ) {
-      return;
+      return dbService;
     }
 
-    await rollbackDatabaseService(railwayCli, dbService, volumeError);
+    return rollbackDatabaseService(railwayCli, dbService, volumeError);
   }
+
+  return dbService;
 }
 
 export async function assertDatabaseServiceHasVolume(
   dbService: RailwayCliService,
-  options: DatabaseServiceOptions,
+  options: RailwayCliOptions,
 ): Promise<void> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
@@ -115,7 +119,7 @@ async function hasExpectedDatabaseVolume(
   const result = await railwayCli(["service", "list", "--json"], {
     verbose: false,
   });
-  const services = RailwayCliServiceListSchema.parse(JSON.parse(result.stdout));
+  const services = RailwayCliServiceListSchema.parse(result.json());
   return services.some(
     (service) =>
       service.id === dbService.id &&

@@ -51,40 +51,17 @@ export const DeploymentStatusSchema = z.enum([
 
 export type DeploymentStatus = z.infer<typeof DeploymentStatusSchema>;
 
-const GroupedServiceInstancesSchema = z.object({
-  edges: z.array(
-    z.object({
-      node: z.object({
-        serviceInstances: z.object({
-          edges: z.array(
-            z.object({
-              node: z.object({
-                serviceName: z.string(),
-                latestDeployment: z
-                  .object({
-                    status: DeploymentStatusSchema,
-                  })
-                  .nullish(),
-              }),
-            }),
-          ),
-        }),
-      }),
-    }),
-  ),
+// A service that was never deployed has no status, and a status value Wasp
+// doesn't know must not crash the deployment poll loop.
+export const RailwayCliServiceStatusSchema = z.object({
+  status: DeploymentStatusSchema.nullable().catch(null).default(null),
 });
-
-export const RailwayCliProjectStatusSchema = z.object({
-  environments: GroupedServiceInstancesSchema,
-});
-
-export type RailwayCliProjectStatus = z.infer<
-  typeof RailwayCliProjectStatusSchema
->;
 
 export const RailwayCliDomainSchema = z.union([
+  // `railway domain` prints all existing domains when the service already
+  // has one...
   z.object({ domains: z.array(z.string()).min(1) }),
-  // Railway CLI 4.51 returns a single domain.
+  // ...and just the new domain when it creates it.
   z
     .object({ domain: z.string() })
     .transform(({ domain }) => ({ domains: [domain] })),

@@ -139,6 +139,10 @@ jobs:
           # instead of passing it as a single string value).
           wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
 
+      # Guards against creating `--db-image` databases without a persistent
+      # volume (redeploys would lose data). The service name and mount path
+      # must match `createRailwayDbServiceName()` and `databaseVolumeMountPath`
+      # in `waspc/data/packages/deploy`.
       - name: Verify Railway database volume
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |

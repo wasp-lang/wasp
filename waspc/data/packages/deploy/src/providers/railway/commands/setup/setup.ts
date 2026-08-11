@@ -68,13 +68,6 @@ export async function setup(
     await setupDb(deploymentInstructions);
   }
 
-  // Railway resolves references to a database that isn't ready yet to an empty
-  // string, so wait before configuring the server service.
-  await waitForServiceDeploymentSuccess(
-    deploymentInstructions.dbServiceName,
-    options,
-  );
-
   if (project.doesServiceExist(deploymentInstructions.clientServiceName)) {
     waspSays("Client service already exists. Skipping client setup.");
   } else {
@@ -141,14 +134,19 @@ async function setupDb({
   cmdOptions: options,
   dbServiceName,
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
-  waspSays("Setting up database");
+  waspSays(`Setting up database using image: ${options.dbImage}`);
 
-  waspSays(`Using database image: ${options.dbImage}`);
-  await createDatabaseServiceWithVolume(
+  const dbService = await createDatabaseServiceWithVolume(
     dbServiceName,
     options.dbImage,
     options,
   );
+
+  // `railway add` returns before the database finishes deploying, and a
+  // Railway reference to a service that isn't fully set up silently resolves
+  // to an empty string and never recovers. So don't configure the server
+  // service until the database deployment succeeds.
+  await waitForServiceDeploymentSuccess(dbService, options);
 }
 
 async function setupServer({

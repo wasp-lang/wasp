@@ -24,7 +24,9 @@ postgresMaxDbNameLength = 63
 -- If you bump the Postgres version here, also update the default database images in
 -- `waspc/data/packages/deploy/src/providers/fly/index.ts` and
 -- `waspc/data/packages/deploy/src/providers/railway/index.ts`, and check if
--- `dockerVolumeMountPath` is still correct.
+-- `dockerVolumeMountPath` here and `databaseVolumeMountPath` in
+-- `waspc/data/packages/deploy/src/providers/railway/railwayService/database.ts`
+-- are still correct.
 defaultPostgresDockerImageSpec :: (DockerImageName, DockerVolumeMountPath)
 defaultPostgresDockerImageSpec = ("postgres:18", dockerVolumeMountPath)
   where
