@@ -1,4 +1,5 @@
 {{={= =}=}}
+import { createHash } from "node:crypto";
 import { hashPassword } from './password.js'
 import { prisma, HttpError } from '../index.js'
 import { sleep } from '../utils.js'
@@ -266,4 +267,12 @@ async function ensurePasswordIsHashed<PN extends ProviderName>(
 // PRIVATE API
 export function createInvalidCredentialsError(message?: string): HttpError {
   return new HttpError(401, 'Invalid credentials', { message })
+}
+
+// PRIVATE API
+// One-time tokens (e.g. email verification, password reset) are stored in the
+// user's provider data only as SHA-256 hashes, so a leaked DB doesn't directly
+// reveal usable tokens. We compare an incoming token against its hash.
+export function sha256(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
 }
