@@ -20,9 +20,9 @@ import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.Util.EnvVarSource (resolveEnvVarProjectFile, resolveInheritedEnvVars, throwOverriddenVarsError, toEnvVarList)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..), makeClientRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig, makeClientRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
@@ -68,8 +68,8 @@ start = withProjectLock $ do
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
           Wasp.Generator.start
-            clientRunConfig.envVars
-            serverRunConfig.envVars
+            clientRunConfig
+            serverRunConfig
             waspProjectDir
             outDir
             (onJobsQuietDown ongoingCompilationResultMVar)

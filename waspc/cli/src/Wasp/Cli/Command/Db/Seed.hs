@@ -19,7 +19,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Env (EnvVar)
+import Wasp.Cli.Util.EnvVarSource (throwOverriddenVarsError)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
@@ -37,24 +37,23 @@ seed maybeUserProvidedSeedName = do
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
+  serverRunConfig <- defaultDevServerRunConfig appSpec
+
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  liftIO (dbSeed (devServerEnvVars appSpec) genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed serverRunConfig.envVars genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
+  where
+    defaultDevServerRunConfig :: AS.AppSpec -> Command ServerRunConfig
+    defaultDevServerRunConfig appSpec =
+      either (throwOverriddenVarsError extraEnvVars) pure $
+        makeServerRunConfig
+          Server.defaultDevServerLocation
+          (AL.url $ WebApp.makeDefaultDevClientLocation appSpec)
+          extraEnvVars
 
--- | The seed script never binds a port and never talks to a client, but the
--- server still validates Wasp's env vars, so we give it the development
--- defaults.
-devServerEnvVars :: AS.AppSpec -> [EnvVar]
-devServerEnvVars appSpec =
-  -- The user gives us no env vars here, so there is nothing to override and
-  -- this can't fail.
-  either (const []) (.envVars) $
-    makeServerRunConfig
-      Server.defaultDevServerLocation
-      (AL.url $ WebApp.makeDefaultDevClientLocation appSpec)
-      []
+    extraEnvVars = []
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
