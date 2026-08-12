@@ -24,6 +24,7 @@
 - Resetting a password now logs the account out everywhere, so sessions created before the reset stop working. ([#4653](https://github.com/wasp-lang/wasp/pull/4653))
 - The `OAuthData` type your auth hooks receive now properly includes the `slack` provider. ([#4655](https://github.com/wasp-lang/wasp/pull/4655))
 - Password reset now rejects an invalid or expired token before it looks at the new password, so someone without a valid reset link can no longer probe your app's password rules. ([#4657](https://github.com/wasp-lang/wasp/pull/4657))
+- `onBeforeSignup` now runs before `userSignupFields` on every signup method: email, username and password, and OAuth. ([#4659](https://github.com/wasp-lang/wasp/pull/4659))
 
 ## 0.25.0
 
