@@ -61,10 +61,6 @@ watchAndTest testRunner = withProjectLock $ do
       Left testError -> throwError $ CommandError "Test failed" testError
       Right () -> return ()
   where
-    -- The test runner never binds a port and never talks to a server, but the
-    -- client still validates Wasp's env vars, so we give it the development
-    -- defaults.
-    defaultDevClientRunConfig :: AS.AppSpec -> ClientRunConfig
     defaultDevClientRunConfig appSpec =
       makeClientRunConfig
         (WebApp.makeDefaultDevClientLocation appSpec)

@@ -43,7 +43,6 @@ seed maybeUserProvidedSeedName = do
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
   where
-    defaultDevServerRunConfig :: AS.AppSpec -> ServerRunConfig
     defaultDevServerRunConfig appSpec =
       makeServerRunConfig
         Server.defaultDevServerLocation
