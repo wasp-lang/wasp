@@ -12,7 +12,7 @@ interface RoadmapItem {
   issue: number;
 }
 
-const ideas: RoadmapItem[] = [
+const upcoming: RoadmapItem[] = [
   { title: "Wasp Studio / Dev toolbar", issue: 2892 },
   { title: "Advanced access control (RBAC)", issue: 2896 },
   { title: "Multi-tenancy", issue: 2129 },
@@ -21,7 +21,7 @@ const ideas: RoadmapItem[] = [
   { title: "Complex architectures (e.g. serverless)", issue: 2895 },
 ];
 
-const planned: RoadmapItem[] = [
+const next: RoadmapItem[] = [
   { title: "Operations improvements", issue: 2876 },
   { title: "DB / Prisma / Entities improvements", issue: 2877 },
   { title: "Rendering improvements (e.g. SSR)", issue: 2874 },
@@ -55,8 +55,8 @@ const Roadmap = () => (
     </p>
 
     <div className="mt-8 grid grid-cols-1 gap-3 lg:mt-10 lg:grid-cols-3">
-      <RoadmapColumn marker="[?]" title="ideas" items={ideas} />
-      <RoadmapColumn marker="[ ]" title="planned" items={planned} />
+      <RoadmapColumn marker="[?]" title="upcoming" items={upcoming} />
+      <RoadmapColumn marker="[ ]" title="next" items={next} />
       <RoadmapColumn
         accent
         marker="[~]"
