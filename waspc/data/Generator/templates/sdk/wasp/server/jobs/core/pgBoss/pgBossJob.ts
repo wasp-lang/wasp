@@ -1,5 +1,5 @@
 import PgBoss from 'pg-boss'
-import { pgBossStarted } from './pgBoss.js'
+import { ensurePgBossStarted, pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
 import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
 import { PrismaDelegate } from '../../../_types/index.js'
@@ -135,7 +135,7 @@ export class PgBossJob<
     )
   }
   async submit(jobArgs: Input, jobOptions: Parameters<PgBoss['send']>[2] = {}) {
-    const boss = await pgBossStarted
+    const boss = await ensurePgBossStarted()
     const jobId = await (boss.send as any)(this.jobName, jobArgs, {
       ...this.defaultJobOptions,
       ...(this.startAfter && { startAfter: this.startAfter }),
