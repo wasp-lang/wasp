@@ -426,11 +426,13 @@ wasp-app/.wasp/out/server/src/app.js
 wasp-app/.wasp/out/server/src/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/server/src/middleware/index.ts
 wasp-app/.wasp/out/server/src/middleware/operations.ts
+wasp-app/.wasp/out/server/src/nitro/apiManifest.ts
+wasp-app/.wasp/out/server/src/nitro/expressBridge.ts
+wasp-app/.wasp/out/server/src/nitro/serverEntry.ts
 wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/server.ts
-wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/spec-result.json

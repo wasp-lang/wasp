@@ -12,11 +12,17 @@ export type WebSocketContextValue = {
   isConnected: boolean
 }
 
+// TODO(nitro-phase-3): The rest of the app's API is served by the app's own
+// server now, on the app's origin (which is what an empty `config.apiUrl`
+// means), but websockets still live in Wasp's own server process, on its own
+// port. Once they move too, this is just `config.apiUrl`.
+const webSocketUrl = config.apiUrl || 'http://localhost:3001'
+
 // PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  config.apiUrl,
+  webSocketUrl,
   {
     transports: ['websocket'],
     autoConnect: true && !import.meta.env.SSR,

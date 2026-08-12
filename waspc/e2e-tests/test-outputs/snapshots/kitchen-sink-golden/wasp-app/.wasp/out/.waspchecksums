@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "fd701ae001ba7fbd8c1814a0d516d6c171dd291f714d2ad695a6631ba6c278e0"
+        "33ff04a2650990c96bd73dd994bfa52fd4f4e62c2389fc72d5f7bf5d9a19851d"
     ],
     [
         [
@@ -718,14 +718,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/envFile.ts"
         ],
-        "8ffb9962008b28ce5fc718363f2d99d7d8c9c06a43e631ad01c1c2f290441a63"
+        "277302fcca9f8a211da717200af6537b3b4f7b818e9b4912c742a3b1a588c826"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/nitroBridge.ts"
         ],
-        "27604447999eb87bb7e55f7714578b0adda72d1ad8665bcf3dd76852749cba9d"
+        "549e785295c91f969a443df5c67f935a4c7caa096b4d75215d30b19311b22fed"
     ],
     [
         [
@@ -746,7 +746,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
         ],
-        "7adfcc09494f75c2fa87cfeb6b7fc88089ab1a33ecede3125c6b892eea20a8e1"
+        "2f112ddacb717189ed51d7f1c39687087821193c826cc9fc4826c8bee14f608a"
     ],
     [
         [
@@ -809,7 +809,7 @@
             "file",
             "sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "b89c0fb456aea6b6d48dc2f4f9ecf7fb17ddc1440290857082bd5dfa5d15b915"
+        "0cfad1236d209650375b66b4c81f703805590a941b1dca575f05624e9e1a36ad"
     ],
     [
         [
@@ -1131,7 +1131,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "da5f13c40473f597a9bc5e5d61ee29f3e37fa02a31a18ddc8fdd121b77425371"
+        "146ab1139924f9ec9958a21c81bd7e4245d99f691deb0cc026abdf6cff358ae7"
     ],
     [
         [
@@ -1390,7 +1390,7 @@
             "file",
             "server/package.json"
         ],
-        "e791793bc99201b9624b613439b7b61937b0cc229d56b2eaa0704e39748b84cf"
+        "1ea0e1b21f99fe98d78749e9148a2946780600d929d0c6a6d3f89c1fe890db8c"
     ],
     [
         [
@@ -1530,7 +1530,7 @@
             "file",
             "server/src/app.js"
         ],
-        "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
+        "3fafb2b795a9ba85c633b6fd5270b17b555684ad18e818a658b056ffc6479a7f"
     ],
     [
         [
@@ -1745,9 +1745,37 @@
     [
         [
             "file",
+            "server/src/nitro/apiManifest.ts"
+        ],
+        "f37d03be955472d2a12c0a10cdc2028871c8118de4ee1351096a6a88d30ac73e"
+    ],
+    [
+        [
+            "file",
+            "server/src/nitro/expressBridge.ts"
+        ],
+        "1299ee7b0d3d962154d8dbe0d15c429ab20e5b0d1758355ff08477f34c4835a1"
+    ],
+    [
+        [
+            "file",
+            "server/src/nitro/serverEntry.ts"
+        ],
+        "a8d921a9d576e59a7bafcf5e9d8dd220c8ad756a8d352c268d933034ae389579"
+    ],
+    [
+        [
+            "file",
+            "server/src/nitro/setup.ts"
+        ],
+        "d7d69e1e503b5f0d449f5d404869731224edfeb2bcc665e867349b482bf4688a"
+    ],
+    [
+        [
+            "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "05ef7019d3bdaa6201371e2fc7bfaa0b4fa30c786b634a6abe1d5ed11dcb579b"
+        "fd2e5756f43d390aebff5300bb88b6650127a1567b3091f595e8e47a0da3b30f"
     ],
     [
         [
@@ -1894,7 +1922,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "418a9575769e4b3d575e44a0d714d79ff8800f79c509775d57bf1a075bf7447f"
+        "d36b7a3784d0bf737039fcd45b9953ce46cdf35d4d23cd6952f68cccc80e6d54"
     ],
     [
         [
@@ -2126,13 +2154,6 @@
             "server/src/server.ts"
         ],
         "6236e531606fc6432114a206eafe0206ebe2805ff81e6077eaeb594471a2f6f1"
-    ],
-    [
-        [
-            "file",
-            "server/src/views/wrong-port.ts"
-        ],
-        "cc8fc19e919c4d22ec6095a60446dd4f52dc864112e6b379ae35ec45c5b04b16"
     ],
     [
         [
