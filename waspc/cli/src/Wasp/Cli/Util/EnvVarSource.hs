@@ -6,7 +6,7 @@ import Control.Monad.Except (throwError)
 import Data.List (find, intercalate)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.PathArgument (FilePathArgument, getFilePath, showFilePathArgument)
-import Wasp.Env (EnvVar, EnvVarName, parseDotEnvFile)
+import Wasp.Env (EnvVar, EnvVarName, nubEnvVars, parseDotEnvFile)
 
 type EnvVarSource = (String, [EnvVar])
 
@@ -38,4 +38,4 @@ throwOverriddenVarsError sources overriddenNames =
       fst <$> find (\(_, envVars) -> name `elem` (fst <$> envVars)) sources
 
 toEnvVarList :: [EnvVarSource] -> [EnvVar]
-toEnvVarList = concatMap snd
+toEnvVarList = nubEnvVars . concatMap snd
