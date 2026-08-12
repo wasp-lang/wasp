@@ -28,7 +28,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    fromRelDir,
     reldirP,
     relfile,
     (</>),
@@ -38,7 +37,6 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -75,7 +73,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (genWebSockets)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -88,8 +86,7 @@ genServer spec =
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
-      genGitignore,
-      genNodemon
+      genGitignore
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -184,8 +181,7 @@ npmDepsFromWasp spec =
             ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
-            [ ("nodemon", "^2.0.19"),
-              -- TODO: Allow users to choose whether they want to use TypeScript
+            [ -- TODO: Allow users to choose whether they want to use TypeScript
               -- in their projects and install these dependencies accordingly.
               ("typescript", show typescriptVersionRange),
               ("@types/express", show expressTypesVersionRange),
@@ -230,16 +226,6 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asServerFile [relfile|.gitignore|])
       Nothing
-
-genNodemon :: Generator FileDraft
-genNodemon =
-  return $
-    C.mkTmplFdWithData
-      [relfile|nodemon.json|]
-      (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
-  where
-    relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
-      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =

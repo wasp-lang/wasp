@@ -7,33 +7,32 @@ import { type ServerSetupFnContext } from 'wasp/server/types'
 import app from '../app.js'
 {=& setupFn.importStatement =}
 
-const setupFnPromiseKey = Symbol.for('wasp.nitro.setupFnPromise')
+const setupFnKey = Symbol.for('wasp.nitro.setupFn')
 
 /**
- * Runs your app's `setupFn` on the Express app Nitro serves the API with.
+ * Runs your app's setup function on the Express app Nitro serves the API with,
+ * once per app, when the server starts (see `plugins/wasp.ts`).
  *
- * We run it lazily, on the first API request, and remember the promise on the
- * app itself so that it runs exactly once per app instance (Nitro re-executes
- * the server code on every change in development).
- *
- * NOTE: While Wasp is moving its server onto Nitro, Wasp still runs a second
- * server process next to Nitro (for jobs and websockets), and that process runs
- * your `setupFn` too. So in development it runs twice, once per process. Keep
- * that in mind if your `setupFn` does something beyond configuring the Express
- * app (sending a request, writing to the database, starting a timer, ...).
+ * "Once per app" instead of "once", because in development Nitro runs your
+ * server's code again on every change, and if that gives us a new Express app,
+ * the setup function has to run on it too (a run remembered on `globalThis`
+ * would leave the new app without the routes your setup function adds).
  */
-export function ensureSetupFnHasRun(): Promise<void> {
-  const appProperties = app as unknown as Record<symbol, Promise<void> | undefined>
-  appProperties[setupFnPromiseKey] ??= runSetupFn().catch((error) => {
-    // We don't remember a run that failed, so that the next request tries again
+export function runSetupFn(): Promise<void> {
+  const appProperties = app as unknown as Record<
+    symbol,
+    Promise<void> | undefined
+  >
+  appProperties[setupFnKey] ??= callSetupFn().catch((error) => {
+    // We don't remember a run that failed, so that the next start tries again
     // (with the fixed setup function, in development).
-    appProperties[setupFnPromiseKey] = undefined
+    appProperties[setupFnKey] = undefined
     throw error
   })
-  return appProperties[setupFnPromiseKey]
+  return appProperties[setupFnKey]
 }
 
-async function runSetupFn(): Promise<void> {
+async function callSetupFn(): Promise<void> {
   const context: ServerSetupFnContext = {
     app,
     server: makeUnavailableHttpServer(),

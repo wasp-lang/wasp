@@ -11,13 +11,13 @@ import { ServerSetupFnContext } from 'wasp/server/types'
 {=/ setupFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}
-import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
+import { startJobExecution } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 {=/ isPgBossJobExecutorUsed =}
 
 const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}
-  await startPgBoss()
+  await startJobExecution()
   {=/ isPgBossJobExecutorUsed =}
 
   const port = normalizePort(config.port)
