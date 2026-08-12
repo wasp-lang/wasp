@@ -54,7 +54,6 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 |---|---|---|
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
-| `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
 
 ## Customization
 
@@ -107,7 +106,7 @@ export default defineConfig({
 
 ### Custom Dev Server Port
 
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the **client** dev server port by setting the `port` option. To change the Wasp **server** port, see the [`PORT` server env var](./env-vars.md#server-general-configuration).
+You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. In development, the Vite dev server serves your whole app, so its `port` option is your app's port. To change the port your **built** app listens on, see the [`PORT` server env var](./env-vars.md#server-general-configuration).
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
@@ -122,11 +121,12 @@ export default defineConfig({
 ```
 
 ```env title=".env.server"
+WASP_SERVER_URL=http://localhost:4000
 WASP_WEB_CLIENT_URL=http://localhost:4000
 ```
 
-:::warning Changing the client dev server port
-Be careful when changing the client dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+:::warning Changing the dev server port
+Wasp's development defaults for `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` assume port 3000, so when you change the port you have to set both of them in your `.env.server` file. Otherwise the links your app builds (the ones in its emails, and the ones it redirects OAuth logins to) point at the wrong port.
 :::
 
 ### Editing from the Chrome DevTools {#devtools-workspace}

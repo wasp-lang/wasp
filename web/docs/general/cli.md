@@ -104,7 +104,7 @@ wasp db start
 ```
 
 ### Project Commands
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
+- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from your app and the database on stdout/stderr.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
@@ -191,22 +191,21 @@ Check https://github.com/wasp-lang/wasp/releases for the list of valid versions,
 
 ```
 
-- `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, whether Docker is installed and running, and whether the ports Wasp uses (the web client, server, and dev database) are free. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
+- `wasp doctor` runs a series of sanity checks on your setup and prints a report. It checks your Wasp, Node.js, and npm versions, whether Docker is installed and running, and whether the ports Wasp uses (the app and the dev database) are free. It's a good first stop when something isn't working, and the output is handy to include in bug reports.
 
 ```
 
 $ wasp doctor
 
-Running Wasp doctor...
+Checking your environment...
 
 [✓] Wasp: 0.14.0 (git v0.23.0-136-g874e208c13)
 [✓] System: darwin 25.5.0 aarch64
 [✓] Node.js: 24.14.1
 [✓] npm: 11.16.0
-[✓] Docker: installed and running
-[✓] Port 3000 (web client): free
-[✓] Port 3001 (server): free
-[✓] Port 5432 (dev database): free
+[✓] Docker: running
+[✓] App port (3000): free
+[✓] Dev database port (5432): free
 ```
 
 - `wasp uninstall` removes Wasp from your system.

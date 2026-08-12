@@ -37,7 +37,7 @@ class RailwayCommand extends Command {
   addCustomServerUrlOption(): this {
     return this.option(
       "--custom-server-url <url>",
-      "URL of the server that the client will connect to",
+      "deprecated and ignored: your app serves its own pages, so they find its API on their own origin",
     );
   }
 }
@@ -131,8 +131,11 @@ function makeRailwayDeployCommand(): Command {
   return new RailwayCommand("deploy")
     .description("Deploys the app to Railway")
     .addProjectNameArgument()
-    .option("--skip-client", "do not deploy the web client")
-    .option("--skip-server", "do not deploy the server")
+    .option(
+      "--skip-client",
+      "deprecated and ignored: your app serves its own pages, so there is no separate client to deploy",
+    )
+    .option("--skip-server", "do not deploy the app")
     .option(
       "--existing-project-id [projectId]",
       "use existing project for deployment",

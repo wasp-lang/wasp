@@ -7,7 +7,7 @@ import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
 # Simple VPS
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caddy: new Date("2026-01-30"), Ubuntu: new Date("2026-01-30") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Caddy: new Date("2026-01-30"), Ubuntu: new Date("2026-01-30") }} />
 
 ## Deploy Wasp to a VPS
 
@@ -25,8 +25,9 @@ Our deployment setup includes:
 
 - **Ubuntu LTS** as the operating system
 - **Caddy** as a reverse proxy for HTTPS and domain handling
-- **Docker** for running the server and database
-- Serving the client with a static file server
+- **Docker** for running the app and the database
+
+`wasp build` gives you a single Docker image that contains your whole app: its pages, its static assets, its API and its websockets. It all runs on one port behind one domain, so there is nothing to host separately.
 
 ### Step 1: Connect to Your Server
 
@@ -179,86 +180,71 @@ Verify you are connected to the `myapp` database by typing `\conninfo`. You can 
 
 ### Step 11: Configure Your Domain
 
-Set up DNS A records pointing to your server IP:
+Set up a DNS A record pointing to your server IP:
 
 - `@` (root) → your server IP (for `myapp.com`)
-- `api` → your server IP (for `api.myapp.com`)
 
-### Step 12: Start the Server
+### Step 12: Start the App
 
-After you built the app with `wasp build`, build the server app Docker image:
+After you built the app with `wasp build`, build its Docker image:
 
 ```bash
-# Navigate to the out directory
-cd .wasp/out
-
-# Build the server Docker image
-docker build . -t myapp-server
+docker build .wasp/out -t myapp
 ```
+
+:::note Client environment variables
+Environment variables prefixed with `REACT_APP_` end up inside your app's pages and assets, so they have to be there when the image is built, not when it runs. Pass them with the `WASP_CLIENT_ENV` build argument, as shell assignments, one per line:
+
+```bash
+docker build --build-arg WASP_CLIENT_ENV="REACT_APP_EXAMPLE='value'" .wasp/out -t myapp
+```
+:::
 
 Create an `.env.production` environment file in your project directory and add:
 
-| Variable              | Value                                                                  |
-| --------------------- | ---------------------------------------------------------------------- |
-| `DATABASE_URL`        | `postgresql://postgres:mysecretpassword@myapp-db:5432/myapp`       |
-| `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
-| `PORT`                | `3001`                                                                 |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
-
+| Variable          | Value                                                               |
+| ----------------- | ------------------------------------------------------------------- |
+| `DATABASE_URL`    | `postgresql://postgres:mysecretpassword@myapp-db:5432/myapp`        |
+| `JWT_SECRET`      | Random string at least 32 characters long: <SecretGeneratorBlock /> |
+| `PORT`            | `3001`                                                              |
+| `WASP_SERVER_URL` | `https://<your-domain>`                                             |
 
 Add any other environment variables your app needs (from `.env.server`).
 
-Start the server container:
+:::tip
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, and your app's pages and its API are on the same origin now, so setting `WASP_SERVER_URL` to your domain is all it takes.
+:::
+
+Start the app container:
 
 ```bash
 docker run -d \
-  --name myapp-server \
+  --name myapp \
   --env-file .env.production \
   -p 127.0.0.1:3001:3001 \
   --network myapp-network \
-  myapp-server
+  myapp
 ```
 
 :::note
-We bind the server to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet.
+We bind the app to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet. Caddy is what exposes it to the world.
 :::
+
+The container applies your database migrations on startup and then starts the app.
 
 Verify it's running:
 
 ```bash
-curl -I http://localhost:3001
+curl -I http://localhost:3001/_wasp/health
 ```
 
 You should see a `200 OK` HTTP status code.
 
-### Step 13: Build the Client
-
-In the project directory run:
-
-```bash
-REACT_APP_API_URL=https://api.myapp.com npx vite build
-```
-
-Copy the built files to a serving directory:
-```bash
-sudo mkdir -p /var/www
-sudo cp -R .wasp/out/web-app/build/* /var/www/
-sudo chown -R caddy:caddy /var/www
-```
-
-### Step 14: Configure Caddy
+### Step 13: Configure Caddy
 
 Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 ```caddyfile
 myapp.com {
-    root * /var/www
-    encode gzip
-    try_files {path} /200.html
-    file_server
-}
-
-api.myapp.com {
     reverse_proxy localhost:3001
 }
 ```
@@ -280,8 +266,7 @@ Create a deployment script:
 set -e
 
 APP_DIR="your-app-name"
-SERVER_APP_NAME="myapp-server"
-SERVER_APP_URL=https://api.myapp.com
+APP_NAME="myapp"
 
 echo "Pulling latest changes..."
 cd ~/"$APP_DIR"
@@ -291,23 +276,13 @@ echo "Building Wasp project..."
 wasp build
 
 echo "Building Docker image..."
-cd .wasp/out/
-docker build . -t $SERVER_APP_NAME
+docker build .wasp/out -t $APP_NAME
 
-echo "Stopping existing server..."
-docker container stop $SERVER_APP_NAME && docker container rm $SERVER_APP_NAME || true
+echo "Stopping existing container..."
+docker container stop $APP_NAME && docker container rm $APP_NAME || true
 
-echo "Starting new server..."
-cd ~/"$APP_DIR"
-docker run -d --name $SERVER_APP_NAME --env-file .env.production -p 127.0.0.1:3001:3001 --network myapp-network $SERVER_APP_NAME
-
-echo "Building client..."
-REACT_APP_API_URL=$SERVER_APP_URL npx vite build
-
-echo "Copying new client files..."
-sudo rm -rf /var/www/*
-sudo cp -R .wasp/out/web-app/build/* /var/www/
-sudo chown -R caddy:caddy /var/www
+echo "Starting new container..."
+docker run -d --name $APP_NAME --env-file .env.production -p 127.0.0.1:3001:3001 --network myapp-network $APP_NAME
 ```
 
 Make it executable and run:
@@ -322,12 +297,12 @@ chmod +x redeploy.sh
 Configure Caddy to retry connections during restarts:
 
 ```caddyfile
-api.myapp.com {
+myapp.com {
     reverse_proxy localhost:3001 {
-        health_uri /
+        health_uri /_wasp/health
         lb_try_duration 15s
     }
 }
 ```
 
-This makes Caddy wait up to 15 seconds for the server to become available again.
+This makes Caddy wait up to 15 seconds for the app to become available again.

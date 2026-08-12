@@ -36,12 +36,23 @@ Keep in mind that:
 
 1. If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
 
-The project name is used as a base for your server and client service names on Railway:
+The project name is used as a base for your app's service name on Railway:
 
-- `my-wasp-app-client`
 - `my-wasp-app-server`
 
+<small>
+  Your service keeps the `-server` suffix for historical reasons: it used to be
+  one of two services, the one serving your API. It now serves your whole app,
+  pages included.
+</small>
+
 Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
+
+:::note Coming From an Older Wasp Version?
+Wasp used to deploy your pages as a service of their own, called `my-wasp-app-client`. Your app now serves its own pages, so nothing is deployed to that service anymore.
+
+Once your users are on your app's URL, you can remove it from your Railway project. Wasp reminds you about it when you run `setup` or `deploy`.
+:::
 
 <LaunchCommandEnvVars />
 
@@ -53,25 +64,31 @@ If you have any additional environment variables that your app needs, read how t
 
 Setting up a custom domain is a three-step process:
 
-1. Add your domain to the Railway client service:
+1. Add your domain to your app's Railway service:
 
     - Go into the [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp).
     - Select your project (for example `my-wasp-app`).
-    - Click on the client service (for example `my-wasp-app-client`).
+    - Click on your app's service (for example `my-wasp-app-server`).
     - Go to the **Settings** tab and click **Custom Domain**.
     - Enter your domain name (for example `mycoolapp.com`) and port `8080`.
     - Click **Add Domain**.
 
 2. Update the DNS records for your domain, adding a CNAME record at the domain or subdomain you want, pointing to the address you've been given in the previous step. _This step depends on your domain provider, consult their documentation in case of doubt._
 
-3. To avoid [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) errors, you need to set your new client URL as the `WASP_WEB_CLIENT_URL` environment variable (for example `https://mycoolapp.com`) for your **server service** in the Railway dashboard.
+3. Tell your app about its new URL, by setting it as the `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` environment variables (for example `https://mycoolapp.com`) in the Railway dashboard.
 
     - Go into the [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp).
     - Select your project (for example `my-wasp-app`).
-    - Click on the server service (for example `my-wasp-app-server`).
+    - Click on your app's service (for example `my-wasp-app-server`).
     - Go to the **Variables** tab.
 
-    Update the `WASP_WEB_CLIENT_URL` variable with the new domain for your client.
+    Update both the `WASP_SERVER_URL` and the `WASP_WEB_CLIENT_URL` variables with your new domain.
+
+    <small>
+      Wasp builds links from these: the ones in the emails your app sends, and
+      the ones it redirects OAuth logins to. `WASP_WEB_CLIENT_URL` defaults to
+      `WASP_SERVER_URL`, but `setup` sets both, so you update both.
+    </small>
 
 That's it, your app should be available at `https://mycoolapp.com`!
 
@@ -128,17 +145,13 @@ wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --
 
 ##### Client
 
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
-```
+Client-side environment variables are part of your app's pages and assets, so they can't be set on the deployed app. Read more about it in the [Client Environment Variables](#client-environment-variables) section.
 
 <CustomServerUrlOption provider="railway" command="launch" example="my-wasp-app" />
 
 ### The `deploy` command
 
-The `deploy` command deploys your client and server apps to Railway.
+The `deploy` command deploys your app to Railway.
 
 ```shell
 wasp deploy railway deploy <project-name>
@@ -168,22 +181,16 @@ wasp deploy railway deploy <project-name> --existing-project-id <railway-project
 
 #### Other Available Options
 
-- `--skip-client` - do not deploy the web client
-- `--skip-server` - do not deploy the server
+- `--skip-server` - do not deploy the app
+- `--skip-client` - deprecated and ignored, since your app serves its own pages and there is no separate client to deploy
 
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>
-```
-
-You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
+If you've added any [client-side environment variables](../../env-vars.md#client-env-vars) to your app, this command can't get them into your app's pages and assets. Read more about it in the [Client Environment Variables](#client-environment-variables) section.
 
 <CustomServerUrlOption provider="railway" command="deploy" example="my-wasp-app" />
 
 ### The `setup` command
 
-The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does _not_ deploy the client or server services.
+The `setup` command creates your app's service and its database service on Railway. It also configures environment variables. It does _not_ deploy your app.
 
 ```shell
 wasp deploy railway setup <project-name>
@@ -195,9 +202,8 @@ It accepts the following arguments:
 
   the name of your project.
 
-The project name is used as a base for your server and client service names on Railway:
+The project name is used as a base for your app's service name on Railway:
 
-- `<project-name>-client`
 - `<project-name>-server`
 
 Railway also creates a PostgreSQL database service named `Postgres`.
@@ -231,30 +237,17 @@ You should only run `setup` once per app. Wasp CLI skips creating the services i
 If your app requires any other server-side environment variables (like social auth secrets), you can set them:
 
 1. Initially in the `launch` or `setup` commands with the [`--server-secret` option](#railway-launch-environment-variables)
-2. After the app has already been deployed, go into the Railway dashboard and set them in the **Variables** tab of your server service.
+2. After the app has already been deployed, go into the Railway dashboard and set them in the **Variables** tab of your app's service.
 
 #### Client Environment Variables
 
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+Your [client-side environment variables](../../env-vars.md#client-env-vars) end up inside your app's pages and assets, so they have to be there when your app's image is built, not when it runs. Railway builds that image for you, and `wasp deploy` has no way of passing them to that build yet.
+
+Until it does, if your app needs any `REACT_APP_*` variable, build the image yourself with the `WASP_CLIENT_ENV` build argument and deploy it as described on the [Cloud Providers](../cloud-providers.md) page:
 
 ```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
+docker build \
+  --build-arg WASP_CLIENT_ENV="REACT_APP_ANOTHER_VAR='somevalue'" \
+  -t my-wasp-app \
+  .wasp/out
 ```
-
-or
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy
-```
-
-Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
-
-```json title="package.json"
-{
-  "scripts": {
-    "deploy": "REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy"
-  }
-}
-```
-
-Then you can run `npm run deploy` to deploy your app.

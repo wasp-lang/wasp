@@ -129,7 +129,7 @@
 - [File Uploads](https://wasp.sh/docs/guides/integrations/file-upload.md)
 - [Sentry](https://wasp.sh/docs/guides/integrations/sentry.md)
 - [Swagger UI](https://wasp.sh/docs/guides/integrations/swagger-ui.md)
-- [WebSocket Namespaces](https://wasp.sh/docs/guides/integrations/websocket-namespaces.md)
+- [WebSocket Channels](https://wasp.sh/docs/guides/integrations/websocket-namespaces.md)
 ### Legacy
 - [Wasp Installer](https://wasp.sh/docs/guides/legacy/installer.md)
 - [Wasp DSL](https://wasp.sh/docs/guides/legacy/wasp-dsl.md)

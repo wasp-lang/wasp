@@ -15,7 +15,7 @@ To deploy to Fly.io using Wasp CLI:
 
 1. Create a [Fly.io](https://fly.io/) account
 
-1. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy Wasp apps, you need three Fly apps: the client, the server, and the database.
+1. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy a Wasp app, you need two Fly apps: your app and its database.
 
 2. Install the [`fly` CLI](https://fly.io/docs/hands-on/install-flyctl/) on your machine.
 
@@ -39,18 +39,35 @@ Two things to keep in mind:
 
 The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for _Dallas, Texas (US)_). Read more about Fly.io regions [here](#flyio-regions).
 
-The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
+The basename is used to name your app and its database, resulting in two apps in your Fly dashboard:
 
-- `my-wasp-app-client`
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
-You'll notice that Wasp creates two new files in your project root directory:
+<small>
+  Your app keeps the `-server` suffix for historical reasons: it used to be one
+  of two apps, the one serving your API. It now serves your whole app, pages
+  included.
+</small>
+
+You'll notice that Wasp creates a new file in your project root directory:
 
 - `fly-server.toml`
-- `fly-client.toml`
 
-You should include these files in your version control so that you can deploy your app with a single command in the future.
+You should include this file in your version control so that you can deploy your app with a single command in the future.
+
+:::note Coming From an Older Wasp Version?
+Wasp used to deploy your pages as a Fly app of their own, called `my-wasp-app-client`. Your app now serves its own pages, so nothing is deployed to that app anymore.
+
+Once your users are on your app's URL, you can destroy it and delete its TOML file:
+
+```shell
+fly apps destroy my-wasp-app-client
+rm fly-client.toml
+```
+
+Wasp reminds you about this whenever it finds a `fly-client.toml` in your project.
+:::
 
 <LaunchCommandEnvVars />
 
@@ -62,15 +79,20 @@ If your app requires any additional environment variables, use the `wasp deploy 
 
 Setting up a custom domain is a three-step process:
 
-1. You need to add your domain to your Fly client app. You can do this by running:
+1. You need to add your domain to your Fly app. You can do this by running:
 
 ```shell
-wasp deploy fly cmd --context client certs create mycoolapp.com
+wasp deploy fly cmd --context server certs create mycoolapp.com
 ```
 
 :::note Use Your Domain
 Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section.
 :::
+
+<small>
+  The `server` context is your app. Read more about it in the [`cmd` API
+  reference](#cmd).
+</small>
 
 This command will output the instructions to add the DNS records to your domain. It will look something like this:
 
@@ -92,14 +114,16 @@ You can validate your ownership of mycoolapp.com by:
 
    _This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command._
 
-3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
+3. You need to tell your app about its new URL, by setting it as the `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` environment variables:
 
 ```shell
-wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+wasp deploy fly cmd --context server secrets set WASP_SERVER_URL=https://mycoolapp.com WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
 
 <small>
-  We need to do this to keep our CORS configuration up to date.
+  Wasp builds links from these: the ones in the emails your app sends, and the
+  ones it redirects OAuth logins to. `WASP_WEB_CLIENT_URL` defaults to
+  `WASP_SERVER_URL`, but `setup` sets both, so you update both.
 </small>
 
 That's it, your app should be available at `https://mycoolapp.com`!
@@ -109,7 +133,7 @@ That's it, your app should be available at `https://mycoolapp.com`!
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
 ```shell
-wasp deploy fly cmd --context client certs create www.mycoolapp.com
+wasp deploy fly cmd --context server certs create www.mycoolapp.com
 ```
 
 Once you do that, you will need to add another DNS record for your domain. It should be a CNAME record for `www` with the value of your root domain.
@@ -123,9 +147,11 @@ With the CNAME record (Canonical name), you are assigning the `www` subdomain as
 
 Your app should now be available both at the root domain `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`.
 
-:::caution CORS Configuration
+:::note Pick One of Them for Your Links
 
-Using the `www` and `non-www` domains at the same time will require you to update your CORS configuration to allow both domains. You'll need to provide [custom CORS configuration](https://gist.github.com/infomiho/5ca98e5e2161df4ea78f76fc858d3ca2) in your server app to allow requests from both domains.
+Your app serves its pages and its API on the same origin, so serving it on both the `www` and the `non-www` domain needs no extra configuration.
+
+Keep in mind that the links Wasp builds (the ones in your app's emails, and the ones it redirects OAuth logins to) always use `WASP_SERVER_URL`, so they point at whichever of the two domains you set there.
 
 :::
 
@@ -144,29 +170,16 @@ If your app requires any other server-side environment variables (like social au
 
 ### Client Environment Variables
 
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+Your [client-side environment variables](../../env-vars.md#client-env-vars) end up inside your app's pages and assets, so they have to be there when your app's image is built, not when it runs. Fly builds that image for you, and `wasp deploy` has no way of passing them to that build yet.
+
+Until it does, if your app needs any `REACT_APP_*` variable, build the image yourself with the `WASP_CLIENT_ENV` build argument and deploy it as described on the [Cloud Providers](../cloud-providers.md) page:
 
 ```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
+docker build \
+  --build-arg WASP_CLIENT_ENV="REACT_APP_ANOTHER_VAR='somevalue'" \
+  -t my-wasp-app \
+  .wasp/out
 ```
-
-or
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
-```
-
-Please note that you should do this for **every deployment**, not just the first time you set up the variables. One way to make sure you don't forget to add them is to create a `deploy` script in your `package.json` file:
-
-```json title="package.json"
-{
-  "scripts": {
-    "deploy": "REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy"
-  }
-}
-```
-
-Then you can run `npm run deploy` to deploy your app.
 
 ## Fly.io Regions
 
@@ -255,18 +268,14 @@ wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --
 
 ##### Client
 
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
-```
+Client-side environment variables are part of your app's pages and assets, so they can't be set on the deployed app. Read more about it in the [Client Environment Variables](#client-environment-variables) section.
 
 <CustomServerUrlOption provider="fly" command="launch" example="my-wasp-app dfw" />
 
 ### `setup`
 
-The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
-It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy for the client or server apps.
+The `setup` command registers your app on Fly, and sets up needed environment variables.
+It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy.
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -282,15 +291,15 @@ It accepts the following arguments:
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
-After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
-You should include these files in your version control.
+After running `setup`, Wasp creates a new file in your project root directory: `fly-server.toml`.
+You should include this file in your version control.
 
-You **can edit the `fly-server.toml` and `fly-client.toml` files** to further configure your Fly deployments. Wasp will use the TOML files when you run `deploy`.
+You **can edit the `fly-server.toml` file** to further configure your Fly deployment. Wasp will use the TOML file when you run `deploy`.
 
 If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 
 :::caution Execute Only Once
-You should only run `setup` once per app. If you run it multiple times, it creates unnecessary apps on Fly.
+You should only run `setup` once per app. Wasp skips it when it finds a `fly-server.toml` file, but if that file is missing, running `setup` again creates another app on Fly.
 :::
 
 ### `create-db`
@@ -317,7 +326,7 @@ You should only run `create-db` once per app. If you run it multiple times, it c
 wasp deploy fly deploy
 ```
 
-The `deploy` command pushes your built client and server live.
+The `deploy` command pushes your built app live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
@@ -325,20 +334,16 @@ Run this command whenever you want to **update your deployed app** with the late
 wasp deploy fly deploy
 ```
 
-If you've added any [client-side environment variables](../../../project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
-
-```shell
-REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
-```
-
-You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
+If you've added any [client-side environment variables](../../env-vars.md#client-env-vars) to your app, this command can't get them into your app's pages and assets. Read more about it in the [Client Environment Variables](#client-environment-variables) section.
 
 <CustomServerUrlOption provider="fly" command="deploy" example="" />
 
 ### `cmd`
 
-If you want to run arbitrary Fly commands (for example `fly secrets list` for your server app), here's how to do it:
+If you want to run arbitrary Fly commands (for example `fly secrets list` for your app), here's how to do it:
 
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
+
+The `server` context is your app, named that way back when your pages and your API were two separate Fly apps. If you still have the client app from such an older project, `--context client` runs the command against it.

@@ -147,8 +147,8 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 ## Developing with Slack auth and HTTPS {#slack-https}
 
 Unlike most OAuth providers, Slack **requires HTTPS and publicly accessible URL for the OAuth redirect URL**.
-This means that we can't simply use `localhost:3001` as a base host for redirect urls. Instead, we need to configure
-Wasp server to be publicly available under HTTPS, even in the local development environment.
+This means that we can't simply use `localhost:3000` as a base host for redirect urls. Instead, we need to configure
+our Wasp app to be publicly available under HTTPS, even in the local development environment.
 
 Fortunately, there are quite a few free and convenient tools available to simplify the process, such as
 [localtunnel.me](https://localtunnel.me/) (free) and [ngrok.com](https://ngrok.com) (lots of features,
@@ -158,7 +158,7 @@ but free tier is limited).
 
 Install localtunnel globally with `npm install -g localtunnel`.
 
-Start a tunnel with `lt --port 3001 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
+Start a tunnel with `lt --port 3000 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
 
 :::info Subdomain option
 
@@ -172,18 +172,17 @@ After starting the tunnel, you will see your tunnel URL in the terminal. Go to t
 in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure
 what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places:
-server and client configuration.
-
-To configure client, add this line to your `.env.client` file (create it if doesn't exist):
-```bash title=".env.client"
-REACT_APP_API_URL=https://<subdomain>.loca.lt
-```
-
-Similarly, to configure the server, add this line to your `.env.server`:
+Now that your app is exposed to the public, we need to configure Wasp to use the new public domain.
+Add these lines to your `.env.server` file (create it if doesn't exist):
 ```bash title=".env.server"
 WASP_SERVER_URL=https://<subdomain>.loca.lt
+WASP_WEB_CLIENT_URL=https://<subdomain>.loca.lt
 ```
+
+Your app serves its pages and its API on the same origin, so both variables hold the same tunnel URL.
+
+Finally, the dev server rejects requests for hostnames it doesn't know about, so add the tunnel hostname to
+`allowedHosts` in your `vite.config.ts`, as described in [Local Network Testing](../../guides/debugging/local-network-testing.md#step-4-allow-the-host-in-vite-config).
 
 </Collapse>
 

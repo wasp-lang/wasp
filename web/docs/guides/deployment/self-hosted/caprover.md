@@ -7,7 +7,7 @@ import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
 # Caprover
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: new Date("2026-01-30") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Caprover: new Date("2026-01-30") }} />
 
 ## Deploy Wasp with Caprover
 
@@ -23,19 +23,20 @@ This guide shows you how to deploy a Wasp application to [Caprover](https://capr
 
 Deploying to Caprover involves:
 
-1. Creating Caprover apps (client, server, and database)
-2. Building Docker images using GitHub Actions
-3. Triggering Caprover to deploy the images
+1. Creating Caprover apps (the app and the database)
+2. Building the Docker image using GitHub Actions
+3. Triggering Caprover to deploy the image
+
+`wasp build` gives you a single Docker image that contains your whole app: its pages, its static assets, its API and its websockets. That is why there is one app in Caprover, not one for the client and one for the server.
 
 ### Step 1: Set Up Your Domain
 
-Point your DNS A records to your server IP:
+Point your DNS A record to your server IP:
 
-- `@` (root) → server IP (for `myapp.com` - client)
-- `api` → server IP (for `api.myapp.com` - server)
+- `@` (root) → server IP (for `myapp.com`)
 
 :::tip
-If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp-client.apps.mydomain.com` and `https://myapp-server.apps.mydomain.com` for quick testing.
+If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp.apps.mydomain.com` for quick testing.
 :::
 
 ### Step 2: Create Caprover Apps
@@ -48,39 +49,32 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
 4. Deploy it
 5. Note the connection string: `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres`
 
-#### Create the Server App
+#### Create the App
 
-1. Create a new app named `myapp-server`
+1. Create a new app named `myapp`
 2. Go to **HTTP Settings**:
-   - Connect domain `https://api.<your-domain>`
+   - Connect domain `https://<your-domain>`
    - Click **Enable HTTPS**
    - Set **Container HTTP Port** to `3001`
    - Enable **Force HTTPS** and **Websocket Support**
 3. Click **Save & Restart**
 
-#### Create the Client App
+### Step 3: Configure Environment Variables
 
-1. Create a new app named `myapp-client`
-2. Go to **HTTP Settings**:
-   - Connect domain `https://<your-domain>`
-   - Click **Enable HTTPS**
-   - Set **Container HTTP Port** to `8043`
-   - Enable **Force HTTPS** and **Websocket Support**
-3. Click **Save & Restart**
+In the app, go to **App Configs > Environment Variables** and add:
 
-### Step 3: Configure Server Environment Variables
-
-In the server app, go to **App Configs > Environment Variables** and add:
-
-| Variable              | Value                                                                  |
-| --------------------- | ---------------------------------------------------------------------- |
-| `DATABASE_URL`        | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
-| `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
-| `PORT`                | `3001`                                                                 |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
+| Variable          | Value                                                                  |
+| ----------------- | ---------------------------------------------------------------------- |
+| `DATABASE_URL`    | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
+| `JWT_SECRET`      | Random string at least 32 characters long: <SecretGeneratorBlock />    |
+| `PORT`            | `3001`                                                                 |
+| `WASP_SERVER_URL` | `https://<your-domain>`                                                |
 
 Add any other environment variables your app needs (from `.env.server`).
+
+:::tip
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, and your app's pages and its API are on the same origin now, so setting `WASP_SERVER_URL` to your domain is all it takes.
+:::
 
 ### Step 4: Enable GitHub Container Registry Access
 
@@ -109,15 +103,13 @@ concurrency:
 
 env:
   WASP_VERSION: "{pinnedLatestWaspVersion}"
-  SERVER_APP_NAME: "myapp-server"
-  SERVER_APP_URL: "https://api.myapp.com"
-  CLIENT_APP_NAME: "myapp-client"
+  APP_NAME: "myapp"
   DOCKER_REGISTRY: "ghcr.io"
   DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
   DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-push-images:
+  build-and-push-image:
     permissions:
       contents: read
       packages: write
@@ -137,17 +129,11 @@ jobs:
           username: ${{ env.DOCKER_REGISTRY_USERNAME }}
           password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
 
-      - name: (server) Extract metadata for Docker
-        id: meta-server
+      - name: Extract metadata for Docker
+        id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
-
-      - name: (client) Extract metadata for Docker
-        id: meta-client
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.APP_NAME }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -164,52 +150,39 @@ jobs:
       - name: Build Wasp app
         run: wasp build
 
-      - name: (client) Build
-        run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build
-
-      - name: (client) Prepare Dockerfile
-        run: |
-          cd ./.wasp/out/web-app
-          echo "FROM pierrezemb/gostatic" > Dockerfile
-          echo "CMD [\"-fallback\", \"200.html\", \"-enable-logging\"]" >> Dockerfile
-          echo "COPY ./build /srv/http" >> Dockerfile
-
-      - name: (server) Build and push Docker image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           # Remove 'app/' if your app is at the repo root
           context: ./app/.wasp/out
           file: ./app/.wasp/out/Dockerfile
           push: true
-          tags: ${{ steps.meta-server.outputs.tags }}
-          labels: ${{ steps.meta-server.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: (client) Build and push Docker image
+      - name: Deploy to Caprover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: ${{ env.APP_NAME }}
+          token: ${{ secrets.APP_TOKEN }}
+          image: ${{ steps.meta.outputs.tags }}
+```
+
+:::note Client environment variables
+Environment variables prefixed with `REACT_APP_` end up inside your app's pages and assets, so they have to be there when the image is built, not when it runs. If your app has any, pass them to the image build with the `WASP_CLIENT_ENV` build argument, as shell assignments:
+
+```yaml
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          # Remove 'app/' if your app is at the repo root
-          context: ./app/.wasp/out/web-app
-          file: ./app/.wasp/out/web-app/Dockerfile
-          push: true
-          tags: ${{ steps.meta-client.outputs.tags }}
-          labels: ${{ steps.meta-client.outputs.labels }}
-
-      - name: (server) Deploy to Caprover
-        uses: caprover/deploy-from-github@v1.1.2
-        with:
-          server: ${{ secrets.CAPROVER_SERVER }}
-          app: ${{ env.SERVER_APP_NAME }}
-          token: ${{ secrets.SERVER_APP_TOKEN }}
-          image: ${{ steps.meta-server.outputs.tags }}
-
-      - name: (client) Deploy to Caprover
-        uses: caprover/deploy-from-github@v1.1.2
-        with:
-          server: ${{ secrets.CAPROVER_SERVER }}
-          app: ${{ env.CLIENT_APP_NAME }}
-          token: ${{ secrets.CLIENT_APP_TOKEN }}
-          image: ${{ steps.meta-client.outputs.tags }}
+          # ...
+          build-args: |
+            WASP_CLIENT_ENV=REACT_APP_EXAMPLE='value'; REACT_APP_OTHER='another value'
 ```
+
+Anyone can read them in the browser, so never put secrets there. Server environment variables stay where they were, in Caprover (step 3).
+:::
 
 ### Step 6: Configure GitHub Secrets
 
@@ -219,16 +192,9 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 
 Your Caprover dashboard URL, e.g., `https://captain.apps.mydomain.com`
 
-#### `SERVER_APP_TOKEN`
+#### `APP_TOKEN`
 
-1. Go to your server app in Caprover
-2. Under **Deployment**, find **Method 1: Official CLI**
-3. Click **Enable App Token**
-4. Copy the token
-
-#### `CLIENT_APP_TOKEN`
-
-1. Go to your client app in Caprover
+1. Go to your app in Caprover
 2. Under **Deployment**, find **Method 1: Official CLI**
 3. Click **Enable App Token**
 4. Copy the token
@@ -238,6 +204,8 @@ Your Caprover dashboard URL, e.g., `https://captain.apps.mydomain.com`
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
-2. Create Docker images for server and client
-3. Push images to GitHub Container Registry
-4. Deploy both apps to Caprover
+2. Create a Docker image for it
+3. Push the image to GitHub Container Registry
+4. Deploy the app to Caprover
+
+Your app should now be accessible at `https://myapp.com`!

@@ -6,8 +6,7 @@ import { CardLink } from '@site/src/components/CardLink';
 
 Wasp apps are full-stack apps that consist of:
 
-- A Node.js server.
-- A static client.
+- A Node.js server that serves your pages and your API alike.
 - A PostgreSQL database.
 
 To make deploying as smooth as possible, Wasp also offers a single-command deployment called **Wasp Deploy**.
@@ -19,7 +18,7 @@ To make deploying as smooth as possible, Wasp also offers a single-command deplo
   description="One-command deployment & redeployment"
 />
 
-But even when not using Wasp Deploy, you can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
+But even when not using Wasp Deploy, you can deploy your app **anywhere** you can usually deploy a Node.js app or a Docker container. For example, you can deploy your app on [Fly.io](https://fly.io/) and your database on [Neon](https://neon.tech/).
 
 You can read our guides on how to deploy your Wasp app to different platforms, both from cloud providers and on your own infrastructure:
 
@@ -49,8 +48,10 @@ fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll mak
 ## Customizing the Dockerfile
 
 By default, Wasp generates a multi-stage Dockerfile.
-This file is used to build and run a Docker image with the Wasp-generated server code.
+This file is used to build and run a Docker image with your whole app: its pages, its assets, and its API.
 It also runs any pending migrations.
+
+The Dockerfile's stages are `base`, `builder` and `production`.
 
 You can **add extra steps to this multi-stage `Dockerfile`** by creating your own `Dockerfile` in the project's root directory.
 If Wasp finds a Dockerfile in the project's root, it appends its contents at the _bottom_ of the default multi-stage Dockerfile.

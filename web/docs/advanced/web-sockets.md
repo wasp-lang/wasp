@@ -7,9 +7,9 @@ import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { Required } from '@site/src/components/Tag';
 
-Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](https://socket.io/) on the client and server.
+Wasp gives you a fully integrated WebSocket experience: a WebSocket server that lives inside your app's server, and `useSocket` and `useSocketListener` hooks for your React components.
 
-We handle making sure your URLs are correctly setup, CORS is enabled, and provide a useful `useSocket` and `useSocketListener` abstractions for use in React components.
+Wasp takes care of the parts that are usually annoying: the connection uses your app's own URL, it reconnects when it drops, and it knows who is logged in.
 
 To get started, you need to:
 
@@ -50,79 +50,142 @@ Let's define the WebSockets server with all of the events and handler functions.
 
 ### `webSocketFn` Function {#websocketfn}
 
-On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function. The `context` object give you access to all of the entities from your Wasp app.
+Your `webSocketFn` is a WebSocket definition you create with `defineWebSocket`. It's an object of hooks Wasp calls while a connection lives: when it opens, when the client sends you an event, and when it closes.
 
-You can use this `io` object to register callbacks for all the regular [Socket.IO events](https://socket.io/docs/v4/server-api/).  Also, if a user is logged in, you will have a `socket.data.user` on the server.
+Every hook gets the `peer` (the client on the other end of the connection) and a `context` object that gives you access to all of the entities from your Wasp app. If a user is logged in, `peer.data.user` is who they are.
 
 This is how we can define our `webSocketFn` function:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/webSocket.js"
-    import { v4 as uuidv4 } from "uuid"
+```ts title="src/webSocket.ts" auto-js
+import { v4 as uuidv4 } from "uuid";
+import {
+  broadcast,
+  defineWebSocket,
+  type WaspSocketPeer,
+} from "wasp/server/webSocket";
 
-    export const webSocketFn = (io, context) => {
-      io.on("connection", (socket) => {
-        const username = socket.data.user?.getFirstProviderUserId() ?? "Unknown"
-        console.log("a user connected: ", username)
+export const webSocketFn = defineWebSocket<
+  // Typing your WebSocket definition with the events and payloads
+  // gives you type safety on the client as well.
+  ClientToServerEvents,
+  ServerToClientEvents
+>({
+  open(peer) {
+    console.log("a user connected: ", getUsername(peer));
+  },
 
-        socket.on("chatMessage", async (msg) => {
-          console.log("message: ", msg)
-          io.emit("chatMessage", { id: uuidv4(), username, text: msg })
-          // You can also use your entities here:
-          // await context.entities.SomeEntity.create({ someField: msg })
-        })
-      })
+  events: {
+    async chatMessage(peer, msg, context) {
+      console.log("message: ", msg);
+      broadcast("chatMessage", {
+        id: uuidv4(),
+        username: getUsername(peer),
+        text: msg,
+      });
+      // You can also use your entities here:
+      // await context.entities.SomeEntity.create({ someField: msg })
+    },
+  },
+
+  close(peer) {
+    console.log("a user disconnected: ", getUsername(peer));
+  },
+});
+
+// Wasp resolves the logged-in user while the connection is being opened,
+// so `peer.data.user` is already there when your hooks run.
+function getUsername(peer: WaspSocketPeer<ServerToClientEvents>): string {
+  return peer.data.user?.getFirstProviderUserId() ?? "Unknown";
+}
+
+interface ServerToClientEvents {
+  chatMessage: (msg: { id: string; username: string; text: string }) => void;
+}
+
+interface ClientToServerEvents {
+  chatMessage: (msg: string) => void;
+}
+```
+
+:::info One payload per event
+Every event carries exactly one payload. If you declare an event as `(a: string, b: number) => void`, only `a` is sent. Put everything an event needs into a single object instead.
+:::
+
+### Sending Events
+
+There are three ways to send an event, depending on who should receive it:
+
+| What you want                       | How to do it                                  |
+| ----------------------------------- | --------------------------------------------- |
+| Send to one client                  | `peer.send(event, payload)`                   |
+| Send to everybody                   | `broadcast(event, payload)`                   |
+| Send to everybody in a _topic_      | `publish(topic, event, payload)`              |
+| Send to a topic, except this client | `peer.publishToOthers(topic, event, payload)` |
+
+`broadcast` and `publish` are plain functions you import from `wasp/server/webSocket`, so you can also use them from a Query, an Action, or a Job:
+
+```ts title="src/actions.ts" auto-js
+import { broadcast } from "wasp/server/webSocket";
+import { type PostAnnouncement } from "wasp/server/operations";
+
+export const postAnnouncement: PostAnnouncement<
+  { text: string },
+  void
+> = async (args, context) => {
+  broadcast("announcement", { text: args.text });
+};
+```
+
+### Topics (Rooms)
+
+A topic is a named group of connections. Subscribe a client to a topic, and it receives everything published to it:
+
+```ts title="src/webSocket.ts" auto-js
+import { defineWebSocket, publish } from "wasp/server/webSocket";
+
+export const webSocketFn = defineWebSocket<
+  ClientToServerEvents,
+  ServerToClientEvents
+>({
+  events: {
+    joinRoom(peer, roomId) {
+      peer.subscribe(roomId);
+    },
+
+    roomMessage(peer, { roomId, text }) {
+      // Everybody in the room, including the sender.
+      publish(roomId, "roomMessage", { text });
+    },
+
+    leaveRoom(peer, roomId) {
+      peer.unsubscribe(roomId);
+    },
+  },
+});
+```
+
+Use `peer.publishToOthers(...)` instead of `publish(...)` when the sender shouldn't receive its own message back.
+
+### Refusing a Connection
+
+By default, anybody can connect, and `peer.data.user` is `null` for clients that aren't logged in. If you want to turn some connections away, add an `upgrade` hook and throw a `Response` from it. The client never sees an open connection:
+
+```ts title="src/webSocket.ts" auto-js
+import { defineWebSocket } from "wasp/server/webSocket";
+
+export const webSocketFn = defineWebSocket({
+  upgrade(request, data) {
+    if (data.user === null) {
+      throw new Response("Unauthorized", { status: 401 });
     }
-    ```
-  </TabItem>
+  },
+  // ...
+});
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/webSocket.ts"
-    import { v4 as uuidv4 } from "uuid"
-    import { type WebSocketDefinition, type WaspSocketData } from "wasp/server/webSocket"
-
-    export const webSocketFn: WebSocketFn = (io, context) => {
-      io.on("connection", (socket) => {
-        const username = socket.data.user?.getFirstProviderUserId() ?? "Unknown"
-        console.log("a user connected: ", username)
-
-        socket.on("chatMessage", async (msg) => {
-          console.log("message: ", msg)
-          io.emit("chatMessage", { id: uuidv4(), username, text: msg })
-          // You can also use your entities here:
-          // await context.entities.SomeEntity.create({ someField: msg })
-        })
-      })
-    }
-
-    // Typing our WebSocket function with the events and payloads
-    // allows us to get type safety on the client as well
-
-    type WebSocketFn = WebSocketDefinition<
-      ClientToServerEvents,
-      ServerToClientEvents,
-      InterServerEvents,
-      SocketData
-    >
-
-    interface ServerToClientEvents {
-      chatMessage: (msg: { id: string, username: string, text: string }) => void;
-    }
-
-    interface ClientToServerEvents {
-      chatMessage: (msg: string) => void;
-    }
-
-    interface InterServerEvents {}
-
-    // Data that is attached to the socket.
-    // NOTE: Wasp automatically injects the JWT into the connection,
-    // and if present/valid, the server adds a user to the socket.
-    interface SocketData extends WaspSocketData {}
-    ```
-  </TabItem>
-</Tabs>
+:::caution Your app has to be running as one instance
+`broadcast` and `publish` only reach the clients connected to the process they run in. If you run your app on more than one instance, they won't reach the clients connected to the others. Wasp doesn't offer a way to connect the instances yet: follow [this issue](https://github.com/wasp-lang/wasp/issues/1228) if you need it.
+:::
 
 ## Using the WebSocket On The Client
 
@@ -136,12 +199,14 @@ This is how we can define our `webSocketFn` function:
 
 Client access to WebSockets is provided by the `useSocket` hook. It returns:
 
-- `socket: Socket` for sending and receiving events.
-- `isConnected: boolean` for showing a display of the Socket.IO connection status.
+- `socket` for sending and receiving events.
+- `isConnected: boolean` for showing a display of the connection status.
   - Note: Wasp automatically connects and establishes a WebSocket connection from the client to the server by default, so you do not need to explicitly `socket.connect()` or `socket.disconnect()`.
   - If you set `autoConnect: false` in your Wasp file, then you should call these as needed.
 
 All components using `useSocket` share the same underlying `socket`.
+
+Events you emit before the connection is open are sent as soon as it is, so you never have to wait for `isConnected` before emitting.
 
 ### The `useSocketListener` Hook
 
@@ -280,6 +345,12 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
   </TabItem>
 </Tabs>
 
+:::tip Let the client ask for the initial state
+Your components register their listeners when they mount, which can be after the connection has already opened. An event your server sends from its `open` hook can therefore arrive before anybody is listening for it.
+
+Instead of pushing the initial state from `open`, have the client ask for it (emit something like `askForStateUpdate` when the component mounts) and answer that event.
+:::
+
 ## API Reference
 
 <CardLink
@@ -288,4 +359,3 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
   title="WebSocket"
   description="All the options for the webSocket field of the app spec."
 />
-

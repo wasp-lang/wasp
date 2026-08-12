@@ -5,19 +5,15 @@ title: Cloud Providers
 import BuildingTheWebClient from './_building-the-web-client.md'
 import { CardLink } from '@site/src/components/CardLink'
 
-You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.
+You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server (or a Docker container) and a PostgreSQL database.
 
 ## Guides
 
 We have step-by-step guides for deploying your Wasp app to some of the most popular providers you can follow:
 
-<CardLink to="../../guides/deployment/cloud-providers/cloudflare" kind="guide" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
-
 <CardLink to="../../guides/deployment/cloud-providers/flyio" kind="guide" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
 
 <CardLink to="../../guides/deployment/cloud-providers/heroku" kind="guide" title="Deploying Wasp to Heroku" description="Uses Heroku, heroku CLI, Docker" />
-
-<CardLink to="../../guides/deployment/cloud-providers/netlify" kind="guide" title="Deploying Wasp to Netlify" description="Uses Netlify, Netlify CLI" />
 
 <CardLink to="../../guides/deployment/cloud-providers/railway" kind="guide" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
 
@@ -31,9 +27,8 @@ Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/
 Deploying a Wasp app comes down to the following:
 
 1. Generating deployable code.
-2. Deploying the API server (backend).
-3. Deploying the web client (frontend).
-4. Deploying a PostgreSQL database and keeping it running.
+2. Deploying the app.
+3. Deploying a PostgreSQL database and keeping it running.
 
 Let's go through each of these steps.
 
@@ -50,24 +45,20 @@ You won't be able to build the app if you are using SQLite as a database (which 
 You'll have to [switch to PostgreSQL](../../data-model/databases.md#migrating-from-sqlite-to-postgresql) before deploying to production.
 :::
 
-### 2. Deploying the API Server
+### 2. Deploying the App
 
-There's a Dockerfile that defines an image for building the server in the `.wasp/out` directory.
-
-To run the server in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
-
-Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your server.
-
-While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
-
-### 3. Deploying the Web Client
+There's a Dockerfile in the `.wasp/out` directory that defines an image containing your whole app: your pages, your assets, and your API.
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `.wasp/out/web-app/build` directory, including the `200.html` file at the root that acts as the SPA fallback.
+To run your app in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
 
-Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
+Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your app.
 
-### 4. Deploying the Database
+Your app listens on the port given to it as `PORT`, and answers health checks on `/_wasp/health`.
 
-Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
+While these are the general instructions on deploying anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
+
+### 3. Deploying the Database
+
+Any PostgreSQL database will do, as long as you provide your app with the correct `DATABASE_URL` env var and ensure that the database is accessible from it.

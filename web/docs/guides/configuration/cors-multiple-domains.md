@@ -7,7 +7,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Multiple Domains CORS
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26" }} />
 
 This guide shows you how to configure CORS (Cross-Origin Resource Sharing) to support multiple domains in your Wasp application using custom global middleware.
 
@@ -21,9 +21,9 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Getting St
 
 ## When You Need This
 
-By default, Wasp configures CORS to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). You might need to support multiple domains when:
+Your app's pages are served from the same origin as its API, so your own frontend never needs CORS. By default, Wasp only allows requests from your app's own URL (defined by `WASP_WEB_CLIENT_URL`). You might need to allow other origins when:
 
-- You have multiple domains for the same client application
+- You serve your app from more than one domain
 - You're building a public API
 - You're migrating from one domain to another
 

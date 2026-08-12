@@ -87,7 +87,7 @@ To use Discord as an authentication method, you'll first need to create a Discor
 
 4. Go to the **OAuth2** tab on the sidebar and click **Add Redirect**
 
-- For development, put: `http://localhost:3001/auth/discord/callback`.
+- For development, put: `http://localhost:3000/auth/discord/callback`.
 - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/discord/callback`.
 
 4. Hit **Save Changes**.

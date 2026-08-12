@@ -1,13 +1,12 @@
-To build the web app, run the following command from your project root:
+Your app's pages and assets are built together with the rest of your app, inside the Docker image. That is also where your [client env variables](/docs/deployment/env-vars#client-env-vars) have to be, since their values end up inside the built files.
 
+You pass them to the build with the `WASP_CLIENT_ENV` build argument, as shell assignments, one per line:
+
+```shell
+docker build \
+  --build-arg WASP_CLIENT_ENV="REACT_APP_SOME_VAR_NAME='somevalue'" \
+  -t my-wasp-app \
+  .wasp/out
 ```
-REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
-```
 
-where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
-
-The build output will be in `.wasp/out/web-app/build`.
-
-:::caution Client Env Variables
-Remember, if you have defined any other [client-side env variables](/docs/project/env-vars#defining-env-vars-in-development) in your project, make sure to add them to the command above when [building your client](/docs/deployment/env-vars#client-env-vars)
-:::
+If your app doesn't have any client env variables, you can leave the argument out.

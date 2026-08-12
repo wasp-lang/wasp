@@ -9,15 +9,17 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Fly.io
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Fly.io": new Date("2026-04-06") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", "Fly.io": new Date("2026-04-06") }} />
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying your app and its database with one command.
 
-## Manual Deployment <Server /> <Database />
+## Manual Deployment <Server /> <Client /> <Database />
 
-This guide shows you how to deploy your Wasp app's server and provision a database on Fly.io.
+This guide shows you how to deploy your app and provision a database on Fly.io.
+
+A built Wasp app is a single server that serves your app's pages, its static assets and its API, so it needs a single Fly.io app.
 
 ### Prerequisites
 
@@ -79,19 +81,20 @@ Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
 cp fly.toml ../../
 ```
 
-Next, add a few more environment variables for the server code.
+Next, add a few more environment variables for your app.
 
 ```bash
 fly secrets set PORT=8080
 fly secrets set JWT_SECRET=<random_string_at_least_32_characters_long>
-fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
-fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
+fly secrets set WASP_SERVER_URL=https://<app-name>.fly.dev
 ```
+
+`PORT` is the port your app listens on inside the Fly.io machine, so it has to match the `internal_port` in your `fly.toml`.
 
 We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
 :::note
-If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
+There's no separate client URL to configure. `WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, and one server serves both your app's pages and its API.
 :::
 
 <AddExternalAuthEnvVarsReminder />
@@ -106,9 +109,7 @@ While still in the `.wasp/out/` directory, run:
 fly deploy --remote-only --config ../../fly.toml
 ```
 
-This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
-
-Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](./netlify.md) for your client, but you can use any static hosting provider.
+This will build and deploy your whole Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
 Additionally, some useful `fly` commands:
 

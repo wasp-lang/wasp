@@ -52,7 +52,7 @@ export default app({
 ```
 
 :::note
-The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
+The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3000/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
 :::
 
 ### 2. Configure environment variables
@@ -69,12 +69,8 @@ GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
 
 # Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
+WASP_SERVER_URL=http://127.0.0.1:3000
 WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
-```
-
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
 ```
 
 :::note
