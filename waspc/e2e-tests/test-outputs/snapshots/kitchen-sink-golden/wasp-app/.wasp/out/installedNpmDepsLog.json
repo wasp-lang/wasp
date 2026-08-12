@@ -143,6 +143,10 @@
                 "version": "3.0.0"
             },
             {
+                "name": "nitro",
+                "version": "3.0.260610-beta"
+            },
+            {
                 "name": "react",
                 "version": "^19.2.1"
             },
@@ -225,10 +229,6 @@
             {
                 "name": "@wasp.sh/lib-auth",
                 "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
-            },
-            {
-                "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             }
         ],
         "devDependencies": [
@@ -268,10 +268,6 @@
             {
                 "name": "@wasp.sh/lib-auth",
                 "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
-            },
-            {
-                "name": "@wasp.sh/lib-vite-ssr",
-                "version": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             },
             {
                 "name": "cookie-parser",

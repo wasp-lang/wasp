@@ -14,6 +14,10 @@ export function validateEnv(): Plugin {
 
   return {
     name: PLUGIN_NAME,
+    // `buildStart` runs once per environment, and there are several of them
+    // (`client`, `ssr` and Nitro's). The env schema doesn't depend on the
+    // environment, so we only validate it in one of them.
+    applyToEnvironment: (environment) => environment.name === "client",
     configResolved(config) {
       resolvedConfig = config;
     },
@@ -39,6 +43,18 @@ export function validateEnv(): Plugin {
           // Ignore `vite:`-prefixed plugins since Vite will recreate them for
           // the temporary server anyway.
           .filter((plugin) => !plugin.name.startsWith("vite:"))
+
+          // Ignore Nitro's plugins (`nitro:` and the `fullstack:` ones it
+          // bundles). They hold on to a single Nitro instance and replace the
+          // `ssr` environment with one that runs in Nitro's own worker
+          // process, which we can't import a module through. Without them, we
+          // get back Vite's plain (runnable) `ssr` environment, which is all
+          // we need here.
+          .filter(
+            (plugin) =>
+              !plugin.name.startsWith("nitro:") &&
+              !plugin.name.startsWith("fullstack:"),
+          )
 
           // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
           // wire long-lived behavior into a dev or preview server: middleware,

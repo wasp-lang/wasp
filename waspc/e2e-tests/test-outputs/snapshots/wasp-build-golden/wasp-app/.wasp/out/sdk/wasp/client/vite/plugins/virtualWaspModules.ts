@@ -21,10 +21,7 @@ export function virtualWaspModules(): Plugin {
     configResolved(config) {
       virtualFiles = resolveVirtualFiles(config.root);
     },
-    resolveId: (id) => virtualFiles.ids.get(id),
-    load(id) {
-      const loader = virtualFiles.loaders.get(id);
-      return loader?.();
-    },
+    resolveId: (id) => virtualFiles.resolveId(id),
+    load: (id) => virtualFiles.load(id),
   };
 }

@@ -44,8 +44,10 @@ wasp-app/.wasp/out/sdk/wasp/client/test/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/setup.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/nitroRenderer.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/detectServerImports.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/envFile.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/nitroBridge.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/typescriptCheck.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/validateEnv.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualUserModules.ts
@@ -201,6 +203,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/nitroRenderer.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/nitroRenderer.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/nitroRenderer.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/nitroRenderer.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.js
@@ -209,6 +215,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/nitroBridge.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/nitroBridge.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/nitroBridge.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/nitroBridge.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.js
@@ -431,9 +441,9 @@ wasp-app/.wasp/out/tsconfig.src.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
 wasp-app/.wasp/out/web-app/build/200.html
-wasp-app/.wasp/out/web-app/build/assets/200.js
 wasp-app/.wasp/out/web-app/build/assets/MainPage.css
 wasp-app/.wasp/out/web-app/build/assets/MainPage.js
+wasp-app/.wasp/out/web-app/build/assets/client-entry.js
 wasp-app/.wasp/out/web-app/build/favicon.ico
 wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
