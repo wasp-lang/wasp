@@ -48,32 +48,13 @@ Running `./run` without any arguments will print help/usage, which is a good way
 > alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 > ```
 
-### Setup
-
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> **On Windows**, develop Wasp using the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt.
->
-> If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux setup instructions instead.
+> The `./run` script and the rest of the development tooling are Bash scripts, so they won't work from PowerShell or Command Prompt in Windows.
 
-#### Dev tooling
+### Dev tooling
 
-We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
-
-Run `mise install` from the root of the repo to install all the required tools. Then, you can access the mise-managed tools in different ways:
-
-- **(Recommended for local development)** You can set up your shell to automatically call the `mise activate` script. This will make sure that the specified tools and versions are in your `PATH` when you go into the repo. Check their installation instructions at https://mise.jdx.dev/installing-mise.html#shells.
-
-- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into an one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
-
-- If you don't want to add a shell hook, you can use the [Shims mode](https://mise.jdx.dev/dev-tools/shims.html), which lets you just add a single directory to your `PATH`, which will get populated with intelligent redirectors to the correct versions of the tools for the current working directory.
-
-- For one-off commands, you can use [the `mise exec` command](https://mise.jdx.dev/cli/exec.html) (or `mise x`) to run a specific command with the repo tools available, e.g. `mise x -- ghc --version`, `mise x -- node --version`, `mise x -- ./run build`, etc.
-
-You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
-
-> [!NOTE]
-> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](../mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+Follow repo-wide [Dev tooling](../CONTRIBUTING.md#dev-tooling) instructions.
 
 ### Build
 
