@@ -20,7 +20,8 @@ resolveEnvVarFile filePath =
 
 -- | Runs a function that takes a list of environment variables, while also
 -- checking that none of the variables are overridden by Wasp itself. If any
--- are overridden, a CommandError is thrown.
+-- are overridden, a CommandError is thrown. The shape of the function matches
+-- the `makeFooRunConfig` functions.
 withEnvVarSources :: [EnvVarSource] -> ([EnvVar] -> Either [EnvVarName] a) -> Command a
 withEnvVarSources sources f =
   case f $ toEnvVarList sources of
