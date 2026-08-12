@@ -20,6 +20,7 @@ import Wasp.Generator.SdkGenerator.Common
   ( genFileCopy,
     mkTmplFdWithData,
   )
+import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
@@ -46,7 +47,11 @@ genClientWebSocketProvider :: AppSpec -> Generator FileDraft
 genClientWebSocketProvider spec =
   return $ mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
   where
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    tmplData =
+      object
+        [ "autoConnect" .= map toLower (show shouldAutoConnect),
+          "webSocketUrlInDevelopment" .= Server.defaultDevServerUrl
+        ]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 

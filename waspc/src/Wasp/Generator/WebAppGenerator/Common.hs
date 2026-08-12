@@ -1,6 +1,7 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
     getDefaultDevClientUrl,
+    getDefaultDevApiUrl,
     defaultClientPort,
     serverUrlEnvVarName,
   )
@@ -25,5 +26,15 @@ serverUrlEnvVarName = "REACT_APP_API_URL"
 defaultClientPort :: Int
 defaultClientPort = 3000
 
+-- | The URL the app is served from in development. The app's server serves both
+-- the app's pages and its API, so this is also where the API lives.
 getDefaultDevClientUrl :: AppSpec -> String
 getDefaultDevClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ SP.fromAbsDirP (getBaseDir spec)
+
+-- | Where the client looks for the app's API in development. The API is served
+-- from the app's own origin, so this is a path, and an empty one for an app
+-- served from the root.
+getDefaultDevApiUrl :: AppSpec -> String
+getDefaultDevApiUrl = dropTrailingSlash . SP.fromAbsDirP . getBaseDir
+  where
+    dropTrailingSlash = reverse . dropWhile (== '/') . reverse

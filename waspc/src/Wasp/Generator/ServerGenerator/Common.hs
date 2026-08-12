@@ -22,11 +22,14 @@ module Wasp.Generator.ServerGenerator.Common
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
+    operationsRouteInRootRouter,
+    healthRoutePath,
+    dotEnvInServerRootDir,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Generator.Common
@@ -64,6 +67,12 @@ asServerSrcFile = SP.castRel
 -- | Path where server root dir is generated.
 serverRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir ServerRootDir)
 serverRootDirInGeneratedAppDir = [reldir|server|]
+
+-- | The env file Wasp generates for the server in development. It holds the
+-- user's `.env.server` variables, plus the ones Wasp manages itself (the URL of
+-- the development database, for example).
+dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
+dotEnvInServerRootDir = [relfile|.env|]
 
 -- | Path to generated server src/ directory.
 serverSrcDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir ServerSrcDir)
@@ -137,11 +146,24 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
+-- | The port Wasp's own server process listens on: in production, and in
+-- development, where it still runs next to the app's server (which serves the
+-- app's HTTP API through Nitro, on the app's port).
 defaultServerPort :: Int
 defaultServerPort = 3001
 
+-- | The URL of Wasp's own server process. In development, the app's API is
+-- served on the app's URL instead (see @getDefaultDevClientUrl@).
 defaultDevServerUrl :: String
 defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+
+operationsRouteInRootRouter :: String
+operationsRouteInRootRouter = "operations"
+
+-- | The route deployments can use to check that the server is up. It used to be
+-- @\/@, which now belongs to the app's pages.
+healthRoutePath :: String
+healthRoutePath = "/_wasp/health"
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

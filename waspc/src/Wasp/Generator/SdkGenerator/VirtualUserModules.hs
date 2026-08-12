@@ -2,16 +2,20 @@
 
 module Wasp.Generator.SdkGenerator.VirtualUserModules
   ( VirtualUserModule,
+    getVirtualUserModules,
     getClientVirtualUserModules,
     getServerVirtualUserModules,
     extImportToVirtualUserModuleJsImportPath,
     mkVirtualUserModulePluginData,
     mkVirtualUserModulesDeclarationData,
+    uniqueByVirtualModuleId,
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.Function (on)
+import Data.List (nubBy)
 import Data.Maybe (maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
@@ -204,3 +208,13 @@ mkVirtualUserModulesDeclarationData spec =
 getVirtualUserModuleId :: VirtualUserModule -> String
 getVirtualUserModuleId =
   getJsImportPathStringFromPath . extImportToVirtualUserModuleJsImportPath . EI.path . extImport
+
+-- | Removes virtual user modules that resolve to the same module id.
+--
+-- Multiple virtual user modules can point to the same user file (e.g., two
+-- operations declared in one file, or a module that exports both env
+-- validation schemas). A bundler plugin's module map keys entries by the
+-- module id, so it must receive each id only once or the generated object
+-- literal ends up with duplicate keys.
+uniqueByVirtualModuleId :: [VirtualUserModule] -> [VirtualUserModule]
+uniqueByVirtualModuleId = nubBy ((==) `on` getVirtualUserModuleId)
