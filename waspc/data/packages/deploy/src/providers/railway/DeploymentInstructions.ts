@@ -6,13 +6,13 @@ import {
   RailwayProjectName,
   ServerServiceName,
 } from "./brandedTypes.js";
+import type { RailwayProject } from "./railwayProject/RailwayProject.js";
 import {
   createRailwayClientServiceName,
   createRailwayDbServiceName,
   createRailwayServerServiceName,
   getDbServiceNameWithFallback,
 } from "./railwayService/nameGenerator.js";
-import type { RailwayProject } from "./railwayProject/RailwayProject.js";
 
 export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
   Readonly<{

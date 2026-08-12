@@ -1,10 +1,11 @@
+import { waspSays } from "../../../common/terminal.js";
 import {
   ClientServiceName,
   DbServiceName,
   RailwayProjectName,
   ServerServiceName,
 } from "../brandedTypes.js";
-import { waspSays } from "../../../common/terminal.js";
+import { getRailwayEnvVarValueReference } from "../env.js";
 import type { RailwayProject } from "../railwayProject/RailwayProject.js";
 
 /**
@@ -77,6 +78,12 @@ export function getDbServiceNameWithFallback(
   // Fallback to legacy "Postgres" name for existing deployments
   const legacyDbServiceName = "Postgres" as DbServiceName;
   if (project.doesServiceExist(legacyDbServiceName)) {
+    const legacyRef = getRailwayEnvVarValueReference("DATABASE_URL", {
+      serviceName: legacyDbServiceName,
+    });
+    const newRef = getRailwayEnvVarValueReference("DATABASE_URL", {
+      serviceName: newDbServiceName,
+    });
     waspSays(`
 ⚠️  Warning: Your database service is named "Postgres" (legacy naming).
    New deployments use "${newDbServiceName}".
@@ -86,8 +93,8 @@ export function getDbServiceNameWithFallback(
    2. Click on the "Postgres" service
    3. Go to Settings → rename to "${newDbServiceName}"
    4. Update your server's DATABASE_URL variable:
-      Change: \${{Postgres.DATABASE_URL}}
-      To: \${{${newDbServiceName}.DATABASE_URL}}
+      Change: ${legacyRef}
+      To: ${newRef}
   `);
     return legacyDbServiceName;
   }

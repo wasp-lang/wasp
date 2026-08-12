@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import type { RailwayProjectName } from "../../../src/providers/railway/brandedTypes.js";
+import type { RailwayProject } from "../../../src/providers/railway/railwayProject/RailwayProject.js";
 import {
   createRailwayClientServiceName,
   createRailwayDbServiceName,
   createRailwayServerServiceName,
   getDbServiceNameWithFallback,
 } from "../../../src/providers/railway/railwayService/nameGenerator.js";
-import type { RailwayProject } from "../../../src/providers/railway/railwayProject/RailwayProject.js";
 
 describe("createRailwayClientServiceName", () => {
   test("appends -client suffix", () => {
