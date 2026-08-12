@@ -16,7 +16,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.EnvVarSource (EnvVarSource, resolveEnvVarArguments, resolveEnvVarFile, throwOverriddenVarsError, toEnvVarList)
+import Wasp.Cli.Util.EnvVarSource (EnvVarSource, resolveEnvVarArguments, resolveEnvVarFile, withEnvVarSources)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
@@ -48,12 +48,12 @@ makeBuildStartConfig appSpec args projectDir' = do
       clientLocation = WebApp.makeDefaultDevClientLocation appSpec
 
   serverRunConfig' <-
-    either (throwOverriddenVarsError serverEnvVars) pure $
-      makeServerRunConfig serverLocation (AL.url clientLocation) (toEnvVarList serverEnvVars)
+    withEnvVarSources serverEnvVars $
+      makeServerRunConfig serverLocation (AL.url clientLocation)
 
   clientRunConfig' <-
-    either (throwOverriddenVarsError clientEnvVars) pure $
-      makeClientRunConfig clientLocation (AL.url serverLocation) (toEnvVarList clientEnvVars)
+    withEnvVarSources clientEnvVars $
+      makeClientRunConfig clientLocation (AL.url serverLocation)
 
   return $
     BuildStartConfig
