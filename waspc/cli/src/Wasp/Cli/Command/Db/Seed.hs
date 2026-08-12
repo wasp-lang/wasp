@@ -19,7 +19,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Util.EnvVarSource (throwOverriddenVarsError)
+import Wasp.Cli.Util.EnvVarSource (withEnvVarSources)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
@@ -41,19 +41,16 @@ seed maybeUserProvidedSeedName = do
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  liftIO (dbSeed serverRunConfig.envVars genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed serverRunConfig genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
   where
     defaultDevServerRunConfig :: AS.AppSpec -> Command ServerRunConfig
     defaultDevServerRunConfig appSpec =
-      either (throwOverriddenVarsError extraEnvVars) pure $
+      withEnvVarSources [] $
         makeServerRunConfig
           Server.defaultDevServerLocation
           (AL.url $ WebApp.makeDefaultDevClientLocation appSpec)
-          extraEnvVars
-
-    extraEnvVars = []
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do

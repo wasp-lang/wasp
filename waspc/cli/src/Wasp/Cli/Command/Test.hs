@@ -16,7 +16,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.Util.EnvVarSource (throwOverriddenVarsError)
+import Wasp.Cli.Util.EnvVarSource (withEnvVarSources)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -69,8 +69,7 @@ watchAndTest testRunner = withProjectLock $ do
     defaultDevClientRunConfig :: AS.AppSpec -> Command ClientRunConfig
     defaultDevClientRunConfig appSpec =
       -- The user gives us no env vars here, so there is nothing to override.
-      either (throwOverriddenVarsError []) pure $
+      withEnvVarSources [] $
         makeClientRunConfig
           (WebApp.makeDefaultDevClientLocation appSpec)
           (AL.url Server.defaultDevServerLocation)
-          []

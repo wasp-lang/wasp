@@ -22,7 +22,6 @@ import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified Text.Regex.TDFA as TR
-import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
@@ -38,6 +37,7 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Job.IO
   ( collectJobTextOutputUntilExitReceived,
@@ -144,14 +144,14 @@ dbReset generatedAppDir resetArgs = do
     ExitFailure c -> Left $ "Failed with exit code " <> show c
 
 dbSeed ::
-  [EnvVar] ->
+  ServerRunConfig ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed waspEnvVars generatedAppDir seedName = do
+dbSeed serverRunConfig generatedAppDir seedName = do
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed waspEnvVars generatedAppDir seedName chan
+    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed serverRunConfig.envVars generatedAppDir seedName chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c

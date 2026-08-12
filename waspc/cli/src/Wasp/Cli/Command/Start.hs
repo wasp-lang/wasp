@@ -17,7 +17,7 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.Util.EnvVarSource (resolveEnvVarProjectFile, resolveInheritedEnvVars, throwOverriddenVarsError, toEnvVarList)
+import Wasp.Cli.Util.EnvVarSource (resolveEnvVarProjectFile, resolveInheritedEnvVars, withEnvVarSources)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
@@ -115,11 +115,12 @@ makeDevRunConfigs appSpec waspProjectDir = do
   serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
 
   clientRunConfig <-
-    either (throwOverriddenVarsError clientEnvVarSources) pure $
-      makeClientRunConfig clientLocation (AL.url serverLocation) (toEnvVarList clientEnvVarSources)
+    withEnvVarSources clientEnvVarSources $
+      makeClientRunConfig clientLocation (AL.url serverLocation)
+
   serverRunConfig <-
-    either (throwOverriddenVarsError serverEnvVarSources) pure $
-      makeServerRunConfig serverLocation (AL.url clientLocation) (toEnvVarList serverEnvVarSources)
+    withEnvVarSources serverEnvVarSources $
+      makeServerRunConfig serverLocation (AL.url clientLocation)
 
   return (clientRunConfig, serverRunConfig)
   where
