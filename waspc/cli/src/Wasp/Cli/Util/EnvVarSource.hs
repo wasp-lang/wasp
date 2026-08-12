@@ -22,7 +22,7 @@ throwOverriddenVarsError :: [EnvVarSource] -> [EnvVarName] -> Command a
 throwOverriddenVarsError sources overriddenNames =
   throwError $
     CommandError "Overridden environment variables" $
-      "The following env vars are set by Wasp and cannot be overridden by the user: "
+      "Wasp sets the following environment variables, so you must not specify them yourself: "
         ++ intercalate ", " (describeOverriddenEnvVar <$> overriddenEnvVars)
   where
     overriddenEnvVars =
