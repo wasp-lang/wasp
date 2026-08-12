@@ -103,9 +103,6 @@ start = withProjectLock $ do
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
--- | Builds the run configs for the client and the server we run in
--- development, on top of the env vars the user set in their project's dotenv
--- files and in the environment they called Wasp from.
 makeDevRunConfigs ::
   AppSpec ->
   Path' Abs (Dir WaspProjectDir) ->
