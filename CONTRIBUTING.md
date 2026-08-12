@@ -31,7 +31,7 @@ While this document captures the general instructions for the whole repo, make s
 > [!NOTE]
 > **Developing on Windows?** Use the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). Wasp's development scripts are Bash scripts and won't run in PowerShell or Command Prompt. If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux instructions instead.
 
-We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](../mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
+We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
 
 Run `mise install` from the root of the repo to install all the required tools. Then, you can access the mise-managed tools in different ways:
 
