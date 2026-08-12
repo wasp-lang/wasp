@@ -4,6 +4,7 @@ module Wasp.Generator.DockerGenerator
   ( genDockerFiles,
     genDockerfile,
     compileAndRenderDockerfile,
+    clientEnvBuildArgName,
   )
 where
 
@@ -46,9 +47,16 @@ genDockerfile spec = do
             [ "usingPrisma" .= hasEntities spec,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
+              "clientEnvBuildArgName" .= clientEnvBuildArgName,
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )
+
+-- | The Docker build argument the app's client environment variables are passed
+-- in, in @.env@ format. They are part of the app's pages and assets, so they
+-- have to be there when the image is built, not when it runs.
+clientEnvBuildArgName :: String
+clientEnvBuildArgName = "WASP_CLIENT_ENV"
 
 genDockerignore :: AppSpec -> Generator FileDraft
 genDockerignore _ =

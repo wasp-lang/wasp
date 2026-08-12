@@ -3,11 +3,12 @@ module Wasp.Generator.WebAppGenerator
     createWebAppRootDir,
     webAppRootDirPath,
     viteBuildDirPath,
+    nitroServerEntryInGeneratedAppDir,
     WebAppViteBuildDir,
   )
 where
 
-import StrongPath (Abs, Dir, Path', Rel, reldir, (</>))
+import StrongPath (Abs, Dir, File', Path, Path', Posix, Rel, reldir, relfileP, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing)
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -43,6 +44,14 @@ viteBuildDirPath = webAppRootDirPath </> viteBuildDirInWebAppDir
 
 viteBuildDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppViteBuildDir)
 viteBuildDirInWebAppDir = [reldir|build|]
+
+-- | The entry point of the server Nitro builds. It serves the whole app: the
+-- client's static assets and prerendered pages, and the server's API.
+--
+-- A POSIX path because it ends up in npm scripts and Dockerfiles, which use
+-- forward slashes on every platform.
+nitroServerEntryInGeneratedAppDir :: Path Posix (Rel GeneratedAppDir) File'
+nitroServerEntryInGeneratedAppDir = [relfileP|web-app/server/index.mjs|]
 
 createWebAppRootDir :: Path' Abs (Dir GeneratedAppDir) -> IO ()
 createWebAppRootDir generatedAppDir = createDirectoryIfMissing True webAppRootDir

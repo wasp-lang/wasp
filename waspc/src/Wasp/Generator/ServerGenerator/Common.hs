@@ -17,7 +17,7 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    defaultDevServerUrl,
+    defaultServerUrl,
     defaultServerPort,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
@@ -147,16 +147,16 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
--- | The port Wasp's own server process listens on: in production, and in
--- development, where it still runs next to the app's server (which serves the
--- app's HTTP API through Nitro, on the app's port).
+-- | The port the built app listens on, unless its deployment says otherwise
+-- (with @PORT@). In development, the app is served on the Vite server's port
+-- instead (see @defaultClientPort@).
 defaultServerPort :: Int
 defaultServerPort = 3001
 
--- | The URL of Wasp's own server process. In development, the app's API is
--- served on the app's URL instead (see @getDefaultDevClientUrl@).
-defaultDevServerUrl :: String
-defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+-- | Where the built app is served from, when it runs locally (@wasp build
+-- start@) on its default port.
+defaultServerUrl :: String
+defaultServerUrl = "http://localhost:" ++ show defaultServerPort
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"

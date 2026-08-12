@@ -1,13 +1,8 @@
-import { $ } from "zx";
-
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
-import {
-  getClientDeploymentDir,
-  getServerDeploymentDir,
-} from "../../../../common/waspProject.js";
+import { getServerDeploymentDir } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
 import {
   RailwayCliExe,
@@ -19,7 +14,7 @@ import {
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
 import { getRailwayEnvVarValueReference } from "../../env.js";
-import { clientAppPort, serverAppPort } from "../../ports.js";
+import { serverAppPort } from "../../ports.js";
 import {
   initRailwayProject,
   linkRailwayProjectToWaspProjectDir,
@@ -60,16 +55,23 @@ export async function setup(
     await setupDb(deploymentInstructions);
   }
 
-  if (project.doesServiceExist(deploymentInstructions.clientServiceName)) {
-    waspSays("Client service already exists. Skipping client setup.");
-  } else {
-    await setupClient(deploymentInstructions);
-  }
-
   if (project.doesServiceExist(deploymentInstructions.serverServiceName)) {
-    waspSays("Server service already exists. Skipping server setup.");
+    waspSays("App service already exists. Skipping app setup.");
   } else {
     await setupServer(deploymentInstructions);
+  }
+
+  if (project.doesServiceExist(deploymentInstructions.clientServiceName)) {
+    waspSays(
+      `The "${deploymentInstructions.clientServiceName}" service exists, from back when the client was a service of its own.
+Your app now serves its own pages, so nothing deploys to that service anymore. You can remove it from your Railway project.`,
+    );
+  }
+
+  if (options.clientSecret.length > 0) {
+    waspSays(
+      `Ignoring --client-secret: your app's client environment variables are part of its pages and assets, so they are set when the app's image is built, not when it runs.`,
+    );
   }
 }
 
@@ -169,14 +171,9 @@ async function setupDb({
 async function setupServer({
   cmdOptions: options,
   serverServiceName,
-  clientServiceName,
   dbServiceName,
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
-  waspSays(`Setting up server app with name ${serverServiceName}`);
-
-  // The client service needs a URL so it can be referenced in the
-  // server service env variables.
-  await generateServiceUrl(clientServiceName, clientAppPort, options);
+  waspSays(`Setting up app service with name ${serverServiceName}`);
 
   const serverDeploymentDir = getServerDeploymentDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(
@@ -184,12 +181,10 @@ async function setupServer({
     serverDeploymentDir,
   );
 
-  const clientUrl = `https://${getRailwayEnvVarValueReference(
-    "RAILWAY_PUBLIC_DOMAIN",
-    { serviceName: clientServiceName },
-  )}`;
-  // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
-  const serverUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
+  // One service serves both the app's pages and its API, so both of the URLs
+  // below are its own. If we reference the service URL in its OWN env
+  // variables, we don't prefix it with the service name.
+  const appUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
   const databaseUrl = getRailwayEnvVarValueReference("DATABASE_URL", {
     serviceName: dbServiceName,
   });
@@ -200,8 +195,8 @@ async function setupServer({
       ["--service", serverServiceName],
       ["--variables", `PORT=${serverAppPort}`],
       ["--variables", `JWT_SECRET=${jwtSecret}`],
-      ["--variables", `WASP_SERVER_URL=${serverUrl}`],
-      ["--variables", `WASP_WEB_CLIENT_URL=${clientUrl}`],
+      ["--variables", `WASP_SERVER_URL=${appUrl}`],
+      ["--variables", `WASP_WEB_CLIENT_URL=${appUrl}`],
       ["--variables", `DATABASE_URL=${databaseUrl}`],
       ...options.serverSecret.map((secret) => ["--variables", secret]),
     ].flat(),
@@ -211,35 +206,5 @@ async function setupServer({
   // env variables, we can only generate it after the service is created.
   await generateServiceUrl(serverServiceName, serverAppPort, options);
 
-  waspSays("Server setup complete!");
-}
-
-async function setupClient({
-  cmdOptions: options,
-  clientServiceName,
-}: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
-  waspSays(`Setting up client app with name ${clientServiceName}`);
-
-  const clientDeploymentDir = getClientDeploymentDir(options.waspProjectDir);
-  const railwayCli = createCommandWithCwd(
-    options.railwayExe,
-    clientDeploymentDir,
-  );
-
-  // Having a Staticfile tells Railway to use a static file server.
-  await $({ cwd: clientDeploymentDir })`touch Staticfile`;
-
-  await railwayCli(
-    [
-      "add",
-      ["--service", clientServiceName],
-      ["--variables", `PORT=${clientAppPort}`],
-      // So Railpack detects the output as static files even when there's not an
-      // `index.html`.
-      ["--variables", `RAILPACK_STATIC_FILE_ROOT=1`],
-      ...options.clientSecret.map((secret) => ["--variables", secret]),
-    ].flat(),
-  );
-
-  waspSays("Client setup complete!");
+  waspSays("App setup complete!");
 }

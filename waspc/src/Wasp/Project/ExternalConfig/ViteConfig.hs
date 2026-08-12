@@ -2,12 +2,15 @@
 
 module Wasp.Project.ExternalConfig.ViteConfig
   ( validateViteConfig,
+    findViteConfigFileInWaspProjectDir,
   )
 where
 
+import Control.Monad (filterM)
+import Data.Maybe (listToMaybe)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import StrongPath (Abs, Dir, File', Path', relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Validation (Validation (..))
 import Wasp.Project.Common
@@ -16,24 +19,26 @@ import Wasp.Project.Common
   )
 import qualified Wasp.Util.IO as IOUtil
 
-validateViteConfig :: Path' Abs (Dir WaspProjectDir) -> IO (Validation [CompileError] ())
-validateViteConfig waspDir =
-  findExistingFile viteConfigCandidates >>= \case
-    Nothing -> return $ Failure [fileNotFoundMessage]
-    Just path -> validatePluginImport path
+-- | Finds the project's Vite config file, which is written either in
+-- TypeScript or in JavaScript.
+findViteConfigFileInWaspProjectDir ::
+  Path' Abs (Dir WaspProjectDir) ->
+  IO (Maybe (Path' (Rel WaspProjectDir) File'))
+findViteConfigFileInWaspProjectDir waspDir =
+  listToMaybe <$> filterM (doesFileExist . toFilePath . (waspDir </>)) viteConfigFileCandidates
   where
-    viteConfigCandidates :: [Path' Abs File']
-    viteConfigCandidates =
-      [ waspDir </> [relfile|vite.config.ts|],
-        waspDir </> [relfile|vite.config.js|]
+    viteConfigFileCandidates :: [Path' (Rel WaspProjectDir) File']
+    viteConfigFileCandidates =
+      [ [relfile|vite.config.ts|],
+        [relfile|vite.config.js|]
       ]
 
-    findExistingFile :: [Path' Abs File'] -> IO (Maybe (Path' Abs File'))
-    findExistingFile [] = return Nothing
-    findExistingFile (f : fs) = do
-      exists <- doesFileExist $ toFilePath f
-      if exists then return (Just f) else findExistingFile fs
-
+validateViteConfig :: Path' Abs (Dir WaspProjectDir) -> IO (Validation [CompileError] ())
+validateViteConfig waspDir =
+  findViteConfigFileInWaspProjectDir waspDir >>= \case
+    Nothing -> return $ Failure [fileNotFoundMessage]
+    Just path -> validatePluginImport $ waspDir </> path
+  where
     validatePluginImport :: Path' Abs File' -> IO (Validation [CompileError] ())
     validatePluginImport viteConfigFile = do
       content <- IOUtil.readFileStrict viteConfigFile

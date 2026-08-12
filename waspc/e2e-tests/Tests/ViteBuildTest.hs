@@ -27,10 +27,12 @@ viteBuildTest =
   Test
     "vite-build"
     [ TestCase
-        "fail-on-missing-required-env-vars"
-        (createViteBuildTestCase [expectCommandFailure <$> viteBuild]),
+        -- The app's server serves its API on the app's own origin, so there is
+        -- nothing the app needs to be told about where its API is.
+        "succeed-without-env-vars"
+        (createViteBuildTestCase [viteBuild]),
       TestCase
-        "success-with-required-env-vars"
+        "success-with-explicit-api-url"
         (createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]),
       TestCase
         "fail-missing-inline-env-var"
