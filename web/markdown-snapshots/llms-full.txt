@@ -15423,9 +15423,9 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Check for duplicate auth identities (only if you wrote them with raw Prisma)
+#### 4. Check for duplicate auth identities (only if you wrote them manually)
 
-Wasp now enforces that an account has at most one identity per auth provider, by adding a `@@unique([authId, providerName])` constraint to the [`AuthIdentity` entity](https://wasp.sh/docs/auth/entities#authidentity-entity-). The database migration that adds this constraint **will fail if your database contains duplicates**.
+Wasp now enforces that an account has at most one identity per auth provider, by adding a `@@unique([authId, providerName])` constraint to the [`AuthIdentity` entity](https://wasp.sh/docs/auth/entities#entities-explained). The database migration that adds this constraint **will fail if your database contains duplicates**.
 
 No built-in Wasp flow can create a duplicate, so you only need to check this if your app writes `AuthIdentity` rows directly through raw Prisma or custom SQL insertions. If it doesn't, you're good to go!
 
