@@ -24,6 +24,7 @@ module Wasp.Generator.ServerGenerator.Common
     libsRootDirFromServerDir,
     operationsRouteInRootRouter,
     healthRoutePath,
+    webSocketRoutePath,
     dotEnvInServerRootDir,
   )
 where
@@ -164,6 +165,10 @@ operationsRouteInRootRouter = "operations"
 -- @\/@, which now belongs to the app's pages.
 healthRoutePath :: String
 healthRoutePath = "/_wasp/health"
+
+-- | The route the app's websocket connections are upgraded on.
+webSocketRoutePath :: String
+webSocketRoutePath = "/_wasp/ws"
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

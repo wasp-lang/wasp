@@ -1,4 +1,8 @@
-import { type WebSocketDefinition } from "wasp/server/webSocket";
+import {
+  broadcast,
+  defineWebSocket,
+  type WaspSocketPeer,
+} from "wasp/server/webSocket";
 
 type PollState = {
   question: string;
@@ -17,57 +21,59 @@ interface ClientToServerEvents {
   vote: (optionId: number) => void;
   askForStateUpdate: () => void;
 }
-interface InterServerEvents {}
 
-export const votingWebSocket: WebSocketDefinition<
+const poll: PollState = {
+  question: "What are eating for lunch ✨ Let's order",
+  options: [
+    {
+      id: 1,
+      text: "Party Pizza Place",
+      description: "Best pizza in town",
+      votes: [],
+    },
+    {
+      id: 2,
+      text: "Best Burger Joint",
+      description: "Best burger in town",
+      votes: [],
+    },
+    {
+      id: 3,
+      text: "Sus Sushi Place",
+      description: "Best sushi in town",
+      votes: [],
+    },
+  ],
+};
+
+export const votingWebSocket = defineWebSocket<
   ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents
-> = (io, context) => {
-  const poll: PollState = {
-    question: "What are eating for lunch ✨ Let's order",
-    options: [
-      {
-        id: 1,
-        text: "Party Pizza Place",
-        description: "Best pizza in town",
-        votes: [],
-      },
-      {
-        id: 2,
-        text: "Best Burger Joint",
-        description: "Best burger in town",
-        votes: [],
-      },
-      {
-        id: 3,
-        text: "Sus Sushi Place",
-        description: "Best sushi in town",
-        votes: [],
-      },
-    ],
-  };
-  io.on("connection", (socket) => {
-    if (!socket.data.user) {
+  ServerToClientEvents
+>({
+  open(peer) {
+    const username = getUsername(peer);
+    if (!username) {
       console.log("Socket connected without user");
       return;
     }
+    console.log("Socket connected: ", username);
+  },
 
-    const connectionUsername = socket.data.user.getFirstProviderUserId();
+  events: {
+    askForStateUpdate(peer) {
+      peer.send("updateState", poll);
+    },
 
-    console.log("Socket connected: ", connectionUsername);
-    socket.on("askForStateUpdate", () => {
-      socket.emit("updateState", poll);
-    });
-
-    socket.on("vote", (optionId) => {
-      if (!connectionUsername) {
+    vote(peer, optionId) {
+      const username = getUsername(peer);
+      if (!username) {
         return;
       }
+
       // If user has already voted, remove their vote.
       poll.options.forEach((option) => {
         option.votes = option.votes.filter(
-          (username) => username !== connectionUsername,
+          (votingUsername) => votingUsername !== username,
         );
       });
       // And then add their vote to the new option.
@@ -75,12 +81,19 @@ export const votingWebSocket: WebSocketDefinition<
       if (!option) {
         return;
       }
-      option.votes.push(connectionUsername);
-      io.emit("updateState", poll);
-    });
+      option.votes.push(username);
 
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected: ", connectionUsername ?? "unknown");
-    });
-  });
-};
+      broadcast("updateState", poll);
+    },
+  },
+
+  close(peer) {
+    console.log("Socket disconnected: ", getUsername(peer) ?? "unknown");
+  },
+});
+
+function getUsername(
+  peer: WaspSocketPeer<ServerToClientEvents>,
+): string | undefined {
+  return peer.data.user?.getFirstProviderUserId() ?? undefined;
+}

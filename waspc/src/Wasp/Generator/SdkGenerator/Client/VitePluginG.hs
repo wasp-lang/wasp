@@ -17,10 +17,12 @@ import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.NitroRoutesG (serverEntryFileInServerRootDir)
+import Wasp.Generator.ServerGenerator.WebSocketG (webSocketRouteFileInServerRootDir)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath, webAppRootDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.WebSocket as WS
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
     generatedAppDirInWaspProjectDir,
@@ -74,16 +76,24 @@ genNitroBridgePlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "nitroOutputDirPath" .= SP.fromRelDir webAppRootDirPath,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "spaFallbackFilePath" .= ("/" ++ SP.fromRelFileP spaFallbackFile),
-          "prerenderPaths" .= makeJsArrayFromHaskellList (getPrerenderPaths spec)
+          "prerenderPaths" .= makeJsArrayFromHaskellList (getPrerenderPaths spec),
+          "webSocket"
+            .= object
+              [ "isUsed" .= WS.areWebSocketsUsed spec,
+                "routePath" .= Server.webSocketRoutePath,
+                "handlerPath" .= SP.fromRelFileP (inWaspProjectDir webSocketRouteFileInServerRootDir)
+              ]
         ]
 
     -- The generated server's Nitro entry point, from the Wasp project directory
     -- (which is where Vite runs).
-    serverEntryPointPathInWaspProjectDir =
+    serverEntryPointPathInWaspProjectDir = inWaspProjectDir serverEntryFileInServerRootDir
+
+    inWaspProjectDir fileInServerRootDir =
       fromJust . SP.relFileToPosix $
         generatedAppDirInWaspProjectDir
           </> Server.serverRootDirInGeneratedAppDir
-          </> serverEntryFileInServerRootDir
+          </> fileInServerRootDir
 
 -- | The Nitro renderer entry point. Unlike the rest of the SSR code, it is a
 -- plain file in the SDK (not a Vite virtual file), because Nitro builds it

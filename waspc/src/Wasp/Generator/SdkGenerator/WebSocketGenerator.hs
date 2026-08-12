@@ -1,18 +1,18 @@
 module Wasp.Generator.SdkGenerator.WebSocketGenerator
   ( genWebSockets,
-    depsRequiredByWebSockets,
+    webSocketPathInApp,
   )
 where
 
 import Data.Aeson (object, (.=))
 import Data.Char (toLower)
 import StrongPath (relfile)
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -21,6 +21,7 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
@@ -29,7 +30,8 @@ genWebSockets spec
       sequence
         [ genServerWebSocketIndex spec,
           genFileCopy [relfile|client/webSocket/index.ts|],
-          genClientWebSocketProvider spec
+          genFileCopy [relfile|client/webSocket/WebSocketProvider.tsx|],
+          genClientWebSocket spec
         ]
   | otherwise = return []
 
@@ -43,20 +45,19 @@ genServerWebSocketIndex spec =
           "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
         ]
 
-genClientWebSocketProvider :: AppSpec -> Generator FileDraft
-genClientWebSocketProvider spec =
-  return $ mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
+genClientWebSocket :: AppSpec -> Generator FileDraft
+genClientWebSocket spec =
+  return $ mkTmplFdWithData [relfile|client/webSocket/socket.ts|] tmplData
   where
     tmplData =
       object
         [ "autoConnect" .= map toLower (show shouldAutoConnect),
-          "webSocketUrlInDevelopment" .= Server.defaultDevServerUrl
+          "webSocketPath" .= webSocketPathInApp spec
         ]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByWebSockets spec =
-  if AS.WS.areWebSocketsUsed spec
-    then AS.WS.sdkDepsRequiredForWebSockets
-    else []
+-- | The path the app serves its websocket from, as the browser sees it. Nitro
+-- serves the whole app (its routes included) from the app's base directory.
+webSocketPathInApp :: AppSpec -> String
+webSocketPathInApp spec = SP.fromAbsDirP (WebApp.getBaseDir spec) ++ drop 1 Server.webSocketRoutePath

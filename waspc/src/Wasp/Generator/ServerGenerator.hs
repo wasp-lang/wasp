@@ -71,7 +71,7 @@ import Wasp.Generator.ServerGenerator.NitroRoutesG (genNitro)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
-import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.ServerGenerator.WebSocketG (genWebSockets)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
@@ -181,7 +181,6 @@ npmDepsFromWasp spec =
               -- imports `nitro/h3`, and the server's `tsc --build` compiles it.
               ("nitro", nitroVersion)
             ]
-            ++ depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
@@ -268,13 +267,11 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
-              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
+              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
