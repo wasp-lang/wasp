@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "6a12546a295c1ca39bd1f8e04a64281f6b8d06704a7fc24312c47b8d27317743"
+        "fe6eb07ad23d2b1465fc4324bc5559b31ce15091faac5419563bd374cd2bdb9d"
     ],
     [
         [
@@ -123,7 +123,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "d96b661b257ce35b5a2bc7dfe3920a196e5a73c3d27156773db4e547dd06dbd2"
+        "8ba43e4f5902ceadad1a9deeabf423c4affe11a62fcf8e1d5308d3d319bc0998"
     ],
     [
         [
@@ -501,7 +501,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "a7199024fa9a50dedc7ae42e53bc78cefc0ec7795534348726ffcde7e6e14afe"
+        "a0289fd7d9e34a493e3be3daa97c93fdf5292b04e9e516bc9d5b1ebe2e7bf048"
     ],
     [
         [
@@ -683,28 +683,21 @@
             "file",
             "server/.gitignore"
         ],
-        "2c3d81dd719ff91d51609a02d03ba62ad456e2c50763b7b4c761395cb583f890"
+        "108ea6dc07b222a2d538f20d443697e00d10f58f366543d23bf27ab0029162e2"
     ],
     [
         [
             "file",
             "server/README.md"
         ],
-        "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
+        "5068992d1bc457db847de6be767b760551dacf2d71d1349ae332932e63ea1833"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "43e460da75fa488c3fbbd35512e824fc3b0e5dc5a8fbbef61d76c2d728bc8293"
-    ],
-    [
-        [
-            "file",
-            "server/rollup.config.js"
-        ],
-        "ad3308f02976dc31d660543bf2840c2d71ecc611eded594d4530aeb9946e8c97"
+        "201c56700ece6357b2f0e6b905ddb1569085933387aea8586024293d2f59cd9d"
     ],
     [
         [
@@ -786,16 +779,9 @@
     [
         [
             "file",
-            "server/src/server.ts"
-        ],
-        "d285bea8e4d3d4433450830fc6b001ec38684ebf11ca6527ddd4d1fc5b0dd3be"
-    ],
-    [
-        [
-            "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "650dd4d96bef6882c2f0a8a0b0d72cad267d5091d8aabb1c22ef47b23a27341b"
     ],
     [
         [

@@ -182,10 +182,6 @@
                 "version": "^2.8.5"
             },
             {
-                "name": "dotenv",
-                "version": "^16.6.1"
-            },
-            {
                 "name": "express",
                 "version": "~5.1.0"
             },
@@ -208,10 +204,6 @@
         ],
         "devDependencies": [
             {
-                "name": "@rollup/plugin-node-resolve",
-                "version": "^16.0.0"
-            },
-            {
                 "name": "@tsconfig/node24",
                 "version": "latest"
             },
@@ -230,14 +222,6 @@
             {
                 "name": "@types/node",
                 "version": "^24.0.0"
-            },
-            {
-                "name": "rollup",
-                "version": "^4.9.6"
-            },
-            {
-                "name": "rollup-plugin-esbuild",
-                "version": "^6.1.1"
             },
             {
                 "name": "typescript",
