@@ -771,6 +771,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/uppercaseTextJob.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/uppercaseTextJob.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/uppercaseTextJob.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/uppercaseTextJob.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/statefulResource.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/statefulResource.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/statefulResource.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/lifecycle/statefulResource.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/middleware/globalMiddleware.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/middleware/globalMiddleware.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/middleware/globalMiddleware.js
@@ -895,6 +903,8 @@ wasp-app/.wasp/out/sdk/wasp/server/jobs/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/mySpecialJob.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/mySpecialScheduledJob.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/uppercaseTextJob.ts
+wasp-app/.wasp/out/sdk/wasp/server/lifecycle/index.ts
+wasp-app/.wasp/out/sdk/wasp/server/lifecycle/statefulResource.ts
 wasp-app/.wasp/out/sdk/wasp/server/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/sdk/wasp/server/middleware/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/operations/actions/index.ts
@@ -920,7 +930,6 @@ wasp-app/.wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts
 wasp-app/.wasp/out/server/.env
 wasp-app/.wasp/out/server/.gitignore
 wasp-app/.wasp/out/server/README.md
-wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
@@ -974,6 +983,7 @@ wasp-app/.wasp/out/server/src/middleware/index.ts
 wasp-app/.wasp/out/server/src/middleware/operations.ts
 wasp-app/.wasp/out/server/src/nitro/apiManifest.ts
 wasp-app/.wasp/out/server/src/nitro/expressBridge.ts
+wasp-app/.wasp/out/server/src/nitro/plugins/wasp.ts
 wasp-app/.wasp/out/server/src/nitro/serverEntry.ts
 wasp-app/.wasp/out/server/src/nitro/setup.ts
 wasp-app/.wasp/out/server/src/nitro/webSocket.ts

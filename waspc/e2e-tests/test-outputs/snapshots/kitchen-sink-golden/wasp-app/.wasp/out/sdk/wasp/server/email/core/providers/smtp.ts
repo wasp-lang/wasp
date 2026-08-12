@@ -4,6 +4,10 @@ import type { SMTPEmailProvider, EmailSender } from "../types";
 
 // PRIVATE API
 export function initSmtpEmailSender(config: SMTPEmailProvider): EmailSender {
+  // TODO: Make the transport a stateful resource (`wasp/server/lifecycle`), so
+  // that it is closed when the server stops and reused across reloads in
+  // development. Nodemailer's default SMTP transport opens a connection per
+  // message and closes it again, so nothing leaks meanwhile.
   const transporter = createTransport({
     host: config.host,
     port: config.port,

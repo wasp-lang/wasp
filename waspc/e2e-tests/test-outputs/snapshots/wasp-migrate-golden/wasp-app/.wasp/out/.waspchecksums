@@ -305,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/nitroBridge.ts"
         ],
-        "3ef2b355d4abed9e33a0d30cde9a065d9c568d5610fa248bed14eeaec5f7dfb9"
+        "de587c2a353f358ac26a044ff3fadeebc74aa84e31b862f8042477fdb80a40f6"
     ],
     [
         [
@@ -438,7 +438,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "658732016ea419faa953439f349dd55561ddb16b929065d1ac78251e2dfe0f3e"
+        "d6c1d39689c7c72ec3678561ccfdd64403c339cbcf4162ebe6e37b1de94be1d1"
     ],
     [
         [
@@ -494,7 +494,7 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "5087f769527b1fb2c39e78b3ca155fd1bc006288ec6d1bbcea011e4fd2db698c"
+        "67004ce7574ec226aa781a795ee0c56ba09127c4ee4147fffd60fe82f21f3d64"
     ],
     [
         [
@@ -509,6 +509,20 @@
             "sdk/wasp/server/index.ts"
         ],
         "8c8ad2b3979c6940d2ab90b789ff847c1af1c1bc8d8541438cd9d210f6ff6e25"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/lifecycle/index.ts"
+        ],
+        "5aa754523cde577a118661f2f557f90fe361e5c0907787f73331c0f5c83563ae"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/lifecycle/statefulResource.ts"
+        ],
+        "77c98ec6e3ae331c442662763a9c4f10ac23ebd5af02aa9bf89c665fdd6bdd1c"
     ],
     [
         [
@@ -681,16 +695,9 @@
     [
         [
             "file",
-            "server/nodemon.json"
-        ],
-        "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
-    ],
-    [
-        [
-            "file",
             "server/package.json"
         ],
-        "6f020657fb69b6f462b148888ea74156802e37de567bca33b6b1b0f1c48fe1e8"
+        "43e460da75fa488c3fbbd35512e824fc3b0e5dc5a8fbbef61d76c2d728bc8293"
     ],
     [
         [
@@ -740,6 +747,13 @@
             "server/src/nitro/expressBridge.ts"
         ],
         "1299ee7b0d3d962154d8dbe0d15c429ab20e5b0d1758355ff08477f34c4835a1"
+    ],
+    [
+        [
+            "file",
+            "server/src/nitro/plugins/wasp.ts"
+        ],
+        "2318bf916c94dd18c8f156bc3bbf5dfd9b85a78cf856c9c3bb49071c3e601209"
     ],
     [
         [
