@@ -77,7 +77,8 @@ const waspFaqs: FaqItemData[] = [
         <p>
           Unlike them, Wasp doesn't embed its config into the host language
           (Ruby, PHP, ...). Instead, it lives in its own specification layer:{" "}
-          <InlineCode>*.wasp.ts</InlineCode> files, agnostic to the underlying tech stack.
+          <InlineCode>*.wasp.ts</InlineCode> files, agnostic to the underlying
+          tech stack.
         </p>
         <p>
           This gives Wasp a lot of leverage. The spec is written in a real
@@ -96,9 +97,9 @@ const waspFaqs: FaqItemData[] = [
         <p>Wasp uses React, Node.js (Express) and Prisma.</p>
         <p>
           At its core, though, Wasp is tech-agnostic. The config layer (
-          <InlineCode>*.wasp.ts</InlineCode>) is standalone and can be paired with different
-          code generators in the future: Drizzle next to Prisma, Vue or Svelte
-          next to React, ...
+          <InlineCode>*.wasp.ts</InlineCode>) is standalone and can be paired
+          with different code generators in the future: Drizzle next to Prisma,
+          Vue or Svelte next to React, ...
         </p>
       </>
     ),
@@ -108,13 +109,13 @@ const waspFaqs: FaqItemData[] = [
     answer: (
       <>
         <p>
-          If <InlineCode>X</InlineCode> is a library from the JS ecosystem, the answer is
-          almost always "yes".
+          If <InlineCode>X</InlineCode> is a library from the JS ecosystem, the
+          answer is almost always "yes".
         </p>
         <p>
-          If <InlineCode>X</InlineCode> would replace a core part of Wasp's stack (React,
-          Node.js, Prisma, Wasp's Auth or jobs) rather than sit next to it, the
-          answer is usually "not yet".
+          If <InlineCode>X</InlineCode> would replace a core part of Wasp's
+          stack (React, Node.js, Prisma, Wasp's Auth or jobs) rather than sit
+          next to it, the answer is usually "not yet".
         </p>
         <p>
           Why "not yet" and not "no"? Supporting multiple frontend frameworks,
@@ -150,13 +151,11 @@ const waspFaqs: FaqItemData[] = [
       <>
         <p>
           Since Wasp relies on code generation, a deployed Wasp app is just an
-          app in its tech stack (React, Node.js, Prisma). It performs and
-          scales the same way any such app does - there is no Wasp runtime on
-          top.
+          app in its tech stack (React, Node.js, Prisma). It performs and scales
+          the same way any such app does - there is no Wasp runtime on top.
         </p>
         <p>
-          We will cover this in more detail in our docs as we get closer to
-          1.0.
+          We will cover this in more detail in our docs as we get closer to 1.0.
         </p>
       </>
     ),
@@ -170,9 +169,9 @@ const waspFaqs: FaqItemData[] = [
           and no platform you have to deploy to.
         </p>
         <p>
-          A Wasp app compiles to its tech stack (React, Node.js, Prisma) and
-          can be deployed to any hosting solution. Deploying to Fly or Railway
-          takes a single CLI command, but that is just a convenience, with more
+          A Wasp app compiles to its tech stack (React, Node.js, Prisma) and can
+          be deployed to any hosting solution. Deploying to Fly or Railway takes
+          a single CLI command, but that is just a convenience, with more
           providers to come.
         </p>
         <p>
@@ -207,8 +206,8 @@ const companyFaqs: FaqItemData[] = [
           support our vision.
         </p>
         <p>
-          Being a company is what lets us have a full-time team working on
-          Wasp, while staying true to our values.
+          Being a company is what lets us have a full-time team working on Wasp,
+          while staying true to our values.
         </p>
       </>
     ),
@@ -222,8 +221,8 @@ const companyFaqs: FaqItemData[] = [
           funding lets us focus fully on making Wasp great.
         </p>
         <p>
-          The framework will always be open-source and free. The plan is to
-          earn by offering paid services on top of it.
+          The framework will always be open-source and free. The plan is to earn
+          by offering paid services on top of it.
         </p>
       </>
     ),
