@@ -11,6 +11,7 @@ import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import Data.List.NonEmpty (toList)
 import StrongPath ((</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -120,6 +121,6 @@ overrideEnvVarsC existingEnvVars incomingEnvVars =
         CommandError
           "Duplicate environment variables"
           ( "The following environment variables are defined multiple times: "
-              <> intercalate ", " duplicateEnvVarNames
+              <> intercalate ", " (toList duplicateEnvVarNames)
               <> ". Please remove the duplicates."
           )
