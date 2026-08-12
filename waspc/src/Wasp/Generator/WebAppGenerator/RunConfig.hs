@@ -5,7 +5,7 @@ module Wasp.Generator.WebAppGenerator.RunConfig
 where
 
 import Network.Socket (PortNumber)
-import Wasp.Env (EnvVar, EnvVarName, overrideEnvVars)
+import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import qualified Wasp.Util.AppLocation as AL
 
@@ -15,16 +15,9 @@ data ClientRunConfig = ClientRunConfig
   }
   deriving (Show, Eq)
 
-makeClientRunConfig ::
-  AL.AppLocation ->
-  String ->
-  [EnvVar] ->
-  Either [EnvVarName] ClientRunConfig
-makeClientRunConfig location serverUrl extraEnvVars =
+makeClientRunConfig :: AL.AppLocation -> String -> ClientRunConfig
+makeClientRunConfig location serverUrl =
   ClientRunConfig
     location.port
-    <$> overrideEnvVars requiredEnvVars extraEnvVars
-  where
-    requiredEnvVars =
-      [ (Common.serverUrlEnvVarName, serverUrl)
-      ]
+    [ (Common.serverUrlEnvVarName, serverUrl)
+    ]

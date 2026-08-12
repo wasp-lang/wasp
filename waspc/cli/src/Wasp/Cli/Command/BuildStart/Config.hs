@@ -21,12 +21,13 @@ import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Env (EnvVar, EnvVarName, nubEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
+import qualified Wasp.Generator.ServerGenerator.RunConfig as Server.RC
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig, makeClientRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig)
+import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebApp.RC
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import qualified Wasp.Util.AppLocation as AL
 import Wasp.Util.Terminal (styleCode)
@@ -34,7 +35,7 @@ import Wasp.Util.Terminal (styleCode)
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
     clientRunConfig :: ClientRunConfig,
-    serverRunConfig :: ServerRunConfig,
+    serverRunConfig :: Server.RC.ServerRunConfig,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -52,8 +53,14 @@ makeBuildStartConfig appSpec args projectDir' = do
   let serverLocation = Server.defaultDevServerLocation
       clientLocation = WebApp.makeDefaultDevClientLocation appSpec
 
-  serverRunConfig' <- mapDuplicateEnvVarsError $ makeServerRunConfig serverLocation (AL.url clientLocation) userServerEnvVars
-  clientRunConfig' <- mapDuplicateEnvVarsError $ makeClientRunConfig clientLocation (AL.url serverLocation) userClientEnvVars
+      defaultServerRunConfig = Server.RC.makeServerRunConfig serverLocation (AL.url clientLocation)
+      defaultClientRunConfig = WebApp.RC.makeClientRunConfig clientLocation (AL.url serverLocation)
+
+  fullServerEnvVars <- overrideEnvVarsC defaultServerRunConfig.envVars userServerEnvVars
+  fullClientEnvVars <- overrideEnvVarsC defaultClientRunConfig.envVars userClientEnvVars
+
+  let serverRunConfig' = defaultServerRunConfig {Server.RC.envVars = fullServerEnvVars}
+      clientRunConfig' = defaultClientRunConfig {WebApp.RC.envVars = fullClientEnvVars}
 
   return $
     BuildStartConfig
@@ -101,10 +108,18 @@ combineEnvVarsWithEnvFiles inlineEnvVars files = do
 readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
 readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
 
-mapDuplicateEnvVarsError :: Either [EnvVarName] a -> Command a
-mapDuplicateEnvVarsError (Left duplicateNames) =
-  throwError $
-    CommandError "Duplicate environment variables" $
-      ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
-        intercalate ", " duplicateNames
-mapDuplicateEnvVarsError (Right value) = return value
+overrideEnvVarsC :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
+overrideEnvVarsC existingEnvVars incomingEnvVars =
+  either
+    throwDuplicateEnvVarsError
+    return
+    (overrideEnvVars existingEnvVars incomingEnvVars)
+  where
+    throwDuplicateEnvVarsError duplicateEnvVarNames =
+      throwError $
+        CommandError
+          "Duplicate environment variables"
+          ( "The following environment variables are defined multiple times: "
+              <> intercalate ", " duplicateEnvVarNames
+              <> ". Please remove the duplicates."
+          )

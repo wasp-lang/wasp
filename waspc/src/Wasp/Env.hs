@@ -9,6 +9,7 @@ module Wasp.Env
     nubEnvVars,
     overrideEnvVars,
     formatEnvVarValue,
+    findDuplicateEnvVars,
   )
 where
 
@@ -65,10 +66,16 @@ nubEnvVars = nubBy ((==) `on` fst)
 -- environment variable, we just prepend it to the list and continue.
 overrideEnvVars :: [EnvVar] -> [EnvVar] -> Either [EnvVarName] [EnvVar]
 left `overrideEnvVars` right =
+  case findDuplicateEnvVars left right of
+    Nothing -> Right (left <> right)
+    Just duplicateNames -> Left duplicateNames
+
+findDuplicateEnvVars :: [EnvVar] -> [EnvVar] -> Maybe [EnvVarName]
+findDuplicateEnvVars existing incoming =
   if null duplicateNames
-    then Right (left <> right)
-    else Left duplicateNames
+    then Nothing
+    else Just duplicateNames
   where
     duplicateNames = filter (`Set.member` leftNames) rightNames
-    leftNames = Set.fromList $ map fst left
-    rightNames = map fst right
+    leftNames = Set.fromList $ map fst existing
+    rightNames = map fst incoming
