@@ -22,6 +22,7 @@
 - Fixed the throttle on resending the email verification email, which checked when the last password reset email was sent instead of the last verification email. ([#4651](https://github.com/wasp-lang/wasp/pull/4651))
 - Verifying an email now returns an "invalid credentials" error instead of crashing the server when the account behind the verification link no longer exists. ([#4652](https://github.com/wasp-lang/wasp/pull/4652))
 - Resetting a password now logs the account out everywhere, so sessions created before the reset stop working. ([#4653](https://github.com/wasp-lang/wasp/pull/4653))
+- The `OAuthData` type your auth hooks receive now properly includes the `slack` provider. ([#4655](https://github.com/wasp-lang/wasp/pull/4655))
 
 ## 0.25.0
 
