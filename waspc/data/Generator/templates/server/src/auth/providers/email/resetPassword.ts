@@ -4,6 +4,7 @@ import {
     consumeOneTimeToken,
 } from 'wasp/server/auth/utils';
 import { validateJWT } from 'wasp/server/auth/jwt'
+import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
 import { HttpError } from 'wasp/server';
 
@@ -12,7 +13,9 @@ export async function resetPassword(
     res: Response,
 ): Promise<void> {
     const args = req.body ?? {};
-    ensureValidArgs(args);
+    // NOTE: The token is validated before the password so that an unauthenticated
+    // caller with an invalid token can't learn the deployment's password policy.
+    ensureTokenIsPresent(args);
 
     const { token, password } = args;
     const { email, purpose } = await validateJWT<{ email: string; purpose: string }>(token)
@@ -25,12 +28,14 @@ export async function resetPassword(
         throw new HttpError(400, "Password reset failed, invalid token");
     }
 
+    ensureValidPasswordArg(args);
+
     const providerId = createProviderId('email', email);
 
     // Atomically check + consume the token (one-time use only, even under
     // concurrent requests). Throws if the token is invalid or already used.
     // The new password is hashed when the provider data is persisted.
-    await consumeOneTimeToken(
+    const authIdentity = await consumeOneTimeToken(
         providerId,
         'outstandingPasswordResetToken',
         token,
@@ -38,11 +43,14 @@ export async function resetPassword(
         "Password reset failed, invalid token",
     );
 
+    // Changing the password invalidates all the existing sessions, so that
+    // somebody who got hold of a session can't keep using it.
+    await invalidateAllSessionsForAuthId(authIdentity.authId);
+
     res.json({ success: true });
 };
 
-function ensureValidArgs(args: object): void {
-    ensureTokenIsPresent(args);
+function ensureValidPasswordArg(args: object): void {
     ensurePasswordIsPresent(args);
     ensureValidPassword(args);
 }
