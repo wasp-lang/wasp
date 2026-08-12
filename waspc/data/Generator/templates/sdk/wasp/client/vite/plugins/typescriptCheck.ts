@@ -9,6 +9,10 @@ export function typescriptCheck(options: TypeScriptCheckOptions): Plugin {
   return {
     name: 'wasp:typescript-check',
     apply: 'build',
+    // `buildStart` runs once per environment, and a build has several of them
+    // (`client`, `ssr` and Nitro's). Type checking the user's source doesn't
+    // depend on the environment, so we only do it in one of them.
+    applyToEnvironment: (environment) => environment.name === 'client',
     async buildStart() {
       await runTsc(options.srcTsConfigPath)
     },

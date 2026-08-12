@@ -1,6 +1,7 @@
 module Wasp.Generator.WebAppGenerator
   ( webAppRootDirInGeneratedAppDir,
     createWebAppRootDir,
+    webAppRootDirPath,
     viteBuildDirPath,
     WebAppViteBuildDir,
   )
@@ -26,12 +27,19 @@ data WebAppViteBuildDir
 webAppRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir WebAppRootDir)
 webAppRootDirInGeneratedAppDir = [reldir|web-app|]
 
-viteBuildDirPath :: Path' (Rel WaspProjectDir) (Dir WebAppViteBuildDir)
-viteBuildDirPath =
+-- | Where Nitro writes the built client app (its `output.dir`): the server
+-- bundle goes into a `server` subdirectory, the static assets into
+-- 'viteBuildDirInWebAppDir'.
+webAppRootDirPath :: Path' (Rel WaspProjectDir) (Dir WebAppRootDir)
+webAppRootDirPath =
   dotWaspDirInWaspProjectDir
     </> generatedAppDirInDotWaspDir
     </> webAppRootDirInGeneratedAppDir
-    </> viteBuildDirInWebAppDir
+
+-- | Where the client's static assets end up (Nitro's `output.publicDir`).
+-- Our deployment tooling reads the client artefacts from here.
+viteBuildDirPath :: Path' (Rel WaspProjectDir) (Dir WebAppViteBuildDir)
+viteBuildDirPath = webAppRootDirPath </> viteBuildDirInWebAppDir
 
 viteBuildDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppViteBuildDir)
 viteBuildDirInWebAppDir = [reldir|build|]

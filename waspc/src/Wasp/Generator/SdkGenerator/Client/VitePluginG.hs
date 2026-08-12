@@ -7,18 +7,17 @@ import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, getPrerenderPaths, spaFallbackFile, ssrEntryPointPath)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
-import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
+import Wasp.Generator.WebAppGenerator (viteBuildDirPath, webAppRootDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
@@ -34,6 +33,8 @@ genVitePlugins spec =
     [ genViteIndex,
       genWaspPlugin spec,
       genWaspConfigPlugin spec,
+      genNitroBridgePlugin spec,
+      genNitroRenderer,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
       genValidateEnvPlugin,
@@ -55,14 +56,31 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
     tmplData =
       object
-        [ "clientEntryPointPath" .= clientEntryPointPath,
-          "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
-          "ssrEntryPointPath" .= ssrEntryPointPath,
-          "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
+        [ "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec)
         ]
-    prerenderPaths =
-      concatMap (AS.Route.prerender . snd) (AS.getRoutes spec)
+
+genNitroBridgePlugin :: AppSpec -> Generator FileDraft
+genNitroBridgePlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|nitroBridge.ts|]
+    tmplData =
+      object
+        [ "clientEntryPointPath" .= clientEntryPointPath,
+          "ssrEntryPointPath" .= ssrEntryPointPath,
+          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
+          "nitroOutputDirPath" .= SP.fromRelDir webAppRootDirPath,
+          "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
+          "spaFallbackFilePath" .= ("/" ++ SP.fromRelFileP spaFallbackFile),
+          "prerenderPaths" .= makeJsArrayFromHaskellList (getPrerenderPaths spec)
+        ]
+
+-- | The Nitro renderer entry point. Unlike the rest of the SSR code, it is a
+-- plain file in the SDK (not a Vite virtual file), because Nitro builds it
+-- outside of Vite when prerendering. See the template for details.
+genNitroRenderer :: Generator FileDraft
+genNitroRenderer = return $ C.mkTmplFd tmplPath
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|nitroRenderer.ts|]
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
@@ -72,7 +90,6 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "defaultClientPort" .= WebApp.defaultClientPort,
-          "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object

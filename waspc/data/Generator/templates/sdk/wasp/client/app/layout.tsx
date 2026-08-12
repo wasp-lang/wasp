@@ -4,11 +4,11 @@ import { StrictMode, type ReactNode, useSyncExternalStore } from "react";
 export function Layout({
   children,
   isFallbackPage = false,
-  clientEntrySrc,
+  headChildren,
 }: {
   children?: ReactNode;
   isFallbackPage?: boolean;
-  clientEntrySrc?: string;
+  headChildren?: ReactNode;
 }) {
   const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage);
 
@@ -28,21 +28,21 @@ export function Layout({
 
           {
             /*
-              This script tag's job is to load the client entry so the browser
-              downloads and runs it, hydrating the prerendered HTML.
+              The tags that load the app in the browser: the client entry
+              script (so the browser downloads and runs it, hydrating the
+              rendered HTML) and its stylesheets. The server passes them in,
+              the client renders nothing here: by the time this code runs in
+              the browser, the app is already loaded.
 
-              We only need it in SSR builds, as by the time the client is
-              running this code, it doesn't need to run itself again (and could
-              lead to duplication).
-
-              Rendering it only on the server and not on the client would
+              Rendering them only on the server and not on the client would
               normally cause a hydration mismatch, but React skips erroring on
               server-only nodes if they are **direct children** of `<head>` and
-              `<body>`, to support this kind of usecase. (See
+              `<body>`, to support this kind of usecase. So keep them here,
+              directly inside `<head>`. (See
               https://react.dev/reference/react-dom/static/prerenderToNodeStream)
 
-              We'd usually inject this via React prerender's `bootstrapModules`
-              option, but that has two problems:
+              We'd usually inject the entry script via React prerender's
+              `bootstrapModules` option, but that has two problems:
                 1. React also emits a `<link rel="modulepreload"
                    href="@/wasp/client">` for the bootstrap scripts, but Vite
                    doesn't rewrite `link.href`s, so it would end up as a broken
@@ -50,9 +50,7 @@ export function Layout({
                 2. It hardcodes `async` on the script, which in dev races the
                    `@vitejs/plugin-react` refresh preamble (see #4258).
             */
-            clientEntrySrc ? (
-              <script type="module" src={clientEntrySrc} />
-            ) : null
+            headChildren
           }
         </head>
         <body>
