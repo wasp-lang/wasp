@@ -210,11 +210,7 @@ const Hero = () => {
               deployment built in. Ship in a day and own every line.
               <span className="mt-1 block font-bold">
                 Designed for humans,{" "}
-                <TextLink
-                  to="#ai"
-                  variant="purple"
-                  className="text-wasp-g6 underline-offset-4"
-                >
+                <TextLink to="#ai" variant="purple" className="text-wasp-g6">
                   works beautifully with AI.
                 </TextLink>
               </span>

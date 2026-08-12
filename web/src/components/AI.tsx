@@ -3,9 +3,9 @@ import { ReactNode } from "react";
 import { Zap } from "react-feather";
 
 import useBrokenLinks from "@docusaurus/useBrokenLinks";
+import CtaLink from "./CtaLink";
 import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
-import TextLink from "./TextLink";
 
 const AI_SECTION_ID = "ai";
 
@@ -84,13 +84,9 @@ const AI = () => {
       </div>
 
       <div className="mt-8 text-center">
-        <TextLink
-          to="/vibe-coding"
-          variant="purple"
-          className="inline-flex items-center gap-2 font-mono text-sm font-bold"
-        >
-          See how Wasp supercharges vibe coding <Zap size={14} />
-        </TextLink>
+        <CtaLink to="/vibe-coding" variant="purple">
+          See how Wasp supercharges vibe coding <Zap size={16} />
+        </CtaLink>
       </div>
     </SectionContainer>
   );
