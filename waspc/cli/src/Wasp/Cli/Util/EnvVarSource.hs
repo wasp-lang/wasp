@@ -4,12 +4,9 @@ module Wasp.Cli.Util.EnvVarSource where
 
 import Control.Monad.Except (throwError)
 import Data.List (find, intercalate)
-import StrongPath (Abs, Dir, File', Path', Rel)
-import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.PathArgument (FilePathArgument, getFilePath, showFilePathArgument)
 import Wasp.Env (EnvVar, EnvVarName, parseDotEnvFile)
-import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir)
 
 type EnvVarSource = (String, [EnvVar])
 
