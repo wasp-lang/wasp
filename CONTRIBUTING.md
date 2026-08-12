@@ -51,15 +51,18 @@ You can learn more and install Mise by following the [official instructions](htt
 ### Basic commands
 
 Formatting is defined at the repo level, and you can run it from the repo root with
+
 ```
   npm run format:check
 ```
+
 to check the formatting without any changes to the files, or
+
 ```
   npm run format:write
 ```
-to check and automatically fix formatting (modifies the files).
 
+to check and automatically fix formatting (modifies the files).
 
 ## Ways to contribute
 
