@@ -151,7 +151,8 @@ dbSeed ::
 dbSeed serverRunConfig generatedAppDir seedName = do
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed serverRunConfig.envVars generatedAppDir seedName chan
+    readJobMessagesAndPrintThemPrefixed chan
+      `concurrently` DbJobs.seed serverRunConfig generatedAppDir seedName chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
