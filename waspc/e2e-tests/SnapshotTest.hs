@@ -146,7 +146,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
                      isSubpathOf ".wasp/spec",
                      -- The project lock file persists by design and contains the PID
                      -- of the last Wasp command, which is not deterministic.
-                     isSubpathOf ".wasp/.lock",
+                     isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )
@@ -192,7 +192,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                      isSubpathOf ".wasp/spec",
                      -- The project lock file persists by design and contains the PID
                      -- of the last Wasp command, which is not deterministic.
-                     isSubpathOf ".wasp/.lock",
+                     isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )

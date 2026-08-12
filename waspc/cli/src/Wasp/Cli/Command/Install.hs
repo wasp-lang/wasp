@@ -9,16 +9,16 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (Command, CommandError (..), require)
-import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
 install :: Command ()
-install = withLockedProject $ do
+install = withProjectLock $ do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
   liftIO (installIO waspProjectDir)

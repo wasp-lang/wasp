@@ -15,16 +15,18 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import qualified Wasp.Generator.Client as Client
+import Wasp.Env (EnvVar)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import qualified Wasp.Util.AppLocation as AL
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
@@ -37,11 +39,22 @@ seed maybeUserProvidedSeedName = do
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  let (_, server) = makeDevRunConfigs appSpec Client.defaultPort Server.defaultPort
-
-  liftIO (dbSeed (Server.devEnvVars server) genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed (devServerEnvVars appSpec) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
+
+-- | The seed script never binds a port and never talks to a client, but the
+-- server still validates Wasp's env vars, so we give it the development
+-- defaults.
+devServerEnvVars :: AS.AppSpec -> [EnvVar]
+devServerEnvVars appSpec =
+  -- The user gives us no env vars here, so there is nothing to override and
+  -- this can't fail.
+  either (const []) (.envVars) $
+    makeServerRunConfig
+      Server.defaultDevServerLocation
+      (AL.url $ WebApp.makeDefaultDevClientLocation appSpec)
+      []
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do

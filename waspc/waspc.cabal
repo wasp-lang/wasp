@@ -221,6 +221,7 @@ library
     Wasp.AppSpec.Entity
     Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
+    Wasp.AppSpec.Inspectable
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
@@ -244,7 +245,6 @@ library
     Wasp.Generator.AuthProviders.Email
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.OAuth
-    Wasp.Generator.Client
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -303,7 +303,6 @@ library
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
-    Wasp.Generator.Server
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.Auth.EmailAuthG
@@ -317,6 +316,7 @@ library
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
+    Wasp.Generator.ServerGenerator.RunConfig
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
@@ -345,10 +345,12 @@ library
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
+    Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
     Wasp.Job.Except
@@ -425,6 +427,7 @@ library
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
+    Wasp.Util.AppLocation
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
     Wasp.Util.Docker
@@ -468,7 +471,6 @@ library cli-lib
     lukko ^>=0.1.2,
     mtl,
     neat-interpolation,
-    network,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -486,7 +488,6 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
-    Wasp.Cli.AppComponents
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -518,9 +519,7 @@ library cli-lib
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
-    Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
-    Wasp.Cli.Command.LockedProject
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
@@ -533,6 +532,11 @@ library cli-lib
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
+    Wasp.Cli.Command.Show
+    Wasp.Cli.Command.Show.Build
+    Wasp.Cli.Command.Show.Spec
+    Wasp.Cli.Command.Show.Subcommand
+    Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
@@ -551,7 +555,7 @@ library cli-lib
     Wasp.Cli.ProjectLock
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
-    Wasp.Cli.Util.EnvVarInputs
+    Wasp.Cli.Util.EnvVarSource
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
 
@@ -680,13 +684,10 @@ test-suite wasp-cli-tests
   build-depends:
     base,
     cli-lib,
-    filepath,
     hspec,
     QuickCheck,
-    strong-path,
     tasty,
     tasty-hspec,
-    temporary,
     time,
     waspc,
 
@@ -694,11 +695,9 @@ test-suite wasp-cli-tests
     DbMigrateTest
     Paths_waspc
     TerminalTest
-    Wasp.Cli.AppComponentsTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
-    Wasp.Cli.Util.EnvVarInputsTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
@@ -754,10 +753,10 @@ test-suite waspc-e2e-tests
     Tests.WaspDbStudioTest
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
-    Tests.WaspInfoTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
     Tests.WaspProjectLockTest
+    Tests.WaspShowTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
