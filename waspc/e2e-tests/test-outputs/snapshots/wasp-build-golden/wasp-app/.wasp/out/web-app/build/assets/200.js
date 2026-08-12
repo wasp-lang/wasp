@@ -243,8 +243,10 @@ ky.extend({
 	}
 });
 if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
-	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
-	else apiEventsEmitter.emit("sessionId.clear");
+	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+		if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
+		else apiEventsEmitter.emit("sessionId.clear");
+	}
 });
 function getSessionIdFromAuthorizationHeader(header) {
 	if (header && header.startsWith("Bearer ")) return header.substring(7);

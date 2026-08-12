@@ -98,23 +98,7 @@ By default, Wasp apps use ports `3000` and `3001`, and each managed PostgreSQL d
 We are working on automatic port selection for [Wasp apps](https://github.com/wasp-lang/wasp/issues/4471) and [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
 :::
 
-We can work around this by giving each app different client and server ports.
-
-### Configuring ports
-
-Configure the client port in [`vite.config.ts`](../project/custom-vite-config.md#custom-dev-server-port) and the server port in `.env.server`.
-
-We need to adjust the server and client URLs as well. For example, if we set the client port to `4000` and the server port to `4001`:
-
-```env title=".env.server"
-PORT=4001
-WASP_SERVER_URL=http://localhost:4001
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-```env title=".env.client"
-REACT_APP_API_URL=http://localhost:4001
-```
+Wasp derives your app's dev URLs from the ports it runs on and sets them for you, so overriding them in `.env.server` or `.env.client` fails. Until automatic port selection lands, run one worktree's app at a time.
 
 Wasp's dev PostgreSQL database requires port `5432`. To run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
