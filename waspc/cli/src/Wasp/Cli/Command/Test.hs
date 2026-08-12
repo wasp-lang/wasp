@@ -16,7 +16,6 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.Util.EnvVarSource (withEnvVarSources)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -43,8 +42,7 @@ watchAndTest testRunner = withProjectLock $ do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
-
-  clientRunConfig <- defaultDevClientRunConfig appSpec
+  let clientRunConfig = defaultDevClientRunConfig appSpec
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
@@ -66,10 +64,8 @@ watchAndTest testRunner = withProjectLock $ do
     -- The test runner never binds a port and never talks to a server, but the
     -- client still validates Wasp's env vars, so we give it the development
     -- defaults.
-    defaultDevClientRunConfig :: AS.AppSpec -> Command ClientRunConfig
+    defaultDevClientRunConfig :: AS.AppSpec -> ClientRunConfig
     defaultDevClientRunConfig appSpec =
-      -- The user gives us no env vars here, so there is nothing to override.
-      withEnvVarSources [] $
-        makeClientRunConfig
-          (WebApp.makeDefaultDevClientLocation appSpec)
-          (AL.url Server.defaultDevServerLocation)
+      makeClientRunConfig
+        (WebApp.makeDefaultDevClientLocation appSpec)
+        (AL.url Server.defaultDevServerLocation)

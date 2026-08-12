@@ -17,12 +17,12 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.Util.EnvVarSource (resolveEnvVarProjectFile, resolveInheritedEnvVars, withEnvVarSources)
+import Wasp.Cli.Util.EnvVarSource (assertNoOverriddenEnvVars, resolveEnvVarProjectFile, resolveInheritedEnvVars)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig, makeClientRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..), makeClientRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
@@ -111,18 +111,19 @@ makeDevRunConfigs appSpec waspProjectDir = do
   clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
   serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
 
-  clientRunConfig <-
-    withEnvVarSources clientEnvVarSources $
-      makeClientRunConfig clientLocation (AL.url serverLocation)
-
-  serverRunConfig <-
-    withEnvVarSources serverEnvVarSources $
-      makeServerRunConfig serverLocation (AL.url clientLocation)
+  -- We only assert and persist the final env vars ourselves because the
+  -- subprocesses will pick the env vars themselves as part of their own
+  -- runtime.
+  assertNoOverriddenEnvVars clientRunConfig.envVars clientEnvVarSources
+  assertNoOverriddenEnvVars serverRunConfig.envVars serverEnvVarSources
 
   return (clientRunConfig, serverRunConfig)
   where
     clientLocation = WebApp.makeDefaultDevClientLocation appSpec
+    clientRunConfig = makeClientRunConfig clientLocation (AL.url serverLocation)
+
     serverLocation = Server.defaultDevServerLocation
+    serverRunConfig = makeServerRunConfig serverLocation (AL.url clientLocation)
 
     devEnvVarSources dotEnvFile =
       sequence

@@ -9,6 +9,7 @@ module Wasp.Env
     nubEnvVars,
     overrideEnvVars,
     formatEnvVarValue,
+    findDuplicateEnvVars,
   )
 where
 
@@ -16,6 +17,7 @@ import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import Data.List.NonEmpty (NonEmpty, nonEmpty)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
@@ -63,12 +65,15 @@ nubEnvVars = nubBy ((==) `on` fst)
 -- with the same name, we'll want to inform them so that the user doesn't get
 -- confused about which value is being used. If the user has not defined that
 -- environment variable, we just prepend it to the list and continue.
-overrideEnvVars :: [EnvVar] -> [EnvVar] -> Either [EnvVarName] [EnvVar]
-left `overrideEnvVars` right =
-  if null duplicateNames
-    then Right (left <> right)
-    else Left duplicateNames
+overrideEnvVars :: [EnvVar] -> [EnvVar] -> Either (NonEmpty EnvVarName) [EnvVar]
+overrideEnvVars existing incoming =
+  case nonEmpty $ findDuplicateEnvVars existing incoming of
+    Nothing -> Right (nubEnvVars $ existing <> incoming)
+    Just duplicateNames -> Left duplicateNames
+
+findDuplicateEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarName]
+findDuplicateEnvVars existing incoming =
+  filter (`Set.member` existingNames) incomingNames
   where
-    duplicateNames = filter (`Set.member` leftNames) rightNames
-    leftNames = Set.fromList $ map fst left
-    rightNames = map fst right
+    existingNames = Set.fromList $ map fst existing
+    incomingNames = map fst incoming
