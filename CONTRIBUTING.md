@@ -78,7 +78,7 @@ If you have full-stack experience outside of Wasp, you should already be in a go
 
 The Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles its own code into them.
 
-While you will need to know some Haskell, you don't have to be an expert in Haskell to contribute or understand the code since we don't use complicated Haskell features much -> most of the code is relatively straightforward, and we are happy to help with the part that is not.
+While you will need to know some Haskell, you don't have to be an expert in Haskell to contribute or understand the code since we don't use complicated Haskell features often. Most of the code is relatively straightforward, and we are happy to help with the part that is not.
 
 Check the [**Wasp compiler README**](https://github.com/wasp-lang/wasp/blob/main/waspc/README.md) for all the detailed instructions and guides.
 
