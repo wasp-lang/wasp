@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
     createProviderId,
     consumeOneTimeToken,
+    ensureTokenIsOutstanding,
 } from 'wasp/server/auth/utils';
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
@@ -28,9 +29,18 @@ export async function resetPassword(
         throw new HttpError(400, "Password reset failed, invalid token");
     }
 
-    ensureValidPasswordArg(args);
-
     const providerId = createProviderId('email', email);
+
+    // Reject consumed/superseded tokens before the password-policy validation,
+    // so a holder of a spent token can't learn the deployment's password policy.
+    await ensureTokenIsOutstanding(
+        providerId,
+        'outstandingPasswordResetToken',
+        token,
+        "Password reset failed, invalid token",
+    );
+
+    ensureValidPasswordArg(args);
 
     // Atomically check + consume the token (one-time use only, even under
     // concurrent requests). Throws if the token is invalid or already used.

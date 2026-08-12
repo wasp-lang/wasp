@@ -322,6 +322,42 @@ export function sha256(value: string): string {
 const ONE_TIME_TOKEN_CONSUME_RETRIES = 5;
 
 // PRIVATE API
+// Returns the auth identity whose currently outstanding token for the given
+// purpose slot equals `tokenHash`; otherwise throws `invalidTokenMessage`. This
+// is the single place that defines what "outstanding" means: not consumed, and
+// not superseded by a newer token.
+async function findAuthIdentityWithOutstandingToken(
+  providerId: ProviderId,
+  field: 'outstandingEmailVerificationToken' | 'outstandingPasswordResetToken',
+  tokenHash: string,
+  invalidTokenMessage: string,
+): Promise<{= authIdentityEntityUpper =}> {
+  const authIdentity = await findAuthIdentity(providerId);
+  if (!authIdentity) {
+    throw new HttpError(400, invalidTokenMessage);
+  }
+  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
+  if (providerData[field] !== tokenHash) {
+    throw new HttpError(400, invalidTokenMessage);
+  }
+  return authIdentity;
+}
+
+// PRIVATE API
+// Throws `invalidTokenMessage` if `token` is not currently outstanding for the
+// given purpose slot (no such auth identity, already consumed, or superseded by
+// a newer token). Callers use this to reject spent tokens before doing work that
+// must not be reachable with an invalid token (e.g. password-policy validation).
+export async function ensureTokenIsOutstanding(
+  providerId: ProviderId,
+  field: 'outstandingEmailVerificationToken' | 'outstandingPasswordResetToken',
+  token: string,
+  invalidTokenMessage: string,
+): Promise<void> {
+  await findAuthIdentityWithOutstandingToken(providerId, field, sha256(token), invalidTokenMessage);
+}
+
+// PRIVATE API
 /**
  * Atomically consumes a one-time token (email verification / password reset).
  *
@@ -350,17 +386,10 @@ export async function consumeOneTimeToken(
   const tokenHash = sha256(token);
 
   for (let attempt = 0; attempt < ONE_TIME_TOKEN_CONSUME_RETRIES; attempt++) {
-    const authIdentity = await findAuthIdentity(providerId);
-    if (!authIdentity) {
-      throw new HttpError(400, invalidTokenMessage);
-    }
+    // Re-read and re-check the outstanding token on every attempt, so a token
+    // consumed concurrently is rejected (exactly one consume wins).
+    const authIdentity = await findAuthIdentityWithOutstandingToken(providerId, field, tokenHash, invalidTokenMessage);
     const existingProviderData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-
-    // Reject immediately if this is no longer the current outstanding token
-    // (already consumed, or superseded by a newly issued token).
-    if (existingProviderData[field] !== tokenHash) {
-      throw new HttpError(400, invalidTokenMessage);
-    }
 
     // Only hash the password coming in via `updates` (if any) to avoid re-hashing
     // the already-stored password hash. Mirrors `updateAuthIdentityProviderData`.
