@@ -54,7 +54,7 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Dev tooling
 
-Follow repo-wide [Dev tooling](/CONTRIBUTING.md#dev-tooling) instructions.
+Follow repo-wide [Dev tooling](../CONTRIBUTING.md#dev-tooling) instructions.
 
 ### Build
 

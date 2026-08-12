@@ -19,7 +19,7 @@ There are several main ways in which you can contribute to Wasp:
 
 We are using a monorepo approach, where one git repo contains multiple related projects.
 
-In our case, those are [web](/web) (Wasp's web page, including docs and blog), [waspc](/waspc) (Wasp CLI & framework), etc.
+In our case, those are [web](web/) (Wasp's web page, including docs and blog), [waspc](waspc/) (Wasp CLI & framework), etc.
 
 While this document captures the general instructions for the whole repo, make sure to check the README of each individual project in the repo when working on it for more detailed instructions.
 
@@ -46,7 +46,7 @@ Run `mise install` from the root of the repo to install all the required tools. 
 You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
 
 > [!NOTE]
-> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](../mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
 
 ### Basic commands
 
