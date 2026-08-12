@@ -32,7 +32,7 @@ export function getOAuthCookieValue(
   provider: ProviderConfig,
   req: ExpressRequest,
   fieldName: OAuthStateFieldName,
-): string {
+): string | undefined {
   const cookieName = `${provider.id}_${fieldName}`;
   const cookies = parseCookies(req.headers.cookie ?? "");
   return cookies.get(cookieName);
