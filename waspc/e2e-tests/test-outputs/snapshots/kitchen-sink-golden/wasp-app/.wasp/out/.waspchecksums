@@ -550,7 +550,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "fd701ae001ba7fbd8c1814a0d516d6c171dd291f714d2ad695a6631ba6c278e0"
+        "1a16dc0140ac369f9effdfc7ddbbc701c8f486e876199b0effca8b921e88d970"
     ],
     [
         [
@@ -1124,7 +1124,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "da5f13c40473f597a9bc5e5d61ee29f3e37fa02a31a18ddc8fdd121b77425371"
+        "dcdb658e0feddaf8a912c5f90d55dbef3f2d2b778f240ea6dffacbf2b224954a"
     ],
     [
         [

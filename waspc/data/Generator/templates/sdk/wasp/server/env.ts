@@ -158,10 +158,8 @@ const jwtTokenSchema = z
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
-  "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default("{= defaultServerUrl =}"),
-  "{= clientUrlEnvVarName =}": clientUrlSchema
-    .default("{= defaultClientUrl =}"),
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
+  "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default("DEVJWTSECRET"),
