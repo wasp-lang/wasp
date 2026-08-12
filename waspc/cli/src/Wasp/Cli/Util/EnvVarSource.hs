@@ -35,6 +35,15 @@ resolveEnvVarProjectFile projectDir file =
 resolveInheritedEnvVars :: IO EnvVarSource
 resolveInheritedEnvVars = ("your environment",) <$> getEnvironment
 
+-- | Runs a function that takes a list of environment variables, while also
+-- checking that none of the variables are overridden by Wasp itself. If any
+-- are overridden, a CommandError is thrown.
+withEnvVarSources :: [EnvVarSource] -> ([EnvVar] -> Either [EnvVarName] a) -> Command a
+withEnvVarSources sources f =
+  case f $ toEnvVarList sources of
+    Left overriddenNames -> throwOverriddenVarsError sources overriddenNames
+    Right result -> return result
+
 throwOverriddenVarsError :: [EnvVarSource] -> [EnvVarName] -> Command a
 throwOverriddenVarsError sources overriddenNames =
   throwError $
