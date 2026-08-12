@@ -4,11 +4,11 @@ module Wasp.Generator.WebAppGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path')
-import Wasp.Env (EnvVar)
+import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir)
 
-startWebApp :: [EnvVar] -> Path' Abs (Dir WaspProjectDir) -> J.Job
-startWebApp waspEnvVars waspProjectDir = do
-  runNodeCommandAsJobWithExtraEnv waspEnvVars waspProjectDir "npx" ["vite"] J.WebApp
+startWebApp :: ClientRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job
+startWebApp clientRunConfig waspProjectDir = do
+  runNodeCommandAsJobWithExtraEnv clientRunConfig.envVars waspProjectDir "npx" ["vite"] J.WebApp

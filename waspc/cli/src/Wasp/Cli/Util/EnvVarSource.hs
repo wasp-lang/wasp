@@ -4,11 +4,13 @@ module Wasp.Cli.Util.EnvVarSource where
 
 import Control.Monad.Except (throwError)
 import Data.List (find, intercalate)
+import Data.List.NonEmpty (NonEmpty, toList)
+import Data.List.NonEmpty.Extra (nonEmpty)
 import qualified StrongPath as SP
 import System.Environment (getEnvironment)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.PathArgument (FilePathArgument, getFilePath, showFilePathArgument)
-import Wasp.Env (EnvVar, EnvVarName, nubEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, EnvVarName, findDuplicateEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir)
 
 type EnvVarSource = (String, [EnvVar])
@@ -35,7 +37,17 @@ resolveEnvVarProjectFile projectDir file =
 resolveInheritedEnvVars :: IO EnvVarSource
 resolveInheritedEnvVars = ("your environment",) <$> getEnvironment
 
-throwOverriddenVarsError :: [EnvVarSource] -> [EnvVarName] -> Command a
+overrideEnvVarsC :: [EnvVar] -> [EnvVarSource] -> Command [EnvVar]
+overrideEnvVarsC existingEnvVars incomingEnvVarSources =
+  either (throwOverriddenVarsError incomingEnvVarSources) return $
+    overrideEnvVars existingEnvVars (concatMap snd incomingEnvVarSources)
+
+assertNoOverriddenEnvVars :: [EnvVar] -> [EnvVarSource] -> Command ()
+assertNoOverriddenEnvVars existingEnvVars incomingEnvVarSources =
+  maybe (return ()) (throwOverriddenVarsError incomingEnvVarSources) $
+    nonEmpty (findDuplicateEnvVars existingEnvVars $ concatMap snd incomingEnvVarSources)
+
+throwOverriddenVarsError :: [EnvVarSource] -> NonEmpty EnvVarName -> Command a
 throwOverriddenVarsError sources overriddenNames =
   throwError $
     CommandError "Overridden environment variables" $
@@ -44,7 +56,7 @@ throwOverriddenVarsError sources overriddenNames =
   where
     overriddenEnvVars =
       [ (name, findSourceForEnvVar name)
-      | name <- overriddenNames
+      | name <- toList overriddenNames
       ]
 
     describeOverriddenEnvVar (name, Nothing) = name
@@ -53,6 +65,3 @@ throwOverriddenVarsError sources overriddenNames =
     findSourceForEnvVar :: EnvVarName -> Maybe String
     findSourceForEnvVar name =
       fst <$> find (\(_, envVars) -> name `elem` (fst <$> envVars)) sources
-
-toEnvVarList :: [EnvVarSource] -> [EnvVar]
-toEnvVarList = nubEnvVars . concatMap snd
