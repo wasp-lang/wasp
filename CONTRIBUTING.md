@@ -12,14 +12,14 @@ There are several main ways in which you can contribute to Wasp:
 - Get some experience with using Wasp, if you don't have any yet.
   Check out the [**Getting Started**](https://wasp.sh/docs) guide to get familiar with Wasp's fundamentals.
   Ideally, you'd also build an app from the [**Pick a Tutorial**](https://wasp.sh/docs/tutorials/todo-app) page to really get a feel for it!
-- Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. More on this below.
-- Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set!
+- Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. Check [Ways to contribute](#ways-to-contribute) for more details.
+- Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set! `#wasp-dev` channel is the perfect place to ping us with the task you want to do and how you plan to do it, which reduces duplicate or misdirected efforts.
 
 ## This repo
 
 We are using a monorepo approach, where one git repo contains multiple related projects.
 
-In our case, those are [web](web/) (Wasp's web page, including docs and blog), [waspc](waspc/) (Wasp CLI & framework), etc.
+In our case, those are [web](web/) (Wasp's web page, including docs and blog), [waspc](waspc/) (Wasp CLI & framework), [examples](examples/) (example Wasp apps), etc.
 
 While this document captures the general instructions for the whole repo, make sure to check the README of each individual project in the repo when working on it for more detailed instructions.
 
@@ -53,13 +53,13 @@ You can learn more and install Mise by following the [official instructions](htt
 Formatting is defined at the repo level, and you can run it from the repo root with
 
 ```
-  npm run format:check
+npm run format:check
 ```
 
 to check the formatting without any changes to the files, or
 
 ```
-  npm run format:write
+npm run format:write
 ```
 
 to check and automatically fix formatting (modifies the files).
