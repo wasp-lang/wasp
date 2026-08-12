@@ -55,12 +55,19 @@ describe("isValidEmail", () => {
     // The email signup endpoint validates the raw request body and only
     // lowercases the address afterwards, so the validator has to accept
     // whatever casing the user typed.
-    it.each(["JOHN@EXAMPLE.COM", "John@Example.com", "jOhN@eXaMpLe.CoM"])(
-      "accepts %j",
-      (email) => {
-        expect(isValidEmail(email)).toBe(true);
-      },
-    );
+    it.each([
+      "JOHN@EXAMPLE.COM",
+      "John@Example.com",
+      "jOhN@eXaMpLe.CoM",
+      // Uppercase confined to the domain.
+      "john@Example.com",
+      "john@example.COM",
+      // Uppercase confined to the local part, running right up to the "@".
+      "JOHN@example.com",
+      "john.DOE@example.com",
+    ])("accepts %j", (email) => {
+      expect(isValidEmail(email)).toBe(true);
+    });
   });
 
   describe("anchoring", () => {
