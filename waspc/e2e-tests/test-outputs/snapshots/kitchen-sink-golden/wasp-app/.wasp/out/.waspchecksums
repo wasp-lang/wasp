@@ -956,7 +956,7 @@
             "file",
             "sdk/wasp/server/auth/lucia.ts"
         ],
-        "6ad98f2dd688ed660244432f54837a67e7c3534e57a9134994b7dd1a0a579d39"
+        "2d517314735c150c0928a38eaf47329bb9c5b4b4e4d7b5deb6ee8f14fc97422c"
     ],
     [
         [
@@ -1033,7 +1033,7 @@
             "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "c72f7c2c3523de4c53b01fdb31b3827466facf4908c8de185302ee37855319b2"
+        "eef71ef3254da456d6c27c0307a0d382d281ec6c7c56503f78c02d0980da478e"
     ],
     [
         [
