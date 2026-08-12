@@ -4,7 +4,12 @@ import {
   RailwayProjectName,
   ServerServiceName,
 } from "../brandedTypes.js";
+import { waspSays } from "../../../common/terminal.js";
+import type { RailwayProject } from "../railwayProject/RailwayProject.js";
 
+/**
+ * Creates a Railway client service name by appending the "-client" suffix to the project name.
+ */
 export function createRailwayClientServiceName(
   projectName: RailwayProjectName,
 ): ClientServiceName {
@@ -14,6 +19,9 @@ export function createRailwayClientServiceName(
   ) as ClientServiceName;
 }
 
+/**
+ * Creates a Railway server service name by appending the "-server" suffix to the project name.
+ */
 export function createRailwayServerServiceName(
   projectName: RailwayProjectName,
 ): ServerServiceName {
@@ -41,7 +49,49 @@ export const serviceNameSuffixes: Record<ServiceWithSuffixedName, string> = {
   [ServiceWithSuffixedName.Server]: "-server",
 };
 
-export function createRailwayDbServiceName(): DbServiceName {
-  // Railway doesn't allow us to choose the database service name.
-  return "Postgres" as DbServiceName;
+/**
+ * Creates a Railway database service name by appending the "-db" suffix to the project name.
+ * This matches Fly.io's pattern and ensures consistent naming across all services.
+ */
+export function createRailwayDbServiceName(
+  projectName: RailwayProjectName,
+): DbServiceName {
+  return `${projectName}-db` as DbServiceName;
+}
+
+/**
+ * Gets the database service name with fallback for legacy deployments.
+ * New deployments use <project-name>-db, but old deployments may still use "Postgres".
+ * If a legacy "Postgres" service is found, a warning is displayed to guide users on renaming.
+ */
+export function getDbServiceNameWithFallback(
+  projectName: RailwayProjectName,
+  project: RailwayProject,
+): DbServiceName {
+  const newDbServiceName = createRailwayDbServiceName(projectName);
+
+  if (project.doesServiceExist(newDbServiceName)) {
+    return newDbServiceName;
+  }
+
+  // Fallback to legacy "Postgres" name for existing deployments
+  const legacyDbServiceName = "Postgres" as DbServiceName;
+  if (project.doesServiceExist(legacyDbServiceName)) {
+    waspSays(`
+⚠️  Warning: Your database service is named "Postgres" (legacy naming).
+   New deployments use "${newDbServiceName}".
+
+   To rename your database service:
+   1. Go to your Railway project dashboard
+   2. Click on the "Postgres" service
+   3. Go to Settings → rename to "${newDbServiceName}"
+   4. Update your server's DATABASE_URL variable:
+      Change: \${{Postgres.DATABASE_URL}}
+      To: \${{${newDbServiceName}.DATABASE_URL}}
+  `);
+    return legacyDbServiceName;
+  }
+
+  // No database exists yet, return the new standard name
+  return newDbServiceName;
 }
