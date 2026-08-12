@@ -33,7 +33,9 @@ const OpenSaas = () => (
           <div className="flex gap-8">
             <Stat number="14k+" label="GitHub stars" />
             <Stat number="1k+" label="apps launched" />
-            <Stat number="#2" label="on Product Hunt"
+            <Stat
+              number="#2"
+              label="on Product Hunt"
               to="https://www.producthunt.com/products/open-saas"
             />
           </div>
