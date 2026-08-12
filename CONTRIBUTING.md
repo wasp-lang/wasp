@@ -37,7 +37,7 @@ Run `mise install` from the root of the repo to install all the required tools. 
 
 - **(Recommended for local development)** You can set up your shell to automatically call the `mise activate` script. This will make sure that the specified tools and versions are in your `PATH` when you go into the repo. Check their installation instructions at https://mise.jdx.dev/installing-mise.html#shells.
 
-- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into an one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
+- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into a one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
 
 - If you don't want to add a shell hook, you can use the [Shims mode](https://mise.jdx.dev/dev-tools/shims.html), which lets you just add a single directory to your `PATH`, which will get populated with intelligent redirectors to the correct versions of the tools for the current working directory.
 
