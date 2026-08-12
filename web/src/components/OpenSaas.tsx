@@ -58,10 +58,10 @@ const OpenSaas = () => (
             <Strong>Admin</Strong> dashboard
           </Feature>
           <Feature>
-            <Strong>Blog</Strong> with markdown
+            Markdown-based <Strong>blog</Strong> (powered by Astro)
           </Feature>
           <Feature>
-            <Strong>Email</Strong> sending (SendGrid, Mailgun)
+            <Strong>Email</Strong> sending (SendGrid, Mailgun, Resend)
           </Feature>
           <Feature>
             <Strong>File upload</Strong> (AWS S3)
@@ -70,7 +70,7 @@ const OpenSaas = () => (
             <Strong>SEO</Strong> optimized
           </Feature>
           <Feature>
-            <Strong>Analytics</Strong> integration
+            <Strong>Analytics</Strong> integration (GA, Plausible)
           </Feature>
           <Feature>
             <Strong>Landing page</Strong> template
