@@ -7,14 +7,15 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
+import Wasp.Env (EnvVar)
 import qualified Wasp.Generator.WebAppGenerator.Test as WebAppTest
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
 
-testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-testWebApp args waspProjectDir = do
+testWebApp :: [EnvVar] -> [String] -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+testWebApp waspEnvVars args waspProjectDir = do
   chan <- newChan
-  let testWebAppJob = WebAppTest.testWebApp args waspProjectDir chan
+  let testWebAppJob = WebAppTest.testWebApp waspEnvVars args waspProjectDir chan
   (testExitCode, _) <-
     testWebAppJob `concurrently` readJobMessagesAndPrintThemPrefixed chan
   case testExitCode of
