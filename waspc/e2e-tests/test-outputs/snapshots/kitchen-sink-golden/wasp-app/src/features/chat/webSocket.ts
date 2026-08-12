@@ -1,21 +1,33 @@
 import { v4 as uuidv4 } from "uuid";
-import { type WebSocketDefinition } from "wasp/server/webSocket";
+import {
+  broadcast,
+  defineWebSocket,
+  type WaspSocketPeer,
+} from "wasp/server/webSocket";
 
-export const chatWebSocket: WebSocketDefinition<
+export const chatWebSocket = defineWebSocket<
   ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents
-> = (io, context) => {
-  io.on("connection", (socket) => {
-    const username = socket.data.user?.getFirstProviderUserId() ?? "Unknown";
-    console.log("a user connected: ", username);
+  ServerToClientEvents
+>({
+  open(peer) {
+    console.log("a user connected: ", getUsername(peer));
+  },
 
-    socket.on("chatMessage", async (msg) => {
+  events: {
+    chatMessage(peer, msg) {
       console.log("message: ", msg);
-      io.emit("chatMessage", { id: uuidv4(), username, text: msg });
-    });
-  });
-};
+      broadcast("chatMessage", {
+        id: uuidv4(),
+        username: getUsername(peer),
+        text: msg,
+      });
+    },
+  },
+});
+
+function getUsername(peer: WaspSocketPeer<ServerToClientEvents>): string {
+  return peer.data.user?.getFirstProviderUserId() ?? "Unknown";
+}
 
 interface ServerToClientEvents {
   chatMessage: (msg: { id: string; username: string; text: string }) => void;
@@ -23,4 +35,3 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {
   chatMessage: (msg: string) => void;
 }
-interface InterServerEvents {}

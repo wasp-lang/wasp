@@ -1,7 +1,6 @@
 {
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
-    "@socket.io/component-emitter": "^4.0.0",
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
@@ -10,7 +9,6 @@
     "helmet": "^6.0.0",
     "morgan": "~1.11.0",
     "nitro": "3.0.260610-beta",
-    "socket.io": "^4.6.1",
     "superjson": "^2.2.1"
   },
   "devDependencies": {

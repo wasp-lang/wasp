@@ -135,6 +135,7 @@ wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/resolver.ts
 wasp-app/.wasp/out/sdk/wasp/client/webSocket/WebSocketProvider.tsx
 wasp-app/.wasp/out/sdk/wasp/client/webSocket/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/webSocket/socket.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/index.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/prisma.ts
@@ -554,6 +555,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/socket.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/socket.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/socket.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/webSocket/socket.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js
@@ -971,6 +976,7 @@ wasp-app/.wasp/out/server/src/nitro/apiManifest.ts
 wasp-app/.wasp/out/server/src/nitro/expressBridge.ts
 wasp-app/.wasp/out/server/src/nitro/serverEntry.ts
 wasp-app/.wasp/out/server/src/nitro/setup.ts
+wasp-app/.wasp/out/server/src/nitro/webSocket.ts
 wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/queries/getAnyAuth.ts
 wasp-app/.wasp/out/server/src/queries/getAnyNoAuth.ts
@@ -1026,7 +1032,6 @@ wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
 wasp-app/.wasp/out/server/src/server.ts
-wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/types/spec/register.ts
