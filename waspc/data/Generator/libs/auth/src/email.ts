@@ -1,13 +1,19 @@
 /**
  * The syntax we accept is the HTML5 `input[type=email]` grammar (WHATWG HTML,
  * "valid e-mail address"), widened to also accept Unicode letters, marks and
- * digits so that internationalized addresses (RFC 6531) are not rejected.
+ * digits so that internationalized addresses are not rejected.
  *
  * We match the HTML5 grammar because that is what browsers already enforce on
  * `input[type=email]`, so the client and the server agree on what an address
  * looks like. We widen it because the HTML5 grammar is deliberately ASCII-only
  * (see whatwg/html#4562), which locks out anyone whose address contains, say,
  * an umlaut.
+ *
+ * Letters, marks and digits are a deliberate subset of what RFC 6531 allows:
+ * the RFC extends the local part with any non-ASCII character, which would also
+ * let in zero-width joiners, bidirectional overrides and other characters that
+ * make two different addresses look identical. Those buy nobody a mailbox, so
+ * we leave them out.
  *
  * Syntax is all we check. Whether an address can actually receive mail is
  * settled by sending it a verification email, not by a regex.

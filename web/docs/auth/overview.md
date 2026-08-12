@@ -352,6 +352,8 @@ If you use [Email](./email.md) authentication, the default validations are:
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
+An address counts as valid if it matches the syntax browsers enforce on `input[type=email]`, widened to accept internationalized addresses such as `jürgen@münchen.de`. Because browsers reject those addresses themselves, use `type="text"` with `inputMode="email"` if you build your own form, and trim the value before you send it.
+
 ## Customizing the Signup Process
 
 Sometimes you want to include **extra fields** in your signup process, like first name and last name and save them in the `User` entity.

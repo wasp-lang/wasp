@@ -37,7 +37,7 @@ describe("isValidEmail", () => {
     },
   );
 
-  describe("internationalized addresses (RFC 6531)", () => {
+  describe("internationalized addresses", () => {
     it.each([
       "jürgen@example.com",
       "user@münchen.de",
@@ -48,6 +48,19 @@ describe("isValidEmail", () => {
       "квіточка@пошта.укр",
     ])("accepts %j", (email) => {
       expect(isValidEmail(email)).toBe(true);
+    });
+
+    // We accept Unicode letters, marks and digits, which is narrower than the
+    // "any non-ASCII character" RFC 6531 allows. See the note in `email.ts`.
+    it.each([
+      // Emoji.
+      "😀@example.com",
+      // Zero width joiner.
+      "us‍er@example.com",
+      // Right-to-left override.
+      "us‮er@example.com",
+    ])("rejects the non-letter, non-digit character in %j", (email) => {
+      expect(isValidEmail(email)).toBe(false);
     });
   });
 

@@ -16,6 +16,9 @@ export const emailInputProps = {
  */
 export const emailFieldRules = {
   required: 'Email is required',
+  // `type="email"` used to strip surrounding whitespace for us, `type="text"`
+  // doesn't, so a pasted address would fail validation without this.
+  setValueAs: (email: string) => email.trim(),
   validate: (email: string) =>
     isValidEmail(email) || 'Email must be a valid email',
 }

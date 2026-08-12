@@ -53,7 +53,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -102,7 +103,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -179,7 +181,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -267,7 +270,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -316,7 +320,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -393,7 +398,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
