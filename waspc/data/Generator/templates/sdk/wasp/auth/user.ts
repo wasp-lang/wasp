@@ -125,7 +125,12 @@ function makeAuthUser(data: AuthUserData): AuthUser {
   return {
     ...data,
     getFirstProviderUserId: () => {
-      const identities = Object.values(data.identities).filter(isNotNull);
+      // The cast keeps this working when `identities` is empty, which is the case
+      // for an app using a custom auth provider and no Wasp auth methods: the
+      // generated type is then `{}` and `Object.values` would yield `unknown[]`.
+      const identities = Object.values(
+        data.identities as Record<string, { id: string } | null>
+      ).filter(isNotNull);
       return identities.length > 0 ? identities[0].id : null;
     },
   };
