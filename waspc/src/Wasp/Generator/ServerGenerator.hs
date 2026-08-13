@@ -23,7 +23,6 @@ import Data.Maybe
 import StrongPath
   ( Dir,
     File,
-    File',
     Path,
     Path',
     Posix,
@@ -44,7 +43,6 @@ import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
@@ -102,7 +100,7 @@ genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
-        (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
+        (C.serverRootDirInGeneratedAppDir </> C.dotEnvFileInServerRootDir)
         (envVarsToDotEnvContent envVars)
     ]
   where
@@ -112,9 +110,6 @@ genDotEnv spec =
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
     isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
-
-dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
-dotEnvInServerRootDir = [relfile|.env|]
 
 genTsConfigJson :: AppSpec -> Generator FileDraft
 genTsConfigJson spec = do

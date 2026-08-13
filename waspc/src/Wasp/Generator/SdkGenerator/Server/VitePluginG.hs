@@ -25,6 +25,8 @@ genServerVitePlugins spec =
     [ genViteIndex,
       genWaspServerConfigPlugin spec,
       genDetectClientImportsPlugin,
+      genDevRunnerPlugin,
+      genEnvFilePlugin,
       genVirtualUserModulesPlugin spec
     ]
 
@@ -54,6 +56,18 @@ genDetectClientImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = C.serverVitePluginsDirInSdkTemplatesDir </> [relfile|detectClientImports.ts|]
     tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]
 
+genDevRunnerPlugin :: Generator FileDraft
+genDevRunnerPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.serverVitePluginsDirInSdkTemplatesDir </> [relfile|devRunner.ts|]
+    tmplData = object ["serverStartFilePath" .= toPosixFilePath serverStartFileInWaspProjectDir]
+
+genEnvFilePlugin :: Generator FileDraft
+genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.serverVitePluginsDirInSdkTemplatesDir </> [relfile|envFile.ts|]
+    tmplData = object ["serverEnvFilePath" .= toPosixFilePath serverEnvFileInWaspProjectDir]
+
 serverRootDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir Server.ServerRootDir)
 serverRootDirInWaspProjectDir =
   generatedAppDirInWaspProjectDir </> Server.serverRootDirInGeneratedAppDir
@@ -73,6 +87,15 @@ serverEntryFileInWaspProjectDir = serverSrcDirInWaspProjectDir </> [relfile|serv
 
 dbSeedEntryFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dbSeedEntryFileInWaspProjectDir = serverSrcDirInWaspProjectDir </> [relfile|dbSeed.ts|]
+
+-- | In development the server runs inside the Vite dev server's process, so the
+-- dev runner imports the server's startup code instead of its entry file (which
+-- expects to own its process).
+serverStartFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+serverStartFileInWaspProjectDir = serverSrcDirInWaspProjectDir </> [relfile|start.ts|]
+
+serverEnvFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+serverEnvFileInWaspProjectDir = serverRootDirInWaspProjectDir </> Server.dotEnvFileInServerRootDir
 
 toPosixDirPath :: Path' (Rel r) (Dir d) -> FilePath
 toPosixDirPath = SP.fromRelDirP . fromJust . SP.relDirToPosix
