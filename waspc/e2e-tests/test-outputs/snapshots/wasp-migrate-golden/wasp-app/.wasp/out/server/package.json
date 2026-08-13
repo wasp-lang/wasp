@@ -1,4 +1,5 @@
 {
+  "comment-bundle": "The `bundle` script builds the `server` Vite environment. It runs from the Wasp project's dir (three levels up) because that's where the Vite config declaring that environment lives.",
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz",
@@ -12,15 +13,12 @@
     "superjson": "^2.2.1"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.0",
     "@tsconfig/node24": "latest",
     "@types/cors": "^2.8.5",
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
     "@types/node": "^24.0.0",
     "nodemon": "^2.0.19",
-    "rollup": "^4.9.6",
-    "rollup-plugin-esbuild": "^6.1.1",
     "typescript": "6.0.3"
   },
   "engineStrict": true,
@@ -34,7 +32,7 @@
   "prisma": {},
   "private": true,
   "scripts": {
-    "bundle": "tsc --build && rollup --config --silent",
+    "bundle": "tsc --build && cd ../../.. && node .wasp/out/sdk/wasp/scripts/build-server.mjs",
     "bundle-and-start": "npm run bundle && npm run start",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",

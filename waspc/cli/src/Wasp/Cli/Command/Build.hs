@@ -39,6 +39,7 @@ import Wasp.Project.Common
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
+import Wasp.Project.ExternalConfig.ViteConfig (findViteConfigFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -121,6 +122,16 @@ build = withProjectLock $ do
         copyFile
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
+
+      -- We need the user's Vite config because bundling the server is a Vite
+      -- build of the `server` environment the config declares.
+      liftIO (findViteConfigFile waspProjectDir) >>= \case
+        Nothing -> throwError "Couldn't find the Vite config file in the project directory."
+        Just viteConfigPath ->
+          liftIO $
+            copyFile
+              (waspProjectDir </> viteConfigPath)
+              (buildDir </> castRel viteConfigPath)
 
       -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
       -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.

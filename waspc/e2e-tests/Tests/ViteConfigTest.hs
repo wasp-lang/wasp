@@ -35,7 +35,17 @@ viteConfigTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ writeViteConfigWithoutPlugin,
+                [ writeViteConfigWithoutPlugins,
+                  expectCommandFailure <$> waspCliCompile
+                ]
+            ]
+        ),
+      TestCase
+        "fail-on-missing-wasp-server-plugin-import"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ writeViteConfigWithoutServerPlugin,
                   expectCommandFailure <$> waspCliCompile
                 ]
             ]
@@ -58,8 +68,8 @@ viteConfigTest =
 deleteViteConfig :: ShellCommandBuilder WaspProjectContext ShellCommand
 deleteViteConfig = return "rm vite.config.ts"
 
-writeViteConfigWithoutPlugin :: ShellCommandBuilder WaspProjectContext ShellCommand
-writeViteConfigWithoutPlugin = do
+writeViteConfigWithoutPlugins :: ShellCommandBuilder WaspProjectContext ShellCommand
+writeViteConfigWithoutPlugins = do
   context <- ask
   writeToFile
     (context.waspProjectDir </> [relfile|vite.config.ts|])
@@ -67,6 +77,20 @@ writeViteConfigWithoutPlugin = do
       import { defineConfig } from "vite";
 
       export default defineConfig({});
+    |]
+
+writeViteConfigWithoutServerPlugin :: ShellCommandBuilder WaspProjectContext ShellCommand
+writeViteConfigWithoutServerPlugin = do
+  context <- ask
+  writeToFile
+    (context.waspProjectDir </> [relfile|vite.config.ts|])
+    [trimming|
+      import { defineConfig } from "vite";
+      import { wasp } from "wasp/client/vite";
+
+      export default defineConfig({
+        plugins: [wasp()],
+      });
     |]
 
 writeViteConfigOverridingForcedOptions :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -77,9 +101,10 @@ writeViteConfigOverridingForcedOptions = do
     [trimming|
       import { defineConfig } from "vite";
       import { wasp } from "wasp/client/vite";
+      import { waspServer } from "wasp/server/vite";
 
       export default defineConfig({
-        plugins: [wasp()],
+        plugins: [wasp(), waspServer()],
         base: "/my-subdir/",
         envPrefix: "MY_APP_",
         build: {

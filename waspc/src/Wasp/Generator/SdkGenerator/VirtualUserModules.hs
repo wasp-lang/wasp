@@ -5,13 +5,15 @@ module Wasp.Generator.SdkGenerator.VirtualUserModules
     getClientVirtualUserModules,
     getServerVirtualUserModules,
     extImportToVirtualUserModuleJsImportPath,
-    mkVirtualUserModulePluginData,
+    mkVirtualUserModulesPluginData,
     mkVirtualUserModulesDeclarationData,
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.Function (on)
+import Data.List (nubBy)
 import Data.Maybe (maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
@@ -149,16 +151,23 @@ extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
 extImportToVirtualUserModuleJsImportPath extImportPath =
   RawImportName $ "virtual:wasp/user/" ++ SP.fromRelFileP extImportPath
 
--- | Data for one entry of a bundler plugin's virtual module ID to user file map.
-mkVirtualUserModulePluginData ::
+-- | Data for a bundler plugin's virtual module ID to user file map.
+--
+-- Modules are deduplicated by their virtual module ID because several of them
+-- can share it (e.g. two operations the user defined in the same file), while
+-- the map holds a single entry per ID.
+mkVirtualUserModulesPluginData ::
   (EI.ExtImport -> Aeson.Value) ->
-  VirtualUserModule ->
-  Aeson.Value
-mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
-  object
-    [ "virtualModuleId" .= getVirtualUserModuleId virtualUserModule,
-      "importJson" .= extImportToImportJson (extImport virtualUserModule)
-    ]
+  [VirtualUserModule] ->
+  [Aeson.Value]
+mkVirtualUserModulesPluginData extImportToImportJson virtualUserModules =
+  map mkPluginData $ nubBy ((==) `on` getVirtualUserModuleId) virtualUserModules
+  where
+    mkPluginData virtualUserModule =
+      object
+        [ "virtualModuleId" .= getVirtualUserModuleId virtualUserModule,
+          "importJson" .= extImportToImportJson (extImport virtualUserModule)
+        ]
 
 -- | Data for virtual user modules ambient module declaration.
 mkVirtualUserModulesDeclarationData :: AppSpec -> Aeson.Value

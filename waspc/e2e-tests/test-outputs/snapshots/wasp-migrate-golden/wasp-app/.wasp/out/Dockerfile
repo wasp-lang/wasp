@@ -37,6 +37,9 @@ COPY src ./src
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig*.json .
+# The server is bundled by Vite, using the `server` environment declared in the
+# user's Vite config.
+COPY vite.config.* .
 COPY server .wasp/out/server
 COPY sdk .wasp/out/sdk
 COPY types .wasp/out/types

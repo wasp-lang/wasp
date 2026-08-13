@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "cdfffd42f145d3d13fc29b0bd38f3b2997a69136cd773765a5bc5b9571d41a03"
+        "89e22caff004678e7b1d0c0906b52fa57da68664fc441484a7cc7e738875ee12"
     ],
     [
         [
@@ -865,7 +865,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "51dbfb69a530319fa40e9eeda98c1f1a9b64713f5712eec93493ea1739bec3ff"
+        "1e6e257a4940036f195019fd995268ff32ccd700e7f4e630cd4942ba8915d100"
     ],
     [
         [
@@ -873,6 +873,13 @@
             "sdk/wasp/prisma-runtime-library.d.ts"
         ],
         "063a149e73066606948a7be815239e2446048dd066b28d542efb405c78bb3b35"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/scripts/build-server.mjs"
+        ],
+        "bcfbcdd58b200d253923f0046a31475f1bc81b128004b971be0da46957c60176"
     ],
     [
         [
@@ -1269,6 +1276,34 @@
     [
         [
             "file",
+            "sdk/wasp/server/vite/index.ts"
+        ],
+        "f93547c1f755269d0598a609ccf6cfaf07cbeef44f2f0a90cd61bcdb84ea45d6"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/vite/plugins/detectClientImports.ts"
+        ],
+        "fb01347978963c78f0872f4a461539d7d701d77396188d56f62ff3497291bd7d"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/vite/plugins/virtualUserModules.ts"
+        ],
+        "3488095702a131656093d2f6cda1291d67a33c40c0bbed542d6aa08e0c5f41af"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/vite/plugins/waspServerConfig.ts"
+        ],
+        "a6a65f24e4523bb7b3651dbde8f9b84c7b5e897b566568f2268f088ca9013d69"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/webSocket/index.ts"
         ],
         "2f77950c04e7125527d3841a9ba14236b91d7b2dbda24993e37a063593420fa2"
@@ -1390,14 +1425,7 @@
             "file",
             "server/package.json"
         ],
-        "91c935f3dc70f466c41f4071f70912ba46cbe622103e10033cec3ac8b7a2f2e2"
-    ],
-    [
-        [
-            "file",
-            "server/rollup.config.js"
-        ],
-        "5ff77153dc740eb6a3f5b7951002add2f931b949db59c769277fc27c3d49bd40"
+        "dccf3f8fd2ed900c4271b46de225c05965126307b59c5c720d553ca3cbffb20a"
     ],
     [
         [
@@ -1741,13 +1769,6 @@
             "server/src/middleware/operations.ts"
         ],
         "b7e2dc990c87a962e9ad624af77e4885f2915d4c0abceb9b7772d4d63ecceef3"
-    ],
-    [
-        [
-            "file",
-            "server/src/plugins/virtualUserModules.js"
-        ],
-        "05ef7019d3bdaa6201371e2fc7bfaa0b4fa30c786b634a6abe1d5ed11dcb579b"
     ],
     [
         [

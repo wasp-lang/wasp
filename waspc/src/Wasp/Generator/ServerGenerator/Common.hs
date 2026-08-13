@@ -2,6 +2,7 @@ module Wasp.Generator.ServerGenerator.Common
   ( serverRootDirInGeneratedAppDir,
     serverSrcDirInServerRootDir,
     serverSrcDirInGeneratedAppDir,
+    serverBundleDirInServerRootDir,
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
@@ -15,6 +16,7 @@ module Wasp.Generator.ServerGenerator.Common
     mkTmplFdWithData,
     ServerRootDir,
     ServerSrcDir,
+    ServerBundleDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
     defaultDevServerUrl,
@@ -42,6 +44,8 @@ import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
+
+data ServerBundleDir
 
 data ServerTemplatesDir
 
@@ -71,6 +75,12 @@ serverSrcDirInServerRootDir = [reldir|src|]
 
 serverSrcDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir ServerSrcDir)
 serverSrcDirInGeneratedAppDir = serverRootDirInGeneratedAppDir </> serverSrcDirInServerRootDir
+
+-- | Path to the dir where the bundled (production ready) server code ends up.
+-- NOTE: The generated server's @package.json@ scripts and the Dockerfile refer
+-- to this dir by name too.
+serverBundleDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir ServerBundleDir)
+serverBundleDirInServerRootDir = [reldir|bundle|]
 
 mkTmplFd :: Path' (Rel ServerTemplatesDir) File' -> FileDraft
 mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing

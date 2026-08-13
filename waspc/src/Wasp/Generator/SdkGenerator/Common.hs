@@ -77,11 +77,17 @@ getGenericOperationDefinitionTypeName = toUpperFirst . AS.Operation.getName
 getRegisteredOperationTypeName :: AS.Operation.Operation -> String
 getRegisteredOperationTypeName operation = "Registered" ++ getGenericOperationDefinitionTypeName operation
 
-viteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
-viteDirInSdkTemplatesDir = [reldir|client/vite|]
+clientViteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
+clientViteDirInSdkTemplatesDir = [reldir|client/vite|]
 
-vitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
-vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
+clientVitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
+clientVitePluginsDirInSdkTemplatesDir = clientViteDirInSdkTemplatesDir </> [reldir|plugins|]
+
+serverViteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
+serverViteDirInSdkTemplatesDir = [reldir|server/vite|]
+
+serverVitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
+serverVitePluginsDirInSdkTemplatesDir = serverViteDirInSdkTemplatesDir </> [reldir|plugins|]
 
 sdkPackageName :: String
 sdkPackageName = "wasp"
