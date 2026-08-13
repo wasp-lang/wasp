@@ -22,7 +22,7 @@ import {
   createDatabaseService,
 } from "../../../../src/providers/railway/railwayService/database.js";
 
-const dbVolumeMountPath = "/var/lib/postgresql/data";
+const dbVolumeMountPath = "/custom/postgresql/data";
 const dbServiceName = "Postgres" as DbServiceName;
 const dbImage = "postgres-image";
 const dbService = { id: "service-id", name: dbServiceName };
@@ -45,7 +45,7 @@ beforeEach(() => {
 });
 
 describe("createDatabaseService", () => {
-  test("creates the service and adds a volume to it", async () => {
+  test("uses the configured mount path for PGDATA and the volume", async () => {
     mocks.railwayCli
       .mockResolvedValueOnce(jsonResult(dbService))
       .mockResolvedValueOnce(jsonResult({}));
