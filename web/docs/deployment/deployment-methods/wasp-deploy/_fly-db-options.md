@@ -8,6 +8,8 @@ All database options are optional.
 - `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
 - `--db-image <dbImage>` sets a custom PostgreSQL Docker image.
 
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
 See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
 
 Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
