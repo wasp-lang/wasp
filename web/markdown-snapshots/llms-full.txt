@@ -11533,11 +11533,10 @@ Your custom PostgreSQL image must be compatible with Fly.io, as their platform h
 We have crafted a small guide on [how to create a custom Docker image with PostGIS or pgvector for Fly.io](https://gist.github.com/cprecioso/e19e883138241c1a446f48d6187aae75). You can also use it as a starting point to create your own images with other extensions.
 
 :::tip
-You only need to specify the Docker image once, when first creating the app with any of these commands:
+You only need to specify the Docker image once, when creating the database:
 
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
-wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
 wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 :::
@@ -11569,6 +11568,26 @@ wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
 wasp deploy fly deploy
 ```
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets a custom PostgreSQL Docker image.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 ##### Environment Variables {#fly-launch-environment-variables}
 
@@ -11637,6 +11656,26 @@ It accepts the following arguments:
 - `<region>` required
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets a custom PostgreSQL Docker image.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 :::caution[Execute Only Once]
 You should only run `create-db` once per app. If you run it multiple times, it creates multiple databases, but your app needs only one.
@@ -15420,7 +15459,17 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Enjoy your updated Wasp app
+#### 4. Update Fly database deployment flags
+
+If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
+
+| Before                   | After                       |
+| ------------------------ | --------------------------- |
+| `--vm-size`              | `--db-vm-size`              |
+| `--initial-cluster-size` | `--db-initial-cluster-size` |
+| `--volume-size`          | `--db-volume-size`          |
+
+#### 5. Enjoy your updated Wasp app
 
 That's it!
 

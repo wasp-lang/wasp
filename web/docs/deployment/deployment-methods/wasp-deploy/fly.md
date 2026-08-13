@@ -6,6 +6,7 @@ import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 import CiCdMention from './\_ci-cd-mention.md'
 import CustomServerUrlOption from './\_custom-server-url-option.md'
+import FlyDbOptions from './\_fly-db-options.md'
 
 [Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 
@@ -205,15 +206,13 @@ Your custom PostgreSQL image must be compatible with Fly.io, as their platform h
 We have crafted a small guide on [how to create a custom Docker image with PostGIS or pgvector for Fly.io](https://gist.github.com/cprecioso/e19e883138241c1a446f48d6187aae75). You can also use it as a starting point to create your own images with other extensions.
 
 :::tip
-You only need to specify the Docker image once, when first creating the app with any of these commands:
+You only need to specify the Docker image once, when creating the database:
 
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
-wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
 wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 :::
-
 
 ## API Reference
 
@@ -242,6 +241,10 @@ wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
 wasp deploy fly deploy
 ```
+
+#### Database options
+
+<FlyDbOptions />
 
 #### Environment Variables {#fly-launch-environment-variables}
 
@@ -306,6 +309,10 @@ It accepts the following arguments:
 - `<region>` <Required />
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+
+#### Database options
+
+<FlyDbOptions />
 
 :::caution Execute Only Once
 You should only run `create-db` once per app. If you run it multiple times, it creates multiple databases, but your app needs only one.
