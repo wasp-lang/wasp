@@ -1,16 +1,18 @@
 import { useContext, useEffect } from 'react'
-import { WebSocketContext, WebSocketContextValue } from './WebSocketProvider'
+
 import type {
   ClientToServerEvents,
+  EventPayload,
   ServerToClientEvents,
 } from '../../server/webSocket/index.js'
+import { WebSocketContext, WebSocketContextValue } from './WebSocketProvider'
 
 // PUBLIC API
 export type ServerToClientPayload<Event extends keyof ServerToClientEvents> =
-  Parameters<ServerToClientEvents[Event]>[0]
+  EventPayload<ServerToClientEvents, Event>
 // PUBLIC API
 export type ClientToServerPayload<Event extends keyof ClientToServerEvents> =
-  Parameters<ClientToServerEvents[Event]>[0]
+  EventPayload<ClientToServerEvents, Event>
 
 // PUBLIC API
 export function useSocket(): WebSocketContextValue {
@@ -20,20 +22,13 @@ export function useSocket(): WebSocketContextValue {
 // PUBLIC API
 export function useSocketListener<Event extends keyof ServerToClientEvents>(
   event: Event,
-  handler: ServerToClientEvents[Event]
+  handler: (payload: ServerToClientPayload<Event>) => void
 ): void {
   const { socket } = useContext(WebSocketContext)
   useEffect(() => {
-    // Casting to `keyof ServerToClientEvents` is necessary because TypeScript
-    // reports the handler function as incompatible with the event type.
-    // See https://github.com/wasp-lang/wasp/pull/1203#discussion_r1232068898
-
-    // We are wrapping it in `Extract<...>` due to Typescript infering string | number
-    // in the case of default events being used.
-    type AllowedEvents = Extract<keyof ServerToClientEvents, string>;
-    socket.on(event as AllowedEvents, handler)
+    socket.on(event, handler)
     return () => {
-      socket.off(event as AllowedEvents, handler)
+      socket.off(event, handler)
     }
   }, [event, handler])
 }

@@ -26,6 +26,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.Generator.WebSocket as WS
 import Wasp.Util ((<++>))
 
 genNitro :: AppSpec -> Generator [FileDraft]
@@ -45,7 +46,11 @@ genApiManifest spec = return $ C.mkTmplFdWithData [relfile|src/nitro/apiManifest
 genServerEntry :: AppSpec -> Generator FileDraft
 genServerEntry spec = return $ C.mkTmplFdWithData (C.asTmplFile serverEntryFileInServerRootDir) (Just tmplData)
   where
-    tmplData = object ["setupFn" .= extImportToImportJson pathFromNitroDirToServerSrcDir (getSetupFn spec)]
+    tmplData =
+      object
+        [ "setupFn" .= extImportToImportJson pathFromNitroDirToServerSrcDir (getSetupFn spec),
+          "areWebSocketsUsed" .= WS.areWebSocketsUsed spec
+        ]
 
 -- | Runs the user's server setup function against the Express app Nitro serves.
 -- Only generated for apps that have one.

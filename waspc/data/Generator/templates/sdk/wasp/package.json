@@ -96,8 +96,8 @@
     "./server/email": "./dist/server/email/index.js",
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/operations": "./dist/server/operations/index.js",
-    {=! Users: type WebSocketDefinition, type WaspSocketData. =}
-    {=! Server: type ServerType. =}
+    {=! Users: defineWebSocket, broadcast, publish, type WebSocketDefinition, type WaspSocketData, class WaspSocketPeer. =}
+    {=! Server: createWebSocketHooks in the generated websocket route. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
 
     {=!

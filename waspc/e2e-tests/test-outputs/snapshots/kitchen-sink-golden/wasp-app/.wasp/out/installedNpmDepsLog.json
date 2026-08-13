@@ -187,18 +187,6 @@
                 "version": "^8.0.1"
             },
             {
-                "name": "socket.io",
-                "version": "^4.6.1"
-            },
-            {
-                "name": "socket.io-client",
-                "version": "^4.6.1"
-            },
-            {
-                "name": "@socket.io/component-emitter",
-                "version": "^4.0.0"
-            },
-            {
                 "name": "@vitest/ui",
                 "version": "^4.1.9"
             },
@@ -262,10 +250,6 @@
     "_waspServerNpmDeps": {
         "dependencies": [
             {
-                "name": "@socket.io/component-emitter",
-                "version": "^4.0.0"
-            },
-            {
                 "name": "@wasp.sh/lib-auth",
                 "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
@@ -296,10 +280,6 @@
             {
                 "name": "nitro",
                 "version": "3.0.260610-beta"
-            },
-            {
-                "name": "socket.io",
-                "version": "^4.6.1"
             },
             {
                 "name": "superjson",

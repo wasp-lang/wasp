@@ -1,6 +1,19 @@
-import { defineHandler } from 'nitro/h3'
+import { defineHandler, defineWebSocketHandler } from 'nitro/h3'
 
 import { bridgedPathPrefixes } from './apiManifest.js'
+
+/**
+ * Nitro accepts a websocket upgrade on *any* path once its websocket support is
+ * on, even one nothing is listening on, and leaves it open with no handler
+ * attached. Refusing it is only possible from inside a websocket handler, so
+ * this one stands in for all the paths that aren't the app's websocket (that
+ * one has a route of its own, which Nitro matches before it gets here).
+ */
+const rejectWebSocketUpgrade = defineWebSocketHandler({
+  upgrade() {
+    throw new Response('Not Found', { status: 404 })
+  },
+})
 
 /**
  * Nitro runs this for every request it hasn't already answered with a static
@@ -19,7 +32,7 @@ export default defineHandler(async (event) => {
   // WebSocket upgrades reach us without the Node request/response pair the
   // Express bridge needs (in development). They are never Express's anyway.
   if (event.req.headers.get('upgrade')?.toLowerCase() === 'websocket') {
-    return undefined
+    return rejectWebSocketUpgrade(event)
   }
 
   if (!isBridgedPath(event.url.pathname)) {

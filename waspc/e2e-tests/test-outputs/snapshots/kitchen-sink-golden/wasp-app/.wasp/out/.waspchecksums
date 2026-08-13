@@ -725,7 +725,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/nitroBridge.ts"
         ],
-        "549e785295c91f969a443df5c67f935a4c7caa096b4d75215d30b19311b22fed"
+        "5058af36711c6e741e6250b39eabde4a9be4536a14dc09e7b3e820138ad34a7f"
     ],
     [
         [
@@ -809,14 +809,21 @@
             "file",
             "sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "0cfad1236d209650375b66b4c81f703805590a941b1dca575f05624e9e1a36ad"
+        "7c8fbecf99eeaae2e3286a01fea0c1132306abcdb14683cf931cd7fda82f617b"
     ],
     [
         [
             "file",
             "sdk/wasp/client/webSocket/index.ts"
         ],
-        "a48ec69ffbaf2040158bb5ff6d2a687b6a7337c4587f73c7c2c0d3ec1d0218b0"
+        "e46195ba0f0053107575729ac73ea79ddf5c51dd4b8dde49359fdd1a13381b1f"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/webSocket/socket.ts"
+        ],
+        "e89bcb1948f459fc3cfdf37754e3aebf2ea9621d21c841b66de665220afc5347"
     ],
     [
         [
@@ -872,7 +879,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "aed952f7924b81d8f2bdd2be335ee34488b04253ca0e5d4b564cab05c23fa34f"
+        "7f5a32d2217fd0c46fed7a1c72596172e2c579b3c67d5710931ac14757925b50"
     ],
     [
         [
@@ -1278,7 +1285,7 @@
             "file",
             "sdk/wasp/server/webSocket/index.ts"
         ],
-        "2f77950c04e7125527d3841a9ba14236b91d7b2dbda24993e37a063593420fa2"
+        "4ee6cf187250d865a35d038d64ea962f0febd898404899667688b111084fb789"
     ],
     [
         [
@@ -1390,7 +1397,7 @@
             "file",
             "server/package.json"
         ],
-        "1ea0e1b21f99fe98d78749e9148a2946780600d929d0c6a6d3f89c1fe890db8c"
+        "d418bf67e3696485c8c333e9e01fcd3d2146bb4461370bc2e765a006034dbcf8"
     ],
     [
         [
@@ -1761,7 +1768,7 @@
             "file",
             "server/src/nitro/serverEntry.ts"
         ],
-        "a8d921a9d576e59a7bafcf5e9d8dd220c8ad756a8d352c268d933034ae389579"
+        "d49711becf361eb5b655d9020a7fc6794a5ea6d197a47823b6a775ad2f2d3d02"
     ],
     [
         [
@@ -1769,6 +1776,13 @@
             "server/src/nitro/setup.ts"
         ],
         "d7d69e1e503b5f0d449f5d404869731224edfeb2bcc665e867349b482bf4688a"
+    ],
+    [
+        [
+            "file",
+            "server/src/nitro/webSocket.ts"
+        ],
+        "4d0fe9284f8bf3b926a3eb5cc064bff8ee521607204261959a85b405b5cef45d"
     ],
     [
         [
@@ -2153,14 +2167,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "6236e531606fc6432114a206eafe0206ebe2805ff81e6077eaeb594471a2f6f1"
-    ],
-    [
-        [
-            "file",
-            "server/src/webSocket/initialization.ts"
-        ],
-        "0b15b0069d02f049d4ab08271f5add429244989f0c6925b3bd8b0971d58fbb6b"
+        "014f24205bb594e9239d59fca15bebd92d0a662ae1df2caa014217b1b1140155"
     ],
     [
         [

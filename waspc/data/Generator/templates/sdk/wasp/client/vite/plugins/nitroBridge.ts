@@ -15,6 +15,14 @@ const ssrEntryPointPath = "{= ssrEntryPointPath =}";
  * Wasp's Express app, and lets everything else through to the renderer.
  */
 const serverEntryPointPath = "{= serverEntryPointPath =}";
+{=# webSocket.isUsed =}
+
+/**
+ * The generated server's websocket route, relative to the Wasp project
+ * directory (Vite's root).
+ */
+const webSocketHandlerPath = "{= webSocket.handlerPath =}";
+{=/ webSocket.isUsed =}
 
 /**
  * The path Nitro's renderer is served from. It is a real file in the SDK, not
@@ -82,6 +90,26 @@ export function waspNitroBridge(): Plugin {
             format: "web",
           },
 
+          {=# webSocket.isUsed =}
+          // Nitro's websocket support (crossws). Without it, an upgrade request
+          // reaching the route below hangs forever instead of being answered.
+          features: { websocket: true },
+
+          // The one place we register a route with Nitro: `serverDir` is off
+          // (see below), so there is no directory for Nitro to find it in.
+          handlers: [
+            {
+              route: "{= webSocket.routePath =}",
+              handler: path.resolve(rootDir, webSocketHandlerPath),
+              // Imported on the first connection instead of when the server
+              // starts. Nitro renders the app's prerendered pages by starting
+              // the server, which has none of the environment variables the
+              // app's websocket code needs (they are a deployment's business).
+              lazy: true,
+            },
+          ],
+
+          {=/ webSocket.isUsed =}
           // Off by default, but we say so explicitly: left to auto-detection,
           // Nitro would treat directories that happen to follow its conventions
           // (`routes/`, `api/`, `middleware/`, `plugins/`, `tasks/`) as server

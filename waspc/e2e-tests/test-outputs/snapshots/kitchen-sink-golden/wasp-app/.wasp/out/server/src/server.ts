@@ -10,8 +10,6 @@ import { ServerSetupFnContext } from 'wasp/server/types'
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 
-import { init as initWebSocket } from './webSocket/initialization.js'
-
 const startServer = async () => {
   await startPgBoss()
 
@@ -22,8 +20,6 @@ const startServer = async () => {
 
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
   await (serverSetup as ServerSetupFn)(serverSetupFnContext)
-
-  await initWebSocket(server)
 
   server.listen(port)
 
