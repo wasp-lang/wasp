@@ -9,24 +9,30 @@ import {
   RailwayCliServiceSchema,
 } from "../jsonOutputSchemas.js";
 
-export async function createDatabaseService(
-  dbServiceName: DbServiceName,
-  dbImage: string,
-  dbVolumeMountPath: string,
-  options: {
-    railwayExe: RailwayCliExe;
-    waspProjectDir: WaspProjectDir;
-  },
-): Promise<RailwayCliService> {
+export async function createDatabaseService({
+  serviceName,
+  imageSpec,
+  railwayExe,
+  waspProjectDir,
+}: {
+  serviceName: DbServiceName;
+  imageSpec: {
+    image: string;
+    volumeMountPath: string;
+  };
+  railwayExe: RailwayCliExe;
+  waspProjectDir: WaspProjectDir;
+}): Promise<RailwayCliService> {
+  const options = { railwayExe, waspProjectDir };
   const dbService = await addDatabaseService(
-    dbServiceName,
-    dbImage,
-    dbVolumeMountPath,
+    serviceName,
+    imageSpec.image,
+    imageSpec.volumeMountPath,
     options,
   );
 
   try {
-    await addDatabaseVolume(dbService, dbVolumeMountPath, options);
+    await addDatabaseVolume(dbService, imageSpec.volumeMountPath, options);
   } catch (volumeError) {
     await deleteIncompleteDatabaseService(dbService, volumeError, options);
     throw volumeError;

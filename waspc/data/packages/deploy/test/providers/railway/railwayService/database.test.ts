@@ -30,6 +30,14 @@ const options = {
   railwayExe: "railway" as RailwayCliExe,
   waspProjectDir: "/app" as WaspProjectDir,
 };
+const createDatabaseServiceParams = {
+  serviceName: dbServiceName,
+  imageSpec: {
+    image: dbImage,
+    volumeMountPath: dbVolumeMountPath,
+  },
+  ...options,
+};
 const volumeError = new Error("Failed to create volume");
 
 beforeEach(() => {
@@ -43,7 +51,7 @@ describe("createDatabaseService", () => {
       .mockResolvedValueOnce(jsonResult({}));
 
     await expect(
-      createDatabaseService(dbServiceName, dbImage, dbVolumeMountPath, options),
+      createDatabaseService(createDatabaseServiceParams),
     ).resolves.toEqual(dbService);
 
     expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
@@ -93,7 +101,7 @@ describe("createDatabaseService", () => {
       .mockResolvedValueOnce(jsonResult({}));
 
     await expect(
-      createDatabaseService(dbServiceName, dbImage, dbVolumeMountPath, options),
+      createDatabaseService(createDatabaseServiceParams),
     ).rejects.toBe(volumeError);
 
     expect(mocks.railwayCli).toHaveBeenLastCalledWith(
@@ -109,12 +117,7 @@ describe("createDatabaseService", () => {
       .mockRejectedValueOnce(volumeError)
       .mockRejectedValueOnce(cleanupError);
 
-    const failedCreation = createDatabaseService(
-      dbServiceName,
-      dbImage,
-      dbVolumeMountPath,
-      options,
-    );
+    const failedCreation = createDatabaseService(createDatabaseServiceParams);
     await expect(failedCreation).rejects.toThrow(volumeError.message);
     await expect(failedCreation).rejects.toThrow(cleanupError.message);
     await expect(failedCreation).rejects.toThrow(dbService.id);

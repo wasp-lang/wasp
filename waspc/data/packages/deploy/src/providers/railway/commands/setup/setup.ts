@@ -138,12 +138,15 @@ async function setupDb({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up database using image: ${options.dbImage}`);
 
-  const dbService = await createDatabaseService(
-    dbServiceName,
-    options.dbImage,
-    options.dbVolumeMountPath,
-    options,
-  );
+  const dbService = await createDatabaseService({
+    serviceName: dbServiceName,
+    imageSpec: {
+      image: options.dbImage,
+      volumeMountPath: options.dbVolumeMountPath,
+    },
+    railwayExe: options.railwayExe,
+    waspProjectDir: options.waspProjectDir,
+  });
 
   // The database service deploys asynchronously and `railway add` doesn't wait
   // for it. The server service references the database's DATABASE_URL env
