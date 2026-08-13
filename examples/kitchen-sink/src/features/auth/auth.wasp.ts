@@ -1,4 +1,11 @@
-import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
+import {
+  action,
+  page,
+  route,
+  waspAuth,
+  type Auth,
+  type Spec,
+} from "@wasp.sh/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
@@ -44,50 +51,52 @@ import {
 
 export const authConfig: Auth = {
   userEntity: "User",
-  methods: {
-    slack: {
-      configFn: slackConfig,
-      userSignupFields: slackUserSignupFields,
-    },
-    discord: {
-      configFn: discordConfig,
-      userSignupFields: discordUserSignupFields,
-    },
-    google: {
-      configFn: googleConfig,
-      userSignupFields: googleUserSignupFields,
-    },
-    gitHub: {
-      configFn: gitHubConfig,
-      userSignupFields: gitHubUserSignupFields,
-    },
-    microsoft: {
-      configFn: microsoftConfig,
-      userSignupFields: microsoftUserSignupFields,
-    },
-    email: {
-      userSignupFields: emailUserSignupFields,
-      fromField: {
-        name: "Wasp Kitchen Sink",
-        email: "kitchen-sink@wasp.sh",
-      },
-      emailVerification: {
-        getEmailContentFn: getVerificationEmailContent,
-        clientRoute: "EmailVerificationRoute",
-      },
-      passwordReset: {
-        getEmailContentFn: getPasswordResetEmailContent,
-        clientRoute: "PasswordResetRoute",
-      },
-    },
-  },
   onAuthFailedRedirectTo: "/login",
-  onAuthSucceededRedirectTo: "/",
-  onBeforeSignup,
-  onAfterSignup,
-  onAfterEmailVerified,
-  onBeforeLogin,
-  onAfterLogin,
+  provider: waspAuth({
+    methods: {
+      slack: {
+        configFn: slackConfig,
+        userSignupFields: slackUserSignupFields,
+      },
+      discord: {
+        configFn: discordConfig,
+        userSignupFields: discordUserSignupFields,
+      },
+      google: {
+        configFn: googleConfig,
+        userSignupFields: googleUserSignupFields,
+      },
+      gitHub: {
+        configFn: gitHubConfig,
+        userSignupFields: gitHubUserSignupFields,
+      },
+      microsoft: {
+        configFn: microsoftConfig,
+        userSignupFields: microsoftUserSignupFields,
+      },
+      email: {
+        userSignupFields: emailUserSignupFields,
+        fromField: {
+          name: "Wasp Kitchen Sink",
+          email: "kitchen-sink@wasp.sh",
+        },
+        emailVerification: {
+          getEmailContentFn: getVerificationEmailContent,
+          clientRoute: "EmailVerificationRoute",
+        },
+        passwordReset: {
+          getEmailContentFn: getPasswordResetEmailContent,
+          clientRoute: "PasswordResetRoute",
+        },
+      },
+    },
+    onAuthSucceededRedirectTo: "/",
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeLogin,
+    onAfterLogin,
+  }),
 };
 
 export const authSpec: Spec = [

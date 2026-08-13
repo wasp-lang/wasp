@@ -103,10 +103,13 @@ genAuthProviderIndexTs auth =
   where
     tmplData =
       object
-        [ "isCustomAuthProviderUsed" .= isJust maybeProvider,
-          "authProvider" .= extImportToImportJson maybeProvider
+        [ "isCustomAuthProviderUsed" .= isJust maybeProviderModule,
+          "authProvider" .= extImportToImportJson maybeProviderModule
         ]
-    maybeProvider = AS.Auth.provider auth
+    -- PR5 note: only src-module adapters ("customAuthProvider") are wired into
+    -- generated code so far; package entries decode into the AppSpec but the
+    -- mapper still rejects them until the generator learns to import them.
+    maybeProviderModule = AS.Auth.serverModule =<< AS.Auth.externalProvider auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
@@ -125,7 +128,7 @@ genSessionTs auth =
           -- Just-in-time provisioning only exists for providers that don't own Wasp's
           -- auth entity. Emitting it unconditionally breaks apps whose user entity has
           -- required fields, because the provisioning insert supplies none of them.
-          "isCustomAuthProviderUsed" .= isJust (AS.Auth.provider auth)
+          "isCustomAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

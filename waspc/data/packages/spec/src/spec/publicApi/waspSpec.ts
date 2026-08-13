@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RequireOneOrNone } from "type-fest";
+import type { Branded } from "../../branded.js";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { RefObject } from "../refObject.js";
 import { FromRegister } from "./register.js";
@@ -123,7 +124,7 @@ export interface Wasp {
  * })
  * ```
  */
-export interface Auth extends AuthHooks {
+export interface Auth {
   /**
    * Name of the Prisma model that represents the application user connected to
    * your business logic.
@@ -143,10 +144,11 @@ export interface Auth extends AuthHooks {
    *
    * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for how the
    * user entity connects to the rest of the auth system.
+   *
+   * `userEntity` is provider-independent: whichever provider authenticates a
+   * request, `context.user` is always a row of this entity.
    */
   userEntity: EntityName;
-  /** Enabled authentication methods. */
-  methods: AuthMethods;
   /**
    * Route that Wasp redirects unauthenticated users to when they try to
    * access a page that has `authRequired: true`.
@@ -155,6 +157,78 @@ export interface Auth extends AuthHooks {
    * for an example.
    */
   onAuthFailedRedirectTo: string;
+  /**
+   * The authentication provider that establishes and verifies user identity.
+   *
+   * Either Wasp's own auth, configured with {@link waspAuth}:
+   *
+   * ```ts
+   * auth: {
+   *   userEntity: "User",
+   *   onAuthFailedRedirectTo: "/login",
+   *   provider: waspAuth({ methods: { email: { ... } } }),
+   * }
+   * ```
+   *
+   * or an external provider, through an adapter package's spec helper (or
+   * {@link customAuthProvider} for a hand-written adapter):
+   *
+   * ```ts
+   * import { clerk } from "@wasp.sh/auth-clerk/spec";
+   *
+   * auth: {
+   *   userEntity: "User",
+   *   onAuthFailedRedirectTo: "/login",
+   *   provider: clerk(),
+   * }
+   * ```
+   *
+   * The choice is a discriminated union, so provider-specific configuration
+   * (auth methods, wasp auth hooks) is only expressible under the provider it
+   * belongs to. Wasp still owns everything downstream of authentication:
+   * `context.user` is always a row in your own user entity, whichever provider
+   * vouched for the request.
+   */
+  provider: AuthProviderConfig;
+}
+
+/**
+ * The authentication provider of the app: Wasp's own auth (see
+ * {@link waspAuth}) or an external provider's manifest (see
+ * {@link customAuthProvider} and adapter packages like `@wasp.sh/auth-clerk`).
+ *
+ * @category Auth
+ */
+export type AuthProviderConfig =
+  | WaspAuthProviderConfig
+  | ExternalAuthProviderManifest;
+
+/**
+ * Wasp's own authentication, selected and configured via {@link waspAuth}.
+ *
+ * @category Auth
+ */
+export type WaspAuthProviderConfig = Branded<
+  {
+    kind: "wasp";
+    config: WaspAuthConfig;
+  },
+  "WaspAuthProviderConfig"
+>;
+
+/**
+ * Configuration of Wasp's own auth: which methods are enabled, plus everything
+ * that only makes sense when Wasp itself runs the signup and login flows.
+ *
+ * @category Auth
+ */
+export interface WaspAuthConfig extends AuthHooks {
+  /**
+   * Enabled authentication methods. At least one method must be enabled --
+   * with none, nobody could ever sign in, which is better expressed by
+   * choosing an external provider or dropping `auth` altogether.
+   */
+  methods: EnabledAuthMethods;
   /**
    * Route that Wasp redirects users to after a successful login or signup.
    *
@@ -165,31 +239,113 @@ export interface Auth extends AuthHooks {
    * @default "/"
    */
   onAuthSucceededRedirectTo?: string;
+}
+
+/**
+ * {@link AuthMethods} with at least one method enabled.
+ *
+ * @category Auth
+ */
+export type EnabledAuthMethods = AuthMethods & AtLeastOneAuthMethod;
+
+type AtLeastOneAuthMethod =
+  | { usernameAndPassword: UsernameAndPasswordConfig }
+  | { email: EmailAuthConfig }
+  | { slack: SocialAuthConfig }
+  | { discord: SocialAuthConfig }
+  | { google: SocialAuthConfig }
+  | { gitHub: SocialAuthConfig }
+  | { keycloak: SocialAuthConfig }
+  | { microsoft: SocialAuthConfig };
+
+/**
+ * An env var an external auth provider needs. Wasp renders these into the
+ * app's generated env validation, so a missing var fails at boot with `doc`
+ * as the explanation instead of failing at the first authenticated request.
+ *
+ * @category Auth
+ */
+export interface EnvVarRequirement {
+  name: string;
+  optional?: boolean;
+  doc?: string;
+}
+
+/**
+ * EXPERIMENTAL. An external auth provider, described declaratively.
+ *
+ * Adapter packages produce this from their spec helpers (e.g. `clerk()` from
+ * `@wasp.sh/auth-clerk/spec`), and hand-written adapters produce it via
+ * {@link customAuthProvider}. Both go through `defineAuthProviderManifest`,
+ * which validates the manifest and stamps it as authentic -- the compiler
+ * rejects hand-crafted object literals.
+ *
+ * @category Experimental
+ */
+export interface ExternalAuthProviderManifest {
+  /** Discriminates the provider union. Always `"external"`. */
+  kind: "external";
   /**
-   * EXPERIMENTAL. The authentication provider that verifies incoming requests.
-   *
-   * Defaults to Wasp's own auth, which is what `methods` configures. Point this
-   * at a module implementing `AuthProvider` (from `wasp/server/auth/provider`)
-   * to authenticate against something else -- Better Auth, Clerk, WorkOS.
-   *
-   * Wasp still owns everything downstream of the answer: `context.user` is
-   * always a row in your own user entity, whichever provider vouched for the
-   * request.
-   *
-   * ```ts
-   * import { clerkAuthProvider } from "./src/auth/clerk" with { type: "ref" };
-   *
-   * auth: {
-   *   userEntity: "User",
-   *   methods: {},
-   *   provider: clerkAuthProvider,
-   *   onAuthFailedRedirectTo: "/login",
-   * }
-   * ```
-   *
-   * @category Experimental
+   * Version of the auth provider contract the adapter was built against.
+   * Wasp rejects manifests with a contract version it does not support,
+   * which turns adapter/compiler version skew into a clear error.
    */
-  provider?: Reference<AnyObject>;
+  contractVersion: 1;
+  /**
+   * Stable identifier of the provider ("clerk", "better-auth"). Identities
+   * Wasp provisions for this provider's subjects are recorded under this
+   * name, so it must stay stable across deploys.
+   */
+  id: string;
+  /**
+   * The provider's server adapter: either the module specifier of an adapter
+   * package's server entry (which must export `createServerAdapter`), or a
+   * reference to a user-code module exporting an `AuthProvider`.
+   */
+  server: { package: string } | Reference<AnyObject>;
+  /**
+   * Module specifier of an adapter package's client entry (which must export
+   * `createClientAdapter`).
+   */
+  client?: { package: string };
+  /**
+   * Routes the provider wants mounted on Wasp's server, for providers that
+   * bring their own HTTP endpoints (Better Auth). `rawBody` mounts them
+   * without the JSON body parser, for handlers that read the body themselves.
+   */
+  routes?: { basePath: `/${string}`; rawBody?: boolean };
+  /**
+   * The provider's capabilities, as an open set of strings. Known today:
+   * `"issue-sessions"`, `"session-revocation"`, `"cookie-transport"`.
+   * Unknown entries are ignored, so adapters can declare capabilities newer
+   * than the compiler.
+   */
+  capabilities: string[];
+  /** Env vars the provider needs, rendered into generated env validation. */
+  env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
+  /**
+   * Populates the app's user entity when Wasp provisions a local user for a
+   * subject it has not seen before, from the claims the provider verified.
+   * Required in practice when the user entity has non-nullable fields.
+   */
+  userSignupFields?: Reference<AnyObject>;
+  /**
+   * Escape hatch for non-serializable adapter configuration (functions, class
+   * instances -- e.g. Better Auth's email-sending callbacks). References a
+   * user-code module; the adapter's server factory applies it after its own
+   * defaults.
+   */
+  extendServerConfig?: Reference<AnyFunction>;
+  /**
+   * Serializable adapter options, passed verbatim to the adapter's server and
+   * client factories. Must survive a JSON round-trip; the compiler checks.
+   */
+  options?: unknown;
+  /**
+   * Marks a manifest as constructed by `defineAuthProviderManifest` rather
+   * than hand-crafted. Adapters never set this themselves.
+   */
+  readonly __waspAuthProviderManifest: true;
 }
 
 interface AuthHooks {

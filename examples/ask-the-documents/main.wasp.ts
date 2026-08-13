@@ -1,4 +1,4 @@
-import { action, app, page, query, route } from "@wasp.sh/spec";
+import { action, app, page, query, route, waspAuth } from "@wasp.sh/spec";
 
 import {
   getGoogleAuthConfig,
@@ -24,13 +24,15 @@ export default app({
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
-    methods: {
-      google: {
-        userSignupFields: googleUserSignupFields,
-        configFn: getGoogleAuthConfig,
-      },
-    },
     onAuthFailedRedirectTo: "/",
+    provider: waspAuth({
+      methods: {
+        google: {
+          userSignupFields: googleUserSignupFields,
+          configFn: getGoogleAuthConfig,
+        },
+      },
+    }),
   },
   client: {
     rootComponent: Layout,

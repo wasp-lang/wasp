@@ -147,7 +147,8 @@ spec_AppSpecValid = do
                 AS.Auth.onAfterEmailVerified = Nothing,
                 AS.Auth.onBeforeOAuthRedirect = Nothing,
                 AS.Auth.onBeforeLogin = Nothing,
-                AS.Auth.onAfterLogin = Nothing
+                AS.Auth.onAfterLogin = Nothing,
+                AS.Auth.externalProvider = Nothing
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -196,7 +197,8 @@ spec_AppSpecValid = do
                                     AS.Auth.onAfterEmailVerified = Nothing,
                                     AS.Auth.onBeforeOAuthRedirect = Nothing,
                                     AS.Auth.onBeforeLogin = Nothing,
-                                    AS.Auth.onAfterLogin = Nothing
+                                    AS.Auth.onAfterLogin = Nothing,
+                                    AS.Auth.externalProvider = Nothing
                                   },
                             AS.App.emailSender =
                               Just
@@ -368,7 +370,8 @@ spec_AppSpecValid = do
                                     AS.Auth.onAfterEmailVerified = Nothing,
                                     AS.Auth.onBeforeOAuthRedirect = Nothing,
                                     AS.Auth.onBeforeLogin = Nothing,
-                                    AS.Auth.onAfterLogin = Nothing
+                                    AS.Auth.onAfterLogin = Nothing,
+                                    AS.Auth.externalProvider = Nothing
                                   },
                             AS.App.emailSender = emailSender
                           },

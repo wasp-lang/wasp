@@ -3,6 +3,7 @@ import {
   api,
   apiNamespace,
   app,
+  customAuthProvider,
   page,
   query,
   route,
@@ -21,12 +22,16 @@ export default app({
 
   auth: {
     userEntity: "User",
-    // No Wasp auth methods: Better Auth owns signup and login entirely.
-    methods: {},
-    // Wasp verifies every request through this adapter instead of its own auth.
-    provider: betterAuthProvider,
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/",
+    // Wasp verifies every request through this adapter instead of its own
+    // auth. Note what is absent: no methods, no hooks, no success redirect --
+    // Better Auth owns signup and login entirely, and the provider union makes
+    // wasp-auth-only configuration inexpressible here.
+    provider: customAuthProvider({
+      id: "better-auth",
+      server: betterAuthProvider,
+      capabilities: ["session-revocation"],
+    }),
   },
 
   spec: [

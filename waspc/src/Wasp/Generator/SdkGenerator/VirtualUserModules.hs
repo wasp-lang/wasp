@@ -146,7 +146,7 @@ getVirtualUserModules spec =
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    maybeAuthProvider = AS.App.auth app >>= AS.Auth.provider
+    maybeAuthProvider = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.serverModule
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.

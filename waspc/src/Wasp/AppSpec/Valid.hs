@@ -13,7 +13,7 @@ where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, group, groupBy, intercalate, sort, sortBy)
+import Data.List (find, group, groupBy, intercalate, isPrefixOf, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.Analyzer.AST (isValidWaspIdentifier)
@@ -63,6 +63,7 @@ validateAppSpec spec =
           validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
+          validateExternalAuthProvider spec,
           validateDummyEmailSenderIsNotUsedInProduction spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
@@ -192,6 +193,69 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
   where
     isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
     app = snd $ getApp spec
+
+-- | Coherence checks for an external auth provider manifest.
+--
+-- The user-facing spec makes wasp-auth config inexpressible next to an external
+-- provider (the union is discriminated at the type level) and the mapper
+-- normalizes it into the flat IR, so most of these can only fire on a
+-- hand-crafted manifest or a mapper bug. They are cheap, and each one failing
+-- silently would produce a subtly broken app.
+validateExternalAuthProvider :: AppSpec -> [ValidationError]
+validateExternalAuthProvider spec = case App.auth (snd $ getApp spec) >>= withExternalProvider of
+  Nothing -> []
+  Just (auth, extProvider) ->
+    concat
+      [ validateNoWaspAuthConfigLeaked auth,
+        validateExactlyOneServerEntry extProvider,
+        validateRoutesBasePath extProvider
+      ]
+  where
+    withExternalProvider auth = (,) auth <$> Auth.externalProvider auth
+
+    validateNoWaspAuthConfigLeaked auth =
+      [ GenericValidationError
+          "app.auth uses an external provider, but wasp-auth-only configuration (methods or hooks) is present. This is a bug in the spec mapper; please report it."
+      | not (null $ Auth.enabledAuthMethodNames $ Auth.methods auth)
+          || any
+            isJust
+            [ Auth.onBeforeSignup auth,
+              Auth.onAfterSignup auth,
+              Auth.onAfterEmailVerified auth,
+              Auth.onBeforeOAuthRedirect auth,
+              Auth.onBeforeLogin auth,
+              Auth.onAfterLogin auth
+            ]
+      ]
+
+    validateExactlyOneServerEntry extProvider =
+      [ GenericValidationError
+          "app.auth.provider must reference its server adapter through exactly one of a package entry or a module reference."
+      | length (filter id [isJust $ Auth.serverPackage extProvider, isJust $ Auth.serverModule extProvider]) /= 1
+      ]
+
+    validateRoutesBasePath extProvider = case Auth.routes extProvider of
+      Nothing -> []
+      Just providerRoutes ->
+        let bPath = Auth.basePath providerRoutes
+            reservedPathPrefixes = ["/auth", "/operations", "/crud"]
+            declaredApiPaths =
+              (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
+                ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
+         in concat
+              [ [ GenericValidationError $
+                    "app.auth.provider routes basePath must start with '/', got: " ++ bPath
+                | not ("/" `isPrefixOf` bPath)
+                ],
+                [ GenericValidationError $
+                    "app.auth.provider routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " reservedPathPrefixes ++ ")."
+                | any (`isPrefixOf` bPath) reservedPathPrefixes
+                ],
+                [ GenericValidationError $
+                    "app.auth.provider routes basePath '" ++ bPath ++ "' collides with a declared api or apiNamespace path."
+                | any (\apiPath -> bPath `isPrefixOf` apiPath || apiPath `isPrefixOf` bPath) declaredApiPaths
+                ]
+              ]
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =

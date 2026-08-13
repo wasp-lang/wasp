@@ -12,10 +12,12 @@ import {
   api,
   apiNamespace,
   app,
+  customAuthProvider,
   job,
   page,
   query,
   route,
+  waspAuth,
 } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
@@ -398,26 +400,47 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
     case "minimal":
       return {
         userEntity: "User",
-        methods: getAuthMethods("minimal"),
         onAuthFailedRedirectTo: "/login",
+        provider: waspAuth({
+          methods: { usernameAndPassword: {} },
+        }),
       } satisfies MinimalConfig<WaspSpec.Auth>;
     case "full":
       return {
         userEntity: "User",
-        methods: getAuthMethods("full"),
         onAuthFailedRedirectTo: "/login",
-        onAuthSucceededRedirectTo: "/profile",
-        onBeforeSignup: getRefObject("full", "named"),
-        onAfterSignup: getRefObject("full", "named"),
-        onAfterEmailVerified: getRefObject("full", "named"),
-        onBeforeOAuthRedirect: getRefObject("full", "named"),
-        onBeforeLogin: getRefObject("full", "named"),
-        onAfterLogin: getRefObject("full", "named"),
-        provider: getRefObject("full", "named"),
+        provider: waspAuth({
+          methods: getAuthMethods("full"),
+          onAuthSucceededRedirectTo: "/profile",
+          onBeforeSignup: getRefObject("full", "named"),
+          onAfterSignup: getRefObject("full", "named"),
+          onAfterEmailVerified: getRefObject("full", "named"),
+          onBeforeOAuthRedirect: getRefObject("full", "named"),
+          onBeforeLogin: getRefObject("full", "named"),
+          onAfterLogin: getRefObject("full", "named"),
+        }),
       } satisfies FullConfig<WaspSpec.Auth>;
     default:
       assertUnreachable(scope);
   }
+}
+
+export function getExternalAuthConfig(): WaspSpec.Auth {
+  return {
+    userEntity: "User",
+    onAuthFailedRedirectTo: "/login",
+    provider: customAuthProvider({
+      id: "test-provider",
+      server: getRefObject("full", "named"),
+      capabilities: ["session-revocation"],
+      env: {
+        server: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
+        client: [],
+      },
+      userSignupFields: getRefObject("full", "named"),
+      options: { flag: true, nested: { count: 1 } },
+    }),
+  };
 }
 
 export function getAuthMethods<Scope extends ConfigScope>(

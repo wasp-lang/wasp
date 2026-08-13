@@ -148,6 +148,13 @@ export type Wasp = {
   version: string;
 };
 
+// NOTE: The user-facing spec models the auth provider as a discriminated
+// union (wasp auth XOR an external provider manifest), but this IR keeps the
+// flat wasp-auth fields plus an optional `externalProvider`. The mapper
+// normalizes the union into this shape and guarantees that `methods` is empty
+// and every hook is absent whenever `externalProvider` is set. The IR stays
+// flat because the Haskell side mirrors it and the classic Analyzer's Template
+// Haskell cannot derive declarations for sum types.
 export type Auth = {
   userEntity: Ref<"Entity">;
   methods: AuthMethods;
@@ -159,7 +166,36 @@ export type Auth = {
   onBeforeOAuthRedirect: Optional<ExtImport>;
   onBeforeLogin: Optional<ExtImport>;
   onAfterLogin: Optional<ExtImport>;
-  provider: Optional<ExtImport>;
+  externalProvider: Optional<ExternalAuthProviderSpec>;
+};
+
+export type ExternalAuthProviderSpec = {
+  providerId: string;
+  serverPackage: Optional<string>;
+  serverModule: Optional<ExtImport>;
+  clientPackage: Optional<string>;
+  routes: Optional<ExternalProviderRoutes>;
+  capabilities: string[];
+  envVars: ExternalProviderEnvVars;
+  userSignupFields: Optional<ExtImport>;
+  extendServerConfig: Optional<ExtImport>;
+  optionsJson: Optional<string>;
+};
+
+export type ExternalProviderRoutes = {
+  basePath: string;
+  rawBody: Optional<boolean>;
+};
+
+export type ExternalProviderEnvVars = {
+  server: ExternalProviderEnvVar[];
+  client: ExternalProviderEnvVar[];
+};
+
+export type ExternalProviderEnvVar = {
+  name: string;
+  optional: Optional<boolean>;
+  doc: Optional<string>;
 };
 
 export type AuthMethods = {

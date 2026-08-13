@@ -1,4 +1,4 @@
-import { action, app, page, query, route } from "@wasp.sh/spec";
+import { action, app, page, query, route, waspAuth } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
@@ -10,13 +10,17 @@ export default app({
 
   auth: {
     userEntity: "User",
-    // Wasp's own auth. `provider` is left unset, which is the default and means
-    // "use Wasp's built-in auth" -- exactly what every existing Wasp app does.
-    methods: {
-      usernameAndPassword: {},
-    },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/",
+    // Wasp's own auth, selected explicitly. Everything that only makes sense
+    // when Wasp runs signup and login -- methods, hooks, the success redirect --
+    // lives inside waspAuth(), so none of it can leak into an app using an
+    // external provider.
+    provider: waspAuth({
+      methods: {
+        usernameAndPassword: {},
+      },
+      onAuthSucceededRedirectTo: "/",
+    }),
   },
 
   spec: [

@@ -1,4 +1,11 @@
-import { action, app, page, query, route } from "@wasp.sh/spec";
+import {
+  action,
+  app,
+  customAuthProvider,
+  page,
+  query,
+  route,
+} from "@wasp.sh/spec";
 import { App } from "./src/App" with { type: "ref" };
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
@@ -13,11 +20,14 @@ export default app({
 
   auth: {
     userEntity: "User",
-    // Clerk owns signup and login entirely; Wasp has no auth methods of its own.
-    methods: {},
-    provider: clerkAuthProvider,
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/",
+    // Clerk owns signup and login entirely; Wasp has no auth methods of its
+    // own here, and the provider union makes them inexpressible.
+    provider: customAuthProvider({
+      id: "clerk",
+      server: clerkAuthProvider,
+      capabilities: ["session-revocation"],
+    }),
   },
 
   client: {
