@@ -2,8 +2,6 @@
 title: Introduction
 ---
 
-import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
-
 After developing your app locally on your machine, the next step is to deploy it to the web so that others can access it.
 
 In this section, we'll walk you through the steps to deploy your Wasp app.
@@ -12,28 +10,22 @@ In this section, we'll walk you through the steps to deploy your Wasp app.
 
 Before we start, let's understand what Wasp generates when it builds your app.
 
-What we call a "Wasp app" consists of three different parts:
+What we call a "Wasp app" consists of two different parts:
 
-- **Client app**
-  - It's a single-page application (SPA), built using [React](https://react.dev/). It's what the user sees and interacts with.
-  - It's usually served by some static file server or you can host it on a CDN like Cloudflare or Netlify.
-
-- **Server app**:
-  - The backend of your app, built using [Express](https://expressjs.com/) on Node.js.
-  - It handles requests from the client app, interacts with the database, and returns responses.
-  - It comes with a ready-to-use `Dockerfile` so you can easily package it and deploy it anywhere where Docker is supported.
+- **The app**:
+  - One Node.js server, built with [Nitro](https://nitro.build/), that serves everything your users touch: your pages (a [React](https://react.dev/) single-page application, with prerendered routes served as static HTML), your API, and your WebSockets.
+  - It listens on one port and lives on one origin, so there is nothing to wire up between the front and the back of your app.
+  - It comes with a ready-to-use `Dockerfile`, so you can package it and deploy it anywhere Docker is supported.
 
 - **Database**:
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-<ImgWithCaption source="/img/deploying/wasp-app-flow.gif" alt="Wasp app structure" caption="Data flow in a typical deployed Wasp app where all three parts are deployed separately" />
-
-The thing to take away from this: the client app and server app are separate applications that communicate with each other over HTTP. This means you can deploy them on the same or different servers, depending on your needs.
+The thing to take away from this: deploying a Wasp app means deploying one thing, plus a database for it to talk to.
 
 We'll show you different ways of how deploy your app in the [deployment methods](./deployment-methods/overview.md) section.
 
-Server needs to be able to communicate with the database, we'll show you how to set that up using [env variables](./env-vars.md).
+Your app needs to be able to communicate with the database, we'll show you how to set that up using [env variables](./env-vars.md).
 
 ### Deploying your app
 

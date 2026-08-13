@@ -71,12 +71,7 @@ You can use Wasp's built in [client tests](../project/testing.md) support to tes
 
 ## Continuous deployment
 
-We'll look at two ways you can use the CI/CD pipeline to deploy your Wasp app:
-
-1. Package the server and client with Docker.
-2. Deploy the client as static files.
-
-### Package the server and client with Docker
+### Package your app with Docker
 
 The most common way to package your app for deployment is using Docker images. This way you can easily deploy the same image to different environments (staging, production, etc.).
 
@@ -84,10 +79,10 @@ The most common way to package your app for deployment is using Docker images. T
 
 1. Install Docker in the CD environment.
 2. Install dependencies with `wasp install` and build the app with `wasp build`.
-3. Build the Docker image and push it to a Docker registry:
-   - for our server app
-   - for our client app
+3. Build the Docker image and push it to a Docker registry.
 4. For some providers: notify them to deploy the new app version.
+
+Your app's [client env variables](./env-vars.md#client-env-vars) end up inside its pages and assets, so they have to be there when the image is built. You pass them in with the `WASP_CLIENT_ENV` build argument.
 
 :::info What is a Docker Registry?
 
@@ -111,30 +106,12 @@ Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade739649
 
 3. Next, we **install dependencies** with `wasp install` and **build the Wasp app** with `wasp build`.
 
-   This creates our server and the client app in the `.wasp/out` folder.
+   This creates our app in the `.wasp/out` folder.
 
-4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
+4. Then, we **package the app** into a Docker image and **push it to the GHCR**.
 
-   We use the `Dockerfile` in the `.wasp/out` directory to build and push the server Docker image using the `docker/build-push-action` action.
+   We use the `Dockerfile` in the `.wasp/out` directory to build and push the Docker image using the `docker/build-push-action` action.
 
-5. Next, we create a `Dockerfile` for our client and then **package the client app** into a Docker image and **push it to the GHCR**.
-
-   We create a `Dockerfile` that uses a simple Go static server to serve the client app. We again use the `docker/build-push-action` action to build and push the client Docker image.
-
-6. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
+5. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
 
    And now you can open the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide and see the full deployment process.
-
-### Static build of the client
-
-Wasp's client app is a single page application (SPA) which you build into static HTML, CSS, and JS files that you can upload to any hosting provider that supports serving static files. This means that for the client app, you don't need to use Docker images if don't want to. It's usually cheaper to host static files than to host Docker images.
-
-**To deploy the client app as static files**, you'll need to:
-
-1. Install dependencies with `wasp install` and build the app with `wasp build` in the CD environment.
-2. Build the client app with `npx vite build`.
-3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
-
-<!-- TOOD: update links below -->
-
-Check out our instructions for deploying the client app to [Netlify](../guides/deployment/cloud-providers/netlify.md) or [Cloudflare](../guides/deployment/cloud-providers/cloudflare.md) where you can check out the example deployment using Github Actions.

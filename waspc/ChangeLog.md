@@ -2,19 +2,41 @@
 
 ## 0.26.0
 
+Wasp apps are now one app. Your app's pages and its API used to be two separate programs on two separate ports, glued together with CORS and a `REACT_APP_API_URL`. They are now a single [Nitro](https://nitro.build/) server that serves both: one process in development, one artifact in production, one container to deploy, one URL to hand out.
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
+
 ### ⚠️ Breaking Changes
 
+- Wasp apps are now served as a single app, on a single origin. In development, `wasp start` runs one process on `http://localhost:3000` and there is no longer anything on port 3001. In production, one server serves your pages, your API, and your websockets. ([#4701](https://github.com/wasp-lang/wasp/pull/4701), [#4702](https://github.com/wasp-lang/wasp/pull/4702), [#4705](https://github.com/wasp-lang/wasp/pull/4705))
+- Rewrote the WebSocket API on top of [crossws](https://crossws.h3.dev/), and removed `socket.io` from Wasp. Your `webSocketFn` is now a `defineWebSocket({ open, events, close, ... })` definition instead of a function receiving an `io` server. Client-side, `useSocket`, `useSocketListener` and `socket.emit` keep working as before, but every event now carries exactly one payload. ([#4703](https://github.com/wasp-lang/wasp/pull/4703))
+- The `server` in the context your `setupFn` receives is no longer a real HTTP server: Wasp doesn't own one anymore, so touching it throws an error telling you so. The `app` (your Express app) is unchanged, and websockets have their own API now. ([#4702](https://github.com/wasp-lang/wasp/pull/4702))
+- `wasp build` now produces a single artifact and a single Docker image that serves your whole app. The server bundle and the separate static client are gone, and so is hosting the two of them separately. If you append to Wasp's Dockerfile, note that its stages were renamed from `server-builder`/`server-production` to `builder`/`production`. ([#4705](https://github.com/wasp-lang/wasp/pull/4705))
+- `wasp deploy fly` and `wasp deploy railway` no longer deploy a separate client app or service. Deploying now updates one app, which serves everything. Existing projects keep their old client app around until you remove it. Note that `wasp deploy` cannot pass client env variables (`REACT_APP_*`) to your provider's image build yet, so apps that need them have to build and push their own image for now. ([#4705](https://github.com/wasp-lang/wasp/pull/4705))
+- Your app's `/` is now a page, not a health check. Deployments that check whether your app is up should check `/_wasp/health` instead. ([#4702](https://github.com/wasp-lang/wasp/pull/4702))
+- Requests to a path Wasp owns (`/auth`, `/operations`, `/crud`) that matches nothing now get a JSON 404 instead of falling through. Requests to any other unmatched path now get your app's pages, so a custom `api` whose path shadows a page route will serve the page when it doesn't handle the request. ([#4702](https://github.com/wasp-lang/wasp/pull/4702))
+- Errors your server code throws that aren't `HttpError`s are now reported as JSON by Nitro, instead of as Express's HTML error page. `HttpError` responses are unchanged. ([#4702](https://github.com/wasp-lang/wasp/pull/4702))
+- Editing your `setupFn` (or your `vite.config.ts`) now needs a `wasp start` restart to take effect. Everything else still hot-reloads. ([#4704](https://github.com/wasp-lang/wasp/pull/4704))
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 
 ### 🎉 New Features
 
+- `wasp start` is now a single Vite process serving your whole app. Your server code hot-reloads the same way your client code does, without a full restart, and the two halves of your app can no longer disagree about which one is up. ([#4701](https://github.com/wasp-lang/wasp/pull/4701), [#4702](https://github.com/wasp-lang/wasp/pull/4702), [#4704](https://github.com/wasp-lang/wasp/pull/4704))
+- `REACT_APP_API_URL` is no longer required to build your app for production. Your app finds its API on its own origin by default, in development and in production alike. Set it only if you serve your pages from somewhere else than your API. ([#4702](https://github.com/wasp-lang/wasp/pull/4702), [#4705](https://github.com/wasp-lang/wasp/pull/4705))
+- Deploying is now one image and one container: `wasp build` produces a self-contained server (the Prisma engine included) that serves your pages, your prerendered routes, your API and your websockets on one port. ([#4705](https://github.com/wasp-lang/wasp/pull/4705))
+- Websocket connections now authenticate during the handshake, so `peer.data.user` is already there when the connection opens, and you can refuse a connection outright from the `upgrade` hook. ([#4703](https://github.com/wasp-lang/wasp/pull/4703))
+- Added `broadcast` and `publish` to `wasp/server/webSocket`, so any part of your server (an action, a job, ...) can send events to connected clients. ([#4703](https://github.com/wasp-lang/wasp/pull/4703))
+- Your app now shuts down cleanly: on `SIGTERM`/`SIGINT` Wasp stops your job queue and disconnects Prisma before exiting, so containers stop in about a second instead of waiting to be killed. ([#4704](https://github.com/wasp-lang/wasp/pull/4704))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 
 ### 🔧 Small improvements
 
+- Prerendering is now built into how your app is served, instead of being a separate Vite plugin. Nothing changes in how you declare it: `prerender: true` on a route still works the same way. ([#4701](https://github.com/wasp-lang/wasp/pull/4701))
+- Removed `rollup`, `nodemon` and `dotenv` from the generated server. Your app is built by Vite and reads its `.env` files natively. ([#4704](https://github.com/wasp-lang/wasp/pull/4704), [#4705](https://github.com/wasp-lang/wasp/pull/4705))
+- `wasp doctor` no longer checks whether port 3001 is free, and `wasp start` now labels its output `[ App ]` instead of `[ Client ]`, since there is only one process. ([#4707](https://github.com/wasp-lang/wasp/pull/4707))
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))

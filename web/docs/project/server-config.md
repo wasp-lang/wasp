@@ -31,6 +31,12 @@ export default app({
   `setupFn` declares a Javascript function that will be executed on server start.
 </ShowForJs>
 
+It receives your app's Express `app`, which is what you use to add your own routes and middleware to your app's API.
+
+:::note Restart after editing it
+Your setup function runs once, when your app's server starts. In development, editing it does not re-run it: restart `wasp start` for your changes to take effect.
+:::
+
 ### Adding a Custom Route
 
 As an example, adding a custom route would look something like:

@@ -27,42 +27,32 @@ wasp start
 Look for the network URLs in Wasp's terminal output:
 
 ```
-[ Client ]   VITE v7.3.1  ready in 536 ms
-[ Client ]
-[ Client ]   ->  Local:   http://localhost:3000/
-[ Client ]   ->  Network: http://192.168.1.39:3000/
-[ Client ]   ->  Network: http://198.19.249.3:3000/
-[ Client ]   ->  Network: http://192.168.215.0:3000/
-[ Client ]   ->  press h + enter to show help
+[ App  ]   VITE v7.3.1  ready in 536 ms
+[ App  ]
+[ App  ]   ->  Local:   http://localhost:3000/
+[ App  ]   ->  Network: http://192.168.1.39:3000/
+[ App  ]   ->  Network: http://198.19.249.3:3000/
+[ App  ]   ->  Network: http://192.168.215.0:3000/
+[ App  ]   ->  press h + enter to show help
 ```
 
 If you have multiple network interfaces, you'll see multiple Network URLs. Note one of these IPs (you may need to try a few to find the one that works).
 
 ## Step 3: Configure Environment Variables
 
-The app won't be fully functional until you configure the environment variables. Edit your environment files:
-
-### .env.server
+The app won't be fully functional until you configure the environment variables. Edit your `.env.server` file:
 
 ```bash title=".env.server"
 WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
-```
-
-### .env.client
-
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
+WASP_SERVER_URL=http://192.168.1.39.nip.io:3000
 ```
 
 Replace `192.168.1.39` with your actual IP address from Step 2.
 
 :::note Why these variables?
 
-- **WASP_WEB_CLIENT_URL**: Ensures CORS works correctly
-- **WASP_SERVER_URL**: Makes OAuth redirects work properly
-- **REACT_APP_API_URL**: Tells the client where to find the server on the local network
-  :::
+Your app serves its pages and its API on the same origin, so both variables hold the same URL. They tell Wasp the public URL your app is reachable at, which it uses for things like OAuth redirects.
+:::
 
 ## Step 4: Allow the Host in Vite Config
 
@@ -87,7 +77,7 @@ Replace `192.168.1.39.nip.io` with the hostname matching your IP from Step 2.
 
 ## Step 5: Restart and Test
 
-After saving the environment files, restart your app:
+After saving the environment file, restart your app:
 
 ```bash
 wasp start
@@ -114,7 +104,7 @@ You can skip nip.io if you're not using features that require proper hostnames, 
 If you're using OAuth providers (Google, GitHub, etc.), remember to add your local network URLs to the allowed redirect URIs in each provider's configuration:
 
 ```
-http://192.168.1.39.nip.io:3001/auth/google/callback
+http://192.168.1.39.nip.io:3000/auth/google/callback
 ```
 
 ## Troubleshooting
@@ -122,17 +112,17 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 ### Can't access from other devices
 
 1. Make sure both devices are on the same network
-2. Check if your firewall is blocking incoming connections on ports 3000 and 3001
+2. Check if your firewall is blocking incoming connections on port 3000
 3. Try different Network URLs if you have multiple
 
 ### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
-2. Make sure the server is accessible on port 3001
-3. Check browser console for CORS errors
+1. Make sure the app is accessible on port 3000
+2. Verify the hostname you're using is listed in `allowedHosts` in `vite.config.ts`
+3. Check the browser console for errors
 
 ### OAuth not working
 
 1. Update redirect URIs in your OAuth provider's settings
 2. Make sure `WASP_SERVER_URL` uses the nip.io hostname
-3. Restart the server after changing environment variables
+3. Restart the app after changing environment variables

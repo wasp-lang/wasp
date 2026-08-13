@@ -106,7 +106,7 @@ To use Microsoft as an authentication method, you'll first need to register an a
     | - | ------------------------ | -------------------------------------------- |
     | 1 | Name                     | (your wasp app name)                                             |
     | 1 | Supported account types  | Read through **[Understanding tenants](#understanding-tenants)** |
-    | 3 | Authorized redirect URIs | Web: `http://localhost:3001/auth/microsoft/callback`             |
+    | 3 | Authorized redirect URIs | Web: `http://localhost:3000/auth/microsoft/callback`             |
 
     :::note
     Once you know on which URL(s) your API server will be deployed, also add those URL(s) in the **Authentication** section.\

@@ -19,7 +19,7 @@ buildApp :: BuildStartConfig -> ExceptJob
 buildApp config =
   runProcessAsJob
     (proc "docker" (["build", "--tag", dockerImageName] <> clientEnvParams <> [dockerContextDir]))
-    J.Server
+    J.App
     & toExceptJob (("Building the app failed with exit code: " <>) . show)
   where
     dockerContextDir = SP.fromAbsDir $ Config.buildDir config
@@ -39,7 +39,7 @@ startApp config =
             <> [dockerImageName]
         )
     )
-    J.Server
+    J.App
     & toExceptJob (("Running the app failed with exit code: " <>) . show)
   where
     serverEnvParams = toEnvVarParams $ Config.serverEnvVars config

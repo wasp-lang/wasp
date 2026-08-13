@@ -94,13 +94,13 @@ export default app({
 
 ## How it works
 
-By default, `wasp build` generates a single `200.html` file that serves as the entry point for all routes. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
+By default, your app's server answers a request for a page with the same HTML document for every route. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
 
-But for prerendered routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is then written to a file placed in the build output alongside the SPA file.
+But for prerendered routes, Wasp will call them at build time, and render your page components as HTML, with special markers to allow for hydration. This HTML is written to a file in the build output, next to your app's other assets.
 
 When a request hits a prerendered route's path, the server sends the pre-built HTML directly. Once the browser loads the JavaScript bundle, React hydrates the static HTML into a fully interactive app, no second render needed.
 
-Routes that haven't enabled prerendering continue to work as before: the server sends the SPA file, and the client renders the page from scratch.
+Routes that haven't enabled prerendering continue to work as before: the server sends the shell of your app, and the client renders the page from scratch.
 
 ## When to use prerendering
 

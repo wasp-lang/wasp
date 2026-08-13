@@ -4,15 +4,17 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
-import { Server, Database } from '../DeploymentTag'
+import { Server, Client, Database } from '../DeploymentTag'
 
 # Heroku
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Heroku: new Date("2026-04-06") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Heroku: new Date("2026-04-06") }} />
 
-## Deploy Wasp to Heroku <Server /> <Database />
+## Deploy Wasp to Heroku <Server /> <Client /> <Database />
 
-This guide shows you how to deploy the server and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
+This guide shows you how to deploy your app and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
+
+A built Wasp app is a single server that serves your app's pages, its static assets and its API, so it needs a single Heroku app.
 
 ### Prerequisites
 
@@ -45,18 +47,19 @@ We are using the `essential-0` database instance. It's the cheapest database ins
 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
-The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET`, `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` env vars:
+The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET` and `WASP_SERVER_URL` env vars:
 
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
-heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
-heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
+heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_your_heroku_app>
 ```
+
+`heroku create` printed your app's URL, and you can look it up again with `heroku info --app <app-name>`.
 
 We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
 :::note
-If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
+There's no separate client URL to configure. `WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, and one server serves both your app's pages and its API.
 :::
 
 ### Deploy the Heroku app
@@ -96,7 +99,7 @@ Deploy the pushed image and restart the app:
 heroku container:release --app <app-name> web
 ```
 
-This is it, the backend is deployed at `https://<app-name>.herokuapp.com` 🎉
+This is it, your app is deployed at `https://<app-name>.herokuapp.com` 🎉
 
 Find out the exact app URL with:
 

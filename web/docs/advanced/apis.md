@@ -134,7 +134,9 @@ export const Foo = () => {
 
 #### Making Sure CORS Works
 
-APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
+Your app's pages are served from the same origin as your API, so calling your APIs from your own client works without CORS (Cross-Origin Resource Sharing).
+
+If something on another origin calls your API, though, it needs CORS. APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do, so you have to enable it yourself.
 
 You can do this by defining custom middleware for your APIs in the Wasp file.
 
@@ -219,7 +221,7 @@ export default app({
 ```
 
 <small>
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+If something outside your app calls this API, don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
 </small>
 
 ```ts title="src/streaming.ts" auto-js

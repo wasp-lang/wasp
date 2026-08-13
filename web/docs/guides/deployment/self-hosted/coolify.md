@@ -7,7 +7,7 @@ import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
 # Coolify
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Coolify: new Date("2026-01-30") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26", Coolify: new Date("2026-01-30") }} />
 
 ## Deploy Wasp with Coolify
 
@@ -23,16 +23,17 @@ This guide shows you how to deploy a Wasp application to [Coolify](https://cooli
 
 Deploying to Coolify involves:
 
-1. Creating Coolify apps (client, server, and database)
-2. Building Docker images using GitHub Actions
-3. Triggering Coolify to pull and deploy the images
+1. Creating Coolify resources (the app and the database)
+2. Building the Docker image using GitHub Actions
+3. Triggering Coolify to pull and deploy the image
+
+`wasp build` gives you a single Docker image that contains your whole app: its pages, its static assets, its API and its websockets. That is why there is one app in Coolify, not one for the client and one for the server.
 
 ### Step 1: Set Up Your Domain
 
-Point your DNS A records to your server IP:
+Point your DNS A record to your server IP:
 
-- `@` (root) → server IP (for `myapp.com` - client)
-- `api` → server IP (for `api.myapp.com` - server)
+- `@` (root) → server IP (for `myapp.com`)
 
 ### Step 2: Create Coolify Resources
 
@@ -44,41 +45,33 @@ Point your DNS A records to your server IP:
 4. Click **Start** to set up the database
 5. Copy the **Postgres URL (internal)** - you'll need this later
 
-#### Create the Server App
+#### Create the App
 
 1. Create a new resource and select **Docker Image**
-2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
-3. Name it `myapp-server`
+2. Set the image name to `ghcr.io/<your-github-username>/myapp`
+3. Name it `myapp`
 4. Configure:
-   - **Domains**: `https://api.<your-domain>`
+   - **Domains**: `https://<your-domain>`
    - **Docker Image Tag**: `main`
    - **Port Exposes**: `3001`
 5. Click **Save**
 
-#### Create the Client App
+### Step 3: Configure Environment Variables
 
-1. Create a new resource and select **Docker Image**
-2. Set the image name to `ghcr.io/<your-github-username>/myapp-client`
-3. Name it `myapp-client`
-4. Configure:
-   - **Domains**: `https://<your-domain>`
-   - **Docker Image Tag**: `main`
-   - **Port Exposes**: `8043`
-5. Click **Save**
+In the app, go to **Environment Variables** and add:
 
-### Step 3: Configure Server Environment Variables
-
-In the server app, go to **Environment Variables** and add:
-
-| Variable              | Value                                               |
-| --------------------- | --------------------------------------------------- |
-| `DATABASE_URL`        | The Postgres URL (internal) from step 2             |
-| `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
-| `PORT`                | `3001`                                              |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                             |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                         |
+| Variable          | Value                                                               |
+| ----------------- | ------------------------------------------------------------------- |
+| `DATABASE_URL`    | The Postgres URL (internal) from step 2                             |
+| `JWT_SECRET`      | Random string at least 32 characters long: <SecretGeneratorBlock /> |
+| `PORT`            | `3001`                                                              |
+| `WASP_SERVER_URL` | `https://<your-domain>`                                             |
 
 Add any other environment variables your app needs (from `.env.server`).
+
+:::tip
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, and your app's pages and its API are on the same origin now, so setting `WASP_SERVER_URL` to your domain is all it takes.
+:::
 
 ### Step 4: Create GitHub Action
 
@@ -98,15 +91,13 @@ concurrency:
 
 env:
   WASP_VERSION: "{pinnedLatestWaspVersion}"
-  SERVER_APP_NAME: "myapp-server"
-  SERVER_APP_URL: "https://api.myapp.com"
-  CLIENT_APP_NAME: "myapp-client"
+  APP_NAME: "myapp"
   DOCKER_REGISTRY: "ghcr.io"
   DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
   DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-push-images:
+  build-and-push-image:
     permissions:
       contents: read
       packages: write
@@ -126,17 +117,11 @@ jobs:
           username: ${{ env.DOCKER_REGISTRY_USERNAME }}
           password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
 
-      - name: (server) Extract metadata for Docker
-        id: meta-server
+      - name: Extract metadata for Docker
+        id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
-
-      - name: (client) Extract metadata for Docker
-        id: meta-client
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.APP_NAME }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -153,59 +138,46 @@ jobs:
       - name: Build Wasp app
         run: wasp build
 
-      - name: (client) Build
-        run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build
-
-      - name: (client) Prepare Dockerfile
-        run: |
-          cd ./.wasp/out/web-app
-          echo "FROM pierrezemb/gostatic" > Dockerfile
-          echo "CMD [\"-fallback\", \"200.html\", \"-enable-logging\"]" >> Dockerfile
-          echo "COPY ./build /srv/http" >> Dockerfile
-
-      - name: (server) Build and push Docker image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           # Remove 'app/' if your app is at the repo root
           context: ./app/.wasp/out
           file: ./app/.wasp/out/Dockerfile
           push: true
-          tags: ${{ steps.meta-server.outputs.tags }}
-          labels: ${{ steps.meta-server.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: (client) Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          # Remove 'app/' if your app is at the repo root
-          context: ./app/.wasp/out/web-app
-          file: ./app/.wasp/out/web-app/Dockerfile
-          push: true
-          tags: ${{ steps.meta-client.outputs.tags }}
-          labels: ${{ steps.meta-client.outputs.labels }}
-
-      - name: Trigger Deploy Webhooks
+      - name: Trigger Deploy Webhook
         env:
-          CLIENT_COOLIFY_WEBHOOK: ${{ secrets.CLIENT_COOLIFY_WEBHOOK }}
-          SERVER_COOLIFY_WEBHOOK: ${{ secrets.SERVER_COOLIFY_WEBHOOK }}
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
         run: |
-          curl "${{ env.CLIENT_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
-          curl "${{ env.SERVER_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
+          curl "${{ env.COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
 ```
+
+:::note Client environment variables
+Environment variables prefixed with `REACT_APP_` end up inside your app's pages and assets, so they have to be there when the image is built, not when it runs. If your app has any, pass them to the image build with the `WASP_CLIENT_ENV` build argument, as shell assignments:
+
+```yaml
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          # ...
+          build-args: |
+            WASP_CLIENT_ENV=REACT_APP_EXAMPLE='value'; REACT_APP_OTHER='another value'
+```
+
+Anyone can read them in the browser, so never put secrets there. Server environment variables stay where they were, in Coolify (step 3).
+:::
 
 ### Step 5: Configure GitHub Secrets
 
 In your GitHub repository, go to **Settings > Secrets and variables > Actions** and add:
 
-#### `SERVER_COOLIFY_WEBHOOK`
+#### `COOLIFY_WEBHOOK`
 
-1. Go to your server app in Coolify
-2. Click **Webhooks**
-3. Copy the **Deploy Webhook** URL
-
-#### `CLIENT_COOLIFY_WEBHOOK`
-
-1. Go to your client app in Coolify
+1. Go to your app in Coolify
 2. Click **Webhooks**
 3. Copy the **Deploy Webhook** URL
 
@@ -221,6 +193,8 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
-2. Create Docker images for server and client
-3. Push images to GitHub Container Registry
-4. Trigger Coolify to deploy the new images
+2. Create a Docker image for it
+3. Push the image to GitHub Container Registry
+4. Trigger Coolify to deploy the new image
+
+Your app should now be accessible at `https://myapp.com`!

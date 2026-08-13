@@ -10,4 +10,4 @@ import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: Path' Abs (Dir WaspProjectDir) -> J.Job
 startWebApp waspProjectDir = do
-  runNodeCommandAsJob waspProjectDir "npx" ["vite"] J.WebApp
+  runNodeCommandAsJob waspProjectDir "npx" ["vite"] J.App

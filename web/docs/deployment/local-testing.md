@@ -56,8 +56,7 @@ You should treat this command as the last check before deploying your app, confi
 | ---------------------------------------- | ------------------- | ------------------------------------------------- |
 | Runs your app for general production use | **No**              | **No** (check our [deployment guide](./intro.md)) |
 | Intended for                             | Local development   | Local production testing                          |
-| Server environment                       | Node.js             | Node.js in a Docker container                     |
-| Client environment                       | Static server       | Static server                                     |
+| Runtime environment                      | Node.js             | Node.js in a Docker container                     |
 | Assets                                   | Served individually | Bundled and minified                              |
 | React dev mode                           | Enabled             | Disabled                                          |
 | Hot reload                               | Enabled             | Disabled                                          |
@@ -71,7 +70,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](../project/env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](../project/env-vars.md).
 
-The only exception is the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
+The only exception is the environment variables that configure your app's URL (`WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
 
 ### Which values should I use when testing?
 
@@ -110,6 +109,8 @@ Do not commit your `.env` files with sensitive information to your version contr
 :::
 
 ### Client environment variables
+
+Client environment variables end up inside your app's pages and assets, so `wasp build start` bakes them in while it builds the image, instead of giving them to the container when it starts it.
 
 Use `--client-env` to specify environment variables for the client:
 

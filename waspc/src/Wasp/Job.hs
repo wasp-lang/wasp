@@ -28,4 +28,8 @@ data JobMessageData
 
 data JobOutputType = Stdout | Stderr deriving (Show, Eq)
 
-data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
+-- | Who a job's output comes from, so that we can label and color it.
+--
+-- There is a single @App@ job because a Wasp app is a single program: one
+-- server serves both the app's pages and its API.
+data JobType = App | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)

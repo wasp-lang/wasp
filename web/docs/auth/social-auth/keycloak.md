@@ -90,7 +90,7 @@ model User {
 
 ![Keycloak Screenshot 3](/img/auth/keycloak/3-keycloak.png)
 
-1. Under **Valid Redirect URIs**, add `http://localhost:3001/auth/keycloak/callback` for local development.
+1. Under **Valid Redirect URIs**, add `http://localhost:3000/auth/keycloak/callback` for local development.
 
 ![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
 

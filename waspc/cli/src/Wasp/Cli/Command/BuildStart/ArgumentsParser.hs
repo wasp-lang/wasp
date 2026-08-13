@@ -24,28 +24,34 @@ buildStartArgsParser =
     <*> Opt.many serverEnvironmentVariableParser
     <*> Opt.many serverEnvironmentFileParser
   where
+    -- One container runs the whole app, so these two groups are not two
+    -- programs: the client ones are baked into the app's pages and assets while
+    -- they are built, and the server ones are given to the running app.
     clientEnvironmentVariableParser =
-      makeEnvironmentVariableParser "client" "client-env" 'c'
+      makeEnvironmentVariableParser clientTargetDescription "client-env" 'c'
     clientEnvironmentFileParser =
-      makeEnvironmentFileParser "client" "client-env-file"
+      makeEnvironmentFileParser clientTargetDescription "client-env-file"
 
     serverEnvironmentVariableParser =
-      makeEnvironmentVariableParser "server" "server-env" 's'
+      makeEnvironmentVariableParser serverTargetDescription "server-env" 's'
     serverEnvironmentFileParser =
-      makeEnvironmentFileParser "server" "server-env-file"
+      makeEnvironmentFileParser serverTargetDescription "server-env-file"
+
+    clientTargetDescription = "baked into the app's pages and assets when they are built"
+    serverTargetDescription = "given to the app while it runs"
 
     makeEnvironmentVariableParser :: String -> String -> Char -> Opt.Parser EnvVar
-    makeEnvironmentVariableParser targetName longOptionName shortOptionName =
+    makeEnvironmentVariableParser targetDescription longOptionName shortOptionName =
       Opt.option envVarReader $
         Opt.long longOptionName
           <> Opt.short shortOptionName
           <> Opt.metavar "NAME=VALUE"
-          <> Opt.help ("Set an environment variable for the " <> targetName <> " (can be used multiple times)")
+          <> Opt.help ("Set an environment variable " <> targetDescription <> " (can be used multiple times)")
 
     makeEnvironmentFileParser :: String -> String -> Opt.Parser FilePathArgument
-    makeEnvironmentFileParser targetName longOptionName =
+    makeEnvironmentFileParser targetDescription longOptionName =
       Opt.option filePathReader $
         Opt.long longOptionName
           <> Opt.metavar "FILE_PATH"
-          <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")
+          <> Opt.help ("Load environment variables " <> targetDescription <> " from a file (can be used multiple times)")
           <> Opt.action "file"

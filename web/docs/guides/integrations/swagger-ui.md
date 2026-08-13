@@ -191,7 +191,7 @@ export const getStatus: GetStatus = async (req, res) => {
 
 ### 6. Access the documentation
 
-Start your Wasp application and navigate to `http://localhost:3001/api-docs` to see your API documentation.
+Start your Wasp application and navigate to `http://localhost:3000/api-docs` to see your API documentation.
 
 ## Documenting Different Request Types
 

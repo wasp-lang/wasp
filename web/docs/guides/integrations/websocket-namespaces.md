@@ -4,23 +4,27 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 
-# WebSocket Namespaces
+# WebSocket Channels
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.26" }} />
 
-This guide shows you how to use Socket.IO namespaces with Wasp's WebSocket support for organizing your real-time communication channels.
+This guide shows you how to split your app's real-time communication into separate channels over Wasp's single WebSocket connection.
 
-## Understanding Namespaces
+## Understanding Channels
 
-Wasp's built-in WebSocket support gives you a single default connection with type-safe events via `useSocket` and `useSocketListener` (see the [Web Sockets docs](../../advanced/web-sockets.md)). Namespaces are a Socket.IO feature that lets you split real-time logic over separate channels on a single shared connection. This is useful when you want to separate concerns, for example having a `/chat` namespace for chat-related events and a `/notifications` namespace for notification events.
+Wasp's built-in WebSocket support gives you a single connection with type-safe events via `useSocket` and `useSocketListener` (see the [Web Sockets docs](../../advanced/web-sockets.md)). One connection is usually enough, but as your app grows you may want to keep unrelated real-time logic apart, for example chat messages and notifications.
 
-When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `useSocketListener`) and manage connections directly with `socket.io-client`. Wasp still handles the server-side setup and provides the `io` server instance.
+You do that with **topics**: named groups of connections you subscribe to and publish to. A client only receives the events of the topics it is subscribed to, and everything still rides the one connection Wasp manages for you, so you keep `useSocket` and `useSocketListener`.
 
-## Setting up WebSocket with Namespaces
+:::info Coming from Socket.IO?
+Wasp used to build its WebSocket support on Socket.IO, where you would reach for namespaces here. There are no namespaces anymore. Topics cover the same "separate channels" use case, without a second connection to manage.
+:::
+
+## Setting up channels
 
 ### 1. Configure WebSocket in main.wasp.ts
 
-Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
+Enable WebSocket in your Wasp spec:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -29,13 +33,12 @@ import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 
 export default app({
   name: "WebsocketTest",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.26.0" },
   title: "websocket-test",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // highlight-start
   webSocket: {
     fn: webSocketFn,
-    autoConnect: false,
   },
   // highlight-end
   spec: [
@@ -46,103 +49,69 @@ export default app({
 
 ### 2. Create the server-side WebSocket handler
 
-Set up the namespace on the server side. The `webSocketFn` receives the Socket.IO `io` server and a `context` object with access to your entities:
+Let clients subscribe to the channels they care about, and publish each channel's events to it:
 
 ```ts title="src/websocketSetup.ts" auto-js
-import { type WebSocketDefinition } from "wasp/server/webSocket";
+import { defineWebSocket, publish } from "wasp/server/webSocket";
 
-export const webSocketFn: WebSocketDefinition = (io, _context) => {
-  // Create a namespace for messages
-  const messagesNamespace = io.of("/messages");
+export const webSocketFn = defineWebSocket<
+  ClientToServerEvents,
+  ServerToClientEvents
+>({
+  events: {
+    subscribe(peer, channel) {
+      peer.subscribe(channel);
+    },
 
-  messagesNamespace.on("connection", (socket) => {
-    console.log("Client connected to messages namespace");
+    unsubscribe(peer, channel) {
+      peer.unsubscribe(channel);
+    },
 
-    socket.on("chatMessage", (msg) => {
-      console.log("message: ", msg);
-      // Broadcast to all clients in the namespace
-      messagesNamespace.emit("chatMessage", {
+    chatMessage(peer, text) {
+      publish("messages", "chatMessage", {
         id: crypto.randomUUID(),
-        username: "User",
-        text: msg,
+        username: peer.data.user?.getFirstProviderUserId() ?? "Unknown",
+        text,
       });
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Client disconnected from messages namespace");
-    });
-  });
-};
-```
-
-### 3. Create client-side WebSocket utilities
-
-Create a module to manage the namespace connection on the client. Since you're connecting to a custom namespace, you use `socket.io-client` directly instead of Wasp's built-in `useSocket` hook:
-
-```ts title="src/websocketHooks.ts" auto-js
-import { useEffect, useState } from "react";
-import { io, type Socket } from "socket.io-client";
-import { config } from "wasp/client";
-
-const messagesSocket: Socket = io(`${config.apiUrl}/messages`, {
-  transports: ["websocket"],
-  // Vite pre-bundles socket.io-client which breaks autoConnect: https://github.com/vitejs/vite/issues/4798
-  autoConnect: false,
+    },
+  },
 });
-messagesSocket.connect();
 
-export function useMessagesSocket(): { socket: Socket; isConnected: boolean } {
-  const [isConnected, setIsConnected] = useState(messagesSocket.connected);
-
-  useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-
-    messagesSocket.on("connect", onConnect);
-    messagesSocket.on("disconnect", onDisconnect);
-
-    return () => {
-      messagesSocket.off("connect", onConnect);
-      messagesSocket.off("disconnect", onDisconnect);
-    };
-  }, []);
-
-  return {
-    socket: messagesSocket,
-    isConnected,
-  };
+interface ClientToServerEvents {
+  subscribe: (channel: string) => void;
+  unsubscribe: (channel: string) => void;
+  chatMessage: (text: string) => void;
 }
 
-export function useSocketListener(
-  socket: Socket,
-  event: string,
-  handler: (...args: any[]) => void,
-) {
-  useEffect(() => {
-    socket.on(event, handler);
-    return () => {
-      socket.off(event, handler);
-    };
-  }, [event, handler, socket]);
+interface ServerToClientEvents {
+  chatMessage: (msg: {
+    id: string;
+    username: string;
+    text: string;
+  }) => void;
+  notification: (msg: { text: string }) => void;
 }
 ```
 
-### 4. Use the WebSocket in your component
+Note that `publish` reaches everybody subscribed to the topic, the sender included. If you want to exclude the sender, use `peer.publishToOthers(topic, event, payload)` instead.
 
-Now use the hooks in your React component:
+### 3. Use the channel in your component
+
+Subscribe when the component mounts, and listen for the channel's events with Wasp's hooks:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import { useMessagesSocket, useSocketListener } from "./websocketHooks";
+import { useEffect } from "react";
+import { useSocket, useSocketListener } from "wasp/client/webSocket";
 
 const MainPage = () => {
-  const { socket, isConnected } = useMessagesSocket();
+  const { socket, isConnected } = useSocket();
 
-  useSocketListener(socket, "chatMessage", (message) => {
+  useEffect(() => {
+    socket.emit("subscribe", "messages");
+    return () => socket.emit("unsubscribe", "messages");
+  }, [socket]);
+
+  useSocketListener("chatMessage", (message) => {
     console.log("message received: ", message);
   });
 
@@ -159,48 +128,63 @@ const MainPage = () => {
 export default MainPage;
 ```
 
-## Multiple Namespaces
+Events you emit before the connection is open are sent as soon as it opens, so you don't have to wait for `isConnected` before subscribing.
 
-You can create multiple namespaces for different purposes:
+## Multiple Channels
+
+Nothing stops a connection from being subscribed to several topics at once:
 
 ```ts title="src/websocketSetup.ts" auto-js
-export const webSocketFn: WebSocketDefinition = (io, _context) => {
-  // Messages namespace
-  const messagesNamespace = io.of("/messages");
-  messagesNamespace.on("connection", (socket) => {
-    // Handle messages events
-  });
+import { defineWebSocket } from "wasp/server/webSocket";
 
-  // Notifications namespace
-  const notificationsNamespace = io.of("/notifications");
-  notificationsNamespace.on("connection", (socket) => {
-    // Handle notification events
-  });
-
-  // Presence namespace
-  const presenceNamespace = io.of("/presence");
-  presenceNamespace.on("connection", (socket) => {
-    // Handle presence events
-  });
-};
-```
-
-## Room Support within Namespaces
-
-Namespaces can also use rooms for further organization:
-
-```ts auto-js
-messagesNamespace.on("connection", (socket) => {
-  // Join a specific room
-  socket.on("joinRoom", (roomId) => {
-    socket.join(roomId);
-  });
-
-  // Send message to a specific room
-  socket.on("roomMessage", ({ roomId, message }) => {
-    messagesNamespace.to(roomId).emit("chatMessage", message);
-  });
+export const webSocketFn = defineWebSocket({
+  open(peer) {
+    peer.subscribe("messages");
+    peer.subscribe("notifications");
+    peer.subscribe("presence");
+  },
 });
 ```
 
-For more information about Socket.IO namespaces, see the [Socket.IO documentation](https://socket.io/docs/v4/namespaces/).
+Since every event flows over the same connection, give each channel its own event names (`chatMessage`, `notification`, `presenceUpdate`, ...) instead of reusing one name across channels.
+
+## Rooms within a channel
+
+Topics are just strings, so you can name them per room:
+
+```ts title="src/websocketSetup.ts" auto-js
+import { defineWebSocket } from "wasp/server/webSocket";
+
+export const webSocketFn = defineWebSocket<
+  ClientToServerEvents,
+  ServerToClientEvents
+>({
+  events: {
+    joinRoom(peer, roomId) {
+      peer.subscribe(`messages:${roomId}`);
+    },
+
+    roomMessage(peer, { roomId, text }) {
+      peer.publishToOthers(`messages:${roomId}`, "chatMessage", { text });
+    },
+  },
+});
+```
+
+## Sending from the rest of your server
+
+`publish` and `broadcast` are plain functions, so a Query, an Action or a Job can send events to a channel too:
+
+```ts title="src/actions.ts" auto-js
+import { type NotifyEveryone } from "wasp/server/operations";
+import { publish } from "wasp/server/webSocket";
+
+export const notifyEveryone: NotifyEveryone<{ text: string }, void> = async (
+  args,
+  context,
+) => {
+  publish("notifications", "notification", { text: args.text });
+};
+```
+
+For more about Wasp's WebSocket API, see the [Web Sockets docs](../../advanced/web-sockets.md).

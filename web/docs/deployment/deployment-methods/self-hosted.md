@@ -2,7 +2,6 @@
 title: Self-Hosted
 ---
 
-import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 import { CardLink } from '@site/src/components/CardLink'
 
 If you have your server or rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
@@ -36,14 +35,11 @@ To successfully self-host your Wasp app, you need to have the following:
 
 To self-host your Wasp app, you'll follow these general steps:
 
-1. From your **app's code**, let Wasp build a **server app** and a **client app**.
+1. From your **app's code**, let Wasp build **your app**: one server that serves your pages and your API alike.
 1. Set up the **server environment variables** on the server.
 1. Run a **database** on the server or use a managed database service.
-1. Run the **server app** on the server, with or without Docker.
-1. Serve the **client app** with a static file server.
+1. Run **your app** on the server, with or without Docker.
 1. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
-
-<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
 
 ### Steps
 
@@ -51,23 +47,19 @@ To self-host your Wasp app, you'll follow these general steps:
 2. Get your **app's source code**.
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
 3. Install dependencies with **`wasp install`** and build your app with **`wasp build`**.
-4. Build and run the **server app**.
-   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server app.
-   - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
-   - When you run the server app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
+4. Build and run **your app**.
+   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run your app.
+   - We are using Docker to run the app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
+   - Your app's [client env variables](../env-vars.md#client-env-vars) end up inside its pages and assets, so they have to be there when you *build* the image. You pass them in with the `WASP_CLIENT_ENV` build argument.
+   - When you run your app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
 5. Start the **database** on the server or use a managed database service.
    - We usually run the database in Docker on the same server, but you can run the database directly on the server.
    - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
-6. Build the **client app** into static files.
-   - Wasp outputs the client app in the `.wasp/out/web-app` directory.
-   <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](./cloud-providers.md#3-deploying-the-web-client) into static files.
-7. Install and set up a **reverse proxy** to serve your client and server apps.
+6. Install and set up a **reverse proxy** in front of your app.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
-   - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.
-8. Point your **domain(s)** to your server's IP address.
-   - We recommend setting `myapp.com` for the client and `api.myapp.com` for the server.
-   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure your [env variables](../env-vars.md) are using these client and server URLs.
+   - It terminates HTTPS for your domain and proxies everything to the port your app listens on (`PORT`, `3001` by default).
+7. Point your **domain** to your server's IP address.
+   - One domain is all you need: your app serves everything from it. Make sure your [env variables](../env-vars.md) use it.
 
 ## Database setup
 
