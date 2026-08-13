@@ -413,6 +413,7 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
         onBeforeOAuthRedirect: getRefObject("full", "named"),
         onBeforeLogin: getRefObject("full", "named"),
         onAfterLogin: getRefObject("full", "named"),
+        provider: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.Auth>;
     default:
       assertUnreachable(scope);

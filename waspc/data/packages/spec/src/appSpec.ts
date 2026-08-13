@@ -159,6 +159,7 @@ export type Auth = {
   onBeforeOAuthRedirect: Optional<ExtImport>;
   onBeforeLogin: Optional<ExtImport>;
   onAfterLogin: Optional<ExtImport>;
+  provider: Optional<ExtImport>;
 };
 
 export type AuthMethods = {

@@ -514,6 +514,7 @@ describe("mapAuth", () => {
         auth.onBeforeLogin && mapRefObjectForMockProjectDir(auth.onBeforeLogin),
       onAfterLogin:
         auth.onAfterLogin && mapRefObjectForMockProjectDir(auth.onAfterLogin),
+      provider: auth.provider && mapRefObjectForMockProjectDir(auth.provider),
     } satisfies AppSpec.Auth);
   }
 });

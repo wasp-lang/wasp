@@ -18,6 +18,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
@@ -96,6 +97,7 @@ getVirtualUserModules spec =
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
+      maybeToList $ mkAuthProviderModule <$> maybeAuthProvider,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -120,6 +122,16 @@ getVirtualUserModules spec =
         [relfileP|./server/dbClient|]
         "RegisteredPrismaSetupFn"
 
+    -- The auth provider is written in user code but consumed by the SDK's session
+    -- layer, so it reaches the SDK through a virtual module like everything else
+    -- user-authored. The SDK must not import user code directly.
+    mkAuthProviderModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "RegisteredAuthProvider"
+
     mkOperationModule operation =
       VirtualUserModule
         ServerRuntime
@@ -134,6 +146,7 @@ getVirtualUserModules spec =
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybeAuthProvider = AS.App.auth app >>= AS.Auth.provider
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.

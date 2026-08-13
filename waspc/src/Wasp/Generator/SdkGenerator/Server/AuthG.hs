@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.Server.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -20,6 +21,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
@@ -37,7 +39,7 @@ genServerAuth spec =
           genFileCopyInServerAuth [relfile|jwt.ts|],
           genFileCopyInServerAuth [relfile|provider/types.ts|],
           genFileCopyInServerAuth [relfile|provider/wasp.ts|],
-          genFileCopyInServerAuth [relfile|provider/index.ts|],
+          genAuthProviderIndexTs auth,
           genSessionTs auth,
           genLuciaTs auth,
           genUtils auth
@@ -87,6 +89,25 @@ genLuciaTs auth =
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
+-- | Selects the auth provider the app runs on.
+--
+-- Defaults to Wasp's own auth. When @app.auth.provider@ is set, the SDK imports the
+-- developer's adapter through a virtual user module instead, and the session layer
+-- switches to resolving foreign subjects (provisioning a local user on first sight).
+genAuthProviderIndexTs :: AS.Auth.Auth -> Generator FileDraft
+genAuthProviderIndexTs auth =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|provider/index.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "isCustomAuthProviderUsed" .= isJust maybeProvider,
+          "authProvider" .= extImportToImportJson maybeProvider
+        ]
+    maybeProvider = AS.Auth.provider auth
+
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
   return $
@@ -99,6 +120,7 @@ genSessionTs auth =
         [ "userEntityUpper" .= userEntityName,
           "userEntityLower" .= Util.toLowerFirst userEntityName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth

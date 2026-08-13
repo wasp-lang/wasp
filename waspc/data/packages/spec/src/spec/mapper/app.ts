@@ -51,6 +51,7 @@ export function mapAuth(
     onBeforeOAuthRedirect,
     onBeforeLogin,
     onAfterLogin,
+    provider,
   } = auth;
 
   return {
@@ -66,6 +67,7 @@ export function mapAuth(
       onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
     onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
     onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
+    provider: provider && ctx.parseRefObject(provider),
   };
 }
 

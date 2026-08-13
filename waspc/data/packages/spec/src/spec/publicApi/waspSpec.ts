@@ -165,6 +165,31 @@ export interface Auth extends AuthHooks {
    * @default "/"
    */
   onAuthSucceededRedirectTo?: string;
+  /**
+   * EXPERIMENTAL. The authentication provider that verifies incoming requests.
+   *
+   * Defaults to Wasp's own auth, which is what `methods` configures. Point this
+   * at a module implementing `AuthProvider` (from `wasp/server/auth/provider`)
+   * to authenticate against something else -- Better Auth, Clerk, WorkOS.
+   *
+   * Wasp still owns everything downstream of the answer: `context.user` is
+   * always a row in your own user entity, whichever provider vouched for the
+   * request.
+   *
+   * ```ts
+   * import { clerkAuthProvider } from "./src/auth/clerk" with { type: "ref" };
+   *
+   * auth: {
+   *   userEntity: "User",
+   *   methods: {},
+   *   provider: clerkAuthProvider,
+   *   onAuthFailedRedirectTo: "/login",
+   * }
+   * ```
+   *
+   * @category Experimental
+   */
+  provider?: Reference<AnyObject>;
 }
 
 interface AuthHooks {

@@ -3,7 +3,7 @@ import { Request as ExpressRequest } from "express";
 
 import { type AuthUserData } from '../../auth/user.js';
 
-import { authProvider, canIssueSessions } from "./provider/index.js";
+import { authProvider, canIssueSessions, providerOwnsAuthEntity } from "./provider/index.js";
 
 import { prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
@@ -55,7 +55,15 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
  * keeps this to a single query and means the provider only ever has to tell us
  * which auth subject it verified.
  */
-async function toSessionAndUser(sessionId: string, authId: string): Promise<SessionAndUser | null> {
+async function toSessionAndUser(sessionId: string, subjectId: string): Promise<SessionAndUser | null> {
+  const authId = providerOwnsAuthEntity
+    ? subjectId
+    : await resolveExternalSubject(subjectId);
+
+  if (authId === null) {
+    return null;
+  }
+
   const user = await prisma.{= userEntityLower =}.findFirst({
     where: { {= authFieldOnUserEntityName =}: { id: authId } },
     include: {
@@ -74,6 +82,79 @@ async function toSessionAndUser(sessionId: string, authId: string): Promise<Sess
   }
 
   return { sessionId, user: createAuthUserData(user) };
+}
+
+/**
+ * Maps a provider-owned subject id onto Wasp's auth entity, creating the local
+ * rows the first time we see that subject.
+ *
+ * This is what keeps `context.user` honest. RedwoodJS shipped nine auth adapters
+ * over one interface but left provisioning to the developer, so `currentUser.id`
+ * ended up meaning a database id under one adapter and a provider's opaque string
+ * under another. Wasp always resolves to a row in the developer's own entity.
+ *
+ * The upsert is deliberately written as create-then-handle-conflict rather than
+ * find-then-create: two requests can arrive for the same brand-new subject at the
+ * same time, and only the unique constraint can settle that race.
+ */
+async function resolveExternalSubject(subjectId: string): Promise<string | null> {
+  const providerName = authProvider.id;
+
+  const existing = await prisma.{= authIdentityEntityLower =}.findUnique({
+    where: {
+      providerName_providerUserId: {
+        providerName: providerName,
+        providerUserId: subjectId,
+      },
+    },
+    select: { authId: true },
+  });
+
+  if (existing) {
+    return existing.authId;
+  }
+
+  try {
+    const created = await prisma.{= userEntityLower =}.create({
+      data: {
+        {= authFieldOnUserEntityName =}: {
+          create: {
+            {= identitiesFieldOnAuthEntityName =}: {
+              create: {
+                providerName: providerName,
+                providerUserId: subjectId,
+                providerData: '{}',
+              },
+            },
+          },
+        },
+      },
+      include: { {= authFieldOnUserEntityName =}: true },
+    });
+    return created.{= authFieldOnUserEntityName =}!.id;
+  } catch (e: unknown) {
+    // Another request provisioned the same subject between our read and our
+    // write. Its row is the winner; re-read rather than failing the request.
+    if (isUniqueConstraintViolation(e)) {
+      const raced = await prisma.{= authIdentityEntityLower =}.findUnique({
+        where: {
+          providerName_providerUserId: {
+            providerName: providerName,
+            providerUserId: subjectId,
+          },
+        },
+        select: { authId: true },
+      });
+      return raced?.authId ?? null;
+    }
+    throw e;
+  }
+}
+
+function isUniqueConstraintViolation(e: unknown): boolean {
+  return (
+    typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 'P2002'
+  );
 }
 
 // PRIVATE API

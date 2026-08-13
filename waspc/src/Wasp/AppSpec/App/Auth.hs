@@ -46,7 +46,18 @@ data Auth = Auth
     onAfterEmailVerified :: Maybe ExtImport,
     onBeforeOAuthRedirect :: Maybe ExtImport,
     onBeforeLogin :: Maybe ExtImport,
-    onAfterLogin :: Maybe ExtImport
+    onAfterLogin :: Maybe ExtImport,
+    -- | EXPERIMENTAL. The provider that verifies incoming requests.
+    --
+    -- 'Nothing' means Wasp's own auth, which is what 'methods' configures.
+    -- When set, it points at user code implementing @AuthProvider@ and Wasp
+    -- authenticates against that instead.
+    --
+    -- Capabilities are read from the adapter object at runtime rather than
+    -- declared here. Gating code generation on them is a later change; keeping
+    -- them out of the AppSpec for now avoids baking a closed capability set
+    -- into a format third-party adapters would have to match.
+    provider :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
