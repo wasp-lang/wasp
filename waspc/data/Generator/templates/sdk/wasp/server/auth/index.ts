@@ -3,6 +3,14 @@ export {
   defineUserSignupFields,
 } from '../../auth/providers/types.js'
 
+{=# isCustomAuthProviderUsed =}
+{=! Under an external provider, `wasp/server/auth` keeps only what is
+    provider-independent: typing `userSignupFields` and the error helper the
+    generated code itself uses. Everything password- and hook-shaped belongs
+    to Wasp's own auth and is not generated at all. =}
+export { createInvalidCredentialsError } from './utils.js'
+{=/ isCustomAuthProviderUsed =}
+{=^ isCustomAuthProviderUsed =}
 export {
   createProviderId,
   sanitizeAndSerializeProviderData,
@@ -35,6 +43,7 @@ export type {
   InternalAuthHookParams,
   OAuthData,
 } from './hooks.js'
+{=/ isCustomAuthProviderUsed =}
 
 {=# isExternalAuthEnabled =}
 export * from './oauth/index.js'

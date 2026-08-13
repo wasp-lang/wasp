@@ -98,6 +98,7 @@ getVirtualUserModules spec =
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
       maybeToList $ mkAuthProviderModule <$> maybeAuthProvider,
+      maybeToList $ mkAuthProviderUserSignupFieldsModule <$> maybeAuthProviderUserSignupFields,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -132,6 +133,15 @@ getVirtualUserModules spec =
         [relfileP|./server/auth/provider/types|]
         "RegisteredAuthProvider"
 
+    -- Feeds just-in-time provisioning under an external provider; consumed by
+    -- the SDK's session layer, so it goes through a virtual module too.
+    mkAuthProviderUserSignupFieldsModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "RegisteredAuthProviderUserSignupFields"
+
     mkOperationModule operation =
       VirtualUserModule
         ServerRuntime
@@ -147,6 +157,7 @@ getVirtualUserModules spec =
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuthProvider = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.serverModule
+    maybeAuthProviderUserSignupFields = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.userSignupFieldsForExternalAuthProvider
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.

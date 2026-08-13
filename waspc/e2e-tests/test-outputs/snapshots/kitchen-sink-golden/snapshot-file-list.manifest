@@ -62,6 +62,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/helpers/Slack.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/user.ts
 wasp-app/.wasp/out/sdk/wasp/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/logout.ts
+wasp-app/.wasp/out/sdk/wasp/auth/provider.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providerData.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/types.ts
@@ -272,6 +273,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/logout.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/provider.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/provider.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/provider.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/provider.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providerData.js

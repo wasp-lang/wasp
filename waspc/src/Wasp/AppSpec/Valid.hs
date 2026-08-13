@@ -4,6 +4,8 @@ module Wasp.AppSpec.Valid
   ( validateAppSpec,
     getApp,
     isAuthEnabled,
+    isWaspAuthUsed,
+    getExternalAuthProvider,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -560,6 +562,18 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+
+-- | Whether the app authenticates through Wasp's own auth -- i.e. auth is
+-- enabled and no external provider is selected. Everything password-shaped
+-- (login routes, lucia, JWT_SECRET, auth forms) is generated only when this
+-- holds.
+isWaspAuthUsed :: AppSpec -> Bool
+isWaspAuthUsed spec = case App.auth (snd $ getApp spec) of
+  Nothing -> False
+  Just auth -> not (Auth.isExternalAuthProviderUsed auth)
+
+getExternalAuthProvider :: AppSpec -> Maybe Auth.ExternalAuthProviderSpec
+getExternalAuthProvider spec = App.auth (snd $ getApp spec) >>= Auth.externalProvider
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

@@ -1,4 +1,5 @@
 import { type AuthProvider } from '@wasp.sh/auth-contract'
+import { type UserSignupFields } from '../../../auth/providers/types.js'
 import { type FromRegister } from '../../../types/register.js'
 
 // PRIVATE API
@@ -25,3 +26,15 @@ export {
  * contract at build time rather than failing somewhere inside the session layer.
  */
 export type RegisteredAuthProvider = FromRegister<'authProvider', AuthProvider>
+
+// PRIVATE API
+/**
+ * The `userSignupFields` the developer registered on the external provider's
+ * manifest, if any. Feeds just-in-time provisioning: when Wasp first sees a
+ * subject, these fields populate the new row of the app's own user entity from
+ * the claims the provider verified.
+ */
+export type RegisteredAuthProviderUserSignupFields = FromRegister<
+  'authProviderUserSignupFields',
+  UserSignupFields
+>

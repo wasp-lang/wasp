@@ -3,6 +3,8 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
   )
 where
 
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.KeyMap as KeyMap
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -22,19 +24,24 @@ genClientAuth :: AppSpec -> Generator [FileDraft]
 genClientAuth spec =
   case maybeAuth of
     Nothing -> return []
-    Just auth ->
-      sequence
-        [ genAuthIndex auth,
-          genAuthUi auth
-        ]
-        <++> genAuthEmail auth
-        <++> genAuthUsername auth
-        <++> genAuthSlack auth
-        <++> genAuthDiscord auth
-        <++> genAuthGoogle auth
-        <++> genAuthKeycloak auth
-        <++> genAuthGitHub auth
-        <++> genAuthMicrosoft auth
+    Just auth
+      -- Under an external provider `wasp/client/auth` keeps only the uniform
+      -- surface (useAuth, logout); the provider's own UI comes from its
+      -- adapter package, not from Wasp's generated forms.
+      | AS.Auth.isExternalAuthProviderUsed auth -> sequence [genAuthIndex auth]
+      | otherwise ->
+          sequence
+            [ genAuthIndex auth,
+              genAuthUi auth
+            ]
+            <++> genAuthEmail auth
+            <++> genAuthUsername auth
+            <++> genAuthSlack auth
+            <++> genAuthDiscord auth
+            <++> genAuthGoogle auth
+            <++> genAuthKeycloak auth
+            <++> genAuthGitHub auth
+            <++> genAuthMicrosoft auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -45,7 +52,14 @@ genAuthIndex auth =
       (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
       tmplData
   where
-    tmplData = AuthProviders.getEnabledAuthProvidersJson auth
+    tmplData = case AuthProviders.getEnabledAuthProvidersJson auth of
+      Aeson.Object enabledProvidersFlags ->
+        Aeson.Object $
+          KeyMap.insert
+            "isExternalAuthProviderUsed"
+            (Aeson.toJSON $ AS.Auth.isExternalAuthProviderUsed auth)
+            enabledProvidersFlags
+      otherJson -> otherJson
 
 genAuthUi :: AS.Auth.Auth -> Generator FileDraft
 genAuthUi auth =

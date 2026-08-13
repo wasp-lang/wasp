@@ -8,6 +8,12 @@ import { type VerifiedSession } from "./provider/types.js";
 
 import { config, prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
+{=# isCustomAuthProviderUsed =}
+import { validateAndGetUserFields } from './utils.js';
+{=# externalUserSignupFields.isDefined =}
+{=& externalUserSignupFields.importStatement =}
+{=/ externalUserSignupFields.isDefined =}
+{=/ isCustomAuthProviderUsed =}
 
 /**
  * Wasp's session layer.
@@ -152,8 +158,19 @@ async function resolveExternalSubject(
   }
 
   try {
+    // The app's `userSignupFields` compute the new user's own fields from the
+    // claims the provider verified -- the only way a user entity with required
+    // columns can be provisioned at all.
+    const userFields = await validateAndGetUserFields(
+      { ...(claims ?? {}) },
+      {=# externalUserSignupFields.isDefined =}{= externalUserSignupFields.importIdentifier =}{=/ externalUserSignupFields.isDefined =}{=^ externalUserSignupFields.isDefined =}undefined{=/ externalUserSignupFields.isDefined =},
+    );
+
     const created = await prisma.{= userEntityLower =}.create({
       data: {
+        // Using `any` to defer validation of required-but-unset fields to
+        // Prisma, which reports them precisely.
+        ...(userFields as any),
         {= authFieldOnUserEntityName =}: {
           create: {
             {= identitiesFieldOnAuthEntityName =}: {

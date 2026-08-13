@@ -41,6 +41,7 @@
   },
   "exports": {
     "./auth": "./dist/auth/index.js",
+    "./auth/provider": "./dist/auth/provider.js",
     "./auth/providers": "./dist/auth/providers/index.js",
     "./auth/providers/types": "./dist/auth/providers/types.js",
     "./auth/user": "./dist/auth/user.js",

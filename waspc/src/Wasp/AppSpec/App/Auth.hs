@@ -40,6 +40,7 @@ module Wasp.AppSpec.App.Auth
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
+    userSignupFieldsForExternalAuthProvider,
   )
 where
 
@@ -334,3 +335,6 @@ userSignupFieldsForUsernameAuth = (.userSignupFields)
 
 userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
 userSignupFieldsForExternalAuth = (.userSignupFields)
+
+userSignupFieldsForExternalAuthProvider :: ExternalAuthProviderSpec -> Maybe ExtImport
+userSignupFieldsForExternalAuthProvider = (.userSignupFields)

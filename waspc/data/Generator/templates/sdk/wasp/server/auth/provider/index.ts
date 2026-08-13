@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { type AuthProvider } from './types.js'
+import { {=# isCustomAuthProviderUsed =}canIssueSessions as canProviderIssueSessions, {=/ isCustomAuthProviderUsed =}type AuthProvider } from './types.js'
 {=# isCustomAuthProviderUsed =}
 {=& authProvider.importStatement =}
 {=/ isCustomAuthProviderUsed =}
@@ -25,6 +25,46 @@ export {
  */
 export const authProvider: AuthProvider =
   {=# isCustomAuthProviderUsed =}{= authProvider.importIdentifier =}{=/ isCustomAuthProviderUsed =}{=^ isCustomAuthProviderUsed =}waspAuthProvider{=/ isCustomAuthProviderUsed =}
+{=# isCustomAuthProviderUsed =}
+
+/**
+ * The manifest in `main.wasp.ts` made compile-time claims about this provider
+ * (its id, its capabilities), and code was generated from them. Checking the
+ * claims against the adapter object at boot turns a wrong manifest into a
+ * loud startup failure instead of a subtly broken app.
+ */
+function assertProviderMatchesManifest(): void {
+  const manifestProviderId = "{= manifestProviderId =}";
+  const manifestCapabilities: string[] = {=& manifestCapabilities =};
+
+  if (authProvider.id !== manifestProviderId) {
+    throw new Error(
+      `The auth provider manifest declares id '${manifestProviderId}', but the adapter's id is '${authProvider.id}'. ` +
+        `Identities are recorded under the provider id, so the two must match.`,
+    );
+  }
+
+  if (
+    manifestCapabilities.includes('issue-sessions') &&
+    !canProviderIssueSessions(authProvider)
+  ) {
+    throw new Error(
+      `The auth provider manifest for '${manifestProviderId}' declares the 'issue-sessions' capability, but the adapter does not implement issueSession/revokeAllSessions.`,
+    );
+  }
+
+  if (
+    manifestCapabilities.includes('session-revocation') &&
+    typeof authProvider.revokeSession !== 'function'
+  ) {
+    throw new Error(
+      `The auth provider manifest for '${manifestProviderId}' declares the 'session-revocation' capability, but the adapter does not implement revokeSession.`,
+    );
+  }
+}
+
+assertProviderMatchesManifest()
+{=/ isCustomAuthProviderUsed =}
 
 // PRIVATE API
 /**
