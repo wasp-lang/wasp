@@ -43,7 +43,7 @@ describe("createDatabaseService", () => {
       .mockResolvedValueOnce(jsonResult({}));
 
     await expect(
-      createDatabaseService(dbServiceName, dbImage, options),
+      createDatabaseService(dbServiceName, dbImage, dbVolumeMountPath, options),
     ).resolves.toEqual(dbService);
 
     expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
@@ -93,7 +93,7 @@ describe("createDatabaseService", () => {
       .mockResolvedValueOnce(jsonResult({}));
 
     await expect(
-      createDatabaseService(dbServiceName, dbImage, options),
+      createDatabaseService(dbServiceName, dbImage, dbVolumeMountPath, options),
     ).rejects.toBe(volumeError);
 
     expect(mocks.railwayCli).toHaveBeenLastCalledWith(
@@ -112,6 +112,7 @@ describe("createDatabaseService", () => {
     const failedCreation = createDatabaseService(
       dbServiceName,
       dbImage,
+      dbVolumeMountPath,
       options,
     );
     await expect(failedCreation).rejects.toThrow(volumeError.message);
@@ -129,7 +130,7 @@ describe("assertDatabaseServiceHasVolume", () => {
     );
 
     await expect(
-      assertDatabaseServiceHasVolume(dbService, options),
+      assertDatabaseServiceHasVolume(dbService, dbVolumeMountPath, options),
     ).resolves.toBeUndefined();
   });
 
@@ -139,7 +140,7 @@ describe("assertDatabaseServiceHasVolume", () => {
     );
 
     await expect(
-      assertDatabaseServiceHasVolume(dbService, options),
+      assertDatabaseServiceHasVolume(dbService, dbVolumeMountPath, options),
     ).rejects.toThrow(dbService.id);
   });
 });

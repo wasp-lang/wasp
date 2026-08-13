@@ -16,7 +16,10 @@ import { retryOnRailwayAPIError } from "./retry.js";
 
 // Pinned to the same Postgres major as Wasp's dev database. Keep in sync with
 // Wasp.Db.Postgres.defaultPostgresDockerImageSpec.
-const defaultDbImage = "ghcr.io/railwayapp-templates/postgres-ssl:18";
+const defaultDbOptions = {
+  image: "ghcr.io/railwayapp-templates/postgres-ssl:18",
+  volumeMountPath: "/var/lib/postgresql/data",
+};
 
 class RailwayCommand extends Command {
   addProjectNameArgument(): this {
@@ -44,11 +47,15 @@ class RailwayCommand extends Command {
       "URL of the server that the client will connect to",
     );
   }
-  addDbImageOption(): this {
+  addDbOptions(): this {
     return this.option(
       "--db-image <dbImage>",
       "Docker image for the PostgreSQL database",
-      defaultDbImage,
+      defaultDbOptions.image,
+    ).option(
+      "--db-volume-mount-path <dbVolumeMountPath>",
+      "Path inside the PostgreSQL container where the volume is mounted",
+      defaultDbOptions.volumeMountPath,
     );
   }
 }
@@ -129,7 +136,7 @@ function makeRailwaySetupCommand(): Command {
       "--workspace [workspace]",
       "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
-    .addDbImageOption()
+    .addDbOptions()
     .action((...args: Parameters<typeof setupFn>) =>
       retryOnRailwayAPIError(() => setupFn(...args)),
     );
@@ -164,7 +171,7 @@ function makeRailwayLaunchCommand(): Command {
       "--workspace [workspace]",
       "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
     )
-    .addDbImageOption()
+    .addDbOptions()
     .addCustomServerUrlOption()
     .action(launchFn);
 }

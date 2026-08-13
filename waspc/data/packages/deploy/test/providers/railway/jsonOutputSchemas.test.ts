@@ -21,7 +21,7 @@ describe("RailwayCliDomainSchema", () => {
     });
   });
 
-  test("normalizes Railway CLI 4.51 single-domain output", () => {
+  test("normalizes single-domain output", () => {
     const result = RailwayCliDomainSchema.parse({
       domain: "https://my-app.up.railway.app",
     });

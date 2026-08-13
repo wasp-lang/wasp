@@ -61,7 +61,11 @@ export async function setup(
   const dbService = project.findService(deploymentInstructions.dbServiceName);
   if (dbService) {
     waspSays("Postgres service already exists. Skipping database creation.");
-    await assertDatabaseServiceHasVolume(dbService, options);
+    await assertDatabaseServiceHasVolume(
+      dbService,
+      options.dbVolumeMountPath,
+      options,
+    );
   } else {
     await setupDb(deploymentInstructions);
   }
@@ -137,6 +141,7 @@ async function setupDb({
   const dbService = await createDatabaseService(
     dbServiceName,
     options.dbImage,
+    options.dbVolumeMountPath,
     options,
   );
 

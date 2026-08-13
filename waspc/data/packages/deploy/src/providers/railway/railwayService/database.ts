@@ -9,22 +9,24 @@ import {
   RailwayCliServiceSchema,
 } from "../jsonOutputSchemas.js";
 
-const dbVolumeMountPath = "/var/lib/postgresql/data";
-// PGDATA must be a subdirectory of the volume mount.
-const dbPgDataPath = `${dbVolumeMountPath}/pgdata`;
-
 export async function createDatabaseService(
   dbServiceName: DbServiceName,
   dbImage: string,
+  dbVolumeMountPath: string,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
   },
 ): Promise<RailwayCliService> {
-  const dbService = await addDatabaseService(dbServiceName, dbImage, options);
+  const dbService = await addDatabaseService(
+    dbServiceName,
+    dbImage,
+    dbVolumeMountPath,
+    options,
+  );
 
   try {
-    await addDatabaseVolume(dbService, options);
+    await addDatabaseVolume(dbService, dbVolumeMountPath, options);
   } catch (volumeError) {
     await deleteIncompleteDatabaseService(dbService, volumeError, options);
     throw volumeError;
@@ -35,12 +37,13 @@ export async function createDatabaseService(
 
 export async function assertDatabaseServiceHasVolume(
   dbService: RailwayCliService,
+  dbVolumeMountPath: string,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
   },
 ): Promise<void> {
-  if (!(await hasDatabaseVolume(dbService, options))) {
+  if (!(await hasDatabaseVolume(dbService, dbVolumeMountPath, options))) {
     throw new Error(
       [
         `Railway database service "${dbService.name}" (${dbService.id}) has no volume mounted at ${dbVolumeMountPath}.`,
@@ -54,6 +57,7 @@ export async function assertDatabaseServiceHasVolume(
 async function addDatabaseService(
   dbServiceName: DbServiceName,
   dbImage: string,
+  dbVolumeMountPath: string,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
@@ -66,23 +70,26 @@ async function addDatabaseService(
 
   // Image-backed services don't get the variables from Railway's Postgres
   // template, so we configure them explicitly.
+  const dbVariables = {
+    POSTGRES_DB: "railway",
+    POSTGRES_USER: "postgres",
+    POSTGRES_PASSWORD: getRailwayEnvVarValueReference("secret()"),
+    PORT: "5432",
+    // PGDATA must be a subdirectory of the volume mount.
+    PGDATA: `${dbVolumeMountPath}/pgdata`,
+    DATABASE_URL: `postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
+  };
+  const variableArgs = Object.entries(dbVariables).flatMap(([name, value]) => [
+    "--variables",
+    `${name}=${value}`,
+  ]);
+
   const result = await railwayCli(
     [
       "add",
       ...["--service", dbServiceName],
       ...["--image", dbImage],
-      ...["--variables", "POSTGRES_DB=railway"],
-      ...["--variables", "POSTGRES_USER=postgres"],
-      ...[
-        "--variables",
-        `POSTGRES_PASSWORD=${getRailwayEnvVarValueReference("secret()")}`,
-      ],
-      ...["--variables", "PORT=5432"],
-      ...["--variables", `PGDATA=${dbPgDataPath}`],
-      ...[
-        "--variables",
-        `DATABASE_URL=postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
-      ],
+      ...variableArgs,
       "--json",
     ],
     { verbose: false },
@@ -92,6 +99,7 @@ async function addDatabaseService(
 
 async function addDatabaseVolume(
   dbService: RailwayCliService,
+  dbVolumeMountPath: string,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
@@ -148,6 +156,7 @@ async function deleteIncompleteDatabaseService(
 
 async function hasDatabaseVolume(
   dbService: RailwayCliService,
+  dbVolumeMountPath: string,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
