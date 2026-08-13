@@ -32,7 +32,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
         ],
-        "679a0122d48fb625ea03735e811605c3e14074537591cf86e57f3075f38c3fac"
+        "84b1ee14aba5b258e0f1faff2bf31382e7510a2bb80c769a17f59e559b13eb19"
     ],
     [
         [
@@ -221,7 +221,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/emailField.ts"
         ],
-        "3d5ef44ba8341f0fdb01298f7b219d9f6569386ce519efce5553beb11785fce0"
+        "647510440df0b9d5d994fb68e61452d5311c335129938496b1c0ec0b5615e045"
     ],
     [
         [

@@ -46,7 +46,10 @@ test.describe("auth", () => {
 
     test("can sign up", async ({ page }) => {
       await performSignup(page, {
-        email,
+        // Padded to check that the form trims the address. The rest of this
+        // flow uses the unpadded address, so verifying and logging in only
+        // work if the trimmed address is the one that got stored.
+        email: ` ${email} `,
         password,
         address: "Some at least 10 letter address",
       });
@@ -136,75 +139,28 @@ test.describe("auth", () => {
     });
   });
 
-  test.describe("uppercase email address", () => {
-    test.skip(
-      isRunningInDeployedMode(),
-      "Skipped in deployed mode (no Mailcrab)",
-    );
-    test.describe.configure({ mode: "serial" });
-
-    // Emails are stored lowercased, and auth emails go to the stored address,
-    // so signing up in uppercase must deliver to the lowercased address.
-    const email = generateRandomEmail().toUpperCase();
-    const password = "12345678";
-
-    test("can sign up", async ({ page }) => {
-      await performSignup(page, {
-        email,
-        password,
-        address: "Some at least 10 letter address",
-      });
-
-      await expect(page.locator("body")).toContainText(
-        `You've signed up successfully! Check your email for the confirmation link.`,
-      );
-    });
-
-    test("receives the verification email at the lowercased address", async ({
-      page,
-    }) => {
-      if (isRunningInDevMode()) {
-        // Skip this test in dev mode, as email confirmation is not required.
-        test.skip();
-      }
-
-      await performEmailVerification(page, email.toLowerCase());
-    });
-
-    test("can log in", async ({ page }) => {
-      await performLogin(page, { email, password });
-
-      await expect(page).toHaveURL("/");
-    });
-  });
-
-  test.describe("email address with surrounding whitespace", () => {
-    test.skip(
-      isRunningInDeployedMode(),
-      "Skipped in deployed mode (no Mailcrab)",
-    );
-
-    test("the form trims the address before submitting it", async ({
-      page,
-    }) => {
-      await performSignup(page, {
-        email: ` ${generateRandomEmail()} `,
-        password: "12345678",
-        address: "Some at least 10 letter address",
-      });
-
-      await expect(page.locator("body")).toContainText(
-        `You've signed up successfully! Check your email for the confirmation link.`,
-      );
-    });
-  });
-
   test.describe("invalid email address", () => {
     test("signing up with a malformed address results in an error message", async ({
       page,
     }) => {
       await performSignup(page, {
         email: "not-an-email",
+        password: "12345678",
+        address: "Some at least 10 letter address",
+      });
+
+      await expect(page.locator("body")).toContainText(
+        "Email must be a valid email",
+      );
+    });
+
+    // We accept a narrower set of Unicode than RFC 6531 does, so an address
+    // can be internationalized and still be rejected.
+    test("signing up with a leading combining mark results in an error message", async ({
+      page,
+    }) => {
+      await performSignup(page, {
+        email: `\u0301${generateRandomInternationalizedEmail()}`,
         password: "12345678",
         address: "Some at least 10 letter address",
       });

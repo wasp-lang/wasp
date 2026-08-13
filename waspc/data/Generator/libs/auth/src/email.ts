@@ -26,7 +26,7 @@ const HTML5_UNICODE_EMAIL_REGEX =
 /**
  * Upper bounds from RFC 5321 (4.5.3.1. Size Limits and Minimums).
  */
-const MAX_LOCAL_PART_OCTESTS = 64;
+const MAX_LOCAL_PART_OCTETS = 64;
 const MAX_ADDRESS_OCTETS = 254;
 
 export function isValidEmail(input: unknown): boolean {
@@ -37,7 +37,7 @@ export function isValidEmail(input: unknown): boolean {
   return (
     HTML5_UNICODE_EMAIL_REGEX.test(input) &&
     countOctets(input) <= MAX_ADDRESS_OCTETS &&
-    countOctets(getEmailLocalPart(input)) <= MAX_LOCAL_PART_OCTESTS
+    countOctets(getEmailLocalPart(input)) <= MAX_LOCAL_PART_OCTETS
   );
 }
 

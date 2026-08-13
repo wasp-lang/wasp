@@ -46,6 +46,8 @@ describe("isValidEmail", () => {
       "θσερ@εχαμπλε.ψομ",
       "अजय@डाटा.भारत",
       "квіточка@пошта.укр",
+      // Decomposed "ö", a combining mark following its base character.
+      "o\u0308ffentlich@example.com",
     ])("accepts %j", (email) => {
       expect(isValidEmail(email)).toBe(true);
     });
@@ -61,6 +63,12 @@ describe("isValidEmail", () => {
       "us‮er@example.com",
     ])("rejects the non-letter, non-digit character in %j", (email) => {
       expect(isValidEmail(email)).toBe(false);
+    });
+
+    it("rejects a local part starting with a combining mark", () => {
+      // The mark has no character of its own to attach to, so it lands on
+      // whatever text precedes the address when it is rendered.
+      expect(isValidEmail("\u0301user@example.com")).toBe(false);
     });
   });
 
