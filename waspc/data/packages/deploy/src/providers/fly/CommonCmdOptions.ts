@@ -18,7 +18,7 @@ export interface DbOptions {
   dbVmCpuKind?: string;
   dbInitialClusterSize: string;
   dbVolumeSize: string;
-  dbImage?: string;
+  dbImage: string;
 }
 
 export interface LocalBuildOptions {

@@ -9,10 +9,8 @@ import {
 import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
 import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
-// Railway CLI version 4.0.1 includes a change that is needed for
-// Wasp deploy command to work with Railway properly:
-// https://github.com/railwayapp/cli/pull/596
-const minSupportedRailwayCliVersion = new SemVer("4.6.3");
+// Wasp relies on the `--json` output added in Railway CLI 4.51.0.
+const minSupportedRailwayCliVersion = new SemVer("4.51.0");
 
 export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,
