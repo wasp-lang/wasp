@@ -54,7 +54,10 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
  * keeps this to a single query and means the provider only ever has to tell us
  * which auth subject it verified.
  */
-async function toSessionAndUser(sessionId: string, authId: string): Promise<SessionAndUser | null> {
+async function toSessionAndUser(sessionId: string, subjectId: string): Promise<SessionAndUser | null> {
+  // Wasp's own auth owns the auth entity, so the subject id already identifies one.
+  const authId = subjectId;
+
   const user = await prisma.user.findFirst({
     where: { auth: { id: authId } },
     include: {
@@ -74,6 +77,7 @@ async function toSessionAndUser(sessionId: string, authId: string): Promise<Sess
 
   return { sessionId, user: createAuthUserData(user) };
 }
+
 
 // PRIVATE API
 export function invalidateSession(sessionId: string): Promise<void> {

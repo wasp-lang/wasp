@@ -1,4 +1,5 @@
 import { type Request as ExpressRequest } from 'express'
+import { type FromRegister } from '../../../types/register.js'
 
 // PRIVATE API
 /**
@@ -90,6 +91,15 @@ export interface SessionIssuingAuthProvider extends AuthProvider {
   /** Terminate every session belonging to a subject. */
   revokeAllSessions(subjectId: string): Promise<void>
 }
+
+// PRIVATE API
+/**
+ * The provider the developer registered via `app.auth.provider`, if any.
+ *
+ * Declared here so that a user-written adapter is type-checked against the
+ * contract at build time rather than failing somewhere inside the session layer.
+ */
+export type RegisteredAuthProvider = FromRegister<'authProvider', AuthProvider>
 
 // PRIVATE API
 /** Runtime capability check, mirroring the type-level distinction above. */
