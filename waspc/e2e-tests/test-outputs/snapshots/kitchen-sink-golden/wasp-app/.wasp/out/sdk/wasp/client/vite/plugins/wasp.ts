@@ -1,6 +1,6 @@
 import { type PluginOption } from "vite";
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
-import ssr from "@wasp.sh/lib-vite-ssr";
+import { nitro } from "nitro/vite";
 import { validateEnv } from "./validateEnv.js";
 import { envFile } from "./envFile.js";
 import { detectServerImports } from "./detectServerImports.js";
@@ -8,6 +8,7 @@ import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
 import { typescriptCheck } from "./typescriptCheck.js";
 import { waspConfig } from "./waspConfig.js";
+import { waspNitroBridge } from "./nitroBridge.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
@@ -31,11 +32,12 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     typescriptCheck({ srcTsConfigPath: "tsconfig.src.json" }),
     validateEnv(),
     react(options?.reactOptions),
-    ssr({
-      clientEntrySrc: "/@wasp/client-entry.tsx",
-      ssrEntrySrc: "/@wasp/ssr-entry.tsx",
-      ssrPaths: ['/', '/prerender', '/prerender-instances/martin', '/prerender-instances/matija', '/hydration-mismatch'],
-      spaFallbackFile: "200.html",
-    }),
+    /**
+     * Nitro builds and serves the app. The bridge translates the Wasp app's
+     * configuration into Nitro's, so it must come right before `nitro()`,
+     * which must come last.
+     */
+    waspNitroBridge(),
+    nitro(),
   ];
 }

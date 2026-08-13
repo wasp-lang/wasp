@@ -19,7 +19,6 @@ import { defaultExclude } from "vitest/config";
 const forcedOptions = {
   base: "{= baseDir =}",
   envPrefix: "REACT_APP_",
-  "build.outDir": "{= clientBuildDirPath =}",
 } as const;
 
 const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
@@ -30,8 +29,13 @@ export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
     enforce: "pre",
-    config(config) {
+    config(config, env) {
       throwIfOverridingForcedOptions(config);
+
+      const devServerPort = useUserValue(config.server?.port, {= defaultClientPort =});
+      if (env.command === "serve" && !env.isPreview) {
+        pinDevServerPort(devServerPort);
+      }
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
@@ -40,13 +44,13 @@ export function waspConfig(): PluginOption {
           exclude: {=& depsExcludedFromOptimization =}
         },
         server: {
-          port: useUserValue(config.server?.port, {= defaultClientPort =}),
+          port: devServerPort,
           host: useUserValue(config.server?.host, "0.0.0.0"),
         },
         envPrefix: forcedOptions["envPrefix"],
-        build: {
-          outDir: forcedOptions["build.outDir"],
-        },
+        // We don't set `build.outDir`: Nitro owns the build output and forces
+        // the client's `outDir` to its own public directory. See the
+        // `wasp:nitro-bridge` plugin.
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
           // causes runtime errors (e.g., hook rule violation in react, QueryClient
@@ -88,6 +92,21 @@ export function waspConfig(): PluginOption {
 
 function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;
+}
+
+/**
+ * Nitro's dev server picks its port with `process.env.PORT || server.port ||
+ * 3000`, so `PORT` wins over the port we (or the user) configured. It also
+ * loads the project's `.env` files into `process.env` before reading it, and
+ * `PORT` is a variable Wasp users commonly set for the server. Left alone, a
+ * `PORT=3001` in a `.env` file would silently move the client's dev server.
+ *
+ * So we write the port we settled on into `process.env` ourselves. We set it
+ * instead of deleting it because Nitro's `.env` loader never overwrites a
+ * variable that is already defined.
+ */
+function pinDevServerPort(port: number): void {
+  process.env.PORT = String(port);
 }
 
 function throwIfOverridingForcedOptions(config: Record<string, any>): void {

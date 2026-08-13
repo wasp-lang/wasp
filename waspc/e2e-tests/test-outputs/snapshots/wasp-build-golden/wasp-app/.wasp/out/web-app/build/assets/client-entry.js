@@ -9,39 +9,8 @@ import ky from "ky";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
-//#region \0vite/modulepreload-polyfill.js
-(function polyfill() {
-	const relList = document.createElement("link").relList;
-	if (relList && relList.supports && relList.supports("modulepreload")) return;
-	for (const link of document.querySelectorAll("link[rel=\"modulepreload\"]")) processPreload(link);
-	new MutationObserver((mutations) => {
-		for (const mutation of mutations) {
-			if (mutation.type !== "childList") continue;
-			for (const node of mutation.addedNodes) if (node.tagName === "LINK" && node.rel === "modulepreload") processPreload(node);
-		}
-	}).observe(document, {
-		childList: true,
-		subtree: true
-	});
-	function getFetchOpts(link) {
-		const fetchOpts = {};
-		if (link.integrity) fetchOpts.integrity = link.integrity;
-		if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;
-		if (link.crossOrigin === "use-credentials") fetchOpts.credentials = "include";
-		else if (link.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
-		else fetchOpts.credentials = "same-origin";
-		return fetchOpts;
-	}
-	function processPreload(link) {
-		if (link.ep) return;
-		link.ep = true;
-		const fetchOpts = getFetchOpts(link);
-		fetch(link.href, fetchOpts);
-	}
-})();
-//#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/layout.jsx
-function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
+function Layout({ children, isFallbackPage = false, headChildren }) {
 	const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage);
 	return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", {
 		lang: "en",
@@ -56,10 +25,7 @@ function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
 				href: "/favicon.ico"
 			}),
 			/* @__PURE__ */ jsx("title", { children: "wasp-app" }),
-			clientEntrySrc ? /* @__PURE__ */ jsx("script", {
-				type: "module",
-				src: clientEntrySrc
-			}) : null
+			headChildren
 		] }), /* @__PURE__ */ jsxs("body", { children: [/* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }), shouldRenderAppContent ? children : null] })]
 	}) });
 }
@@ -243,8 +209,10 @@ ky.extend({
 	}
 });
 if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
-	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
-	else apiEventsEmitter.emit("sessionId.clear");
+	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+		if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
+		else apiEventsEmitter.emit("sessionId.clear");
+	}
 });
 function getSessionIdFromAuthorizationHeader(header) {
 	if (header && header.startsWith("Bearer ")) return header.substring(7);

@@ -7,6 +7,10 @@ export function detectServerImports(): Plugin {
   return {
     name: 'wasp:detect-server-imports',
     enforce: 'pre',
+    // The rule is about the app that runs in the browser, which lives in the
+    // `client` environment and is rendered in the `ssr` one. Nitro's own
+    // environment is server code by definition, so we leave it alone.
+    applyToEnvironment: (environment) => environment.name !== 'nitro',
     configResolved(config) {
       parsePathToUserCode = createPathToUserCodeParser(config.root)
     },

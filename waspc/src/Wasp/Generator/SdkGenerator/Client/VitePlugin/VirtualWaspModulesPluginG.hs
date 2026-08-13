@@ -9,10 +9,11 @@ import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, getPrerenderPaths, routesEntryPointPath, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -77,7 +78,9 @@ genVirtualSsrEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
-          "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
+          "clientEntryPointPath" .= clientEntryPointPath,
+          "ssrEntryPointPath" .= ssrEntryPointPath,
+          "prerenderPaths" .= makeJsArrayFromHaskellList (getPrerenderPaths spec),
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
 

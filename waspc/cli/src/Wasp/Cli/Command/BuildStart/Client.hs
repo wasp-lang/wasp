@@ -30,7 +30,10 @@ startClient config =
     projectDir
     "npx"
     [ "vite",
-      "preview", -- `preview` launches a static file server for the built client.
+      -- `preview` serves the client build. Nitro hooks into it and serves its
+      -- whole output: the prerendered pages and static assets first, then the
+      -- renderer (which produces the SPA shell) for everything else.
+      "preview",
       "--port",
       port,
       "--strictPort" -- This will make it fail if the port is already in use.

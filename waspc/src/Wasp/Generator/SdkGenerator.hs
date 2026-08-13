@@ -34,6 +34,7 @@ import Wasp.Generator.DepVersions
     expressTypesVersionRange,
     expressVersionRange,
     kyVersionRange,
+    nitroVersion,
     prismaVersionRange,
     reactDomTypesVersionRange,
     reactDomVersionRange,
@@ -207,6 +208,9 @@ npmDepsForSdk spec =
             ("express", show expressVersionRange),
             ("ky", show kyVersionRange),
             ("mitt", "3.0.0"),
+            -- Nitro serves the client app: it provides the Vite plugin that
+            -- builds it (`nitro/vite`) and the runtime the SSR renderer uses.
+            ("nitro", nitroVersion),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),

@@ -149,6 +149,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
                      isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
+                ++ nitroBuildArtifactFilters
             )
 
     -- Creates a deterministic manifest of files that should exist in the snapshot.
@@ -195,6 +196,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                      isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
+                ++ nitroBuildArtifactFilters
             )
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
@@ -245,6 +247,18 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
       goldenSnapshotDir </> fromJust (SP.parseRelFile relSnapshotFilePath)
       where
         relSnapshotFilePath = makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
+
+-- | Nitro builds the client app and writes its output into
+-- @.wasp/out/web-app@: the static assets (which we do snapshot) into
+-- @build/@, and the bundled Nitro server next to them. The server bundle
+-- inlines chunks of Nitro's own runtime and its dependencies, so it is huge,
+-- version-dependent and tells us nothing about Wasp's codegen.
+-- Nitro's build cache lives in @node_modules/.nitro@, which we already ignore.
+nitroBuildArtifactFilters :: [FilePathFilter]
+nitroBuildArtifactFilters =
+  [ isSubpathOf ".wasp/out/web-app/server",
+    isSubpathOf ".wasp/out/web-app/nitro.json"
+  ]
 
 type FilePathFilter = FilePath -> Bool
 

@@ -37,13 +37,6 @@
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
-        ],
-        "5861342fc44ba43a186562a67b729c98a140f69aef4efb1b33474832dbeba466"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -424,7 +417,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "6d4a3e951de52ae7947d7cc372de4f8b01991b8bce032efaef6c94455a22cee6"
+        "86284fcd7fcfea1948d332fb852e673b4e52db0210db7d46e31e8707514b782e"
     ],
     [
         [
@@ -709,30 +702,44 @@
     [
         [
             "file",
+            "sdk/wasp/client/vite/nitroRenderer.ts"
+        ],
+        "9ef54d0acdd0a139d6c8be59aab07bb0569cb577e00a43d169d0d3f4b67ccc8c"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/plugins/detectServerImports.ts"
         ],
-        "93885302fbb1758384e990fb6a7eac52fa03459f4df66a2b59eb8ac7b3e5c14a"
+        "866f6d11eb36c608ecbbbe5d609da286dfc7fb676221ea431d0c7cd7f7b68b3f"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/envFile.ts"
         ],
-        "0fafefac0b8c9ecfa0cac06f13e084ac8e1661d8fbead6e2d8b2bc7a08c9b035"
+        "8ffb9962008b28ce5fc718363f2d99d7d8c9c06a43e631ad01c1c2f290441a63"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/vite/plugins/nitroBridge.ts"
+        ],
+        "27604447999eb87bb7e55f7714578b0adda72d1ad8665bcf3dd76852749cba9d"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "d039097bc563e8f51831f01b9f73549e7eda752d21480cf2cbe545520c0f8aea"
+        "8224ef46812e1d092fc000ade8f38eecbeb97bf928a21fcea8fce33efe66b37c"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "c172e926843b4ab12f96ebe79a70124d233d9d7fd948de0cdcd3388565402400"
+        "4982ead990dec9ce610bfafccc87e2b4cffbce9ab7f34ea76de82f6ad091480a"
     ],
     [
         [
@@ -746,28 +753,28 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtualWaspModules.ts"
         ],
-        "4aede5b77417f38713a8f8b72b119d8a060e1ef1984945ceca249119b528b38a"
+        "ccc2d2c3fb43c4285802603a5f2ddf2cb24c011c4aa0e855e1fc8ccd0dbb468f"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "40bc5a0bef08825ad32026a8639e4f84d994e45ffc6ef81f0474038b0570d1e4"
+        "419a22bde79320fad5eaf7662783084376a7e1d8a8419f2c512e8a85944282bc"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "a8e6a5cbffb010d02729e3cb4046de73ede1844b773417b8f394f60bdd9312cc"
+        "c7ea85eeb96e58a953500b632cc853cceb15cbf45fbfb9d80b1fb2fe48452bf4"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "91715e7d9d9b7b30c81fe61f801cc544472b8f944148a3b7aa5cff93be3fa8b8"
+        "aae3bd89e731e138c32e175821dbc0e5f8e682b3ba6d49528dfa37926a9fbfe0"
     ],
     [
         [
@@ -781,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "9a0c1f4032ce91549bbcd95630c9da24e27cbc710c95c3c9150bdcf570210b03"
+        "99c4545882716cd9eb940401003a26b271ed94dcd8ca8fb33141c96893e35eb4"
     ],
     [
         [
@@ -795,7 +802,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/resolver.ts"
         ],
-        "a8bc680361ce67794cb2becf7213cd1c95d0909044f267db266d235ad4e5ab1b"
+        "d5aa5f5e9922123f7a2ab5d7ec40e4cc21762de3cb1bf699fbe313c2648494d8"
     ],
     [
         [
@@ -865,7 +872,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "51dbfb69a530319fa40e9eeda98c1f1a9b64713f5712eec93493ea1739bec3ff"
+        "aed952f7924b81d8f2bdd2be335ee34488b04253ca0e5d4b564cab05c23fa34f"
     ],
     [
         [
@@ -1383,7 +1390,7 @@
             "file",
             "server/package.json"
         ],
-        "91c935f3dc70f466c41f4071f70912ba46cbe622103e10033cec3ac8b7a2f2e2"
+        "e791793bc99201b9624b613439b7b61937b0cc229d56b2eaa0704e39748b84cf"
     ],
     [
         [

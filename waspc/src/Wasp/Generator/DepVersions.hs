@@ -14,6 +14,7 @@ module Wasp.Generator.DepVersions
     vitestVersionRange,
     dotenvVersionRange,
     kyVersionRange,
+    nitroVersion,
   )
 where
 
@@ -70,3 +71,10 @@ dotenvVersionRange = [SV.r|^16.6.1|]
 
 kyVersionRange :: SV.Range
 kyVersionRange = [SV.r|^2.0.0|]
+
+-- Nitro v3 is still in beta and every release carries a pre-release tag, which
+-- our 'SV.Range' parser doesn't support (and which we wouldn't want to widen
+-- into a range anyway: beta releases are free to break). So we pin the exact
+-- version as a plain string.
+nitroVersion :: String
+nitroVersion = "3.0.260610-beta"

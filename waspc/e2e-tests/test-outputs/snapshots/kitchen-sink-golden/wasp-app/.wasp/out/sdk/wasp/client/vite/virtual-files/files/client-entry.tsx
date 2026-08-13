@@ -1,3 +1,9 @@
+// This must be the first import: it installs React Fast Refresh's global hook
+// before any component module runs. Without it, the dev server fails with
+// "@vitejs/plugin-react can't detect preamble" and the app never hydrates.
+// In builds, it compiles to an empty module.
+import "@vitejs/plugin-react/preamble";
+
 import { startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";

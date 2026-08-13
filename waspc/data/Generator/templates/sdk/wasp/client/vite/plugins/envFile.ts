@@ -34,6 +34,11 @@ export function envFile(): Plugin {
 
       return {
         // Disable Vite's default .env loading.
+        //
+        // Note that this doesn't stop Nitro, which loads the project's `.env`
+        // files into `process.env` on its own. It can't affect the variables
+        // we expose to the client though: this plugin reads `process.env`
+        // in its `config` hook, which runs before Nitro's.
         envDir: false,
         define: prefixedVars,
       }
