@@ -22,6 +22,7 @@ The `waspServer()` plugin takes care of the server:
 
 - Declaration of the [`server` environment](#the-server-environment) Wasp runs and bundles your backend with.
 - Running your server inside the Vite dev server during development.
+- [TypeScript type checking](#type-checking) during development.
 - Prevention of client imports in server code.
 
 Here's the minimal required configuration:
@@ -64,6 +65,13 @@ The `waspServer()` plugin declares a [Vite environment](https://vite.dev/guide/a
 - For production, the `npm run bundle` script in `.wasp/out/server` bundles your server through the same environment into `.wasp/out/server/bundle`. Your deployment runs it for you, for example in the Dockerfile `wasp build` generates.
 
 Running `vite build` yourself still means "build the client", it never builds the server.
+
+## Type Checking
+
+Vite doesn't type-check your code, it only strips the types away. Wasp runs TypeScript for you instead:
+
+- While `wasp start` runs, the `waspServer()` plugin type-checks your code (client and server alike) on every change and prints the errors it finds in the terminal. It doesn't hold your app back: types don't exist at runtime, so your server keeps starting and your app keeps running while you fix them.
+- `wasp build` type-checks too, and there a type error does fail the build.
 
 ## Enforced Options
 

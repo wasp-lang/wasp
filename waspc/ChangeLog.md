@@ -6,7 +6,7 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp now runs and bundles your server with Vite, the same way it already did with your client. ([#4645](https://github.com/wasp-lang/wasp/pull/4645), [#4646](https://github.com/wasp-lang/wasp/pull/4646), [#4665](https://github.com/wasp-lang/wasp/pull/4665), [#4667](https://github.com/wasp-lang/wasp/pull/4667), [#4668](https://github.com/wasp-lang/wasp/pull/4668))
+- Wasp now runs and bundles your server with Vite, the same way it already did with your client. ([#4645](https://github.com/wasp-lang/wasp/pull/4645), [#4646](https://github.com/wasp-lang/wasp/pull/4646), [#4665](https://github.com/wasp-lang/wasp/pull/4665), [#4667](https://github.com/wasp-lang/wasp/pull/4667), [#4668](https://github.com/wasp-lang/wasp/pull/4668), [#4669](https://github.com/wasp-lang/wasp/pull/4669))
 
   You must add the `waspServer()` plugin from `wasp/server/vite` to your `vite.config.ts`, otherwise Wasp won't compile your app:
 
@@ -25,7 +25,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
   - `wasp start` now runs a single process for your whole app, so client and server logs share the `[ App ]` prefix. The `[ Client ]` and `[ Server ]` prefixes are now only used by `wasp build start`.
   - Your server restarts in place, in well under a second, and only when you change code it actually uses. Changing client-only code no longer restarts it.
   - An unhandled rejection or an uncaught exception in your server code no longer kills your app in development. Wasp logs it and keeps running until your next change.
-  - Wasp no longer type-checks your server code while you develop, only when it bundles it. `wasp build` still fails on server type errors.
+  - Wasp type-checks your whole app on every change while you develop and reports the errors in the terminal, but it no longer refuses to start your server because of them: types don't exist at runtime, so you can keep trying your app out while you fix them. `wasp build` still fails on type errors.
   - Rollup and nodemon are gone from the generated server's dev dependencies, and so are the `watch` and `bundle-and-start` scripts in `.wasp/out/server/package.json`.
   - The server bundle can now contain shared chunks in `.wasp/out/server/bundle/assets/`, next to `bundle/server.js`. Deployments that copy the whole `bundle` directory (like the Dockerfile Wasp generates) need no changes.
 

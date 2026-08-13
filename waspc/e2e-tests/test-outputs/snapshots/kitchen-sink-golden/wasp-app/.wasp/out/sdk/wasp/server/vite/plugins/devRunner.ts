@@ -6,6 +6,7 @@ import {
   type ViteDevServer,
 } from "vite";
 import { ENVIRONMENT_NAMES } from "../../../vite/constants.js";
+import { log, logError } from "../logging.js";
 
 // PRIVATE API (used by the `wasp:server-env-file` plugin)
 export const DEV_RUNNER_PLUGIN_NAME = "wasp:server-dev-runner";
@@ -313,23 +314,4 @@ function installProcessGuards(): void {
     logError("Uncaught exception in server code:", error);
     log("The dev server is still running, fix the error above and save.");
   });
-}
-
-const logPrefix = "\x1b[35m[server]\x1b[0m";
-
-/**
- * We log through `console` instead of Vite's logger because the logger belongs
- * to a config object, and the config the plugin sees isn't always the one of
- * the dev server the user is looking at (`wasp:validate-env` resolves a silent
- * config of its own).
- */
-function log(message: string): void {
-  console.log(`${logPrefix} ${message}`);
-}
-
-function logError(message: string, error?: unknown): void {
-  console.error(`${logPrefix} ${message}`);
-  if (error !== undefined) {
-    console.error(error);
-  }
 }

@@ -2,6 +2,7 @@ import { type PluginOption } from "vite";
 import { detectClientImports } from "./plugins/detectClientImports.js";
 import { devRunner } from "./plugins/devRunner.js";
 import { envFile } from "./plugins/envFile.js";
+import { typescriptCheck } from "./plugins/typescriptCheck.js";
 import { virtualUserModules } from "./plugins/virtualUserModules.js";
 import { waspServerConfig } from "./plugins/waspServerConfig.js";
 
@@ -21,5 +22,6 @@ export function waspServer(): PluginOption {
     virtualUserModules(),
     detectClientImports(),
     devRunner(),
+    typescriptCheck(),
   ];
 }

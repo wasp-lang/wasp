@@ -578,7 +578,14 @@
             "file",
             "sdk/wasp/server/vite/index.ts"
         ],
-        "c75a86364ab4a3bece51427db274baa824b289044b3a51b062fdec900078afa3"
+        "1b469cb8d8d6398b29525a248f0f2d5e6db86c0d98442c214aaa80032c9ebd01"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/vite/logging.ts"
+        ],
+        "058311aa7123beaaa3a699b66526d9cacb9ebabfbff128d733d4210508da1da3"
     ],
     [
         [
@@ -592,7 +599,7 @@
             "file",
             "sdk/wasp/server/vite/plugins/devRunner.ts"
         ],
-        "47812d05fa520827de14d5c0c8e772c7b0cd2ae68deb62ae821f7a037cf574ec"
+        "47176a5272199b0b5e0ee4fe7cfeb4131e75ef09f7c72a4e5b83e7e3a18af02a"
     ],
     [
         [
@@ -600,6 +607,13 @@
             "sdk/wasp/server/vite/plugins/envFile.ts"
         ],
         "de86f0a07793613eaae755ebf235e3815081828a2a54af4852796b7e6bfa7c80"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/vite/plugins/typescriptCheck.ts"
+        ],
+        "14804a9933eab6b85007e46ca0bf31bc501bdac25629660122caa6572f49064f"
     ],
     [
         [
