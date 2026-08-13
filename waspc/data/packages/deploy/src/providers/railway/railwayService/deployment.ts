@@ -61,12 +61,12 @@ async function getLatestServiceDeploymentStatus(
     options.railwayExe,
     options.waspProjectDir,
   );
-  // Treat a failed command as a transient Railway CLI failure, i.e. "not
-  // ready yet".
   const serviceStatus = await tryRunJsonCommand(
     railwayCli,
     ["service", "status", "--service", service.id, "--json"],
     RailwayCliServiceStatusSchema,
   );
+  // Treat a failed command as a transient Railway CLI failure, i.e. "not
+  // ready yet".
   return serviceStatus?.status ?? null;
 }
