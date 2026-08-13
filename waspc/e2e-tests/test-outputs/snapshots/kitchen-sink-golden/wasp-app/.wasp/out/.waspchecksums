@@ -1031,9 +1031,30 @@
     [
         [
             "file",
+            "sdk/wasp/server/auth/provider/index.ts"
+        ],
+        "6963f3e50630d442ea8493c5dd7282851ed140bab390e19d1478e3564c0c6099"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/provider/types.ts"
+        ],
+        "ac7fe5dae3c21f112f71ef48ae10929ab9968d579e13fecb76d4099bb2cc7022"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/provider/wasp.ts"
+        ],
+        "b705e2c810795df0687686d25c1e068c2fec295af62c63a12f812045f9b207bd"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "eef71ef3254da456d6c27c0307a0d382d281ec6c7c56503f78c02d0980da478e"
+        "176f7d2c4ebd9177a0c950a3f4d95714cd443389942a44aa894a47a41a235fce"
     ],
     [
         [
@@ -1054,7 +1075,7 @@
             "file",
             "sdk/wasp/server/core/auth.ts"
         ],
-        "18b22086a1158c60c47458912de8cc6833004bd6faade1a786a35988c174b2ba"
+        "3214859014ffbfc5c48a470234118b4c8ecf03a492312be6a8d25a975d1d921b"
     ],
     [
         [

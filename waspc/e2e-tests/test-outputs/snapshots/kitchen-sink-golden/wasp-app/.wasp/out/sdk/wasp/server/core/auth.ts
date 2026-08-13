@@ -31,7 +31,7 @@ const auth = defineHandler(async (req, res, next) => {
     throw createInvalidCredentialsError()
   }
 
-  req.sessionId = sessionAndUser.session.id
+  req.sessionId = sessionAndUser.sessionId
   req.user = sessionAndUser.user
 
   next()
