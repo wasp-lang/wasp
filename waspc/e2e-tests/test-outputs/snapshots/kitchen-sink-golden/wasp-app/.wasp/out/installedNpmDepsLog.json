@@ -294,6 +294,10 @@
                 "version": "~1.11.0"
             },
             {
+                "name": "nitro",
+                "version": "3.0.260610-beta"
+            },
+            {
                 "name": "socket.io",
                 "version": "^4.6.1"
             },

@@ -50,6 +50,7 @@ import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
     expressVersionRange,
+    nitroVersion,
     superjsonVersionRange,
     typescriptVersionRange,
   )
@@ -60,11 +61,13 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.Common (operationsRouteInRootRouter)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.NitroRoutesG (genNitro)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
@@ -105,7 +108,7 @@ genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
-        (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
+        (C.serverRootDirInGeneratedAppDir </> C.dotEnvInServerRootDir)
         (envVarsToDotEnvContent envVars)
     ]
   where
@@ -115,9 +118,6 @@ genDotEnv spec =
       Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
       _ -> []
     isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
-
-dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
-dotEnvInServerRootDir = [relfile|.env|]
 
 genTsConfigJson :: AppSpec -> Generator FileDraft
 genTsConfigJson spec = do
@@ -176,7 +176,10 @@ npmDepsFromWasp spec =
               ("morgan", "~1.11.0"),
               ("dotenv", show dotenvVersionRange),
               ("helmet", "^6.0.0"),
-              ("superjson", show superjsonVersionRange)
+              ("superjson", show superjsonVersionRange),
+              -- Declared (not just hoisted from the SDK): `src/nitro/*.ts`
+              -- imports `nitro/h3`, and the server's `tsc --build` compiles it.
+              ("nitro", nitroVersion)
             ]
             ++ depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
@@ -246,7 +249,7 @@ genSrcDir spec =
       genServerJs spec
     ]
     <++> genRoutesDir spec
-    <++> genViewsDir spec
+    <++> genNitro spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
@@ -294,25 +297,11 @@ genRoutesIndex spec =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+          "healthRoutePath" .= (C.healthRoutePath :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
-          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
-          "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
         ]
-
-operationsRouteInRootRouter :: String
-operationsRouteInRootRouter = "operations"
-
-genViewsDir :: AppSpec -> Generator [FileDraft]
-genViewsDir spec
-  | AS.isProduction spec = return []
-  | otherwise =
-      sequence
-        [ genFileCopy [relfile|views/wrong-port.ts|]
-        ]
-  where
-    genFileCopy = return . C.mkSrcTmplFd
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =

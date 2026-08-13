@@ -10,6 +10,13 @@ const clientEntryPointPath = "{= clientEntryPointPath =}";
 const ssrEntryPointPath = "{= ssrEntryPointPath =}";
 
 /**
+ * The generated server's Nitro entry point, relative to the Wasp project
+ * directory (Vite's root). It hands the requests for the app's API over to
+ * Wasp's Express app, and lets everything else through to the renderer.
+ */
+const serverEntryPointPath = "{= serverEntryPointPath =}";
+
+/**
  * The path Nitro's renderer is served from. It is a real file in the SDK, not
  * one of our virtual files, because Nitro bundles it twice: once with Vite (for
  * the server it builds) and once with a bare Rollup/Rolldown build that knows
@@ -67,14 +74,19 @@ export function waspNitroBridge(): Plugin {
 
           renderer: { handler: rendererPath },
 
-          // We don't have any server code running through Nitro yet (the Wasp
-          // server is still its own Express process). Both of these are off by
-          // default, but we say so explicitly: left to auto-detection, Nitro
-          // would pick up a `server.ts` lying around in the project, or treat
-          // directories that happen to follow its conventions (`routes/`,
-          // `api/`, `middleware/`, `plugins/`, `tasks/`) as server code and
-          // let them shadow the app's pages.
-          serverEntry: false,
+          serverEntry: {
+            handler: path.resolve(rootDir, serverEntryPointPath),
+            // Nitro would otherwise run the handler through a Node-style
+            // adapter that can't tell "I didn't handle this request" apart from
+            // an empty response, which makes the renderer unreachable.
+            format: "web",
+          },
+
+          // Off by default, but we say so explicitly: left to auto-detection,
+          // Nitro would treat directories that happen to follow its conventions
+          // (`routes/`, `api/`, `middleware/`, `plugins/`, `tasks/`) as server
+          // code and let them shadow the app's pages. It also shadows the
+          // server entry we set above.
           serverDir: false,
 
           prerender: {

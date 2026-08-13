@@ -7,13 +7,26 @@ import { expand, type DotenvPopulateInput } from 'dotenv-expand'
 
 const envFileName = '{= clientEnvFileName =}'
 
+/**
+ * The env file Wasp generates for the server. Unlike the client's, this one is
+ * generated (from the user's `.env.server`) and only exists in development.
+ */
+const serverEnvFileName = '{= serverEnvFileName =}'
+
 export function envFile(): Plugin {
   let envFilePath!: string
+  let serverEnvFilePath!: string
   return {
     name: 'wasp:env-file',
     enforce: 'pre',
     async config(config, env) {
       const rootDir = config.root || process.cwd()
+      serverEnvFilePath = resolve(rootDir, serverEnvFileName)
+
+      if (env.command === 'serve') {
+        await loadServerEnvVarsIntoProcessEnv(serverEnvFilePath)
+      }
+
       const envVars = await loadEnvVars({
         rootDir,
         // We are sure that `envPrefix` is defined because
@@ -45,7 +58,7 @@ export function envFile(): Plugin {
     },
     configureServer(server) {
       const reloadServerOnEnvFileEvent = (path: string) => {
-        if (path === envFilePath) {
+        if (path === envFilePath || path === serverEnvFilePath) {
           server.restart()
         }
       }
@@ -57,6 +70,30 @@ export function envFile(): Plugin {
     async buildStart() {
       this.addWatchFile(envFilePath)
     },
+  }
+}
+
+/**
+ * Your server's code runs in this same process now (it is part of the app Vite
+ * serves), so its environment variables have to be in `process.env` before it
+ * starts.
+ *
+ * We only do this in development: the env file only exists then, and in
+ * production the environment is the deployment's business.
+ *
+ * These variables never reach the browser: they only go into `process.env`,
+ * never into the `import.meta.env` values we define for the client.
+ */
+async function loadServerEnvVarsIntoProcessEnv(
+  serverEnvFilePath: string
+): Promise<void> {
+  const envVars = await parseEnvFile(serverEnvFilePath)
+  for (const [key, value] of Object.entries(envVars)) {
+    // Same rule `dotenv` follows: a variable that is already defined (in the
+    // shell, for example) wins over the file.
+    if (process.env[key] === undefined) {
+      process.env[key] = value
+    }
   }
 }
 
@@ -111,7 +148,7 @@ async function parseEnvFile(envFilePath: string): Promise<Record<string, string>
   try {
     return parseDotenv(await readFile(envFilePath, 'utf-8'))
   } catch (error) {
-    console.error(`Error parsing ${envFileName}:`, error)
+    console.error(`Error parsing ${envFilePath}:`, error)
     throw error
   }
 }

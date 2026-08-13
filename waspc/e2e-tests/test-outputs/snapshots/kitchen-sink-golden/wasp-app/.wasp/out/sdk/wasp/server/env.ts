@@ -97,7 +97,7 @@ const jwtTokenSchema = z
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
   "WASP_SERVER_URL": serverUrlSchema
-    .default("http://localhost:3001"),
+    .default("http://localhost:3000/"),
   "WASP_WEB_CLIENT_URL": clientUrlSchema
     .default("http://localhost:3000/"),
   "JWT_SECRET": jwtTokenSchema

@@ -17,9 +17,18 @@ const serverUrlSchema =
     })
   )
 
+// In development, the app's server serves the API on the same origin as the
+// app itself, so the API's URL is a path (empty when the app is served from the
+// root) instead of an absolute URL.
+const sameOriginServerUrlSchema =
+  z.string()
+  .refine((url) => url === "" || url.startsWith("/"), {
+    error: 'REACT_APP_API_URL must be a valid URL, or a path when the API is served from the app\'s own origin',
+  })
+
 const waspDevClientEnvSchema = z.object({
-  "REACT_APP_API_URL": serverUrlSchema
-    .default("http://localhost:3001"),
+  "REACT_APP_API_URL": z.union([sameOriginServerUrlSchema, serverUrlSchema])
+    .default(""),
 });
 
 const waspProdClientEnvSchema = z.object({

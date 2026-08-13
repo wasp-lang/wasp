@@ -23,8 +23,11 @@ genVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
       [relfile|src/plugins/virtualUserModules.js|]
-      (Just $ object ["virtualUserModules" .= map mkPluginData (VUM.getServerVirtualUserModules spec)])
+      (Just $ object ["virtualUserModules" .= map mkPluginData serverVirtualUserModules])
   where
+    serverVirtualUserModules =
+      VUM.uniqueByVirtualModuleId $ VUM.getServerVirtualUserModules spec
+
     mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson
     extImportToImportJson = ServerJI.extImportToImportJson importLocation . Just
     importLocation = fromJust $ relDirToPosix serverSrcDirInServerRootDir

@@ -74,3 +74,34 @@ export async function startPgBoss(): Promise<void> {
   console.log('pg-boss started!')
   pgBossStatus = PgBossStatus.Started
 }
+
+const lazyPgBossKey = Symbol.for('wasp.jobs.pgBossStarted')
+
+// PRIVATE API
+/**
+ * Like awaiting `pgBossStarted`, but starts pg-boss lazily when nothing
+ * else has: the standalone server process starts it at boot, while the
+ * Nitro worker (which serves HTTP requests, including job submissions from
+ * operations and `setupFn`) has no boot phase that does. A lazily started
+ * instance executes no Wasp jobs: job handlers and schedules register
+ * through `registerJob`, which only the standalone process's `allJobs`
+ * import runs (pg-boss's own maintenance/cron supervision does run here,
+ * which is safe — pg-boss is multi-instance by design).
+ *
+ * The started promise is cached on `globalThis` because dev reloads
+ * re-execute this module, and each fresh module-level `boss` must not be
+ * started again.
+ *
+ * TODO(nitro-phase-4): replaced by the stateful-resource lifecycle once
+ * job execution itself moves into the Nitro worker.
+ */
+export function ensurePgBossStarted(): Promise<PgBoss> {
+  const cache = globalThis as Record<symbol, Promise<PgBoss> | undefined>
+  let startedPgBoss = cache[lazyPgBossKey]
+  if (!startedPgBoss) {
+    startPgBoss()
+    startedPgBoss = pgBossStarted
+    cache[lazyPgBossKey] = startedPgBoss
+  }
+  return startedPgBoss
+}

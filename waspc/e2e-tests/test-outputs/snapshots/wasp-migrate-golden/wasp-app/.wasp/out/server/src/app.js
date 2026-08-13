@@ -22,6 +22,20 @@ app.use((err, _req, res, next) => {
     return res.status(err.statusCode).json({ message: err.message, data: err.data })
   }
 
+  // Middleware raising errors that carry a status code (a request body that is too
+  // large, a rejected file upload, ...) is a widespread convention, and Express's
+  // default error handler honors it. Nitro's doesn't (it answers every error it is
+  // given with a 500), and Nitro is the one handling the error when Wasp's server
+  // runs as part of the app's server, so we answer these ourselves.
+  const statusFromError = err.status ?? err.statusCode
+  if (Number.isInteger(statusFromError) && statusFromError >= 400 && statusFromError < 600) {
+    // Same as Express's default handler: say nothing beyond the status code, so
+    // that we don't leak any information about the error.
+    return res.status(statusFromError).json({
+      message: statusFromError >= 500 ? 'Internal Server Error' : 'Request failed',
+    })
+  }
+
   // This forwards the error to the default express error handler.
   // As described by expressjs documentation, the default error handler sets response status
   // to err.status or err.statusCode if it is 4xx or 5xx, and if not, sets it to 500.

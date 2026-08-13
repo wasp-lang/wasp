@@ -15,6 +15,8 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.NitroRoutesG (serverEntryFileInServerRootDir)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath, webAppRootDirPath)
@@ -67,12 +69,21 @@ genNitroBridgePlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "ssrEntryPointPath" .= ssrEntryPointPath,
+          "serverEntryPointPath" .= SP.fromRelFileP serverEntryPointPathInWaspProjectDir,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "nitroOutputDirPath" .= SP.fromRelDir webAppRootDirPath,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "spaFallbackFilePath" .= ("/" ++ SP.fromRelFileP spaFallbackFile),
           "prerenderPaths" .= makeJsArrayFromHaskellList (getPrerenderPaths spec)
         ]
+
+    -- The generated server's Nitro entry point, from the Wasp project directory
+    -- (which is where Vite runs).
+    serverEntryPointPathInWaspProjectDir =
+      fromJust . SP.relFileToPosix $
+        generatedAppDirInWaspProjectDir
+          </> Server.serverRootDirInGeneratedAppDir
+          </> serverEntryFileInServerRootDir
 
 -- | The Nitro renderer entry point. Unlike the rest of the SSR code, it is a
 -- plain file in the SDK (not a Vite virtual file), because Nitro builds it
@@ -117,7 +128,17 @@ genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|envFile.ts|]
-    tmplData = object ["clientEnvFileName" .= SP.fromRelFile dotEnvClient]
+    tmplData =
+      object
+        [ "clientEnvFileName" .= SP.fromRelFile dotEnvClient,
+          "serverEnvFileName" .= SP.fromRelFileP serverEnvFilePathInWaspProjectDir
+        ]
+
+    serverEnvFilePathInWaspProjectDir =
+      fromJust . SP.relFileToPosix $
+        generatedAppDirInWaspProjectDir
+          </> Server.serverRootDirInGeneratedAppDir
+          </> Server.dotEnvInServerRootDir
 
 genDetectServerImportsPlugin :: Generator FileDraft
 genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData

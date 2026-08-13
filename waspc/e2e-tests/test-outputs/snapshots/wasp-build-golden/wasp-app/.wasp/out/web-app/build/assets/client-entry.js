@@ -109,7 +109,8 @@ function formatZodEnvError(error) {
 //#region .wasp/out/sdk/wasp/dist/client/env/schema.js
 var userClientEnvSchema = z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
-z.object({ "REACT_APP_API_URL": serverUrlSchema.default("http://localhost:3001") });
+var sameOriginServerUrlSchema = z.string().refine((url) => url === "" || url.startsWith("/"), { error: "REACT_APP_API_URL must be a valid URL, or a path when the API is served from the app's own origin" });
+z.object({ "REACT_APP_API_URL": z.union([sameOriginServerUrlSchema, serverUrlSchema]).default("") });
 var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
 	"BASE_URL": "/",

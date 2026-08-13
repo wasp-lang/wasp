@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { WASP_SERVER_URL } from "../playwright.config";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
 import {
   generateRandomEmail,
@@ -12,7 +11,9 @@ test.describe("auth", () => {
     await page.goto("/signup");
 
     await expect(
-      page.locator(`a[href='${WASP_SERVER_URL}/auth/google/login']`),
+      // The href is relative when the client is served same-origin (dev)
+      // and absolute when REACT_APP_API_URL is set (deployed mode).
+      page.locator(`a[href$='/auth/google/login']`),
     ).toBeVisible();
   });
 

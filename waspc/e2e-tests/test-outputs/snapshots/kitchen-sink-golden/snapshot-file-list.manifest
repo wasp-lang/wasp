@@ -967,6 +967,10 @@ wasp-app/.wasp/out/server/src/jobs/uppercaseTextJob.ts
 wasp-app/.wasp/out/server/src/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/server/src/middleware/index.ts
 wasp-app/.wasp/out/server/src/middleware/operations.ts
+wasp-app/.wasp/out/server/src/nitro/apiManifest.ts
+wasp-app/.wasp/out/server/src/nitro/expressBridge.ts
+wasp-app/.wasp/out/server/src/nitro/serverEntry.ts
+wasp-app/.wasp/out/server/src/nitro/setup.ts
 wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/queries/getAnyAuth.ts
 wasp-app/.wasp/out/server/src/queries/getAnyNoAuth.ts
@@ -1022,7 +1026,6 @@ wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
 wasp-app/.wasp/out/server/src/server.ts
-wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
