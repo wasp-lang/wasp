@@ -77,7 +77,41 @@ In `tsconfig.src.json`, update the `include` field:
 </Tabs>
 
 
-### 3. Update your custom Dockerfile
+### 3. Add the Wasp server plugin to your Vite config
+
+Wasp now runs and bundles your server with Vite, through a plugin you must add to your
+[Vite config](./project/custom-vite-config.md): `waspServer()` from `wasp/server/vite`.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="vite.config.ts"
+    import { defineConfig } from "vite";
+    import { wasp } from "wasp/client/vite";
+
+    export default defineConfig({
+      // highlight-next-line
+      plugins: [wasp()],
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="vite.config.ts"
+    import { defineConfig } from "vite";
+    import { wasp } from "wasp/client/vite";
+    // highlight-next-line
+    import { waspServer } from "wasp/server/vite";
+
+    export default defineConfig({
+      // highlight-next-line
+      plugins: [wasp(), waspServer()],
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+Keep any other plugins (like Tailwind CSS) after these two.
+
+### 4. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](./deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
 you'll have to add a one new additional line to it:
@@ -104,6 +138,6 @@ you'll have to add a one new additional line to it:
 </Tabs>
 
 
-### 4. Enjoy your updated Wasp app
+### 5. Enjoy your updated Wasp app
 
 That's it!

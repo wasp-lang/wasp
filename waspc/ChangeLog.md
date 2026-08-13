@@ -4,6 +4,31 @@
 
 ### ⚠️ Breaking Changes
 
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide) for step-by-step documentation on how to upgrade.
+
+- Wasp now runs and bundles your server with Vite, the same way it already did with your client. ([#4645](https://github.com/wasp-lang/wasp/pull/4645), [#4646](https://github.com/wasp-lang/wasp/pull/4646), [#4665](https://github.com/wasp-lang/wasp/pull/4665), [#4667](https://github.com/wasp-lang/wasp/pull/4667), [#4668](https://github.com/wasp-lang/wasp/pull/4668))
+
+  You must add the `waspServer()` plugin from `wasp/server/vite` to your `vite.config.ts`, otherwise Wasp won't compile your app:
+
+  ```ts
+  import { defineConfig } from "vite";
+  import { wasp } from "wasp/client/vite";
+  import { waspServer } from "wasp/server/vite";
+
+  export default defineConfig({
+    plugins: [wasp(), waspServer()],
+  });
+  ```
+
+  What this changes for your app:
+
+  - `wasp start` now runs a single process for your whole app, so client and server logs share the `[ App ]` prefix. The `[ Client ]` and `[ Server ]` prefixes are now only used by `wasp build start`.
+  - Your server restarts in place, in well under a second, and only when you change code it actually uses. Changing client-only code no longer restarts it.
+  - An unhandled rejection or an uncaught exception in your server code no longer kills your app in development. Wasp logs it and keeps running until your next change.
+  - Wasp no longer type-checks your server code while you develop, only when it bundles it. `wasp build` still fails on server type errors.
+  - Rollup and nodemon are gone from the generated server's dev dependencies, and so are the `watch` and `bundle-and-start` scripts in `.wasp/out/server/package.json`.
+  - The server bundle can now contain shared chunks in `.wasp/out/server/bundle/assets/`, next to `bundle/server.js`. Deployments that copy the whole `bundle` directory (like the Dockerfile Wasp generates) need no changes.
+
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 

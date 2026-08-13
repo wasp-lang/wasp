@@ -23,6 +23,7 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
     ```ts title="vite.config.ts"
     import { wasp } from 'wasp/client/vite'
+    import { waspServer } from 'wasp/server/vite'
     // highlight-next-line
     import tailwindcss from '@tailwindcss/vite'
     import { defineConfig } from 'vite'
@@ -30,6 +31,7 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
     export default defineConfig({
       plugins: [
         wasp(),
+        waspServer(),
         // highlight-next-line
         tailwindcss()
       ],

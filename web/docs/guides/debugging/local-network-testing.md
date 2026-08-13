@@ -27,13 +27,13 @@ wasp start
 Look for the network URLs in Wasp's terminal output:
 
 ```
-[ Client ]   VITE v7.3.1  ready in 536 ms
-[ Client ]
-[ Client ]   ->  Local:   http://localhost:3000/
-[ Client ]   ->  Network: http://192.168.1.39:3000/
-[ Client ]   ->  Network: http://198.19.249.3:3000/
-[ Client ]   ->  Network: http://192.168.215.0:3000/
-[ Client ]   ->  press h + enter to show help
+[  App   ]   VITE v8.1.0  ready in 536 ms
+[  App   ]
+[  App   ]   ->  Local:   http://localhost:3000/
+[  App   ]   ->  Network: http://192.168.1.39:3000/
+[  App   ]   ->  Network: http://198.19.249.3:3000/
+[  App   ]   ->  Network: http://192.168.215.0:3000/
+[  App   ]   ->  press h + enter to show help
 ```
 
 If you have multiple network interfaces, you'll see multiple Network URLs. Note one of these IPs (you may need to try a few to find the one that works).
@@ -73,13 +73,14 @@ Add `allowedHosts` to the `server` section in your `vite.config.ts`:
 ```ts title="vite.config.ts"
 import { defineConfig } from "vitest/config";
 import { wasp } from "wasp/client/vite";
+import { waspServer } from "wasp/server/vite";
 
 export default defineConfig({
   server: {
     // highlight-next-line
     allowedHosts: ["192.168.1.39.nip.io"],
   },
-  plugins: [wasp()],
+  plugins: [wasp(), waspServer()],
 });
 ```
 

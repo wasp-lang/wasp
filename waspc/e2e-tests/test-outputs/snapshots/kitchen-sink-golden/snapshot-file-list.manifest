@@ -945,7 +945,6 @@ wasp-app/.wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts
 wasp-app/.wasp/out/server/.env
 wasp-app/.wasp/out/server/.gitignore
 wasp-app/.wasp/out/server/README.md
-wasp-app/.wasp/out/server/nodemon.json
 wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts

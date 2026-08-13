@@ -725,21 +725,14 @@
             "file",
             "server/README.md"
         ],
-        "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
-    ],
-    [
-        [
-            "file",
-            "server/nodemon.json"
-        ],
-        "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
+        "afcaa3b0b5228b72639cbfe97e04dafcd71a936b4737e600e5d16f3988e1395f"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "c08ae6b429fa21d7977d30bbfe992c007d6c98da9afcb899368e066e6ecf2a45"
+        "c1b38bd684efe817087e0982413a74e21dff1bb78443bfe2ec8011590d3d8b22"
     ],
     [
         [
@@ -809,7 +802,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "ffbed7bb01e35578983fc5fa53d049f7a3518803ffbb8f801bcc90fd68a6b280"
     ],
     [
         [

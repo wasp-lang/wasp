@@ -103,6 +103,10 @@ You should replace the following values for your app:
 The Render free-tier PostgreSQL database [expires after 30 days](https://render.com/docs/free#30-day-limit). Use the Starter plan or an external provider for production.
 :::
 
+:::note About `npm run bundle`
+The server's build command bundles your server through your project's root [Vite config](../../../project/custom-vite-config.md), using the dependencies the `wasp install` and `wasp build` steps put in your project's root directory. That's why `npm run bundle` runs in the same build command as those steps, and after them. Running it on its own, without a previous `wasp build` in the same checkout, won't work.
+:::
+
 Commit this file and push to your repository:
 
 ```bash

@@ -6,13 +6,13 @@
     "strict": false,
     "allowJs": true,
 
-    // This property currently doesn't matter because we haven't been running
-    // TSC on server code since https://github.com/wasp-lang/wasp/pull/1714.
+    // This property currently doesn't matter because nothing consumes TSC's
+    // output: the `bundle` script runs `tsc --build` only to type-check the
+    // server, and Vite bundles the server from the TypeScript sources.
     //
-    // When we start running TSC again (after we fix all current errors and
-    // make project references work for the TS config), then I believe the
-    // correct configuration is "rootDir": "." (the project reference should
-    // take care of the user code), but we should double-check.
+    // If the emitted output ever starts mattering, I believe the correct
+    // configuration is "rootDir": "." (the project reference should take care
+    // of the user code), but we should double-check.
     //
     // Before changing this property, ensure you're aware of the implications:
     //  - https://github.com/wasp-lang/wasp/pull/1584#discussion_r1404019301
@@ -20,8 +20,8 @@
     "rootDir": ".",
     // Enable source map for debugging
     "sourceMap": true,
-    // We are using rollup and extensionless imports, our module and module
-    // resolution reflect that.
+    // We are bundling with Vite and using extensionless imports, our module and
+    // module resolution reflect that.
     "module": "preserve",
     "moduleResolution": "bundler",
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
