@@ -3,7 +3,7 @@ import { Request as ExpressRequest } from "express";
 
 import { type AuthUserData } from '../../auth/user.js';
 
-import { authProvider, canIssueSessions, providerOwnsAuthEntity } from "./provider/index.js";
+import { authProvider, canIssueSessions } from "./provider/index.js";
 
 import { prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
@@ -56,13 +56,16 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
  * which auth subject it verified.
  */
 async function toSessionAndUser(sessionId: string, subjectId: string): Promise<SessionAndUser | null> {
-  const authId = providerOwnsAuthEntity
-    ? subjectId
-    : await resolveExternalSubject(subjectId);
-
+  {=# isCustomAuthProviderUsed =}
+  const authId = await resolveExternalSubject(subjectId);
   if (authId === null) {
     return null;
   }
+  {=/ isCustomAuthProviderUsed =}
+  {=^ isCustomAuthProviderUsed =}
+  // Wasp's own auth owns the auth entity, so the subject id already identifies one.
+  const authId = subjectId;
+  {=/ isCustomAuthProviderUsed =}
 
   const user = await prisma.{= userEntityLower =}.findFirst({
     where: { {= authFieldOnUserEntityName =}: { id: authId } },
@@ -84,6 +87,7 @@ async function toSessionAndUser(sessionId: string, subjectId: string): Promise<S
   return { sessionId, user: createAuthUserData(user) };
 }
 
+{=# isCustomAuthProviderUsed =}
 /**
  * Maps a provider-owned subject id onto Wasp's auth entity, creating the local
  * rows the first time we see that subject.
@@ -156,6 +160,7 @@ function isUniqueConstraintViolation(e: unknown): boolean {
     typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 'P2002'
   );
 }
+{=/ isCustomAuthProviderUsed =}
 
 // PRIVATE API
 export function invalidateSession(sessionId: string): Promise<void> {

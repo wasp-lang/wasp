@@ -15,7 +15,9 @@ export function MainPage() {
   const [description, setDescription] = useState("");
 
   return (
-    <main style={{ maxWidth: 480, margin: "3rem auto", fontFamily: "system-ui" }}>
+    <main
+      style={{ maxWidth: 480, margin: "3rem auto", fontFamily: "system-ui" }}
+    >
       <header style={{ display: "flex", justifyContent: "space-between" }}>
         <h1>Tasks</h1>
         <button onClick={logout}>Log out</button>
@@ -44,11 +46,7 @@ export function MainPage() {
       </form>
 
       {isLoading ? <p>Loading…</p> : null}
-      <ul>
-        {tasks?.map((task) => (
-          <li key={task.id}>{task.description}</li>
-        ))}
-      </ul>
+      <ul>{tasks?.map((task) => <li key={task.id}>{task.description}</li>)}</ul>
     </main>
   );
 }

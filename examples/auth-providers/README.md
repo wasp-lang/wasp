@@ -3,22 +3,22 @@
 Three Wasp apps that are identical except for **which auth provider verifies the request**.
 
 They exist to answer one question: how much of an app's code survives swapping the auth
-provider? The answer, demonstrated rather than asserted, is *everything except the auth pages*.
+provider? The answer, demonstrated rather than asserted, is _everything except the auth pages_.
 
-| App | Provider | What it proves |
-|---|---|---|
-| `wasp-auth/` | Wasp's own auth | The interface is a faithful refactor — behaviour is unchanged |
-| `better-auth/` | Better Auth, in-process | A provider that owns its own tables and routes |
-| `clerk/` | Clerk, hosted | A provider with no server-side login at all, and no schema of its own |
+| App            | Provider                | What it proves                                                        |
+| -------------- | ----------------------- | --------------------------------------------------------------------- |
+| `wasp-auth/`   | Wasp's own auth         | The interface is a faithful refactor — behaviour is unchanged         |
+| `better-auth/` | Better Auth, in-process | A provider that owns its own tables and routes                        |
+| `clerk/`       | Clerk, hosted           | A provider with no server-side login at all, and no schema of its own |
 
 ## The part that is identical in all three
 
 ```ts
 // src/operations.ts — byte-for-byte the same in every app
 export const getMyTasks: GetMyTasks<void, Task[]> = async (_args, context) => {
-  if (!context.user) throw new HttpError(401)
-  return context.entities.Task.findMany({ where: { userId: context.user.id } })
-}
+  if (!context.user) throw new HttpError(401);
+  return context.entities.Task.findMany({ where: { userId: context.user.id } });
+};
 ```
 
 `context.user` is a row in the app's own `User` table in all three, with the app's own id type.
@@ -31,7 +31,7 @@ Also identical: `authRequired` on pages, `auth: true` on operations, `useAuth()`
 
 ## The part that differs
 
-Only how a session is *established*:
+Only how a session is _established_:
 
 - `wasp-auth` and `better-auth` render login forms and post credentials to the server.
 - `clerk` cannot. Clerk has no server-side password endpoint — verification lives on its

@@ -121,7 +121,11 @@ genSessionTs auth =
           "userEntityLower" .= Util.toLowerFirst userEntityName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
-          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
+          "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
+          -- Just-in-time provisioning only exists for providers that don't own Wasp's
+          -- auth entity. Emitting it unconditionally breaks apps whose user entity has
+          -- required fields, because the provisioning insert supplies none of them.
+          "isCustomAuthProviderUsed" .= isJust (AS.Auth.provider auth)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

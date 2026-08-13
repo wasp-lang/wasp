@@ -1,5 +1,5 @@
-import { LoginForm, SignupForm } from "wasp/client/auth";
 import { useState } from "react";
+import { LoginForm, SignupForm } from "wasp/client/auth";
 
 /**
  * This file is the ONLY meaningful difference between the three example apps.
@@ -12,7 +12,9 @@ export function LoginPage() {
   const [isSignup, setIsSignup] = useState(false);
 
   return (
-    <main style={{ maxWidth: 380, margin: "3rem auto", fontFamily: "system-ui" }}>
+    <main
+      style={{ maxWidth: 380, margin: "3rem auto", fontFamily: "system-ui" }}
+    >
       <h1>{isSignup ? "Sign up" : "Log in"}</h1>
       {isSignup ? <SignupForm /> : <LoginForm />}
       <button onClick={() => setIsSignup((v) => !v)}>

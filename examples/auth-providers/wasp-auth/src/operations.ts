@@ -1,5 +1,5 @@
-import { HttpError } from "wasp/server";
 import type { Task } from "wasp/entities";
+import { HttpError } from "wasp/server";
 import type { CreateTask, GetMyTasks } from "wasp/server/operations";
 
 /**
