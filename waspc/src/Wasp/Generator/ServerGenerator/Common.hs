@@ -18,6 +18,9 @@ module Wasp.Generator.ServerGenerator.Common
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
     serverPortEnvVarName,
+    defaultDevServerPort,
+    makeDevServerLocation,
+    defaultDevServerLocation,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
@@ -25,6 +28,7 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
+import Network.Socket (PortNumber)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
@@ -38,6 +42,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
+import Wasp.Util.AppLocation (AppLocation (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -138,6 +143,20 @@ serverUrlEnvVarName = "WASP_SERVER_URL"
 
 serverPortEnvVarName :: String
 serverPortEnvVarName = "PORT"
+
+defaultDevServerPort :: PortNumber
+defaultDevServerPort = 3001
+
+-- | Where the server runs in development, on the given port.
+makeDevServerLocation :: PortNumber -> AppLocation
+makeDevServerLocation devServerPort =
+  Local {port = devServerPort, baseDir = Nothing}
+
+-- | Where the server runs in development when the user doesn't choose a port.
+-- Processes that never bind a port (like the test runner) also use it as a
+-- placeholder.
+defaultDevServerLocation :: AppLocation
+defaultDevServerLocation = makeDevServerLocation defaultDevServerPort
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

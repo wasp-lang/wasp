@@ -22,6 +22,12 @@ jobs:
         working-directory: waspc/starters-e2e-tests
         run: npm ci
 
+      - name: Prepare wasp-app-runner
+        working-directory: wasp-app-runner
+        run: npm install && npm run build
+
       - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests
+        env:
+          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/wasp-app-runner/bin/index.js
         run: npm run test:dev

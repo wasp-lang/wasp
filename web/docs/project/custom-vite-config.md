@@ -19,7 +19,7 @@ You have **full control** over your `vite.config.ts` file. Wasp doesn't manage t
 Here's the minimal required configuration:
 
 <Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
+  <TabItem value="js" label="JavaScript">
     ```js title="vite.config.js"
     import { wasp } from 'wasp/client/vite'
     import { defineConfig } from 'vite'

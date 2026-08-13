@@ -15,16 +15,17 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.AppComponents (makeDevRunConfigs)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import qualified Wasp.Generator.Client as Client
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.RunConfig (makeServerRunConfig)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import qualified Wasp.Util.AppLocation as AL
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
@@ -32,16 +33,20 @@ seed maybeUserProvidedSeedName = do
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   appSpec <- analyze waspProjectDir
+  let serverRunConfig = defaultDevServerRunConfig appSpec
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
   cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
-  let (_, server) = makeDevRunConfigs appSpec Client.defaultPort Server.defaultPort
-
-  liftIO (dbSeed (Server.devEnvVars server) genProjectDir nameOfSeedToRun) >>= \case
+  liftIO (dbSeed serverRunConfig genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
+  where
+    defaultDevServerRunConfig appSpec =
+      makeServerRunConfig
+        Server.defaultDevServerLocation
+        (AL.url $ WebApp.makeDefaultDevClientLocation appSpec)
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do

@@ -7,33 +7,35 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath ((</>))
-import Wasp.Cli.AppComponents (makeDevRunConfigs)
+import StrongPath (Abs, Dir, Path', (</>))
+import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
-import Wasp.Cli.Command.LockedProject (withLockedProject)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.Util.EnvVarInputs (resolveEnvVarInputs)
-import qualified Wasp.Cli.Util.EnvVarInputs as EnvVarInputs
+import Wasp.Cli.ProjectLock (withProjectLock)
+import Wasp.Cli.Util.EnvVarSource (assertNoOverriddenEnvVars, resolveEnvVarProjectFile, resolveInheritedEnvVars)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
-import qualified Wasp.Generator.Client as Client
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..), makeClientRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
+import qualified Wasp.Util.AppLocation as AL
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Arguments -> Command ()
-start = withArguments "wasp start" startArgsParser $ \args -> withLockedProject $ do
+start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -52,12 +54,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withLockedProject 
 
   (warnings, appSpec) <- compile
 
-  let (client, server) = makeDevRunConfigs appSpec args.clientPort args.serverPort
-
-  clientEnvVars <-
-    resolveEnvVarInputs waspProjectDir (Client.devEnvVars client) (devEnvVarInputs Env.dotEnvClient)
-  serverEnvVars <-
-    resolveEnvVarInputs waspProjectDir (Server.devEnvVars server) (devEnvVarInputs Env.dotEnvServer)
+  (clientRunConfig, serverRunConfig) <- makeDevRunConfigs appSpec waspProjectDir args
 
   DbConnectionEstablished <- require
 
@@ -73,7 +70,12 @@ start = withArguments "wasp start" startArgsParser $ \args -> withLockedProject 
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
-          Wasp.Generator.start clientEnvVars serverEnvVars waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+          Wasp.Generator.start
+            clientRunConfig
+            serverRunConfig
+            waspProjectDir
+            outDir
+            (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -88,8 +90,6 @@ start = withArguments "wasp start" startArgsParser $ \args -> withLockedProject 
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
   where
-    devEnvVarInputs dotEnvFile = [EnvVarInputs.FromProjectFile dotEnvFile, EnvVarInputs.Inherit]
-
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
@@ -105,3 +105,32 @@ start = withArguments "wasp start" startArgsParser $ \args -> withLockedProject 
           putStrLn ""
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
+
+makeDevRunConfigs ::
+  AppSpec ->
+  Path' Abs (Dir WaspProjectDir) ->
+  StartArgs ->
+  Command (ClientRunConfig, ServerRunConfig)
+makeDevRunConfigs appSpec waspProjectDir args = do
+  clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
+  serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
+
+  -- We only assert and persist the final env vars ourselves because the
+  -- subprocesses will pick the env vars themselves as part of their own
+  -- runtime.
+  assertNoOverriddenEnvVars clientRunConfig.envVars clientEnvVarSources
+  assertNoOverriddenEnvVars serverRunConfig.envVars serverEnvVarSources
+
+  return (clientRunConfig, serverRunConfig)
+  where
+    clientLocation = WebApp.makeDevClientLocation appSpec args.clientPort
+    clientRunConfig = makeClientRunConfig clientLocation (AL.url serverLocation)
+
+    serverLocation = Server.makeDevServerLocation args.serverPort
+    serverRunConfig = makeServerRunConfig serverLocation (AL.url clientLocation)
+
+    devEnvVarSources dotEnvFile =
+      sequence
+        [ resolveEnvVarProjectFile waspProjectDir dotEnvFile,
+          resolveInheritedEnvVars
+        ]

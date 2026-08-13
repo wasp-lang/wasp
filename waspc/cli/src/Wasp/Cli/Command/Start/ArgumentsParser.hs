@@ -7,8 +7,8 @@ where
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.PortArgument (portOption)
-import qualified Wasp.Generator.Client as Client
-import qualified Wasp.Generator.Server as Server
+import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 
 data StartArgs = StartArgs
   { clientPort :: PortNumber,
@@ -19,5 +19,5 @@ data StartArgs = StartArgs
 startArgsParser :: Opt.Parser StartArgs
 startArgsParser =
   StartArgs
-    <$> portOption "client-port" "Port to run the client on" Client.defaultPort
-    <*> portOption "server-port" "Port to run the server on" Server.defaultPort
+    <$> portOption "client-port" "Port to run the client on" WebApp.defaultDevClientPort
+    <*> portOption "server-port" "Port to run the server on" Server.defaultDevServerPort
