@@ -347,12 +347,13 @@ Note that `username`s are stored in a **case-insensitive** manner.
 
 If you use [Email](./email.md) authentication, the default validations are:
 
-- The `email` must not be empty and a valid email address
+- The `email` must not be empty and a valid email address (HTML5 format widened to support unicode)
 - The `password` must not be empty, have at least 8 characters, and contain a number
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
-An address counts as valid if it matches the syntax browsers enforce on `input[type=email]`, widened to accept internationalized addresses such as `jürgen@münchen.de`. Because browsers reject those addresses themselves, use `type="text"` with `inputMode="email"` if you build your own form, and trim the value before you send it.
+Because Wasp supports unicode email addresses, browser would reject their syntax with `input[type=email]`.
+If you are building your own form, please use `type="text"` with `inputMode="email"` instead.
 
 ## Customizing the Signup Process
 
