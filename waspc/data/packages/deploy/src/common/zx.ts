@@ -33,10 +33,6 @@ export async function runJsonCommand<Schema extends z.ZodType>(
   return schema.parse(parseJsonFromStdout(result));
 }
 
-/**
- * Like {@link runJsonCommand}, but returns `null` when the command exits with
- * a non-zero exit code instead of throwing.
- */
 export async function tryRunJsonCommand<Schema extends z.ZodType>(
   command: Command,
   commandArgs: string[],

@@ -15,8 +15,6 @@ import {
 
 const minSupportedFlyCliVersion = new SemVer("0.4.82");
 
-const flyCli = createCommand("flyctl");
-
 export async function isUserLoggedIn(): Promise<boolean> {
   try {
     await $`flyctl auth whoami`;
@@ -97,6 +95,7 @@ export async function assertRegionIsValid(region: string): Promise<void> {
 }
 
 async function regionExists(regionCode: string): Promise<boolean> {
+  const flyCli = createCommand("flyctl");
   const regions = await runJsonCommand(
     flyCli,
     ["platform", "regions", "-j"],
@@ -109,6 +108,7 @@ async function regionExists(regionCode: string): Promise<boolean> {
 }
 
 export async function secretExists(secretName: string): Promise<boolean> {
+  const flyCli = createCommand("flyctl");
   const secrets = await runJsonCommand(
     flyCli,
     ["secrets", "list", "-j"],
