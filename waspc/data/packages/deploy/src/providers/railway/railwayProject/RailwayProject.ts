@@ -4,6 +4,7 @@ export type RailwayProject = {
   id: string;
   name: string;
   services: RailwayService[];
+  findService: (serviceName: string) => RailwayService | undefined;
   doesServiceExist: (serviceName: string) => boolean;
 };
 
@@ -22,8 +23,11 @@ export function createRailwayProject(
       id: edge.node.id,
       name: edge.node.name,
     })),
+    findService(serviceName: string) {
+      return this.services.find((service) => service.name === serviceName);
+    },
     doesServiceExist(serviceName: string) {
-      return this.services.some((s) => s.name === serviceName);
+      return this.findService(serviceName) !== undefined;
     },
   };
 }
