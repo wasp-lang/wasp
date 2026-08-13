@@ -25,4 +25,4 @@ tests: True
 test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2026-08-13T14:03:30Z
+index-state: 2026-08-13T13:55:25Z
