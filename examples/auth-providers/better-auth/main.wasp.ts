@@ -1,18 +1,7 @@
-import {
-  action,
-  api,
-  apiNamespace,
-  app,
-  customAuthProvider,
-  page,
-  query,
-  route,
-} from "@wasp.sh/spec";
+import { betterAuth } from "@wasp.sh/auth-better-auth/spec";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
-import { rawBodyMiddleware } from "./src/auth/middleware" with { type: "ref" };
-import { betterAuthProvider } from "./src/auth/provider" with { type: "ref" };
-import { betterAuthRoutes } from "./src/auth/routes" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
@@ -27,11 +16,15 @@ export default app({
     // auth. Note what is absent: no methods, no hooks, no success redirect --
     // Better Auth owns signup and login entirely, and the provider union makes
     // wasp-auth-only configuration inexpressible here.
-    provider: customAuthProvider({
-      id: "better-auth",
-      server: betterAuthProvider,
-      capabilities: ["session-revocation"],
-    }),
+    //
+    // `betterAuth()` is the adapter package's spec helper. Its manifest also
+    // mounts Better Auth's own endpoints (sign-up, sign-in, OAuth callbacks)
+    // at `/better-auth` on the Wasp server, with the JSON body parser
+    // stripped -- Better Auth reads the raw request stream, and an
+    // already-consumed stream hangs every request. In earlier versions of
+    // this app that took an `api()` + `apiNamespace()` pair; the manifest's
+    // `routes` declaration replaces both.
+    provider: betterAuth({ emailAndPassword: true }),
   },
 
   spec: [
@@ -40,17 +33,5 @@ export default app({
     route("LoginRoute", "/login", page(LoginPage)),
     query(getMyTasks, { entities: ["Task"], auth: true }),
     action(createTask, { entities: ["Task"], auth: true }),
-
-    // Better Auth's own endpoints, mounted inside the Wasp server.
-    //
-    // `toNodeHandler` reads the raw request stream, so this namespace strips the
-    // JSON body parser Wasp mounts by default. Getting that wrong is a genuinely
-    // confusing failure: Better Auth sees an already-consumed stream and every
-    // request hangs.
-    apiNamespace("/better-auth", { middlewareConfigFn: rawBodyMiddleware }),
-    api("ALL", "/better-auth/*splat", betterAuthRoutes, {
-      auth: false,
-      entities: [],
-    }),
   ],
 });

@@ -11,7 +11,6 @@ const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
  * serverVirtualUserModuleMap["virtual:wasp/user/env"] // => "../../../src/env"
  */
 const serverVirtualUserModuleMap = {
-  "virtual:wasp/user/auth/provider": "../../../src/auth/provider",
   "virtual:wasp/user/operations": "../../../src/operations",
   "virtual:wasp/user/operations": "../../../src/operations",
 };

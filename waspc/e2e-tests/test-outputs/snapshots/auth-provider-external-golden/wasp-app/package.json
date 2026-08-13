@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@clerk/backend": "2.19.0",
     "@clerk/clerk-react": "5.51.0",
+    "@wasp.sh/auth-clerk": "file:../packages/auth-clerk",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.69.0",

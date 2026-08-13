@@ -522,7 +522,7 @@ describe("mapAuth", () => {
     );
   });
 
-  test("should throw on adapter package entries until the generator supports them", () => {
+  test("should map an adapter package server entry", () => {
     const auth = Fixtures.getExternalAuthConfig();
     const withPackageEntry = {
       ...auth,
@@ -533,7 +533,26 @@ describe("mapAuth", () => {
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
-    expect(() => AppSpecMapper.mapAuth(withPackageEntry, ctx)).toThrow(
+    const result = AppSpecMapper.mapAuth(withPackageEntry, ctx);
+
+    expect(result.externalProvider?.serverPackage).toBe(
+      "@wasp.sh/auth-clerk/server",
+    );
+    expect(result.externalProvider?.serverModule).toBeUndefined();
+  });
+
+  test("should throw on client adapter entries until the generator supports them", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const withClientEntry = {
+      ...auth,
+      provider: {
+        ...getExternalProviderManifest(auth),
+        client: { package: "@wasp.sh/auth-clerk/client" },
+      } as unknown as WaspSpec.Auth["provider"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(withClientEntry, ctx)).toThrow(
       /does not support yet/,
     );
   });

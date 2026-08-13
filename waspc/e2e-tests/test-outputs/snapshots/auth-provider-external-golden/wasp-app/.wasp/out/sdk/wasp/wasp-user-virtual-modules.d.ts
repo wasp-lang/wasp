@@ -10,10 +10,6 @@ declare module "virtual:wasp/user/env" {
   export const clientEnvSchema: import("./client/env/schema").RegisteredClientEnvValidationSchema;
 }
 
-declare module "virtual:wasp/user/auth/provider" {
-  export const clerkAuthProvider: import("./server/auth/provider/types").RegisteredAuthProvider;
-}
-
 declare module "virtual:wasp/user/operations" {
   export const getMyTasks: import("./server/operations/queries/index").RegisteredGetMyTasks;
 }

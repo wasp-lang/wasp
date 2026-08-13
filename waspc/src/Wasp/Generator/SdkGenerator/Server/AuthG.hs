@@ -4,13 +4,15 @@ module Wasp.Generator.SdkGenerator.Server.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -41,7 +43,7 @@ genServerAuth spec =
             [ genFileCopy [relfile|server/core/auth.ts|],
               genAuthIndex auth,
               genFileCopyInServerAuth [relfile|provider/types.ts|],
-              genAuthProviderIndexTs auth,
+              genAuthProviderIndexTs spec auth,
               genSessionTs auth,
               genUtils auth
             ]
@@ -54,7 +56,7 @@ genServerAuth spec =
               genFileCopyInServerAuth [relfile|jwt.ts|],
               genFileCopyInServerAuth [relfile|provider/types.ts|],
               genFileCopyInServerAuth [relfile|provider/wasp.ts|],
-              genAuthProviderIndexTs auth,
+              genAuthProviderIndexTs spec auth,
               genSessionTs auth,
               genLuciaTs auth,
               genUtils auth
@@ -110,8 +112,8 @@ genLuciaTs auth =
 -- Defaults to Wasp's own auth. When @app.auth.provider@ is set, the SDK imports the
 -- developer's adapter through a virtual user module instead, and the session layer
 -- switches to resolving foreign subjects (provisioning a local user on first sight).
-genAuthProviderIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genAuthProviderIndexTs auth =
+genAuthProviderIndexTs :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genAuthProviderIndexTs spec auth =
   return $
     mkTmplFdWithData
       (serverAuthDirInSdkTemplatesDir </> [relfile|provider/index.ts|])
@@ -119,19 +121,27 @@ genAuthProviderIndexTs auth =
   where
     tmplData =
       object
-        [ "isCustomAuthProviderUsed" .= isJust maybeProviderModule,
+        [ "isCustomAuthProviderUsed" .= isJust maybeExternalProvider,
+          "isPackageAuthProvider" .= isJust maybeServerPackage,
+          "serverPackage" .= maybeServerPackage,
           "authProvider" .= extImportToImportJson maybeProviderModule,
+          -- The adapter's serializable options, spliced in verbatim -- the
+          -- mapper already proved the text is valid JSON.
+          "optionsJson" .= fromMaybe "undefined" (AS.Auth.optionsJson =<< maybeExternalProvider),
+          "dbProvider" .= prismaDbProviderName,
           -- The manifest's compile-time claims, checked against the runtime
           -- adapter object at boot so a wrong manifest fails loudly instead of
           -- generating a surface the adapter cannot back.
           "manifestProviderId" .= (AS.Auth.providerId <$> maybeExternalProvider),
           "manifestCapabilities" .= (makeJsArrayFromHaskellList . AS.Auth.capabilities <$> maybeExternalProvider)
         ]
-    -- NOTE: only src-module adapters ("customAuthProvider") are wired into
-    -- generated code so far; package entries decode into the AppSpec but the
-    -- mapper still rejects them until the generator learns to import them.
     maybeProviderModule = AS.Auth.serverModule =<< maybeExternalProvider
+    maybeServerPackage = AS.Auth.serverPackage =<< maybeExternalProvider
     maybeExternalProvider = AS.Auth.externalProvider auth
+    prismaDbProviderName :: String
+    prismaDbProviderName = case AS.Valid.getValidDbSystem spec of
+      AS.Db.PostgreSQL -> "postgresql"
+      AS.Db.SQLite -> "sqlite"
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =

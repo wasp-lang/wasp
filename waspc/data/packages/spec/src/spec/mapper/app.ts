@@ -127,21 +127,25 @@ function mapExternalAuthProvider(
     }
   }
 
-  const isPackageEntry = "package" in manifest.server;
-  // TODO(auth-providers): the next change teaches the generator to import
-  // adapter packages directly; until then only src-module adapters exist.
-  if (isPackageEntry || manifest.client !== undefined) {
+  // TODO(auth-providers): generated client-adapter glue (credential transport,
+  // Wrapper composition) is a later change; until then adapter packages expose
+  // their client side as ordinary React imports.
+  if (manifest.client !== undefined) {
     throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' references an adapter package, which this version of Wasp does not support yet. Reference a module in your src/ via customAuthProvider() instead.`,
+      `Auth provider '${manifest.id}' declares a client adapter entry, which this version of Wasp does not support yet. Import the adapter package's client exports directly in your client code instead.`,
     );
   }
 
+  const isPackageEntry = "package" in manifest.server;
+
   return {
     providerId: manifest.id,
-    serverPackage: undefined,
-    serverModule: ctx.parseRefObject(
-      manifest.server as WaspSpec.Reference<AnyObject>,
-    ),
+    serverPackage: isPackageEntry
+      ? (manifest.server as { package: string }).package
+      : undefined,
+    serverModule: isPackageEntry
+      ? undefined
+      : ctx.parseRefObject(manifest.server as WaspSpec.Reference<AnyObject>),
     clientPackage: undefined,
     routes: manifest.routes && {
       basePath: manifest.routes.basePath,

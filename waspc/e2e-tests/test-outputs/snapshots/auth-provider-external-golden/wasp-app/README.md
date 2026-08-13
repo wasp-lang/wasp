@@ -1,15 +1,21 @@
 # Auth providers — Clerk
 
-Wasp authenticates every request through **Clerk**, a hosted provider.
+Wasp authenticates every request through **Clerk**, a hosted provider, via the
+`@wasp.sh/auth-clerk` adapter package (`../packages/auth-clerk`).
 
 ```ts
+import { clerk } from "@wasp.sh/auth-clerk/spec";
+
 auth: {
   userEntity: "User",
-  methods: {},                 // Wasp's own auth is off entirely
-  provider: clerkAuthProvider, // Clerk verifies instead
   onAuthFailedRedirectTo: "/login",
+  provider: clerk(), // Clerk verifies instead of Wasp's own auth
 }
 ```
+
+That one call is the whole server-side integration: the manifest it produces
+names the adapter's server entry, its capabilities and the env vars it needs.
+The app contains no adapter code of its own.
 
 ## ⚠️ Needs credentials to run
 
@@ -52,13 +58,16 @@ Clerk is the more instructive example precisely because it is the more constrain
 
 ## What is specific to this app
 
-- `src/auth/provider.ts` — the adapter. Implements `AuthProvider` and **not**
+- `provider: clerk()` in `main.wasp.ts` — the adapter lives in
+  `@wasp.sh/auth-clerk` (`../packages/auth-clerk`). It implements `AuthProvider` and **not**
   `SessionIssuingAuthProvider`.
-- `src/auth/LoginPage.tsx` — Clerk's own `<SignIn />`. There is no `<LoginForm />` here and
-  there cannot be one.
-- `src/App.tsx` — bridges Clerk's token into Wasp's client credential store.
-- **No new tables. No new routes.** Compare `../better-auth`, which adds four models and a
-  catch-all route.
+- `src/auth/LoginPage.tsx` — Clerk's own `<SignIn />`, re-exported by the package. There is no
+  `<LoginForm />` here and there cannot be one.
+- `src/App.tsx` — composes the package's `ClerkAuthProvider` and its session bridge hook with
+  `setSessionId`/`clearSessionId` from `wasp/client/api`. Five lines of wiring; the polling
+  logic itself lives in the package.
+- **No new tables. No new routes. No adapter code in `src/`.** Compare `../better-auth`, which
+  adds four models.
 
 ## What this example is really demonstrating
 
@@ -70,8 +79,7 @@ That is why the interface splits into two:
 
 ```ts
 interface AuthProvider {
-  verifyRequest;
-  verifyCredential;
+  authenticate;
   revokeSession;
 }
 interface SessionIssuingAuthProvider extends AuthProvider {

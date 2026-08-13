@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "7d1222179b0b3ce907918d8fbd176ab3a5ddad67d1ff1292b87dbbaf21fa922e"
+        "3ab10d1fe79bceca7f0ffdc23d408934ddae39424423c203b17f86e890d147d1"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "sdk/wasp/server/auth/provider/index.ts"
         ],
-        "90eed1d28999355779911a32ff5d508f7688a95b6c1509861b5da9cdc2a07100"
+        "a101b213af534ab9729bb9f5899f1e9f35ab3e8b620c196f980b3a3e7cd65cb9"
     ],
     [
         [
@@ -802,7 +802,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "9b64139966a409558a762c16db31d46e981bf578f1ecb0a60c474ab6454fa797"
+        "8fa9c0fbcc07d34ffb99984cd2085bf34d51c03a10431cbbe5b3f9d7ba93451d"
     ],
     [
         [
@@ -863,13 +863,6 @@
     [
         [
             "file",
-            "server/src/auth/hooks.ts"
-        ],
-        "c0eb1c50103439a68786c612ff7e516789c6ea742ba3aa0d45adaf758705c710"
-    ],
-    [
-        [
-            "file",
             "server/src/auth/providers/index.ts"
         ],
         "321f92f233e01ba9764f9d9d455e59104202a1c3fd2715bced437ed724fcfdb5"
@@ -900,7 +893,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "1fab627d32b4c3b7cd675c8936ea10b903848de382195964a8a4fbc592886c70"
+        "4d4c6d8fffe545740cc53b56b8f1577e06efe2134a08f1910742fe1d167751e5"
     ],
     [
         [

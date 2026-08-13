@@ -1,16 +1,23 @@
 # Auth providers — Better Auth
 
 Wasp authenticates every request through **Better Auth**, an in-process auth library that owns
-its own tables and its own HTTP endpoints.
+its own tables and its own HTTP endpoints, via the `@wasp.sh/auth-better-auth` adapter package
+(`../packages/auth-better-auth`).
 
 ```ts
+import { betterAuth } from "@wasp.sh/auth-better-auth/spec";
+
 auth: {
   userEntity: "User",
-  methods: {},                    // Wasp's own auth is off entirely
-  provider: betterAuthProvider,   // Better Auth verifies instead
   onAuthFailedRedirectTo: "/login",
+  provider: betterAuth({ emailAndPassword: true }), // Better Auth verifies instead
 }
 ```
+
+That one call carries the whole server-side integration: the adapter, Better Auth's own routes
+(mounted at `/better-auth` with the JSON body parser stripped), and the `BETTER_AUTH_SECRET`
+requirement. What the manifest cannot carry is the Prisma schema -- the four `BetterAuth*`
+models still live in this app's `schema.prisma`.
 
 ## What is identical to the other two apps
 
@@ -20,25 +27,30 @@ byte-for-byte the same as in `../wasp-auth` and `../clerk`. So are `authRequired
 
 ## What is specific to this app
 
-- `src/auth/betterAuth.ts` — a stock Better Auth instance.
-- `src/auth/provider.ts` — **the adapter, and it is three methods.**
-- `src/auth/routes.ts` + the `api("ALL", ...)` declaration — Better Auth's own endpoints,
-  mounted with Wasp's existing user-API mechanism. Note the provider interface has no
-  "mount routes" capability and does not need one.
+- `provider: betterAuth(...)` in `main.wasp.ts` — the adapter lives in
+  `@wasp.sh/auth-better-auth` (`../packages/auth-better-auth`): the Better Auth instance, the
+  provider's two methods, and the route handler, all built by one `createServerAdapter` factory.
+- The manifest's `routes` declaration — Better Auth's own endpoints, mounted by Wasp at
+  `/better-auth`. An earlier version of this app declared them by hand with `api("ALL", ...)`
+  plus an `apiNamespace` middleware tweak; the manifest replaces both.
+- `src/auth/authClient.ts` — two lines: point the package's client at the Wasp server.
 - `src/auth/LoginPage.tsx` — uses Better Auth's client, because Wasp does not wrap login.
 - Four `BetterAuth*` models in `schema.prisma`.
 
 ## What this example is really demonstrating
 
 **An in-process provider is harder to adopt than a hosted one**, which is the opposite of the
-intuition. Compare `../clerk`, which adds _zero_ tables. Better Auth owns its storage, so:
+intuition. Compare `../clerk`, which adds _zero_ tables. Better Auth owns its storage, and the
+adapter package can absorb most but not all of that:
 
-- its four tables live in this app's Prisma schema next to Wasp's own
-- every model needs `modelName` set, or `user`/`session`/`account` collide with Wasp's tables
-  (and it must be the _Prisma client property_, not the `@@map` name — the adapter does a raw
-  `db[modelName]` lookup)
-- its routes need the JSON body parser removed, because `toNodeHandler` reads the raw stream.
-  Get this wrong and requests hang with no error.
+- absorbed: every model needs `modelName` set, or `user`/`session`/`account` collide with
+  Wasp's tables (and it must be the _Prisma client property_, not the `@@map` name — the
+  adapter does a raw `db[modelName]` lookup). The package sets these.
+- absorbed: its routes need the JSON body parser removed, because `toNodeHandler` reads the
+  raw stream. Get this wrong and requests hang with no error. The manifest's
+  `routes: { rawBody: true }` handles it.
+- not absorbable: its four tables live in this app's Prisma schema next to Wasp's own, pasted
+  from the package's README. A manifest cannot contribute Prisma models.
 
 That is worth knowing before betting on Better Auth: the interface is easiest for the provider
 Wasp cares least about and hardest for the one actually motivating the work.
@@ -46,7 +58,7 @@ Wasp cares least about and hardest for the one actually motivating the work.
 ## Run it
 
 ```sh
-printf 'JWT_SECRET=example-app-development-secret-0123456789abcdef\nBETTER_AUTH_SECRET=better-auth-example-secret-0123456789abcdef\n' > .env.server
+printf 'BETTER_AUTH_SECRET=better-auth-example-secret-0123456789abcdef\n' > .env.server
 wasp db migrate-dev
 wasp start
 ```

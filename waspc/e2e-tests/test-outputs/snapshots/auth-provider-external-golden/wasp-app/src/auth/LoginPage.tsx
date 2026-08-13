@@ -1,4 +1,4 @@
-import { SignIn } from "@clerk/clerk-react";
+import { SignIn } from "@wasp.sh/auth-clerk/client";
 
 /**
  * The Clerk login page, and the clearest illustration of where Wasp's uniform

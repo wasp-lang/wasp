@@ -1,5 +1,6 @@
 import { canIssueSessions as canProviderIssueSessions, type AuthProvider } from './types.js'
-import { clerkAuthProvider as clerkAuthProvider_ext } from 'virtual:wasp/user/auth/provider'
+import { createServerAdapter } from '@wasp.sh/auth-clerk/server'
+import { config, prisma } from '../../index.js'
 
 // PRIVATE API
 export {
@@ -8,6 +9,25 @@ export {
   type VerifiedSession,
   canIssueSessions,
 } from './types.js'
+
+/**
+ * The adapter package's server factory, called with everything it may know
+ * about the app. This runtime object is the adapter's *only* window into the
+ * app: adapters never import generated code and never read `process.env`
+ * themselves, which is what lets them version independently of any app.
+ */
+const serverAdapter = await Promise.resolve(
+  createServerAdapter(
+    {
+      db: prisma,
+      dbProvider: 'sqlite',
+      env: process.env,
+      serverUrl: config.serverUrl,
+      clientUrl: config.frontendUrl,
+    },
+    undefined,
+  ),
+)
 
 // PRIVATE API
 /**
@@ -18,7 +38,14 @@ export {
  * needed to authenticate against something other than Wasp's own auth.
  */
 export const authProvider: AuthProvider =
-  clerkAuthProvider_ext
+  serverAdapter.provider
+
+// PRIVATE API
+/**
+ * Node handler for the provider's own routes, if it brought any. The server
+ * mounts it at the basePath the manifest declared.
+ */
+export const authProviderRouteHandler = serverAdapter.routeHandler
 
 /**
  * The manifest in `main.wasp.ts` made compile-time claims about this provider

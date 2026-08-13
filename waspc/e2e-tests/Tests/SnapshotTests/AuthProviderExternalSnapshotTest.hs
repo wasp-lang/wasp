@@ -1,7 +1,8 @@
 module Tests.SnapshotTests.AuthProviderExternalSnapshotTest (authProviderExternalSnapshotTest) where
 
 import ShellCommands
-  ( copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+  ( copyContentsOfGitTrackedDirToSnapshotDir,
+    copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
     inSnapshotWaspProjectDir,
     waspCliCompile,
     waspCliInstall,
@@ -20,7 +21,10 @@ authProviderExternalSnapshotTest :: SnapshotTest
 authProviderExternalSnapshotTest =
   makeSnapshotTest
     "auth-provider-external"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/auth-providers/clerk|],
+    [ -- The app depends on the local adapter package via a relative file:
+      -- dependency, so the packages dir has to sit next to it.
+      copyContentsOfGitTrackedDirToSnapshotDir [reldir|examples/auth-providers/packages|] "packages",
+      copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/auth-providers/clerk|],
       inSnapshotWaspProjectDir
         [ waspCliInstall,
           waspCliCompile

@@ -1,7 +1,13 @@
 {{={= =}=}}
 import { {=# isCustomAuthProviderUsed =}canIssueSessions as canProviderIssueSessions, {=/ isCustomAuthProviderUsed =}type AuthProvider } from './types.js'
 {=# isCustomAuthProviderUsed =}
+{=# isPackageAuthProvider =}
+import { createServerAdapter } from '{= serverPackage =}'
+import { config, prisma } from '../../index.js'
+{=/ isPackageAuthProvider =}
+{=^ isPackageAuthProvider =}
 {=& authProvider.importStatement =}
+{=/ isPackageAuthProvider =}
 {=/ isCustomAuthProviderUsed =}
 {=^ isCustomAuthProviderUsed =}
 import { waspAuthProvider } from './wasp.js'
@@ -15,6 +21,27 @@ export {
   canIssueSessions,
 } from './types.js'
 
+{=# isPackageAuthProvider =}
+/**
+ * The adapter package's server factory, called with everything it may know
+ * about the app. This runtime object is the adapter's *only* window into the
+ * app: adapters never import generated code and never read `process.env`
+ * themselves, which is what lets them version independently of any app.
+ */
+const serverAdapter = await Promise.resolve(
+  createServerAdapter(
+    {
+      db: prisma,
+      dbProvider: '{= dbProvider =}',
+      env: process.env,
+      serverUrl: config.serverUrl,
+      clientUrl: config.frontendUrl,
+    },
+    {=& optionsJson =},
+  ),
+)
+
+{=/ isPackageAuthProvider =}
 // PRIVATE API
 /**
  * The auth provider this app runs on.
@@ -24,7 +51,16 @@ export {
  * needed to authenticate against something other than Wasp's own auth.
  */
 export const authProvider: AuthProvider =
-  {=# isCustomAuthProviderUsed =}{= authProvider.importIdentifier =}{=/ isCustomAuthProviderUsed =}{=^ isCustomAuthProviderUsed =}waspAuthProvider{=/ isCustomAuthProviderUsed =}
+  {=# isCustomAuthProviderUsed =}{=# isPackageAuthProvider =}serverAdapter.provider{=/ isPackageAuthProvider =}{=^ isPackageAuthProvider =}{= authProvider.importIdentifier =}{=/ isPackageAuthProvider =}{=/ isCustomAuthProviderUsed =}{=^ isCustomAuthProviderUsed =}waspAuthProvider{=/ isCustomAuthProviderUsed =}
+{=# isPackageAuthProvider =}
+
+// PRIVATE API
+/**
+ * Node handler for the provider's own routes, if it brought any. The server
+ * mounts it at the basePath the manifest declared.
+ */
+export const authProviderRouteHandler = serverAdapter.routeHandler
+{=/ isPackageAuthProvider =}
 {=# isCustomAuthProviderUsed =}
 
 /**

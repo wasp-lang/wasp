@@ -3,12 +3,12 @@
         "fromUser": {
             "dependencies": [
                 {
-                    "name": "@clerk/backend",
-                    "version": "2.19.0"
-                },
-                {
                     "name": "@clerk/clerk-react",
                     "version": "5.51.0"
+                },
+                {
+                    "name": "@wasp.sh/auth-clerk",
+                    "version": "file:../packages/auth-clerk"
                 },
                 {
                     "name": "react",
