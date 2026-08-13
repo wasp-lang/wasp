@@ -4,10 +4,7 @@ import { getFullCommandName } from "../../../../common/commander.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
-import {
-  getClientDeploymentDir,
-  getServerDeploymentDir,
-} from "../../../../common/waspProject.js";
+import { getServerDeploymentDir } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
   DeploymentInstructions,
@@ -16,7 +13,6 @@ import { getFlyAppUrl } from "../../flyAppUrl.js";
 import { createFlyDbCommand } from "../../index.js";
 import {
   clientTomlExistsInProject,
-  copyLocalClientTomlToProject,
   copyLocalServerTomlToProject,
   deleteLocalToml,
   doesLocalTomlContainLine,
@@ -28,7 +24,6 @@ import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
 const internalPortOptionRegex = /internal_port = \d+/g;
 const serverAppPort = 8080;
-const clientAppPort = 8043;
 
 export async function setup(
   baseName: string,
@@ -54,9 +49,16 @@ export async function setup(
   }
 
   if (clientTomlExistsInProject(tomlFilePaths)) {
-    waspSays(`${tomlFilePaths.clientTomlPath} exists. Skipping client setup.`);
-  } else {
-    await setupClient(deploymentInstructions);
+    waspSays(
+      `${tomlFilePaths.clientTomlPath} exists, from back when the client was a Fly app of its own.
+Your app now serves its own pages, so nothing deploys to that app anymore. You can destroy it and delete the file.`,
+    );
+  }
+
+  if (cmdOptions.clientSecret.length > 0) {
+    waspSays(
+      `Ignoring --client-secret: your app's client environment variables are part of its pages and assets, so they are set when the app's image is built, not when it runs.`,
+    );
   }
 
   waspSays(
@@ -138,7 +140,9 @@ Press any key to continue or Ctrl+C to cancel.`);
     // NOTE: Normally these would just be envars, but flyctl
     // doesn't provide a way to set envars that persist to fly.toml.
     `PORT=${serverAppPort}`,
-    `WASP_WEB_CLIENT_URL=${getFlyAppUrl(deploymentInstructions.clientFlyAppName)}`,
+    // One app serves both the app's pages and its API, so both of these are
+    // its own URL.
+    `WASP_WEB_CLIENT_URL=${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
     `WASP_SERVER_URL=${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
   ];
 
@@ -152,57 +156,4 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   console.log(""); // `flyctl secrets` does not produce it's own newline.
   waspSays("Server setup complete!");
-}
-
-async function setupClient(
-  deploymentInstructions: DeploymentInstructions<SetupCmdOptions>,
-) {
-  waspSays(
-    `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
-  );
-
-  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
-  deleteLocalToml();
-
-  const launchArgs = [
-    "--name",
-    deploymentInstructions.clientFlyAppName,
-    "--region",
-    deploymentInstructions.region,
-  ];
-
-  if (deploymentInstructions.cmdOptions.org) {
-    launchArgs.push("--org", deploymentInstructions.cmdOptions.org);
-  }
-
-  // This creates the fly.toml file, but does not attempt to deploy.
-  await $`flyctl launch --no-deploy ${launchArgs}`;
-
-  if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
-    await question(`\n⚠️  There was an issue setting up your client app.
-We tried modifying your client fly.toml to set ${chalk.bold(
-      `internal_port = ${clientAppPort}`,
-    )}, but couldn't find the option ${chalk.bold("internal_port")} in the fly.toml.
-
-This means your client app might not be accessible.
-
-Contact the Wasp Team at our Discord server if you need help with this: https://discord.gg/rzdnErX
-
-Press any key to continue or Ctrl+C to cancel.`);
-  } else {
-    // goStatic listens on port 8043 by default, but the default fly.toml
-    // assumes port 8080 (or 3000, depending on flyctl version).
-    replaceLineInLocalToml(
-      internalPortOptionRegex,
-      `internal_port = ${clientAppPort}`,
-    );
-  }
-
-  copyLocalClientTomlToProject(deploymentInstructions.tomlFilePaths);
-
-  if (deploymentInstructions.cmdOptions.clientSecret.length > 0) {
-    await $`flyctl secrets set ${deploymentInstructions.cmdOptions.clientSecret}`;
-  }
-
-  waspSays("Client setup complete!");
 }

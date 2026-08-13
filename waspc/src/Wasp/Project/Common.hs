@@ -18,6 +18,8 @@ module Wasp.Project.Common
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
+    publicDirInWaspProjectDir,
+    PublicDir,
     prismaSchemaFileInWaspProjectDir,
     tsConfigPaths,
     TsConfigPaths (..),
@@ -123,6 +125,13 @@ prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
 
 srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 srcDirInWaspProjectDir = [reldir|src|]
+
+data PublicDir
+
+-- | Vite copies everything in here into the app's build, unchanged. Projects
+-- don't have to have one.
+publicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir PublicDir)
+publicDirInWaspProjectDir = [reldir|public|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->

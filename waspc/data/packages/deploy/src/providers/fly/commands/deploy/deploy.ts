@@ -1,16 +1,12 @@
-import { $, cd, fs } from "zx";
+import { $, cd } from "zx";
 
-import { buildClient } from "../../../../common/clientApp.js";
 import { getFullCommandName } from "../../../../common/commander.js";
 import {
   displayWaspRocketImage,
   waspSays,
 } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
-import {
-  getClientDeploymentDir,
-  getServerDeploymentDir,
-} from "../../../../common/waspProject.js";
+import { getServerDeploymentDir } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
   DeploymentInstructions,
@@ -20,11 +16,8 @@ import { secretExists } from "../../flyCli.js";
 import { flySetupCommand } from "../../index.js";
 import {
   clientTomlExistsInProject,
-  copyLocalClientTomlToProject,
   copyLocalServerTomlToProject,
-  copyProjectClientTomlLocally,
   copyProjectServerTomlLocally,
-  getInferredBasenameFromClientToml,
   getInferredBasenameFromServerToml,
   getTomlFilePaths,
   serverTomlExistsInProject,
@@ -38,54 +31,42 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
 
-  // NOTE: Below, it would be nice if we could store the client, server, and DB names somewhere.
+  // NOTE: Below, it would be nice if we could store the app and DB names somewhere.
   // For now we just rely on the suffix naming convention and infer from toml files.
   if (!serverTomlExistsInProject(tomlFilePaths)) {
     waspSays(
       `${
         tomlFilePaths.serverTomlPath
-      } missing. Skipping server deploy. Perhaps you need to run "${getFullCommandName(
+      } missing. Skipping deploy. Perhaps you need to run "${getFullCommandName(
         flySetupCommand,
       )}" first?`,
     );
-  } else if (cmdOptions.skipServer) {
-    waspSays("Skipping server deploy due to CLI option.");
-  } else {
-    const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
-    const deploymentInstructions = createDeploymentInstructions({
-      baseName: inferredBaseName,
-      cmdOptions,
-      tomlFilePaths,
-    });
-    await deployServer(deploymentInstructions, cmdOptions);
+    return;
   }
 
-  if (!clientTomlExistsInProject(tomlFilePaths)) {
-    waspSays(
-      `${
-        tomlFilePaths.clientTomlPath
-      } missing. Skipping client deploy. Perhaps you need to run "${getFullCommandName(
-        flySetupCommand,
-      )}" first?`,
-    );
-  } else if (cmdOptions.skipClient) {
-    waspSays("Skipping client deploy due to CLI option.");
-  } else {
-    const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
-    const deploymentInstructions = createDeploymentInstructions({
-      baseName: inferredBaseName,
-      cmdOptions,
-      tomlFilePaths,
-    });
-    await deployClient(deploymentInstructions, cmdOptions);
+  if (cmdOptions.skipServer) {
+    waspSays("Skipping deploy due to CLI option.");
+    return;
+  }
+
+  const deploymentInstructions = createDeploymentInstructions({
+    baseName: getInferredBasenameFromServerToml(tomlFilePaths),
+    cmdOptions,
+    tomlFilePaths,
+  });
+
+  await deployApp(deploymentInstructions, cmdOptions);
+
+  if (clientTomlExistsInProject(tomlFilePaths)) {
+    sayClientAppIsNoLongerDeployed(deploymentInstructions);
   }
 }
 
-async function deployServer(
+async function deployApp(
   deploymentInstructions: DeploymentInstructions<DeployCmdOptions>,
   { buildLocally }: DeployCmdOptions,
 ) {
-  waspSays("Deploying your server now...");
+  waspSays("Deploying your app now...");
 
   cd(getServerDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectServerTomlLocally(deploymentInstructions.tomlFilePaths);
@@ -94,7 +75,7 @@ async function deployServer(
   const databaseUrlSet = await secretExists("DATABASE_URL");
   if (!databaseUrlSet) {
     throw new Error(
-      "Your server app does not have a DATABASE_URL secret set. Perhaps you need to create or attach your database?",
+      "Your app does not have a DATABASE_URL secret set. Perhaps you need to create or attach your database?",
     );
   }
 
@@ -106,42 +87,24 @@ async function deployServer(
   // TOOD: Consider how to best handle this situation across all operations.
   copyLocalServerTomlToProject(deploymentInstructions.tomlFilePaths);
 
-  waspSays("Server has been deployed!");
-}
-
-async function deployClient(
-  deploymentInstructions: DeploymentInstructions<DeployCmdOptions>,
-  { buildLocally }: DeployCmdOptions,
-) {
-  waspSays("Deploying your client now...");
-
-  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
-  copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
-
-  const serverUrl =
-    deploymentInstructions.cmdOptions.customServerUrl ??
-    getFlyAppUrl(deploymentInstructions.serverFlyAppName);
-
-  await buildClient(serverUrl, deploymentInstructions.cmdOptions);
-
-  // Creates the necessary Dockerfile for deploying static websites to Fly.io.
-  // Adds dummy .dockerignore to supress CLI question.
-  // Ref: https://fly.io/docs/languages-and-frameworks/static/
-  const dockerfileContents = `
-		FROM pierrezemb/gostatic
-		CMD [ "-fallback", "200.html" ]
-		COPY ./build/ /srv/http/
-	`;
-  fs.writeFileSync("Dockerfile", dockerfileContents);
-  fs.writeFileSync(".dockerignore", "");
-
-  const deployArgs = [buildLocally ? "--local-only" : "--remote-only"];
-  await $`flyctl deploy ${deployArgs}`;
-
-  copyLocalClientTomlToProject(deploymentInstructions.tomlFilePaths);
-
   displayWaspRocketImage();
   waspSays(
-    `Client has been deployed! Your Wasp app is accessible at: ${getFlyAppUrl(deploymentInstructions.clientFlyAppName)}`,
+    `Your app has been deployed! It is accessible at: ${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
+  );
+}
+
+/**
+ * Apps used to be deployed as two Fly apps, one serving the pages and one the
+ * API. One app now serves both, so projects set up before this still have a
+ * client app around, which nothing deploys to anymore.
+ */
+function sayClientAppIsNoLongerDeployed(
+  deploymentInstructions: DeploymentInstructions<DeployCmdOptions>,
+): void {
+  waspSays(
+    `Your app now serves its own pages, so its client app (${deploymentInstructions.clientFlyAppName}) is not deployed to anymore.
+Point your users at ${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}, and delete the client app when they are:
+  flyctl apps destroy ${deploymentInstructions.clientFlyAppName}
+  rm ${deploymentInstructions.tomlFilePaths.clientTomlPath}`,
   );
 }

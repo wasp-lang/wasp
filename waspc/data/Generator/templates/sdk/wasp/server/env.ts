@@ -194,10 +194,34 @@ export const env: z.infer<CompleteServerEnvSchema> = ensureEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,
+    // Your app's server serves your app's pages too, so both URLs are the same
+    // one unless a deployment says otherwise.
+    "{= clientUrlEnvVarName =}":
+      restEnv["{= clientUrlEnvVarName =}"] ?? restEnv["{= serverUrlEnvVarName =}"],
   },
   serverEnvSchema,
 );
 
+warnIfAppAndApiOriginsDiffer();
+
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`
+}
+
+/**
+ * One server serves both your app's pages and its API, so the two URLs
+ * normally have the same origin. When they don't, links Wasp builds from them
+ * (the ones in its emails, and the ones it redirects OAuth logins to) point
+ * somewhere else than the app, which is almost always a mistake.
+ */
+function warnIfAppAndApiOriginsDiffer(): void {
+  const appOrigin = new URL(env.{= clientUrlEnvVarName =}).origin;
+  const apiOrigin = new URL(env.{= serverUrlEnvVarName =}).origin;
+  if (appOrigin !== apiOrigin) {
+    console.warn(
+      `Your app (${appOrigin}) and its API (${apiOrigin}) are configured to be on ` +
+        'different origins, but one server serves both. Check ' +
+        '{= clientUrlEnvVarName =} and {= serverUrlEnvVarName =}.'
+    );
+  }
 }

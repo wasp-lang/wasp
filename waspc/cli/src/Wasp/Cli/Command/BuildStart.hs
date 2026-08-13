@@ -8,10 +8,10 @@ import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.BuildStart.App (buildApp, startApp)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
-import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
-import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
+import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -21,7 +21,6 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
-import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 
@@ -43,25 +42,18 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 
   config <- makeBuildStartConfig appSpec args waspProjectDir
 
-  buildAndStartServerAndClient config
+  buildAndStartApp config
 
-buildAndStartServerAndClient :: BuildStartConfig -> Command ()
-buildAndStartServerAndClient config = do
-  cliSendMessageC $ Msg.Start "Building client..."
-  runAndPrintJob "Building client failed." $
-    buildClient config
-  cliSendMessageC $ Msg.Success "Client built."
+buildAndStartApp :: BuildStartConfig -> Command ()
+buildAndStartApp config = do
+  cliSendMessageC $ Msg.Start "Building the app's Docker image..."
+  runAndPrintJob "Building the app failed." $
+    buildApp config
+  cliSendMessageC $ Msg.Success "App built."
 
-  cliSendMessageC $ Msg.Start "Building server..."
-  runAndPrintJob "Building server failed." $
-    buildServer config
-  cliSendMessageC $ Msg.Success "Server built."
-
-  cliSendMessageC $ Msg.Start "Starting client and server..."
+  cliSendMessageC $ Msg.Start $ "Starting the app on " <> Config.appUrl config <> "..."
   runAndPrintJob "Starting Wasp app failed." $
-    ExceptJob.race_
-      (startClient config)
-      (startServer config)
+    startApp config
   where
     runAndPrintJob :: String -> ExceptJob -> Command ()
     runAndPrintJob errorMessage job = do

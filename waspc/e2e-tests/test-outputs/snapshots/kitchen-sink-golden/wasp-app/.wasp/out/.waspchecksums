@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "cdfffd42f145d3d13fc29b0bd38f3b2997a69136cd773765a5bc5b9571d41a03"
+        "ec80874257cc9a02f1bd3df20698f0540e71dc1c6421585583da0d2d8bd3068f"
     ],
     [
         [
@@ -543,7 +543,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "33ff04a2650990c96bd73dd994bfa52fd4f4e62c2389fc72d5f7bf5d9a19851d"
+        "d4959d20f73bc9b5daeacf792ea65b99e8e4c67c851a2f8d679c0c812b8c0465"
     ],
     [
         [
@@ -1138,7 +1138,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "146ab1139924f9ec9958a21c81bd7e4245d99f691deb0cc026abdf6cff358ae7"
+        "1c0fb813e635df0818e806d99faed2145225b9db841957d724d4672bc484a30a"
     ],
     [
         [
@@ -1390,28 +1390,28 @@
             "file",
             "server/.gitignore"
         ],
-        "2c3d81dd719ff91d51609a02d03ba62ad456e2c50763b7b4c761395cb583f890"
+        "108ea6dc07b222a2d538f20d443697e00d10f58f366543d23bf27ab0029162e2"
     ],
     [
         [
             "file",
             "server/README.md"
         ],
-        "33e0f90140e4db138df7cdecf5ac1679b5ab50030f7f7f6600e98c97857af5a3"
+        "5068992d1bc457db847de6be767b760551dacf2d71d1349ae332932e63ea1833"
+    ],
+    [
+        [
+            "file",
+            "server/dbSeed.vite.config.js"
+        ],
+        "43c21d66fd6c67b1594ec3ba22637875bba0301b915464b7192cf5aadaf2c274"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "a3815d3c2e37c3dea0d9d59a1744e6ca298e2a9c1fa703637c1a91d8408ec915"
-    ],
-    [
-        [
-            "file",
-            "server/rollup.config.js"
-        ],
-        "5ff77153dc740eb6a3f5b7951002add2f931b949db59c769277fc27c3d49bd40"
+        "ea265b74f15c39788ea83e35c12ad950d75881311fc2ed3cd49f968546a894ac"
     ],
     [
         [
@@ -2179,16 +2179,9 @@
     [
         [
             "file",
-            "server/src/server.ts"
-        ],
-        "2005033effa5d566e8f44302300ac0ce7ca30dc02c2cc6c87ece577625df38b0"
-    ],
-    [
-        [
-            "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "650dd4d96bef6882c2f0a8a0b0d72cad267d5091d8aabb1c22ef47b23a27341b"
     ],
     [
         [

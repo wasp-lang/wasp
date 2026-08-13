@@ -8,6 +8,7 @@ wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/installedNpmDepsLog.json
 wasp-app/.wasp/out/package-lock.json
 wasp-app/.wasp/out/package.json
+wasp-app/.wasp/out/public/favicon.ico
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/app/components/DefaultRootErrorBoundary.tsx
@@ -432,7 +433,6 @@ wasp-app/.wasp/out/server/.gitignore
 wasp-app/.wasp/out/server/.npmrc
 wasp-app/.wasp/out/server/README.md
 wasp-app/.wasp/out/server/package.json
-wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/app.js
 wasp-app/.wasp/out/server/src/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/server/src/middleware/index.ts
@@ -444,7 +444,6 @@ wasp-app/.wasp/out/server/src/nitro/serverEntry.ts
 wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
-wasp-app/.wasp/out/server/src/server.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/src/Main.css
 wasp-app/.wasp/out/src/MainPage.tsx
@@ -453,6 +452,7 @@ wasp-app/.wasp/out/src/vite-env.d.ts
 wasp-app/.wasp/out/tsconfig.src.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
+wasp-app/.wasp/out/vite.config.ts
 wasp-app/.wasp/out/web-app/build/200.html
 wasp-app/.wasp/out/web-app/build/assets/MainPage.css
 wasp-app/.wasp/out/web-app/build/assets/MainPage.js

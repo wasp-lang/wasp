@@ -16,7 +16,6 @@ import {
 } from "../../railwayProject/index.js";
 import { RailwayProject } from "../../railwayProject/RailwayProject.js";
 
-import { deployClient } from "./client.js";
 import { DeployCmdOptions } from "./DeployCmdOptions.js";
 import { deployServer } from "./server.js";
 
@@ -41,16 +40,19 @@ export async function deploy(
   await ensureWaspProjectIsBuilt(options);
 
   if (options.skipServer) {
-    waspSays("Skipping server deploy due to CLI option.");
-  } else {
-    await deployServer(deploymentInstructions);
+    waspSays("Skipping deploy due to CLI option.");
+    return;
   }
 
-  if (options.skipClient) {
-    waspSays("Skipping client deploy due to CLI option.");
-  } else {
-    await deployClient(deploymentInstructions);
-  }
+  await deployServer(deploymentInstructions);
+
+  // Apps used to be deployed as two services, one serving the pages and one the
+  // API. One service now serves both, so projects set up before this still have
+  // a client service around, which nothing deploys to anymore.
+  waspSays(
+    `Your app now serves its own pages, so the "${deploymentInstructions.clientServiceName}" service is not deployed to anymore.
+Point your users at your app's own URL, and remove that service from your Railway project when they are.`,
+  );
 }
 
 async function ensureRailwayProjectForDirectory({

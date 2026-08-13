@@ -20,8 +20,8 @@
     "rootDir": ".",
     // Enable source map for debugging
     "sourceMap": true,
-    // We are using rollup and extensionless imports, our module and module
-    // resolution reflect that.
+    // Our code is bundled (by Vite) and uses extensionless imports, our module
+    // and module resolution reflect that.
     "module": "preserve",
     "moduleResolution": "bundler",
     // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept

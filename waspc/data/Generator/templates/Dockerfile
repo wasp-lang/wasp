@@ -6,12 +6,10 @@
 FROM node:{= nodeVersion =}-alpine3.23 AS node
 
 
-# We split Dockerfile into base, server-builder and server-production.
-# This way we have separate situations -> in server-builder we build all
-# we need to run the server, and then in server-production we start fresh
-# and just copy what we need from server-builder, avoiding intermediate
-# artifacts and any settings / pollution we don't need in production
-# but only for building.
+# We split the Dockerfile into base, builder and production. This way the
+# builder has everything needed to build the app, and production starts fresh
+# and only copies what it takes to run it, leaving the intermediate artifacts
+# and the build-only tooling behind.
 
 
 FROM node AS base
@@ -22,22 +20,25 @@ RUN apk --no-cache -U upgrade # To ensure any potential security patches are app
 RUN apk add --no-cache openssl
 
 
-# Todo: The 'server-builder' image stays on disk under <none>:<none> and is
+# Todo: The 'builder' image stays on disk under <none>:<none> and is
 # relatively large (~900 MB), should we remove it? Or is it useful for future
 # builds?
-FROM base AS server-builder
+FROM base AS builder
 # Building the Docker image on Apple's Silicon Mac fails without python3 (the build
 # throws `node-gyp` errors when it tries to compile native deps. Installing
 # `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
-# Since the framwork code in /.wasp/out/server imports the user code in /src
-# using relative imports, we must mirror the same directory structure in the
-# Docker image.
+# The app is built exactly like it is in development: with Vite, from the
+# project's root directory. So we mirror that directory structure here, with
+# the user's own files (their source, their Vite config, ...) next to the ones
+# Wasp generated for them.
 COPY src ./src
+COPY public ./public
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig*.json .
+COPY vite.config.* .
 COPY server .wasp/out/server
 COPY sdk .wasp/out/sdk
 COPY types .wasp/out/types
@@ -48,30 +49,31 @@ RUN npm install && cd .wasp/out/server && npm install
 COPY db/schema.prisma .wasp/out/db/
 RUN cd .wasp/out/server && npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
 {=/ usingPrisma =}
-# Building the server should come after Prisma generation.
-RUN cd .wasp/out/server && npm run bundle
-
-# Depending on `npm`'s dependency resolution, this folder may or may not exist.
-# We ensure they are created so that the COPY instruction later does not fail.
-RUN mkdir -p ./.wasp/out/server/node_modules
+# Environment variables prefixed with `REACT_APP_` end up inside the app's
+# pages and assets, so the ones the app needs have to be here, where they are
+# built. This build argument takes them as shell assignments, one per line
+# (`REACT_APP_EXAMPLE='value'`).
+ARG {= clientEnvBuildArgName =}=
+RUN set -a && eval "${= clientEnvBuildArgName =}" && set +a && npx vite build
 
 
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
-FROM base AS server-production
+FROM base AS production
 # In case they want to use python3 in their app.
 RUN apk add --no-cache python3
 ENV NODE_ENV=production
 WORKDIR /app
-# Copying the top level 'node_modules' because it contains the Prisma packages
-# necessary for migrating the database.
-COPY --from=server-builder /app/node_modules ./node_modules
-# Copying 'server/node_modules' because we require dotenv package to
-# load environment variables
-# TODO: replace dotenv with native Node.js environment variable loading
-COPY --from=server-builder /app/.wasp/out/server/node_modules .wasp/out/server/node_modules
-COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
-COPY --from=server-builder /app/.wasp/out/server/package*.json .wasp/out/server/
+# The built app: one server that serves both the app's pages and its API. It
+# carries everything it needs (the Prisma engine included) with it.
+COPY --from=builder /app/.wasp/out/web-app .wasp/out/web-app
+# The generated server's package, which is where the app is started from (see
+# the entrypoint below), and where its migrations are applied from.
+COPY --from=builder /app/.wasp/out/server/package.json .wasp/out/server/
+# The top level 'node_modules', because it contains the Prisma CLI the app
+# migrates the database with when it starts.
+# TODO: Only the Prisma CLI is needed here, not the whole dependency tree.
+COPY --from=builder /app/node_modules ./node_modules
 COPY db/ .wasp/out/db/
 EXPOSE ${PORT}
 WORKDIR /app/.wasp/out/server

@@ -42,12 +42,6 @@ export function getServerBuildArtefactsDir(
   return getServerDeploymentDir(waspProjectDir);
 }
 
-export function getClientBuildArtefactsDir(
-  waspProjectDir: WaspProjectDir,
-): string {
-  return path.join(getClientDeploymentDir(waspProjectDir), "build");
-}
-
 function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {
   return path.join(waspProjectDir, ".wasp", "out");
 }
@@ -58,11 +52,7 @@ export function getServerDeploymentDir(waspProjectDir: WaspProjectDir): string {
 }
 
 export function getClientDeploymentDir(waspProjectDir: WaspProjectDir): string {
-  // The client is deployed from the `.out/web-app` dir.
+  // Where the client used to be deployed from, back when it was an app of its
+  // own. Only `wasp deploy fly cmd --context client` still reaches for it.
   return path.join(getWaspBuildDir(waspProjectDir), "web-app");
-}
-
-export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
-  // The client is built from the project root dir.
-  return path.join(waspProjectDir, ".");
 }

@@ -930,8 +930,8 @@ wasp-app/.wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts
 wasp-app/.wasp/out/server/.env
 wasp-app/.wasp/out/server/.gitignore
 wasp-app/.wasp/out/server/README.md
+wasp-app/.wasp/out/server/dbSeed.vite.config.js
 wasp-app/.wasp/out/server/package.json
-wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/actions/boolToStringAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToStringNoAuth.ts
 wasp-app/.wasp/out/server/src/actions/boolToVoidAuth.ts
@@ -1041,7 +1041,6 @@ wasp-app/.wasp/out/server/src/routes/operations/unspecifiedToNumber.js
 wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
-wasp-app/.wasp/out/server/src/server.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/types/spec/register.ts

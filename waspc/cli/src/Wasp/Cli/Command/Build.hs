@@ -13,7 +13,8 @@ import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import Data.Either (fromLeft)
-import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromAbsDir, fromRelDir, (</>))
+import System.Directory (createDirectoryIfMissing)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -34,11 +35,13 @@ import Wasp.Project.Common
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
+    publicDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     srcTsConfig,
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
+import Wasp.Project.ExternalConfig.ViteConfig (findViteConfigFileInWaspProjectDir)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -115,12 +118,18 @@ build = withProjectLock $ do
           (waspProjectDir </> packageLockJsonInWaspProjectDir)
           packageLockJsonInBuildDir
 
-      -- We need the main tsconfig.json file since the built server's TS config
-      -- extends from it.
+      -- We need the main tsconfig.json file since the built app's type check
+      -- runs against it.
       liftIO $
         copyFile
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
+
+      -- The app is built with Vite, from the project's root directory, so the
+      -- Docker build needs the two things that build reads from there: the
+      -- user's Vite config, and their static assets.
+      ExceptT $ copyViteConfigFile waspProjectDir buildDir
+      liftIO $ copyPublicDir waspProjectDir buildDir
 
       -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
       -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
@@ -140,6 +149,26 @@ build = withProjectLock $ do
       --   - Npm has become more strict about this over time and will possibly
       --   upgrade the warning into an error in future versions.
       ExceptT $ updateJsonFile (key "packages" . key "" %~ removeWaspSpecFromDevDependencies) packageLockJsonInBuildDir
+
+    copyViteConfigFile waspProjectDir buildDir =
+      findViteConfigFileInWaspProjectDir waspProjectDir >>= \case
+        Nothing ->
+          -- The compilation before this would have already failed without one.
+          return $ Left "Couldn't find the project's Vite config file."
+        Just viteConfigFile ->
+          Right
+            <$> copyFile
+              (waspProjectDir </> viteConfigFile)
+              (buildDir </> castRel viteConfigFile)
+
+    -- Projects don't have to have a public directory, but the Dockerfile
+    -- copies one unconditionally, so we make sure there always is one.
+    copyPublicDir waspProjectDir buildDir = do
+      let publicDir = waspProjectDir </> publicDirInWaspProjectDir
+      let publicDirInBuildDir = buildDir </> castRel publicDirInWaspProjectDir
+      doesDirectoryExist publicDir >>= \case
+        True -> copyDirectory publicDir publicDirInBuildDir
+        False -> createDirectoryIfMissing True $ fromAbsDir publicDirInBuildDir
 
     removeWaspSpecFromDevDependencies :: Value -> Value
     removeWaspSpecFromDevDependencies original =
