@@ -243,7 +243,8 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec
+      genFileCopy [relfile|server.ts|],
+      genStartTs spec
     ]
     <++> genRoutesDir spec
     <++> genViewsDir spec
@@ -256,17 +257,20 @@ genSrcDir spec =
   where
     genFileCopy = return . C.mkSrcTmplFd
 
-genServerJs :: AppSpec -> Generator FileDraft
-genServerJs spec =
+genStartTs :: AppSpec -> Generator FileDraft
+genStartTs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/server.ts|])
-      (C.asServerFile [relfile|src/server.ts|])
+      (C.asTmplFile [relfile|src/start.ts|])
+      (C.asServerFile [relfile|src/start.ts|])
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|],
+              -- Without entities, the SDK's Prisma client is `null`, so we
+              -- can't disconnect from it.
+              "areThereAnyEntitiesDefined" .= AS.Util.hasEntities spec
             ]
       )
   where

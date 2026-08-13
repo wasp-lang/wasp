@@ -35,6 +35,7 @@ enum PgBossStatus {
   Unstarted = 'Unstarted',
   Starting = 'Starting',
   Started = 'Started',
+  Stopped = 'Stopped',
   Error = 'Error',
 }
 
@@ -73,4 +74,48 @@ export async function startPgBoss(): Promise<void> {
 
   console.log('pg-boss started!')
   pgBossStatus = PgBossStatus.Started
+}
+
+// PRIVATE API
+/**
+ * Stops pg-boss's job monitoring and destroys its database connections.
+ *
+ * If pg-boss is still starting, we first wait for it to finish starting, so we
+ * never leave a half-started instance behind.
+ *
+ * A stopped pg-boss instance can't be started again, so this should only be
+ * called when shutting the server down.
+ */
+export async function stopPgBoss(): Promise<void> {
+  // There is nothing to stop if pg-boss was never started, if it already
+  // stopped, or if it failed to start.
+  if (
+    pgBossStatus !== PgBossStatus.Starting &&
+    pgBossStatus !== PgBossStatus.Started
+  ) {
+    return
+  }
+
+  try {
+    await pgBossStarted
+  } catch {
+    // pg-boss never finished starting, so there is nothing to stop.
+    return
+  }
+  pgBossStatus = PgBossStatus.Stopped
+
+  console.log('Stopping pg-boss...')
+
+  // `boss.stop()` resolves before pg-boss is done shutting down, the "stopped"
+  // event is the only signal that it really finished.
+  // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#stopoptions
+  const pgBossStopped = new Promise<void>((resolve) => {
+    boss.once('stopped', () => resolve())
+  })
+  // `destroy: true` also closes pg-boss's connection pool, without it the
+  // database connections stay open.
+  await boss.stop({ graceful: false, destroy: true })
+  await pgBossStopped
+
+  console.log('pg-boss stopped!')
 }

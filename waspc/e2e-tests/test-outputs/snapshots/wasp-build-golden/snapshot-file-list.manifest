@@ -427,6 +427,7 @@ wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/start.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/src/Main.css
 wasp-app/.wasp/out/src/MainPage.tsx
