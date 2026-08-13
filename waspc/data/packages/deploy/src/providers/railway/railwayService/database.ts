@@ -1,6 +1,6 @@
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
-import { createCommandWithCwd } from "../../../common/zx.js";
+import { createCommandWithCwd, runJsonCommand } from "../../../common/zx.js";
 import { DbServiceName, RailwayCliExe } from "../brandedTypes.js";
 import { getRailwayEnvVarValueReference } from "../env.js";
 import {
@@ -90,7 +90,8 @@ async function addDatabaseService(
     `${name}=${value}`,
   ]);
 
-  const result = await railwayCli(
+  return runJsonCommand(
+    railwayCli,
     [
       "add",
       ...["--service", dbServiceName],
@@ -98,9 +99,8 @@ async function addDatabaseService(
       ...variableArgs,
       "--json",
     ],
-    { verbose: false },
+    RailwayCliServiceSchema,
   );
-  return RailwayCliServiceSchema.parse(result.json());
 }
 
 async function addDatabaseVolume(
@@ -173,10 +173,11 @@ async function hasDatabaseVolume(
     options.waspProjectDir,
   );
 
-  const result = await railwayCli(["service", "list", "--json"], {
-    verbose: false,
-  });
-  const services = RailwayCliServiceListSchema.parse(result.json());
+  const services = await runJsonCommand(
+    railwayCli,
+    ["service", "list", "--json"],
+    RailwayCliServiceListSchema,
+  );
   return services.some(
     (service) =>
       service.id === dbService.id &&
