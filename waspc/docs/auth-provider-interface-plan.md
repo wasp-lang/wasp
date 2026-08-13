@@ -245,6 +245,36 @@ change to an exported signature and should be called out in release notes.
 
 ---
 
+## 5b. Four refinements from the judging round
+
+**1. Capability detection on the client should be *module resolution*, not types.** The
+generated barrel does `export * from '<selected provider client module>'`. Then "does this
+provider have `LoginForm`?" is answered by `tsc` at the exact import site, with zero generics
+and zero optional members. This is strictly better than a capabilities manifest for the client
+surface, and it is a move only a compiler-backed framework can make.
+
+**2. Capabilities must be an open set, not a closed record.** If `AuthCapabilities` is a fixed
+record of booleans mirrored into a Haskell record with derived `FromJSON`, then adding a sixth
+capability breaks decoding of every manifest emitted by an adapter built against an older
+package — and a third party can never introduce one at all. Model it as a list of strings with
+unknown entries ignored.
+
+**3. The subject must stay opaque — which PR 1 gets right, and it matters more than it looks.**
+Wasp's sessions are keyed on `Auth.id`, not on the developer's `User.id`. A port designed around
+`issueSession(userId)` forces the wasp-auth adapter to do the `Auth → User` join itself
+(violating "the provider never touches the DB") or forces core into an extra lookup per request.
+`VerifiedSession.subjectId` is deliberately opaque and core resolves it, which is what a
+session-to-`Auth` model actually wants. This mismatch would not have bitten any hosted provider
+— only the one adapter the whole migration is built around.
+
+**4. The `claims` channel is the weakest link and needs specifying before PR 6.** JIT
+provisioning is only as good as the claims that feed `userSignupFields`. Concretely: **Clerk's
+default session claims contain no email**, so if the developer's `User.email` is non-nullable,
+the first request from a new user throws a Prisma validation error and that account is
+permanently 401'd. Make `claims` a typed, documented contract; state per-adapter which fields
+are populated; and decide the drift story (re-sync on every login, à la
+`provisionUserOnEveryLogin`) rather than leaving it as a suggestion.
+
 ## 6. Open questions the panel split on
 
 **Do `identities` and `getEmail` survive at all?** One designer argued they should be deleted
