@@ -7,8 +7,12 @@ export interface CommonCmdOptions {
   org?: string;
 }
 
+/**
+ * All database CLI options are optional for users, for fields we require we provide defaults.
+ */
 export interface DbOptions {
   dbVmSize: string;
+  // These `dbVm*` options override the CPU and memory values set by `dbVmSize`.
   dbVmMemory?: string;
   dbVmCpus?: string;
   dbVmCpuKind?: string;
