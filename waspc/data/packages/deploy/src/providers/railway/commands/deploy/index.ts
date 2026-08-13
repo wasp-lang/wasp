@@ -24,17 +24,18 @@ export async function deploy(
   projectName: RailwayProjectName,
   options: DeployCmdOptions,
 ): Promise<void> {
-  const deploymentInstructions = createDeploymentInstructions(
-    projectName,
-    options,
-  );
-
-  await ensureRailwayProjectForDirectory({
+  const project = await ensureRailwayProjectForDirectory({
     projectName,
     waspProjectDir: options.waspProjectDir,
     existingProjectId: options.existingProjectId,
     railwayExe: options.railwayExe,
   });
+
+  const deploymentInstructions = createDeploymentInstructions(
+    projectName,
+    options,
+    project,
+  );
 
   waspSays("Deploying your Wasp app to Railway!");
 

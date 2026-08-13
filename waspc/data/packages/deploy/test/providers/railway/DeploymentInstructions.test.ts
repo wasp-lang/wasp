@@ -22,6 +22,6 @@ describe("createDeploymentInstructions", () => {
     );
     expect(result.clientServiceName).toBe(`${baseName}-client`);
     expect(result.serverServiceName).toBe(`${baseName}-server`);
-    expect(result.dbServiceName).toBe("Postgres");
+    expect(result.dbServiceName).toBe(`${baseName}-db`);
   });
 });

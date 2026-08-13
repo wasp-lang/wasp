@@ -6,10 +6,12 @@ import {
   RailwayProjectName,
   ServerServiceName,
 } from "./brandedTypes.js";
+import type { RailwayProject } from "./railwayProject/RailwayProject.js";
 import {
   createRailwayClientServiceName,
   createRailwayDbServiceName,
   createRailwayServerServiceName,
+  getDbServiceNameWithFallback,
 } from "./railwayService/nameGenerator.js";
 
 export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
@@ -21,18 +23,26 @@ export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
     dbServiceName: DbServiceName;
   }>;
 
+/**
+ * Creates deployment instructions for a Railway project.
+ * If a Railway project is provided, it uses fallback logic to support legacy "Postgres" database naming.
+ * Otherwise, it uses the new <project-name>-db naming pattern.
+ */
 export function createDeploymentInstructions<
   CmdOptions extends CommonCmdOptions,
 >(
   projectName: RailwayProjectName,
   cmdOptions: CmdOptions,
+  project?: RailwayProject,
 ): DeploymentInstructions<CmdOptions> {
   return Object.freeze({
     projectName,
     cmdOptions,
     clientServiceName: createRailwayClientServiceName(projectName),
     serverServiceName: createRailwayServerServiceName(projectName),
-    dbServiceName: createRailwayDbServiceName(),
+    dbServiceName: project
+      ? getDbServiceNameWithFallback(projectName, project)
+      : createRailwayDbServiceName(projectName),
   });
 }
 

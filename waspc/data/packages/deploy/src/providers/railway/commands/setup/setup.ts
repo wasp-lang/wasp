@@ -39,11 +39,6 @@ export async function setup(
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Railway!");
 
-  const deploymentInstructions = createDeploymentInstructions(
-    projectName,
-    options,
-  );
-
   const project = await setupRailwayProjectForDirectory({
     projectName,
     existingProjectId: options.existingProjectId,
@@ -51,6 +46,12 @@ export async function setup(
     railwayExe: options.railwayExe,
     workspace: options.workspace,
   });
+
+  const deploymentInstructions = createDeploymentInstructions(
+    projectName,
+    options,
+    project,
+  );
 
   await ensureWaspProjectIsBuilt(options);
 
@@ -156,7 +157,7 @@ async function setupDb({
     ]);
   } else {
     // Use the default Railway Postgres template.
-    await railwayCli(["add", "-d", "postgres"]);
+    await railwayCli(["add", "-d", "postgres", "--service", dbServiceName]);
   }
 
   // The database service deploys asynchronously and `railway add` doesn't wait
