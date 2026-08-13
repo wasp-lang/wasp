@@ -35,6 +35,9 @@ genServerAuth spec =
           genHooks auth,
           genFileCopyInServerAuth [relfile|password.ts|],
           genFileCopyInServerAuth [relfile|jwt.ts|],
+          genFileCopyInServerAuth [relfile|provider/types.ts|],
+          genFileCopyInServerAuth [relfile|provider/wasp.ts|],
+          genFileCopyInServerAuth [relfile|provider/index.ts|],
           genSessionTs auth,
           genLuciaTs auth,
           genUtils auth
