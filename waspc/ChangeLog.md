@@ -6,6 +6,7 @@
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
+- `AuthIdentity` now has a `@@unique([authId, providerName])` constraint, so an account can have at most one identity per auth provider. ([#4662](https://github.com/wasp-lang/wasp/pull/4662))
 
 ### 🎉 New Features
 

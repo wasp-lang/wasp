@@ -18,14 +18,14 @@
             "dir",
             "db/migrations/"
         ],
-        "2dc548537e754f932c13d246ee84e7a4694b27687e4f0c1446a9797428fe1500"
+        "707a2fd38edb349ed8c006255738b592857347dbe5c1a7f710fc6a68a7bf9cef"
     ],
     [
         [
             "file",
             "db/schema.prisma"
         ],
-        "0c62bb376ae204c687219387c06a25a9aef4bed05e7592526dbe1542bae59643"
+        "a25a90954e6a4f78c63d047e24a6ab967f18b4216782ebabff042b10c4bef3b1"
     ],
     [
         [

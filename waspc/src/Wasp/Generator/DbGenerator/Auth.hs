@@ -109,6 +109,7 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
 
           @@id([providerName, providerUserId])
+          @@unique([authId, providerName])
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType

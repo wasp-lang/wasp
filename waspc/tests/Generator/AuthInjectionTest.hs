@@ -144,6 +144,7 @@ spec_GeneratorAuthInjectionTest = do
           auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
 
           @@id([providerName, providerUserId])
+          @@unique([authId, providerName])
         |]
 
     sessionEntity =
