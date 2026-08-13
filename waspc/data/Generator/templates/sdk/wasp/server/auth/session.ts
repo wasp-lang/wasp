@@ -4,8 +4,9 @@ import { Request as ExpressRequest } from "express";
 import { type AuthUserData } from '../../auth/user.js';
 
 import { authProvider, canIssueSessions } from "./provider/index.js";
+import { type VerifiedSession } from "./provider/types.js";
 
-import { prisma } from '../index.js';
+import { config, prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
 
 /**
@@ -35,14 +36,43 @@ export async function createSession(authId: string): Promise<{ id: string }> {
 
 // PRIVATE API
 export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<SessionAndUser | null> {
-  const verified = await authProvider.verifyRequest(req);
-  return verified === null ? null : toSessionAndUser(verified.sessionId, verified.subjectId);
+  const verified = await authProvider.authenticate(toWebRequest(req));
+  return verified === null ? null : toSessionAndUser(verified);
 }
 
 // PRIVATE API
+// Authenticates a bare credential with no surrounding request -- websockets hand
+// us a token out of `socket.handshake.auth` rather than an HTTP request. The
+// synthesized request carries only the `Authorization` header, which is why the
+// provider contract requires authenticating from headers alone.
 export async function getSessionAndUserFromSessionId(sessionId: string): Promise<SessionAndUser | null> {
-  const verified = await authProvider.verifyCredential(sessionId);
-  return verified === null ? null : toSessionAndUser(verified.sessionId, verified.subjectId);
+  const request = new Request(config.serverUrl, {
+    headers: { authorization: `Bearer ${sessionId}` },
+  });
+  const verified = await authProvider.authenticate(request);
+  return verified === null ? null : toSessionAndUser(verified);
+}
+
+/**
+ * Providers speak standard web `Request`, not Express -- an external provider's
+ * SDK (Clerk's, Better Auth's) natively consumes one, and it keeps the contract
+ * free of Express. This is the single place an Express request is converted.
+ */
+function toWebRequest(req: ExpressRequest): Request {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (typeof value === 'string') {
+      headers.set(key, value);
+    } else if (Array.isArray(value)) {
+      headers.set(key, value.join(', '));
+    }
+  }
+
+  const host = req.get('host') ?? 'localhost';
+  return new Request(`${req.protocol}://${host}${req.originalUrl}`, {
+    method: req.method,
+    headers,
+  });
 }
 
 /**
@@ -55,9 +85,9 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
  * keeps this to a single query and means the provider only ever has to tell us
  * which auth subject it verified.
  */
-async function toSessionAndUser(sessionId: string, subjectId: string): Promise<SessionAndUser | null> {
+async function toSessionAndUser({ sessionId, subjectId{=# isCustomAuthProviderUsed =}, claims{=/ isCustomAuthProviderUsed =} }: VerifiedSession): Promise<SessionAndUser | null> {
   {=# isCustomAuthProviderUsed =}
-  const authId = await resolveExternalSubject(subjectId);
+  const authId = await resolveExternalSubject(subjectId, claims);
   if (authId === null) {
     return null;
   }
@@ -101,7 +131,10 @@ async function toSessionAndUser(sessionId: string, subjectId: string): Promise<S
  * find-then-create: two requests can arrive for the same brand-new subject at the
  * same time, and only the unique constraint can settle that race.
  */
-async function resolveExternalSubject(subjectId: string): Promise<string | null> {
+async function resolveExternalSubject(
+  subjectId: string,
+  claims: VerifiedSession['claims'],
+): Promise<string | null> {
   const providerName = authProvider.id;
 
   const existing = await prisma.{= authIdentityEntityLower =}.findUnique({
@@ -127,7 +160,9 @@ async function resolveExternalSubject(subjectId: string): Promise<string | null>
               create: {
                 providerName: providerName,
                 providerUserId: subjectId,
-                providerData: '{}',
+                // The provider-verified profile data (email, name, ...) as of
+                // the moment this subject was first seen.
+                providerData: JSON.stringify(claims ?? {}),
               },
             },
           },

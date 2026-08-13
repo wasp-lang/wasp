@@ -1,5 +1,3 @@
-import { fromNodeHeaders } from "better-auth/node";
-import type { Request as ExpressRequest } from "express";
 import type {
   AuthProvider,
   VerifiedSession,
@@ -10,7 +8,7 @@ import { auth } from "./betterAuth";
 /**
  * Better Auth, expressed as a Wasp `AuthProvider`.
  *
- * The whole adapter is three methods, and only the first one does real work.
+ * The whole adapter is two methods, and only the first one does real work.
  * Everything Wasp builds on top of it -- `context.user`, `authRequired` pages,
  * `auth: true` operations, `useAuth()`, websocket auth -- comes for free.
  *
@@ -27,33 +25,27 @@ export const betterAuthProvider: AuthProvider = {
    */
   id: "better-auth",
 
-  async verifyRequest(req: ExpressRequest): Promise<VerifiedSession | null> {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
-
-    if (!session) {
-      return null;
-    }
-
-    return { sessionId: session.session.id, subjectId: session.user.id };
-  },
-
   /**
-   * Websockets hand Wasp a bare token rather than a request, so the adapter has
-   * to be able to verify one out of context. Better Auth reads the bearer token
-   * from an `Authorization` header, so we synthesise the header it expects.
+   * Wasp hands every adapter a standard web `Request` -- built from the HTTP
+   * request, or synthesized with just an `Authorization` header for websocket
+   * auth. Better Auth consumes its headers directly either way.
    */
-  async verifyCredential(credential: string): Promise<VerifiedSession | null> {
-    const session = await auth.api.getSession({
-      headers: new Headers({ authorization: `Bearer ${credential}` }),
-    });
+  async authenticate(request: Request): Promise<VerifiedSession | null> {
+    const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
       return null;
     }
 
-    return { sessionId: session.session.id, subjectId: session.user.id };
+    return {
+      sessionId: session.session.id,
+      subjectId: session.user.id,
+      // Verified profile data Wasp records when it provisions the local user.
+      claims: {
+        email: session.user.email,
+        name: session.user.name,
+      },
+    };
   },
 
   async revokeSession(sessionId: string): Promise<void> {

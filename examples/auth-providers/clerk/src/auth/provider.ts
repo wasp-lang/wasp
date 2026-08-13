@@ -1,5 +1,4 @@
 import { createClerkClient } from "@clerk/backend";
-import type { Request as ExpressRequest } from "express";
 import type {
   AuthProvider,
   VerifiedSession,
@@ -32,36 +31,18 @@ export const clerkAuthProvider: AuthProvider = {
    */
   id: "clerk",
 
-  async verifyRequest(req: ExpressRequest): Promise<VerifiedSession | null> {
-    // Clerk reads either its `__session` cookie or an `Authorization: Bearer`
-    // header transparently, so the same code serves web and native clients.
-    //
-    // With `jwtKey` set this is local RS256 verification with no network call;
-    // without it, Clerk fetches (and caches) the JWKS.
-    const requestState = await clerk.authenticateRequest(toWebRequest(req), {
-      jwtKey: process.env.CLERK_JWT_KEY,
-    });
-
-    if (!requestState.isAuthenticated) {
-      return null;
-    }
-
-    const { userId, sessionId } = requestState.toAuth();
-    if (!userId || !sessionId) {
-      return null;
-    }
-
-    return { sessionId, subjectId: userId };
-  },
-
   /**
-   * Websockets hand Wasp a bare token, so we rebuild the request Clerk expects.
+   * Wasp hands every adapter a standard web `Request` -- built from the HTTP
+   * request, or synthesized with just an `Authorization` header for websocket
+   * auth. Clerk's SDK consumes one natively, so there is nothing to convert.
+   *
+   * Clerk reads either its `__session` cookie or an `Authorization: Bearer`
+   * header transparently, so the same code serves web and native clients.
+   *
+   * With `jwtKey` set this is local RS256 verification with no network call;
+   * without it, Clerk fetches (and caches) the JWKS.
    */
-  async verifyCredential(credential: string): Promise<VerifiedSession | null> {
-    const request = new Request("http://localhost/", {
-      headers: { authorization: `Bearer ${credential}` },
-    });
-
+  async authenticate(request: Request): Promise<VerifiedSession | null> {
     const requestState = await clerk.authenticateRequest(request, {
       jwtKey: process.env.CLERK_JWT_KEY,
     });
@@ -70,12 +51,20 @@ export const clerkAuthProvider: AuthProvider = {
       return null;
     }
 
-    const { userId, sessionId } = requestState.toAuth();
+    const { userId, sessionId, sessionClaims } = requestState.toAuth();
     if (!userId || !sessionId) {
       return null;
     }
 
-    return { sessionId, subjectId: userId };
+    return {
+      sessionId,
+      subjectId: userId,
+      // The verified JWT's claims, recorded by Wasp when it provisions the
+      // local user. NOTE: Clerk's default session token carries no email --
+      // add one to the token template in the Clerk dashboard if the app's
+      // user entity needs it at provisioning time.
+      claims: sessionClaims as VerifiedSession["claims"],
+    };
   },
 
   /**
@@ -91,21 +80,3 @@ export const clerkAuthProvider: AuthProvider = {
     await clerk.sessions.revokeSession(sessionId);
   },
 };
-
-/** Express gives us a Node request; Clerk's SDK wants a web `Request`. */
-function toWebRequest(req: ExpressRequest): Request {
-  const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (typeof value === "string") {
-      headers.set(key, value);
-    } else if (Array.isArray(value)) {
-      headers.set(key, value.join(", "));
-    }
-  }
-
-  const host = req.get("host") ?? "localhost";
-  return new Request(`${req.protocol}://${host}${req.originalUrl}`, {
-    method: req.method,
-    headers,
-  });
-}
