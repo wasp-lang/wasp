@@ -29,9 +29,9 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
-import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
+import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
@@ -63,7 +63,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
-        ["info"] -> Command.Call.Info
+        ("show" : showArgs) -> Command.Call.Show showArgs
         ["news"] -> Command.Call.News
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
@@ -93,7 +93,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
-    Command.Call.Info -> runCommand info
+    Command.Call.Show showArgs -> runCommand $ showCommand showArgs
     Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
@@ -164,7 +164,8 @@ printUsage =
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
-        cmd   "    info                  Prints basic information about the current Wasp project.",
+        cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
+        cmd   "    show build [--json]   Prints information about your app's current build.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
         cmd   "    news                  Read the latest Wasp-related news.",

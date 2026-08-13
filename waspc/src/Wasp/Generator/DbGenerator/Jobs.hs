@@ -16,11 +16,11 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
@@ -112,12 +112,12 @@ reset generatedAppDir resetArgs =
 --   NOTE: We are running this command from server dir since that's where we defined the "prisma.seed"
 --   script in package.json. In the future, we might want to allow users to specify the script name
 --   in the project package.json, in which case we would run this command from project root dir.
-seed :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
+seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
-seed waspEnvVars generatedAppDir seedName =
+seed serverRunConfig generatedAppDir seedName =
   runPrismaCommandAsJobWithExtraEnv
     serverDir
-    ((dbSeedNameEnvVarName, seedName) : waspEnvVars)
+    ((dbSeedNameEnvVarName, seedName) : serverRunConfig.envVars)
     generatedAppDir
     ["db", "seed"]
   where
