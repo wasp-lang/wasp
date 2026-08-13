@@ -95,7 +95,7 @@ askToChoose question options = do
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
-      putStrLn $ Term.applyStyles [Term.Red] "Invalid selection, write the name or the index of the option."
+      putStrLn $ Term.applyStyles [Term.Red] "Invalid selection. Type the name or the index of the option."
       askToChoose question options
 
     showIndexedOptions :: String
