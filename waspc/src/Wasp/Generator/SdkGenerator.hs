@@ -119,6 +119,9 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
+      -- Shared by all of Wasp's Vite plugins, which is why it doesn't live
+      -- inside any of them.
+      C.genFileCopy [relfile|vite/constants.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
