@@ -16,6 +16,14 @@ const ssrEntryPointPath = "/@wasp/ssr-entry.tsx";
 const serverEntryPointPath = ".wasp/out/server/src/nitro/serverEntry.ts";
 
 /**
+ * The generated server's Nitro plugin, relative to the Wasp project directory
+ * (Vite's root). It runs everything of the app's server that isn't answering a
+ * request: its job queue, the app's server setup function, and stopping all of
+ * it when the server stops.
+ */
+const serverPluginPath = ".wasp/out/server/src/nitro/plugins/wasp.ts";
+
+/**
  * The generated server's websocket route, relative to the Wasp project
  * directory (Vite's root).
  */
@@ -69,6 +77,15 @@ export function waspNitroBridge(): Plugin {
               noExternal: ["wasp"],
             },
           },
+          // The environment the app's server code runs in.
+          nitro: {
+            resolve: {
+              // Same as above, and here it also keeps the server's part of the
+              // SDK reloading with the rest of the server code in development:
+              // Vite doesn't reload what it treats as an external dependency.
+              noExternal: ["wasp"],
+            },
+          },
         },
         nitro: {
           preset: "node-server",
@@ -86,6 +103,8 @@ export function waspNitroBridge(): Plugin {
             // an empty response, which makes the renderer unreachable.
             format: "web",
           },
+
+          plugins: [path.resolve(rootDir, serverPluginPath)],
 
           // Nitro's websocket support (crossws). Without it, an upgrade request
           // reaching the route below hangs forever instead of being answered.

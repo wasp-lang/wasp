@@ -317,7 +317,6 @@ library
     Wasp.Generator.ServerGenerator.NitroRoutesG
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
-    Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup

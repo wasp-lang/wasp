@@ -7,11 +7,11 @@ import { serverSetup } from '../../../../src/serverSetup'
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
-import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
+import { startJobExecution } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 
 const startServer = async () => {
-  await startPgBoss()
+  await startJobExecution()
 
   const port = normalizePort(config.port)
   app.set('port', port)

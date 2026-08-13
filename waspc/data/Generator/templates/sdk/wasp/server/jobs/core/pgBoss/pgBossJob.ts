@@ -1,5 +1,5 @@
 import PgBoss from 'pg-boss'
-import { ensurePgBossStarted, pgBossStarted } from './pgBoss.js'
+import { addJobRegistration, pgBossJobQueue } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
 import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
 import { PrismaDelegate } from '../../../_types/index.js'
@@ -50,6 +50,11 @@ export function createJobDefinition<
  * Uses the info about a job in PgBossJob to register a user defined job handler with pg-boss.
  * We expect this to be called once per job name. If called multiple times with the same name and different
  * functions, we will override the previous calls.
+ *
+ * Registering a job doesn't start pg-boss: the app's jobs are collected as
+ * their modules are loaded, and handed over to pg-boss when job execution
+ * starts (see `startJobExecution`). Jobs can be submitted before that, which is
+ * fine: pg-boss stores them, and runs them once a worker for them exists.
  */
 export function registerJob<
   Input extends JSONObject,
@@ -59,41 +64,36 @@ export function registerJob<
   job: PgBossJob<Input, Output, Entities>,
   jobFn: JobFn<Input, Output, Entities>,
 }) {
-  // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job
-  // template, or else the NodeJS module bootstrapping process will block and fail as it would then depend
-  // on a runtime resolution of the promise in `startServer()`.
-  // Since `pgBossStarted` will resolve in the future, it may appear possible to send pg-boss
-  // a job before we actually have registered the handler via `boss.work()`. However, even if NodeJS does
-  // not execute this callback before any job `submit()` calls, this is not a problem since pg-boss allows you
-  // to submit jobs even if there are no workers registered.
-  // Once they are registered, they will just start on the first job in their queue.
-  pgBossStarted.then(async (boss) => {
-    // As a safety precaution against undefined behavior of registering different
-    // functions for the same job name, remove all registered functions first.
-    await boss.offWork(job.jobName)
+  addJobRegistration({
+    jobName: job.jobName,
+    registerOn: async (boss) => {
+      // As a safety precaution against undefined behavior of registering different
+      // functions for the same job name, remove all registered functions first.
+      await boss.offWork(job.jobName)
 
-    // This tells pg-boss to run given worker function when job with that name is submitted.
-    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
-    await boss.work<Input, Output>(
-      job.jobName,
-      pgBossCallbackWrapper<Input, Output, Entities>(jobFn, job.entities)
-    )
-
-    // If a job schedule is provided, we should schedule the recurring job.
-    // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
-    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
-    if (job.jobSchedule) {
-      const options: PgBoss.ScheduleOptions = {
-        ...job.defaultJobOptions,
-        ...job.jobSchedule.options,
-      }
-      await boss.schedule(
+      // This tells pg-boss to run given worker function when job with that name is submitted.
+      // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
+      await boss.work<Input, Output>(
         job.jobName,
-        job.jobSchedule.cron,
-        job.jobSchedule.args,
-        options
+        pgBossCallbackWrapper<Input, Output, Entities>(jobFn, job.entities)
       )
-    }
+
+      // If a job schedule is provided, we should schedule the recurring job.
+      // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
+      // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
+      if (job.jobSchedule) {
+        const options: PgBoss.ScheduleOptions = {
+          ...job.defaultJobOptions,
+          ...job.jobSchedule.options,
+        }
+        await boss.schedule(
+          job.jobName,
+          job.jobSchedule.cron,
+          job.jobSchedule.args,
+          options
+        )
+      }
+    },
   })
 }
 
@@ -135,13 +135,13 @@ export class PgBossJob<
     )
   }
   async submit(jobArgs: Input, jobOptions: Parameters<PgBoss['send']>[2] = {}) {
-    const boss = await ensurePgBossStarted()
+    const boss = await pgBossJobQueue.get()
     const jobId = await (boss.send as any)(this.jobName, jobArgs, {
       ...this.defaultJobOptions,
       ...(this.startAfter && { startAfter: this.startAfter }),
       ...jobOptions,
     })
-    return new PgBossSubmittedJob<Input, Output, Entities>(boss, this, jobId)
+    return new PgBossSubmittedJob<Input, Output, Entities>(this, jobId)
   }
 }
 
@@ -160,17 +160,22 @@ class PgBossSubmittedJob<
   }
 
   constructor(
-    boss: PgBoss,
     job: PgBossJob<Input, Output, Entities>,
     jobId: SubmittedJob['jobId']
   ) {
     super(job, jobId)
+    // We ask for the job queue on every call instead of holding on to the
+    // instance that submitted the job: in development, that one is stopped and
+    // replaced every time your server code changes.
     this.pgBoss = {
-      cancel: () => boss.cancel(jobId),
-      resume: () => boss.resume(jobId),
+      cancel: async () => (await pgBossJobQueue.get()).cancel(jobId),
+      resume: async () => (await pgBossJobQueue.get()).resume(jobId),
       // Coarcing here since pg-boss typings are not precise enough.
-      details: () =>
-        boss.getJobById(jobId) as Promise<PgBossDetails<Input, Output> | null>,
+      details: async () =>
+        (await pgBossJobQueue.get()).getJobById(jobId) as Promise<PgBossDetails<
+          Input,
+          Output
+        > | null>,
     }
   }
 }

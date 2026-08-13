@@ -139,6 +139,7 @@ genSdk spec =
     <++> genServerApi spec
     <++> genWebSockets spec
     <++> genServerMiddleware
+    <++> genServerLifecycle
     <++> genClientAuth spec
     <++> genServerAuth spec
     <++> genServerCrudApi spec
@@ -335,6 +336,15 @@ genServerMiddleware =
   sequence
     [ C.genFileCopy [relfile|server/middleware/index.ts|],
       C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
+    ]
+
+-- | The primitive the server's long-lived state (its job queue, its database
+-- client, ...) is built on, so that it survives the reloads of development.
+genServerLifecycle :: Generator [FileDraft]
+genServerLifecycle =
+  sequence
+    [ C.genFileCopy [relfile|server/lifecycle/index.ts|],
+      C.genFileCopy [relfile|server/lifecycle/statefulResource.ts|]
     ]
 
 genServerDbClient :: AppSpec -> Generator FileDraft

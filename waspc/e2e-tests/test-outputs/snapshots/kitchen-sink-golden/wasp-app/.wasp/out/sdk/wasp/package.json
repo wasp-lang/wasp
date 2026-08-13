@@ -75,6 +75,7 @@
     "./server/jobs": "./dist/server/jobs/index.js",
     "./server/jobs/*": "./dist/server/jobs/*.js",
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
+    "./server/lifecycle": "./dist/server/lifecycle/index.js",
     "./server/middleware": "./dist/server/middleware/index.js",
     "./server/operations": "./dist/server/operations/index.js",
     "./server/types": "./dist/server/types/index.js",

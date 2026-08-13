@@ -725,7 +725,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/nitroBridge.ts"
         ],
-        "5058af36711c6e741e6250b39eabde4a9be4536a14dc09e7b3e820138ad34a7f"
+        "7d0428a2a3ab4c6d07096fe81e09bbcc3a64172874929bf714508764bca63fe7"
     ],
     [
         [
@@ -879,7 +879,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "7f5a32d2217fd0c46fed7a1c72596172e2c579b3c67d5710931ac14757925b50"
+        "2525e75ba203041f01162a0e5051ec05a9ec64764dc946eb61907a854aeca48b"
     ],
     [
         [
@@ -1096,7 +1096,7 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "972236a462b392feaf89a6845b709dd436e13333daa5ffa9d46a26e5e5031bc5"
+        "73354a7f5baa1ea90139b738d5e5b623098738ddf58c02328f3e1b390b1c3306"
     ],
     [
         [
@@ -1117,7 +1117,7 @@
             "file",
             "sdk/wasp/server/email/core/providers/smtp.ts"
         ],
-        "4c06498aa8441d4b6b151fb8b6d5052c727bc00a7479758c0a45acbc077ace41"
+        "83ba32049bd5b1f9f0bda4762cb9d918bcb1ca1d4cc4ef563e7da1a2c5f9437f"
     ],
     [
         [
@@ -1159,21 +1159,21 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/index.ts"
         ],
-        "ba33f9b0680dd2a6fdea55c2eb8f8163ad60f4ebbac8b459d5c1a2a708524bec"
+        "c62a7e9172ff05e6a4135004d0459413171afff0b03f98a37f67c4c84002c367"
     ],
     [
         [
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "505cf6281c68be529956ff2eb8f0cf70492ab78535ae3406745af0c7ec31d643"
+        "3a36219bffdff2dc0c98e06efc22c0a940d678a952f495d40ce6403866c3a288"
     ],
     [
         [
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "119a58999e7da832f989f62006574b5d911b6a9b65d4448711e7c5905a696f71"
+        "a375093389defeb022efe48cb0c71d40e7f5d2daddf657b7fd28e30e8622633a"
     ],
     [
         [
@@ -1209,6 +1209,20 @@
             "sdk/wasp/server/jobs/uppercaseTextJob.ts"
         ],
         "720da1b31ce16c75e1c0d7cf3cc7636edc70dea6579daf5ea0b4d707e9fa478b"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/lifecycle/index.ts"
+        ],
+        "5aa754523cde577a118661f2f557f90fe361e5c0907787f73331c0f5c83563ae"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/lifecycle/statefulResource.ts"
+        ],
+        "77c98ec6e3ae331c442662763a9c4f10ac23ebd5af02aa9bf89c665fdd6bdd1c"
     ],
     [
         [
@@ -1388,16 +1402,9 @@
     [
         [
             "file",
-            "server/nodemon.json"
-        ],
-        "6cb3f8539e5cf59e29e3c97c9b4fa405600ea132784e4f47f79555951f47bd38"
-    ],
-    [
-        [
-            "file",
             "server/package.json"
         ],
-        "d418bf67e3696485c8c333e9e01fcd3d2146bb4461370bc2e765a006034dbcf8"
+        "a3815d3c2e37c3dea0d9d59a1744e6ca298e2a9c1fa703637c1a91d8408ec915"
     ],
     [
         [
@@ -1766,16 +1773,23 @@
     [
         [
             "file",
+            "server/src/nitro/plugins/wasp.ts"
+        ],
+        "213eb50954c88c6a57cd0c09c11e78e7a8cb8d5a1a2a6aa0b284449e637f2311"
+    ],
+    [
+        [
+            "file",
             "server/src/nitro/serverEntry.ts"
         ],
-        "d49711becf361eb5b655d9020a7fc6794a5ea6d197a47823b6a775ad2f2d3d02"
+        "222beafdc823a260bca874dc121eed3cec8ad32d204980c8dc91b13994c81a6f"
     ],
     [
         [
             "file",
             "server/src/nitro/setup.ts"
         ],
-        "d7d69e1e503b5f0d449f5d404869731224edfeb2bcc665e867349b482bf4688a"
+        "c1b45aa4ad1ce1f6102b16e6806dd6b93ce1ed2b3193df2190ade1549f5fb0c0"
     ],
     [
         [
@@ -2167,7 +2181,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "014f24205bb594e9239d59fca15bebd92d0a662ae1df2caa014217b1b1140155"
+        "2005033effa5d566e8f44302300ac0ce7ca30dc02c2cc6c87ece577625df38b0"
     ],
     [
         [

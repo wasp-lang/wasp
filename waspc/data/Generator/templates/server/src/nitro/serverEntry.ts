@@ -51,8 +51,11 @@ export default defineHandler(async (event) => {
   // (and everything it needs) being loaded. See the prerendering note above.
   const { bridge } = await import('./expressBridge.js')
   {=# setupFn.isDefined =}
-  const { ensureSetupFnHasRun } = await import('./setup.js')
-  await ensureSetupFnHasRun()
+
+  // Your setup function can add routes to the Express app, so the app only
+  // answers requests once it has run (it runs when the server starts).
+  const { waspServerStarted } = await import('./plugins/wasp.js')
+  await waspServerStarted()
   {=/ setupFn.isDefined =}
 
   const nodeRes = event.runtime?.node?.res

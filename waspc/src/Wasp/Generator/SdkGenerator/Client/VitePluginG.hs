@@ -16,7 +16,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.NitroRoutesG (serverEntryFileInServerRootDir)
+import Wasp.Generator.ServerGenerator.NitroRoutesG (serverEntryFileInServerRootDir, waspPluginFileInServerRootDir)
 import Wasp.Generator.ServerGenerator.WebSocketG (webSocketRouteFileInServerRootDir)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
@@ -72,6 +72,7 @@ genNitroBridgePlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "serverEntryPointPath" .= SP.fromRelFileP serverEntryPointPathInWaspProjectDir,
+          "serverPluginPath" .= SP.fromRelFileP (inWaspProjectDir waspPluginFileInServerRootDir),
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "nitroOutputDirPath" .= SP.fromRelDir webAppRootDirPath,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,

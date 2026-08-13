@@ -1,9 +1,99 @@
 import PgBoss from 'pg-boss'
 import { config, env } from '../../../index.js'
+import { defineStatefulResource } from '../../../lifecycle/index.js'
 
-const boss = createPgBoss()
+// PRIVATE API
+/**
+ * The app's job queue: a pg-boss instance with every job of the app registered
+ * on it (and its schedules kept up to date).
+ *
+ * It is a stateful resource with a `recreate` policy because the functions
+ * pg-boss runs are your job functions: an instance carrying the previous
+ * version of your code has to go when your code changes in development.
+ */
+export const pgBossJobQueue = defineStatefulResource<PgBoss>('pgBoss', {
+  reloadPolicy: 'recreate',
+  // The escape hatch below is the only thing that can make two pg-boss
+  // instances of ours differ.
+  configHash: env.PG_BOSS_NEW_OPTIONS ?? '',
+  disabledDuringPrerender: true,
+  create: startPgBoss,
+  dispose: stopPgBoss,
+})
 
-function createPgBoss() {
+/**
+ * How a job of the app is registered on a pg-boss instance: telling it which
+ * function to run for the job, and when to run it on its own.
+ */
+type JobRegistration = {
+  jobName: string
+  registerOn: (boss: PgBoss) => Promise<void>
+}
+
+/**
+ * Every job of the app, by name. Kept out of the module scope (which a reload
+ * replaces) so that a pg-boss instance created after a reload still finds the
+ * jobs registered before it.
+ */
+const jobRegistrationsKey = Symbol.for('wasp.jobs.registrations')
+
+// PRIVATE API
+/**
+ * Remembers a job so that it is registered on the app's pg-boss instance,
+ * whichever one is running by the time job execution starts.
+ *
+ * We expect this to be called once per job name. Calling it again with a
+ * different function (which is what a reload does) replaces the previous one.
+ */
+export function addJobRegistration(registration: JobRegistration): void {
+  getJobRegistrations().set(registration.jobName, registration)
+}
+
+// PRIVATE API
+/**
+ * Starts the app's job queue and hands it every job the app has registered, so
+ * that submitted jobs are executed and schedules are running.
+ *
+ * Called once per run of the server's code: when the server starts, and again
+ * after every reload in development, where it registers the app's jobs (with
+ * their newest code) on the pg-boss instance of the new generation.
+ */
+export async function startJobExecution(): Promise<void> {
+  await pgBossJobQueue.use(registerJobsOn)
+}
+
+async function startPgBoss(): Promise<PgBoss> {
+  console.log('Starting pg-boss...')
+
+  const boss = createPgBoss()
+  boss.on('error', (error) => console.error(error))
+
+  try {
+    // Prepares the target PostgreSQL database (creating the objects pg-boss
+    // needs, if they aren't there yet) and begins job monitoring.
+    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#start
+    await boss.start()
+    await registerJobsOn(boss)
+  } catch (error) {
+    // A pg-boss that failed halfway through starting still holds on to database
+    // connections, and nobody but us knows about it: we never returned it.
+    await stopPgBoss(boss).catch(() => {})
+    throw error
+  }
+
+  console.log('pg-boss started!')
+  return boss
+}
+
+async function stopPgBoss(boss: PgBoss): Promise<void> {
+  console.log('Stopping pg-boss...')
+  const stopped = new Promise<void>((resolve) => boss.once('stopped', resolve))
+  await boss.stop({ destroy: true })
+  await stopped
+  console.log('pg-boss stopped!')
+}
+
+function createPgBoss(): PgBoss {
   let pgBossNewOptions = {
     connectionString: config.databaseUrl,
   }
@@ -22,86 +112,15 @@ function createPgBoss() {
   return new PgBoss(pgBossNewOptions)
 }
 
-let resolvePgBossStarted: (boss: PgBoss) => void
-let rejectPgBossStarted: (boss: PgBoss) => void
-// PRIVATE API
-// Code that wants to access pg-boss must wait until it has been started.
-export const pgBossStarted = new Promise<PgBoss>((resolve, reject) => {
-  resolvePgBossStarted = resolve
-  rejectPgBossStarted = reject
-})
-
-enum PgBossStatus {
-  Unstarted = 'Unstarted',
-  Starting = 'Starting',
-  Started = 'Started',
-  Error = 'Error',
+async function registerJobsOn(boss: PgBoss): Promise<void> {
+  for (const registration of getJobRegistrations().values()) {
+    await registration.registerOn(boss)
+  }
 }
 
-let pgBossStatus: PgBossStatus = PgBossStatus.Unstarted
-
-// PRIVATE API
-/**
- * Prepares the target PostgreSQL database and begins job monitoring.
- * If the required database objects do not exist in the specified database,
- * `boss.start()` will automatically create them.
- * Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#start
- *
- * After making this call, we can send pg-boss jobs and they will be persisted and acted upon.
- * This should only be called once during a server's lifetime.
- */
-export async function startPgBoss(): Promise<void> {
-  // Ensure pg-boss can only be started once during a server's lifetime.
-  if (pgBossStatus !== PgBossStatus.Unstarted) {
-    return
+function getJobRegistrations(): Map<string, JobRegistration> {
+  const globalObject = globalThis as typeof globalThis & {
+    [jobRegistrationsKey]?: Map<string, JobRegistration>
   }
-  pgBossStatus = PgBossStatus.Starting
-  console.log('Starting pg-boss...')
-
-  boss.on('error', (error) => console.error(error))
-  try {
-    await boss.start()
-  } catch (error) {
-    console.error('pg-boss failed to start!')
-    console.error(error)
-    pgBossStatus = PgBossStatus.Error
-    rejectPgBossStarted(boss)
-    return
-  }
-
-  resolvePgBossStarted(boss)
-
-  console.log('pg-boss started!')
-  pgBossStatus = PgBossStatus.Started
-}
-
-const lazyPgBossKey = Symbol.for('wasp.jobs.pgBossStarted')
-
-// PRIVATE API
-/**
- * Like awaiting `pgBossStarted`, but starts pg-boss lazily when nothing
- * else has: the standalone server process starts it at boot, while the
- * Nitro worker (which serves HTTP requests, including job submissions from
- * operations and `setupFn`) has no boot phase that does. A lazily started
- * instance executes no Wasp jobs: job handlers and schedules register
- * through `registerJob`, which only the standalone process's `allJobs`
- * import runs (pg-boss's own maintenance/cron supervision does run here,
- * which is safe — pg-boss is multi-instance by design).
- *
- * The started promise is cached on `globalThis` because dev reloads
- * re-execute this module, and each fresh module-level `boss` must not be
- * started again.
- *
- * TODO(nitro-phase-4): replaced by the stateful-resource lifecycle once
- * job execution itself moves into the Nitro worker.
- */
-export function ensurePgBossStarted(): Promise<PgBoss> {
-  const cache = globalThis as Record<symbol, Promise<PgBoss> | undefined>
-  let startedPgBoss = cache[lazyPgBossKey]
-  if (!startedPgBoss) {
-    startPgBoss()
-    startedPgBoss = pgBossStarted
-    cache[lazyPgBossKey] = startedPgBoss
-  }
-  return startedPgBoss
+  return (globalObject[jobRegistrationsKey] ??= new Map())
 }
