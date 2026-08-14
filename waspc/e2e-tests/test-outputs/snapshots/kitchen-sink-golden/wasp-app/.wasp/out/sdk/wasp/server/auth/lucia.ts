@@ -21,7 +21,7 @@ const prismaAdapter = new PrismaAdapter(
  *    make fetching the User easier.
  */
 export const auth = new Lucia<{}, {
-  userId: User['id']
+  userId: User['id'] | null
 }>(prismaAdapter, {
   // Since we are not using cookies, we don't need to set any cookie options.
   // But in the future, if we decide to use cookies, we can set them here.
@@ -46,7 +46,7 @@ declare module "lucia" {
     Lucia: typeof auth;
     DatabaseSessionAttributes: {};
     DatabaseUserAttributes: {
-      userId: User['id']
+      userId: User['id'] | null
     };
   }
 }
