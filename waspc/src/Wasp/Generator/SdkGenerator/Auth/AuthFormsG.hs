@@ -96,7 +96,8 @@ genInternalAuthComponents auth =
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
+          [ genFileCopyInAuthFormsInternal [relfile|emailField.ts|],
+            genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
             genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]

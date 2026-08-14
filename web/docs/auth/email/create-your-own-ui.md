@@ -12,6 +12,12 @@ Read more about the default email and password validation rules in the [auth ove
 
 Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times when you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions from your own code, similar to how Auth UI does it under the hood.
 
+:::note Handling the email input
+The examples below treat the email input the way Auth UI does. They use `type="text"` with `inputMode="email"` instead of `type="email"`, because browsers validate `type="email"` against an ASCII-only grammar that rejects the internationalized addresses Wasp accepts. They also trim the address before submitting it, which `type="email"` used to take care of on its own.
+
+Wasp validates the address on the server either way, so a malformed one comes back as an error you can show to the user.
+:::
+
 ## Example code
 
 Below you can find a starting point for making your own UI in the client code. This example has all the necessary components to handle login, signup, email verification, and the password reset flow. You can customize any of its look and behaviour, just make sure to call the functions imported from `wasp/client/auth`.
@@ -41,7 +47,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await login({ email, password })
+          await login({ email: email.trim(), password })
           navigate('/')
         } catch (error) {
           setError(error)
@@ -53,7 +59,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -80,7 +87,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await signup({ email, password })
+          await signup({ email: email.trim(), password })
           setNeedsConfirmation(true)
         } catch (error) {
           console.error('Error during signup:', error)
@@ -102,7 +109,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -157,7 +165,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await requestPasswordReset({ email })
+          await requestPasswordReset({ email: email.trim() })
           setNeedsConfirmation(true)
         } catch (error) {
           console.error('Error during requesting reset:', error)
@@ -179,7 +187,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -255,7 +264,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await login({ email, password })
+          await login({ email: email.trim(), password })
           navigate('/')
         } catch (error: unknown) {
           setError(error as Error)
@@ -267,7 +276,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -294,7 +304,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await signup({ email, password })
+          await signup({ email: email.trim(), password })
           setNeedsConfirmation(true)
         } catch (error: unknown) {
           console.error('Error during signup:', error)
@@ -316,7 +326,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -371,7 +382,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await requestPasswordReset({ email })
+          await requestPasswordReset({ email: email.trim() })
           setNeedsConfirmation(true)
         } catch (error: unknown) {
           console.error('Error during requesting reset:', error)
@@ -393,7 +404,8 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
