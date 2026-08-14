@@ -136,7 +136,9 @@ obtainAvailableTemplateOutputDirPath projectName = do
     ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir = do
       whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir) $
         throwProjectCreationError $
-          "Directory \"./" ++ projectDirName ++ "\" already exists. Choose a different name or delete the directory first."
+          "Directory `"
+            ++ projectDirName
+            ++ "` already exists. Choose a different name or delete the directory first."
 
 mkNewProjectDescription :: String -> NewProjectAppName -> Path' Abs (Dir TemplateOutputDir) -> StarterTemplate -> NewProjectDescription
 mkNewProjectDescription projectName appName absTemplateOutputDir template =
