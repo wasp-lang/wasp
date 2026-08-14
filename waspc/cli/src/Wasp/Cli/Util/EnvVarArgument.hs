@@ -1,8 +1,8 @@
 module Wasp.Cli.Util.EnvVarArgument
   ( envVarReader,
     envVarFromString,
-    envVarArgumentsParser,
-    envVarFilesParser,
+    envVarInlineParser,
+    envVarFileParser,
   )
 where
 
@@ -10,14 +10,15 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
 
-envVarArgumentsParser :: String -> Char -> String -> Opt.Parser [EnvVar]
-envVarArgumentsParser targetName shortOptionName longOptionName =
-  Opt.many $
-    Opt.option envVarReader $
-      Opt.long longOptionName
-        <> Opt.short shortOptionName
-        <> Opt.metavar "NAME=VALUE"
-        <> Opt.help ("Set an environment variable for the " <> targetName <> " (can be used multiple times)")
+-- | Defines the parser for a flag that takes a "NAME=VALUE" argument and
+-- returns an EnvVar.
+envVarInlineParser :: Char -> String -> String -> Opt.Parser EnvVar
+envVarInlineParser shortOptionName longOptionName helpText =
+  Opt.option envVarReader $
+    Opt.long longOptionName
+      <> Opt.short shortOptionName
+      <> Opt.metavar "NAME=VALUE"
+      <> Opt.help helpText
 
 envVarReader :: Opt.ReadM EnvVar
 envVarReader = Opt.eitherReader envVarFromString
@@ -33,11 +34,12 @@ envVarFromString var =
   where
     failure = Left $ "Environment variable must be in the format NAME=VALUE: " ++ var
 
-envVarFilesParser :: String -> String -> Opt.Parser [FilePathArgument]
-envVarFilesParser targetName fileOptionName =
-  Opt.many $
-    Opt.option filePathReader $
-      Opt.long fileOptionName
-        <> Opt.metavar "FILE_PATH"
-        <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")
-        <> Opt.action "file"
+-- | Defines the parser for a flag that takes a file path argument and returns
+-- an FilePathArgument that can be later parsed.
+envVarFileParser :: String -> String -> Opt.Parser FilePathArgument
+envVarFileParser fileOptionName helpText =
+  Opt.option filePathReader $
+    Opt.long fileOptionName
+      <> Opt.metavar "FILE_PATH"
+      <> Opt.help helpText
+      <> Opt.action "file"
