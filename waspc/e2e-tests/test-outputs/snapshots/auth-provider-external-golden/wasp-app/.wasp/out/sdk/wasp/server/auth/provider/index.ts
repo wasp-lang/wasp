@@ -27,9 +27,9 @@ const serverAdapter = await Promise.resolve(
     },
     undefined,
     {
-      // The user's escape hatch into the adapter's underlying library
-      // configuration; the adapter applies it over its own defaults.
-      extendServerConfig: undefined,
+      // The user's setup function for the adapter's underlying library; the
+      // adapter calls it with its integration config and uses the result.
+      setupFn: undefined,
     },
   ),
 )

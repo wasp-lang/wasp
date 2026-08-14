@@ -7,23 +7,24 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { toNodeHandler } from "better-auth/node";
 import { bearer } from "better-auth/plugins";
 
-/** The serializable options the spec helper captured in `main.wasp.ts`. */
-export type BetterAuthAdapterOptions = {
-  emailAndPassword?: boolean;
-};
-
 /**
- * The type of the `extendServerConfig` function an app can reference from its
- * manifest: it receives the adapter's default Better Auth configuration and
- * returns the configuration to use. This is the escape hatch to Better Auth's
- * full surface -- `databaseHooks`, `plugins`, `emailAndPassword.sendResetPassword`,
- * `emailVerification`, rate limiting, anything its options carry.
+ * The type of the `setupFn` an app can reference from its manifest, following
+ * the same convention as Wasp's `PrismaSetupFn`: it receives the adapter's
+ * integration config (database adapter, secret, base URL and path, trusted
+ * origins, table name overrides, bearer transport) and returns the Better
+ * Auth options to use.
  *
- * The adapter re-asserts its load-bearing settings after applying it (base
+ * The returned configuration is authoritative and has plain Better Auth
+ * semantics: **nothing is enabled unless you enable it** -- `emailAndPassword`,
+ * `socialProviders`, `databaseHooks`, `plugins`, email callbacks, exactly as
+ * Better Auth's own documentation describes. Spread the received config to
+ * keep the integration settings, then add yours.
+ *
+ * The adapter re-asserts its load-bearing settings after calling it (base
  * path, `modelName` overrides, the bearer plugin, the database adapter), so
  * those cannot be broken from here -- everything else is yours.
  */
-export type BetterAuthConfigExtension = (
+export type BetterAuthSetupFn = (
   config: BetterAuthOptions,
 ) => BetterAuthOptions;
 
@@ -45,10 +46,14 @@ export type BetterAuthConfigExtension = (
  *   these must be the *Prisma client property*, not the `@@map` name: the
  *   adapter does a raw `db[modelName]` lookup with no case transformation.
  */
-export const createServerAdapter: ServerAdapterFactory<
-  BetterAuthAdapterOptions
-> = (runtime, options, extensions) => {
-  const defaultConfig: BetterAuthOptions = {
+export const createServerAdapter: ServerAdapterFactory = (
+  runtime,
+  _options,
+  extensions,
+) => {
+  // The integration config: everything this adapter needs to plug Better Auth
+  // into a Wasp app, and nothing about which auth methods exist.
+  const integrationConfig: BetterAuthOptions = {
     // The app's own PrismaClient, handed over by Wasp. `runtime.db` is typed
     // `unknown` because the client's type is generated per app; Better Auth's
     // adapter only needs its dynamic model delegates.
@@ -65,24 +70,24 @@ export const createServerAdapter: ServerAdapterFactory<
     account: { modelName: "betterAuthAccount" },
     verification: { modelName: "betterAuthVerification" },
 
-    emailAndPassword: {
-      enabled: options?.emailAndPassword ?? true,
-      // Email delivery is the app's call (wire it via `extendServerConfig`),
-      // so requiring verification by default would lock every user out.
-      requireEmailVerification: false,
-    },
-
     plugins: [bearer()],
   };
 
-  // The user's escape hatch, applied over the defaults. Everything Better
-  // Auth's options can express is reachable here.
-  const extendServerConfig = extensions?.extendServerConfig as
-    | BetterAuthConfigExtension
-    | undefined;
-  const extendedConfig = extendServerConfig
-    ? extendServerConfig(defaultConfig)
-    : defaultConfig;
+  // Either the adapter's opinionated default or the user's explicit setup --
+  // never a mix, so the two can't fight:
+  //
+  // - No `setupFn`: email-and-password auth is enabled for you. Verification
+  //   is off because there is no mail delivery until you wire it.
+  // - With a `setupFn`: the function receives the integration config and its
+  //   return value is authoritative, with plain Better Auth semantics --
+  //   nothing is enabled unless you enable it.
+  const setupFn = extensions?.setupFn as BetterAuthSetupFn | undefined;
+  const extendedConfig = setupFn
+    ? setupFn(integrationConfig)
+    : {
+        ...integrationConfig,
+        emailAndPassword: { enabled: true, requireEmailVerification: false },
+      };
 
   const auth = betterAuth({
     ...extendedConfig,
@@ -90,7 +95,7 @@ export const createServerAdapter: ServerAdapterFactory<
     // breaks (routes are mounted at the manifest's basePath, the table names
     // avoid Wasp's own, the bearer plugin carries the token, and the storage
     // must be the app's database). The extension can change anything else.
-    database: defaultConfig.database,
+    database: integrationConfig.database,
     basePath: "/better-auth",
     user: { ...extendedConfig.user, modelName: "betterAuthUser" },
     session: { ...extendedConfig.session, modelName: "betterAuthSession" },

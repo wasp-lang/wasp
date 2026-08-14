@@ -4,9 +4,9 @@ import { {=# isCustomAuthProviderUsed =}canIssueSessions as canProviderIssueSess
 {=# isPackageAuthProvider =}
 import { createServerAdapter } from '{= serverPackage =}'
 import { config, prisma } from '../../index.js'
-{=# externalExtendServerConfig.isDefined =}
-{=& externalExtendServerConfig.importStatement =}
-{=/ externalExtendServerConfig.isDefined =}
+{=# externalSetupFn.isDefined =}
+{=& externalSetupFn.importStatement =}
+{=/ externalSetupFn.isDefined =}
 {=/ isPackageAuthProvider =}
 {=^ isPackageAuthProvider =}
 {=& authProvider.importStatement =}
@@ -42,9 +42,9 @@ const serverAdapter = await Promise.resolve(
     },
     {=& optionsJson =},
     {
-      // The user's escape hatch into the adapter's underlying library
-      // configuration; the adapter applies it over its own defaults.
-      extendServerConfig: {=# externalExtendServerConfig.isDefined =}{= externalExtendServerConfig.importIdentifier =}{=/ externalExtendServerConfig.isDefined =}{=^ externalExtendServerConfig.isDefined =}undefined{=/ externalExtendServerConfig.isDefined =},
+      // The user's setup function for the adapter's underlying library; the
+      // adapter calls it with its integration config and uses the result.
+      setupFn: {=# externalSetupFn.isDefined =}{= externalSetupFn.importIdentifier =}{=/ externalSetupFn.isDefined =}{=^ externalSetupFn.isDefined =}undefined{=/ externalSetupFn.isDefined =},
     },
   ),
 )

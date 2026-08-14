@@ -30,7 +30,7 @@ export type EnvVarRequirement = {
  */
 export type BetterAuthProviderManifest<
   UserSignupFieldsRef = never,
-  ExtendServerConfigRef = never,
+  SetupFnRef = never,
 > = {
   readonly __waspAuthProviderManifest: true;
   kind: "external";
@@ -40,9 +40,8 @@ export type BetterAuthProviderManifest<
   routes: { basePath: "/better-auth"; rawBody: true };
   capabilities: string[];
   env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
-  options: { emailAndPassword: boolean };
   userSignupFields?: UserSignupFieldsRef;
-  extendServerConfig?: ExtendServerConfigRef;
+  setupFn?: SetupFnRef;
 };
 
 /**
@@ -50,15 +49,8 @@ export type BetterAuthProviderManifest<
  */
 export interface BetterAuthConfig<
   UserSignupFieldsRef = never,
-  ExtendServerConfigRef = never,
+  SetupFnRef = never,
 > {
-  /**
-   * Enable Better Auth's email-and-password flow.
-   *
-   * @default true
-   */
-  emailAndPassword?: boolean;
-
   /**
    * Populates the app's user entity when Wasp provisions a local user for a
    * Better Auth subject it has not seen before, from the claims the adapter
@@ -68,18 +60,23 @@ export interface BetterAuthConfig<
   userSignupFields?: UserSignupFieldsRef;
 
   /**
-   * The escape hatch: a reference to a function `(config) => config` applied
-   * over the adapter's Better Auth configuration before the instance is
-   * created. This is how an app reaches everything the serializable options
-   * cannot carry -- Better Auth's `databaseHooks`, `plugins`,
-   * `emailAndPassword.sendResetPassword`, `emailVerification`, rate limiting.
+   * Setup function for the Better Auth instance, following the same
+   * convention as Wasp's `prismaSetupFn`: a reference to a function that
+   * receives the adapter's integration config (database adapter, secret,
+   * base path, table name overrides, bearer transport) and returns the
+   * Better Auth options to use.
    *
-   * Type the function with `BetterAuthConfigExtension` from
-   * `@wasp.sh/auth-better-auth/server`. The adapter re-asserts its own
-   * load-bearing settings (base path, table name overrides, the bearer
-   * plugin, the database adapter) after applying it.
+   * Without it, the adapter enables email-and-password auth for you. **With
+   * it, nothing is enabled by default** -- the returned configuration is
+   * authoritative, with plain Better Auth semantics: enable exactly what you
+   * want, exactly as Better Auth's own docs describe (`emailAndPassword`,
+   * `socialProviders`, `databaseHooks`, `plugins`, email callbacks, ...).
+   *
+   * Type it with `BetterAuthSetupFn` from `@wasp.sh/auth-better-auth/server`.
+   * The adapter re-asserts its load-bearing settings (base path, table name
+   * overrides, the bearer plugin, the database adapter) after calling it.
    */
-  extendServerConfig?: ExtendServerConfigRef;
+  setupFn?: SetupFnRef;
 }
 
 /**
@@ -93,7 +90,7 @@ export interface BetterAuthConfig<
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: betterAuth({ emailAndPassword: true }),
+ *   provider: betterAuth(),  // email/password auth, ready to use
  * }
  * ```
  *
@@ -109,12 +106,9 @@ export interface BetterAuthConfig<
  *   server adapter configures -- see this package's README for the block to
  *   paste in.
  */
-export function betterAuth<
-  UserSignupFieldsRef = never,
-  ExtendServerConfigRef = never,
->(
-  config?: BetterAuthConfig<UserSignupFieldsRef, ExtendServerConfigRef>,
-): BetterAuthProviderManifest<UserSignupFieldsRef, ExtendServerConfigRef> {
+export function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(
+  config?: BetterAuthConfig<UserSignupFieldsRef, SetupFnRef>,
+): BetterAuthProviderManifest<UserSignupFieldsRef, SetupFnRef> {
   return {
     __waspAuthProviderManifest: true,
     kind: "external",
@@ -127,13 +121,9 @@ export function betterAuth<
       server: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
       client: [],
     },
-    // Serializable options, delivered verbatim to the server factory.
-    options: { emailAndPassword: config?.emailAndPassword ?? true },
     ...(config?.userSignupFields !== undefined
       ? { userSignupFields: config.userSignupFields }
       : {}),
-    ...(config?.extendServerConfig !== undefined
-      ? { extendServerConfig: config.extendServerConfig }
-      : {}),
+    ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
   };
 }

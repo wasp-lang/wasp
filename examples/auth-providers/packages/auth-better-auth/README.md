@@ -19,7 +19,8 @@ Then:
    auth: {
      userEntity: "User",
      onAuthFailedRedirectTo: "/login",
-     provider: betterAuth({ emailAndPassword: true }),
+     provider: betterAuth(), // email/password auth, ready to use
+     // or: betterAuth({ setupFn }) — your Better Auth config in full (see below)
    }
    ```
 

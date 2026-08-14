@@ -10,7 +10,7 @@ import { betterAuth } from "@wasp.sh/auth-better-auth/spec";
 auth: {
   userEntity: "User",
   onAuthFailedRedirectTo: "/login",
-  provider: betterAuth({ emailAndPassword: true }), // Better Auth verifies instead
+  provider: betterAuth({ setupFn: setupBetterAuth }), // Better Auth verifies instead
 }
 ```
 

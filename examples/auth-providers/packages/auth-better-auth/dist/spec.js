@@ -19,7 +19,7 @@
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: betterAuth({ emailAndPassword: true }),
+ *   provider: betterAuth(),  // email/password auth, ready to use
  * }
  * ```
  *
@@ -48,13 +48,9 @@ export function betterAuth(config) {
             server: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
             client: [],
         },
-        // Serializable options, delivered verbatim to the server factory.
-        options: { emailAndPassword: config?.emailAndPassword ?? true },
         ...(config?.userSignupFields !== undefined
             ? { userSignupFields: config.userSignupFields }
             : {}),
-        ...(config?.extendServerConfig !== undefined
-            ? { extendServerConfig: config.extendServerConfig }
-            : {}),
+        ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
     };
 }

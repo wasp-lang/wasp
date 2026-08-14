@@ -132,8 +132,8 @@ genAuthProviderIndexTs spec auth =
           -- The manifest's compile-time claims, checked against the runtime
           -- adapter object at boot so a wrong manifest fails loudly instead of
           -- generating a surface the adapter cannot back.
-          "externalExtendServerConfig"
-            .= extImportToImportJson (AS.Auth.extendServerConfig =<< maybeExternalProvider),
+          "externalSetupFn"
+            .= extImportToImportJson (AS.Auth.setupFn =<< maybeExternalProvider),
           "manifestProviderId" .= (AS.Auth.providerId <$> maybeExternalProvider),
           "manifestCapabilities" .= (makeJsArrayFromHaskellList . AS.Auth.capabilities <$> maybeExternalProvider)
         ]

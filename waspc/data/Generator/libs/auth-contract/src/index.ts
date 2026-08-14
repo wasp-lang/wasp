@@ -189,17 +189,18 @@ export type ServerAdapter = {
 /**
  * User-code extensions Wasp delivers alongside the serializable options.
  *
- * `extendServerConfig` is the escape hatch for everything a manifest cannot
- * carry: functions, class instances, live values. An adapter that supports it
- * builds its default configuration, hands it to this function, and uses the
- * result -- so the user can reach the underlying library's full surface
+ * `setupFn` follows the same convention as Wasp's `prismaSetupFn`: a user
+ * function the adapter calls with its integration configuration, whose return
+ * value becomes the configuration to use. It is the escape hatch for
+ * everything a manifest cannot carry -- functions, class instances, live
+ * values -- so the user can reach the underlying library's full surface
  * (Better Auth's hooks, plugins and email callbacks, say) without giving up
  * the packaged adapter. Adapters should re-assert the invariants their
  * integration depends on (route base paths, required plugins, table name
  * overrides) after applying it.
  */
 export type ServerAdapterExtensions = {
-  extendServerConfig?: (config: never) => unknown;
+  setupFn?: (config: never) => unknown;
 };
 
 /**

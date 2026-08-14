@@ -99,7 +99,7 @@ getVirtualUserModules spec =
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
       maybeToList $ mkAuthProviderModule <$> maybeAuthProvider,
       maybeToList $ mkAuthProviderUserSignupFieldsModule <$> maybeAuthProviderUserSignupFields,
-      maybeToList $ mkAuthProviderExtendServerConfigModule <$> maybeAuthProviderExtendServerConfig,
+      maybeToList $ mkAuthProviderSetupFnModule <$> maybeAuthProviderSetupFn,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -143,14 +143,14 @@ getVirtualUserModules spec =
         [relfileP|./server/auth/provider/types|]
         "RegisteredAuthProviderUserSignupFields"
 
-    -- The user's escape hatch into the adapter's underlying library
-    -- configuration; delivered to the adapter's server factory.
-    mkAuthProviderExtendServerConfigModule extImport' =
+    -- The user's setup function for the adapter's underlying library
+    -- (the prismaSetupFn convention); delivered to the adapter's server factory.
+    mkAuthProviderSetupFnModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/auth/provider/types|]
-        "RegisteredAuthProviderExtendServerConfig"
+        "RegisteredAuthProviderSetupFn"
 
     mkOperationModule operation =
       VirtualUserModule
@@ -168,7 +168,7 @@ getVirtualUserModules spec =
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuthProvider = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.serverModule
     maybeAuthProviderUserSignupFields = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.userSignupFieldsForExternalAuthProvider
-    maybeAuthProviderExtendServerConfig = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.extendServerConfig
+    maybeAuthProviderSetupFn = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.setupFn
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
