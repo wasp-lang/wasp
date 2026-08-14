@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { validateJWT } from 'wasp/server/auth/jwt';
 import {
+  createInvalidCredentialsError,
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
@@ -34,6 +35,10 @@ export async function verifyEmail(
     });
 
     const auth = await findAuthWithUserBy({ id: authIdentity.authId })
+
+    if (auth === null) {
+        throw createInvalidCredentialsError();
+    }
 
     await onAfterEmailVerifiedHook({ req, email, user: auth.user });
 
