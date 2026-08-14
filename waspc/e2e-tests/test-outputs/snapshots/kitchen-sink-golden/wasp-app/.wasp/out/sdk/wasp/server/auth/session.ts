@@ -108,6 +108,7 @@ async function toSessionAndUser({ sessionId, subjectId }: VerifiedSession): Prom
   return { sessionId, user: createAuthUserData(user) };
 }
 
+
 // PRIVATE API
 // Ends the session server-side where the provider is able to. A pure token
 // verifier has nothing to revoke -- there, the client dropping its credential
