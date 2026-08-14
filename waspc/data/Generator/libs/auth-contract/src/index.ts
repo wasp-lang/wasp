@@ -5,7 +5,14 @@
  * pages, `auth: true` operations, `context.user`, `useAuth()` -- so implementing it
  * is all it takes to make any auth solution (Better Auth, Clerk, WorkOS, ...) a
  * Wasp auth provider.
+ *
+ * An adapter package implements this contract in its server entry and exposes it
+ * as a named `createServerAdapter` export (see `ServerAdapterFactory`). Its
+ * client side, if it has one, ships as ordinary React exports on the package's
+ * own `/client` entry -- Wasp generates no client glue.
  */
+
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 export type JsonValue =
   | string
@@ -199,3 +206,107 @@ export function canManageSessions(
     typeof p.revokeAllSessions === "function"
   );
 }
+
+/**
+ * Everything Wasp hands a server-side adapter about the app it runs in.
+ *
+ * This is the adapter's *only* window into the app: adapters must not import
+ * generated code (`wasp/...`) and must not read `process.env` themselves. Keeping
+ * the boundary here is what lets an adapter package typecheck and version
+ * independently of any particular Wasp app.
+ */
+export type WaspServerRuntime = {
+  /**
+   * The app's PrismaClient instance. Typed as `unknown` because the client's type
+   * is generated per app; adapters that need it narrow it themselves.
+   */
+  db: unknown;
+
+  /**
+   * The Prisma datasource provider of the app's database: `"sqlite"`,
+   * `"postgresql"`, ... Adapters that bring their own storage layer (Better
+   * Auth's prisma adapter, for one) need to know the dialect they are talking to.
+   */
+  dbProvider: string;
+
+  /**
+   * The server-side environment, already validated against the env vars the
+   * adapter's manifest declared.
+   */
+  env: Record<string, string | undefined>;
+
+  /** The URL the Wasp server is reachable at. */
+  serverUrl: string;
+
+  /** The URL the Wasp client is served from. Useful for trusted-origin checks. */
+  clientUrl: string;
+
+  /**
+   * Report that the provider just created one of its own users.
+   *
+   * For adapters that can observe their signup moment (in-process providers
+   * like Better Auth; a hosted provider cannot). Wasp provisions the
+   * corresponding local user eagerly, so it exists from signup rather than
+   * from the first authenticated request. Calling it is optional and always
+   * safe: provisioning is idempotent, and just-in-time provisioning on first
+   * request remains the backstop regardless.
+   */
+  onAuthUserCreated?(authUser: {
+    subjectId: string;
+    claims?: Record<string, JsonValue>;
+  }): Promise<void>;
+};
+
+/**
+ * What an adapter's server entry produces: the provider itself, plus, for
+ * providers that own HTTP endpoints of their own (Better Auth's `/sign-in` and
+ * friends), the handler Wasp should mount at the manifest's `basePath`.
+ *
+ * One factory returns both so they are guaranteed to share one configured
+ * instance -- a provider verifying against one configuration while its routes run
+ * another is a bug class this shape makes unrepresentable.
+ */
+export type ServerAdapter = {
+  provider: AuthProvider;
+
+  /**
+   * Node-style request handler for the provider's own routes. Wasp mounts it at
+   * the `basePath` the adapter's manifest declared, with the app's usual
+   * middleware around it (minus the JSON body parser when the manifest asked for
+   * raw bodies).
+   */
+  routeHandler?: (
+    req: IncomingMessage,
+    res: ServerResponse,
+  ) => void | Promise<void>;
+};
+
+/**
+ * User-code extensions Wasp delivers alongside the serializable options.
+ *
+ * `setupFn` follows the same convention as Wasp's `prismaSetupFn`: a user
+ * function the adapter calls with its integration configuration, whose return
+ * value becomes the configuration to use. It is the escape hatch for
+ * everything a manifest cannot carry -- functions, class instances, live
+ * values -- so the user can reach the underlying library's full surface
+ * (Better Auth's hooks, plugins and email callbacks, say) without giving up
+ * the packaged adapter. Adapters should re-assert the invariants their
+ * integration depends on (route base paths, required plugins, table name
+ * overrides) after applying it.
+ */
+export type ServerAdapterExtensions = {
+  setupFn?: (config: never) => unknown;
+};
+
+/**
+ * The required shape of an adapter package's server entry: a named
+ * `createServerAdapter` export of this type. `options` is the serializable
+ * configuration the adapter's spec helper captured in `main.wasp.ts`, delivered
+ * verbatim; `extensions` carries the user-code escape hatches referenced by the
+ * manifest.
+ */
+export type ServerAdapterFactory<Options = unknown> = (
+  runtime: WaspServerRuntime,
+  options: Options,
+  extensions?: ServerAdapterExtensions,
+) => ServerAdapter | Promise<ServerAdapter>;

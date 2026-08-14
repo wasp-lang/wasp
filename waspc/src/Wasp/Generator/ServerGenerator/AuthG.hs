@@ -56,15 +56,22 @@ genAuth spec = case maybeAuth of
       [ genAuthRoutesIndex auth,
         genFileCopy [relfile|routes/auth/me.ts|],
         genFileCopy [relfile|routes/auth/logout.ts|],
-        genProvidersIndex auth,
-        genAuthHooks auth
+        genProvidersIndex auth
       ]
+      -- Wasp's auth hooks only fire from Wasp's own signup and login flows, so
+      -- under an external provider the module (and the types it needs) do not
+      -- exist.
+      <++> onlyUnderWaspAuth auth (sequence [genAuthHooks auth])
       <++> genLocalAuth auth
       <++> genOAuthAuth auth
       <++> genEmailAuth spec auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     genFileCopy = return . C.mkSrcTmplFd
+
+    onlyUnderWaspAuth auth gen
+      | AS.Auth.isExternalAuthProviderUsed auth = return []
+      | otherwise = gen
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

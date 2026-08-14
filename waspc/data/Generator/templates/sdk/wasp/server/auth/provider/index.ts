@@ -1,7 +1,17 @@
 {{={= =}=}}
 import { {=# isCustomAuthProviderUsed =}canManageSessions as canProviderManagesSessions, canRevokeSessions as canProviderRevokeSessions, {=/ isCustomAuthProviderUsed =}type AuthProvider } from './types.js'
 {=# isCustomAuthProviderUsed =}
+{=# isPackageAuthProvider =}
+import { provisionAuthUser } from '../session.js'
+import { createServerAdapter } from '{= serverPackage =}'
+import { config, prisma } from '../../index.js'
+{=# externalSetupFn.isDefined =}
+{=& externalSetupFn.importStatement =}
+{=/ externalSetupFn.isDefined =}
+{=/ isPackageAuthProvider =}
+{=^ isPackageAuthProvider =}
 {=& authProvider.importStatement =}
+{=/ isPackageAuthProvider =}
 {=/ isCustomAuthProviderUsed =}
 {=^ isCustomAuthProviderUsed =}
 import { waspAuthProvider } from './wasp.js'
@@ -17,6 +27,38 @@ export {
   canRevokeSessions,
 } from './types.js'
 
+{=# isPackageAuthProvider =}
+/**
+ * The adapter package's server factory, called with everything it may know
+ * about the app. This runtime object is the adapter's *only* window into the
+ * app: adapters never import generated code and never read `process.env`
+ * themselves, which is what lets them version independently of any app.
+ */
+const serverAdapter = await Promise.resolve(
+  createServerAdapter(
+    {
+      db: prisma,
+      dbProvider: '{= dbProvider =}',
+      env: process.env,
+      serverUrl: config.serverUrl,
+      clientUrl: config.frontendUrl,
+      // The eager-provisioning channel: an in-process adapter reports its own
+      // signups, and the local user exists from that moment. Idempotent; JIT
+      // provisioning on first request remains the backstop.
+      onAuthUserCreated: async (authUser) => {
+        await provisionAuthUser(authUser.subjectId, authUser.claims)
+      },
+    },
+    {=& optionsJson =},
+    {
+      // The user's setup function for the adapter's underlying library; the
+      // adapter calls it with its integration config and uses the result.
+      setupFn: {=# externalSetupFn.isDefined =}{= externalSetupFn.importIdentifier =}{=/ externalSetupFn.isDefined =}{=^ externalSetupFn.isDefined =}undefined{=/ externalSetupFn.isDefined =},
+    },
+  ),
+)
+
+{=/ isPackageAuthProvider =}
 // PRIVATE API
 /**
  * The auth provider this app runs on.
@@ -26,7 +68,16 @@ export {
  * needed to authenticate against something other than Wasp's own auth.
  */
 export const authProvider: AuthProvider =
-  {=# isCustomAuthProviderUsed =}{= authProvider.importIdentifier =}{=/ isCustomAuthProviderUsed =}{=^ isCustomAuthProviderUsed =}waspAuthProvider{=/ isCustomAuthProviderUsed =}
+  {=# isCustomAuthProviderUsed =}{=# isPackageAuthProvider =}serverAdapter.provider{=/ isPackageAuthProvider =}{=^ isPackageAuthProvider =}{= authProvider.importIdentifier =}{=/ isPackageAuthProvider =}{=/ isCustomAuthProviderUsed =}{=^ isCustomAuthProviderUsed =}waspAuthProvider{=/ isCustomAuthProviderUsed =}
+{=# isPackageAuthProvider =}
+
+// PRIVATE API
+/**
+ * Node handler for the provider's own routes, if it brought any. The server
+ * mounts it at the basePath the manifest declared.
+ */
+export const authProviderRouteHandler = serverAdapter.routeHandler
+{=/ isPackageAuthProvider =}
 {=# isCustomAuthProviderUsed =}
 
 /**

@@ -131,6 +131,11 @@
     {=! Server: the contract a custom auth provider implements. Adapters live in
         user code, so they need to import this as a normal module. =}
     "./server/auth/provider/types": "./dist/server/auth/provider/types.js",
+    {=# isCustomAuthProviderUsed =}
+    {=! Server: the selected provider and its route handler, for mounting the
+        provider's own routes. =}
+    "./server/auth/provider": "./dist/server/auth/provider/index.js",
+    {=/ isCustomAuthProviderUsed =}
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",

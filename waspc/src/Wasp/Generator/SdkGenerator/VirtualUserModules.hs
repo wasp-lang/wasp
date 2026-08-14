@@ -99,6 +99,7 @@ getVirtualUserModules spec =
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
       maybeToList $ mkAuthProviderModule <$> maybeAuthProvider,
       maybeToList $ mkAuthProviderUserSignupFieldsModule <$> maybeAuthProviderUserSignupFields,
+      maybeToList $ mkAuthProviderSetupFnModule <$> maybeAuthProviderSetupFn,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -147,6 +148,17 @@ getVirtualUserModules spec =
         [relfileP|./auth/providers/types|]
         "UserSignupFields"
 
+    -- The user's setup function for the adapter's underlying library
+    -- (the prismaSetupFn convention); delivered to the adapter's server
+    -- factory. Declared with the plain contract type: the adapter package
+    -- types its parameter precisely, the SDK only needs *a* function.
+    mkAuthProviderSetupFnModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "AuthProviderSetupFn"
+
     mkOperationModule operation =
       VirtualUserModule
         ServerRuntime
@@ -163,6 +175,7 @@ getVirtualUserModules spec =
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuthProvider = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.serverModule
     maybeAuthProviderUserSignupFields = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.userSignupFieldsForExternalAuthProvider
+    maybeAuthProviderSetupFn = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.setupFn
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
