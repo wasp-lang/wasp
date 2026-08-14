@@ -18,7 +18,7 @@ import Wasp.Cli.ProjectLock (withProjectLock)
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig, makeClientRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( WaspProjectDir,
@@ -33,7 +33,7 @@ test ("client" : args) = watchAndTest $ \clientRunConfig ->
 test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
-watchAndTest :: (ClientRunConfig -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
+watchAndTest :: (WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = withProjectLock $ do
   InWaspProject waspRoot <- require
   let outDir = waspRoot </> generatedAppDirInWaspProjectDir
@@ -61,6 +61,6 @@ watchAndTest testRunner = withProjectLock $ do
       Right () -> return ()
   where
     defaultDevClientRunConfig appSpec =
-      makeClientRunConfig
+      makeWebAppRunConfig
         (WebApp.makeDefaultDevClientLocation appSpec)
         (AL.url Server.defaultDevServerLocation)

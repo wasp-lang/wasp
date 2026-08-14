@@ -24,10 +24,11 @@ import Wasp.Cli.Util.EnvVarSource (assertNoOverriddenEnvVars, resolveEnvVarProje
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
+import Wasp.Generator.RunConfig (envVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..), makeClientRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
@@ -58,7 +59,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
   (warnings, appSpec) <- compile
 
   (clientLocation, serverLocation) <- makeDevAppLocations appSpec args
-  (clientRunConfig, serverRunConfig) <- makeDevRunConfigs waspProjectDir clientLocation serverLocation
+  (clientRunConfig, serverRunConfig) <- makeDevRunConfigs waspProjectDir (clientLocation, serverLocation)
 
   DbConnectionEstablished <- require
 
@@ -121,22 +122,21 @@ makeDevAppLocations appSpec args = do
 
 makeDevRunConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
-  AppLocation ->
-  AppLocation ->
-  Command (ClientRunConfig, ServerRunConfig)
-makeDevRunConfigs waspProjectDir clientLocation serverLocation = do
+  (AppLocation, AppLocation) ->
+  Command (WebAppRunConfig, ServerRunConfig)
+makeDevRunConfigs waspProjectDir (clientLocation, serverLocation) = do
   clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
   serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
 
   -- We only assert and persist the final env vars ourselves because the
   -- subprocesses will pick the env vars themselves as part of their own
   -- runtime.
-  assertNoOverriddenEnvVars clientRunConfig.envVars clientEnvVarSources
-  assertNoOverriddenEnvVars serverRunConfig.envVars serverEnvVarSources
+  assertNoOverriddenEnvVars (envVars clientRunConfig) clientEnvVarSources
+  assertNoOverriddenEnvVars (envVars serverRunConfig) serverEnvVarSources
 
   return (clientRunConfig, serverRunConfig)
   where
-    clientRunConfig = makeClientRunConfig clientLocation (AL.url serverLocation)
+    clientRunConfig = makeWebAppRunConfig clientLocation (AL.url serverLocation)
     serverRunConfig = makeServerRunConfig serverLocation (AL.url clientLocation)
 
     devEnvVarSources dotEnvFile =
