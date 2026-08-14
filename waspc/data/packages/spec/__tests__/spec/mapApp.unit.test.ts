@@ -535,10 +535,11 @@ describe("mapAuth", () => {
 
     const result = AppSpecMapper.mapAuth(withPackageEntry, ctx);
 
-    expect(result.externalProvider?.serverPackage).toBe(
-      "@wasp.sh/auth-clerk/server",
-    );
-    expect(result.externalProvider?.serverModule).toBeUndefined();
+    expect(result.provider).toMatchObject({
+      kind: "external",
+      serverPackage: "@wasp.sh/auth-clerk/server",
+      serverModule: undefined,
+    });
   });
 
   test("should throw on client adapter entries until the generator supports them", () => {
