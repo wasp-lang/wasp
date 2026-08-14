@@ -3,13 +3,14 @@
 module Wasp.Cli.EnvVarCtx where
 
 import Control.Monad.Except (throwError)
-import Data.List (find, intercalate)
-import Data.List.NonEmpty (NonEmpty, toList)
-import Data.List.NonEmpty.Extra (nonEmpty)
+import Data.Function ((&))
+import Data.List (intercalate)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import StrongPath (Abs, File, Path')
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.PathArgument (FilePathArgument, getFilePath)
-import Wasp.Env (EnvVar, EnvVarName, HasEnvVars, addEnvVarsUnique, findDuplicateEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, EnvVarName, HasEnvVars, addEnvVarsUnique, parseDotEnvFile)
 
 type EnvVarWithCtx = (EnvVarCtx, EnvVar)
 
@@ -31,35 +32,23 @@ fromDotEnvFile :: String -> Path' Abs (File ()) -> IO [EnvVarWithCtx]
 fromDotEnvFile fileName filePath =
   fmap (EnvVarCtx {sourceName = "file " ++ fileName},) <$> parseDotEnvFile filePath
 
+showEnvVarWithCtx :: EnvVarWithCtx -> [Char]
+showEnvVarWithCtx (EnvVarCtx {sourceName = s}, (name, _)) =
+  name ++ " (received from " ++ s ++ ")"
+
 addEnvVarsUniqueC :: (HasEnvVars a) => a -> [EnvVarWithCtx] -> Command a
 addEnvVarsUniqueC x incomingEnvVarSources =
-  either
-    (throwOverriddenVarsError incomingEnvVarSources)
-    return
-    (addEnvVarsUnique x incomingEnvVars)
+  addEnvVarsUnique x incomingEnvVars
+    & either (throwOverriddenVarsError incomingEnvVarSources) return
   where
     incomingEnvVars = snd <$> incomingEnvVarSources
 
-assertNoOverriddenEnvVars :: [EnvVar] -> [EnvVarWithCtx] -> Command ()
-assertNoOverriddenEnvVars existingEnvVars incomingEnvVarSources =
-  maybe (return ()) (throwOverriddenVarsError incomingEnvVarSources) $
-    nonEmpty (findDuplicateEnvVars existingEnvVars $ snd <$> incomingEnvVarSources)
-
-throwOverriddenVarsError :: [EnvVarWithCtx] -> NonEmpty EnvVarName -> Command a
+throwOverriddenVarsError :: [EnvVarWithCtx] -> Set EnvVarName -> Command a
 throwOverriddenVarsError envVarsWithCtx overriddenNames =
   throwError $
-    CommandError "Overridden environment variables" $
+    CommandError "Can't override Wasp-managed environment variables" $
       "The following environment variables will be overwritten by Wasp and should be removed: "
-        ++ intercalate ", " (describeOverriddenEnvVar <$> overriddenEnvVars)
+        ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
         ++ "."
   where
-    overriddenEnvVars =
-      [ (name, sourceName <$> findCtxForEnvVar name)
-      | name <- toList overriddenNames
-      ]
-
-    describeOverriddenEnvVar (name, Nothing) = name
-    describeOverriddenEnvVar (name, Just source) = name ++ " (received from " ++ source ++ ")"
-
-    findCtxForEnvVar name =
-      fst <$> find (\(_, (envVarName, _)) -> envVarName == name) envVarsWithCtx
+    overriddenEnvVars = filter (\(_, (name, _)) -> name `Set.member` overriddenNames) envVarsWithCtx
