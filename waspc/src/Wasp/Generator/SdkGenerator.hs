@@ -189,6 +189,8 @@ genPackageJson spec = do
       [relfile|package.json|]
       ( object
           [ "sdkPackageName" .= C.sdkPackageName,
+            "isAuthEnabled" .= isAuthEnabled spec,
+            "isCustomAuthProviderUsed" .= isJust (AS.Valid.getExternalAuthProvider spec),
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
@@ -288,6 +290,7 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
+          "isWaspAuthUsed" .= AS.Valid.isWaspAuthUsed spec,
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,

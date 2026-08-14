@@ -1,5 +1,7 @@
 {{={= =}=}}
+{=^ isCustomAuthProviderUsed =}
 import { hashPassword } from './password.js'
+{=/ isCustomAuthProviderUsed =}
 import { prisma, HttpError } from '../index.js'
 import { sleep } from '../utils.js'
 import {
@@ -57,6 +59,7 @@ export async function findAuthIdentity(providerId: ProviderId): Promise<{= authI
   });
 }
 
+{=^ isCustomAuthProviderUsed =}
 // PUBLIC API
 /**
  * Updates the provider data for the given auth identity.
@@ -86,6 +89,7 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
     data: { providerData: serializedProviderData },
   });
 }
+{=/ isCustomAuthProviderUsed =}
 
 // PRIVATE API
 export type FindAuthWithUserResult = {= authEntityUpper =} & {
@@ -237,6 +241,7 @@ export async function validateAndGetUserFields(
   return result;
 }
 
+{=^ isCustomAuthProviderUsed =}
 // PUBLIC API
 export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
   providerData: PossibleProviderData[PN],
@@ -262,6 +267,7 @@ async function ensurePasswordIsHashed<PN extends ProviderName>(
 
   return data;
 }
+{=/ isCustomAuthProviderUsed =}
 
 // PRIVATE API
 export function createInvalidCredentialsError(message?: string): HttpError {

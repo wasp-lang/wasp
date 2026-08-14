@@ -35,6 +35,7 @@ genAuth spec =
       -- shared stuff
       sequence
         [ genUserTs auth,
+          genAuthProviderIdentity auth,
           genFileCopyInAuth [relfile|providerData.ts|],
           genFileCopyInAuth [relfile|validation.ts|],
           genIndexTs auth,
@@ -49,12 +50,39 @@ genAuth spec =
             genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
-        <++> genAuthForms auth
-        <++> genLocalAuth auth
-        <++> genOAuthAuth auth
-        <++> genEmailAuth auth
+        -- Wasp's own auth UI and flows. An external provider brings its own,
+        -- so under one these are not generated at all: importing `LoginForm`
+        -- is then a compile error, not a component that breaks at runtime.
+        <++> onlyUnderWaspAuth auth (genAuthForms auth)
+        <++> onlyUnderWaspAuth auth (genLocalAuth auth)
+        <++> onlyUnderWaspAuth auth (genOAuthAuth auth)
+        <++> onlyUnderWaspAuth auth (genEmailAuth auth)
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+    onlyUnderWaspAuth auth gen
+      | AS.Auth.isExternalAuthProviderUsed auth = return []
+      | otherwise = gen
+
+-- | The one module that always answers "which auth provider is this app on":
+-- a literal the type system narrows, so provider-specific code can be guarded
+-- at compile time.
+genAuthProviderIdentity :: AS.Auth.Auth -> Generator FileDraft
+genAuthProviderIdentity auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|provider.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "providerId" .= providerId,
+          "capabilities" .= makeJsArrayFromHaskellList capabilities
+        ]
+    providerId = maybe "wasp" AS.Auth.providerId maybeExternalProvider
+    -- Wasp's own auth can mint and revoke sessions server-side.
+    capabilities = maybe ["issue-sessions", "session-revocation"] AS.Auth.capabilities maybeExternalProvider
+    maybeExternalProvider = AS.Auth.externalProvider auth
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in

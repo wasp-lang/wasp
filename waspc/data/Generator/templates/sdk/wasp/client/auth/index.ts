@@ -1,5 +1,7 @@
 {{={= =}=}}
+{=^ isExternalAuthProviderUsed =}
 export * from './ui'
+{=/ isExternalAuthProviderUsed =}
 {=# isEmailAuthEnabled =}
 export * from './email'
 {=/ isEmailAuthEnabled =}

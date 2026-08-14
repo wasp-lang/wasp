@@ -132,7 +132,13 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
     relPathToServerSrcDir = [reldirP|../|]
 
 depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
+depsRequiredByAuth spec = case maybeAuth of
+  Nothing -> []
+  Just auth
+    -- An external provider brings its own session store; Wasp's lucia-backed
+    -- one is not generated, so its dependencies must not be installed either.
+    | AS.Auth.isExternalAuthProviderUsed auth -> []
+    | otherwise -> authDeps
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     authDeps =

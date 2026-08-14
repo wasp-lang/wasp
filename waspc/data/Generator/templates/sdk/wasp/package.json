@@ -63,6 +63,10 @@
       ===============================================================
     =}
     "./auth": "./dist/auth/index.js",
+    {=# isAuthEnabled =}
+    {=! Users: which auth provider the app runs on, as narrowable literals. =}
+    "./auth/provider": "./dist/auth/provider.js",
+    {=/ isAuthEnabled =}
     {=! FIXME: Documented only in example apps, not in docs. Also re-exported through `wasp/server/auth`.=}
     {=! FIXME: Candidate for removal? =}
     {=! Users: validators in custom auth actions. =}
@@ -116,10 +120,14 @@
       Internal server runtime API. Undocumented.
       ===============================================================
     =}
+    {=! Wasp-auth-only modules. Not generated under an external auth provider,
+        so their exports are dropped too and importing them is an error. =}
+    {=^ isCustomAuthProviderUsed =}
     "./server/auth/email": "./dist/server/auth/email/index.js",
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
+    {=/ isCustomAuthProviderUsed =}
     {=! Server: the contract a custom auth provider implements. Adapters live in
         user code, so they need to import this as a normal module. =}
     "./server/auth/provider/types": "./dist/server/auth/provider/types.js",

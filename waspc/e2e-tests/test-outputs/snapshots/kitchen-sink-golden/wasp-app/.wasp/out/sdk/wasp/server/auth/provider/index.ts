@@ -5,8 +5,10 @@ import { waspAuthProvider } from './wasp.js'
 export {
   type AuthProvider,
   type SessionManagingAuthProvider,
+  type SupportsSessionRevocation,
   type VerifiedSession,
   canManageSessions,
+  canRevokeSessions,
 } from './types.js'
 
 // PRIVATE API
