@@ -10,7 +10,8 @@ import qualified StrongPath as SP
 import System.Environment (getEnvironment)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.PathArgument (FilePathArgument, getFilePath, showFilePathArgument)
-import Wasp.Env (EnvVar, EnvVarName, findDuplicateEnvVars, overrideEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, EnvVarName, findDuplicateEnvVars, parseDotEnvFile)
+import Wasp.Generator.RunConfig (HasEnvVars, addEnvVars)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir)
 
 type EnvVarSource = (String, [EnvVar])
@@ -37,10 +38,14 @@ resolveEnvVarProjectFile projectDir file =
 resolveInheritedEnvVars :: IO EnvVarSource
 resolveInheritedEnvVars = ("your environment",) <$> getEnvironment
 
-overrideEnvVarsC :: [EnvVar] -> [EnvVarSource] -> Command [EnvVar]
-overrideEnvVarsC existingEnvVars incomingEnvVarSources =
-  either (throwOverriddenVarsError incomingEnvVarSources) return $
-    overrideEnvVars existingEnvVars (concatMap snd incomingEnvVarSources)
+addEnvVarsC :: (HasEnvVars a) => a -> [EnvVarSource] -> Command a
+addEnvVarsC x incomingEnvVarSources =
+  either
+    (throwOverriddenVarsError incomingEnvVarSources)
+    return
+    (addEnvVars x incomingEnvVars)
+  where
+    incomingEnvVars = concatMap snd incomingEnvVarSources
 
 assertNoOverriddenEnvVars :: [EnvVar] -> [EnvVarSource] -> Command ()
 assertNoOverriddenEnvVars existingEnvVars incomingEnvVarSources =
