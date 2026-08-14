@@ -474,16 +474,9 @@ describe("mapAuth", () => {
     assertDefined(provider.userSignupFields);
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
-      methods: AppSpecMapper.mapAuthMethods({}, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      onAuthSucceededRedirectTo: undefined,
-      onBeforeSignup: undefined,
-      onAfterSignup: undefined,
-      onAfterEmailVerified: undefined,
-      onBeforeOAuthRedirect: undefined,
-      onBeforeLogin: undefined,
-      onAfterLogin: undefined,
-      externalProvider: {
+      provider: {
+        kind: "external",
         providerId: provider.id,
         serverPackage: undefined,
         serverModule: mapRefObjectForMockProjectDir(
@@ -612,28 +605,30 @@ describe("mapAuth", () => {
 
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
-      methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
-      onBeforeSignup:
-        waspConfig.onBeforeSignup &&
-        mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
-      onAfterSignup:
-        waspConfig.onAfterSignup &&
-        mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
-      onAfterEmailVerified:
-        waspConfig.onAfterEmailVerified &&
-        mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
-      onBeforeOAuthRedirect:
-        waspConfig.onBeforeOAuthRedirect &&
-        mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
-      onBeforeLogin:
-        waspConfig.onBeforeLogin &&
-        mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
-      onAfterLogin:
-        waspConfig.onAfterLogin &&
-        mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
-      externalProvider: undefined,
+      provider: {
+        kind: "wasp",
+        methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
+        onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
+        onBeforeSignup:
+          waspConfig.onBeforeSignup &&
+          mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
+        onAfterSignup:
+          waspConfig.onAfterSignup &&
+          mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
+        onAfterEmailVerified:
+          waspConfig.onAfterEmailVerified &&
+          mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
+        onBeforeOAuthRedirect:
+          waspConfig.onBeforeOAuthRedirect &&
+          mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
+        onBeforeLogin:
+          waspConfig.onBeforeLogin &&
+          mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
+        onAfterLogin:
+          waspConfig.onAfterLogin &&
+          mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
+      },
     } satisfies AppSpec.Auth);
   }
 });

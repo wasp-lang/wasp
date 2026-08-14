@@ -50,10 +50,9 @@ export function mapAuth(
     onAuthFailedRedirectTo,
   };
 
-  // The user-facing union is normalized into the flat IR here: whichever arm
-  // is chosen, the other arm's fields come out empty by construction. This is
-  // where "no redundant auth config" stops being a type-level promise and
-  // becomes a property of the data every later stage consumes.
+  // The user-facing union maps 1:1 onto the IR's union -- the IR is the same
+  // discriminated shape, so the impossible states never exist in any
+  // representation the compiler consumes.
   switch (provider.kind) {
     case "wasp": {
       const {
@@ -69,31 +68,28 @@ export function mapAuth(
 
       return {
         ...base,
-        methods: mapAuthMethods(methods, ctx),
-        onAuthSucceededRedirectTo,
-        onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
-        onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
-        onAfterEmailVerified:
-          onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
-        onBeforeOAuthRedirect:
-          onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
-        onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
-        onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
-        externalProvider: undefined,
+        provider: {
+          kind: "wasp",
+          methods: mapAuthMethods(methods, ctx),
+          onAuthSucceededRedirectTo,
+          onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
+          onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
+          onAfterEmailVerified:
+            onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
+          onBeforeOAuthRedirect:
+            onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
+          onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
+          onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
+        },
       };
     }
     case "external":
       return {
         ...base,
-        methods: mapAuthMethods({}, ctx),
-        onAuthSucceededRedirectTo: undefined,
-        onBeforeSignup: undefined,
-        onAfterSignup: undefined,
-        onAfterEmailVerified: undefined,
-        onBeforeOAuthRedirect: undefined,
-        onBeforeLogin: undefined,
-        onAfterLogin: undefined,
-        externalProvider: mapExternalAuthProvider(provider, ctx),
+        provider: {
+          kind: "external",
+          ...mapExternalAuthProvider(provider, ctx),
+        },
       };
     default:
       throw new WaspSpecUserError(

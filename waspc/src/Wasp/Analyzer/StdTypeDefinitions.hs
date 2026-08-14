@@ -6,6 +6,7 @@ module Wasp.Analyzer.StdTypeDefinitions
   )
 where
 
+import Wasp.Analyzer.StdTypeDefinitions.App.AuthProvider ()
 import Wasp.Analyzer.StdTypeDefinitions.App.Dependency ()
 import Wasp.Analyzer.StdTypeDefinitions.Entity ()
 import qualified Wasp.Analyzer.TypeDefinitions as TD

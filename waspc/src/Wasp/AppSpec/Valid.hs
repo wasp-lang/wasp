@@ -196,38 +196,18 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
 
 -- | Coherence checks for an external auth provider manifest.
 --
--- The user-facing spec makes wasp-auth config inexpressible next to an external
--- provider (the union is discriminated at the type level) and the mapper
--- normalizes it into the flat IR, so most of these can only fire on a
--- hand-crafted manifest or a mapper bug. They are cheap, and each one failing
--- silently would produce a subtly broken app.
+-- Wasp-auth config next to an external provider needs no check here: the
+-- provider is a sum type, so that state is unrepresentable. What remains are
+-- data-level properties the types cannot express.
 validateExternalAuthProvider :: AppSpec -> [ValidationError]
-validateExternalAuthProvider spec = case App.auth (snd $ getApp spec) >>= withExternalProvider of
+validateExternalAuthProvider spec = case App.auth (snd $ getApp spec) >>= Auth.externalProvider of
   Nothing -> []
-  Just (auth, extProvider) ->
+  Just extProvider ->
     concat
-      [ validateNoWaspAuthConfigLeaked auth,
-        validateExactlyOneServerEntry extProvider,
+      [ validateExactlyOneServerEntry extProvider,
         validateRoutesBasePath extProvider
       ]
   where
-    withExternalProvider auth = (,) auth <$> Auth.externalProvider auth
-
-    validateNoWaspAuthConfigLeaked auth =
-      [ GenericValidationError
-          "app.auth uses an external provider, but wasp-auth-only configuration (methods or hooks) is present. This is a bug in the spec mapper; please report it."
-      | not (null $ Auth.enabledAuthMethodNames $ Auth.methods auth)
-          || any
-            isJust
-            [ Auth.onBeforeSignup auth,
-              Auth.onAfterSignup auth,
-              Auth.onAfterEmailVerified auth,
-              Auth.onBeforeOAuthRedirect auth,
-              Auth.onBeforeLogin auth,
-              Auth.onAfterLogin auth
-            ]
-      ]
-
     validateExactlyOneServerEntry extProvider =
       [ GenericValidationError
           "app.auth.provider must reference its server adapter through exactly one of a package entry or a module reference."

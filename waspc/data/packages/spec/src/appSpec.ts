@@ -148,17 +148,20 @@ export type Wasp = {
   version: string;
 };
 
-// NOTE: The user-facing spec models the auth provider as a discriminated
-// union (wasp auth XOR an external provider manifest), but this IR keeps the
-// flat wasp-auth fields plus an optional `externalProvider`. The mapper
-// normalizes the union into this shape and guarantees that `methods` is empty
-// and every hook is absent whenever `externalProvider` is set. The IR stays
-// flat because the Haskell side mirrors it and the classic Analyzer's Template
-// Haskell cannot derive declarations for sum types.
 export type Auth = {
   userEntity: Ref<"Entity">;
-  methods: AuthMethods;
   onAuthFailedRedirectTo: string;
+  provider: AuthProvider;
+};
+
+// The IR mirrors the user-facing spec's discriminated union, so the impossible
+// states (auth methods next to an external provider, wasp hooks next to a
+// manifest) are unrepresentable here too.
+export type AuthProvider = WaspAuthProvider | ExternalAuthProvider;
+
+export type WaspAuthProvider = {
+  kind: "wasp";
+  methods: AuthMethods;
   onAuthSucceededRedirectTo: Optional<string>;
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
@@ -166,8 +169,11 @@ export type Auth = {
   onBeforeOAuthRedirect: Optional<ExtImport>;
   onBeforeLogin: Optional<ExtImport>;
   onAfterLogin: Optional<ExtImport>;
-  externalProvider: Optional<ExternalAuthProviderSpec>;
 };
+
+export type ExternalAuthProvider = {
+  kind: "external";
+} & ExternalAuthProviderSpec;
 
 export type ExternalAuthProviderSpec = {
   providerId: string;
