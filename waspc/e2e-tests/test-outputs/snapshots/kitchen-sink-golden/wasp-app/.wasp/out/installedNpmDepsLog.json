@@ -223,6 +223,10 @@
                 "version": "^4.3.6"
             },
             {
+                "name": "@wasp.sh/auth-contract",
+                "version": "file:../../libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
+            },
+            {
                 "name": "@wasp.sh/lib-auth",
                 "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
@@ -264,6 +268,10 @@
             {
                 "name": "@socket.io/component-emitter",
                 "version": "^4.0.0"
+            },
+            {
+                "name": "@wasp.sh/auth-contract",
+                "version": "file:../libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-auth",
