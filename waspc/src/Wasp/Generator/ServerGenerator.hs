@@ -37,11 +37,11 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Env (envVarsToDotEnvContent)
