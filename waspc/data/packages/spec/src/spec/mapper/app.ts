@@ -155,9 +155,7 @@ function mapExternalAuthProvider(
     userSignupFields:
       manifest.userSignupFields &&
       ctx.parseRefObject(manifest.userSignupFields),
-    extendServerConfig:
-      manifest.extendServerConfig &&
-      ctx.parseRefObject(manifest.extendServerConfig),
+    setupFn: manifest.setupFn && ctx.parseRefObject(manifest.setupFn),
     optionsJson: mapProviderOptions(manifest),
   };
 }
@@ -178,7 +176,7 @@ function mapProviderOptions(
   // Options travel to the generated code as JSON, so anything that doesn't
   // survive the round-trip (functions, class instances, undefined-holed
   // arrays) would arrive silently mangled. Rejecting here turns that into an
-  // error at compile time, with `extendServerConfig` as the documented escape
+  // error at compile time, with `setupFn` as the documented escape
   // hatch for non-serializable configuration.
   const optionsJson = JSON.stringify(manifest.options);
   if (
@@ -186,7 +184,7 @@ function mapProviderOptions(
     !isEqual(JSON.parse(optionsJson), manifest.options)
   ) {
     throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' has options that do not survive JSON serialization. Provider options must be plain serializable data; use extendServerConfig for functions and other live values.`,
+      `Auth provider '${manifest.id}' has options that do not survive JSON serialization. Provider options must be plain serializable data; use setupFn for functions and other live values.`,
     );
   }
 

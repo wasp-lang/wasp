@@ -500,7 +500,7 @@ describe("mapAuth", () => {
         userSignupFields: mapRefObjectForMockProjectDir(
           provider.userSignupFields,
         ),
-        extendServerConfig: undefined,
+        setupFn: undefined,
         optionsJson: JSON.stringify(provider.options),
       },
     } satisfies AppSpec.Auth);

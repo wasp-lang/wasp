@@ -330,12 +330,13 @@ export interface ExternalAuthProviderManifest {
    */
   userSignupFields?: Reference<AnyObject>;
   /**
-   * Escape hatch for non-serializable adapter configuration (functions, class
-   * instances -- e.g. Better Auth's email-sending callbacks). References a
-   * user-code module; the adapter's server factory applies it after its own
-   * defaults.
+   * Setup function for the provider's underlying library, following the same
+   * convention as `db.prismaSetupFn`: a reference to a user-code function the
+   * adapter calls with its integration config, whose return value becomes the
+   * configuration to use. This is how an app reaches everything serializable
+   * options cannot carry -- hooks, plugins, email-sending callbacks.
    */
-  extendServerConfig?: Reference<AnyFunction>;
+  setupFn?: Reference<AnyFunction>;
   /**
    * Serializable adapter options, passed verbatim to the adapter's server and
    * client factories. Must survive a JSON round-trip; the compiler checks.

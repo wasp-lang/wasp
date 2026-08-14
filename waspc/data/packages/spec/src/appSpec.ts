@@ -184,7 +184,7 @@ export type ExternalAuthProviderSpec = {
   capabilities: string[];
   envVars: ExternalProviderEnvVars;
   userSignupFields: Optional<ExtImport>;
-  extendServerConfig: Optional<ExtImport>;
+  setupFn: Optional<ExtImport>;
   optionsJson: Optional<string>;
 };
 

@@ -149,10 +149,11 @@ data ExternalAuthProviderSpec = ExternalAuthProviderSpec
     -- | Populates the user entity when Wasp provisions a local user for a
     -- subject it has not seen before.
     userSignupFields :: Maybe ExtImport,
-    -- | Escape hatch for non-serializable adapter configuration (functions,
-    -- class instances). Applied by the adapter's server factory after its own
-    -- defaults.
-    extendServerConfig :: Maybe ExtImport,
+    -- | Setup function for the provider's underlying library (the
+    -- @prismaSetupFn@ convention): the adapter calls it with its integration
+    -- config and uses the returned configuration. The escape hatch for
+    -- everything serializable options cannot carry.
+    setupFn :: Maybe ExtImport,
     -- | The adapter's serializable options, JSON-encoded. Kept as a string so
     -- the generator can splice it into generated code verbatim.
     optionsJson :: Maybe String
