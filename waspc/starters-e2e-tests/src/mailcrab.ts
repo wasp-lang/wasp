@@ -30,8 +30,11 @@ SMTP_PORT=1025
 
 async function setupMailCrabWaspTsSpec(waspTsSpecPath: string): Promise<void> {
   const waspTsSpec = await fs.readFile(waspTsSpecPath, "utf8");
+  // NOTE: only email sender provider names may match here. `app.auth` also has
+  // a `provider:` field now (e.g. `provider: waspAuth({...})`), and a broader
+  // pattern would rewrite it into `provider: SMTP({...})` and corrupt the spec.
   const waspSMTPAppSpec = waspTsSpec.replace(
-    /provider:\s+[A-Za-z0-9_][A-Za-z0-9_]*/g,
+    /provider:\s+(SMTP|SendGrid|Mailgun|Resend|Dummy)\b/g,
     "provider: SMTP",
   );
 
