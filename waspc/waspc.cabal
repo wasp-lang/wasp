@@ -240,6 +240,7 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
+    Wasp.Generator.AppComponentUrl
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
@@ -428,7 +429,6 @@ library
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
-    Wasp.Util.AppLocation
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
     Wasp.Util.Docker

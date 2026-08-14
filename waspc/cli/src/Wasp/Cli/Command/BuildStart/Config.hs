@@ -23,6 +23,7 @@ import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, parseDotEnvFile)
+import qualified Wasp.Generator.AppComponentUrl as AppComponentUrl
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.RunConfig (HasEnvVars, addEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -30,7 +31,6 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunC
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
-import qualified Wasp.Util.AppLocation as AL
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
@@ -52,13 +52,13 @@ makeBuildStartConfig appSpec args projectDir' = do
   when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
   let serverLocation = Server.defaultDevServerLocation
-      clientLocation = WebApp.makeDefaultDevClientLocation appSpec
+      clientLocation = WebApp.makeDefaultDevClientUrl appSpec
 
   serverRunConfig' <-
-    makeServerRunConfig serverLocation (AL.url clientLocation)
+    makeServerRunConfig serverLocation (AppComponentUrl.url clientLocation)
       `addEnvVarsC` userServerEnvVars
   clientRunConfig' <-
-    makeWebAppRunConfig clientLocation (AL.url serverLocation)
+    makeWebAppRunConfig clientLocation (AppComponentUrl.url serverLocation)
       `addEnvVarsC` userClientEnvVars
 
   return $
@@ -118,7 +118,7 @@ addEnvVarsC x incomingEnvVars =
       throwError $
         CommandError
           "Duplicate environment variables"
-          ( "The following environment variables are defined multiple times: "
+          ( "The following environment variables will be overwritten by Wasp and should be removed: "
               <> intercalate ", " (toList duplicateEnvVarNames)
-              <> ". Please remove the duplicates."
+              <> "."
           )

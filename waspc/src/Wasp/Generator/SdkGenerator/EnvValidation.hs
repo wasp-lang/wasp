@@ -13,6 +13,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import qualified Wasp.Generator.AppComponentUrl as AppComponentUrl
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
@@ -24,7 +25,6 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
-import qualified Wasp.Util.AppLocation as AL
 
 genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
@@ -59,9 +59,9 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= AL.url (WebApp.makeDefaultDevClientLocation spec),
-          "defaultServerUrl" .= AL.url Server.defaultDevServerLocation,
-          "defaultServerPort" .= show (AL.port Server.defaultDevServerLocation),
+          "defaultClientUrl" .= AppComponentUrl.url (WebApp.makeDefaultDevClientUrl spec),
+          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerLocation,
+          "defaultServerPort" .= show (AppComponentUrl.port Server.defaultDevServerLocation),
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
@@ -79,7 +79,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= AL.url Server.defaultDevServerLocation,
+          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerLocation,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema

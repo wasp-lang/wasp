@@ -28,6 +28,7 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
+import Wasp.Generator.AppComponentUrl (AppComponentUrl (..))
 import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
@@ -38,7 +39,6 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
-import Wasp.Util.AppLocation (AppLocation (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -137,7 +137,7 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
-defaultDevServerLocation :: AppLocation
+defaultDevServerLocation :: AppComponentUrl
 defaultDevServerLocation =
   Local {port = 3001, baseDir = Nothing}
 
