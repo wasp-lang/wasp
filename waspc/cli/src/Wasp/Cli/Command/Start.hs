@@ -19,10 +19,11 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.Util.EnvVarSource (assertNoOverriddenEnvVars, resolveEnvVarProjectFile, resolveInheritedEnvVars)
 import qualified Wasp.Generator
+import Wasp.Generator.RunConfig (envVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..), makeClientRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
@@ -106,7 +107,7 @@ start = withProjectLock $ do
 makeDevRunConfigs ::
   AppSpec ->
   Path' Abs (Dir WaspProjectDir) ->
-  Command (ClientRunConfig, ServerRunConfig)
+  Command (WebAppRunConfig, ServerRunConfig)
 makeDevRunConfigs appSpec waspProjectDir = do
   clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
   serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
@@ -114,13 +115,13 @@ makeDevRunConfigs appSpec waspProjectDir = do
   -- We only assert and persist the final env vars ourselves because the
   -- subprocesses will pick the env vars themselves as part of their own
   -- runtime.
-  assertNoOverriddenEnvVars clientRunConfig.envVars clientEnvVarSources
-  assertNoOverriddenEnvVars serverRunConfig.envVars serverEnvVarSources
+  assertNoOverriddenEnvVars (envVars clientRunConfig) clientEnvVarSources
+  assertNoOverriddenEnvVars (envVars serverRunConfig) serverEnvVarSources
 
   return (clientRunConfig, serverRunConfig)
   where
     clientLocation = WebApp.makeDefaultDevClientLocation appSpec
-    clientRunConfig = makeClientRunConfig clientLocation (AL.url serverLocation)
+    clientRunConfig = makeWebAppRunConfig clientLocation (AL.url serverLocation)
 
     serverLocation = Server.defaultDevServerLocation
     serverRunConfig = makeServerRunConfig serverLocation (AL.url clientLocation)

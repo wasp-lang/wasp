@@ -18,6 +18,7 @@ import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
+import Wasp.Generator.RunConfig (envVars)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -49,7 +50,7 @@ migrateDev generatedAppDir migrateArgs =
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
-  concat . concat $ [createOnlyArg, nameArg]
+  concat (createOnlyArg ++ nameArg)
   where
     createOnlyArg =
       [["--create-only"] | _isCreateOnlyMigration migrateArgs]
@@ -102,7 +103,7 @@ reset generatedAppDir resetArgs =
         --   happening automatically on reset is too aggressive / confusing.
         "--skip-seed"
       ]
-        ++ if force resetArgs then ["--force"] else []
+        ++ (["--force" | force resetArgs])
     )
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
@@ -117,7 +118,7 @@ seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
 seed serverRunConfig generatedAppDir seedName =
   runPrismaCommandAsJobWithExtraEnv
     serverDir
-    ((dbSeedNameEnvVarName, seedName) : serverRunConfig.envVars)
+    ((dbSeedNameEnvVarName, seedName) : envVars serverRunConfig)
     generatedAppDir
     ["db", "seed"]
   where
@@ -175,8 +176,8 @@ runPrismaCommandAsJobWithExtraEnv ::
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir envVars generatedAppDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv envVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+runPrismaCommandAsJobWithExtraEnv fromDir envVars' generatedAppDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnv envVars' fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
