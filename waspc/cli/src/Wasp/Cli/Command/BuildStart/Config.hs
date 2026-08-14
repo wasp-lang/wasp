@@ -23,9 +23,8 @@ import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Env (EnvVar, nubEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, HasEnvVars, addEnvVarsUnique, nubEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.RunConfig (HasEnvVars, addEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -56,10 +55,10 @@ makeBuildStartConfig appSpec args projectDir' = do
 
   serverRunConfig' <-
     makeServerRunConfig serverLocation (AppComponentUrl.url clientLocation)
-      `addEnvVarsC` userServerEnvVars
+      `addEnvVarsUniqueC` userServerEnvVars
   clientRunConfig' <-
     makeWebAppRunConfig clientLocation (AppComponentUrl.url serverLocation)
-      `addEnvVarsC` userClientEnvVars
+      `addEnvVarsUniqueC` userClientEnvVars
 
   return $
     BuildStartConfig
@@ -107,12 +106,12 @@ combineEnvVarsWithEnvFiles inlineEnvVars files = do
 readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
 readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
 
-addEnvVarsC :: (HasEnvVars a) => a -> [EnvVar] -> Command a
-addEnvVarsC x incomingEnvVars =
+addEnvVarsUniqueC :: (HasEnvVars a) => a -> [EnvVar] -> Command a
+addEnvVarsUniqueC x incomingEnvVars =
   either
     throwDuplicateEnvVarsError
     return
-    (addEnvVars x incomingEnvVars)
+    (addEnvVarsUnique x incomingEnvVars)
   where
     throwDuplicateEnvVarsError duplicateEnvVarNames =
       throwError $

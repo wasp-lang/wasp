@@ -139,7 +139,7 @@ serverUrlEnvVarName = "WASP_SERVER_URL"
 
 defaultDevServerLocation :: AppComponentUrl
 defaultDevServerLocation =
-  Local {port = 3001, baseDir = Nothing}
+  Local {port = 3001, path = Nothing}
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

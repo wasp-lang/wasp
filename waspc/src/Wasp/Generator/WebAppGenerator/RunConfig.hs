@@ -6,8 +6,7 @@ where
 
 import Network.Socket (PortNumber)
 import Wasp.AppComponentUrl (AppComponentUrl (..))
-import Wasp.Env (EnvVar)
-import Wasp.Generator.RunConfig (HasEnvVars (..))
+import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
 data WebAppRunConfig = WebAppRunConfig
@@ -18,7 +17,7 @@ data WebAppRunConfig = WebAppRunConfig
 
 instance HasEnvVars WebAppRunConfig where
   envVars = envVars'
-  replaceEnvVars config newEnvVars = config {envVars' = newEnvVars}
+  setEnvVars config newEnvVars = config {envVars' = newEnvVars}
 
 makeWebAppRunConfig :: AppComponentUrl -> String -> WebAppRunConfig
 makeWebAppRunConfig expectedUrl serverUrl =

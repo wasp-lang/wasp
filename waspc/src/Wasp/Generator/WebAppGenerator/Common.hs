@@ -24,4 +24,4 @@ serverUrlEnvVarName = "REACT_APP_API_URL"
 
 makeDefaultDevClientUrl :: AppSpec -> AppComponentUrl
 makeDefaultDevClientUrl spec =
-  Local {port = 3000, baseDir = Just $ getBaseDir spec}
+  Local {port = 3000, path = Just $ getBaseDir spec}

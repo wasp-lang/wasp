@@ -6,7 +6,7 @@ import qualified StrongPath as SP
 
 data AppComponentUrl = Local
   { port :: PortNumber,
-    baseDir :: Maybe (Path Posix Abs (Dir ()))
+    path :: Maybe (Path Posix Abs (Dir ()))
   }
 
 host :: AppComponentUrl -> String
@@ -19,4 +19,4 @@ url :: AppComponentUrl -> String
 url loc =
   concat $
     [protocol loc, "://", host loc, ":", show $ port loc]
-      ++ [SP.fromAbsDirP bd | Just bd <- [loc.baseDir]]
+      ++ [SP.fromAbsDirP p | Just p <- [loc.path]]

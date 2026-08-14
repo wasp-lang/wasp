@@ -5,8 +5,7 @@ module Wasp.Generator.ServerGenerator.RunConfig
 where
 
 import Wasp.AppComponentUrl (AppComponentUrl, url)
-import Wasp.Env (EnvVar)
-import Wasp.Generator.RunConfig (HasEnvVars (..))
+import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 
 newtype ServerRunConfig = ServerRunConfig
@@ -16,7 +15,7 @@ newtype ServerRunConfig = ServerRunConfig
 
 instance HasEnvVars ServerRunConfig where
   envVars = envVars'
-  replaceEnvVars config newEnvVars = config {envVars' = newEnvVars}
+  setEnvVars config newEnvVars = config {envVars' = newEnvVars}
 
 makeServerRunConfig :: AppComponentUrl -> String -> ServerRunConfig
 makeServerRunConfig expectedUrl clientUrl =
