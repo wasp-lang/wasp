@@ -4,8 +4,8 @@ module Wasp.Generator.ServerGenerator.RunConfig
   )
 where
 
+import Wasp.AppComponentUrl (AppComponentUrl, url)
 import Wasp.Env (EnvVar)
-import Wasp.Generator.AppComponentUrl (AppComponentUrl, url)
 import Wasp.Generator.RunConfig (HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 

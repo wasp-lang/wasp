@@ -28,7 +28,7 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
-import Wasp.Generator.AppComponentUrl (AppComponentUrl (..))
+import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,

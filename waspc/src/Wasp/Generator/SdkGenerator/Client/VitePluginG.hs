@@ -5,10 +5,10 @@ import Data.Maybe (fromJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
-import qualified Wasp.Generator.AppComponentUrl as AppComponentUrl
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)

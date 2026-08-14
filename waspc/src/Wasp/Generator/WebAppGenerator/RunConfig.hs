@@ -5,8 +5,8 @@ module Wasp.Generator.WebAppGenerator.RunConfig
 where
 
 import Network.Socket (PortNumber)
+import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.Env (EnvVar)
-import Wasp.Generator.AppComponentUrl (AppComponentUrl (..))
 import Wasp.Generator.RunConfig (HasEnvVars (..))
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 

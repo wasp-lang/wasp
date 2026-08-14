@@ -14,6 +14,7 @@ import Data.List (intercalate)
 import Data.List.NonEmpty (toList)
 import StrongPath ((</>))
 import qualified StrongPath as SP
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -23,7 +24,6 @@ import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, parseDotEnvFile)
-import qualified Wasp.Generator.AppComponentUrl as AppComponentUrl
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.RunConfig (HasEnvVars, addEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server

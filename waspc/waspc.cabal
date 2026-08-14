@@ -198,6 +198,7 @@ library
     Wasp.Analyzer.TypeDefinitions.TH.Common
     Wasp.Analyzer.TypeDefinitions.TH.Decl
     Wasp.Analyzer.TypeDefinitions.TH.Enum
+    Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
@@ -240,7 +241,6 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
-    Wasp.Generator.AppComponentUrl
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
