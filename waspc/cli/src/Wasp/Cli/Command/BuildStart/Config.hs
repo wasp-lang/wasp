@@ -22,21 +22,21 @@ import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, nubEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Generator.RunConfig (HasEnvVars, addEnvVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.ServerGenerator.RunConfig as Server.RC
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebApp.RC
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import qualified Wasp.Util.AppLocation as AL
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientRunConfig :: ClientRunConfig,
-    serverRunConfig :: Server.RC.ServerRunConfig,
+    clientRunConfig :: WebAppRunConfig,
+    serverRunConfig :: ServerRunConfig,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -54,14 +54,12 @@ makeBuildStartConfig appSpec args projectDir' = do
   let serverLocation = Server.defaultDevServerLocation
       clientLocation = WebApp.makeDefaultDevClientLocation appSpec
 
-      defaultServerRunConfig = Server.RC.makeServerRunConfig serverLocation (AL.url clientLocation)
-      defaultClientRunConfig = WebApp.RC.makeClientRunConfig clientLocation (AL.url serverLocation)
-
-  fullServerEnvVars <- overrideEnvVarsC defaultServerRunConfig.envVars userServerEnvVars
-  fullClientEnvVars <- overrideEnvVarsC defaultClientRunConfig.envVars userClientEnvVars
-
-  let serverRunConfig' = defaultServerRunConfig {Server.RC.envVars = fullServerEnvVars}
-      clientRunConfig' = defaultClientRunConfig {WebApp.RC.envVars = fullClientEnvVars}
+  serverRunConfig' <-
+    makeServerRunConfig serverLocation (AL.url clientLocation)
+      `addEnvVarsC` userServerEnvVars
+  clientRunConfig' <-
+    makeWebAppRunConfig clientLocation (AL.url serverLocation)
+      `addEnvVarsC` userClientEnvVars
 
   return $
     BuildStartConfig
@@ -109,12 +107,12 @@ combineEnvVarsWithEnvFiles inlineEnvVars files = do
 readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
 readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
 
-overrideEnvVarsC :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
-overrideEnvVarsC existingEnvVars incomingEnvVars =
+addEnvVarsC :: (HasEnvVars a) => a -> [EnvVar] -> Command a
+addEnvVarsC x incomingEnvVars =
   either
     throwDuplicateEnvVarsError
     return
-    (overrideEnvVars existingEnvVars incomingEnvVars)
+    (addEnvVars x incomingEnvVars)
   where
     throwDuplicateEnvVarsError duplicateEnvVarNames =
       throwError $

@@ -6,7 +6,8 @@ where
 
 import Data.Function ((&))
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig (..))
+import Wasp.Generator.RunConfig (envVars)
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
@@ -14,14 +15,14 @@ import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 buildClient :: BuildStartConfig -> ExceptJob
 buildClient config =
   runNodeCommandAsJobWithExtraEnv
-    envVars
+    envVars'
     projectDir
     "npx"
     ["vite", "build"]
     J.WebApp
     & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
-    envVars = config.clientRunConfig.envVars
+    envVars' = envVars config.clientRunConfig
     projectDir = config.projectDir
 
 startClient :: BuildStartConfig -> ExceptJob
