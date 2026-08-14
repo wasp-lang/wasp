@@ -8,10 +8,18 @@ import {
   RailwayCliServiceListSchema,
   RailwayCliServiceSchema,
 } from "../jsonOutputSchemas.js";
+import {
+  RailwayServiceInstance,
+  setServiceInstanceImage,
+  startServiceInstanceDeployment,
+} from "./serviceInstance.js";
 
+// Creating a service with an image immediately starts a deployment, and
+// Postgres crashes when its volume isn't attached yet.
 export async function createDatabaseService({
   serviceName,
   imageSpec,
+  environmentId,
   railwayExe,
   waspProjectDir,
 }: {
@@ -20,22 +28,28 @@ export async function createDatabaseService({
     image: string;
     volumeMountPath: string;
   };
+  environmentId: string;
   railwayExe: RailwayCliExe;
   waspProjectDir: WaspProjectDir;
 }): Promise<RailwayCliService> {
   const options = { railwayExe, waspProjectDir };
-  const dbService = await addDatabaseService(
+  const dbService = await addDatabaseServiceWithoutImage(
     serviceName,
-    imageSpec.image,
     imageSpec.volumeMountPath,
     options,
   );
+  const dbServiceInstance: RailwayServiceInstance = {
+    serviceId: dbService.id,
+    environmentId,
+  };
 
   try {
     await addDatabaseVolume(dbService, imageSpec.volumeMountPath, options);
-  } catch (volumeError) {
-    await deleteIncompleteDatabaseService(dbService, volumeError, options);
-    throw volumeError;
+    await setServiceInstanceImage(dbServiceInstance, imageSpec.image, options);
+    await startServiceInstanceDeployment(dbServiceInstance, options);
+  } catch (setupError) {
+    await deleteIncompleteDatabaseService(dbService, setupError, options);
+    throw setupError;
   }
 
   return dbService;
@@ -60,9 +74,8 @@ export async function assertDatabaseServiceHasVolume(
   }
 }
 
-async function addDatabaseService(
+async function addDatabaseServiceWithoutImage(
   dbServiceName: DbServiceName,
-  dbImage: string,
   dbVolumeMountPath: string,
   options: {
     railwayExe: RailwayCliExe;
@@ -92,13 +105,7 @@ async function addDatabaseService(
 
   return runJsonCommand(
     railwayCli,
-    [
-      "add",
-      ...["--service", dbServiceName],
-      ...["--image", dbImage],
-      ...variableArgs,
-      "--json",
-    ],
+    ["add", ...["--service", dbServiceName], ...variableArgs, "--json"],
     RailwayCliServiceSchema,
   );
 }
@@ -130,7 +137,7 @@ async function addDatabaseVolume(
 
 async function deleteIncompleteDatabaseService(
   dbService: RailwayCliService,
-  volumeError: unknown,
+  setupError: unknown,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
@@ -151,7 +158,7 @@ async function deleteIncompleteDatabaseService(
       [
         `Wasp couldn't finish setting up Railway database service "${dbService.name}" (${dbService.id}).`,
         "Wasp also couldn't remove the incomplete service. Remove it from Railway before trying again.",
-        `Volume error: ${getErrorMessage(volumeError)}`,
+        `Setup error: ${getErrorMessage(setupError)}`,
         `Cleanup error: ${getErrorMessage(cleanupError)}`,
       ].join("\n"),
     );
