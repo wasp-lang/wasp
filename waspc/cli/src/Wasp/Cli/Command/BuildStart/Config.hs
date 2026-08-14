@@ -16,24 +16,23 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.EnvVarSource (EnvVarSource, overrideEnvVarsC, resolveEnvVarArguments, resolveEnvVarFile)
+import Wasp.Cli.Util.EnvVarSource (EnvVarSource, addEnvVarsC, resolveEnvVarArguments, resolveEnvVarFile)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.ServerGenerator.RunConfig as Server.RC
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (ClientRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebApp.RC
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import qualified Wasp.Util.AppLocation as AL
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientRunConfig :: ClientRunConfig,
-    serverRunConfig :: Server.RC.ServerRunConfig,
+    clientRunConfig :: WebAppRunConfig,
+    serverRunConfig :: ServerRunConfig,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -42,20 +41,18 @@ makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir Was
 makeBuildStartConfig appSpec args projectDir' = do
   when noEnvVarsSourcesSpecified $ throwError noEnvVarsSourcesSpecifiedMsg
 
-  serverEnvVars <- liftIO $ resolveEnvVarSources args.serverEnvVarSources
-  clientEnvVars <- liftIO $ resolveEnvVarSources args.clientEnvVarSources
+  userServerEnvVars <- liftIO $ resolveEnvVarSources args.serverEnvVarSources
+  userClientEnvVars <- liftIO $ resolveEnvVarSources args.clientEnvVarSources
 
   let serverLocation = Server.defaultDevServerLocation
       clientLocation = WebApp.makeDefaultDevClientLocation appSpec
 
-      defaultServerRunConfig = Server.RC.makeServerRunConfig serverLocation (AL.url clientLocation)
-      defaultClientRunConfig = WebApp.RC.makeClientRunConfig clientLocation (AL.url serverLocation)
-
-  fullServerEnvVars <- overrideEnvVarsC defaultServerRunConfig.envVars serverEnvVars
-  fullClientEnvVars <- overrideEnvVarsC defaultClientRunConfig.envVars clientEnvVars
-
-  let serverRunConfig' = defaultServerRunConfig {Server.RC.envVars = fullServerEnvVars}
-      clientRunConfig' = defaultClientRunConfig {WebApp.RC.envVars = fullClientEnvVars}
+  serverRunConfig' <-
+    makeServerRunConfig serverLocation (AL.url clientLocation)
+      `addEnvVarsC` userServerEnvVars
+  clientRunConfig' <-
+    makeWebAppRunConfig clientLocation (AL.url serverLocation)
+      `addEnvVarsC` userClientEnvVars
 
   return $
     BuildStartConfig

@@ -7,7 +7,6 @@ module Wasp.Env
     parseDotEnvFile,
     envVarsToDotEnvContent,
     nubEnvVars,
-    overrideEnvVars,
     formatEnvVarValue,
     findDuplicateEnvVars,
   )
@@ -17,7 +16,6 @@ import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
-import Data.List.NonEmpty (NonEmpty, nonEmpty)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
@@ -55,21 +53,6 @@ formatEnvVarValue rawValue
 
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
-
--- | If any of the first env vars already exist in the second list, returns
--- `Left` of the list of duplicated env var names. Otherwise returns `Right` of
--- the combined list.
---
--- This function is useful to add internal environment variables to a list of
--- user-defined ones. If the user has already defined an environment variable
--- with the same name, we'll want to inform them so that the user doesn't get
--- confused about which value is being used. If the user has not defined that
--- environment variable, we just prepend it to the list and continue.
-overrideEnvVars :: [EnvVar] -> [EnvVar] -> Either (NonEmpty EnvVarName) [EnvVar]
-overrideEnvVars existing incoming =
-  case nonEmpty $ findDuplicateEnvVars existing incoming of
-    Nothing -> Right (nubEnvVars $ existing <> incoming)
-    Just duplicateNames -> Left duplicateNames
 
 findDuplicateEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarName]
 findDuplicateEnvVars existing incoming =
