@@ -2,7 +2,7 @@ import type {
   ServerAdapterFactory,
   VerifiedSession,
 } from "@wasp.sh/auth-contract";
-import { betterAuth } from "better-auth";
+import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { toNodeHandler } from "better-auth/node";
 import { bearer } from "better-auth/plugins";
@@ -11,6 +11,21 @@ import { bearer } from "better-auth/plugins";
 export type BetterAuthAdapterOptions = {
   emailAndPassword?: boolean;
 };
+
+/**
+ * The type of the `extendServerConfig` function an app can reference from its
+ * manifest: it receives the adapter's default Better Auth configuration and
+ * returns the configuration to use. This is the escape hatch to Better Auth's
+ * full surface -- `databaseHooks`, `plugins`, `emailAndPassword.sendResetPassword`,
+ * `emailVerification`, rate limiting, anything its options carry.
+ *
+ * The adapter re-asserts its load-bearing settings after applying it (base
+ * path, `modelName` overrides, the bearer plugin, the database adapter), so
+ * those cannot be broken from here -- everything else is yours.
+ */
+export type BetterAuthConfigExtension = (
+  config: BetterAuthOptions,
+) => BetterAuthOptions;
 
 /**
  * Better Auth, expressed as a Wasp `AuthProvider`.
@@ -32,8 +47,8 @@ export type BetterAuthAdapterOptions = {
  */
 export const createServerAdapter: ServerAdapterFactory<
   BetterAuthAdapterOptions
-> = (runtime, options) => {
-  const auth = betterAuth({
+> = (runtime, options, extensions) => {
+  const defaultConfig: BetterAuthOptions = {
     // The app's own PrismaClient, handed over by Wasp. `runtime.db` is typed
     // `unknown` because the client's type is generated per app; Better Auth's
     // adapter only needs its dynamic model delegates.
@@ -52,12 +67,39 @@ export const createServerAdapter: ServerAdapterFactory<
 
     emailAndPassword: {
       enabled: options?.emailAndPassword ?? true,
-      // Email delivery is not wired through the adapter (yet), so requiring
-      // verification would lock every user out.
+      // Email delivery is the app's call (wire it via `extendServerConfig`),
+      // so requiring verification by default would lock every user out.
       requireEmailVerification: false,
     },
 
     plugins: [bearer()],
+  };
+
+  // The user's escape hatch, applied over the defaults. Everything Better
+  // Auth's options can express is reachable here.
+  const extendServerConfig = extensions?.extendServerConfig as
+    | BetterAuthConfigExtension
+    | undefined;
+  const extendedConfig = extendServerConfig
+    ? extendServerConfig(defaultConfig)
+    : defaultConfig;
+
+  const auth = betterAuth({
+    ...extendedConfig,
+    // Re-asserted invariants: without these exact settings the integration
+    // breaks (routes are mounted at the manifest's basePath, the table names
+    // avoid Wasp's own, the bearer plugin carries the token, and the storage
+    // must be the app's database). The extension can change anything else.
+    database: defaultConfig.database,
+    basePath: "/better-auth",
+    user: { ...extendedConfig.user, modelName: "betterAuthUser" },
+    session: { ...extendedConfig.session, modelName: "betterAuthSession" },
+    account: { ...extendedConfig.account, modelName: "betterAuthAccount" },
+    verification: {
+      ...extendedConfig.verification,
+      modelName: "betterAuthVerification",
+    },
+    plugins: withBearerPlugin(extendedConfig.plugins),
   });
 
   return {
@@ -123,3 +165,14 @@ export const createServerAdapter: ServerAdapterFactory<
     routeHandler: toNodeHandler(auth),
   };
 };
+
+/** Keeps the bearer plugin present whatever the extension did to `plugins`. */
+function withBearerPlugin(
+  plugins: BetterAuthOptions["plugins"],
+): NonNullable<BetterAuthOptions["plugins"]> {
+  const bearerPlugin = bearer();
+  const existingPlugins = plugins ?? [];
+  return existingPlugins.some((plugin) => plugin.id === bearerPlugin.id)
+    ? existingPlugins
+    : [...existingPlugins, bearerPlugin];
+}

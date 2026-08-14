@@ -2,6 +2,7 @@ import { betterAuth } from "@wasp.sh/auth-better-auth/spec";
 import { action, app, page, query, route } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
+import { extendBetterAuth } from "./src/auth/serverConfig" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
@@ -24,7 +25,13 @@ export default app({
     // already-consumed stream hangs every request. In earlier versions of
     // this app that took an `api()` + `apiNamespace()` pair; the manifest's
     // `routes` declaration replaces both.
-    provider: betterAuth({ emailAndPassword: true }),
+    provider: betterAuth({
+      emailAndPassword: true,
+      // The escape hatch: full access to Better Auth's own configuration
+      // surface (its hooks, plugins, email callbacks) -- see the referenced
+      // module.
+      extendServerConfig: extendBetterAuth,
+    }),
   },
 
   spec: [

@@ -1,8 +1,21 @@
 import type { ServerAdapterFactory } from "@wasp.sh/auth-contract";
+import { type BetterAuthOptions } from "better-auth";
 /** The serializable options the spec helper captured in `main.wasp.ts`. */
 export type BetterAuthAdapterOptions = {
     emailAndPassword?: boolean;
 };
+/**
+ * The type of the `extendServerConfig` function an app can reference from its
+ * manifest: it receives the adapter's default Better Auth configuration and
+ * returns the configuration to use. This is the escape hatch to Better Auth's
+ * full surface -- `databaseHooks`, `plugins`, `emailAndPassword.sendResetPassword`,
+ * `emailVerification`, rate limiting, anything its options carry.
+ *
+ * The adapter re-asserts its load-bearing settings after applying it (base
+ * path, `modelName` overrides, the bearer plugin, the database adapter), so
+ * those cannot be broken from here -- everything else is yours.
+ */
+export type BetterAuthConfigExtension = (config: BetterAuthOptions) => BetterAuthOptions;
 /**
  * Better Auth, expressed as a Wasp `AuthProvider`.
  *

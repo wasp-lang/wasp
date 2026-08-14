@@ -28,7 +28,10 @@ export type EnvVarRequirement = {
  * passes is branded by the app's own spec copy, and naming that type here
  * would pin it to the wrong one. The caller's type flows through untouched.
  */
-export type BetterAuthProviderManifest<UserSignupFieldsRef = never> = {
+export type BetterAuthProviderManifest<
+  UserSignupFieldsRef = never,
+  ExtendServerConfigRef = never,
+> = {
   readonly __waspAuthProviderManifest: true;
   kind: "external";
   contractVersion: 1;
@@ -39,12 +42,16 @@ export type BetterAuthProviderManifest<UserSignupFieldsRef = never> = {
   env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
   options: { emailAndPassword: boolean };
   userSignupFields?: UserSignupFieldsRef;
+  extendServerConfig?: ExtendServerConfigRef;
 };
 
 /**
  * The configuration accepted by {@link betterAuth}.
  */
-export interface BetterAuthConfig<UserSignupFieldsRef = never> {
+export interface BetterAuthConfig<
+  UserSignupFieldsRef = never,
+  ExtendServerConfigRef = never,
+> {
   /**
    * Enable Better Auth's email-and-password flow.
    *
@@ -59,6 +66,20 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never> {
    * non-nullable fields.
    */
   userSignupFields?: UserSignupFieldsRef;
+
+  /**
+   * The escape hatch: a reference to a function `(config) => config` applied
+   * over the adapter's Better Auth configuration before the instance is
+   * created. This is how an app reaches everything the serializable options
+   * cannot carry -- Better Auth's `databaseHooks`, `plugins`,
+   * `emailAndPassword.sendResetPassword`, `emailVerification`, rate limiting.
+   *
+   * Type the function with `BetterAuthConfigExtension` from
+   * `@wasp.sh/auth-better-auth/server`. The adapter re-asserts its own
+   * load-bearing settings (base path, table name overrides, the bearer
+   * plugin, the database adapter) after applying it.
+   */
+  extendServerConfig?: ExtendServerConfigRef;
 }
 
 /**
@@ -88,9 +109,12 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never> {
  *   server adapter configures -- see this package's README for the block to
  *   paste in.
  */
-export function betterAuth<UserSignupFieldsRef = never>(
-  config?: BetterAuthConfig<UserSignupFieldsRef>,
-): BetterAuthProviderManifest<UserSignupFieldsRef> {
+export function betterAuth<
+  UserSignupFieldsRef = never,
+  ExtendServerConfigRef = never,
+>(
+  config?: BetterAuthConfig<UserSignupFieldsRef, ExtendServerConfigRef>,
+): BetterAuthProviderManifest<UserSignupFieldsRef, ExtendServerConfigRef> {
   return {
     __waspAuthProviderManifest: true,
     kind: "external",
@@ -107,6 +131,9 @@ export function betterAuth<UserSignupFieldsRef = never>(
     options: { emailAndPassword: config?.emailAndPassword ?? true },
     ...(config?.userSignupFields !== undefined
       ? { userSignupFields: config.userSignupFields }
+      : {}),
+    ...(config?.extendServerConfig !== undefined
+      ? { extendServerConfig: config.extendServerConfig }
       : {}),
   };
 }

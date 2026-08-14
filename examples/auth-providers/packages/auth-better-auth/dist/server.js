@@ -20,8 +20,8 @@ import { bearer } from "better-auth/plugins";
  *   these must be the *Prisma client property*, not the `@@map` name: the
  *   adapter does a raw `db[modelName]` lookup with no case transformation.
  */
-export const createServerAdapter = (runtime, options) => {
-    const auth = betterAuth({
+export const createServerAdapter = (runtime, options, extensions) => {
+    const defaultConfig = {
         // The app's own PrismaClient, handed over by Wasp. `runtime.db` is typed
         // `unknown` because the client's type is generated per app; Better Auth's
         // adapter only needs its dynamic model delegates.
@@ -38,11 +38,34 @@ export const createServerAdapter = (runtime, options) => {
         verification: { modelName: "betterAuthVerification" },
         emailAndPassword: {
             enabled: options?.emailAndPassword ?? true,
-            // Email delivery is not wired through the adapter (yet), so requiring
-            // verification would lock every user out.
+            // Email delivery is the app's call (wire it via `extendServerConfig`),
+            // so requiring verification by default would lock every user out.
             requireEmailVerification: false,
         },
         plugins: [bearer()],
+    };
+    // The user's escape hatch, applied over the defaults. Everything Better
+    // Auth's options can express is reachable here.
+    const extendServerConfig = extensions?.extendServerConfig;
+    const extendedConfig = extendServerConfig
+        ? extendServerConfig(defaultConfig)
+        : defaultConfig;
+    const auth = betterAuth({
+        ...extendedConfig,
+        // Re-asserted invariants: without these exact settings the integration
+        // breaks (routes are mounted at the manifest's basePath, the table names
+        // avoid Wasp's own, the bearer plugin carries the token, and the storage
+        // must be the app's database). The extension can change anything else.
+        database: defaultConfig.database,
+        basePath: "/better-auth",
+        user: { ...extendedConfig.user, modelName: "betterAuthUser" },
+        session: { ...extendedConfig.session, modelName: "betterAuthSession" },
+        account: { ...extendedConfig.account, modelName: "betterAuthAccount" },
+        verification: {
+            ...extendedConfig.verification,
+            modelName: "betterAuthVerification",
+        },
+        plugins: withBearerPlugin(extendedConfig.plugins),
     });
     return {
         provider: {
@@ -98,3 +121,11 @@ export const createServerAdapter = (runtime, options) => {
         routeHandler: toNodeHandler(auth),
     };
 };
+/** Keeps the bearer plugin present whatever the extension did to `plugins`. */
+function withBearerPlugin(plugins) {
+    const bearerPlugin = bearer();
+    const existingPlugins = plugins ?? [];
+    return existingPlugins.some((plugin) => plugin.id === bearerPlugin.id)
+        ? existingPlugins
+        : [...existingPlugins, bearerPlugin];
+}

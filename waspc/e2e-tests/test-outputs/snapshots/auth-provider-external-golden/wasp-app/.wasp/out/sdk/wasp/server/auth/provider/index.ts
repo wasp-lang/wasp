@@ -26,6 +26,11 @@ const serverAdapter = await Promise.resolve(
       clientUrl: config.frontendUrl,
     },
     undefined,
+    {
+      // The user's escape hatch into the adapter's underlying library
+      // configuration; the adapter applies it over its own defaults.
+      extendServerConfig: undefined,
+    },
   ),
 )
 

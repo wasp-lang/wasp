@@ -38,3 +38,16 @@ export type RegisteredAuthProviderUserSignupFields = FromRegister<
   'authProviderUserSignupFields',
   UserSignupFields
 >
+
+// PRIVATE API
+/**
+ * The `extendServerConfig` function the developer registered on the external
+ * provider's manifest, if any: the escape hatch that lets an app reach the
+ * underlying auth library's full configuration surface (hooks, plugins, email
+ * callbacks) while keeping the packaged adapter. The adapter types its
+ * parameter precisely; here it only has to be *a* function.
+ */
+export type RegisteredAuthProviderExtendServerConfig = FromRegister<
+  'authProviderExtendServerConfig',
+  (config: never) => unknown
+>

@@ -53,5 +53,8 @@ export function betterAuth(config) {
         ...(config?.userSignupFields !== undefined
             ? { userSignupFields: config.userSignupFields }
             : {}),
+        ...(config?.extendServerConfig !== undefined
+            ? { extendServerConfig: config.extendServerConfig }
+            : {}),
     };
 }

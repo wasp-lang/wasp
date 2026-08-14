@@ -187,12 +187,30 @@ export type ServerAdapter = {
 };
 
 /**
+ * User-code extensions Wasp delivers alongside the serializable options.
+ *
+ * `extendServerConfig` is the escape hatch for everything a manifest cannot
+ * carry: functions, class instances, live values. An adapter that supports it
+ * builds its default configuration, hands it to this function, and uses the
+ * result -- so the user can reach the underlying library's full surface
+ * (Better Auth's hooks, plugins and email callbacks, say) without giving up
+ * the packaged adapter. Adapters should re-assert the invariants their
+ * integration depends on (route base paths, required plugins, table name
+ * overrides) after applying it.
+ */
+export type ServerAdapterExtensions = {
+  extendServerConfig?: (config: never) => unknown;
+};
+
+/**
  * The required shape of an adapter package's server entry: a named
  * `createServerAdapter` export of this type. `options` is the serializable
  * configuration the adapter's spec helper captured in `main.wasp.ts`, delivered
- * verbatim.
+ * verbatim; `extensions` carries the user-code escape hatches referenced by the
+ * manifest.
  */
 export type ServerAdapterFactory<Options = unknown> = (
   runtime: WaspServerRuntime,
   options: Options,
+  extensions?: ServerAdapterExtensions,
 ) => ServerAdapter | Promise<ServerAdapter>;

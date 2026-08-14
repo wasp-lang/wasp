@@ -4,6 +4,9 @@ import { {=# isCustomAuthProviderUsed =}canIssueSessions as canProviderIssueSess
 {=# isPackageAuthProvider =}
 import { createServerAdapter } from '{= serverPackage =}'
 import { config, prisma } from '../../index.js'
+{=# externalExtendServerConfig.isDefined =}
+{=& externalExtendServerConfig.importStatement =}
+{=/ externalExtendServerConfig.isDefined =}
 {=/ isPackageAuthProvider =}
 {=^ isPackageAuthProvider =}
 {=& authProvider.importStatement =}
@@ -38,6 +41,11 @@ const serverAdapter = await Promise.resolve(
       clientUrl: config.frontendUrl,
     },
     {=& optionsJson =},
+    {
+      // The user's escape hatch into the adapter's underlying library
+      // configuration; the adapter applies it over its own defaults.
+      extendServerConfig: {=# externalExtendServerConfig.isDefined =}{= externalExtendServerConfig.importIdentifier =}{=/ externalExtendServerConfig.isDefined =}{=^ externalExtendServerConfig.isDefined =}undefined{=/ externalExtendServerConfig.isDefined =},
+    },
   ),
 )
 
