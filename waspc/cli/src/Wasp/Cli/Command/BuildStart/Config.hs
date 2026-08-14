@@ -50,14 +50,14 @@ makeBuildStartConfig appSpec args projectDir' = do
       combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
   when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let serverLocation = Server.defaultDevServerLocation
-      clientLocation = WebApp.makeDefaultDevClientUrl appSpec
+  let serverUrl = Server.defaultDevServerUrl
+      clientUrl = WebApp.makeDefaultDevClientUrl appSpec
 
   serverRunConfig' <-
-    makeServerRunConfig serverLocation (AppComponentUrl.url clientLocation)
+    makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
       `addEnvVarsUniqueC` userServerEnvVars
   clientRunConfig' <-
-    makeWebAppRunConfig clientLocation (AppComponentUrl.url serverLocation)
+    makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
       `addEnvVarsUniqueC` userClientEnvVars
 
   return $

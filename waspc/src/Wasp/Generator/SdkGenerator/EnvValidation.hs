@@ -60,8 +60,8 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= AppComponentUrl.url (WebApp.makeDefaultDevClientUrl spec),
-          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerLocation,
-          "defaultServerPort" .= show (AppComponentUrl.port Server.defaultDevServerLocation),
+          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerUrl,
+          "defaultServerPort" .= show (AppComponentUrl.port Server.defaultDevServerUrl),
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
@@ -79,7 +79,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerLocation,
+          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerUrl,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema

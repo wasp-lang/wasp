@@ -17,7 +17,7 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    defaultDevServerLocation,
+    defaultDevServerUrl,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
@@ -137,8 +137,8 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
-defaultDevServerLocation :: AppComponentUrl
-defaultDevServerLocation =
+defaultDevServerUrl :: AppComponentUrl
+defaultDevServerUrl =
   Local {port = 3001, path = Nothing}
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
