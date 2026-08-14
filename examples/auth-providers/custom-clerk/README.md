@@ -1,12 +1,29 @@
 # Auth providers — Custom adapter (Clerk)
 
-For now a byte-for-byte clone of `../wasp-auth` running Wasp's own auth. It switches to
-Clerk later in this PR stack, but unlike `../clerk` it does so **without an adapter
-package**: the adapter is hand-written inside the app and declared with
+Wasp authenticates every request through **Clerk**, but unlike `../clerk` this app uses no
+adapter package: the adapter is hand-written in `src/auth/provider.ts` and registered with
 `customAuthProvider()`.
 
-That is the escape hatch for providers nobody has packaged yet, and this app exists to
-show what it costs. Compare it with `../clerk`, the same provider behind a package.
+```ts
+import { clerkAuthProvider } from "./src/auth/provider" with { type: "ref" };
 
-The Clerk dependencies are already installed so that the switch shows up as a pure auth
-diff, not a lockfile diff.
+auth: {
+  userEntity: "User",
+  onAuthFailedRedirectTo: "/login",
+  provider: customAuthProvider({
+    id: "external:clerk",
+    server: clerkAuthProvider,
+    capabilities: ["session-revocation"],
+    env: { server: [/* CLERK_SECRET_KEY, ... */], client: [] },
+  }),
+}
+```
+
+That is the escape hatch for providers nobody has packaged yet. This app exists to show what
+it costs: ~80 lines of `provider.ts` implementing `authenticate` and `revokeSession`, plus the
+client wiring in `src/App.tsx` that a package would otherwise ship. Diff this app against
+`../clerk` to see exactly what an adapter package absorbs.
+
+## Run it
+
+Same setup as `../clerk` (a free Clerk instance and the same four env values); see its README.

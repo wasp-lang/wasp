@@ -53,6 +53,7 @@ module ShellCommands
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    copyContentsOfGitTrackedDirToSnapshotDir,
   )
 where
 
@@ -387,3 +388,26 @@ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirFromGitRootDir = do
           ~&& listRelPathsOfGitTrackedFilesInSrcDir
           ~| stripSrcDirRelPrefixFromPaths
           ~| copyFromSrcDirToSnapshotWaspProjectDir
+
+-- | Copies the git-tracked contents of a repo dir into a subdirectory of the
+-- snapshot dir itself, next to the wasp project. For fixtures the project
+-- references by relative path -- local npm adapter packages, for one.
+copyContentsOfGitTrackedDirToSnapshotDir ::
+  Path' (Rel GitRootDir) (Dir srcDir) ->
+  FilePath ->
+  ShellCommandBuilder SnapshotTestContext ShellCommand
+copyContentsOfGitTrackedDirToSnapshotDir srcDirFromGitRootDir dstDirInSnapshotDir = do
+  context <- ask
+  let dstDir = fromAbsDir context.snapshotDir ++ dstDirInSnapshotDir
+
+      listRelPathsOfGitTrackedFilesInSrcDir :: ShellCommand =
+        "git -C " ++ fromRelDir gitRootFromSnapshotDir ++ " ls-files " ++ fromRelDir srcDirFromGitRootDir
+      stripSrcDirRelPrefixFromPaths :: ShellCommand =
+        "sed 's#^" ++ fromRelDir srcDirFromGitRootDir ++ "##'"
+      copyFromSrcDirToDstDir :: ShellCommand =
+        "rsync -a --files-from=- " ++ fromRelDir (gitRootFromSnapshotDir </> srcDirFromGitRootDir) ++ " " ++ dstDir
+   in return $
+        unwords ["mkdir -p", dstDir]
+          ~&& listRelPathsOfGitTrackedFilesInSrcDir
+          ~| stripSrcDirRelPrefixFromPaths
+          ~| copyFromSrcDirToDstDir

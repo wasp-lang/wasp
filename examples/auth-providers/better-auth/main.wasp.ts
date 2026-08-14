@@ -1,6 +1,8 @@
-import { action, app, page, query, route, waspAuth } from "@wasp.sh/spec";
+import { betterAuth } from "@wasp.sh/auth-better-auth/spec";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
+import { setupBetterAuth } from "./src/auth/setup" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
@@ -11,13 +13,7 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    // TODO: to be replaced with the Better Auth adapter.
-    provider: waspAuth({
-      methods: {
-        usernameAndPassword: {},
-      },
-      onAuthSucceededRedirectTo: "/",
-    }),
+    provider: betterAuth({ setupFn: setupBetterAuth }),
   },
 
   spec: [

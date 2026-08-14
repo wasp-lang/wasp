@@ -1,0 +1,43 @@
+{
+  "name": "@wasp.sh/auth-clerk",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Clerk as a Wasp auth provider.",
+  "license": "MIT",
+  "exports": {
+    "./spec": {
+      "types": "./dist/spec.d.ts",
+      "default": "./dist/spec.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "@clerk/clerk-react": "^5.0.0",
+    "@wasp.sh/auth-contract": "*",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@clerk/backend": "^2.0.0"
+  },
+  "devDependencies": {
+    "@clerk/clerk-react": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@wasp.sh/auth-contract": "file:../../../../waspc/data/Generator/libs/auth-contract",
+    "react": "^19.0.0",
+    "typescript": "~6.0.3"
+  }
+}
