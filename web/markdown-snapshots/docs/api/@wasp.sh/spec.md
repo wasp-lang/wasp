@@ -79,3 +79,20 @@
 - [EntityName](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/EntityName)
 - [HttpMethod](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/HttpMethod)
 - [JobExecutor](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/JobExecutor)
+
+## Auth
+
+- [EnvVarRequirement](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/EnvVarRequirement)
+- [WaspAuthConfig](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/WaspAuthConfig)
+- [AuthProviderConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AuthProviderConfig)
+- [EnabledAuthMethods](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/EnabledAuthMethods)
+- [WaspAuthProviderConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/WaspAuthProviderConfig)
+- [waspAuth](https://wasp.sh/docs/api/@wasp.sh/spec/functions/waspAuth)
+
+## Experimental
+
+- [ExternalAuthProviderManifest](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/ExternalAuthProviderManifest)
+- [AuthProviderManifestInput](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/AuthProviderManifestInput)
+- [CustomAuthProviderConfig](https://wasp.sh/docs/api/@wasp.sh/spec/type-aliases/CustomAuthProviderConfig)
+- [customAuthProvider](https://wasp.sh/docs/api/@wasp.sh/spec/functions/customAuthProvider)
+- [defineAuthProviderManifest](https://wasp.sh/docs/api/@wasp.sh/spec/functions/defineAuthProviderManifest)

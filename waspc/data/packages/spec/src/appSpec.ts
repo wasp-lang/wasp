@@ -150,8 +150,18 @@ export type Wasp = {
 
 export type Auth = {
   userEntity: Ref<"Entity">;
-  methods: AuthMethods;
   onAuthFailedRedirectTo: string;
+  provider: AuthProvider;
+};
+
+// The IR mirrors the user-facing spec's discriminated union, so the impossible
+// states (auth methods next to an external provider, wasp hooks next to a
+// manifest) are unrepresentable here too.
+export type AuthProvider = WaspAuthProvider | ExternalAuthProvider;
+
+export type WaspAuthProvider = {
+  kind: "wasp";
+  methods: AuthMethods;
   onAuthSucceededRedirectTo: Optional<string>;
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
@@ -159,6 +169,37 @@ export type Auth = {
   onBeforeOAuthRedirect: Optional<ExtImport>;
   onBeforeLogin: Optional<ExtImport>;
   onAfterLogin: Optional<ExtImport>;
+};
+
+export type ExternalAuthProvider = {
+  kind: "external";
+} & ExternalAuthProviderSpec;
+
+export type ExternalAuthProviderSpec = {
+  providerId: string;
+  server: { package: string } | { module: ExtImport };
+  routes: Optional<ExternalProviderRoutes>;
+  capabilities: string[];
+  envVars: ExternalProviderEnvVars;
+  userSignupFields: Optional<ExtImport>;
+  setupFn: Optional<ExtImport>;
+  optionsJson: Optional<string>;
+};
+
+export type ExternalProviderRoutes = {
+  basePath: string;
+  rawBody: Optional<boolean>;
+};
+
+export type ExternalProviderEnvVars = {
+  server: ExternalProviderEnvVar[];
+  client: ExternalProviderEnvVar[];
+};
+
+export type ExternalProviderEnvVar = {
+  name: string;
+  optional: Optional<boolean>;
+  doc: Optional<string>;
 };
 
 export type AuthMethods = {

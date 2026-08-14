@@ -1,5 +1,8 @@
+import { isEqual } from "es-toolkit";
 import * as AppSpec from "../../appSpec.js";
+import type { AnyObject } from "../../typeUtils.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
+import { WaspSpecUserError } from "../waspSpecUserError.js";
 import { AppMapperContext } from "./context.js";
 
 export function mapAppSpec(
@@ -40,33 +43,147 @@ export function mapAuth(
   auth: WaspSpec.Auth,
   ctx: AppMapperContext,
 ): AppSpec.Auth {
-  const {
-    userEntity,
-    methods,
+  const { userEntity, onAuthFailedRedirectTo, provider } = auth;
+
+  const base = {
+    userEntity: ctx.resolveEntityRef(userEntity),
     onAuthFailedRedirectTo,
-    onAuthSucceededRedirectTo,
-    onBeforeSignup,
-    onAfterSignup,
-    onAfterEmailVerified,
-    onBeforeOAuthRedirect,
-    onBeforeLogin,
-    onAfterLogin,
-  } = auth;
+  };
+
+  // The user-facing union maps 1:1 onto the IR's union -- the IR is the same
+  // discriminated shape, so the impossible states never exist in any
+  // representation the compiler consumes.
+  switch (provider.kind) {
+    case "wasp": {
+      const {
+        methods,
+        onAuthSucceededRedirectTo,
+        onBeforeSignup,
+        onAfterSignup,
+        onAfterEmailVerified,
+        onBeforeOAuthRedirect,
+        onBeforeLogin,
+        onAfterLogin,
+      } = provider.config;
+
+      return {
+        ...base,
+        provider: {
+          kind: "wasp",
+          methods: mapAuthMethods(methods, ctx),
+          onAuthSucceededRedirectTo,
+          onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
+          onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
+          onAfterEmailVerified:
+            onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
+          onBeforeOAuthRedirect:
+            onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
+          onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
+          onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
+        },
+      };
+    }
+    case "external":
+      return {
+        ...base,
+        provider: {
+          kind: "external",
+          ...mapExternalAuthProvider(provider, ctx),
+        },
+      };
+    default:
+      throw new WaspSpecUserError(
+        "app.auth.provider must be created with waspAuth(), an auth adapter package's spec helper, or customAuthProvider().",
+      );
+  }
+}
+
+function mapExternalAuthProvider(
+  manifest: WaspSpec.ExternalAuthProviderManifest,
+  ctx: AppMapperContext,
+): AppSpec.ExternalAuthProviderSpec {
+  if (manifest.__waspAuthProviderManifest !== true) {
+    throw new WaspSpecUserError(
+      "app.auth.provider received a hand-crafted external provider manifest. Manifests must be created through an adapter package's spec helper or customAuthProvider(), so they go through Wasp's validation.",
+    );
+  }
+
+  if (manifest.contractVersion !== 1) {
+    throw new WaspSpecUserError(
+      `Auth provider '${manifest.id}' was built against auth contract version ${String(
+        manifest.contractVersion,
+      )}, but this version of Wasp only supports version 1. Update Wasp, or use an adapter version matching your Wasp version.`,
+    );
+  }
+
+  // Reserved for a future in which adapter packages contribute Prisma models.
+  // Erroring (rather than ignoring) means an adapter relying on them can never
+  // appear to work while its models silently don't exist.
+  for (const reservedField of ["prismaModels", "manageSchema"]) {
+    if (reservedField in manifest) {
+      throw new WaspSpecUserError(
+        `Auth provider '${manifest.id}' sets '${reservedField}', which this version of Wasp does not support yet.`,
+      );
+    }
+  }
+
+  const isPackageEntry = "package" in manifest.server;
 
   return {
-    userEntity: ctx.resolveEntityRef(userEntity),
-    methods: mapAuthMethods(methods, ctx),
-    onAuthFailedRedirectTo,
-    onAuthSucceededRedirectTo,
-    onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
-    onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
-    onAfterEmailVerified:
-      onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
-    onBeforeOAuthRedirect:
-      onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
-    onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
-    onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
+    providerId: manifest.id,
+    server: isPackageEntry
+      ? { package: (manifest.server as { package: string }).package }
+      : {
+          module: ctx.parseRefObject(
+            manifest.server as WaspSpec.Reference<AnyObject>,
+          ),
+        },
+    routes: manifest.routes && {
+      basePath: manifest.routes.basePath,
+      rawBody: manifest.routes.rawBody,
+    },
+    capabilities: manifest.capabilities,
+    envVars: {
+      server: manifest.env.server.map(mapEnvVarRequirement),
+      client: manifest.env.client.map(mapEnvVarRequirement),
+    },
+    userSignupFields:
+      manifest.userSignupFields &&
+      ctx.parseRefObject(manifest.userSignupFields),
+    setupFn: manifest.setupFn && ctx.parseRefObject(manifest.setupFn),
+    optionsJson: mapProviderOptions(manifest),
   };
+}
+
+function mapEnvVarRequirement(
+  envVar: WaspSpec.EnvVarRequirement,
+): AppSpec.ExternalProviderEnvVar {
+  return { name: envVar.name, optional: envVar.optional, doc: envVar.doc };
+}
+
+function mapProviderOptions(
+  manifest: WaspSpec.ExternalAuthProviderManifest,
+): string | undefined {
+  if (manifest.options === undefined) {
+    return undefined;
+  }
+
+  // Options travel to the generated code as JSON, so anything that doesn't
+  // survive the round-trip (functions, class instances, undefined-holed
+  // arrays) would arrive silently mangled. Rejecting here turns that into an
+  // error at compile time, with `setupFn` as the documented escape
+  // hatch for non-serializable configuration.
+  const optionsJson = JSON.stringify(manifest.options);
+  if (
+    optionsJson === undefined ||
+    !isEqual(JSON.parse(optionsJson), manifest.options)
+  ) {
+    throw new WaspSpecUserError(
+      `Auth provider '${manifest.id}' has options that do not survive JSON serialization. Provider options must be plain serializable data; use setupFn for functions and other live values.`,
+    );
+  }
+
+  return optionsJson;
 }
 
 export function mapAuthMethods(

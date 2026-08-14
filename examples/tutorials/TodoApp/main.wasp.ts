@@ -1,4 +1,4 @@
-import { action, app, page, query, route } from "@wasp.sh/spec";
+import { action, app, page, query, route, waspAuth } from "@wasp.sh/spec";
 
 import { createTask, updateTask } from "./src/actions" with { type: "ref" };
 import { LoginPage } from "./src/LoginPage" with { type: "ref" };
@@ -13,10 +13,12 @@ export default app({
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
-    methods: {
-      usernameAndPassword: {},
-    },
     onAuthFailedRedirectTo: "/login",
+    provider: waspAuth({
+      methods: {
+        usernameAndPassword: {},
+      },
+    }),
   },
   spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),

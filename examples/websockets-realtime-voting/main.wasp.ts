@@ -1,4 +1,4 @@
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route, waspAuth } from "@wasp.sh/spec";
 
 import { Layout } from "./src/Layout" with { type: "ref" };
 import { LoginPage } from "./src/pages/LoginPage" with { type: "ref" };
@@ -17,9 +17,11 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    methods: {
-      usernameAndPassword: {},
-    },
+    provider: waspAuth({
+      methods: {
+        usernameAndPassword: {},
+      },
+    }),
   },
   webSocket: {
     fn: votingWebSocket,
