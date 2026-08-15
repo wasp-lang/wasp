@@ -178,6 +178,7 @@ export type ExternalAuthProvider = {
 export type ExternalAuthProviderSpec = {
   providerId: string;
   server: { package: string } | { module: ExtImport };
+  clientPackage: Optional<string>;
   routes: Optional<ExternalProviderRoutes>;
   capabilities: string[];
   envVars: ExternalProviderEnvVars;

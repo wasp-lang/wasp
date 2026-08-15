@@ -28,7 +28,10 @@ genClientAuth spec =
       -- Under an external provider `wasp/client/auth` keeps only the uniform
       -- surface (useAuth, logout); the provider's own UI comes from its
       -- adapter package, not from Wasp's generated forms.
-      | AS.Auth.isExternalAuthProviderUsed auth -> sequence [genAuthIndex auth]
+      | AS.Auth.isExternalAuthProviderUsed auth ->
+          sequence $
+            [genAuthIndex auth]
+              ++ [genClientAuthProviderTs auth | AS.Auth.isClientAuthAdapterUsed auth]
       | otherwise ->
           sequence
             [ genAuthIndex auth,
@@ -44,6 +47,24 @@ genClientAuth spec =
             <++> genAuthMicrosoft auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+-- | The client half of the auth provider: instantiates the adapter package's
+-- client entry with the same runtime-window discipline as the server half.
+genClientAuthProviderTs :: AS.Auth.Auth -> Generator FileDraft
+genClientAuthProviderTs auth =
+  return $
+    mkTmplFdWithData
+      (clientAuthDirInSdkTemplatesDir </> [relfile|provider.ts|])
+      tmplData
+  where
+    tmplData =
+      Aeson.object
+        [ "clientPackage" Aeson..= clientPackage,
+          "hasOptions" Aeson..= maybe False (const True) maybeOptionsJson,
+          "optionsJson" Aeson..= maybeOptionsJson
+        ]
+    clientPackage = AS.Auth.externalProvider auth >>= AS.Auth.clientPackage
+    maybeOptionsJson = AS.Auth.externalProvider auth >>= AS.Auth.optionsJson
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =

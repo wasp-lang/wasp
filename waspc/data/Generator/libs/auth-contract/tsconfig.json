@@ -4,9 +4,10 @@
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "noEmit": true,
-    "types": ["node"],
+    "types": ["node", "react"],
     "strict": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "jsx": "react-jsx"
   },
   "include": ["src"]
 }

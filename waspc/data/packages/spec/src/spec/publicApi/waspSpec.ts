@@ -307,6 +307,12 @@ export interface ExternalAuthProviderManifest {
    */
   server: { package: string } | Reference<AnyObject>;
   /**
+   * Module specifier of an adapter package's client entry (which must export
+   * `createClientAdapter`). Wasp instantiates it and wires the client side --
+   * context wrapper, credential transport, logout -- automatically.
+   */
+  client?: { package: string };
+  /**
    * Routes the provider wants mounted on Wasp's server, for providers that
    * bring their own HTTP endpoints (Better Auth). `rawBody` mounts them
    * without the JSON body parser, for handlers that read the body themselves.

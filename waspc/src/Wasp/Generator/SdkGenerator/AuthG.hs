@@ -46,7 +46,7 @@ genAuth spec =
         <++> sequence
           [ genFileCopyInAuth [relfile|helpers/user.ts|],
             genFileCopyInAuth [relfile|types.ts|],
-            genFileCopyInAuth [relfile|logout.ts|],
+            genLogoutTs auth,
             genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
@@ -96,6 +96,13 @@ genUseAuth auth =
   where
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+genLogoutTs :: AS.Auth.Auth -> Generator FileDraft
+genLogoutTs auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|logout.ts|])
+      (object ["isClientAuthAdapterUsed" .= AS.Auth.isClientAuthAdapterUsed auth])
 
 genUserTs :: AS.Auth.Auth -> Generator FileDraft
 genUserTs auth =

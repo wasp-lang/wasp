@@ -495,6 +495,7 @@ describe("mapAuth", () => {
             >[0],
           ),
         },
+        clientPackage: undefined,
         routes: undefined,
         capabilities: provider.capabilities,
         envVars: {
@@ -539,6 +540,7 @@ describe("mapAuth", () => {
       provider: {
         ...getExternalProviderManifest(auth),
         server: { package: "@wasp.sh/auth-clerk/server" },
+        client: { package: "@wasp.sh/auth-clerk/client" },
       } as unknown as WaspSpec.Auth["provider"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
@@ -548,6 +550,7 @@ describe("mapAuth", () => {
     expect(result.provider).toMatchObject({
       kind: "external",
       server: { package: "@wasp.sh/auth-clerk/server" },
+      clientPackage: "@wasp.sh/auth-clerk/client",
     });
   });
 
