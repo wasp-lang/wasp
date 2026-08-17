@@ -12,8 +12,9 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Start (startServer)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import qualified Wasp.Job.Output as Output
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Util (secondsToMicroSeconds)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
 --   It will run as long as one of those processes does not fail.
@@ -23,16 +24,16 @@ import Wasp.Project.Common (WaspProjectDir)
 start :: Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> IO () -> IO (Either String ())
 start waspProjectDir outDir onJobsQuietDown = do
   chan <- newChan
-  let runStartJobs = startServer outDir chan `race` startWebApp waspProjectDir chan
+  let runStartJobs = J.runJob (startServer outDir) chan `race` J.runJob (startWebApp waspProjectDir) chan
   ((serverOrWebExitCode, _), _) <-
     runStartJobs
-      `concurrently` readJobMessagesAndPrintThemPrefixed chan
+      `concurrently` Output.printEventsPrefixedUntilExit chan
       `concurrently` (dupChan chan >>= (`listenForJobsQuietDown` onJobsQuietDown))
   case serverOrWebExitCode of
     Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
     Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 
-listenForJobsQuietDown :: Chan J.JobMessage -> IO () -> IO ()
+listenForJobsQuietDown :: Chan J.JobEvent -> IO () -> IO ()
 listenForJobsQuietDown jobsChan onJobsQuietDown = do
   waitForJobMsg
   waitForPeriodOfSilence
@@ -41,8 +42,7 @@ listenForJobsQuietDown jobsChan onJobsQuietDown = do
   where
     waitForJobMsg = void $ readChan jobsChan
     waitForPeriodOfSilence = do
-      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsAsMs 5)
+      jobMsgOrTimeout <- readChan jobsChan `race` threadDelay (secondsToMicroSeconds 5)
       case jobMsgOrTimeout of
         Left _ -> waitForPeriodOfSilence
         Right _ -> return ()
-    secondsAsMs s = s * 1000000
