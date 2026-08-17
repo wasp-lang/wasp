@@ -175,5 +175,6 @@ export type OAuthData = {
   | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
   | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
   | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
+  | { providerName: 'slack'; tokens: import('arctic').SlackTokens }
   | never
 )

@@ -15,16 +15,14 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
+import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
 import qualified Wasp.Generator
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
   )
-import qualified Wasp.Util.AppLocation as AL
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
@@ -41,7 +39,7 @@ watchAndTest testRunner = withProjectLock $ do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
-  let clientRunConfig = defaultDevClientRunConfig appSpec
+  let (clientRunConfig, _) = makeDevDefaultRunConfigs appSpec
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
@@ -59,8 +57,3 @@ watchAndTest testRunner = withProjectLock $ do
     Right startResult -> case startResult of
       Left testError -> throwError $ CommandError "Test failed" testError
       Right () -> return ()
-  where
-    defaultDevClientRunConfig appSpec =
-      makeWebAppRunConfig
-        (WebApp.makeDefaultDevClientLocation appSpec)
-        (AL.url Server.defaultDevServerLocation)

@@ -9,6 +9,9 @@ module Wasp.Env
     nubEnvVars,
     formatEnvVarValue,
     findDuplicateEnvVars,
+    HasEnvVars (..),
+    addEnvVarsUnique,
+    addEnvVarsOverride,
   )
 where
 
@@ -16,6 +19,7 @@ import qualified Configuration.Dotenv as Dotenv
 import Control.Exception (ErrorCall (ErrorCall))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
+import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
 import StrongPath (Abs, File, Path', fromAbsFile)
@@ -54,9 +58,35 @@ formatEnvVarValue rawValue
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
 
-findDuplicateEnvVars :: [EnvVar] -> [EnvVar] -> [EnvVarName]
+findDuplicateEnvVars :: [EnvVar] -> [EnvVar] -> Set EnvVarName
 findDuplicateEnvVars existing incoming =
-  filter (`Set.member` existingNames) incomingNames
+  existingNames `Set.intersection` incomingNames
   where
-    existingNames = Set.fromList $ map fst existing
-    incomingNames = map fst incoming
+    existingNames = Set.fromList $ fst <$> existing
+    incomingNames = Set.fromList $ fst <$> incoming
+
+class HasEnvVars a where
+  envVars :: a -> [EnvVar]
+  setEnvVars :: a -> [EnvVar] -> a
+
+-- | Combines the existing env vars of a type with new env vars. If there are
+-- duplicates in the new env vars, returns a @Left@ of the duplicate env var
+-- names.
+addEnvVarsUnique :: (HasEnvVars a) => a -> [EnvVar] -> Either (Set EnvVarName) a
+addEnvVarsUnique x incoming
+  | Set.null duplicateNames = Right $ addEnvVarsOverride x incoming
+  | otherwise = Left duplicateNames
+  where
+    duplicateNames = findDuplicateEnvVars existing incoming
+    existing = envVars x
+
+-- | Combines the existing env vars of a type with new env vars. If there are
+-- duplicates in the new env vars, the new env vars will override the existing
+-- ones.
+addEnvVarsOverride :: (HasEnvVars a) => a -> [EnvVar] -> a
+addEnvVarsOverride x incoming = setEnvVars x $ nubEnvVars merged
+  where
+    merged =
+      -- Incoming first so that they take priority over existing.
+      incoming <> existing
+    existing = envVars x

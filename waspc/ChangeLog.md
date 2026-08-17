@@ -4,6 +4,9 @@
 
 ### ⚠️ Breaking Changes
 
+- Renamed the `wasp deploy fly` flags `--vm-size`, `--initial-cluster-size`, and `--volume-size` to `--db-vm-size`, `--db-initial-cluster-size`, and `--db-volume-size`, respectively. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
+- `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
+- Wasp Deploy for Railway now requires Railway CLI 4.51.0 or newer. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
 - Wasp now manages your app's URLs in development, so setting `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL`, or `REACT_APP_API_URL` yourself is now an error. ([#4692](https://github.com/wasp-lang/wasp/pull/4692))
 - Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
@@ -13,9 +16,15 @@
 ### 🎉 New Features
 
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
+- Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Added `--db-volume-mount-path` to `wasp deploy railway launch` and `wasp deploy railway setup` for custom database images that store data elsewhere. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
+- Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
+
+### 🐞 Bug fixes
+
+- Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 
 ### 🔧 Small improvements
 
@@ -23,6 +32,12 @@
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
 - The `<region>` argument of `wasp deploy fly` is now case-insensitive, so e.g. `MIA` is accepted instead of being rejected as an invalid region. ([#4588](https://github.com/wasp-lang/wasp/pull/4588))
+- Fixed the throttle on resending the email verification email, which checked when the last password reset email was sent instead of the last verification email. ([#4651](https://github.com/wasp-lang/wasp/pull/4651))
+- Verifying an email now returns an "invalid credentials" error instead of crashing the server when the account behind the verification link no longer exists. ([#4652](https://github.com/wasp-lang/wasp/pull/4652))
+- Resetting a password now logs the account out everywhere, so sessions created before the reset stop working. ([#4653](https://github.com/wasp-lang/wasp/pull/4653))
+- The `OAuthData` type your auth hooks receive now properly includes the `slack` provider. ([#4655](https://github.com/wasp-lang/wasp/pull/4655))
+- Password reset now rejects an invalid or expired token before it looks at the new password, so someone without a valid reset link can no longer probe your app's password rules. ([#4657](https://github.com/wasp-lang/wasp/pull/4657))
+- `onBeforeSignup` now runs before `userSignupFields` on every signup method: email, username and password, and OAuth. ([#4659](https://github.com/wasp-lang/wasp/pull/4659))
 
 ## 0.25.0
 

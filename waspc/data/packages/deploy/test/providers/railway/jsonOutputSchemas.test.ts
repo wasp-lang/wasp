@@ -2,17 +2,13 @@ import { describe, expect, test } from "vitest";
 import {
   RailwayCliDomainSchema,
   RailwayCliProjectSchema,
-  RailwayCliProjectStatusSchema,
+  RailwayCliServiceStatusSchema,
   RailwayProjectListSchema,
 } from "../../../src/providers/railway/jsonOutputSchemas.js";
 import {
   cliProjectWithServices,
   cliProjectWithoutServices,
 } from "./fixtures/railwayCliProject.js";
-import {
-  cliProjectStatusInNewFormat,
-  cliProjectStatusInOldFormat,
-} from "./fixtures/railwayCliProjectStatus.js";
 
 describe("RailwayCliDomainSchema", () => {
   test("parses new format with domains array", () => {
@@ -25,10 +21,13 @@ describe("RailwayCliDomainSchema", () => {
     });
   });
 
-  test("parses legacy format with single domain and normalizes", () => {
-    const input = { domain: "my-app.up.railway.app" };
-    const result = RailwayCliDomainSchema.parse(input);
-    expect(result).toEqual({ domains: ["my-app.up.railway.app"] });
+  test("normalizes single-domain output", () => {
+    const result = RailwayCliDomainSchema.parse({
+      domain: "https://my-app.up.railway.app",
+    });
+    expect(result).toEqual({
+      domains: ["https://my-app.up.railway.app"],
+    });
   });
 
   test("rejects domains array that is empty", () => {
@@ -50,20 +49,13 @@ describe("RailwayCliProjectSchema", () => {
   });
 });
 
-describe("RailwayCliProjectStatusSchema", () => {
-  test("parses new CLI output with instances under environments", () => {
-    const result = RailwayCliProjectStatusSchema.parse(
-      cliProjectStatusInNewFormat,
-    );
-    expect(result.environments.edges).toHaveLength(1);
-  });
-
-  test("converts old CLI output with instances under services to the new format", () => {
-    const result = RailwayCliProjectStatusSchema.parse(
-      cliProjectStatusInOldFormat,
-    );
-    expect(result.environments.edges).toHaveLength(2);
-    expect(result).not.toHaveProperty("services");
+describe("RailwayCliServiceStatusSchema", () => {
+  test("treats a missing or unknown status as not ready", () => {
+    expect(RailwayCliServiceStatusSchema.parse({}).status).toBeNull();
+    expect(
+      RailwayCliServiceStatusSchema.parse({ status: "BRAND_NEW_STATUS" })
+        .status,
+    ).toBeNull();
   });
 });
 

@@ -2,7 +2,6 @@ module Wasp.Cli.Util.PathArgument
   ( FilePathArgument,
     getFilePath,
     filePathReader,
-    showFilePathArgument,
   )
 where
 
@@ -18,16 +17,13 @@ import System.Directory (makeAbsolute)
 -- monad.
 
 newtype FilePathArgument = FilePathArgument FilePath
-  deriving (Show, Eq)
+  deriving (Eq)
+
+instance Show FilePathArgument where
+  show (FilePathArgument filePath) = filePath
 
 filePathReader :: ReadM FilePathArgument
 filePathReader = FilePathArgument <$> str
 
 getFilePath :: FilePathArgument -> IO (Path' Abs File')
 getFilePath (FilePathArgument filePath) = makeAbsolute filePath >>= parseAbsFile
-
--- | This returns the string representation of the file path argument, which is
--- useful for displaying it to the user. Do not use it for any file system
--- operations.
-showFilePathArgument :: FilePathArgument -> String
-showFilePathArgument (FilePathArgument filePath) = filePath
