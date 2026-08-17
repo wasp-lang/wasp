@@ -24,9 +24,9 @@ import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
-import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.ServerGenerator.Common as ServerG
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
@@ -46,8 +46,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
   userClientEnvVars <- liftIO $ getEnvVarsWithCtx args.clientEnvVarSources
 
-  let serverUrl = Server.defaultDevServerUrl
-      clientUrl = WebApp.makeDefaultDevClientUrl appSpec
+  let serverUrl = ServerG.defaultDevServerUrl
+      clientUrl = WebAppG.makeDefaultDevClientUrl appSpec
 
   serverRunConfig' <-
     makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)

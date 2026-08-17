@@ -21,9 +21,9 @@ import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
 import qualified Wasp.Generator
-import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.ServerGenerator.Common as ServerG
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
@@ -120,11 +120,11 @@ makeDevRunConfigs appSpec waspProjectDir = do
 
   return (clientRunConfig, serverRunConfig)
   where
-    clientLocation = WebApp.makeDefaultDevClientUrl appSpec
-    clientRunConfig = makeWebAppRunConfig clientLocation (AppComponentUrl.url serverLocation)
+    clientUrl = WebAppG.makeDefaultDevClientUrl appSpec
+    clientRunConfig = makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
 
-    serverLocation = Server.defaultDevServerUrl
-    serverRunConfig = makeServerRunConfig serverLocation (AppComponentUrl.url clientLocation)
+    serverUrl = ServerG.defaultDevServerUrl
+    serverRunConfig = makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
 
     devEnvVarSources dotEnvFile =
       mconcat

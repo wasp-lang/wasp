@@ -21,9 +21,9 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
-import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.ServerGenerator.Common as ServerG
 import Wasp.Generator.ServerGenerator.RunConfig (makeServerRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -45,8 +45,8 @@ seed maybeUserProvidedSeedName = do
   where
     defaultDevServerRunConfig appSpec =
       makeServerRunConfig
-        Server.defaultDevServerUrl
-        (AppComponentUrl.url $ WebApp.makeDefaultDevClientUrl appSpec)
+        ServerG.defaultDevServerUrl
+        (AppComponentUrl.url $ WebAppG.makeDefaultDevClientUrl appSpec)
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do

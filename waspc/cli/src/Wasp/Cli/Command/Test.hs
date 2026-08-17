@@ -17,8 +17,8 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import qualified Wasp.Generator
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.ServerGenerator.Common as ServerG
+import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
@@ -62,5 +62,5 @@ watchAndTest testRunner = withProjectLock $ do
   where
     defaultDevClientRunConfig appSpec =
       makeWebAppRunConfig
-        (WebApp.makeDefaultDevClientUrl appSpec)
-        (AppComponentUrl.url Server.defaultDevServerUrl)
+        (WebAppG.makeDefaultDevClientUrl appSpec)
+        (AppComponentUrl.url ServerG.defaultDevServerUrl)
