@@ -112,9 +112,9 @@ makeDevRunConfigs appSpec waspProjectDir = do
   clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
   serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
 
-  -- We only check for errors, and throw away the final env vars, because the
-  -- subprocesses will read the dot env files and inherited environment
-  -- themselves.
+  -- We only use this to check for errors. We throw away the resulting env vars,
+  -- because the generated apps will read the .env files and inherited
+  -- environment themselves.
   _ <- addEnvVarsUniqueC clientRunConfig clientEnvVarSources
   _ <- addEnvVarsUniqueC serverRunConfig serverEnvVarSources
 
