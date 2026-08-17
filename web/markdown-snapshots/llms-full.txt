@@ -10235,6 +10235,10 @@ Defining env variables in production will depend on where you are deploying your
 
 We talk about how to define env vars for each deployment option in the [deployment section](https://wasp.sh/docs/deployment/env-vars).
 
+### Git Worktrees
+
+If you use Git worktrees, see [Git worktree setup](https://wasp.sh/docs/wasp-ai/git-worktrees#setting-up-environment-variables) for guidance on managing environment variables in each worktree.
+
 ### JSON Env Vars
 
 Some of the environment variables you pass to Wasp are parsed as JSON values. This is useful for features needing more in-depth configuration, but it comes with the caveat of ensuring that the JSON syntax is valid.
@@ -11046,7 +11050,7 @@ In this section, we'll discuss what happens with the database when your app goes
 
 The server app that Wasp generates uses a PostgreSQL database. The only requirement from Wasp's point of view is that the database is accessible from the server via the `DATABASE_URL` server env variable.
 
-It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service.
+It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service. PostgreSQL can behave differently across major versions, so development and production work best when they use the same major version.
 
 ### Migrations
 
@@ -11522,18 +11526,17 @@ If you want to build locally, supply the `--build-locally` option to `wasp deplo
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL Docker image provided by Fly.io when creating a new database for your app. However, if you have a need for a custom Docker image, e.g., your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Fly.io databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the `flyio/postgres-flex:18` image. If your app needs another PostgreSQL image, for example, to add an extension such as PostGIS, use `--db-image <docker-image>`.
 
 Your custom PostgreSQL image must be compatible with Fly.io, as their platform has some requirements to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
 
 We have crafted a small guide on [how to create a custom Docker image with PostGIS or pgvector for Fly.io](https://gist.github.com/cprecioso/e19e883138241c1a446f48d6187aae75). You can also use it as a starting point to create your own images with other extensions.
 
 :::tip
-You only need to specify the Docker image once, when first creating the app with any of these commands:
+You only need to specify the Docker image once, when creating the database:
 
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
-wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
 wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 :::
@@ -11565,6 +11568,28 @@ wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
 wasp deploy fly deploy
 ```
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
+
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 ##### Environment Variables {#fly-launch-environment-variables}
 
@@ -11633,6 +11658,28 @@ It accepts the following arguments:
 - `<region>` required
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
+
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 :::caution[Execute Only Once]
 You should only run `create-db` once per app. If you run it multiple times, it creates multiple databases, but your app needs only one.
@@ -11710,7 +11757,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
+The database service is always named `Postgres`, regardless of the project name.
 
 When you run the `launch` command, Wasp CLI knows how to connect different parts of your Wasp app together, so it sets up the required environment variables for your server app:
 
@@ -11773,7 +11820,9 @@ wasp deploy railway deploy <project-name>
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image by default. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector. If the custom image stores data at a different location, set it with `--db-volume-mount-path <path>`. It defaults to `/var/lib/postgresql/data`.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11781,15 +11830,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+wasp deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](https://wasp.sh/docs/deployment/database#connect-to-the-production-database).
 
 ##### Explicitly providing the Railway project ID
 
@@ -11907,7 +11951,9 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 ##### Using a custom PostgreSQL database {#using-a-custom-postgresql-database}
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image by default. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector. If the custom image stores data at a different location, set it with `--db-volume-mount-path <path>`. It defaults to `/var/lib/postgresql/data`.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11915,15 +11961,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway setup my-wasp-app --db-image postgis/postgis
+wasp deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](https://wasp.sh/docs/deployment/database#connect-to-the-production-database).
 
 ##### Explicitly providing the Railway project ID
 
@@ -12581,6 +12622,137 @@ To see all available features and skills:
 ### Learn More
 
 Check out the [Wasp Agent Plugins repository](https://github.com/wasp-lang/wasp-agent-plugins) for more details.
+
+
+## AI & Coding Agents / Worktrees
+
+Git worktrees let you work on several isolated instances of the same repository. This is useful when several coding agents work on the app in parallel.
+
+### Worktrees
+
+A [Git worktree](https://git-scm.com/docs/git-worktree) is a separate working directory linked to the same Git repository. Each worktree can check out a different branch while sharing the repository history.
+
+You can create a worktree from `main` with Git:
+
+```bash
+git worktree add -b feature/my-feature ../my-app-feature main
+```
+
+Tools such as [Herdr](https://github.com/herdrdev/herdr), [Workmux](https://github.com/raine/workmux), and [Conductor](https://www.conductor.build/) can create and manage worktrees for you.
+
+### Setting up a Wasp worktree
+
+Creating the worktree is only the first step. Each worktree is a fresh copy of the app, so you also need to install its dependencies, configure its environment variables, and prepare its database.
+
+#### Installing dependencies
+
+After you create a new worktree for your Wasp app, you must first run:
+
+```bash
+wasp install
+```
+
+It installs the Wasp app dependencies. When creating a new project, `wasp new` installs them for you, but in a fresh clone or worktree you need to run it manually.
+
+#### Setting up environment variables
+
+Most apps need environment variables set up before they work. We can set up the server and client environment variables in different ways:
+
+- Copy the example environment files to `.env.server` and `.env.client`.
+
+  ```bash
+  cp .env.server.example .env.server
+  cp .env.client.example .env.client
+  ```
+
+  Sometimes, this is enough to get the app running if the example files contain dummy values but features like OAuth might not work.
+
+- Copy the environment files from the existing `.env.server` and `.env.client` files.
+
+  Reusing these files is convenient, but it also reuses all configured secrets and services. Make sure this does not cause unintended side effects, such as connecting to a production database.
+
+- If you are using a secrets manager like [Dotenvx](https://dotenvx.com/), use its CLI to set up the environment files.
+
+See [Environment variables](https://wasp.sh/docs/project/env-vars) for Wasp's environment file rules.
+
+#### Preparing the database
+
+##### SQLite
+
+If you are using SQLite, it doesn't need a separate database process. It's enough to apply the migrations:
+
+```bash
+wasp db migrate-dev
+```
+
+##### PostgreSQL
+
+If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
+
+```bash
+wasp start db
+```
+
+Then apply the migrations from another terminal:
+
+```bash
+wasp db migrate-dev
+```
+
+Wasp gives each worktree a unique [development database](https://wasp.sh/docs/data-model/databases#using-the-dev-database-provided-by-wasp) name and Docker volume.
+
+##### Seed data
+
+If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command.
+
+#### Start the app
+
+After the setup, the app should start successfully:
+
+```bash
+wasp start
+```
+
+### Running worktrees at the same time
+
+By default, Wasp apps use ports `3000` and `3001`, and each managed PostgreSQL database uses port `5432`. These ports prevent multiple worktrees from running at the same time.
+
+:::note
+We are working on automatic port selection for [Wasp apps](https://github.com/wasp-lang/wasp/issues/4471) and [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
+:::
+
+We can work around this by giving each app different client and server ports.
+
+#### Configuring ports
+
+Configure the client port in [`vite.config.ts`](https://wasp.sh/docs/project/custom-vite-config#custom-dev-server-port) and the server port in `.env.server`.
+
+We need to adjust the server and client URLs as well. For example, if we set the client port to `4000` and the server port to `4001`:
+
+```env title=".env.server"
+PORT=4001
+WASP_SERVER_URL=http://localhost:4001
+WASP_WEB_CLIENT_URL=http://localhost:4000
+```
+
+```env title=".env.client"
+REACT_APP_API_URL=http://localhost:4001
+```
+
+Wasp's dev PostgreSQL database requires port `5432`. To run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
+
+### Extra resources
+
+#### Using `.worktreeinclude` file
+
+Some coding tools (e.g., [Claude Code](https://code.claude.com/docs/en/worktrees#copy-gitignored-files-into-worktrees), [Codex](https://learn.chatgpt.com/docs/environments/git-worktrees#copy-ignored-local-files-into-managed-worktrees), and [Conductor](https://www.conductor.build/docs/reference/worktreeinclude)) read a `.worktreeinclude` file and copy matching ignored files into new worktrees:
+
+```gitignore title=".worktreeinclude"
+.env.server
+.env.client
+```
+
+Keep in mind that `.worktreeinclude` is not a Git feature, and support differs between tools.
 
 
 ## Advanced Features / Sending Emails
@@ -14819,7 +14991,8 @@ COMMANDS
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
-    info                  Prints basic information about the current Wasp project.
+    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
+    show build [--json]   Prints information about your app's current build.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
@@ -14924,7 +15097,8 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 ```
 
 - `wasp deps` lists the dependencies that Wasp uses in your project.
-- `wasp info` provides basic details about the current Wasp project.
+- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
+- `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 #### Database Commands
@@ -15283,7 +15457,17 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Enjoy your updated Wasp app
+#### 4. Update Fly database deployment flags
+
+If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
+
+| Before                   | After                       |
+| ------------------------ | --------------------------- |
+| `--vm-size`              | `--db-vm-size`              |
+| `--initial-cluster-size` | `--db-initial-cluster-size` |
+| `--volume-size`          | `--db-volume-size`          |
+
+#### 5. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19783,6 +19967,8 @@ This will ask you a series of questions, such as asking you to choose a region a
 - Say **no** to **Would you like to deploy now?** (and to any additional questions).
 
   We still need to set up several environment variables.
+
+Some apps need more database memory than the **Development** preset provides. If yours does, choose a database setup with more memory. See Fly.io's [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for the available options.
 
 :::info[What if the database setup fails?]
 If your attempts to initiate a new app fail for whatever reason, then you should run `fly apps destroy <app-name>` before trying again. Fly does not allow you to create multiple apps with the same name.

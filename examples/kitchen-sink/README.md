@@ -11,6 +11,10 @@ Any new or modified features should be added and tested here whenever possible.
 
 ## Setup
 
+```sh
+wasp install
+```
+
 ### Environment Variables
 
 To run the app with minimal setup:

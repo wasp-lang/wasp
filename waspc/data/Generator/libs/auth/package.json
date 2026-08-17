@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "exports": {
-    "./index": {
+    ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },

@@ -144,6 +144,9 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
                      -- If there are errors in this package, they will surface either during package tests or
                      -- manifest in the project snapshot. We can therefore skip it.
                      isSubpathOf ".wasp/spec",
+                     -- The project lock file persists by design and contains the PID
+                     -- of the last Wasp command, which is not deterministic.
+                     isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )
@@ -187,6 +190,9 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                 ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
                      -- what we ship in waspc/data/packages/spec, so we skip it.
                      isSubpathOf ".wasp/spec",
+                     -- The project lock file persists by design and contains the PID
+                     -- of the last Wasp command, which is not deterministic.
+                     isSubpathOf ".wasp/.projectlock",
                      isExtensionOf ".tgz"
                    ]
             )
