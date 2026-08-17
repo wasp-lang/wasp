@@ -8,8 +8,7 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 
 makeDevDefaultRunConfigs :: AppSpec -> (WebAppRunConfig, ServerRunConfig)
-makeDevDefaultRunConfigs appSpec =
-  uncurry makeRunConfigs $ makeDefaultUrls appSpec
+makeDevDefaultRunConfigs appSpec = makeRunConfigs $ makeDefaultUrls appSpec
 
 makeDefaultUrls :: AppSpec -> (AppComponentUrl, AppComponentUrl)
 makeDefaultUrls appSpec = (clientUrl, serverUrl)
@@ -17,8 +16,8 @@ makeDefaultUrls appSpec = (clientUrl, serverUrl)
     clientUrl = makeDefaultDevClientUrl appSpec
     serverUrl = defaultDevServerUrl
 
-makeRunConfigs :: AppComponentUrl -> AppComponentUrl -> (WebAppRunConfig, ServerRunConfig)
-makeRunConfigs clientUrl serverUrl = (clientRunConfig, serverRunConfig)
+makeRunConfigs :: (AppComponentUrl, AppComponentUrl) -> (WebAppRunConfig, ServerRunConfig)
+makeRunConfigs (clientUrl, serverUrl) = (clientRunConfig, serverRunConfig)
   where
     clientRunConfig = makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
     serverRunConfig = makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
