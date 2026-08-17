@@ -22,16 +22,19 @@ import Wasp.Project.Common (WaspProjectDir)
 --   It alo receives 'onJobsQuietDown' IO action, which it executes every time all the processes
 --   go quiet (don't produce any stdout/err) for some time (5s), after they have previously
 --   produced some output.
-start :: WebAppRunConfig -> ServerRunConfig -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> IO () -> IO (Either String ())
-start webAppRunConfig serverRunConfig waspProjectDir outDir onJobsQuietDown = do
+start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> IO () -> IO (Either String ())
+start (webAppRunConfig, serverRunConfig) waspProjectDir outDir onJobsQuietDown = do
   chan <- newChan
+
   let runStartJobs =
         startServer serverRunConfig outDir chan
           `race` startWebApp webAppRunConfig waspProjectDir chan
+
   ((serverOrWebExitCode, _), _) <-
     runStartJobs
       `concurrently` readJobMessagesAndPrintThemPrefixed chan
       `concurrently` (dupChan chan >>= (`listenForJobsQuietDown` onJobsQuietDown))
+
   case serverOrWebExitCode of
     Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
     Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."

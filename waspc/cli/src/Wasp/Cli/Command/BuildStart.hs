@@ -19,7 +19,7 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Util.AppUrls (showAppUrls)
+import Wasp.Cli.RunConfigs (showAppComponentUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
@@ -59,7 +59,7 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $ Msg.Info $ showAppUrls config.clientLocation config.serverLocation
+  cliSendMessageC $ Msg.Info $ showAppComponentUrls (config.clientUrl, config.serverUrl)
 
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_

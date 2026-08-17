@@ -198,6 +198,7 @@ library
     Wasp.Analyzer.TypeDefinitions.TH.Common
     Wasp.Analyzer.TypeDefinitions.TH.Decl
     Wasp.Analyzer.TypeDefinitions.TH.Enum
+    Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
@@ -272,7 +273,6 @@ library
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.NpmWorkspaces
-    Wasp.Generator.RunConfig
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.Common
@@ -428,7 +428,6 @@ library
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
-    Wasp.Util.AppLocation
     Wasp.Util.Control.Monad
     Wasp.Util.Debug
     Wasp.Util.Docker
@@ -551,15 +550,15 @@ library cli-lib
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
+    Wasp.Cli.EnvVarCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.ProjectLock
+    Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
-    Wasp.Cli.Util.AppUrls
     Wasp.Cli.Util.EnvVarArgument
-    Wasp.Cli.Util.EnvVarSource
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.PortArgument

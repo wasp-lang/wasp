@@ -12,7 +12,7 @@ import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import Wasp.Cli.RunConfigs (defaultDevClientPort)
 import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as S
 
@@ -40,7 +40,7 @@ resolveAppPorts requestedClientPort requestedServerPort = do
   resolvedClientPort <-
     resolvePort
       requestedClientPort
-      WebApp.defaultDevClientPort
+      defaultDevClientPort
       (catMaybes [requestedServerPort])
 
   resolvedServerPort <-

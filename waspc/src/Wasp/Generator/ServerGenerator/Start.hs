@@ -4,8 +4,8 @@ module Wasp.Generator.ServerGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path', (</>))
+import Wasp.Env (envVars)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.RunConfig (envVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J

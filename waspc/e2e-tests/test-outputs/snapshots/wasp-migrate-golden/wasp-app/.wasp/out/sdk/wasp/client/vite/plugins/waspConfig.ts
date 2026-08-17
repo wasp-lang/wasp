@@ -19,10 +19,9 @@ const forcedOptions = {
   base: "/",
   envPrefix: "REACT_APP_",
   "build.outDir": ".wasp/out/web-app/build/",
-  "server.port":
-    // This can be empty. Environment variables in the server are not set when
-    // running `wasp build`.
-    envVarAsNumber("PORT"),
+  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
+  // `build`, so it's not persisted in the final output.
+  "server.port": envVarAsNumber("PORT"),
   "server.strictPort": true,
 } as const;
 
