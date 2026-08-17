@@ -167,7 +167,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
         setMessages((priorMessages) => [msg, ...priorMessages])
       }
 
-      function handleSubmit(e) {
+      function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault()
         socket.emit("chatMessage", messageText)
         setMessageText("")
@@ -238,7 +238,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
         setMessages((priorMessages) => [msg, ...priorMessages])
       }
 
-      function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+      function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault()
         // This is a type-safe event emitter: "chatMessage" event and its payload type
         // are defined on the server.
