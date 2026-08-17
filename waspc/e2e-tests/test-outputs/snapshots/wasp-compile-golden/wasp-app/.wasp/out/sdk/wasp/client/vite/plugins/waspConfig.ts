@@ -39,7 +39,7 @@ export function waspConfig(): PluginOption {
           exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
         },
         server: {
-          port: useUserValue(config.server?.port, 3000),
+          port: useUserValue(config.server?.port, Number.parseInt(process.env["PORT"]!)),
           host: useUserValue(config.server?.host, "0.0.0.0"),
         },
         envPrefix: forcedOptions["envPrefix"],
