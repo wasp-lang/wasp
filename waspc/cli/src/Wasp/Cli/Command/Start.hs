@@ -10,6 +10,7 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec (AppSpec)
+import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -24,7 +25,6 @@ import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (defaultDevServerUrl, makeDefaultDevClientUrl, makeRunConfigs, showAppComponentUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Cli.Util.PortArgument (resolveAppPorts)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -110,7 +110,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
 makeDevAppUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
 makeDevAppUrls appSpec args = do
-  (clientPort, serverPort) <- resolveAppPorts args.clientPort args.serverPort
+  (clientPort, serverPort) <- findAppComponentPorts (args.clientPort, args.serverPort)
   return
     ( (makeDefaultDevClientUrl appSpec) {port = clientPort},
       defaultDevServerUrl {port = serverPort}

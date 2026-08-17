@@ -489,6 +489,7 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
+    Wasp.Cli.AppComponentPorts
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -555,6 +556,7 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.Port
     Wasp.Cli.ProjectLock
     Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
