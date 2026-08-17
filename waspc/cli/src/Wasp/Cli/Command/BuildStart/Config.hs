@@ -33,12 +33,13 @@ import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    clientUrl :: AppComponentUrl,
-    serverUrl :: AppComponentUrl,
     clientRunConfig :: WebAppRunConfig,
     serverRunConfig :: ServerRunConfig,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
-    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
+    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir),
+    -- These are only needed for showing the apps' URLs in the CLI:
+    clientUrl :: AppComponentUrl,
+    serverUrl :: AppComponentUrl
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
