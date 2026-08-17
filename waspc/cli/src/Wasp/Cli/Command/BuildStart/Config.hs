@@ -24,7 +24,6 @@ import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.RunConfigs (defaultDevServerUrl, makeDefaultDevClientUrl, makeDevDefaultRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
-import qualified Wasp.Cli.Util.PortArgument as PortArgument
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
@@ -49,10 +48,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   userClientEnvVars <- liftIO $ getEnvVarsWithCtx args.clientEnvVarSources
   userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
 
-  (clientPort, serverPort) <- PortArgument.resolveAppPorts args.clientPort args.serverPort
-
-  let clientUrl = (makeDefaultDevClientUrl appSpec) {AppComponentUrl.port = clientPort}
-      serverUrl = defaultDevServerUrl {AppComponentUrl.port = serverPort}
+  let clientUrl = (makeDefaultDevClientUrl appSpec) {AppComponentUrl.port = args.clientPort}
+      serverUrl = defaultDevServerUrl {AppComponentUrl.port = args.serverPort}
 
       (defaultClientRunConfig, defaultServerRunConfig) = makeDevDefaultRunConfigs appSpec
 
