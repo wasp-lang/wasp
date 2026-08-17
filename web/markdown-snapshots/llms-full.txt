@@ -15468,11 +15468,6 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-<<<<<<< HEAD
-#### 5. Enjoy your updated Wasp app
-||||||| c8b1cea550
-#### 4. Enjoy your updated Wasp app
-=======
 #### 4. Update Fly database deployment flags
 
 If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
@@ -15484,7 +15479,6 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--volume-size`          | `--db-volume-size`          |
 
 #### 5. Enjoy your updated Wasp app
->>>>>>> cprecioso/env-var-inputs
 
 That's it!
 
