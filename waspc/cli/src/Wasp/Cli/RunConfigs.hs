@@ -24,6 +24,17 @@ makeRunConfigs clientUrl serverUrl = (clientRunConfig, serverRunConfig)
     clientRunConfig = makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
     serverRunConfig = makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
 
+showAppComponentUrls :: (AppComponentUrl, AppComponentUrl) -> String
+showAppComponentUrls (clientUrl, serverUrl) =
+  unlines
+    [ " ℹ Client: " ++ ensureTrailingSlash (AppComponentUrl.url clientUrl),
+      " ℹ Server: " ++ ensureTrailingSlash (AppComponentUrl.url serverUrl)
+    ]
+  where
+    -- The server and client URLs have different expectations for trailing
+    -- slashes, so for display consistency we just ensure they both have it.
+    ensureTrailingSlash url = if last url == '/' then url else url ++ "/"
+
 makeDefaultDevClientUrl :: AppSpec -> AppComponentUrl
 makeDefaultDevClientUrl spec =
   Local {port = defaultDevClientPort, path = Just $ WebAppG.getBaseDir spec}

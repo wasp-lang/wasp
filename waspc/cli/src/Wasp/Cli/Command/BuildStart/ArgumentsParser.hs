@@ -24,9 +24,14 @@ buildStartArgsParser =
   BuildStartArgs
     <$> environmentVariableParsersForComponent "client"
     <*> environmentVariableParsersForComponent "server"
-    <*> portOption "client-port" "Port to run the client on" defaultDevClientPort
-    <*> portOption "server-port" "Port to run the server on" defaultDevServerPort
+    <*> portParserForComponent "client" defaultDevClientPort
+    <*> portParserForComponent "server" defaultDevServerPort
   where
+    portParserForComponent name =
+      portOption
+        (name ++ "-port")
+        ("Port to run the " ++ name ++ " on")
+
     environmentVariableParsersForComponent name =
       liftA2
         (,)

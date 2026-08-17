@@ -13,13 +13,15 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import StrongPath ((</>))
 import qualified StrongPath as SP
+import Wasp.AppComponentUrl (AppComponentUrl)
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarCtx (EnvVarWithCtx, addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
-import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
+import Wasp.Cli.RunConfigs (defaultDevServerUrl, makeDefaultDevClientUrl, makeDevDefaultRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
@@ -34,7 +36,10 @@ data BuildStartConfig = BuildStartConfig
     clientRunConfig :: WebAppRunConfig,
     serverRunConfig :: ServerRunConfig,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
-    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
+    projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir),
+    -- These are only needed for showing the apps' URLs in the CLI:
+    clientUrl :: AppComponentUrl,
+    serverUrl :: AppComponentUrl
   }
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
@@ -44,7 +49,10 @@ makeBuildStartConfig appSpec args projectDir' = do
   userClientEnvVars <- liftIO $ getEnvVarsWithCtx args.clientEnvVarSources
   userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
 
-  let (defaultClientRunConfig, defaultServerRunConfig) = makeDevDefaultRunConfigs appSpec
+  let clientUrl = (makeDefaultDevClientUrl appSpec) {AppComponentUrl.port = args.clientPort}
+      serverUrl = defaultDevServerUrl {AppComponentUrl.port = args.serverPort}
+
+      (defaultClientRunConfig, defaultServerRunConfig) = makeDevDefaultRunConfigs appSpec
 
   clientRunConfig' <- defaultClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
   serverRunConfig' <- defaultServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
@@ -54,6 +62,8 @@ makeBuildStartConfig appSpec args projectDir' = do
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
+        clientUrl = clientUrl,
+        serverUrl = serverUrl,
         serverRunConfig = serverRunConfig',
         clientRunConfig = clientRunConfig'
       }

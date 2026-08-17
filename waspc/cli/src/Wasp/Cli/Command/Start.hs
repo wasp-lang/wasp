@@ -22,7 +22,7 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (defaultDevServerUrl, makeDefaultDevClientUrl, makeRunConfigs)
+import Wasp.Cli.RunConfigs (defaultDevServerUrl, makeDefaultDevClientUrl, makeRunConfigs, showAppComponentUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -54,12 +54,14 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   (warnings, appSpec) <- compile
 
-  runConfigs <- makeDevRunConfigs appSpec waspProjectDir args
+  let appComponentUrls = makeDevAppUrls appSpec args
+  runConfigs <- makeDevRunConfigs waspProjectDir appComponentUrls
 
   DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
+  cliSendMessageC $ Msg.Info $ showAppComponentUrls appComponentUrls
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
@@ -105,12 +107,17 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
+makeDevAppUrls :: AppSpec -> StartArgs -> (AppComponentUrl, AppComponentUrl)
+makeDevAppUrls appSpec args =
+  ( (makeDefaultDevClientUrl appSpec) {port = args.clientPort},
+    defaultDevServerUrl {port = args.serverPort}
+  )
+
 makeDevRunConfigs ::
-  AppSpec ->
   Path' Abs (Dir WaspProjectDir) ->
-  StartArgs ->
+  (AppComponentUrl, AppComponentUrl) ->
   Command (WebAppRunConfig, ServerRunConfig)
-makeDevRunConfigs appSpec waspProjectDir args = do
+makeDevRunConfigs waspProjectDir (clientUrl, serverUrl) = do
   clientEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvClient
   serverEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvServer
 
@@ -123,9 +130,6 @@ makeDevRunConfigs appSpec waspProjectDir args = do
   return (clientRunConfig, serverRunConfig)
   where
     (clientRunConfig, serverRunConfig) = makeRunConfigs clientUrl serverUrl
-
-    clientUrl = (makeDefaultDevClientUrl appSpec) {port = args.clientPort}
-    serverUrl = defaultDevServerUrl {port = args.serverPort}
 
     getEnvVarsWithCtx dotEnvFile =
       mconcat
