@@ -17,9 +17,9 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    serverPortEnvVarName,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
+    serverPortEnvVarName,
     libsRootDirFromServerDir,
   )
 where
