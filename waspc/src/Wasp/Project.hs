@@ -2,6 +2,8 @@
 -- logic for operating on and processing a Wasp source project, as a whole.
 module Wasp.Project
   ( WaspProjectDir,
+    CompileResult (..),
+    compileResultWarningsAndErrors,
     compile,
     CompileError,
     CompileWarning,
@@ -19,38 +21,62 @@ import qualified Wasp.AppSpec as AS
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
+import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project.Env as Project.Env
+
+data CompileResult = CompileResult
+  { _compileWarnings :: [CompileWarning],
+    _compileErrors :: [CompileError],
+    _compileAppSpec :: Maybe AS.AppSpec,
+    _compileChangedGeneratedAppPaths :: [FileOrDirPathRelativeTo Generator.GeneratedAppDir]
+  }
+
+compileResultWarningsAndErrors :: CompileResult -> ([CompileWarning], [CompileError])
+compileResultWarningsAndErrors compileResult = (_compileWarnings compileResult, _compileErrors compileResult)
 
 compile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
-  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
+  IO CompileResult
 compile waspDir outDir options = do
-  (compileWarnings, appSpecOrCompileErrors) <-
+  compileResult <-
     analyzeWaspProject waspDir options >>= \case
       (Left analyzerErrors, analyzerWarnings) ->
-        return (analyzerWarnings, Left analyzerErrors)
-      (Right appSpec, analyzerWarnings) -> do
-        (generatorWarnings, generatorErrors) <- generateCode appSpec outDir options
         return
-          ( generatorWarnings <> analyzerWarnings,
-            if null generatorErrors then Right appSpec else Left generatorErrors
-          )
+          CompileResult
+            { _compileWarnings = analyzerWarnings,
+              _compileErrors = analyzerErrors,
+              _compileAppSpec = Nothing,
+              _compileChangedGeneratedAppPaths = []
+            }
+      (Right appSpec, analyzerWarnings) -> do
+        generateResult <- generateCode appSpec outDir options
+        return
+          generateResult
+            { _compileWarnings = _compileWarnings generateResult <> analyzerWarnings,
+              _compileAppSpec = Just appSpec
+            }
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
-  return (compileWarnings <> dotEnvWarnings, appSpecOrCompileErrors)
+  return compileResult {_compileWarnings = _compileWarnings compileResult <> dotEnvWarnings}
 
 generateCode ::
   AS.AppSpec ->
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
-  IO ([CompileWarning], [CompileError])
+  IO CompileResult
 generateCode appSpec outDir options = do
-  (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
+  (generatorWarnings, generatorErrors, changedGeneratedAppPaths) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
   let filteredWarnings = generatorWarningsFilter options generatorWarnings
-  return (show <$> filteredWarnings, show <$> generatorErrors)
+  return
+    CompileResult
+      { _compileWarnings = show <$> filteredWarnings,
+        _compileErrors = show <$> generatorErrors,
+        _compileAppSpec = Just appSpec,
+        _compileChangedGeneratedAppPaths = changedGeneratedAppPaths
+      }
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do
