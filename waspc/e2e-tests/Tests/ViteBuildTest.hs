@@ -114,8 +114,6 @@ viteBuildTest =
           }
         |]
 
-    -- Wasp controls the client's dev port (users change it with
-    -- `wasp start --client-port`), so setting it in the Vite config must fail.
     writeViteConfigWithServerPort :: ShellCommandBuilder WaspProjectContext ShellCommand
     writeViteConfigWithServerPort = do
       waspProjectContext <- ask
