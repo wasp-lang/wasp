@@ -7,6 +7,7 @@ where
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (isJust)
 import StrongPath (relfile)
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -24,7 +25,6 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
-import qualified Wasp.Util.AppLocation as AL
 
 genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
@@ -59,7 +59,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultServerPort" .= show (AL.port Server.defaultDevServerLocation),
+          "defaultServerPort" .= show (AppComponentUrl.port Server.defaultDevServerUrl),
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),

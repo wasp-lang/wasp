@@ -153,6 +153,17 @@ you'll have to add a one new additional line to it:
   </TabItem>
 </Tabs>
 
+
+### 4. Update Fly database deployment flags
+
+If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
+
+| Before                  | After                              |
+| ----------------------- | ---------------------------------- |
+| `--vm-size`             | `--db-vm-size`                     |
+| `--initial-cluster-size` | `--db-initial-cluster-size`        |
+| `--volume-size`         | `--db-volume-size`                 |
+
 ### 5. Enjoy your updated Wasp app
 
 That's it!

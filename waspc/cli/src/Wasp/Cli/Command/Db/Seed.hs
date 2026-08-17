@@ -10,6 +10,7 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import StrongPath ((</>))
 import Text.Printf (printf)
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
@@ -25,7 +26,6 @@ import Wasp.Generator.ServerGenerator.RunConfig (makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
-import qualified Wasp.Util.AppLocation as AL
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
@@ -45,8 +45,8 @@ seed maybeUserProvidedSeedName = do
   where
     defaultDevServerRunConfig appSpec =
       makeServerRunConfig
-        Server.defaultDevServerLocation
-        (AL.url $ WebApp.makeDefaultDevClientLocation appSpec)
+        Server.defaultDevServerUrl
+        (AppComponentUrl.url $ WebApp.makeDefaultDevClientUrl appSpec)
 
 obtainNameOfExistingSeedToRun :: Maybe String -> AS.AppSpec -> Command String
 obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do

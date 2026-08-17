@@ -11030,7 +11030,7 @@ In this section, we'll discuss what happens with the database when your app goes
 
 The server app that Wasp generates uses a PostgreSQL database. The only requirement from Wasp's point of view is that the database is accessible from the server via the `DATABASE_URL` server env variable.
 
-It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service.
+It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service. PostgreSQL can behave differently across major versions, so development and production work best when they use the same major version.
 
 ### Migrations
 
@@ -11506,18 +11506,17 @@ If you want to build locally, supply the `--build-locally` option to `wasp deplo
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL Docker image provided by Fly.io when creating a new database for your app. However, if you have a need for a custom Docker image, e.g., your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Fly.io databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the `flyio/postgres-flex:18` image. If your app needs another PostgreSQL image, for example, to add an extension such as PostGIS, use `--db-image <docker-image>`.
 
 Your custom PostgreSQL image must be compatible with Fly.io, as their platform has some requirements to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
 
 We have crafted a small guide on [how to create a custom Docker image with PostGIS or pgvector for Fly.io](https://gist.github.com/cprecioso/e19e883138241c1a446f48d6187aae75). You can also use it as a starting point to create your own images with other extensions.
 
 :::tip
-You only need to specify the Docker image once, when first creating the app with any of these commands:
+You only need to specify the Docker image once, when creating the database:
 
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
-wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
 wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 :::
@@ -11549,6 +11548,28 @@ wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
 wasp deploy fly deploy
 ```
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
+
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 ##### Environment Variables {#fly-launch-environment-variables}
 
@@ -11617,6 +11638,28 @@ It accepts the following arguments:
 - `<region>` required
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
+
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 :::caution[Execute Only Once]
 You should only run `create-db` once per app. If you run it multiple times, it creates multiple databases, but your app needs only one.
@@ -11694,7 +11737,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
+The database service is always named `Postgres`, regardless of the project name.
 
 When you run the `launch` command, Wasp CLI knows how to connect different parts of your Wasp app together, so it sets up the required environment variables for your server app:
 
@@ -11757,7 +11800,9 @@ wasp deploy railway deploy <project-name>
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image by default. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector. If the custom image stores data at a different location, set it with `--db-volume-mount-path <path>`. It defaults to `/var/lib/postgresql/data`.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11765,15 +11810,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+wasp deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](https://wasp.sh/docs/deployment/database#connect-to-the-production-database).
 
 ##### Explicitly providing the Railway project ID
 
@@ -11891,7 +11931,9 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 ##### Using a custom PostgreSQL database {#using-a-custom-postgresql-database}
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image by default. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector. If the custom image stores data at a different location, set it with `--db-volume-mount-path <path>`. It defaults to `/var/lib/postgresql/data`.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11899,15 +11941,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway setup my-wasp-app --db-image postgis/postgis
+wasp deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](https://wasp.sh/docs/deployment/database#connect-to-the-production-database).
 
 ##### Explicitly providing the Railway project ID
 
@@ -15431,7 +15468,23 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
+<<<<<<< HEAD
 #### 5. Enjoy your updated Wasp app
+||||||| c8b1cea550
+#### 4. Enjoy your updated Wasp app
+=======
+#### 4. Update Fly database deployment flags
+
+If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
+
+| Before                   | After                       |
+| ------------------------ | --------------------------- |
+| `--vm-size`              | `--db-vm-size`              |
+| `--initial-cluster-size` | `--db-initial-cluster-size` |
+| `--volume-size`          | `--db-volume-size`          |
+
+#### 5. Enjoy your updated Wasp app
+>>>>>>> cprecioso/env-var-inputs
 
 That's it!
 
@@ -19931,6 +19984,8 @@ This will ask you a series of questions, such as asking you to choose a region a
 - Say **no** to **Would you like to deploy now?** (and to any additional questions).
 
   We still need to set up several environment variables.
+
+Some apps need more database memory than the **Development** preset provides. If yours does, choose a database setup with more memory. See Fly.io's [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for the available options.
 
 :::info[What if the database setup fails?]
 If your attempts to initiate a new app fail for whatever reason, then you should run `fly apps destroy <app-name>` before trying again. Fly does not allow you to create multiple apps with the same name.

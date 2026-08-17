@@ -8,15 +8,18 @@ where
 
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError))
+import Control.Monad.Extra (concatMapM)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import StrongPath ((</>))
 import qualified StrongPath as SP
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.Util.EnvVarSource (EnvVarSource, addEnvVarsC, resolveEnvVarArguments, resolveEnvVarFile)
+import Wasp.Cli.EnvVarCtx (EnvVarWithCtx, addEnvVarsUniqueC)
+import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
@@ -26,7 +29,6 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunC
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
-import qualified Wasp.Util.AppLocation as AL
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
@@ -41,18 +43,18 @@ makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir Was
 makeBuildStartConfig appSpec args projectDir' = do
   when noEnvVarsSourcesSpecified $ throwError noEnvVarsSourcesSpecifiedMsg
 
-  userServerEnvVars <- liftIO $ resolveEnvVarSources args.serverEnvVarSources
-  userClientEnvVars <- liftIO $ resolveEnvVarSources args.clientEnvVarSources
+  userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
+  userClientEnvVars <- liftIO $ getEnvVarsWithCtx args.clientEnvVarSources
 
-  let serverLocation = Server.defaultDevServerLocation
-      clientLocation = WebApp.makeDefaultDevClientLocation appSpec
+  let serverUrl = Server.defaultDevServerUrl
+      clientUrl = WebApp.makeDefaultDevClientUrl appSpec
 
   serverRunConfig' <-
-    makeServerRunConfig serverLocation (AL.url clientLocation)
-      `addEnvVarsC` userServerEnvVars
+    makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
+      `addEnvVarsUniqueC` userServerEnvVars
   clientRunConfig' <-
-    makeWebAppRunConfig clientLocation (AL.url serverLocation)
-      `addEnvVarsC` userClientEnvVars
+    makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
+      `addEnvVarsUniqueC` userClientEnvVars
 
   return $
     BuildStartConfig
@@ -87,12 +89,12 @@ makeBuildStartConfig appSpec args projectDir' = do
           ++ " files unless you explicitly tell it. "
           ++ getParserHelpMessage buildStartArgsParser
 
-resolveEnvVarSources :: ([EnvVar], [FilePathArgument]) -> IO [EnvVarSource]
-resolveEnvVarSources (argEnvVarSource, fileEnvVarSources) =
+getEnvVarsWithCtx :: ([EnvVar], [FilePathArgument]) -> IO [EnvVarWithCtx]
+getEnvVarsWithCtx (argEnvVarSource, fileEnvVarSources) =
   concat
     <$> sequence
-      [ return [resolveEnvVarArguments argEnvVarSource],
-        mapM resolveEnvVarFile fileEnvVarSources
+      [ return $ EnvVarCtx.fromCliArguments <$> argEnvVarSource,
+        concatMapM EnvVarCtx.fromFilePathArgument fileEnvVarSources
       ]
 
 dockerImageName :: BuildStartConfig -> String

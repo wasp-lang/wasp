@@ -5,6 +5,7 @@ import Data.Maybe (fromJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
@@ -27,7 +28,6 @@ import Wasp.Project.Common
   )
 import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
-import qualified Wasp.Util.AppLocation as AL
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
@@ -72,7 +72,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
-          "defaultClientPort" .= show (AL.port $ WebApp.makeDefaultDevClientLocation spec),
+          "defaultClientPort" .= show (AppComponentUrl.port $ WebApp.makeDefaultDevClientUrl spec),
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"

@@ -8,6 +8,7 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -16,10 +17,10 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
+import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.Util.EnvVarSource (assertNoOverriddenEnvVars, resolveEnvVarProjectFile, resolveInheritedEnvVars)
 import qualified Wasp.Generator
-import Wasp.Generator.RunConfig (envVars)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -28,7 +29,6 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import qualified Wasp.Util.AppLocation as AL
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -112,22 +112,22 @@ makeDevRunConfigs appSpec waspProjectDir = do
   clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
   serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
 
-  -- We only assert and persist the final env vars ourselves because the
-  -- subprocesses will pick the env vars themselves as part of their own
-  -- runtime.
-  assertNoOverriddenEnvVars (envVars clientRunConfig) clientEnvVarSources
-  assertNoOverriddenEnvVars (envVars serverRunConfig) serverEnvVarSources
+  -- We only check for errors, and throw away the final env vars, because the
+  -- subprocesses will read the dot env files and inherited environment
+  -- themselves.
+  _ <- addEnvVarsUniqueC clientRunConfig clientEnvVarSources
+  _ <- addEnvVarsUniqueC serverRunConfig serverEnvVarSources
 
   return (clientRunConfig, serverRunConfig)
   where
-    clientLocation = WebApp.makeDefaultDevClientLocation appSpec
-    clientRunConfig = makeWebAppRunConfig clientLocation (AL.url serverLocation)
+    clientLocation = WebApp.makeDefaultDevClientUrl appSpec
+    clientRunConfig = makeWebAppRunConfig clientLocation (AppComponentUrl.url serverLocation)
 
-    serverLocation = Server.defaultDevServerLocation
-    serverRunConfig = makeServerRunConfig serverLocation (AL.url clientLocation)
+    serverLocation = Server.defaultDevServerUrl
+    serverRunConfig = makeServerRunConfig serverLocation (AppComponentUrl.url clientLocation)
 
     devEnvVarSources dotEnvFile =
-      sequence
-        [ resolveEnvVarProjectFile waspProjectDir dotEnvFile,
-          resolveInheritedEnvVars
+      mconcat
+        [ EnvVarCtx.fromProjectFile waspProjectDir dotEnvFile,
+          EnvVarCtx.fromCurrentEnvironment
         ]

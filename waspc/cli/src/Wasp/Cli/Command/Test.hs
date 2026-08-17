@@ -9,6 +9,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -24,7 +25,6 @@ import Wasp.Project.Common
   ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
   )
-import qualified Wasp.Util.AppLocation as AL
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
@@ -62,5 +62,5 @@ watchAndTest testRunner = withProjectLock $ do
   where
     defaultDevClientRunConfig appSpec =
       makeWebAppRunConfig
-        (WebApp.makeDefaultDevClientLocation appSpec)
-        (AL.url Server.defaultDevServerLocation)
+        (WebApp.makeDefaultDevClientUrl appSpec)
+        (AppComponentUrl.url Server.defaultDevServerUrl)

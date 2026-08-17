@@ -1,5 +1,10 @@
 import { confirm } from "@inquirer/prompts";
+import { SemVer } from "semver";
 import { $ } from "zx";
+import {
+  assertCliVersionMeetsMinimum,
+  parseCliVersion,
+} from "../../common/cliVersion.js";
 import { getFullCommandName } from "../../common/commander.js";
 import { executeFlyCommand } from "./index.js";
 import {
@@ -7,14 +12,7 @@ import {
   FlySecretListSchema,
 } from "./jsonOutputSchemas.js";
 
-export async function flyctlExists(): Promise<boolean> {
-  try {
-    await $`flyctl version`;
-    return true;
-  } catch {
-    return false;
-  }
-}
+const minSupportedFlyCliVersion = new SemVer("0.4.82");
 
 export async function isUserLoggedIn(): Promise<boolean> {
   try {
@@ -48,13 +46,38 @@ async function ensureUserLoggedIn(): Promise<void> {
 }
 
 export async function ensureFlyReady(): Promise<void> {
-  const doesFlyctlExist = await flyctlExists();
-  if (!doesFlyctlExist) {
+  const flyCliVersion = await getFlyCliVersion();
+  assertCliVersionMeetsMinimum({
+    cliName: "Fly CLI",
+    currentVersion: flyCliVersion,
+    minimumVersion: minSupportedFlyCliVersion,
+    updateInstructions:
+      "Read how to update the Fly CLI here: https://fly.io/docs/hands-on/install-flyctl",
+  });
+  await ensureUserLoggedIn();
+}
+
+async function getFlyCliVersion(): Promise<SemVer> {
+  const result = await $({ nothrow: true })`flyctl version`;
+
+  if (result.exitCode !== 0) {
     throw new Error(
-      `The Fly.io CLI is not available on this system.\nPlease install the flyctl here: https://fly.io/docs/hands-on/install-flyctl`,
+      [
+        "Failed to get Fly CLI version. Most likely the Fly CLI is not installed.",
+        "Read how to install the Fly CLI here: https://fly.io/docs/hands-on/install-flyctl",
+      ].join("\n"),
     );
   }
-  await ensureUserLoggedIn();
+
+  const match = result.stdout.match(/flyctl(?:\.exe)? v?(\S+)/);
+
+  if (match === null) {
+    throw new Error(
+      `Failed to get Fly CLI version from output "${result.stdout.trim()}".`,
+    );
+  }
+
+  return parseCliVersion("Fly CLI", match[1]);
 }
 
 export async function assertRegionIsValid(region: string): Promise<void> {
