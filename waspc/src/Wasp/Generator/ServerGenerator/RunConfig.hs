@@ -4,7 +4,7 @@ module Wasp.Generator.ServerGenerator.RunConfig
   )
 where
 
-import Wasp.AppComponentUrl (AppComponentUrl, url)
+import Wasp.AppComponentUrl (AppComponentUrl, port, url)
 import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 
@@ -21,5 +21,6 @@ makeServerRunConfig :: AppComponentUrl -> String -> ServerRunConfig
 makeServerRunConfig expectedUrl clientUrl =
   ServerRunConfig
     [ (Common.clientUrlEnvVarName, clientUrl),
-      (Common.serverUrlEnvVarName, url expectedUrl)
+      (Common.serverUrlEnvVarName, url expectedUrl),
+      (Common.serverPortEnvVarName, show $ port expectedUrl)
     ]

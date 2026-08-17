@@ -17,9 +17,9 @@ module Wasp.Generator.ServerGenerator.Common
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    defaultDevServerUrl,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
+    serverPortEnvVarName,
     libsRootDirFromServerDir,
   )
 where
@@ -28,7 +28,6 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
-import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
@@ -137,9 +136,10 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
-defaultDevServerUrl :: AppComponentUrl
-defaultDevServerUrl =
-  Local {port = 3001, path = Nothing}
+serverPortEnvVarName :: String
+serverPortEnvVarName =
+  -- Not prefixed with `WASP_` because many deployment platforms use this env.
+  "PORT"
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

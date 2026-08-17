@@ -554,6 +554,7 @@ library cli-lib
     Wasp.Cli.Interactive
     Wasp.Cli.Message
     Wasp.Cli.ProjectLock
+    Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser

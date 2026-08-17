@@ -13,21 +13,19 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import StrongPath ((</>))
 import qualified StrongPath as SP
-import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarCtx (EnvVarWithCtx, addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
+import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
-import qualified Wasp.Generator.ServerGenerator.Common as ServerG
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
@@ -43,18 +41,13 @@ makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir Was
 makeBuildStartConfig appSpec args projectDir' = do
   when noEnvVarsSourcesSpecified $ throwError noEnvVarsSourcesSpecifiedMsg
 
-  userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
   userClientEnvVars <- liftIO $ getEnvVarsWithCtx args.clientEnvVarSources
+  userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
 
-  let serverUrl = ServerG.defaultDevServerUrl
-      clientUrl = WebAppG.makeDefaultDevClientUrl appSpec
+  let (defaultClientRunConfig, defaultServerRunConfig) = makeDevDefaultRunConfigs appSpec
 
-  serverRunConfig' <-
-    makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
-      `addEnvVarsUniqueC` userServerEnvVars
-  clientRunConfig' <-
-    makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
-      `addEnvVarsUniqueC` userClientEnvVars
+  clientRunConfig' <- defaultClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
+  serverRunConfig' <- defaultServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
 
   return $
     BuildStartConfig

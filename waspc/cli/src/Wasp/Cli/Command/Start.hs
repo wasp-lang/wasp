@@ -8,7 +8,6 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
-import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -20,11 +19,10 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
+import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
 import qualified Wasp.Generator
-import qualified Wasp.Generator.ServerGenerator.Common as ServerG
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServerRunConfig)
-import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
@@ -109,8 +107,8 @@ makeDevRunConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   Command (WebAppRunConfig, ServerRunConfig)
 makeDevRunConfigs appSpec waspProjectDir = do
-  clientEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvClient
-  serverEnvVarSources <- liftIO $ devEnvVarSources Env.dotEnvServer
+  clientEnvVarSources <- liftIO $ getEnvVarsWithCtx Env.dotEnvClient
+  serverEnvVarSources <- liftIO $ getEnvVarsWithCtx Env.dotEnvServer
 
   -- We only use this to check for errors. We throw away the resulting env vars,
   -- because the generated apps will read the .env files and inherited
@@ -120,13 +118,9 @@ makeDevRunConfigs appSpec waspProjectDir = do
 
   return (clientRunConfig, serverRunConfig)
   where
-    clientUrl = WebAppG.makeDefaultDevClientUrl appSpec
-    clientRunConfig = makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
+    (clientRunConfig, serverRunConfig) = makeDevDefaultRunConfigs appSpec
 
-    serverUrl = ServerG.defaultDevServerUrl
-    serverRunConfig = makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
-
-    devEnvVarSources dotEnvFile =
+    getEnvVarsWithCtx dotEnvFile =
       mconcat
         [ EnvVarCtx.fromProjectFile waspProjectDir dotEnvFile,
           EnvVarCtx.fromCurrentEnvironment

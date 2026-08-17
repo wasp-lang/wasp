@@ -23,5 +23,6 @@ makeWebAppRunConfig :: AppComponentUrl -> String -> WebAppRunConfig
 makeWebAppRunConfig expectedUrl serverUrl =
   WebAppRunConfig
     expectedUrl.port
-    [ (Common.serverUrlEnvVarName, serverUrl)
+    [ (Common.serverUrlEnvVarName, serverUrl),
+      (Common.clientPortEnvVarName, show expectedUrl.port)
     ]
