@@ -23,7 +23,7 @@ const forcedOptions = {
   "server.port":
     // This can be empty. Environment variables in the server are not set when
     // running `wasp build`.
-    envVarAsNumber("{= clientDevPortEnvVarName =}"),
+    envVarAsNumber("{= clientPortEnvVarName =}"),
   "server.strictPort": true,
 } as const;
 

@@ -18,7 +18,6 @@ module Wasp.Generator.ServerGenerator.Common
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
     serverPortEnvVarName,
-    defaultDevServerLocation,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     libsRootDirFromServerDir,
@@ -39,7 +38,6 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
-import Wasp.Util.AppLocation (AppLocation (..))
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
@@ -139,14 +137,9 @@ serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
 serverPortEnvVarName :: String
-serverPortEnvVarName = "PORT"
-
--- | Where the server runs in development when the user doesn't choose a port.
--- Processes that never bind a port (like the test runner) also use it as a
--- placeholder.
-defaultDevServerLocation :: AppLocation
-defaultDevServerLocation =
-  Local {port = 3001, baseDir = Nothing}
+serverPortEnvVarName =
+  -- Not prefixed with `WASP_` because many deployment platforms use this env.
+  "PORT"
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

@@ -16,9 +16,9 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
+import Wasp.Env (envVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
-import Wasp.Generator.RunConfig (envVars)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -176,8 +176,8 @@ runPrismaCommandAsJobWithExtraEnv ::
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir envVars' generatedAppDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv envVars' fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

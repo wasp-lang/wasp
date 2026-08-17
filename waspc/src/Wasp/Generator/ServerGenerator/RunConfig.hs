@@ -4,10 +4,9 @@ module Wasp.Generator.ServerGenerator.RunConfig
   )
 where
 
-import Wasp.Env (EnvVar)
-import Wasp.Generator.RunConfig (HasEnvVars (..))
+import Wasp.AppComponentUrl (AppComponentUrl, port, url)
+import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
-import qualified Wasp.Util.AppLocation as AL
 
 newtype ServerRunConfig = ServerRunConfig
   { envVars' :: [EnvVar]
@@ -16,12 +15,12 @@ newtype ServerRunConfig = ServerRunConfig
 
 instance HasEnvVars ServerRunConfig where
   envVars = envVars'
-  replaceEnvVars config newEnvVars = config {envVars' = newEnvVars}
+  setEnvVars config newEnvVars = config {envVars' = newEnvVars}
 
-makeServerRunConfig :: AL.AppLocation -> String -> ServerRunConfig
-makeServerRunConfig location clientUrl =
+makeServerRunConfig :: AppComponentUrl -> String -> ServerRunConfig
+makeServerRunConfig expectedUrl clientUrl =
   ServerRunConfig
-    [ (Common.serverPortEnvVarName, show $ AL.port location),
-      (Common.clientUrlEnvVarName, clientUrl),
-      (Common.serverUrlEnvVarName, AL.url location)
+    [ (Common.clientUrlEnvVarName, clientUrl),
+      (Common.serverUrlEnvVarName, url expectedUrl),
+      (Common.serverPortEnvVarName, show $ port expectedUrl)
     ]

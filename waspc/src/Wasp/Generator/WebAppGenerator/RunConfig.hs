@@ -5,10 +5,9 @@ module Wasp.Generator.WebAppGenerator.RunConfig
 where
 
 import Network.Socket (PortNumber)
-import Wasp.Env (EnvVar)
-import Wasp.Generator.RunConfig (HasEnvVars (..))
+import Wasp.AppComponentUrl (AppComponentUrl (..))
+import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
-import qualified Wasp.Util.AppLocation as AL
 
 data WebAppRunConfig = WebAppRunConfig
   { port :: PortNumber,
@@ -18,12 +17,12 @@ data WebAppRunConfig = WebAppRunConfig
 
 instance HasEnvVars WebAppRunConfig where
   envVars = envVars'
-  replaceEnvVars config newEnvVars = config {envVars' = newEnvVars}
+  setEnvVars config newEnvVars = config {envVars' = newEnvVars}
 
-makeWebAppRunConfig :: AL.AppLocation -> String -> WebAppRunConfig
-makeWebAppRunConfig location serverUrl =
+makeWebAppRunConfig :: AppComponentUrl -> String -> WebAppRunConfig
+makeWebAppRunConfig expectedUrl serverUrl =
   WebAppRunConfig
-    location.port
-    [ (Common.clientDevPortEnvVarName, show location.port),
-      (Common.serverUrlEnvVarName, serverUrl)
+    expectedUrl.port
+    [ (Common.serverUrlEnvVarName, serverUrl),
+      (Common.clientPortEnvVarName, show expectedUrl.port)
     ]
