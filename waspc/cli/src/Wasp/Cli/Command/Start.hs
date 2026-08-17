@@ -50,7 +50,7 @@ start = withProjectLock $ do
 
   (warnings, appSpec) <- compile
 
-  (clientRunConfig, serverRunConfig) <- makeDevRunConfigs appSpec waspProjectDir
+  runConfigs <- makeDevRunConfigs appSpec waspProjectDir
 
   DbConnectionEstablished <- require
 
@@ -67,8 +67,7 @@ start = withProjectLock $ do
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
           Wasp.Generator.start
-            clientRunConfig
-            serverRunConfig
+            runConfigs
             waspProjectDir
             outDir
             (onJobsQuietDown ongoingCompilationResultMVar)

@@ -176,8 +176,8 @@ runPrismaCommandAsJobWithExtraEnv ::
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir envVars' generatedAppDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv envVars' fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 
