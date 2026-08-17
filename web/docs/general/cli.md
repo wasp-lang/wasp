@@ -29,7 +29,7 @@ COMMANDS
     start [--client-port <port>] [--server-port <port>]
                           Runs Wasp app in development mode, watching for file changes.
                           Optionally specify the ports the client and the server run on.
-                          If not specified, Wasp picks a free port when the default one is taken.
+                          If not specified, Wasp picks the first free port when the default one is taken.
     start db [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
                           Optionally specify a custom Docker image or Docker volume mount path.
