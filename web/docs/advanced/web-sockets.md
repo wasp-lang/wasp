@@ -167,7 +167,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
         setMessages((priorMessages) => [msg, ...priorMessages])
       }
 
-      function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+      function handleSubmit(e) {
         e.preventDefault()
         socket.emit("chatMessage", messageText)
         setMessageText("")

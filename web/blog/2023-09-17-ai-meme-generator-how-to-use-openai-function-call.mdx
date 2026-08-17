@@ -620,7 +620,7 @@ export function HomePage() {
   const { data: user } = useAuth();
   const { data: memes, isLoading, error } = useQuery(getAllMemes); 
 
-  const handleGenerateMeme = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleGenerateMeme: FormEventHandler<HTMLFormElement> = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) {
       history.push('/login');
@@ -650,7 +650,7 @@ For `getAllMemes`, we wrap it in the `useQuery` hook so that we can fetch and ca
 Rather than adding code to the `Home.tsx` file piece-by-piece, here is the file with all the code to generate and display the memes. Go ahead and replace all of `Home.tsx` with this code and I’ll explain it in more detail below:
 
 ```tsx
-import { useState } from 'react';
+import { useState, FormEventHandler } from 'react';
 import { useQuery } from '@wasp/queries';
 import createMeme from '@wasp/actions/createMeme';
 import getAllMemes from '@wasp/queries/getAllMemes';
@@ -671,7 +671,7 @@ export function HomePage() {
   const { data: user } = useAuth();
   const { data: memes, isLoading, error } = useQuery(getAllMemes);
 
-  const handleGenerateMeme = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleGenerateMeme: FormEventHandler<HTMLFormElement> = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) {
       history.push('/login');
@@ -1080,7 +1080,7 @@ There are two important things to notice:
 Now, create this page by adding a new file called `EditMemePage.tsx` to `src/client/pages`. Add the following code:
 
 ```tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEventHandler } from 'react';
 import { useQuery } from '@wasp/queries';
 import editMeme from '@wasp/actions/editMeme';
 import getMeme from '@wasp/queries/getMeme';
