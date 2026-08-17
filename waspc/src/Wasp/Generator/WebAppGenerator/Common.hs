@@ -1,7 +1,7 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
-    clientPortEnvVarName,
     serverUrlEnvVarName,
+    clientPortEnvVarName,
   )
 where
 
@@ -22,4 +22,6 @@ serverUrlEnvVarName :: String
 serverUrlEnvVarName = "REACT_APP_API_URL"
 
 clientPortEnvVarName :: String
-clientPortEnvVarName = "PORT"
+clientPortEnvVarName =
+  -- Not prefixed with `WASP_` because many deployment platforms use this env.
+  "PORT"
