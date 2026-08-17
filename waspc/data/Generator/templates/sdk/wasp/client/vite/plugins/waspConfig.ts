@@ -40,7 +40,7 @@ export function waspConfig(): PluginOption {
           exclude: {=& depsExcludedFromOptimization =}
         },
         server: {
-          port: useUserValue(config.server?.port, process.env["{= clientPortEnvVarName =}"]),
+          port: useUserValue(config.server?.port, Number.parseInt(process.env["{= clientPortEnvVarName =}"])),
           host: useUserValue(config.server?.host, "0.0.0.0"),
         },
         envPrefix: forcedOptions["envPrefix"],
