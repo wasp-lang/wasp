@@ -107,14 +107,14 @@ makeDevRunConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   Command (WebAppRunConfig, ServerRunConfig)
 makeDevRunConfigs appSpec waspProjectDir = do
-  clientEnvVarSources <- liftIO $ getEnvVarsWithCtx Env.dotEnvClient
-  serverEnvVarSources <- liftIO $ getEnvVarsWithCtx Env.dotEnvServer
+  clientEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvClient
+  serverEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvServer
 
   -- We only use this to check for errors. We throw away the resulting env vars,
   -- because the generated apps will read the .env files and inherited
   -- environment themselves.
-  _ <- clientRunConfig `addEnvVarsUniqueC` clientEnvVarSources
-  _ <- serverRunConfig `addEnvVarsUniqueC` serverEnvVarSources
+  _ <- clientRunConfig `addEnvVarsUniqueC` clientEnvVarsWithCtx
+  _ <- serverRunConfig `addEnvVarsUniqueC` serverEnvVarsWithCtx
 
   return (clientRunConfig, serverRunConfig)
   where
