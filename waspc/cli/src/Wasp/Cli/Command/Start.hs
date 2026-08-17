@@ -113,8 +113,8 @@ makeDevRunConfigs appSpec waspProjectDir = do
   -- We only use this to check for errors. We throw away the resulting env vars,
   -- because the generated apps will read the .env files and inherited
   -- environment themselves.
-  _ <- addEnvVarsUniqueC clientRunConfig clientEnvVarSources
-  _ <- addEnvVarsUniqueC serverRunConfig serverEnvVarSources
+  _ <- clientRunConfig `addEnvVarsUniqueC` clientEnvVarSources
+  _ <- serverRunConfig `addEnvVarsUniqueC` serverEnvVarSources
 
   return (clientRunConfig, serverRunConfig)
   where
