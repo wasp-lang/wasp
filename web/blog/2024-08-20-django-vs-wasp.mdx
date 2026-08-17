@@ -496,7 +496,7 @@ Ok, so now we can actually get back to comparing Wasp and Django.
     And here's the Wasp React client for comparison. Take note how we're able to import the operations we defined earlier and call them here easily on the client with less configuration than the Django app. We also get the built-in caching power of the `useQuery` hook, as well as the ability to pass in our authenticated user as a prop (we'll get into this more below):
 
     ```jsx title="Main.jsx"
-    import React, { FormEventHandler, FormEvent } from "react";
+    import React, { SubmitEvent } from "react";
     import { type Task } from "wasp/entities";
     import { type AuthUser, getUsername } from "wasp/auth";
     import { logout } from "wasp/client/auth";
@@ -581,7 +581,7 @@ Ok, so now we can actually get back to comparing Wasp and Django.
     }
 
     function NewTaskForm() {
-      const handleSubmit = async (event) => {
+      const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         try {
