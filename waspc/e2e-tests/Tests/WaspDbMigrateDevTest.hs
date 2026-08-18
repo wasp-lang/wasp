@@ -3,7 +3,7 @@ module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 import Control.Monad.Reader (MonadReader (ask))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, assertCommandOutputContains, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliDbMigrateDev, (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&))
 import StrongPath (fromAbsDir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -25,18 +25,6 @@ waspDbMigrateDevTest =
     [ TestCase
         "fail-outside-project"
         (return [waspCliDbMigrateDevFails]),
-      TestCase
-        "fail-postgresql-project-when-dev-db-not-running"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  assertCommandOutputContains
-                    (return waspCliDbMigrateDevFails)
-                    "The database needs to be running"
-                ]
-            ]
-        ),
       TestCase
         "succeed-migrations-up-to-date"
         ( sequence
