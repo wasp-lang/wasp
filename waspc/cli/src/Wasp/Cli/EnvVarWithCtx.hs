@@ -28,9 +28,9 @@ newtype EnvVarCtx = EnvVarCtx
   }
 
 readEnvVarArgument :: EnvVarArgument -> IO [EnvVarWithCtx]
-readEnvVarArgument (LiteralCliArgument envVar) =
+readEnvVarArgument (EnvVarArgumentLiteral envVar) =
   return [(EnvVarCtx {sourceDescription = "CLI arguments"}, envVar)]
-readEnvVarArgument (FileArgument filePathArg) =
+readEnvVarArgument (EnvVarArgumentFile filePathArg) =
   getFilePath filePathArg
     >>= readDotEnvFile (show filePathArg)
 
