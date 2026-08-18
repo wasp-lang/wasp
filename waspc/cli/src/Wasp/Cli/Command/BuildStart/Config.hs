@@ -19,7 +19,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
-import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
+import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
@@ -47,7 +47,7 @@ makeBuildStartConfig appSpec args projectDir' = do
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  let (defaultClientRunConfig, defaultServerRunConfig) = makeDevDefaultRunConfigs appSpec
+  let (defaultClientRunConfig, defaultServerRunConfig) = makeDefaultDevRunConfigs appSpec
 
   clientRunConfig' <- defaultClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
   serverRunConfig' <- defaultServerRunConfig `addEnvVarsUniqueC` userServerEnvVars

@@ -19,7 +19,7 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
+import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -50,7 +50,7 @@ start = withProjectLock $ do
 
   (warnings, appSpec) <- compile
 
-  let runConfigs = makeDevDefaultRunConfigs appSpec
+  let runConfigs = makeDefaultDevRunConfigs appSpec
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
   DbConnectionEstablished <- require
