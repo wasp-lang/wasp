@@ -1,4 +1,10 @@
-module Wasp.AppComponentUrl where
+module Wasp.AppComponentUrl
+  ( AppComponentUrl (..),
+    host,
+    protocol,
+    url,
+  )
+where
 
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path, Posix)
@@ -19,4 +25,4 @@ url :: AppComponentUrl -> String
 url loc =
   concat $
     [protocol loc, "://", host loc, ":", show $ port loc]
-      ++ [SP.fromAbsDirP p | Just p <- [loc.path]]
+      ++ [SP.fromAbsDirP p | Just p <- [loc . path]]
