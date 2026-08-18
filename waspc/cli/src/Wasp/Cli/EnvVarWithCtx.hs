@@ -52,9 +52,9 @@ addEnvVarsUniqueC x incomingEnvVarSources =
 throwOverriddenVarsError :: [EnvVarWithCtx] -> Set EnvVarName -> Command a
 throwOverriddenVarsError envVarsWithCtx overriddenNames =
   throwError $
-    CommandError "Can't override Wasp-managed environment variables" $
-      "The following environment variables will be overwritten by Wasp and should be removed: "
+    CommandError "Can't override managed environment variables" $
+      "You specified the following environment variables, but Wasp sets them: "
         ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
-        ++ "."
+        ++ ". Please remove them so they don't cause conflicts when running."
   where
     overriddenEnvVars = filter (\(_, (name, _)) -> name `Set.member` overriddenNames) envVarsWithCtx
