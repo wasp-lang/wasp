@@ -4,12 +4,14 @@ module Wasp.Generator.ServerGenerator.RunConfig
   )
 where
 
-import Wasp.AppComponentUrl (AppComponentUrl, port, url)
+import Wasp.AppComponentUrl (AppComponentUrl)
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 
-newtype ServerRunConfig = ServerRunConfig
-  { -- These might not hold all the environment variables that the server uses,
+data ServerRunConfig = ServerRunConfig
+  { url :: AppComponentUrl,
+    -- These might not hold all the environment variables that the server uses,
     -- as it also reads from `.env.server` files and the current environment,
     -- autonomously. This holds the necessary environment variables for the app
     -- components to know where to run and where to communicate with web app.
@@ -25,7 +27,8 @@ instance HasEnvVars ServerRunConfig where
 makeServerRunConfig :: AppComponentUrl -> String -> ServerRunConfig
 makeServerRunConfig expectedUrl clientUrl =
   ServerRunConfig
+    expectedUrl
     [ (Common.clientUrlEnvVarName, clientUrl),
-      (Common.serverUrlEnvVarName, url expectedUrl),
-      (Common.serverPortEnvVarName, show $ port expectedUrl)
+      (Common.serverUrlEnvVarName, AppComponentUrl.url expectedUrl),
+      (Common.serverPortEnvVarName, show $ AppComponentUrl.port expectedUrl)
     ]

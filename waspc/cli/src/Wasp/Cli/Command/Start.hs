@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
-import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl, showAppComponentUrls)
+import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -25,7 +25,7 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeRunConfigs)
+import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -57,7 +57,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   (warnings, appSpec) <- compile
 
-  appComponentUrls <- makeDevAppUrls appSpec args
+  appComponentUrls <- makeDevAppComponentUrls appSpec args
   let runConfigs = makeRunConfigs appComponentUrls
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
@@ -65,7 +65,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showAppComponentUrls appComponentUrls
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
@@ -111,8 +111,8 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
-makeDevAppUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
-makeDevAppUrls appSpec args = do
+makeDevAppComponentUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
+makeDevAppComponentUrls appSpec args = do
   (clientPort, serverPort) <- findAppComponentPorts (args.clientPort, args.serverPort)
   return
     ( (makeDefaultDevClientUrl appSpec) {port = clientPort},

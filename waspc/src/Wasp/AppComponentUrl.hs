@@ -14,6 +14,7 @@ data AppComponentUrl = Local
   { port :: PortNumber,
     path :: Maybe (Path Posix Abs (Dir ()))
   }
+  deriving (Show, Eq)
 
 host :: AppComponentUrl -> String
 host (Local {}) = "localhost"
