@@ -18,8 +18,8 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
-import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
+import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
+import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -46,8 +46,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   when (all null [args.clientEnvVars, args.serverEnvVars]) $
     throwError noEnvVarsSourcesSpecifiedMsg
 
-  userClientEnvVars <- liftIO $ concatMapM EnvVarCtx.readEnvVarArgument args.clientEnvVars
-  userServerEnvVars <- liftIO $ concatMapM EnvVarCtx.readEnvVarArgument args.serverEnvVars
+  userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
+  userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
 
   let serverUrl = Server.defaultDevServerUrl
       clientUrl = WebApp.makeDefaultDevClientUrl appSpec

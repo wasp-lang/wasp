@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module Wasp.Cli.EnvVarCtx
+module Wasp.Cli.EnvVarWithCtx
   ( EnvVarWithCtx,
     EnvVarCtx (..),
     showEnvVarWithCtx,
