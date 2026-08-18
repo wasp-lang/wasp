@@ -6,7 +6,7 @@ where
 
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.RunConfigs (defaultDevClientPort, defaultDevServerPort)
+import Wasp.Cli.AppComponentUrls (defaultDevClientPort, defaultDevServerPort)
 import Wasp.Cli.Util.PortArgument (portOption)
 
 data StartArgs = StartArgs

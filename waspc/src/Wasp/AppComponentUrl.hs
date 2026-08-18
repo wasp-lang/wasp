@@ -1,4 +1,10 @@
-module Wasp.AppComponentUrl where
+module Wasp.AppComponentUrl
+  ( AppComponentUrl (..),
+    host,
+    protocol,
+    url,
+  )
+where
 
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path, Posix)

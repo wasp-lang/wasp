@@ -489,6 +489,7 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
+    Wasp.Cli.AppComponentUrls
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -550,7 +551,7 @@ library cli-lib
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
-    Wasp.Cli.EnvVarCtx
+    Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
