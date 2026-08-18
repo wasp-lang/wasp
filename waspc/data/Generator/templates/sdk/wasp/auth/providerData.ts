@@ -1,3 +1,5 @@
+import { nfcNormalizeLowercase } from "@wasp.sh/lib-auth";
+
 // PUBLIC API
 export type EmailProviderData = {
   hashedPassword: string;
@@ -64,7 +66,7 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
   switch (providerName) {
     case 'email':
     case 'username':
-      return providerUserId.toLowerCase();
+      return nfcNormalizeLowercase(providerUserId);
     case 'google':
     case 'github':
     case 'discord':

@@ -35,6 +35,7 @@
 - Password reset now rejects an invalid or expired token before it looks at the new password, so someone without a valid reset link can no longer probe your app's password rules. ([#4657](https://github.com/wasp-lang/wasp/pull/4657))
 - `onBeforeSignup` now runs before `userSignupFields` on every signup method: email, username and password, and OAuth. ([#4659](https://github.com/wasp-lang/wasp/pull/4659))
 - Improved the wording of some CLI messages. ([#4717](https://github.com/wasp-lang/wasp/pull/4717))
+- Email and username auth identifiers are now NFC-normalized before being looked up, so visually-identical addresses with different Unicode encodings (e.g. `ü` vs `u` + combining diaeresis) resolve to the same identity. Existing user rows whose `AuthIdentity.providerUserId` was stored in decomposed form will no longer match new logins; see the migration guide for a recipe to detect and rewrite them. ([#4698](https://github.com/wasp-lang/wasp/pull/4698))
 
 ## 0.25.0
 

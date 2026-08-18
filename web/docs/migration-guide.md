@@ -114,6 +114,63 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 5. Enjoy your updated Wasp app
+### 5. NFC normalization for email and username identifiers
+
+Wasp now normalizes email and username identifiers to prevent issues with different Unicode encodings for identical-looking characters. 
+
+If all your users have standard English characters (ASCII) for their emails and usernames, you can skip this step.
+
+If your database contains non-ASCII characters (e.g. `ü`), some users may not be able to log in after the upgrade. To fix this, you must run a one-time script to normalize existing database records. Here is the script:
+
+```ts title="scripts/nfc-backfill.ts"
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const rows = await prisma.authIdentity.findMany({
+  where: { providerName: { in: ["email", "username"] } },
+});
+
+let rewritten = 0;
+const collisions: string[] = [];
+
+for (const row of rows) {
+  const target = row.providerUserId.normalize("NFC").toLowerCase();
+  if (target === row.providerUserId) continue;
+  try {
+    await prisma.authIdentity.update({
+      where: {
+        providerName_providerUserId: {
+          providerName: row.providerName,
+          providerUserId: row.providerUserId,
+        },
+      },
+      data: { providerUserId: target },
+    });
+    rewritten += 1;
+  } catch (e) {
+    // Two existing rows normalize to the same NFC string, indicating a duplicate account.
+    collisions.push(`${row.providerName}:${row.providerUserId} -> ${target}`);
+  }
+}
+
+console.log(`NFC rewrite done. ${rewritten} rows updated.`);
+if (collisions.length) {
+  console.warn(
+    `${collisions.length} collision(s) need manual reconciliation:\n` +
+      collisions.join("\n"),
+  );
+}
+```
+
+Run it once after deploying the new server:
+
+```bash
+npx tsx scripts/nfc-backfill.ts
+```
+
+**Collisions.** If two existing rows normalize to the same NFC string (e.g. one user signed up on a device that emitted NFC and another on one that emitted NFD), the script logs them but leaves them in place. Reconcile by hand, typically by deleting the duplicate account or migrating one of them to a new identifier.
+
+### 6. Enjoy your updated Wasp app
 
 That's it!
