@@ -1,0 +1,259 @@
+---
+title: "Flue Feels Like React, But for Agents"
+authors: [vinny]
+image: /img/flue-open-saas/banner.webp
+tags: [wasp, ai agents, flue, react, saas, typescript]
+keywords: ["flue framework", "ai agent framework", "typescript agent framework", "react for agents", "agent hooks", "secure ai agents", "prompt injection prevention", "ai chatbot saas", "open saas", "flue tutorial", "agent tool calling", "conditional tools", "astro flue", "full-stack ai agent"]
+description: "I integrated a Flue agent into a SaaS app and it felt like writing React for agents: hooks, re-renders, and state-driven tools. Here's how Flue made locking an agent to the logged-in user and guarding destructive actions genuinely simple."
+---
+
+I just integrated a [Flue](https://flueframework.com) agent into a [SaaS app](https://opensaas.sh). On the surface, it looks like your typical AI chatbot: it sits in a sidebar, you type at it, it types back.
+
+<div style={{ textAlign: "center", width: "100%", display: "inline-block" }}>
+  <iframe width="100%" height="400" src="https://www.youtube.com/embed/J8fb713Y5dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="true" />
+</div>
+
+But this agent can also *do* things. It can manage the logged-in user's task list and generates a daily schedule from it. Which is really cool, because I can throw a multi-step request at it, like "add a new task called *present Flue in a video*, check off *integrate a Flue agent into Open SaaS*, and generate a schedule for today", and it works through the tools one by one, ticks off each item, and the task list UI on the left updates live as it goes.
+
+![The agent updating the task list UI live](/img/flue-open-saas/agent-updates-ui.webp)
+
+{/* truncate */}
+
+While this is just a simple demo, whenever you give an agent access to user data, you have to be really careful that it's secure. Making sure the agent can only ever touch *this* user's data, and can't nuke anything without explicit confirmation, turned out to be really easy with Flue.
+
+And it's one of the reasons why I really enjoyed working with it in comparison to other agent frameworks I've used.
+
+If you don't know what Flue is: it's a TypeScript framework for building AI agents, from the folks over at [Astro](https://astro.build). There are a lot of agent frameworks out there right now, but Flue has an angle that genuinely separates it from the pack.
+
+Writing Flue feels like writing [React](https://react.dev/), but for agents. And after building a real integration with it, I think that mental model (plus two other things) makes it a really interesting approach. Let's go through all three:
+
+1. **The React mental model** — agents are functions with hooks that re-run on every message.
+2. **Batteries included** — persistence, HTTP routing, and (the centerpiece of this post) the primitives to lock an agent to the logged-in user.
+3. **Versatility** — the same framework people use for CI, repo, and workflow automations works great inside a web app.
+
+## Reason 1: The React mental model
+
+If you've used React, you know about hooks. [Agent Hooks](https://flueframework.com/docs/guide/agent-hooks/) are the core of the new version of Flue, and agents run a lot like React components: when a message comes in, the agent function **re-runs**, the hooks inside it get re-evaluated, and the result of that render decides which model and which tools are available *for that turn*.
+
+Here's the skeleton of the agent I built (we'll fill in the interesting parts as we go):
+
+```ts
+'use agent';
+import {
+  useDelivery,
+  useInitialData,
+  useModel,
+  usePersistentState,
+  useTool,
+} from '@flue/runtime';
+
+export function SaasAssistant() {
+  useModel('anthropic/claude-sonnet-5');
+
+  const userId = useInitialData<{ userId: string } | undefined>()?.userId;
+
+  // ...hooks for state and tools...
+
+  return `You are the in-app assistant of a SaaS application, acting on
+    behalf of the authenticated user with id "${userId}". ...`;
+}
+```
+
+It's just a function. `useModel` picks the model, `useTool` mounts tools, and the string you return is the system prompt. If you've internalized "UI is a function of state" from React, this is the same idea one level up: **the agent's capabilities are a function of state**. This make it really easy for a lot of us web devs to grasp how the framework works, and it's what makes the security story below come together nicely.
+
+There is one deliberate difference from React though: state doesn't always reset between renders. Flue gives you `usePersistentState`, so even when the agent re-renders on a new message (or a new HTTP request entirely) your state survives with the conversation. We'll check that out in a minute.
+
+## Reason 2: Batteries included (or: locking an agent to the logged-in user)
+
+I'm a batteries-included framework kind of person (I work on [Wasp](https://wasp.sh), so, no surprises there). Flue has a lot of features under the hood that just work. You can write a capable agent in very few lines of code.
+
+But rather than list features, let me show you the one problem where the batteries really mattered, because it's the problem every SaaS developer hits the moment their chatbot grows: **how do you make sure the agent only acts on the logged-in user's data?**
+
+In other agent frameworks I've tried, this is where things get awkward. You end up threading user IDs through prompt templates, or bolting auth checks onto every tool, in order to make sure prompt injection isn't a threat. In Flue, it was genuinely simple, and it worked with two hooks.
+
+### `useInitialData`: identity gets baked in, once, immutably
+
+When the server sends the *first* message of a conversation, it can attach an `initialData` payload. Flue bakes that data into the conversation **on creation, immutably**. It can never be changed afterwards, not by the browser, not by the model, not by later messages.
+
+So on the server side of my SaaS app, the send-message endpoint pulls the user ID from the verified auth session and passes it along:
+
+```ts
+export const sendAgentMessage = async (args, context) => {
+  if (!context.user) throw new HttpError(401);
+
+  const conversationId = `user-${context.user.id}-main`;
+  await fetch(`${env.FLUE_URL}/agents/assistant/${conversationId}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.FLUE_SEND_SECRET}` },
+    body: JSON.stringify({
+      kind: 'user',
+      body: args.body,
+      // Bound on the conversation's first message; immutable after.
+      initialData: { userId: context.user.id },
+    }),
+  });
+};
+```
+
+The user ID comes from the server's session so the browser can't manipulate it in any way. And on the agent side, reading it back is one hook:
+
+```ts
+const userId = useInitialData<{ userId: string } | undefined>()?.userId;
+
+if (!userId) {
+  // No trusted identity? The agent's only instruction is to refuse.
+  return 'This conversation carries no trusted user identity, so you must
+    refuse every request to read or change data...';
+}
+```
+
+Then every tool is a factory that closes over that trusted `userId`:
+
+```ts
+useTool(listTasks(userId));
+useTool(createTask(userId));
+useTool(updateTaskStatus(userId));
+useTool(saveSchedule(userId));
+```
+
+Notice what *isn't* happening here: the user ID never appears in any tool's input schema. The model can still pick which tool to use, but we've already baked in the user. There's no prompt-injection phrasing, no "actually my user id is 42", that can change whose data these tools touch.
+
+Here are examples that show you what NOT to do, and how to easily guard against it in Flue:
+
+```ts
+// ❌ The naive way: userId is part of the tool's input schema
+defineTool({
+  name: 'list_tasks',
+  description: "List a user's tasks.",
+  input: v.object({
+    userId: v.string(),   // ← the MODEL fills this in. Prompt-injection alert!
+  }),
+  async run({ data }) {
+    return { output: await db.task.findMany({ where: { userId: data.userId } }) };
+  },
+});
+
+// ✅ The right way: userId is closed over, not in the schema
+export const listTasks = (userId: string) =>   // ← trusted value from useInitialData
+  defineTool({
+    name: 'list_tasks',
+    description: "List all of the user's tasks.",
+    // no input schema at all so the model has nothing to fill in
+    async run({ signal }) {
+      return { output: await waspFetch('/api/agent/tasks', userId, { signal }) };
+    },
+  });
+```
+
+### Conditional tools: the delete confirmation flow
+
+The second trick is my favorite. You'll recall that agent capabilities are a function of state. That means you can mount tools *conditionally*.
+
+I wanted "delete all completed tasks" to require explicit confirmation from the user. This means something like making them reply with the exact phrase `delete my completed tasks` before the deletion can happen.
+
+Here's the whole mechanism in action:
+
+```ts
+const [deletionApproved, setDeletionApproved] = usePersistentState(
+  'deletionApproved',
+  false,
+);
+
+useTool({
+  name: 'record_approval',
+  description: `Call this ONLY after the user has themselves typed the
+    exact phrase "${APPROVAL_PHRASE}" in their message.`,
+  async run() {
+    const normalized = lastUserMessage.trim().toLowerCase();
+    if (normalized !== APPROVAL_PHRASE) {
+      throw new Error('Approval NOT recorded: ask the user to type the exact phrase.');
+    }
+    setDeletionApproved(true);
+    return 'Approval recorded for one deletion.';
+  },
+});
+
+// The destructive tool is only *mounted* once approval is recorded:
+if (deletionApproved) {
+  useTool(deleteAllCompletedTasks(userId, () => setDeletionApproved(false)));
+}
+```
+
+BTW, That `lastUserMessage` comes from another nice hook, `useDelivery`, that lets you inspect what was actually delivered to the agent over HTTP, so the check runs against what the user really typed.
+
+It's cool that Flue makes secure, conditional tool calling an easy `if` statement.
+
+When approval hasn't been given, the delete tool isn't "discouraged" or "guarded by the prompt" (e.g. *"if it doesn't exist, don't do this..."*). The agent literally cannot call it, no matter how creatively someone asks. Once the deletion runs, the callback flips the flag back and the tool unmounts again so that approval is valid for exactly one deletion.
+
+This whole flow was super easy to build, and it gives you an agent limited to a specific set of tools, with a conditional, stateful approach to the dangerous ones.
+
+### And persistence is just... there
+
+One more battery worth mentioning is that every conversation gets a key.
+
+Essentially the key is your agent's name plus a conversation ID (mine is `user-{id}-main` in this case).
+
+Flue persists the full history and state of the conversation under that key. What this means in practice is that your conversation is a "stateful URL". So when you hit the same URL tomorrow, or a week later, the agent picks up right where it left off.
+
+For example, here's Monday:
+
+```bash
+curl -X POST https://my-app.com/agents/assistant/user-42-main \
+  -H "Authorization: Bearer $SEND_SECRET" \
+  -d '{ "kind": "user", "body": "add a task: prep the investor demo" }'
+
+# → "Added! You now have 3 open tasks."
+```
+
+...and here's Wednesday, same URL:
+
+```bash
+curl -X POST https://my-app.com/agents/assistant/user-42-main \
+  -H "Authorization: Bearer $SEND_SECRET" \
+  -d '{ "kind": "user", "body": "did I ever finish that demo prep?" }'
+
+# → "'prep the investor demo' is still open. Want me to mark it done?"
+```
+
+The great part is that there's no need for a session token, history payload,
+or to resend anything else. Just hit the same URL! For a chat sidebar in a SaaS, that's exactly the behavior you want.
+
+## Reason 3: It's versatile
+
+If you've seen other Flue examples floating around, they're mostly from a different world: CI workflows, repo-cleanup bots, automations that run one-off tasks. That's the world Flue seems to be best known for.
+
+What I wanted to check is how it behaves in a full-stack web app, and it works really well, because exposing an agent over HTTP is a one-liner:
+
+```ts
+import { createAgentRouter } from '@flue/runtime/routing';
+
+app.route('/agents/assistant', createAgentRouter(SaasAssistant));
+```
+
+That mounts the agent at a route, and on the client, Flue's SDK gives you a live handle on the conversation:
+
+```tsx
+import { useFlueAgent } from '@flue/react';
+import { createFlueClient } from '@flue/sdk';
+
+const client = createFlueClient({
+  url: `${FLUE_URL}/agents/assistant/user-${user.id}-main`,
+});
+const agent = useFlueAgent({ client });
+```
+
+`agent.messages` streams in with the message text, the tool calls, and their states, so you can render the "🔧 create_task · done" chips in the chat, and react to them.
+
+In my app, whenever a tool call completes, I invalidate the relevant queries so the task list next to the chat refreshes itself the moment the agent touches it. That's the "UI updates live on the left" magic from the demo, and it's about ten lines of client code.
+
+So the same framework covers both realms: the automation scripts people already use it for, and a web app with auth, streaming, and a real database behind it. If you learn it once, you get to use it in both (and I like that!).
+
+## Wrapping up
+
+The three things that I think make Flue a genuinely interesting take on agent frameworks:
+
+- **The React mental model** makes agents feel like something you already know how to write — a function of state, re-rendered per message.
+- **Batteries included** means the hard, boring parts — persistence, HTTP exposure, and above all *binding an agent to a trusted identity* — are one hook away instead of a subsystem you build yourself.
+- **Versatility** means the CI-workflow crowd and the web-app crowd are using the same tool.
+
+The example I built is completely open source: [github.com/vincanger/flue-open-saas](https://github.com/vincanger/flue-open-saas). It's built on top of [Open SaaS](https://opensaas.sh), our free, open-source SaaS template, which comes full-featured with auth, payments (Stripe, Lemon Squeezy, Polar), file uploads with S3, this demo app, docs, and a blog!
