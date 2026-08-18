@@ -11,6 +11,10 @@ import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
 data WebAppRunConfig = WebAppRunConfig
   { port :: PortNumber,
+    -- These might not hold all the environment variables that the web app uses,
+    -- as it also reads from `.env.client` files and the current environment,
+    -- autonomously. This holds the necessary environment variables for the app
+    -- components to know where to run and where to communicate with server.
     envVars :: [EnvVar]
   }
   deriving (Show, Eq)

@@ -9,7 +9,11 @@ import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 
 newtype ServerRunConfig = ServerRunConfig
-  { envVars :: [EnvVar]
+  { -- These might not hold all the environment variables that the server uses,
+    -- as it also reads from `.env.server` files and the current environment,
+    -- autonomously. This holds the necessary environment variables for the app
+    -- components to know where to run and where to communicate with web app.
+    envVars :: [EnvVar]
   }
   deriving (Show, Eq)
 
