@@ -5,7 +5,7 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
 where
 
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarFileArgumentParser, envVarLiteralArgumentParser)
+import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
 
 data BuildStartArgs = BuildStartArgs
   { clientEnvVars :: [EnvVarArgument],
@@ -26,13 +26,13 @@ buildStartArgsParser =
 
     envVarInlinesParserForComponent name =
       Opt.many $
-        envVarLiteralArgumentParser
+        envVarArgumentLiteralParser
           (head name) -- e.g. "-c"
           (name ++ "-env") -- e.g. "--client-env"
           ("Set an environment variable for the " ++ name ++ " (can be used multiple times)")
 
     envVarFilesParserForComponent name =
       Opt.many $
-        envVarFileArgumentParser
+        envVarArgumentFileParser
           (name ++ "-env-file") -- e.g. "--client-env-file"
           ("Load environment variables for the " ++ name ++ " from a file (can be used multiple times)")
