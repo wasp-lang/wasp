@@ -52,8 +52,8 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
         throwResolvingError $ "Port " ++ show port ++ " is already in use."
       return port
 
-    findPort startPort removePorts = do
-      let candidatePorts = take maxNumOfPortsToCheck [startPort ..] \\ removePorts
+    findPort startPort portsToSkip = do
+      let candidatePorts = take maxNumOfPortsToCheck [startPort ..] \\ portsToSkip
       availablePort <- liftIO (firstAvailableLocalPort candidatePorts)
       case availablePort of
         Nothing -> throwResolvingError $ noFreePortError candidatePorts
