@@ -1,6 +1,6 @@
 module EnvTest where
 
-import Data.List.NonEmpty (NonEmpty ((:|)))
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Test.Hspec
@@ -66,11 +66,11 @@ spec_envVarCombining = do
   describe "findDuplicateEnvVars" $ do
     it "should return names present in both lists" $
       findDuplicateEnvVars [("A", "1"), ("B", "2")] [("B", "3"), ("C", "4"), ("A", "5")]
-        `shouldBe` ["B", "A"]
+        `shouldBe` Set.fromList ["A", "B"]
 
     it "should return an empty list when there is no overlap" $
       findDuplicateEnvVars [("A", "1")] [("B", "2")]
-        `shouldBe` []
+        `shouldBe` Set.fromList []
 
   describe "addEnvVarsOverride" $
     it "should let incoming env vars override the existing ones" $
@@ -84,7 +84,7 @@ spec_envVarCombining = do
 
     it "should return the duplicate env var names when there are duplicates" $
       addEnvVarsUnique (EnvVarsHolder [("A", "1"), ("B", "2")]) [("B", "3"), ("A", "4")]
-        `shouldBe` Left ("B" :| ["A"])
+        `shouldBe` Left (Set.fromList ["A", "B"])
 
 newtype EnvVarsHolder = EnvVarsHolder [EnvVar] deriving (Show, Eq, Ord)
 

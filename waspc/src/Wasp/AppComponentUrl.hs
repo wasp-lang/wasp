@@ -25,4 +25,4 @@ url :: AppComponentUrl -> String
 url loc =
   concat $
     [protocol loc, "://", host loc, ":", show $ port loc]
-      ++ [SP.fromAbsDirP p | Just p <- [loc . path]]
+      ++ [SP.fromAbsDirP p | Just p <- [loc.path]]
