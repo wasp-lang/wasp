@@ -112,6 +112,7 @@ makeDevRunConfigs appSpec = do
   -- We only use this to check for errors. We throw away the resulting env vars,
   -- because the generated apps will read the .env files and inherited
   -- environment themselves.
+  -- https://github.com/wasp-lang/wasp/issues/4739
   _ <- clientRunConfig `addEnvVarsUniqueC` clientEnvVarsWithCtx
   _ <- serverRunConfig `addEnvVarsUniqueC` serverEnvVarsWithCtx
 

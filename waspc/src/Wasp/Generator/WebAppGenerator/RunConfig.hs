@@ -13,6 +13,7 @@ newtype WebAppRunConfig = WebAppRunConfig
     -- as it also reads from `.env.client` files and the current environment,
     -- autonomously. This holds the necessary environment variables for the app
     -- components to know where to run and where to communicate with server.
+    -- https://github.com/wasp-lang/wasp/issues/4739
     envVars :: [EnvVar]
   }
   deriving (Show, Eq)
