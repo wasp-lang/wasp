@@ -1,4 +1,11 @@
-module Wasp.Cli.RunConfigs where
+module Wasp.Cli.RunConfigs
+  ( makeDevDefaultRunConfigs,
+    makeDefaultUrls,
+    makeRunConfigs,
+    makeDefaultDevClientUrl,
+    defaultDevServerUrl,
+  )
+where
 
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import qualified Wasp.AppComponentUrl as AppComponentUrl
