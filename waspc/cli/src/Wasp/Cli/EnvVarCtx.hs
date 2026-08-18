@@ -1,6 +1,14 @@
 {-# LANGUAGE TupleSections #-}
 
-module Wasp.Cli.EnvVarCtx where
+module Wasp.Cli.EnvVarCtx
+  ( EnvVarWithCtx,
+    EnvVarCtx (..),
+    fromCliArguments,
+    fromFilePathArgument,
+    showEnvVarWithCtx,
+    addEnvVarsUniqueC,
+  )
+where
 
 import Control.Monad.Except (throwError)
 import Data.Function ((&))
