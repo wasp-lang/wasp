@@ -66,7 +66,7 @@ findDuplicateEnvVars existing incoming =
     incomingNames = Set.fromList $ fst <$> incoming
 
 class HasEnvVars a where
-  envVars :: a -> [EnvVar]
+  getEnvVars :: a -> [EnvVar]
   setEnvVars :: a -> [EnvVar] -> a
 
 -- | Combines the existing env vars of a type with new env vars. If there are
@@ -78,7 +78,7 @@ addEnvVarsUnique x incoming
   | otherwise = Left duplicateNames
   where
     duplicateNames = findDuplicateEnvVars existing incoming
-    existing = envVars x
+    existing = getEnvVars x
 
 -- | Combines the existing env vars of a type with new env vars. If there are
 -- duplicates in the new env vars, the new env vars will override the existing
@@ -89,4 +89,4 @@ addEnvVarsOverride x incoming = setEnvVars x $ nubEnvVars merged
     merged =
       -- Incoming first so that they take priority over existing.
       incoming <> existing
-    existing = envVars x
+    existing = getEnvVars x

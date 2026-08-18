@@ -11,13 +11,13 @@ import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
 data WebAppRunConfig = WebAppRunConfig
   { port :: PortNumber,
-    envVars' :: [EnvVar]
+    envVars :: [EnvVar]
   }
   deriving (Show, Eq)
 
 instance HasEnvVars WebAppRunConfig where
-  envVars = envVars'
-  setEnvVars config newEnvVars = config {envVars' = newEnvVars}
+  getEnvVars = envVars
+  setEnvVars config newEnvVars = config {envVars = newEnvVars}
 
 makeWebAppRunConfig :: AppComponentUrl -> String -> WebAppRunConfig
 makeWebAppRunConfig expectedUrl serverUrl =
