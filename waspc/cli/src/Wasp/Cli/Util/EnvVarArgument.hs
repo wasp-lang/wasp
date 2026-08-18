@@ -1,7 +1,7 @@
 module Wasp.Cli.Util.EnvVarArgument
   ( EnvVarArgument (..),
     envVarFileArgumentParser,
-    envVarLiteralCliArgumentParser,
+    envVarLiteralArgumentParser,
     envVarFromString,
   )
 where
@@ -11,15 +11,16 @@ import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
 
 data EnvVarArgument
-  = FileArgument FilePathArgument
-  | LiteralCliArgument EnvVar
+  = EnvVarArgumentFile FilePathArgument
+  | EnvVarArgumentLiteral EnvVar
+  deriving (Show, Eq)
 
 -- | Defines the parser for a flag that takes a file path argument and returns
 -- an FilePathArgument that can be later parsed.
 -- e.g. `--client-env-file path/to/file.env`.
 envVarFileArgumentParser :: String -> String -> Opt.Parser EnvVarArgument
 envVarFileArgumentParser fileOptionName helpText =
-  FileArgument
+  EnvVarArgumentFile
     <$> Opt.option
       filePathReader
       ( Opt.long fileOptionName
@@ -31,9 +32,9 @@ envVarFileArgumentParser fileOptionName helpText =
 -- | Defines the parser for a flag that takes a "NAME=VALUE" argument and
 -- returns an EnvVar.
 -- e.g. `--client-env GOOGLE_KEY=1234`.
-envVarLiteralCliArgumentParser :: Char -> String -> String -> Opt.Parser EnvVarArgument
-envVarLiteralCliArgumentParser shortOptionName longOptionName helpText =
-  LiteralCliArgument
+envVarLiteralArgumentParser :: Char -> String -> String -> Opt.Parser EnvVarArgument
+envVarLiteralArgumentParser shortOptionName longOptionName helpText =
+  EnvVarArgumentLiteral
     <$> Opt.option
       (Opt.eitherReader envVarFromString)
       ( Opt.long longOptionName
