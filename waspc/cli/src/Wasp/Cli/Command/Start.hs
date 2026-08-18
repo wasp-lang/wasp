@@ -7,8 +7,8 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.AppSpec (AppSpec)
+import StrongPath ((</>))
+import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -16,8 +16,9 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
-import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
+import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
+import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
+import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
 import qualified Wasp.Generator
@@ -25,7 +26,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
@@ -50,7 +51,7 @@ start = withProjectLock $ do
 
   (warnings, appSpec) <- compile
 
-  runConfigs <- makeDevRunConfigs appSpec waspProjectDir
+  runConfigs <- makeDevRunConfigs appSpec
 
   DbConnectionEstablished <- require
 
@@ -103,9 +104,8 @@ start = withProjectLock $ do
 
 makeDevRunConfigs ::
   AppSpec ->
-  Path' Abs (Dir WaspProjectDir) ->
   Command (WebAppRunConfig, ServerRunConfig)
-makeDevRunConfigs appSpec waspProjectDir = do
+makeDevRunConfigs appSpec = do
   clientEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvClient
   serverEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvServer
 
@@ -121,6 +121,10 @@ makeDevRunConfigs appSpec waspProjectDir = do
 
     getEnvVarsWithCtx dotEnvFile =
       mconcat
-        [ EnvVarCtx.fromProjectFile waspProjectDir dotEnvFile,
-          EnvVarCtx.fromCurrentEnvironment
+        [ readProjectFileIfExists dotEnvFile,
+          EnvVarCtx.readEnvironment
         ]
+
+    readProjectFileIfExists dotEnvFile =
+      findFileInWaspProjectDir appSpec.waspProjectDir dotEnvFile
+        >>= maybe (return []) (EnvVarWithCtx.readDotEnvFile (show dotEnvFile))
