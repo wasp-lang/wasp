@@ -7,26 +7,24 @@ where
 import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.RunConfigs (defaultDevClientPort, defaultDevServerPort)
-import Wasp.Cli.Util.EnvVarArgument (envVarFileParser, envVarInlineParser)
-import Wasp.Cli.Util.PathArgument (FilePathArgument)
+import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
+import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
 import Wasp.Cli.Util.PortArgument (portOption)
-import Wasp.Env (EnvVar)
 
 data BuildStartArgs = BuildStartArgs
-  { clientEnvVarSources :: ([EnvVar], [FilePathArgument]),
-    serverEnvVarSources :: ([EnvVar], [FilePathArgument]),
-    clientPort :: PortNumber,
-    serverPort :: PortNumber
+  { clientPort :: PortNumber,
+    serverPort :: PortNumber,
+    clientEnvVars :: [EnvVarArgument],
+    serverEnvVars :: [EnvVarArgument]
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
-    <$> environmentVariableParsersForComponent "client"
-    <*> environmentVariableParsersForComponent "server"
-    <*> portParserForComponent "client" defaultDevClientPort
+    <$> portParserForComponent "client" defaultDevClientPort
     <*> portParserForComponent "server" defaultDevServerPort
+    <*> environmentVariableParsersForComponent "client"
+    <*> environmentVariableParsersForComponent "server"
   where
     portParserForComponent name defaultPort =
       fromMaybe defaultPort
@@ -36,19 +34,19 @@ buildStartArgsParser =
 
     environmentVariableParsersForComponent name =
       liftA2
-        (,)
+        (<>)
         (envVarInlinesParserForComponent name)
         (envVarFilesParserForComponent name)
 
     envVarInlinesParserForComponent name =
       Opt.many $
-        envVarInlineParser
+        envVarArgumentLiteralParser
           (head name) -- e.g. "-c"
           (name ++ "-env") -- e.g. "--client-env"
           ("Set an environment variable for the " ++ name ++ " (can be used multiple times)")
 
     envVarFilesParserForComponent name =
       Opt.many $
-        envVarFileParser
+        envVarArgumentFileParser
           (name ++ "-env-file") -- e.g. "--client-env-file"
           ("Load environment variables for the " ++ name ++ " from a file (can be used multiple times)")

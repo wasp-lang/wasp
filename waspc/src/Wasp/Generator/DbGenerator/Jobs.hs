@@ -16,7 +16,7 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
-import Wasp.Env (envVars)
+import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
@@ -118,7 +118,7 @@ seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
 seed serverRunConfig generatedAppDir seedName =
   runPrismaCommandAsJobWithExtraEnv
     serverDir
-    ((dbSeedNameEnvVarName, seedName) : envVars serverRunConfig)
+    ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
     generatedAppDir
     ["db", "seed"]
   where

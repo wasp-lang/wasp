@@ -1,4 +1,9 @@
-module Wasp.Cli.AppComponentPorts where
+module Wasp.Cli.AppComponentPorts
+  ( defaultDevClientPort,
+    defaultDevServerPort,
+    findAppComponentPorts,
+  )
+where
 
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
@@ -7,9 +12,14 @@ import Data.List ((\\))
 import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.RunConfigs (defaultDevClientPort)
-import Wasp.Util ( whenM)
 import Wasp.Cli.Port (firstAvailableLocalPort, isLocalPortTaken, maxNumOfPortsToCheck)
+import Wasp.Util (whenM)
+
+defaultDevClientPort :: PortNumber
+defaultDevClientPort = 3000
+
+defaultDevServerPort :: PortNumber
+defaultDevServerPort = 3001
 
 findAppComponentPorts :: (Maybe PortNumber, Maybe PortNumber) -> Command (PortNumber, PortNumber)
 findAppComponentPorts (requestedClientPort, requestedServerPort) = do
@@ -57,4 +67,3 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
         ++ ". Free up some ports, or choose them yourself with --client-port and --server-port."
 
     throwResolvingError = throwError . CommandError "Failed to find ports"
-

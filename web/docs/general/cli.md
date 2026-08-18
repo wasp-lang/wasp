@@ -85,7 +85,7 @@ Choose a starter template
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
@@ -100,7 +100,7 @@ $ wasp new MyFirstProject
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
 cd MyFirstProject
