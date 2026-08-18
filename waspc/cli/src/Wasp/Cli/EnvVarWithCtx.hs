@@ -24,25 +24,23 @@ type EnvVarWithCtx = (EnvVarCtx, EnvVar)
 
 newtype EnvVarCtx = EnvVarCtx
   { -- | Where the environment variable was set, e.g. "CLI arguments" or ".env file".
-    sourceName :: String
+    sourceDescription :: String
   }
 
 readEnvVarArgument :: EnvVarArgument -> IO [EnvVarWithCtx]
 readEnvVarArgument (LiteralCliArgument envVar) =
-  return [(EnvVarCtx {sourceName = "CLI arguments"}, envVar)]
+  return [(EnvVarCtx {sourceDescription = "CLI arguments"}, envVar)]
 readEnvVarArgument (FileArgument filePathArg) =
-  fromDotEnvFile fileName =<< filePath
-  where
-    filePath = getFilePath filePathArg
-    fileName = show filePathArg
+  getFilePath filePathArg
+    >>= readDotEnvFile (show filePathArg)
 
-fromDotEnvFile :: String -> Path' Abs (File ()) -> IO [EnvVarWithCtx]
-fromDotEnvFile fileName filePath =
-  fmap (EnvVarCtx {sourceName = "file " ++ fileName},) <$> parseDotEnvFile filePath
+readDotEnvFile :: String -> Path' Abs (File ()) -> IO [EnvVarWithCtx]
+readDotEnvFile fileDescription filePath =
+  fmap (EnvVarCtx {sourceDescription = "file " ++ fileDescription},) <$> parseDotEnvFile filePath
 
-showEnvVarWithCtx :: EnvVarWithCtx -> [Char]
-showEnvVarWithCtx (EnvVarCtx {sourceName = s}, (name, _)) =
-  name ++ " (received from " ++ s ++ ")"
+showEnvVarWithCtx :: EnvVarWithCtx -> String
+showEnvVarWithCtx (EnvVarCtx {sourceDescription}, (envVarName, _)) =
+  envVarName ++ " (received from " ++ sourceDescription ++ ")"
 
 addEnvVarsUniqueC :: (HasEnvVars a) => a -> [EnvVarWithCtx] -> Command a
 addEnvVarsUniqueC x incomingEnvVarSources =
