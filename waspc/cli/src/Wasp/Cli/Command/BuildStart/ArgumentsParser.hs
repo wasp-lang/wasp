@@ -5,13 +5,11 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
 where
 
 import qualified Options.Applicative as Opt
-import Wasp.Cli.Util.EnvVarArgument (envVarFileParser, envVarInlineParser)
-import Wasp.Cli.Util.PathArgument (FilePathArgument)
-import Wasp.Env (EnvVar)
+import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarFileArgumentParser, envVarLiteralCliArgumentParser)
 
 data BuildStartArgs = BuildStartArgs
-  { clientEnvVarSources :: ([EnvVar], [FilePathArgument]),
-    serverEnvVarSources :: ([EnvVar], [FilePathArgument])
+  { clientEnvVars :: [EnvVarArgument],
+    serverEnvVars :: [EnvVarArgument]
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
@@ -22,19 +20,19 @@ buildStartArgsParser =
   where
     environmentVariableParsersForComponent name =
       liftA2
-        (,)
+        (<>)
         (envVarInlinesParserForComponent name)
         (envVarFilesParserForComponent name)
 
     envVarInlinesParserForComponent name =
       Opt.many $
-        envVarInlineParser
+        envVarLiteralCliArgumentParser
           (head name) -- e.g. "-c"
           (name ++ "-env") -- e.g. "--client-env"
           ("Set an environment variable for the " ++ name ++ " (can be used multiple times)")
 
     envVarFilesParserForComponent name =
       Opt.many $
-        envVarFileParser
+        envVarFileArgumentParser
           (name ++ "-env-file") -- e.g. "--client-env-file"
           ("Load environment variables for the " ++ name ++ " from a file (can be used multiple times)")

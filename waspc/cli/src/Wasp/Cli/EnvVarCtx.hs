@@ -3,10 +3,9 @@
 module Wasp.Cli.EnvVarCtx
   ( EnvVarWithCtx,
     EnvVarCtx (..),
-    fromCliArguments,
-    fromFilePathArgument,
     showEnvVarWithCtx,
     addEnvVarsUniqueC,
+    readEnvVarArgument,
   )
 where
 
@@ -17,7 +16,8 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import StrongPath (Abs, File, Path')
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Util.PathArgument (FilePathArgument, getFilePath)
+import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
+import Wasp.Cli.Util.PathArgument (getFilePath)
 import Wasp.Env (EnvVar, EnvVarName, HasEnvVars, addEnvVarsUnique, parseDotEnvFile)
 
 type EnvVarWithCtx = (EnvVarCtx, EnvVar)
@@ -27,11 +27,11 @@ newtype EnvVarCtx = EnvVarCtx
     sourceName :: String
   }
 
-fromCliArguments :: EnvVar -> EnvVarWithCtx
-fromCliArguments = (EnvVarCtx {sourceName = "CLI arguments"},)
-
-fromFilePathArgument :: FilePathArgument -> IO [EnvVarWithCtx]
-fromFilePathArgument filePathArg = fromDotEnvFile fileName =<< filePath
+readEnvVarArgument :: EnvVarArgument -> IO [EnvVarWithCtx]
+readEnvVarArgument (LiteralCliArgument envVar) =
+  return [(EnvVarCtx {sourceName = "CLI arguments"}, envVar)]
+readEnvVarArgument (FileArgument filePathArg) =
+  fromDotEnvFile fileName =<< filePath
   where
     filePath = getFilePath filePathArg
     fileName = show filePathArg

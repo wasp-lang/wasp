@@ -1,8 +1,8 @@
 module Wasp.Cli.Util.EnvVarArgument
-  ( envVarReader,
+  ( EnvVarArgument (..),
+    envVarFileArgumentParser,
+    envVarLiteralCliArgumentParser,
     envVarFromString,
-    envVarInlineParser,
-    envVarFileParser,
   )
 where
 
@@ -10,18 +10,37 @@ import qualified Options.Applicative as Opt
 import Wasp.Cli.Util.PathArgument (FilePathArgument, filePathReader)
 import Wasp.Env (EnvVar)
 
+data EnvVarArgument
+  = FileArgument FilePathArgument
+  | LiteralCliArgument EnvVar
+
+-- | Defines the parser for a flag that takes a file path argument and returns
+-- an FilePathArgument that can be later parsed.
+-- e.g. `--client-env-file path/to/file.env`.
+envVarFileArgumentParser :: String -> String -> Opt.Parser EnvVarArgument
+envVarFileArgumentParser fileOptionName helpText =
+  FileArgument
+    <$> Opt.option
+      filePathReader
+      ( Opt.long fileOptionName
+          <> Opt.metavar "FILE_PATH"
+          <> Opt.help helpText
+          <> Opt.action "file"
+      )
+
 -- | Defines the parser for a flag that takes a "NAME=VALUE" argument and
 -- returns an EnvVar.
-envVarInlineParser :: Char -> String -> String -> Opt.Parser EnvVar
-envVarInlineParser shortOptionName longOptionName helpText =
-  Opt.option envVarReader $
-    Opt.long longOptionName
-      <> Opt.short shortOptionName
-      <> Opt.metavar "NAME=VALUE"
-      <> Opt.help helpText
-
-envVarReader :: Opt.ReadM EnvVar
-envVarReader = Opt.eitherReader envVarFromString
+-- e.g. `--client-env GOOGLE_KEY=1234`.
+envVarLiteralCliArgumentParser :: Char -> String -> String -> Opt.Parser EnvVarArgument
+envVarLiteralCliArgumentParser shortOptionName longOptionName helpText =
+  LiteralCliArgument
+    <$> Opt.option
+      (Opt.eitherReader envVarFromString)
+      ( Opt.long longOptionName
+          <> Opt.short shortOptionName
+          <> Opt.metavar "NAME=VALUE"
+          <> Opt.help helpText
+      )
 
 -- | Converts a string to an EnvVar, throwing an error if the string is not in
 -- the correct format. The input format is expected to be "NAME=VALUE".
@@ -33,13 +52,3 @@ envVarFromString var =
     _ -> failure
   where
     failure = Left $ "Environment variable must be in the format NAME=VALUE: " ++ var
-
--- | Defines the parser for a flag that takes a file path argument and returns
--- an FilePathArgument that can be later parsed.
-envVarFileParser :: String -> String -> Opt.Parser FilePathArgument
-envVarFileParser fileOptionName helpText =
-  Opt.option filePathReader $
-    Opt.long fileOptionName
-      <> Opt.metavar "FILE_PATH"
-      <> Opt.help helpText
-      <> Opt.action "file"
