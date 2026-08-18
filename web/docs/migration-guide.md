@@ -45,7 +45,66 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 2. Recreate your dev database
+### 2. Update your TypeScript config
+
+Due to `wasp/sdk` package changes, we require some changes to your TypeScript configuration.
+
+In `tsconfig.src.json`, update the `include` field:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="tsconfig.src.json"
+    {
+      "compilerOptions": {
+        // ...
+      },
+      // highlight-next-line
+      "include": ["src"]
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="tsconfig.src.json"
+    {
+      "compilerOptions": {
+        // ...
+      }, 
+      // highlight-next-line
+      "include": ["src", ".wasp/out/types/app"]
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+
+### 3. Update your custom Dockerfile
+
+If you are using a [custom Dockerfile](./deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
+you'll have to add a one new additional line to it:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```dockerfile title="Dockerfile"
+    # ...
+    COPY sdk .wasp/out/sdk
+    COPY libs .wasp/out/libs
+    # ...
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```dockerfile title="Dockerfile"
+    # ...
+    COPY sdk .wasp/out/sdk
+    // highlight-next-line
+    COPY types .wasp/out/types
+    COPY libs .wasp/out/libs
+    # ...
+    ```
+  </TabItem>
+</Tabs>
+
+
+### 4. Recreate your dev database
 
 The database started by `wasp db start` now uses a password unique to your project, instead of a hardcoded value shared by all Wasp apps. This prevents one Wasp app from accidentally connecting to another app's dev database.
 
@@ -56,6 +115,6 @@ Existing dev databases were initialized with the old password and won't accept t
 
 Note that this deletes your dev database's data. Your production database is not affected.
 
-### 3. Enjoy your updated Wasp app
+### 5. Enjoy your updated Wasp app
 
 That's it!

@@ -2,7 +2,7 @@ module Wasp.Util.Docker
   ( DockerContainerName,
     DockerImageName,
     DockerVolumeMountPath,
-    getDockerContainerHostPort,
+    discoverHostPortForDockerContainersInternalPort,
 
     -- * Exported for testing only
     parseDockerPortOutput,
@@ -22,8 +22,8 @@ type DockerImageName = String
 
 type DockerVolumeMountPath = String
 
-getDockerContainerHostPort :: DockerContainerName -> PortNumber -> IO (Maybe PortNumber)
-getDockerContainerHostPort containerName containerPort = do
+discoverHostPortForDockerContainersInternalPort :: DockerContainerName -> PortNumber -> IO (Maybe PortNumber)
+discoverHostPortForDockerContainersInternalPort containerName containerPort = do
   result <-
     try $ readProcessWithExitCode "docker" ["port", containerName, show containerPort] ""
   return $ case result of

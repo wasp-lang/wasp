@@ -5,11 +5,19 @@
 ### ⚠️ Breaking Changes
 
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 - The dev database started by `wasp db start` now uses a password unique to your project instead of a hardcoded one, so one Wasp app can no longer accidentally connect to another Wasp app's dev database. Existing dev databases were initialized with the old password and won't accept the new one, so you'll need to recreate yours: delete its Docker volume with `docker volume rm <volume-name>` (`wasp db start` prints the volume name) and run `wasp db start` again. ([#4572](https://github.com/wasp-lang/wasp/issues/4572))
+
+### 🎉 New Features
+
+- Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
+- Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
+- Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 
 ### 🔧 Small improvements
 
 - `wasp start` now finds the managed dev database by asking Docker where the project's database container is running, instead of assuming `localhost:5432`. This means Wasp will no longer accidentally connect to an unrelated database that happens to be listening on port 5432. ([#4567](https://github.com/wasp-lang/wasp/pull/4567))
+- `wasp start db` no longer fails when port 5432 is already taken: it scans for the first free port, starting from 5432, and starts the dev database there. Since `wasp start` automatically finds the port the database is running on, this also means you can run dev databases for multiple Wasp projects in parallel. ([#4571](https://github.com/wasp-lang/wasp/pull/4571))
 - Newly created projects no longer open the browser automatically on `wasp start`. ([#4553](https://github.com/wasp-lang/wasp/pull/4553))
 - Upgraded internal `morgan` to 1.11, which fixes ([CVE-2026-5078](https://www.cve.org/CVERecord?id=CVE-2026-5078)). Wasp's usage was unaffected by the vulnerability. ([#4573](https://github.com/wasp-lang/wasp/pull/4573))
 - The `<region>` argument of `wasp deploy fly` is now case-insensitive, so e.g. `MIA` is accepted instead of being rejected as an invalid region. ([#4588](https://github.com/wasp-lang/wasp/pull/4588))

@@ -2,6 +2,7 @@
 
 module Wasp.Cli.Command.Compile
   ( compileIO,
+    compileCommand,
     compile,
     compileWithOptions,
     compileIOWithOptions,
@@ -10,6 +11,7 @@ module Wasp.Cli.Command.Compile
     printWarningsAndErrorsIfAny,
     analyze,
     analyzeWithOptions,
+    analyzeWithDiagnosticsOnStderr,
   )
 where
 
@@ -20,6 +22,8 @@ import Data.Either (fromLeft)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -27,6 +31,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -36,6 +41,11 @@ import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+
+-- | Meant for the standalone `wasp compile` command: commands that hold the
+-- project lock themselves should call 'compile' instead.
+compileCommand :: Command ([CompileWarning], AS.AppSpec)
+compileCommand = withProjectLock compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
@@ -107,7 +117,7 @@ printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
   unless (null warns) $
     cliSendMessage $
-      Msg.Warning "Your wasp project reported following warnings during compilation" $
+      Msg.Warning compilationWarningsTitle $
         formatErrorOrWarningMessages warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
@@ -119,6 +129,12 @@ printErrorsIfAny errs = do
 
 formatErrorOrWarningMessages :: [String] -> String
 formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
+
+compilationWarningsTitle :: String
+compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
+
+analysisErrorsTitle :: [CompileError] -> String
+analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
@@ -159,6 +175,26 @@ analyzeWithOptions waspProjectDir options = do
   case appSpecOrErrors of
     Left errors ->
       throwError $
-        CommandError "Analyzing wasp project failed" $
-          show (length errors) <> " errors found:\n" <> formatErrorOrWarningMessages errors
+        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
     Right spec -> return spec
+
+-- | Like 'analyze', but keeps stdout free for machine-readable output:
+-- compile warnings and errors go to stderr instead ('analyze' prints
+-- everything to stdout, via 'cliSendMessage'). Exits with a failure code on
+-- compile errors, bypassing 'CommandError' for the same reason.
+analyzeWithDiagnosticsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
+analyzeWithDiagnosticsOnStderr waspProjectDir = do
+  (appSpecOrErrors, warnings) <-
+    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
+  liftIO $
+    unless (null warnings) $
+      printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
+  case appSpecOrErrors of
+    Right spec -> return spec
+    Left errors ->
+      liftIO $ do
+        printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+        exitFailure
+
+printDiagnosticToStderr :: String -> String -> IO ()
+printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
