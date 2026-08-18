@@ -8,7 +8,6 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -16,16 +15,17 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.EnvVarCtx (addEnvVarsUniqueC)
-import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
+import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
+import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
+import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
+import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
@@ -50,7 +50,8 @@ start = withProjectLock $ do
 
   (warnings, appSpec) <- compile
 
-  runConfigs <- makeDevRunConfigs appSpec waspProjectDir
+  let runConfigs = makeDefaultDevRunConfigs appSpec
+  assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
   DbConnectionEstablished <- require
 
@@ -101,26 +102,31 @@ start = withProjectLock $ do
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
-makeDevRunConfigs ::
-  AppSpec ->
-  Path' Abs (Dir WaspProjectDir) ->
-  Command (WebAppRunConfig, ServerRunConfig)
-makeDevRunConfigs appSpec waspProjectDir = do
-  clientEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvClient
-  serverEnvVarsWithCtx <- liftIO $ getEnvVarsWithCtx Env.dotEnvServer
+-- | The web app and server have their own logic for reading environment
+-- variables autonomously, so we don't need to merge the different sources of
+-- environment variables ourselves
+-- (https://github.com/wasp-lang/wasp/issues/4739). However, we should still
+-- check that they do not conflict with the environment variables that Wasp
+-- itself uses to tell these apps where to run.
+assertImplicitEnvVarsDontOverrideWaspEnvVars :: Path' Abs (Dir WaspProjectDir) -> (WebAppRunConfig, ServerRunConfig) -> Command ()
+assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, serverRunConfig) = do
+  implicitClientEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvClient
+  implicitServerEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvServer
 
-  -- We only use this to check for errors. We throw away the resulting env vars,
-  -- because the generated apps will read the .env files and inherited
-  -- environment themselves.
-  _ <- clientRunConfig `addEnvVarsUniqueC` clientEnvVarsWithCtx
-  _ <- serverRunConfig `addEnvVarsUniqueC` serverEnvVarsWithCtx
+  -- We only use this to check for env vars being overriden. We throw away the
+  -- merged env vars, because the generated apps will read the .env files and
+  -- inherited environment themselves.
+  _ <- clientRunConfig `addEnvVarsUniqueC` implicitClientEnvVars
+  _ <- serverRunConfig `addEnvVarsUniqueC` implicitServerEnvVars
 
-  return (clientRunConfig, serverRunConfig)
+  return ()
   where
-    (clientRunConfig, serverRunConfig) = makeDevDefaultRunConfigs appSpec
-
-    getEnvVarsWithCtx dotEnvFile =
+    readImplicitEnvVars dotEnvFile =
       mconcat
-        [ EnvVarCtx.fromProjectFile waspProjectDir dotEnvFile,
-          EnvVarCtx.fromCurrentEnvironment
+        [ readProjectFileIfExists dotEnvFile,
+          EnvVarCtx.readEnvironment
         ]
+
+    readProjectFileIfExists dotEnvFile =
+      findFileInWaspProjectDir waspProjectDir dotEnvFile
+        >>= maybe (return []) (EnvVarWithCtx.readDotEnvFile (show dotEnvFile))

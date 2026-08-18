@@ -17,12 +17,10 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
-import Wasp.Cli.EnvVarCtx (EnvVarWithCtx, addEnvVarsUniqueC)
-import qualified Wasp.Cli.EnvVarCtx as EnvVarCtx
-import Wasp.Cli.RunConfigs (makeDevDefaultRunConfigs)
+import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
+import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
+import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
-import Wasp.Cli.Util.PathArgument (FilePathArgument)
-import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -39,12 +37,17 @@ data BuildStartConfig = BuildStartConfig
 
 makeBuildStartConfig :: AppSpec -> BuildStartArgs -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command BuildStartConfig
 makeBuildStartConfig appSpec args projectDir' = do
-  when noEnvVarsSourcesSpecified $ throwError noEnvVarsSourcesSpecifiedMsg
+  -- This is just a sanity check for the most common mistake, calling `wasp
+  -- build start` without any env vars at all. We don't need to make an
+  -- exhaustive check here as it's the generated apps' job to ensure they have
+  -- the env vars they need.
+  when (all null [args.clientEnvVars, args.serverEnvVars]) $
+    throwError noEnvVarsSourcesSpecifiedMsg
 
-  userClientEnvVars <- liftIO $ getEnvVarsWithCtx args.clientEnvVarSources
-  userServerEnvVars <- liftIO $ getEnvVarsWithCtx args.serverEnvVarSources
+  userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
+  userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
 
-  let (defaultClientRunConfig, defaultServerRunConfig) = makeDevDefaultRunConfigs appSpec
+  let (defaultClientRunConfig, defaultServerRunConfig) = makeDefaultDevRunConfigs appSpec
 
   clientRunConfig' <- defaultClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
   serverRunConfig' <- defaultServerRunConfig `addEnvVarsUniqueC` userServerEnvVars
@@ -63,12 +66,6 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
-    noEnvVarsSourcesSpecified =
-      null (fst args.clientEnvVarSources)
-        && null (snd args.clientEnvVarSources)
-        && null (fst args.serverEnvVarSources)
-        && null (snd args.serverEnvVarSources)
-
     noEnvVarsSourcesSpecifiedMsg =
       CommandError
         "No env vars specified"
@@ -81,14 +78,6 @@ makeBuildStartConfig appSpec args projectDir' = do
           ++ styleCode ".env"
           ++ " files unless you explicitly tell it. "
           ++ getParserHelpMessage buildStartArgsParser
-
-getEnvVarsWithCtx :: ([EnvVar], [FilePathArgument]) -> IO [EnvVarWithCtx]
-getEnvVarsWithCtx (argEnvVarSource, fileEnvVarSources) =
-  concat
-    <$> sequence
-      [ return $ EnvVarCtx.fromCliArguments <$> argEnvVarSource,
-        concatMapM EnvVarCtx.fromFilePathArgument fileEnvVarSources
-      ]
 
 dockerImageName :: BuildStartConfig -> String
 dockerImageName config =
