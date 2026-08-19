@@ -27,6 +27,7 @@ export const RailwayCliEnvironmentListSchema = z.object({
   environments: z.array(
     z.object({
       id: z.string(),
+      name: z.string(),
       isLinked: z.boolean(),
     }),
   ),
@@ -64,18 +65,6 @@ export const RailwayCliServiceStatusSchema = z.object({
   // A missing status (service never deployed) or an unrecognized status
   // defaults to `null`.
   status: DeploymentStatusSchema.nullable().catch(null).default(null),
-});
-
-export const RailwayApiServiceInstanceUpdateResponseSchema = z.object({
-  data: z.object({
-    serviceInstanceUpdate: z.literal(true),
-  }),
-});
-
-export const RailwayApiServiceInstanceDeployV2ResponseSchema = z.object({
-  data: z.object({
-    serviceInstanceDeployV2: z.string(),
-  }),
 });
 
 export const RailwayCliDomainSchema = z.union([

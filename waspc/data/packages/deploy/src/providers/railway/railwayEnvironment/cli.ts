@@ -22,9 +22,15 @@ export async function getLinkedEnvironmentId(options: {
   const linkedEnvironment = environments.find(
     (environment) => environment.isLinked,
   );
+  // We don't expect this to happen in a normally provisioned Railway project:
+  // `railway init` creates a default "production" environment and links it,
+  // and `railway link` always selects an environment as well.
   if (linkedEnvironment === undefined) {
+    const environmentNames = environments
+      .map((environment) => environment.name)
+      .join(", ");
     throw new Error(
-      "No Railway environment is linked to this directory. Run `railway environment` to link one.",
+      `No Railway environment is linked to this directory. Run \`railway environment\` to link one of: ${environmentNames}.`,
     );
   }
   return linkedEnvironment.id;

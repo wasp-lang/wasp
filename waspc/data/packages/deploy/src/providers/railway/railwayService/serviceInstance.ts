@@ -2,16 +2,18 @@ import * as z from "zod";
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { createCommandWithCwd, runJsonCommand } from "../../../common/zx.js";
 import { RailwayCliExe } from "../brandedTypes.js";
-import {
-  RailwayApiServiceInstanceDeployV2ResponseSchema,
-  RailwayApiServiceInstanceUpdateResponseSchema,
-} from "../jsonOutputSchemas.js";
 
 // Railway's name for a service in a specific environment.
 export type RailwayServiceInstance = {
   serviceId: string;
   environmentId: string;
 };
+
+const RailwayApiServiceInstanceUpdateResponseSchema = z.object({
+  data: z.object({
+    serviceInstanceUpdate: z.literal(true),
+  }),
+});
 
 export async function setServiceInstanceImage(
   serviceInstance: RailwayServiceInstance,
@@ -44,6 +46,12 @@ export async function setServiceInstanceImage(
     options,
   );
 }
+
+const RailwayApiServiceInstanceDeployV2ResponseSchema = z.object({
+  data: z.object({
+    serviceInstanceDeployV2: z.string(),
+  }),
+});
 
 export async function startServiceInstanceDeployment(
   serviceInstance: RailwayServiceInstance,
