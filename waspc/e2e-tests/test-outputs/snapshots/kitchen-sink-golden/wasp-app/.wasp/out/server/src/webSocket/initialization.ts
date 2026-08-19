@@ -11,7 +11,8 @@ import { makeAuthUserIfPossible } from 'wasp/auth/user'
 import { chatWebSocket } from '../../../../../src/features/chat/webSocket'
 
 // Initializes the WebSocket server and invokes the user's WebSocket function.
-export async function init(server: http.Server): Promise<void> {
+// It returns the WebSocket server so the caller can close it.
+export async function init(server: http.Server): Promise<Server> {
   // TODO: In the future, we can consider allowing a clustering option.
   // Ref: https://github.com/wasp-lang/wasp/issues/1228
 
@@ -35,6 +36,8 @@ export async function init(server: http.Server): Promise<void> {
   }
 
   await (chatWebSocket as any)(io, context)
+
+  return io
 }
 
 async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {

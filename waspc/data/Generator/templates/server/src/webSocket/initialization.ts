@@ -14,7 +14,8 @@ import { makeAuthUserIfPossible } from 'wasp/auth/user'
 {=& userWebSocketFn.importStatement =}
 
 // Initializes the WebSocket server and invokes the user's WebSocket function.
-export async function init(server: http.Server): Promise<void> {
+// It returns the WebSocket server so the caller can close it.
+export async function init(server: http.Server): Promise<Server> {
   // TODO: In the future, we can consider allowing a clustering option.
   // Ref: https://github.com/wasp-lang/wasp/issues/1228
 
@@ -39,6 +40,8 @@ export async function init(server: http.Server): Promise<void> {
   }
 
   await ({= userWebSocketFn.importIdentifier =} as any)(io, context)
+
+  return io
 }
 
 {=# isAuthEnabled =}

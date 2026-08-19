@@ -1145,14 +1145,14 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/index.ts"
         ],
-        "ba33f9b0680dd2a6fdea55c2eb8f8163ad60f4ebbac8b459d5c1a2a708524bec"
+        "896169ce7112e3e8c4e805cebbacaae0232b501f661eb3960cc24f1d3afee8b6"
     ],
     [
         [
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts"
         ],
-        "44ea6eb19cb4e283e24b4d3da1105539ef81cd36dfeb71d9fa5695f0b0c15b34"
+        "441e23dec1c7556fc42cb1bc9de5fb86c7b7073985d85a05590790290f17378c"
     ],
     [
         [
@@ -2125,7 +2125,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "6236e531606fc6432114a206eafe0206ebe2805ff81e6077eaeb594471a2f6f1"
+        "fec635eae8b4c93094606e952f0b02ea27e49bd3940f282b3fbca98d507400a9"
+    ],
+    [
+        [
+            "file",
+            "server/src/start.ts"
+        ],
+        "5aa23122c298604d1e37c9197ac6cf4b09db954a670071232882e6202d66eb79"
     ],
     [
         [
@@ -2139,7 +2146,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "0b15b0069d02f049d4ab08271f5add429244989f0c6925b3bd8b0971d58fbb6b"
+        "832c6726ee307abba732a7ab40075cd66de612ccb44b9b3b15f6156fcf418879"
     ],
     [
         [
