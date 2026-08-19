@@ -34,7 +34,10 @@ module ShellCommands
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
-    waspCliInfo,
+    waspCliShowSpec,
+    waspCliShowSpecJson,
+    waspCliShowBuild,
+    waspCliShowBuildJson,
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
@@ -234,8 +237,22 @@ waspCliDbReset =
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"
 
-waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInfo = return "$WASP_CLI_CMD info"
+waspCliShowSpec :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowSpec = return "$WASP_CLI_CMD show spec"
+
+-- | Runs `wasp show spec --json` and asserts that stdout alone is valid JSON
+-- with the expected {waspVersion, decls} envelope.
+waspCliShowSpecJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowSpecJson =
+  return $ "$WASP_CLI_CMD show spec --json" ~| "jq ."
+
+waspCliShowBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuild = return "$WASP_CLI_CMD show build"
+
+-- | Runs `wasp show build --json` and asserts that stdout alone is valid JSON.
+waspCliShowBuildJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuildJson =
+  return $ "$WASP_CLI_CMD show build --json" ~| "jq ."
 
 waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDeps = return "$WASP_CLI_CMD deps"
