@@ -38,4 +38,3 @@ index 6ee0dbe..54da50f 100644
        {task.description}
      </div>
    );
-   
