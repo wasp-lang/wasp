@@ -4,9 +4,10 @@ module Wasp.Cli.Command.BuildStart.ArgumentsParser
   )
 where
 
+import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
-import Wasp.Cli.AppComponentUrls (defaultDevClientPort, defaultDevServerPort)
+import Wasp.Cli.AppComponentPorts (defaultDevClientPort, defaultDevServerPort)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, envVarArgumentLiteralParser)
 import Wasp.Cli.Util.PortArgument (portOption)
 
@@ -25,10 +26,11 @@ buildStartArgsParser =
     <*> environmentVariableParsersForComponent "client"
     <*> environmentVariableParsersForComponent "server"
   where
-    portParserForComponent name =
-      portOption
-        (name ++ "-port")
-        ("Port to run the " ++ name ++ " on")
+    portParserForComponent name defaultPort =
+      fromMaybe defaultPort
+        <$> portOption
+          (name ++ "-port")
+          ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
 
     environmentVariableParsersForComponent name =
       liftA2

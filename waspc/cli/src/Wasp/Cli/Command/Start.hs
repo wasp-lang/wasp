@@ -10,7 +10,8 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl, showAppComponentUrls)
+import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
+import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -24,7 +25,7 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeRunConfigs)
+import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -56,15 +57,15 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   (warnings, appSpec) <- compile
 
-  let appComponentUrls = makeDevAppUrls appSpec args
-      runConfigs = makeRunConfigs appComponentUrls
+  appComponentUrls <- makeDevAppComponentUrls appSpec args
+  let runConfigs = makeRunConfigs appComponentUrls
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
   DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showAppComponentUrls appComponentUrls
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
@@ -110,11 +111,13 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
-makeDevAppUrls :: AppSpec -> StartArgs -> (AppComponentUrl, AppComponentUrl)
-makeDevAppUrls appSpec args =
-  ( (makeDefaultDevClientUrl appSpec) {port = args.clientPort},
-    defaultDevServerUrl {port = args.serverPort}
-  )
+makeDevAppComponentUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
+makeDevAppComponentUrls appSpec args = do
+  (clientPort, serverPort) <- findAppComponentPorts (args.clientPort, args.serverPort)
+  return
+    ( (makeDefaultDevClientUrl appSpec) {port = clientPort},
+      defaultDevServerUrl {port = serverPort}
+    )
 
 -- | The web app and server have their own logic for reading environment
 -- variables autonomously, so we don't need to merge the different sources of
