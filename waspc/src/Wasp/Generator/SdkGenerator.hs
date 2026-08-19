@@ -99,6 +99,19 @@ buildSdk generatedAppDir = do
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
+-- | The client HTTP wrapper. Under a client auth adapter the credential is
+-- pulled from the adapter at each request instead of read from local storage.
+genApiIndexTs :: AppSpec -> Generator FileDraft
+genApiIndexTs spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|api/index.ts|]
+      (object ["isClientAuthAdapterUsed" .= isClientAdapterUsed spec])
+
+isClientAdapterUsed :: AppSpec -> Bool
+isClientAdapterUsed spec =
+  maybe False AS.App.Auth.isClientAuthAdapterUsed (AS.App.auth $ snd $ AS.Valid.getApp spec)
+
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
@@ -108,7 +121,7 @@ genSdk spec =
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|types/register.ts|],
-      C.genFileCopy [relfile|api/index.ts|],
+      genApiIndexTs spec,
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
@@ -191,6 +204,7 @@ genPackageJson spec = do
           [ "sdkPackageName" .= C.sdkPackageName,
             "isAuthEnabled" .= isAuthEnabled spec,
             "isCustomAuthProviderUsed" .= isJust (AS.Valid.getExternalAuthProvider spec),
+            "isClientAuthAdapterUsed" .= isClientAdapterUsed spec,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)

@@ -44,7 +44,11 @@ genWaspAppComponent spec =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/components/WaspApp.tsx|]
-      (object ["areWebSocketsUsed" .= WS.areWebSocketsUsed spec])
+      ( object
+          [ "areWebSocketsUsed" .= WS.areWebSocketsUsed spec,
+            "isClientAuthAdapterUsed" .= maybe False AS.Auth.isClientAuthAdapterUsed (AS.App.auth $ snd $ getApp spec)
+          ]
+      )
 
 genAppComponents :: Generator [FileDraft]
 genAppComponents =

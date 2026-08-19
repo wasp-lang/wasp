@@ -138,6 +138,7 @@ function mapExternalAuthProvider(
             manifest.server as WaspSpec.Reference<AnyObject>,
           ),
         },
+    clientPackage: manifest.client?.package,
     routes: manifest.routes && {
       basePath: manifest.routes.basePath,
       rawBody: manifest.routes.rawBody,

@@ -30,6 +30,7 @@ module Wasp.AppSpec.App.Auth
     serverPackage,
     serverModule,
     isExternalAuthProviderUsed,
+    isClientAuthAdapterUsed,
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isSlackAuthEnabled,
@@ -138,6 +139,8 @@ data ExternalAuthProviderSpec = ExternalAuthProviderSpec
     providerId :: String,
     -- | Where the provider's implementation comes from.
     server :: ExternalProviderServer,
+    -- | Module specifier of an adapter package's client entry, if it has one.
+    clientPackage :: Maybe String,
     -- | Routes the provider wants mounted on Wasp's server, for providers that
     -- own HTTP endpoints of their own (Better Auth).
     routes :: Maybe ExternalProviderRoutes,
@@ -182,6 +185,10 @@ serverModule :: ExternalAuthProviderSpec -> Maybe ExtImport
 serverModule spec = case spec.server of
   ExternalProviderServer (Left _) -> Nothing
   ExternalProviderServer (Right extImport) -> Just extImport
+
+-- | Whether the selected external provider brings a client-side adapter entry.
+isClientAuthAdapterUsed :: Auth -> Bool
+isClientAuthAdapterUsed auth = isJust (externalProvider auth >>= clientPackage)
 
 data ExternalProviderRoutes = ExternalProviderRoutes
   { basePath :: String,

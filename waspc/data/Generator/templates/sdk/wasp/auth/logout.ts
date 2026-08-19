@@ -1,9 +1,18 @@
+{{={= =}=}}
 import { api, removeLocalUserData } from '../api/index.js'
+{=# isClientAuthAdapterUsed =}
+import { clientAuthAdapter } from '../client/auth/provider.js'
+{=/ isClientAuthAdapterUsed =}
 import { invalidateAndRemoveQueries } from '../client/operations/internal/resources.js'
 
 // PUBLIC API
 export default async function logout(): Promise<void> {
   try {
+    {=# isClientAuthAdapterUsed =}
+    // The adapter clears its own client-side state first (Clerk's signOut(),
+    // a token store's clear()), then Wasp revokes the session server-side.
+    await clientAuthAdapter.onLogout?.()
+    {=/ isClientAuthAdapterUsed =}
     await api.post('/auth/logout')
   } finally {
     // Even if the logout request fails, we still want to remove the local user data

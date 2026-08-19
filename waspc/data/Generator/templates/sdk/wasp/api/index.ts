@@ -1,4 +1,8 @@
+{{={= =}=}}
 import ky, { isHTTPError } from 'ky'
+{=# isClientAuthAdapterUsed =}
+import { clientAuthAdapter } from '../client/auth/provider.js'
+{=/ isClientAuthAdapterUsed =}
 import { config } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
@@ -44,13 +48,26 @@ export const api = ky.extend({
   prefix: config.apiUrl,
   hooks: {
     beforeRequest: [
+      {=# isClientAuthAdapterUsed =}
+      // Pull-based on purpose: the adapter is asked at each request, so a
+      // token that rotates underneath (short-lived JWTs) is always current.
+      async ({ request }) => {
+        const credential = await clientAuthAdapter.getCredential()
+        if (credential !== null) {
+          request.headers.set('Authorization', `Bearer ${credential}`)
+        }
+      },
+      {=/ isClientAuthAdapterUsed =}
+      {=^ isClientAuthAdapterUsed =}
       ({ request }) => {
         const sessionId = getSessionId()
         if (sessionId !== null) {
           request.headers.set('Authorization', `Bearer ${sessionId}`)
         }
       },
+      {=/ isClientAuthAdapterUsed =}
     ],
+    {=^ isClientAuthAdapterUsed =}
     afterResponse: [
       ({ request, response }) => {
         if (response.status === 401) {
@@ -76,6 +93,7 @@ export const api = ky.extend({
         }
       },
     ],
+    {=/ isClientAuthAdapterUsed =}
   },
 })
 
