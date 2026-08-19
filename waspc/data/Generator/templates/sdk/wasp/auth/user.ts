@@ -10,7 +10,9 @@ import {
   getProviderData,
 } from './providerData.js'
 import { Expand } from '../universal/types.js'
+{=^ isCustomAuthProviderUsed =}
 import { isNotNull } from '../universal/predicates.js'
+{=/ isCustomAuthProviderUsed =}
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
@@ -124,10 +126,17 @@ export function makeAuthUserIfPossible(
 function makeAuthUser(data: AuthUserData): AuthUser {
   return {
     ...data,
+    {=# isCustomAuthProviderUsed =}
+    // No Wasp auth methods are enabled under an external provider, so there are
+    // no identities to read.
+    getFirstProviderUserId: () => null,
+    {=/ isCustomAuthProviderUsed =}
+    {=^ isCustomAuthProviderUsed =}
     getFirstProviderUserId: () => {
       const identities = Object.values(data.identities).filter(isNotNull);
       return identities.length > 0 ? identities[0].id : null;
     },
+    {=/ isCustomAuthProviderUsed =}
   };
 }
 

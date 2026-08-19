@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { LoginForm, SignupForm } from "wasp/client/auth";
+import { SignIn } from "@clerk/clerk-react";
 
 /**
- * Identical to `wasp-auth/`'s login page. This is the file that changes when
- * the app adopts its real auth provider -- everything else stays put.
+ * The Clerk login page, and the clearest illustration of where Wasp's uniform
+ * line falls.
+ *
+ * There is no `<LoginForm />` here and there cannot be one. Clerk has no
+ * server-side password endpoint, so Wasp cannot post credentials on the app's
+ * behalf -- the browser must talk to Clerk's Frontend API directly. Clerk's own
+ * component does that.
+ *
+ * Compare `../../../wasp-auth/src/auth/LoginPage.tsx` and
+ * `../../../better-auth/src/auth/LoginPage.tsx`. The login pages differ per
+ * provider. Everything else in these apps does not.
  */
 export function LoginPage() {
-  const [isSignup, setIsSignup] = useState(false);
-
   return (
-    <main
-      style={{ maxWidth: 380, margin: "3rem auto", fontFamily: "system-ui" }}
-    >
-      <h1>{isSignup ? "Sign up" : "Log in"}</h1>
-      {isSignup ? <SignupForm /> : <LoginForm />}
-      <button onClick={() => setIsSignup((v) => !v)}>
-        {isSignup ? "I already have an account" : "I need an account"}
-      </button>
+    <main style={{ display: "grid", placeItems: "center", marginTop: "3rem" }}>
+      <SignIn />
     </main>
   );
 }
