@@ -147,7 +147,6 @@ library
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
-    pretty-simple ^>=4.1.3,
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
     split ^>=0.2.5,
@@ -426,9 +425,7 @@ library
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
-    Wasp.Util.Debug
     Wasp.Util.Docker
-    Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.GitRev
     Wasp.Util.HashMap
@@ -660,7 +657,6 @@ test-suite waspc-tests
     Util.Control.MonadTest
     Util.Diff
     Util.DockerTest
-    Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest
     Util.Prisma
