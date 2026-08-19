@@ -27,7 +27,7 @@ genVirtualRoutesTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
+    tmplPath = C.clientViteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),

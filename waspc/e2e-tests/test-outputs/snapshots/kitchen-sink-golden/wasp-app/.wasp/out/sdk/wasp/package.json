@@ -82,6 +82,7 @@
     "./server/operations": "./dist/server/operations/index.js",
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
+    "./server/vite": "./dist/server/vite/index.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
     "./types": "./dist/types/index.js"
   },

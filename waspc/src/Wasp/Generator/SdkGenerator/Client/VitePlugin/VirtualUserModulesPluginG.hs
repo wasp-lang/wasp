@@ -17,9 +17,8 @@ genVirtualUserModulesPlugin :: AppSpec -> Generator FileDraft
 genVirtualUserModulesPlugin spec =
   return $
     C.mkTmplFdWithData
-      (C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualUserModules.ts|])
-      (object ["virtualUserModules" .= map mkPluginData (VUM.getClientVirtualUserModules spec)])
+      (C.clientVitePluginsDirInSdkTemplatesDir </> [relfile|virtualUserModules.ts|])
+      (object ["virtualUserModules" .= VUM.mkVirtualUserModulesPluginData extImportToImportJson (VUM.getClientVirtualUserModules spec)])
   where
-    mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson
     extImportToImportJson =
       GJI.jsImportToImportJson . Just . GJI.extImportToRelativeSrcImportFromViteExecution

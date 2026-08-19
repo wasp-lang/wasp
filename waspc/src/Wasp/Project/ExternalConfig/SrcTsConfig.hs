@@ -42,7 +42,7 @@ srcTsConfigValidator =
           V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
           V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
           -- `isolatedModules` prevents users from using features that don't work
-          -- with transpilers and would fail when Wasp bundles the code with rollup
+          -- with transpilers and would fail when Wasp bundles the code
           -- (e.g., const enums)
           V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
           V.inField ("jsx", T.jsx) $ V.eqJust "preserve",

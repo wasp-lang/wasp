@@ -62,12 +62,11 @@ import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
-import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
@@ -81,8 +80,6 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
-      genRollupConfigJs spec,
-      genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
       genGitignore,
@@ -190,10 +187,7 @@ npmDepsFromWasp spec =
               ("@types/express-serve-static-core", show expressTypesVersionRange),
               ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
-              ("@types/cors", "^2.8.5"),
-              ("rollup", "^4.9.6"),
-              ("rollup-plugin-esbuild", "^6.1.1"),
-              ("@rollup/plugin-node-resolve", "^16.0.0")
+              ("@types/cors", "^2.8.5")
             ],
         peerDependencies = []
       }
@@ -351,12 +345,3 @@ genOperationsMiddleware spec =
       (Just tmplData)
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
-
-genRollupConfigJs :: AppSpec -> Generator FileDraft
-genRollupConfigJs spec =
-  return $
-    C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
-  where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
-
-    areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec

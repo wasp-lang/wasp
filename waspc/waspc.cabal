@@ -44,6 +44,7 @@ data-files:
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
   Generator/templates/**/*.md
+  Generator/templates/**/*.mjs
   Generator/templates/**/*.prisma
   Generator/templates/**/*.ts
   Generator/templates/**/*.tsx
@@ -300,6 +301,8 @@ library
     Wasp.Generator.SdkGenerator.Server.JobGenerator
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
+    Wasp.Generator.SdkGenerator.Server.VitePlugin.VirtualUserModulesPluginG
+    Wasp.Generator.SdkGenerator.Server.VitePluginG
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
@@ -317,7 +320,6 @@ library
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Start
-    Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
     Wasp.Generator.Start
@@ -737,6 +739,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.WaspNewSnapshotTest
     Tests.ViteBuildTest
     Tests.ViteConfigTest
+    Tests.ViteServerBuildTest
     Tests.WaspBuildStartTest
     Tests.WaspBuildTest
     Tests.WaspCleanTest

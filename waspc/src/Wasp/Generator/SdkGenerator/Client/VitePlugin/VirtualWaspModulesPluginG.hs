@@ -34,21 +34,21 @@ genVirtualFilesIndexTs =
   return $
     C.mkTmplFd tmplPath
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
+    tmplPath = C.clientViteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
 
 genVirtualFilesResolverTs :: Generator FileDraft
 genVirtualFilesResolverTs =
   return $
     C.mkTmplFd tmplPath
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
+    tmplPath = C.clientViteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
 genVirtualWaspModulesTs :: Generator FileDraft
 genVirtualWaspModulesTs =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualWaspModules.ts|]
+    tmplPath = C.clientVitePluginsDirInSdkTemplatesDir </> [relfile|virtualWaspModules.ts|]
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
@@ -61,7 +61,7 @@ genVirtualClientEntryTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-entry.tsx|]
+    tmplPath = C.clientViteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-entry.tsx|]
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
@@ -73,7 +73,7 @@ genVirtualSsrEntryTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|ssr-entry.tsx|]
+    tmplPath = C.clientViteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|ssr-entry.tsx|]
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,

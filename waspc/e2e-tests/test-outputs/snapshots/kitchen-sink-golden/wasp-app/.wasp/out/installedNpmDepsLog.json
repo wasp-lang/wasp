@@ -308,10 +308,6 @@
         ],
         "devDependencies": [
             {
-                "name": "@rollup/plugin-node-resolve",
-                "version": "^16.0.0"
-            },
-            {
                 "name": "@tsconfig/node24",
                 "version": "latest"
             },
@@ -334,14 +330,6 @@
             {
                 "name": "nodemon",
                 "version": "^2.0.19"
-            },
-            {
-                "name": "rollup",
-                "version": "^4.9.6"
-            },
-            {
-                "name": "rollup-plugin-esbuild",
-                "version": "^6.1.1"
             },
             {
                 "name": "typescript",
