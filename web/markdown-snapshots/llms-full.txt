@@ -10081,9 +10081,9 @@ Here are the client env vars that Wasp defines:
 
 These are some general env variables used for various Wasp features:
 
-| Name                | Type        | Notes                                                                                                                              |
-| ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This app is required in production but defaults to `http://localhost:3001` in development. |
+| Name                | Type        | Notes                                                                                                   |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This is set by Wasp in development, but required in production. |
 
 ### Server Env Vars
 
@@ -10105,13 +10105,13 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-| Name                  | Type                           | Notes                                                                                                                                                                                                |
-| --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Stringrequired                 | The URL of the PostgreSQL database you want your app to use.                                                                                                                                         |
-| `WASP_WEB_CLIENT_URL` | URLrequired                    | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. Defaults to `http://localhost:3000` in development.                                               |
-| `WASP_SERVER_URL`     | URLrequired                    | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. Defaults to `http://localhost:3001` in development. |
-| `JWT_SECRET`          | Stringrequired                 | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                              |
-| `PORT`                | IntegeroptionalDefault: `3001` | This is where the server listens for requests.                                                                                                                                                       |
+| Name                  | Type                           | Notes                                                                                                                                                                                                            |
+| --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Stringrequired                 | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                     |
+| `WASP_WEB_CLIENT_URL` | URLrequired                    | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production.                                               |
+| `WASP_SERVER_URL`     | URLrequired                    | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. |
+| `JWT_SECRET`          | Stringrequired                 | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                          |
+| `PORT`                | IntegeroptionalDefault: `3001` | This is where the server listens for requests.                                                                                                                                                                   |
 
 ##### SMTP Email Sender
 
@@ -10862,27 +10862,7 @@ export default defineConfig({
 
 #### Custom Dev Server Port
 
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the **client** dev server port by setting the `port` option. To change the Wasp **server** port, see the [`PORT` server env var](https://wasp.sh/docs/project/env-vars#server-general-configuration).
-
-```ts title="vite.config.ts"
-import { wasp } from "wasp/client/vite";
-import { defineConfig } from "vite";
-
-export default defineConfig({
-  plugins: [wasp()],
-  server: {
-    port: 4000,
-  },
-});
-```
-
-```env title=".env.server"
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-:::warning[Changing the client dev server port]
-Be careful when changing the client dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
-:::
+Wasp derives your app's dev URLs from the client (`3000`) and server (`3001`) ports, so don't change them: your app would keep pointing at the old URLs, and you can no longer correct them by setting `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL` yourself.
 
 #### Editing from the Chrome DevTools {#devtools-workspace}
 
@@ -11026,7 +11006,7 @@ You can provide production env vars to your server code in production by definin
 :::caution[Set the required env vars]
 Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL` etc. and set them up in your production environment.
 
-While some env vars like `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` have default values in development, they are **required in production** and must be explicitly set.
+Even though you don't set these variables in development, they are **required in production** and must be explicitly set. If any of them are missing, your server will fail to start.
 
 **If you are using the [Wasp CLI](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/overview)** deployment method, Wasp will set the general configuration env vars for you, but you will need to set the rest of the env vars yourself (like the ones for OAuth auth methods or any other custom env vars you might have defined).
 :::
@@ -11188,7 +11168,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](https://wasp.sh/docs/project/env-vars#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](https://wasp.sh/docs/project/env-vars).
 
-The only exception is the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
+The only exception is the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it fills these out for you automatically. Setting them yourself makes `wasp build start` fail.
 
 #### Which values should I use when testing?
 
@@ -12721,23 +12701,7 @@ By default, Wasp apps use ports `3000` and `3001`, and each managed PostgreSQL d
 We are working on automatic port selection for [Wasp apps](https://github.com/wasp-lang/wasp/issues/4471) and [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
 :::
 
-We can work around this by giving each app different client and server ports.
-
-#### Configuring ports
-
-Configure the client port in [`vite.config.ts`](https://wasp.sh/docs/project/custom-vite-config#custom-dev-server-port) and the server port in `.env.server`.
-
-We need to adjust the server and client URLs as well. For example, if we set the client port to `4000` and the server port to `4001`:
-
-```env title=".env.server"
-PORT=4001
-WASP_SERVER_URL=http://localhost:4001
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-```env title=".env.client"
-REACT_APP_API_URL=http://localhost:4001
-```
+Wasp derives your app's dev URLs from the ports it runs on and sets them for you, so overriding them in `.env.server` or `.env.client` fails. Until automatic port selection lands, run one worktree's app at a time.
 
 Wasp's dev PostgreSQL database requires port `5432`. To run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
@@ -15376,6 +15340,12 @@ npm i -g @wasp.sh/wasp-cli@0.26
 
 ### What's new in 0.26?
 
+#### Wasp now manages your app's dev URLs
+
+`wasp start` now derives your app's dev URLs from the ports the client and the server run on, and tells both sides about them.
+
+In development, setting the URLs manually in the env vars now fails.
+
 ### How to migrate?
 
 #### 1. Bump the Wasp version
@@ -15429,12 +15399,53 @@ In `tsconfig.src.json`, update the `include` field:
 {
   "compilerOptions": {
     // ...
-  }, 
+  },
   "include": ["src", ".wasp/out/types/app"]
 }
 ```
 
-#### 3. Update your custom Dockerfile
+#### 3. Stop setting the dev URLs yourself
+
+Wasp now derives your app's dev URLs from the ports it runs on, so it fails if you also set them.
+
+Remove `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting them manually:
+
+**Before**
+
+```env title=".env.server"
+WASP_SERVER_URL=http://localhost:3001
+WASP_WEB_CLIENT_URL=http://localhost:3000
+JWT_SECRET=my-secret
+```
+
+**After**
+
+```env title=".env.server"
+JWT_SECRET=my-secret
+```
+
+And `REACT_APP_API_URL` from your `.env.client` if present:
+
+**Before**
+
+```env title=".env.client"
+REACT_APP_API_URL=http://localhost:3001
+REACT_APP_NAME=My App
+```
+
+**After**
+
+```env title=".env.client"
+REACT_APP_NAME=My App
+```
+
+Wasp fills in the URLs for you, so you no longer have to keep them in sync by hand.
+
+:::info
+Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
+:::
+
+#### 4. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 

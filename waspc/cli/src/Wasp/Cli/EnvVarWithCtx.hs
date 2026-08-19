@@ -6,6 +6,8 @@ module Wasp.Cli.EnvVarWithCtx
     showEnvVarWithCtx,
     addEnvVarsUniqueC,
     readEnvVarArgument,
+    readDotEnvFile,
+    readEnvironment,
   )
 where
 
@@ -15,6 +17,7 @@ import Data.List (intercalate)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import StrongPath (Abs, File, Path')
+import System.Environment (getEnvironment)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
 import Wasp.Cli.Util.PathArgument (getFilePath)
@@ -37,6 +40,10 @@ readEnvVarArgument (EnvVarArgumentFile filePathArg) =
 readDotEnvFile :: String -> Path' Abs (File ()) -> IO [EnvVarWithCtx]
 readDotEnvFile fileDescription filePath =
   fmap (EnvVarCtx {sourceDescription = "file " ++ fileDescription},) <$> parseDotEnvFile filePath
+
+readEnvironment :: IO [EnvVarWithCtx]
+readEnvironment =
+  fmap (EnvVarCtx {sourceDescription = "your environment"},) <$> getEnvironment
 
 showEnvVarWithCtx :: EnvVarWithCtx -> String
 showEnvVarWithCtx (EnvVarCtx {sourceDescription}, (envVarName, _)) =

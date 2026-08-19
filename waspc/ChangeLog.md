@@ -8,6 +8,7 @@
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Wasp Deploy for Railway now requires Railway CLI 4.51.0 or newer. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- Wasp now manages your app's URLs in development, so setting `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL`, or `REACT_APP_API_URL` yourself is now an error. ([#4692](https://github.com/wasp-lang/wasp/pull/4692))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 
 ### 🎉 New Features

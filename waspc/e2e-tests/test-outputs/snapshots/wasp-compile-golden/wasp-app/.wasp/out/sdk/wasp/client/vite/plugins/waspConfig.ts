@@ -39,8 +39,13 @@ export function waspConfig(): PluginOption {
           exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
         },
         server: {
-          port: useUserValue(config.server?.port, 3000),
+          port: useUserValue(config.server?.port, Number.parseInt(process.env["PORT"]!)),
           host: useUserValue(config.server?.host, "0.0.0.0"),
+        },
+        // `vite preview` falls back to `server` for most options, but not for
+        // `port` (it has its own default), so we have to set it separately.
+        preview: {
+          port: useUserValue(config.preview?.port, Number.parseInt(process.env["PORT"]!)),
         },
         envPrefix: forcedOptions["envPrefix"],
         build: {

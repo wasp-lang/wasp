@@ -40,8 +40,13 @@ export function waspConfig(): PluginOption {
           exclude: {=& depsExcludedFromOptimization =}
         },
         server: {
-          port: useUserValue(config.server?.port, {= defaultClientPort =}),
+          port: useUserValue(config.server?.port, Number.parseInt(process.env["{= clientPortEnvVarName =}"]!)),
           host: useUserValue(config.server?.host, "0.0.0.0"),
+        },
+        // `vite preview` falls back to `server` for most options, but not for
+        // `port` (it has its own default), so we have to set it separately.
+        preview: {
+          port: useUserValue(config.preview?.port, Number.parseInt(process.env["{= clientPortEnvVarName =}"]!)),
         },
         envPrefix: forcedOptions["envPrefix"],
         build: {
