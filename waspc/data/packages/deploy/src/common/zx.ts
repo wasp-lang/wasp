@@ -48,6 +48,7 @@ export async function tryRunJsonCommand<Schema extends z.ZodType>(
 // zx's `ProcessOutput.json()` parses the combined stdout and stderr, but CLIs
 // write progress messages to stderr (e.g. `railway add --json` echoes the
 // prompt answers there), which would corrupt the JSON.
+// Reported to zx: https://github.com/google/zx/issues/1505
 function parseJsonFromStdout(output: ProcessOutput): unknown {
   return JSON.parse(output.stdout);
 }
