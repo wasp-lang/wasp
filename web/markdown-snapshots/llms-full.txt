@@ -924,7 +924,7 @@ We put the function in a new file `src/actions.ts`, but we could have put it any
 Start by defining a form for creating new tasks.
 
 ```tsx title="src/MainPage.tsx"
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   createTask,
@@ -935,7 +935,7 @@ import {
 // ... MainPage, TaskView, TasksList ...
 
 const NewTaskForm = () => {
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const target = event.target as HTMLFormElement;
@@ -963,7 +963,7 @@ Finally, because we've previously annotated the Action's server implementation w
 All that's left now is adding this form to the page component:
 
 ```tsx title="src/MainPage.tsx"
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
 
@@ -1055,7 +1055,7 @@ export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
 You can now call `updateTask` from the React component:
 
 ```tsx title="src/MainPage.tsx"
-import type { FormEvent, ChangeEvent } from "react";
+import type { ChangeEvent, SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   updateTask,
@@ -4863,7 +4863,7 @@ export function SignupPage() {
   const [error, setError] = useState<Error | null>(null)
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -4912,7 +4912,7 @@ export function LoginPage() {
   const [error, setError] = useState<Error | null>(null)
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5429,7 +5429,7 @@ export function LoginPage() {
   const [error, setError] = useState<Error | null>(null)
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5468,7 +5468,7 @@ export function SignupPage() {
   const [error, setError] = useState<Error | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5545,7 +5545,7 @@ export function RequestPasswordResetPage() {
   const [error, setError] = useState<Error | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5589,7 +5589,7 @@ export function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('')
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -21826,7 +21826,7 @@ export const MainPage = () => {
   const [name, setName] = useState("");
   const [file, setFile] = useState<File>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!file) return;
     const formData = new FormData();
