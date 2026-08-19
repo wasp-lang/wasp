@@ -37,11 +37,13 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
@@ -298,7 +300,17 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "appName" .= (fst $ getApp spec :: String),
+          "externalAuthProviderRoutes" .= (externalProviderRoutesTmplData <$> maybeExternalProviderRoutes)
+        ]
+
+    -- Routes an external auth provider brought along (Better Auth's own
+    -- endpoints), mounted at the basePath its manifest declared.
+    maybeExternalProviderRoutes = AS.Valid.getExternalAuthProvider spec >>= AS.App.Auth.routes
+    externalProviderRoutesTmplData providerRoutes =
+      object
+        [ "basePath" .= AS.App.Auth.basePath providerRoutes,
+          "rawBody" .= (AS.App.Auth.rawBody providerRoutes == Just True)
         ]
 
 operationsRouteInRootRouter :: String

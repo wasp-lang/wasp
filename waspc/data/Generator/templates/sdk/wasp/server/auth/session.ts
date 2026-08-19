@@ -212,6 +212,20 @@ function isUniqueConstraintViolation(e: unknown): boolean {
     typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 'P2002'
   );
 }
+
+// PRIVATE API
+/**
+ * Eager provisioning: the runtime channel an in-process adapter calls when it
+ * observes its own signup, so the local user exists from that moment instead
+ * of from the first authenticated request. Same code path as just-in-time
+ * provisioning, called sooner -- idempotent by the same unique constraint.
+ */
+export async function provisionAuthUser(
+  subjectId: string,
+  claims: VerifiedSession['claims'],
+): Promise<void> {
+  await resolveExternalSubject(subjectId, claims);
+}
 {=/ isCustomAuthProviderUsed =}
 
 // PRIVATE API

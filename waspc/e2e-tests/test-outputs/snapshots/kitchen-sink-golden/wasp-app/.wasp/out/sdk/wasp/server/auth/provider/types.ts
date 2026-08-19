@@ -18,3 +18,14 @@ export {
   type SupportsSessionRevocation,
   type VerifiedSession,
 } from '@wasp.sh/auth-contract'
+
+// PRIVATE API
+/**
+ * The type the SDK expects of the user's `setupFn` for a packaged adapter's
+ * underlying library (the `prismaSetupFn` convention). The adapter package
+ * types its parameter precisely; the SDK only needs *a* function it can hand
+ * to the adapter's server factory.
+ */
+export type AuthProviderSetupFn = NonNullable<
+  import('@wasp.sh/auth-contract').ServerAdapterExtensions['setupFn']
+>
