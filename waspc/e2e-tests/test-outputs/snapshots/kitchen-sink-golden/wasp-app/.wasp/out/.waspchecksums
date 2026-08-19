@@ -30,6 +30,13 @@
     [
         [
             "file",
+            "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
+        ],
+        "2bba5c7c10f7a28b2f254287161be48fe51f9a5d1a4304771815f226f729330b"
+    ],
+    [
+        [
+            "file",
             "libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
         ],
         "35480e2a814f4c24e9bb22f8e6c0a43fbca98c1cf0612108bcf0f4c1302262f0"
@@ -760,7 +767,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "a8e6a5cbffb010d02729e3cb4046de73ede1844b773417b8f394f60bdd9312cc"
+        "c515a893c946c1ff89654db0eebf4c31f98a58ded78fff4a08564c7d3ecec3ee"
     ],
     [
         [
@@ -865,7 +872,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "51dbfb69a530319fa40e9eeda98c1f1a9b64713f5712eec93493ea1739bec3ff"
+        "26b3bb6afcf7d414b62c96a84a49fe2310307c77b90e8f182f3b708e8fa4c47c"
     ],
     [
         [
@@ -1031,9 +1038,30 @@
     [
         [
             "file",
+            "sdk/wasp/server/auth/provider/index.ts"
+        ],
+        "6c4caffe156d08b777a6c0c2fc3e2fcf214f2943b1d49b5a4b5e3bc9a8709846"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/provider/types.ts"
+        ],
+        "772dc1b404468c930dcde08d56040d543075c8ec1a4e41d1e409d200b65a5bd7"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/provider/wasp.ts"
+        ],
+        "17395734ab484f6d8a7849cd8071287f877826e1ecf7cb298e11816450563b96"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "eef71ef3254da456d6c27c0307a0d382d281ec6c7c56503f78c02d0980da478e"
+        "a85415f64fdaf5c8678116f970041f375c4ef7b3ef0fce7b3ecc81d4115ec3a5"
     ],
     [
         [
@@ -1054,7 +1082,7 @@
             "file",
             "sdk/wasp/server/core/auth.ts"
         ],
-        "18b22086a1158c60c47458912de8cc6833004bd6faade1a786a35988c174b2ba"
+        "3214859014ffbfc5c48a470234118b4c8ecf03a492312be6a8d25a975d1d921b"
     ],
     [
         [
@@ -1383,7 +1411,7 @@
             "file",
             "server/package.json"
         ],
-        "91c935f3dc70f466c41f4071f70912ba46cbe622103e10033cec3ac8b7a2f2e2"
+        "cb2da08734cdc07126b495401e59d8bc39a6585eb0da850c270c6504dfd79ae5"
     ],
     [
         [

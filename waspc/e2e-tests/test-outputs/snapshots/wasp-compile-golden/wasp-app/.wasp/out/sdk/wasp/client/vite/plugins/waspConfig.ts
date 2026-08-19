@@ -36,7 +36,7 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
+          exclude: ['wasp', '@wasp.sh/auth-contract', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
         },
         server: {
           port: useUserValue(config.server?.port, 3000),
