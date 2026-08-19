@@ -1,4 +1,4 @@
-import { app, page, route } from "@wasp.sh/spec";
+import { app, page, route, waspAuth } from "@wasp.sh/spec";
 import { readFile } from "fs/promises";
 import MainPage from "./src/cards/MainPage" with { type: "ref" };
 import Layout from "./src/Layout" with { type: "ref" };
@@ -12,11 +12,13 @@ export default app({
   title: (await readFile("appTitle.txt", "utf-8")).trim(),
   auth: {
     userEntity: "User",
-    methods: {
-      usernameAndPassword: {},
-      google: {},
-    },
     onAuthFailedRedirectTo: "/login",
+    provider: waspAuth({
+      methods: {
+        usernameAndPassword: {},
+        google: {},
+      },
+    }),
   },
   client: {
     rootComponent: Layout,

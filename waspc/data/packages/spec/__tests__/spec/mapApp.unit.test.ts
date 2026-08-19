@@ -11,6 +11,7 @@ import * as SpecElementMapper from "../../src/spec/mapper/specElements.js";
 import {
   api,
   app,
+  customAuthProvider,
   page,
   query,
   route,
@@ -429,6 +430,15 @@ describe("mapAction", () => {
 });
 
 describe("mapAuth", () => {
+  test("should reject external provider ids without the external: prefix", () => {
+    expect(() =>
+      customAuthProvider({
+        id: "clerk",
+        server: Fixtures.getRefObject("full", "named"),
+      }),
+    ).toThrowError(/must start with 'external:'/);
+  });
+
   test("should map minimal config correctly", () => {
     testMapAuth(Fixtures.getAuthConfig("minimal"));
   });
@@ -446,21 +456,132 @@ describe("mapAuth", () => {
 
   test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
     const auth = Fixtures.getAuthConfig("full");
-    assertDefined(auth.methods.email?.emailVerification.clientRoute);
+    const methods = getWaspProviderConfig(auth).methods;
+    assertDefined(methods.email?.emailVerification.clientRoute);
     testMapAuth(auth, {
-      overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
+      overrideRoutes: [methods.email.passwordReset.clientRoute],
       shouldError: true,
     });
   });
 
   test("should throw if passwordReset clientRoute ref is not provided when defined", () => {
     const auth = Fixtures.getAuthConfig("full");
-    assertDefined(auth.methods.email?.passwordReset.clientRoute);
+    const methods = getWaspProviderConfig(auth).methods;
+    assertDefined(methods.email?.passwordReset.clientRoute);
     testMapAuth(auth, {
-      overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
+      overrideRoutes: [methods.email.emailVerification.clientRoute],
       shouldError: true,
     });
   });
+
+  test("should map an external provider with empty methods and no hooks", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const provider = getExternalProviderManifest(auth);
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    const result = AppSpecMapper.mapAuth(auth, ctx);
+
+    assertDefined(provider.userSignupFields);
+    expect(result).toStrictEqual({
+      userEntity: ctx.resolveEntityRef(auth.userEntity),
+      onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
+      provider: {
+        kind: "external",
+        providerId: provider.id,
+        server: {
+          module: mapRefObjectForMockProjectDir(
+            provider.server as Parameters<
+              typeof mapRefObjectForMockProjectDir
+            >[0],
+          ),
+        },
+        routes: undefined,
+        capabilities: provider.capabilities,
+        envVars: {
+          server: [
+            {
+              name: "TEST_PROVIDER_SECRET",
+              optional: undefined,
+              doc: "Secret for tests",
+            },
+          ],
+          client: [],
+        },
+        userSignupFields: mapRefObjectForMockProjectDir(
+          provider.userSignupFields,
+        ),
+        setupFn: undefined,
+        optionsJson: JSON.stringify(provider.options),
+      },
+    } satisfies AppSpec.Auth);
+  });
+
+  test("should throw on a hand-crafted external manifest", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      provider: {
+        ...getExternalProviderManifest(auth),
+        __waspAuthProviderManifest: false,
+      } as unknown as WaspSpec.Auth["provider"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /hand-crafted external provider manifest/,
+    );
+  });
+
+  test("should map an adapter package server entry", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const withPackageEntry = {
+      ...auth,
+      provider: {
+        ...getExternalProviderManifest(auth),
+        server: { package: "@wasp.sh/auth-clerk/server" },
+      } as unknown as WaspSpec.Auth["provider"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    const result = AppSpecMapper.mapAuth(withPackageEntry, ctx);
+
+    expect(result.provider).toMatchObject({
+      kind: "external",
+      server: { package: "@wasp.sh/auth-clerk/server" },
+    });
+  });
+
+  test("should throw when provider options are not JSON-serializable", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const withBadOptions = {
+      ...auth,
+      provider: {
+        ...getExternalProviderManifest(auth),
+        options: { callback: () => "not serializable" },
+      } as unknown as WaspSpec.Auth["provider"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(withBadOptions, ctx)).toThrow(
+      /JSON serialization/,
+    );
+  });
+
+  function getWaspProviderConfig(auth: WaspSpec.Auth): WaspSpec.WaspAuthConfig {
+    if (auth.provider.kind !== "wasp") {
+      throw new Error("Expected a wasp auth provider in this fixture.");
+    }
+    return auth.provider.config;
+  }
+
+  function getExternalProviderManifest(
+    auth: WaspSpec.Auth,
+  ): WaspSpec.ExternalAuthProviderManifest {
+    if (auth.provider.kind !== "external") {
+      throw new Error("Expected an external auth provider in this fixture.");
+    }
+    return auth.provider;
+  }
 
   function testMapAuth(
     auth: WaspSpec.Auth,
@@ -475,12 +596,13 @@ describe("mapAuth", () => {
     },
   ): void {
     const { overrideEntities, overrideRoutes, shouldError } = options;
+    const waspConfig = getWaspProviderConfig(auth);
     const entities = overrideEntities ?? [auth.userEntity];
     const routes =
       overrideRoutes ??
       [
-        auth.methods.email?.emailVerification.clientRoute,
-        auth.methods.email?.passwordReset.clientRoute,
+        waspConfig.methods.email?.emailVerification.clientRoute,
+        waspConfig.methods.email?.passwordReset.clientRoute,
       ].filter((e) => e !== undefined);
     const ctx = makeMapperContext({
       entityNames: entities,
@@ -496,24 +618,30 @@ describe("mapAuth", () => {
 
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
-      methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
-      onBeforeSignup:
-        auth.onBeforeSignup &&
-        mapRefObjectForMockProjectDir(auth.onBeforeSignup),
-      onAfterSignup:
-        auth.onAfterSignup && mapRefObjectForMockProjectDir(auth.onAfterSignup),
-      onAfterEmailVerified:
-        auth.onAfterEmailVerified &&
-        mapRefObjectForMockProjectDir(auth.onAfterEmailVerified),
-      onBeforeOAuthRedirect:
-        auth.onBeforeOAuthRedirect &&
-        mapRefObjectForMockProjectDir(auth.onBeforeOAuthRedirect),
-      onBeforeLogin:
-        auth.onBeforeLogin && mapRefObjectForMockProjectDir(auth.onBeforeLogin),
-      onAfterLogin:
-        auth.onAfterLogin && mapRefObjectForMockProjectDir(auth.onAfterLogin),
+      provider: {
+        kind: "wasp",
+        methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
+        onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
+        onBeforeSignup:
+          waspConfig.onBeforeSignup &&
+          mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
+        onAfterSignup:
+          waspConfig.onAfterSignup &&
+          mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
+        onAfterEmailVerified:
+          waspConfig.onAfterEmailVerified &&
+          mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
+        onBeforeOAuthRedirect:
+          waspConfig.onBeforeOAuthRedirect &&
+          mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
+        onBeforeLogin:
+          waspConfig.onBeforeLogin &&
+          mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
+        onAfterLogin:
+          waspConfig.onAfterLogin &&
+          mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
+      },
     } satisfies AppSpec.Auth);
   }
 });

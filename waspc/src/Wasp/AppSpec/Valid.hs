@@ -13,7 +13,7 @@ where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, group, groupBy, intercalate, sort, sortBy)
+import Data.List (find, group, groupBy, intercalate, isPrefixOf, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.Analyzer.AST (isValidWaspIdentifier)
@@ -63,6 +63,7 @@ validateAppSpec spec =
           validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
+          validateExternalAuthProvider spec,
           validateDummyEmailSenderIsNotUsedInProduction spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
@@ -192,6 +193,40 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
   where
     isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
     app = snd $ getApp spec
+
+-- | Coherence checks for an external auth provider manifest.
+--
+-- Wasp-auth config next to an external provider needs no check here: the
+-- provider is a sum type, so that state is unrepresentable. What remains are
+-- data-level properties the types cannot express.
+validateExternalAuthProvider :: AppSpec -> [ValidationError]
+validateExternalAuthProvider spec = case App.auth (snd $ getApp spec) >>= Auth.externalProvider of
+  Nothing -> []
+  Just extProvider ->
+    validateRoutesBasePath extProvider
+  where
+    validateRoutesBasePath extProvider = case Auth.routes extProvider of
+      Nothing -> []
+      Just providerRoutes ->
+        let bPath = Auth.basePath providerRoutes
+            reservedPathPrefixes = ["/auth", "/operations", "/crud"]
+            declaredApiPaths =
+              (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
+                ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
+         in concat
+              [ [ GenericValidationError $
+                    "app.auth.provider routes basePath must start with '/', got: " ++ bPath
+                | not ("/" `isPrefixOf` bPath)
+                ],
+                [ GenericValidationError $
+                    "app.auth.provider routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " reservedPathPrefixes ++ ")."
+                | any (`isPrefixOf` bPath) reservedPathPrefixes
+                ],
+                [ GenericValidationError $
+                    "app.auth.provider routes basePath '" ++ bPath ++ "' collides with a declared api or apiNamespace path."
+                | any (\apiPath -> bPath `isPrefixOf` apiPath || apiPath `isPrefixOf` bPath) declaredApiPaths
+                ]
+              ]
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =

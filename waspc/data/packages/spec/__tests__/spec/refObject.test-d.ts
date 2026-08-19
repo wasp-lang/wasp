@@ -58,10 +58,8 @@ describe("RefObject input types", () => {
       executor: "PgBoss",
     });
     assertType<WaspSpec.WebSocket>({ fn: operation });
-    assertType<WaspSpec.Auth>({
-      userEntity: "User",
-      methods: {},
-      onAuthFailedRedirectTo: "/login",
+    assertType<WaspSpec.WaspAuthConfig>({
+      methods: { usernameAndPassword: {} },
       onBeforeSignup: hook,
     });
     assertType<WaspSpec.SocialAuthConfig>({

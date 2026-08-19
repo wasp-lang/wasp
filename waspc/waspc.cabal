@@ -181,6 +181,7 @@ library
     Wasp.Analyzer.SourcePosition
     Wasp.Analyzer.SourceRegion
     Wasp.Analyzer.StdTypeDefinitions
+    Wasp.Analyzer.StdTypeDefinitions.App.AuthProvider
     Wasp.Analyzer.StdTypeDefinitions.App.Dependency
     Wasp.Analyzer.StdTypeDefinitions.Entity
     Wasp.Analyzer.Type

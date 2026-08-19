@@ -1,13 +1,20 @@
+import type { AnyObject } from "../../typeUtils.js";
+import { WaspSpecUserError } from "../waspSpecUserError.js";
 import type {
   Action,
   Api,
   ApiNamespace,
   App,
   Crud,
+  EnvVarRequirement,
+  ExternalAuthProviderManifest,
   Job,
   Page,
   Query,
+  Reference,
   Route,
+  WaspAuthConfig,
+  WaspAuthProviderConfig,
 } from "./waspSpec.js";
 
 // Throughout this file, in order for the constructor's input type to be
@@ -422,4 +429,174 @@ export function crud(
   operations: Crud["operations"],
 ): Crud {
   return { kind: "crud", name, entity, operations };
+}
+
+/**
+ * Selects Wasp's own authentication as the app's auth provider and configures
+ * it: enabled methods, auth hooks, and the post-login redirect.
+ *
+ * Everything in here only makes sense when Wasp itself runs the signup and
+ * login flows, which is why it lives inside `waspAuth()` rather than on
+ * `app.auth` -- under an external provider none of it would apply, and the
+ * types make that state impossible to write.
+ *
+ * @example
+ * ```ts
+ * import { app, waspAuth } from '@wasp.sh/spec'
+ *
+ * auth: {
+ *   userEntity: "User",
+ *   onAuthFailedRedirectTo: "/login",
+ *   provider: waspAuth({
+ *     methods: { usernameAndPassword: {} },
+ *     onAuthSucceededRedirectTo: "/",
+ *   }),
+ * }
+ * ```
+ *
+ * @param config Wasp auth configuration; `methods` must enable at least one.
+ *
+ * @category Auth
+ */
+export function waspAuth(config: WaspAuthConfig): WaspAuthProviderConfig {
+  return { kind: "wasp", config } as WaspAuthProviderConfig;
+}
+
+/**
+ * The input accepted by {@link defineAuthProviderManifest}: everything in the
+ * manifest that carries information, without the fields the definition step
+ * fills in itself (`kind`, `contractVersion`, the authenticity marker).
+ *
+ * @category Experimental
+ */
+export type AuthProviderManifestInput = Omit<
+  ExternalAuthProviderManifest,
+  | "kind"
+  | "contractVersion"
+  | "__waspAuthProviderManifest"
+  | "capabilities"
+  | "env"
+> & {
+  capabilities?: string[];
+  env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
+};
+
+/**
+ * EXPERIMENTAL. Defines an external auth provider manifest.
+ *
+ * This is the function auth adapter packages call from their spec helpers
+ * (`clerk()`, `betterAuth()`, ...). It normalizes the manifest, validates it,
+ * and stamps it as authentic -- the compiler rejects hand-crafted manifest
+ * object literals so that every manifest in circulation went through these
+ * checks.
+ *
+ * App developers normally never call this directly: use an adapter package's
+ * spec helper, or {@link customAuthProvider} for a hand-written adapter.
+ *
+ * @category Experimental
+ */
+export function defineAuthProviderManifest(
+  manifest: AuthProviderManifestInput,
+): ExternalAuthProviderManifest {
+  if (!manifest.id) {
+    throw new WaspSpecUserError(
+      "An auth provider manifest must declare a non-empty `id`.",
+    );
+  }
+  if (!manifest.id.startsWith("external:")) {
+    throw new WaspSpecUserError(
+      `Auth provider id '${manifest.id}' must start with 'external:' (e.g. 'external:clerk'). ` +
+        "The unprefixed namespace is reserved for Wasp's own auth methods, which record " +
+        "identities in the same place -- the prefix is what makes a collision impossible.",
+    );
+  }
+  if (
+    manifest.routes !== undefined &&
+    !manifest.routes.basePath.startsWith("/")
+  ) {
+    throw new WaspSpecUserError(
+      `Auth provider '${manifest.id}' declares routes with a basePath that does not start with '/': '${manifest.routes.basePath}'.`,
+    );
+  }
+
+  const capabilities = manifest.capabilities ?? [];
+  // The plan doc's must-enforce caveat: a cookie-borne session Wasp cannot
+  // revoke server-side would make `logout()` a lie, so the combination is
+  // rejected at definition time rather than documented.
+  if (
+    capabilities.includes("cookie-transport") &&
+    !capabilities.includes("session-revocation")
+  ) {
+    throw new WaspSpecUserError(
+      `Auth provider '${manifest.id}' declares the 'cookie-transport' capability without 'session-revocation'. A provider whose credential lives in a cookie must be able to revoke sessions server-side, or logout would only appear to work.`,
+    );
+  }
+
+  return {
+    ...manifest,
+    kind: "external",
+    contractVersion: 1,
+    capabilities,
+    env: {
+      server: manifest.env?.server ?? [],
+      client: manifest.env?.client ?? [],
+    },
+    __waspAuthProviderManifest: true,
+  } as ExternalAuthProviderManifest;
+}
+
+/**
+ * The configuration accepted by {@link customAuthProvider}.
+ *
+ * @category Experimental
+ *
+ * @inline
+ */
+export type CustomAuthProviderConfig = {
+  /**
+   * Stable identifier of the provider. Identities Wasp provisions for this
+   * provider's subjects are recorded under this name, so it must stay stable
+   * across deploys, and it must match the `id` of the `AuthProvider` object
+   * the `server` module exports.
+   */
+  id: string;
+  /** Reference to a user-code module exporting an `AuthProvider` object. */
+  server: Reference<AnyObject>;
+  /** See {@link ExternalAuthProviderManifest.capabilities}. */
+  capabilities?: string[];
+  /** See {@link ExternalAuthProviderManifest.env}. */
+  env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
+  /** See {@link ExternalAuthProviderManifest.userSignupFields}. */
+  userSignupFields?: Reference<AnyObject>;
+  /** See {@link ExternalAuthProviderManifest.options}. */
+  options?: unknown;
+};
+
+/**
+ * EXPERIMENTAL. Declares a hand-written external auth provider: an
+ * `AuthProvider` implementation living in the app's own `src/`, referenced the
+ * same way as any other user code.
+ *
+ * This is the escape hatch under every adapter package -- anything a package
+ * can do, an app can do locally. Prefer a published `@wasp.sh/auth-*` (or
+ * community) adapter package when one exists for your provider.
+ *
+ * @example
+ * ```ts
+ * import { customAuthProvider } from '@wasp.sh/spec'
+ * import { myAuthProvider } from './src/auth/provider' with { type: 'ref' }
+ *
+ * auth: {
+ *   userEntity: "User",
+ *   onAuthFailedRedirectTo: "/login",
+ *   provider: customAuthProvider({ id: "my-provider", server: myAuthProvider }),
+ * }
+ * ```
+ *
+ * @category Experimental
+ */
+export function customAuthProvider(
+  config: CustomAuthProviderConfig,
+): ExternalAuthProviderManifest {
+  return defineAuthProviderManifest(config);
 }

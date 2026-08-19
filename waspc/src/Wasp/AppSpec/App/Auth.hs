@@ -2,13 +2,34 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
+    AuthProvider (..),
+    WaspAuthConfig (..),
     AuthMethods (..),
     ExternalAuthConfig (..),
     EmailAuthConfig (..),
     UsernameAndPasswordConfig (..),
+    ExternalAuthProviderSpec (..),
+    ExternalProviderServer (..),
+    ExternalProviderRoutes (..),
+    ExternalProviderEnvVars (..),
+    ExternalProviderEnvVar (..),
+    methods,
+    onAuthSucceededRedirectTo,
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeOAuthRedirect,
+    onBeforeLogin,
+    onAfterLogin,
+    externalProvider,
+    serverPackage,
+    serverModule,
+    isExternalAuthProviderUsed,
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isSlackAuthEnabled,
@@ -22,10 +43,13 @@ module Wasp.AppSpec.App.Auth
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
+    userSignupFieldsForExternalAuthProvider,
   )
 where
 
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON, ToJSON, (.:))
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.KeyMap as KeyMap
 import Data.Data (Data)
 import Data.Maybe (isJust)
 import GHC.Generics (Generic)
@@ -35,18 +59,148 @@ import Wasp.AppSpec.App.EmailSender (EmailFromField)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.Util (toLowerFirst)
 
 data Auth = Auth
   { userEntity :: Ref Entity,
-    methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
-    onAuthSucceededRedirectTo :: Maybe String,
-    onBeforeSignup :: Maybe ExtImport,
-    onAfterSignup :: Maybe ExtImport,
-    onAfterEmailVerified :: Maybe ExtImport,
-    onBeforeOAuthRedirect :: Maybe ExtImport,
-    onBeforeLogin :: Maybe ExtImport,
-    onAfterLogin :: Maybe ExtImport
+    provider :: AuthProvider
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+-- | The authentication provider of the app, mirroring the discriminated union
+-- in the user-facing spec: either Wasp's own auth, carrying everything that
+-- only makes sense when Wasp runs the signup and login flows, or an external
+-- provider's manifest. The impossible states -- auth methods next to Clerk,
+-- Wasp's hooks next to a manifest -- are unrepresentable.
+--
+-- NOTE: the classic Analyzer's Template Haskell cannot derive declarations for
+-- sum types, so this type has a 'HasCustomEvaluation' instance
+-- ("Wasp.Analyzer.StdTypeDefinitions.App.AuthProvider"). The classic wasp DSL
+-- cannot express providers at all, so that evaluation only reports as much.
+data AuthProvider
+  = WaspAuthProvider WaspAuthConfig
+  | ExternalAuthProvider ExternalAuthProviderSpec
+  deriving (Show, Eq, Data, Generic)
+
+instance FromJSON AuthProvider where
+  parseJSON = Aeson.withObject "AuthProvider" $ \obj ->
+    (obj .: "kind") >>= \case
+      "wasp" -> WaspAuthProvider <$> Aeson.parseJSON (Aeson.Object obj)
+      "external" -> ExternalAuthProvider <$> Aeson.parseJSON (Aeson.Object obj)
+      (unknownKind :: String) -> fail $ "Unknown auth provider kind: " ++ unknownKind
+
+instance ToJSON AuthProvider where
+  toJSON = \case
+    WaspAuthProvider config -> injectKind "wasp" $ Aeson.toJSON config
+    ExternalAuthProvider extProvider -> injectKind "external" $ Aeson.toJSON extProvider
+    where
+      injectKind :: String -> Aeson.Value -> Aeson.Value
+      injectKind kind (Aeson.Object obj) = Aeson.Object $ KeyMap.insert "kind" (Aeson.toJSON kind) obj
+      injectKind _ value = value
+
+-- | Configuration of Wasp's own auth.
+--
+-- Fields carry a @waspAuth@ prefix so this module can export 'Auth'-level
+-- accessors under the natural names ('methods', 'onBeforeSignup', ...); the
+-- JSON representation uses the natural names (see the aeson options below).
+data WaspAuthConfig = WaspAuthConfig
+  { waspAuthMethods :: AuthMethods,
+    waspAuthOnAuthSucceededRedirectTo :: Maybe String,
+    waspAuthOnBeforeSignup :: Maybe ExtImport,
+    waspAuthOnAfterSignup :: Maybe ExtImport,
+    waspAuthOnAfterEmailVerified :: Maybe ExtImport,
+    waspAuthOnBeforeOAuthRedirect :: Maybe ExtImport,
+    waspAuthOnBeforeLogin :: Maybe ExtImport,
+    waspAuthOnAfterLogin :: Maybe ExtImport
+  }
+  deriving (Show, Eq, Data, Generic)
+
+waspAuthConfigJsonOptions :: Aeson.Options
+waspAuthConfigJsonOptions =
+  Aeson.defaultOptions {Aeson.fieldLabelModifier = toLowerFirst . drop (length ("waspAuth" :: String))}
+
+instance FromJSON WaspAuthConfig where
+  parseJSON = Aeson.genericParseJSON waspAuthConfigJsonOptions
+
+instance ToJSON WaspAuthConfig where
+  toJSON = Aeson.genericToJSON waspAuthConfigJsonOptions
+
+-- | An external auth provider, as declared by its manifest in the spec.
+--
+-- 'capabilities' is deliberately an open set of strings: adapters ship
+-- independently of Wasp releases, so a closed enum here would break decoding of
+-- every manifest built against a newer adapter. Unknown entries are ignored.
+data ExternalAuthProviderSpec = ExternalAuthProviderSpec
+  { -- | Stable identifier ("external:clerk", "external:better-auth").
+    -- Identities Wasp provisions for this provider's subjects are recorded
+    -- under this name.
+    providerId :: String,
+    -- | Where the provider's implementation comes from.
+    server :: ExternalProviderServer,
+    -- | Routes the provider wants mounted on Wasp's server, for providers that
+    -- own HTTP endpoints of their own (Better Auth).
+    routes :: Maybe ExternalProviderRoutes,
+    capabilities :: [String],
+    envVars :: ExternalProviderEnvVars,
+    -- | Populates the user entity when Wasp provisions a local user for a
+    -- subject it has not seen before.
+    userSignupFields :: Maybe ExtImport,
+    -- | Setup function for the provider's underlying library.
+    setupFn :: Maybe ExtImport,
+    -- | The adapter's serializable options, JSON-encoded.
+    optionsJson :: Maybe String
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+-- | Exactly one of: an adapter package's server entry (module specifier), or a
+-- user-code module implementing the provider (the hand-written escape hatch).
+newtype ExternalProviderServer = ExternalProviderServer (Either String ExtImport)
+  deriving (Show, Eq, Data, Generic)
+
+instance FromJSON ExternalProviderServer where
+  parseJSON = Aeson.withObject "server" $ \o -> do
+    maybePackage <- o Aeson..:? "package"
+    maybeModule <- o Aeson..:? "module"
+    case (maybePackage, maybeModule) of
+      (Just packageSpecifier, Nothing) -> pure $ ExternalProviderServer (Left packageSpecifier)
+      (Nothing, Just extImport) -> pure $ ExternalProviderServer (Right extImport)
+      _ -> fail "server must contain exactly one of 'package' and 'module'"
+
+instance ToJSON ExternalProviderServer where
+  toJSON (ExternalProviderServer (Left packageSpecifier)) =
+    Aeson.object ["package" Aeson..= packageSpecifier]
+  toJSON (ExternalProviderServer (Right extImport)) =
+    Aeson.object ["module" Aeson..= extImport]
+
+serverPackage :: ExternalAuthProviderSpec -> Maybe String
+serverPackage spec = case spec.server of
+  ExternalProviderServer (Left packageSpecifier) -> Just packageSpecifier
+  ExternalProviderServer (Right _) -> Nothing
+
+serverModule :: ExternalAuthProviderSpec -> Maybe ExtImport
+serverModule spec = case spec.server of
+  ExternalProviderServer (Left _) -> Nothing
+  ExternalProviderServer (Right extImport) -> Just extImport
+
+data ExternalProviderRoutes = ExternalProviderRoutes
+  { basePath :: String,
+    -- | When true, the provider's routes are mounted without the JSON body
+    -- parser, because the provider reads the raw request body itself.
+    rawBody :: Maybe Bool
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+data ExternalProviderEnvVars = ExternalProviderEnvVars
+  { server :: [ExternalProviderEnvVar],
+    client :: [ExternalProviderEnvVar]
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+data ExternalProviderEnvVar = ExternalProviderEnvVar
+  { name :: String,
+    optional :: Maybe Bool,
+    doc :: Maybe String
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -80,6 +234,62 @@ data EmailAuthConfig = EmailAuthConfig
     passwordReset :: PasswordResetConfig
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+-- Accessors over the provider sum, with the signatures consumers always had:
+-- wasp-auth-only configuration simply reads as absent under an external
+-- provider, which is exactly what it is.
+
+methods :: Auth -> AuthMethods
+methods auth = case provider auth of
+  WaspAuthProvider config -> waspAuthMethods config
+  ExternalAuthProvider _ -> emptyAuthMethods
+
+emptyAuthMethods :: AuthMethods
+emptyAuthMethods =
+  AuthMethods
+    { usernameAndPassword = Nothing,
+      slack = Nothing,
+      discord = Nothing,
+      google = Nothing,
+      gitHub = Nothing,
+      keycloak = Nothing,
+      microsoft = Nothing,
+      email = Nothing
+    }
+
+withWaspAuthConfig :: (WaspAuthConfig -> Maybe a) -> Auth -> Maybe a
+withWaspAuthConfig getField auth = case provider auth of
+  WaspAuthProvider config -> getField config
+  ExternalAuthProvider _ -> Nothing
+
+onAuthSucceededRedirectTo :: Auth -> Maybe String
+onAuthSucceededRedirectTo = withWaspAuthConfig waspAuthOnAuthSucceededRedirectTo
+
+onBeforeSignup :: Auth -> Maybe ExtImport
+onBeforeSignup = withWaspAuthConfig waspAuthOnBeforeSignup
+
+onAfterSignup :: Auth -> Maybe ExtImport
+onAfterSignup = withWaspAuthConfig waspAuthOnAfterSignup
+
+onAfterEmailVerified :: Auth -> Maybe ExtImport
+onAfterEmailVerified = withWaspAuthConfig waspAuthOnAfterEmailVerified
+
+onBeforeOAuthRedirect :: Auth -> Maybe ExtImport
+onBeforeOAuthRedirect = withWaspAuthConfig waspAuthOnBeforeOAuthRedirect
+
+onBeforeLogin :: Auth -> Maybe ExtImport
+onBeforeLogin = withWaspAuthConfig waspAuthOnBeforeLogin
+
+onAfterLogin :: Auth -> Maybe ExtImport
+onAfterLogin = withWaspAuthConfig waspAuthOnAfterLogin
+
+externalProvider :: Auth -> Maybe ExternalAuthProviderSpec
+externalProvider auth = case provider auth of
+  WaspAuthProvider _ -> Nothing
+  ExternalAuthProvider extProvider -> Just extProvider
+
+isExternalAuthProviderUsed :: Auth -> Bool
+isExternalAuthProviderUsed = isJust . externalProvider
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
@@ -147,3 +357,6 @@ userSignupFieldsForUsernameAuth = (.userSignupFields)
 
 userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
 userSignupFieldsForExternalAuth = (.userSignupFields)
+
+userSignupFieldsForExternalAuthProvider :: ExternalAuthProviderSpec -> Maybe ExtImport
+userSignupFieldsForExternalAuthProvider = (.userSignupFields)
