@@ -7,11 +7,9 @@ module Wasp.Generator.ServerGenerator.Common
     mkSrcTmplFd,
     srcDirInServerTemplatesDir,
     asTmplFile,
-    asTmplSrcFile,
     asServerFile,
     asServerSrcFile,
     toESModulesImportPath,
-    mkUniversalTmplFdWithDst,
     mkTmplFdWithData,
     ServerRootDir,
     ServerSrcDir,
@@ -32,8 +30,6 @@ import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
     ServerRootDir,
-    UniversalTemplatesDir,
-    universalTemplatesDirInTemplatesDir,
   )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -50,9 +46,6 @@ instance GeneratedAppComponentSrcDir ServerSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
 asTmplFile = SP.castRel
-
-asTmplSrcFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesSrcDir) File'
-asTmplSrcFile = SP.castRel
 
 asServerFile :: Path' (Rel d) File' -> Path' (Rel ServerRootDir) File'
 asServerFile = SP.castRel
@@ -101,16 +94,6 @@ mkTmplFdWithDstAndData relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInGeneratedAppDir </> relDstPath)
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
-
-mkUniversalTmplFdWithDst ::
-  Path' (Rel UniversalTemplatesDir) File' ->
-  Path' (Rel ServerRootDir) File' ->
-  FileDraft
-mkUniversalTmplFdWithDst relSrcPath relDstPath =
-  createTemplateFileDraft
-    (serverRootDirInGeneratedAppDir </> relDstPath)
-    (universalTemplatesDirInTemplatesDir </> relSrcPath)
-    Nothing
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)

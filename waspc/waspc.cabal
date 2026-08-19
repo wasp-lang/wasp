@@ -431,7 +431,6 @@ library
     Wasp.Util.Docker
     Wasp.Util.FilePath
     Wasp.Util.GitRev
-    Wasp.Util.HashMap
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -590,14 +589,12 @@ test-suite waspc-tests
     base,
     containers,
     deepseq,
-    Diff ^>=0.4.1,
     filepath,
     hspec >=2.11,
     megaparsec,
     mtl,
     neat-interpolation,
     parsec,
-    path,
     split,
     strong-path,
     tasty ^>=1.5.3,
@@ -664,9 +661,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    Test.Util
     Util.Control.MonadTest
-    Util.Diff
     Util.DockerTest
     Util.FilePathTest
     Util.IO.RetryTest
