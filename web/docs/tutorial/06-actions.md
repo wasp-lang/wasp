@@ -240,7 +240,7 @@ You can now call `updateTask` from the React component:
 <TutorialAction id="main-page-update-task" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   // highlight-next-line
