@@ -10,7 +10,7 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr, stdout)
+import System.IO (hPutStrLn, stderr)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -180,7 +180,7 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = do
-  hPutStrLn stdout $ show waspVersion
+  print waspVersion
   hPutStrLn stderr $
     unlines
       [ "",
