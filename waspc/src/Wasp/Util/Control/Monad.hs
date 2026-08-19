@@ -6,7 +6,6 @@ module Wasp.Util.Control.Monad
 where
 
 import Control.Monad (foldM)
-import Data.List (foldl')
 import Data.List.NonEmpty (NonEmpty ((:|)))
 
 -- | Analogous to "Data.Foldable.foldMap'", except that its result is encapsulated in a
