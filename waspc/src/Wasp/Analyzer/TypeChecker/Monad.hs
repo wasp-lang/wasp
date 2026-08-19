@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Wasp.Analyzer.TypeChecker.Monad
   ( TypeChecker,
     lookupType,
@@ -45,7 +47,7 @@ run typeDefs = runWithBound bindings typeDefs
     enumValueBindings :: [(Identifier, Type)]
     enumValueBindings =
       concatMap
-        (\(TD.EnumType name variants) -> zip variants (repeat $ EnumType name))
+        (\(TD.EnumType name variants) -> map (,EnumType name) variants)
         $ TD.getEnumTypes typeDefs
 
     bindings :: Bindings
