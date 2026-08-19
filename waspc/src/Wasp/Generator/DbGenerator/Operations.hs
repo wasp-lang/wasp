@@ -37,6 +37,7 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, doesDirectoryExist))
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Job.IO
   ( collectJobTextOutputUntilExitReceived,
@@ -143,13 +144,15 @@ dbReset generatedAppDir resetArgs = do
     ExitFailure c -> Left $ "Failed with exit code " <> show c
 
 dbSeed ::
+  ServerRunConfig ->
   Path' Abs (Dir GeneratedAppDir) ->
   String ->
   IO (Either String ())
-dbSeed generatedAppDir seedName = do
+dbSeed serverRunConfig generatedAppDir seedName = do
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed generatedAppDir seedName chan
+    readJobMessagesAndPrintThemPrefixed chan
+      `concurrently` DbJobs.seed serverRunConfig generatedAppDir seedName chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
