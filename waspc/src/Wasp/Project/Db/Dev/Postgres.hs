@@ -34,7 +34,9 @@ makeDevPostgresDbSpec waspProjectDir appName port =
       dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName,
       dbName = makeDevDbName waspProjectDir appName,
       user = defaultDevUser,
-      password = defaultDevPass,
+      -- A unique password per project is necessary to prevent Wasp apps from creating databases
+      -- in each other's database servers.
+      password = makeDevDbPass waspProjectDir appName,
       port
     }
 
@@ -74,9 +76,6 @@ discoverProjectsRunningDevDb waspProjectDir appName = do
 defaultDevUser :: String
 defaultDevUser = "postgresWaspDevUser"
 
-defaultDevPass :: String
-defaultDevPass = "postgresWaspDevPass"
-
 -- | Returns a db name that is unique for this Wasp project.
 -- It depends on projects path and name, so if any of those change,
 -- the db name will also change.
@@ -87,6 +86,9 @@ makeDevDbName waspProjectDir appName =
   -- Wasp app has started. This way db name is unique for the specific Wasp app, and another Wasp app
   -- can't connect to it by accident.
   take postgresMaxDbNameLength $ makeAppUniqueId waspProjectDir appName
+
+makeDevDbPass :: Path' Abs (Dir WaspProjectDir) -> String -> String
+makeDevDbPass = makeAppUniqueId
 
 defaultPostgresPort :: PortNumber
 defaultPostgresPort = 5432
