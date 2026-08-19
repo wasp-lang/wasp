@@ -153,7 +153,7 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   | anyPageRequiresAuth && not (isAuthEnabled spec)
   ]
   where
-    anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
+    anyPageRequiresAuth = any ((== Just True) . Page.authRequired . snd) (AS.getPages spec)
 
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =

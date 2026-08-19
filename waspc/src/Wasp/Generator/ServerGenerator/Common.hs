@@ -89,7 +89,7 @@ mkTmplFdWithData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath dstPath tmplData
+mkTmplFdWithData relSrcPath = mkTmplFdWithDstAndData relSrcPath dstPath
   where
     dstPath = SP.castRel relSrcPath :: Path' (Rel ServerRootDir) File'
 
@@ -98,11 +98,10 @@ mkTmplFdWithDstAndData ::
   Path' (Rel ServerRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInGeneratedAppDir </> relDstPath)
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
 
 mkUniversalTmplFdWithDst ::
   Path' (Rel UniversalTemplatesDir) File' ->
