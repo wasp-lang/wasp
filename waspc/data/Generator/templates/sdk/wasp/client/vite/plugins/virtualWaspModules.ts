@@ -6,6 +6,7 @@ import {
   getSsrEntryTsxContent,
 } from "../virtual-files/index.js";
 import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
+import { ENVIRONMENT_NAMES } from "../../../vite/constants.js";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
   { id: "{= clientEntryPointPath =}", load: getClientEntryTsxContent },
@@ -19,6 +20,11 @@ export function virtualWaspModules(): Plugin {
   return {
     name: "wasp:virtual-wasp-modules",
     enforce: "pre",
+    // These virtual modules are the client app's entry points, so they only
+    // make sense in the environments that process client code.
+    applyToEnvironment: (environment) =>
+      environment.name === ENVIRONMENT_NAMES.CLIENT ||
+      environment.name === ENVIRONMENT_NAMES.SSR,
     configResolved(config) {
       virtualFiles = resolveVirtualFiles(config.root);
     },

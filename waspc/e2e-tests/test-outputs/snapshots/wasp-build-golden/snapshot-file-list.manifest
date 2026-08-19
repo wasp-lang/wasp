@@ -373,6 +373,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/universal/validators.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/universal/validators.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/universal/validators.js
 wasp-app/.wasp/out/sdk/wasp/dist/universal/validators.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/vite/constants.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/vite/constants.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/vite/constants.js
+wasp-app/.wasp/out/sdk/wasp/dist/vite/constants.js.map
 wasp-app/.wasp/out/sdk/wasp/entities/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/validation.ts
@@ -406,6 +410,7 @@ wasp-app/.wasp/out/sdk/wasp/universal/types.ts
 wasp-app/.wasp/out/sdk/wasp/universal/url.ts
 wasp-app/.wasp/out/sdk/wasp/universal/validators.ts
 wasp-app/.wasp/out/sdk/wasp/vite-env.d.ts
+wasp-app/.wasp/out/sdk/wasp/vite/constants.ts
 wasp-app/.wasp/out/sdk/wasp/wasp-ssr.d.ts
 wasp-app/.wasp/out/sdk/wasp/wasp-user-virtual-modules.d.ts
 wasp-app/.wasp/out/server/.gitignore

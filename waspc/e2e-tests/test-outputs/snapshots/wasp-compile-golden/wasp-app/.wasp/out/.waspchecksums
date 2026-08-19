@@ -291,42 +291,42 @@
             "file",
             "sdk/wasp/client/vite/plugins/detectServerImports.ts"
         ],
-        "93885302fbb1758384e990fb6a7eac52fa03459f4df66a2b59eb8ac7b3e5c14a"
+        "73e142deeace394aaf2239e14eb45c9a2cb67a17e6c1290deab9c7b4b734c15c"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/envFile.ts"
         ],
-        "0fafefac0b8c9ecfa0cac06f13e084ac8e1661d8fbead6e2d8b2bc7a08c9b035"
+        "f5433b4cf330b12609708e539d69c992960105f4e0caf9bae36685c687890dac"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "d039097bc563e8f51831f01b9f73549e7eda752d21480cf2cbe545520c0f8aea"
+        "7d27a76654606cd1e1b125946b0a2e916c4270259a325ec9af40d496ee68d37c"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "c172e926843b4ab12f96ebe79a70124d233d9d7fd948de0cdcd3388565402400"
+        "8f5634ff8d7559937a1a5d99bb27fe3e260b7aa664c4515c09f36a5cd6d6ad03"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
         ],
-        "1b3926387257ed4e1b45bd10fc6e490cead654d494376d61ee8af6ff4fd4e4ae"
+        "4aa28abce6cb2bc6384f0750fee0de60359d468d2c1539f33a93b95e9790c6c2"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/virtualWaspModules.ts"
         ],
-        "4aede5b77417f38713a8f8b72b119d8a060e1ef1984945ceca249119b528b38a"
+        "2f5980e12f84a48ebf78376fe685d3d82e3501243f31b257bd037d62673434db"
     ],
     [
         [
@@ -340,7 +340,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "a8e6a5cbffb010d02729e3cb4046de73ede1844b773417b8f394f60bdd9312cc"
+        "9bd6e13b2e2d586b82f41b7a36d341cdb88bd50f8e8605517ed0b92d713bdc26"
     ],
     [
         [
@@ -628,6 +628,13 @@
             "sdk/wasp/vite-env.d.ts"
         ],
         "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/vite/constants.ts"
+        ],
+        "f79b835ec058aa391780df0e9f4ea401b9de6793a7faeec7afe0f221d1119648"
     ],
     [
         [

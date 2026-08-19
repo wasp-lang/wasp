@@ -1,7 +1,8 @@
 {{={= =}=}}
 /// <reference types="vitest/config" />
-import { type PluginOption } from "vite";
+import { type EnvironmentOptions, type PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
+import { ENVIRONMENT_NAMES } from "../../../vite/constants.js";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -36,9 +37,6 @@ export function waspConfig(): PluginOption {
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
-        optimizeDeps: {
-          exclude: {=& depsExcludedFromOptimization =}
-        },
         server: {
           port: useUserValue(config.server?.port, {= defaultClientPort =}),
           host: useUserValue(config.server?.host, "0.0.0.0"),
@@ -48,15 +46,9 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         resolve: {
-          // These packages rely on a single instance per page. Not deduping them
-          // causes runtime errors (e.g., hook rule violation in react, QueryClient
-          // instance error in react-query, Invariant Error in react-router).
-          dedupe: [
-            "react",
-            "react-dom",
-            "@tanstack/react-query",
-            "react-router",
-          ],
+          // `resolve.alias` is not a per-environment option in Vite, it is
+          // always shared by all environments, so we must set it at the top
+          // level.
           alias: [
             {
               // Vite doesn't look for `.prisma/client` imports in the `node_modules`
@@ -72,6 +64,10 @@ export function waspConfig(): PluginOption {
             },
           ],
         },
+        environments: {
+          [ENVIRONMENT_NAMES.CLIENT]: makeClientCodeEnvironmentOptions(),
+          [ENVIRONMENT_NAMES.SSR]: makeClientCodeEnvironmentOptions(),
+        },
         test: {
           globals: useUserValue(config.test?.globals, true),
           environment: useUserValue(config.test?.environment, "jsdom"),
@@ -82,6 +78,34 @@ export function waspConfig(): PluginOption {
           ],
         },
       };
+    },
+  };
+}
+
+/**
+ * Options for the environments that process client code: `client` and `ssr`
+ * (which prerenders the client app). Keeping them here instead of at the top
+ * level of the config stops them from leaking into other environments (e.g. the
+ * server environment).
+ *
+ * We build a fresh object per environment because Vite merges (and sometimes
+ * mutates) each environment's options separately.
+ */
+function makeClientCodeEnvironmentOptions(): EnvironmentOptions {
+  return {
+    optimizeDeps: {
+      exclude: {=& depsExcludedFromOptimization =}
+    },
+    resolve: {
+      // These packages rely on a single instance per page. Not deduping them
+      // causes runtime errors (e.g., hook rule violation in react, QueryClient
+      // instance error in react-query, Invariant Error in react-router).
+      dedupe: [
+        "react",
+        "react-dom",
+        "@tanstack/react-query",
+        "react-router",
+      ],
     },
   };
 }
