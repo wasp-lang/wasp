@@ -8,9 +8,9 @@ import ShellCommands
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
+    skipIfDockerDisabled,
     waspCliDbMigrateDev,
     waspCliDbStart,
-    (~?),
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -48,9 +48,9 @@ waspDbStartTest =
       -- compete for the same host ports) are all in a single sequential test case.
       TestCase
         "succeed-postgresql-project"
-        ( sequence
-            [ skipIfDockerDisabled (createTestWaspProject minimalStarterTemplate),
-              skipIfDockerDisabled . inTestWaspProjectDir $
+        ( skipIfDockerDisabled . sequence $
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   -- Test 1: Does `wasp db start` work?
                   waspCliDbStartInBackground,
@@ -64,7 +64,9 @@ waspDbStartTest =
                     (return waspCliDbStartFails)
                     "already running on port",
                   -- Test 4:
-                  --   - Does SIGINT stop the database which deletes the container?
+                  --   - Does SIGINT stop the database and delete the container?
+                  --     If it didn't delete the container, the next `wasp db start` would fail
+                  --     with a container name conflict.
                   --   - Does `wasp db start` find a new port when the default one is taken?
                   stopWaspCliDbStartWithSigint,
                   occupyDefaultDevDbPort,
@@ -88,11 +90,6 @@ waspDbStartTest =
     waspCliDbMigrateDevFails :: ShellCommand
     waspCliDbMigrateDevFails = "! $WASP_CLI_CMD db migrate-dev"
 
-skipIfDockerDisabled :: ShellCommandBuilder context ShellCommand -> ShellCommandBuilder context ShellCommand
-skipIfDockerDisabled commandBuilder = do
-  command <- commandBuilder
-  return $ "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]" ~? command
-
 -- | `wasp db start` runs the database in the foreground, so we background it.
 -- We capture its output to test whether it correctly reports its readiness and volume name.
 waspCliDbStartInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -100,9 +97,22 @@ waspCliDbStartInBackground =
   return $
     "rm -f " ++ devDbOutputFile ++ " && { $WASP_CLI_CMD db start > " ++ devDbOutputFile ++ " 2>&1 & echo $! > db-start.pid ; }"
 
+-- | Stops the dev db the way Ctrl+C on `wasp db start` would - Postgres
+-- receives SIGINT and shuts down.
+--
+-- We send the signal directly the container instead of `wasp db start` because
+-- Wasp ignores SIGINT when it has a child process. Wasp expects the child to
+-- handle the signal and exits after the child exits.
+--
+-- In a terminal, Ctrl+C sends SIGINT to the entire process group, which means
+-- both Wasp and the container get it. Wasp ignores it, the container handles it
+-- and exists, which then causes Wasp to exit.
 stopWaspCliDbStartWithSigint :: ShellCommandBuilder WaspProjectContext ShellCommand
 stopWaspCliDbStartWithSigint =
-  return "{ pkill -INT -P \"$(cat db-start.pid)\" && wait \"$(cat db-start.pid)\" || true ; }"
+  return $
+    "{ docker kill --signal INT \"$(docker ps -q --filter volume="
+      ++ reportedDevDbVolumeName
+      ++ ")\" && wait \"$(cat db-start.pid)\" || true ; }"
 
 waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
 waitUntilDevDbReportsItIsReady =
@@ -124,7 +134,7 @@ occupyDefaultDevDbPort =
       ++ ":"
       ++ defaultPort
       ++ " alpine sleep 300"
-  where 
+  where
     defaultPort = show Dev.Postgres.defaultPostgresPort
 
 removeDefaultDevDbPortHolder :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -132,12 +142,13 @@ removeDefaultDevDbPortHolder = return $ "docker rm -f " ++ devDbPortHolderContai
 
 removeReportedDevDbVolume :: ShellCommandBuilder WaspProjectContext ShellCommand
 removeReportedDevDbVolume =
-  return $
-    "docker volume rm \"$(grep -o -m 1 '"
-      ++ Dev.Postgres.waspDevDbDockerVolumePrefix
-      ++ "[^ ]*' "
-      ++ devDbOutputFile
-      ++ ")\""
+  return $ "docker volume rm \"" ++ reportedDevDbVolumeName ++ "\""
+
+-- | Shell substitution that extracts the volume name `wasp db start` reported
+-- because it's the same place users learn it from.
+reportedDevDbVolumeName :: String
+reportedDevDbVolumeName =
+  "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ devDbOutputFile ++ ")"
 
 devDbPortHolderContainerName :: String
 devDbPortHolderContainerName = "wasp-e2e-tests-db-port-holder"
