@@ -23,6 +23,9 @@ const forcedOptions = {
   // `build`, so it's not persisted in the final output.
   "server.port": envVarAsNumber("PORT"),
   "server.strictPort": true,
+  // `vite preview` falls back to `server` for most options, but not for `port`
+  // (it has its own default), so we have to set it separately.
+  "preview.port": envVarAsNumber("PORT"),
 } as const;
 
 const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
@@ -48,6 +51,9 @@ export function waspConfig(): PluginOption {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
+        },
+        preview: {
+          port: forcedOptions["preview.port"],
         },
         envPrefix: forcedOptions["envPrefix"],
         build: {
