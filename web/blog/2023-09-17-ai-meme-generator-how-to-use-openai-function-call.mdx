@@ -620,7 +620,7 @@ export function HomePage() {
   const { data: user } = useAuth();
   const { data: memes, isLoading, error } = useQuery(getAllMemes); 
 
-  const handleGenerateMeme: FormEventHandler<HTMLFormElement> = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleGenerateMeme: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!user) {
       history.push('/login');
@@ -671,7 +671,7 @@ export function HomePage() {
   const { data: user } = useAuth();
   const { data: memes, isLoading, error } = useQuery(getAllMemes);
 
-  const handleGenerateMeme: FormEventHandler<HTMLFormElement> = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleGenerateMeme: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!user) {
       history.push('/login');
@@ -1104,7 +1104,7 @@ export function EditMemePage() {
     }
   }, [meme]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     try {
       setIsLoading(true);
