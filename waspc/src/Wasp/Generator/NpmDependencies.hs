@@ -10,6 +10,7 @@ module Wasp.Generator.NpmDependencies
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
     buildWaspServerNpmDeps,
+    getDependencyOverridesPackageJsonEntry,
     mergeWaspAndUserDeps,
   )
 where
@@ -97,6 +98,9 @@ getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devD
 
 getPeerDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getPeerDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "peerDependencies" . peerDependencies
+
+getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
+getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"
 
 dependenciesToPackageJsonEntryWithKey :: String -> [D.Dependency] -> String
 dependenciesToPackageJsonEntryWithKey key deps =

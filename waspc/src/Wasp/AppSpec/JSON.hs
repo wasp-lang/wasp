@@ -3,6 +3,7 @@
 module Wasp.AppSpec.JSON
   ( JSON (..),
     emptyObject,
+    nullValue,
   )
 where
 
@@ -26,3 +27,6 @@ instance Aeson.FromJSON JSON where
 
 emptyObject :: JSON
 emptyObject = JSON Aeson.Types.emptyObject
+
+nullValue :: JSON
+nullValue = JSON Aeson.Types.Null

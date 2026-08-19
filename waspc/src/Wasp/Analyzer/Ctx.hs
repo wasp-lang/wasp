@@ -4,7 +4,9 @@ module Wasp.Analyzer.Ctx
   ( WithCtx (..),
     withCtx,
     Ctx (..),
+    ctxFromPos,
     ctxFromRgn,
+    getCtxRgn,
     fromWithCtx,
   )
 where
@@ -24,8 +26,14 @@ data Ctx = Ctx
   }
   deriving (Show, Eq)
 
+ctxFromPos :: SourcePosition -> Ctx
+ctxFromPos pos = Ctx {ctxSourceRegion = SourceRegion pos pos}
+
 ctxFromRgn :: SourcePosition -> SourcePosition -> Ctx
 ctxFromRgn posStart posEnd = Ctx {ctxSourceRegion = SourceRegion posStart posEnd}
+
+getCtxRgn :: Ctx -> SourceRegion
+getCtxRgn = ctxSourceRegion
 
 fromWithCtx :: WithCtx a -> a
 fromWithCtx (WithCtx _ a) = a

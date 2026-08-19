@@ -19,6 +19,8 @@ data SdkTemplatesDir
 
 data ClientTemplatesDir
 
+data ServerTemplatesDir
+
 data ViteDir
 
 data VitePluginsDir
@@ -65,6 +67,9 @@ makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
+
+serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
+serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
 getGenericOperationDefinitionTypeName :: AS.Operation.Operation -> String
 getGenericOperationDefinitionTypeName = toUpperFirst . AS.Operation.getName

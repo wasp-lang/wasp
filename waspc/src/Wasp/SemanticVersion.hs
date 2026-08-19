@@ -12,7 +12,12 @@ import Wasp.SemanticVersion.Range
     backwardsCompatibleWith,
     doesVersionRangeAllowMajorChanges,
     eq,
+    gt,
+    gte,
+    hyphenRange,
     isVersionInRange,
+    lt,
+    lte,
     parseRange,
     r,
   )

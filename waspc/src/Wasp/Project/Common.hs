@@ -13,6 +13,7 @@ module Wasp.Project.Common
     generatedAppDirInDotWaspDir,
     waspProjectDirFromGeneratedAppDir,
     dotWaspRootFileInWaspProjectDir,
+    dotWaspInfoFileInGeneratedAppDir,
     userPackageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
@@ -99,6 +100,9 @@ waspProjectDirFromGeneratedAppDir = invertRelDir generatedAppDirInWaspProjectDir
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
+
+dotWaspInfoFileInGeneratedAppDir :: Path' (Rel G.Common.GeneratedAppDir) File'
+dotWaspInfoFileInGeneratedAppDir = [relfile|.waspinfo|]
 
 userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
 userPackageJsonInWaspProjectDir = [relfile|package.json|]
