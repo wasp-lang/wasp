@@ -6,6 +6,7 @@
     ".wasp/out/sdk/wasp"
   ],
   "dependencies": {
+    "@wasp.sh/auth-better-auth": "file:../packages/auth-better-auth",
     "better-auth": "1.6.25",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

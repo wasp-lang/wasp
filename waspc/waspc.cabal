@@ -731,6 +731,7 @@ test-suite waspc-e2e-tests
     Test
     TestLogging
     Tests.SdkPackageExportsTest
+    Tests.SnapshotTests.AuthProviderExternalSnapshotTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
