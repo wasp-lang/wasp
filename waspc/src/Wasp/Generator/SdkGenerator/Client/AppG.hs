@@ -81,8 +81,8 @@ genAuthPages spec =
     Nothing -> return []
     Just auth ->
       sequence $
-        [genCreateAuthRequiredPage auth]
-          ++ [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
+        genCreateAuthRequiredPage auth
+          : [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
