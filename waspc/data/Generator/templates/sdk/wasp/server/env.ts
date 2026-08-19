@@ -124,6 +124,14 @@ const waspCommonServerEnvSchema = z.object({
     error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
   }),
   {=/ enabledAuthProviders.isMicrosoftAuthEnabled =}
+  {=! Env vars the external auth provider's manifest declared. Rendering them
+      here means a missing var fails at boot with the manifest's own
+      explanation, not at the first authenticated request. =}
+  {=# externalAuthProviderServerEnvVars =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }){=# isOptional =}.optional(){=/ isOptional =},
+  {=/ externalAuthProviderServerEnvVars =}
   {=/ isAuthEnabled =}
 });
 
@@ -147,12 +155,12 @@ const clientUrlSchema =
     })
   )
 
-{=# isAuthEnabled =}
+{=# isWaspAuthUsed =}
 const jwtTokenSchema = z
   .string({
     error: '{= jwtSecretEnvVarName =} is required',
   })
-{=/ isAuthEnabled =}
+{=/ isWaspAuthUsed =}
 
 // In development, we provide default values for some environment variables
 // to make the development process easier.
@@ -162,19 +170,19 @@ const waspDevServerEnvSchema = z.object({
     .default("{= defaultServerUrl =}"),
   "{= clientUrlEnvVarName =}": clientUrlSchema
     .default("{= defaultClientUrl =}"),
-  {=# isAuthEnabled =}
+  {=# isWaspAuthUsed =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default("DEVJWTSECRET"),
-  {=/ isAuthEnabled =}
+  {=/ isWaspAuthUsed =}
 });
 
 const waspProdServerEnvSchema = z.object({
   NODE_ENV: z.literal("production"),
   "{= serverUrlEnvVarName =}": serverUrlSchema,
   "{= clientUrlEnvVarName =}": clientUrlSchema,
-  {=# isAuthEnabled =}
+  {=# isWaspAuthUsed =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema,
-  {=/ isAuthEnabled =}
+  {=/ isWaspAuthUsed =}
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [

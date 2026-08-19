@@ -12,6 +12,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -30,23 +31,37 @@ genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
   case maybeAuth of
     Nothing -> return []
-    Just auth ->
-      sequence
-        [ genFileCopy [relfile|server/core/auth.ts|],
-          genAuthIndex auth,
-          genHooks auth,
-          genFileCopyInServerAuth [relfile|password.ts|],
-          genFileCopyInServerAuth [relfile|jwt.ts|],
-          genFileCopyInServerAuth [relfile|provider/types.ts|],
-          genFileCopyInServerAuth [relfile|provider/wasp.ts|],
-          genAuthProviderIndexTs auth,
-          genSessionTs auth,
-          genLuciaTs auth,
-          genUtils auth
-        ]
-        <++> genAuthEmail auth
-        <++> genAuthUsername auth
-        <++> genOAuth auth
+    -- Under an external provider only the provider seam and the session read
+    -- path exist. Everything password-shaped -- lucia, hashing, jwt, Wasp's own
+    -- provider -- is not generated, so it cannot be imported and its
+    -- dependencies are not installed.
+    Just auth
+      | AS.Auth.isExternalAuthProviderUsed auth ->
+          sequence
+            [ genFileCopy [relfile|server/core/auth.ts|],
+              genAuthIndex auth,
+              genFileCopyInServerAuth [relfile|provider/types.ts|],
+              genAuthProviderIndexTs auth,
+              genSessionTs auth,
+              genUtils auth
+            ]
+      | otherwise ->
+          sequence
+            [ genFileCopy [relfile|server/core/auth.ts|],
+              genAuthIndex auth,
+              genHooks auth,
+              genFileCopyInServerAuth [relfile|password.ts|],
+              genFileCopyInServerAuth [relfile|jwt.ts|],
+              genFileCopyInServerAuth [relfile|provider/types.ts|],
+              genFileCopyInServerAuth [relfile|provider/wasp.ts|],
+              genAuthProviderIndexTs auth,
+              genSessionTs auth,
+              genLuciaTs auth,
+              genUtils auth
+            ]
+            <++> genAuthEmail auth
+            <++> genAuthUsername auth
+            <++> genOAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -60,7 +75,8 @@ genAuthIndex auth =
     tmplData =
       object
         [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
-          "isExternalAuthEnabled" .= isExternalAuthEnabled
+          "isExternalAuthEnabled" .= isExternalAuthEnabled,
+          "isCustomAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth
         ]
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
@@ -104,12 +120,18 @@ genAuthProviderIndexTs auth =
     tmplData =
       object
         [ "isCustomAuthProviderUsed" .= isJust maybeProviderModule,
-          "authProvider" .= extImportToImportJson maybeProviderModule
+          "authProvider" .= extImportToImportJson maybeProviderModule,
+          -- The manifest's compile-time claims, checked against the runtime
+          -- adapter object at boot so a wrong manifest fails loudly instead of
+          -- generating a surface the adapter cannot back.
+          "manifestProviderId" .= (AS.Auth.providerId <$> maybeExternalProvider),
+          "manifestCapabilities" .= (makeJsArrayFromHaskellList . AS.Auth.capabilities <$> maybeExternalProvider)
         ]
-    -- PR5 note: only src-module adapters ("customAuthProvider") are wired into
+    -- NOTE: only src-module adapters ("customAuthProvider") are wired into
     -- generated code so far; package entries decode into the AppSpec but the
     -- mapper still rejects them until the generator learns to import them.
-    maybeProviderModule = AS.Auth.serverModule =<< AS.Auth.externalProvider auth
+    maybeProviderModule = AS.Auth.serverModule =<< maybeExternalProvider
+    maybeExternalProvider = AS.Auth.externalProvider auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
@@ -128,7 +150,9 @@ genSessionTs auth =
           -- Just-in-time provisioning only exists for providers that don't own Wasp's
           -- auth entity. Emitting it unconditionally breaks apps whose user entity has
           -- required fields, because the provisioning insert supplies none of them.
-          "isCustomAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth
+          "isCustomAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth,
+          "externalUserSignupFields"
+            .= extImportToImportJson (AS.Auth.userSignupFieldsForExternalAuthProvider =<< AS.Auth.externalProvider auth)
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
@@ -151,7 +175,8 @@ genUtils auth =
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
+          "isCustomAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

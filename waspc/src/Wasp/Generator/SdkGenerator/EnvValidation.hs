@@ -5,13 +5,18 @@ module Wasp.Generator.SdkGenerator.EnvValidation
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (isJust)
+import qualified Data.Text.Lazy as TL
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
@@ -54,6 +59,9 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
+          "isWaspAuthUsed" .= AS.Valid.isWaspAuthUsed spec,
+          "externalAuthProviderServerEnvVars"
+            .= (externalProviderEnvVarsTmplData (.server) <$> AS.Valid.getExternalAuthProvider spec),
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
@@ -79,10 +87,43 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
+          "isExternalAuthProviderUsed" .= isJust maybeExternalProvider,
+          "externalAuthProviderClientEnvVars"
+            .= (externalProviderEnvVarsTmplData AS.Auth.client <$> maybeExternalProvider),
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
+    maybeExternalProvider = AS.Valid.getExternalAuthProvider spec
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
+
+-- | Env vars an external auth provider's manifest declared, rendered into the
+-- generated zod schemas so a missing var fails at boot with the manifest's own
+-- explanation.
+externalProviderEnvVarsTmplData ::
+  (AS.Auth.ExternalProviderEnvVars -> [AS.Auth.ExternalProviderEnvVar]) ->
+  AS.Auth.ExternalAuthProviderSpec ->
+  [Aeson.Value]
+externalProviderEnvVarsTmplData getVars extProvider =
+  toTmplData <$> getVars (AS.Auth.envVars extProvider)
+  where
+    toTmplData envVar =
+      object
+        [ "name" .= AS.Auth.name envVar,
+          "isOptional" .= (AS.Auth.optional envVar == Just True),
+          "errorJson" .= jsStringLiteral (errorMessage envVar)
+        ]
+
+    errorMessage envVar =
+      AS.Auth.name envVar
+        ++ " is required by the '"
+        ++ AS.Auth.providerId extProvider
+        ++ "' auth provider"
+        ++ maybe "." (": " ++) (AS.Auth.doc envVar)
+
+    -- Encoding the message as JSON yields a valid, correctly escaped JS string
+    -- literal, whatever characters the manifest's doc happens to contain.
+    jsStringLiteral :: String -> String
+    jsStringLiteral = TL.unpack . Aeson.Text.encodeToLazyText
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =
