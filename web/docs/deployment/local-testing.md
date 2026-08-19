@@ -71,7 +71,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](../project/env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](../project/env-vars.md).
 
-The only exception is the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it fills these out for you automatically. Setting them yourself makes `wasp build start` fail.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail.
 
 ### Which values should I use when testing?
 

@@ -39,7 +39,7 @@ You can provide production env vars to your server code in production by definin
 
 ::::caution Set the required env vars
 
-Make sure to go through [all the required server env vars](../project/env-vars.md#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL` etc. and set them up in your production environment.
+Make sure to go through [all the required server env vars](../project/env-vars.md#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, `PORT` etc. and set them up in your production environment.
 
 Even though you don't set these variables in development, they are **required in production** and must be explicitly set. If any of them are missing, your server will fail to start.
 

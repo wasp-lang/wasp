@@ -10,11 +10,11 @@ import InstallInstructions from './\_install-instructions.md'
 
 ## What's new in 0.26?
 
-### Wasp now manages your app's dev URLs
+### Wasp now manages your app's dev ports and URLs
 
-`wasp start` now derives your app's dev URLs from the ports the client and the server run on, and tells both sides about them.
+`wasp start` now decides which ports the client and the server run on (`3000` and `3001` by default), and derives the app's dev URLs from them.
 
-In development, setting the URLs manually in the env vars now fails.
+In development, setting the ports or URLs manually in the env vars or the Vite config now fails. In production, the `PORT` variable is now required.
 
 ## How to migrate?
 
@@ -80,18 +80,43 @@ In `tsconfig.src.json`, update the `include` field:
   </TabItem>
 </Tabs>
 
-### 3. Stop setting the dev URLs yourself
+### 3. Stop setting the dev ports and URLs yourself
 
-Wasp now derives your app's dev URLs from the ports it runs on, so it fails if you also set them.
+Wasp now picks the ports your app runs on in development and derives its URLs from them, so it fails if you also set them.
 
-Remove `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting them manually:
+If your `vite.config.ts` sets `server.port` or `server.strictPort`, remove it:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="vite.config.ts"
+    export default defineConfig({
+      // highlight-start
+      server: {
+        port: 4000,
+      },
+      // highlight-end
+      plugins: [wasp()],
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="vite.config.ts"
+    export default defineConfig({
+      plugins: [wasp()],
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+You should also remove `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting those manually:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```env title=".env.server"
     # highlight-start
-    WASP_SERVER_URL=http://localhost:3001
-    WASP_WEB_CLIENT_URL=http://localhost:3000
+    PORT=4001
+    WASP_SERVER_URL=http://localhost:4001
+    WASP_WEB_CLIENT_URL=http://localhost:4000
     # highlight-end
     JWT_SECRET=my-secret
     ```
@@ -109,7 +134,7 @@ And `REACT_APP_API_URL` from your `.env.client` if present:
   <TabItem value="before" label="Before">
     ```env title=".env.client"
     # highlight-next-line
-    REACT_APP_API_URL=http://localhost:3001
+    REACT_APP_API_URL=http://localhost:4001
     REACT_APP_NAME=My App
     ```
   </TabItem>
@@ -120,14 +145,26 @@ And `REACT_APP_API_URL` from your `.env.client` if present:
   </TabItem>
 </Tabs>
 
-Wasp fills in the URLs for you, so you no longer have to keep them in sync by hand.
+Wasp fills in the ports and URLs for you, so you no longer have to keep them in sync by hand.
 
 :::info
 
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
 :::
 
-### 4. Update your custom Dockerfile
+### 4. Set `PORT` in deployment
+
+**If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
+
+`PORT` used to fall back to `3001` when you didn't set it. It no longer has a default, so the server refuses to start without it.
+
+Most deployment platforms set `PORT` for you, but it's worth it to check it in their documentation or your deployment configuration.
+
+```env title="Server env vars"
+PORT=3001
+```
+
+### 5. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](./deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
 you'll have to add a one new additional line to it:
@@ -164,6 +201,6 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 5. Enjoy your updated Wasp app
+### 6. Enjoy your updated Wasp app
 
 That's it!

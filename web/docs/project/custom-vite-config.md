@@ -46,7 +46,7 @@ Here's the minimal required configuration:
 The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
 :::
 
-## Enforced Options
+## Enforced Options {#enforced-options}
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
@@ -55,6 +55,8 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
 | `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
+| `server.port` | `3000` | Wasp needs to manage the port so it can tell the server and client where to find each other. |
+| `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
 
 ## Customization
 
@@ -107,7 +109,8 @@ export default defineConfig({
 
 ### Custom Dev Server Port
 
-Wasp derives your app's dev URLs from the client (`3000`) and server (`3001`) ports, so don't change them: your app would keep pointing at the old URLs, and you can no longer correct them by setting `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL` yourself.
+`wasp start` automatically chooses a port for the client dev server (`3000`).
+
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 

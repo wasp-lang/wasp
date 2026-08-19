@@ -10105,13 +10105,13 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-| Name                  | Type                           | Notes                                                                                                                                                                                                            |
-| --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Stringrequired                 | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                     |
-| `WASP_WEB_CLIENT_URL` | URLrequired                    | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production.                                               |
-| `WASP_SERVER_URL`     | URLrequired                    | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. |
-| `JWT_SECRET`          | Stringrequired                 | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                          |
-| `PORT`                | IntegeroptionalDefault: `3001` | This is where the server listens for requests.                                                                                                                                                                   |
+| Name                  | Type            | Notes                                                                                                                                                                                                            |
+| --------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                     |
+| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production.                                               |
+| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. |
+| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                          |
+| `PORT`                | Integerrequired | This is where the server listens for requests. This is set by Wasp in development, but required in production.                                                                                                   |
 
 ##### SMTP Email Sender
 
@@ -10805,11 +10805,13 @@ The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any oth
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
-| Option         | Internal value                                                                                    | Why you can't customize it                                           |
-| -------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `base`         | Based on the [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) option | Wasp sets the React Router's `basename` to the same value.           |
-| `envPrefix`    | `"REACT_APP_"`                                                                                    | Wasp's environment variable validation depends on this prefix.       |
-| `build.outDir` | `".wasp/out/web-app/build"`                                                                       | Build artifacts must go to the location Wasp expects for deployment. |
+| Option              | Internal value                                                                                    | Why you can't customize it                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `base`              | Based on the [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) option | Wasp sets the React Router's `basename` to the same value.                                                                                 |
+| `envPrefix`         | `"REACT_APP_"`                                                                                    | Wasp's environment variable validation depends on this prefix.                                                                             |
+| `build.outDir`      | `".wasp/out/web-app/build"`                                                                       | Build artifacts must go to the location Wasp expects for deployment.                                                                       |
+| `server.port`       | `3000`                                                                                            | Wasp needs to manage the port so it can tell the server and client where to find each other.                                               |
+| `server.strictPort` | `true`                                                                                            | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
 
 ### Customization
 
@@ -10862,7 +10864,7 @@ export default defineConfig({
 
 #### Custom Dev Server Port
 
-Wasp derives your app's dev URLs from the client (`3000`) and server (`3001`) ports, so don't change them: your app would keep pointing at the old URLs, and you can no longer correct them by setting `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL` yourself.
+`wasp start` automatically chooses a port for the client dev server (`3000`).
 
 #### Editing from the Chrome DevTools {#devtools-workspace}
 
@@ -11004,7 +11006,7 @@ When building your Wasp app for production `.env.server` will be ignored, since 
 You can provide production env vars to your server code in production by defining them and making them available on the server where your server code is running.
 
 :::caution[Set the required env vars]
-Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL` etc. and set them up in your production environment.
+Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, `PORT` etc. and set them up in your production environment.
 
 Even though you don't set these variables in development, they are **required in production** and must be explicitly set. If any of them are missing, your server will fail to start.
 
@@ -11168,7 +11170,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](https://wasp.sh/docs/project/env-vars#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](https://wasp.sh/docs/project/env-vars).
 
-The only exception is the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it fills these out for you automatically. Setting them yourself makes `wasp build start` fail.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail.
 
 #### Which values should I use when testing?
 
@@ -15340,11 +15342,11 @@ npm i -g @wasp.sh/wasp-cli@0.26
 
 ### What's new in 0.26?
 
-#### Wasp now manages your app's dev URLs
+#### Wasp now manages your app's dev ports and URLs
 
-`wasp start` now derives your app's dev URLs from the ports the client and the server run on, and tells both sides about them.
+`wasp start` now decides which ports the client and the server run on (`3000` and `3001` by default), and derives the app's dev URLs from them.
 
-In development, setting the URLs manually in the env vars now fails.
+In development, setting the ports or URLs manually in the env vars or the Vite config now fails. In production, the `PORT` variable is now required.
 
 ### How to migrate?
 
@@ -15404,17 +15406,39 @@ In `tsconfig.src.json`, update the `include` field:
 }
 ```
 
-#### 3. Stop setting the dev URLs yourself
+#### 3. Stop setting the dev ports and URLs yourself
 
-Wasp now derives your app's dev URLs from the ports it runs on, so it fails if you also set them.
+Wasp now picks the ports your app runs on in development and derives its URLs from them, so it fails if you also set them.
 
-Remove `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting them manually:
+If your `vite.config.ts` sets `server.port` or `server.strictPort`, remove it:
+
+**Before**
+
+```ts title="vite.config.ts"
+export default defineConfig({
+  server: {
+    port: 4000,
+  },
+  plugins: [wasp()],
+});
+```
+
+**After**
+
+```ts title="vite.config.ts"
+export default defineConfig({
+  plugins: [wasp()],
+});
+```
+
+You should also remove `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting those manually:
 
 **Before**
 
 ```env title=".env.server"
-WASP_SERVER_URL=http://localhost:3001
-WASP_WEB_CLIENT_URL=http://localhost:3000
+PORT=4001
+WASP_SERVER_URL=http://localhost:4001
+WASP_WEB_CLIENT_URL=http://localhost:4000
 JWT_SECRET=my-secret
 ```
 
@@ -15429,7 +15453,7 @@ And `REACT_APP_API_URL` from your `.env.client` if present:
 **Before**
 
 ```env title=".env.client"
-REACT_APP_API_URL=http://localhost:3001
+REACT_APP_API_URL=http://localhost:4001
 REACT_APP_NAME=My App
 ```
 
@@ -15439,13 +15463,25 @@ REACT_APP_NAME=My App
 REACT_APP_NAME=My App
 ```
 
-Wasp fills in the URLs for you, so you no longer have to keep them in sync by hand.
+Wasp fills in the ports and URLs for you, so you no longer have to keep them in sync by hand.
 
 :::info
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
 :::
 
-#### 4. Update your custom Dockerfile
+#### 4. Set `PORT` in deployment
+
+**If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
+
+`PORT` used to fall back to `3001` when you didn't set it. It no longer has a default, so the server refuses to start without it.
+
+Most deployment platforms set `PORT` for you, but it's worth it to check it in their documentation or your deployment configuration.
+
+```env title="Server env vars"
+PORT=3001
+```
+
+#### 5. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
@@ -15478,7 +15514,7 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size` |
 | `--volume-size`          | `--db-volume-size`          |
 
-#### 5. Enjoy your updated Wasp app
+#### 6. Enjoy your updated Wasp app
 
 That's it!
 
