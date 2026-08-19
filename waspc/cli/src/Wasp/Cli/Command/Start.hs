@@ -51,19 +51,19 @@ start = withProjectLock $ do
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
     -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
-    -- into the 'onJobsQuietDown' handler used by 'startWebApp'.
+    -- into the 'onJobsQuietDown' handler used by 'startGeneratedApp'.
     -- This way we can show newest Wasp compile warnings and errors (produced by recompilation from
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    let startGeneratedApp = Wasp.Generator.start waspProjectDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated app is re-generated).
-    -- 2. start web app in dev mode, which will then also watch for changes but in the generated
-    --    code, and will also react to them by restarting the web app.
+    -- 2. start the app in dev mode, which will then also watch for changes but in the generated
+    --    code, and will also react to them by restarting the parts of the app that changed.
     -- Both of these should run forever, unless some super serious error happens.
-    watchWaspProjectSource `race` startGeneratedWebApp
+    watchWaspProjectSource `race` startGeneratedApp
 
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
@@ -73,9 +73,9 @@ start = withProjectLock $ do
   where
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
     onJobsQuietDown ongoingCompilationResultMVar = do
-      -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
+      -- Once jobs from the generated app quiet down a bit, we print any warnings / errors from the
       -- latest (re)compile that haven't yet been printed in this situation.
-      -- This way we ensure that even if web app jobs print a lot of output, users
+      -- This way we ensure that even if the app's jobs print a lot of output, users
       -- won't miss wasp compiler warnings and errors, since they will be again printed after all
       -- of that output.
       maybeOngoingCompilationResult <- tryTakeMVar ongoingCompilationResultMVar

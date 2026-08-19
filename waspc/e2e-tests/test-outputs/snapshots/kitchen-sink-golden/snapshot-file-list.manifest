@@ -808,6 +808,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/detectClientImports.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/devRunner.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/devRunner.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/devRunner.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/devRunner.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/envFile.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/virtualUserModules.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/virtualUserModules.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/vite/plugins/virtualUserModules.js
@@ -917,6 +925,8 @@ wasp-app/.wasp/out/sdk/wasp/server/types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/detectClientImports.ts
+wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/devRunner.ts
+wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/envFile.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/virtualUserModules.ts
 wasp-app/.wasp/out/sdk/wasp/server/vite/plugins/waspServerConfig.ts
 wasp-app/.wasp/out/sdk/wasp/server/webSocket/index.ts
