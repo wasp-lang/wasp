@@ -37,6 +37,7 @@ runs:
     - name: Install Mise
       uses: jdx/mise-action@v4
       with:
+        version: 2026.8.8
         bootstrap: true
         bootstrap_args: --update --yes
 
