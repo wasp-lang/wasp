@@ -11,12 +11,14 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import qualified Wasp.Project.Deployment
+import Wasp.Cli.Command.Compile (analyze)
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
+  _appSpec <- analyze waspProjectDir
   deployResult <- liftIO $ do
     -- `getExecutablePath` has some caveats:
     --   https://frasertweedale.github.io/blog-fp/posts/2022-05-10-improved-executable-path-queries.html

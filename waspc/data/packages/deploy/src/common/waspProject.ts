@@ -15,11 +15,6 @@ export async function assertValidWaspProject(
     nothrow: true,
   });
   if (result.exitCode !== 0) {
-    const versionMismatchError = "Your Wasp version does not match the app's requirements.";
-    const output = result.stderr + result.stdout;
-    if (output.includes(versionMismatchError)) {
-      throw new Error(output);
-    }
     throw new Error(
       [
         "The supplied Wasp directory does not appear to be a valid Wasp project.",
