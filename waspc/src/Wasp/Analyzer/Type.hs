@@ -1,7 +1,6 @@
 module Wasp.Analyzer.Type
   ( Type (..),
     DictEntryType (..),
-    dictEntryRequired,
   )
 where
 
@@ -51,9 +50,3 @@ data DictEntryType
   = DictRequired {dictEntryType :: Type}
   | DictOptional {dictEntryType :: Type}
   deriving (Eq, Show)
-
--- | Determines whether the entry must be present in an instance of its parent
---   `Dict` type.
-dictEntryRequired :: DictEntryType -> Bool
-dictEntryRequired DictRequired {} = True
-dictEntryRequired DictOptional {} = False

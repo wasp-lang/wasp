@@ -4,7 +4,6 @@ module FileSystem
     getWaspcDirPath,
     waspCliDevToolInWaspcDir,
     SeedsDir,
-    SeedsFile,
     seedsDirInWaspProjectDir,
     seedsFileInSeedsDir,
     TestOutputsDir,
@@ -21,7 +20,6 @@ module FileSystem
     SnapshotFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
-    snapshotDirInGitRootDir,
     snapshotLogFileInSnapshotsDir,
     gitRootFromSnapshotDir,
     snapshotFileListManifestFileInSnapshotDir,
@@ -52,9 +50,6 @@ getWaspcDirPath = do
 waspCliDevToolInWaspcDir :: Path' (Rel WaspcDir) File'
 waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev|]
 
-waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
-waspcDirInGitRootDir = [reldir|waspc|]
-
 -- | The directory where all test outputs are created.
 data TestOutputsDir
 
@@ -67,8 +62,6 @@ testsOutputsDirInWaspcDir = [reldir|e2e-tests/test-outputs|]
 -- WaspProject file system
 
 data SeedsDir
-
-data SeedsFile
 
 seedsDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SeedsDir)
 seedsDirInWaspProjectDir = [reldir|src/db|]
@@ -136,16 +129,8 @@ snapshotLogFileInSnapshotsDir snapshotTestName = fromJust . parseRelFile $ snaps
 snapshotFileListManifestFileInSnapshotDir :: Path' (Rel SnapshotDir) (File SnapshotFileListManifestFile)
 snapshotFileListManifestFileInSnapshotDir = [relfile|snapshot-file-list.manifest|]
 
--- | Inverse of 'gitRootFromSnapshotDir'.
--- NOTE: If you change this function, change the other one too.
-snapshotDirInGitRootDir :: String -> SnapshotType -> Path' (Rel GitRootDir) (Dir SnapshotDir)
-snapshotDirInGitRootDir snapshotTestName snapshotType =
-  waspcDirInGitRootDir
-    </> testsOutputsDirInWaspcDir
-    </> snapshotsDirInE2eTests
-    </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
-
--- | Inverse of 'snapshotDirInGitRootDir'.
--- NOTE: If you change this function, change the other one too.
+-- | A snapshot dir lives at @waspc\/e2e-tests\/test-outputs\/snapshots\/\<name>-\<type>\/@
+-- relative to the git root, which is five path segments deep.
+-- NOTE: If any of those segments change, update this path too.
 gitRootFromSnapshotDir :: Path' (Rel SnapshotDir) (Dir GitRootDir)
 gitRootFromSnapshotDir = [reldir|../../../../../|]

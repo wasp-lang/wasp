@@ -11,7 +11,6 @@ module Wasp.JsImport
     makeTypeJsImport,
     makeValueJsImport,
     applyJsImportAlias,
-    getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
     getJsImportPathStringFromPath,
@@ -71,11 +70,6 @@ type JsImportClause = String
 
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
-
-getJsImportIdentifier :: JsImport -> JsImportIdentifier
-getJsImportIdentifier JsImport {_name = name} = case name of
-  JsImportModule identifier -> identifier
-  JsImportField identifier -> identifier
 
 makeTypeJsImport :: JsImportPath -> JsImportName -> JsImport
 makeTypeJsImport importPath importName =

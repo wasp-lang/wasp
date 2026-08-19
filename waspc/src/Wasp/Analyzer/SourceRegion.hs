@@ -1,7 +1,5 @@
 module Wasp.Analyzer.SourceRegion
   ( SourceRegion (..),
-    getRgnStart,
-    getRgnEnd,
   )
 where
 
@@ -20,9 +18,3 @@ instance Show SourceRegion where
     | startPos == endPos = show startPos
     | startLine == endLine = show startPos ++ "-" ++ show endCol
     | otherwise = show startPos ++ "-" ++ show endPos
-
-getRgnStart :: SourceRegion -> SourcePosition
-getRgnStart (SourceRegion start _) = start
-
-getRgnEnd :: SourceRegion -> SourcePosition
-getRgnEnd (SourceRegion _ end) = end

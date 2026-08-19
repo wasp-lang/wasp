@@ -14,11 +14,8 @@ module Wasp.Util.IO
     copyFile,
     removeDirectory,
     copyDirectory,
-    tryReadFile,
-    isDirectoryEmpty,
     writeFileFromText,
     readFileBytes,
-    writeFileBytes,
   )
 where
 
@@ -28,7 +25,6 @@ import qualified Data.ByteString.Lazy as B
 import Data.List (sort)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
-import qualified Data.Text.IO as Text.IO
 import qualified Path.IO as PathIO
 import StrongPath
   ( Abs,
@@ -129,9 +125,6 @@ readFileBytes = B.readFile . SP.fromAbsFile
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile
 
-writeFileBytes :: Path' Abs (File f) -> B.ByteString -> IO ()
-writeFileBytes = B.writeFile . SP.fromAbsFile
-
 writeFileFromText :: Path' Abs (File f) -> Text -> IO ()
 writeFileFromText = T.IO.writeFile . SP.fromAbsFile
 
@@ -146,17 +139,3 @@ removeDirectory = SD.removeDirectoryRecursive . SP.fromAbsDir
 
 copyDirectory :: Path' Abs (Dir d1) -> Path' Abs (Dir d2) -> IO ()
 copyDirectory src dst = PathIO.copyDirRecur (SP.Path.toPathAbsDir src) (SP.Path.toPathAbsDir dst)
-
-tryReadFile :: FilePath -> IO (Maybe Text)
-tryReadFile fp =
-  (Just <$> Text.IO.readFile fp)
-    `catch` ( \e ->
-                if isDoesNotExistError e
-                  then return Nothing
-                  else throwIO e
-            )
-
-isDirectoryEmpty :: Path' Abs (Dir d) -> IO Bool
-isDirectoryEmpty dirPath = do
-  (files, dirs) <- listDirectory dirPath
-  return $ null files && null dirs

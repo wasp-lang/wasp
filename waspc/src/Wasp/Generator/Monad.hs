@@ -4,7 +4,6 @@ module Wasp.Generator.Monad
   ( Generator,
     GeneratorError (..),
     GeneratorWarning (..),
-    catchGeneratorError,
     logAndThrowGeneratorError,
     logGeneratorWarning,
     runGenerator,
@@ -12,7 +11,6 @@ module Wasp.Generator.Monad
 where
 
 import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
-import qualified Control.Monad.Except as MonadExcept
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.State (MonadState, State, modify, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
@@ -82,9 +80,3 @@ logAndThrowGeneratorError e = logGeneratorError >> throwError e
     logGeneratorError :: Generator ()
     logGeneratorError = modify $ \GeneratorState {errors = errors', warnings = warnings'} ->
       GeneratorState {errors = e : errors', warnings = warnings'}
-
--- This stops the short-circuiting from above, if ever desired, but cannot be used for full recovery.
--- Once one error is logged and thrown the result will be error. This function exists to log
--- more errors on the way up.
-catchGeneratorError :: Generator a -> (GeneratorError -> Generator a) -> Generator a
-catchGeneratorError = MonadExcept.catchError

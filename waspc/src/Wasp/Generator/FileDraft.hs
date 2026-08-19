@@ -3,7 +3,6 @@ module Wasp.Generator.FileDraft
     Writeable (..),
     createTemplateFileDraft,
     createCopyFileDraft,
-    createCopyFileDraftIfExists,
     createTextFileDraft,
     createCopyDirFileDraft,
     createCopyAndModifyTextFileDraft,
@@ -95,15 +94,6 @@ createCopyAndModifyTextFileDraft dstPath srcPath modify =
         CMTextFD._srcPath = SP.castFile srcPath,
         CMTextFD._modify = modify,
         CMTextFD._failIfSrcDoesNotExist = True
-      }
-
-createCopyFileDraftIfExists :: Path' (Rel GeneratedAppDir) (File a) -> Path' Abs (File b) -> FileDraft
-createCopyFileDraftIfExists dstPath srcPath =
-  FileDraftCopyFd $
-    CopyFD.CopyFileDraft
-      { CopyFD._dstPath = SP.castFile dstPath,
-        CopyFD._srcPath = SP.castFile srcPath,
-        CopyFD._failIfSrcDoesNotExist = False
       }
 
 createCopyDirFileDraft ::

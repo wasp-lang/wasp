@@ -34,12 +34,6 @@ extImportToAliasedImportJson importAlias pathFromImportLocationToSrcDir maybeExt
     jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
     aliasedJsImport = JI.applyJsImportAlias (Just importAlias) <$> jsImport
 
-getJsImportStmtAndIdentifier ::
-  Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
-  EI.ExtImport ->
-  (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
-
 getAliasedJsImportStmtAndIdentifier ::
   JsImportAlias ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->

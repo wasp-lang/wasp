@@ -4,16 +4,11 @@ module Wasp.SemanticVersion.Range
   ( Range (..),
     isVersionInRange,
     doesVersionRangeAllowMajorChanges,
-    lt,
-    lte,
-    gt,
-    gte,
     eq,
     caretRange,
     tildeRange,
     backwardsCompatibleWith,
     approximatelyEquivalentTo,
-    hyphenRange,
     r,
     parseRange,
     rangeParser,
@@ -86,21 +81,6 @@ tildeRange = Range . pure . SimpleRangeExpressionSet . pure . TildeRangeExpressi
 
 approximatelyEquivalentTo :: Version -> Range
 approximatelyEquivalentTo = tildeRange
-
-hyphenRange :: Version -> Version -> Range
-hyphenRange v1 v2 = Range $ pure $ HyphenRangeExpression (versionToPartialVersion v1) (versionToPartialVersion v2)
-
-lt :: Version -> Range
-lt = mkPrimitiveRange LessThan
-
-lte :: Version -> Range
-lte = mkPrimitiveRange LessThanOrEqual
-
-gt :: Version -> Range
-gt = mkPrimitiveRange GreaterThan
-
-gte :: Version -> Range
-gte = mkPrimitiveRange GreaterThanOrEqual
 
 eq :: Version -> Range
 eq = mkPrimitiveRange Equal

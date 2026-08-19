@@ -5,10 +5,8 @@
 module Wasp.Analyzer.TypeDefinitions
   ( TypeDefinitions,
     empty,
-    getDeclTypes,
     getEnumTypes,
     getDeclType,
-    getEnumType,
     addDeclType,
     addEnumType,
     DeclType (..),
@@ -26,17 +24,11 @@ import Wasp.Analyzer.TypeDefinitions.Internal
 empty :: TypeDefinitions
 empty = TypeDefinitions {declTypes = M.empty, enumTypes = M.empty}
 
-getDeclTypes :: TypeDefinitions -> [DeclType]
-getDeclTypes = M.elems . declTypes
-
 getEnumTypes :: TypeDefinitions -> [EnumType]
 getEnumTypes = M.elems . enumTypes
 
 getDeclType :: String -> TypeDefinitions -> Maybe DeclType
 getDeclType name (TypeDefinitions dts _) = M.lookup name dts
-
-getEnumType :: String -> TypeDefinitions -> Maybe EnumType
-getEnumType name (TypeDefinitions _ ets) = M.lookup name ets
 
 -- | Add a declaration type to type definitions. Requires the type to be in the form
 --   of a Wasp decl. See "IsDecl" for requirements.

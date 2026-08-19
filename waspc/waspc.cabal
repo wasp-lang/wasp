@@ -147,7 +147,6 @@ library
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
-    pretty-simple ^>=4.1.3,
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
     split ^>=0.2.5,
@@ -426,12 +425,10 @@ library
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
-    Wasp.Util.Debug
     Wasp.Util.Docker
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.GitRev
-    Wasp.Util.HashMap
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -582,14 +579,12 @@ test-suite waspc-tests
     base,
     containers,
     deepseq,
-    Diff ^>=0.4.1,
     filepath,
     hspec >=2.11,
     megaparsec,
     mtl,
     neat-interpolation,
     parsec,
-    path,
     split,
     strong-path,
     tasty ^>=1.5.3,
@@ -656,9 +651,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    Test.Util
     Util.Control.MonadTest
-    Util.Diff
     Util.DockerTest
     Util.FibTest
     Util.FilePathTest

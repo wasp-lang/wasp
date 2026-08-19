@@ -4,14 +4,12 @@ module Wasp.Util
   ( Checksum,
     camelToKebabCase,
     checksumFromString,
-    getEnvVarDefinition,
     checksumFromText,
     checksumFromByteString,
     onFirst,
     isCapitalized,
     toLowerFirst,
     toUpperFirst,
-    headSafe,
     second3,
     jsonSet,
     indent,
@@ -31,16 +29,10 @@ module Wasp.Util
     checksumFromFilePath,
     checksumFromChecksums,
     ifM,
-    unlessM,
     fromMaybeM,
-    orIfNothing,
     orIfNothingM,
     kebabToCamelCase,
-    orElse,
     whenM,
-    naiveTrimJSON,
-    textToLazyBS,
-    secondsToMicroSeconds,
     findDuplicateElems,
     isOlderThanNHours,
     checkIfOnCi,
@@ -49,25 +41,20 @@ module Wasp.Util
   )
 where
 
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import Data.List (group, intercalate, sort, transpose)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Map (Map)
 import qualified Data.Map.Merge.Lazy as Map.Merge
-import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import qualified Data.Text as T
 import qualified Data.Text.Encoding as TextEncoding
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TLE
 import qualified Data.Time as T
 import Numeric.Natural (Natural)
 import StrongPath (File, Path')
@@ -108,10 +95,6 @@ toLowerFirst = onFirst toLower
 
 toUpperFirst :: String -> String
 toUpperFirst = onFirst toUpper
-
-headSafe :: [a] -> Maybe a
-headSafe [] = Nothing
-headSafe xs = Just (head xs)
 
 second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)
@@ -251,9 +234,6 @@ ifM p x y = p >>= \b -> if b then x else y
 whenM :: (Monad m) => m Bool -> m () -> m ()
 whenM ma mb = ma >>= (`when` mb)
 
-unlessM :: (Monad m) => m Bool -> m () -> m ()
-unlessM ma mb = ma >>= (`unless` mb)
-
 type Checksum = Hex
 
 checksumFromString :: String -> Checksum
@@ -286,31 +266,8 @@ hexToString (Hex s) = s
 fromMaybeM :: (Monad m) => m a -> m (Maybe a) -> m a
 fromMaybeM ma = (>>= maybe ma return)
 
-orIfNothing :: Maybe a -> a -> a
-orIfNothing = flip fromMaybe
-
 orIfNothingM :: (Monad m) => m (Maybe a) -> m a -> m a
 orIfNothingM = flip fromMaybeM
-
-orElse :: Maybe a -> a -> a
-orElse = flip fromMaybe
-
-getEnvVarDefinition :: (String, String) -> String
-getEnvVarDefinition (name, value) = concat [name, "=", value]
-
--- | Given a text containing a single instance of JSON and some text around it but no { or }, trim
--- it until just JSON is left.
--- Examples
---   naiveTrimJson "some text { \"a\": 5 } yay" == "{\"a\": 5 }"
---   naiveTrimJson "some {text} { \"a\": 5 }" -> won't work correctly.
-naiveTrimJSON :: Text -> Text
-naiveTrimJSON = T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{')
-
-textToLazyBS :: Text -> BSL.ByteString
-textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
-
-secondsToMicroSeconds :: Int -> Int
-secondsToMicroSeconds = (* 1000000)
 
 findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort

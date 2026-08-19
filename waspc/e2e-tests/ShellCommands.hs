@@ -8,7 +8,6 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
-    (~||),
     writeToFile,
     appendToFile,
     replaceLineInFile,
@@ -95,12 +94,6 @@ infixl 7 ~|
 cmd1 ~&& cmd2 = cmd1 ++ " && " ++ cmd2
 
 infixl 6 ~&&
-
--- | Execute the second command only if the first command fails.
-(~||) :: ShellCommand -> ShellCommand -> ShellCommand
-cmd1 ~|| cmd2 = cmd1 ++ " || " ++ cmd2
-
-infixl 6 ~||
 
 -- | Execute the second command only if the first command succeeds.
 -- The command chain will continue regardless of whether the second command runs.

@@ -4,7 +4,6 @@ module Wasp.Generator.AuthProviders.OAuth
     serverOAuthCallbackHandlerPath,
     serverLoginUrl,
     serverExchangeCodeForTokenHandlerPath,
-    serverExchangeCodeForTokenUrl,
     providerId,
     displayName,
     scopeStr,
@@ -50,6 +49,3 @@ serverOAuthCallbackHandlerPath = "callback"
 
 serverExchangeCodeForTokenHandlerPath :: String
 serverExchangeCodeForTokenHandlerPath = "exchange-code"
-
-serverExchangeCodeForTokenUrl :: String
-serverExchangeCodeForTokenUrl = "/auth/" ++ serverExchangeCodeForTokenHandlerPath

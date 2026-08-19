@@ -3,7 +3,6 @@
 module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
-    askToChoose',
     askForRequiredInput,
     tryGettingConfirmationWithTimeout,
     IsOption (..),
@@ -67,9 +66,6 @@ instance IsOption (Option o) where
 
 askForRequiredInput :: String -> IO String
 askForRequiredInput = repeatIfNull . askForInput
-
-askToChoose' :: String -> NonEmpty (Option o) -> IO o
-askToChoose' question options = oValue <$> askToChoose question options
 
 askToChoose :: forall o. (IsOption o) => String -> NonEmpty o -> IO o
 askToChoose _ (singleOption :| []) = return singleOption
