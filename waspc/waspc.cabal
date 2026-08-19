@@ -666,6 +666,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    network,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -679,6 +680,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.Util.EnvVarArgumentTest
+    Wasp.Cli.Util.PortTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
