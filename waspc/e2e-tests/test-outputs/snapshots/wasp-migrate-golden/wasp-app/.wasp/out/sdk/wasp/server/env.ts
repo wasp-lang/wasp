@@ -8,7 +8,9 @@ type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
 const userServerEnvSchema: UserServerEnvSchema = z.object({});
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number().default(3001),
+  PORT: z.coerce.number({
+    error: 'PORT is required and must be a number',
+  }),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
   }),
@@ -46,10 +48,8 @@ const clientUrlSchema =
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
-  "WASP_SERVER_URL": serverUrlSchema
-    .default("http://localhost:3001"),
-  "WASP_WEB_CLIENT_URL": clientUrlSchema
-    .default("http://localhost:3000/"),
+  "WASP_SERVER_URL": serverUrlSchema,
+  "WASP_WEB_CLIENT_URL": clientUrlSchema,
 });
 
 const waspProdServerEnvSchema = z.object({
