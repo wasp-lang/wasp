@@ -19,6 +19,12 @@ const forcedOptions = {
   base: "/",
   envPrefix: "REACT_APP_",
   "build.outDir": ".wasp/out/web-app/build/",
+  // `vite preview` falls back to `server` for most options, but not for `port`
+  // (it has its own default), so we have to set it separately.
+  //
+  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
+  // `build`, so it's not persisted in the final output.
+  "preview.port": envVarAsNumber("PORT"),
 } as const;
 
 const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
@@ -41,6 +47,9 @@ export function waspConfig(): PluginOption {
         server: {
           port: useUserValue(config.server?.port, Number.parseInt(process.env["PORT"]!)),
           host: useUserValue(config.server?.host, "0.0.0.0"),
+        },
+        preview: {
+          port: forcedOptions["preview.port"],
         },
         envPrefix: forcedOptions["envPrefix"],
         build: {
@@ -110,4 +119,16 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
 
 function getByPath(obj: Record<string, any>, path: string): unknown {
   return path.split(".").reduce<any>((node, segment) => node?.[segment], obj);
+}
+
+function envVarAsNumber(envName: string): number | undefined {
+  const strValue = process.env[envName];
+  if (strValue === undefined) {
+    return undefined;
+  }
+  const numValue = Number.parseInt(strValue);
+  if (Number.isNaN(numValue)) {
+    throw new Error(`Environment variable ${envName} is not a valid number.`);
+  }
+  return numValue;
 }
