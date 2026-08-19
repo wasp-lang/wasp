@@ -8,18 +8,24 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
+import Wasp.AppComponentUrl (AppComponentUrl (..))
+import Wasp.AppSpec (AppSpec)
+import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl, showAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished (DbConnectionEstablished))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
+import Wasp.Cli.RunConfigs (makeRunConfigs)
+import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
@@ -30,8 +36,8 @@ import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
-start :: Command ()
-start = withProjectLock $ do
+start :: Arguments -> Command ()
+start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ do
   -- We check for the news only in `wasp start`, and only periodically,
   -- to avoid being too aggressive. Specifically:
   --   - We don't run it in other `wasp` commands because we don't want to
@@ -50,13 +56,15 @@ start = withProjectLock $ do
 
   (warnings, appSpec) <- compile
 
-  let runConfigs = makeDefaultDevRunConfigs appSpec
+  let appComponentUrls = makeDevAppUrls appSpec args
+      runConfigs = makeRunConfigs appComponentUrls
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
   DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
+  cliSendMessageC $ Msg.Info $ showAppComponentUrls appComponentUrls
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
@@ -101,6 +109,12 @@ start = withProjectLock $ do
           putStrLn ""
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
+
+makeDevAppUrls :: AppSpec -> StartArgs -> (AppComponentUrl, AppComponentUrl)
+makeDevAppUrls appSpec args =
+  ( (makeDefaultDevClientUrl appSpec) {port = args.clientPort},
+    defaultDevServerUrl {port = args.serverPort}
+  )
 
 -- | The web app and server have their own logic for reading environment
 -- variables autonomously, so we don't need to merge the different sources of

@@ -468,6 +468,7 @@ library cli-lib
     lukko ^>=0.1.2,
     mtl,
     neat-interpolation,
+    network,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -485,6 +486,7 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
+    Wasp.Cli.AppComponentUrls
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -535,6 +537,7 @@ library cli-lib
     Wasp.Cli.Command.Show.Subcommand
     Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
+    Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
@@ -545,7 +548,6 @@ library cli-lib
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
-    Wasp.Cli.DefaultDevAppComponentUrls
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -557,6 +559,7 @@ library cli-lib
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
+    Wasp.Cli.Util.PortArgument
 
 executable wasp-cli
   import: common-all, common-exe

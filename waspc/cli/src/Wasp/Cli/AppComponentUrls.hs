@@ -8,7 +8,9 @@ module Wasp.Cli.AppComponentUrls
   )
 where
 
+import Network.Socket (PortNumber)
 import Wasp.AppComponentUrl (AppComponentUrl (..))
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 

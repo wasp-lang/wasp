@@ -7,7 +7,7 @@ where
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.DefaultDevAppComponentUrls (makeDefaultUrls)
+import Wasp.Cli.AppComponentUrls (makeDefaultUrls)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 

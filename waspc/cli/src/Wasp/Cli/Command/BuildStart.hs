@@ -7,10 +7,11 @@ import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
+import Wasp.Cli.AppComponentUrls (showAppComponentUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
-import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
@@ -58,6 +59,8 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Success "Server built."
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
+  cliSendMessageC $ Msg.Info $ showAppComponentUrls (config.clientUrl, config.serverUrl)
+
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_
       (startClient config)
