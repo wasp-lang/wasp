@@ -1,15 +1,8 @@
 module Wasp.Cli.Command.BuildStart.Config
-  ( BuildStartConfig,
-    buildDir,
-    projectDir,
-    clientEnvVars,
-    clientPort,
-    clientUrl,
+  ( BuildStartConfig (..),
     dockerContainerName,
     dockerImageName,
     makeBuildStartConfig,
-    serverEnvVars,
-    serverUrl,
   )
 where
 
@@ -18,32 +11,31 @@ import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Char (toLower)
 import Data.List (intercalate)
+import Data.List.NonEmpty (toList)
 import StrongPath ((</>))
 import qualified StrongPath as SP
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import qualified Wasp.Cli.Command.BuildStart.ArgumentsParser as Args
 import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
-import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
+import Wasp.Env (EnvVar, HasEnvVars, addEnvVarsUnique, nubEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,
-    serverUrl :: String,
-    clientPort :: Int,
-    clientUrl :: String,
-    serverEnvVars :: [EnvVar],
-    clientEnvVars :: [EnvVar],
+    clientRunConfig :: WebAppRunConfig,
+    serverRunConfig :: ServerRunConfig,
     buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -58,26 +50,23 @@ makeBuildStartConfig appSpec args projectDir' = do
       combineEnvVarsWithEnvFiles (Args.clientEnvironmentVariables args) (Args.clientEnvironmentFiles args)
   when (null userClientEnvVars && null userServerEnvVars) $ throwError noEnvVarsSpecifiedMsg
 
-  let waspClientEnvVars =
-        [ (WebApp.serverUrlEnvVarName, serverUrl')
-        ]
-      waspServerEnvVars =
-        [ (Server.clientUrlEnvVarName, clientUrl'),
-          (Server.serverUrlEnvVarName, serverUrl')
-        ]
-  clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
-  serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
+  let serverUrl = Server.defaultDevServerUrl
+      clientUrl = WebApp.makeDefaultDevClientUrl appSpec
+
+  serverRunConfig' <-
+    makeServerRunConfig serverUrl (AppComponentUrl.url clientUrl)
+      `addEnvVarsUniqueC` userServerEnvVars
+  clientRunConfig' <-
+    makeWebAppRunConfig clientUrl (AppComponentUrl.url serverUrl)
+      `addEnvVarsUniqueC` userClientEnvVars
 
   return $
     BuildStartConfig
       { appUniqueId = appUniqueId',
         buildDir = buildDir',
         projectDir = projectDir',
-        serverUrl = serverUrl',
-        clientPort = clientPort',
-        clientUrl = clientUrl',
-        serverEnvVars = serverEnvVars',
-        clientEnvVars = clientEnvVars'
+        serverRunConfig = serverRunConfig',
+        clientRunConfig = clientRunConfig'
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' appName
@@ -85,16 +74,6 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
-    -- NOTE(carlos): For now, creating these URLs and ports below uses the default
-    -- values we've hardcoded in the generator. In the future, we might want to make
-    -- these configurable via the Wasp app spec or command line arguments.
-
-    -- This assumes that `getDefaultDevClientUrl` uses `defaultClientPort` internally.
-    -- If that changes, we also need to change this.
-    clientPort' = defaultClientPort
-    clientUrl' = getDefaultDevClientUrl appSpec
-
-    serverUrl' = defaultDevServerUrl
     noEnvVarsSpecifiedMsg =
       CommandError
         "No env vars specified"
@@ -118,16 +97,6 @@ dockerContainerName config =
   -- Lowercase because Docker container names require it.
   map toLower $ appUniqueId config <> "-server-container"
 
-overrideEnvVarsCommand :: [EnvVar] -> [EnvVar] -> Command [EnvVar]
-overrideEnvVarsCommand forced existing =
-  case forced `overrideEnvVars` existing of
-    Left duplicateNames ->
-      throwError $
-        CommandError "Duplicate environment variables" $
-          ("The following environment variables will be overwritten by Wasp and should be removed: " <>) $
-            intercalate ", " duplicateNames
-    Right combined -> return combined
-
 combineEnvVarsWithEnvFiles :: [EnvVar] -> [FilePathArgument] -> IO [EnvVar]
 combineEnvVarsWithEnvFiles inlineEnvVars files = do
   envVarsFromFiles <- mapM readEnvVarsFromFile files
@@ -136,3 +105,19 @@ combineEnvVarsWithEnvFiles inlineEnvVars files = do
 
 readEnvVarsFromFile :: FilePathArgument -> IO [EnvVar]
 readEnvVarsFromFile pathArg = PathArgument.getFilePath pathArg >>= parseDotEnvFile
+
+addEnvVarsUniqueC :: (HasEnvVars a) => a -> [EnvVar] -> Command a
+addEnvVarsUniqueC x incomingEnvVars =
+  either
+    throwDuplicateEnvVarsError
+    return
+    (addEnvVarsUnique x incomingEnvVars)
+  where
+    throwDuplicateEnvVarsError duplicateEnvVarNames =
+      throwError $
+        CommandError
+          "Duplicate environment variables"
+          ( "The following environment variables will be overwritten by Wasp and should be removed: "
+              <> intercalate ", " (toList duplicateEnvVarNames)
+              <> "."
+          )

@@ -1,7 +1,6 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
-    getDefaultDevClientUrl,
-    defaultClientPort,
+    makeDefaultDevClientUrl,
     serverUrlEnvVarName,
   )
 where
@@ -9,6 +8,7 @@ where
 import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, Path, Posix, absdirP)
 import qualified StrongPath as SP
+import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -22,8 +22,6 @@ getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "REACT_APP_API_URL"
 
-defaultClientPort :: Int
-defaultClientPort = 3000
-
-getDefaultDevClientUrl :: AppSpec -> String
-getDefaultDevClientUrl spec = "http://localhost:" ++ show defaultClientPort ++ SP.fromAbsDirP (getBaseDir spec)
+makeDefaultDevClientUrl :: AppSpec -> AppComponentUrl
+makeDefaultDevClientUrl spec =
+  Local {port = 3000, path = Just $ getBaseDir spec}

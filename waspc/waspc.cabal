@@ -197,6 +197,7 @@ library
     Wasp.Analyzer.TypeDefinitions.TH.Common
     Wasp.Analyzer.TypeDefinitions.TH.Decl
     Wasp.Analyzer.TypeDefinitions.TH.Enum
+    Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
@@ -315,6 +316,7 @@ library
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
+    Wasp.Generator.ServerGenerator.RunConfig
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
@@ -343,6 +345,7 @@ library
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket

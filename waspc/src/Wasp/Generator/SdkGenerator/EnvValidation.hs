@@ -7,6 +7,7 @@ where
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (isJust)
 import StrongPath (relfile)
+import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -58,9 +59,9 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "defaultServerPort" .= Server.defaultServerPort,
+          "defaultClientUrl" .= AppComponentUrl.url (WebApp.makeDefaultDevClientUrl spec),
+          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerUrl,
+          "defaultServerPort" .= show (AppComponentUrl.port Server.defaultDevServerUrl),
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
@@ -78,7 +79,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
+          "defaultServerUrl" .= AppComponentUrl.url Server.defaultDevServerUrl,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
