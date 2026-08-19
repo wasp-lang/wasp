@@ -1,4 +1,4 @@
-min_version = "2026.7.1"
+min_version = "2026.8.8"
 
 [tools]
 ghcup = "0.2.6.2"
@@ -46,8 +46,8 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 "mise-cabal:stan" = "0.2.1.0"
 
 [plugins]
-"vfox:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
-"vfox:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git"
+"vfox-backend:mise-ghcup" = "https://github.com/wasp-lang/mise-ghcup.git"
+"vfox-backend:mise-cabal" = "https://github.com/wasp-lang/mise-cabal.git"
 
 [bootstrap.packages]
 # Dependencies for Ubuntu / Debian
