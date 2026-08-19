@@ -32,6 +32,8 @@ const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
   base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
   "server.port":
     "To run the client on a different port, use `wasp start --client-port <port>`.",
+  "preview.port":
+    "To run the client on a different port, use `wasp build start --client-port <port>`.",
 };
 
 export function waspConfig(): PluginOption {
