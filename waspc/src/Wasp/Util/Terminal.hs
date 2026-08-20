@@ -9,8 +9,6 @@ module Wasp.Util.Terminal
   )
 where
 
-import Data.List (foldl')
-
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
 styleCode "" = ""

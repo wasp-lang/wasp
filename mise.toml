@@ -6,7 +6,7 @@ ghcup = "0.2.6.2"
 
 cabal = "3.16.1.0"
 
-"mise-ghcup:ghc" = "9.6.7"
+"mise-ghcup:ghc" = "9.10.3"
 
 # We assume that this HLS version ships prebuilt binaries for the GHC version
 # above. When upgrading GHC or HLS, check
@@ -42,7 +42,7 @@ jq = "1.8.2"
 ormolu.version = "0.8.1.1"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 
-"mise-cabal:hlint" = "3.6.1"
+"mise-cabal:hlint" = "3.10"
 
 "mise-cabal:stan" = "0.2.1.0"
 
