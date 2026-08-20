@@ -23,6 +23,16 @@ export const RailwayCliProjectSchema = z.object({
 
 export const RailwayProjectListSchema = z.array(RailwayCliProjectSchema);
 
+export const RailwayCliEnvironmentListSchema = z.object({
+  environments: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      isLinked: z.boolean(),
+    }),
+  ),
+});
+
 export const RailwayCliServiceListSchema = z.array(
   RailwayCliServiceSchema.extend({
     volumes: z.array(

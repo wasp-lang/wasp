@@ -20,6 +20,7 @@ import {
 } from "../../DeploymentInstructions.js";
 import { getRailwayEnvVarValueReference } from "../../env.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
+import { getLinkedEnvironmentId } from "../../railwayEnvironment/cli.js";
 import {
   initRailwayProject,
   linkRailwayProjectToWaspProjectDir,
@@ -138,12 +139,14 @@ async function setupDb({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up database using image: ${options.dbImage}`);
 
+  const environmentId = await getLinkedEnvironmentId(options);
   const dbService = await createDatabaseService({
     serviceName: dbServiceName,
     imageSpec: {
       image: options.dbImage,
       volumeMountPath: options.dbVolumeMountPath,
     },
+    environmentId,
     railwayExe: options.railwayExe,
     waspProjectDir: options.waspProjectDir,
   });
