@@ -8,10 +8,15 @@
 - `wasp deploy fly` now requires Fly CLI version 0.4.82 or newer. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Wasp Deploy for Railway now requires Railway CLI 4.51.0 or newer. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Moved internal server-only import paths under the `wasp/server/...` prefix. These paths are not part of the documented public API, but if your app imported any of them, update the import path or switch to documented public imports like `wasp/server/auth`. ([#4557](https://github.com/wasp-lang/wasp/pull/4557))
+- Wasp now manages your app's URLs in development, so setting `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL`, or `REACT_APP_API_URL` yourself is now an error. ([#4692](https://github.com/wasp-lang/wasp/pull/4692))
+- Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
+- In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 
 ### 🎉 New Features
 
+- `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
+- `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
 - Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Added `--db-volume-mount-path` to `wasp deploy railway launch` and `wasp deploy railway setup` for custom database images that store data elsewhere. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))

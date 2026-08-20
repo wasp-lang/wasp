@@ -1,9 +1,6 @@
 module Wasp.Psl.Format
   ( prismaFormat,
     PrismaFormatResult (..),
-    PslModelText,
-    PslErrorsMsg,
-    prismaFormatModels,
   )
 where
 
@@ -45,19 +42,3 @@ instance Aeson.FromJSON PrismaFormatResult where
     formattedSchemaPsl <- obj .: "formattedSchemaPsl"
     errors <- obj .:? "errors"
     return (PrismaFormatResult {_formattedSchemaPsl = formattedSchemaPsl, _schemaErrors = errors})
-
-type PslModelText = Text
-
-type PslErrorsMsg = Text
-
--- | Given a list of psl models in textual format (e.g. ["model User {\n...\n}", ...]),
--- it returns back a list of those models but formatted, and also prisma format errors message,
--- if there are any errors.
-prismaFormatModels :: [PslModelText] -> IO (Maybe PslErrorsMsg, [PslModelText])
-prismaFormatModels models = do
-  let schema = T.intercalate ("\n" <> delimiter <> "\n") models
-  result <- prismaFormat schema
-  let formattedModels = T.strip <$> T.splitOn delimiter (_formattedSchemaPsl result)
-  return (_schemaErrors result, formattedModels)
-  where
-    delimiter = "//==== WASP ====//"

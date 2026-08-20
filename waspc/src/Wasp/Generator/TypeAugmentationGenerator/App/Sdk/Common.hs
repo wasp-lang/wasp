@@ -3,7 +3,6 @@ module Wasp.Generator.TypeAugmentationGenerator.App.Sdk.Common
     SdkTypeAugmentationTemplatesDir,
     mkTmplFdWithDstAndData,
     mkTmplFdWithData,
-    mkTmplFd,
     sdkTypeAugmentationRootDirInGeneratedCodeDir,
     sdkTypeAugmentationTemplatesDirInTemplatesDir,
   )
@@ -11,7 +10,6 @@ where
 
 import qualified Data.Aeson as Aeson
 import StrongPath
-import qualified StrongPath as SP
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -27,13 +25,6 @@ import Wasp.Generator.TypeAugmentationGenerator.Common
 data SdkTypeAugmentationRootDir
 
 data SdkTypeAugmentationTemplatesDir
-
-mkTmplFd :: Path' (Rel SdkTypeAugmentationTemplatesDir) File' -> FileDraft
-mkTmplFd relSrcPath =
-  mkTmplFdWithDstAndData
-    relSrcPath
-    (SP.castRel relSrcPath)
-    Nothing
 
 mkTmplFdWithData ::
   Path' (Rel SdkTypeAugmentationTemplatesDir) File' ->

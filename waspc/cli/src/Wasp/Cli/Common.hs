@@ -1,14 +1,11 @@
 module Wasp.Cli.Common
-  ( CliTemplatesDir,
-    waspSays,
+  ( waspSays,
     waspWarns,
     waspScreams,
   )
 where
 
 import qualified Wasp.Util.Terminal as Term
-
-data CliTemplatesDir
 
 waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
