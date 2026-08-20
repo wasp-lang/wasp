@@ -18,8 +18,7 @@ const serverUrlSchema =
   )
 
 const waspDevClientEnvSchema = z.object({
-  "REACT_APP_API_URL": serverUrlSchema
-    .default("http://localhost:3001"),
+  "REACT_APP_API_URL": serverUrlSchema,
 });
 
 const waspProdClientEnvSchema = z.object({

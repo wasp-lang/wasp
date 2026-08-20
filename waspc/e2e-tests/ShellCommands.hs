@@ -8,7 +8,6 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
-    (~||),
     writeToFile,
     appendToFile,
     replaceLineInFile,
@@ -61,6 +60,7 @@ import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
@@ -97,12 +97,6 @@ cmd1 ~&& cmd2 = cmd1 ++ " && " ++ cmd2
 
 infixl 6 ~&&
 
--- | Execute the second command only if the first command fails.
-(~||) :: ShellCommand -> ShellCommand -> ShellCommand
-cmd1 ~|| cmd2 = cmd1 ++ " || " ++ cmd2
-
-infixl 6 ~||
-
 -- | Execute the second command only if the first command succeeds.
 -- The command chain will continue regardless of whether the second command runs.
 (~?) :: ShellCommand -> ShellCommand -> ShellCommand
@@ -123,7 +117,7 @@ writeToFile file fileContent = return $ createParentDir ~&& writeContentsToFile
     writeContentsToFile = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile file
 
     -- Using base64 encoding for file content helps us escape dealing with special characters.
-    base64FileContent = C8.unpack . B64.encode . C8.pack . T.unpack $ fileContent
+    base64FileContent = C8.unpack . B64.encode . T.encodeUtf8 $ fileContent
 
 appendToFile :: FilePath -> T.Text -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =

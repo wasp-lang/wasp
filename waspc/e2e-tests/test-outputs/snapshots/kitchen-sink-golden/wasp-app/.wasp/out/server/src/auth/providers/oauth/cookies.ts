@@ -19,6 +19,10 @@ export function setOAuthCookieValue(
   res.cookie(cookieName, value, {
     httpOnly: true,
     secure: !config.isDevelopment,
+    // The OAuth callback is a top-level GET navigation, which `lax` permits.
+    // We set it explicitly because an omitted `sameSite` is not `lax` in every
+    // browser.
+    sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 1000, // 1 hour
   });
@@ -28,7 +32,7 @@ export function getOAuthCookieValue(
   provider: ProviderConfig,
   req: ExpressRequest,
   fieldName: OAuthStateFieldName,
-): string {
+): string | undefined {
   const cookieName = `${provider.id}_${fieldName}`;
   const cookies = parseCookies(req.headers.cookie ?? "");
   return cookies.get(cookieName);

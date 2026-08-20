@@ -9,7 +9,6 @@ import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Data.Functor ((<&>))
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
@@ -67,12 +66,11 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
   Chan JobMessage -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir =
-  handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
-    <&> snd
-    <&> \case
-      ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
-      _success -> Right ()
+installProjectNpmDependencies messagesChan projectDir = do
+  (_, installExitCode) <- handleProjectInstallMessages messagesChan `concurrently` installProjectDepsJob
+  return $ case installExitCode of
+    ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
+    _success -> Right ()
   where
     installProjectDepsJob =
       installNpmDependenciesAndReport

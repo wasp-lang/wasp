@@ -72,7 +72,7 @@ function run_examples_e2e_tests() {
   )
 
   for path in "${paths[@]}"; do
-    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_INSTALL_CMD && npm run test)"; then
+    if ! eval "(cd $REPOSITORY_ROOT/$path && copy_env_server_example_if_needed && $WASP_CLI_INSTALL_CMD && npm run test)"; then
       echo -e "${RED}E2E tests failed in $path${RESET}"
       return 1
     fi
