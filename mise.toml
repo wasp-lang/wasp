@@ -1,4 +1,5 @@
-min_version = "2026.8.8"
+# Keep in sync with .github/actions/setup-tools/action.yaml
+min_version = "2026.8.9"
 
 [tools]
 ghcup = "0.2.6.2"
