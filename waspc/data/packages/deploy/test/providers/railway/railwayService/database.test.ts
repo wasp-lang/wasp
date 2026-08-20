@@ -4,13 +4,19 @@ import {
   DbServiceName,
   RailwayCliExe,
 } from "../../../../src/providers/railway/brandedTypes.js";
+import {
+  RailwayCliServiceListSchema,
+  RailwayCliServiceSchema,
+} from "../../../../src/providers/railway/jsonOutputSchemas.js";
 
 const mocks = vi.hoisted(() => ({
   railwayCli: vi.fn(),
+  runJsonCommand: vi.fn(),
 }));
 
 vi.mock("../../../../src/common/zx.js", () => ({
   createCommandWithCwd: () => mocks.railwayCli,
+  runJsonCommand: mocks.runJsonCommand,
 }));
 
 vi.mock("../../../../src/common/terminal.js", () => ({
@@ -42,21 +48,20 @@ const volumeError = new Error("Failed to create volume");
 
 beforeEach(() => {
   mocks.railwayCli.mockReset();
+  mocks.runJsonCommand.mockReset();
 });
 
 describe("createDatabaseService", () => {
   test("uses the configured mount path for PGDATA and the volume", async () => {
-    mocks.railwayCli
-      .mockResolvedValueOnce(jsonResult(dbService))
-      .mockResolvedValueOnce(jsonResult({}));
+    mocks.runJsonCommand.mockResolvedValueOnce(dbService);
+    mocks.railwayCli.mockResolvedValueOnce({});
 
     await expect(
       createDatabaseService(createDatabaseServiceParams),
     ).resolves.toEqual(dbService);
 
-    expect(mocks.railwayCli).toHaveBeenCalledTimes(2);
-    expect(mocks.railwayCli).toHaveBeenNthCalledWith(
-      1,
+    expect(mocks.runJsonCommand).toHaveBeenCalledExactlyOnceWith(
+      mocks.railwayCli,
       [
         "add",
         "--service",
@@ -77,10 +82,9 @@ describe("createDatabaseService", () => {
         "DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}/${{POSTGRES_DB}}",
         "--json",
       ],
-      { verbose: false },
+      RailwayCliServiceSchema,
     );
-    expect(mocks.railwayCli).toHaveBeenNthCalledWith(
-      2,
+    expect(mocks.railwayCli).toHaveBeenCalledExactlyOnceWith(
       [
         "volume",
         "--service",
@@ -95,10 +99,10 @@ describe("createDatabaseService", () => {
   });
 
   test("deletes the incomplete service when adding the volume fails", async () => {
+    mocks.runJsonCommand.mockResolvedValueOnce(dbService);
     mocks.railwayCli
-      .mockResolvedValueOnce(jsonResult(dbService))
       .mockRejectedValueOnce(volumeError)
-      .mockResolvedValueOnce(jsonResult({}));
+      .mockResolvedValueOnce({});
 
     await expect(
       createDatabaseService(createDatabaseServiceParams),
@@ -112,8 +116,8 @@ describe("createDatabaseService", () => {
 
   test("reports both errors when the cleanup also fails", async () => {
     const cleanupError = new Error("Failed to delete service");
+    mocks.runJsonCommand.mockResolvedValueOnce(dbService);
     mocks.railwayCli
-      .mockResolvedValueOnce(jsonResult(dbService))
       .mockRejectedValueOnce(volumeError)
       .mockRejectedValueOnce(cleanupError);
 
@@ -126,28 +130,26 @@ describe("createDatabaseService", () => {
 
 describe("assertDatabaseServiceHasVolume", () => {
   test("passes when the service has the volume", async () => {
-    mocks.railwayCli.mockResolvedValueOnce(
-      jsonResult([
-        { ...dbService, volumes: [{ mountPath: dbVolumeMountPath }] },
-      ]),
-    );
+    mocks.runJsonCommand.mockResolvedValueOnce([
+      { ...dbService, volumes: [{ mountPath: dbVolumeMountPath }] },
+    ]);
 
     await expect(
       assertDatabaseServiceHasVolume(dbService, dbVolumeMountPath, options),
     ).resolves.toBeUndefined();
+
+    expect(mocks.runJsonCommand).toHaveBeenCalledExactlyOnceWith(
+      mocks.railwayCli,
+      ["service", "list", "--json"],
+      RailwayCliServiceListSchema,
+    );
   });
 
   test("throws when the service has no volume", async () => {
-    mocks.railwayCli.mockResolvedValueOnce(
-      jsonResult([{ ...dbService, volumes: [] }]),
-    );
+    mocks.runJsonCommand.mockResolvedValueOnce([{ ...dbService, volumes: [] }]);
 
     await expect(
       assertDatabaseServiceHasVolume(dbService, dbVolumeMountPath, options),
     ).rejects.toThrow(dbService.id);
   });
 });
-
-function jsonResult(value: unknown) {
-  return { json: () => value };
-}
