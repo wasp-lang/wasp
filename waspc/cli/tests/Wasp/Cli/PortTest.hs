@@ -1,9 +1,9 @@
-module Wasp.Cli.Util.PortTest where
+module Wasp.Cli.PortTest where
 
 import Control.Exception (bracket)
 import qualified Network.Socket as S
 import Test.Hspec
-import Wasp.Cli.Util.Port (findFirstFreeLocalPort)
+import Wasp.Cli.Port (findFirstFreeLocalPort)
 import qualified Wasp.Util.Network.Socket as Socket
 
 spec_findFirstFreeLocalPort :: Spec
@@ -30,7 +30,6 @@ withFreeLocalPort :: (S.PortNumber -> IO a) -> IO a
 withFreeLocalPort action =
   bracket openLocalSocketOnAnyFreePort (S.close . fst) (return . snd) >>= action
 
--- | Runs the action with a port that is taken for the action's duration.
 withTakenLocalPort :: (S.PortNumber -> IO a) -> IO a
 withTakenLocalPort action =
   bracket openLocalSocketOnAnyFreePort (S.close . fst) (action . snd)

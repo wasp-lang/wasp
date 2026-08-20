@@ -560,7 +560,6 @@ library cli-lib
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
-    Wasp.Cli.Util.Port
     Wasp.Cli.Util.PortArgument
 
 executable wasp-cli
@@ -697,8 +696,8 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
-    Wasp.Cli.Util.PortTest
 
 test-suite waspc-e2e-tests
   import: common-all, common-exe
