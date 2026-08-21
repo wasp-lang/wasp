@@ -309,7 +309,7 @@ spec_zipMaps = do
           map2 = Map.fromList [("x", "hello")]
 
           f :: String -> Maybe Int -> Maybe String -> Maybe String
-          f _ (Just n) (Just s) = Just (replicate n (head s))
+          f _ (Just n) (Just (c : _)) = Just (replicate n c)
           f _ _ _ = Nothing
 
       zipMaps f map1 map2

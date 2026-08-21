@@ -26,7 +26,7 @@ module Wasp.AppSpec
 where
 
 import Data.List (find)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File, Path', Rel)
 import Wasp.AppSpec.Action (Action)
@@ -128,9 +128,7 @@ getJobs :: AppSpec -> [(String, Job)]
 getJobs = getDecls
 
 getApp :: [Decl] -> Maybe (String, App)
-getApp dcls = case takeDecls @App dcls of
-  [] -> Nothing
-  apps -> Just $ head apps
+getApp = listToMaybe . takeDecls @App
 
 resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =

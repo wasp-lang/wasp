@@ -23,8 +23,8 @@ buildStartArgsParser =
   BuildStartArgs
     <$> portParserForComponent "client" defaultDevClientPort
     <*> portParserForComponent "server" defaultDevServerPort
-    <*> environmentVariableParsersForComponent "client"
-    <*> environmentVariableParsersForComponent "server"
+    <*> environmentVariableParsersForComponent 'c' "client"
+    <*> environmentVariableParsersForComponent 's' "server"
   where
     portParserForComponent name defaultPort =
       fromMaybe defaultPort
@@ -32,16 +32,16 @@ buildStartArgsParser =
           (name ++ "-port")
           ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
 
-    environmentVariableParsersForComponent name =
+    environmentVariableParsersForComponent shortOptionName name =
       liftA2
         (<>)
-        (envVarInlinesParserForComponent name)
+        (envVarInlinesParserForComponent shortOptionName name)
         (envVarFilesParserForComponent name)
 
-    envVarInlinesParserForComponent name =
+    envVarInlinesParserForComponent shortOptionName name =
       Opt.many $
         envVarArgumentLiteralParser
-          (head name) -- e.g. "-c"
+          shortOptionName -- e.g. 'c', for "-c"
           (name ++ "-env") -- e.g. "--client-env"
           ("Set an environment variable for the " ++ name ++ " (can be used multiple times)")
 

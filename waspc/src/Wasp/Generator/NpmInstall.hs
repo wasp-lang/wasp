@@ -24,7 +24,7 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
-import qualified Wasp.Util.IO as IOUitl
+import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
 -- Thanks to npm workspaces, this single install covers the user's project deps,
@@ -96,24 +96,25 @@ installNpmDependenciesAndReport installJob chan jobType = do
     Right _ -> error "This should never happen, reporting installation progress should run forever."
 
 reportInstallationProgress :: Chan JobMessage -> JobType -> IO ()
-reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
+reportInstallationProgress chan jobType =
+  mapM_ reportMessage $ cycle possibleMessages
   where
-    reportPeriodically messages = do
+    reportMessage message = do
       threadDelay $ secToMicroSec 5
-      writeChan chan $ J.JobMessage {J._data = J.JobOutput (T.append (head messages) "\n") J.Stdout, J._jobType = jobType}
+      writeChan chan $ J.JobMessage {J._data = J.JobOutput (T.append message "\n") J.Stdout, J._jobType = jobType}
       threadDelay $ secToMicroSec 5
-      reportPeriodically $ drop 1 messages
+
     secToMicroSec = (* 1000000)
-    allPossibleMessages =
-      cycle
-        [ "Still installing npm dependencies!",
-          "Installation going great - we'll get there soon!",
-          "The installation is taking a while, but we'll get there!",
-          "Yup, still not done installing.",
-          "We're getting closer and closer, everything will be installed soon!",
-          "Still waiting for the installation to finish? You should! We got too far to give up now!",
-          "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
-        ]
+
+    possibleMessages =
+      [ "Still installing npm dependencies!",
+        "Installation going great - we'll get there soon!",
+        "The installation is taking a while, but we'll get there!",
+        "Yup, still not done installing.",
+        "We're getting closer and closer, everything will be installed soon!",
+        "Still waiting for the installation to finish? You should! We got too far to give up now!",
+        "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
+      ]
 
 -- | Figure out if installation of npm deps is needed, be it for npm workspace deps (top level
 -- package.json + web app + server), or for wasp sdk npm deps.
@@ -130,6 +131,6 @@ areThereNpmDepsToInstall allNpmDeps dstDir = do
   return $ installedNpmDeps /= Just allNpmDeps
 
 doesNodeModulesDirExist :: Path' Abs (Dir WaspProjectDir) -> IO Bool
-doesNodeModulesDirExist waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
+doesNodeModulesDirExist waspProjectDirPath = IOUtil.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
   where
     nodeModulesDirInWaspProjectDirAbs = waspProjectDirPath SP.</> nodeModulesDirInWaspProjectDir

@@ -9,6 +9,7 @@ import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List ((\\))
+import qualified Data.List.NonEmpty as NE
 import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -60,10 +61,10 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
         Just port -> return port
 
     noFreePortError candidatePorts =
-      "Wasp could not find a free port in range "
-        ++ show (head candidatePorts)
-        ++ "-"
-        ++ show (last candidatePorts)
+      "Wasp could not find a free port"
+        ++ maybe "" showPortRange (NE.nonEmpty candidatePorts)
         ++ ". Free up some ports, or choose them yourself with --client-port and --server-port."
+      where
+        showPortRange ports = " in range " ++ show (NE.head ports) ++ "-" ++ show (NE.last ports)
 
     throwResolvingError = throwError . CommandError "Failed to find ports"
