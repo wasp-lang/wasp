@@ -15,11 +15,13 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
+import Wasp.Cli.AppComponentUrls (makeDevUrls)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
+import Wasp.Cli.RunConfigs (makeRunConfigs)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -30,7 +32,9 @@ seed maybeUserProvidedSeedName = do
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   appSpec <- analyze waspProjectDir
-  let (_, serverRunConfig) = makeDefaultDevRunConfigs appSpec
+
+  ports <- findAppComponentPorts (Nothing, Nothing)
+  let (_, serverRunConfig) = makeRunConfigs $ makeDevUrls appSpec ports
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
