@@ -98,17 +98,17 @@ newtype ZeroBasedSourceRegion = ZeroBasedSourceRegion {toSourceRegion :: SourceR
 instance FromJSON ZeroBasedSourceRegion where
   parseJSON = withObject "range" $ \v ->
     ZeroBasedSourceRegion
-      <$> ( SourceRegion
-              <$> (toSourcePos <$> v .: "start")
-              <*> (toSourcePos <$> v .: "end")
-          )
+      <$> (SourceRegion <$> startPos v <*> endPos v)
+    where
+      startPos v = toSourcePos <$> v .: "start"
+      endPos v = toSourcePos <$> v .: "end"
 
 newtype ZeroBasedSourcePosition = ZeroBasedSourcePosition {toSourcePos :: SourcePosition}
 
 instance FromJSON ZeroBasedSourcePosition where
   parseJSON = withObject "location" $ \v ->
     ZeroBasedSourcePosition
-      <$> ( SourcePosition
-              <$> ((+ 1) <$> v .: "line")
-              <*> ((+ 1) <$> v .: "column")
-          )
+      <$> (SourcePosition <$> line v <*> column v)
+    where
+      line v = (+ 1) <$> v .: "line"
+      column v = (+ 1) <$> v .: "column"

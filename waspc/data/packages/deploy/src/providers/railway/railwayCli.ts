@@ -9,8 +9,8 @@ import {
 import { RailwayCliExe, RailwayProjectName } from "./brandedTypes.js";
 import { serviceNameSuffixes } from "./railwayService/nameGenerator.js";
 
-// Wasp relies on the `--json` output added in Railway CLI 4.51.0.
-const minSupportedRailwayCliVersion = new SemVer("4.51.0");
+// Wasp relies on the `railway api` command added in Railway CLI 5.28.0.
+const minSupportedRailwayCliVersion = new SemVer("5.28.0");
 
 export async function ensureRailwayCliReady(
   railwayExe: RailwayCliExe,

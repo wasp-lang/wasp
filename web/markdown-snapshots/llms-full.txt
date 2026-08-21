@@ -15457,7 +15457,7 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Update Fly database deployment flags
+#### 6. Update Fly database deployment flags
 
 If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
 
@@ -15467,7 +15467,93 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size` |
 | `--volume-size`          | `--db-volume-size`          |
 
-#### 5. Enjoy your updated Wasp app
+#### 7. Normalize existing email and username identifiers
+
+Wasp now stores and looks up `email` and `username` identifiers in their [NFC](https://unicode.org/reports/tr15/) form, so identifiers that look the same but use different Unicode encodings (e.g. `ü` written as a single character vs. `u` followed by a combining diaeresis) resolve to the same identity.
+
+If all your users' emails and usernames use only ASCII characters, you can skip this step.
+
+Otherwise, identifiers already stored in a decomposed form no longer match the logins coming from the new server, so you have to rewrite them once. Add a seed function that does it:
+
+```ts title="src/nfcBackfill.ts"
+import { type DbSeedFn } from "wasp/server";
+
+export const nfcBackfill: DbSeedFn = async (prisma) => {
+  const identities = await prisma.authIdentity.findMany({
+    where: { providerName: { in: ["email", "username"] } },
+  });
+
+  const collisions: string[] = [];
+
+  for (const identity of identities) {
+    const normalizedId = identity.providerUserId.normalize("NFC").toLowerCase();
+    if (normalizedId === identity.providerUserId) {
+      continue;
+    }
+
+    try {
+      await prisma.authIdentity.update({
+        where: {
+          providerName_providerUserId: {
+            providerName: identity.providerName,
+            providerUserId: identity.providerUserId,
+          },
+        },
+        data: { providerUserId: normalizedId },
+      });
+    } catch (error) {
+      if (!isUniqueConstraintViolation(error)) {
+        throw error;
+      }
+      collisions.push(`${identity.providerName}:${identity.providerUserId}`);
+    }
+  }
+
+  if (collisions.length > 0) {
+    throw new Error(
+      `${collisions.length} identity(ies) need manual reconciliation:\n${collisions.join("\n")}`,
+    );
+  }
+};
+
+function isUniqueConstraintViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "P2002"
+  );
+}
+```
+
+Register it in your app config:
+
+```ts title="main.wasp.ts"
+import { nfcBackfill } from "./src/nfcBackfill" with { type: "ref" }
+
+export default app({
+  // ...
+  db: {
+    seeds: [nfcBackfill],
+  },
+})
+```
+
+Then run it against your production database:
+
+```bash
+DATABASE_URL=<production-db-url> wasp db seed nfcBackfill
+```
+
+:::caution Run it while your app is not serving auth requests
+Run the backfill in a maintenance window: stop the old server (or block signups and logins) first, and deploy the new server only once the backfill finishes.
+
+If both an old server and decomposed identities are live at the same time, a user whose identity hasn't been rewritten yet can sign up again under the normalized identifier, which leaves you with two accounts for the same person.
+:::
+
+If two identities normalize to the same value (e.g. one user signed up from a device that sent NFC and another from a device that sent NFD), the backfill leaves them untouched and fails with the list of identities to reconcile. Fix them by hand, usually by deleting the duplicate account or by moving one of them to a new identifier, and then run the backfill again.
+
+#### 8. Enjoy your updated Wasp app
 
 That's it!
 

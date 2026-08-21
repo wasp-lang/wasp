@@ -17,7 +17,9 @@ const userServerEnvSchema: UserServerEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number().default({= defaultServerPort =}),
+  {= serverPortEnvVarName =}: z.coerce.number({
+    error: '{= serverPortEnvVarName =} is required and must be a number',
+  }),
   {= databaseUrlEnvVarName =}: z.string({
     error: '{= databaseUrlEnvVarName =} is required',
   }),
@@ -158,10 +160,8 @@ const jwtTokenSchema = z
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
-  "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default("{= defaultServerUrl =}"),
-  "{= clientUrlEnvVarName =}": clientUrlSchema
-    .default("{= defaultClientUrl =}"),
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
+  "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default("DEVJWTSECRET"),

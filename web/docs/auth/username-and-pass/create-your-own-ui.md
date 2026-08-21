@@ -81,7 +81,7 @@ Below you can find a starting point for making your own UI in the client code. Y
       const [error, setError] = useState<Error | null>(null)
       const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
@@ -182,7 +182,7 @@ Below you can find a starting point for making your own UI in the client code. Y
       const [error, setError] = useState<Error | null>(null)
       const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {

@@ -16,7 +16,7 @@ export function ensureValidEmail(args: object): void {
 // PUBLIC API
 export function ensureValidUsername(args: object): void {
   validate(args, [
-    { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username }
+    { validates: USERNAME_FIELD, message: 'username must be present and a string', validator: username => typeof username === 'string' && !!username }
   ]);
 }
 

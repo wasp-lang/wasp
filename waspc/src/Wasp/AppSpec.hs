@@ -16,7 +16,6 @@ module Wasp.AppSpec
     getRoutes,
     getJobs,
     resolveRef,
-    asAbsWaspProjectDirFile,
     getApp,
     getApiNamespaces,
     getCruds,
@@ -29,7 +28,7 @@ where
 import Data.List (find)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel)
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
@@ -144,9 +143,6 @@ resolveRef spec ref =
     )
     $ find ((== refName ref) . fst)
     $ getDecls spec
-
-asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
-asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
 
 -- This is the node version range that user expects his code to work on.
 -- TODO: Once user will be able to specify package.json, extract this range from

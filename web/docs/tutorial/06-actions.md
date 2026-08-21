@@ -83,7 +83,7 @@ Start by defining a form for creating new tasks.
 <TutorialAction id="main-page-create-task-impl-form" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   // highlight-next-line
@@ -96,7 +96,7 @@ import {
 
 // highlight-start
 const NewTaskForm = () => {
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const target = event.target as HTMLFormElement;
@@ -130,7 +130,7 @@ All that's left now is adding this form to the page component:
 <TutorialAction id="main-page-create-task-use-form" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
 
@@ -240,7 +240,7 @@ You can now call `updateTask` from the React component:
 <TutorialAction id="main-page-update-task" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js
-import type { FormEvent, ChangeEvent } from "react";
+import type { ChangeEvent, SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   // highlight-next-line

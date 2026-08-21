@@ -24,9 +24,7 @@ describe("nfcNormalizeLowercase", () => {
       const decomposed = "jose\u0301.silva@gmail.com";
       const precomposed = "josé.silva@gmail.com";
 
-      expect(nfcNormalizeLowercase(decomposed)).toBe(
-        nfcNormalizeLowercase(precomposed),
-      );
+      expect(nfcNormalizeLowercase(decomposed)).toBe(nfcNormalizeLowercase(precomposed));
       expect(nfcNormalizeLowercase(decomposed)).toBe("josé.silva@gmail.com");
     });
 
@@ -37,9 +35,7 @@ describe("nfcNormalizeLowercase", () => {
       expect(nfcNormalizeLowercase(decomposedDomain)).toBe(
         nfcNormalizeLowercase(precomposedDomain),
       );
-      expect(nfcNormalizeLowercase(decomposedDomain)).toBe(
-        "jürgen@münchen.de",
-      );
+      expect(nfcNormalizeLowercase(decomposedDomain)).toBe("jürgen@münchen.de");
     });
 
     it("treats uppercase NFC and uppercase NFD inputs as the same identifier end-to-end", () => {
