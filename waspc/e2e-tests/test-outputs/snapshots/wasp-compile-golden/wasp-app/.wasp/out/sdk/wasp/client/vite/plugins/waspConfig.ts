@@ -66,6 +66,7 @@ export function waspConfig(): PluginOption {
           // causes runtime errors (e.g., hook rule violation in react, QueryClient
           // instance error in react-query, Invariant Error in react-router).
           dedupe: [
+            "wasp",
             "react",
             "react-dom",
             "@tanstack/react-query",

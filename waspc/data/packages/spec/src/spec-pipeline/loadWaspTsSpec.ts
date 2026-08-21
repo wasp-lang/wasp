@@ -1,22 +1,38 @@
+import { realpathSync } from "node:fs";
 import { unrun } from "unrun";
+import {
+  createWaspTsSpecPlugins,
+  getRootRelativeSpecFilePath,
+} from "../compiler.js";
 import { WaspSpecUserError } from "../spec/waspSpecUserError.js";
-import { transformWaspTsSpecFilesPlugin } from "./transformWaspTsSpecFilesPlugin/index.js";
-import { typecheckPlugin } from "./typecheckPlugin/index.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
   tsconfigPath,
+  projectRootDir,
 }: {
   specPath: string;
   tsconfigPath: string;
+  projectRootDir: string;
 }): Promise<unknown> {
+  const canonicalProjectRootDir = realpathSync(projectRootDir);
   const { module: specModule } = await unrun({
     path: specPath,
     inputOptions: {
-      plugins: [
-        transformWaspTsSpecFilesPlugin(),
-        typecheckPlugin({ tsconfigPath }),
-      ],
+      plugins: createWaspTsSpecPlugins({
+        tsconfigPath,
+        getRefOrigin: (filePath) => {
+          const specFilePath = getRootRelativeSpecFilePath(
+            canonicalProjectRootDir,
+            realpathSync(filePath),
+          );
+
+          return {
+            kind: "project",
+            specFilePath,
+          };
+        },
+      }),
     },
     // By default, unrun will directly return the `default` export. We want to
     // get it ourselves, so we use this option.

@@ -242,7 +242,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
+        "468ebc7a9db1afeb1556510dae1cac5d309d031dd3857893fa63cbcfa3639493"
     ],
     [
         [
@@ -340,7 +340,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "e8fb2bdec48dc07ca7d01dd800adef26b6caee924dd0600662aa191f7f3e24ef"
+        "3cedce696cbb49b0214617fbb27b0eff8c9c0b7eae58515929a2ff70ff0cc134"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "sdk/wasp/server/_types/index.ts"
         ],
-        "5fbfa58d566c5243c85698098a4d189196538437ff4715d630d61d37df06f42d"
+        "5863d41bfc5306b61dadeb0a603c619a006c11f5a1e20201e0211e2c0823467a"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "sdk/wasp/server/middleware/globalMiddleware.ts"
         ],
-        "53f258be83ca6de653b6b645253ce573e3c177e88017eb2adb17f5d3cebb36c3"
+        "c72f6e0d621cd38ebd45aa5c03890d5ab11fdf2777efa48f2770841594ebfe63"
     ],
     [
         [
@@ -562,9 +562,23 @@
     [
         [
             "file",
+            "sdk/wasp/server/types/base.ts"
+        ],
+        "c94998fcfc8128fc7b3745876094e2df865eee68a9b8d59ba780a8483c4b64ee"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/types/index.ts"
         ],
-        "0f2ffdfdd76c92084bd0ba270b674628ec907da0d047de6c8a9912e415462d97"
+        "ab7cea3fc84d96873f8c53b3323c237d2626c71500f9572a27bca19f6359d917"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/types/setup.ts"
+        ],
+        "0bd736e8d5cb28a0a95087df56283559819ecd7c6074090a24e9234c577cc494"
     ],
     [
         [
@@ -578,7 +592,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
+        "b782df6dd62288e0211f9c5f61eb6da65f6563ec7f2ab16401a726c18bb47dbf"
     ],
     [
         [
@@ -690,7 +704,14 @@
             "file",
             "server/rollup.config.js"
         ],
-        "ad3308f02976dc31d660543bf2840c2d71ecc611eded594d4530aeb9946e8c97"
+        "7e81214d1f8fb4fdaf111a539435dafd2e275721dc4269de9486f53844b10eca"
+    ],
+    [
+        [
+            "file",
+            "server/rollupPackages.js"
+        ],
+        "33568cd85c0f9d0248a7a52dec6144a5970aa667a65d96c5af589c650a925b4c"
     ],
     [
         [
@@ -725,7 +746,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "c54b770823bcfad9bea0df4d4fabd12af7b58cab67b462972cad829c472a011e"
+        "4ac43c114f5651e0808fc932634677e0ce30cdb428f7d60a1e382219c0a93331"
     ],
     [
         [

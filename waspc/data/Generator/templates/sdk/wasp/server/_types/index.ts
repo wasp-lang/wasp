@@ -6,6 +6,12 @@ import {
   type Query as ExpressQuery,
 } from 'express-serve-static-core'
 import { prisma } from '../index.js'
+import {
+  type ActionFn,
+  type ApiFn,
+  type OperationFn,
+  type QueryFn,
+} from '../types/base.js'
 {=# isAuthEnabled =}
 import { type AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
@@ -19,35 +25,32 @@ export type UnauthenticatedQueryDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = UnauthenticatedOperationDefinition<Entities, Input, Output>
+> = QueryFn<Input, Output, Context<Entities>>
 
 export type UnauthenticatedActionDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = UnauthenticatedOperationDefinition<Entities, Input, Output>
+> = ActionFn<Input, Output, Context<Entities>>
 
 {=# isAuthEnabled =}
 export type AuthenticatedQueryDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = AuthenticatedOperationDefinition<Entities, Input, Output>
+> = QueryFn<Input, Output, ContextWithUser<Entities>>
 
 export type AuthenticatedActionDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = AuthenticatedOperationDefinition<Entities, Input, Output>
+> = ActionFn<Input, Output, ContextWithUser<Entities>>
 
 export type AuthenticatedOperationDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = (
-  args: Input,
-  context: ContextWithUser<Entities>
-) => Output | Promise<Output>
+> = OperationFn<Input, Output, ContextWithUser<Entities>>
 
 export type AuthenticatedApi<
   Entities extends _Entity[],
@@ -56,18 +59,18 @@ export type AuthenticatedApi<
   ReqBody,
   ReqQuery extends ExpressQuery,
   Locals extends Record<string, any>
-> = (
-  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
-  res: Response<ResBody, Locals>,
-  context: ContextWithUser<Entities>,
-) => void
+> = ApiFn<
+  Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
+  Response<ResBody, Locals>,
+  ContextWithUser<Entities>
+>
 
 {=/ isAuthEnabled =}
 export type UnauthenticatedOperationDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = (args: Input, context: Context<Entities>) => Output | Promise<Output>
+> = OperationFn<Input, Output, Context<Entities>>
 
 export type Api<
   Entities extends _Entity[],
@@ -76,11 +79,11 @@ export type Api<
   ReqBody,
   ReqQuery extends ExpressQuery,
   Locals extends Record<string, any>
-> = (
-  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
-  res: Response<ResBody, Locals>,
-  context: Context<Entities>,
-) => void
+> = ApiFn<
+  Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
+  Response<ResBody, Locals>,
+  Context<Entities>
+>
 
 export type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]

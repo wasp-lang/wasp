@@ -22,11 +22,9 @@ export interface AppMapperContext {
 
 export function makeAppMapperContext({
   entityNames,
-  projectRootDir,
   specElements,
 }: {
   entityNames: string[];
-  projectRootDir: string;
   specElements: WaspSpec.SpecElement[];
 }): {
   ctx: AppMapperContext;
@@ -37,10 +35,7 @@ export function makeAppMapperContext({
   const ctx: AppMapperContext = {
     resolveEntityRef: makeRefParser("Entity", entityNames),
 
-    parseRefObject: (refObject) =>
-      mapRefObject(refObject, {
-        projectRootDir,
-      }),
+    parseRefObject: mapRefObject,
 
     resolveRouteRef: makeRefParser(
       "Route",

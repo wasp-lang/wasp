@@ -5,6 +5,12 @@ import {
   type Query as ExpressQuery,
 } from 'express-serve-static-core'
 import { prisma } from '../index.js'
+import {
+  type ActionFn,
+  type ApiFn,
+  type OperationFn,
+  type QueryFn,
+} from '../types/base.js'
 import { type _Entity } from './taggedEntities'
 import { type Payload } from '../../core/serialization/index.js'
 
@@ -15,19 +21,19 @@ export type UnauthenticatedQueryDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = UnauthenticatedOperationDefinition<Entities, Input, Output>
+> = QueryFn<Input, Output, Context<Entities>>
 
 export type UnauthenticatedActionDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = UnauthenticatedOperationDefinition<Entities, Input, Output>
+> = ActionFn<Input, Output, Context<Entities>>
 
 export type UnauthenticatedOperationDefinition<
   Entities extends _Entity[],
   Input extends Payload,
   Output extends Payload
-> = (args: Input, context: Context<Entities>) => Output | Promise<Output>
+> = OperationFn<Input, Output, Context<Entities>>
 
 export type Api<
   Entities extends _Entity[],
@@ -36,11 +42,11 @@ export type Api<
   ReqBody,
   ReqQuery extends ExpressQuery,
   Locals extends Record<string, any>
-> = (
-  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
-  res: Response<ResBody, Locals>,
-  context: Context<Entities>,
-) => void
+> = ApiFn<
+  Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
+  Response<ResBody, Locals>,
+  Context<Entities>
+>
 
 export type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]

@@ -23,7 +23,7 @@ import {
 import * as Fixtures from "./testFixtures.js";
 
 function mapRefObjectForMockProjectDir(refObject: unknown) {
-  return mapRefObject(refObject, { projectRootDir: Fixtures.MOCK_PROJECT_DIR });
+  return mapRefObject(refObject);
 }
 
 function makeMapperContext({
@@ -56,7 +56,6 @@ function getSpecElementDeclName(specElement: WaspSpec.SpecElement): string {
 function mapMockApp(app: WaspSpec.App, entityNames: string[]) {
   return convertWaspSpecToAppSpec(app, {
     entityNames,
-    projectRootDir: Fixtures.MOCK_PROJECT_DIR,
   });
 }
 

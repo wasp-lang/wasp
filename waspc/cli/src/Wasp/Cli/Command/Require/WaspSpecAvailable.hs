@@ -9,9 +9,8 @@ import Data.Data (Typeable)
 import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
+import Wasp.Project.Install (isInstalledWaspSpecMatchingCliVersion)
 import Wasp.Util.Terminal (styleCode)
-import qualified Wasp.Version as WV
 
 -- | Require that the @wasp.sh/spec package is available in node_modules and that
 -- its version matches this CLI's version.
@@ -23,15 +22,10 @@ instance Requirable WaspSpecAvailable where
     -- Reading the wasp spec runs Node.js (via the FFI), so it requires Node.js
     -- and npm to be present.
     ValidNodeAndNpm <- require
-    ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    isCurrent <- liftIO $ isInstalledWaspSpecMatchingCliVersion waspProjectDir
+    if isCurrent then return () else throwError missingDepsError
     return WaspSpecAvailable
     where
-      ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
-        liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage) >>= \case
-          Left _ -> throwError missingDepsError
-          Right installedWaspSpecVersion
-            | installedWaspSpecVersion == WV.waspVersion -> return ()
-            | otherwise -> throwError missingDepsError
       missingDepsError =
         CommandError
           "Missing or stale dependencies in project"

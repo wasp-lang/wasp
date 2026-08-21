@@ -1,6 +1,6 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliCompile)
+import ShellCommands (ShellCommand, assertDirectoryExists, createTestWaspProject, inTestWaspProjectDir, waspCliCompile)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -38,6 +38,3 @@ waspCompileTest =
   where
     waspCliCompileFails :: ShellCommand
     waspCliCompileFails = "! $WASP_CLI_CMD compile"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"
