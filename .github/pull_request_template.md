@@ -6,6 +6,17 @@
   them blank and ask for help.
 -->
 
+## Scope check
+
+<!--
+  Check exactly one. Per CONTRIBUTING.md, non-trivial changes need maintainer
+  agreement on the approach BEFORE the code is written, in a GitHub issue or
+  in #wasp-dev on Discord.
+-->
+
+- [ ] This is a small, obvious fix (typo, docs, clear small bug with a test).
+- [ ] A maintainer agreed on the approach beforehand, here: <!-- link the GitHub issue or Discord thread -->
+
 ## Description
 
 Replace this message here, and write a high-level overview with any additional

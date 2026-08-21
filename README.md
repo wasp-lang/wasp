@@ -159,9 +159,9 @@ React + TanStack Query, Node.js + Express.js, and Prisma.
 
 ## Contributing
 
-Any way you want to contribute is a good way :)!
+We welcome contributions! Small, obvious fixes (typos, docs, clear small bugs) are welcome directly as PRs.
 
-You can share feedback, help with the docs, examples, work on the specific Wasp features, contribute to the CLI core, etc.
+For anything bigger (features, refactors, changes in behavior), please talk to us first, in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or on [Discord](https://discord.wasp.run/wasp-dev), so we can agree on the approach before you write code.
 
 Check out [CONTRIBUTING](CONTRIBUTING.md) for more details.
 
