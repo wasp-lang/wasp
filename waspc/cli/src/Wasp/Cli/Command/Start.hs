@@ -22,7 +22,6 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
-import qualified Wasp.Cli.EnvVarWithCtx as EnvVarCtx
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
@@ -141,7 +140,7 @@ assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, se
     readImplicitEnvVars dotEnvFile =
       mconcat
         [ readProjectFileIfExists dotEnvFile,
-          EnvVarCtx.readEnvironment
+          EnvVarWithCtx.readEnvironment
         ]
 
     readProjectFileIfExists dotEnvFile =
