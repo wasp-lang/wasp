@@ -1,21 +1,15 @@
 module Wasp.Cli.RunConfigs
-  ( makeDefaultDevRunConfigs,
-    makeRunConfigs,
+  ( makeRunConfigs,
     showRunConfigUrls,
   )
 where
 
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import qualified Wasp.AppComponentUrl as AppComponentUrl
-import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.AppComponentUrls (makeDefaultUrls)
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerRunConfig
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig, makeWebAppRunConfig)
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppRunConfig
-
-makeDefaultDevRunConfigs :: AppSpec -> (WebAppRunConfig, ServerRunConfig)
-makeDefaultDevRunConfigs appSpec = makeRunConfigs $ makeDefaultUrls appSpec
 
 makeRunConfigs :: (AppComponentUrl, AppComponentUrl) -> (WebAppRunConfig, ServerRunConfig)
 makeRunConfigs (clientUrl, serverUrl) = (clientRunConfig, serverRunConfig)

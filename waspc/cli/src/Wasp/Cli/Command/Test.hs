@@ -9,13 +9,15 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
+import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
+import Wasp.Cli.AppComponentUrls (makeDevUrls)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
+import Wasp.Cli.RunConfigs (makeRunConfigs)
 import qualified Wasp.Generator
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
@@ -39,7 +41,9 @@ watchAndTest testRunner = withProjectLock $ do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   (warnings, appSpec) <- compile
-  let (clientRunConfig, _) = makeDefaultDevRunConfigs appSpec
+
+  ports <- findAppComponentPorts (Nothing, Nothing)
+  let (clientRunConfig, _) = makeRunConfigs $ makeDevUrls appSpec ports
 
   cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
