@@ -1,5 +1,11 @@
 # Contributing to Wasp
 
+## Before you open a PR
+
+**Small, obvious fixes are welcome as direct PRs.** Typos, broken links, docs corrections, small bugs where the fix is clear and comes with a test.
+
+**Everything else: talk to us before writing code.** Open a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or post in the [`#wasp-dev` channel on our Discord](https://discord.wasp.run/wasp-dev), and wait for a maintainer to agree on the approach. We will usually close PRs for undiscussed non-trivial changes without reviewing them. See [Policies](#policies) below for details, including our policy on AI-assisted contributions.
+
 There are several main ways in which you can contribute to Wasp:
 
 - [Wasp as a web framework](#wasp-as-a-web-framework) (React, Node, HTML/CSS, database and so on)
@@ -105,6 +111,12 @@ Happy hacking!
 ## Policies
 
 These are some general policies that we follow when it comes to contributions. They are not meant to be strict or exhaustive, but rather to give you a sense of what we value and expect. If you are linked here from a PR, it means that we think your contribution could be improved in some way, and following these guidelines is the best way to do it.
+
+### Discuss before you code
+
+Anything beyond a small, obvious fix needs a maintainer's agreement on the approach _before_ you write the code: features, refactors, API or behavior changes, and anything where you had to choose between approaches. Propose it in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or in the [`#wasp-dev` channel on our Discord](https://discord.wasp.run/wasp-dev). An open issue is not by itself a request for PRs: check that a maintainer has confirmed the approach in the discussion first.
+
+If a non-trivial PR arrives without that agreement, we will usually close it and ask you to start the discussion, instead of reviewing it. This is not us being unfriendly: a PR review is the wrong place to design a solution together, and we would rather spend that time helping you land something we can all agree on.
 
 ### AIs and LLMs
 
