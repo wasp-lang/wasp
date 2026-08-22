@@ -9,6 +9,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       collapsible: true,
       items: [
+        "introduction/why",
         "introduction/introduction",
         "introduction/quick-start",
         "introduction/editor-setup",
