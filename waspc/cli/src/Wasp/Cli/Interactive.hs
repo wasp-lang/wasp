@@ -114,7 +114,7 @@ askToChoose question options = do
         showIndex idx = "[" ++ show (idx :: Int) ++ "]"
 
         showDescription (idx, option) = case showOptionDescription option of
-          Just description -> "\n" <> replicate indentLength ' ' <> description
+          Just description -> "\n" <> replicate indentLength ' ' <> Term.applyStyles [Term.Grey] description
           Nothing -> ""
           where
             indentLength = length (showIndex idx) + 1
