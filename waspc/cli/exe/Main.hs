@@ -10,7 +10,7 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr)
+import System.IO (BufferMode (LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -46,6 +46,10 @@ import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+  -- If we don't explicitly set line buffering, the output gets block-buffered
+  -- when stdout is not a terminal (e.g. redirected to a file or another program),
+  -- so messages from long-running commands don't show up until the command exits.
+  hSetBuffering stdout LineBuffering
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
