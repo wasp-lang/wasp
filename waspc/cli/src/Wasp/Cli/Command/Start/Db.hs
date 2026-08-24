@@ -23,7 +23,7 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Port (findFirstFreeLocalPort, maxNumOfPortsToCheck)
+import Wasp.Cli.Port (findFirstFreeLocalPortInRange)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import qualified Wasp.Message as Msg
@@ -125,18 +125,27 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
-    Nothing -> do
-      maybeFreePort <- liftIO $ findFirstFreeLocalPort candidatePorts
-      maybe throwNoFreePortError startDbOnPort maybeFreePort
+    Nothing -> startDbOnPort =<< findFreeDevDbPort
   where
+    findFreeDevDbPort :: Command PortNumber
+    findFreeDevDbPort =
+      liftIO
+        ( findFirstFreeLocalPortInRange
+            defaultPostgresPort
+            []
+            "Free at least one of those ports by exiting the program listening on it."
+        )
+        >>= either throwNoFreePortError return
+
+    throwNoFreePortError :: String -> Command a
+    throwNoFreePortError = E.throwError . CommandError "No free port"
+
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do
       cliSendMessageC . Msg.Info . unlines $
         ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
           : additionalInfoLines devDbSpec
       liftIO exitFailure
-
-    candidatePorts = take maxNumOfPortsToCheck [defaultPostgresPort ..]
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
@@ -168,16 +177,3 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
       [ " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath
       ]
-
-    throwNoFreePortError :: Command ()
-    throwNoFreePortError =
-      E.throwError $
-        CommandError
-          "No free port"
-          ( printf
-              ( "Wasp tried to start a PostgreSQL dev database but couldn't find a free port (checked from %s to %s). "
-                  <> "Free at least one of these ports by exiting the program listening on it."
-              )
-              (show $ head candidatePorts)
-              (show $ last candidatePorts)
-          )

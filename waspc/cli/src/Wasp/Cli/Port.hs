@@ -1,26 +1,41 @@
 module Wasp.Cli.Port
-  ( findFirstFreeLocalPort,
+  ( findFirstFreeLocalPortInRange,
+    findFirstFreeLocalPortAmong,
     checkIfLocalPortIsTaken,
-    maxNumOfPortsToCheck,
   )
 where
 
+import Data.List ((\\))
 import Network.Socket (PortNumber)
 import Wasp.Util (ifM)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | General setting for all of our logic that checks for free ports. This is
--- the maximum number of ports we should check for availability before giving up
--- and throwing an error.
+-- the maximum number of ports we should check for availability before giving up.
 maxNumOfPortsToCheck :: Int
 maxNumOfPortsToCheck = 20
 
-findFirstFreeLocalPort :: [PortNumber] -> IO (Maybe PortNumber)
-findFirstFreeLocalPort [] = return Nothing
-findFirstFreeLocalPort (port : remainingPorts) =
+findFirstFreeLocalPortInRange :: PortNumber -> [PortNumber] -> String -> IO (Either String PortNumber)
+findFirstFreeLocalPortInRange firstPortToCheck portsToSkip remediationHint =
+  maybe (Left noFreePortError) Right <$> findFirstFreeLocalPortAmong candidatePorts
+  where
+    candidatePorts = [firstPortToCheck .. lastPortToCheck] \\ portsToSkip
+    lastPortToCheck = firstPortToCheck + fromIntegral maxNumOfPortsToCheck - 1
+
+    noFreePortError =
+      "Wasp couldn't find a free port in range "
+        ++ show firstPortToCheck
+        ++ "-"
+        ++ show lastPortToCheck
+        ++ ". "
+        ++ remediationHint
+
+findFirstFreeLocalPortAmong :: [PortNumber] -> IO (Maybe PortNumber)
+findFirstFreeLocalPortAmong [] = return Nothing
+findFirstFreeLocalPortAmong (port : remainingPorts) =
   ifM
     (checkIfLocalPortIsTaken port)
-    (findFirstFreeLocalPort remainingPorts)
+    (findFirstFreeLocalPortAmong remainingPorts)
     (return $ Just port)
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
