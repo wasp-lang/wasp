@@ -26,7 +26,6 @@ import Wasp.Generator.SdkGenerator.Common
     getRegisteredOperationTypeName,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -150,8 +149,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extImportToImportJson (Just $ AS.Operation.getFn operation),
-      "operationName" .= AS.Operation.getName operation,
+    [ "operationName" .= AS.Operation.getName operation,
       "genericOperationDefinitionTypeName" .= getGenericOperationDefinitionTypeName operation,
       "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"

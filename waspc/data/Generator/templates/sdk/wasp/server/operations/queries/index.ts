@@ -5,7 +5,8 @@
 {=! TODO: This will generate multiple import statements even though they're
           importing symbols from the same file. We should improve our importing machinery
           to support multiple imports from the same file =}
-import { prisma } from '../../index'
+import { prisma } from '../../index.js'
+import { getServerOperation } from '../../runtime.js'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
@@ -13,16 +14,13 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
   {=/ isAuthEnabled =}
-} from '../wrappers'
-import type { FromRegisterPath } from '../../../types/register'
+} from '../wrappers.js'
+import type { FromRegisterPath } from '../../../types/register.js'
 import type {
   {=# operations =}
   {= genericOperationDefinitionTypeName =},
   {=/ operations =}
-} from './types'
-{=# operations =}
-{=& jsFn.importStatement =}
-{=/ operations =}
+} from './types.js'
 {=# operations =}
 
 // PRIVATE API
@@ -37,7 +35,7 @@ export const {= operationName =}: AuthenticatedOperationFor<{= registeredOperati
 export const {= operationName =}: UnauthenticatedOperationFor<{= registeredOperationTypeName =}> =
   createUnauthenticatedOperation<{= registeredOperationTypeName =}>(
 {=/ usesAuth =}
-    () => {= jsFn.importIdentifier =},
+    () => getServerOperation<{= registeredOperationTypeName =}>('{= operationName =}'),
     {
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},

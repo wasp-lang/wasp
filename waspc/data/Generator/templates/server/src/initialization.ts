@@ -19,7 +19,7 @@ import './jobs/core/allJobs.js'
 import { init as initWebSocket } from './webSocket/initialization.js'
 {=/ userWebSocketFn.isDefined =}
 
-const startServer = async () => {
+export const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}
   await startPgBoss()
   {=/ isPgBossJobExecutorUsed =}
@@ -62,8 +62,6 @@ const startServer = async () => {
     console.log('Server listening on ' + bind)
   })
 }
-
-startServer().catch(e => console.error(e))
 
 /**
  * Normalize a port into a number, string, or false.

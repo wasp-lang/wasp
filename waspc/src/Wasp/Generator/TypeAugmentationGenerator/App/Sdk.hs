@@ -24,8 +24,8 @@ import Wasp.Generator.TypeAugmentationGenerator.App.Sdk.JsImport (extImportToImp
 
 {-
 This module allows the SDK to use the user project types.
-The other part, values, is documented in
-"Wasp.Generator.SdkGenerator.VirtualUserModules".
+The other part, runtime values, is supplied through the generated server
+runtime bindings.
 
 If the SDK tried to import types from the user project directly,
 it would create a cyclic dependency between TypeScript projects.

@@ -1,4 +1,6 @@
 {{={= =}=}}
+import "virtual:wasp/client-runtime-bindings";
+
 import { startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";

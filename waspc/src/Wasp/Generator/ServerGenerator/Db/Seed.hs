@@ -8,8 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Functor ((<&>))
-import Data.Maybe (maybeToList)
 import StrongPath (Dir, File, Path, Path', Posix, Rel, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -23,24 +21,30 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
-  return $ maybeToList dbSeedFd
+  return $ maybe [] dbSeedFileDrafts (dbSeedsToTemplateData (getDbSeeds spec))
   where
-    dbSeedFd =
-      dbSeedsToTemplateData (getDbSeeds spec) <&> \tmplData ->
+    dbSeedFileDrafts tmplData =
+      [ C.mkTmplFdWithData
+          (C.srcDirInServerTemplatesDir </> dbSeedBootstrapScriptInServerTmplSrcDir)
+          Nothing,
         C.mkTmplFdWithData
-          (C.srcDirInServerTemplatesDir </> dbSeedScriptInServerTmplSrcDir)
+          (C.srcDirInServerTemplatesDir </> dbSeedInitializationScriptInServerTmplSrcDir)
           (Just tmplData)
+      ]
 
-dbSeedScriptInServerTmplSrcDir :: Path' (Rel C.ServerTemplatesSrcDir) (File ())
-dbSeedScriptInServerTmplSrcDir = [relfile|dbSeed.ts|]
+dbSeedBootstrapScriptInServerTmplSrcDir :: Path' (Rel C.ServerTemplatesSrcDir) (File ())
+dbSeedBootstrapScriptInServerTmplSrcDir = [relfile|seed/bootstrap.ts|]
+
+dbSeedInitializationScriptInServerTmplSrcDir :: Path' (Rel C.ServerTemplatesSrcDir) (File ())
+dbSeedInitializationScriptInServerTmplSrcDir = [relfile|seed/initialization.ts|]
 
 pathFromDbSeedScriptToServerSrc :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
-pathFromDbSeedScriptToServerSrc = [reldirP|./|]
+pathFromDbSeedScriptToServerSrc = [reldirP|../|]
 
 getPackageJsonPrismaSeedField :: AppSpec -> Maybe String
 getPackageJsonPrismaSeedField spec =
   case getDbSeeds spec of
-    Just (_ : _) -> Just "npm run db-seed"
+    Just (_ : _) -> Just "npm run seed"
     _ -> Nothing
 
 getDbSeeds :: AppSpec -> Maybe [ExtImport]

@@ -18,9 +18,8 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -57,7 +56,6 @@ import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genEmailSenderApi)
@@ -68,7 +66,6 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
-import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -113,6 +110,9 @@ genSdk spec =
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
+      C.genFileCopy [relfile|server/runtime.ts|],
+      C.genFileCopy [relfile|client/runtime.ts|],
+      C.genFileCopy [relfile|wasp-virtual-modules.d.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
@@ -125,8 +125,7 @@ genSdk spec =
       genServerUtils spec,
       genServerExportedTypesDir,
       genPackageJson spec,
-      genServerDbClient spec,
-      genVirtualUserModulesDeclaration spec
+      genServerDbClient spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -337,24 +336,9 @@ genServerMiddleware =
 genServerDbClient :: AppSpec -> Generator FileDraft
 genServerDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
-  let tmplData =
-        object
-          [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
-          ]
+  let tmplData = object ["areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined]
 
   return $
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
-  where
-    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    app = snd $ getApp spec
-
--- | Declares only those virtual user modules that are used by the SDK.
-genVirtualUserModulesDeclaration :: AppSpec -> Generator FileDraft
-genVirtualUserModulesDeclaration spec =
-  return $
-    C.mkTmplFdWithData
-      [relfile|wasp-user-virtual-modules.d.ts|]
-      (VUM.mkVirtualUserModulesDeclarationData spec)
