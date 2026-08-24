@@ -57,4 +57,3 @@ checkIfLocalPortIsTaken port =
 -- the maximum number of ports we should check for availability before giving up.
 maxNumOfPortsToCheck :: Int
 maxNumOfPortsToCheck = 20
-
