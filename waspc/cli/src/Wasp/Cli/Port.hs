@@ -10,11 +10,6 @@ import Network.Socket (PortNumber)
 import Wasp.Util (ifM)
 import qualified Wasp.Util.Network.Socket as Socket
 
--- | General setting for all of our logic that checks for free ports. This is
--- the maximum number of ports we should check for availability before giving up.
-maxNumOfPortsToCheck :: Int
-maxNumOfPortsToCheck = 20
-
 findFirstFreeLocalPortInRange :: PortNumber -> [PortNumber] -> String -> IO (Either String PortNumber)
 findFirstFreeLocalPortInRange firstPortToCheck portsToSkip remediationHint =
   maybe (Left noFreePortError) Right <$> findFirstFreeLocalPortAmong candidatePorts
@@ -57,3 +52,9 @@ checkIfLocalPortIsTaken port =
     (Socket.checkIfPortIsAcceptingConnections socketAddress)
   where
     socketAddress = Socket.makeLocalHostSocketAddress port
+
+-- | General setting for all of our logic that checks for free ports. This is
+-- the maximum number of ports we should check for availability before giving up.
+maxNumOfPortsToCheck :: Int
+maxNumOfPortsToCheck = 20
+
