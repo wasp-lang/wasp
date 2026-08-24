@@ -6,7 +6,7 @@ import { config } from 'wasp/server'
 
 
 
-const startServer = async () => {
+export const startServer = async () => {
 
   const port = normalizePort(config.port)
   app.set('port', port)
@@ -39,8 +39,6 @@ const startServer = async () => {
     console.log('Server listening on ' + bind)
   })
 }
-
-startServer().catch(e => console.error(e))
 
 /**
  * Normalize a port into a number, string, or false.

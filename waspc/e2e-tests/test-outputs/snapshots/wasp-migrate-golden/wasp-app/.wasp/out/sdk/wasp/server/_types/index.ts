@@ -5,10 +5,10 @@ import {
   type Query as ExpressQuery,
 } from 'express-serve-static-core'
 import { prisma } from '../index.js'
-import { type _Entity } from './taggedEntities'
+import { type _Entity } from './taggedEntities.js'
 import { type Payload } from '../../core/serialization/index.js'
 
-export * from "./taggedEntities"
+export * from "./taggedEntities.js"
 export * from "../../core/serialization/index.js"
 
 export type UnauthenticatedQueryDefinition<

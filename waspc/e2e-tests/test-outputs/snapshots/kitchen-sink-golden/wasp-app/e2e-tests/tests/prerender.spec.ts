@@ -9,12 +9,18 @@ test.describe("prerender", () => {
 
     await page.goto("/prerender");
 
+    await expect(
+      page.getByRole("heading", { name: "Kitchen Sink App" }),
+    ).toBeVisible();
     await expect(page.getByTestId("render-location")).toHaveText("server");
   });
 
   test("prerender page hydrates on the client", async ({ page }) => {
     await page.goto("/prerender");
 
+    await expect(
+      page.getByRole("heading", { name: "Kitchen Sink App" }),
+    ).toBeVisible();
     await expect(page.getByTestId("render-location")).toHaveText("client");
   });
 

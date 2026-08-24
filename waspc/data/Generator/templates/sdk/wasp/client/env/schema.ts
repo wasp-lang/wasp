@@ -1,7 +1,7 @@
 {{={= =}=}}
 import * as z from "zod"
 import { FromRegister } from "../../types/register";
-import { getClientEnvValidationSchema } from "./runtimeBindings.js"
+import { getClientEnvValidationSchema } from "wasp/client/runtime"
 
 export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
 type UserClientEnvSchema = RegisteredClientEnvValidationSchema;

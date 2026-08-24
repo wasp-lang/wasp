@@ -66,12 +66,12 @@ waspCompileTest =
                   return $ assertFileDoesNotContain "virtual:wasp/user" "./.wasp/out/sdk/wasp/server/operations/queries/index.ts",
                   return $ assertFileDoesNotContain "virtual:wasp/user" "./.wasp/out/sdk/wasp/server/dbClient.ts",
                   return $ assertFileContains "./src/env" "./.wasp/out/sdk/wasp/client/vite/virtual-files/files/client-runtime-bindings.ts",
-                  return $ assertFileContains "wasp/client/runtime" "./.wasp/out/sdk/wasp/client/env/runtimeBindings.ts",
+                  return $ assertFileDoesNotContain "virtual:wasp/" "./.wasp/out/sdk/wasp/client/env/schema.ts",
                   return $ assertFileDoesNotContain "virtual:wasp/user" "./.wasp/out/sdk/wasp/client/env/schema.ts",
                   return $ assertFileContains "\"wasp\": \"file:../sdk/wasp\"" "./.wasp/out/server/package.json",
                   return "(cd .wasp/out/server && npm run build)",
                   return $ assertFileContains "await import" "./.wasp/out/server/build/bootstrap.js",
-                  return $ assertFileContains "from 'wasp/server/runtime'" "./.wasp/out/server/build/bootstrap.js"
+                  return $ assertFileContains "wasp/server/runtime" "./.wasp/out/server/build/bootstrap.js"
                 ]
             ]
         )

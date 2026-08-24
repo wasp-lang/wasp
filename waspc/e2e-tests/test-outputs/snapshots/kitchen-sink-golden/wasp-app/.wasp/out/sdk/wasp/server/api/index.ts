@@ -5,7 +5,7 @@ import {
   type _Task,
   type Api,
   type AuthenticatedApi,
-} from '../_types'
+} from '../_types/index.js'
 
 
 // PUBLIC API

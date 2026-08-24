@@ -245,7 +245,7 @@ genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
       genFileCopy [relfile|bootstrap.ts|],
-      genServerMain spec
+      genServerInitialization spec
     ]
     <++> sequence [genRuntimeBindings spec]
     <++> genRoutesDir spec
@@ -259,8 +259,8 @@ genSrcDir spec =
   where
     genFileCopy = return . C.mkSrcTmplFd
 
-genServerMain :: AppSpec -> Generator FileDraft
-genServerMain spec =
+genServerInitialization :: AppSpec -> Generator FileDraft
+genServerInitialization spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/initialization.ts|])

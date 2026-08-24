@@ -42,7 +42,6 @@ genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
   sequence
     [ genClientEnvSchema spec,
-      genFileCopy [relfile|client/env/runtimeBindings.ts|],
       genFileCopy [relfile|client/env.ts|]
     ]
 

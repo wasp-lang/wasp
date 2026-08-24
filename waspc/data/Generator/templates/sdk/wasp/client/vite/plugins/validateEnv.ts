@@ -9,6 +9,7 @@ import {
 
 const PLUGIN_NAME = "wasp:validate-env";
 const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "{= clientEnvSchemaValidationModulePath =}"
+const CLIENT_RUNTIME_BINDINGS_MODULE = "{= clientRuntimeBindingsEntryPointPath =}"
 
 export function validateEnv(): Plugin {
   let resolvedConfig: ResolvedConfig;
@@ -63,9 +64,13 @@ export async function validateClientEnv(resolvedConfig: ResolvedConfig): Promise
     if (!isRunnableDevEnvironment(tempServer.environments.ssr)) {
       throw new Error(`Expected ssr to be a runnable dev environment`)
     }
+
+    const runner = tempServer.environments.ssr.runner;
+    await runner.import(CLIENT_RUNTIME_BINDINGS_MODULE);
+
     // Importing this module validates the client environment as a side effect.
     const moduleAbsPath = path.resolve(resolvedConfig.root, CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
-    await tempServer.environments.ssr.runner.import(moduleAbsPath);
+    await runner.import(moduleAbsPath);
   } finally {
     await tempServer.close();
   }

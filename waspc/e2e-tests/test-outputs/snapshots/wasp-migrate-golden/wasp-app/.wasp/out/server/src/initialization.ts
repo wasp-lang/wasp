@@ -3,27 +3,17 @@ import http from 'http'
 import app from './app.js'
 import { config } from 'wasp/server'
 
-import { serverSetup } from '../../../../src/serverSetup'
-import { ServerSetupFn } from 'wasp/server'
-import { ServerSetupFnContext } from 'wasp/server/types'
 
-import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
-import './jobs/core/allJobs.js'
 
-import { init as initWebSocket } from './webSocket/initialization.js'
 
-const startServer = async () => {
-  await startPgBoss()
+export const startServer = async () => {
 
   const port = normalizePort(config.port)
   app.set('port', port)
 
   const server = http.createServer(app)
 
-  const serverSetupFnContext: ServerSetupFnContext = { app, server }
-  await (serverSetup as ServerSetupFn)(serverSetupFnContext)
 
-  await initWebSocket(server)
 
   server.listen(port)
 
@@ -49,8 +39,6 @@ const startServer = async () => {
     console.log('Server listening on ' + bind)
   })
 }
-
-startServer().catch(e => console.error(e))
 
 /**
  * Normalize a port into a number, string, or false.

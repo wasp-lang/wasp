@@ -11,7 +11,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, clientRuntimeBindingsEntryPointPath, spaFallbackFile, ssrEntryPointPath)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
@@ -110,7 +110,11 @@ genValidateEnvPlugin :: Generator FileDraft
 genValidateEnvPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
-    tmplData = object ["clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath]
+    tmplData =
+      object
+        [ "clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath,
+          "clientRuntimeBindingsEntryPointPath" .= clientRuntimeBindingsEntryPointPath
+        ]
 
     clientEnvSchemaValidationModulePath = SP.fromRelFileP . fromJust . SP.relFileToPosix $ clientEnvSchemaValidationModuleDir
     clientEnvSchemaValidationModuleDir = generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]
