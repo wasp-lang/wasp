@@ -1,6 +1,7 @@
 module Wasp.Db.Postgres
   ( makeConnectionUrl,
     postgresMaxDbNameLength,
+    defaultPostgresPort,
     defaultPostgresDockerImageSpec,
   )
 where
@@ -19,6 +20,9 @@ makeConnectionUrl user pass port dbName =
 -- As specified by PostgreSQL documentation.
 postgresMaxDbNameLength :: Int
 postgresMaxDbNameLength = 63
+
+defaultPostgresPort :: PortNumber
+defaultPostgresPort = 5432
 
 -- | We pin the Postgres Docker image to avoid issues when a new major version of Postgres
 -- is released. We aim to occasionally update this version in Wasp releases.

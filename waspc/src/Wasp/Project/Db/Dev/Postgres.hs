@@ -5,7 +5,6 @@ module Wasp.Project.Db.Dev.Postgres
     DevDbSpec (..),
     getDevConnectionUrl,
     discoverProjectsRunningDevDb,
-    defaultPostgresPort,
     waspDevDbDockerVolumePrefix,
   )
 where
@@ -14,7 +13,7 @@ import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import System.Process (callCommand)
 import Text.Printf (printf)
-import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
+import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 
@@ -54,13 +53,14 @@ runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath =
         [ "docker run",
           printf "--name %s" devDbSpec.dockerContainerName,
           "--rm",
-          printf "--publish %s:%s" (show devDbSpec.port) (show defaultPostgresPort),
+          printf "--publish %s:%s" (show devDbSpec.port) (show postgresImageInternalPort),
           printf "-v %s:%s" devDbSpec.dockerVolumeName dbDockerVolumeMountPath,
           printf "--env POSTGRES_PASSWORD=%s" devDbSpec.password,
           printf "--env POSTGRES_USER=%s" devDbSpec.user,
           printf "--env POSTGRES_DB=%s" devDbSpec.dbName,
           dbDockerImage
         ]
+    postgresImageInternalPort = defaultPostgresPort
 
 -- | Returns all relevant info about this Wasp project's dev detabase if its
 -- container is running, 'Nothing' otherwise.
@@ -87,9 +87,6 @@ makeDevDbName waspProjectDir appName =
   -- Wasp app has started. This way db name is unique for the specific Wasp app, and another Wasp app
   -- can't connect to it by accident.
   take postgresMaxDbNameLength $ makeAppUniqueId waspProjectDir appName
-
-defaultPostgresPort :: PortNumber
-defaultPostgresPort = 5432
 
 -- | Docker volume name unique for the Wasp project with specified path and name.
 makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String

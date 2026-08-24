@@ -14,6 +14,7 @@ import ShellCommands
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Db.Postgres (defaultPostgresPort)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 
 waspDbStartTest :: Test
@@ -135,7 +136,7 @@ occupyDefaultDevDbPort =
       ++ defaultPort
       ++ " alpine sleep 300"
   where
-    defaultPort = show Dev.Postgres.defaultPostgresPort
+    defaultPort = show defaultPostgresPort
 
 removeDefaultDevDbPortHolder :: ShellCommandBuilder WaspProjectContext ShellCommand
 removeDefaultDevDbPortHolder = return $ "docker rm -f " ++ devDbPortHolderContainerName

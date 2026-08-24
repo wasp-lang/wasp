@@ -50,6 +50,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.
   hSetBuffering stdout LineBuffering
+
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs

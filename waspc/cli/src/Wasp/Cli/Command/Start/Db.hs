@@ -25,7 +25,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Port (findFirstFreeLocalPort, maxNumOfPortsToCheck)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
+import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -136,7 +136,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
           : additionalInfoLines devDbSpec
       liftIO exitFailure
 
-    candidatePorts = take maxNumOfPortsToCheck [Dev.Postgres.defaultPostgresPort ..]
+    candidatePorts = take maxNumOfPortsToCheck [defaultPostgresPort ..]
 
     startDbOnPort :: PortNumber -> Command ()
     startDbOnPort port = do
