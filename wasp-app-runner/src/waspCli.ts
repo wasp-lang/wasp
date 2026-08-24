@@ -144,16 +144,96 @@ export async function getWaspVersion({
   };
 }
 
+export type AppInfo = {
+  appName: AppName;
+  dbType: DbType;
+};
+
+/**
+ * Wasp 0.26.0 replaced `wasp info` with `wasp show spec`, so we try the new
+ * command first and fall back to the old one for older Wasp versions.
+ */
 export async function waspInfo({
   waspCliCmd,
   pathToApp,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-}): Promise<{
-  appName: AppName;
-  dbType: DbType;
-}> {
+}): Promise<AppInfo> {
+  const appInfoFromShowSpec = await getAppInfoFromShowSpec({
+    waspCliCmd,
+    pathToApp,
+  });
+
+  return appInfoFromShowSpec ?? getAppInfoFromInfo({ waspCliCmd, pathToApp });
+}
+
+/**
+ * Returns `null` if `wasp show spec` isn't available (i.e. the app runs an
+ * older Wasp version), so the caller can fall back to `wasp info`.
+ */
+async function getAppInfoFromShowSpec({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+}): Promise<AppInfo | null> {
+  const logger = createLogger("wasp-show-spec");
+  const { stdoutData, stderrData, exitCode } = await spawnAndCollectOutput({
+    name: "wasp-show-spec",
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, "show", "spec", "--json"],
+    cwd: pathToApp,
+  });
+
+  if (exitCode !== 0) {
+    logger.debug(
+      `Falling back to "wasp info", "wasp show spec" failed: ${stripVTControlCharacters(stderrData)}`,
+    );
+    return null;
+  }
+
+  let spec: unknown;
+  try {
+    spec = JSON.parse(stripVTControlCharacters(stdoutData));
+  } catch (error) {
+    logger.error(`Failed to parse the app spec: ${error}`);
+    process.exit(1);
+  }
+
+  if (!isRecord(spec)) {
+    logger.error("Failed to get the app spec");
+    process.exit(1);
+  }
+
+  const appDecl = (Array.isArray(spec.decls) ? spec.decls : []).find(
+    (decl: unknown) => isRecord(decl) && decl.declType === "App",
+  );
+
+  if (!isRecord(appDecl) || typeof appDecl.declName !== "string") {
+    logger.error("Failed to get app name");
+    process.exit(1);
+  }
+
+  if (typeof spec.dbSystem !== "string") {
+    logger.error("Failed to get database type");
+    process.exit(1);
+  }
+
+  return {
+    appName: appDecl.declName as AppName,
+    dbType: spec.dbSystem === "PostgreSQL" ? DbType.Postgres : DbType.Sqlite,
+  };
+}
+
+async function getAppInfoFromInfo({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+}): Promise<AppInfo> {
   const logger = createLogger("wasp-info");
   const { stdoutData, exitCode } = await spawnAndCollectOutput({
     name: "wasp-info",
@@ -190,6 +270,10 @@ export async function waspInfo({
         ? DbType.Postgres
         : DbType.Sqlite,
   };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 export async function waspInstall({

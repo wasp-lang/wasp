@@ -121,6 +121,15 @@ spec_concatPrefixAndText = do
     it "put all the text below the prefix, indented for 2 spaces, if text has multiple lines" $ do
       concatPrefixAndText "prefix: " "foo\nbar" `shouldBe` "prefix: \n  foo\n  bar"
 
+spec_alignColumns :: Spec
+spec_alignColumns = do
+  it "aligns cells into columns and drops trailing whitespace" $
+    alignColumns
+      [ ["/", "HomeRoute", ""],
+        ["/login", "LoginRoute", "[auth]"]
+      ]
+      `shouldBe` ["/       HomeRoute         ", "/login  LoginRoute  [auth]"]
+
 spec_leftPad :: Spec
 spec_leftPad = do
   describe "leftPad should" $ do
@@ -300,7 +309,7 @@ spec_zipMaps = do
           map2 = Map.fromList [("x", "hello")]
 
           f :: String -> Maybe Int -> Maybe String -> Maybe String
-          f _ (Just n) (Just s) = Just (replicate n (head s))
+          f _ (Just n) (Just (c : _)) = Just (replicate n c)
           f _ _ _ = Nothing
 
       zipMaps f map1 map2

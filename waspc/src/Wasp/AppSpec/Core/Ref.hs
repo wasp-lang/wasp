@@ -9,7 +9,7 @@ module Wasp.AppSpec.Core.Ref
   )
 where
 
-import Data.Aeson (FromJSON, withObject, (.:))
+import Data.Aeson (FromJSON, ToJSON (toJSON), object, withObject, (.:), (.=))
 import Data.Aeson.Types (FromJSON (parseJSON))
 import Data.Data (Data)
 import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
@@ -27,6 +27,13 @@ deriving instance (IsDecl a, Data a) => Data (Ref a)
 
 refName :: Ref a -> String
 refName (Ref name) = name
+
+instance (IsDecl a) => ToJSON (Ref a) where
+  toJSON ref =
+    object
+      [ "name" .= refName ref,
+        "declType" .= declTypeName @a
+      ]
 
 instance (IsDecl a) => FromJSON (Ref a) where
   parseJSON = withObject ("Ref " <> declTypeName @a) $ \v -> do

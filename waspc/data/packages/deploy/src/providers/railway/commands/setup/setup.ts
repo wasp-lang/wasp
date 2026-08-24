@@ -20,6 +20,7 @@ import {
 } from "../../DeploymentInstructions.js";
 import { getRailwayEnvVarValueReference } from "../../env.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
+import { getLinkedEnvironmentId } from "../../railwayEnvironment/cli.js";
 import {
   initRailwayProject,
   linkRailwayProjectToWaspProjectDir,
@@ -29,6 +30,10 @@ import {
   ProjectStatus,
 } from "../../railwayProject/index.js";
 import { RailwayProject } from "../../railwayProject/RailwayProject.js";
+import {
+  assertDatabaseServiceHasVolume,
+  createDatabaseService,
+} from "../../railwayService/database.js";
 import { waitForServiceDeploymentSuccess } from "../../railwayService/deployment.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
 import { SetupCmdOptions } from "./SetupCmdOptions.js";
@@ -54,8 +59,14 @@ export async function setup(
 
   await ensureWaspProjectIsBuilt(options);
 
-  if (project.doesServiceExist(deploymentInstructions.dbServiceName)) {
-    waspSays("Postgres service already exists. Skipping database setup.");
+  const dbService = project.findService(deploymentInstructions.dbServiceName);
+  if (dbService) {
+    waspSays("Postgres service already exists. Skipping database creation.");
+    await assertDatabaseServiceHasVolume(
+      dbService,
+      options.dbVolumeMountPath,
+      options,
+    );
   } else {
     await setupDb(deploymentInstructions);
   }
@@ -126,44 +137,25 @@ async function setupDb({
   cmdOptions: options,
   dbServiceName,
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
-  waspSays("Setting up database");
+  waspSays(`Setting up database using image: ${options.dbImage}`);
 
-  const railwayCli = createCommandWithCwd(
-    options.railwayExe,
-    options.waspProjectDir,
-  );
-
-  if (options.dbImage) {
-    waspSays(`Using custom database image: ${options.dbImage}`);
-    // When using a custom database image, Railway doesn't automatically set the default
-    // Postgres-related environment variables, so we need to set them ourselves.
-    await railwayCli([
-      "add",
-      ...["--service", dbServiceName],
-      ...["--image", options.dbImage],
-      ...["--variables", "POSTGRES_DB=railway"],
-      ...["--variables", "POSTGRES_USER=postgres"],
-      ...[
-        "--variables",
-        `POSTGRES_PASSWORD=${getRailwayEnvVarValueReference("secret()")}`,
-      ],
-      ...["--variables", "PORT=5432"],
-      ...["--variables", "PGDATA=/var/lib/postgresql/data/pgdata"],
-      ...[
-        "--variables",
-        `DATABASE_URL=postgresql://${getRailwayEnvVarValueReference("POSTGRES_USER")}:${getRailwayEnvVarValueReference("POSTGRES_PASSWORD")}@${getRailwayEnvVarValueReference("RAILWAY_PRIVATE_DOMAIN")}:${getRailwayEnvVarValueReference("PORT")}/${getRailwayEnvVarValueReference("POSTGRES_DB")}`,
-      ],
-    ]);
-  } else {
-    // Use the default Railway Postgres template.
-    await railwayCli(["add", "-d", "postgres"]);
-  }
+  const environmentId = await getLinkedEnvironmentId(options);
+  const dbService = await createDatabaseService({
+    serviceName: dbServiceName,
+    imageSpec: {
+      image: options.dbImage,
+      volumeMountPath: options.dbVolumeMountPath,
+    },
+    environmentId,
+    railwayExe: options.railwayExe,
+    waspProjectDir: options.waspProjectDir,
+  });
 
   // The database service deploys asynchronously and `railway add` doesn't wait
   // for it. The server service references the database's DATABASE_URL env
   // variable, and Railway references to a service that isn't fully set up
   // silently resolve to an empty string and never recover.
-  await waitForServiceDeploymentSuccess(dbServiceName, options);
+  await waitForServiceDeploymentSuccess(dbService, options);
 }
 
 async function setupServer({

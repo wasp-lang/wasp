@@ -59,7 +59,9 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+          # - We give the database 512 MB of RAM because Fly's default is not
+          # enough for our e2e test bursts.
+          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" --db-vm-memory 512 "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
@@ -124,7 +126,7 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: mise use -g github:railwayapp/cli@4.11.1
+        run: mise use -g github:railwayapp/cli@5.28.0
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -143,7 +145,7 @@ jobs:
         run: |
           function get_railway_service_hostname() {
             service_name="$1"
-            railway status --json | jq -r --arg NAME "$service_name" '.services.edges[] | select(.node.name == $NAME) | .node.serviceInstances.edges[0].node.domains.serviceDomains[0].domain'
+            railway status --json | jq -r --arg NAME "$service_name" '.environments.edges[].node.serviceInstances.edges[].node | select(.serviceName == $NAME) | .domains.serviceDomains[0].domain'
           }
           server_service_name="${APP_PREFIX}-server"
           client_service_name="${APP_PREFIX}-client"

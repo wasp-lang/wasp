@@ -26,7 +26,10 @@ COMMANDS
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
-    start                 Runs Wasp app in development mode, watching for file changes.
+    start [--client-port <port>] [--server-port <port>]
+                          Runs Wasp app in development mode, watching for file changes.
+                          Optionally specify the ports the client and the server run on.
+                          If not specified, Wasp picks the first free port when the default one is taken.
     start db [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
                           Optionally specify a custom Docker image or Docker volume mount path.
@@ -37,11 +40,13 @@ COMMANDS
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
+                          Accepts the same port options as 'start'.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
-    info                  Prints basic information about the current Wasp project.
+    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
+    show build [--json]   Prints information about your app's current build.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
     news                  Read the latest Wasp-related news.
@@ -80,7 +85,7 @@ Choose a starter template
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
@@ -95,7 +100,7 @@ $ wasp new MyFirstProject
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
 cd MyFirstProject
@@ -103,7 +108,7 @@ wasp db start
 ```
 
 ### Project Commands
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
+- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
@@ -125,7 +130,7 @@ $ wasp clean
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
-- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port` and `--server-port` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
@@ -146,7 +151,8 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 
 ```
 - `wasp deps` lists the dependencies that Wasp uses in your project.
-- `wasp info` provides basic details about the current Wasp project.
+- `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
+- `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
 - `wasp studio` shows you an graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 ### Database Commands

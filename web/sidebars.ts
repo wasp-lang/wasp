@@ -161,7 +161,7 @@ const sidebars: SidebarsConfig = {
       label: "AI & Coding Agents",
       collapsed: false,
       collapsible: true,
-      items: ["wasp-ai/coding-agent-plugin"],
+      items: ["wasp-ai/coding-agent-plugin", "wasp-ai/git-worktrees"],
     },
     {
       type: "category",
@@ -200,6 +200,11 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         { type: "doc", id: "migration-guide" },
+        {
+          type: "link",
+          label: "From 0.24 to 0.25",
+          href: "/docs/0.25/migration-guide",
+        },
         {
           type: "link",
           label: "From 0.23 to 0.24",

@@ -16,6 +16,17 @@ export const setUpPrisma = () => {
         },
       },
     },
+    // To make sure prisma types propagate well through the whole RPC stack.
+    result: {
+      $allModels: {
+        _extraField: {
+          needs: {},
+          compute() {
+            return "Some string!" as const;
+          },
+        },
+      },
+    },
   });
 
   return prisma;

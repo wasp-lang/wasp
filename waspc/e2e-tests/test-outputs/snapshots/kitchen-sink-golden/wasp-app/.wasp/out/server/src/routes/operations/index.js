@@ -23,6 +23,7 @@ import jsActionWithArgs from './jsActionWithArgs.js'
 import getTasks from './getTasks.js'
 import getNumTasks from './getNumTasks.js'
 import getTask from './getTask.js'
+import getOldestTask from './getOldestTask.js'
 import getSerializedObjects from './getSerializedObjects.js'
 import getTextUppercaseRequests from './getTextUppercaseRequests.js'
 import getDate from './getDate.js'
@@ -56,6 +57,7 @@ router.post('/js-action-with-args', auth, jsActionWithArgs)
 router.post('/get-tasks', auth, getTasks)
 router.post('/get-num-tasks', getNumTasks)
 router.post('/get-task', auth, getTask)
+router.post('/get-oldest-task', auth, getOldestTask)
 router.post('/get-serialized-objects', auth, getSerializedObjects)
 router.post('/get-text-uppercase-requests', auth, getTextUppercaseRequests)
 router.post('/get-date', auth, getDate)

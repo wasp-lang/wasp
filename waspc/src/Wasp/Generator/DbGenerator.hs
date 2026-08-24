@@ -101,8 +101,12 @@ genPrismaSchema spec = do
     getDatasource datasourceProvider =
       Psl.Ast.ConfigBlock.overrideKeyValuePairs
         [("provider", Psl.Argument.StringExpr datasourceProvider), ("url", validDbUrlExprForPrismaSchema)]
-        -- We validated the Prisma schema so we know there is exactly one datasource block.
-        (Psl.WithCtx.getNode $ head $ Psl.Schema.getDatasources prismaSchemaAst)
+        (Psl.WithCtx.getNode theOnlyDatasource)
+
+    -- We validated the Prisma schema so we know there is exactly one datasource block.
+    theOnlyDatasource = case Psl.Schema.getDatasources prismaSchemaAst of
+      [datasource] -> datasource
+      _ -> error "Prisma schema doesn't have exactly one datasource block. This is probably a bug in the Wasp compiler, please report it."
 
     generators =
       -- We are not overriding any values for now in the generator blocks.

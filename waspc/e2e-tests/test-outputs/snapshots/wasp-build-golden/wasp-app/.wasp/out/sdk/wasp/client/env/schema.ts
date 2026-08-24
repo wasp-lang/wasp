@@ -1,6 +1,10 @@
 import * as z from "zod"
+import { FromRegister } from "../../types/register";
 
-const userClientEnvSchema = z.object({});
+export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
+type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
+
+const userClientEnvSchema: UserClientEnvSchema = z.object({});
 
 const serverUrlSchema =
   z.string({
@@ -13,8 +17,7 @@ const serverUrlSchema =
   )
 
 const waspDevClientEnvSchema = z.object({
-  "REACT_APP_API_URL": serverUrlSchema
-    .default("http://localhost:3001"),
+  "REACT_APP_API_URL": serverUrlSchema,
 });
 
 const waspProdClientEnvSchema = z.object({
@@ -25,8 +28,10 @@ const waspClientEnvSchema = import.meta.env.MODE === "production"
   ? waspProdClientEnvSchema
   : waspDevClientEnvSchema;
 
+export type CompleteClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
+
 // PRIVATE API (sdk, Vite config)
-export const clientEnvSchema = z.object({
+export const clientEnvSchema: CompleteClientEnvSchema = z.object({
   ...userClientEnvSchema.shape,
-  ...waspClientEnvSchema.shape,
+  ...waspClientEnvSchema.shape
 });

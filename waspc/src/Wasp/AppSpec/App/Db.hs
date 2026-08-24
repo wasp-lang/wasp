@@ -8,7 +8,7 @@ module Wasp.AppSpec.App.Db
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
@@ -17,7 +17,7 @@ data Db = Db
   { seeds :: Maybe [ExtImport],
     prismaSetupFn :: Maybe ExtImport
   }
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data DbSystem = PostgreSQL | SQLite
-  deriving (Show, Eq, Data, Generic, FromJSON)
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)

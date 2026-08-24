@@ -8,7 +8,6 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
-    (~||),
     writeToFile,
     appendToFile,
     replaceLineInFile,
@@ -34,7 +33,10 @@ module ShellCommands
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
-    waspCliInfo,
+    waspCliShowSpec,
+    waspCliShowSpecJson,
+    waspCliShowBuild,
+    waspCliShowBuildJson,
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
@@ -57,6 +59,7 @@ import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
@@ -93,12 +96,6 @@ cmd1 ~&& cmd2 = cmd1 ++ " && " ++ cmd2
 
 infixl 6 ~&&
 
--- | Execute the second command only if the first command fails.
-(~||) :: ShellCommand -> ShellCommand -> ShellCommand
-cmd1 ~|| cmd2 = cmd1 ++ " || " ++ cmd2
-
-infixl 6 ~||
-
 -- | Execute the second command only if the first command succeeds.
 -- The command chain will continue regardless of whether the second command runs.
 (~?) :: ShellCommand -> ShellCommand -> ShellCommand
@@ -119,7 +116,7 @@ writeToFile file fileContent = return $ createParentDir ~&& writeContentsToFile
     writeContentsToFile = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile file
 
     -- Using base64 encoding for file content helps us escape dealing with special characters.
-    base64FileContent = C8.unpack . B64.encode . C8.pack . T.unpack $ fileContent
+    base64FileContent = C8.unpack . B64.encode . T.encodeUtf8 $ fileContent
 
 appendToFile :: FilePath -> T.Text -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =
@@ -231,8 +228,22 @@ waspCliDbReset =
 waspCliDbStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDbStudio = return "$WASP_CLI_CMD db studio"
 
-waspCliInfo :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInfo = return "$WASP_CLI_CMD info"
+waspCliShowSpec :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowSpec = return "$WASP_CLI_CMD show spec"
+
+-- | Runs `wasp show spec --json` and asserts that stdout alone is valid JSON
+-- with the expected {waspVersion, decls} envelope.
+waspCliShowSpecJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowSpecJson =
+  return $ "$WASP_CLI_CMD show spec --json" ~| "jq ."
+
+waspCliShowBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuild = return "$WASP_CLI_CMD show build"
+
+-- | Runs `wasp show build --json` and asserts that stdout alone is valid JSON.
+waspCliShowBuildJson :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliShowBuildJson =
+  return $ "$WASP_CLI_CMD show build --json" ~| "jq ."
 
 waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDeps = return "$WASP_CLI_CMD deps"
