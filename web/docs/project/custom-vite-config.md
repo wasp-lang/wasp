@@ -57,6 +57,7 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
 | `server.port` | dynamically assigned | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it. |
 | `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
+| `preview.port` | dynamically assigned | Same as `server.port`, but for the preview server that [`wasp build start`](../deployment/local-testing.md) runs. Use [`wasp build start --client-port`](../general/cli.md#project-commands) to control it. |
 
 ## Customization
 
@@ -114,7 +115,6 @@ export default defineConfig({
 ```bash
 wasp start --client-port 4000
 ```
-
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 

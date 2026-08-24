@@ -13,7 +13,7 @@ where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, group, groupBy, intercalate, sort, sortBy)
+import Data.List (find, groupBy, intercalate, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.Analyzer.AST (isValidWaspIdentifier)
@@ -220,7 +220,7 @@ validateApiNamespacePathsAreUnique spec =
     else [GenericValidationError $ "`apiNamespace` paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
   where
     namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
-    duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
+    duplicatePaths = findDuplicateElems namespacePaths
 
 validateCrudOperations :: AppSpec -> [ValidationError]
 validateCrudOperations spec =

@@ -70,9 +70,6 @@ data-files:
   packages/studio/dist/**/*.js
   packages/studio/package-lock.json
   packages/studio/package.json
-  packages/ts-inspect/dist/**/*.js
-  packages/ts-inspect/package-lock.json
-  packages/ts-inspect/package.json
 
 data-dir: data/
 
@@ -151,7 +148,7 @@ library
     regex-tdfa ^>=1.3.2,
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
-    template-haskell ^>=2.22.0,
+    template-haskell ^>=2.20.0,
     text ^>=2.1.3,
     time ^>=1.12.2,
     unliftio ^>=0.2.25,
@@ -424,7 +421,6 @@ library
     Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
-    Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad

@@ -16,7 +16,7 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.Either (lefts, rights)
 import qualified Data.HashMap.Strict as Map
 import qualified Data.HashSet as Set
-import Data.List (group, sort, sortBy)
+import Data.List (sortBy)
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeDirectoryRecursive, removeFile)
@@ -25,7 +25,7 @@ import UnliftIO.Exception (catch, throwIO)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo, Writeable (getChecksum, getDstPath))
-import Wasp.Util (Checksum)
+import Wasp.Util (Checksum, findDuplicateElems)
 
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
@@ -67,7 +67,7 @@ type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo GeneratedAppD
 assertDstPathsAreUnique :: [FileDraft] -> ()
 assertDstPathsAreUnique fileDrafts =
   let fdDstPaths = map getDstPath fileDrafts
-      duplicateFdDstPaths = map head $ filter ((> 1) . length) (group . sort $ fdDstPaths)
+      duplicateFdDstPaths = findDuplicateElems fdDstPaths
       errMessage = unlines $ "FileDraft destination paths are not unique! Duplicates include: " : map show duplicateFdDstPaths
    in if null duplicateFdDstPaths then () else error errMessage
 

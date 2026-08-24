@@ -3,6 +3,7 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
   )
 where
 
+import Data.List (foldl')
 import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')

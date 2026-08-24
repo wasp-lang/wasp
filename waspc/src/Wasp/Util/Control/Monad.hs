@@ -4,6 +4,8 @@ module Wasp.Util.Control.Monad
   )
 where
 
+import Data.List (foldl')
+
 -- | Analogous to "Data.Foldable.foldMap'", except that its result is encapsulated in a
 -- monad.
 --

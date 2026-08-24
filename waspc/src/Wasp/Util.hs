@@ -11,7 +11,6 @@ module Wasp.Util
     isCapitalized,
     toLowerFirst,
     toUpperFirst,
-    headSafe,
     second3,
     jsonSet,
     indent,
@@ -58,7 +57,8 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
-import Data.List (group, intercalate, sort, transpose)
+import Data.List (intercalate, sort, transpose)
+import qualified Data.List.NonEmpty as NE
 import Data.List.Split (splitOn, wordsBy)
 import Data.Map (Map)
 import qualified Data.Map.Merge.Lazy as Map.Merge
@@ -108,10 +108,6 @@ toLowerFirst = onFirst toLower
 
 toUpperFirst :: String -> String
 toUpperFirst = onFirst toUpper
-
-headSafe :: [a] -> Maybe a
-headSafe [] = Nothing
-headSafe xs = Just (head xs)
 
 second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)
@@ -313,7 +309,7 @@ secondsToMicroSeconds :: Int -> Int
 secondsToMicroSeconds = (* 1000000)
 
 findDuplicateElems :: (Ord a) => [a] -> [a]
-findDuplicateElems = map head . filter ((> 1) . length) . group . sort
+findDuplicateElems = map NE.head . filter ((> 1) . length) . NE.group . sort
 
 isOlderThanNHours :: Natural -> T.UTCTime -> IO Bool
 isOlderThanNHours nHours time = do

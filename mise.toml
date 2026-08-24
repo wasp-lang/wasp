@@ -6,13 +6,23 @@ ghcup = "0.2.6.2"
 
 cabal = "3.16.1.0"
 
-"mise-ghcup:ghc" = "9.10.3"
+# Holding off GHC 9.10 since HLint doesn't work with it:
+# https://github.com/haskell/haskell-language-server/issues/4674
+"mise-ghcup:ghc" = "9.6.7"
 
-# We assume that this HLS version ships prebuilt binaries for the GHC version
-# above. When upgrading GHC or HLS, check
+# When upgrading the HLS version, we need to ensure compatibility with our GHC
+# version. You can see the compatibility table at:
 # https://haskell-language-server.readthedocs.io/en/latest/support/ghc-version-support.html
-# to see which combination of GHC and HLS versions are compatible.
+# Check that the HLS version has a prebuilt binary for the GHC version we are
+# using by running the following command:
+# `type haskell-language-server-$(ghc --numeric-version)`
 "mise-ghcup:hls" = "2.14.0.0"
+
+# Use the same version as the one used inside the HLS binary above. You can run
+# the following command to find the plugin versions (incl. HLint) in the current
+# GHC+HLS combination:
+# `haskell-language-server-$(ghc --numeric-version) --list-plugins`
+"mise-cabal:hlint" = "3.8"
 
 # This should be equal to Wasp's lowest supported Node version.
 # Keep in sync with:
@@ -41,8 +51,6 @@ jq = "1.8.2"
 # https://github.com/jdx/mise/discussions/10828
 ormolu.version = "0.8.1.1"
 ormolu.os = ["linux/x64", "darwin", "windows/x64"]
-
-"mise-cabal:hlint" = "3.10"
 
 "mise-cabal:stan" = "0.2.1.0"
 
