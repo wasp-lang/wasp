@@ -124,13 +124,13 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
-    Just runningDb -> noteDbIsAlreadyRunning runningDb
+    Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
     Nothing -> do
       maybeFreePort <- liftIO $ findFirstFreeLocalPort candidatePorts
       maybe throwNoFreePortError startDbOnPort maybeFreePort
   where
-    noteDbIsAlreadyRunning :: Dev.Postgres.DevDbSpec -> Command ()
-    noteDbIsAlreadyRunning devDbSpec = do
+    noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
+    noteDbIsAlreadyRunningAndExit devDbSpec = do
       cliSendMessageC . Msg.Info . unlines $
         ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
           : additionalInfoLines devDbSpec
