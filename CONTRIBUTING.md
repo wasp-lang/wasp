@@ -33,23 +33,29 @@ While this document captures the general instructions for the whole repo, make s
 
 We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage the development environment (tools, env vars, tasks) per project. Everything is declared in a single file ([`mise.toml`](mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
 
+> [!NOTE]
+> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+
+#### Global Mise setup
+
 While you can use Mise explicitly, on demand, via `mise exec|run|en`, normally you don't want to deal with that but just have it work automatically in the background.
 Mise has detailed docs on this, but here is the summarized version of how you will most likely want to set it up:
 1. Of course, **install** `mise`.
 2. Set up automatic mise **activation** per dir for interactive shells by adding `eval "$($HOME/.local/bin/mise activate bash)"` to your `~/.bashrc` (If on Mac: `... zsh)"` to your `~/.zshrc`).
    With this, when in an interactive shell, mise will automatically keep the dev environment updated for that shell based on your current directory.
    It does so by updating its `PATH` and other env vars.
-3. Set up global mise **shims** by adding `eval "$($HOME/.local/bin/mise activate bash --shims)"` to your `~/.profile` (If on Mac: `... zsh --shims)"` to your `~/.zprofile`).
+3. Set up global mise **shims** by adding `eval "$($HOME/.local/bin/mise activate bash --shims)"` to your `~/.profile` or possibly `~/.bash_profile` (If on Mac: `... zsh --shims)"` to your `~/.zprofile`).
    This complements the *activate* by covering direct, non-interactive usage, which *activate* doesn't cover.
-   E.g. if a process calls `node` directly, and not from interactive shell, it will hit a mise shim which will, based on the process's working directory, provide it with the correct version of `node` (or just pass it to system `node` if there is no applicable mise config).
+   E.g. if a process calls `node` directly, and not from interactive shell, it will hit a mise shim which will, based on the calling process's working directory, provide it with the correct version of `node` (or just pass it to system `node` if there is no applicable mise config).
 4. Potentially install tool-specific mise integrations/plugins, e.g. a plugin for your editor, although in most cases *activation* + *shims* will already do the job and you don't have to bother with this.
 
 If you are wondering why both *activate* and *shims*: because they both serve different use cases and complement each other. *Activate* runs once per dir change / shell activation, but can't affect the non-interactive usage (e.g. your editor executing tools non-interactively). On the other hand, *shims* work even for non-interactive usage, but call mise on each tool call (although cheap) and also can't provide env vars for the shell (but do set them for that single tool call). Having both ensures you are well covered.
 
-Run `mise install` from the root of the repo to install all the required tools.
+Run `mise doctor` to validate that everything is setup correctly.
 
-> [!NOTE]
-> There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+#### Repo setup
+
+Run `mise install` from the root of the repo to install all the required tools.
 
 ### Basic commands
 
