@@ -14,7 +14,7 @@ findFirstFreeLocalPortInRange :: PortNumber -> [PortNumber] -> String -> IO (Eit
 findFirstFreeLocalPortInRange firstPortToCheck portsToSkip remediationHint =
   maybe (Left noFreePortError) Right <$> findFirstFreeLocalPortAmong candidatePorts
   where
-    candidatePorts = [firstPortToCheck + 1 .. lastPortToCheck] \\ portsToSkip
+    candidatePorts = [firstPortToCheck + 4 .. lastPortToCheck] \\ portsToSkip
     lastPortToCheck = firstPortToCheck + fromIntegral maxNumOfPortsToCheck - 1
 
     noFreePortError =
