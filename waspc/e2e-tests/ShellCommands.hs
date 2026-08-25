@@ -41,6 +41,7 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
     waspCliDockerfile,
@@ -209,13 +210,15 @@ waspCliDbMigrateDev migrationName = do
   where
     -- NOTE: We supress the `mv` error, because if we call `wasp db migrate-dev`
     -- when there is nothing to migrate, it succeeds but creates no files.
+    -- The braces keep the `|| true` scoped to the `mv`: without them it would
+    -- also swallow failures of everything chained with `&&` before it.
     replaceMigrationDatePrefix :: FilePath -> ShellCommand
     replaceMigrationDatePrefix migrationDirPath =
       unwords
-        [ "mv",
+        [ "{ mv",
           joinPath [migrationDirPath, "*" ++ migrationName],
           joinPath [migrationDirPath, "no-date-" ++ migrationName],
-          "2>/dev/null || true"
+          "2>/dev/null || true ; }"
         ]
 
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
@@ -282,18 +285,40 @@ replaceMainWaspTsFile content = do
 
   writeToFile mainWaspTsFile content
 
+skipIfDockerDisabled :: ShellCommandBuilder context [ShellCommand] -> ShellCommandBuilder context [ShellCommand]
+skipIfDockerDisabled commandsBuilder = do
+  commands <- commandsBuilder
+  return
+    [ "if "
+        ++ isDockerEnabledCondition
+        ++ "; then "
+        ++ foldr1 (~&&) commands
+        ++ "; else "
+        ++ logSkipMessage
+        ++ "; fi"
+    ]
+  where
+    logSkipMessage =
+      "echo 'SKIPPED: Docker is disabled via the " ++ skipDockerEnvVarName ++ " environment variable.'"
+
 -- | Builds and deletes the Docker image for a Wasp app.
--- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
+-- Can be disabled via the 'skipDockerEnvVarName' environment variable.
 buildAndRemoveWaspProjectDockerImage :: ShellCommandBuilder WaspProjectContext ShellCommand
 buildAndRemoveWaspProjectDockerImage = do
   context <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ context.waspProjectName
    in return $
-        "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
+        isDockerEnabledCondition
           ~? unwords ["cd", fromAbsDir (context.waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir)]
           ~&& unwords ["docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t", dockerImageTag, "."]
           ~&& unwords ["docker image rm", dockerImageTag]
           ~&& unwords ["cd", fromAbsDir context.waspProjectDir]
+
+isDockerEnabledCondition :: ShellCommand
+isDockerEnabledCondition = "[ -z \"$" ++ skipDockerEnvVarName ++ "\" ]"
+
+skipDockerEnvVarName :: String
+skipDockerEnvVarName = "WASP_E2E_TESTS_SKIP_DOCKER"
 
 -- 'Test' specific commands
 

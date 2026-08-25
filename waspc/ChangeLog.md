@@ -17,6 +17,7 @@
 
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
+- You can now run dev databases for multiple Wasp projects in parallel: `wasp start db` looks for a first port instead of failing when the default one is taken, and `wasp start` automatically finds the port the database ended up on. ([#4571](https://github.com/wasp-lang/wasp/pull/4571))
 - Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Added `--db-volume-mount-path` to `wasp deploy railway launch` and `wasp deploy railway setup` for custom database images that store data elsewhere. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
