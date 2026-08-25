@@ -27,13 +27,12 @@ spec_findFirstFreeLocalPortAmong = do
       findFirstFreeLocalPortAmong [20400] `shouldReturn` Just 20400
 
     it "skips a taken port and returns the next free one" $ do
-      withTakenLocalPortAt 20500 $
+      withTakenLocalPortsAt [20500] $
         findFirstFreeLocalPortAmong [20500, 20501] `shouldReturn` Just 20501
 
     it "returns Nothing when all candidate ports are taken" $ do
-      withTakenLocalPortAt 20600 $
-        withTakenLocalPortAt 20601 $
-          findFirstFreeLocalPortAmong [20600, 20601] `shouldReturn` Nothing
+      withTakenLocalPortsAt [20600, 20601] $
+        findFirstFreeLocalPortAmong [20600, 20601] `shouldReturn` Nothing
 
 spec_findFirstFreeLocalPortInRange :: Spec
 spec_findFirstFreeLocalPortInRange = do
@@ -43,7 +42,7 @@ spec_findFirstFreeLocalPortInRange = do
         `shouldReturn` Right 20000
 
     it "returns the next port when the first one is taken" $ do
-      withTakenLocalPortAt 20100 $
+      withTakenLocalPortsAt [20100] $
         findFirstFreeLocalPortInRange 20100 [] remediationHint
           `shouldReturn` Right 20101
 
@@ -52,20 +51,30 @@ spec_findFirstFreeLocalPortInRange = do
         `shouldReturn` Right 20201
 
     it "reports the checked range and how to fix it when no port is free" $ do
-      -- We tell it to skip many more ports than it checks, so it is left with
-      -- no port to check at all.
-      result <- findFirstFreeLocalPortInRange 20300 [20300 .. 20350] remediationHint
+      -- We take more ports than it checks, so it can't find a free one.
+      withTakenLocalPortsAt [20300 .. 20350] $ do
+        result <- findFirstFreeLocalPortInRange 20300 [] remediationHint
+        case result of
+          Right port -> expectationFailure $ "Expected an error, but got port " ++ show port
+          Left err -> do
+            err `shouldContain` "20300"
+            err `shouldContain` remediationHint
+
+    it "reports that it had nothing to check when all ports are skipped" $ do
+      -- We tell it to skip more ports than it checks, so it is left with no port
+      -- to check at all.
+      result <- findFirstFreeLocalPortInRange 20700 [20700 .. 20750] remediationHint
       case result of
         Right port -> expectationFailure $ "Expected an error, but got port " ++ show port
         Left err -> do
-          err `shouldContain` "20300"
-          err `shouldContain` remediationHint
+          err `shouldContain` "20700"
+          err `shouldContain` "skipped"
   where
     remediationHint = "Free up some ports."
 
-withTakenLocalPortAt :: S.PortNumber -> IO a -> IO a
-withTakenLocalPortAt port action =
-  bracket (openLocalSocketOnPort port) S.close (const action)
+withTakenLocalPortsAt :: [S.PortNumber] -> IO a -> IO a
+withTakenLocalPortsAt ports action =
+  bracket (mapM openLocalSocketOnPort ports) (mapM_ S.close) (const action)
 
 openLocalSocketOnPort :: S.PortNumber -> IO S.Socket
 openLocalSocketOnPort port = do

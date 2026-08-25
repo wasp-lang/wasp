@@ -12,18 +12,17 @@ import qualified Wasp.Util.Network.Socket as Socket
 
 findFirstFreeLocalPortInRange :: PortNumber -> [PortNumber] -> String -> IO (Either String PortNumber)
 findFirstFreeLocalPortInRange firstPortToCheck portsToSkip remediationHint =
-  maybe (Left noFreePortError) Right <$> findFirstFreeLocalPortAmong candidatePorts
+  if null candidatePorts
+    then return $ Left noPortsToCheckError
+    else maybe (Left noFreePortError) Right <$> findFirstFreeLocalPortAmong candidatePorts
   where
     candidatePorts = [firstPortToCheck .. lastPortToCheck] \\ portsToSkip
     lastPortToCheck = firstPortToCheck + fromIntegral maxNumOfPortsToCheck - 1
-
+    noPortsToCheckError =
+      "Wasp had no ports to check in range " ++ portRange ++ ", all of them were skipped."
     noFreePortError =
-      "Wasp couldn't find a free port in range "
-        ++ show firstPortToCheck
-        ++ "-"
-        ++ show lastPortToCheck
-        ++ ". "
-        ++ remediationHint
+      "Wasp couldn't find a free port in range " ++ portRange ++ ". " ++ remediationHint
+    portRange = show firstPortToCheck ++ "-" ++ show lastPortToCheck
 
 findFirstFreeLocalPortAmong :: [PortNumber] -> IO (Maybe PortNumber)
 findFirstFreeLocalPortAmong [] = return Nothing
