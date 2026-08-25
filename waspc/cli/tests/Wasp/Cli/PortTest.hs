@@ -1,7 +1,6 @@
 module Wasp.Cli.PortTest where
 
 import Control.Exception (bracket)
-import Data.Either (isRight)
 import qualified Network.Socket as S
 import Test.Hspec
 import Wasp.Cli.Port (findFirstFreeLocalPortAmong, findFirstFreeLocalPortInRange)
@@ -27,38 +26,38 @@ spec_findFirstFreeLocalPortAmong = do
         withTakenLocalPort $ \takenPort2 ->
           findFirstFreeLocalPortAmong [takenPort1, takenPort2] `shouldReturn` Nothing
 
+-- | These tests scan ranges of consecutive ports, so they can't start from a
+-- port the OS gave them: the OS hands out ports for outgoing connections from
+-- the same range and in the same order, so the scan ends up connecting to the
+-- very port it is connecting from, which makes free ports look taken.
+-- We therefore use ports below the range the OS hands out from (it starts at
+-- 32768), assuming they are free, and give each test its own range so that
+-- tests running in parallel don't scan into each other's ports.
 spec_findFirstFreeLocalPortInRange :: Spec
 spec_findFirstFreeLocalPortInRange = do
   describe "findFirstFreeLocalPortInRange" $ do
     it "returns the first port in the range when it is free" $ do
-      withFreeLocalPort $ \freePort ->
-        findFirstFreeLocalPortInRange freePort [] remediationHint
-          `shouldReturn` Right freePort
+      findFirstFreeLocalPortInRange 20000 [] remediationHint
+        `shouldReturn` Right 20000
 
-    -- We can't assert which port exactly it returns: it returns the next free
-    -- one, and we don't know which ports the machine has available.
-    it "doesn't return a taken port" $ do
-      withTakenLocalPort $ \takenPort -> do
-        result <- findFirstFreeLocalPortInRange takenPort [] remediationHint
-        result `shouldSatisfy` isRight
-        result `shouldNotBe` Right takenPort
+    it "returns the next port when the first one is taken" $ do
+      withTakenLocalPortAt 20100 $
+        findFirstFreeLocalPortInRange 20100 [] remediationHint
+          `shouldReturn` Right 20101
 
-    it "doesn't return a port it was told to skip" $ do
-      withFreeLocalPort $ \freePort -> do
-        result <- findFirstFreeLocalPortInRange freePort [freePort] remediationHint
-        result `shouldSatisfy` isRight
-        result `shouldNotBe` Right freePort
+    it "returns the next port when the first one is skipped" $ do
+      findFirstFreeLocalPortInRange 20200 [20200] remediationHint
+        `shouldReturn` Right 20201
 
     it "reports the checked range and how to fix it when no port is free" $ do
-      withFreeLocalPort $ \freePort -> do
-        -- We tell it to skip many more ports than it checks, so it is left with
-        -- no port to check at all.
-        result <- findFirstFreeLocalPortInRange freePort [freePort .. freePort + 100] remediationHint
-        case result of
-          Right port -> expectationFailure $ "Expected an error, but got port " ++ show port
-          Left err -> do
-            err `shouldContain` show freePort
-            err `shouldContain` remediationHint
+      -- We tell it to skip many more ports than it checks, so it is left with
+      -- no port to check at all.
+      result <- findFirstFreeLocalPortInRange 20300 [20300 .. 20400] remediationHint
+      case result of
+        Right port -> expectationFailure $ "Expected an error, but got port " ++ show port
+        Left err -> do
+          err `shouldContain` "20300"
+          err `shouldContain` remediationHint
   where
     remediationHint = "Free up some ports."
 
@@ -70,6 +69,10 @@ withTakenLocalPort :: (S.PortNumber -> IO a) -> IO a
 withTakenLocalPort action =
   bracket openLocalSocketOnAnyFreePort (S.close . fst) (action . snd)
 
+withTakenLocalPortAt :: S.PortNumber -> IO a -> IO a
+withTakenLocalPortAt port action =
+  bracket (openLocalSocketOnPort port) S.close (const action)
+
 openLocalSocketOnAnyFreePort :: IO (S.Socket, S.PortNumber)
 openLocalSocketOnAnyFreePort = do
   sock <- S.socket S.AF_INET S.Stream S.defaultProtocol
@@ -77,3 +80,10 @@ openLocalSocketOnAnyFreePort = do
   S.listen sock 1
   port <- S.socketPort sock
   return (sock, port)
+
+openLocalSocketOnPort :: S.PortNumber -> IO S.Socket
+openLocalSocketOnPort port = do
+  sock <- S.socket S.AF_INET S.Stream S.defaultProtocol
+  S.bind sock $ Socket.makeLocalHostSocketAddress port
+  S.listen sock 1
+  return sock
