@@ -21,7 +21,9 @@ const prismaAdapter = new PrismaAdapter(
  * 4. We are exposing the `userId` field from the `Auth` entity to
  *    make fetching the User easier.
  */
-export const auth = new Lucia<{}, {
+export const auth = new Lucia<{
+  providerSessionId: string | null
+}, {
   userId: {= userEntityUpper =}['id'] | null
 }>(prismaAdapter, {
   // Since we are not using cookies, we don't need to set any cookie options.
@@ -35,6 +37,11 @@ export const auth = new Lucia<{}, {
   //     sameSite: "lax",
   //   },
   // },
+  getSessionAttributes({ providerSessionId }) {
+    return {
+      providerSessionId,
+    };
+  },
   getUserAttributes({ userId }) {
     return {
       userId,
@@ -45,7 +52,11 @@ export const auth = new Lucia<{}, {
 declare module "lucia" {
   interface Register {
     Lucia: typeof auth;
-    DatabaseSessionAttributes: {};
+    DatabaseSessionAttributes: {
+      // The external provider's own session id when this session was minted by
+      // credential exchange; lets logout revoke both sessions (dual sign-out).
+      providerSessionId: string | null;
+    };
     DatabaseUserAttributes: {
       userId: {= userEntityUpper =}['id'] | null
     };

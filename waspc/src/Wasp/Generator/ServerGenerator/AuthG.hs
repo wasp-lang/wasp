@@ -58,6 +58,10 @@ genAuth spec = case maybeAuth of
         genFileCopy [relfile|routes/auth/logout.ts|],
         genProvidersIndex auth
       ]
+      -- The credential exchange route: external providers establish a Wasp
+      -- session by trading the provider's credential for one. Wasp's own auth
+      -- mints sessions from its login flows instead.
+      <++> onlyUnderExternalProvider auth (sequence [genFileCopy [relfile|routes/auth/login.ts|]])
       -- Wasp's auth hooks only fire from Wasp's own signup and login flows, so
       -- under an external provider the module (and the types it needs) do not
       -- exist.
@@ -73,13 +77,20 @@ genAuth spec = case maybeAuth of
       | AS.Auth.isExternalAuthProviderUsed auth = return []
       | otherwise = gen
 
+    onlyUnderExternalProvider auth gen
+      | AS.Auth.isExternalAuthProviderUsed auth = gen
+      | otherwise = return []
+
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
     tmplData =
-      object ["isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth]
+      object
+        [ "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+          "isExternalAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth
+        ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
@@ -141,11 +152,9 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
 depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByAuth spec = case maybeAuth of
   Nothing -> []
-  Just auth
-    -- An external provider brings its own session store; Wasp's lucia-backed
-    -- one is not generated, so its dependencies must not be installed either.
-    | AS.Auth.isExternalAuthProviderUsed auth -> []
-    | otherwise -> authDeps
+  -- Wasp's session store backs every provider -- external logins are exchanged
+  -- for a Wasp session -- so its dependencies are installed whenever auth is on.
+  Just _ -> authDeps
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     authDeps =

@@ -7,8 +7,10 @@ import { authClient } from "./authClient";
  * Better Auth CAN mint a session server-side, so this page posts credentials and
  * gets a token back. Compare the Clerk example, where that is impossible.
  *
- * The token is then handed to Wasp's own client storage so that every subsequent
- * Wasp API call carries it -- that hand-off is the only Wasp-specific line here.
+ * The token is then exchanged for a Wasp session (`POST /auth/login`), so every
+ * subsequent request authenticates against Wasp's own session and Better Auth is
+ * off the request path until logout -- that exchange is the only Wasp-specific
+ * line here.
  */
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -35,10 +37,15 @@ export function LoginPage() {
       return;
     }
 
-    // Hand Better Auth's token to Wasp's client so `useAuth()` and every
+    // Exchange Better Auth's token for a Wasp session so `useAuth()` and every
     // operation call pick it up.
-    const { setSessionId } = await import("wasp/client/api");
-    setSessionId(token);
+    const { exchangeCredentialForSession } = await import("wasp/client/api");
+    try {
+      await exchangeCredentialForSession(token);
+    } catch {
+      setError("Signing in to the app with the Better Auth session failed");
+      return;
+    }
     window.location.href = "/";
   }
 

@@ -40,10 +40,11 @@ model AuthIdentity {
 }
 
 model Session {
-  id        String   @id @unique
-  expiresAt DateTime
-  userId    String
-  auth      Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  id                String   @id @unique
+  expiresAt         DateTime
+  providerSessionId String?
+  userId            String
+  auth              Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@index([userId])
 }

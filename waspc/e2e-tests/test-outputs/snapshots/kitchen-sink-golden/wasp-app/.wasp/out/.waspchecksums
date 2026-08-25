@@ -25,14 +25,14 @@
             "file",
             "db/schema.prisma"
         ],
-        "0c62bb376ae204c687219387c06a25a9aef4bed05e7592526dbe1542bae59643"
+        "816eb6900f537465ec3f0187ac868c30b1f5c994693968d95438309a58fb2c28"
     ],
     [
         [
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "3bd00e4d98c9eef49401fa75de51a33eabd4d0a8518e839367af1ee475d5e40d"
+        "d2ceab10755d65928ad058af688096cc3258179bb0400026294fa3e75c58c0e0"
     ],
     [
         [
@@ -319,7 +319,7 @@
             "file",
             "sdk/wasp/auth/logout.ts"
         ],
-        "463e1faa09bc61e2ac9614b3c701d8e7a9ba1333eb01327e10a0b9078ce40df3"
+        "a2d1daf440736c96abbaf8c1d4cc793d3c7c5fb0d5eaa6665f8b5e3ee4324deb"
     ],
     [
         [
@@ -970,7 +970,7 @@
             "file",
             "sdk/wasp/server/auth/lucia.ts"
         ],
-        "2d517314735c150c0928a38eaf47329bb9c5b4b4e4d7b5deb6ee8f14fc97422c"
+        "98e61c5783f5934d1a313cad012ef5e16d68748b75f2aa6c0799c5d52191300d"
     ],
     [
         [
@@ -1061,14 +1061,21 @@
             "file",
             "sdk/wasp/server/auth/provider/wasp.ts"
         ],
-        "17395734ab484f6d8a7849cd8071287f877826e1ecf7cb298e11816450563b96"
+        "fa73f00f72aedb7850d54d4dac622a768b7797fbe0d3f9f06ea0bb572a25eada"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "9ec6709e0219381a33784c6f7140d63e30c92bbb3ef821a0ab06a0cfafa3546a"
+        "1484ede8fd7affbe33f6b17a84354c942c0650c6122dc16c68f822879c7cba1e"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/sessionStore.ts"
+        ],
+        "e4e51291676c6f3a912ad5968c442d5fbb085bb1db4c5683bcd043c5d9218a8f"
     ],
     [
         [

@@ -45,17 +45,110 @@ export const api = ky.extend({
   prefix: config.apiUrl,
   hooks: {
     beforeRequest: [
-      // Pull-based on purpose: the adapter is asked at each request, so a
-      // token that rotates underneath (short-lived JWTs) is always current.
+      // Every request authenticates with Wasp's own session. When there is
+      // none yet, the adapter's credential is exchanged for one first
+      // (`POST /auth/login`), so a login inside the provider's UI turns into a
+      // Wasp session on the next API call.
       async ({ request }) => {
-        const credential = await clientAuthAdapter.getCredential()
-        if (credential !== null) {
-          request.headers.set('Authorization', `Bearer ${credential}`)
+        const sessionId = await ensureSessionFromAdapter()
+        if (sessionId !== null) {
+          request.headers.set('Authorization', `Bearer ${sessionId}`)
+        }
+      },
+    ],
+    afterResponse: [
+      ({ request, response }) => {
+        if (response.status === 401) {
+          // Before clearing the session ID from local storage due to a 401 error,
+          // compare the session ID stored in the *failed request's* headers
+          // with the *current* session ID in local storage.
+          // Only clear the local session ID if the two session IDs match.
+          //
+          // This prevents a race condition like this:
+          // 1. Request A is sent with old session ID X.
+          // 2. User logs out and logs back in, obtaining new session ID Y.
+          // 3. Request A finally fails with a 401 (because ID X is invalid).
+          // Without the check, we would clear the *current* valid session ID Y.
+          // The check ensures we only clear the session if the *request that failed*
+          // used the *same session ID that's currently stored*.
+          const failingSessionId = getSessionIdFromAuthorizationHeader(
+            request.headers.get('Authorization')
+          )
+          const currentSessionId = getSessionId()
+          if (failingSessionId === currentSessionId) {
+            clearSessionId()
+          }
         }
       },
     ],
   },
 })
+
+/**
+ * Exchanges the auth provider's credential for a Wasp session
+ * (`POST /auth/login`). Uses plain `fetch` rather than the `api` instance so
+ * the request does not recurse through the hooks above.
+ */
+async function fetchSessionForCredential(credential: string): Promise<string | null> {
+  const response = await fetch(`${config.apiUrl}/auth/login`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${credential}` },
+  })
+  if (!response.ok) {
+    return null
+  }
+  const { sessionId } = (await response.json()) as { sessionId: string }
+  return sessionId
+}
+
+// Single-flight: concurrent requests while sessionless must not fire multiple
+// exchanges.
+let exchangeInFlight: Promise<string | null> | null = null
+
+async function ensureSessionFromAdapter(): Promise<string | null> {
+  const existing = getSessionId()
+  if (existing !== null) {
+    return existing
+  }
+  exchangeInFlight ??= exchangeAdapterCredential().finally(() => {
+    exchangeInFlight = null
+  })
+  return exchangeInFlight
+}
+
+async function exchangeAdapterCredential(): Promise<string | null> {
+  const credential = await clientAuthAdapter.getCredential()
+  if (credential === null) {
+    return null
+  }
+  const sessionId = await fetchSessionForCredential(credential)
+  if (sessionId !== null) {
+    setSessionId(sessionId)
+  }
+  return sessionId
+}
+
+// The adapter reports provider-side credential changes: a token rotation or a
+// login/logout inside the provider's own UI. A logout there ends the Wasp
+// session too -- dual sign-out initiated from the provider's side.
+clientAuthAdapter.onCredentialChange?.(() => {
+  void reconcileAdapterCredential()
+})
+
+async function reconcileAdapterCredential(): Promise<void> {
+  const credential = await clientAuthAdapter.getCredential()
+  if (credential === null && getSessionId() !== null) {
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // Best-effort: the session row expires on its own if the server is
+      // unreachable; locally the user is logged out either way.
+    }
+    removeLocalUserData()
+  } else {
+    apiEventsEmitter.emit('sessionId.set')
+  }
+}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.

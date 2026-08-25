@@ -63,10 +63,24 @@ Clerk is the more instructive example precisely because it is the more constrain
   revocation yes, issuing no.
 - `src/auth/LoginPage.tsx` — Clerk's own `<SignIn />`, re-exported by the package. There is no
   `<LoginForm />` here and there cannot be one.
-- No client wiring at all: the package ships a client adapter, so Wasp mounts Clerk's
-  context and pulls tokens automatically. There is no `App.tsx` in this app.
-- **No new tables. No new routes. No adapter code in `src/`.** Compare `../better-auth`, which
-  adds four models, and `../custom-clerk`, which hand-writes this same adapter in-app.
+- No client wiring at all: the package ships a client adapter, so Wasp mounts Clerk's context
+  and, on the first API call after a Clerk login, exchanges Clerk's token for a Wasp session
+  automatically (`POST /auth/login`). There is no `App.tsx` in this app.
+- **No user-authored tables. No new routes. No adapter code in `src/`.** Compare
+  `../better-auth`, which adds four models, and `../custom-clerk`, which hand-writes this same
+  adapter in-app.
+
+## Sessions: exchanged once, then Wasp's own
+
+Clerk is consulted at login (its token is verified once and exchanged for a Wasp session row)
+and at logout (dual sign-out: Wasp revokes its own session **and** calls
+`clerk.sessions.revokeSession` with the Clerk session the login came from). In between, every
+request authenticates against Wasp's session — Clerk is off the request hot path, and a Clerk
+outage cannot take down request auth.
+
+The documented gap of minting your own session: revoking the session **in the Clerk dashboard**
+does not end the already-exchanged Wasp session; it lives until it expires or the user logs out
+of the app.
 
 ## What this example is really demonstrating
 
@@ -103,12 +117,20 @@ easier one to integrate.** Zero tables, zero routes, one small adapter.
 
 ## Verified end to end, against a real Clerk instance
 
+The token-verification and provisioning flow below was verified against a real Clerk instance
+(before the session exchange landed, Clerk's token was carried on every request; today the same
+verification happens once, inside `POST /auth/login`). The exchange and dual sign-out machinery
+itself is verified live in `../better-auth`, which runs the identical server code paths with no
+external service.
+
 ```
-GET  /auth/me   (no token)                      200  {"json":null}
-GET  /auth/me   (bogus bearer)                  401
-GET  /auth/me   (real Clerk session token)      200  {"id":"0f134392-…","identities":{}}
+GET  /auth/me    (no token)                     200  {"json":null}
+GET  /auth/me    (bogus bearer)                 401
+POST /auth/login (real Clerk session token)     200  {"sessionId":"…"}   ← the exchange
+GET  /auth/me    (Wasp session id)              200  {"id":"0f134392-…","identities":{}}
 POST /operations/create-task                    200  task.userId = 0f134392-…
 POST /operations/get-my-tasks   (no token)      401
+POST /auth/logout                               200  revokes the Wasp session AND the Clerk one
 ```
 
 Database afterwards — one local `User`, linked to the Clerk subject:
