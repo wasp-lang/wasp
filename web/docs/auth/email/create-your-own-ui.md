@@ -15,7 +15,7 @@ Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flow
 :::note Handling the email input
 The examples below treat the email input the way Auth UI does. They use `type="text"` with `inputMode="email"` instead of `type="email"`, because browsers validate `type="email"` against an ASCII-only grammar that rejects the internationalized addresses Wasp accepts. They also trim the address before submitting it, which `type="email"` used to take care of on its own.
 
-Wasp validates the address on the server either way, so a malformed one comes back as an error you can show to the user.
+Wasp validates the address on the server either way, so an invalid one comes back as an error you can show to the user.
 :::
 
 ## Example code
