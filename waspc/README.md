@@ -300,6 +300,7 @@ To go around this, we provide `WASP_PLAYWRIGHT_INSTALL_FLAGS` which allows custo
 What you will most likely want to do is set this env var to empty, removing the default `--with-deps` so Playwright doesn't try to install deps on its own, and then ensure on your own that correct system deps are installed on your system. In most of the cases, these deps will already be installed on your system and you don't really have to do anything (despite the warning message that Playwright might still print about deps missing, can be silenced with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`).
 
 Block of code you can easily just add to your `.bashrc`:
+
 ```sh
 # We set install flags to none so default --with-deps is not set, because
 # Playwright doesn't know how to install system deps on Arch and errors.
