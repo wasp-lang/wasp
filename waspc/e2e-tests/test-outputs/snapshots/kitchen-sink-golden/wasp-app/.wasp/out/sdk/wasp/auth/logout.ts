@@ -4,6 +4,8 @@ import { invalidateAndRemoveQueries } from '../client/operations/internal/resour
 // PUBLIC API
 export default async function logout(): Promise<void> {
   try {
+    // Server first: dual sign-out needs the Wasp session header, and revokes
+    // the provider's session alongside Wasp's where the provider is able to.
     await api.post('/auth/logout')
   } finally {
     // Even if the logout request fails, we still want to remove the local user data

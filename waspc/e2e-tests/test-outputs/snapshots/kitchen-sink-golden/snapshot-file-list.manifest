@@ -681,6 +681,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.js
@@ -877,6 +881,7 @@ wasp-app/.wasp/out/sdk/wasp/server/auth/provider/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/provider/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/provider/wasp.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/session.ts
+wasp-app/.wasp/out/sdk/wasp/server/auth/sessionStore.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/config.ts
 wasp-app/.wasp/out/sdk/wasp/server/core/auth.ts

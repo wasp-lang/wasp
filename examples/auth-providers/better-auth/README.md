@@ -34,8 +34,20 @@ byte-for-byte the same as in `../wasp-auth` and `../clerk`. So are `authRequired
   `/better-auth`. An earlier version of this app declared them by hand with `api("ALL", ...)`
   plus an `apiNamespace` middleware tweak; the manifest replaces both.
 - `src/auth/authClient.ts` — two lines: point the package's client at the Wasp server.
-- `src/auth/LoginPage.tsx` — uses Better Auth's client, because Wasp does not wrap login.
+- `src/auth/LoginPage.tsx` — uses Better Auth's client, because Wasp does not wrap login. After
+  a successful sign-in it exchanges Better Auth's token for a Wasp session
+  (`exchangeCredentialForSession`), which every subsequent request authenticates with.
 - Four `BetterAuth*` models in `schema.prisma`.
+
+## Sessions: two rows per login, on purpose
+
+A login here produces a `BetterAuthSession` row (Better Auth's) and a `Session` row (Wasp's,
+minted by the exchange, holding a pointer to the Better Auth one). That duplication is the
+accepted price of uniform sessions: every provider — hosted, in-process, or a plain token
+verifier — gets the same instant Wasp-side revocation and the same logout semantics. Logout is
+dual sign-out: Wasp deletes its session row **and** the Better Auth session it was exchanged
+from. The gap in the other direction is documented: deleting only the Better Auth row leaves the
+Wasp session alive until expiry or logout.
 
 ## What this example is really demonstrating
 
@@ -66,26 +78,29 @@ wasp start
 ## Verified
 
 ```
-POST /better-auth/sign-up/email                 200  {"token":"ISUjd4GE…","user":{…}}
-POST /better-auth/sign-in/email                 200  {"token":"BmzL9Xds…"}
-GET  /auth/me            (Bearer BA token)      200  {"id":"51666a16-…","identities":{}}
-POST /operations/create-task                    200  task.userId = 51666a16-…
-POST /operations/get-my-tasks                   200  the task
-POST /operations/get-my-tasks   (no token)      401
+POST /better-auth/sign-up/email                 200  {"token":"0vPcyGjQ…","user":{…}}
+POST /auth/login         (Bearer BA token)      200  {"sessionId":"dld7oebe…"}   ← the exchange
+GET  /auth/me            (Wasp session id)      200  {"id":"603f28ba-…","identities":{}}
+POST /operations/create-task                    200  task.userId = 603f28ba-…
+GET  /auth/me            (Bearer BA token)      401  ← the provider is off the hot path
+POST /auth/logout                               200  {"success":true}
+GET  /auth/me            (old Wasp session)     401
+POST /auth/login         (old BA token)         401  ← upstream session revoked too
 ```
 
-Database afterwards — one Wasp `User`, one Better Auth user, linked by an `AuthIdentity`:
+Database before logout — the Wasp `Session` row points at the Better Auth session it was
+exchanged from; after logout, **both are gone** (dual sign-out):
 
 ```
-wasp Users: 1 | BA users: 1
-[{ providerName: "external:better-auth",
-   providerUserId: "Y4jJpb9OoIPjH9n3ZGQ9s61i0FHggjkq",
-   authId: "39cdb26c-…" }]
+Session:             dld7oebe… | providerSessionId = vLYtrCE1…
+better_auth_session: vLYtrCE1…
+-- after POST /auth/logout --
+wasp sessions: 0 | BA sessions: 0
 ```
 
-**`/auth/me` returns `51666a16-…`, a uuid from this app's own `User` table — not Better Auth's
-`Y4jJpb9O…`.** Nobody wrote code to make that happen; Wasp provisioned the local row the first
-time it saw that subject. That is the invariant RedwoodJS did not hold.
+**`/auth/me` returns `603f28ba-…`, a uuid from this app's own `User` table — not Better Auth's
+subject id.** Nobody wrote code to make that happen; Wasp provisioned the local row during the
+exchange. That is the invariant RedwoodJS did not hold.
 
 `identities` is `{}` because no Wasp auth methods are enabled. That is the honest outcome of
 `identities` being tiered rather than uniform: its key set depends on the provider.

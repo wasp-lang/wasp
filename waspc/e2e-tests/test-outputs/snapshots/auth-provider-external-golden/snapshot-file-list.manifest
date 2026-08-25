@@ -32,6 +32,7 @@ wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo
 wasp-app/.wasp/out/Dockerfile
 wasp-app/.wasp/out/db/migrations/20260813195733_init/migration.sql
+wasp-app/.wasp/out/db/migrations/20260825133428_add_provider_session_id/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -400,6 +401,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/lucia.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/lucia.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/lucia.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/lucia.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/provider/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/provider/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/provider/index.js
@@ -412,6 +417,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/session.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/sessionStore.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/utils.js
@@ -516,9 +525,11 @@ wasp-app/.wasp/out/sdk/wasp/server/HttpError.ts
 wasp-app/.wasp/out/sdk/wasp/server/_types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/index.ts
+wasp-app/.wasp/out/sdk/wasp/server/auth/lucia.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/provider/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/provider/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/session.ts
+wasp-app/.wasp/out/sdk/wasp/server/auth/sessionStore.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/config.ts
 wasp-app/.wasp/out/sdk/wasp/server/core/auth.ts
@@ -561,6 +572,7 @@ wasp-app/.wasp/out/server/src/middleware/operations.ts
 wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/queries/getMyTasks.ts
 wasp-app/.wasp/out/server/src/routes/auth/index.js
+wasp-app/.wasp/out/server/src/routes/auth/login.ts
 wasp-app/.wasp/out/server/src/routes/auth/logout.ts
 wasp-app/.wasp/out/server/src/routes/auth/me.ts
 wasp-app/.wasp/out/server/src/routes/index.js
@@ -579,6 +591,7 @@ wasp-app/README.md
 wasp-app/eslint.config.js
 wasp-app/main.wasp.ts
 wasp-app/migrations/20260813195733_init/migration.sql
+wasp-app/migrations/20260825133428_add_provider_session_id/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json

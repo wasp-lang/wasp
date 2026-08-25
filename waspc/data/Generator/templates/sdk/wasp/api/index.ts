@@ -49,12 +49,14 @@ export const api = ky.extend({
   hooks: {
     beforeRequest: [
       {=# isClientAuthAdapterUsed =}
-      // Pull-based on purpose: the adapter is asked at each request, so a
-      // token that rotates underneath (short-lived JWTs) is always current.
+      // Every request authenticates with Wasp's own session. When there is
+      // none yet, the adapter's credential is exchanged for one first
+      // (`POST /auth/login`), so a login inside the provider's UI turns into a
+      // Wasp session on the next API call.
       async ({ request }) => {
-        const credential = await clientAuthAdapter.getCredential()
-        if (credential !== null) {
-          request.headers.set('Authorization', `Bearer ${credential}`)
+        const sessionId = await ensureSessionFromAdapter()
+        if (sessionId !== null) {
+          request.headers.set('Authorization', `Bearer ${sessionId}`)
         }
       },
       {=/ isClientAuthAdapterUsed =}
@@ -67,7 +69,6 @@ export const api = ky.extend({
       },
       {=/ isClientAuthAdapterUsed =}
     ],
-    {=^ isClientAuthAdapterUsed =}
     afterResponse: [
       ({ request, response }) => {
         if (response.status === 401) {
@@ -93,9 +94,95 @@ export const api = ky.extend({
         }
       },
     ],
-    {=/ isClientAuthAdapterUsed =}
   },
 })
+{=# isCustomAuthProviderUsed =}
+
+/**
+ * Exchanges the auth provider's credential for a Wasp session
+ * (`POST /auth/login`). Uses plain `fetch` rather than the `api` instance so
+ * the request does not recurse through the hooks above.
+ */
+async function fetchSessionForCredential(credential: string): Promise<string | null> {
+  const response = await fetch(`${config.apiUrl}/auth/login`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${credential}` },
+  })
+  if (!response.ok) {
+    return null
+  }
+  const { sessionId } = (await response.json()) as { sessionId: string }
+  return sessionId
+}
+{=^ isClientAuthAdapterUsed =}
+
+// PUBLIC API
+/**
+ * Exchanges an auth provider credential for a Wasp session and stores it, so
+ * every subsequent API call is authenticated. Hand-written client wiring calls
+ * this once after the provider's own login flow succeeds; from then on the
+ * provider is off the request path until logout.
+ */
+export async function exchangeCredentialForSession(credential: string): Promise<void> {
+  const sessionId = await fetchSessionForCredential(credential)
+  if (sessionId === null) {
+    throw new Error('Exchanging the auth provider credential for a session failed.')
+  }
+  setSessionId(sessionId)
+}
+{=/ isClientAuthAdapterUsed =}
+{=/ isCustomAuthProviderUsed =}
+{=# isClientAuthAdapterUsed =}
+
+// Single-flight: concurrent requests while sessionless must not fire multiple
+// exchanges.
+let exchangeInFlight: Promise<string | null> | null = null
+
+async function ensureSessionFromAdapter(): Promise<string | null> {
+  const existing = getSessionId()
+  if (existing !== null) {
+    return existing
+  }
+  exchangeInFlight ??= exchangeAdapterCredential().finally(() => {
+    exchangeInFlight = null
+  })
+  return exchangeInFlight
+}
+
+async function exchangeAdapterCredential(): Promise<string | null> {
+  const credential = await clientAuthAdapter.getCredential()
+  if (credential === null) {
+    return null
+  }
+  const sessionId = await fetchSessionForCredential(credential)
+  if (sessionId !== null) {
+    setSessionId(sessionId)
+  }
+  return sessionId
+}
+
+// The adapter reports provider-side credential changes: a token rotation or a
+// login/logout inside the provider's own UI. A logout there ends the Wasp
+// session too -- dual sign-out initiated from the provider's side.
+clientAuthAdapter.onCredentialChange?.(() => {
+  void reconcileAdapterCredential()
+})
+
+async function reconcileAdapterCredential(): Promise<void> {
+  const credential = await clientAuthAdapter.getCredential()
+  if (credential === null && getSessionId() !== null) {
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // Best-effort: the session row expires on its own if the server is
+      // unreachable; locally the user is logged out either way.
+    }
+    removeLocalUserData()
+  } else {
+    apiEventsEmitter.emit('sessionId.set')
+  }
+}
+{=/ isClientAuthAdapterUsed =}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.

@@ -5,10 +5,12 @@ import { invalidateAndRemoveQueries } from '../client/operations/internal/resour
 // PUBLIC API
 export default async function logout(): Promise<void> {
   try {
-    // The adapter clears its own client-side state first (Clerk's signOut(),
-    // a token store's clear()), then Wasp revokes the session server-side.
-    await clientAuthAdapter.onLogout?.()
+    // Server first: dual sign-out needs the Wasp session header, and revokes
+    // the provider's session alongside Wasp's where the provider is able to.
     await api.post('/auth/logout')
+    // Then the adapter clears its own client-side state (Clerk's signOut(), a
+    // token store's clear()), so the provider's browser session ends too.
+    await clientAuthAdapter.onLogout?.()
   } finally {
     // Even if the logout request fails, we still want to remove the local user data
     // in case the logout failed because of a network error and the user walked away

@@ -106,7 +106,14 @@ genApiIndexTs spec =
   return $
     C.mkTmplFdWithData
       [relfile|api/index.ts|]
-      (object ["isClientAuthAdapterUsed" .= isClientAdapterUsed spec])
+      ( object
+          [ "isClientAuthAdapterUsed" .= isClientAdapterUsed spec,
+            "isCustomAuthProviderUsed" .= isExternalProviderUsed
+          ]
+      )
+  where
+    isExternalProviderUsed =
+      maybe False AS.App.Auth.isExternalAuthProviderUsed (AS.App.auth $ snd $ AS.Valid.getApp spec)
 
 isClientAdapterUsed :: AppSpec -> Bool
 isClientAdapterUsed spec =

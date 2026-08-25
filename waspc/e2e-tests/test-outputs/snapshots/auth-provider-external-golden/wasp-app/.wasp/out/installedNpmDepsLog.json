@@ -163,6 +163,14 @@
                 "version": "^2.2.1"
             },
             {
+                "name": "lucia",
+                "version": "^3.0.1"
+            },
+            {
+                "name": "@lucia-auth/adapter-prisma",
+                "version": "^4.0.0"
+            },
+            {
                 "name": "@vitest/ui",
                 "version": "^4.1.9"
             },

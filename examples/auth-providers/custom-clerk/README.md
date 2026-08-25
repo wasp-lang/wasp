@@ -21,8 +21,10 @@ auth: {
 
 That is the escape hatch for providers nobody has packaged yet. This app exists to show what
 it costs: ~80 lines of `provider.ts` implementing `authenticate` and `revokeSession`, plus the
-client wiring in `src/App.tsx` that a package would otherwise ship. Diff this app against
-`../clerk` to see exactly what an adapter package absorbs.
+client wiring in `src/App.tsx` — a bridge that exchanges Clerk's token for a Wasp session
+(`exchangeCredentialForSession`) after a Clerk login, which a package's client adapter would
+otherwise do automatically. Diff this app against `../clerk` to see exactly what an adapter
+package absorbs.
 
 ## Run it
 

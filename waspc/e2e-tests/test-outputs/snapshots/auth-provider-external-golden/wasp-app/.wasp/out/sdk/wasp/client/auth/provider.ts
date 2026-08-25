@@ -2,7 +2,6 @@ import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
 
 import { createClientAdapter } from '@wasp.sh/auth-clerk/client'
 
-import { apiEventsEmitter } from '../../api/events.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
 
@@ -20,10 +19,7 @@ export const clientAuthAdapter: ClientAuthAdapter = createClientAdapter(
   undefined,
 )
 
-// Rebroadcast provider-side credential changes into Wasp's existing event
-// channel, so the current-user query and live websocket connections react to
-// token rotation and to logins/logouts that happen inside the provider's own
-// UI.
-clientAuthAdapter.onCredentialChange?.(() => {
-  apiEventsEmitter.emit('sessionId.set')
-})
+// Provider-side credential changes (token rotation, logins and logouts inside
+// the provider's own UI) are observed by the API layer, which exchanges a new
+// credential for a Wasp session or ends the session on provider logout. The
+// subscription lives in `wasp/api` to keep this module import-cycle-free.

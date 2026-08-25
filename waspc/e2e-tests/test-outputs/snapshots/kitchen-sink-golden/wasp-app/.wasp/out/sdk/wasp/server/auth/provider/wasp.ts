@@ -1,72 +1,50 @@
-import { auth as lucia } from '../lucia.js'
 import {
   type AuthenticateResult,
   type SessionManagingAuthProvider,
   type VerifiedSession,
 } from './types.js'
 
+import * as sessionStore from '../sessionStore.js'
+
 // PRIVATE API
 /**
  * Wasp's own authentication, expressed as an `AuthProvider`.
  *
- * This is a thin adapter over the existing Lucia-backed session layer -- it changes
- * no behaviour. Its purpose is to be the first implementation of the provider
- * interface, so that Wasp's internals stop depending on Lucia directly and a second
- * provider can be added later without touching the middleware, the websocket
- * handler or the logout route.
- *
- * Wasp's auth owns the `Auth` and `Session` tables, so a subject id here *is* an
- * `Auth` entity id and needs no further resolution.
+ * It is a thin adapter over Wasp's session store: since Wasp's auth owns the
+ * `Auth` and `Session` tables, a subject id here *is* an `Auth` entity id and a
+ * credential *is* a Wasp session token, so every method delegates to the store.
+ * Its purpose is to keep Wasp's internals working against the same provider
+ * interface an external adapter implements.
  */
 export const waspAuthProvider: SessionManagingAuthProvider = {
   id: 'wasp',
 
   async authenticate(request: Request): Promise<AuthenticateResult> {
-    const authorizationHeader = request.headers.get('authorization')
-
-    if (authorizationHeader === null) {
+    const token = sessionStore.getBearerToken(request.headers.get('authorization'))
+    if (token === null) {
       return { status: 'unauthenticated' }
     }
 
-    const sessionId = lucia.readBearerToken(authorizationHeader)
-    if (!sessionId) {
-      return { status: 'unauthenticated' }
-    }
-
-    const session = await validateWaspSession(sessionId)
+    const session = await sessionStore.validateSession(token)
     return session === null
       ? { status: 'unauthenticated' }
-      : { status: 'authenticated', session }
+      : { status: 'authenticated', session: toVerifiedSession(session) }
   },
 
   async issueSession(subjectId: string): Promise<VerifiedSession> {
-    const session = await lucia.createSession(subjectId, {})
+    const session = await sessionStore.createSession(subjectId)
     return { sessionId: session.id, subjectId }
   },
 
   revokeSession(sessionId: string): Promise<void> {
-    return lucia.invalidateSession(sessionId)
+    return sessionStore.revokeSession(sessionId)
   },
 
   revokeAllSessions(subjectId: string): Promise<void> {
-    return lucia.invalidateUserSessions(subjectId)
+    return sessionStore.revokeAllSessions(subjectId)
   },
 }
 
-async function validateWaspSession(
-  credential: string,
-): Promise<VerifiedSession | null> {
-  const { session, user: authEntity } = await lucia.validateSession(credential)
-
-  if (!session || !authEntity) {
-    return null
-  }
-
-  // An `Auth` row that isn't linked to a user can't identify anyone, so we treat
-  // the session as unauthenticated rather than erroring.
-  if (authEntity.userId === null) {
-    return null
-  }
-
-  return { sessionId: session.id, subjectId: session.userId }
+function toVerifiedSession(session: sessionStore.StoredSession): VerifiedSession {
+  return { sessionId: session.id, subjectId: session.authId }
 }

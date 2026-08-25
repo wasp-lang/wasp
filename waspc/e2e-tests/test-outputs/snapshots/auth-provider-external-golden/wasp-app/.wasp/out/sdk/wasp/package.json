@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@lucia-auth/adapter-prisma": "^4.0.0",
     "@prisma/client": "5.19.1",
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/jest-dom": "^6.9.1",
@@ -13,6 +14,7 @@
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
     "ky": "^2.0.0",
+    "lucia": "^3.0.1",
     "mitt": "3.0.0",
     "msw": "^2.12.7",
     "prisma": "5.19.1",

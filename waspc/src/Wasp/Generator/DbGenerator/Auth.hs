@@ -160,6 +160,12 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
           id        String   @id @unique
           expiresAt DateTime
 
+          // Set when the session was minted by exchanging an external auth
+          // provider's credential; holds the provider's own session id so that
+          // logout can revoke both sessions (dual sign-out). Null for sessions
+          // issued by Wasp's own auth.
+          providerSessionId String?
+
           // Needs to be called `userId` for Lucia to be able to create sessions
           userId String
           // The relation needs to be named as lowercased entity name, because that's what Lucia expects.

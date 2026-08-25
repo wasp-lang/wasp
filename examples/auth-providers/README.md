@@ -32,16 +32,32 @@ Also identical: `authRequired` on pages, `auth: true` on operations, `useAuth()`
 
 ## The part that differs
 
-Only how a session is _established_:
+Only how a login _happens_:
 
 - `wasp-auth` and `better-auth` render login forms and post credentials to the server.
 - `clerk` and `custom-clerk` cannot. Clerk has no server-side password endpoint — verification
   lives on its Frontend API behind a browser-held cookie — so those apps use Clerk's own React
-  components and Wasp only ever verifies the resulting token.
+  components and hand the resulting token to Wasp.
 
 That asymmetry is why session issuance is a capability (`SupportsSessionIssuance`) layered on
-the base `AuthProvider` (verify a request) rather than part of it. Clerk carries only the base
-plus revocation.
+the base `AuthProvider` (verify a credential) rather than part of it. Clerk carries only the
+base plus revocation.
+
+## Sessions: Wasp mints its own, whoever verified the login
+
+Every app here runs on Wasp's own sessions (the injected `Session` table), the way Rails,
+Django, and ASP.NET Core do it. Under an external provider, the provider is consulted exactly
+twice:
+
+- **Login**: the client exchanges the provider's credential for a Wasp session
+  (`POST /auth/login`). Every request after that authenticates against Wasp's session — the
+  provider is off the hot path.
+- **Logout**: dual sign-out, ASP.NET-style. Wasp revokes its own session, and — where the
+  provider supports revocation — the provider session it was exchanged from, best-effort.
+
+The documented gap of this model (all frameworks that mint their own sessions share it):
+revoking a session **on the provider's side** does not end the Wasp session; it lives until it
+expires or the user logs out of the app.
 
 `clerk/` and `custom-clerk/` are the same provider integrated two ways: through the
 `@wasp.sh/auth-clerk` package, and hand-written in the app via `customAuthProvider()`. Diffing

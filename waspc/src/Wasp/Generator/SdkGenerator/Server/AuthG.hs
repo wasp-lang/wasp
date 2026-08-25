@@ -39,12 +39,18 @@ genServerAuth spec =
     -- dependencies are not installed.
     Just auth
       | AS.Auth.isExternalAuthProviderUsed auth ->
+          -- Wasp's session store backs external providers too: their credential
+          -- is exchanged for a Wasp session at login, so the store (and lucia
+          -- behind it) is generated. Everything password-shaped -- hashing,
+          -- jwt, Wasp's own provider -- still is not.
           sequence
             [ genFileCopy [relfile|server/core/auth.ts|],
               genAuthIndex auth,
               genFileCopyInServerAuth [relfile|provider/types.ts|],
               genAuthProviderIndexTs spec auth,
               genSessionTs auth,
+              genSessionStoreTs auth,
+              genLuciaTs auth,
               genUtils auth
             ]
       | otherwise ->
@@ -58,6 +64,7 @@ genServerAuth spec =
               genFileCopyInServerAuth [relfile|provider/wasp.ts|],
               genAuthProviderIndexTs spec auth,
               genSessionTs auth,
+              genSessionStoreTs auth,
               genLuciaTs auth,
               genUtils auth
             ]
@@ -90,6 +97,19 @@ genHooks auth =
       tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
+
+genSessionStoreTs :: AS.Auth.Auth -> Generator FileDraft
+genSessionStoreTs _ =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|sessionStore.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
+          "sessionEntityUpper" .= (DbAuth.sessionEntityName :: String)
+        ]
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
 genLuciaTs auth =

@@ -152,6 +152,7 @@ spec_GeneratorAuthInjectionTest = do
         [trimming|
           id String @id @unique
           expiresAt DateTime
+          providerSessionId String?
           userId String
           auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
 
