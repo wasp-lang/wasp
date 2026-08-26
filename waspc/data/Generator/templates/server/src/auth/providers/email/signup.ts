@@ -1,17 +1,6 @@
 import { Request, Response } from 'express'
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
-  createProviderId,
-  createUser,
-  deleteUserByAuthId,
-  doFakeWork,
-  findAuthIdentity,
-  getProviderDataWithPassword,
-  rethrowPossibleAuthError,
-  sanitizeAndSerializeProviderData,
-  validateAndGetUserFields,
-} from 'wasp/server/auth/utils'
-import {
   ensurePasswordIsPresent,
   ensureValidEmail,
   ensureValidPassword,
@@ -23,6 +12,17 @@ import {
   isEmailResendAllowed,
   sendEmailVerificationEmail,
 } from 'wasp/server/auth/email/utils'
+import {
+  createProviderId,
+  createUser,
+  deleteUserByAuthId,
+  doFakeWork,
+  findAuthIdentity,
+  getProviderDataWithPassword,
+  rethrowPossibleAuthError,
+  sanitizeAndSerializeProviderData,
+  validateAndGetUserFields,
+} from 'wasp/server/auth/utils'
 import { EmailFromField } from 'wasp/server/email/core/types'
 import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
@@ -146,8 +146,8 @@ export function getSignupRoute({
       return
     }
 
-    // We send to the address we stored, not to the one the user typed, so that
-    // the address that proves ownership is the same one password reset later
+    // We send the verification link to the normalized address that we stored.
+    // This way the address that proves ownership is the same one password reset later
     // sends the reset link to.
     const email = providerId.providerUserId
     const verificationLink = await createEmailVerificationLink(
