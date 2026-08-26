@@ -8,24 +8,33 @@
  * We start from the HTML5 grammar because it is a good compromise
  * between completeness and complexity.
  *
- * We also do some additional safety checks:
- * - We disallow invisible, text-reordering, zero-width and bidirectional
- *   override (LTR or RTL) unicode characters.
- * - We disallow a combining mark at the start of an email address,
- *   because it would attach to whatever text that precedes the address.
- *
  * @see {@link https://github.com/whatwg/html/issues/4562 WHATWG international email addresses issue}
  */
 const HTML5_EMAIL_WITH_UNICODE_REGEX =
-  /^(?!\p{M})[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$/u;
+  /^[\p{L}\p{M}\p{Nd}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{Nd}](?:[\p{L}\p{M}\p{Nd}-]{0,61}[\p{L}\p{M}\p{Nd}])?(?:\.[\p{L}\p{Nd}](?:[\p{L}\p{M}\p{Nd}-]{0,61}[\p{L}\p{M}\p{Nd}])?)*$/u;
 
-export function isValidEmail(input: unknown): boolean {
+/**
+ * Characters that render as nothing, so that two addresses spelled
+ * differently look identical on screen.
+ */
+const INVISIBLE_CHARACTER_REGEX = /\p{Default_Ignorable_Code_Point}/u;
+
+/**
+ * A combining mark at the start has no character of its own to attach to,
+ * so it lands on whatever text precedes the address when it is rendered.
+ */
+const LEADING_COMBINING_MARK_REGEX = /^\p{M}/u;
+
+export function isValidEmail(input: unknown): input is string {
   if (typeof input !== "string") {
     return false;
   }
 
   return (
-    HTML5_EMAIL_WITH_UNICODE_REGEX.test(input) && isEmailOfValidLength(input)
+    HTML5_EMAIL_WITH_UNICODE_REGEX.test(input) &&
+    !INVISIBLE_CHARACTER_REGEX.test(input) &&
+    !LEADING_COMBINING_MARK_REGEX.test(input) &&
+    isEmailOfValidLength(input)
   );
 }
 
@@ -40,6 +49,7 @@ function isEmailOfValidLength(email: string) {
   );
 }
 
+// Not punycoded for simplicity.
 function countOctets(text: string): number {
   return new TextEncoder().encode(text).length;
 }

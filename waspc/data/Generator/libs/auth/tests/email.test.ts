@@ -48,27 +48,59 @@ describe("isValidEmail", () => {
       "квіточка@пошта.укр",
       // Decomposed "ö", a combining mark following its base character.
       "o\u0308ffentlich@example.com",
+      // Arabic-Indic digits.
+      "١٢@example.com",
     ])("accepts %j", (email) => {
       expect(isValidEmail(email)).toBe(true);
     });
 
-    // We accept Unicode letters, marks and digits, which is narrower than the
-    // "any non-ASCII character" RFC 6531 allows. See the note in `email.ts`.
+    // RFC 6531 allows any non-ASCII character in the local part.
+    // We do not go that far.
     it.each([
       // Emoji.
       "😀@example.com",
-      // Zero width joiner.
-      "us‍er@example.com",
-      // Right-to-left override.
-      "us‮er@example.com",
-    ])("rejects the non-letter, non-digit character in %j", (email) => {
+      // Numerals that are not decimal digits.
+      "user@examp⑪le.com",
+      "user@Ⅷ.com",
+    ])("rejects the unsupported character in %j", (email) => {
       expect(isValidEmail(email)).toBe(false);
     });
 
-    it("rejects a local part starting with a combining mark", () => {
+    it("rejects an address starting with a combining mark", () => {
       // The mark has no character of its own to attach to, so it lands on
       // whatever text precedes the address when it is rendered.
       expect(isValidEmail("\u0301user@example.com")).toBe(false);
+    });
+  });
+
+  // These render as nothing, so they let two addresses that are spelled
+  // differently look identical.
+  describe("invisible characters", () => {
+    it.each([
+      // Zero width joiner.
+      "us\u200Der@example.com",
+      // Zero width non-joiner.
+      "us\u200Cer@example.com",
+      // Right-to-left override.
+      "us\u202Eer@example.com",
+      // Soft hyphen.
+      "us\u00ADer@example.com",
+      // Variation selector 1.
+      "us\uFE00er@example.com",
+      // Variation selector 16.
+      "us\uFE0Fer@example.com",
+      // Variation selector supplement.
+      "us\u{E0100}er@example.com",
+      // Mongolian free variation selector.
+      "us\u180Ber@example.com",
+      // Hangul filler, the classic invisible username character.
+      "\u3164@example.com",
+      // Halfwidth Hangul filler.
+      "\uFFA0@example.com",
+      // Hangul choseong filler, in the domain this time.
+      "user@examp\u115Fle.com",
+    ])("rejects %j", (email) => {
+      expect(isValidEmail(email)).toBe(false);
     });
   });
 
