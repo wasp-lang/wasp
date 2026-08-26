@@ -46,9 +46,7 @@ test.describe("auth", () => {
 
     test("can sign up", async ({ page }) => {
       await performSignup(page, {
-        // Padded to check that the form trims the address. The rest of this
-        // flow uses the unpadded address, so verifying and logging in only
-        // work if the trimmed address is the one that got stored.
+        // Padded to check that the form trims the address.
         email: ` ${email} `,
         password,
         address: "Some at least 10 letter address",
@@ -154,8 +152,6 @@ test.describe("auth", () => {
       );
     });
 
-    // We accept a narrower set of Unicode than RFC 6531 does, so an address
-    // can be internationalized and still be rejected.
     test("signing up with a leading combining mark results in an error message", async ({
       page,
     }) => {

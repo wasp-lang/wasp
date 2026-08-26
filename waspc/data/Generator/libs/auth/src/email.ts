@@ -19,7 +19,7 @@
 const HTML5_EMAIL_WITH_UNICODE_REGEX =
   /^(?!\p{M})[\p{L}\p{M}\p{N}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}-]{0,61}[\p{L}\p{M}\p{N}])?)*$/u;
 
-export function isValidEmail(input: string): boolean {
+export function isValidEmail(input: unknown): boolean {
   if (typeof input !== "string") {
     return false;
   }

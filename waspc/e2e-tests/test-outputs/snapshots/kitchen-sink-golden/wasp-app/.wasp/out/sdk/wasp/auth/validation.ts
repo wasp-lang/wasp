@@ -56,8 +56,6 @@ function validate(args: object, validators: { validates: string, message: string
   }
 }
 
-// NOTE(miho): it would be good to replace our custom validations with e.g. Zod
-
 function isMinLength(input: unknown, minLength: number): boolean {
     if (typeof input !== 'string') {
         return false

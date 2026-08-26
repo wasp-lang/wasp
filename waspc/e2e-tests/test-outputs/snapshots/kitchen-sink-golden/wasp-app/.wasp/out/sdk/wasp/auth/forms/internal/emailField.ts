@@ -2,9 +2,11 @@ import { isValidEmail } from '@wasp.sh/lib-auth'
 
 /**
  * Deliberately avoids setting `type="email"`.
- * Browsers validate input against the HTML5 grammar, which is ASCII-only
+ * Browsers validate email input against the HTML5 grammar, which is ASCII-only
  * and would reject internationalized addresses that the server accepts.
  * `inputMode` keeps the email keyboard on mobile.
+ *
+ * @see {@link https://github.com/whatwg/html/issues/4562 WHATWG international email addresses issue}
  */
 export const emailInputProps = {
   type: 'text',

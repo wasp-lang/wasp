@@ -14,8 +14,7 @@ export function generateRandomEmail(): string {
 }
 
 /**
- * An address with non-ASCII characters on both sides of the `@`, the kind
- * RFC 6531 allows and the HTML5 `input[type=email]` grammar does not.
+ * Generates an address with non-ASCII characters on both sides of the `@`.
  */
 export function generateRandomInternationalizedEmail(): string {
   return `jürgen-${randomUUID()}@münchen.test`;
