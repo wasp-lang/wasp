@@ -5,6 +5,10 @@
  * The syntax we accept is the HTML5 `input[type=email]` grammar,
  * widened to also accept most unicode characters (HTML5 is ASCII only).
  *
+ * We widen it to unicode letters, marks and decimal digits, leaving out
+ * the possibly dangerous format characters. What still gets through is
+ * handled separately later.
+ *
  * We start from the HTML5 grammar because it is a good compromise
  * between completeness and complexity.
  *
