@@ -54,6 +54,6 @@ genOAuthHelpers auth =
       where
         tmplData =
           object
-            [ "signInPath" .= OAuth.serverLoginUrl provider,
+            [ "signInPath" .= OAuth.providerLoginRoute provider,
               "displayName" .= OAuth.displayName provider
             ]

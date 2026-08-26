@@ -18,6 +18,7 @@ describe("createDeploymentInstructions", () => {
         serverTomlPath: "/path/fly-server.toml",
         clientTomlPath: "/path/fly-client.toml",
       },
+      integrated: false,
     });
     expect(result.clientFlyAppName).toBe(`${baseName}-client`);
     expect(result.serverFlyAppName).toBe(`${baseName}-server`);

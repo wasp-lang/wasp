@@ -244,8 +244,9 @@ library
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
     Wasp.Generator.AuthProviders.Local
-    Wasp.Generator.AuthProviders.OAuth
-    Wasp.Generator.Common
+     Wasp.Generator.AuthProviders.OAuth
+     Wasp.Generator.AppDeliveryPlan
+     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
     Wasp.Generator.DbGenerator

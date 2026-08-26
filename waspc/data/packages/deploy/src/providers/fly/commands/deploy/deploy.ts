@@ -10,6 +10,7 @@ import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   getClientDeploymentDir,
   getServerDeploymentDir,
+  usesIntegratedDelivery,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
@@ -35,6 +36,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
 
   await ensureWaspProjectIsBuilt(cmdOptions);
+  const integrated = usesIntegratedDelivery(cmdOptions.waspProjectDir);
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
 
@@ -56,11 +58,16 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
       baseName: inferredBaseName,
       cmdOptions,
       tomlFilePaths,
+      integrated,
     });
     await deployServer(deploymentInstructions, cmdOptions);
   }
 
-  if (!clientTomlExistsInProject(tomlFilePaths)) {
+  if (integrated) {
+    waspSays(
+      "Integrated delivery uses the server app for the web client. Skipping client deploy.",
+    );
+  } else if (!clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(
       `${
         tomlFilePaths.clientTomlPath
@@ -76,6 +83,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
       baseName: inferredBaseName,
       cmdOptions,
       tomlFilePaths,
+      integrated,
     });
     await deployClient(deploymentInstructions, cmdOptions);
   }

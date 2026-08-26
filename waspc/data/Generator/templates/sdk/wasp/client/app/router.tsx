@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
-import { OAuthCallbackPage } from "./pages/OAuthCallback"
+import { OAuthLoginResultPage } from "./pages/OAuthLoginResult"
 {=/ isExternalAuthEnabled =}
 
 import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
@@ -22,8 +22,8 @@ export function getRouteObjects({
   const waspDefinedRoutes = [
     {=# isExternalAuthEnabled =}
     {
-      path: "{= oAuthCallbackPath =}",
-      Component: OAuthCallbackPage,
+      path: "{= oauthLoginResultPath =}",
+      Component: OAuthLoginResultPage,
     },
     {=/ isExternalAuthEnabled =}
   ]

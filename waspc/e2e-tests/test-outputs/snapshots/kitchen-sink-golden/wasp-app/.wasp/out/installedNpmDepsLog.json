@@ -227,6 +227,10 @@
                 "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
+                "name": "@wasp.sh/lib-delivery",
+                "version": "file:../../libs/delivery/wasp.sh-lib-delivery-0.26.0.tgz"
+            },
+            {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             }
@@ -268,6 +272,10 @@
             {
                 "name": "@wasp.sh/lib-auth",
                 "version": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
+            },
+            {
+                "name": "@wasp.sh/lib-delivery",
+                "version": "file:../libs/delivery/wasp.sh-lib-delivery-0.26.0.tgz"
             },
             {
                 "name": "@wasp.sh/lib-vite-ssr",

@@ -23,7 +23,7 @@ const _waspstreamingTextmiddlewareConfigFn = idFn
 const router = express.Router()
 
 router.use('/bar', globalMiddlewareConfigForExpress(_waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn))
-router.use('/api/streaming-test', globalMiddlewareConfigForExpress(_waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn))
+router.use('/streaming-test', globalMiddlewareConfigForExpress(_waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn))
 
 const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareConfigFn)
 router.all(
@@ -81,7 +81,7 @@ router.post(
 )
 const streamingTextMiddleware = globalMiddlewareConfigForExpress(_waspstreamingTextmiddlewareConfigFn)
 router.get(
-  '/api/streaming-test',
+  '/streaming-test',
   [auth, ...streamingTextMiddleware],
   defineHandler(
     (

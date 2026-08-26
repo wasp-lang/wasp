@@ -19,6 +19,7 @@ export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
     clientServiceName: ClientServiceName;
     serverServiceName: ServerServiceName;
     dbServiceName: DbServiceName;
+    integrated: boolean;
   }>;
 
 export function createDeploymentInstructions<
@@ -26,6 +27,7 @@ export function createDeploymentInstructions<
 >(
   projectName: RailwayProjectName,
   cmdOptions: CmdOptions,
+  integrated: boolean,
 ): DeploymentInstructions<CmdOptions> {
   return Object.freeze({
     projectName,
@@ -33,6 +35,7 @@ export function createDeploymentInstructions<
     clientServiceName: createRailwayClientServiceName(projectName),
     serverServiceName: createRailwayServerServiceName(projectName),
     dbServiceName: createRailwayDbServiceName(),
+    integrated,
   });
 }
 

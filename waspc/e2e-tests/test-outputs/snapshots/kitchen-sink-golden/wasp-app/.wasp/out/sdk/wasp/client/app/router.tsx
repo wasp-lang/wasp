@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
-import { OAuthCallbackPage } from "./pages/OAuthCallback"
+import { OAuthLoginResultPage } from "./pages/OAuthLoginResult"
 
 import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 
@@ -19,7 +19,7 @@ export function getRouteObjects({
   const waspDefinedRoutes = [
     {
       path: "/oauth/callback",
-      Component: OAuthCallbackPage,
+      Component: OAuthLoginResultPage,
     },
   ]
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {

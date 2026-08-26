@@ -17,6 +17,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows)
+import qualified Wasp.Generator.AppDeliveryPlan as AppDeliveryPlan
 import Wasp.Generator.Common
   ( GeneratedAppDir,
     ServerRootDir,
@@ -37,6 +38,7 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 genDockerfile :: AppSpec -> Generator FileDraft
 genDockerfile spec = do
   let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromGeneratedAppComponentDir
+      deliveryPlan = AppDeliveryPlan.makeAppDeliveryPlan spec
   return $
     createTemplateFileDraft
       ([relfile|Dockerfile|] :: Path' (Rel GeneratedAppDir) File')
@@ -44,6 +46,7 @@ genDockerfile spec = do
       ( Just $
           object
             [ "usingPrisma" .= hasEntities spec,
+              "includeClientAssets" .= (AppDeliveryPlan.deliveryMode deliveryPlan == AS.Integrated),
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)

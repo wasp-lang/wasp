@@ -6,7 +6,7 @@ module Wasp.Cli.Command.Build
 where
 
 import Control.Lens (at, (%~), (&), (.~))
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
@@ -14,6 +14,11 @@ import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import Data.Either (fromLeft)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import qualified StrongPath as SP
+import System.Exit (ExitCode (ExitFailure, ExitSuccess))
+import System.IO (hFlush, stdout)
+import System.Process (CreateProcess (cwd), createProcess, proc, waitForProcess)
+import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -23,6 +28,7 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.CompileOptions (CompileOptions (..))
+import qualified Wasp.Generator.AppDeliveryPlan as AppDeliveryPlan
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
@@ -69,16 +75,21 @@ build = withProjectLock $ do
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
-  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
-  liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $
-    throwError $
-      CommandError "Building of wasp project failed" $
-        show (length errors) ++ " errors found."
+  (warnings, appSpecOrErrors) <- liftIO $ buildIO waspProjectDir buildDir
+  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
+  appSpec <- case appSpecOrErrors of
+    Left errors ->
+      throwError $
+        CommandError "Building of wasp project failed" $
+          show (length errors) ++ " errors found."
+    Right appSpec -> return appSpec
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
+
+  let deliveryPlan = AppDeliveryPlan.makeAppDeliveryPlan appSpec
+  when (AppDeliveryPlan.deliveryMode deliveryPlan == AS.Integrated) $ buildIntegratedClient waspProjectDir
 
   cliSendMessageC $
     Msg.Success $
@@ -148,13 +159,30 @@ build = withProjectLock $ do
     waspSpecPackageName :: String
     waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
+    buildIntegratedClient waspProjectDir = do
+      cliSendMessageC $ Msg.Start "Building integrated client..."
+      liftIO $ hFlush stdout
+      exitCode <- liftIO $ do
+        (_, _, _, processHandle) <-
+          createProcess
+            (proc "npx" ["vite", "build"])
+              { cwd = Just $ SP.fromAbsDir waspProjectDir
+              }
+        waitForProcess processHandle
+      case exitCode of
+        ExitSuccess -> cliSendMessageC $ Msg.Success "Integrated client built."
+        ExitFailure code ->
+          throwError $
+            CommandError
+              "Building the integrated client failed"
+              ("Vite exited with code " ++ show code ++ ".")
+
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
+  IO ([CompileWarning], Either [CompileError] AS.AppSpec)
 buildIO waspProjectDir buildDir =
-  fmap (fromLeft [])
-    <$> compileIOWithOptions options waspProjectDir buildDir
+  compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions

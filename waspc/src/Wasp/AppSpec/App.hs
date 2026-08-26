@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.AppSpec.App (App (..)) where
+module Wasp.AppSpec.App (App (..), Deployment (..)) where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
@@ -23,6 +23,7 @@ import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 data App = App
   { wasp :: Wasp,
     title :: String,
+    deployment :: Maybe Deployment,
     head :: Maybe [String],
     auth :: Maybe Auth,
     server :: Maybe Server,
@@ -30,6 +31,11 @@ data App = App
     db :: Maybe Db,
     emailSender :: Maybe EmailSender,
     webSocket :: Maybe WebSocket
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+data Deployment = Deployment
+  { mode :: String
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 

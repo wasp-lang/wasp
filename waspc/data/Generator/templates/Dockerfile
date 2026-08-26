@@ -42,6 +42,9 @@ COPY server .wasp/out/server
 COPY sdk .wasp/out/sdk
 COPY types .wasp/out/types
 COPY libs .wasp/out/libs
+{=# includeClientAssets =}
+COPY web-app ./web-app
+{=/ includeClientAssets =}
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/out/server && npm install
 {=# usingPrisma =}
@@ -72,6 +75,9 @@ COPY --from=server-builder /app/node_modules ./node_modules
 COPY --from=server-builder /app/.wasp/out/server/node_modules .wasp/out/server/node_modules
 COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
 COPY --from=server-builder /app/.wasp/out/server/package*.json .wasp/out/server/
+{=# includeClientAssets =}
+COPY --from=server-builder /app/web-app/build .wasp/out/server/web-app
+{=/ includeClientAssets =}
 COPY db/ .wasp/out/db/
 EXPOSE ${PORT}
 WORKDIR /app/.wasp/out/server

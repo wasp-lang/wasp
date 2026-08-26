@@ -27,16 +27,22 @@ export { keycloak } from './providers/keycloak.js';
 export { microsoft } from './providers/microsoft.js';
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
-// PRIVATE API
-export {
-  loginPath,
-  callbackPath,
-  exchangeCodeForTokenPath,
-  handleOAuthErrorAndGetRedirectUri,
-  getRedirectUriForOneTimeCode,
-} from './redirect.js'
+// PUBLIC API
+export { completeOAuthLogin } from './completeOAuthLogin.js'
 
 // PRIVATE API
 export {
-  tokenStore,
-} from './oneTimeCode.js'
+  providerLoginPath,
+  providerCallbackPath,
+  getOAuthLoginErrorRedirectUrl,
+  getOAuthLoginResultUrl,
+  {=# usesSessionHandoff =}
+  getOAuthLoginResultUrlWithSessionHandoffCode,
+  sessionHandoffExchangePath,
+  {=/ usesSessionHandoff =}
+} from './redirect.js'{=# usesSessionHandoff =}
+
+// PRIVATE API
+export {
+  sessionHandoffCodes,
+} from './sessionHandoff.js'{=/ usesSessionHandoff =}

@@ -1,32 +1,28 @@
 import ky, { isHTTPError } from 'ky'
-import { config } from '../client/index.js'
+import { config, browserAppDelivery } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
-
 // PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
-  storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
+  browserAppDelivery.acceptSession(sessionId)
   apiEventsEmitter.emit('sessionId.set')
 }
 
 // PRIVATE API (sdk)
 export function getSessionId(): string | null {
-  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as
-    | string
-    | undefined
-  return sessionId ?? null
+  return browserAppDelivery.currentSessionId()
 }
 // PRIVATE API (sdk)
 export function clearSessionId(): void {
-  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
+  browserAppDelivery.clearSession()
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
 export function removeLocalUserData(): void {
-  storage.clear()
+  browserAppDelivery.clearLocalData()
   apiEventsEmitter.emit('sessionId.clear')
 }
 
@@ -41,14 +37,11 @@ export function removeLocalUserData(): void {
  * response body.
  */
 export const api = ky.extend({
-  prefix: config.apiUrl,
+  prefix: config.serverUrl,
   hooks: {
     beforeRequest: [
       ({ request }) => {
-        const sessionId = getSessionId()
-        if (sessionId !== null) {
-          request.headers.set('Authorization', `Bearer ${sessionId}`)
-        }
+        browserAppDelivery.prepareHttpRequest(request)
       },
     ],
     afterResponse: [
@@ -66,11 +59,11 @@ export const api = ky.extend({
           // Without the check, we would clear the *current* valid session ID Y.
           // The check ensures we only clear the session if the *request that failed*
           // used the *same session ID that's currently stored*.
-          const failingSessionId = getSessionIdFromAuthorizationHeader(
+          const failingSessionId = browserAppDelivery.sessionIdFromAuthorizationHeader(
             request.headers.get('Authorization')
           )
           const currentSessionId = getSessionId()
-          if (failingSessionId === currentSessionId) {
+          if (failingSessionId !== null && failingSessionId === currentSessionId) {
             clearSessionId()
           }
         }
@@ -131,14 +124,5 @@ class WaspHttpError extends Error {
     super(message)
     this.statusCode = statusCode
     this.data = data
-  }
-}
-
-function getSessionIdFromAuthorizationHeader(header: string | null): string | null {
-  const prefix = 'Bearer '
-  if (header && header.startsWith(prefix)) {
-    return header.substring(prefix.length)
-  } else {
-    return null
   }
 }

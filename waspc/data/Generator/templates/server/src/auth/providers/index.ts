@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { Router } from "express";
-{=# isExternalAuthEnabled =}
-import { setupOneTimeCodeRoute } from "./oauth/oneTimeCode";
-{=/ isExternalAuthEnabled =}
+{=# usesSessionHandoff =}
+import { setupSessionHandoffExchangeRoute } from "./oauth/sessionHandoff";
+{=/ usesSessionHandoff =}
 
 {=# providers =}
 {=& importStatement =}
@@ -16,11 +16,9 @@ const providers = [
 
 const router = Router();
 
-{=# isExternalAuthEnabled =}
-// Setting up a common route for all OAuth providers to exchange
-// one-time code for a session.
-setupOneTimeCodeRoute(router);
-{=/ isExternalAuthEnabled =}
+{=# usesSessionHandoff =}
+setupSessionHandoffExchangeRoute(router);
+{=/ usesSessionHandoff =}
 
 for (const provider of providers) {
   const { createRouter } = provider;

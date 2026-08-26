@@ -11,8 +11,7 @@ export enum HttpMethod {
 export type Route = { method: HttpMethod; path: string }
 
 // PUBLIC API
-export { ClientConfig, config } from './config';
+export { ClientConfig, browserAppDelivery, config } from './config';
 
 // PUBLIC API
 export { env } from './env';
-

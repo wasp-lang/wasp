@@ -1,5 +1,5 @@
 import { api, handleApiError } from '../../../api/index.js'
-import { HttpMethod } from '../../index.js'
+import { browserAppDelivery, HttpMethod } from '../../index.js'
 import { serialize, deserialize } from '../../../core/serialization/index.js'
 
 // PRIVATE API
@@ -20,5 +20,8 @@ export async function callOperation(operationRoute: OperationRoute, args: any) {
 
 // PRIVATE API
 export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
-  return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
+  return {
+    method: HttpMethod.Post,
+    path: browserAppDelivery.waspApiPath(relativeOperationRoute),
+  }
 }

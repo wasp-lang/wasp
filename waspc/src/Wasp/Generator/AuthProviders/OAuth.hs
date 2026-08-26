@@ -1,10 +1,9 @@
 module Wasp.Generator.AuthProviders.OAuth
-  ( clientOAuthCallbackPath,
-    serverOAuthLoginHandlerPath,
-    serverOAuthCallbackHandlerPath,
-    serverLoginUrl,
-    serverExchangeCodeForTokenHandlerPath,
-    serverExchangeCodeForTokenUrl,
+  ( oauthLoginResultPath,
+    providerLoginPath,
+    providerCallbackPath,
+    providerLoginRoute,
+    sessionHandoffExchangePath,
     providerId,
     displayName,
     scopeStr,
@@ -36,20 +35,17 @@ displayName = _displayName
 scopeStr :: OAuthAuthProvider -> String
 scopeStr oai = makeJsArrayFromHaskellList $ _requiredScope oai
 
-clientOAuthCallbackPath :: String
-clientOAuthCallbackPath = "/oauth/callback"
+oauthLoginResultPath :: String
+oauthLoginResultPath = "/oauth/callback"
 
-serverOAuthLoginHandlerPath :: String
-serverOAuthLoginHandlerPath = "login"
+providerLoginPath :: String
+providerLoginPath = "login"
 
-serverLoginUrl :: OAuthAuthProvider -> String
-serverLoginUrl oai = "/auth/" ++ providerId oai ++ "/" ++ serverOAuthLoginHandlerPath
+providerLoginRoute :: OAuthAuthProvider -> String
+providerLoginRoute provider = "/auth/" ++ providerId provider ++ "/" ++ providerLoginPath
 
-serverOAuthCallbackHandlerPath :: String
-serverOAuthCallbackHandlerPath = "callback"
+providerCallbackPath :: String
+providerCallbackPath = "callback"
 
-serverExchangeCodeForTokenHandlerPath :: String
-serverExchangeCodeForTokenHandlerPath = "exchange-code"
-
-serverExchangeCodeForTokenUrl :: String
-serverExchangeCodeForTokenUrl = "/auth/" ++ serverExchangeCodeForTokenHandlerPath
+sessionHandoffExchangePath :: String
+sessionHandoffExchangePath = "exchange-session-handoff"

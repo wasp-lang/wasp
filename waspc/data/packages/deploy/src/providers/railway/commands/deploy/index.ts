@@ -2,6 +2,7 @@ import { WaspProjectDir } from "../../../../common/brandedTypes.js";
 import { getFullCommandName } from "../../../../common/commander.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
+import { usesIntegratedDelivery } from "../../../../common/waspProject.js";
 import {
   RailwayCliExe,
   RailwayProjectId,
@@ -24,11 +25,6 @@ export async function deploy(
   projectName: RailwayProjectName,
   options: DeployCmdOptions,
 ): Promise<void> {
-  const deploymentInstructions = createDeploymentInstructions(
-    projectName,
-    options,
-  );
-
   await ensureRailwayProjectForDirectory({
     projectName,
     waspProjectDir: options.waspProjectDir,
@@ -39,6 +35,12 @@ export async function deploy(
   waspSays("Deploying your Wasp app to Railway!");
 
   await ensureWaspProjectIsBuilt(options);
+  const integrated = usesIntegratedDelivery(options.waspProjectDir);
+  const deploymentInstructions = createDeploymentInstructions(
+    projectName,
+    options,
+    integrated,
+  );
 
   if (options.skipServer) {
     waspSays("Skipping server deploy due to CLI option.");
@@ -46,7 +48,11 @@ export async function deploy(
     await deployServer(deploymentInstructions);
   }
 
-  if (options.skipClient) {
+  if (integrated) {
+    waspSays(
+      "Integrated delivery uses the server service for the web client. Skipping client deploy.",
+    );
+  } else if (options.skipClient) {
     waspSays("Skipping client deploy due to CLI option.");
   } else {
     await deployClient(deploymentInstructions);

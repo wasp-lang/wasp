@@ -20,6 +20,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
+import qualified Wasp.AppSpec.App.Client as AS.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
@@ -615,7 +616,40 @@ spec_AppSpecValid = do
 
       describe "returns no errors for capitalized entity names" $ do
         testValidDeclName makeBasicEntityDecl "Task"
+
+    describe "client base directory validation" $ do
+      it "allows the root base directory in integrated mode" $ do
+        ASV.validateAppSpec (appSpecWithBaseDir Nothing "/") `shouldBe` []
+
+      it "rejects a client subdirectory in integrated mode" $ do
+        ASV.validateAppSpec (appSpecWithBaseDir Nothing "/admin")
+          `shouldBe` [ Valid.GenericValidationError
+                         "The app.client.baseDir must be \"/\" or omitted when app.deployment.mode is \"integrated\". Client subdirectories are only supported in \"split\" mode."
+                     ]
+
+      it "allows a client subdirectory in split mode" $ do
+        ASV.validateAppSpec (appSpecWithBaseDir (Just $ AS.App.Deployment "split") "/admin") `shouldBe` []
   where
+    appSpecWithBaseDir deployment baseDir =
+      basicAppSpec
+        { AS.decls =
+            [ AS.Decl.makeDecl
+                "TestApp"
+                basicApp
+                  { AS.App.deployment = deployment,
+                    AS.App.client =
+                      Just $
+                        AS.Client.Client
+                          { AS.Client.setupFn = Nothing,
+                            AS.Client.rootComponent = Nothing,
+                            AS.Client.baseDir = Just baseDir,
+                            AS.Client.envValidationSchema = Nothing
+                          }
+                  },
+              basicRouteDecl
+            ]
+        }
+
     makeIdField name typ =
       Psl.Model.Field
         { Psl.Model._name = name,
@@ -643,6 +677,7 @@ spec_AppSpecValid = do
               { AS.Wasp.version = "^" ++ show WV.waspVersion
               },
           AS.App.title = "Test App",
+          AS.App.deployment = Nothing,
           AS.App.db =
             Just $
               AS.Db.Db

@@ -57,7 +57,7 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            oAuthType: 'OAuth2',
+            oauthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state }) => discord.oAuthClient.createAuthorizationURL(state, config),
             getProviderTokens: ({ code }) => discord.oAuthClient.validateAuthorizationCode(code),

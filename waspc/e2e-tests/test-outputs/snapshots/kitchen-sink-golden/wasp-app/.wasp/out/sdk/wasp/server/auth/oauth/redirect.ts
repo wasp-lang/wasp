@@ -1,40 +1,43 @@
 import { config, HttpError } from '../../index.js'
+import { appDelivery } from '../../core/delivery.js'
 
 // PRIVATE API (server)
-export const loginPath = 'login'
+export const providerLoginPath = 'login'
 
 // PRIVATE API (server)
-export const exchangeCodeForTokenPath = 'exchange-code'
 
 // PRIVATE API (server)
-export const callbackPath = 'callback'
+export const providerCallbackPath = 'callback'
 
-const clientOAuthCallbackPath = '/oauth/callback'
+const oauthLoginResultPath = '/oauth/callback'
 
 // PRIVATE API (server)
-export function getRedirectUriForOneTimeCode(oneTimeCode: string): URL {
-  return new URL(`${config.frontendUrl}${clientOAuthCallbackPath}#${oneTimeCode}`);
+export function getOAuthLoginResultUrl(): URL {
+  return new URL(`${config.frontendUrl}${oauthLoginResultPath}`)
 }
 
+
 // PRIVATE API (server)
-export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
+export function getOAuthLoginErrorRedirectUrl(error: unknown): URL {
   if (error instanceof HttpError) {
     const errorMessage = isHttpErrorWithExtraMessage(error)
       ? `${error.message}: ${error.data.message}`
       : error.message;
-    return getRedirectUriForError(errorMessage)
+    return makeOAuthLoginErrorUrl(errorMessage)
   }
   console.error("Unknown OAuth error:", error);
-  return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
+  return makeOAuthLoginErrorUrl("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 
 // PRIVATE API (SDK)
-export function getRedirectUriForCallback(providerName: string): URL {
-  return new URL(`${config.serverUrl}/auth/${providerName}/${callbackPath}`);
+export function getProviderCallbackUrl(providerName: string): URL {
+  return new URL(appDelivery.waspApiUrl(`/auth/${providerName}/${providerCallbackPath}`));
 }
 
-function getRedirectUriForError(error: string): URL {
-  return new URL(`${config.frontendUrl}${clientOAuthCallbackPath}?error=${error}`);
+function makeOAuthLoginErrorUrl(error: string): URL {
+  const resultUrl = getOAuthLoginResultUrl()
+  resultUrl.searchParams.set('error', error)
+  return resultUrl
 }
 
 function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { data: { message: string } } {

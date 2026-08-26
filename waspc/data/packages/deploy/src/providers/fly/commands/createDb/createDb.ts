@@ -35,6 +35,7 @@ export async function createDb(
     region,
     cmdOptions,
     tomlFilePaths,
+    integrated: false,
   });
 
   // Creates a DB, waits for it to come up, then links it to the app.

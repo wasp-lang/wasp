@@ -401,6 +401,10 @@ validateWebAppBaseDir spec = case maybeBaseDir of
   Just baseDir
     | not (startsWithSlash baseDir) ->
         [GenericValidationError "The app.client.baseDir should start with a slash e.g. \"/test\""]
+    | AS.appDeliveryMode spec == AS.Integrated && baseDir /= "/" ->
+        [ GenericValidationError
+            "The app.client.baseDir must be \"/\" or omitted when app.deployment.mode is \"integrated\". Client subdirectories are only supported in \"split\" mode."
+        ]
   _anyOtherCase -> []
   where
     maybeBaseDir = Client.baseDir =<< AS.App.client (snd $ getApp spec)

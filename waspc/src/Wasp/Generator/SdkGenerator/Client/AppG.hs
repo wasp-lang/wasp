@@ -11,7 +11,8 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
+import Wasp.Generator.AppDeliveryPlan (AppDeliveryPlan (oauthLoginCompletion), OAuthLoginCompletion (ExchangeSessionHandoffCode), makeAppDeliveryPlan)
+import Wasp.Generator.AuthProviders.OAuth (oauthLoginResultPath, sessionHandoffExchangePath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -66,7 +67,7 @@ genRouter spec =
           [relfile|client/app/router.tsx|]
           ( object
               [ "isExternalAuthEnabled" .= isExternalAuthEnabled,
-                "oAuthCallbackPath" .= clientOAuthCallbackPath,
+                "oauthLoginResultPath" .= oauthLoginResultPath,
                 "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
               ]
           )
@@ -82,7 +83,7 @@ genAuthPages spec =
     Just auth ->
       sequence $
         genCreateAuthRequiredPage auth
-          : [genOAuthCallbackPage auth | AS.Auth.isExternalAuthEnabled auth]
+          : [genOAuthLoginResultPage (makeAppDeliveryPlan spec) auth | AS.Auth.isExternalAuthEnabled auth]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -93,12 +94,17 @@ genCreateAuthRequiredPage auth =
       [relfile|client/app/pages/createAuthRequiredPage.jsx|]
       (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
 
-genOAuthCallbackPage :: AS.Auth.Auth -> Generator FileDraft
-genOAuthCallbackPage auth =
+genOAuthLoginResultPage :: AppDeliveryPlan -> AS.Auth.Auth -> Generator FileDraft
+genOAuthLoginResultPage deliveryPlan auth =
   return $
     C.mkTmplFdWithData
-      [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
+      [relfile|client/app/pages/OAuthLoginResult.tsx|]
+      ( object
+          [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+            "sessionHandoffExchangeRoute" .= ("/auth/" ++ sessionHandoffExchangePath),
+            "usesSessionHandoff" .= (oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode)
+          ]
+      )
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

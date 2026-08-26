@@ -46,7 +46,10 @@ genClientWebSocketProvider :: AppSpec -> Generator FileDraft
 genClientWebSocketProvider spec =
   return $ mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
   where
-    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    tmplData =
+      object
+        [ "autoConnect" .= map toLower (show shouldAutoConnect)
+        ]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 

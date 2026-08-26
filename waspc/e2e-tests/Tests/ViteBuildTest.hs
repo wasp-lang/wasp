@@ -90,8 +90,12 @@ viteBuildTest =
     createViteBuildTestCase commands =
       sequence
         [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
+          inTestWaspProjectDir $ [setWaspDbToPSQL, setDeliveryModeToSplit, writeMainPageTsx, waspCliBuild] ++ commands
         ]
+
+    setDeliveryModeToSplit :: ShellCommandBuilder WaspProjectContext ShellCommand
+    setDeliveryModeToSplit =
+      return "awk '/export default app\\(\\{/ { print; print \"  deployment: { mode: \\\"split\\\" },\"; next } { print }' main.wasp.ts > main.wasp.ts.tmp && mv main.wasp.ts.tmp main.wasp.ts"
 
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"

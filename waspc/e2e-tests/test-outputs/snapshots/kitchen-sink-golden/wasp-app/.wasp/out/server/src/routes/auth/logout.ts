@@ -1,12 +1,13 @@
 import { defineHandler } from 'wasp/server/utils'
-import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 import { invalidateSession } from 'wasp/server/auth/session'
+import { appDelivery } from 'wasp/server/core/delivery'
 
 export default defineHandler(async (req, res) => {
-  if (req.sessionId) {
-    await invalidateSession(req.sessionId)
-    res.json({ success: true })
-  } else {
-    throw createInvalidCredentialsError()
+  const sessionId = appDelivery.readHttpSessionCredential(req)
+  if (sessionId) {
+    await invalidateSession(sessionId)
   }
+
+  appDelivery.clearSessionCredential(res)
+  res.json({ success: true })
 })

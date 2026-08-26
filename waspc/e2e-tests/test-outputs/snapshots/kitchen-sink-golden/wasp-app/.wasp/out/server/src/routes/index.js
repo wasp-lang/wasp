@@ -8,10 +8,12 @@ import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
 
 
-const router = express.Router()
+const waspRouter = express.Router()
+const customRouter = express.Router()
+const serverRootRouter = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-router.get('/', middleware,
+serverRootRouter.get('/', middleware,
     function (_req, res) {
       const data = {
         appName: "KitchenSink",
@@ -22,12 +24,11 @@ router.get('/', middleware,
     }
 )
 
-router.use('/auth', middleware, auth)
-router.use('/operations', middleware, operations)
-router.use('/crud', middleware, rootCrudRouter)
-// NOTE: Keep user-defined api routes last so they cannot override our routes.
+waspRouter.use('/auth', middleware, auth)
+waspRouter.use('/operations', middleware, operations)
+waspRouter.use('/crud', middleware, rootCrudRouter)
 // Additionally, do not add middleware to these routes here. Instead, we add
 // it later to allow for middleware customization.
-router.use(apis)
+customRouter.use(apis)
 
-export default router
+export default { waspApi: waspRouter, custom: customRouter, serverRoot: serverRootRouter }

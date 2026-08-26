@@ -44,6 +44,8 @@ export interface App {
    * Used as the browser tab title.
    */
   title: string;
+  /** Delivery topology for the generated app. Defaults to integrated. */
+  deployment?: Deployment;
   /**
    * Extra tags injected into the HTML `<head>`.
    *
@@ -77,6 +79,11 @@ export interface App {
    * {@link job}, {@link crud}).
    */
   spec: Spec;
+}
+
+export interface Deployment {
+  /** `integrated` serves the client and server from one origin. */
+  mode?: "integrated" | "split";
 }
 
 /**

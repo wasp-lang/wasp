@@ -3,6 +3,7 @@ import { useQuery, buildAndRegisterQuery } from '../client/operations/index.js'
 import type { QueryFunction, Query  } from '../client/operations/rpc.js'
 import { api, handleApiError } from '../api/index.js'
 import { HttpMethod } from '../client/index.js'
+import { browserAppDelivery } from '../client/index.js'
 import type { AuthUser, AuthUserData } from './user.js'
 import { makeAuthUserIfPossible } from './user.js'
 import { UseQueryResult } from '@tanstack/react-query'
@@ -16,8 +17,11 @@ export default function useAuth(): UseQueryResult<AuthUser | null> {
 }
 
 function createUserGetter(): Query<void, AuthUser | null> {
-  const getMeRelativePath = 'auth/me'
-  const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
+  const getMeRelativePath = '/auth/me'
+  const getMeRoute = {
+    method: HttpMethod.Get,
+    path: browserAppDelivery.waspApiPath(getMeRelativePath),
+  }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
       const json = await api.get(getMeRoute.path).json()

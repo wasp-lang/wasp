@@ -1,5 +1,6 @@
 {{={= =}=}}
 import { api, handleApiError } from '../../../api/index.js'
+import { browserAppDelivery } from '../../../client/index.js'
 {=# isUsernameAndPasswordUserSignupFieldsDefined =}
 import { type UserUsernameAndPasswordSignupFields } from '../../providers'
 {=/ isUsernameAndPasswordUserSignupFieldsDefined =}
@@ -12,7 +13,7 @@ type UsernameSignupData = {
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
   try {
-    await api.post('{= signupPath =}', {
+    await api.post(browserAppDelivery.waspApiPath('{= signupPath =}'), {
       json: data,
     })
   } catch (error) {

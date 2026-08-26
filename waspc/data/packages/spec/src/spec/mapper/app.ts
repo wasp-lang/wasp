@@ -10,6 +10,7 @@ export function mapAppSpec(
     name,
     wasp,
     title,
+    deployment,
     head,
     auth,
     server,
@@ -25,6 +26,7 @@ export function mapAppSpec(
     declValue: {
       wasp,
       title,
+      ...(deployment && { deployment: mapDeployment(deployment) }),
       head,
       auth: auth && mapAuth(auth, ctx),
       server: server && mapServer(server, ctx),
@@ -33,6 +35,12 @@ export function mapAppSpec(
       emailSender: emailSender && mapEmailSender(emailSender),
       webSocket: webSocket && mapWebSocket(webSocket, ctx),
     },
+  };
+}
+
+function mapDeployment(deployment: WaspSpec.Deployment): AppSpec.Deployment {
+  return {
+    mode: deployment.mode ?? "integrated",
   };
 }
 

@@ -7,6 +7,7 @@ import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   getClientDeploymentDir,
   getServerDeploymentDir,
+  usesIntegratedDelivery,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
@@ -38,6 +39,7 @@ export async function setup(
   waspSays("Setting up your Wasp app with Fly.io!");
 
   await ensureWaspProjectIsBuilt(cmdOptions);
+  const integrated = usesIntegratedDelivery(cmdOptions.waspProjectDir);
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
   const deploymentInstructions = createDeploymentInstructions({
@@ -45,6 +47,7 @@ export async function setup(
     region,
     cmdOptions,
     tomlFilePaths,
+    integrated,
   });
 
   if (serverTomlExistsInProject(tomlFilePaths)) {
@@ -53,7 +56,11 @@ export async function setup(
     await setupServer(deploymentInstructions);
   }
 
-  if (clientTomlExistsInProject(tomlFilePaths)) {
+  if (integrated) {
+    waspSays(
+      "Integrated delivery uses the server app for the web client. Skipping client setup.",
+    );
+  } else if (clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.clientTomlPath} exists. Skipping client setup.`);
   } else {
     await setupClient(deploymentInstructions);
@@ -138,7 +145,7 @@ Press any key to continue or Ctrl+C to cancel.`);
     // NOTE: Normally these would just be envars, but flyctl
     // doesn't provide a way to set envars that persist to fly.toml.
     `PORT=${serverAppPort}`,
-    `WASP_WEB_CLIENT_URL=${getFlyAppUrl(deploymentInstructions.clientFlyAppName)}`,
+    `WASP_WEB_CLIENT_URL=${getFlyAppUrl(deploymentInstructions.integrated ? deploymentInstructions.serverFlyAppName : deploymentInstructions.clientFlyAppName)}`,
     `WASP_SERVER_URL=${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
   ];
 

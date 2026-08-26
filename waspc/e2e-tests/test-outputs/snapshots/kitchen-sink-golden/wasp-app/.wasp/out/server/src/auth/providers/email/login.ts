@@ -8,6 +8,7 @@ import {
     getProviderDataWithPassword,
 } from 'wasp/server/auth/utils'
 import { createSession } from 'wasp/server/auth/session'
+import { appDelivery } from 'wasp/server/core/delivery'
 import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
 import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 
@@ -47,6 +48,7 @@ export function getLoginRoute() {
         })
         
         const session = await createSession(auth.id)
+        appDelivery.respondWithSession(res, session.id)
 
         await onAfterLoginHook({
             req,
