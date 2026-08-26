@@ -29,7 +29,7 @@ const INVISIBLE_CHARACTER_REGEX = /\p{Default_Ignorable_Code_Point}/u;
  */
 const LEADING_COMBINING_MARK_REGEX = /^\p{M}/u;
 
-export function isValidEmail(input: unknown): input is string {
+export function isValidEmail(input: unknown): boolean {
   if (typeof input !== "string") {
     return false;
   }
