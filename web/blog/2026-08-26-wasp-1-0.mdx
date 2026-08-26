@@ -1,0 +1,119 @@
+---
+title: "After 5 years in Beta, Wasp 1.0 is coming"
+authors: [martinsos]
+image: /img/wasp-1-0-banner.webp
+tags: [wasp, update]
+keywords: ["wasp 1.0", "wasp roadmap", "full-stack framework", "full stack modules", "react node prisma framework"]
+description: "After 5+ years in Beta, Wasp 1.0 is officially in the works! Learn why we stayed in Beta so long, what changed, and what you can expect from 1.0."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+
+<ImgWithCaption
+    alt="Wasp 1.0 is coming"
+    source="img/wasp-1-0-banner.webp"
+/>
+
+The time has come: Wasp 1.0 is now officially in the works!
+
+ETA: ~6 months (warning: this is developers estimating, which means we added buffer, doubled and tripled everything, and will still likely miss it).
+
+Even though still young in framework-years, Wasp has been around for some time now (>5y), with [over 100 releases](https://github.com/wasp-lang/wasp/releases), [user stories](/#showcases) ranging from startups to Fortune 500 companies, $5M raised so far in investments, and a growing team of currently 8 people behind it plus all the awesome people from our community ([waspeteers](/#waspeteers)).
+
+And yet, for years now, we kept Wasp in Beta. Read on to learn why, what changed, and what you can expect from 1.0.
+
+{/* truncate */}
+
+## The Beta
+
+With Wasp, we never had a clear vision of the exact feature set that would result in 1.0.
+
+We always knew what we wanted though: the most "fullstackiest", managed experience of building web apps there is. The experience of writing only the code you care about, at the level of detail you want, and the rest being taken care of for you. All in code, flexible, free and deployable anywhere. And we believed we would know when we get there.
+
+As a result, Wasp was always a bit unusual:
+
+- It came with its own custom declarative language for describing a web app at a high level (the "Spec") and its own custom compiler.
+- Its definition of "full-stack" goes wider than usual for JS frameworks, by fully capturing frontend, backend, database, and deployment, and really whatever falls under building a web app.
+- Even though it is currently based on React + Node + Prisma, the underlying machinery always was and still is designed to allow adding support for other stacks in the future, in large part thanks to the aforementioned Spec and compiler.
+
+Being in Beta gave us the freedom to explore all these concepts unhindered by the weight and responsibility of maintaining a >=1.0 version of a framework (although we did end up following a lot of "production" practices already in Beta: looking at you, all the brave people who couldn't be stopped from deploying to production).
+
+## Crystallizing
+
+What makes us ready for 1.0 now? After all this time, I dare to say the picture crystallized into something much clearer.
+
+- We found the right shape for [the "Spec"](/blog/2026/06/15/wasp-typescript-spec) without giving up on our vision (this was a big one!).
+- We developed a good intuition for how to balance managed experience with flexibility.
+- We collected a lot of feedback on all the major features of Wasp (Auth, RPC, Jobs, Routing, API, Entities, Deployment, etc.) and know what people care about and need, and how to get there.
+- We got seriously into developing the long-awaited (by us) [Full Stack Modules](/blog/2026/06/22/javascript-still-cant-ship-a-full-stack-module), the crown of the "fullstackiest" experience we are aiming for, and are confident we can deliver it.
+
+We can now see the exact road, paved with GitHub issues, to Wasp 1.0, and it feels right.
+
+## The roadmap
+
+You can check the exact roadmap on [GitHub](https://github.com/orgs/wasp-lang/projects/5).
+It consists of epics, and each of those further develops into sub-epics and specific issues, some more, some less refined.
+
+Roughly, we can organize the epics in the roadmap into:
+
+- General polish
+- Main features rework
+- Production-level work
+- New exciting features
+
+### General polish
+
+While in Beta, we focused a lot on innovating and testing different ideas, and often prioritized those over rough edges.
+
+However, when accumulated, rough edges become annoying, so one big class of tasks we will be going after for 1.0 is a lot of smaller, targeted improvements, mostly DX focused.
+
+Some of these are: making Wasp work better with agent orchestrators, nicer output in the terminal, nicer docs, faster `npm install`, etc.
+
+Check the [Epic #2884](https://github.com/wasp-lang/wasp/issues/2884) for more details.
+
+### Main features rework
+
+We never lacked ideas on how to make each of the main Wasp features better (Auth, RPC, Jobs, Email Sender, WebSockets, API, Deployment, etc.), but for many of these it was hard to find the time for big changes while working on bigger framework-spanning improvements (e.g. Spec).
+
+For 1.0, we will bring each of these to a new level! Most of the ideas are already written down in a lot of detail in related GitHub issues, and while some features will require only a smaller touch-up, some will go through a major rework.
+
+For example, **Auth** will go through a major rework, moving away from Lucia and supporting highly requested features like account merging, 2FA, magic links, passkeys, etc. Also, as it currently stands, we will almost certainly reshape it into a more modular implementation that will, next to Wasp Auth, allow using BetterAuth, Clerk, WorkOS or any other auth provider that can implement our auth interface.
+
+Another big one is **Deployment**: we are looking to simplify the output of `wasp build` to produce only a single server, which will unlock many other things. We are also exploring the smoothest option out there for free hosting of Wasp apps and will be adding it as one of the options in our one-command deploy: `wasp deploy <provider>`, while also making the current options (Fly, Railway) more robust.
+
+For a full list of major features planned for a big revamp for 1.0, check [here in our roadmap](https://github.com/orgs/wasp-lang/projects/5/views/1?filterQuery=label%3A%22major+feature%22).
+
+### Production-level work
+
+These are non-feature-specific tasks about bringing Wasp to the level we expect from a >=1.0 framework.
+
+A big one is the **release policy**: we have been lax on how often we update the underlying core deps like TanStack Query, Prisma and similar, since our focus was on the core framework design, but for 1.0 and onwards we will have a strict policy on how up to date with the latest versions of core deps we will always be (e.g. no more than 6 months of delay, which is a good spot for being up to date but avoiding bleeding-edge hiccups).
+
+Then there are **docs on performance and scaling**: while a lot of this just falls down on the underlying stack (React, Node, Prisma), some of it is also Wasp specific, and we want to at least have well-written docs on this topic so it is clear where we stand and people can rely on it.
+
+And also **native Windows support**! Wasp works on WSL on Windows, but having it run directly on Windows is something you would expect from a 1.0 framework, right?
+
+Check [Epic #2888](https://github.com/wasp-lang/wasp/issues/2888) for more details.
+
+### New exciting features
+
+And finally, we are not giving up on innovating just because we are closing in on 1.0.
+
+The star here is **FSMs** ([Full Stack Modules](https://github.com/wasp-lang/wasp/issues/2873)): the ability to define and distribute modular, vertical slices of your web app, e.g. Stripe payments, file upload, AI chat, etc. Imagine libraries, but frontend + backend + database + Spec + even deployment in the future, all type-safe and configurable. It's something we are extremely excited about. We wrote more about the idea in [JavaScript still can't ship a full-stack module](/blog/2026/06/22/javascript-still-cant-ship-a-full-stack-module).
+
+FSMs might not sound like a 1.0 thing off the bat, but we see them becoming so integral and transformative to how Wasp apps will be built that we want to have it, and its effects on Wasp's API, in before 1.0.
+
+By the way, we are open to ideas for a better name since LLMs keep thinking we are talking about Finite State Machines.
+
+And then we have some more exciting ideas (well, popular requests really) like RBAC (Role Based Access Control), or a modular database layer that would allow support for Drizzle, or Wasp Studio (visual representation of your codebase + Wasp dev tooling), etc.
+Truth is, these are really stretch goals and likely won't be fully stable yet in 1.0, but we would love to at least have some early experiments by then.
+
+You can find these under the [Ideas column](https://github.com/orgs/wasp-lang/projects/5/views/1?filterQuery=status%3AIdeas).
+
+## See you there
+
+We won't be waiting to ship all of these improvements as one big release; instead, we will constantly be releasing as we merge them, so you will be hearing from us quite a bit as we go and be able to benefit from them immediately. Once we complete all of them, we will pronounce Wasp 1.0.
+
+If you have any additional ideas on what you would love to see in Wasp 1.0, let us know on our [Discord](https://discord.gg/rzdnErX) or on [GitHub](https://github.com/wasp-lang/wasp/issues)!
+
+That's it, the destination is locked in: next stop, Wasp 1.0! See you there!
