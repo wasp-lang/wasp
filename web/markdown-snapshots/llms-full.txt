@@ -924,7 +924,7 @@ We put the function in a new file `src/actions.ts`, but we could have put it any
 Start by defining a form for creating new tasks.
 
 ```tsx title="src/MainPage.tsx"
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   createTask,
@@ -935,7 +935,7 @@ import {
 // ... MainPage, TaskView, TasksList ...
 
 const NewTaskForm = () => {
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const target = event.target as HTMLFormElement;
@@ -963,7 +963,7 @@ Finally, because we've previously annotated the Action's server implementation w
 All that's left now is adding this form to the page component:
 
 ```tsx title="src/MainPage.tsx"
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
 
@@ -1055,7 +1055,7 @@ export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
 You can now call `updateTask` from the React component:
 
 ```tsx title="src/MainPage.tsx"
-import type { FormEvent, ChangeEvent } from "react";
+import type { ChangeEvent, SubmitEvent } from "react";
 import type { Task } from "wasp/entities";
 import {
   updateTask,
@@ -4865,7 +4865,7 @@ export function SignupPage() {
   const [error, setError] = useState<Error | null>(null)
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -4914,7 +4914,7 @@ export function LoginPage() {
   const [error, setError] = useState<Error | null>(null)
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5435,7 +5435,7 @@ export function LoginPage() {
   const [error, setError] = useState<Error | null>(null)
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5475,7 +5475,7 @@ export function SignupPage() {
   const [error, setError] = useState<Error | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5553,7 +5553,7 @@ export function RequestPasswordResetPage() {
   const [error, setError] = useState<Error | null>(null)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -5598,7 +5598,7 @@ export function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('')
   const navigate = useNavigate()
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
     try {
@@ -9596,7 +9596,7 @@ Choose a starter template
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
@@ -10090,9 +10090,9 @@ Here are the client env vars that Wasp defines:
 
 These are some general env variables used for various Wasp features:
 
-| Name                | Type        | Notes                                                                                                                              |
-| ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This app is required in production but defaults to `http://localhost:3001` in development. |
+| Name                | Type        | Notes                                                                                                                                                                                                                  |
+| ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands). |
 
 ### Server Env Vars
 
@@ -10114,13 +10114,13 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-| Name                  | Type                           | Notes                                                                                                                                                                                                |
-| --------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Stringrequired                 | The URL of the PostgreSQL database you want your app to use.                                                                                                                                         |
-| `WASP_WEB_CLIENT_URL` | URLrequired                    | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. Defaults to `http://localhost:3000` in development.                                               |
-| `WASP_SERVER_URL`     | URLrequired                    | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. Defaults to `http://localhost:3001` in development. |
-| `JWT_SECRET`          | Stringrequired                 | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                              |
-| `PORT`                | IntegeroptionalDefault: `3001` | This is where the server listens for requests.                                                                                                                                                       |
+| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                           |
+| --------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                    |
+| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --client-port`](https://wasp.sh/docs/general/cli#project-commands).                                               |
+| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands). |
+| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                         |
+| `PORT`                | Integerrequired | This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands).                                                                                                   |
 
 ##### SMTP Email Sender
 
@@ -10814,11 +10814,14 @@ The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any oth
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
-| Option         | Internal value                                                                                    | Why you can't customize it                                           |
-| -------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `base`         | Based on the [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) option | Wasp sets the React Router's `basename` to the same value.           |
-| `envPrefix`    | `"REACT_APP_"`                                                                                    | Wasp's environment variable validation depends on this prefix.       |
-| `build.outDir` | `".wasp/out/web-app/build"`                                                                       | Build artifacts must go to the location Wasp expects for deployment. |
+| Option              | Internal value                                                                                    | Why you can't customize it                                                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base`              | Based on the [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) option | Wasp sets the React Router's `basename` to the same value.                                                                                                                                                                                |
+| `envPrefix`         | `"REACT_APP_"`                                                                                    | Wasp's environment variable validation depends on this prefix.                                                                                                                                                                            |
+| `build.outDir`      | `".wasp/out/web-app/build"`                                                                       | Build artifacts must go to the location Wasp expects for deployment.                                                                                                                                                                      |
+| `server.port`       | dynamically assigned                                                                              | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it.                                                                     |
+| `server.strictPort` | `true`                                                                                            | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL.                                                                                                |
+| `preview.port`      | dynamically assigned                                                                              | Same as `server.port`, but for the preview server that [`wasp build start`](https://wasp.sh/docs/deployment/local-testing) runs. Use [`wasp build start --client-port`](https://wasp.sh/docs/general/cli#project-commands) to control it. |
 
 ### Customization
 
@@ -10871,27 +10874,11 @@ export default defineConfig({
 
 #### Custom Dev Server Port
 
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the **client** dev server port by setting the `port` option. To change the Wasp **server** port, see the [`PORT` server env var](https://wasp.sh/docs/project/env-vars#server-general-configuration).
+`wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
-```ts title="vite.config.ts"
-import { wasp } from "wasp/client/vite";
-import { defineConfig } from "vite";
-
-export default defineConfig({
-  plugins: [wasp()],
-  server: {
-    port: 4000,
-  },
-});
+```bash
+wasp start --client-port 4000
 ```
-
-```env title=".env.server"
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-:::warning[Changing the client dev server port]
-Be careful when changing the client dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
-:::
 
 #### Editing from the Chrome DevTools {#devtools-workspace}
 
@@ -11033,9 +11020,9 @@ When building your Wasp app for production `.env.server` will be ignored, since 
 You can provide production env vars to your server code in production by defining them and making them available on the server where your server code is running.
 
 :::caution[Set the required env vars]
-Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL` etc. and set them up in your production environment.
+Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, `PORT` etc. and set them up in your production environment.
 
-While some env vars like `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` have default values in development, they are **required in production** and must be explicitly set.
+Even though you don't set these variables in development, they are **required in production** and must be explicitly set. If any of them are missing, your server will fail to start.
 
 **If you are using the [Wasp CLI](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/overview)** deployment method, Wasp will set the general configuration env vars for you, but you will need to set the rest of the env vars yourself (like the ones for OAuth auth methods or any other custom env vars you might have defined).
 :::
@@ -11059,7 +11046,7 @@ In this section, we'll discuss what happens with the database when your app goes
 
 The server app that Wasp generates uses a PostgreSQL database. The only requirement from Wasp's point of view is that the database is accessible from the server via the `DATABASE_URL` server env variable.
 
-It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service.
+It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service. PostgreSQL can behave differently across major versions, so development and production work best when they use the same major version.
 
 ### Migrations
 
@@ -11197,7 +11184,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](https://wasp.sh/docs/project/env-vars#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](https://wasp.sh/docs/project/env-vars).
 
-The only exception is the environment variables that configure your app's client and server URLs (`WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it can fill them out for you automatically.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands) if you need specific ports.
 
 #### Which values should I use when testing?
 
@@ -11535,18 +11522,17 @@ If you want to build locally, supply the `--build-locally` option to `wasp deplo
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL Docker image provided by Fly.io when creating a new database for your app. However, if you have a need for a custom Docker image, e.g., your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Fly.io databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the `flyio/postgres-flex:18` image. If your app needs another PostgreSQL image, for example, to add an extension such as PostGIS, use `--db-image <docker-image>`.
 
 Your custom PostgreSQL image must be compatible with Fly.io, as their platform has some requirements to work properly. Since these requirements are not readily documented, an easy way to ensure compatibility is to base your custom image off the official Fly.io PostgreSQL image: [`flyio/postgres-flex`](https://hub.docker.com/r/flyio/postgres-flex).
 
 We have crafted a small guide on [how to create a custom Docker image with PostGIS or pgvector for Fly.io](https://gist.github.com/cprecioso/e19e883138241c1a446f48d6187aae75). You can also use it as a starting point to create your own images with other extensions.
 
 :::tip
-You only need to specify the Docker image once, when first creating the app with any of these commands:
+You only need to specify the Docker image once, when creating the database:
 
 ```shell
 wasp deploy fly create-db <region> --db-image <custom-postgres-image>
-wasp deploy fly setup <app-name> <region> --db-image <custom-postgres-image>
 wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 :::
@@ -11578,6 +11564,28 @@ wasp deploy fly setup <app-name> <region>
 wasp deploy fly create-db <region>
 wasp deploy fly deploy
 ```
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
+
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 ##### Environment Variables {#fly-launch-environment-variables}
 
@@ -11646,6 +11654,28 @@ It accepts the following arguments:
 - `<region>` required
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+
+##### Database options
+
+All database options are optional.
+
+- `--db-vm-size <vmSize>` sets the database VM size. It defaults to `shared-cpu-1x`. The VM size determines the CPU kind, CPU count, and memory. Use the following options to override those values:
+
+  - `--db-vm-memory <vmMemory>` sets the database VM memory in MB.
+  - `--db-vm-cpus <vmCpus>` sets the database VM CPU count.
+  - `--db-vm-cpu-kind <vmCpuKind>` sets the database VM CPU kind.
+
+- `--db-initial-cluster-size <initialClusterSize>` sets the initial number of database machines. It defaults to `1`.
+
+- `--db-volume-size <volumeSize>` sets the database volume size in GB. It defaults to `1`.
+
+- `--db-image <dbImage>` sets the PostgreSQL Docker image. It defaults to `flyio/postgres-flex:18`.
+
+Some apps need more database memory than Fly provides by default. If yours does, use `--db-vm-memory` when you create the database.
+
+See Fly.io's [`postgres create` reference](https://fly.io/docs/flyctl/postgres-create/) for details and its [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for available machine sizes.
+
+Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you set `--db-vm-cpus` or `--db-vm-cpu-kind`, pick a `--db-vm-memory` value that fits Fly's [machine sizing rules](https://fly.io/docs/machines/guides-examples/machine-sizing/).
 
 :::caution[Execute Only Once]
 You should only run `create-db` once per app. If you run it multiple times, it creates multiple databases, but your app needs only one.
@@ -11723,7 +11753,7 @@ The project name is used as a base for your server and client service names on R
 - `my-wasp-app-client`
 - `my-wasp-app-server`
 
-Railway doesn't allow setting the database service name using the Railway CLI. It will always be named `Postgres`. This also applies when using the `--db-image` flag.
+The database service is always named `Postgres`, regardless of the project name.
 
 When you run the `launch` command, Wasp CLI knows how to connect different parts of your Wasp app together, so it sets up the required environment variables for your server app:
 
@@ -11786,7 +11816,9 @@ wasp deploy railway deploy <project-name>
 
 ##### Using a custom PostgreSQL database
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image by default. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector. If the custom image stores data at a different location, set it with `--db-volume-mount-path <path>`. It defaults to `/var/lib/postgresql/data`.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11794,15 +11826,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway launch my-wasp-app --db-image postgis/postgis
+wasp deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway launch my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](https://wasp.sh/docs/deployment/database#connect-to-the-production-database).
 
 ##### Explicitly providing the Railway project ID
 
@@ -11920,7 +11947,9 @@ Railway also creates a PostgreSQL database service named `Postgres`.
 
 ##### Using a custom PostgreSQL database {#using-a-custom-postgresql-database}
 
-By default, Wasp uses the standard PostgreSQL image provided by Railway when creating a new database for your app. However, if your application requires specific PostgreSQL extensions (e.g., PostGIS), you can specify a Docker image with a custom PostgreSQL installation, with the `--db-image <docker-image>` flag.
+Wasp creates new Railway databases with PostgreSQL 18, the same major version Wasp uses during development. It uses the [`ghcr.io/railwayapp-templates/postgres-ssl:18`](https://github.com/railwayapp-templates/postgres-ssl) image by default. Railway stores the database data in a [volume](https://docs.railway.com/volumes).
+
+Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for example, to add PostGIS. The default image already includes pgvector. If the custom image stores data at a different location, set it with `--db-volume-mount-path <path>`. It defaults to `/var/lib/postgresql/data`.
 
 :::tip
 You only need to specify the Docker image once, when first creating the app.
@@ -11928,15 +11957,10 @@ You only need to specify the Docker image once, when first creating the app.
 
 ```shell
 # Use PostGIS:
-wasp deploy railway setup my-wasp-app --db-image postgis/postgis
+wasp deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
-```shell
-# Use pgvector:
-wasp deploy railway setup my-wasp-app --db-image pgvector/pgvector:pg16
-```
-
-The service name will always be `Postgres`, regardless of the image used.
+Railway's [Database View](https://docs.railway.com/databases/database-view) isn't available for databases created by these commands. You can instead [connect `wasp db studio` to the production database](https://wasp.sh/docs/deployment/database#connect-to-the-production-database).
 
 ##### Explicitly providing the Railway project ID
 
@@ -12687,31 +12711,13 @@ wasp start
 
 ### Running worktrees at the same time
 
-By default, Wasp apps use ports `3000` and `3001`, and each managed PostgreSQL database uses port `5432`. These ports prevent multiple worktrees from running at the same time.
+`wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands).
+
+Wasp's dev PostgreSQL database still requires port `5432`, so to run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
 :::note
-We are working on automatic port selection for [Wasp apps](https://github.com/wasp-lang/wasp/issues/4471) and [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
+We are working on automatic port selection for [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
 :::
-
-We can work around this by giving each app different client and server ports.
-
-#### Configuring ports
-
-Configure the client port in [`vite.config.ts`](https://wasp.sh/docs/project/custom-vite-config#custom-dev-server-port) and the server port in `.env.server`.
-
-We need to adjust the server and client URLs as well. For example, if we set the client port to `4000` and the server port to `4001`:
-
-```env title=".env.server"
-PORT=4001
-WASP_SERVER_URL=http://localhost:4001
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-```env title=".env.client"
-REACT_APP_API_URL=http://localhost:4001
-```
-
-Wasp's dev PostgreSQL database requires port `5432`. To run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
 ### Extra resources
 
@@ -14948,7 +14954,10 @@ COMMANDS
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT
-    start                 Runs Wasp app in development mode, watching for file changes.
+    start [--client-port <port>] [--server-port <port>]
+                          Runs Wasp app in development mode, watching for file changes.
+                          Optionally specify the ports the client and the server run on.
+                          If not specified, Wasp picks the first free port when the default one is taken.
     start db [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
                           Optionally specify a custom Docker image or Docker volume mount path.
@@ -14959,6 +14968,7 @@ COMMANDS
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
+                          Accepts the same port options as 'start'.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -15003,7 +15013,7 @@ Choose a starter template
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
@@ -15018,7 +15028,7 @@ $ wasp new MyFirstProject
 
 🐝 --- Creating your project from the "basic" template... -------------------------
 
-Created new Wasp app in ./MyFirstProject directory!
+Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
 cd MyFirstProject
@@ -15027,7 +15037,7 @@ wasp db start
 
 #### Project Commands
 
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
+- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
@@ -15048,7 +15058,7 @@ $ wasp clean
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](https://wasp.sh/docs/deployment/intro). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
-- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port` and `--server-port` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
@@ -15348,6 +15358,21 @@ npm i -g @wasp.sh/wasp-cli@0.26
 
 ### What's new in 0.26?
 
+#### Running multiple Wasp apps side by side
+
+`wasp start` now decides which ports the client and the server run on. If the default ports (`3000` and `3001`) are taken, it moves the app to free ones instead of failing, so you can run several Wasp apps side by side.
+
+This is great for using agents in parallel worktrees, as each one won't conflict with the other.
+
+You can also pick the ports yourself:
+
+```bash
+wasp start --client-port 4000 --server-port 4001
+wasp build start --client-port 4000 --server-port 4001
+```
+
+In development, setting the ports manually in the env vars or the Vite config now fails, and you should use these new CLI flags. In production, the `PORT` variable is now required.
+
 ### How to migrate?
 
 #### 1. Bump the Wasp version
@@ -15401,12 +15426,93 @@ In `tsconfig.src.json`, update the `include` field:
 {
   "compilerOptions": {
     // ...
-  }, 
+  },
   "include": ["src", ".wasp/out/types/app"]
 }
 ```
 
-#### 3. Update your custom Dockerfile
+#### 3. Stop setting the dev ports and URLs yourself
+
+Wasp now picks the ports your app runs on in development and derives its URLs from them, so it fails if you also set them.
+
+If your `vite.config.ts` sets `server.port` or `server.strictPort`, remove it:
+
+**Before**
+
+```ts title="vite.config.ts"
+export default defineConfig({
+  server: {
+    port: 4000,
+  },
+  plugins: [wasp()],
+});
+```
+
+**After**
+
+```ts title="vite.config.ts"
+export default defineConfig({
+  plugins: [wasp()],
+});
+```
+
+You should also remove `PORT`, `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` from your `.env.server` if you were setting those manually:
+
+**Before**
+
+```env title=".env.server"
+PORT=4001
+WASP_SERVER_URL=http://localhost:4001
+WASP_WEB_CLIENT_URL=http://localhost:4000
+JWT_SECRET=my-secret
+```
+
+**After**
+
+```env title=".env.server"
+JWT_SECRET=my-secret
+```
+
+And `REACT_APP_API_URL` from your `.env.client` if present:
+
+**Before**
+
+```env title=".env.client"
+REACT_APP_API_URL=http://localhost:4001
+REACT_APP_NAME=My App
+```
+
+**After**
+
+```env title=".env.client"
+REACT_APP_NAME=My App
+```
+
+To keep running on those ports, pass them to `wasp start` or `wasp build start` instead:
+
+```bash
+wasp start --client-port 4000 --server-port 4001
+```
+
+Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
+
+:::info
+Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
+:::
+
+#### 4. Set `PORT` in deployment
+
+**If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
+
+`PORT` used to fall back to `3001` when you didn't set it. It no longer has a default, so the server refuses to start without it.
+
+Most deployment platforms set `PORT` for you, but it's worth it to check it in their documentation or your deployment configuration.
+
+```env title="Server env vars"
+PORT=3001
+```
+
+#### 5. Update your custom Dockerfile
 
 If you are using a [custom Dockerfile](https://wasp.sh/docs/deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes, you'll have to add a one new additional line to it:
 
@@ -15429,7 +15535,17 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Enjoy your updated Wasp app
+#### 6. Update Fly database deployment flags
+
+If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
+
+| Before                   | After                       |
+| ------------------------ | --------------------------- |
+| `--vm-size`              | `--db-vm-size`              |
+| `--initial-cluster-size` | `--db-initial-cluster-size` |
+| `--volume-size`          | `--db-volume-size`          |
+
+#### 7. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19930,6 +20046,8 @@ This will ask you a series of questions, such as asking you to choose a region a
 
   We still need to set up several environment variables.
 
+Some apps need more database memory than the **Development** preset provides. If yours does, choose a database setup with more memory. See Fly.io's [VM size documentation](https://fly.io/docs/flyctl/platform-vm-sizes/) for the available options.
+
 :::info[What if the database setup fails?]
 If your attempts to initiate a new app fail for whatever reason, then you should run `fly apps destroy <app-name>` before trying again. Fly does not allow you to create multiple apps with the same name.
 
@@ -21786,7 +21904,7 @@ export const MainPage = () => {
   const [name, setName] = useState("");
   const [file, setFile] = useState<File>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!file) return;
     const formData = new FormData();

@@ -13,6 +13,12 @@ import { ContextOption } from "./CommonOps.js";
 import { assertRegionIsValid, ensureFlyReady } from "./flyCli.js";
 import { assertFlyTomlDirIsAbsoluteAndPresent } from "./tomlFile.js";
 
+// Pinned to the same Postgres major as Wasp's dev database (keep in sync with
+// Wasp.Db.Postgres.defaultPostgresDockerImageSpec). Without an explicit image,
+// flyctl uses a server-side default that Fly can bump across majors
+// (wasp-lang/wasp#4564).
+const defaultDbImage = "flyio/postgres-flex:18";
+
 class FlyCommand extends Command {
   addBasenameArgument(): this {
     return this.argument(
@@ -29,23 +35,27 @@ class FlyCommand extends Command {
   }
   addDbOptions(): this {
     return this.option(
-      "--vm-size <vmSize>",
-      "flyctl postgres create option",
+      "--db-vm-size <vmSize>",
+      "Fly Postgres VM size",
       "shared-cpu-1x",
     )
+      .option("--db-vm-memory <vmMemory>", "Fly Postgres VM memory in MB")
+      .option("--db-vm-cpus <vmCpus>", "Fly Postgres VM CPU count")
+      .option("--db-vm-cpu-kind <vmCpuKind>", "Fly Postgres VM CPU kind")
       .option(
-        "--initial-cluster-size <initialClusterSize>",
-        "flyctl postgres create option",
+        "--db-initial-cluster-size <initialClusterSize>",
+        "Fly Postgres initial cluster size",
         "1",
       )
       .option(
-        "--volume-size <volumeSize>",
-        "flyctl postgres create option",
+        "--db-volume-size <volumeSize>",
+        "Fly Postgres volume size in GB",
         "1",
       )
       .option(
         "--db-image <dbImage>",
-        "custom Docker image for the PostgreSQL database",
+        "Fly Postgres Docker image",
+        defaultDbImage,
       );
   }
   addLocalBuildOption(): this {

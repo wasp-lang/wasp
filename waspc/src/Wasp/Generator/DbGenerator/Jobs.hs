@@ -16,10 +16,12 @@ where
 import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
+import Wasp.Env (getEnvVars)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
@@ -48,7 +50,7 @@ migrateDev generatedAppDir migrateArgs =
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
-  concat . concat $ [createOnlyArg, nameArg]
+  concat (createOnlyArg ++ nameArg)
   where
     createOnlyArg =
       [["--create-only"] | _isCreateOnlyMigration migrateArgs]
@@ -101,7 +103,7 @@ reset generatedAppDir resetArgs =
         --   happening automatically on reset is too aggressive / confusing.
         "--skip-seed"
       ]
-        ++ if force resetArgs then ["--force"] else []
+        ++ (["--force" | force resetArgs])
     )
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
@@ -111,12 +113,12 @@ reset generatedAppDir resetArgs =
 --   NOTE: We are running this command from server dir since that's where we defined the "prisma.seed"
 --   script in package.json. In the future, we might want to allow users to specify the script name
 --   in the project package.json, in which case we would run this command from project root dir.
-seed :: Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
+seed :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
-seed generatedAppDir seedName =
+seed serverRunConfig generatedAppDir seedName =
   runPrismaCommandAsJobWithExtraEnv
     serverDir
-    [(dbSeedNameEnvVarName, seedName)]
+    ((dbSeedNameEnvVarName, seedName) : getEnvVars serverRunConfig)
     generatedAppDir
     ["db", "seed"]
   where
@@ -174,8 +176,8 @@ runPrismaCommandAsJobWithExtraEnv ::
   Path' Abs (Dir GeneratedAppDir) ->
   [String] ->
   J.Job
-runPrismaCommandAsJobWithExtraEnv fromDir envVars generatedAppDir cmdArgs =
-  runNodeCommandAsJobWithExtraEnv envVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
+runPrismaCommandAsJobWithExtraEnv fromDir extraEnvVars generatedAppDir cmdArgs =
+  runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
     waspProjectDir = generatedAppDir </> waspProjectDirFromGeneratedAppDir
 

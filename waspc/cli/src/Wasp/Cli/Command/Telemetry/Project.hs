@@ -110,7 +110,7 @@ initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild 
 -- * Project telemetry cache file.
 
 getTimeOfLastTelemetryDataSent :: ProjectTelemetryCache -> Maybe T.UTCTime
-getTimeOfLastTelemetryDataSent cache = maximum [_lastCheckIn cache, _lastCheckInBuild cache]
+getTimeOfLastTelemetryDataSent cache = max (_lastCheckIn cache) (_lastCheckInBuild cache)
 
 readProjectTelemetryCacheFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
 readProjectTelemetryCacheFile telemetryCacheDirPath projectHash =

@@ -8,7 +8,6 @@ module ShellCommands
     (~|),
     (~&&),
     (~?),
-    (~||),
     writeToFile,
     appendToFile,
     replaceLineInFile,
@@ -42,6 +41,7 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
     waspCliDockerfile,
@@ -60,6 +60,7 @@ import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
@@ -96,12 +97,6 @@ cmd1 ~&& cmd2 = cmd1 ++ " && " ++ cmd2
 
 infixl 6 ~&&
 
--- | Execute the second command only if the first command fails.
-(~||) :: ShellCommand -> ShellCommand -> ShellCommand
-cmd1 ~|| cmd2 = cmd1 ++ " || " ++ cmd2
-
-infixl 6 ~||
-
 -- | Execute the second command only if the first command succeeds.
 -- The command chain will continue regardless of whether the second command runs.
 (~?) :: ShellCommand -> ShellCommand -> ShellCommand
@@ -122,7 +117,7 @@ writeToFile file fileContent = return $ createParentDir ~&& writeContentsToFile
     writeContentsToFile = "printf %s " ++ base64FileContent ++ " | base64 -d > " ++ fromAbsFile file
 
     -- Using base64 encoding for file content helps us escape dealing with special characters.
-    base64FileContent = C8.unpack . B64.encode . C8.pack . T.unpack $ fileContent
+    base64FileContent = C8.unpack . B64.encode . T.encodeUtf8 $ fileContent
 
 appendToFile :: FilePath -> T.Text -> ShellCommandBuilder context ShellCommand
 appendToFile fileName content =
@@ -215,13 +210,15 @@ waspCliDbMigrateDev migrationName = do
   where
     -- NOTE: We supress the `mv` error, because if we call `wasp db migrate-dev`
     -- when there is nothing to migrate, it succeeds but creates no files.
+    -- The braces keep the `|| true` scoped to the `mv`: without them it would
+    -- also swallow failures of everything chained with `&&` before it.
     replaceMigrationDatePrefix :: FilePath -> ShellCommand
     replaceMigrationDatePrefix migrationDirPath =
       unwords
-        [ "mv",
+        [ "{ mv",
           joinPath [migrationDirPath, "*" ++ migrationName],
           joinPath [migrationDirPath, "no-date-" ++ migrationName],
-          "2>/dev/null || true"
+          "2>/dev/null || true ; }"
         ]
 
 waspCliDbSeed :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
@@ -288,18 +285,40 @@ replaceMainWaspTsFile content = do
 
   writeToFile mainWaspTsFile content
 
+skipIfDockerDisabled :: ShellCommandBuilder context [ShellCommand] -> ShellCommandBuilder context [ShellCommand]
+skipIfDockerDisabled commandsBuilder = do
+  commands <- commandsBuilder
+  return
+    [ "if "
+        ++ isDockerEnabledCondition
+        ++ "; then "
+        ++ foldr1 (~&&) commands
+        ++ "; else "
+        ++ logSkipMessage
+        ++ "; fi"
+    ]
+  where
+    logSkipMessage =
+      "echo 'SKIPPED: Docker is disabled via the " ++ skipDockerEnvVarName ++ " environment variable.'"
+
 -- | Builds and deletes the Docker image for a Wasp app.
--- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
+-- Can be disabled via the 'skipDockerEnvVarName' environment variable.
 buildAndRemoveWaspProjectDockerImage :: ShellCommandBuilder WaspProjectContext ShellCommand
 buildAndRemoveWaspProjectDockerImage = do
   context <- ask
   let dockerImageTag = "waspc-e2e-tests-" ++ context.waspProjectName
    in return $
-        "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
+        isDockerEnabledCondition
           ~? unwords ["cd", fromAbsDir (context.waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir)]
           ~&& unwords ["docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t", dockerImageTag, "."]
           ~&& unwords ["docker image rm", dockerImageTag]
           ~&& unwords ["cd", fromAbsDir context.waspProjectDir]
+
+isDockerEnabledCondition :: ShellCommand
+isDockerEnabledCondition = "[ -z \"$" ++ skipDockerEnvVarName ++ "\" ]"
+
+skipDockerEnvVarName :: String
+skipDockerEnvVarName = "WASP_E2E_TESTS_SKIP_DOCKER"
 
 -- 'Test' specific commands
 

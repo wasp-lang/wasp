@@ -7,7 +7,6 @@ module Wasp.Psl.Parser.Common
     parens,
     stringLiteral,
     brackets,
-    commaSep1,
     commaSep,
     colon,
     float,
@@ -28,7 +27,6 @@ import Text.Megaparsec
     manyTill,
     notFollowedBy,
     sepBy,
-    sepBy1,
     takeWhileP,
     try,
     (<?>),
@@ -69,9 +67,6 @@ stringLiteral = lexeme $ quote >> manyTill L.charLiteral quote
 
 brackets :: Parser a -> Parser a
 brackets = between (symbol "[") (symbol "]")
-
-commaSep1 :: Parser a -> Parser [a]
-commaSep1 = flip sepBy1 comma
 
 commaSep :: Parser a -> Parser [a]
 commaSep = flip sepBy comma

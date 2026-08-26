@@ -557,7 +557,7 @@
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "fd701ae001ba7fbd8c1814a0d516d6c171dd291f714d2ad695a6631ba6c278e0"
+        "1a16dc0140ac369f9effdfc7ddbbc701c8f486e876199b0effca8b921e88d970"
     ],
     [
         [
@@ -767,7 +767,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "a8e6a5cbffb010d02729e3cb4046de73ede1844b773417b8f394f60bdd9312cc"
+        "e8fb2bdec48dc07ca7d01dd800adef26b6caee924dd0600662aa191f7f3e24ef"
     ],
     [
         [
@@ -1131,7 +1131,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "da5f13c40473f597a9bc5e5d61ee29f3e37fa02a31a18ddc8fdd121b77425371"
+        "a9d7f86795e9e3db31f77e2690137f47928eeefb7c2db716bed9c15257757876"
     ],
     [
         [
