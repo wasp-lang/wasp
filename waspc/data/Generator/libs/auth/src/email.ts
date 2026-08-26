@@ -3,16 +3,16 @@
 
 /**
  * The syntax we accept is the HTML5 `input[type=email]` grammar,
- * widened to also accept Unicode characters.
+ * widened to also accept most unicode characters (HTML5 is ASCII only).
  *
- * We start from the HTML5 grammar because it is a good compromise between
- * completeness and complexity. We widen it because it is deliberately
- * ASCII-only, which locks out anyone whose address contains unicode.
+ * We start from the HTML5 grammar because it is a good compromise
+ * between completeness and complexity.
  *
- * We also do some extra safefty checks by filtering out invisible,
- * text-reordering, zero-width and bidirectional override (LTR or RTL)
- * unicode characters. Also a combining mark cannot start an email address,
- * because it would attach to whatever text that precedes the address.
+ * We also do some additional safety checks:
+ * - We disallow invisible, text-reordering, zero-width and bidirectional
+ *   override (LTR or RTL) unicode characters.
+ * - We disallow a combining mark at the start of an email address,
+ *   because it would attach to whatever text that precedes the address.
  *
  * @see {@link https://github.com/whatwg/html/issues/4562 WHATWG international email addresses issue}
  */
