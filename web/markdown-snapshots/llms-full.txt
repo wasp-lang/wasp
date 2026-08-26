@@ -5408,10 +5408,8 @@ Read more about the default email and password validation rules in the [auth ove
 
 Even though Wasp offers premade [Auth UI](https://wasp.sh/docs/auth/ui) for your authentication flows, there are times when you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions from your own code, similar to how Auth UI does it under the hood.
 
-:::note[Handling the email input]
-The examples below treat the email input the way Auth UI does. They use `type="text"` with `inputMode="email"` instead of `type="email"`, because browsers validate `type="email"` against an ASCII-only grammar that rejects the internationalized addresses Wasp accepts. They also trim the address before submitting it, which `type="email"` used to take care of on its own.
-
-Wasp validates the address on the server either way, so a malformed one comes back as an error you can show to the user.
+:::note[Handling the internationalized email input]
+We use `type="text"` with `inputMode=email` because it allows unicode/international characters, while `type=email` only allows ASCII / english letters.
 :::
 
 ### Example code
