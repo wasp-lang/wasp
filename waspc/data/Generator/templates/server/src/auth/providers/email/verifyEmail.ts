@@ -5,7 +5,6 @@ import {
   createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
-  getProviderDataWithPassword,
   updateAuthIdentityProviderData,
 } from 'wasp/server/auth/utils';
 import { HttpError } from 'wasp/server';
@@ -28,9 +27,10 @@ export async function verifyEmail(
         throw new HttpError(400, "Email verification failed, invalid token");
     }
 
-    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-
-    await updateAuthIdentityProviderData(providerId, providerData, {
+    // A partial update of the non-secret column only -- flipping the flag can
+    // no longer race another writer into losing fields, and the password hash
+    // is never even read.
+    await updateAuthIdentityProviderData<'email'>(providerId, {
         isEmailVerified: true,
     });
 

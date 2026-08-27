@@ -85,6 +85,7 @@ import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
 import Wasp.Util ((<++>))
+import qualified Wasp.Util as Util
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
@@ -364,7 +365,11 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn,
+            -- The default client omits the auth identity's secret column so it
+            -- cannot cross a serialization boundary by accident.
+            "isAuthEnabled" .= isJust (AS.App.auth app),
+            "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String)
           ]
 
   return $

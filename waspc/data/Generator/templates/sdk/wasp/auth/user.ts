@@ -7,7 +7,7 @@ import {
 import {
   type PossibleProviderData,
   type ProviderName,
-  getProviderData,
+  parseProviderData,
 } from './providerData.js'
 import { Expand } from '../universal/types.js'
 {=^ isCustomAuthProviderUsed =}
@@ -80,17 +80,20 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
   },
 }
 
+// With secrets in their own (client-omitted) column, the user-facing view is
+// the provider's data verbatim -- no field stripping needed or possible.
 type UserFacingProviderData<PN extends ProviderName> = {
   id: string
-} & Omit<PossibleProviderData[PN], 'hashedPassword'>
+} & PossibleProviderData[PN]
 
 // PRIVATE API
 export type CompleteUserEntityWithAuth =
   MakeUserEntityWithAuth<CompleteAuthEntityWithIdentities>
 
 // PRIVATE API
+// The identity rows as the (secrets-omitting) Prisma client returns them.
 export type CompleteAuthEntityWithIdentities =
-  MakeAuthEntityWithIdentities<{= authIdentityEntityName =}>
+  MakeAuthEntityWithIdentities<Omit<{= authIdentityEntityName =}, 'providerSecrets'>>
 
 // PRIVATE API
 /**
@@ -190,7 +193,7 @@ function getProviderInfo<PN extends ProviderName>(
     return null
   }
   return {
-    ...getProviderData<PN>(identity.providerData),
+    ...parseProviderData<PN>(identity.providerData),
     id: identity.providerUserId,
   }
 }
@@ -198,7 +201,7 @@ function getProviderInfo<PN extends ProviderName>(
 function getIdentity(
   auth: CompleteAuthEntityWithIdentities,
   providerName: ProviderName
-): {= authIdentityEntityName =} | null {
+): Omit<{= authIdentityEntityName =}, 'providerSecrets'> | null {
   return auth.{= identitiesFieldOnAuthEntityName =}.find((i) => i.providerName === providerName) ?? null
 }
 

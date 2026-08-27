@@ -6,8 +6,8 @@ import { verifyPassword } from 'wasp/server/auth/password'
 import {
   createProviderId,
   findAuthIdentity,
+  findAuthIdentitySecrets,
   findAuthWithUserBy,
-  getProviderDataWithPassword,
 } from 'wasp/server/auth/utils'
 import { createSession } from 'wasp/server/auth/session'
 import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
@@ -24,9 +24,12 @@ export default defineHandler(async (req, res) => {
   }
 
   try {
-    const providerData = getProviderDataWithPassword<'username'>(authIdentity.providerData)
-
-    await verifyPassword(providerData.hashedPassword, fields.password)
+    // The secret column is read explicitly and only here in this flow.
+    const secrets = await findAuthIdentitySecrets<'username'>(providerId)
+    if (secrets === null) {
+      throw createInvalidCredentialsError()
+    }
+    await verifyPassword(secrets.hashedPassword, fields.password)
   } catch(e) {
     throw createInvalidCredentialsError()
   }

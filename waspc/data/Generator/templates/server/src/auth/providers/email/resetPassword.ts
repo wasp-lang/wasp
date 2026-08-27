@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import {
     createProviderId,
     findAuthIdentity,
+    setAuthIdentitySecrets,
     updateAuthIdentityProviderData,
-    getProviderDataWithPassword,
 } from 'wasp/server/auth/utils';
+import { hashPassword } from 'wasp/server/auth/password';
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
@@ -33,14 +34,13 @@ export async function resetPassword(
         throw new HttpError(400, "Password reset failed, invalid token");
     }
 
-    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-
-    await updateAuthIdentityProviderData(providerId, providerData, {
+    // Hashing is the flow's explicit job -- storage never hashes.
+    await setAuthIdentitySecrets<'email'>(providerId, {
+        hashedPassword: await hashPassword(password),
+    });
+    await updateAuthIdentityProviderData<'email'>(providerId, {
         // The act of resetting the password verifies the email
         isEmailVerified: true,
-        // The password will be hashed when saving the providerData
-        // in the DB
-        hashedPassword: password,
     });
 
     // Changing the password invalidates all the existing sessions, so that

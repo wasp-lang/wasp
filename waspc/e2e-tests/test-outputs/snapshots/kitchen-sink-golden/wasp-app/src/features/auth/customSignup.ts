@@ -4,10 +4,7 @@ import {
   ensureValidPassword,
 } from "wasp/auth/validation";
 import { prisma } from "wasp/server";
-import {
-  defineUserSignupFields,
-  sanitizeAndSerializeProviderData,
-} from "wasp/server/auth";
+import { defineUserSignupFields, hashPassword } from "wasp/server/auth";
 import { CustomSignup } from "wasp/server/operations";
 
 export const userSignupFields = defineUserSignupFields({
@@ -52,11 +49,15 @@ export const customSignup: CustomSignup<
           create: {
             providerName: "email",
             providerUserId: args.email,
-            providerData: await sanitizeAndSerializeProviderData<"email">({
-              hashedPassword: args.password,
+            providerData: JSON.stringify({
               isEmailVerified: true,
               emailVerificationSentAt: null,
               passwordResetSentAt: null,
+            }),
+            // Hashing is the caller's explicit job; the secret goes into its
+            // own column, which the Prisma client omits when reading.
+            providerSecrets: JSON.stringify({
+              hashedPassword: await hashPassword(args.password),
             }),
           },
         },

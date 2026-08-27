@@ -25,7 +25,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "816eb6900f537465ec3f0187ac868c30b1f5c994693968d95438309a58fb2c28"
+        "6c1fc4959ab63425e9df66a1284ee50d0c8448290ecabd5ca56c85727ca883e4"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "sdk/wasp/auth/providerData.ts"
         ],
-        "0325226f972b575d213046bafc16c3585c87c943a8da64679da773088fd9d77a"
+        "ee480e8acaca5d4eb5142716c226b5b8b6d53261d882b0ca5438815f18b09ae0"
     ],
     [
         [
@@ -375,7 +375,7 @@
             "file",
             "sdk/wasp/auth/user.ts"
         ],
-        "ebe4ea85e345c70544ea69031616396bcc56e49893e45a7ce350d6dbe2a2775a"
+        "9baeb3e6953c6a5242dfe1cda2e718745c9ba54cbb68558f9e58f442f8d06bf4"
     ],
     [
         [
@@ -942,7 +942,7 @@
             "file",
             "sdk/wasp/server/auth/email/utils.ts"
         ],
-        "fbfb680c1cfb964be0893f681a7c72150d97631ce1c19bd0543df6903e22b5da"
+        "1a031a4b6b880e46d9bd375056ea020a095502cd065cb67720ab0d3179e25be5"
     ],
     [
         [
@@ -956,7 +956,7 @@
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "e9455e321485626e9710a20069b4da2188bdb77501aa8acf4274ee985f68e5d1"
+        "5ec574bbc356dbc9bb58a62e409b5a6a2e960bda96835ffa2a0c9bee6a87bfda"
     ],
     [
         [
@@ -1082,7 +1082,7 @@
             "file",
             "sdk/wasp/server/auth/utils.ts"
         ],
-        "5b9841dab9d3247727b5c7c74c5a0b11ac29a419e7571211483af1200fe825bc"
+        "1c07d75ee5ecd4cdd6d4ad3d4d9fb838dc8764715de72a10312bfc4a2eeaf997"
     ],
     [
         [
@@ -1124,7 +1124,7 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "972236a462b392feaf89a6845b709dd436e13333daa5ffa9d46a26e5e5031bc5"
+        "b50b3a99cf06af8d367dfae2c8f34f7db4d5fb13ff98b9f26dbc75a87871aaf3"
     ],
     [
         [
@@ -1621,35 +1621,35 @@
             "file",
             "server/src/auth/providers/email/login.ts"
         ],
-        "766d2b6a186a1f16e4aba25d53a4ae38f0b7da8730e7827d2ae400c7544faff5"
+        "028dfcfce88493ccbd39799a43cd1a86a02d452526fd571484ac88e46a0fd194"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "3646670b948ccae196e59adf96c46ef4f83781d16b3e87616b3635af8a0553af"
+        "ad5aafedce765072b3292d019a5ba70201e6dc3592a4998b65319fde86ae3c52"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/resetPassword.ts"
         ],
-        "f280cb3434c959b47f9fc7ba3ad8ba8921d7f24813c44be8ed8e80538f1fff9c"
+        "9a2d5bc1ebb39bb556869f9e662b16ebefa6c078ad816d5b51f16934c138f95e"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "36980d460729b3ae58c2bbee24144cf21909ea77e642f4ad65c75b107455fad8"
+        "41881930b0fd855b106f06af1055dbcfe7b9b7a830bdc36d8c59526fcfde0f60"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/verifyEmail.ts"
         ],
-        "d3b75adf041988926a97b741a5d7cf01d9c96904411ba34242f673c5da02e572"
+        "a33683c2ff2889fd05382e26b2d717572eeca563ada102673f68408d76b31744"
     ],
     [
         [
@@ -1705,7 +1705,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "70c10d31134efc795abb2f38a3c1a81dbbb21a2806551d74867df1f8a80dee42"
+        "735f59f0cf30f44c9b14c9d26f30cf5c0e182b2587e4feae17c9db420f2da5d5"
     ],
     [
         [
