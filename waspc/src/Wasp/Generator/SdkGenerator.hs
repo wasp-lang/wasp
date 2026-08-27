@@ -123,6 +123,8 @@ genSdk spec =
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
+      C.genFileCopy [relfile|server/types/base.ts|],
+      C.genFileCopy [relfile|server/types/setup.ts|],
       genServerExportedTypesDir,
       genPackageJson spec,
       genServerDbClient spec,

@@ -1,12 +1,19 @@
 import assert from "node:assert/strict";
 import type { Plugin, RolldownMagicString } from "rolldown";
 import type { ESTree as t } from "rolldown/utils";
+import type { RefOrigin } from "../../../spec/refObject.js";
 import { WASP_SPEC_FILE_REGEX } from "../../common.js";
 import { applyTransformRefHelperPlan_mutate } from "./apply.js";
 import { assertCanTransformRefHelper } from "./check.js";
 import { planTransformRefHelper } from "./plan.js";
 
-export function transformRefHelperPlugin(): Plugin {
+export type GetRefOrigin = (specFilePath: string) => RefOrigin;
+
+export function transformRefHelperPlugin({
+  getRefOrigin,
+}: {
+  getRefOrigin: GetRefOrigin;
+}): Plugin {
   return {
     name: "wasp/spec/transform-ref-helper",
 
@@ -31,7 +38,7 @@ export function transformRefHelperPlugin(): Plugin {
         // parse it.
         const ast = meta.ast || this.parse(code, { lang: "ts" });
 
-        transformRefHelper_mutate(id, ast, meta.magicString);
+        transformRefHelper_mutate(getRefOrigin(id), ast, meta.magicString);
 
         return { code: meta.magicString };
       },
@@ -40,7 +47,7 @@ export function transformRefHelperPlugin(): Plugin {
 }
 
 export function transformRefHelper_mutate(
-  id: string,
+  origin: RefOrigin,
   ast: t.Program,
   magicString: RolldownMagicString,
 ): void {
@@ -51,5 +58,5 @@ export function transformRefHelper_mutate(
     return;
   }
 
-  applyTransformRefHelperPlan_mutate(id, magicString, refHelperPlan);
+  applyTransformRefHelperPlan_mutate(origin, magicString, refHelperPlan);
 }

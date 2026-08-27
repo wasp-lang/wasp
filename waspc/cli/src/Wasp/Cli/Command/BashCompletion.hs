@@ -24,9 +24,11 @@ bashCompletion = do
   case inputArgs of
     [] -> listCommands commands
     ["db"] -> listCommands dbSubCommands
+    ["module"] -> listCommands moduleSubCommands
     ["show"] -> listCommands showSubCommands
     [cmdPrefix] -> listMatchingCommands cmdPrefix commands
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
+    ["module", cmdPrefix] -> listMatchingCommands cmdPrefix moduleSubCommands
     ["show", cmdPrefix] -> listMatchingCommands cmdPrefix showSubCommands
     _ -> liftIO . putStrLn $ ""
   where
@@ -41,6 +43,7 @@ bashCompletion = do
         "clean",
         "compile",
         "build",
+        "module",
         "deploy",
         "telemetry",
         "deps",
@@ -50,6 +53,7 @@ bashCompletion = do
         "studio"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
+    moduleSubCommands = ["new", "install", "build"]
     showSubCommands = Command.Show.Subcommand.name <$> Command.Show.subcommands
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList

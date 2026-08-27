@@ -32,8 +32,8 @@ genVirtualRoutesTsx spec =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
           "isAuthEnabled" .= isAuthEnabled spec,
-          "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
-          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent)
+          "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToJsImportFromViteExecution <$> maybeSetupJsFunction),
+          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToJsImportFromViteExecution <$> maybeRootComponent)
         ]
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
@@ -54,7 +54,7 @@ createRouteTemplateData spec (name, route) =
 
     targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
     targetPage = findTargetPage spec targetPageName (AS.Route.path route)
-    jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component (snd targetPage)
+    jsImport = GJI.extImportToJsImportFromViteExecution $ AS.Page.component (snd targetPage)
     aliasedImport = applyJsImportAlias (Just targetPageName) jsImport
 
 findTargetPage :: AppSpec -> String -> String -> (String, AS.Page.Page)

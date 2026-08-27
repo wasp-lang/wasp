@@ -1,9 +1,7 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
-
 module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
     WaspConfig (..),
+    WaspModuleConfig (..),
     DependenciesMap,
     PackageName,
     PackageVersion,
@@ -20,7 +18,6 @@ import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import Data.Map (Map)
 import qualified Data.Map as M
-import GHC.Generics (Generic)
 import StrongPath (Abs, File, Path')
 import Wasp.ExternalConfig.Npm.Dependency (Dependency)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
@@ -29,8 +26,11 @@ import qualified Wasp.Util.IO as IOUtil
 data PackageJson = PackageJson
   { name :: !String,
     version :: !(Maybe String),
+    packageType :: !(Maybe String),
+    files :: !(Maybe [String]),
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
+    peerDependencies :: !DependenciesMap,
     workspaces :: !(Maybe [String]),
     wasp :: !(Maybe WaspConfig)
   }
@@ -41,11 +41,14 @@ instance FromJSON PackageJson where
     PackageJson
       <$> v .: "name"
       <*> v .:? "version"
+      <*> v .:? "type"
+      <*> v .:? "files"
       -- `dependencies` and `devDependencies` are both optional, so a missing
       -- field is read as an empty map rather than a parse error. This saves us
       -- from dealing with two "empty" states (Nothing + an empty map).
       <*> v .:? "dependencies" .!= M.empty
       <*> v .:? "devDependencies" .!= M.empty
+      <*> v .:? "peerDependencies" .!= M.empty
       <*> v .:? "workspaces"
       <*> v .:? "wasp"
 
@@ -57,9 +60,28 @@ data WaspConfig = WaspConfig
     -- `package.json#dependencies`. This ensures users consciously acknowledge
     -- they're deviating from tested versions, and must update their overrides
     -- when Wasp's requirements change.
-    overriddenDeps :: !(Maybe DependenciesMap)
+    overriddenDeps :: !(Maybe DependenciesMap),
+    module_ :: !(Maybe WaspModuleConfig)
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Show)
+
+instance FromJSON WaspConfig where
+  parseJSON = Aeson.withObject "WaspConfig" $ \v ->
+    WaspConfig
+      <$> v .:? "overriddenDeps"
+      <*> v .:? "module"
+
+data WaspModuleConfig = WaspModuleConfig
+  { runtimeExports :: ![FilePath]
+  }
+  deriving (Show)
+
+instance FromJSON WaspModuleConfig where
+  parseJSON = Aeson.withObject "WaspModuleConfig" $ \v ->
+    WaspModuleConfig <$> v .:? "runtimeExports" .!= defaultRuntimeExports
+
+defaultRuntimeExports :: [FilePath]
+defaultRuntimeExports = ["./src/**/*.{ts,tsx}"]
 
 type DependenciesMap = Map PackageName PackageVersion
 

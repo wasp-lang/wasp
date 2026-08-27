@@ -20,8 +20,12 @@ export const routes = {
       & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
       {=/ hasOptionalStaticSegments =}
     ) => interpolatePath(
-        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
-        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        {=# hasOptionalStaticSegments =}
+        options.path,
+        {=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}
+        "{= urlPath =}",
+        {=/ hasOptionalStaticSegments =}
         options.params,
         options?.search,
         options?.hash
@@ -35,8 +39,12 @@ export const routes = {
       & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
       {=/ hasOptionalStaticSegments =}
     ) => interpolatePath(
-        {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
-        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        {=# hasOptionalStaticSegments =}
+        options.path,
+        {=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}
+        "{= urlPath =}",
+        {=/ hasOptionalStaticSegments =}
         undefined,
         options?.search,
         options?.hash

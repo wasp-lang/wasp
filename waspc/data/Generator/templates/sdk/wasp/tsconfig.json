@@ -76,6 +76,14 @@
       bundler`).
     */
     "moduleResolution": "bundler",
+    // Build-time cycle:
+    //   wasp SDK -> @some/module -> import type "wasp/*"
+    // Without paths: "wasp/*" -> package.exports -> "./dist/*" -> TS5055
+    // With paths:    "wasp/*" -> "./*"
+    // Franjo's SDK work should stop the SDK build from importing module code.
+    "paths": {
+      "wasp/*": ["./*"]
+    },
     /*
        The `incremental` option enables faster SDK compilation, less Vite HMR
        messages and it prevent unnecessary full-page reloads when using Vite HMR.

@@ -1,6 +1,6 @@
 module Tests.WaspBuildTest (waspBuildTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild)
+import ShellCommands (ShellCommand, assertDirectoryExists, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -34,6 +34,3 @@ waspBuildTest =
   where
     waspCliBuildFails :: ShellCommand
     waspCliBuildFails = "! $WASP_CLI_CMD build"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

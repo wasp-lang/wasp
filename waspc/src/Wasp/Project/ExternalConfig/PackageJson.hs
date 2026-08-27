@@ -1,16 +1,22 @@
 module Wasp.Project.ExternalConfig.PackageJson
   ( parseAndValidateUserPackageJson,
+    parseAndValidateModulePackageJson,
     findUserPackageJsonFile,
     validatePackageJsonForProject,
+    validatePackageJsonForModule,
+    isValidNpmPackageName,
   )
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, withExceptT)
 import Data.Either.Extra (maybeToEither)
+import qualified Data.Map as M
 import Data.Maybe (isJust)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
+import qualified Text.Regex.TDFA as Regex
 import Validation (Validation, eitherToValidation)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson, parsePackageJsonFile)
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PackageJson
 import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   ( DependencyType (Development),
     makeRequiredDepValidator,
@@ -27,10 +33,17 @@ import Wasp.Project.Common
 import qualified Wasp.Validator as WaspV
 
 parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> TsConfigPaths -> IO (Validation [CompileError] PackageJson)
-parseAndValidateUserPackageJson waspDir tsConfigPaths = fmap eitherToValidation . runExceptT $ do
+parseAndValidateUserPackageJson waspDir tsConfigPaths =
+  parseAndValidatePackageJson waspDir $ validatePackageJsonForProject tsConfigPaths
+
+parseAndValidateModulePackageJson :: Path' Abs (Dir WaspProjectDir) -> IO (Validation [CompileError] PackageJson)
+parseAndValidateModulePackageJson waspDir = parseAndValidatePackageJson waspDir validatePackageJsonForModule
+
+parseAndValidatePackageJson :: Path' Abs (Dir WaspProjectDir) -> (PackageJson -> [CompileError]) -> IO (Validation [CompileError] PackageJson)
+parseAndValidatePackageJson waspDir validate = fmap eitherToValidation . runExceptT $ do
   packageJsonFile <- withExceptT (: []) $ ExceptT userPackageJsonFileOrError
   packageJson <- withExceptT (: []) $ ExceptT $ parsePackageJsonFile packageJsonFile
-  case validatePackageJsonForProject tsConfigPaths packageJson of
+  case validate packageJson of
     [] -> return packageJson
     errors -> liftEither $ Left errors
   where
@@ -44,10 +57,39 @@ validatePackageJsonForProject :: TsConfigPaths -> PackageJson -> [CompileError]
 validatePackageJsonForProject tsConfigPaths packageJson =
   show <$> WaspV.execValidator (packageJsonValidator tsConfigPaths) packageJson
 
+validatePackageJsonForModule :: PackageJson -> [CompileError]
+validatePackageJsonForModule packageJson =
+  show <$> WaspV.execValidator modulePackageJsonValidator packageJson
+
 packageJsonValidator :: TsConfigPaths -> WaspV.Validator PackageJson
 packageJsonValidator tsConfigPaths =
   WaspV.withFileName "package.json" $
     WaspV.all [waspTsPackageJsonValidator tsConfigPaths]
+
+modulePackageJsonValidator :: WaspV.Validator PackageJson
+modulePackageJsonValidator =
+  WaspV.withFileName "package.json" $
+    WaspV.all
+      [ WaspV.inField ("name", PackageJson.name) packageNameValidator,
+        WaspV.inField ("type", PackageJson.packageType) $ WaspV.eqJust "module",
+        WaspV.inField ("files", PackageJson.files) $ WaspV.required $ WaspV.containsAll ["dist"],
+        WaspV.inField ("peerDependencies", PackageJson.peerDependencies) $
+          WaspV.containsAll ["@wasp.sh/spec", "wasp", "react"] . M.keys,
+        WaspV.inField ("wasp", PackageJson.wasp) $
+          WaspV.required $
+            WaspV.inField ("module", PackageJson.module_) $
+              WaspV.required (const WaspV.success)
+      ]
+
+packageNameValidator :: WaspV.Validator String
+packageNameValidator packageName
+  | not $ isValidNpmPackageName packageName = WaspV.failure "Must be a valid npm package name."
+  | otherwise = WaspV.success
+
+isValidNpmPackageName :: String -> Bool
+isValidNpmPackageName packageName =
+  length packageName <= 214
+    && packageName Regex.=~ ("^(@[a-z0-9][a-z0-9._~-]*/)?[a-z0-9~][a-z0-9._~-]*$" :: String)
 
 waspTsPackageJsonValidator :: TsConfigPaths -> WaspV.Validator PackageJson
 waspTsPackageJsonValidator tsConfigPaths
