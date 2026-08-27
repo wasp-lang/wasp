@@ -1,0 +1,4 @@
+.wasp/
+node_modules/
+.env.server
+.env.client

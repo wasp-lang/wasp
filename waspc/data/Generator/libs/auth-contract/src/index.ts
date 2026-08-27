@@ -34,10 +34,15 @@ export type VerifiedSession = {
   /**
    * Opaque, provider-owned id for this session.
    *
-   * Wasp uses it for two things only: terminating the session on logout, and
-   * diagnostics. Wasp never interprets its contents.
+   * Wasp uses it for two things only: terminating the provider's session on
+   * logout (dual sign-out), and diagnostics. Wasp never interprets its
+   * contents.
+   *
+   * Optional because a stateless verifier (a plain password or JWT check) has
+   * no provider session at all -- then there is nothing to revoke upstream and
+   * Wasp's own session is the only one.
    */
-  sessionId: string;
+  sessionId?: string;
 
   /**
    * The provider's stable id for the authenticated subject.
@@ -242,19 +247,65 @@ export type WaspServerRuntime = {
   clientUrl: string;
 
   /**
-   * Report that the provider just created one of its own users.
+   * The identity store, pre-bound to this provider's manifest id: the
+   * sanctioned channel for everything identity-shaped, with the same powers
+   * Wasp's own auth flows use.
    *
-   * For adapters that can observe their signup moment (in-process providers
-   * like Better Auth; a hosted provider cannot). Wasp provisions the
-   * corresponding local user eagerly, so it exists from signup rather than
-   * from the first authenticated request. Calling it is optional and always
-   * safe: provisioning is idempotent, and just-in-time provisioning on first
-   * request remains the backstop regardless.
+   * - `provision` is the eager-provisioning channel: an in-process adapter
+   *   that observes its own signup moment (Better Auth can; a hosted provider
+   *   cannot) reports it here, so the local user exists from signup rather
+   *   than from the first login exchange. Idempotent, and just-in-time
+   *   provisioning at the exchange remains the backstop regardless.
+   * - `data`/`secrets` accessors let an adapter keep per-identity state
+   *   without touching `db`: non-secret working state in `data`, secret
+   *   material in `secrets` -- a column the app's Prisma client omits by
+   *   default, so it cannot leak through app code. Secrets are stored as
+   *   given; hashing is the adapter's job.
    */
-  onAuthUserCreated?(authUser: {
-    subjectId: string;
-    claims?: Record<string, JsonValue>;
-  }): Promise<void>;
+  identities: ProviderIdentities;
+};
+
+/**
+ * The per-provider view of Wasp's identity store. `subjectId` is always the
+ * provider's own stable user id -- the same value {@link VerifiedSession}
+ * carries.
+ */
+export type ProviderIdentities = {
+  /** The identity (claims and non-secret data), or null if never provisioned. */
+  find(subjectId: string): Promise<{
+    authId: string;
+    claims: Record<string, JsonValue>;
+    data: Record<string, JsonValue>;
+  } | null>;
+
+  /**
+   * Idempotent create of the local user for a subject. Runs the app's
+   * `userSignupFields` over the claims, exactly like just-in-time
+   * provisioning at the login exchange.
+   */
+  provision(
+    subjectId: string,
+    identity?: {
+      claims?: Record<string, JsonValue>;
+      data?: Record<string, JsonValue>;
+      secrets?: Record<string, JsonValue>;
+    },
+  ): Promise<{ authId: string } | null>;
+
+  /** Merges the updates into the identity's non-secret data. */
+  updateData(
+    subjectId: string,
+    updates: Record<string, JsonValue>,
+  ): Promise<void>;
+
+  /** Reads the identity's secret material. Keep the result on the server. */
+  getSecrets(subjectId: string): Promise<Record<string, JsonValue> | null>;
+
+  /** Replaces the identity's secret material. Expects it already hashed. */
+  setSecrets(
+    subjectId: string,
+    secrets: Record<string, JsonValue>,
+  ): Promise<void>;
 };
 
 /**

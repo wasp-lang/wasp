@@ -114,7 +114,12 @@ export async function exchangeRequestForSession(req: ExpressRequest): Promise<{ 
     return null;
   }
 
-  return sessionStore.createSession(authId, { providerSessionId });
+  // A stateless verifier returns no provider session id -- then there is
+  // nothing to revoke upstream at logout and Wasp's session stands alone.
+  return sessionStore.createSession(
+    authId,
+    providerSessionId === undefined ? undefined : { providerSessionId },
+  );
 }
 
 /**
@@ -155,6 +160,10 @@ function toWebRequest(req: ExpressRequest): Request {
 async function resolveExternalSubject(
   subjectId: string,
   claims: VerifiedSession['claims'],
+  identity?: {
+    data?: Record<string, unknown>;
+    secrets?: Record<string, unknown>;
+  },
 ): Promise<string | null> {
   const identities = getIdentityStore(authProvider.id);
 
@@ -181,6 +190,8 @@ async function resolveExternalSubject(
       // this subject was first seen. Wasp-written and read-only afterwards, so
       // its provenance can be trusted.
       claims: { ...(claims ?? {}) },
+      data: identity?.data,
+      secrets: identity?.secrets,
     },
     // Using `any` to defer validation of required-but-unset fields to Prisma,
     // which reports them precisely.
@@ -199,8 +210,13 @@ async function resolveExternalSubject(
 export async function provisionAuthUser(
   subjectId: string,
   claims: VerifiedSession['claims'],
-): Promise<void> {
-  await resolveExternalSubject(subjectId, claims);
+  identity?: {
+    data?: Record<string, unknown>;
+    secrets?: Record<string, unknown>;
+  },
+): Promise<{ authId: string } | null> {
+  const authId = await resolveExternalSubject(subjectId, claims, identity);
+  return authId === null ? null : { authId };
 }
 {=/ isCustomAuthProviderUsed =}
 
