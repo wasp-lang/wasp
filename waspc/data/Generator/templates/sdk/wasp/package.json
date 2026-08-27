@@ -140,6 +140,7 @@
         provider's own routes. =}
     "./server/auth/provider": "./dist/server/auth/provider/index.js",
     {=/ isCustomAuthProviderUsed =}
+    "./server/auth/identityStore": "./dist/server/auth/identityStore.js",
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",

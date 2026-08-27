@@ -3,24 +3,12 @@ import { sleep } from '../utils.js'
 import {
   type User,
   type Auth,
-  type AuthIdentity,
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from '../../auth/validation.js'
 
-import {
-  type ProviderId,
-  type ProviderName,
-  type PossibleProviderData,
-  type PossibleProviderSecrets,
-  parseProviderData,
-  parseProviderSecrets,
-  serializeProviderData,
-  serializeProviderSecrets,
-} from '../../auth/providerData.js'
-
-import { type UserSignupFields, type PossibleUserFields } from '../../auth/providers/types.js'
+import { type UserSignupFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).
@@ -54,91 +42,6 @@ export const authConfig = {
   successRedirectPath: "/",
 }
 
-// PUBLIC API
-/**
- * The auth identity as everything outside auth internals sees it: the secret
- * column does not exist here -- the Prisma client omits it by default, and only
- * `findAuthIdentitySecrets` opts back in.
- */
-export type AuthIdentityWithoutSecrets = Omit<AuthIdentity, 'providerSecrets'>
-
-// PUBLIC API
-export async function findAuthIdentity(providerId: ProviderId): Promise<AuthIdentityWithoutSecrets | null> {
-  return prisma.authIdentity.findUnique({
-    where: {
-      providerName_providerUserId: providerId,
-    }
-  });
-}
-
-// PUBLIC API
-/**
- * Reads the auth identity's secret material (e.g. the password hash). This is
- * the single place that opts back into the `providerSecrets` column the Prisma
- * client omits by default -- keep the result on the server.
- */
-export async function findAuthIdentitySecrets<PN extends ProviderName>(
-  providerId: ProviderId,
-): Promise<PossibleProviderSecrets[PN] | null> {
-  const identity = await prisma.authIdentity.findUnique({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    omit: { providerSecrets: false },
-  });
-  return identity === null ? null : parseProviderSecrets<PN>(identity.providerSecrets);
-}
-
-// PUBLIC API
-/**
- * Merges the given updates into the auth identity's non-secret provider data.
- * Secrets have their own column and their own writer (`setAuthIdentitySecrets`),
- * so this update can never touch them.
- */
-export async function updateAuthIdentityProviderData<PN extends ProviderName>(
-  providerId: ProviderId,
-  providerDataUpdates: Partial<PossibleProviderData[PN]>,
-): Promise<AuthIdentityWithoutSecrets> {
-  const identity = await prisma.authIdentity.findUnique({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    select: { providerData: true },
-  });
-  if (identity === null) {
-    throw new Error('Auth identity not found.');
-  }
-  const newProviderData = {
-    ...parseProviderData<PN>(identity.providerData),
-    ...providerDataUpdates,
-  }
-  return prisma.authIdentity.update({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    data: { providerData: serializeProviderData<PN>(newProviderData) },
-  });
-}
-
-// PUBLIC API
-/**
- * Replaces the auth identity's secret material. Expects secrets to arrive
- * **already hashed** -- hashing is the flow's explicit responsibility (see
- * `hashPassword` in `wasp/server/auth/password`), never an implicit side effect
- * of storage.
- */
-export async function setAuthIdentitySecrets<PN extends ProviderName>(
-  providerId: ProviderId,
-  secrets: PossibleProviderSecrets[PN],
-): Promise<AuthIdentityWithoutSecrets> {
-  return prisma.authIdentity.update({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    data: { providerSecrets: serializeProviderSecrets<PN>(secrets) },
-  });
-}
-
 // PRIVATE API
 export type FindAuthWithUserResult = Auth & {
   user: User
@@ -159,58 +62,6 @@ export async function findAuthWithUserBy(
   }
 
   return { ...result, user: result.user };
-}
-
-// PUBLIC API
-export type CreateUserResult = User & {
-  auth: Auth | null
-}
-
-// PUBLIC API
-/**
- * Creates the user with its auth identity in one atomic write. `data` is the
- * provider's non-secret state, `secrets` its secret material -- `secrets` must
- * arrive already hashed (see `setAuthIdentitySecrets`).
- */
-export async function createUser<PN extends ProviderName>(
-  providerId: ProviderId,
-  identity?: {
-    data?: PossibleProviderData[PN];
-    secrets?: PossibleProviderSecrets[PN];
-  },
-  userFields?: PossibleUserFields,
-): Promise<CreateUserResult> {
-  return prisma.user.create({
-    data: {
-      // Using any here to prevent type errors when userFields are not
-      // defined. We want Prisma to throw an error in that case.
-      ...(userFields ?? {} as any),
-      auth: {
-        create: {
-          identities: {
-              create: {
-                  providerName: providerId.providerName,
-                  providerUserId: providerId.providerUserId,
-                  providerData: serializeProviderData<PN>(identity?.data ?? ({} as PossibleProviderData[PN])),
-                  providerSecrets: serializeProviderSecrets<PN>(identity?.secrets ?? ({} as PossibleProviderSecrets[PN])),
-              },
-          },
-        }
-      },
-    },
-    // We need to include the Auth entity here because we need `authId`
-    // to be able to create a session.
-    include: {
-      auth: true,
-    },
-  })
-}
-
-// PRIVATE API
-export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
-  return prisma.user.deleteMany({ where: { auth: {
-    id: authId,
-  } } })
 }
 
 // PRIVATE API

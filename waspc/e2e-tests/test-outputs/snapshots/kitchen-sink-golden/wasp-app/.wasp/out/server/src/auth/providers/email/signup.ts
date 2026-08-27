@@ -2,14 +2,11 @@ import { Request, Response } from 'express'
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
   createProviderId,
-  createUser,
-  deleteUserByAuthId,
   doFakeWork,
-  findAuthIdentity,
-  parseProviderData,
   rethrowPossibleAuthError,
   validateAndGetUserFields,
 } from 'wasp/server/auth/utils'
+import { getIdentityStore } from 'wasp/server/auth/identityStore'
 import { hashPassword } from 'wasp/server/auth/password'
 import {
   ensurePasswordIsPresent,
@@ -46,8 +43,9 @@ export function getSignupRoute({
     const fields = req.body
     ensureValidArgs(fields)
 
+    const emailIdentities = getIdentityStore('email')
     const providerId = createProviderId('email', fields.email)
-    const existingAuthIdentity = await findAuthIdentity(providerId)
+    const existingIdentity = await emailIdentities.find(fields.email)
 
     /**
      *
@@ -73,15 +71,12 @@ export function getSignupRoute({
      *     else's email address and therefore permanently making that email
      *     address unavailable for later account creation (by real owner).
      */
-    if (existingAuthIdentity) {
-      const providerData = parseProviderData<'email'>(
-        existingAuthIdentity.providerData,
-      )
+    if (existingIdentity) {
 
       // TOOD: faking work makes sense if the time spent on faking the work matches the time
       // it would take to send the email. Atm, the fake work takes obviously longer than sending
       // the email!
-      if (providerData.isEmailVerified) {
+      if (existingIdentity.data.isEmailVerified) {
         await doFakeWork()
         res.json({ success: true })
         return
@@ -90,7 +85,7 @@ export function getSignupRoute({
       // TODO: we are still leaking information here since when we are faking work
       // we are not checking if the email was sent or not!
       const { isResendAllowed, timeLeft } = isEmailResendAllowed(
-        providerData,
+        existingIdentity.data,
         'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
@@ -101,7 +96,7 @@ export function getSignupRoute({
       }
 
       try {
-        await deleteUserByAuthId(existingAuthIdentity.authId)
+        await emailIdentities.deleteUser(fields.email)
       } catch (e: unknown) {
         rethrowPossibleAuthError(e)
       }
@@ -118,8 +113,8 @@ export function getSignupRoute({
     const userFields = await validateAndGetUserFields(fields, userSignupFields)
 
     try {
-      const user = await createUser<'email'>(
-        providerId,
+      const user = await emailIdentities.createIdentity(
+        fields.email,
         {
           data: {
             isEmailVerified: isEmailAutoVerified ? true : false,

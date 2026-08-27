@@ -1,12 +1,8 @@
 import { createJWT, TimeSpan } from '../jwt.js'
 import { emailSender } from '../../email/index.js';
 import { Email } from '../../email/core/types.js';
-import {
-  createProviderId,
-  updateAuthIdentityProviderData,
-  findAuthIdentity,
-  type EmailProviderData,
-} from '../utils.js';
+import { type EmailProviderData } from '../utils.js';
+import { getIdentityStore } from '../identityStore.js';
 import { config as waspServerConfig } from '../../index.js';
 import { type User, type Auth } from '../../../entities/index.js'
 
@@ -60,16 +56,16 @@ async function sendEmailAndSaveMetadata(
 ): Promise<void> {
   // Save the metadata (e.g. timestamp) first, and then send the email
   // so the user can't send multiple requests while the email is being sent.
-  const providerId = createProviderId("email", email);
-  const authIdentity = await findAuthIdentity(providerId);
+  const emailIdentities = getIdentityStore('email');
+  const identity = await emailIdentities.find(email);
 
-  if (!authIdentity) {
+  if (!identity) {
     throw new Error(`User with email: ${email} not found.`);
   }
 
   // A partial update of the non-secret column only -- the password hash is
   // neither read nor rewritten to store a timestamp.
-  await updateAuthIdentityProviderData<'email'>(providerId, metadata);
+  await emailIdentities.updateData(email, metadata);
 
   emailSender.send(content).catch((e) => {
     console.error('Failed to send email', e);

@@ -1,43 +1,22 @@
 import { type AuthUser } from "wasp/auth";
 import { type DbSeedFn, type PrismaClient } from "wasp/server";
-import { hashPassword } from "wasp/server/auth";
+import { getIdentityStore, hashPassword } from "wasp/server/auth";
 import { createTask } from "../operations/actions.js";
 
-async function createUser(prismaClient: PrismaClient, data: any) {
-  const newUser = await prismaClient.user.create({
-    data: {
-      auth: {
-        create: {
-          identities: {
-            create: {
-              providerName: "username",
-              providerUserId: data.username,
-              // Hashing is the caller's explicit job; the secret goes into its
-              // own column, which the Prisma client omits when reading.
-              providerSecrets: JSON.stringify({
-                hashedPassword: await hashPassword(data.password),
-              }),
-            },
-          },
-        },
+async function createUser(_prismaClient: PrismaClient, data: any) {
+  // The same identity store Wasp's own signup flow uses -- no raw table
+  // access needed. Hashing stays the caller's explicit job.
+  const createdUser = await getIdentityStore("username").createIdentity(
+    data.username,
+    {
+      secrets: {
+        hashedPassword: await hashPassword(data.password),
       },
     },
-    include: {
-      auth: {
-        select: {
-          id: true,
-          userId: true,
-          identities: true,
-        },
-        include: {
-          identities: true,
-        },
-      },
-    },
-  });
+  );
 
   return {
-    id: newUser.id,
+    id: createdUser.id,
   } as AuthUser;
 }
 

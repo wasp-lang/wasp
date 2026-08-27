@@ -1,10 +1,5 @@
 import { Request, Response } from 'express';
-import {
-    createProviderId,
-    findAuthIdentity,
-    setAuthIdentitySecrets,
-    updateAuthIdentityProviderData,
-} from 'wasp/server/auth/utils';
+import { getIdentityStore } from 'wasp/server/auth/identityStore';
 import { hashPassword } from 'wasp/server/auth/password';
 import { validateJWT } from 'wasp/server/auth/jwt'
 import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
@@ -28,24 +23,24 @@ export async function resetPassword(
 
     ensureValidPasswordArg(args);
 
-    const providerId = createProviderId('email', email);
-    const authIdentity = await findAuthIdentity(providerId);
-    if (!authIdentity) {
+    const emailIdentities = getIdentityStore('email');
+    const identity = await emailIdentities.find(email);
+    if (!identity) {
         throw new HttpError(400, "Password reset failed, invalid token");
     }
 
     // Hashing is the flow's explicit job -- storage never hashes.
-    await setAuthIdentitySecrets<'email'>(providerId, {
+    await emailIdentities.setSecrets(email, {
         hashedPassword: await hashPassword(password),
     });
-    await updateAuthIdentityProviderData<'email'>(providerId, {
+    await emailIdentities.updateData(email, {
         // The act of resetting the password verifies the email
         isEmailVerified: true,
     });
 
     // Changing the password invalidates all the existing sessions, so that
     // somebody who got hold of a session can't keep using it.
-    await invalidateAllSessionsForAuthId(authIdentity.authId);
+    await invalidateAllSessionsForAuthId(identity.authId);
 
     res.json({ success: true });
 };

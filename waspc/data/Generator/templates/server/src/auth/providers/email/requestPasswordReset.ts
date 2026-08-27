@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
-import {
-    createProviderId,
-    findAuthIdentity,
-    doFakeWork,
-    parseProviderData,
-} from 'wasp/server/auth/utils';
+import { doFakeWork } from 'wasp/server/auth/utils';
+import { getIdentityStore } from 'wasp/server/auth/identityStore';
 import {
     createPasswordResetLink,
     sendPasswordResetEmail,
@@ -31,9 +27,8 @@ export function getRequestPasswordResetRoute({
         const args = req.body ?? {};
         ensureValidEmail(args);
 
-        const authIdentity = await findAuthIdentity(
-            createProviderId("email", args.email),
-        );
+        const emailIdentities = getIdentityStore('email');
+        const identity = await emailIdentities.find(args.email);
 
         /**
          * By doing fake work, we make it harder to enumerate users by measuring
@@ -41,21 +36,20 @@ export function getRequestPasswordResetRoute({
          * could measure the time it takes to respond and figure out if the user exists.
          */
 
-        if (!authIdentity) {
+        if (!identity) {
             await doFakeWork();
             res.json({ success: true });
             return
         }
 
-        const providerData = parseProviderData<'email'>(authIdentity.providerData);
-        const { isResendAllowed, timeLeft } = isEmailResendAllowed(providerData, 'passwordResetSentAt');
+        const { isResendAllowed, timeLeft } = isEmailResendAllowed(identity.data, 'passwordResetSentAt');
         if (!isResendAllowed) {
             throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
         }
 
         const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
         try {
-            const email = authIdentity.providerUserId
+            const email = identity.providerUserId
             await sendPasswordResetEmail(
                 email,
                 {

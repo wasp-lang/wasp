@@ -50,6 +50,7 @@ genServerAuth spec =
               genAuthProviderIndexTs spec auth,
               genSessionTs auth,
               genSessionStoreTs auth,
+              genIdentityStoreTs auth,
               genLuciaTs auth,
               genUtils auth
             ]
@@ -65,6 +66,7 @@ genServerAuth spec =
               genAuthProviderIndexTs spec auth,
               genSessionTs auth,
               genSessionStoreTs auth,
+              genIdentityStoreTs auth,
               genLuciaTs auth,
               genUtils auth
             ]
@@ -97,6 +99,24 @@ genHooks auth =
       tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
+
+genIdentityStoreTs :: AS.Auth.Auth -> Generator FileDraft
+genIdentityStoreTs auth =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|identityStore.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
+          "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
+          "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String)
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genSessionStoreTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionStoreTs _ =

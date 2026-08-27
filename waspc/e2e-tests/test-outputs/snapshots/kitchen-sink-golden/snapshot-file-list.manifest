@@ -614,6 +614,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/hooks.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/hooks.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/hooks.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/hooks.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.js
@@ -865,6 +869,7 @@ wasp-app/.wasp/out/sdk/wasp/server/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/email/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/email/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/hooks.ts
+wasp-app/.wasp/out/sdk/wasp/server/auth/identityStore.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/jwt.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/lucia.ts
