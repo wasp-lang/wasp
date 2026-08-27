@@ -3,7 +3,6 @@ import { Request as ExpressRequest } from 'express'
 import {
   type ProviderId,
   createUser,
-  sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
   createProviderId,
   findAuthWithUserBy,
@@ -120,12 +119,10 @@ async function getAuthIdFromProviderDetails({
       userSignupFields,
     )
 
-    // For now, we don't have any extra data for the oauth providers, so we just pass an empty object.
-    const providerData = await sanitizeAndSerializeProviderData({})
-
+    // For now, we don't store any data or secrets for the oauth providers.
     const user = await createUser(
       providerId,
-      providerData,
+      {},
       // Using any here because we want to avoid TypeScript errors and
       // rely on Prisma to validate the data.
       userFields as any,

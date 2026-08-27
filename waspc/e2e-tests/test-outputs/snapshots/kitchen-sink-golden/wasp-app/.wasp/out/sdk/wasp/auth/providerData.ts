@@ -1,18 +1,38 @@
 // PUBLIC API
+/**
+ * Non-secret working state the email provider keeps for an identity.
+ * Lives in the `providerData` column and may be shown to the user
+ * (e.g. in the `identities` view).
+ */
 export type EmailProviderData = {
-  hashedPassword: string;
   isEmailVerified: boolean;
   emailVerificationSentAt: string | null;
   passwordResetSentAt: string | null;
 }
 
 // PUBLIC API
-export type UsernameProviderData = {
+/**
+ * Secret material the email provider keeps for an identity. Lives in the
+ * `providerSecrets` column, which the Prisma client omits by default -- it
+ * never crosses a serialization boundary unless read explicitly.
+ */
+export type EmailProviderSecrets = {
+  hashedPassword: string;
+}
+
+// PUBLIC API
+export type UsernameProviderData = {}
+
+// PUBLIC API
+export type UsernameProviderSecrets = {
   hashedPassword: string;
 }
 
 // PUBLIC API
 export type OAuthProviderData = {}
+
+// PUBLIC API
+export type OAuthProviderSecrets = {}
 
 // PRIVATE API
 /**
@@ -20,7 +40,7 @@ export type OAuthProviderData = {}
  * all possible provider data types.
  *
  * The keys of this type are the names of the providers and the values
- * are the types of the provider data.
+ * are the types of the provider's non-secret data.
  */
 export type PossibleProviderData = {
   email: EmailProviderData;
@@ -31,6 +51,22 @@ export type PossibleProviderData = {
   keycloak: OAuthProviderData;
   github: OAuthProviderData;
   microsoft: OAuthProviderData;
+}
+
+// PRIVATE API
+/**
+ * The secret counterpart of `PossibleProviderData`: per-provider shapes of the
+ * `providerSecrets` column.
+ */
+export type PossibleProviderSecrets = {
+  email: EmailProviderSecrets;
+  username: UsernameProviderSecrets;
+  discord: OAuthProviderSecrets;
+  slack: OAuthProviderSecrets;
+  google: OAuthProviderSecrets;
+  keycloak: OAuthProviderSecrets;
+  github: OAuthProviderSecrets;
+  microsoft: OAuthProviderSecrets;
 }
 
 // PUBLIC API
@@ -90,34 +126,40 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
 }
 
 // PUBLIC API
-export function getProviderData<PN extends ProviderName>(
-  providerData: string,
-):  Omit<PossibleProviderData[PN], 'hashedPassword'> {
-  return sanitizeProviderData(getProviderDataWithPassword(providerData));
-}
-
-// PUBLIC API
-export function getProviderDataWithPassword<PN extends ProviderName>(
+/**
+ * Parses the `providerData` column (non-secret provider state). Safe to expose:
+ * secrets live in a separate column and cannot appear here.
+ */
+export function parseProviderData<PN extends ProviderName>(
   providerData: string,
 ): PossibleProviderData[PN] {
   // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
   return JSON.parse(providerData);
 }
 
-function sanitizeProviderData<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Omit<PossibleProviderData[PN], 'hashedPassword'> {
-  if (providerDataHasPasswordField(providerData)) {
-    const { hashedPassword, ...rest } = providerData;
-    return rest;
-  } else {
-    return providerData;
-  }
+// PUBLIC API
+/**
+ * Parses the `providerSecrets` column. Callers get this string only by
+ * explicitly opting back into the column the Prisma client omits by default --
+ * keep the parsed value on the server.
+ */
+export function parseProviderSecrets<PN extends ProviderName>(
+  providerSecrets: string,
+): PossibleProviderSecrets[PN] {
+  // NOTE: We are letting JSON.parse throw an error if the providerSecrets is not valid JSON.
+  return JSON.parse(providerSecrets);
 }
 
 // PRIVATE API
-export function providerDataHasPasswordField(
-  providerData: PossibleProviderData[keyof PossibleProviderData],
-): providerData is { hashedPassword: string } {
-  return 'hashedPassword' in providerData;
+export function serializeProviderData<PN extends ProviderName>(
+  providerData: PossibleProviderData[PN],
+): string {
+  return JSON.stringify(providerData);
+}
+
+// PRIVATE API
+export function serializeProviderSecrets<PN extends ProviderName>(
+  providerSecrets: PossibleProviderSecrets[PN],
+): string {
+  return JSON.stringify(providerSecrets);
 }

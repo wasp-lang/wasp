@@ -6,7 +6,6 @@ import {
   createProviderId,
   updateAuthIdentityProviderData,
   findAuthIdentity,
-  getProviderDataWithPassword,
   type EmailProviderData,
 } from '../utils.js';
 import { config as waspServerConfig } from '../../index.js';
@@ -69,8 +68,9 @@ async function sendEmailAndSaveMetadata(
     throw new Error(`User with email: ${email} not found.`);
   }
 
-  const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-  await updateAuthIdentityProviderData<'email'>(providerId, providerData, metadata);
+  // A partial update of the non-secret column only -- the password hash is
+  // neither read nor rewritten to store a timestamp.
+  await updateAuthIdentityProviderData<'email'>(providerId, metadata);
 
   emailSender.send(content).catch((e) => {
     console.error('Failed to send email', e);

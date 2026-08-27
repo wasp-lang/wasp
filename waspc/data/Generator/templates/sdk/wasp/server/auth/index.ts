@@ -13,19 +13,29 @@ export { createInvalidCredentialsError } from './utils.js'
 {=^ isCustomAuthProviderUsed =}
 export {
   createProviderId,
-  sanitizeAndSerializeProviderData,
+  parseProviderData,
+  parseProviderSecrets,
   updateAuthIdentityProviderData,
-  getProviderData,
-  getProviderDataWithPassword,
+  setAuthIdentitySecrets,
   findAuthIdentity,
+  findAuthIdentitySecrets,
   createUser,
+  type AuthIdentityWithoutSecrets,
   type CreateUserResult,
   type ProviderId,
   type ProviderName,
   type EmailProviderData,
+  type EmailProviderSecrets,
   type UsernameProviderData,
+  type UsernameProviderSecrets,
   type OAuthProviderData,
+  type OAuthProviderSecrets,
 } from './utils.js'
+
+// Hashing is the caller's explicit job when writing secrets -- exported so
+// user-land code (seeds, custom signup actions) can do it the same way the
+// generated flows do.
+export { hashPassword, verifyPassword } from './password.js'
 
 export {
   ensurePasswordIsPresent,

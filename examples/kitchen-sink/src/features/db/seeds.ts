@@ -1,6 +1,6 @@
 import { type AuthUser } from "wasp/auth";
 import { type DbSeedFn, type PrismaClient } from "wasp/server";
-import { sanitizeAndSerializeProviderData } from "wasp/server/auth";
+import { hashPassword } from "wasp/server/auth";
 import { createTask } from "../operations/actions.js";
 
 async function createUser(prismaClient: PrismaClient, data: any) {
@@ -12,8 +12,10 @@ async function createUser(prismaClient: PrismaClient, data: any) {
             create: {
               providerName: "username",
               providerUserId: data.username,
-              providerData: await sanitizeAndSerializeProviderData<"username">({
-                hashedPassword: data.password,
+              // Hashing is the caller's explicit job; the secret goes into its
+              // own column, which the Prisma client omits when reading.
+              providerSecrets: JSON.stringify({
+                hashedPassword: await hashPassword(data.password),
               }),
             },
           },

@@ -4,8 +4,9 @@ import { verifyPassword } from 'wasp/server/auth/password'
 import {
     createProviderId,
     findAuthIdentity,
+    findAuthIdentitySecrets,
     findAuthWithUserBy,
-    getProviderDataWithPassword,
+    parseProviderData,
 } from 'wasp/server/auth/utils'
 import { createSession } from 'wasp/server/auth/session'
 import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
@@ -24,12 +25,17 @@ export function getLoginRoute() {
         if (!authIdentity) {
             throw createInvalidCredentialsError()
         }
-        const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData)
+        const providerData = parseProviderData<'email'>(authIdentity.providerData)
         if (!providerData.isEmailVerified) {
             throw createInvalidCredentialsError()
         }
+        // The secret column is read explicitly and only here in this flow.
+        const secrets = await findAuthIdentitySecrets<'email'>(providerId)
+        if (secrets === null) {
+            throw createInvalidCredentialsError()
+        }
         try {
-            await verifyPassword(providerData.hashedPassword, fields.password);
+            await verifyPassword(secrets.hashedPassword, fields.password);
         } catch(e) {
             throw createInvalidCredentialsError()
         }

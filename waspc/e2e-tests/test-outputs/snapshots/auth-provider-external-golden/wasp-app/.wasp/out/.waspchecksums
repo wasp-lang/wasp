@@ -25,7 +25,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "f19b3baee2c97b88a24570715ee065ec28c525a4dfe64b96230ac7595f40f97e"
+        "5e499b35428cbdb895fec34d0129048ba8f8b063776a8f7a1cc5e5b0b32cbab6"
     ],
     [
         [
@@ -95,7 +95,7 @@
             "file",
             "sdk/wasp/auth/providerData.ts"
         ],
-        "0325226f972b575d213046bafc16c3585c87c943a8da64679da773088fd9d77a"
+        "ee480e8acaca5d4eb5142716c226b5b8b6d53261d882b0ca5438815f18b09ae0"
     ],
     [
         [
@@ -137,7 +137,7 @@
             "file",
             "sdk/wasp/auth/user.ts"
         ],
-        "1afc708a2c94c1ebed1b794bda2f8bf8506ef526aea1be2640a289cc1e5a3e45"
+        "a4409789b13c04e0991402e6e643b3dc8d8fff2b8bd44fae03f00be71bb74db5"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "f30d5f4a1f55897f29834670b698b85255407e55e618ad6b8a69f491b1acf4ff"
+        "fb235b0ff39c3c120522ef96c455ae30f9fec47e968a760493fda5aa022f057a"
     ],
     [
         [
@@ -641,7 +641,7 @@
             "file",
             "sdk/wasp/server/auth/utils.ts"
         ],
-        "4b0dd0245b9802622741e50fed78a5616b853d888d9d72fb2ae7568d46840994"
+        "bedf8cef4fbb9dd5584cc9c60f2b7b05369e70bca6522fe8ca27ff176f849d77"
     ],
     [
         [
@@ -662,7 +662,7 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "5087f769527b1fb2c39e78b3ca155fd1bc006288ec6d1bbcea011e4fd2db698c"
+        "c4eb2b34c871b49a3d183ed1ea8a504b3517ca375003b2de2243d478a5cfecaf"
     ],
     [
         [
