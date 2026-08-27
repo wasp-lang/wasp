@@ -1,16 +1,17 @@
 # Auth provider examples
 
-Four Wasp apps that are identical except for **which auth provider verifies the request**.
+Five Wasp apps that are identical except for **which auth provider verifies the request**.
 
 They exist to answer one question: how much of an app's code survives swapping the auth
 provider? The answer, demonstrated rather than asserted, is _everything except the auth pages_.
 
-| App             | Provider                   | What it proves                                                        |
-| --------------- | -------------------------- | --------------------------------------------------------------------- |
-| `wasp-auth/`    | Wasp's own auth            | The interface is a faithful refactor — behaviour is unchanged         |
-| `better-auth/`  | Better Auth, in-process    | A provider that owns its own tables and routes                        |
-| `clerk/`        | Clerk, hosted              | A provider with no server-side login at all, and no schema of its own |
-| `custom-clerk/` | Clerk, hand-written in-app | The `customAuthProvider()` escape hatch — no adapter package needed   |
+| App                | Provider                           | What it proves                                                                                   |
+| ------------------ | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `wasp-auth/`       | Wasp's own auth                    | The interface is a faithful refactor — behaviour is unchanged                                    |
+| `better-auth/`     | Better Auth, in-process            | A provider that owns its own tables and routes                                                   |
+| `clerk/`           | Clerk, hosted                      | A provider with no server-side login at all, and no schema of its own                            |
+| `custom-clerk/`    | Clerk, hand-written in-app         | The `customAuthProvider()` escape hatch — no adapter package needed                              |
+| `custom-password/` | Email+password, hand-rolled in-app | A user-made provider has the same powers Wasp's own auth uses: identity store + session exchange |
 
 ## The part that is identical in all of them
 

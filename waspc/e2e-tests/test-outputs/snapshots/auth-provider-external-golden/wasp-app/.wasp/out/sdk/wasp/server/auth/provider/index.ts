@@ -1,5 +1,6 @@
 import { canManageSessions as canProviderManagesSessions, canRevokeSessions as canProviderRevokeSessions, type AuthProvider } from './types.js'
 import { provisionAuthUser } from '../session.js'
+import { getIdentityStore } from '../identityStore.js'
 import { createServerAdapter } from '@wasp.sh/auth-clerk/server'
 import { config, prisma } from '../../index.js'
 
@@ -12,6 +13,8 @@ export {
   canManageSessions,
   canRevokeSessions,
 } from './types.js'
+
+const manifestIdentities = getIdentityStore('external:clerk')
 
 /**
  * The adapter package's server factory, called with everything it may know
@@ -27,11 +30,26 @@ const serverAdapter = await Promise.resolve(
       env: process.env,
       serverUrl: config.serverUrl,
       clientUrl: config.frontendUrl,
-      // The eager-provisioning channel: an in-process adapter reports its own
-      // signups, and the local user exists from that moment. Idempotent; JIT
-      // provisioning on first request remains the backstop.
-      onAuthUserCreated: async (authUser) => {
-        await provisionAuthUser(authUser.subjectId, authUser.claims)
+      // The identity store, pre-bound to this provider's manifest id -- the
+      // adapter's sanctioned channel for everything identity-shaped, with the
+      // same powers Wasp's own auth flows use. `provision` routes through the
+      // app's `userSignupFields`, exactly like just-in-time provisioning at
+      // the login exchange. The casts are the runtime boundary: the store
+      // speaks `unknown`, the contract speaks `JsonValue`, and both sides of
+      // every value are plain parsed JSON.
+      identities: {
+        provision: (subjectId, identity) =>
+          provisionAuthUser(subjectId, identity?.claims, {
+            data: identity?.data,
+            secrets: identity?.secrets,
+          }),
+        find: (subjectId) => manifestIdentities.find(subjectId) as any,
+        updateData: (subjectId, updates) =>
+          manifestIdentities.updateData(subjectId, updates),
+        getSecrets: (subjectId) =>
+          manifestIdentities.getSecrets(subjectId) as any,
+        setSecrets: (subjectId, secrets) =>
+          manifestIdentities.setSecrets(subjectId, secrets),
       },
     },
     undefined,
