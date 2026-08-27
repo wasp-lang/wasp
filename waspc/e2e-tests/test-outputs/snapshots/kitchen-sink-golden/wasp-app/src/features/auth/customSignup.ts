@@ -3,8 +3,11 @@ import {
   ensureValidEmail,
   ensureValidPassword,
 } from "wasp/auth/validation";
-import { prisma } from "wasp/server";
-import { defineUserSignupFields, hashPassword } from "wasp/server/auth";
+import {
+  defineUserSignupFields,
+  getIdentityStore,
+  hashPassword,
+} from "wasp/server/auth";
 import { CustomSignup } from "wasp/server/operations";
 
 export const userSignupFields = defineUserSignupFields({
@@ -38,31 +41,22 @@ export const customSignup: CustomSignup<
   ensureValidPassword(args);
 
   try {
-    await prisma.auth.create({
-      data: {
-        user: {
-          create: {
-            address: args.address,
-          },
+    // The same identity store Wasp's own signup flow uses -- no raw table
+    // access needed. Hashing stays the caller's explicit job.
+    await getIdentityStore("email").createIdentity(
+      args.email,
+      {
+        data: {
+          isEmailVerified: true,
+          emailVerificationSentAt: null,
+          passwordResetSentAt: null,
         },
-        identities: {
-          create: {
-            providerName: "email",
-            providerUserId: args.email,
-            providerData: JSON.stringify({
-              isEmailVerified: true,
-              emailVerificationSentAt: null,
-              passwordResetSentAt: null,
-            }),
-            // Hashing is the caller's explicit job; the secret goes into its
-            // own column, which the Prisma client omits when reading.
-            providerSecrets: JSON.stringify({
-              hashedPassword: await hashPassword(args.password),
-            }),
-          },
+        secrets: {
+          hashedPassword: await hashPassword(args.password),
         },
       },
-    });
+      { address: args.address },
+    );
   } catch (e: any) {
     return {
       success: false,

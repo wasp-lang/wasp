@@ -398,6 +398,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/_types/taggedEntities.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/identityStore.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/index.js
@@ -525,6 +529,7 @@ wasp-app/.wasp/out/sdk/wasp/serialization/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/HttpError.ts
 wasp-app/.wasp/out/sdk/wasp/server/_types/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/_types/taggedEntities.ts
+wasp-app/.wasp/out/sdk/wasp/server/auth/identityStore.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/lucia.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/provider/index.ts

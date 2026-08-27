@@ -2,13 +2,12 @@
 import { Request as ExpressRequest } from 'express'
 import {
   type ProviderId,
-  createUser,
   validateAndGetUserFields,
   createProviderId,
   findAuthWithUserBy,
 } from 'wasp/server/auth/utils'
+import { getIdentityStore } from 'wasp/server/auth/identityStore'
 import { type {= authEntityUpper =} } from 'wasp/entities'
-import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { type OAuthData } from 'wasp/server/auth'
 import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
@@ -64,21 +63,11 @@ async function getAuthIdFromProviderDetails({
   req: ExpressRequest;
   oauth: OAuthData;
 }): Promise<{= authEntityUpper =}['id']> {
-  const existingAuthIdentity = await prisma.{= authIdentityEntityLower =}.findUnique({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    include: {
-      {= authFieldOnAuthIdentityEntityName =}: {
-        include: {
-          {= userFieldOnAuthEntityName =}: true
-        }
-      }
-    }
-  })
+  const identities = getIdentityStore(providerId.providerName)
+  const existingIdentity = await identities.find(providerId.providerUserId)
 
-  if (existingAuthIdentity) {
-    const authId = existingAuthIdentity.{= authFieldOnAuthIdentityEntityName =}.id
+  if (existingIdentity) {
+    const authId = existingIdentity.authId
 
     // NOTE: Fetching the user to pass it to the login hooks - it's a bit wasteful
     // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
@@ -120,8 +109,8 @@ async function getAuthIdFromProviderDetails({
     )
 
     // For now, we don't store any data or secrets for the oauth providers.
-    const user = await createUser(
-      providerId,
+    const user = await identities.createIdentity(
+      providerId.providerUserId,
       {},
       // Using any here because we want to avoid TypeScript errors and
       // rely on Prisma to validate the data.
@@ -134,6 +123,6 @@ async function getAuthIdFromProviderDetails({
       oauth,
     })
 
-    return user.auth.id
+    return user.auth!.id
   }
 }

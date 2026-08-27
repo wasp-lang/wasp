@@ -5,10 +5,9 @@ import { verifyPassword } from 'wasp/server/auth/password'
 
 import {
   createProviderId,
-  findAuthIdentity,
-  findAuthIdentitySecrets,
   findAuthWithUserBy,
 } from 'wasp/server/auth/utils'
+import { getIdentityStore } from 'wasp/server/auth/identityStore'
 import { createSession } from 'wasp/server/auth/session'
 import { ensureValidUsername, ensurePasswordIsPresent } from 'wasp/auth/validation'
 import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
@@ -17,15 +16,16 @@ export default defineHandler(async (req, res) => {
   const fields = req.body ?? {}
   ensureValidArgs(fields)
 
+  const usernameIdentities = getIdentityStore('username')
   const providerId = createProviderId('username', fields.username)
-  const authIdentity = await findAuthIdentity(providerId)
-  if (!authIdentity) {
+  const identity = await usernameIdentities.find(fields.username)
+  if (!identity) {
     throw createInvalidCredentialsError()
   }
 
   try {
     // The secret column is read explicitly and only here in this flow.
-    const secrets = await findAuthIdentitySecrets<'username'>(providerId)
+    const secrets = await usernameIdentities.getSecrets(fields.username)
     if (secrets === null) {
       throw createInvalidCredentialsError()
     }
@@ -35,7 +35,7 @@ export default defineHandler(async (req, res) => {
   }
 
   const auth = await findAuthWithUserBy({
-    id: authIdentity.authId
+    id: identity.authId
   })
 
   if (auth === null) {

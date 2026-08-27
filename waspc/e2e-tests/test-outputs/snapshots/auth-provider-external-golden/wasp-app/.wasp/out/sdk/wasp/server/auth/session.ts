@@ -8,6 +8,7 @@ import * as sessionStore from "./sessionStore.js";
 
 import { prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
+import { getIdentityStore } from './identityStore.js';
 import { validateAndGetUserFields } from './utils.js';
 
 /**
@@ -148,77 +149,37 @@ async function resolveExternalSubject(
   subjectId: string,
   claims: VerifiedSession['claims'],
 ): Promise<string | null> {
-  const providerName = authProvider.id;
+  const identities = getIdentityStore(authProvider.id);
 
-  const existing = await prisma.authIdentity.findUnique({
-    where: {
-      providerName_providerUserId: {
-        providerName: providerName,
-        providerUserId: subjectId,
-      },
-    },
-    select: { authId: true },
-  });
-
+  const existing = await identities.find(subjectId);
   if (existing) {
     return existing.authId;
   }
 
-  try {
-    // The app's `userSignupFields` compute the new user's own fields from the
-    // claims the provider verified -- the only way a user entity with required
-    // columns can be provisioned at all.
-    const userFields = await validateAndGetUserFields(
-      { ...(claims ?? {}) },
-      undefined,
-    );
-
-    const created = await prisma.user.create({
-      data: {
-        // Using `any` to defer validation of required-but-unset fields to
-        // Prisma, which reports them precisely.
-        ...(userFields as any),
-        auth: {
-          create: {
-            identities: {
-              create: {
-                providerName: providerName,
-                providerUserId: subjectId,
-                // The provider-verified profile data (email, name, ...) as of
-                // the moment this subject was first seen. Wasp-written and
-                // read-only afterwards, so its provenance can be trusted.
-                providerClaims: JSON.stringify(claims ?? {}),
-              },
-            },
-          },
-        },
-      },
-      include: { auth: true },
-    });
-    return created.auth!.id;
-  } catch (e: unknown) {
-    // Another request provisioned the same subject between our read and our
-    // write. Its row is the winner; re-read rather than failing the request.
-    if (isUniqueConstraintViolation(e)) {
-      const raced = await prisma.authIdentity.findUnique({
-        where: {
-          providerName_providerUserId: {
-            providerName: providerName,
-            providerUserId: subjectId,
-          },
-        },
-        select: { authId: true },
-      });
-      return raced?.authId ?? null;
-    }
-    throw e;
-  }
-}
-
-function isUniqueConstraintViolation(e: unknown): boolean {
-  return (
-    typeof e === 'object' && e !== null && 'code' in e && (e as { code: unknown }).code === 'P2002'
+  // The app's `userSignupFields` compute the new user's own fields from the
+  // claims the provider verified -- the only way a user entity with required
+  // columns can be provisioned at all. Computed only for brand-new subjects.
+  const userFields = await validateAndGetUserFields(
+    { ...(claims ?? {}) },
+    undefined,
   );
+
+  // `provision` is the store's idempotent create: a concurrent request for the
+  // same brand-new subject is settled by the unique constraint, and the loser
+  // returns the winner's row.
+  const provisioned = await identities.provision(
+    subjectId,
+    {
+      // The provider-verified profile data (email, name, ...) as of the moment
+      // this subject was first seen. Wasp-written and read-only afterwards, so
+      // its provenance can be trusted.
+      claims: { ...(claims ?? {}) },
+    },
+    // Using `any` to defer validation of required-but-unset fields to Prisma,
+    // which reports them precisely.
+    userFields as any,
+  );
+  return provisioned?.authId ?? null;
 }
 
 // PRIVATE API

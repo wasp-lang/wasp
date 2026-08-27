@@ -2,9 +2,9 @@
 import { defineHandler } from 'wasp/server/utils'
 import {
   createProviderId,
-  createUser,
   rethrowPossibleAuthError,
 } from 'wasp/server/auth/utils'
+import { getIdentityStore } from 'wasp/server/auth/identityStore'
 import { hashPassword } from 'wasp/server/auth/password'
 import {
   ensureValidUsername,
@@ -40,8 +40,8 @@ export function getSignupRoute({
     );
 
     try {
-      const user = await createUser<'username'>(
-        providerId,
+      const user = await getIdentityStore('username').createIdentity(
+        fields.username,
         {
           // Hashing is the flow's explicit job -- storage never hashes.
           secrets: {
