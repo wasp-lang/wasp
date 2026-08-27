@@ -8,7 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (find)
-import Data.Maybe (maybeToList)
+import Data.Maybe (isJust, maybeToList)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -105,8 +105,35 @@ genPrismaSchema spec = do
         (Psl.WithCtx.getNode $ head $ Psl.Schema.getDatasources prismaSchemaAst)
 
     generators =
-      -- We are not overriding any values for now in the generator blocks.
-      Psl.Ast.ConfigBlock.overrideKeyValuePairs [] . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
+      ensureAuthPreviewFeatures . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
+
+    -- Wasp omits the auth identity's `providerSecrets` column from the
+    -- generated Prisma client (secrets must never cross a serialization
+    -- boundary by accident), which on Prisma 5 requires the `omitApi` preview
+    -- feature. We add it to the user's client generator block, preserving any
+    -- preview features they enabled themselves.
+    ensureAuthPreviewFeatures configBlock
+      | isAuthEnabled && isPrismaClientJsGenerator configBlock =
+          Psl.Ast.ConfigBlock.overrideKeyValuePairs
+            [("previewFeatures", mergedPreviewFeatures configBlock)]
+            configBlock
+      | otherwise = configBlock
+
+    isAuthEnabled = isJust $ AS.App.auth $ snd $ getApp spec
+
+    isPrismaClientJsGenerator configBlock =
+      ("provider", Psl.Argument.StringExpr "prisma-client-js") `elem` keyValueTuples configBlock
+
+    mergedPreviewFeatures configBlock = case lookup "previewFeatures" (keyValueTuples configBlock) of
+      Just (Psl.Argument.ArrayExpr features)
+        | omitApiFeature `elem` features -> Psl.Argument.ArrayExpr features
+        | otherwise -> Psl.Argument.ArrayExpr (features ++ [omitApiFeature])
+      _ -> Psl.Argument.ArrayExpr [omitApiFeature]
+
+    keyValueTuples (Psl.Ast.ConfigBlock.ConfigBlock _ _ keyValuePairs) =
+      map (\(Psl.Ast.ConfigBlock.KeyValuePair key value) -> (key, value)) keyValuePairs
+
+    omitApiFeature = Psl.Argument.StringExpr "omitApi"
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =

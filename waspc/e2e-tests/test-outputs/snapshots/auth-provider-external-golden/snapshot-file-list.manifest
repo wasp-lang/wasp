@@ -33,6 +33,7 @@ wasp-app/.wasp/out/.waspinfo
 wasp-app/.wasp/out/Dockerfile
 wasp-app/.wasp/out/db/migrations/20260813195733_init/migration.sql
 wasp-app/.wasp/out/db/migrations/20260825133428_add_provider_session_id/migration.sql
+wasp-app/.wasp/out/db/migrations/20260827175123_split_provider_data/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -592,6 +593,7 @@ wasp-app/eslint.config.js
 wasp-app/main.wasp.ts
 wasp-app/migrations/20260813195733_init/migration.sql
 wasp-app/migrations/20260825133428_add_provider_session_id/migration.sql
+wasp-app/migrations/20260827175123_split_provider_data/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json

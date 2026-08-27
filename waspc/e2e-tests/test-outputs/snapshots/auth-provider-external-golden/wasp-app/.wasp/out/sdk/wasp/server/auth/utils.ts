@@ -13,7 +13,11 @@ import {
   type ProviderId,
   type ProviderName,
   type PossibleProviderData,
-  providerDataHasPasswordField,
+  type PossibleProviderSecrets,
+  parseProviderData,
+  parseProviderSecrets,
+  serializeProviderData,
+  serializeProviderSecrets,
 } from '../../auth/providerData.js'
 
 import { type UserSignupFields, type PossibleUserFields } from '../../auth/providers/types.js'
@@ -23,14 +27,18 @@ import { type UserSignupFields, type PossibleUserFields } from '../../auth/provi
 export {
   createProviderId,
   normalizeProviderUserId,
-  getProviderData,
-  getProviderDataWithPassword,
+  parseProviderData,
+  parseProviderSecrets,
   type ProviderId,
   type ProviderName,
   type PossibleProviderData,
+  type PossibleProviderSecrets,
   type EmailProviderData,
+  type EmailProviderSecrets,
   type UsernameProviderData,
+  type UsernameProviderSecrets,
   type OAuthProviderData,
+  type OAuthProviderSecrets,
 } from '../../auth/providerData.js'
 
 // PRIVATE API
@@ -47,7 +55,15 @@ export const authConfig = {
 }
 
 // PUBLIC API
-export async function findAuthIdentity(providerId: ProviderId): Promise<AuthIdentity | null> {
+/**
+ * The auth identity as everything outside auth internals sees it: the secret
+ * column does not exist here -- the Prisma client omits it by default, and only
+ * `findAuthIdentitySecrets` opts back in.
+ */
+export type AuthIdentityWithoutSecrets = Omit<AuthIdentity, 'providerSecrets'>
+
+// PUBLIC API
+export async function findAuthIdentity(providerId: ProviderId): Promise<AuthIdentityWithoutSecrets | null> {
   return prisma.authIdentity.findUnique({
     where: {
       providerName_providerUserId: providerId,
@@ -84,9 +100,17 @@ export type CreateUserResult = User & {
 }
 
 // PUBLIC API
-export async function createUser(
+/**
+ * Creates the user with its auth identity in one atomic write. `data` is the
+ * provider's non-secret state, `secrets` its secret material -- `secrets` must
+ * arrive already hashed (see `setAuthIdentitySecrets`).
+ */
+export async function createUser<PN extends ProviderName>(
   providerId: ProviderId,
-  serializedProviderData?: string,
+  identity?: {
+    data?: PossibleProviderData[PN];
+    secrets?: PossibleProviderSecrets[PN];
+  },
   userFields?: PossibleUserFields,
 ): Promise<CreateUserResult> {
   return prisma.user.create({
@@ -100,7 +124,8 @@ export async function createUser(
               create: {
                   providerName: providerId.providerName,
                   providerUserId: providerId.providerUserId,
-                  providerData: serializedProviderData,
+                  providerData: serializeProviderData<PN>(identity?.data ?? ({} as PossibleProviderData[PN])),
+                  providerSecrets: serializeProviderSecrets<PN>(identity?.secrets ?? ({} as PossibleProviderSecrets[PN])),
               },
           },
         }
@@ -205,7 +230,6 @@ export async function validateAndGetUserFields(
   }
   return result;
 }
-
 
 // PRIVATE API
 export function createInvalidCredentialsError(message?: string): HttpError {

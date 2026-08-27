@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+  provider        = "prisma-client-js"
 }
 
 model User {
@@ -57,11 +58,13 @@ model Auth {
 }
 
 model AuthIdentity {
-  providerName   String
-  providerUserId String
-  providerData   String @default("{}")
-  authId         String
-  auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
+  providerName    String
+  providerUserId  String
+  providerClaims  String @default("{}")
+  providerData    String @default("{}")
+  providerSecrets String @default("{}")
+  authId          String
+  auth            Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
 }

@@ -139,7 +139,9 @@ spec_GeneratorAuthInjectionTest = do
         [trimming|
           providerName String
           providerUserId String
+          providerClaims String @default("{}")
           providerData String @default("{}")
+          providerSecrets String @default("{}")
           authId String
           auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
 

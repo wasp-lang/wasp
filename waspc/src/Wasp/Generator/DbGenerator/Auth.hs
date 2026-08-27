@@ -103,7 +103,17 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           providerName   String
           providerUserId String
 
+          // What the auth provider asserted about this identity at login (email,
+          // name, ...). Written by Wasp when the identity is provisioned and
+          // read-only for everyone else, so app code can trust its provenance.
+          providerClaims String @default("{}")
+          // Non-secret working state the provider keeps for this identity
+          // (e.g. isEmailVerified, verification timestamps).
           providerData String @default("{}")
+          // Secret material (e.g. the password hash). Omitted from the Prisma
+          // client by default so it cannot cross a serialization boundary by
+          // accident; auth internals opt back in per query.
+          providerSecrets String @default("{}")
 
           authId    ${authEntityIdTypeText}
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)

@@ -19,6 +19,7 @@ wasp-app/.wasp/out/db/migrations/20250321140734_add_visibility_enum/migration.sq
 wasp-app/.wasp/out/db/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/.wasp/out/db/migrations/20250604115050_uppercase_text_job_request/migration.sql
 wasp-app/.wasp/out/db/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
+wasp-app/.wasp/out/db/migrations/20260827175200_split_provider_data/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -1058,9 +1059,11 @@ wasp-app/e2e-tests/tests/custom-apis.spec.ts
 wasp-app/e2e-tests/tests/custom-signup.spec.ts
 wasp-app/e2e-tests/tests/helpers.ts
 wasp-app/e2e-tests/tests/lazy-loading.spec.ts
+wasp-app/e2e-tests/tests/logout.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
+wasp-app/e2e-tests/tests/password-reset.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
 wasp-app/e2e-tests/tests/serialization.spec.ts
@@ -1082,6 +1085,7 @@ wasp-app/migrations/20250321140734_add_visibility_enum/migration.sql
 wasp-app/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/migrations/20250604115050_uppercase_text_job_request/migration.sql
 wasp-app/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
+wasp-app/migrations/20260827175200_split_provider_data/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json

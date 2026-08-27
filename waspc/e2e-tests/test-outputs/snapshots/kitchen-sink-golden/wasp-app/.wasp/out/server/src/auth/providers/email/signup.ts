@@ -6,11 +6,11 @@ import {
   deleteUserByAuthId,
   doFakeWork,
   findAuthIdentity,
-  getProviderDataWithPassword,
+  parseProviderData,
   rethrowPossibleAuthError,
-  sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
 } from 'wasp/server/auth/utils'
+import { hashPassword } from 'wasp/server/auth/password'
 import {
   ensurePasswordIsPresent,
   ensureValidEmail,
@@ -74,7 +74,7 @@ export function getSignupRoute({
      *     address unavailable for later account creation (by real owner).
      */
     if (existingAuthIdentity) {
-      const providerData = getProviderDataWithPassword<'email'>(
+      const providerData = parseProviderData<'email'>(
         existingAuthIdentity.providerData,
       )
 
@@ -117,19 +117,20 @@ export function getSignupRoute({
 
     const userFields = await validateAndGetUserFields(fields, userSignupFields)
 
-    const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>(
-      {
-        hashedPassword: fields.password,
-        isEmailVerified: isEmailAutoVerified ? true : false,
-        emailVerificationSentAt: null,
-        passwordResetSentAt: null,
-      },
-    )
-
     try {
-      const user = await createUser(
+      const user = await createUser<'email'>(
         providerId,
-        newUserProviderData,
+        {
+          data: {
+            isEmailVerified: isEmailAutoVerified ? true : false,
+            emailVerificationSentAt: null,
+            passwordResetSentAt: null,
+          },
+          // Hashing is the flow's explicit job -- storage never hashes.
+          secrets: {
+            hashedPassword: await hashPassword(fields.password),
+          },
+        },
         // Using any here because we want to avoid TypeScript errors and
         // rely on Prisma to validate the data.
         userFields as any,

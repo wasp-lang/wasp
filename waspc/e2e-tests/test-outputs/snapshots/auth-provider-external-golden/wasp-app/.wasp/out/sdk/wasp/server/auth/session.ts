@@ -185,8 +185,9 @@ async function resolveExternalSubject(
                 providerName: providerName,
                 providerUserId: subjectId,
                 // The provider-verified profile data (email, name, ...) as of
-                // the moment this subject was first seen.
-                providerData: JSON.stringify(claims ?? {}),
+                // the moment this subject was first seen. Wasp-written and
+                // read-only afterwards, so its provenance can be trusted.
+                providerClaims: JSON.stringify(claims ?? {}),
               },
             },
           },
