@@ -79,9 +79,6 @@ data-files:
   packages/studio/dist/**/*.js
   packages/studio/package-lock.json
   packages/studio/package.json
-  packages/ts-inspect/dist/**/*.js
-  packages/ts-inspect/package-lock.json
-  packages/ts-inspect/package.json
 
 data-dir: data/
 
@@ -134,16 +131,16 @@ library
     aeson-pretty ^>=0.8.10,
     async ^>=2.2.5,
     base >=4.18 && <5,
-    bytestring ^>=0.11.5,
+    bytestring ^>=0.12.2,
     conduit ^>=1.3.6,
     conduit-extra ^>=1.3.7,
-    containers ^>=0.6.7,
+    containers ^>=0.7,
     cryptohash-sha256 ^>=0.11.102,
     directory ^>=1.3.8,
     dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
-    filepath ^>=1.4.301,
+    filepath ^>=1.5.4,
     githash ^>=0.1.7,
     Glob ^>=0.10.2,
     http-conduit ^>=2.3.9,
@@ -161,7 +158,7 @@ library
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
-    text ^>=2.0.2,
+    text ^>=2.1.3,
     time ^>=1.12.2,
     unliftio ^>=0.2.25,
     unordered-containers ^>=0.2.20,
@@ -436,14 +433,12 @@ library
     Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
-    Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
     Wasp.Util.Docker
     Wasp.Util.FilePath
     Wasp.Util.GitRev
-    Wasp.Util.HashMap
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -585,7 +580,7 @@ executable wasp-cli
     base,
     cli-lib,
     waspc,
-    with-utf8 ^>=1.0.2,
+    with-utf8 ^>=1.1.0,
 
   other-modules:
     Paths_waspc
@@ -603,14 +598,12 @@ test-suite waspc-tests
     base,
     containers,
     deepseq,
-    Diff ^>=0.4.1,
     filepath,
     hspec >=2.11,
     megaparsec,
     mtl,
     neat-interpolation,
     parsec,
-    path,
     split,
     strong-path,
     tasty ^>=1.5.3,
@@ -679,9 +672,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    Test.Util
     Util.Control.MonadTest
-    Util.Diff
     Util.DockerTest
     Util.FilePathTest
     Util.IO.RetryTest
@@ -703,6 +694,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    network,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -715,6 +707,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

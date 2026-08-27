@@ -539,18 +539,18 @@ spec_AppSpecValid = do
       it "returns an error for prerendered route with dynamic segment" $ do
         let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" ["/photo/:photoId"] Nothing)
         length errors `shouldBe` 1
-        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
 
       it "returns an error for prerendered route with splat" $ do
         let errors = ASV.validateAppSpec (makeSpec "/files/*" ["/files/*"] Nothing)
         length errors `shouldBe` 1
-        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
 
       it "returns an error for prerendered route with optional segment" $ do
         let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" ["/photo/:id/edit?"] Nothing)
         length errors `shouldBe` 1
         -- Has both : and ?, but we just check at least one error about dynamic segments
-        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
 
       it "returns an error for prerendered route pointing to authRequired page" $ do
         let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just True))
@@ -569,12 +569,12 @@ spec_AppSpecValid = do
       it "returns an error when a listed prerender path is itself dynamic" $ do
         let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/blog/:slug"] Nothing)
         length errors `shouldBe` 1
-        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
 
       it "returns an error when a listed prerender path does not match the route pattern" $ do
         let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/not-blog/intro"] Nothing)
         length errors `shouldBe` 1
-        show (head errors) `shouldSatisfy` ("does not match" `isInfixOf`)
+        errors `shouldSatisfy` any (("does not match" `isInfixOf`) . show)
 
     describe "declaration names validation" $ do
       let testInvalidDeclName makeDecl invalidName = it invalidName $ do

@@ -10805,13 +10805,14 @@ The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any oth
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
-| Option              | Internal value                                                                                    | Why you can't customize it                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `base`              | Based on the [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) option | Wasp sets the React Router's `basename` to the same value.                                                                                                            |
-| `envPrefix`         | `"REACT_APP_"`                                                                                    | Wasp's environment variable validation depends on this prefix.                                                                                                        |
-| `build.outDir`      | `".wasp/out/web-app/build"`                                                                       | Build artifacts must go to the location Wasp expects for deployment.                                                                                                  |
-| `server.port`       | dynamically assigned                                                                              | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it. |
-| `server.strictPort` | `true`                                                                                            | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL.                            |
+| Option              | Internal value                                                                                    | Why you can't customize it                                                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base`              | Based on the [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) option | Wasp sets the React Router's `basename` to the same value.                                                                                                                                                                                |
+| `envPrefix`         | `"REACT_APP_"`                                                                                    | Wasp's environment variable validation depends on this prefix.                                                                                                                                                                            |
+| `build.outDir`      | `".wasp/out/web-app/build"`                                                                       | Build artifacts must go to the location Wasp expects for deployment.                                                                                                                                                                      |
+| `server.port`       | dynamically assigned                                                                              | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it.                                                                     |
+| `server.strictPort` | `true`                                                                                            | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL.                                                                                                |
+| `preview.port`      | dynamically assigned                                                                              | Same as `server.port`, but for the preview server that [`wasp build start`](https://wasp.sh/docs/deployment/local-testing) runs. Use [`wasp build start --client-port`](https://wasp.sh/docs/general/cli#project-commands) to control it. |
 
 ### Customization
 
@@ -12701,15 +12702,13 @@ wasp start
 
 ### Running worktrees at the same time
 
-By default, Wasp apps use ports `3000` and `3001`, and each managed PostgreSQL database uses port `5432`. These ports prevent multiple worktrees from running at the same time.
+`wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands).
+
+Wasp's dev PostgreSQL database still requires port `5432`, so to run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
 :::note
-We are working on automatic port selection for [Wasp apps](https://github.com/wasp-lang/wasp/issues/4471) and [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
+We are working on automatic port selection for [dev databases](https://github.com/wasp-lang/wasp/issues/4529).
 :::
-
-Wasp derives your app's dev URLs from the ports it runs on and sets them for you, so overriding them in `.env.server` or `.env.client` fails. Until automatic port selection lands, run one worktree's app at a time.
-
-Wasp's dev PostgreSQL database requires port `5432`. To run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
 ### Extra resources
 
@@ -15527,7 +15526,7 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
-#### 4. Update Fly database deployment flags
+#### 6. Update Fly database deployment flags
 
 If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
 
@@ -15537,7 +15536,7 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size` |
 | `--volume-size`          | `--db-volume-size`          |
 
-#### 6. Enjoy your updated Wasp app
+#### 7. Enjoy your updated Wasp app
 
 That's it!
 

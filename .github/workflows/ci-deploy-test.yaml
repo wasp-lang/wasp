@@ -126,7 +126,7 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        run: mise use -g github:railwayapp/cli@4.51.0
+        run: mise use -g github:railwayapp/cli@5.28.0
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}

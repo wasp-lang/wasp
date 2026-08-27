@@ -6,6 +6,7 @@ import {
   parseCliVersion,
 } from "../../common/cliVersion.js";
 import { getFullCommandName } from "../../common/commander.js";
+import { createCommand, runJsonCommand } from "../../common/zx.js";
 import { executeFlyCommand } from "./index.js";
 import {
   FlyRegionListSchema,
@@ -94,8 +95,12 @@ export async function assertRegionIsValid(region: string): Promise<void> {
 }
 
 async function regionExists(regionCode: string): Promise<boolean> {
-  const proc = await $`flyctl platform regions -j`.verbose(false);
-  const regions = FlyRegionListSchema.parse(proc.json());
+  const flyCli = createCommand("flyctl");
+  const regions = await runJsonCommand(
+    flyCli,
+    ["platform", "regions", "-j"],
+    FlyRegionListSchema,
+  );
 
   return regions.some((r) => {
     return r.code === regionCode;
@@ -103,7 +108,11 @@ async function regionExists(regionCode: string): Promise<boolean> {
 }
 
 export async function secretExists(secretName: string): Promise<boolean> {
-  const proc = await $`flyctl secrets list -j`;
-  const secrets = FlySecretListSchema.parse(proc.json());
+  const flyCli = createCommand("flyctl");
+  const secrets = await runJsonCommand(
+    flyCli,
+    ["secrets", "list", "-j"],
+    FlySecretListSchema,
+  );
   return secrets.some((s) => s.name === secretName);
 }
