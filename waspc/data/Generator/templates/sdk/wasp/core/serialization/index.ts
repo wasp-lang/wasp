@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { deserialize, serialize } from "superjson"
-import { CustomSerializableJSONValue } from "./custom-register"
+import type { CustomSerializableJSONValue } from "./custom-register.js"
 
 {=# entitiesExist =}
-import "./prisma"
+import "./prisma.js"
 {=/ entitiesExist =}
 
 export type Payload = void | SuperJSONValue;
@@ -53,4 +53,3 @@ export interface SuperJSONObject {
 }
 
 export { deserialize, serialize }
-

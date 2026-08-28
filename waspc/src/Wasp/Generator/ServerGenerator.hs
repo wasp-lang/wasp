@@ -37,8 +37,10 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -67,7 +69,6 @@ import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
@@ -82,7 +83,6 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
-      genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
       genGitignore,
@@ -170,7 +170,8 @@ npmDepsFromWasp spec =
     N.NpmDepsForPackage
       { N.dependencies =
           Npm.Dependency.fromList
-            [ ("cookie-parser", "~1.4.6"),
+            [ ("wasp", "file:../sdk/wasp"),
+              ("cookie-parser", "~1.4.6"),
               ("cors", "^2.8.5"),
               ("express", show expressVersionRange),
               ("morgan", "~1.11.0"),
@@ -243,8 +244,10 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec
+      genFileCopy [relfile|bootstrap.ts|],
+      genServerInitialization spec
     ]
+    <++> sequence [genRuntimeBindings spec]
     <++> genRoutesDir spec
     <++> genViewsDir spec
     <++> genOperationsRoutes spec
@@ -256,12 +259,12 @@ genSrcDir spec =
   where
     genFileCopy = return . C.mkSrcTmplFd
 
-genServerJs :: AppSpec -> Generator FileDraft
-genServerJs spec =
+genServerInitialization :: AppSpec -> Generator FileDraft
+genServerInitialization spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/server.ts|])
-      (C.asServerFile [relfile|src/server.ts|])
+      (C.asTmplFile [relfile|src/initialization.ts|])
+      (C.asServerFile [relfile|src/initialization.ts|])
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
@@ -275,6 +278,33 @@ genServerJs spec =
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
+
+genRuntimeBindings :: AppSpec -> Generator FileDraft
+genRuntimeBindings spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/runtimeBindings.ts|]
+      ( Just $
+          object
+            [ "serverEnvValidationSchema"
+                .= extImportToImportJson [reldirP|./|] maybeServerEnvValidationSchema,
+              "prismaSetupFn"
+                .= extImportToImportJson [reldirP|./|] maybePrismaSetupFn,
+              "operations" .= map operationBindingData (AS.getOperations spec)
+            ]
+      )
+  where
+    maybeServerEnvValidationSchema = AS.App.server (snd $ getApp spec) >>= AS.App.Server.envValidationSchema
+    maybePrismaSetupFn = AS.App.db (snd $ getApp spec) >>= AS.Db.prismaSetupFn
+
+    operationBindingData operation =
+      object
+        [ "operationName" .= AS.Operation.getName operation,
+          "jsFn"
+            .= extImportToImportJson
+              [reldirP|./|]
+              (Just $ AS.Operation.getFn operation)
+        ]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =

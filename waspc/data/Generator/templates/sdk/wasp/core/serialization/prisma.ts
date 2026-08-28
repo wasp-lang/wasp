@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { registerCustom } from "superjson"
-import "./custom-register"
+import "./custom-register.js"
 
 // This file is only added if there are (Prisma) entities in the AppSpec.
 

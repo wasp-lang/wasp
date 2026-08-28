@@ -40,6 +40,20 @@ import "superjson";
 	}
 })();
 //#endregion
+//#region .wasp/out/sdk/wasp/dist/client/runtime.js
+var clientRuntimeBindings;
+function initializeClientRuntime(bindings) {
+	if (clientRuntimeBindings) throw new Error("Wasp client runtime is already initialized");
+	clientRuntimeBindings = bindings;
+}
+function getClientEnvValidationSchema() {
+	if (!clientRuntimeBindings) throw new Error("Wasp client runtime is not initialized (while accessing client environment validation schema)");
+	return clientRuntimeBindings.clientEnvValidationSchema;
+}
+//#endregion
+//#region client-runtime-bindings
+initializeClientRuntime({ clientEnvValidationSchema: void 0 });
+//#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/layout.jsx
 function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
 	const shouldRenderAppContent = useShouldRenderAppContent(isFallbackPage);
@@ -141,7 +155,7 @@ function formatZodEnvError(error) {
 }
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/env/schema.js
-var userClientEnvSchema = z.object({});
+var userClientEnvSchema = getClientEnvValidationSchema() ?? z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
 z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });

@@ -1,10 +1,10 @@
-import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types.js'
 
 import {
   _Entity,
   UnauthenticatedOperationDefinition,
   Payload,
-} from '../_types'
+} from '../_types/index.js'
 
 // PRIVATE API (used in SDK)
 // Explanation:
@@ -64,11 +64,11 @@ export type UnauthenticatedOperationFor<
 export function createUnauthenticatedOperation<
   OperationDefinition extends GenericUnauthenticatedOperationDefinition
 >(
-  getUserOperation: () => OperationDefinition,
+  getUserOperation: () => OperationDefinition | Promise<OperationDefinition>,
   entities: EntityMapFor<OperationDefinition>
 ): UnauthenticatedOperationFor<OperationDefinition> {
   async function operation(payload: Parameters<OperationDefinition>[0]) {
-    return getUserOperation()(payload, {
+    return (await getUserOperation())(payload, {
       entities,
     })
   }

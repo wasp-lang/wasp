@@ -1,12 +1,13 @@
 
-import { prisma } from '../../index'
+import { prisma } from '../../index.js'
+import { getServerOperation } from '../../runtime.js'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
-} from '../wrappers'
-import type { FromRegisterPath } from '../../../types/register'
+} from '../wrappers.js'
+import type { FromRegisterPath } from '../../../types/register.js'
 import type {
   GetTasks,
   GetNumTasks,
@@ -21,20 +22,7 @@ import type {
   GetAnyNoAuth,
   GetAnyAuth,
   GetAnyToNumberSpecified,
-} from './types'
-import { getTasks as getTasks_ext } from 'virtual:wasp/user/features/operations/queries'
-import { getNumTasks as getNumTasks_ext } from 'virtual:wasp/user/features/operations/queries'
-import { getTask as getTask_ext } from 'virtual:wasp/user/features/operations/queries'
-import getOldestTask_ext from 'virtual:wasp/user/features/operations/getOldestTask'
-import { getSerializedObjects as getSerializedObjects_ext } from 'virtual:wasp/user/features/operations/queries'
-import { getTextUppercaseRequests as getTextUppercaseRequests_ext } from 'virtual:wasp/user/features/jobs/uppercaseText'
-import { getDate as getDate_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnythingNoAuth as getAnythingNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnythingAuth as getAnythingAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getTrueVoid as getTrueVoid_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnyNoAuth as getAnyNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnyAuth as getAnyAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { getAnyToNumberSpecified as getAnyToNumberSpecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+} from './types.js'
 
 // PRIVATE API
 export type RegisteredGetTasks = FromRegisterPath<['operations', 'getTasks'], GetTasks>
@@ -42,7 +30,7 @@ export type RegisteredGetTasks = FromRegisterPath<['operations', 'getTasks'], Ge
 // PUBLIC API
 export const getTasks: AuthenticatedOperationFor<RegisteredGetTasks> =
   createAuthenticatedOperation<RegisteredGetTasks>(
-    () => getTasks_ext,
+    () => getServerOperation<RegisteredGetTasks>('getTasks'),
     {
       Task: prisma.task,
     },
@@ -55,7 +43,7 @@ export type RegisteredGetNumTasks = FromRegisterPath<['operations', 'getNumTasks
 // PUBLIC API
 export const getNumTasks: UnauthenticatedOperationFor<RegisteredGetNumTasks> =
   createUnauthenticatedOperation<RegisteredGetNumTasks>(
-    () => getNumTasks_ext,
+    () => getServerOperation<RegisteredGetNumTasks>('getNumTasks'),
     {
       Task: prisma.task,
     },
@@ -68,7 +56,7 @@ export type RegisteredGetTask = FromRegisterPath<['operations', 'getTask'], GetT
 // PUBLIC API
 export const getTask: AuthenticatedOperationFor<RegisteredGetTask> =
   createAuthenticatedOperation<RegisteredGetTask>(
-    () => getTask_ext,
+    () => getServerOperation<RegisteredGetTask>('getTask'),
     {
       Task: prisma.task,
     },
@@ -81,7 +69,7 @@ export type RegisteredGetOldestTask = FromRegisterPath<['operations', 'getOldest
 // PUBLIC API
 export const getOldestTask: AuthenticatedOperationFor<RegisteredGetOldestTask> =
   createAuthenticatedOperation<RegisteredGetOldestTask>(
-    () => getOldestTask_ext,
+    () => getServerOperation<RegisteredGetOldestTask>('getOldestTask'),
     {
       Task: prisma.task,
     },
@@ -94,7 +82,7 @@ export type RegisteredGetSerializedObjects = FromRegisterPath<['operations', 'ge
 // PUBLIC API
 export const getSerializedObjects: AuthenticatedOperationFor<RegisteredGetSerializedObjects> =
   createAuthenticatedOperation<RegisteredGetSerializedObjects>(
-    () => getSerializedObjects_ext,
+    () => getServerOperation<RegisteredGetSerializedObjects>('getSerializedObjects'),
     {
     },
   )
@@ -106,7 +94,7 @@ export type RegisteredGetTextUppercaseRequests = FromRegisterPath<['operations',
 // PUBLIC API
 export const getTextUppercaseRequests: AuthenticatedOperationFor<RegisteredGetTextUppercaseRequests> =
   createAuthenticatedOperation<RegisteredGetTextUppercaseRequests>(
-    () => getTextUppercaseRequests_ext,
+    () => getServerOperation<RegisteredGetTextUppercaseRequests>('getTextUppercaseRequests'),
     {
       UppercaseTextRequest: prisma.uppercaseTextRequest,
     },
@@ -119,7 +107,7 @@ export type RegisteredGetDate = FromRegisterPath<['operations', 'getDate'], GetD
 // PUBLIC API
 export const getDate: AuthenticatedOperationFor<RegisteredGetDate> =
   createAuthenticatedOperation<RegisteredGetDate>(
-    () => getDate_ext,
+    () => getServerOperation<RegisteredGetDate>('getDate'),
     {
     },
   )
@@ -131,7 +119,7 @@ export type RegisteredGetAnythingNoAuth = FromRegisterPath<['operations', 'getAn
 // PUBLIC API
 export const getAnythingNoAuth: UnauthenticatedOperationFor<RegisteredGetAnythingNoAuth> =
   createUnauthenticatedOperation<RegisteredGetAnythingNoAuth>(
-    () => getAnythingNoAuth_ext,
+    () => getServerOperation<RegisteredGetAnythingNoAuth>('getAnythingNoAuth'),
     {
     },
   )
@@ -143,7 +131,7 @@ export type RegisteredGetAnythingAuth = FromRegisterPath<['operations', 'getAnyt
 // PUBLIC API
 export const getAnythingAuth: AuthenticatedOperationFor<RegisteredGetAnythingAuth> =
   createAuthenticatedOperation<RegisteredGetAnythingAuth>(
-    () => getAnythingAuth_ext,
+    () => getServerOperation<RegisteredGetAnythingAuth>('getAnythingAuth'),
     {
     },
   )
@@ -155,7 +143,7 @@ export type RegisteredGetTrueVoid = FromRegisterPath<['operations', 'getTrueVoid
 // PUBLIC API
 export const getTrueVoid: AuthenticatedOperationFor<RegisteredGetTrueVoid> =
   createAuthenticatedOperation<RegisteredGetTrueVoid>(
-    () => getTrueVoid_ext,
+    () => getServerOperation<RegisteredGetTrueVoid>('getTrueVoid'),
     {
     },
   )
@@ -167,7 +155,7 @@ export type RegisteredGetAnyNoAuth = FromRegisterPath<['operations', 'getAnyNoAu
 // PUBLIC API
 export const getAnyNoAuth: UnauthenticatedOperationFor<RegisteredGetAnyNoAuth> =
   createUnauthenticatedOperation<RegisteredGetAnyNoAuth>(
-    () => getAnyNoAuth_ext,
+    () => getServerOperation<RegisteredGetAnyNoAuth>('getAnyNoAuth'),
     {
     },
   )
@@ -179,7 +167,7 @@ export type RegisteredGetAnyAuth = FromRegisterPath<['operations', 'getAnyAuth']
 // PUBLIC API
 export const getAnyAuth: AuthenticatedOperationFor<RegisteredGetAnyAuth> =
   createAuthenticatedOperation<RegisteredGetAnyAuth>(
-    () => getAnyAuth_ext,
+    () => getServerOperation<RegisteredGetAnyAuth>('getAnyAuth'),
     {
     },
   )
@@ -191,7 +179,7 @@ export type RegisteredGetAnyToNumberSpecified = FromRegisterPath<['operations', 
 // PUBLIC API
 export const getAnyToNumberSpecified: AuthenticatedOperationFor<RegisteredGetAnyToNumberSpecified> =
   createAuthenticatedOperation<RegisteredGetAnyToNumberSpecified>(
-    () => getAnyToNumberSpecified_ext,
+    () => getServerOperation<RegisteredGetAnyToNumberSpecified>('getAnyToNumberSpecified'),
     {
     },
   )

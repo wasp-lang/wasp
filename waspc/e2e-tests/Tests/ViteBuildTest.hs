@@ -11,6 +11,7 @@ import ShellCommands
     appendToFile,
     createTestWaspProject,
     inTestWaspProjectDir,
+    replaceMainWaspTsFile,
     setWaspDbToPSQL,
     waspCliBuild,
     writeToFile,
@@ -64,6 +65,16 @@ viteBuildTest =
             ]
         ),
       TestCase
+        "fail-on-missing-custom-client-env-var"
+        ( createClientEnvSchemaViteBuildTestCase
+            [expectCommandFailure <$> viteBuildWithApiUrl]
+        ),
+      TestCase
+        "success-with-custom-client-env-var"
+        ( createClientEnvSchemaViteBuildTestCase
+            [appendInlineEnvVars [apiUrlEnvVar, customEnvVar] <$> viteBuild]
+        ),
+      TestCase
         "fail-on-user-code-type-error"
         ( createViteBuildTestCase
             [ addTypeErrorToSrcFile,
@@ -93,6 +104,20 @@ viteBuildTest =
           inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
         ]
 
+    createClientEnvSchemaViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
+    createClientEnvSchemaViteBuildTestCase commands =
+      sequence
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir $
+            [ setWaspDbToPSQL,
+              writeClientEnvSchema,
+              writeClientEnvMainPageTsx,
+              replaceMainWaspTsFile mainWaspTsWithClientEnvSchema,
+              waspCliBuild
+            ]
+              ++ commands
+        ]
+
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"
 
@@ -113,6 +138,48 @@ viteBuildTest =
             return <h2>{import.meta.env.${testEnvVarKeyText}}</h2>
           }
         |]
+
+    writeClientEnvSchema :: ShellCommandBuilder WaspProjectContext ShellCommand
+    writeClientEnvSchema = do
+      waspProjectContext <- ask
+      writeToFile
+        (waspProjectContext.waspProjectDir </> [relfile|src/env.ts|])
+        [trimming|
+          import { defineEnvValidationSchema } from "wasp/env";
+          import * as z from "zod";
+
+          export const clientEnvValidationSchema = defineEnvValidationSchema(z.object({
+            REACT_APP_CUSTOM: z.string(),
+          }));
+        |]
+
+    writeClientEnvMainPageTsx :: ShellCommandBuilder WaspProjectContext ShellCommand
+    writeClientEnvMainPageTsx = do
+      waspProjectContext <- ask
+      writeToFile
+        (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|])
+        [trimming|
+          import { env } from "wasp/client";
+
+          export function MainPage() {
+            return <h2>{env.REACT_APP_CUSTOM}</h2>;
+          }
+        |]
+
+    mainWaspTsWithClientEnvSchema =
+      [trimming|
+        import { app, page, route } from "@wasp.sh/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { clientEnvValidationSchema } from "./src/env" with { type: "ref" };
+
+        export default app({
+          name: "ClientEnvSchemaTest",
+          wasp: { version: "0.26.0" },
+          title: "Client Env Schema Test",
+          client: { envValidationSchema: clientEnvValidationSchema },
+          spec: [route("RootRoute", "/", page(MainPage))],
+        });
+      |]
 
     writeViteConfigWithServerPort :: ShellCommandBuilder WaspProjectContext ShellCommand
     writeViteConfigWithServerPort = do
@@ -155,6 +222,9 @@ viteBuildTest =
 
     apiUrlEnvVar :: (String, String)
     apiUrlEnvVar = ("REACT_APP_API_URL", "http://localhost:3001")
+
+    customEnvVar :: (String, String)
+    customEnvVar = ("REACT_APP_CUSTOM", "CustomValue")
 
     testEnvVarKey :: String
     testEnvVarKey = "REACT_APP_NAME"

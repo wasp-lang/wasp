@@ -2,21 +2,17 @@
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import type { FromRegister } from '../types/register'
-{=# prismaSetupFn.isDefined =}
-{=& prismaSetupFn.importStatement =}
-{=/ prismaSetupFn.isDefined =}
+import { getServerPrismaSetupFn } from './runtime.js'
 
 // PUBLIC API
 export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
 
 export type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
 
-{=# prismaSetupFn.isDefined =}
-const dbClient: PrismaClient =  {= prismaSetupFn.importIdentifier =}();
-{=/ prismaSetupFn.isDefined =}
-{=^ prismaSetupFn.isDefined =}
-const dbClient: PrismaClient = new InternalPrismaClient();
-{=/ prismaSetupFn.isDefined =}
+const prismaSetupFn = getServerPrismaSetupFn();
+const dbClient: PrismaClient = prismaSetupFn
+  ? (prismaSetupFn() as PrismaClient)
+  : new InternalPrismaClient();
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
 export type PrismaClient = null;

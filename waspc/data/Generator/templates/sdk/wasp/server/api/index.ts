@@ -12,7 +12,7 @@ import {
   {=# shouldImportAuthenticatedApi =}
   type AuthenticatedApi,
   {=/ shouldImportAuthenticatedApi =}
-} from '../_types'
+} from '../_types/index.js'
 
 
 // PUBLIC API

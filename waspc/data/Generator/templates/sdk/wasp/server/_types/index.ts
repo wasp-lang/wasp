@@ -9,10 +9,10 @@ import { prisma } from '../index.js'
 {=# isAuthEnabled =}
 import { type AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
-import { type _Entity } from './taggedEntities'
+import { type _Entity } from './taggedEntities.js'
 import { type Payload } from '../../core/serialization/index.js'
 
-export * from "./taggedEntities"
+export * from "./taggedEntities.js"
 export * from "../../core/serialization/index.js"
 
 export type UnauthenticatedQueryDefinition<

@@ -3,7 +3,7 @@
 import { Server } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
-import { prisma } from '../index'
+import { prisma } from '../index.js'
 import type { FromRegister } from '../../types/register'
 {=# isAuthEnabled =}
 import { type AuthUser } from '../../auth/user.js'

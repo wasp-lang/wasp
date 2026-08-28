@@ -304,6 +304,10 @@
             {
                 "name": "superjson",
                 "version": "^2.2.1"
+            },
+            {
+                "name": "wasp",
+                "version": "file:../sdk/wasp"
             }
         ],
         "devDependencies": [

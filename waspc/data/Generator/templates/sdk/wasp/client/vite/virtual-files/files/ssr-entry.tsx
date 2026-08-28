@@ -1,4 +1,6 @@
 {{={= =}=}}
+import "virtual:wasp/client-runtime-bindings";
+
 import type { PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";

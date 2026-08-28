@@ -1,12 +1,13 @@
 
-import { prisma } from '../../index'
+import { prisma } from '../../index.js'
+import { getServerOperation } from '../../runtime.js'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
-} from '../wrappers'
-import type { FromRegisterPath } from '../../../types/register'
+} from '../wrappers.js'
+import type { FromRegisterPath } from '../../../types/register.js'
 import type {
   CustomSignup,
   CreateTask,
@@ -26,25 +27,7 @@ import type {
   BoolToVoidNoAuth,
   BoolToVoidAuth,
   JsActionWithArgs,
-} from './types'
-import { customSignup as customSignup_ext } from 'virtual:wasp/user/features/auth/customSignup'
-import { createTask as createTask_ext } from 'virtual:wasp/user/features/operations/actions'
-import { updateTaskIsDone as updateTaskIsDone_ext } from 'virtual:wasp/user/features/operations/actions'
-import { deleteCompletedTasks as deleteCompletedTasks_ext } from 'virtual:wasp/user/features/operations/actions'
-import { toggleAllTasks as toggleAllTasks_ext } from 'virtual:wasp/user/features/operations/actions'
-import { requestUppercaseText as requestUppercaseText_ext } from 'virtual:wasp/user/features/jobs/uppercaseText'
-import { testingAction as testingAction_ext } from 'virtual:wasp/user/rpcTests/operations/server'
-import { taskToTaskUnspecified as taskToTaskUnspecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { taskToTaskSatisfies as taskToTaskSatisfies_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { taskToTaskSpecified as taskToTaskSpecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { voidToStringAuth as voidToStringAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { voidToStringNoAuth as voidToStringNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { unspecifiedToNumber as unspecifiedToNumber_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToStringAuth as boolToStringAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToStringNoAuth as boolToStringNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToVoidNoAuth as boolToVoidNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { boolToVoidAuth as boolToVoidAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
-import { jsActionWithArgs as jsActionWithArgs_ext } from 'virtual:wasp/user/rpcTests/operations/jsDefinitions'
+} from './types.js'
 
 // PRIVATE API
 export type RegisteredCustomSignup = FromRegisterPath<['operations', 'customSignup'], CustomSignup>
@@ -52,7 +35,7 @@ export type RegisteredCustomSignup = FromRegisterPath<['operations', 'customSign
 // PUBLIC API
 export const customSignup: AuthenticatedOperationFor<RegisteredCustomSignup> =
   createAuthenticatedOperation<RegisteredCustomSignup>(
-    () => customSignup_ext,
+    () => getServerOperation<RegisteredCustomSignup>('customSignup'),
     {
     },
   )
@@ -63,7 +46,7 @@ export type RegisteredCreateTask = FromRegisterPath<['operations', 'createTask']
 // PUBLIC API
 export const createTask: AuthenticatedOperationFor<RegisteredCreateTask> =
   createAuthenticatedOperation<RegisteredCreateTask>(
-    () => createTask_ext,
+    () => getServerOperation<RegisteredCreateTask>('createTask'),
     {
       Task: prisma.task,
     },
@@ -75,7 +58,7 @@ export type RegisteredUpdateTaskIsDone = FromRegisterPath<['operations', 'update
 // PUBLIC API
 export const updateTaskIsDone: AuthenticatedOperationFor<RegisteredUpdateTaskIsDone> =
   createAuthenticatedOperation<RegisteredUpdateTaskIsDone>(
-    () => updateTaskIsDone_ext,
+    () => getServerOperation<RegisteredUpdateTaskIsDone>('updateTaskIsDone'),
     {
       Task: prisma.task,
     },
@@ -87,7 +70,7 @@ export type RegisteredDeleteCompletedTasks = FromRegisterPath<['operations', 'de
 // PUBLIC API
 export const deleteCompletedTasks: AuthenticatedOperationFor<RegisteredDeleteCompletedTasks> =
   createAuthenticatedOperation<RegisteredDeleteCompletedTasks>(
-    () => deleteCompletedTasks_ext,
+    () => getServerOperation<RegisteredDeleteCompletedTasks>('deleteCompletedTasks'),
     {
       Task: prisma.task,
     },
@@ -99,7 +82,7 @@ export type RegisteredToggleAllTasks = FromRegisterPath<['operations', 'toggleAl
 // PUBLIC API
 export const toggleAllTasks: AuthenticatedOperationFor<RegisteredToggleAllTasks> =
   createAuthenticatedOperation<RegisteredToggleAllTasks>(
-    () => toggleAllTasks_ext,
+    () => getServerOperation<RegisteredToggleAllTasks>('toggleAllTasks'),
     {
       Task: prisma.task,
     },
@@ -111,7 +94,7 @@ export type RegisteredRequestUppercaseText = FromRegisterPath<['operations', 're
 // PUBLIC API
 export const requestUppercaseText: AuthenticatedOperationFor<RegisteredRequestUppercaseText> =
   createAuthenticatedOperation<RegisteredRequestUppercaseText>(
-    () => requestUppercaseText_ext,
+    () => getServerOperation<RegisteredRequestUppercaseText>('requestUppercaseText'),
     {
       UppercaseTextRequest: prisma.uppercaseTextRequest,
     },
@@ -123,7 +106,7 @@ export type RegisteredTestingAction = FromRegisterPath<['operations', 'testingAc
 // PUBLIC API
 export const testingAction: AuthenticatedOperationFor<RegisteredTestingAction> =
   createAuthenticatedOperation<RegisteredTestingAction>(
-    () => testingAction_ext,
+    () => getServerOperation<RegisteredTestingAction>('testingAction'),
     {
     },
   )
@@ -134,7 +117,7 @@ export type RegisteredTaskToTaskUnspecified = FromRegisterPath<['operations', 't
 // PUBLIC API
 export const taskToTaskUnspecified: AuthenticatedOperationFor<RegisteredTaskToTaskUnspecified> =
   createAuthenticatedOperation<RegisteredTaskToTaskUnspecified>(
-    () => taskToTaskUnspecified_ext,
+    () => getServerOperation<RegisteredTaskToTaskUnspecified>('taskToTaskUnspecified'),
     {
       Task: prisma.task,
     },
@@ -146,7 +129,7 @@ export type RegisteredTaskToTaskSatisfies = FromRegisterPath<['operations', 'tas
 // PUBLIC API
 export const taskToTaskSatisfies: AuthenticatedOperationFor<RegisteredTaskToTaskSatisfies> =
   createAuthenticatedOperation<RegisteredTaskToTaskSatisfies>(
-    () => taskToTaskSatisfies_ext,
+    () => getServerOperation<RegisteredTaskToTaskSatisfies>('taskToTaskSatisfies'),
     {
       Task: prisma.task,
     },
@@ -158,7 +141,7 @@ export type RegisteredTaskToTaskSpecified = FromRegisterPath<['operations', 'tas
 // PUBLIC API
 export const taskToTaskSpecified: AuthenticatedOperationFor<RegisteredTaskToTaskSpecified> =
   createAuthenticatedOperation<RegisteredTaskToTaskSpecified>(
-    () => taskToTaskSpecified_ext,
+    () => getServerOperation<RegisteredTaskToTaskSpecified>('taskToTaskSpecified'),
     {
       Task: prisma.task,
     },
@@ -170,7 +153,7 @@ export type RegisteredVoidToStringAuth = FromRegisterPath<['operations', 'voidTo
 // PUBLIC API
 export const voidToStringAuth: AuthenticatedOperationFor<RegisteredVoidToStringAuth> =
   createAuthenticatedOperation<RegisteredVoidToStringAuth>(
-    () => voidToStringAuth_ext,
+    () => getServerOperation<RegisteredVoidToStringAuth>('voidToStringAuth'),
     {
       Task: prisma.task,
     },
@@ -182,7 +165,7 @@ export type RegisteredVoidToStringNoAuth = FromRegisterPath<['operations', 'void
 // PUBLIC API
 export const voidToStringNoAuth: UnauthenticatedOperationFor<RegisteredVoidToStringNoAuth> =
   createUnauthenticatedOperation<RegisteredVoidToStringNoAuth>(
-    () => voidToStringNoAuth_ext,
+    () => getServerOperation<RegisteredVoidToStringNoAuth>('voidToStringNoAuth'),
     {
       Task: prisma.task,
     },
@@ -194,7 +177,7 @@ export type RegisteredUnspecifiedToNumber = FromRegisterPath<['operations', 'uns
 // PUBLIC API
 export const unspecifiedToNumber: AuthenticatedOperationFor<RegisteredUnspecifiedToNumber> =
   createAuthenticatedOperation<RegisteredUnspecifiedToNumber>(
-    () => unspecifiedToNumber_ext,
+    () => getServerOperation<RegisteredUnspecifiedToNumber>('unspecifiedToNumber'),
     {
       Task: prisma.task,
     },
@@ -206,7 +189,7 @@ export type RegisteredBoolToStringAuth = FromRegisterPath<['operations', 'boolTo
 // PUBLIC API
 export const boolToStringAuth: AuthenticatedOperationFor<RegisteredBoolToStringAuth> =
   createAuthenticatedOperation<RegisteredBoolToStringAuth>(
-    () => boolToStringAuth_ext,
+    () => getServerOperation<RegisteredBoolToStringAuth>('boolToStringAuth'),
     {
       Task: prisma.task,
     },
@@ -218,7 +201,7 @@ export type RegisteredBoolToStringNoAuth = FromRegisterPath<['operations', 'bool
 // PUBLIC API
 export const boolToStringNoAuth: UnauthenticatedOperationFor<RegisteredBoolToStringNoAuth> =
   createUnauthenticatedOperation<RegisteredBoolToStringNoAuth>(
-    () => boolToStringNoAuth_ext,
+    () => getServerOperation<RegisteredBoolToStringNoAuth>('boolToStringNoAuth'),
     {
       Task: prisma.task,
     },
@@ -230,7 +213,7 @@ export type RegisteredBoolToVoidNoAuth = FromRegisterPath<['operations', 'boolTo
 // PUBLIC API
 export const boolToVoidNoAuth: UnauthenticatedOperationFor<RegisteredBoolToVoidNoAuth> =
   createUnauthenticatedOperation<RegisteredBoolToVoidNoAuth>(
-    () => boolToVoidNoAuth_ext,
+    () => getServerOperation<RegisteredBoolToVoidNoAuth>('boolToVoidNoAuth'),
     {
       Task: prisma.task,
     },
@@ -242,7 +225,7 @@ export type RegisteredBoolToVoidAuth = FromRegisterPath<['operations', 'boolToVo
 // PUBLIC API
 export const boolToVoidAuth: AuthenticatedOperationFor<RegisteredBoolToVoidAuth> =
   createAuthenticatedOperation<RegisteredBoolToVoidAuth>(
-    () => boolToVoidAuth_ext,
+    () => getServerOperation<RegisteredBoolToVoidAuth>('boolToVoidAuth'),
     {
       Task: prisma.task,
     },
@@ -254,7 +237,7 @@ export type RegisteredJsActionWithArgs = FromRegisterPath<['operations', 'jsActi
 // PUBLIC API
 export const jsActionWithArgs: AuthenticatedOperationFor<RegisteredJsActionWithArgs> =
   createAuthenticatedOperation<RegisteredJsActionWithArgs>(
-    () => jsActionWithArgs_ext,
+    () => getServerOperation<RegisteredJsActionWithArgs>('jsActionWithArgs'),
     {
       Task: prisma.task,
     },

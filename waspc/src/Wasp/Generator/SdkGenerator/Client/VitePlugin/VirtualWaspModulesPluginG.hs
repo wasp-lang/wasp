@@ -9,10 +9,13 @@ import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (jsImportToImportJson)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, clientRuntimeBindingsEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -25,6 +28,7 @@ genVirtualWaspModulesPlugin spec =
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
+      genVirtualClientRuntimeBindingsTs spec,
       genVirtualSsrEntryTsx spec,
       genVirtualRoutesTsx spec
     ]
@@ -52,6 +56,7 @@ genVirtualWaspModulesTs =
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
+          "clientRuntimeBindingsEntryPointPath" .= clientRuntimeBindingsEntryPointPath,
           "routesEntryPointPath" .= routesEntryPointPath,
           "ssrEntryPointPath" .= ssrEntryPointPath
         ]
@@ -81,8 +86,22 @@ genVirtualSsrEntryTsx spec =
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
 
+genVirtualClientRuntimeBindingsTs :: AppSpec -> Generator FileDraft
+genVirtualClientRuntimeBindingsTs spec =
+  return $
+    C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-runtime-bindings.ts|]
+    tmplData =
+      object
+        [ "clientEnvValidationSchema"
+            .= GJI.jsImportToImportJson
+              (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeClientEnvValidationSchema)
+        ]
+    maybeClientEnvValidationSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
+
 routeObjectsImportJson :: Value
 routeObjectsImportJson =
-  jsImportToImportJson $
+  GJI.jsImportToImportJson $
     Just $
       makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")

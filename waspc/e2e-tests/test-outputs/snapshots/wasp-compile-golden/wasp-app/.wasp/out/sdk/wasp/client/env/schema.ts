@@ -1,10 +1,11 @@
 import * as z from "zod"
 import { FromRegister } from "../../types/register";
+import { getClientEnvValidationSchema } from "wasp/client/runtime"
 
 export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
 type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
 
-const userClientEnvSchema: UserClientEnvSchema = z.object({});
+const userClientEnvSchema = (getClientEnvValidationSchema() ?? z.object({})) as UserClientEnvSchema;
 
 const serverUrlSchema =
   z.string({

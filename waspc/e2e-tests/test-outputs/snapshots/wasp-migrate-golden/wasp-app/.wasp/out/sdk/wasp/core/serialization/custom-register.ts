@@ -2,7 +2,7 @@ import type { WaspInternal_CustomSerializableJSONValue_Register } from "superjso
 
 /*
   This is a workaround for declaring custom types through side-effects in
-  TypeScript. This way a bare import, like `import "./prisma"` will register
+  TypeScript. This way a bare import, like `import "./prisma.js"` will register
   itself as a custom serialization in the type-level, like it does at the
   runtime-level.
 

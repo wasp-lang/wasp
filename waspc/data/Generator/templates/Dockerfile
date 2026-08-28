@@ -49,7 +49,7 @@ COPY db/schema.prisma .wasp/out/db/
 RUN cd .wasp/out/server && npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
 {=/ usingPrisma =}
 # Building the server should come after Prisma generation.
-RUN cd .wasp/out/server && npm run bundle
+RUN cd .wasp/out/server && npm run build
 
 # Depending on `npm`'s dependency resolution, this folder may or may not exist.
 # We ensure they are created so that the COPY instruction later does not fail.
@@ -66,11 +66,12 @@ WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages
 # necessary for migrating the database.
 COPY --from=server-builder /app/node_modules ./node_modules
+COPY --from=server-builder /app/.wasp/out/sdk .wasp/out/sdk
 # Copying 'server/node_modules' because we require dotenv package to
 # load environment variables
 # TODO: replace dotenv with native Node.js environment variable loading
 COPY --from=server-builder /app/.wasp/out/server/node_modules .wasp/out/server/node_modules
-COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
+COPY --from=server-builder /app/.wasp/out/server/build .wasp/out/server/build
 COPY --from=server-builder /app/.wasp/out/server/package*.json .wasp/out/server/
 COPY db/ .wasp/out/db/
 EXPOSE ${PORT}

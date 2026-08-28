@@ -45,7 +45,7 @@ services:
       cd .wasp/out/server &&
       npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
-      npm run bundle
+      npm run build
     startCommand: cd .wasp/out/server && npm run start-production
     envVars:
       - key: DATABASE_URL

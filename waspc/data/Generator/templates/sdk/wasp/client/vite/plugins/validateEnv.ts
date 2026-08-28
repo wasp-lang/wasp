@@ -9,6 +9,7 @@ import {
 
 const PLUGIN_NAME = "wasp:validate-env";
 const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "{= clientEnvSchemaValidationModulePath =}"
+const CLIENT_RUNTIME_BINDINGS_MODULE = "{= clientRuntimeBindingsEntryPointPath =}"
 
 export function validateEnv(): Plugin {
   let resolvedConfig: ResolvedConfig;
@@ -20,69 +21,57 @@ export function validateEnv(): Plugin {
     },
     // We validate just before any artifacts are built.
     async buildStart() {
-      // We need to import the client env schema validation module
-      // through a Vite server, because both the user and the Wasp schema
-      // modules may depend on bundler features.
-      // Because of that we spin up a temporary Vite server.
-      //
-      // Alternatively, for `serve`, we could use the Vite server provided
-      // through the `configureServer` hook, but that would complicate
-      // the solution for negligible performance benefits.
-      const tempServer = await createViteServer({
-        root: resolvedConfig.root,
-        mode: resolvedConfig.mode,
-        // To ensure we pick up all user-defined plugins (resolution matches the main build)
-        // while avoiding recursion. This includes the `wasp` plugin.
-        configFile: false,
-        plugins: resolvedConfig.plugins
-          .filter((plugin) => plugin.name !== PLUGIN_NAME)
-
-          // Ignore `vite:`-prefixed plugins since Vite will recreate them for
-          // the temporary server anyway.
-          .filter((plugin) => !plugin.name.startsWith("vite:"))
-
-          // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
-          // wire long-lived behavior into a dev or preview server: middleware,
-          // websocket handlers, file watchers, and similar background tasks.
-          //
-          // Plugins are supposed to clean these up by returning a teardown
-          // function from the hook, but some forget to, so resources they
-          // allocate end up outliving the server. This forces the original
-          // Vite process to be alive indefinitely.
-          //
-          // We don't need either hook to validate the client env schema.
-          // We only need module resolution and transforms.
-          .map((plugin) => ({
-            ...plugin,
-            configureServer: undefined,
-            configurePreviewServer: undefined,
-          })),
-
-        // Minimize side effects from spinning up a temporary dev server.
-        appType: 'custom',      // avoid HTML handling
-        server: {
-          middlewareMode: true, // do not start an actual HTTP server
-          watch: null,
-          hmr: false
-        },
-        logLevel: "silent",
-        optimizeDeps: { noDiscovery: true, include: [] },
-        clearScreen: false,
-      });
-
-      try {
-        // Vite's `ssr` means bundled for "backend JS runtime", like Node.
-        // This environment is always runnable in vite dev server.
-        if (!isRunnableDevEnvironment(tempServer.environments.ssr)) {
-          throw new Error(`Expected ssr to be a runnable dev environment`)
-        }
-        // The imported module runs env schema validation as an import
-        // side-effect and throws on failure.
-        const moduleAbsPath = path.resolve(resolvedConfig.root, CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
-        await tempServer.environments.ssr.runner.import(moduleAbsPath);
-      } finally {
-        await tempServer.close();
-      }
+      await validateClientEnv(resolvedConfig);
     },
   };
+}
+
+export async function validateClientEnv(resolvedConfig: ResolvedConfig): Promise<void> {
+  // We need to import the client env schema validation module through a Vite
+  // server because both the user and Wasp schema modules may use bundler features.
+  const tempServer = await createViteServer({
+    root: resolvedConfig.root,
+    mode: resolvedConfig.mode,
+    // Reuse user-defined resolution and transforms while avoiding validation recursion.
+    configFile: false,
+    plugins: resolvedConfig.plugins
+      .filter((plugin) => plugin.name !== PLUGIN_NAME)
+
+      // Ignore `vite:`-prefixed plugins since Vite recreates them for the temporary server.
+      .filter((plugin) => !plugin.name.startsWith("vite:"))
+
+      // Avoid starting middleware, watchers, and other long-lived plugin behavior.
+      .map((plugin) => ({
+        ...plugin,
+        configureServer: undefined,
+        configurePreviewServer: undefined,
+      })),
+
+    // Minimize side effects from spinning up a temporary dev server.
+    appType: 'custom',
+    server: {
+      middlewareMode: true,
+      watch: null,
+      hmr: false
+    },
+    logLevel: "silent",
+    optimizeDeps: { noDiscovery: true, include: [] },
+    clearScreen: false,
+  });
+
+  try {
+    // Vite's `ssr` means bundled for a backend JS runtime such as Node.
+    if (!isRunnableDevEnvironment(tempServer.environments.ssr)) {
+      throw new Error(`Expected ssr to be a runnable dev environment`)
+    }
+
+    const runner = tempServer.environments.ssr.runner;
+    await runner.import(CLIENT_RUNTIME_BINDINGS_MODULE);
+
+    // Importing this module validates the client environment as a side effect.
+    const moduleAbsPath = path.resolve(resolvedConfig.root, CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
+    await runner.import(moduleAbsPath);
+  } finally {
+    await tempServer.close();
+  }
 }

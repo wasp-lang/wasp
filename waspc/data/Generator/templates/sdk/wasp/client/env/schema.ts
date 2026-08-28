@@ -1,19 +1,12 @@
 {{={= =}=}}
 import * as z from "zod"
 import { FromRegister } from "../../types/register";
-{=# envValidationSchema.isDefined =}
-{=& envValidationSchema.importStatement =}
-{=/ envValidationSchema.isDefined =}
+import { getClientEnvValidationSchema } from "wasp/client/runtime"
 
 export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
 type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
 
-{=# envValidationSchema.isDefined =}
-const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importIdentifier =};
-{=/ envValidationSchema.isDefined =}
-{=^ envValidationSchema.isDefined =}
-const userClientEnvSchema: UserClientEnvSchema = z.object({});
-{=/ envValidationSchema.isDefined =}
+const userClientEnvSchema = (getClientEnvValidationSchema() ?? z.object({})) as UserClientEnvSchema;
 
 const serverUrlSchema =
   z.string({

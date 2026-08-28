@@ -126,6 +126,7 @@
     "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
     "./server/jobs/*": "./dist/server/jobs/*.js",
+    "./server/runtime": "./dist/server/runtime.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}
     "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
     {=! FIXME: Reconsider during refactoring whether this is still needed. =}
@@ -143,6 +144,7 @@
     "./client/app": "./dist/client/app/index.jsx",
     "./client/app/layout": "./dist/client/app/layout.jsx",
     "./client/app/router": "./dist/client/app/router.jsx",
+    "./client/runtime": "./dist/client/runtime.js",
     {=! Injected as a vitest setupFiles entry by the vite plugin. =}
     "./client/test/setup": "./dist/client/test/setup.js"
   },

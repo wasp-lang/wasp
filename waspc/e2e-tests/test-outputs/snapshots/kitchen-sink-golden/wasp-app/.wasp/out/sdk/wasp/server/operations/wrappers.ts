@@ -1,4 +1,4 @@
-import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
+import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types.js'
 
 import { type AuthUser } from '../../auth/user.js'
 import {
@@ -6,7 +6,7 @@ import {
   AuthenticatedOperationDefinition,
   UnauthenticatedOperationDefinition,
   Payload,
-} from '../_types'
+} from '../_types/index.js'
 
 // PRIVATE API (used in SDK)
 // Explanation:
@@ -66,11 +66,11 @@ export type UnauthenticatedOperationFor<
 export function createUnauthenticatedOperation<
   OperationDefinition extends GenericUnauthenticatedOperationDefinition
 >(
-  getUserOperation: () => OperationDefinition,
+  getUserOperation: () => OperationDefinition | Promise<OperationDefinition>,
   entities: EntityMapFor<OperationDefinition>
 ): UnauthenticatedOperationFor<OperationDefinition> {
   async function operation(payload: Parameters<OperationDefinition>[0]) {
-    return getUserOperation()(payload, {
+    return (await getUserOperation())(payload, {
       entities,
     })
   }
@@ -122,7 +122,7 @@ export type AuthenticatedOperationContext = { user: AuthUser }
 export function createAuthenticatedOperation<
   OperationDefinition extends GenericAuthenticatedOperationDefinition
 >(
-  getUserOperation: () => OperationDefinition,
+  getUserOperation: () => OperationDefinition | Promise<OperationDefinition>,
   entities: EntityMapFor<OperationDefinition>
 ): AuthenticatedOperationFor<OperationDefinition> {
   async function operation(...args: AuthenticatedOperationArgsFor<OperationDefinition>) {
@@ -139,14 +139,14 @@ export function createAuthenticatedOperation<
     } else if (includesPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, context] = args
-      return getUserOperation()(payload as Parameters<OperationDefinition>[0], {
+      return (await getUserOperation())(payload as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })
     } else {
       // One argument sent -> the first and only argument is the user.
       const [context] = args
-      return getUserOperation()(undefined as Parameters<OperationDefinition>[0], {
+      return (await getUserOperation())(undefined as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })

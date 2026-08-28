@@ -1,0 +1,41 @@
+import type { ServerRuntimeBindings } from 'wasp/server/runtime'
+
+import { serverEnvValidationSchema } from '../../../../src/env'
+import { setUpPrisma } from '../../../../src/features/db/prisma'
+export const serverRuntimeBindings = {
+  serverEnvValidationSchema: serverEnvValidationSchema,
+  prismaSetupFn: setUpPrisma,
+  operations: {
+    'getTasks': () => import('../../../../src/features/operations/queries').then(m => m.getTasks),
+    'getNumTasks': () => import('../../../../src/features/operations/queries').then(m => m.getNumTasks),
+    'getTask': () => import('../../../../src/features/operations/queries').then(m => m.getTask),
+    'getOldestTask': () => import('../../../../src/features/operations/getOldestTask').then(m => m.default),
+    'getSerializedObjects': () => import('../../../../src/features/operations/queries').then(m => m.getSerializedObjects),
+    'getTextUppercaseRequests': () => import('../../../../src/features/jobs/uppercaseText').then(m => m.getTextUppercaseRequests),
+    'getDate': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getDate),
+    'getAnythingNoAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getAnythingNoAuth),
+    'getAnythingAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getAnythingAuth),
+    'getTrueVoid': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getTrueVoid),
+    'getAnyNoAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getAnyNoAuth),
+    'getAnyAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getAnyAuth),
+    'getAnyToNumberSpecified': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.getAnyToNumberSpecified),
+    'customSignup': () => import('../../../../src/features/auth/customSignup').then(m => m.customSignup),
+    'createTask': () => import('../../../../src/features/operations/actions').then(m => m.createTask),
+    'updateTaskIsDone': () => import('../../../../src/features/operations/actions').then(m => m.updateTaskIsDone),
+    'deleteCompletedTasks': () => import('../../../../src/features/operations/actions').then(m => m.deleteCompletedTasks),
+    'toggleAllTasks': () => import('../../../../src/features/operations/actions').then(m => m.toggleAllTasks),
+    'requestUppercaseText': () => import('../../../../src/features/jobs/uppercaseText').then(m => m.requestUppercaseText),
+    'testingAction': () => import('../../../../src/rpcTests/operations/server').then(m => m.testingAction),
+    'taskToTaskUnspecified': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.taskToTaskUnspecified),
+    'taskToTaskSatisfies': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.taskToTaskSatisfies),
+    'taskToTaskSpecified': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.taskToTaskSpecified),
+    'voidToStringAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.voidToStringAuth),
+    'voidToStringNoAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.voidToStringNoAuth),
+    'unspecifiedToNumber': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.unspecifiedToNumber),
+    'boolToStringAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.boolToStringAuth),
+    'boolToStringNoAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.boolToStringNoAuth),
+    'boolToVoidNoAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.boolToVoidNoAuth),
+    'boolToVoidAuth': () => import('../../../../src/rpcTests/operations/definitions').then(m => m.boolToVoidAuth),
+    'jsActionWithArgs': () => import('../../../../src/rpcTests/operations/jsDefinitions').then(m => m.jsActionWithArgs),
+  },
+} satisfies ServerRuntimeBindings

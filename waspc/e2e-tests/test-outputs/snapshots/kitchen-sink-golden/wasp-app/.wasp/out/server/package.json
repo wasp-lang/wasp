@@ -1,5 +1,5 @@
 {
-  "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
+  "comment-filip": "The server entrypoint is emitted as build/bootstrap.js.",
   "dependencies": {
     "@socket.io/component-emitter": "^4.0.0",
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz",
@@ -11,7 +11,8 @@
     "helmet": "^6.0.0",
     "morgan": "~1.11.0",
     "socket.io": "^4.6.1",
-    "superjson": "^2.2.1"
+    "superjson": "^2.2.1",
+    "wasp": "file:../sdk/wasp"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.0",
@@ -34,17 +35,17 @@
     "delay": "1000"
   },
   "prisma": {
-    "seed": "npm run db-seed"
+    "seed": "npm run seed"
   },
   "private": true,
   "scripts": {
-    "bundle": "tsc --build && rollup --config --silent",
-    "bundle-and-start": "npm run bundle && npm run start",
+    "build": "tsc --build && rollup --config --silent",
+    "build-and-start": "npm run build && npm run start",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "db-seed": "npm run bundle && node --enable-source-maps -r dotenv/config bundle/dbSeed.js",
-    "start": "node --enable-source-maps -r dotenv/config bundle/server.js",
+    "seed": "npm run build && node --enable-source-maps -r dotenv/config build/seed/bootstrap.js",
+    "start": "node --enable-source-maps -r dotenv/config build/bootstrap.js",
     "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start",
-    "watch": "nodemon --exec 'npm run bundle-and-start || exit 1'"
+    "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
   "type": "module",
   "version": "0.0.0"
