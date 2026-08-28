@@ -15,7 +15,7 @@ We created Wasp App Runner (WAR) in order to enable easier running of e2e tests 
 
 It is not used only by the Wasp Team internally though: it ships as a dev dep of example apps in this repo and also of OpenSaas template, they all use it for running e2e tests, and therefore Wasp users are also users of WAR. They are not building it themselves though: instead, all these apps pull the published version of WAR from npm.
 
-NOTE: In the future, ideally, WAR would not be needed any more, as Wasp CLI itself would make running Wasp apps for this use case easier, and the rest would be covered by the thing script for running e2e tests that would be scaffolded again by the Wasp CLI.
+NOTE: In the future, ideally, WAR would not be needed any more, as Wasp CLI itself would make running Wasp apps for this use case easier, and the rest would be covered by the thin script for running e2e tests that would be scaffolded again by the Wasp CLI.
 
 ## Usage
 
