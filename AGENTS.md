@@ -29,6 +29,8 @@ Key things to know:
 
 ## Code Conventions
 
+- When renaming a type or function, cascade the rename to parameters, local variables, and other names derived from it.
+
 ### Haskell
 
 - Simple, readable Haskell — no complicated features. See `CONTRIBUTING.md`.
