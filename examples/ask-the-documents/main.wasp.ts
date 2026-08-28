@@ -25,14 +25,16 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/",
-    provider: waspAuth({
-      methods: {
-        google: {
-          userSignupFields: googleUserSignupFields,
-          configFn: getGoogleAuthConfig,
+    providers: [
+      waspAuth({
+        methods: {
+          google: {
+            userSignupFields: googleUserSignupFields,
+            configFn: getGoogleAuthConfig,
+          },
         },
-      },
-    }),
+      }),
+    ],
   },
   client: {
     rootComponent: Layout,

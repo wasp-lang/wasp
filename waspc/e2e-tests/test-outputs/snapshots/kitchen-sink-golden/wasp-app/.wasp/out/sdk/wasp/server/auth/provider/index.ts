@@ -1,4 +1,5 @@
 import { type AuthProvider } from './types.js'
+import type { AuthProviderId, ExternalAuthProviderId } from '../../../auth/provider.js'
 import { waspAuthProvider } from './wasp.js'
 
 // PRIVATE API
@@ -11,23 +12,39 @@ export {
   canRevokeSessions,
 } from './types.js'
 
-// PRIVATE API
-/**
- * The auth provider this app runs on.
- *
- * Everything else in Wasp depends on the `AuthProvider` interface rather than on
- * a concrete implementation, so selecting a different one here is the only change
- * needed to authenticate against something other than Wasp's own auth.
- */
-export const authProvider: AuthProvider =
-  waspAuthProvider
 
 // PRIVATE API
 /**
- * Whether the provider owns Wasp's auth entity.
+ * The app's auth providers, keyed by provider id, in `main.wasp.ts`
+ * declaration order.
  *
- * Wasp's own auth writes the `Auth` table itself, so a subject id from it already
- * identifies a local row. An external provider's subject id is foreign, and Wasp
- * has to resolve it to a local user -- provisioning one on first sight.
+ * Everything else in Wasp depends on the `AuthProvider` interface rather than
+ * on concrete implementations. Every provider a session can name is here, so
+ * looking up a session's minting provider always succeeds.
  */
-export const providerOwnsAuthEntity: boolean = true
+export const authProviders: { readonly [Id in AuthProviderId]: AuthProvider } = {
+  'wasp': waspAuthProvider,
+}
+
+// PRIVATE API
+/**
+ * The external providers a credential can be exchanged with (`POST
+ * /auth/login/:providerId`). Deliberately excludes 'wasp': Wasp's own auth
+ * mints sessions through its own routes, and exchanging a Wasp credential for
+ * a Wasp session would be a loop.
+ */
+export const externalAuthProviders: { readonly [Id in ExternalAuthProviderId]: AuthProvider } = {
+}
+
+// PRIVATE API
+export function getAuthProvider(providerId: string): AuthProvider | undefined {
+  return (authProviders as Record<string, AuthProvider>)[providerId]
+}
+
+// PRIVATE API
+/**
+ * Node handlers for the routes external providers brought with them, keyed by
+ * provider id. The server mounts each at the basePath its manifest declared.
+ */
+export const authProviderRouteHandlers: Partial<Record<ExternalAuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+}

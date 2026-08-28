@@ -14,11 +14,13 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    provider: waspAuth({
-      methods: {
-        usernameAndPassword: {},
-      },
-    }),
+    providers: [
+      waspAuth({
+        methods: {
+          usernameAndPassword: {},
+        },
+      }),
+    ],
   },
   spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),

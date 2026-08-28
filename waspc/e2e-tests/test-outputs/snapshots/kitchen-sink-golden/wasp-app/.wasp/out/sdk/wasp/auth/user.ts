@@ -9,6 +9,7 @@ import {
   parseProviderData,
 } from './providerData.js'
 import { Expand } from '../universal/types.js'
+import { type AuthProviderId } from './provider.js'
 import { isNotNull } from '../universal/predicates.js'
 
 // PUBLIC API
@@ -49,6 +50,13 @@ export type AuthUser = AuthUserData & {
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, 'auth'> & {
+  /**
+   * Id of the auth provider that minted the current session -- i.e. how this
+   * user logged in this time ('wasp', 'external:clerk', ...). A session is
+   * always minted by exactly one provider, so this is a single compile-checked
+   * literal, pinned when the session was created and never re-derived.
+   */
+  sessionProviderId: AuthProviderId,
   identities: {
     email: Expand<UserFacingProviderData<'email'>> | null
     slack: Expand<UserFacingProviderData<'slack'>> | null
@@ -116,7 +124,10 @@ function makeAuthUser(data: AuthUserData): AuthUser {
 }
 
 // PRIVATE API
-export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
+export function createAuthUserData(
+  user: CompleteUserEntityWithAuth,
+  sessionProviderId: string,
+): AuthUserData {
   const { auth, ...rest } = user
   if (!auth) {
     throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -132,6 +143,7 @@ This should never happen, but it did which means there is a bug in the code.`)
   }
   return {
     ...rest,
+    sessionProviderId: sessionProviderId as AuthProviderId,
     identities,
   }
 }

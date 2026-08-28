@@ -23,6 +23,7 @@ import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -130,28 +131,29 @@ spec_AppSpecValid = do
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                 AS.Auth.onAuthFailedRedirectTo = "/",
-                AS.Auth.provider =
-                  AS.Auth.WaspAuthProvider
-                    AS.Auth.WaspAuthConfig
-                      { AS.Auth.waspAuthMethods =
-                          AS.Auth.AuthMethods
-                            { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
-                              AS.Auth.discord = Nothing,
-                              AS.Auth.slack = Nothing,
-                              AS.Auth.google = Nothing,
-                              AS.Auth.gitHub = Nothing,
-                              AS.Auth.keycloak = Nothing,
-                              AS.Auth.microsoft = Nothing,
-                              AS.Auth.email = Nothing
-                            },
-                        AS.Auth.waspAuthOnAuthSucceededRedirectTo = Nothing,
-                        AS.Auth.waspAuthOnBeforeSignup = Nothing,
-                        AS.Auth.waspAuthOnAfterSignup = Nothing,
-                        AS.Auth.waspAuthOnAfterEmailVerified = Nothing,
-                        AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing,
-                        AS.Auth.waspAuthOnBeforeLogin = Nothing,
-                        AS.Auth.waspAuthOnAfterLogin = Nothing
-                      }
+                AS.Auth.providers =
+                  [ AS.Auth.WaspAuthProvider
+                      AS.Auth.WaspAuthConfig
+                        { AS.Auth.waspAuthMethods =
+                            AS.Auth.AuthMethods
+                              { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
+                                AS.Auth.discord = Nothing,
+                                AS.Auth.slack = Nothing,
+                                AS.Auth.google = Nothing,
+                                AS.Auth.gitHub = Nothing,
+                                AS.Auth.keycloak = Nothing,
+                                AS.Auth.microsoft = Nothing,
+                                AS.Auth.email = Nothing
+                              },
+                          AS.Auth.waspAuthOnAuthSucceededRedirectTo = Nothing,
+                          AS.Auth.waspAuthOnBeforeSignup = Nothing,
+                          AS.Auth.waspAuthOnAfterSignup = Nothing,
+                          AS.Auth.waspAuthOnAfterEmailVerified = Nothing,
+                          AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing,
+                          AS.Auth.waspAuthOnBeforeLogin = Nothing,
+                          AS.Auth.waspAuthOnAfterLogin = Nothing
+                        }
+                  ]
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -169,11 +171,11 @@ spec_AppSpecValid = do
 
         it "returns no error if there is no page with authRequired and app.auth is not set" $ do
           ASV.validateAppSpec (makeSpec Nothing Nothing) `shouldBe` []
-          ASV.validateAppSpec (makeSpec Nothing (Just False)) `shouldBe` []
+          ASV.validateAppSpec (makeSpec Nothing (Just AuthRequirement.AuthNotRequired)) `shouldBe` []
         it "returns no error if there is a page with authRequired and app.auth is set" $ do
-          ASV.validateAppSpec (makeSpec (Just validAppAuth) (Just True)) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (Just validAppAuth) (Just AuthRequirement.AuthRequiredForAnyProvider)) `shouldBe` []
         it "returns an error if there is a page with authRequired and app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec Nothing (Just True))
+          ASV.validateAppSpec (makeSpec Nothing (Just AuthRequirement.AuthRequiredForAnyProvider))
             `shouldBe` [ Valid.GenericValidationError
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
@@ -193,7 +195,7 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.provider = makeWaspAuthProviderWithMethods authMethods
+                                    AS.Auth.providers = [makeWaspAuthProviderWithMethods authMethods]
                                   },
                             AS.App.emailSender =
                               Just
@@ -357,9 +359,10 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.provider =
-                                      makeWaspAuthProviderWithMethods
-                                        AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing}
+                                    AS.Auth.providers =
+                                      [ makeWaspAuthProviderWithMethods
+                                          AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing}
+                                      ]
                                   },
                             AS.App.emailSender = emailSender
                           },
@@ -543,7 +546,7 @@ spec_AppSpecValid = do
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route pointing to authRequired page" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just True))
+        let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just AuthRequirement.AuthRequiredForAnyProvider))
         -- One error from validateAppAuthIsSetIfAnyPageRequiresAuth (app.auth not set)
         -- and one from validatePrerenderRoutes (prerender + authRequired)
         any (("authRequired" `isInfixOf`) . show) errors `shouldBe` True

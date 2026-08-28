@@ -120,26 +120,24 @@
       Internal server runtime API. Undocumented.
       ===============================================================
     =}
-    {=! Wasp-auth-only modules. Not generated under an external auth provider,
-        so their exports are dropped too and importing them is an error. =}
-    {=^ isCustomAuthProviderUsed =}
+    {=! Wasp-auth-only modules. Generated iff Wasp's own auth is among the
+        providers; otherwise their exports are dropped too and importing them
+        is an error. =}
+    {=# isWaspAuthProviderUsed =}
     "./server/auth/email": "./dist/server/auth/email/index.js",
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
-    {=/ isCustomAuthProviderUsed =}
+    {=/ isWaspAuthProviderUsed =}
     {=! Server: the contract a custom auth provider implements. Adapters live in
         user code, so they need to import this as a normal module. =}
     "./server/auth/provider/types": "./dist/server/auth/provider/types.js",
-    {=# isClientAuthAdapterUsed =}
-    {=! Client: the instantiated client half of the auth provider. =}
-    "./client/auth/provider": "./dist/client/auth/provider.js",
-    {=/ isClientAuthAdapterUsed =}
-    {=# isCustomAuthProviderUsed =}
-    {=! Server: the selected provider and its route handler, for mounting the
-        provider's own routes. =}
+    {=! Client: the instantiated client halves of the auth providers, plus the
+        session-resume and login helpers built on them. =}
+    "./client/auth/providers": "./dist/client/auth/providers.js",
+    {=! Server: the provider registry and its route handlers, for the exchange
+        route and for mounting providers' own routes. =}
     "./server/auth/provider": "./dist/server/auth/provider/index.js",
-    {=/ isCustomAuthProviderUsed =}
     "./server/auth/identityStore": "./dist/server/auth/identityStore.js",
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",

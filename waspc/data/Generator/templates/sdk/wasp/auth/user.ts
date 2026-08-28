@@ -10,9 +10,10 @@ import {
   parseProviderData,
 } from './providerData.js'
 import { Expand } from '../universal/types.js'
-{=^ isCustomAuthProviderUsed =}
+import { type AuthProviderId } from './provider.js'
+{=# isWaspAuthProviderUsed =}
 import { isNotNull } from '../universal/predicates.js'
-{=/ isCustomAuthProviderUsed =}
+{=/ isWaspAuthProviderUsed =}
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
@@ -52,6 +53,13 @@ export type AuthUser = AuthUserData & {
  * TODO: Change this once/if we switch to strict mode. https://github.com/wasp-lang/wasp/issues/1938
  */
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
+  /**
+   * Id of the auth provider that minted the current session -- i.e. how this
+   * user logged in this time ('wasp', 'external:clerk', ...). A session is
+   * always minted by exactly one provider, so this is a single compile-checked
+   * literal, pinned when the session was created and never re-derived.
+   */
+  sessionProviderId: AuthProviderId,
   identities: {
     {=# enabledProviders.isEmailAuthEnabled =}
     email: Expand<UserFacingProviderData<'email'>> | null
@@ -129,22 +137,27 @@ export function makeAuthUserIfPossible(
 function makeAuthUser(data: AuthUserData): AuthUser {
   return {
     ...data,
-    {=# isCustomAuthProviderUsed =}
-    // No Wasp auth methods are enabled under an external provider, so there are
-    // no identities to read.
+    {=^ isWaspAuthProviderUsed =}
+    // The identities map only carries Wasp's own auth methods, and none are
+    // enabled without waspAuth among the providers, so there is nothing to
+    // read. External identities are reachable server-side through the
+    // identity store.
     getFirstProviderUserId: () => null,
-    {=/ isCustomAuthProviderUsed =}
-    {=^ isCustomAuthProviderUsed =}
+    {=/ isWaspAuthProviderUsed =}
+    {=# isWaspAuthProviderUsed =}
     getFirstProviderUserId: () => {
       const identities = Object.values(data.identities).filter(isNotNull);
       return identities.length > 0 ? identities[0].id : null;
     },
-    {=/ isCustomAuthProviderUsed =}
+    {=/ isWaspAuthProviderUsed =}
   };
 }
 
 // PRIVATE API
-export function createAuthUserData(user: CompleteUserEntityWithAuth): AuthUserData {
+export function createAuthUserData(
+  user: CompleteUserEntityWithAuth,
+  sessionProviderId: string,
+): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
   if (!{= authFieldOnUserEntityName =}) {
     throw new Error(`🐝 Error: trying to create a user without auth data.
@@ -178,6 +191,7 @@ This should never happen, but it did which means there is a bug in the code.`)
   }
   return {
     ...rest,
+    sessionProviderId: sessionProviderId as AuthProviderId,
     identities,
   }
 }

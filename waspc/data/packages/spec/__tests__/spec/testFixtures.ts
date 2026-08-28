@@ -401,24 +401,28 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
       return {
         userEntity: "User",
         onAuthFailedRedirectTo: "/login",
-        provider: waspAuth({
-          methods: { usernameAndPassword: {} },
-        }),
+        providers: [
+          waspAuth({
+            methods: { usernameAndPassword: {} },
+          }),
+        ],
       } satisfies MinimalConfig<WaspSpec.Auth>;
     case "full":
       return {
         userEntity: "User",
         onAuthFailedRedirectTo: "/login",
-        provider: waspAuth({
-          methods: getAuthMethods("full"),
-          onAuthSucceededRedirectTo: "/profile",
-          onBeforeSignup: getRefObject("full", "named"),
-          onAfterSignup: getRefObject("full", "named"),
-          onAfterEmailVerified: getRefObject("full", "named"),
-          onBeforeOAuthRedirect: getRefObject("full", "named"),
-          onBeforeLogin: getRefObject("full", "named"),
-          onAfterLogin: getRefObject("full", "named"),
-        }),
+        providers: [
+          waspAuth({
+            methods: getAuthMethods("full"),
+            onAuthSucceededRedirectTo: "/profile",
+            onBeforeSignup: getRefObject("full", "named"),
+            onAfterSignup: getRefObject("full", "named"),
+            onAfterEmailVerified: getRefObject("full", "named"),
+            onBeforeOAuthRedirect: getRefObject("full", "named"),
+            onBeforeLogin: getRefObject("full", "named"),
+            onAfterLogin: getRefObject("full", "named"),
+          }),
+        ],
       } satisfies FullConfig<WaspSpec.Auth>;
     default:
       assertUnreachable(scope);
@@ -429,17 +433,19 @@ export function getExternalAuthConfig(): WaspSpec.Auth {
   return {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    provider: customAuthProvider({
-      id: "external:test-provider",
-      server: getRefObject("full", "named"),
-      capabilities: ["session-revocation"],
-      env: {
-        server: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
-        client: [],
-      },
-      userSignupFields: getRefObject("full", "named"),
-      options: { flag: true, nested: { count: 1 } },
-    }),
+    providers: [
+      customAuthProvider({
+        id: "external:test-provider",
+        server: getRefObject("full", "named"),
+        capabilities: ["session-revocation"],
+        env: {
+          server: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
+          client: [],
+        },
+        userSignupFields: getRefObject("full", "named"),
+        options: { flag: true, nested: { count: 1 } },
+      }),
+    ],
   };
 }
 
@@ -672,11 +678,13 @@ export type MinimalConfig<T> =
       ? T
       : T extends Array<infer Item>
         ? Array<MinimalConfig<Item>>
-        : T extends object
-          ? keyof T extends never
-            ? EmptyObject
-            : MinimalConfigObject<T>
-          : T;
+        : T extends readonly unknown[]
+          ? T
+          : T extends object
+            ? keyof T extends never
+              ? EmptyObject
+              : MinimalConfigObject<T>
+            : T;
 
 type MinimalConfigObject<T> = {
   [K in keyof T as EmptyObject extends Pick<T, K> ? never : K]: MinimalConfig<
@@ -710,9 +718,11 @@ export type FullConfig<T> =
       ? T
       : T extends Array<infer Item>
         ? Array<FullConfig<Item>>
-        : T extends object
-          ? FullConfigObject<T>
-          : T;
+        : T extends readonly unknown[]
+          ? T
+          : T extends object
+            ? FullConfigObject<T>
+            : T;
 
 type FullConfigObject<T> = {
   [K in keyof T as IsExclusionMarker<T[K]> extends true

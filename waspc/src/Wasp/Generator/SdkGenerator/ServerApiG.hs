@@ -11,6 +11,7 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -44,7 +45,7 @@ genIndexTsWithApiRoutes spec =
           "shouldImportNonAuthenticatedApi" .= not (all usesAuth apis),
           "allEntities" .= nub (concatMap getApiEntitiesObject apis)
         ]
-    usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
+    usesAuth = AuthRequirement.isAuthRequiredWithDefault (isAuthEnabledGlobally spec) . Api.auth
 
     getTmplData :: (String, Api.Api) -> Aeson.Value
     getTmplData (name, api) =

@@ -1,6 +1,6 @@
 import express from 'express'
 
-import auth from 'wasp/server/core/auth'
+import auth, { requireSessionProvider } from 'wasp/server/core/auth'
 
 import createTask from './createTask.js'
 import getMyTasks from './getMyTasks.js'

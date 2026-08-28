@@ -35,16 +35,25 @@ export type ClientAuthAdapter = {
   Wrapper?: ComponentType<{ children: ReactNode }>;
 
   /**
-   * The credential to attach to the next request, or `null` when there is
-   * none.
+   * The provider's current credential, or `null` when there is none.
    *
-   * Pull-based on purpose: Wasp asks at each request rather than caching a
-   * pushed value, so a token that rotates under the adapter (short-lived
-   * JWTs) is always current. Implementations should resolve only once the
-   * provider's client is loaded, so the first authenticated request cannot
-   * race provider startup.
+   * Pull-based on purpose: Wasp asks at the moment it needs the credential
+   * rather than caching a pushed value, so a token that rotates under the
+   * adapter (short-lived JWTs) is always fresh at exchange time.
+   * Implementations should resolve only once the provider's client is loaded,
+   * so an exchange cannot race provider startup.
+   *
+   * Wasp pulls it at exactly two points, both addressed to this adapter alone:
+   * the explicit `loginWithAuthProvider()` call, and silent session resume at
+   * the auth gate -- and resume only ever consults the provider that minted
+   * the last session. There is no ambient polling on the request path.
+   *
+   * Optional: an adapter without it is legal (method presence is the
+   * capability, as on the server contract) and simply does not participate in
+   * resume or `loginWithAuthProvider()`; logins then go through explicit
+   * `exchangeCredentialForSession()` calls.
    */
-  getCredential(): Promise<string | null>;
+  getCredential?(): Promise<string | null>;
 
   /**
    * Subscribe to credential changes; returns an unsubscribe function.

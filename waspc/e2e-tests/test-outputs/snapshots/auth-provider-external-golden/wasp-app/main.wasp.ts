@@ -12,7 +12,7 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    provider: clerk(),
+    providers: [clerk()],
   },
 
   spec: [

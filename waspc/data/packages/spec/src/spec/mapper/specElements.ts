@@ -66,9 +66,22 @@ export function mapPageSpec(
     declName: getRefObjectDeclarationName(page.component),
     declValue: {
       component: ctx.parseRefObject(component),
-      authRequired,
+      authRequired: mapAuthRequirement(authRequired),
     },
   };
+}
+
+// The readonly tuple in the public API becomes a plain array in the IR; the
+// booleans pass through. Provider ids are validated against the app's
+// configured providers by the whole-spec validator, which is the only place
+// that knows the registry.
+function mapAuthRequirement(
+  authRequirement: WaspSpec.AuthRequirement | undefined,
+): AppSpec.AuthRequirement | undefined {
+  if (authRequirement === undefined || typeof authRequirement === "boolean") {
+    return authRequirement;
+  }
+  return [...authRequirement];
 }
 
 export function mapRouteSpec(
@@ -99,7 +112,7 @@ export function mapQuerySpec(
     declValue: {
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
-      auth,
+      auth: mapAuthRequirement(auth),
     },
   };
 }
@@ -115,7 +128,7 @@ export function mapActionSpec(
     declValue: {
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
-      auth,
+      auth: mapAuthRequirement(auth),
     },
   };
 }
@@ -134,7 +147,7 @@ export function mapApiSpec(
         middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
       entities: entities?.map(ctx.resolveEntityRef),
       httpRoute: [method, path],
-      auth,
+      auth: mapAuthRequirement(auth),
     },
   };
 }

@@ -2,8 +2,8 @@ import { Request as ExpressRequest } from "express";
 
 import { type AuthUserData } from '../../auth/user.js';
 
-import { authProvider } from "./provider/index.js";
 import { canRevokeSessions } from "./provider/types.js";
+import { getAuthProvider } from "./provider/index.js";
 import * as sessionStore from "./sessionStore.js";
 
 import { prisma } from '../index.js';
@@ -14,10 +14,14 @@ import { createAuthUserData } from "../../auth/user.js";
  *
  * Every request is authenticated against a session Wasp itself minted, whichever
  * provider verified the login -- the classic full-stack-framework model (Rails,
- * Django, ASP.NET Core). An external provider is consulted exactly twice: once at
- * login, when `POST /auth/login` exchanges its credential for a Wasp session, and
- * once at logout, when the provider's own session is revoked alongside Wasp's
- * (dual sign-out, same as ASP.NET Core's two-scheme `SignOut`).
+ * Django, ASP.NET Core). A provider is consulted exactly twice: once at login,
+ * when `POST /auth/login/:providerId` exchanges its credential for a Wasp
+ * session, and once at logout, when the provider's own session is revoked
+ * alongside Wasp's (dual sign-out, same as ASP.NET Core's two-scheme `SignOut`).
+ *
+ * Every session records the id of the provider that minted it, so logout and
+ * user code always know which provider vouched for the login without ever
+ * asking the providers.
  *
  * Known and accepted gap: revocation on the provider's side does NOT end the Wasp
  * session -- it lives until it expires or the user logs out. This is the same
@@ -31,9 +35,12 @@ export type SessionAndUser = {
 }
 
 // PRIVATE API
-// Creates a new session for the `authId` in the database.
+// Creates a new session for the `authId` in the database. This is the mint
+// path of Wasp's own auth flows (login forms, OAuth callbacks), so the session
+// records 'wasp' as its minting provider; external providers mint through the
+// credential exchange instead.
 export async function createSession(authId: string): Promise<{ id: string }> {
-  return sessionStore.createSession(authId);
+  return sessionStore.createSession(authId, { providerId: 'wasp' });
 }
 
 // PRIVATE API
@@ -50,7 +57,7 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
   if (session === null) {
     return null;
   }
-  return loadSessionAndUser(session.id, session.authId);
+  return loadSessionAndUser(session.id, session.authId, session.providerId);
 }
 
 /**
@@ -62,7 +69,7 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
  * We look the user up *through* the auth entity rather than by its own id, which
  * keeps this to a single query.
  */
-async function loadSessionAndUser(sessionId: string, authId: string): Promise<SessionAndUser | null> {
+async function loadSessionAndUser(sessionId: string, authId: string, sessionProviderId: string): Promise<SessionAndUser | null> {
   const user = await prisma.user.findFirst({
     where: { auth: { id: authId } },
     include: {
@@ -80,54 +87,61 @@ async function loadSessionAndUser(sessionId: string, authId: string): Promise<Se
     return null;
   }
 
-  return { sessionId, user: createAuthUserData(user) };
+  return { sessionId, user: createAuthUserData(user, sessionProviderId) };
 }
 
 
 // PRIVATE API
 /**
  * Dual sign-out, ASP.NET Core style: Wasp's session is always revoked, and when
- * it was minted from an external provider's credential the provider's own
- * session is revoked too (when the provider is able to). The local revocation
- * is what logs the user out; the upstream one is best-effort -- its failure is
- * logged, never surfaced, so logout cannot be blocked by a provider outage.
+ * its minting provider can revoke its own session, that one is revoked too.
+ * The session row recorded which provider minted it, so the revocation always
+ * goes to the right provider. The local revocation is what logs the user out;
+ * the upstream one is best-effort -- its failure is logged, never surfaced, so
+ * logout cannot be blocked by a provider outage.
  */
 export async function invalidateSession(sessionId: string): Promise<void> {
   const stored = await sessionStore.getStoredSession(sessionId);
   await sessionStore.revokeSession(sessionId);
 
-  if (stored?.providerSessionId != null && canRevokeSessions(authProvider)) {
-    try {
-      await authProvider.revokeSession(stored.providerSessionId);
-    } catch (error) {
-      console.error(
-        'Wasp session revoked, but revoking the auth provider session failed:',
-        error,
-      );
-    }
-  }
-}
-
-// PRIVATE API
-// Invalidates all of the auth entity's sessions, upstream ones included where
-// the provider can revoke (same best-effort semantics as `invalidateSession`).
-export async function invalidateAllSessionsForAuthId(authId: string): Promise<void> {
-  const stored = await sessionStore.getStoredSessionsForAuthId(authId);
-  await sessionStore.revokeAllSessions(authId);
-
-  if (!canRevokeSessions(authProvider)) {
-    return;
-  }
-  for (const session of stored) {
-    if (session.providerSessionId != null) {
+  if (stored?.providerSessionId != null && stored.providerId != null) {
+    const provider = getAuthProvider(stored.providerId);
+    if (provider !== undefined && canRevokeSessions(provider)) {
       try {
-        await authProvider.revokeSession(session.providerSessionId);
+        await provider.revokeSession(stored.providerSessionId);
       } catch (error) {
         console.error(
           'Wasp session revoked, but revoking the auth provider session failed:',
           error,
         );
       }
+    }
+  }
+}
+
+// PRIVATE API
+// Invalidates all of the auth entity's sessions, upstream ones included where
+// each session's minting provider can revoke (same best-effort semantics as
+// `invalidateSession`).
+export async function invalidateAllSessionsForAuthId(authId: string): Promise<void> {
+  const stored = await sessionStore.getStoredSessionsForAuthId(authId);
+  await sessionStore.revokeAllSessions(authId);
+
+  for (const session of stored) {
+    if (session.providerSessionId == null || session.providerId == null) {
+      continue;
+    }
+    const provider = getAuthProvider(session.providerId);
+    if (provider === undefined || !canRevokeSessions(provider)) {
+      continue;
+    }
+    try {
+      await provider.revokeSession(session.providerSessionId);
+    } catch (error) {
+      console.error(
+        'Wasp session revoked, but revoking the auth provider session failed:',
+        error,
+      );
     }
   }
 }

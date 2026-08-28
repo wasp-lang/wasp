@@ -154,8 +154,11 @@ function withEagerProvisioning(runtime, databaseHooks) {
                 ...databaseHooks?.user?.create,
                 after: async (user, context) => {
                     await existingAfterUserCreate?.(user, context);
-                    await runtime.onAuthUserCreated?.({
-                        subjectId: user.id,
+                    // Eager provisioning through the runtime's identity store: the
+                    // local user exists from the Better Auth signup moment, not from
+                    // the first login exchange. Idempotent; the exchange's just-in-time
+                    // provisioning remains the backstop.
+                    await runtime.identities.provision(user.id, {
                         claims: { email: user.email, name: user.name },
                     });
                 },

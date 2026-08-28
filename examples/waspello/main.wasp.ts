@@ -13,12 +13,14 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    provider: waspAuth({
-      methods: {
-        usernameAndPassword: {},
-        google: {},
-      },
-    }),
+    providers: [
+      waspAuth({
+        methods: {
+          usernameAndPassword: {},
+          google: {},
+        },
+      }),
+    ],
   },
   client: {
     rootComponent: Layout,

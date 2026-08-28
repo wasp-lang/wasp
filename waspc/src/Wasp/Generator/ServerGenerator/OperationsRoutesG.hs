@@ -15,10 +15,11 @@ import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ServerRootDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -119,11 +120,14 @@ genOperationsRouter spec
             [ "importIdentifier" .= importIdentifier,
               "importStatement" .= importStmt,
               "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
-              "isUsingAuth" .= isAuthEnabledForOperation operation
+              "isUsingAuth" .= isAuthEnabledForOperation operation,
+              "hasRequiredAuthProviderIds" .= isJust (requiredAuthProviderIdsForOperation operation),
+              "requiredAuthProviderIdsJs" .= (makeJsArrayFromHaskellList <$> requiredAuthProviderIdsForOperation operation)
             ]
 
     isAuthEnabledGlobally = isAuthEnabled spec
-    isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
+    isAuthEnabledForOperation operation = AuthRequirement.isAuthRequiredWithDefault isAuthEnabledGlobally (AS.Operation.getAuth operation)
+    requiredAuthProviderIdsForOperation operation = AS.Operation.getAuth operation >>= AuthRequirement.requiredAuthProviderIds
     isAuthSpecifiedForOperation operation = isJust $ AS.Operation.getAuth operation
 
 operationRouteInOperationsRouter :: AS.Operation.Operation -> String

@@ -2,8 +2,11 @@ import { setSessionId } from '../../api/index.js'
 import { invalidateAndRemoveQueries } from '../../client/operations/internal/resources.js'
 
 // PRIVATE API
+// The session-adoption step of Wasp's own auth flows (login forms, OAuth
+// callbacks), which is why the minting provider is always 'wasp' here;
+// external providers adopt sessions through `exchangeCredentialForSession`.
 export async function initSession(sessionId: string): Promise<void> {
-    setSessionId(sessionId)
+    setSessionId(sessionId, 'wasp')
     // We need to invalidate queries after login in order to get the correct user
     // data in the React components (using `useAuth`).
     // Redirects after login won't work properly without this.

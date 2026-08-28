@@ -318,7 +318,7 @@ describe("mapPage", () => {
       declName: getRefObjectDeclarationName(page.component),
       declValue: {
         component: mapRefObjectForMockProjectDir(page.component),
-        authRequired: page.authRequired,
+        authRequired: mapAuthRequirementForTest(page.authRequired),
       },
     } satisfies AppSpec.GetDeclForType<"Page">);
   }
@@ -390,7 +390,7 @@ describe("mapQuery", () => {
       declValue: {
         fn: mapRefObjectForMockProjectDir(query.fn),
         entities: query.entities?.map(ctx.resolveEntityRef),
-        auth: query.auth,
+        auth: mapAuthRequirementForTest(query.auth),
       },
     } satisfies AppSpec.GetDeclForType<"Query">);
   }
@@ -423,7 +423,7 @@ describe("mapAction", () => {
       declValue: {
         fn: mapRefObjectForMockProjectDir(action.fn),
         entities: action.entities?.map(ctx.resolveEntityRef),
-        auth: action.auth,
+        auth: mapAuthRequirementForTest(action.auth),
       },
     } satisfies AppSpec.GetDeclForType<"Action">);
   }
@@ -485,35 +485,37 @@ describe("mapAuth", () => {
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      provider: {
-        kind: "external",
-        providerId: provider.id,
-        server: {
-          module: mapRefObjectForMockProjectDir(
-            provider.server as Parameters<
-              typeof mapRefObjectForMockProjectDir
-            >[0],
+      providers: [
+        {
+          kind: "external",
+          providerId: provider.id,
+          server: {
+            module: mapRefObjectForMockProjectDir(
+              provider.server as Parameters<
+                typeof mapRefObjectForMockProjectDir
+              >[0],
+            ),
+          },
+          clientPackage: undefined,
+          routes: undefined,
+          capabilities: provider.capabilities,
+          envVars: {
+            server: [
+              {
+                name: "TEST_PROVIDER_SECRET",
+                optional: undefined,
+                doc: "Secret for tests",
+              },
+            ],
+            client: [],
+          },
+          userSignupFields: mapRefObjectForMockProjectDir(
+            provider.userSignupFields,
           ),
+          setupFn: undefined,
+          optionsJson: JSON.stringify(provider.options),
         },
-        clientPackage: undefined,
-        routes: undefined,
-        capabilities: provider.capabilities,
-        envVars: {
-          server: [
-            {
-              name: "TEST_PROVIDER_SECRET",
-              optional: undefined,
-              doc: "Secret for tests",
-            },
-          ],
-          client: [],
-        },
-        userSignupFields: mapRefObjectForMockProjectDir(
-          provider.userSignupFields,
-        ),
-        setupFn: undefined,
-        optionsJson: JSON.stringify(provider.options),
-      },
+      ],
     } satisfies AppSpec.Auth);
   });
 
@@ -521,10 +523,12 @@ describe("mapAuth", () => {
     const auth = Fixtures.getExternalAuthConfig();
     const forged = {
       ...auth,
-      provider: {
-        ...getExternalProviderManifest(auth),
-        __waspAuthProviderManifest: false,
-      } as unknown as WaspSpec.Auth["provider"],
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          __waspAuthProviderManifest: false,
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
@@ -537,17 +541,19 @@ describe("mapAuth", () => {
     const auth = Fixtures.getExternalAuthConfig();
     const withPackageEntry = {
       ...auth,
-      provider: {
-        ...getExternalProviderManifest(auth),
-        server: { package: "@wasp.sh/auth-clerk/server" },
-        client: { package: "@wasp.sh/auth-clerk/client" },
-      } as unknown as WaspSpec.Auth["provider"],
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          server: { package: "@wasp.sh/auth-clerk/server" },
+          client: { package: "@wasp.sh/auth-clerk/client" },
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
     const result = AppSpecMapper.mapAuth(withPackageEntry, ctx);
 
-    expect(result.provider).toMatchObject({
+    expect(result.providers[0]).toMatchObject({
       kind: "external",
       server: { package: "@wasp.sh/auth-clerk/server" },
       clientPackage: "@wasp.sh/auth-clerk/client",
@@ -558,10 +564,12 @@ describe("mapAuth", () => {
     const auth = Fixtures.getExternalAuthConfig();
     const withBadOptions = {
       ...auth,
-      provider: {
-        ...getExternalProviderManifest(auth),
-        options: { callback: () => "not serializable" },
-      } as unknown as WaspSpec.Auth["provider"],
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          options: { callback: () => "not serializable" },
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
@@ -571,19 +579,21 @@ describe("mapAuth", () => {
   });
 
   function getWaspProviderConfig(auth: WaspSpec.Auth): WaspSpec.WaspAuthConfig {
-    if (auth.provider.kind !== "wasp") {
+    const [provider] = auth.providers;
+    if (provider.kind !== "wasp") {
       throw new Error("Expected a wasp auth provider in this fixture.");
     }
-    return auth.provider.config;
+    return provider.config;
   }
 
   function getExternalProviderManifest(
     auth: WaspSpec.Auth,
   ): WaspSpec.ExternalAuthProviderManifest {
-    if (auth.provider.kind !== "external") {
+    const [provider] = auth.providers;
+    if (provider.kind !== "external") {
       throw new Error("Expected an external auth provider in this fixture.");
     }
-    return auth.provider;
+    return provider;
   }
 
   function testMapAuth(
@@ -622,29 +632,31 @@ describe("mapAuth", () => {
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      provider: {
-        kind: "wasp",
-        methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
-        onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
-        onBeforeSignup:
-          waspConfig.onBeforeSignup &&
-          mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
-        onAfterSignup:
-          waspConfig.onAfterSignup &&
-          mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
-        onAfterEmailVerified:
-          waspConfig.onAfterEmailVerified &&
-          mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
-        onBeforeOAuthRedirect:
-          waspConfig.onBeforeOAuthRedirect &&
-          mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
-        onBeforeLogin:
-          waspConfig.onBeforeLogin &&
-          mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
-        onAfterLogin:
-          waspConfig.onAfterLogin &&
-          mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
-      },
+      providers: [
+        {
+          kind: "wasp",
+          methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
+          onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
+          onBeforeSignup:
+            waspConfig.onBeforeSignup &&
+            mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
+          onAfterSignup:
+            waspConfig.onAfterSignup &&
+            mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
+          onAfterEmailVerified:
+            waspConfig.onAfterEmailVerified &&
+            mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
+          onBeforeOAuthRedirect:
+            waspConfig.onBeforeOAuthRedirect &&
+            mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
+          onBeforeLogin:
+            waspConfig.onBeforeLogin &&
+            mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
+          onAfterLogin:
+            waspConfig.onAfterLogin &&
+            mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
+        },
+      ],
     } satisfies AppSpec.Auth);
   }
 });
@@ -942,7 +954,7 @@ describe("mapApi", () => {
           mapRefObjectForMockProjectDir(api.middlewareConfigFn),
         entities: api.entities?.map(ctx.resolveEntityRef),
         httpRoute: [api.method, api.path],
-        auth: api.auth,
+        auth: mapAuthRequirementForTest(api.auth),
       },
     } satisfies AppSpec.GetDeclForType<"Api">);
   }
@@ -1268,4 +1280,13 @@ describe("mapSchedule", () => {
  */
 function assertDefined<T>(value: T | null | undefined): asserts value is T {
   expect(value).toBeDefined();
+}
+
+function mapAuthRequirementForTest(
+  authRequirement: WaspSpec.AuthRequirement | undefined,
+): AppSpec.AuthRequirement | undefined {
+  if (authRequirement === undefined || typeof authRequirement === "boolean") {
+    return authRequirement;
+  }
+  return [...authRequirement];
 }

@@ -158,20 +158,25 @@ export interface Auth {
    */
   onAuthFailedRedirectTo: string;
   /**
-   * The authentication provider that establishes and verifies user identity.
+   * The authentication providers that establish and verify user identity, in
+   * order of declaration. Each entry is an independent identity system -- an
+   * audience, not a sign-in method: a whole Better Auth instance with all its
+   * methods is ONE provider here, and Wasp performs no account linking across
+   * providers (the same human signing in through two providers gets two
+   * separate rows of your user entity).
    *
-   * Either Wasp's own auth, configured with {@link waspAuth}:
+   * Wasp's own auth, configured with {@link waspAuth}:
    *
    * ```ts
    * auth: {
    *   userEntity: "User",
    *   onAuthFailedRedirectTo: "/login",
-   *   provider: waspAuth({ methods: { email: { ... } } }),
+   *   providers: [waspAuth({ methods: { email: { ... } } })],
    * }
    * ```
    *
-   * or an external provider, through an adapter package's spec helper (or
-   * {@link customAuthProvider} for a hand-written adapter):
+   * external providers, through an adapter package's spec helper (or
+   * {@link customAuthProvider} for a hand-written adapter), or any mix:
    *
    * ```ts
    * import { clerk } from "@wasp.sh/auth-clerk/spec";
@@ -179,18 +184,30 @@ export interface Auth {
    * auth: {
    *   userEntity: "User",
    *   onAuthFailedRedirectTo: "/login",
-   *   provider: clerk(),
+   *   providers: [waspAuth({ methods: { email: { ... } } }), clerk()],
    * }
    * ```
    *
-   * The choice is a discriminated union, so provider-specific configuration
+   * Each entry is a discriminated union, so provider-specific configuration
    * (auth methods, wasp auth hooks) is only expressible under the provider it
-   * belongs to. Wasp still owns everything downstream of authentication:
-   * `context.user` is always a row in your own user entity, whichever provider
-   * vouched for the request.
+   * belongs to. Provider ids must be pairwise distinct and at most one entry
+   * may be {@link waspAuth}. Wasp still owns everything downstream of
+   * authentication: every provider's login ends in the same Wasp session, and
+   * `context.user` is always a row in your own user entity, whichever
+   * provider vouched for the request (`user.sessionProviderId` says which).
    */
-  provider: AuthProviderConfig;
+  providers: AuthProviders;
 }
+
+/**
+ * The app's auth providers: a non-empty array of {@link AuthProviderConfig}.
+ *
+ * @category Auth
+ */
+export type AuthProviders = readonly [
+  AuthProviderConfig,
+  ...AuthProviderConfig[],
+];
 
 /**
  * The authentication provider of the app: Wasp's own auth (see
@@ -1039,15 +1056,45 @@ export interface Page extends BaseSpecElement<"page"> {
   /** React component rendered for this page. */
   component: Reference<AnyFunction>;
   /**
-   * If `true`, only authenticated users can access this page. Unauthenticated
-   * visitors are redirected to {@link Auth.onAuthFailedRedirectTo}.
+   * If `true`, only authenticated users can access this page, whichever
+   * provider they logged in through. Unauthenticated visitors are redirected
+   * to {@link Auth.onAuthFailedRedirectTo}.
+   *
+   * A list of auth provider ids (`["wasp"]`, `["external:clerk"]`, ...)
+   * additionally requires the session to have been minted by one of the
+   * listed providers: unauthenticated visitors are still redirected, but a
+   * user logged in through a non-listed provider sees an access-denied page
+   * instead (redirecting them to login would loop). Page-level checks are UX;
+   * the operations the page calls carry the real enforcement via
+   * {@link Query.auth}/{@link Action.auth}.
    *
    * Cannot be combined with {@link Route.prerender}.
    *
    * @default false
    */
-  authRequired?: boolean;
+  authRequired?: AuthRequirement;
 }
+
+/**
+ * Whether (and through which providers) a page or operation requires
+ * authentication: `false` = no auth, `true` = any valid session, a non-empty
+ * list of auth provider ids = only sessions minted by one of the listed
+ * providers. Ids are checked against `app.auth.providers` at build time.
+ *
+ * @category Auth
+ */
+export type AuthRequirement =
+  | boolean
+  | readonly [AuthProviderIdRef, ...AuthProviderIdRef[]];
+
+/**
+ * An auth provider id, as recorded on sessions and identities: `"wasp"` for
+ * Wasp's own auth, an external provider's manifest id (`"external:clerk"`)
+ * otherwise. Validated against the app's configured providers at build time.
+ *
+ * @category Auth
+ */
+export type AuthProviderIdRef = string;
 
 /**
  * A URL path mapped to a {@link Page}.
@@ -1147,9 +1194,13 @@ export interface Query extends BaseSpecElement<"query"> {
    * Whether this Query requires auth. If your app has auth enabled, this
    * defaults to `true`.
    *
+   * `true` attaches `context.user` (possibly null -- the Query decides); a
+   * list of auth provider ids is self-enforcing: no session is a 401, and a
+   * session minted by a non-listed provider is a 403.
+   *
    * Only available if your app has auth enabled.
    */
-  auth?: boolean;
+  auth?: AuthRequirement;
 }
 
 /**
@@ -1180,9 +1231,13 @@ export interface Action extends BaseSpecElement<"action"> {
    * Whether this Action requires auth. If your app has auth enabled, this
    * defaults to `true`.
    *
+   * `true` attaches `context.user` (possibly null -- the Action decides); a
+   * list of auth provider ids is self-enforcing: no session is a 401, and a
+   * session minted by a non-listed provider is a 403.
+   *
    * Only available if your app has auth enabled.
    */
-  auth?: boolean;
+  auth?: AuthRequirement;
 }
 
 /**
@@ -1223,8 +1278,11 @@ export interface Api extends BaseSpecElement<"api"> {
    * authenticated user and receives `context.user`. Defaults to `true` when
    * the app has auth enabled, and `false` otherwise. Set to `false` to skip
    * parsing the JWT from the Authorization header.
+   *
+   * A list of auth provider ids is self-enforcing: no session is a 401, and
+   * a session minted by a non-listed provider is a 403.
    */
-  auth?: boolean;
+  auth?: AuthRequirement;
 }
 
 /**

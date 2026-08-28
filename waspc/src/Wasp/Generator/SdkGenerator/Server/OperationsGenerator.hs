@@ -13,6 +13,7 @@ import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -145,7 +146,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
           "usesAuth" .= usesAuth operation
         ]
     getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
-    usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
+    usesAuth = AuthRequirement.isAuthRequiredWithDefault isAuthEnabledGlobally . AS.Operation.getAuth
 
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
@@ -156,7 +157,7 @@ getOperationTmplData isAuthEnabledGlobally operation =
       "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
-      "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
+      "usesAuth" .= AuthRequirement.isAuthRequiredWithDefault isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

@@ -87,7 +87,7 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never, SetupFnRef = neve
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: betterAuth(),  // email/password auth, ready to use
+ *   providers: [betterAuth()],  // email/password auth, ready to use
  * }
  * ```
  *

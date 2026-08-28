@@ -2,7 +2,7 @@ import express from 'express'
 import { prisma } from 'wasp/server'
 import { defineHandler } from 'wasp/server/utils'
 import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
-import auth from 'wasp/server/core/auth'
+import auth, { requireSessionProvider } from 'wasp/server/core/auth'
 import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 
 import { barNamespaceMiddlewareFn as _waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'

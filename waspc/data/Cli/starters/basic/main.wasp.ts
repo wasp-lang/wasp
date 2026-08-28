@@ -17,24 +17,24 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    provider: waspAuth({
-      methods: {
-        email: {
-          fromField: {
-            name: "Basic App",
-            email: "hello@example.com",
-          },
-          userSignupFields,
-          emailVerification: {
-            clientRoute: "EmailVerificationRoute",
-          },
-          passwordReset: {
-            clientRoute: "PasswordResetRoute",
+    providers: [waspAuth({
+        methods: {
+          email: {
+            fromField: {
+              name: "Basic App",
+              email: "hello@example.com",
+            },
+            userSignupFields,
+            emailVerification: {
+              clientRoute: "EmailVerificationRoute",
+            },
+            passwordReset: {
+              clientRoute: "PasswordResetRoute",
+            },
           },
         },
-      },
-      onAuthSucceededRedirectTo: "/",
-    }),
+        onAuthSucceededRedirectTo: "/",
+      })],
   },
   emailSender: {
     provider: "Dummy",

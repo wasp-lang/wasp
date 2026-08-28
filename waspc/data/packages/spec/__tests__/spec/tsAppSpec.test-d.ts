@@ -87,7 +87,7 @@ describe("Auth provider union", () => {
     const _invalid: WaspSpec.Auth = {
       userEntity: "User",
       onAuthFailedRedirectTo: "/login",
-      provider: waspProvider,
+      providers: [waspProvider],
       // @ts-expect-error -- methods only exists inside waspAuth()
       methods: { usernameAndPassword: {} },
     };
@@ -97,7 +97,7 @@ describe("Auth provider union", () => {
     const _invalid: WaspSpec.Auth = {
       userEntity: "User",
       onAuthFailedRedirectTo: "/login",
-      provider: waspProvider,
+      providers: [waspProvider],
       // @ts-expect-error -- hooks only exist inside waspAuth()
       onBeforeSignup: () => undefined,
     };
@@ -107,7 +107,7 @@ describe("Auth provider union", () => {
     const _invalid: WaspSpec.Auth = {
       userEntity: "User",
       onAuthFailedRedirectTo: "/login",
-      provider: waspProvider,
+      providers: [waspProvider],
       // @ts-expect-error -- onAuthSucceededRedirectTo only exists inside waspAuth()
       onAuthSucceededRedirectTo: "/",
     };

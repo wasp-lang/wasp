@@ -34,6 +34,7 @@ wasp-app/.wasp/out/Dockerfile
 wasp-app/.wasp/out/db/migrations/20260813195733_init/migration.sql
 wasp-app/.wasp/out/db/migrations/20260825133428_add_provider_session_id/migration.sql
 wasp-app/.wasp/out/db/migrations/20260827175123_split_provider_data/migration.sql
+wasp-app/.wasp/out/db/migrations/20260828000000_add_session_provider_id/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -63,7 +64,7 @@ wasp-app/.wasp/out/sdk/wasp/client/app/layout.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/pages/createAuthRequiredPage.jsx
 wasp-app/.wasp/out/sdk/wasp/client/app/router.tsx
 wasp-app/.wasp/out/sdk/wasp/client/auth/index.ts
-wasp-app/.wasp/out/sdk/wasp/client/auth/provider.ts
+wasp-app/.wasp/out/sdk/wasp/client/auth/providers.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
 wasp-app/.wasp/out/sdk/wasp/client/env/schema.ts
@@ -203,10 +204,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/provider.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/provider.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/provider.js
-wasp-app/.wasp/out/sdk/wasp/dist/client/auth/provider.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/providers.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/providers.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/providers.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/providers.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/config.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/config.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/config.js
@@ -599,6 +600,7 @@ wasp-app/main.wasp.ts
 wasp-app/migrations/20260813195733_init/migration.sql
 wasp-app/migrations/20260825133428_add_provider_session_id/migration.sql
 wasp-app/migrations/20260827175123_split_provider_data/migration.sql
+wasp-app/migrations/20260828000000_add_session_provider_id/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json

@@ -74,8 +74,8 @@ genAuth spec = case maybeAuth of
     genFileCopy = return . C.mkSrcTmplFd
 
     onlyUnderWaspAuth auth gen
-      | AS.Auth.isExternalAuthProviderUsed auth = return []
-      | otherwise = gen
+      | AS.Auth.isWaspAuthProviderUsed auth = gen
+      | otherwise = return []
 
     onlyUnderExternalProvider auth gen
       | AS.Auth.isExternalAuthProviderUsed auth = gen

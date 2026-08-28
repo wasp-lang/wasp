@@ -1,6 +1,6 @@
 import express from 'express'
 
-import auth from 'wasp/server/core/auth'
+import auth, { requireSessionProvider } from 'wasp/server/core/auth'
 
 import customSignup from './customSignup.js'
 import createTask from './createTask.js'

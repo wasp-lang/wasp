@@ -102,11 +102,13 @@ waspSpecEntityTypesTest =
           auth: {
             userEntity: "$entityName",
             onAuthFailedRedirectTo: "/",
-            provider: waspAuth({
-              methods: {
-                usernameAndPassword: {},
-              },
-            }),
+            providers: [
+              waspAuth({
+                methods: {
+                  usernameAndPassword: {},
+                },
+              }),
+            ],
           },
           spec: [
             route("Route", "/", {

@@ -32,7 +32,9 @@ export const waspAuthProvider: SessionManagingAuthProvider = {
   },
 
   async issueSession(subjectId: string): Promise<VerifiedSession> {
-    const session = await sessionStore.createSession(subjectId)
+    const session = await sessionStore.createSession(subjectId, {
+      providerId: 'wasp',
+    })
     return { sessionId: session.id, subjectId }
   },
 

@@ -22,6 +22,7 @@ const prismaAdapter = new PrismaAdapter(
  *    make fetching the User easier.
  */
 export const auth = new Lucia<{
+  providerId: string | null
   providerSessionId: string | null
 }, {
   userId: {= userEntityUpper =}['id'] | null
@@ -37,8 +38,9 @@ export const auth = new Lucia<{
   //     sameSite: "lax",
   //   },
   // },
-  getSessionAttributes({ providerSessionId }) {
+  getSessionAttributes({ providerId, providerSessionId }) {
     return {
+      providerId,
       providerSessionId,
     };
   },
@@ -53,6 +55,9 @@ declare module "lucia" {
   interface Register {
     Lucia: typeof auth;
     DatabaseSessionAttributes: {
+      // Id of the provider that minted this session ('wasp', 'external:clerk',
+      // ...); null only on rows from before the column existed.
+      providerId: string | null;
       // The external provider's own session id when this session was minted by
       // credential exchange; lets logout revoke both sessions (dual sign-out).
       providerSessionId: string | null;

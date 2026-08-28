@@ -61,7 +61,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
         [ "isAuthEnabled" .= isJust maybeAuth,
           "isWaspAuthUsed" .= AS.Valid.isWaspAuthUsed spec,
           "externalAuthProviderServerEnvVars"
-            .= (externalProviderEnvVarsTmplData (.server) <$> AS.Valid.getExternalAuthProvider spec),
+            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getExternalAuthProviders spec),
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
@@ -87,12 +87,12 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "isExternalAuthProviderUsed" .= isJust maybeExternalProvider,
+          "isExternalAuthProviderUsed" .= (not . null $ externalProviders),
           "externalAuthProviderClientEnvVars"
-            .= (externalProviderEnvVarsTmplData AS.Auth.client <$> maybeExternalProvider),
+            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) externalProviders,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
-    maybeExternalProvider = AS.Valid.getExternalAuthProvider spec
+    externalProviders = AS.Valid.getExternalAuthProviders spec
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
 

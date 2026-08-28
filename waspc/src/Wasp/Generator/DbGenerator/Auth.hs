@@ -170,6 +170,13 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
           id        String   @id @unique
           expiresAt DateTime
 
+          // Id of the auth provider that minted this session ('wasp',
+          // 'external:clerk', ...), recorded at mint time so that logout can
+          // revoke the right provider's session and user code can read which
+          // provider vouched for the login. Nullable only for rows from before
+          // the column existed; the runtime treats those as invalid.
+          providerId String?
+
           // Set when the session was minted by exchanging an external auth
           // provider's credential; holds the provider's own session id so that
           // logout can revoke both sessions (dual sign-out). Null for sessions
