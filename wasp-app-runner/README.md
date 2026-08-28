@@ -145,4 +145,4 @@ npm publish --access public
 
 ### 4. Ensure new published version is used in the apps
 
-Check that any apps in this repo are using this newer version of wasp-app-runner.
+Check that any apps in this repo are using this newer version of `wasp-app-runner`.
