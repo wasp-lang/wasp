@@ -1,31 +1,33 @@
 ---
-title: "Flue Feels Like React, But for Agents"
+title: "How to Build a Secure AI Agent for Your SaaS (with Flue)"
 authors: [vinny]
 image: /img/flue-open-saas/banner.webp
 tags: [wasp, ai agents, flue, react, saas, typescript]
 keywords: ["flue framework", "ai agent framework", "typescript agent framework", "react for agents", "agent hooks", "secure ai agents", "prompt injection prevention", "ai chatbot saas", "open saas", "flue tutorial", "agent tool calling", "conditional tools", "astro flue", "full-stack ai agent"]
-description: "I integrated a Flue agent into a SaaS app and it felt like writing React for agents: hooks, re-renders, and state-driven tools. Here's how Flue made locking an agent to the logged-in user and guarding destructive actions genuinely simple."
+description: "Adding an AI agent to a SaaS means giving it access to user data, and that has to be secure. Here's how Flue, a TypeScript agent framework that feels like React, makes locking an agent to the logged-in user and guarding destructive actions genuinely simple."
 ---
 
-I just integrated a [Flue](https://flueframework.com) agent into a [SaaS app](https://opensaas.sh). On the surface, it looks like your typical AI chatbot: it sits in a sidebar, you type at it, it types back.
+Everybody is trying to add AI to their SaaS right now. And a chatbot that just answers questions isn't enough anymore: users expect the assistant to actually *do* things inside the app. Create records, update them, kick off workflows, all on behalf of whoever is logged in.
 
-<div style={{ textAlign: "center", width: "100%", display: "inline-block" }}>
-  <iframe width="100%" height="400" src="https://www.youtube.com/embed/J8fb713Y5dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="true" />
-</div>
+That last part is the tricky bit. The moment an agent can touch user data, you have to be really careful that it only ever touches *this* user's data, and that it can't nuke anything without explicit confirmation.
 
-But this agent can also *do* things. It can manage the logged-in user's task list and generates a daily schedule from it. Which is really cool, because I can throw a multi-step request at it, like "add a new task called *present Flue in a video*, check off *integrate a Flue agent into Open SaaS*, and generate a schedule for today", and it works through the tools one by one, ticks off each item, and the task list UI on the left updates live as it goes.
+This is where agent frameworks come in. They handle the loop of sending messages to a model, letting it call tools, persisting the conversation, and exposing it all over HTTP, so you don't have to build that plumbing yourself. There are a lot of them out there right now, and I tried a few, but the one I particularly liked is [Flue](https://flueframework.com), a TypeScript agent framework from the folks over at [Astro](https://astro.build).
 
-![The agent updating the task list UI live](/img/flue-open-saas/agent-updates-ui.webp)
+To put it through its paces, I built a real integration with it, and the whole thing is open source: [github.com/vincanger/flue-open-saas](https://github.com/vincanger/flue-open-saas). Feel free to grab the code and use it in your own app.
 
 {/* truncate */}
 
-While this is just a simple demo, whenever you give an agent access to user data, you have to be really careful that it's secure. Making sure the agent can only ever touch *this* user's data, and can't nuke anything without explicit confirmation, turned out to be really easy with Flue.
+## What I built
 
-And it's one of the reasons why I really enjoyed working with it in comparison to other agent frameworks I've used.
+On the surface, it looks like your typical AI chatbot: it sits in a sidebar, you type at it, it types back. But this agent can also manage the logged-in user's task list and generate a daily schedule from it. I can throw a multi-step request at it, like "add a new task called *present Flue in a video*, check off *integrate a Flue agent into Open SaaS*, and generate a schedule for today", and it works through the tools one by one, ticks off each item, and the task list UI on the left updates live as it goes.
 
-If you don't know what Flue is: it's a TypeScript framework for building AI agents, from the folks over at [Astro](https://astro.build). There are a lot of agent frameworks out there right now, but Flue has an angle that genuinely separates it from the pack.
+![The agent updating the task list UI live](/img/flue-open-saas/agent-updates-ui.webp)
 
-Writing Flue feels like writing [React](https://react.dev/), but for agents. And after building a real integration with it, I think that mental model (plus two other things) makes it a really interesting approach. Let's go through all three:
+The app itself is built on top of [Open SaaS](https://opensaas.sh), our free, open-source SaaS template, so it already comes with auth, a database, and a demo task app. That gave me a realistic setup to plug an agent into: a real logged-in user, real user data, and real consequences if the agent gets it wrong.
+
+## Why Flue?
+
+Writing Flue feels like writing [React](https://react.dev/), but for agents. And after building this integration, I think that mental model (plus two other things) makes it a really interesting approach. Let's go through all three:
 
 1. **The React mental model** — agents are functions with hooks that re-run on every message.
 2. **Batteries included** — persistence, HTTP routing, and (the centerpiece of this post) the primitives to lock an agent to the logged-in user.
@@ -257,3 +259,9 @@ The three things that I think make Flue a genuinely interesting take on agent fr
 - **Versatility** means the CI-workflow crowd and the web-app crowd are using the same tool.
 
 The example I built is completely open source: [github.com/vincanger/flue-open-saas](https://github.com/vincanger/flue-open-saas). It's built on top of [Open SaaS](https://opensaas.sh), our free, open-source SaaS template, which comes full-featured with auth, payments (Stripe, Lemon Squeezy, Polar), file uploads with S3, this demo app, docs, and a blog!
+
+And if you'd rather see all of this in action, here's a video walkthrough of the integration:
+
+<div style={{ textAlign: "center", width: "100%", display: "inline-block" }}>
+  <iframe width="100%" height="400" src="https://www.youtube.com/embed/J8fb713Y5dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="true" />
+</div>
