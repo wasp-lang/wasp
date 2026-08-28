@@ -27,6 +27,7 @@
 Use the same URL pattern as the versioned documentation maps: https://wasp.sh/llms-full-{version}.txt
 
 ## Blog
+- [How to Build a Secure AI Agent for Your SaaS (with Flue)](https://wasp.sh/blog/2026/08/18/flue-react-for-agents.md)
 - [Wasp now supports Resend for sending emails](https://wasp.sh/blog/2026/08/03/wasp-resend-email-provider.md)
 - [Buzz + Wasp: from one chat message to a deployed full-stack app](https://wasp.sh/blog/2026/07/30/buzz-wasp-one-message-app.md)
 - [Made with Wasp: how Searchcraft built a full-stack SaaS around their Rust search engine](https://wasp.sh/blog/2026/07/20/made-with-wasp-searchcraft.md)
