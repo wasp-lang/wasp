@@ -1,7 +1,7 @@
 {{={= =}=}}
-{=^ isExternalAuthProviderUsed =}
+{=# isWaspAuthProviderUsed =}
 export * from './ui'
-{=/ isExternalAuthProviderUsed =}
+{=/ isWaspAuthProviderUsed =}
 {=# isEmailAuthEnabled =}
 export * from './email'
 {=/ isEmailAuthEnabled =}
@@ -32,3 +32,5 @@ export {
 } from '../../auth/useAuth'
 
 export { default as logout } from '../../auth/logout'
+
+export { resumeSession, loginWithAuthProvider } from './providers'

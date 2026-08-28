@@ -4,10 +4,17 @@ import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
+// Which provider minted the current session -- and, after the session
+// expires, which provider this browser last logged in with. Written on every
+// session mint, cleared on explicit logout (so a logout can never be silently
+// undone by session resume), deliberately NOT cleared when a session merely
+// dies (that is exactly when resume needs it).
+const WASP_APP_LAST_AUTH_PROVIDER_ID_NAME = 'lastAuthProviderId'
 
 // PRIVATE API (sdk)
-export function setSessionId(sessionId: string): void {
+export function setSessionId(sessionId: string, authProviderId: string): void {
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
+  storage.set(WASP_APP_LAST_AUTH_PROVIDER_ID_NAME, authProviderId)
   apiEventsEmitter.emit('sessionId.set')
 }
 
@@ -18,13 +25,32 @@ export function getSessionId(): string | null {
     | undefined
   return sessionId ?? null
 }
+
 // PRIVATE API (sdk)
+/**
+ * The id of the auth provider that minted the current session, or, when no
+ * session exists, the provider of the last login in this browser (the resume
+ * marker). Null in a browser that never logged in or logged out explicitly.
+ */
+export function getLastAuthProviderId(): string | null {
+  const providerId = storage.get(WASP_APP_LAST_AUTH_PROVIDER_ID_NAME) as
+    | string
+    | undefined
+  return providerId ?? null
+}
+
+// PRIVATE API (sdk)
+// Ends the local session but keeps the last-provider marker: called when the
+// session turns out dead (a 401), where silent resume SHOULD get a chance on
+// the next auth gate.
 export function clearSessionId(): void {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
+// Full teardown, marker included: the explicit-logout path. After this,
+// nothing resumes until the next explicit login.
 export function removeLocalUserData(): void {
   storage.clear()
   apiEventsEmitter.emit('sessionId.clear')
@@ -44,6 +70,12 @@ export const api = ky.extend({
   prefix: config.apiUrl,
   hooks: {
     beforeRequest: [
+      // Every request authenticates with Wasp's own session and nothing else:
+      // there is deliberately no provider machinery on the request path.
+      // Sessionless requests go out unauthenticated (and 401 on protected
+      // operations); silent session resume happens only at the auth gate
+      // (`createAuthRequiredPage`), addressed to the provider of the last
+      // login.
       ({ request }) => {
         const sessionId = getSessionId()
         if (sessionId !== null) {

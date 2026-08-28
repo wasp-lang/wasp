@@ -12,6 +12,7 @@ import Wasp.AppSpec (Ref)
 import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExtImport as ExtImport
@@ -72,7 +73,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( Page.Page
               { component = fromJust $ decodeJson extNamedImportJson,
-                authRequired = Just True
+                authRequired = Just AuthRequirement.AuthRequiredForAnyProvider
               }
           )
     it "parses a valid Page JSON without auth" $ do
@@ -188,7 +189,7 @@ spec_AppSpecFromJSON = do
           ( Query.Query
               { fn = fromJust $ decodeJson extNamedImportJson,
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef],
-                auth = Just True
+                auth = Just AuthRequirement.AuthRequiredForAnyProvider
               }
           )
     it "parses a valid Query JSON without auth and entities" $ do
@@ -217,7 +218,7 @@ spec_AppSpecFromJSON = do
           ( Action.Action
               { fn = fromJust $ decodeJson extNamedImportJson,
                 entities = sequence [decodeJson fooEntityRef, decodeJson barEntityRef],
-                auth = Just True
+                auth = Just AuthRequirement.AuthRequiredForAnyProvider
               }
           )
     it "parses a valid Action JSON without auth and entities" $ do

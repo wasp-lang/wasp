@@ -68,7 +68,7 @@ export interface ClerkConfig<UserSignupFieldsRef = never> {
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: clerk(),
+ *   providers: [clerk()],
  * }
  * ```
  *

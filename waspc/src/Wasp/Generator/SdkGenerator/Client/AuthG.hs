@@ -24,47 +24,58 @@ genClientAuth :: AppSpec -> Generator [FileDraft]
 genClientAuth spec =
   case maybeAuth of
     Nothing -> return []
-    Just auth
-      -- Under an external provider `wasp/client/auth` keeps only the uniform
-      -- surface (useAuth, logout); the provider's own UI comes from its
-      -- adapter package, not from Wasp's generated forms.
-      | AS.Auth.isExternalAuthProviderUsed auth ->
-          sequence $
-            [genAuthIndex auth]
-              ++ [genClientAuthProviderTs auth | AS.Auth.isClientAuthAdapterUsed auth]
-      | otherwise ->
-          sequence
-            [ genAuthIndex auth,
-              genAuthUi auth
-            ]
-            <++> genAuthEmail auth
-            <++> genAuthUsername auth
-            <++> genAuthSlack auth
-            <++> genAuthDiscord auth
-            <++> genAuthGoogle auth
-            <++> genAuthKeycloak auth
-            <++> genAuthGitHub auth
-            <++> genAuthMicrosoft auth
+    -- The uniform surface (useAuth, logout, resumeSession, the adapter
+    -- registry) exists for every provider mix; Wasp's own auth UI exists iff
+    -- Wasp's own auth is among the providers -- external providers bring
+    -- their own UI from their adapter packages.
+    Just auth ->
+      sequence
+        ( [ genAuthIndex auth,
+            genClientAuthProvidersTs auth
+          ]
+            ++ [genAuthUi auth | AS.Auth.isWaspAuthProviderUsed auth]
+        )
+        <++> genAuthEmail auth
+        <++> genAuthUsername auth
+        <++> genAuthSlack auth
+        <++> genAuthDiscord auth
+        <++> genAuthGoogle auth
+        <++> genAuthKeycloak auth
+        <++> genAuthGitHub auth
+        <++> genAuthMicrosoft auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
--- | The client half of the auth provider: instantiates the adapter package's
--- client entry with the same runtime-window discipline as the server half.
-genClientAuthProviderTs :: AS.Auth.Auth -> Generator FileDraft
-genClientAuthProviderTs auth =
+-- | The client halves of the auth providers: instantiates each adapter
+-- package's client entry with the same runtime-window discipline as the
+-- server halves, and carries the session-resume and login helpers built on
+-- them. Generated for every provider mix (with an empty registry when no
+-- provider brings a client package), so the helpers always exist.
+genClientAuthProvidersTs :: AS.Auth.Auth -> Generator FileDraft
+genClientAuthProvidersTs auth =
   return $
     mkTmplFdWithData
-      (clientAuthDirInSdkTemplatesDir </> [relfile|provider.ts|])
+      (clientAuthDirInSdkTemplatesDir </> [relfile|providers.ts|])
       tmplData
   where
     tmplData =
       Aeson.object
-        [ "clientPackage" Aeson..= clientPackage,
-          "hasOptions" Aeson..= maybe False (const True) maybeOptionsJson,
-          "optionsJson" Aeson..= maybeOptionsJson
+        [ "anyClientAdapters" Aeson..= (not . null $ clientAdapterProviders),
+          "clientAdapterProviders" Aeson..= zipWith mkClientAdapterProviderTmplData [0 :: Int ..] clientAdapterProviders
         ]
-    clientPackage = AS.Auth.externalProvider auth >>= AS.Auth.clientPackage
-    maybeOptionsJson = AS.Auth.externalProvider auth >>= AS.Auth.optionsJson
+    clientAdapterProviders =
+      [ (extProvider, clientPackage)
+      | extProvider <- AS.Auth.externalProviders auth,
+        Just clientPackage <- [AS.Auth.clientPackage extProvider]
+      ]
+    mkClientAdapterProviderTmplData idx (extProvider, clientPackage) =
+      Aeson.object
+        [ "index" Aeson..= idx,
+          "providerId" Aeson..= extProvider.providerId,
+          "clientPackage" Aeson..= clientPackage,
+          "hasOptions" Aeson..= maybe False (const True) extProvider.optionsJson,
+          "optionsJson" Aeson..= extProvider.optionsJson
+        ]
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
@@ -77,8 +88,8 @@ genAuthIndex auth =
       Aeson.Object enabledProvidersFlags ->
         Aeson.Object $
           KeyMap.insert
-            "isExternalAuthProviderUsed"
-            (Aeson.toJSON $ AS.Auth.isExternalAuthProviderUsed auth)
+            "isWaspAuthProviderUsed"
+            (Aeson.toJSON $ AS.Auth.isWaspAuthProviderUsed auth)
             enabledProvidersFlags
       otherJson -> otherJson
 

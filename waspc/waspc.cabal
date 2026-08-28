@@ -183,6 +183,7 @@ library
     Wasp.Analyzer.StdTypeDefinitions
     Wasp.Analyzer.StdTypeDefinitions.App.AuthProvider
     Wasp.Analyzer.StdTypeDefinitions.App.Dependency
+    Wasp.Analyzer.StdTypeDefinitions.AuthRequirement
     Wasp.Analyzer.StdTypeDefinitions.Entity
     Wasp.Analyzer.Type
     Wasp.Analyzer.TypeChecker
@@ -213,6 +214,7 @@ library
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
+    Wasp.AppSpec.AuthRequirement
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
@@ -732,6 +734,7 @@ test-suite waspc-e2e-tests
     TestLogging
     Tests.SdkPackageExportsTest
     Tests.SnapshotTests.AuthProviderExternalSnapshotTest
+    Tests.SnapshotTests.AuthProviderMultiSnapshotTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest

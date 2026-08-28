@@ -43,16 +43,39 @@ export function mapAuth(
   auth: WaspSpec.Auth,
   ctx: AppMapperContext,
 ): AppSpec.Auth {
-  const { userEntity, onAuthFailedRedirectTo, provider } = auth;
+  const { userEntity, onAuthFailedRedirectTo, providers } = auth;
 
-  const base = {
+  if ("provider" in auth) {
+    throw new WaspSpecUserError(
+      "app.auth.provider was renamed to app.auth.providers (an array of providers). Wrap your provider in an array: providers: [waspAuth({ ... })].",
+    );
+  }
+
+  if (!Array.isArray(providers) || providers.length === 0) {
+    throw new WaspSpecUserError(
+      "app.auth.providers must be a non-empty array of providers, each created with waspAuth(), an auth adapter package's spec helper, or customAuthProvider().",
+    );
+  }
+
+  const mappedProviders = providers.map((provider) =>
+    mapAuthProvider(provider, ctx),
+  );
+  assertProviderIdsAreUnique(mappedProviders);
+
+  return {
     userEntity: ctx.resolveEntityRef(userEntity),
     onAuthFailedRedirectTo,
+    providers: mappedProviders,
   };
+}
 
-  // The user-facing union maps 1:1 onto the IR's union -- the IR is the same
-  // discriminated shape, so the impossible states never exist in any
-  // representation the compiler consumes.
+// The user-facing union maps 1:1 onto the IR's union -- the IR is the same
+// discriminated shape, so the impossible states never exist in any
+// representation the compiler consumes.
+function mapAuthProvider(
+  provider: WaspSpec.AuthProviderConfig,
+  ctx: AppMapperContext,
+): AppSpec.AuthProvider {
   switch (provider.kind) {
     case "wasp": {
       const {
@@ -67,34 +90,46 @@ export function mapAuth(
       } = provider.config;
 
       return {
-        ...base,
-        provider: {
-          kind: "wasp",
-          methods: mapAuthMethods(methods, ctx),
-          onAuthSucceededRedirectTo,
-          onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
-          onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
-          onAfterEmailVerified:
-            onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
-          onBeforeOAuthRedirect:
-            onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
-          onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
-          onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
-        },
+        kind: "wasp",
+        methods: mapAuthMethods(methods, ctx),
+        onAuthSucceededRedirectTo,
+        onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
+        onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
+        onAfterEmailVerified:
+          onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
+        onBeforeOAuthRedirect:
+          onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
+        onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
+        onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
       };
     }
     case "external":
       return {
-        ...base,
-        provider: {
-          kind: "external",
-          ...mapExternalAuthProvider(provider, ctx),
-        },
+        kind: "external",
+        ...mapExternalAuthProvider(provider, ctx),
       };
     default:
       throw new WaspSpecUserError(
-        "app.auth.provider must be created with waspAuth(), an auth adapter package's spec helper, or customAuthProvider().",
+        "Each entry of app.auth.providers must be created with waspAuth(), an auth adapter package's spec helper, or customAuthProvider().",
       );
+  }
+}
+
+// Identities (and sessions) are recorded under the provider id, so a
+// duplicate would silently merge two providers' subjects. Checked here so the
+// error carries the offending id; the Haskell validator mirrors it.
+function assertProviderIdsAreUnique(providers: AppSpec.AuthProvider[]): void {
+  const seenIds = new Set<string>();
+  for (const provider of providers) {
+    const providerId = provider.kind === "wasp" ? "wasp" : provider.providerId;
+    if (seenIds.has(providerId)) {
+      throw new WaspSpecUserError(
+        providerId === "wasp"
+          ? "app.auth.providers may contain at most one waspAuth(...) provider."
+          : `app.auth.providers contains provider id '${providerId}' more than once. Identities are recorded under this id, so each provider may appear at most once (provider instance ids are not configurable yet).`,
+      );
+    }
+    seenIds.add(providerId);
   }
 }
 
@@ -104,7 +139,7 @@ function mapExternalAuthProvider(
 ): AppSpec.ExternalAuthProviderSpec {
   if (manifest.__waspAuthProviderManifest !== true) {
     throw new WaspSpecUserError(
-      "app.auth.provider received a hand-crafted external provider manifest. Manifests must be created through an adapter package's spec helper or customAuthProvider(), so they go through Wasp's validation.",
+      "app.auth.providers received a hand-crafted external provider manifest. Manifests must be created through an adapter package's spec helper or customAuthProvider(), so they go through Wasp's validation.",
     );
   }
 

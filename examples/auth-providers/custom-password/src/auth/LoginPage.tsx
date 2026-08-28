@@ -25,17 +25,23 @@ export function LoginPage() {
         });
       }
 
-      // The exchange: a Basic credential in, a Wasp session out.
-      const response = await fetch(`${config.apiUrl}/auth/login`, {
-        method: "POST",
-        headers: { Authorization: `Basic ${btoa(`${email}:${password}`)}` },
-      });
+      // The exchange, addressed to this provider by id: a Basic credential
+      // in, a Wasp session out. Hand-rolled fetch because the generated
+      // `exchangeCredentialForSession` helper always sends a Bearer
+      // credential, and this provider authenticates a Basic one.
+      const response = await fetch(
+        `${config.apiUrl}/auth/login/${encodeURIComponent("external:password")}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Basic ${btoa(`${email}:${password}`)}` },
+        },
+      );
       if (!response.ok) {
         setError("Invalid credentials");
         return;
       }
       const { sessionId } = (await response.json()) as { sessionId: string };
-      setSessionId(sessionId);
+      setSessionId(sessionId, "external:password");
       window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

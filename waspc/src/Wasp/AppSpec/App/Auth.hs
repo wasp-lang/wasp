@@ -26,9 +26,13 @@ module Wasp.AppSpec.App.Auth
     onBeforeOAuthRedirect,
     onBeforeLogin,
     onAfterLogin,
-    externalProvider,
+    waspAuthConfig,
+    externalProviders,
+    authProviderId,
+    waspAuthProviderId,
     serverPackage,
     serverModule,
+    isWaspAuthProviderUsed,
     isExternalAuthProviderUsed,
     isClientAuthAdapterUsed,
     isUsernameAndPasswordAuthEnabled,
@@ -52,7 +56,7 @@ import Data.Aeson (FromJSON, ToJSON, (.:))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.KeyMap as KeyMap
 import Data.Data (Data)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, listToMaybe)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
 import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
@@ -65,11 +69,14 @@ import Wasp.Util (toLowerFirst)
 data Auth = Auth
   { userEntity :: Ref Entity,
     onAuthFailedRedirectTo :: String,
-    provider :: AuthProvider
+    -- | The app's auth providers, in declaration order. Validation guarantees
+    -- the list is non-empty, provider ids are pairwise distinct, and at most
+    -- one element is a 'WaspAuthProvider'.
+    providers :: [AuthProvider]
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
--- | The authentication provider of the app, mirroring the discriminated union
+-- | One authentication provider of the app, mirroring the discriminated union
 -- in the user-facing spec: either Wasp's own auth, carrying everything that
 -- only makes sense when Wasp runs the signup and login flows, or an external
 -- provider's manifest. The impossible states -- auth methods next to Clerk,
@@ -186,9 +193,10 @@ serverModule spec = case spec.server of
   ExternalProviderServer (Left _) -> Nothing
   ExternalProviderServer (Right extImport) -> Just extImport
 
--- | Whether the selected external provider brings a client-side adapter entry.
+-- | Whether any configured external provider brings a client-side adapter
+-- entry.
 isClientAuthAdapterUsed :: Auth -> Bool
-isClientAuthAdapterUsed auth = isJust (externalProvider auth >>= clientPackage)
+isClientAuthAdapterUsed = any (isJust . clientPackage) . externalProviders
 
 data ExternalProviderRoutes = ExternalProviderRoutes
   { basePath :: String,
@@ -242,14 +250,26 @@ data EmailAuthConfig = EmailAuthConfig
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
--- Accessors over the provider sum, with the signatures consumers always had:
--- wasp-auth-only configuration simply reads as absent under an external
--- provider, which is exactly what it is.
+-- Accessors over the providers list, with the signatures consumers always
+-- had: wasp-auth-only configuration simply reads as absent when no
+-- 'WaspAuthProvider' is among the providers, which is exactly what it is.
+
+-- | The registry id of a provider: @"wasp"@ for Wasp's own auth, the manifest
+-- id (@"external:clerk"@) for external providers. This single id addresses the
+-- provider everywhere: the exchange route, the Session row, the identity
+-- store, and the generated registries.
+authProviderId :: AuthProvider -> String
+authProviderId (WaspAuthProvider _) = waspAuthProviderId
+authProviderId (ExternalAuthProvider extProvider) = providerId extProvider
+
+waspAuthProviderId :: String
+waspAuthProviderId = "wasp"
+
+waspAuthConfig :: Auth -> Maybe WaspAuthConfig
+waspAuthConfig auth = listToMaybe [config | WaspAuthProvider config <- providers auth]
 
 methods :: Auth -> AuthMethods
-methods auth = case provider auth of
-  WaspAuthProvider config -> waspAuthMethods config
-  ExternalAuthProvider _ -> emptyAuthMethods
+methods = maybe emptyAuthMethods waspAuthMethods . waspAuthConfig
 
 emptyAuthMethods :: AuthMethods
 emptyAuthMethods =
@@ -265,9 +285,7 @@ emptyAuthMethods =
     }
 
 withWaspAuthConfig :: (WaspAuthConfig -> Maybe a) -> Auth -> Maybe a
-withWaspAuthConfig getField auth = case provider auth of
-  WaspAuthProvider config -> getField config
-  ExternalAuthProvider _ -> Nothing
+withWaspAuthConfig getField auth = waspAuthConfig auth >>= getField
 
 onAuthSucceededRedirectTo :: Auth -> Maybe String
 onAuthSucceededRedirectTo = withWaspAuthConfig waspAuthOnAuthSucceededRedirectTo
@@ -290,13 +308,15 @@ onBeforeLogin = withWaspAuthConfig waspAuthOnBeforeLogin
 onAfterLogin :: Auth -> Maybe ExtImport
 onAfterLogin = withWaspAuthConfig waspAuthOnAfterLogin
 
-externalProvider :: Auth -> Maybe ExternalAuthProviderSpec
-externalProvider auth = case provider auth of
-  WaspAuthProvider _ -> Nothing
-  ExternalAuthProvider extProvider -> Just extProvider
+-- | The external providers among the app's providers, in declaration order.
+externalProviders :: Auth -> [ExternalAuthProviderSpec]
+externalProviders auth = [extProvider | ExternalAuthProvider extProvider <- providers auth]
+
+isWaspAuthProviderUsed :: Auth -> Bool
+isWaspAuthProviderUsed = isJust . waspAuthConfig
 
 isExternalAuthProviderUsed :: Auth -> Bool
-isExternalAuthProviderUsed = isJust . externalProvider
+isExternalAuthProviderUsed = not . null . externalProviders
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods

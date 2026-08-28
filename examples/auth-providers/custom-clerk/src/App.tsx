@@ -36,7 +36,7 @@ function ClerkToWaspSessionBridge({ children }: { children: React.ReactNode }) {
         const token = await getToken();
         if (token && !cancelled) {
           try {
-            await exchangeCredentialForSession(token);
+            await exchangeCredentialForSession("external:clerk", token);
           } catch {
             // The next tick retries; a misconfigured server keeps failing
             // loudly in its own logs.

@@ -52,51 +52,53 @@ import {
 export const authConfig: Auth = {
   userEntity: "User",
   onAuthFailedRedirectTo: "/login",
-  provider: waspAuth({
-    methods: {
-      slack: {
-        configFn: slackConfig,
-        userSignupFields: slackUserSignupFields,
-      },
-      discord: {
-        configFn: discordConfig,
-        userSignupFields: discordUserSignupFields,
-      },
-      google: {
-        configFn: googleConfig,
-        userSignupFields: googleUserSignupFields,
-      },
-      gitHub: {
-        configFn: gitHubConfig,
-        userSignupFields: gitHubUserSignupFields,
-      },
-      microsoft: {
-        configFn: microsoftConfig,
-        userSignupFields: microsoftUserSignupFields,
-      },
-      email: {
-        userSignupFields: emailUserSignupFields,
-        fromField: {
-          name: "Wasp Kitchen Sink",
-          email: "kitchen-sink@wasp.sh",
+  providers: [
+    waspAuth({
+      methods: {
+        slack: {
+          configFn: slackConfig,
+          userSignupFields: slackUserSignupFields,
         },
-        emailVerification: {
-          getEmailContentFn: getVerificationEmailContent,
-          clientRoute: "EmailVerificationRoute",
+        discord: {
+          configFn: discordConfig,
+          userSignupFields: discordUserSignupFields,
         },
-        passwordReset: {
-          getEmailContentFn: getPasswordResetEmailContent,
-          clientRoute: "PasswordResetRoute",
+        google: {
+          configFn: googleConfig,
+          userSignupFields: googleUserSignupFields,
+        },
+        gitHub: {
+          configFn: gitHubConfig,
+          userSignupFields: gitHubUserSignupFields,
+        },
+        microsoft: {
+          configFn: microsoftConfig,
+          userSignupFields: microsoftUserSignupFields,
+        },
+        email: {
+          userSignupFields: emailUserSignupFields,
+          fromField: {
+            name: "Wasp Kitchen Sink",
+            email: "kitchen-sink@wasp.sh",
+          },
+          emailVerification: {
+            getEmailContentFn: getVerificationEmailContent,
+            clientRoute: "EmailVerificationRoute",
+          },
+          passwordReset: {
+            getEmailContentFn: getPasswordResetEmailContent,
+            clientRoute: "PasswordResetRoute",
+          },
         },
       },
-    },
-    onAuthSucceededRedirectTo: "/",
-    onBeforeSignup,
-    onAfterSignup,
-    onAfterEmailVerified,
-    onBeforeLogin,
-    onAfterLogin,
-  }),
+      onAuthSucceededRedirectTo: "/",
+      onBeforeSignup,
+      onAfterSignup,
+      onAfterEmailVerified,
+      onBeforeLogin,
+      onAfterLogin,
+    }),
+  ],
 };
 
 export const authSpec: Spec = [

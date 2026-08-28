@@ -21,23 +21,28 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    provider: customAuthProvider({
-      id: "external:clerk",
-      server: clerkAuthProvider,
-      capabilities: ["session-revocation"],
-      env: {
-        server: [
-          { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
-          { name: "CLERK_PUBLISHABLE_KEY", doc: "Clerk dashboard → API keys" },
-          {
-            name: "CLERK_JWT_KEY",
-            optional: true,
-            doc: "enables networkless JWT verification",
-          },
-        ],
-        client: [],
-      },
-    }),
+    providers: [
+      customAuthProvider({
+        id: "external:clerk",
+        server: clerkAuthProvider,
+        capabilities: ["session-revocation"],
+        env: {
+          server: [
+            { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
+            {
+              name: "CLERK_PUBLISHABLE_KEY",
+              doc: "Clerk dashboard → API keys",
+            },
+            {
+              name: "CLERK_JWT_KEY",
+              optional: true,
+              doc: "enables networkless JWT verification",
+            },
+          ],
+          client: [],
+        },
+      }),
+    ],
   },
 
   client: {

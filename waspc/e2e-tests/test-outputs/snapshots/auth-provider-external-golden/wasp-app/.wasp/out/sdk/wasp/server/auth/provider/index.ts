@@ -1,8 +1,10 @@
-import { canManageSessions as canProviderManagesSessions, canRevokeSessions as canProviderRevokeSessions, type AuthProvider } from './types.js'
+import { canManageSessions as canProviderManageSessions, canRevokeSessions as canProviderRevokeSessions, type AuthProvider } from './types.js'
+import type { AuthProviderId, ExternalAuthProviderId } from '../../../auth/provider.js'
+import type { WaspServerRuntime } from '@wasp.sh/auth-contract'
 import { provisionAuthUser } from '../session.js'
 import { getIdentityStore } from '../identityStore.js'
-import { createServerAdapter } from '@wasp.sh/auth-clerk/server'
 import { config, prisma } from '../../index.js'
+import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth-clerk/server'
 
 // PRIVATE API
 export {
@@ -14,44 +16,47 @@ export {
   canRevokeSessions,
 } from './types.js'
 
-const manifestIdentities = getIdentityStore('external:clerk')
+/**
+ * The runtime window an adapter package gets, with the identity store
+ * pre-bound to that provider's id. This runtime object is the adapter's *only*
+ * window into the app: adapters never import generated code and never read
+ * `process.env` themselves, which is what lets them version independently of
+ * any app. `provision` routes through that provider's `userSignupFields`,
+ * exactly like just-in-time provisioning at the login exchange. The casts are
+ * the runtime boundary: the store speaks `unknown`, the contract speaks
+ * `JsonValue`, and both sides of every value are plain parsed JSON.
+ */
+function makeAdapterRuntime(providerId: ExternalAuthProviderId): WaspServerRuntime {
+  const identities = getIdentityStore(providerId)
+  return {
+    db: prisma,
+    dbProvider: 'sqlite',
+    env: process.env,
+    serverUrl: config.serverUrl,
+    clientUrl: config.frontendUrl,
+    identities: {
+      provision: (subjectId, identity) =>
+        provisionAuthUser(providerId, subjectId, identity?.claims, {
+          data: identity?.data,
+          secrets: identity?.secrets,
+        }),
+      find: (subjectId) => identities.find(subjectId) as any,
+      updateData: (subjectId, updates) =>
+        identities.updateData(subjectId, updates),
+      getSecrets: (subjectId) => identities.getSecrets(subjectId) as any,
+      setSecrets: (subjectId, secrets) =>
+        identities.setSecrets(subjectId, secrets),
+    },
+  }
+}
 
 /**
- * The adapter package's server factory, called with everything it may know
- * about the app. This runtime object is the adapter's *only* window into the
- * app: adapters never import generated code and never read `process.env`
- * themselves, which is what lets them version independently of any app.
+ * The adapter package's server factory for 'external:clerk', called with
+ * everything it may know about the app.
  */
-const serverAdapter = await Promise.resolve(
-  createServerAdapter(
-    {
-      db: prisma,
-      dbProvider: 'sqlite',
-      env: process.env,
-      serverUrl: config.serverUrl,
-      clientUrl: config.frontendUrl,
-      // The identity store, pre-bound to this provider's manifest id -- the
-      // adapter's sanctioned channel for everything identity-shaped, with the
-      // same powers Wasp's own auth flows use. `provision` routes through the
-      // app's `userSignupFields`, exactly like just-in-time provisioning at
-      // the login exchange. The casts are the runtime boundary: the store
-      // speaks `unknown`, the contract speaks `JsonValue`, and both sides of
-      // every value are plain parsed JSON.
-      identities: {
-        provision: (subjectId, identity) =>
-          provisionAuthUser(subjectId, identity?.claims, {
-            data: identity?.data,
-            secrets: identity?.secrets,
-          }),
-        find: (subjectId) => manifestIdentities.find(subjectId) as any,
-        updateData: (subjectId, updates) =>
-          manifestIdentities.updateData(subjectId, updates),
-        getSecrets: (subjectId) =>
-          manifestIdentities.getSecrets(subjectId) as any,
-        setSecrets: (subjectId, secrets) =>
-          manifestIdentities.setSecrets(subjectId, secrets),
-      },
-    },
+const serverAdapter_0 = await Promise.resolve(
+  createServerAdapter_0(
+    makeAdapterRuntime('external:clerk'),
     undefined,
     {
       // The user's setup function for the adapter's underlying library; the
@@ -63,76 +68,94 @@ const serverAdapter = await Promise.resolve(
 
 // PRIVATE API
 /**
- * The auth provider this app runs on.
+ * The app's auth providers, keyed by provider id, in `main.wasp.ts`
+ * declaration order.
  *
- * Everything else in Wasp depends on the `AuthProvider` interface rather than on
- * a concrete implementation, so selecting a different one here is the only change
- * needed to authenticate against something other than Wasp's own auth.
+ * Everything else in Wasp depends on the `AuthProvider` interface rather than
+ * on concrete implementations. Every provider a session can name is here, so
+ * looking up a session's minting provider always succeeds.
  */
-export const authProvider: AuthProvider =
-  serverAdapter.provider
+export const authProviders: { readonly [Id in AuthProviderId]: AuthProvider } = {
+  'external:clerk': serverAdapter_0.provider,
+}
 
 // PRIVATE API
 /**
- * Node handler for the provider's own routes, if it brought any. The server
- * mounts it at the basePath the manifest declared.
+ * The external providers a credential can be exchanged with (`POST
+ * /auth/login/:providerId`). Deliberately excludes 'wasp': Wasp's own auth
+ * mints sessions through its own routes, and exchanging a Wasp credential for
+ * a Wasp session would be a loop.
  */
-export const authProviderRouteHandler = serverAdapter.routeHandler
+export const externalAuthProviders: { readonly [Id in ExternalAuthProviderId]: AuthProvider } = {
+  'external:clerk': authProviders['external:clerk'],
+}
+
+// PRIVATE API
+export function getAuthProvider(providerId: string): AuthProvider | undefined {
+  return (authProviders as Record<string, AuthProvider>)[providerId]
+}
+
+// PRIVATE API
+/**
+ * Node handlers for the routes external providers brought with them, keyed by
+ * provider id. The server mounts each at the basePath its manifest declared.
+ */
+export const authProviderRouteHandlers: Partial<Record<ExternalAuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+  'external:clerk': serverAdapter_0.routeHandler,
+}
 
 /**
- * The manifest in `main.wasp.ts` made compile-time claims about this provider
+ * Each manifest in `main.wasp.ts` made compile-time claims about its provider
  * (its id, its capabilities), and code was generated from them. Checking the
- * claims against the adapter object at boot turns a wrong manifest into a
+ * claims against the adapter objects at boot turns a wrong manifest into a
  * loud startup failure instead of a subtly broken app.
  */
-function assertProviderMatchesManifest(): void {
-  const manifestProviderId = "external:clerk";
-  const manifestCapabilities: string[] = ['session-revocation'];
+function assertProvidersMatchManifests(): void {
+  const manifests: Array<{ providerId: string; capabilities: string[] }> = [
+    { providerId: 'external:clerk', capabilities: ['session-revocation'] },
+  ]
 
-  const errors: string[] = [];
+  const errors: string[] = []
 
-  if (authProvider.id !== manifestProviderId) {
-    errors.push(
-      `the manifest declares id '${manifestProviderId}', but the adapter's id is '${authProvider.id}' -- ` +
-        `identities are recorded under the provider id, so the two must match`,
-    );
-  }
+  for (const manifest of manifests) {
+    const provider = getAuthProvider(manifest.providerId)
+    if (provider === undefined) {
+      continue
+    }
 
-  if (
-    manifestCapabilities.includes('issue-sessions') &&
-    !canProviderManagesSessions(authProvider)
-  ) {
-    errors.push(
-      `the manifest declares the 'issue-sessions' capability, but the adapter does not implement the full ` +
-        `issueSession/revokeSession/revokeAllSessions set Wasp requires for session management`,
-    );
-  }
+    if (provider.id !== manifest.providerId) {
+      errors.push(
+        `the manifest declares id '${manifest.providerId}', but the adapter's id is '${provider.id}' -- ` +
+          `identities are recorded under the provider id, so the two must match`,
+      )
+    }
 
-  if (
-    manifestCapabilities.includes('session-revocation') &&
-    !canProviderRevokeSessions(authProvider)
-  ) {
-    errors.push(
-      `the manifest declares the 'session-revocation' capability, but the adapter does not implement revokeSession`,
-    );
+    if (
+      manifest.capabilities.includes('issue-sessions') &&
+      !canProviderManageSessions(provider)
+    ) {
+      errors.push(
+        `the manifest for '${manifest.providerId}' declares the 'issue-sessions' capability, but the adapter does not implement the full ` +
+          `issueSession/revokeSession/revokeAllSessions set Wasp requires for session management`,
+      )
+    }
+
+    if (
+      manifest.capabilities.includes('session-revocation') &&
+      !canProviderRevokeSessions(provider)
+    ) {
+      errors.push(
+        `the manifest for '${manifest.providerId}' declares the 'session-revocation' capability, but the adapter does not implement revokeSession`,
+      )
+    }
   }
 
   if (errors.length > 0) {
     throw new Error(
-      `The auth provider adapter does not match its manifest ('${manifestProviderId}'):\n` +
+      'Auth provider adapters do not match their manifests:\n' +
         errors.map((error) => `  - ${error}`).join('\n'),
-    );
+    )
   }
 }
 
-assertProviderMatchesManifest()
-
-// PRIVATE API
-/**
- * Whether the provider owns Wasp's auth entity.
- *
- * Wasp's own auth writes the `Auth` table itself, so a subject id from it already
- * identifies a local row. An external provider's subject id is foreign, and Wasp
- * has to resolve it to a local user -- provisioning one on first sight.
- */
-export const providerOwnsAuthEntity: boolean = false
+assertProvidersMatchManifests()

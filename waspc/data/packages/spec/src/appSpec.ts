@@ -35,8 +35,15 @@ export type DeclType = Decl["declType"] | "Entity";
 
 export type Page = {
   component: ExtImport;
-  authRequired: Optional<boolean>;
+  authRequired: Optional<AuthRequirement>;
 };
+
+/**
+ * Whether (and through which providers) a page or operation requires
+ * authentication: `false` = no auth, `true` = any valid session, a list of
+ * auth provider ids = only sessions minted by one of the listed providers.
+ */
+export type AuthRequirement = boolean | string[];
 
 export type Route = {
   path: string;
@@ -51,13 +58,13 @@ export type Route = {
 export type Action = {
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
-  auth: Optional<boolean>;
+  auth: Optional<AuthRequirement>;
 };
 
 export type Query = {
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
-  auth: Optional<boolean>;
+  auth: Optional<AuthRequirement>;
 };
 
 export type Job = {
@@ -82,7 +89,7 @@ export type Api = {
   middlewareConfigFn: Optional<ExtImport>;
   entities: Optional<Ref<"Entity">[]>;
   httpRoute: HttpRoute;
-  auth: Optional<boolean>;
+  auth: Optional<AuthRequirement>;
 };
 
 export type ApiNamespace = {
@@ -151,7 +158,7 @@ export type Wasp = {
 export type Auth = {
   userEntity: Ref<"Entity">;
   onAuthFailedRedirectTo: string;
-  provider: AuthProvider;
+  providers: AuthProvider[];
 };
 
 // The IR mirrors the user-facing spec's discriminated union, so the impossible

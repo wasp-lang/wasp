@@ -50,9 +50,10 @@ genAuth spec =
             genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
-        -- Wasp's own auth UI and flows. An external provider brings its own,
-        -- so under one these are not generated at all: importing `LoginForm`
-        -- is then a compile error, not a component that breaks at runtime.
+        -- Wasp's own auth UI and flows exist iff Wasp's own auth is among
+        -- the providers. External providers bring their own UI, so in
+        -- externals-only apps importing `LoginForm` is a compile error, not a
+        -- component that breaks at runtime.
         <++> onlyUnderWaspAuth auth (genAuthForms auth)
         <++> onlyUnderWaspAuth auth (genLocalAuth auth)
         <++> onlyUnderWaspAuth auth (genOAuthAuth auth)
@@ -61,12 +62,12 @@ genAuth spec =
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
     onlyUnderWaspAuth auth gen
-      | AS.Auth.isExternalAuthProviderUsed auth = return []
-      | otherwise = gen
+      | AS.Auth.isWaspAuthProviderUsed auth = gen
+      | otherwise = return []
 
--- | The one module that always answers "which auth provider is this app on":
--- a literal the type system narrows, so provider-specific code can be guarded
--- at compile time.
+-- | The one module that always answers "which auth providers is this app on":
+-- literal ids the type system narrows, so provider-specific code can be
+-- guarded at compile time.
 genAuthProviderIdentity :: AS.Auth.Auth -> Generator FileDraft
 genAuthProviderIdentity auth =
   return $
@@ -76,13 +77,17 @@ genAuthProviderIdentity auth =
   where
     tmplData =
       object
-        [ "providerId" .= providerId,
-          "capabilities" .= makeJsArrayFromHaskellList capabilities
+        [ "authProviders" .= (providerTmplData <$> AS.Auth.providers auth),
+          "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth
         ]
-    providerId = maybe "wasp" AS.Auth.providerId maybeExternalProvider
+    providerTmplData authProvider =
+      object
+        [ "providerId" .= AS.Auth.authProviderId authProvider,
+          "capabilitiesJs" .= makeJsArrayFromHaskellList (capabilitiesOf authProvider)
+        ]
     -- Wasp's own auth can mint and revoke sessions server-side.
-    capabilities = maybe ["issue-sessions", "session-revocation"] AS.Auth.capabilities maybeExternalProvider
-    maybeExternalProvider = AS.Auth.externalProvider auth
+    capabilitiesOf (AS.Auth.WaspAuthProvider _) = ["issue-sessions", "session-revocation"]
+    capabilitiesOf (AS.Auth.ExternalAuthProvider extProvider) = extProvider.capabilities
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
@@ -98,11 +103,8 @@ genUseAuth auth =
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genLogoutTs :: AS.Auth.Auth -> Generator FileDraft
-genLogoutTs auth =
-  return $
-    mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|logout.ts|])
-      (object ["isClientAuthAdapterUsed" .= AS.Auth.isClientAuthAdapterUsed auth])
+genLogoutTs _auth =
+  genFileCopyInAuth [relfile|logout.ts|]
 
 genUserTs :: AS.Auth.Auth -> Generator FileDraft
 genUserTs auth =
@@ -119,7 +121,7 @@ genUserTs auth =
           "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
-          "isCustomAuthProviderUsed" .= AS.Auth.isExternalAuthProviderUsed auth
+          "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

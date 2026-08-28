@@ -19,7 +19,7 @@
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: betterAuth(),  // email/password auth, ready to use
+ *   providers: [betterAuth()],  // email/password auth, ready to use
  * }
  * ```
  *

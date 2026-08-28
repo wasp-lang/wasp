@@ -5,9 +5,9 @@ import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
 {=/ isAuthEnabled =}
-{=# externalAuthProviderRoutes =}
-import { authProviderRouteHandler } from 'wasp/server/auth/provider'
-{=/ externalAuthProviderRoutes =}
+{=# anyExternalAuthProviderRoutes =}
+import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
+{=/ anyExternalAuthProviderRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
 {=/ areThereAnyCustomApiRoutes =}
@@ -45,22 +45,24 @@ router.get('/', middleware,
 router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
 {=# externalAuthProviderRoutes =}
-// The external auth provider's own routes, mounted where its manifest asked.
-// The usual middleware stack applies{=# rawBody =}, minus the body parsers: the
-// provider's handler reads the raw request stream itself, and a body that was
-// already consumed would make every request to it hang{=/ rawBody =}.
-const authProviderMiddleware = globalMiddlewareConfigForExpress((middlewareConfig) => {
+// The routes provider '{= providerId =}' brought along, mounted where its
+// manifest asked. The usual middleware stack applies{=# rawBody =}, minus the
+// body parsers: the provider's handler reads the raw request stream itself,
+// and a body that was already consumed would make every request to it
+// hang{=/ rawBody =}.
+const authProviderMiddleware_{= index =} = globalMiddlewareConfigForExpress((middlewareConfig) => {
   {=# rawBody =}
   middlewareConfig.delete('express.json')
   middlewareConfig.delete('express.urlencoded')
   {=/ rawBody =}
   return middlewareConfig
 })
-router.use('{= basePath =}', authProviderMiddleware, (req, res, next) => {
-  if (authProviderRouteHandler === undefined) {
-    return next(new Error('The auth provider manifest declares routes, but its server adapter returned no routeHandler.'))
+router.use('{= basePath =}', authProviderMiddleware_{= index =}, (req, res, next) => {
+  const routeHandler = authProviderRouteHandlers['{= providerId =}']
+  if (routeHandler === undefined) {
+    return next(new Error("The manifest of auth provider '{= providerId =}' declares routes, but its server adapter returned no routeHandler."))
   }
-  return Promise.resolve(authProviderRouteHandler(req, res)).catch(next)
+  return Promise.resolve(routeHandler(req, res)).catch(next)
 })
 {=/ externalAuthProviderRoutes =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)

@@ -1,0 +1,37 @@
+{
+  "name": "auth-provider-multi",
+  "type": "module",
+  "workspaces": [
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
+  ],
+  "dependencies": {
+    "@clerk/clerk-react": "5.51.0",
+    "@wasp.sh/auth-clerk": "file:../packages/auth-clerk",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-hook-form": "^7.69.0",
+    "react-router": "^8.0.1",
+    "tailwind-merge": "~3.4.0",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@tailwindcss/vite": "^4.3.1",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@wasp.sh/spec": "file:.wasp/spec/",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.1.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "prisma": "5.19.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.32.1",
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
+  }
+}

@@ -19,7 +19,7 @@
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: clerk(),
+ *   providers: [clerk()],
  * }
  * ```
  *

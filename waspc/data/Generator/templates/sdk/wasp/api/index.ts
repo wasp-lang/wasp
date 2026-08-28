@@ -1,17 +1,24 @@
 {{={= =}=}}
 import ky, { isHTTPError } from 'ky'
-{=# isClientAuthAdapterUsed =}
-import { clientAuthAdapter } from '../client/auth/provider.js'
-{=/ isClientAuthAdapterUsed =}
+{=# anyExternalProvidersUsed =}
+import type { ExternalAuthProviderId } from '../auth/provider.js'
+{=/ anyExternalProvidersUsed =}
 import { config } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
+// Which provider minted the current session -- and, after the session
+// expires, which provider this browser last logged in with. Written on every
+// session mint, cleared on explicit logout (so a logout can never be silently
+// undone by session resume), deliberately NOT cleared when a session merely
+// dies (that is exactly when resume needs it).
+const WASP_APP_LAST_AUTH_PROVIDER_ID_NAME = 'lastAuthProviderId'
 
 // PRIVATE API (sdk)
-export function setSessionId(sessionId: string): void {
+export function setSessionId(sessionId: string, authProviderId: string): void {
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
+  storage.set(WASP_APP_LAST_AUTH_PROVIDER_ID_NAME, authProviderId)
   apiEventsEmitter.emit('sessionId.set')
 }
 
@@ -22,13 +29,32 @@ export function getSessionId(): string | null {
     | undefined
   return sessionId ?? null
 }
+
 // PRIVATE API (sdk)
+/**
+ * The id of the auth provider that minted the current session, or, when no
+ * session exists, the provider of the last login in this browser (the resume
+ * marker). Null in a browser that never logged in or logged out explicitly.
+ */
+export function getLastAuthProviderId(): string | null {
+  const providerId = storage.get(WASP_APP_LAST_AUTH_PROVIDER_ID_NAME) as
+    | string
+    | undefined
+  return providerId ?? null
+}
+
+// PRIVATE API (sdk)
+// Ends the local session but keeps the last-provider marker: called when the
+// session turns out dead (a 401), where silent resume SHOULD get a chance on
+// the next auth gate.
 export function clearSessionId(): void {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
+// Full teardown, marker included: the explicit-logout path. After this,
+// nothing resumes until the next explicit login.
 export function removeLocalUserData(): void {
   storage.clear()
   apiEventsEmitter.emit('sessionId.clear')
@@ -48,26 +74,18 @@ export const api = ky.extend({
   prefix: config.apiUrl,
   hooks: {
     beforeRequest: [
-      {=# isClientAuthAdapterUsed =}
-      // Every request authenticates with Wasp's own session. When there is
-      // none yet, the adapter's credential is exchanged for one first
-      // (`POST /auth/login`), so a login inside the provider's UI turns into a
-      // Wasp session on the next API call.
-      async ({ request }) => {
-        const sessionId = await ensureSessionFromAdapter()
-        if (sessionId !== null) {
-          request.headers.set('Authorization', `Bearer ${sessionId}`)
-        }
-      },
-      {=/ isClientAuthAdapterUsed =}
-      {=^ isClientAuthAdapterUsed =}
+      // Every request authenticates with Wasp's own session and nothing else:
+      // there is deliberately no provider machinery on the request path.
+      // Sessionless requests go out unauthenticated (and 401 on protected
+      // operations); silent session resume happens only at the auth gate
+      // (`createAuthRequiredPage`), addressed to the provider of the last
+      // login.
       ({ request }) => {
         const sessionId = getSessionId()
         if (sessionId !== null) {
           request.headers.set('Authorization', `Bearer ${sessionId}`)
         }
       },
-      {=/ isClientAuthAdapterUsed =}
     ],
     afterResponse: [
       ({ request, response }) => {
@@ -96,15 +114,20 @@ export const api = ky.extend({
     ],
   },
 })
-{=# isCustomAuthProviderUsed =}
+{=# anyExternalProvidersUsed =}
 
 /**
- * Exchanges the auth provider's credential for a Wasp session
- * (`POST /auth/login`). Uses plain `fetch` rather than the `api` instance so
- * the request does not recurse through the hooks above.
+ * Exchanges an auth provider's credential for a Wasp session
+ * (`POST /auth/login/:providerId`). Uses plain `fetch` rather than the `api`
+ * instance so the request does not recurse through the hooks above. The
+ * provider id rides in the path percent-encoded, in one place, because ids
+ * contain a ':' ('external:clerk').
  */
-async function fetchSessionForCredential(credential: string): Promise<string | null> {
-  const response = await fetch(`${config.apiUrl}/auth/login`, {
+async function fetchSessionForCredential(
+  providerId: ExternalAuthProviderId,
+  credential: string,
+): Promise<string | null> {
+  const response = await fetch(buildExchangeUrl(providerId), {
     method: 'POST',
     headers: { Authorization: `Bearer ${credential}` },
   })
@@ -114,75 +137,31 @@ async function fetchSessionForCredential(credential: string): Promise<string | n
   const { sessionId } = (await response.json()) as { sessionId: string }
   return sessionId
 }
-{=^ isClientAuthAdapterUsed =}
+
+function buildExchangeUrl(providerId: ExternalAuthProviderId): string {
+  return `${config.apiUrl}/auth/login/${encodeURIComponent(providerId)}`
+}
 
 // PUBLIC API
 /**
- * Exchanges an auth provider credential for a Wasp session and stores it, so
- * every subsequent API call is authenticated. Hand-written client wiring calls
- * this once after the provider's own login flow succeeds; from then on the
- * provider is off the request path until logout.
+ * Exchanges the named auth provider's credential for a Wasp session and
+ * stores it, so every subsequent API call is authenticated. The addressed
+ * provider rejecting the credential is final -- there is no fallthrough to
+ * other providers. Client wiring calls this once after the provider's own
+ * login flow succeeds; from then on the provider is off the request path
+ * until logout.
  */
-export async function exchangeCredentialForSession(credential: string): Promise<void> {
-  const sessionId = await fetchSessionForCredential(credential)
+export async function exchangeCredentialForSession(
+  providerId: ExternalAuthProviderId,
+  credential: string,
+): Promise<void> {
+  const sessionId = await fetchSessionForCredential(providerId, credential)
   if (sessionId === null) {
-    throw new Error('Exchanging the auth provider credential for a session failed.')
+    throw new Error(`Exchanging the '${providerId}' auth provider credential for a session failed.`)
   }
-  setSessionId(sessionId)
+  setSessionId(sessionId, providerId)
 }
-{=/ isClientAuthAdapterUsed =}
-{=/ isCustomAuthProviderUsed =}
-{=# isClientAuthAdapterUsed =}
-
-// Single-flight: concurrent requests while sessionless must not fire multiple
-// exchanges.
-let exchangeInFlight: Promise<string | null> | null = null
-
-async function ensureSessionFromAdapter(): Promise<string | null> {
-  const existing = getSessionId()
-  if (existing !== null) {
-    return existing
-  }
-  exchangeInFlight ??= exchangeAdapterCredential().finally(() => {
-    exchangeInFlight = null
-  })
-  return exchangeInFlight
-}
-
-async function exchangeAdapterCredential(): Promise<string | null> {
-  const credential = await clientAuthAdapter.getCredential()
-  if (credential === null) {
-    return null
-  }
-  const sessionId = await fetchSessionForCredential(credential)
-  if (sessionId !== null) {
-    setSessionId(sessionId)
-  }
-  return sessionId
-}
-
-// The adapter reports provider-side credential changes: a token rotation or a
-// login/logout inside the provider's own UI. A logout there ends the Wasp
-// session too -- dual sign-out initiated from the provider's side.
-clientAuthAdapter.onCredentialChange?.(() => {
-  void reconcileAdapterCredential()
-})
-
-async function reconcileAdapterCredential(): Promise<void> {
-  const credential = await clientAuthAdapter.getCredential()
-  if (credential === null && getSessionId() !== null) {
-    try {
-      await api.post('/auth/logout')
-    } catch {
-      // Best-effort: the session row expires on its own if the server is
-      // unreachable; locally the user is logged out either way.
-    }
-    removeLocalUserData()
-  } else {
-    apiEventsEmitter.emit('sessionId.set')
-  }
-}
-{=/ isClientAuthAdapterUsed =}
+{=/ anyExternalProvidersUsed =}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.

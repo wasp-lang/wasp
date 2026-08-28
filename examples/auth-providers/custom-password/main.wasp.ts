@@ -26,12 +26,14 @@ export default app({
     // `POST /auth/login` exchange for sessions, and an `api()` route for
     // signup. No capabilities: a stateless verifier has no provider session
     // to issue or revoke -- Wasp's own session is the only one.
-    provider: customAuthProvider({
-      id: "external:password",
-      server: passwordAuthProvider,
-      capabilities: [],
-      env: { server: [], client: [] },
-    }),
+    providers: [
+      customAuthProvider({
+        id: "external:password",
+        server: passwordAuthProvider,
+        capabilities: [],
+        env: { server: [], client: [] },
+      }),
+    ],
   },
 
   spec: [

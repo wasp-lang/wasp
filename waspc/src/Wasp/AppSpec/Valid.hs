@@ -5,7 +5,7 @@ module Wasp.AppSpec.Valid
     getApp,
     isAuthEnabled,
     isWaspAuthUsed,
-    getExternalAuthProvider,
+    getExternalAuthProviders,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -15,12 +15,13 @@ where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, group, groupBy, intercalate, isPrefixOf, sort, sortBy)
+import Data.List (find, group, groupBy, intercalate, isPrefixOf, sort, sortBy, tails)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
@@ -31,12 +32,14 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
+import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -65,7 +68,8 @@ validateAppSpec spec =
           validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
-          validateExternalAuthProvider spec,
+          validateAuthProviders spec,
+          validateAuthRequirements spec,
           validateDummyEmailSenderIsNotUsedInProduction spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
@@ -156,7 +160,7 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   | anyPageRequiresAuth && not (isAuthEnabled spec)
   ]
   where
-    anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
+    anyPageRequiresAuth = any (AuthRequirement.isAuthRequiredWithDefault False . Page.authRequired) (snd <$> AS.getPages spec)
 
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
@@ -198,37 +202,177 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
 
 -- | Coherence checks for an external auth provider manifest.
 --
--- Wasp-auth config next to an external provider needs no check here: the
+-- Wasp-auth config next to an external provider needs no check here: each
 -- provider is a sum type, so that state is unrepresentable. What remains are
--- data-level properties the types cannot express.
-validateExternalAuthProvider :: AppSpec -> [ValidationError]
-validateExternalAuthProvider spec = case App.auth (snd $ getApp spec) >>= Auth.externalProvider of
+-- data-level properties the types cannot express: per-provider route checks,
+-- and the cross-provider properties (unique ids, non-colliding route mounts,
+-- non-colliding env vars) that only exist now that providers are a list.
+validateAuthProviders :: AppSpec -> [ValidationError]
+validateAuthProviders spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
-  Just extProvider ->
-    validateRoutesBasePath extProvider
+  Just auth ->
+    concat
+      [ [ GenericValidationError "app.auth.providers must contain at least one provider."
+        | null (Auth.providers auth)
+        ],
+        validateProviderIdsAreUnique auth,
+        concatMap validateRoutesBasePath (Auth.externalProviders auth),
+        validateProviderBasePathsDoNotOverlap (Auth.externalProviders auth),
+        validateProviderEnvVarsDoNotCollide (Auth.externalProviders auth)
+      ]
   where
+    validateProviderIdsAreUnique auth =
+      map duplicateIdError $ findDuplicateElems (Auth.authProviderId <$> Auth.providers auth)
+      where
+        duplicateIdError duplicateId
+          | duplicateId == Auth.waspAuthProviderId =
+              GenericValidationError "app.auth.providers may contain at most one waspAuth(...) provider."
+          | otherwise =
+              GenericValidationError $
+                "app.auth.providers contains provider id '"
+                  ++ duplicateId
+                  ++ "' more than once. Identities are recorded under this id, so each provider may appear"
+                  ++ " at most once (provider instance ids are not configurable yet)."
+
     validateRoutesBasePath extProvider = case Auth.routes extProvider of
       Nothing -> []
       Just providerRoutes ->
-        let bPath = Auth.basePath providerRoutes
+        let bPath = providerRoutes.basePath
             reservedPathPrefixes = ["/auth", "/operations", "/crud"]
             declaredApiPaths =
               (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
                 ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
          in concat
               [ [ GenericValidationError $
-                    "app.auth.provider routes basePath must start with '/', got: " ++ bPath
+                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath must start with '/', got: " ++ bPath
                 | not ("/" `isPrefixOf` bPath)
                 ],
                 [ GenericValidationError $
-                    "app.auth.provider routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " reservedPathPrefixes ++ ")."
+                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " reservedPathPrefixes ++ ")."
                 | any (`isPrefixOf` bPath) reservedPathPrefixes
                 ],
                 [ GenericValidationError $
-                    "app.auth.provider routes basePath '" ++ bPath ++ "' collides with a declared api or apiNamespace path."
+                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a declared api or apiNamespace path."
                 | any (\apiPath -> bPath `isPrefixOf` apiPath || apiPath `isPrefixOf` bPath) declaredApiPaths
                 ]
               ]
+
+    validateProviderBasePathsDoNotOverlap extProviders =
+      [ GenericValidationError $
+          "Auth providers '"
+            ++ providerIdA
+            ++ "' and '"
+            ++ providerIdB
+            ++ "' have overlapping routes basePaths ('"
+            ++ basePathA
+            ++ "' and '"
+            ++ basePathB
+            ++ "'). Each provider's routes must mount under a distinct path."
+      | ((providerIdA, basePathA) : rest) <- tails providerBasePaths,
+        (providerIdB, basePathB) <- rest,
+        isPathPrefixOfPath basePathA basePathB || isPathPrefixOfPath basePathB basePathA
+      ]
+      where
+        providerBasePaths =
+          [ (extProvider.providerId, providerRoutes.basePath)
+          | extProvider <- extProviders,
+            Just providerRoutes <- [Auth.routes extProvider]
+          ]
+        -- Prefix on segment boundaries: /better-auth prefixes /better-auth/x
+        -- but not /better-auth-2.
+        isPathPrefixOfPath pathA pathB = splitPathSegments pathA `isPrefixOf` splitPathSegments pathB
+        splitPathSegments = filter (not . null) . foldr splitOnSlash [[]]
+          where
+            splitOnSlash '/' segments = [] : segments
+            splitOnSlash c (segment : segments) = (c : segment) : segments
+            splitOnSlash c [] = [[c]]
+
+    -- Two providers declaring the same env var name is always an error: even
+    -- an identically named and typed variable is separate per-instance
+    -- configuration, and process.env has one global namespace.
+    validateProviderEnvVarsDoNotCollide extProviders =
+      envVarCollisions "server" (\extProvider -> extProvider.envVars.server)
+        ++ envVarCollisions "client" (\extProvider -> extProvider.envVars.client)
+      where
+        envVarCollisions side getEnvVars =
+          [ GenericValidationError $
+              "Auth providers "
+                ++ intercalate " and " (map (\ownerId -> "'" ++ ownerId ++ "'") ownerIds)
+                ++ " both declare the "
+                ++ side
+                ++ " env var '"
+                ++ envVarName
+                ++ "'. Providers cannot share env var names: each provider reads its own configuration."
+          | (envVarName, ownerIds) <- duplicatedVarNamesWithOwners
+          ]
+          where
+            varNameOwnership =
+              [ (envVar.name, extProvider.providerId)
+              | extProvider <- extProviders,
+                envVar <- getEnvVars extProvider
+              ]
+            duplicatedVarNamesWithOwners =
+              [ (envVarName, snd <$> ownerships)
+              | ownerships@((envVarName, _) : _ : _) <-
+                  groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) varNameOwnership
+              ]
+
+-- | Every provider-restricted auth requirement (@authRequired: [...]@ on a
+-- page, @auth: [...]@ on a query/action/api) must name configured provider
+-- ids. Checked here rather than in the TS mapper because only the whole spec
+-- knows the provider registry.
+validateAuthRequirements :: AppSpec -> [ValidationError]
+validateAuthRequirements spec =
+  concatMap (uncurry validateRequirement) requirementSites
+  where
+    requirementSites =
+      concat
+        [ [ ("page '" ++ name ++ "' authRequired", requirement)
+          | (name, page) <- AS.getPages spec,
+            Just requirement <- [Page.authRequired page]
+          ],
+          [ ("query '" ++ name ++ "' auth", requirement)
+          | (name, query) <- AS.getQueries spec,
+            Just requirement <- [AS.Query.auth query]
+          ],
+          [ ("action '" ++ name ++ "' auth", requirement)
+          | (name, action) <- AS.getActions spec,
+            Just requirement <- [AS.Action.auth action]
+          ],
+          [ ("api '" ++ name ++ "' auth", requirement)
+          | (name, api) <- AS.getApis spec,
+            Just requirement <- [AS.Api.auth api]
+          ]
+        ]
+
+    configuredProviderIds =
+      maybe [] (map Auth.authProviderId . Auth.providers) (App.auth $ snd $ getApp spec)
+
+    validateRequirement site requirement = case AuthRequirement.requiredAuthProviderIds requirement of
+      Nothing -> []
+      Just requirementProviderIds ->
+        concat
+          [ [ GenericValidationError $
+                "Expected " ++ site ++ " to list at least one auth provider id (an empty list would let nobody in). Use false to disable auth instead."
+            | null requirementProviderIds
+            ],
+            [ GenericValidationError $
+                "Expected " ++ site ++ " to list each auth provider id at most once, but '" ++ duplicateId ++ "' appears more than once."
+            | duplicateId <- findDuplicateElems requirementProviderIds
+            ],
+            [ GenericValidationError $
+                "Expected "
+                  ++ site
+                  ++ " to list configured auth provider ids, but '"
+                  ++ unknownId
+                  ++ "' is not one. "
+                  ++ if null configuredProviderIds
+                    then "The app has no auth configured (app.auth is not set)."
+                    else "Configured provider ids: " ++ intercalate ", " configuredProviderIds ++ "."
+            | unknownId <- requirementProviderIds,
+              unknownId `notElem` configuredProviderIds
+            ]
+          ]
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
@@ -535,7 +679,7 @@ validatePrerenderRoutes spec =
 
     prerenderPaths = Route.prerender
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
-    pageRequiresAuth page = Page.authRequired page == Just True
+    pageRequiresAuth page = AuthRequirement.isAuthRequiredWithDefault False (Page.authRequired page)
 
     getPage route = snd $ AS.resolveRef spec (Route.to route)
 
@@ -554,17 +698,14 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
--- | Whether the app authenticates through Wasp's own auth -- i.e. auth is
--- enabled and no external provider is selected. Everything password-shaped
--- (login routes, lucia, JWT_SECRET, auth forms) is generated only when this
--- holds.
+-- | Whether Wasp's own auth is among the app's auth providers. Everything
+-- password-shaped (login routes, auth forms, wasp-auth method routes) is
+-- generated only when this holds.
 isWaspAuthUsed :: AppSpec -> Bool
-isWaspAuthUsed spec = case App.auth (snd $ getApp spec) of
-  Nothing -> False
-  Just auth -> not (Auth.isExternalAuthProviderUsed auth)
+isWaspAuthUsed spec = maybe False Auth.isWaspAuthProviderUsed (App.auth $ snd $ getApp spec)
 
-getExternalAuthProvider :: AppSpec -> Maybe Auth.ExternalAuthProviderSpec
-getExternalAuthProvider spec = App.auth (snd $ getApp spec) >>= Auth.externalProvider
+getExternalAuthProviders :: AppSpec -> [Auth.ExternalAuthProviderSpec]
+getExternalAuthProviders spec = maybe [] Auth.externalProviders (App.auth $ snd $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

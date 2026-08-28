@@ -13,14 +13,13 @@ export {
   type CreateUserResult,
 } from './identityStore.js'
 
-{=# isCustomAuthProviderUsed =}
-{=! Under an external provider, `wasp/server/auth` keeps what is
-    provider-independent: the identity store, typing `userSignupFields`, and
-    the error helper the generated code itself uses. Everything password- and
-    hook-shaped belongs to Wasp's own auth and is not generated at all. =}
+{=# anyExternalProvidersUsed =}
+{=! With external providers, `wasp/server/auth` carries what their user code
+    needs: the identity store, typing `userSignupFields`, and the error helper
+    the generated code itself uses. =}
 export { createInvalidCredentialsError } from './utils.js'
-{=/ isCustomAuthProviderUsed =}
-{=^ isCustomAuthProviderUsed =}
+{=/ anyExternalProvidersUsed =}
+{=# isWaspAuthProviderUsed =}
 export {
   createProviderId,
   parseProviderData,
@@ -56,7 +55,7 @@ export type {
   InternalAuthHookParams,
   OAuthData,
 } from './hooks.js'
-{=/ isCustomAuthProviderUsed =}
+{=/ isWaspAuthProviderUsed =}
 
 {=# isExternalAuthEnabled =}
 export * from './oauth/index.js'

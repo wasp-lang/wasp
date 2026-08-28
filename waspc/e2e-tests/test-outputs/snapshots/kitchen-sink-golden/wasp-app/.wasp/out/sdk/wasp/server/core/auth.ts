@@ -1,6 +1,7 @@
 import { getSessionAndUserFromBearerToken } from '../auth/session.js'
 import { createInvalidCredentialsError } from '../auth/utils.js'
 import { defineHandler } from '../utils.js'
+import { HttpError } from '../HttpError.js'
 
 /**
  * Auth middleware
@@ -38,3 +39,29 @@ const auth = defineHandler(async (req, res, next) => {
 })
 
 export default auth
+
+/**
+ * Middleware factory for provider-restricted operations and APIs
+ * (`auth: ["wasp", ...]`). Unlike plain `auth: true` (which attaches the user
+ * and leaves the check to the operation), the restricted form is
+ * self-enforcing: naming providers means "require a session from one of
+ * these", so Wasp gates it. No session is a 401 (go log in); a valid session
+ * from a non-listed provider is a 403 (logged in, but not like this) -- the
+ * distinction that keeps clients from redirecting an already-logged-in user
+ * back to the login page. A pure comparison against the provider recorded on
+ * the session at mint time; no provider code runs.
+ */
+export function requireSessionProvider(requiredProviderIds: string[]) {
+  return defineHandler(async (req, _res, next) => {
+    if (req.user == null) {
+      throw createInvalidCredentialsError()
+    }
+    if (!requiredProviderIds.includes(req.user.sessionProviderId)) {
+      throw new HttpError(
+        403,
+        `Authenticated via '${req.user.sessionProviderId}', but this requires signing in via one of: ${requiredProviderIds.join(', ')}.`,
+      )
+    }
+    next()
+  })
+}

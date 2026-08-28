@@ -15,9 +15,12 @@ const router = express.Router()
 router.get('/me', auth, me)
 router.post('/logout', auth, logout)
 {=# isExternalAuthProviderUsed =}
-// The credential exchange -- deliberately NOT behind the `auth` middleware,
-// since it is the route that establishes the session in the first place.
-router.post('/login', login)
+// The credential exchange, addressed to one provider -- deliberately NOT
+// behind the `auth` middleware, since it is the route that establishes the
+// session in the first place. Mounted as a param route because provider ids
+// contain a ':' ('external:clerk'), which a literal route pattern would parse
+// as a param marker.
+router.post('/login/:providerId', login)
 {=/ isExternalAuthProviderUsed =}
 router.use('/', providersRouter)
 

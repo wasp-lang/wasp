@@ -12,7 +12,8 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (maybeToList)
+import Data.List (nub)
+import Data.Maybe (mapMaybe, maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -97,9 +98,9 @@ getVirtualUserModules spec =
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
-      maybeToList $ mkAuthProviderModule <$> maybeAuthProvider,
-      maybeToList $ mkAuthProviderUserSignupFieldsModule <$> maybeAuthProviderUserSignupFields,
-      maybeToList $ mkAuthProviderSetupFnModule <$> maybeAuthProviderSetupFn,
+      mkAuthProviderModule <$> authProviderModules,
+      mkAuthProviderUserSignupFieldsModule <$> authProviderUserSignupFields,
+      mkAuthProviderSetupFnModule <$> authProviderSetupFns,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -173,9 +174,10 @@ getVirtualUserModules spec =
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    maybeAuthProvider = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.serverModule
-    maybeAuthProviderUserSignupFields = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.userSignupFieldsForExternalAuthProvider
-    maybeAuthProviderSetupFn = AS.App.auth app >>= AS.Auth.externalProvider >>= AS.Auth.setupFn
+    externalAuthProviders = maybe [] AS.Auth.externalProviders (AS.App.auth app)
+    authProviderModules = mapMaybe AS.Auth.serverModule externalAuthProviders
+    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForExternalAuthProvider externalAuthProviders
+    authProviderSetupFns = mapMaybe AS.Auth.setupFn externalAuthProviders
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
@@ -205,7 +207,11 @@ mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
 -- | Data for virtual user modules ambient module declaration.
 mkVirtualUserModulesDeclarationData :: AppSpec -> Aeson.Value
 mkVirtualUserModulesDeclarationData spec =
-  object ["virtualUserModules" .= map mkDeclarationData (getVirtualUserModules spec)]
+  -- Deduplicated: two auth providers may reference the same user file and
+  -- export (a shared `userSignupFields`, say). TypeScript merges ambient
+  -- module blocks with distinct exports on its own, but an exact duplicate
+  -- declaration would be a duplicate-identifier error.
+  object ["virtualUserModules" .= nub (map mkDeclarationData (getVirtualUserModules spec))]
   where
     mkDeclarationData virtualUserModule =
       object

@@ -301,15 +301,22 @@ genRoutesIndex spec =
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (fst $ getApp spec :: String),
-          "externalAuthProviderRoutes" .= (externalProviderRoutesTmplData <$> maybeExternalProviderRoutes)
+          "anyExternalAuthProviderRoutes" .= (not . null $ externalProviderRoutes),
+          "externalAuthProviderRoutes" .= zipWith externalProviderRoutesTmplData [0 :: Int ..] externalProviderRoutes
         ]
 
-    -- Routes an external auth provider brought along (Better Auth's own
-    -- endpoints), mounted at the basePath its manifest declared.
-    maybeExternalProviderRoutes = AS.Valid.getExternalAuthProvider spec >>= AS.App.Auth.routes
-    externalProviderRoutesTmplData providerRoutes =
+    -- Routes external auth providers brought along (Better Auth's own
+    -- endpoints), each mounted at the basePath its manifest declared.
+    externalProviderRoutes =
+      [ (extProvider, providerRoutes)
+      | extProvider <- AS.Valid.getExternalAuthProviders spec,
+        Just providerRoutes <- [AS.App.Auth.routes extProvider]
+      ]
+    externalProviderRoutesTmplData idx (extProvider, providerRoutes) =
       object
-        [ "basePath" .= AS.App.Auth.basePath providerRoutes,
+        [ "index" .= idx,
+          "providerId" .= AS.App.Auth.providerId extProvider,
+          "basePath" .= AS.App.Auth.basePath providerRoutes,
           "rawBody" .= (AS.App.Auth.rawBody providerRoutes == Just True)
         ]
 
