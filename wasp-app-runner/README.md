@@ -1,11 +1,23 @@
 # Wasp Application Runner
 
-A robust script to run your Wasp application, including automated database setup and migrations. There are two modes:
+A robust script to run your Wasp application (programmatically), including automated database setup and migrations. There are two modes:
 
 - `dev`: Runs the Wasp app in development mode using `wasp start`.
 - `build`: Builds the Wasp app for production using `wasp build` and runs it.
 
 When installed, it provides a `run-wasp-app` command that can be used to run your Wasp app.
+
+It runs the app, the database, installs all the deps, performs the db migrations, starts a Mailcrab SMTP server for testing email in development, waits before app is actually reachable over HTTP before returning "ready", and kills everything cleanly on exit so no processes are left behind.
+
+## Motivation and application
+
+We created Wasp App Runner (WAR) in order to enable easier running of e2e tests for Wasp apps, and that is its main application at the moment.
+
+It is not used only by the Wasp Team internally though: it ships as a dev dep of example apps in this repo and also of OpenSaas template, they all use it for running e2e tests, and therefore Wasp users are also users of WAR. They are not building it themselves though: instead, all these apps pull the published version of WAR from npm.
+
+NOTE: What's bad currently is that it is not obvious to users which WAR version to use with what Wasp version.
+
+NOTE: In the future, ideally, WAR would not be needed any more, as Wasp CLI itself would make running Wasp apps for this use case easier, and the rest would be covered by the thin script for running e2e tests that would be scaffolded again by the Wasp CLI.
 
 ## Usage
 
@@ -132,3 +144,7 @@ npm login
 # Publish the package publicly
 npm publish --access public
 ```
+
+### 4. Ensure new published version is used in the apps
+
+Check that any apps in this repo are using this newer version of `wasp-app-runner`.

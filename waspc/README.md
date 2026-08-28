@@ -75,6 +75,10 @@ If that is the case, relax and feel free to get yourself a cup of coffee! When s
 
 to ensure all the tests are passing.
 
+#### Playwright on unsupported Linux distros (e.g. Arch)
+
+If `./run test` fails for you when installing Playwright browsers and their system deps, check [Playwright tests on unsupported Linux distributions (e.g. Arch)](#playwright-tests-on-unsupported-linux-distributions-eg-arch) below.
+
 ### Run the `wasp` CLI
 
 ```sh
@@ -283,6 +287,30 @@ Easiest way to do this is to use the convenient command from the `./run` script:
 
 ```sh
 ./run test:waspc:e2e:accept-all
+```
+
+### Playwright tests on unsupported Linux distributions (e.g. Arch)
+
+Some of the test suites (examples, starters) test Wasp apps via Playwright.
+
+These test suites do `playwright install --with-deps`, which installs the exact browsers Playwright expects, and then also the system libraries these browsers need (that is the `--with-deps` part).
+Automatic installation of the system libraries is however supported only on apt-based distros (Debian, Ubuntu), so on other distros (e.g. Arch) it fails with an error message from Playwright.
+
+To go around this, we provide `WASP_PLAYWRIGHT_INSTALL_FLAGS` which allows customizing flags passed to `playwright install`.
+What you will most likely want to do is set this env var to empty, removing the default `--with-deps` so Playwright doesn't try to install deps on its own, and then ensure on your own that correct system deps are installed on your system. In most of the cases, these deps will already be installed on your system and you don't really have to do anything (despite the warning message that Playwright might still print about deps missing, can be silenced with `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`).
+
+Block of code you can easily just add to your `.bashrc`:
+
+```sh
+# We set install flags to none so default --with-deps is not set, because
+# Playwright doesn't know how to install system deps on Arch and errors.
+# Instead, it is up to us to ensure system deps are installed, which is usually
+# a no-op since they are usually all already present on the typical system.
+export WASP_PLAYWRIGHT_INSTALL_FLAGS=
+# After skipping --with-deps (check above), even when system does have all the
+# deps, Playwright is not aware and will print a nasty looking warning. This
+# prevents that.
+export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
 ```
 
 ## Code analysis
