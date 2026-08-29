@@ -1,11 +1,11 @@
 import Link from "@docusaurus/Link";
 
+import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import { GitHub, MessageCircle } from "react-feather";
 import CtaLink from "./CtaLink";
 import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
 import TextLink from "./TextLink";
-import useBrokenLinks from "@docusaurus/useBrokenLinks";
 
 const DISCORD_URL = "https://discord.gg/rzdnErX";
 
@@ -68,8 +68,8 @@ const Waspeteers = () => {
         <div className="flex flex-col justify-center gap-4 p-5 lg:p-6">
           <p className="font-mono text-base leading-relaxed text-wasp-g6">
             The whole Wasp team is on{" "}
-            <TextLink to={DISCORD_URL}>Discord</TextLink> every day, together with
-            the rest of the Wasp community of builders and engineers (the
+            <TextLink to={DISCORD_URL}>Discord</TextLink> every day, together
+            with the rest of the Wasp community of builders and engineers (the
             Waspeteers!): answering questions, showing off what we're building,
             discussing web development, engineering, and life.
           </p>
@@ -78,13 +78,14 @@ const Waspeteers = () => {
             <TextLink to="https://github.com/wasp-lang/wasp" variant="purple">
               public GitHub repo
             </TextLink>
-            , so you can also easily see what we are working on currently, what we
-            are planning (most of the issues are our future plans!), and
+            , so you can also easily see what we are working on currently, what
+            we are planning (most of the issues are our future plans!), and
             participate as you wish.
           </p>
           <p className="font-mono text-base leading-relaxed text-wasp-g6">
             We love hearing your feedback and ideas and figuring out things
-            together, learning more about what you are building, so come join us!
+            together, learning more about what you are building, so come join
+            us!
           </p>
           <div className="flex flex-wrap gap-5">
             <CtaLink to={DISCORD_URL}>
