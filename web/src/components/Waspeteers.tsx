@@ -27,7 +27,7 @@ const Waspeteers = () => {
   useBrokenLinks().collectAnchor(WASPETEERS_ID);
 
   return (
-    <SectionContainer>
+    <SectionContainer id={WASPETEERS_ID}>
       <SectionLabel text="waspeteers" />
       <h2 className="mb-8 font-mono text-2xl font-extrabold tracking-tight text-wasp-black lg:text-4xl">
         The team & the community
