@@ -39,8 +39,21 @@ export function isValidEmail(input: unknown): boolean {
   );
 }
 
-const HTML5_EMAIL_WITH_UNICODE_REGEX =
-  /^[\p{L}\p{M}\p{Nd}.!#$%&'*+/=?^_`{|}~-]+@[\p{L}\p{Nd}](?:[\p{L}\p{M}\p{Nd}-]{0,61}[\p{L}\p{M}\p{Nd}])?(?:\.[\p{L}\p{Nd}](?:[\p{L}\p{M}\p{Nd}-]{0,61}[\p{L}\p{M}\p{Nd}])?)*$/u;
+const LETTERS_MARKS_DIGITS = String.raw`\p{L}\p{M}\p{Nd}`;
+const LETTERS_DIGITS = String.raw`\p{L}\p{Nd}`;
+
+const LOCAL_PART_SYMBOLS = ".!#$%&'*+/=?^_`{|}~-";
+const LOCAL_PART = `[${LETTERS_MARKS_DIGITS}${LOCAL_PART_SYMBOLS}]+`;
+
+// The limit should be 63 octets or 63 ASCII characters.
+// Since we don't punycode (Unicode to ASCII), we approximate with 63 Unicode characters.
+const DOMAIN_LABEL = `[${LETTERS_DIGITS}](?:[${LETTERS_MARKS_DIGITS}-]{0,61}[${LETTERS_MARKS_DIGITS}])?`;
+const DOMAIN = `${DOMAIN_LABEL}(?:\\.${DOMAIN_LABEL})*`;
+
+const HTML5_EMAIL_WITH_UNICODE_REGEX = new RegExp(
+  `^${LOCAL_PART}@${DOMAIN}$`,
+  "u",
+);
 
 /**
  * Blocks possibily malicious patterns in regex.
@@ -85,8 +98,10 @@ const LEADING_COMBINING_MARK_REGEX = /^\p{M}/u;
  * - 254 octets for the entire email address.
  *
  * Octets are counted directly from the Unicode string.
+ *
  * Punycode (converting Unicode to ASCII) is not applied to the domain
- * for simplicity.
+ * for simplicity. This has some edge cases where valid email addresses
+ * will be blocked (those who punycode to less octets).
  */
 function isEmailOfValidLength(email: string) {
   return (
