@@ -43,6 +43,11 @@ srcTsConfigValidator =
           -- stay bundler-friendly.
           V.inField ("module", T._module) $ V.oneOfJust ["esnext", "preserve"],
           V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
+          -- Without `moduleDetection: force`, TypeScript treats files with no
+          -- imports or exports as global scripts, while the bundler treats them
+          -- as modules. Code relying on such globals type checks but breaks at
+          -- runtime after bundling.
+          V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
           isolatedModulesValidator,
           -- Both options match the automatic JSX transform esbuild applies when
           -- bundling.

@@ -77,6 +77,10 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "isolatedModules" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.isolatedModules = Just False})}
 
+    it "returns an error when moduleDetection is not force" $
+      assertReturnsValidationErrorMentioningField "moduleDetection" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleDetection = Nothing})}
+
     it "returns an error when noEmit is true" $
       assertReturnsValidationErrorMentioningField "noEmit" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Just True})}
@@ -90,8 +94,7 @@ spec_SrcTsConfig = do
                       { T.strict = Just False,
                         T.target = Just "es2020",
                         T.lib = Just ["esnext"],
-                        T.allowJs = Nothing,
-                        T.moduleDetection = Nothing
+                        T.allowJs = Nothing
                       }
                   )
             }
