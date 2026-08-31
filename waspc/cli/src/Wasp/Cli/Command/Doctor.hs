@@ -4,7 +4,7 @@ module Wasp.Cli.Command.Doctor
 where
 
 import Control.Monad (forM_, when)
-import Control.Monad.Except (ExceptT (ExceptT), catchError, runExceptT, throwError)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either.Extra (eitherToMaybe)
 import Data.Functor ((<&>))

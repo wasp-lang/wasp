@@ -13,6 +13,7 @@
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 
+
 ### 🎉 New Features
 
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
@@ -23,6 +24,7 @@
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
+- Added support for the `--port` flag which helps set the custom port for dev database (by @Nihal-Ahamed-MS). ([#4424](https://github.com/wasp-lang/wasp/issues/4424))
 
 ### 🐞 Bug fixes
 
@@ -75,7 +77,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - The Wasp Spec package now exports the config object types for its constructors from `@wasp.sh/spec`, so libraries built on top of the Spec can reuse the type of a constructor's optional config argument. ([#4447](https://github.com/wasp-lang/wasp/pull/4447))
 - The Wasp Spec package is now published to npm, for easier consumption by libraries outside of Wasp projects. Most users don't need to install it directly, since the Wasp CLI will manage it for you. ([#4461](https://github.com/wasp-lang/wasp/pull/4461))
 - Listing the same entity more than once in a query or action's `entities` now fails with a clear error. ([#4455](https://github.com/wasp-lang/wasp/pull/4455))
-- Added support for the `WASP_DEV_DB_PORT` environment variable, letting you run and connect to the managed dev database on a custom port when `5432` is already taken (by @Nihal-Ahamed-MS). ([#4424](https://github.com/wasp-lang/wasp/issues/4424))
 
 ## 0.24.0
 
