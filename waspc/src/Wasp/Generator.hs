@@ -13,6 +13,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
+import qualified Wasp.Generator.AppDeliveryPlan as AppDeliveryPlan
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
@@ -56,7 +57,8 @@ writeWebAppCode spec dstDir sendMessage = do
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
-          WaspInfo.persist dstDir $ AS.buildType spec
+          let deliveryPlan = AppDeliveryPlan.makeAppDeliveryPlan spec
+          WaspInfo.persist dstDir (AS.buildType spec) (AppDeliveryPlan.deliveryMode deliveryPlan)
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 

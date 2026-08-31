@@ -11,7 +11,6 @@ import { type Auth } from 'wasp/entities'
 import { prisma } from 'wasp/server'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { type OAuthData } from 'wasp/server/auth'
-import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
 import {
   onBeforeSignupHook,
   onAfterSignupHook,
@@ -19,7 +18,7 @@ import {
   onAfterLoginHook,
 } from '../../hooks.js'
 
-export async function finishOAuthFlowAndGetRedirectUri({
+export async function resolveOAuthIdentity({
   provider,
   providerProfile,
   providerUserId,
@@ -33,25 +32,21 @@ export async function finishOAuthFlowAndGetRedirectUri({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   oauth: OAuthData;
-}): Promise<URL> {
+}): Promise<Auth['id']> {
   const providerId = createProviderId(provider.id, providerUserId);
 
-  const authId = await getAuthIdFromProviderDetails({
+  return findOrCreateAuthId({
     providerId,
     providerProfile,
     userSignupFields,
     req,
     oauth,
-  });
-
-  const oneTimeCode = await tokenStore.createToken(authId)
-
-  return getRedirectUriForOneTimeCode(oneTimeCode)
+  })
 }
 
 // We need a user id to create the auth token, so we either find an existing user
 // or create a new one if none exists for this provider.
-async function getAuthIdFromProviderDetails({
+async function findOrCreateAuthId({
   providerId,
   providerProfile,
   userSignupFields,

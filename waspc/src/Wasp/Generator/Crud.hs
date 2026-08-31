@@ -22,7 +22,10 @@ import qualified Wasp.Psl.Ast.Model as Psl.Model
 import qualified Wasp.Util as Util
 
 getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Model.Field -> Aeson.Value
-getCrudOperationJson crudOperationName crud idField =
+getCrudOperationJson = getCrudOperationJsonWithPrefix ""
+
+getCrudOperationJsonWithPrefix :: String -> String -> AS.Crud.Crud -> Psl.Model.Field -> Aeson.Value
+getCrudOperationJsonWithPrefix routePrefix crudOperationName crud idField =
   object
     [ "name" .= crudOperationName,
       "operations" .= object (map getDataForOperation crudOperations),
@@ -42,10 +45,12 @@ getCrudOperationJson crudOperationName crud idField =
         operation
         ( object
             [ "route" .= Routes.getRoute operation,
-              "fullPath" .= Routes.makeFullPath crudOperationName operation,
+              "fullPath" .= makeRoutePath routePrefix (Routes.makeFullPath crudOperationName operation),
               "isPublic" .= fromMaybe False (AS.Crud.isPublic options)
             ]
         )
+
+    makeRoutePath prefix path = if null prefix then path else prefix ++ "/" ++ path
 
 getCrudFilePath :: String -> String -> Path' (Rel r) File'
 getCrudFilePath crudName ext = fromJust (SP.parseRelFile (crudName ++ "." ++ ext))

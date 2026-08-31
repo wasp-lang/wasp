@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import { type PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
+import { configureAppDelivery } from "@wasp.sh/lib-delivery/node";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -28,6 +29,17 @@ const forcedOptions = {
   "preview.port": envVarAsNumber("PORT"),
 } as const;
 
+const proxyTarget = process.env["REACT_APP_API_URL"] ?? "http://localhost:3001";
+const customApiPaths = ['/foo/bar', '/bar/baz', '/webhook/callback', '/streaming-test', '/bar'];
+const appDelivery = configureAppDelivery({
+  mode: "integrated",
+  serverUrl: proxyTarget,
+  waspApiMountPath: "/api",
+  authEnabled: false,
+  serveClientAssets: false,
+});
+const developmentProxy = appDelivery.developmentProxy(proxyTarget, customApiPaths);
+
 const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
   base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
   "server.port":
@@ -47,12 +59,13 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
+          exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-delivery', '@wasp.sh/lib-vite-ssr']
         },
         server: {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
+          proxy: developmentProxy,
         },
         preview: {
           port: forcedOptions["preview.port"],

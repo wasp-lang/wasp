@@ -20,6 +20,7 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.Generator.AppDeliveryPlan (AppDeliveryPlan (oauthLoginCompletion), OAuthLoginCompletion (ExchangeSessionHandoffCode))
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
     gitHubAuthProvider,
@@ -39,10 +40,10 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
-genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genOAuthAuth auth
+genOAuthAuth :: AppDeliveryPlan -> AS.Auth.Auth -> Generator [FileDraft]
+genOAuthAuth deliveryPlan auth
   | AS.Auth.isExternalAuthEnabled auth =
-      genOAuthHelpers auth
+      genOAuthHelpers deliveryPlan auth
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
@@ -51,17 +52,20 @@ genOAuthAuth auth
         <++> genOAuthProvider microsoftAuthProvider (AS.Auth.microsoft . AS.Auth.methods $ auth)
   | otherwise = return []
 
-genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
-genOAuthHelpers auth =
+genOAuthHelpers :: AppDeliveryPlan -> AS.Auth.Auth -> Generator [FileDraft]
+genOAuthHelpers deliveryPlan auth =
   sequence
-    [ genTypes auth,
-      genUser,
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/handler.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/state.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/cookies.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/config.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/oneTimeCode.ts|]
-    ]
+    ( [ genTypes auth,
+        genUser,
+        return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/handler.ts|],
+        return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/state.ts|],
+        return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/cookies.ts|],
+        return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/config.ts|]
+      ]
+        ++ [return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/sessionHandoff.ts|] | usesSessionHandoff]
+    )
+  where
+    usesSessionHandoff = oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode
 
 genUser :: Generator FileDraft
 genUser = return $ C.mkTmplFdWithData tmplFile (Just tmplData)

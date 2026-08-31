@@ -9,7 +9,7 @@ import providersRouter from '../../auth/providers/index.js'
 const router = express.Router()
 
 router.get('/me', auth, me)
-router.post('/logout', auth, logout)
+router.post('/logout', logout)
 router.use('/', providersRouter)
 
 export default router

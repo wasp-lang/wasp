@@ -22,6 +22,9 @@ module Wasp.AppSpec
     userNodeVersionRange,
     isProduction,
     isDevelopment,
+    AppDeliveryMode (..),
+    appDeliveryMode,
+    appDeliveryModeName,
   )
 where
 
@@ -33,6 +36,7 @@ import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
+import qualified Wasp.AppSpec.App as App
 import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
@@ -154,3 +158,21 @@ isProduction spec = buildType spec == BuildType.Production
 
 isDevelopment :: AppSpec -> Bool
 isDevelopment spec = buildType spec == BuildType.Development
+
+data AppDeliveryMode
+  = Integrated
+  | Split
+  deriving (Show, Eq)
+
+appDeliveryMode :: AppSpec -> AppDeliveryMode
+appDeliveryMode spec = maybe Integrated parseMode (App.deployment app)
+  where
+    (_, app) = fromMaybe (error "App declaration is missing from AppSpec") (getApp (decls spec))
+
+    parseMode deployment
+      | App.mode deployment == "integrated" = Integrated
+      | otherwise = Split
+
+appDeliveryModeName :: AppDeliveryMode -> String
+appDeliveryModeName Integrated = "integrated"
+appDeliveryModeName Split = "split"

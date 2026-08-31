@@ -1,6 +1,6 @@
 import { Google  } from 'arctic';
 
-import { getRedirectUriForCallback } from '../redirect.js';
+import { getProviderCallbackUrl } from '../redirect.js';
 import { defineProvider } from '../provider.js';
 import { env } from '../../../env.js';
 
@@ -10,7 +10,7 @@ const displayName = 'Google';
 const oAuthClient = new Google(
   env.GOOGLE_CLIENT_ID,
   env.GOOGLE_CLIENT_SECRET,
-  getRedirectUriForCallback(id).toString(),
+  getProviderCallbackUrl(id).toString(),
 );
 
 // PUBLIC API

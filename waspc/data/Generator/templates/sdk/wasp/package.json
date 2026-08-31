@@ -90,7 +90,7 @@
     "./server": "./dist/server/index.js",
     "./server/api": "./dist/server/api/index.js",
     {=! Users: signup field helpers and validators.  =}
-    {=! Server: OAuth provider definitions, tokenStore, OAuthData. =}
+    {=! Server: OAuth provider definitions, login completion, OAuthData. =}
     "./server/auth": "./dist/server/auth/index.js",
     "./server/crud": "./dist/server/crud/index.js",
     "./server/email": "./dist/server/email/index.js",
@@ -121,9 +121,10 @@
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
     "./server/auth/session": "./dist/server/auth/session.js",
-    "./server/auth/utils": "./dist/server/auth/utils.js",
-    "./server/core/auth": "./dist/server/core/auth.js",
-    "./server/crud/*": "./dist/server/crud/*.js",
+      "./server/auth/utils": "./dist/server/auth/utils.js",
+      "./server/core/auth": "./dist/server/core/auth.js",
+      "./server/core/delivery": "./dist/server/core/delivery.js",
+      "./server/crud/*": "./dist/server/crud/*.js",
     "./server/email/core/types": "./dist/server/email/core/types.js",
     "./server/jobs/*": "./dist/server/jobs/*.js",
     {=! Todo(filip): This export becomes problematic once we start supporting different executors =}

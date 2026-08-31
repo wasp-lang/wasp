@@ -53,7 +53,7 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            oAuthType: 'OAuth2',
+            oauthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state }) => slack.oAuthClient.createAuthorizationURL(state, config),
             getProviderTokens: ({ code }) => slack.oAuthClient.validateAuthorizationCode(code),

@@ -19,6 +19,7 @@ describe("createDeploymentInstructions", () => {
         railwayExe: "railway" as RailwayCliExe,
         waspProjectDir: "/path/to/project" as WaspProjectDir,
       },
+      false,
     );
     expect(result.clientServiceName).toBe(`${baseName}-client`);
     expect(result.serverServiceName).toBe(`${baseName}-server`);

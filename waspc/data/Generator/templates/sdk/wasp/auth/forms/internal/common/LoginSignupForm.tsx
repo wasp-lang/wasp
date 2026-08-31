@@ -2,7 +2,7 @@
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
-import { config } from '../../../../client/index.js'
+import { browserAppDelivery } from '../../../../client/index.js'
 import { clsx } from '../util'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
@@ -40,22 +40,22 @@ import { useEmail } from '../email/useEmail'
 {=# isSocialAuthEnabled =}
 {=/ isSocialAuthEnabled =}
 {=# enabledProviders.isSlackAuthEnabled =}
-const slackSignInUrl = `${config.apiUrl}{= slackSignInPath =}`
+const slackSignInUrl = browserAppDelivery.waspApiUrl('{= slackSignInPath =}')
 {=/ enabledProviders.isSlackAuthEnabled =}
 {=# enabledProviders.isDiscordAuthEnabled =}
-const discordSignInUrl = `${config.apiUrl}{= discordSignInPath =}`
+const discordSignInUrl = browserAppDelivery.waspApiUrl('{= discordSignInPath =}')
 {=/ enabledProviders.isDiscordAuthEnabled =}
 {=# enabledProviders.isGoogleAuthEnabled =}
-const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
+const googleSignInUrl = browserAppDelivery.waspApiUrl('{= googleSignInPath =}')
 {=/ enabledProviders.isGoogleAuthEnabled =}
 {=# enabledProviders.isKeycloakAuthEnabled =}
-const keycloakSignInUrl = `${config.apiUrl}{= keycloakSignInPath =}`
+const keycloakSignInUrl = browserAppDelivery.waspApiUrl('{= keycloakSignInPath =}')
 {=/ enabledProviders.isKeycloakAuthEnabled =}
 {=# enabledProviders.isGitHubAuthEnabled =}
-const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
+const gitHubSignInUrl = browserAppDelivery.waspApiUrl('{= gitHubSignInPath =}')
 {=/ enabledProviders.isGitHubAuthEnabled =}
 {=# enabledProviders.isMicrosoftAuthEnabled =}
-const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
+const microsoftSignInUrl = browserAppDelivery.waspApiUrl('{= microsoftSignInPath =}')
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
 {=!

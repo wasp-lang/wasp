@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io'
 import type { ServerType } from 'wasp/server/webSocket'
 
 import { config, prisma } from 'wasp/server'
+import { appDelivery } from 'wasp/server/core/delivery'
 
 import { getSessionAndUserFromSessionId } from 'wasp/server/auth/session'
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
@@ -17,11 +18,7 @@ export async function init(server: http.Server): Promise<void> {
 
   // TODO: Uncomment the type annotation once we make sure that the types between different packages are aligned.
   // Ref: https://github.com/wasp-lang/wasp/issues/2726
-  const io /* : ServerType */ = new Server(server, {
-    cors: {
-      origin: config.frontendUrl,
-    }
-  })
+  const io /* : ServerType */ = new Server(server, appDelivery.socketServerOptions(config.frontendUrl))
 
   io.use(addUserToSocketDataIfAuthenticated)
 
@@ -38,7 +35,7 @@ export async function init(server: http.Server): Promise<void> {
 }
 
 async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {
-  const sessionId = socket.handshake.auth.sessionId
+  const sessionId = appDelivery.readSocketSessionCredential(socket.handshake)
   if (sessionId) {
     try {
       const sessionAndUser = await getSessionAndUserFromSessionId(sessionId)

@@ -24,6 +24,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.AppDeliveryPlan (AppDeliveryPlan (oauthLoginCompletion), OAuthLoginCompletion (ExchangeSessionHandoffCode), makeAppDeliveryPlan)
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
     emailAuthProvider,
@@ -56,14 +57,15 @@ genAuth spec = case maybeAuth of
       [ genAuthRoutesIndex auth,
         genFileCopy [relfile|routes/auth/me.ts|],
         genFileCopy [relfile|routes/auth/logout.ts|],
-        genProvidersIndex auth,
+        genProvidersIndex deliveryPlan auth,
         genAuthHooks auth
       ]
       <++> genLocalAuth auth
-      <++> genOAuthAuth auth
+      <++> genOAuthAuth deliveryPlan auth
       <++> genEmailAuth spec auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+    deliveryPlan = makeAppDeliveryPlan spec
     genFileCopy = return . C.mkSrcTmplFd
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -77,13 +79,13 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
 
-genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
+genProvidersIndex :: AppDeliveryPlan -> AS.Auth.Auth -> Generator FileDraft
+genProvidersIndex deliveryPlan auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
   where
     tmplData =
       object
         [ "providers" .= providers,
-          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
+          "usesSessionHandoff" .= (AS.Auth.isExternalAuthEnabled auth && oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode)
         ]
 
     providers =

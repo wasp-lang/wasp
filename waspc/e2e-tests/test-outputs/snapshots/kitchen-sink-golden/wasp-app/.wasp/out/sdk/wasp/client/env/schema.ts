@@ -22,7 +22,7 @@ const waspDevClientEnvSchema = z.object({
 });
 
 const waspProdClientEnvSchema = z.object({
-  "REACT_APP_API_URL": serverUrlSchema,
+  "REACT_APP_API_URL": z.string().default(""),
 });
 
 const waspClientEnvSchema = import.meta.env.MODE === "production"

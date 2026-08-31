@@ -12,16 +12,13 @@ export { github } from './providers/github.js';
 // PUBLIC API
 export { microsoft } from './providers/microsoft.js';
 
-// PRIVATE API
-export {
-  loginPath,
-  callbackPath,
-  exchangeCodeForTokenPath,
-  handleOAuthErrorAndGetRedirectUri,
-  getRedirectUriForOneTimeCode,
-} from './redirect.js'
+// PUBLIC API
+export { completeOAuthLogin } from './completeOAuthLogin.js'
 
 // PRIVATE API
 export {
-  tokenStore,
-} from './oneTimeCode.js'
+  providerLoginPath,
+  providerCallbackPath,
+  getOAuthLoginErrorRedirectUrl,
+  getOAuthLoginResultUrl,
+} from './redirect.js'

@@ -79,7 +79,7 @@ function mockRoute(
     )
   }
 
-  const url = `${config.apiUrl}${route.path}`
+  const url = `${config.serverUrl}${route.path}`
 
   const handlers: Record<HttpMethod, RequestHandler> = {
     [HttpMethod.Get]: http.get(url, responseHandler),

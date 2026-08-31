@@ -10,6 +10,7 @@ export type DeploymentInstructions<CmdOptions extends CommonCmdOptions> =
     clientFlyAppName: string;
     serverFlyAppName: string;
     dbName: string;
+    integrated: boolean;
   }>;
 
 export function createDeploymentInstructions<
@@ -19,9 +20,11 @@ export function createDeploymentInstructions<
   cmdOptions,
   tomlFilePaths,
   region,
+  integrated,
 }: {
   baseName: string;
   region?: string;
+  integrated: boolean;
   cmdOptions: CmdOptions;
   tomlFilePaths: TomlFilePaths;
 }): DeploymentInstructions<CmdOptions> {
@@ -33,5 +36,6 @@ export function createDeploymentInstructions<
     clientFlyAppName: `${baseName}-client`,
     serverFlyAppName: `${baseName}-server`,
     dbName: `${baseName}-db`,
+    integrated,
   });
 }

@@ -1,9 +1,8 @@
 import { createContext, useState, useEffect, Context, ReactNode } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { getSessionId } from '../../api/index.js'
 import { apiEventsEmitter } from '../../api/events.js'
-import { config } from '../index.js'
+import { browserAppDelivery, config } from '../index.js'
 
 import type { ClientToServerEvents, ServerToClientEvents } from '../../server/webSocket/index.js';
 
@@ -16,9 +15,10 @@ export type WebSocketContextValue = {
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  config.apiUrl,
+  config.serverUrl,
   {
     transports: ['websocket'],
+    ...browserAppDelivery.socketConnectionOptions(),
     autoConnect: true && !import.meta.env.SSR,
   }
 )
@@ -27,7 +27,7 @@ function refreshAuthToken() {
   // NOTE: When we figure out how `auth: true` works for Operations, we should
   // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
-    sessionId: getSessionId()
+    ...browserAppDelivery.socketConnectionOptions().auth,
   }
 
   if (socket.connected) {

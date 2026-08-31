@@ -153,10 +153,9 @@ import type {
   AuthWithSpotifyCallback,
 } from "wasp/server/api";
 import {
+  completeOAuthLogin,
   createUser,
   findAuthIdentity,
-  getRedirectUriForOneTimeCode,
-  tokenStore,
 } from "wasp/server/auth";
 import type { ProviderName } from "wasp/server/auth";
 import { spotify, getSpotifyUser, type SpotifyUser } from "./spotify";
@@ -187,8 +186,8 @@ export const authWithSpotifyCallback: AuthWithSpotifyCallback = async (
     ? existingIdentity.authId
     : await createUserFromSpotifyProfile(providerId, spotifyUser);
 
-  const oneTimeCode = await tokenStore.createToken(authId);
-  return res.redirect(getRedirectUriForOneTimeCode(oneTimeCode).toString());
+  const loginResultUrl = await completeOAuthLogin({ authId, response: res });
+  return res.redirect(loginResultUrl.toString());
 };
 
 async function createUserFromSpotifyProfile(
@@ -204,10 +203,6 @@ async function createUserFromSpotifyProfile(
   return user.auth!.id;
 }
 ```
-
-:::note
-The `tokenStore` and `getRedirectUriForOneTimeCode` are internal Wasp APIs that may change in future versions. This guide relies on them because there is currently no public API for implementing fully custom OAuth flows.
-:::
 
 ### 5. Create the login page
 

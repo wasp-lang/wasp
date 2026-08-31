@@ -1,16 +1,20 @@
 import express from 'express'
+import path from 'node:path'
 
 import { HttpError } from 'wasp/server'
-import indexRouter from './routes/index.js'
-
-// TODO: Consider extracting most of this logic into createApp(routes, path) function so that
-//   it can be used in unit tests to test each route individually.
+import { appDelivery } from 'wasp/server/core/delivery'
+import deliveryRoutes from './routes/index.js'
 
 const app = express()
 
-// NOTE: Middleware are installed on a per-router or per-route basis.
-
-app.use('/', indexRouter)
+appDelivery.mount({
+  app,
+  routes: deliveryRoutes,
+  clientAssets: {
+    directory: path.resolve(process.cwd(), 'web-app'),
+    fallbackFile: '200.html',
+  },
+})
 
 // Custom error handler.
 app.use((err, _req, res, next) => {

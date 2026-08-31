@@ -14,7 +14,7 @@ import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import System.Exit (ExitCode (..))
-import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec (AppSpec, appDeliveryModeName)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -23,6 +23,7 @@ import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.AppDeliveryPlan (AppDeliveryPlan (..), makeAppDeliveryPlan)
 import Wasp.Generator.Common
   ( GeneratedAppDir,
     makeJsonWithEntityData,
@@ -108,10 +109,11 @@ genSdk spec =
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|types/register.ts|],
-      C.genFileCopy [relfile|api/index.ts|],
+      genApiIndex spec,
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
+      genDelivery spec,
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
@@ -119,7 +121,7 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
-      genClientConfigFile,
+      genClientConfigFile spec,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -254,14 +256,34 @@ depsRequiredForTesting =
       ("msw", "^2.12.7")
     ]
 
-genClientConfigFile :: Generator FileDraft
-genClientConfigFile =
+genClientConfigFile :: AppSpec -> Generator FileDraft
+genClientConfigFile spec =
   return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
+          "deliveryMode" .= appDeliveryModeName (deliveryMode plan),
+          "waspApiMountPath" .= waspApiMountPath plan
         ]
+    plan = makeAppDeliveryPlan spec
+
+genDelivery :: AppSpec -> Generator FileDraft
+genDelivery spec =
+  return $ C.mkTmplFdWithData [relfile|server/core/delivery.ts|] tmplData
+  where
+    plan = makeAppDeliveryPlan spec
+    tmplData =
+      object
+        [ "deliveryMode" .= appDeliveryModeName (deliveryMode plan),
+          "waspApiMountPath" .= waspApiMountPath plan,
+          "authEnabled" .= boolAsJs (authEnabled plan),
+          "serveClientAssets" .= boolAsJs (serveClientAssets plan)
+        ]
+    boolAsJs value = if value then "true" else "false" :: String
+
+genApiIndex :: AppSpec -> Generator FileDraft
+genApiIndex _spec = return $ C.mkTmplFdWithData [relfile|api/index.ts|] (object [])
 
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =

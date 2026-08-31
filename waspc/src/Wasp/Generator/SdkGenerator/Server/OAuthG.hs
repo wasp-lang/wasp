@@ -13,13 +13,14 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.AppDeliveryPlan (AppDeliveryPlan (oauthLoginCompletion), OAuthLoginCompletion (ExchangeSessionHandoffCode))
 import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, microsoftAuthProvider, slackAuthProvider)
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
-    clientOAuthCallbackPath,
-    serverExchangeCodeForTokenHandlerPath,
-    serverOAuthCallbackHandlerPath,
-    serverOAuthLoginHandlerPath,
+    oauthLoginResultPath,
+    providerCallbackPath,
+    providerLoginPath,
+    sessionHandoffExchangePath,
   )
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -31,15 +32,17 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Util ((<++>))
 
-genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genOAuth auth
+genOAuth :: AppDeliveryPlan -> AS.Auth.Auth -> Generator [FileDraft]
+genOAuth deliveryPlan auth
   | AS.Auth.isExternalAuthEnabled auth =
       sequence
-        [ genIndexTs auth,
-          genRedirectHelper,
-          genFileCopyInServerOAuth [relfile|oneTimeCode.ts|],
-          genFileCopyInServerOAuth [relfile|provider.ts|]
-        ]
+        ( [ genIndexTs deliveryPlan auth,
+            genRedirectHelper deliveryPlan,
+            genOAuthLoginCompletion deliveryPlan,
+            genFileCopyInServerOAuth [relfile|provider.ts|]
+          ]
+            ++ [genFileCopyInServerOAuth [relfile|sessionHandoff.ts|] | usesSessionHandoff]
+        )
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
@@ -47,9 +50,11 @@ genOAuth auth
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
         <++> genOAuthProvider microsoftAuthProvider (AS.Auth.microsoft . AS.Auth.methods $ auth)
   | otherwise = return []
+  where
+    usesSessionHandoff = oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode
 
-genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth =
+genIndexTs :: AppDeliveryPlan -> AS.Auth.Auth -> Generator FileDraft
+genIndexTs deliveryPlan auth =
   return $
     mkTmplFdWithData
       (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
@@ -57,11 +62,12 @@ genIndexTs auth =
   where
     tmplData =
       object
-        [ "enabledProviders" .= getEnabledAuthProvidersJson auth
+        [ "enabledProviders" .= getEnabledAuthProvidersJson auth,
+          "usesSessionHandoff" .= (oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode)
         ]
 
-genRedirectHelper :: Generator FileDraft
-genRedirectHelper =
+genRedirectHelper :: AppDeliveryPlan -> Generator FileDraft
+genRedirectHelper deliveryPlan =
   return $
     mkTmplFdWithData
       (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|])
@@ -69,11 +75,19 @@ genRedirectHelper =
   where
     tmplData =
       object
-        [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
-          "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
-          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
-          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
+        [ "providerCallbackPath" .= providerCallbackPath,
+          "oauthLoginResultPath" .= oauthLoginResultPath,
+          "providerLoginPath" .= providerLoginPath,
+          "sessionHandoffExchangePath" .= sessionHandoffExchangePath,
+          "usesSessionHandoff" .= (oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode)
         ]
+
+genOAuthLoginCompletion :: AppDeliveryPlan -> Generator FileDraft
+genOAuthLoginCompletion deliveryPlan =
+  return $
+    mkTmplFdWithData
+      (serverOAuthDirInSdkTemplatesDir </> [relfile|completeOAuthLogin.ts|])
+      (object ["usesSessionHandoff" .= (oauthLoginCompletion deliveryPlan == ExchangeSessionHandoffCode)])
 
 genOAuthProvider ::
   OAuthAuthProvider ->

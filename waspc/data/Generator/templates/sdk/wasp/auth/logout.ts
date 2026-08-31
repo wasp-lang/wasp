@@ -1,10 +1,11 @@
 import { api, removeLocalUserData } from '../api/index.js'
 import { invalidateAndRemoveQueries } from '../client/operations/internal/resources.js'
+import { browserAppDelivery } from '../client/index.js'
 
 // PUBLIC API
 export default async function logout(): Promise<void> {
   try {
-    await api.post('/auth/logout')
+    await api.post(browserAppDelivery.waspApiPath('/auth/logout'))
   } finally {
     // Even if the logout request fails, we still want to remove the local user data
     // in case the logout failed because of a network error and the user walked away

@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Keycloak  } from 'arctic';
 
-import { getRedirectUriForCallback } from '../redirect.js';
+import { getProviderCallbackUrl } from '../redirect.js';
 import { defineProvider } from '../provider.js';
 import { env } from '../../../env.js';
 
@@ -12,7 +12,7 @@ const oAuthClient = new Keycloak(
   env.KEYCLOAK_REALM_URL,
   env.KEYCLOAK_CLIENT_ID,
   env.KEYCLOAK_CLIENT_SECRET,
-  getRedirectUriForCallback(id).toString(),
+  getProviderCallbackUrl(id).toString(),
 );
 
 // PUBLIC API

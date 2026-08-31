@@ -10,6 +10,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AppDeliveryPlan (makeAppDeliveryPlan)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -30,7 +31,7 @@ genServerAuth spec =
     Nothing -> return []
     Just auth ->
       sequence
-        [ genFileCopy [relfile|server/core/auth.ts|],
+        [ genCoreAuth,
           genAuthIndex auth,
           genHooks auth,
           genFileCopyInServerAuth [relfile|password.ts|],
@@ -41,9 +42,16 @@ genServerAuth spec =
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
-        <++> genOAuth auth
+        <++> genOAuth (makeAppDeliveryPlan spec) auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genCoreAuth :: Generator FileDraft
+genCoreAuth =
+  return $
+    mkTmplFdWithData
+      [relfile|server/core/auth.ts|]
+      (object [])
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =

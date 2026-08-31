@@ -1,26 +1,25 @@
+import * as arctic from "arctic";
 import {
-  Response as ExpressResponse,
   Request as ExpressRequest,
-} from 'express';
-import * as arctic from 'arctic';
+  Response as ExpressResponse,
+} from "express";
 
-import type { ProviderConfig } from 'wasp/auth/providers/types';
+import type { ProviderConfig } from "wasp/auth/providers/types";
 
-import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
+import { getOAuthCookieValue, setOAuthCookieValue } from "./cookies.js";
 
-export type OAuthStateFor<
-  OT extends OAuthType
-> = OAuthStateForOAuthType[OT];
+export type OAuthStateFor<OT extends OAuthType> = OAuthStateForOAuthType[OT];
 
-export type OAuthStateWithCodeFor<OT extends OAuthType> = OAuthStateFor<OT> & OAuthCode
+export type OAuthCallbackStateFor<OT extends OAuthType> = OAuthStateFor<OT> &
+  ProviderAuthorizationCode;
 
 export type OAuthType = keyof OAuthStateForOAuthType;
 
 export type OAuthStateFieldName = keyof OAuthState | keyof OAuthStateWithPKCE;
 
 type OAuthStateForOAuthType = {
-  OAuth2: OAuthState,
-  OAuth2WithPKCE: OAuthStateWithPKCE,
+  OAuth2: OAuthState;
+  OAuth2WithPKCE: OAuthStateWithPKCE;
 };
 
 type OAuthState = {
@@ -36,22 +35,22 @@ type OAuthStateWithPKCE = {
  * When the OAuth flow is completed, the OAuth provider will redirect the user back to the app
  * with a code. This code is then exchanged for an access token.
  */
-type OAuthCode = {
+type ProviderAuthorizationCode = {
   code: string;
 };
 
 export function generateAndStoreOAuthState<OT extends OAuthType>({
-  oAuthType,
+  oauthType,
   provider,
   res,
 }: {
-  oAuthType: OT,
-  provider: ProviderConfig,
-  res: ExpressResponse
+  oauthType: OT;
+  provider: ProviderConfig;
+  res: ExpressResponse;
 }): OAuthStateFor<OT> {
   const state: OAuthStateFor<OT> = {
     ...generateState(),
-    ...(oAuthType === 'OAuth2WithPKCE' && generateCodeVerifier()),
+    ...(oauthType === "OAuth2WithPKCE" && generateCodeVerifier()),
   };
 
   storeOAuthState(provider, res, state);
@@ -60,18 +59,18 @@ export function generateAndStoreOAuthState<OT extends OAuthType>({
 }
 
 export function validateAndGetOAuthState<OT extends OAuthType>({
-  oAuthType,
+  oauthType,
   provider,
   req,
 }: {
-  oAuthType: OT,
-  provider: ProviderConfig,
-  req: ExpressRequest
-}): OAuthStateWithCodeFor<OT> {
-  const state: OAuthStateWithCodeFor<OT> = {
+  oauthType: OT;
+  provider: ProviderConfig;
+  req: ExpressRequest;
+}): OAuthCallbackStateFor<OT> {
+  const state: OAuthCallbackStateFor<OT> = {
     ...getCode(req),
     ...getState(req),
-    ...(oAuthType === 'OAuth2WithPKCE' && getCodeVerifier(provider, req)),
+    ...(oauthType === "OAuth2WithPKCE" && getCodeVerifier(provider, req)),
   };
 
   validateOAuthState(provider, req, state);
@@ -82,7 +81,7 @@ export function validateAndGetOAuthState<OT extends OAuthType>({
 function storeOAuthState(
   provider: ProviderConfig,
   res: ExpressResponse,
-  state: OAuthStateFor<OAuthType>
+  state: OAuthStateFor<OAuthType>,
 ): void {
   let key: keyof typeof state;
   for (key in state) {
@@ -93,19 +92,19 @@ function storeOAuthState(
 function validateOAuthState(
   provider: ProviderConfig,
   req: ExpressRequest,
-  state: OAuthStateWithCodeFor<OAuthType>
+  state: OAuthCallbackStateFor<OAuthType>,
 ): void {
-  if (typeof state.code !== 'string') {
-    throw new Error('Invalid code');
+  if (typeof state.code !== "string") {
+    throw new Error("Invalid code");
   }
 
-  const storedState = getOAuthCookieValue(provider, req, 'state');
+  const storedState = getOAuthCookieValue(provider, req, "state");
   if (!state.state || !storedState || storedState !== state.state) {
-    throw new Error('Invalid state');
+    throw new Error("Invalid state");
   }
 
   if (isOAuthStateWithPKCE(state) && !state.codeVerifier) {
-    throw new Error('Missing code verifier');
+    throw new Error("Missing code verifier");
   }
 }
 
@@ -122,27 +121,23 @@ function getCode(req: ExpressRequest): { code: string } {
 }
 
 function getState(req: ExpressRequest): { state: string } {
-  return { state:  `${req.query.state}` };
+  return { state: `${req.query.state}` };
 }
 
 function getCodeVerifier(
   provider: ProviderConfig,
-  req: ExpressRequest
+  req: ExpressRequest,
 ): { codeVerifier: string } {
-  const codeVerifier = getOAuthCookieValue(
-    provider,
-    req,
-    'codeVerifier'
-  );
+  const codeVerifier = getOAuthCookieValue(provider, req, "codeVerifier");
   // The cookie can be missing (dropped by the browser, or expired while the user
   // sat on the consent screen). `validateOAuthState` rejects an empty code
   // verifier, so we normalize the missing case into one instead of lying about
   // the type.
-  return { codeVerifier: codeVerifier ?? '' };
+  return { codeVerifier: codeVerifier ?? "" };
 }
 
 function isOAuthStateWithPKCE(
-  state: OAuthState | OAuthStateWithPKCE
+  state: OAuthState | OAuthStateWithPKCE,
 ): state is OAuthStateWithPKCE {
-  return 'codeVerifier' in state;
+  return "codeVerifier" in state;
 }

@@ -1,107 +1,108 @@
-import { Router } from 'express'
+import { Router } from "express";
 
-import { defineHandler, redirect } from 'wasp/server/utils'
-import { rethrowPossibleAuthError } from 'wasp/server/auth/utils'
 import {
-  type UserSignupFields,
   type ProviderConfig,
-} from 'wasp/auth/providers/types'
+  type UserSignupFields,
+} from "wasp/auth/providers/types";
 import {
-  type OAuthType,
+  OAuthData,
+  completeOAuthLogin,
+  getOAuthLoginErrorRedirectUrl,
+  providerCallbackPath,
+  providerLoginPath,
+} from "wasp/server/auth";
+import { rethrowPossibleAuthError } from "wasp/server/auth/utils";
+import { defineHandler, redirect } from "wasp/server/utils";
+import { onBeforeOAuthRedirectHook } from "../../hooks.js";
+import {
+  type OAuthCallbackStateFor,
   type OAuthStateFor,
-  type OAuthStateWithCodeFor,
+  type OAuthType,
   generateAndStoreOAuthState,
   validateAndGetOAuthState,
-} from '../oauth/state.js'
-import { finishOAuthFlowAndGetRedirectUri } from '../oauth/user.js'
-import {
-  callbackPath,
-  loginPath,
-  handleOAuthErrorAndGetRedirectUri,
-} from 'wasp/server/auth'
-import { OAuthData } from 'wasp/server/auth'
-import { onBeforeOAuthRedirectHook } from '../../hooks.js'
+} from "../oauth/state.js";
+import { resolveOAuthIdentity } from "../oauth/user.js";
 
-export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthData['tokens'] = never>({
+export function createOAuthProviderRouter<
+  OT extends OAuthType,
+  Tokens extends OAuthData["tokens"] = never,
+>({
   provider,
-  oAuthType,
+  oauthType,
   userSignupFields,
   getAuthorizationUrl,
   getProviderTokens,
   getProviderInfo,
 }: {
-  provider: ProviderConfig
+  provider: ProviderConfig;
   /*
     - OAuth state is used to validate the callback to ensure the user
       that requested the login is the same that is completing it.
     - It includes "state" and an optional "codeVerifier" for PKCE.
   */
-  oAuthType: OT
-  userSignupFields: UserSignupFields | undefined
+  oauthType: OT;
+  userSignupFields: UserSignupFields | undefined;
   /*
     The function that returns the URL to redirect the user to the
     provider's login page.
   */
-  getAuthorizationUrl: (
-    oAuthState: OAuthStateFor<OT>,
-  ) => Promise<URL>
+  getAuthorizationUrl: (oauthState: OAuthStateFor<OT>) => Promise<URL>;
   /*
     The function that returns the access token and refresh token from the
     provider's callback.
   */
-  getProviderTokens: (
-    oAuthState: OAuthStateWithCodeFor<OT>,
-  ) => Promise<Tokens>
+  getProviderTokens: (oauthState: OAuthCallbackStateFor<OT>) => Promise<Tokens>;
   /*
     The function that returns the user's profile and ID using the access
     token.
   */
   getProviderInfo: (tokens: Tokens) => Promise<{
-    providerUserId: string
-    providerProfile: unknown
-  }>
+    providerUserId: string;
+    providerProfile: unknown;
+  }>;
 }): Router {
-  const router = Router()
+  const router = Router();
 
   router.get(
-    `/${loginPath}`,
+    `/${providerLoginPath}`,
     defineHandler(async (req, res) => {
-      const oAuthState = generateAndStoreOAuthState({
-        oAuthType,
+      const oauthState = generateAndStoreOAuthState({
+        oauthType,
         provider,
         res,
-      })
-      const redirectUrl = await getAuthorizationUrl(oAuthState)
+      });
+      const redirectUrl = await getAuthorizationUrl(oauthState);
       const { url: redirectUrlAfterHook } = await onBeforeOAuthRedirectHook({
         req,
         url: redirectUrl,
-        oauth: { uniqueRequestId: oAuthState.state }
-      })
-      redirect(res, redirectUrlAfterHook.toString())
+        oauth: { uniqueRequestId: oauthState.state },
+      });
+      redirect(res, redirectUrlAfterHook.toString());
     }),
-  )
+  );
 
   router.get(
-    `/${callbackPath}`,
+    `/${providerCallbackPath}`,
     defineHandler(async (req, res) => {
       try {
-        const oAuthState = validateAndGetOAuthState({
-          oAuthType,
+        const oauthState = validateAndGetOAuthState({
+          oauthType,
           provider,
           req,
-        })
-        const tokens = await getProviderTokens(oAuthState)
+        });
+        const tokens = await getProviderTokens(oauthState);
 
-        const { providerProfile, providerUserId } = await getProviderInfo(tokens)
+        const { providerProfile, providerUserId } =
+          await getProviderInfo(tokens);
         try {
-          const redirectUri = await finishOAuthFlowAndGetRedirectUri({
+          const authId = await resolveOAuthIdentity({
             provider,
             providerProfile,
             providerUserId,
             userSignupFields,
             req,
             oauth: {
-              uniqueRequestId: oAuthState.state,
+              uniqueRequestId: oauthState.state,
               // OAuth params are built as a discriminated union
               // of provider names and their respective tokens.
               // We are using a generic ProviderConfig and tokens type
@@ -111,20 +112,22 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
               providerName: provider.id as any,
               tokens,
             },
-          })
-          // Redirect to the client with the one time code
-          redirect(res, redirectUri.toString())
+          });
+          const loginResultUrl = await completeOAuthLogin({
+            authId,
+            response: res,
+          });
+          redirect(res, loginResultUrl.toString());
         } catch (e) {
-          rethrowPossibleAuthError(e)
+          rethrowPossibleAuthError(e);
         }
       } catch (e) {
-        console.error(e)
-        const redirectUri = handleOAuthErrorAndGetRedirectUri(e)
-        // Redirect to the client with the error
-        redirect(res, redirectUri.toString())
+        console.error(e);
+        const loginErrorUrl = getOAuthLoginErrorRedirectUrl(e);
+        redirect(res, loginErrorUrl.toString());
       }
     }),
-  )
+  );
 
-  return router
+  return router;
 }

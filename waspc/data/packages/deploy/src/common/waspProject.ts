@@ -66,3 +66,46 @@ export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
   // The client is built from the project root dir.
   return path.join(waspProjectDir, ".");
 }
+
+export type AppDeliveryMode = "integrated" | "split";
+
+export function getAppDeliveryMode(
+  waspProjectDir: WaspProjectDir,
+): AppDeliveryMode {
+  try {
+    const waspInfo: unknown = JSON.parse(
+      fs.readFileSync(
+        path.join(getWaspBuildDir(waspProjectDir), ".waspinfo"),
+        "utf8",
+      ),
+    );
+
+    if (
+      typeof waspInfo === "object" &&
+      waspInfo !== null &&
+      "deliveryMode" in waspInfo &&
+      (waspInfo.deliveryMode === "integrated" ||
+        waspInfo.deliveryMode === "split")
+    ) {
+      return waspInfo.deliveryMode;
+    }
+  } catch {
+    throw invalidBuildMetadataError();
+  }
+
+  throw invalidBuildMetadataError();
+}
+
+export function usesIntegratedDelivery(
+  waspProjectDir: WaspProjectDir,
+): boolean {
+  return getAppDeliveryMode(waspProjectDir) === "integrated";
+}
+
+function invalidBuildMetadataError(): Error {
+  return new Error(
+    "Unable to determine the app delivery mode from .wasp/out/.waspinfo. " +
+      "The build metadata is missing, malformed, or incompatible. " +
+      "Run `wasp build` with the current Wasp CLI and retry the deployment.",
+  );
+}

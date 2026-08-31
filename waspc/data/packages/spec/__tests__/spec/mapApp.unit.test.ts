@@ -169,6 +169,27 @@ describe("convertWaspSpecToAppSpec", () => {
     ] satisfies AppSpec.Decl[]);
   });
 
+  test.each([
+    [{}, "integrated"],
+    [{ mode: "integrated" as const }, "integrated"],
+    [{ mode: "split" as const }, "split"],
+  ])("maps deployment %o to %s mode", (deployment, expectedMode) => {
+    const inputApp = app({
+      name: "DeliveryApp",
+      wasp: { version: "^0.16.3" },
+      title: "Delivery App",
+      deployment,
+      spec: [],
+    });
+
+    const [appDecl] = mapMockApp(inputApp, []);
+
+    expect(appDecl).toMatchObject({
+      declType: "App",
+      declValue: { deployment: { mode: expectedMode } },
+    });
+  });
+
   test("dedups a page referenced explicitly twice", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
     const page1 = page(refObject);

@@ -66,7 +66,10 @@ genUseAuth auth =
       (authDirInSdkTemplatesDir </> [relfile|useAuth.ts|])
       tmplData
   where
-    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    tmplData =
+      object
+        [ "entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]
+        ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genUserTs :: AS.Auth.Auth -> Generator FileDraft

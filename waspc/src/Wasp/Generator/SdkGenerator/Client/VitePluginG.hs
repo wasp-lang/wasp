@@ -1,13 +1,17 @@
 module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
+import Data.List (nub)
 import Data.Maybe (fromJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
-import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec (AppSpec, appDeliveryModeName)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
+import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import qualified Wasp.AppSpec.Route as AS.Route
+import Wasp.Generator.AppDeliveryPlan (AppDeliveryPlan (..), makeAppDeliveryPlan)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -72,6 +76,10 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
+          "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
+          "deliveryMode" .= appDeliveryModeName (deliveryMode plan),
+          "waspApiMountPath" .= waspApiMountPath plan,
+          "customApiPaths" .= makeJsArrayFromHaskellList customApiPaths,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
@@ -80,6 +88,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
+    plan = makeAppDeliveryPlan spec
 
     depsExcludedFromOptimization =
       -- Why do we exclude Wasp SDK from optimization?
@@ -95,6 +104,16 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         -- they aren't updated even though the lib changes.
         -- Read more about libs versioning in `waspc/libs/README.md`.
         map WaspLib.packageName waspLibs
+
+    customApiPaths =
+      nub $
+        map (normalizePath . AS.Api.path . snd) (AS.getApis spec)
+          ++ map (normalizePath . AS.ApiNamespace.path . snd) (AS.getApiNamespaces spec)
+
+    normalizePath path = case path of
+      [] -> []
+      firstChar : _ | firstChar == '/' -> path
+      _ -> '/' : path
 
 genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData

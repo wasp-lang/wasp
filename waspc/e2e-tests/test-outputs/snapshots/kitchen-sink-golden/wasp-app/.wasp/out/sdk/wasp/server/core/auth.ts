@@ -1,6 +1,7 @@
-import { getSessionAndUserFromBearerToken } from '../auth/session.js'
+import { getSessionAndUserFromSessionId } from '../auth/session.js'
 import { createInvalidCredentialsError } from '../auth/utils.js'
 import { defineHandler } from '../utils.js'
+import { appDelivery } from './delivery.js'
 
 /**
  * Auth middleware
@@ -15,19 +16,25 @@ import { defineHandler } from '../utils.js'
  * - If the request is not authenticated, it throws an error.
  */
 const auth = defineHandler(async (req, res, next) => {
-  const authHeader = req.get('Authorization')
+  const sessionId = appDelivery.readHttpSessionCredential(req)
   // NOTE(matija): for now we let tokenless requests through and make it operation's
   // responsibility to verify whether the request is authenticated or not. In the future
   // we will develop our own system at Wasp-level for that.
-  if (!authHeader) {
+  if (!sessionId) {
     req.sessionId = null
     req.user = null
     return next()
   }
 
-  const sessionAndUser = await getSessionAndUserFromBearerToken(req)
+  const sessionAndUser = await getSessionAndUserFromSessionId(sessionId)
 
   if (sessionAndUser === null) {
+    if (appDelivery.handleInvalidHttpSessionCredential(res) === 'continueUnauthenticated') {
+      req.sessionId = null
+      req.user = null
+      return next()
+    }
+
     throw createInvalidCredentialsError()
   }
 

@@ -1,7 +1,7 @@
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
-import { config } from '../../../../client/index.js'
+import { browserAppDelivery } from '../../../../client/index.js'
 import { clsx } from '../util'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
@@ -25,11 +25,11 @@ import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
 import { useEmail } from '../email/useEmail'
 
-const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
-const discordSignInUrl = `${config.apiUrl}/auth/discord/login`
-const googleSignInUrl = `${config.apiUrl}/auth/google/login`
-const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
-const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
+const slackSignInUrl = browserAppDelivery.waspApiUrl('/auth/slack/login')
+const discordSignInUrl = browserAppDelivery.waspApiUrl('/auth/discord/login')
+const googleSignInUrl = browserAppDelivery.waspApiUrl('/auth/google/login')
+const gitHubSignInUrl = browserAppDelivery.waspApiUrl('/auth/github/login')
+const microsoftSignInUrl = browserAppDelivery.waspApiUrl('/auth/microsoft/login')
 
 // PRIVATE API
 export type LoginSignupFormFields = {

@@ -1,6 +1,6 @@
 import { MicrosoftEntraId } from 'arctic';
 
-import { getRedirectUriForCallback } from '../redirect.js';
+import { getProviderCallbackUrl } from '../redirect.js';
 import { defineProvider } from '../provider.js';
 import { env } from '../../../env.js';
 
@@ -11,7 +11,7 @@ const oAuthClient = new MicrosoftEntraId(
   env.MICROSOFT_TENANT_ID,
   env.MICROSOFT_CLIENT_ID,
   env.MICROSOFT_CLIENT_SECRET,
-  getRedirectUriForCallback(id).toString(),
+  getProviderCallbackUrl(id).toString(),
 );
 
 // PUBLIC API

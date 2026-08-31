@@ -3,15 +3,17 @@ import operations from './operations/index.js'
 import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 
 
-const router = express.Router()
+const waspRouter = express.Router()
+const customRouter = express.Router()
+const serverRootRouter = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-router.get('/', middleware,
+serverRootRouter.get('/', middleware,
     function (_req, res) {
       res.status(200).send();
     }
 )
 
-router.use('/operations', middleware, operations)
+waspRouter.use('/operations', middleware, operations)
 
-export default router
+export default { waspApi: waspRouter, custom: customRouter, serverRoot: serverRootRouter }

@@ -30,7 +30,12 @@ const waspDevClientEnvSchema = z.object({
 });
 
 const waspProdClientEnvSchema = z.object({
+  {=# serverUrlRequiredInProduction =}
   "{= serverUrlEnvVarName =}": serverUrlSchema,
+  {=/ serverUrlRequiredInProduction =}
+  {=^ serverUrlRequiredInProduction =}
+  "{= serverUrlEnvVarName =}": z.string().default(""),
+  {=/ serverUrlRequiredInProduction =}
 });
 
 const waspClientEnvSchema = import.meta.env.MODE === "production"

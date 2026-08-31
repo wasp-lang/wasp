@@ -36,6 +36,8 @@ import StrongPath
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
+import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
@@ -44,8 +46,8 @@ import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import qualified Wasp.Generator.AppDeliveryPlan as AppDeliveryPlan
 import Wasp.Generator.Common (ServerRootDir)
-import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
@@ -54,7 +56,7 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
-import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), GeneratorWarning (GenericGeneratorWarning), logAndThrowGeneratorError, logGeneratorWarning)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
@@ -78,7 +80,8 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
-genServer spec =
+genServer spec = do
+  validateRouteOwnership spec
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
@@ -97,6 +100,58 @@ genServer spec =
   where
     genFileCopy = return . C.mkTmplFd
     npmDeps = npmDepsFromWasp spec
+
+validateRouteOwnership :: AppSpec -> Generator ()
+validateRouteOwnership spec = do
+  mapM_ warnOnCustomOverride customOverrides
+  case shadowingNamespaces of
+    [] -> return ()
+    namespaces ->
+      logAndThrowGeneratorError $
+        GenericGeneratorError $
+          "API namespaces shadow reserved Wasp routes: " ++ unwords namespaces
+  where
+    customApis = map snd (AS.getApis spec)
+    customOverrides = filter overridesReservedRoute customApis
+    namespacePaths = map (normalize . AS.ApiNamespace.path . snd) (AS.getApiNamespaces spec)
+    shadowingNamespaces = filter (\namespace -> any (namespaceShadows namespace) reservedRoutes) namespacePaths
+
+    waspApiRoutes =
+      [waspApiRoute "operations"]
+        ++ [waspApiRoute "auth" | isAuthEnabled spec]
+        ++ [waspApiRoute "crud" | not (null $ AS.getCruds spec)]
+    reservedRoutes = "/health" : waspApiRoutes
+
+    waspApiRoute route = AppDeliveryPlan.waspApiMountPath deliveryPlan ++ "/" ++ route
+    deliveryPlan = AppDeliveryPlan.makeAppDeliveryPlan spec
+
+    overridesReservedRoute api =
+      let path = normalize (AS.Api.path api)
+       in (path == "/health" && AS.Api.method api `elem` [AS.Api.GET, AS.Api.ALL])
+            || any (`isPathPrefixOf` path) waspApiRoutes
+
+    warnOnCustomOverride api =
+      logGeneratorWarning $
+        GenericGeneratorWarning $
+          "Custom API route "
+            ++ show (AS.Api.method api)
+            ++ " "
+            ++ normalize (AS.Api.path api)
+            ++ " overrides a reserved Wasp route because custom APIs take precedence."
+
+    namespaceShadows namespace reservedRoute = namespace == "/" || namespace `isPathPrefixOf` reservedRoute
+
+    normalize path = case path of
+      [] -> []
+      firstChar : _ | firstChar == '/' -> dropTrailingSlash path
+      _ -> dropTrailingSlash ('/' : path)
+
+    dropTrailingSlash path
+      | path /= "/" && last path == '/' = init path
+      | otherwise = path
+
+    isPathPrefixOf prefix path = path == prefix || (prefix ++ "/") `isPrefixOf` path
+    isPrefixOf prefix value = take (length prefix) value == prefix
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
@@ -242,7 +297,7 @@ genNodemon =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ genFileCopy [relfile|app.js|],
+    [ genAppJs spec,
       genServerJs spec
     ]
     <++> genRoutesDir spec
@@ -253,8 +308,10 @@ genSrcDir spec =
     <++> genDbSeed spec
     <++> genMiddleware spec
     <++> genWebSockets spec
-  where
-    genFileCopy = return . C.mkSrcTmplFd
+
+genAppJs :: AppSpec -> Generator FileDraft
+genAppJs _spec =
+  return $ C.mkTmplFdWithData [relfile|src/app.js|] (Just $ object [])
 
 genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
@@ -293,7 +350,7 @@ genRoutesIndex spec =
     tmplData =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+          "crudRouteInRootRouter" .= (crudRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
@@ -303,6 +360,9 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+crudRouteInRootRouter :: String
+crudRouteInRootRouter = "crud"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

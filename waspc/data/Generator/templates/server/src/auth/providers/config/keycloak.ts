@@ -55,7 +55,7 @@ const _waspConfig: ProviderConfig = {
 
         return createOAuthProviderRouter({
             provider,
-            oAuthType: 'OAuth2WithPKCE',
+            oauthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
             getAuthorizationUrl: ({ state, codeVerifier }) => keycloak.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
             getProviderTokens: ({ code, codeVerifier }) => keycloak.oAuthClient.validateAuthorizationCode(code, codeVerifier),

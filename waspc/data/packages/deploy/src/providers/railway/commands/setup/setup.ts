@@ -7,6 +7,7 @@ import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   getClientDeploymentDir,
   getServerDeploymentDir,
+  usesIntegratedDelivery,
 } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
 import {
@@ -44,11 +45,6 @@ export async function setup(
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Railway!");
 
-  const deploymentInstructions = createDeploymentInstructions(
-    projectName,
-    options,
-  );
-
   const project = await setupRailwayProjectForDirectory({
     projectName,
     existingProjectId: options.existingProjectId,
@@ -58,6 +54,12 @@ export async function setup(
   });
 
   await ensureWaspProjectIsBuilt(options);
+  const integrated = usesIntegratedDelivery(options.waspProjectDir);
+  const deploymentInstructions = createDeploymentInstructions(
+    projectName,
+    options,
+    integrated,
+  );
 
   const dbService = project.findService(deploymentInstructions.dbServiceName);
   if (dbService) {
@@ -71,7 +73,13 @@ export async function setup(
     await setupDb(deploymentInstructions);
   }
 
-  if (project.doesServiceExist(deploymentInstructions.clientServiceName)) {
+  if (integrated) {
+    waspSays(
+      "Integrated delivery uses one Railway application service. Skipping client setup.",
+    );
+  } else if (
+    project.doesServiceExist(deploymentInstructions.clientServiceName)
+  ) {
     waspSays("Client service already exists. Skipping client setup.");
   } else {
     await setupClient(deploymentInstructions);
@@ -163,12 +171,15 @@ async function setupServer({
   serverServiceName,
   clientServiceName,
   dbServiceName,
+  integrated,
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up server app with name ${serverServiceName}`);
 
   // The client service needs a URL so it can be referenced in the
   // server service env variables.
-  await generateServiceUrl(clientServiceName, clientAppPort, options);
+  if (!integrated) {
+    await generateServiceUrl(clientServiceName, clientAppPort, options);
+  }
 
   const serverDeploymentDir = getServerDeploymentDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(
@@ -176,12 +187,11 @@ async function setupServer({
     serverDeploymentDir,
   );
 
-  const clientUrl = `https://${getRailwayEnvVarValueReference(
-    "RAILWAY_PUBLIC_DOMAIN",
-    { serviceName: clientServiceName },
-  )}`;
   // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
   const serverUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
+  const clientUrl = integrated
+    ? serverUrl
+    : `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN", { serviceName: clientServiceName })}`;
   const databaseUrl = getRailwayEnvVarValueReference("DATABASE_URL", {
     serviceName: dbServiceName,
   });

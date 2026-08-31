@@ -17,6 +17,7 @@ import Data.Version (showVersion)
 import GHC.Generics (Generic)
 import qualified Paths_waspc
 import StrongPath (Abs, Dir, File, Path', Rel, relfile, toFilePath, (</>))
+import Wasp.AppSpec (AppDeliveryMode, appDeliveryModeName)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Inspectable (Inspectable (inspect), InspectionEntry (InspectionEntry))
 import Wasp.Project.BuildType (BuildType)
@@ -25,7 +26,8 @@ import Wasp.Util.IO (doesFileExist)
 data WaspInfo = WaspInfo
   { waspVersion :: String,
     generatedAt :: UTCTime,
-    buildType :: BuildType
+    buildType :: BuildType,
+    deliveryMode :: String
   }
   deriving (Eq, Show, Generic)
 
@@ -34,12 +36,13 @@ instance FromJSON WaspInfo
 instance ToJSON WaspInfo
 
 instance Inspectable WaspInfo where
-  inspect WaspInfo {waspVersion, generatedAt, buildType} =
+  inspect WaspInfo {waspVersion, generatedAt, buildType, deliveryMode} =
     [ InspectionEntry
         "Build"
         [ ("Wasp version", waspVersion),
           ("Generated at", show generatedAt),
-          ("Build type", show buildType)
+          ("Build type", show buildType),
+          ("Delivery mode", deliveryMode)
         ]
     ]
 
@@ -48,15 +51,16 @@ data WaspInfoFile
 waspInfoInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File WaspInfoFile)
 waspInfoInGeneratedAppDir = [relfile|.waspinfo|]
 
-persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> IO ()
-persist generatedAppDir currentBuildType = do
+persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> AppDeliveryMode -> IO ()
+persist generatedAppDir currentBuildType currentDeliveryMode = do
   encodeFile (toFilePath waspInfoFile) . generateWaspInfo =<< getCurrentTime
   where
     generateWaspInfo currentTime =
       WaspInfo
         { waspVersion = currentVersion,
           generatedAt = currentTime,
-          buildType = currentBuildType
+          buildType = currentBuildType,
+          deliveryMode = appDeliveryModeName currentDeliveryMode
         }
 
     waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir

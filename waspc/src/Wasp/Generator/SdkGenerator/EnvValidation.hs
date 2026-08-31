@@ -8,11 +8,13 @@ import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import qualified Wasp.Generator.AppDeliveryPlan as AppDeliveryPlan
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
@@ -73,9 +75,11 @@ genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
+    deliveryPlan = AppDeliveryPlan.makeAppDeliveryPlan spec
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
+          "serverUrlRequiredInProduction" .= (AppDeliveryPlan.deliveryMode deliveryPlan == AS.Split),
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema

@@ -1,6 +1,4 @@
 {{={= =}=}}
-import { Request as ExpressRequest } from "express";
-
 import { type {= userEntityUpper =} } from '../../entities/index.js';
 import { type AuthUserData } from '../../auth/user.js';
 
@@ -20,22 +18,6 @@ export async function createSession(authId: string): Promise<Session> {
 type SessionAndUser = {
   session: Session;
   user: AuthUserData;
-}
-
-// PRIVATE API
-export async function getSessionAndUserFromBearerToken(req: ExpressRequest): Promise<SessionAndUser | null> {
-  const authorizationHeader = req.headers["authorization"];
-
-  if (typeof authorizationHeader !== "string") {
-    return null;
-  }
-
-  const sessionId = auth.readBearerToken(authorizationHeader);
-  if (!sessionId) {
-    return null;
-  }
-
-  return getSessionAndUserFromSessionId(sessionId);
 }
 
 // PRIVATE API

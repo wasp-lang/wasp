@@ -7,6 +7,7 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ky from "ky";
 import * as z from "zod";
+import { configureBrowserAppDelivery } from "@wasp.sh/lib-delivery/browser";
 import mitt from "mitt";
 import "superjson";
 //#region \0vite/modulepreload-polyfill.js
@@ -144,8 +145,10 @@ function formatZodEnvError(error) {
 var userClientEnvSchema = z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
 z.object({ "REACT_APP_API_URL": serverUrlSchema });
-var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
-var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
+var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": z.string().default("") });
+//#endregion
+//#region .wasp/out/sdk/wasp/dist/client/env.js
+var env = ensureEnvSchema({
 	"BASE_URL": "/",
 	"DEV": false,
 	"MODE": "production",
@@ -155,16 +158,7 @@ var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
 }, z.object({
 	...userClientEnvSchema.shape,
 	...waspClientEnvSchema.shape
-}))["REACT_APP_API_URL"]) };
-//#endregion
-//#region .wasp/out/sdk/wasp/dist/client/index.js
-var HttpMethod;
-(function(HttpMethod) {
-	HttpMethod["Get"] = "GET";
-	HttpMethod["Post"] = "POST";
-	HttpMethod["Put"] = "PUT";
-	HttpMethod["Delete"] = "DELETE";
-})(HttpMethod || (HttpMethod = {}));
+}));
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -216,28 +210,53 @@ function createLocalStorageDataStore(prefix) {
 	};
 }
 //#endregion
+//#region .wasp/out/sdk/wasp/dist/client/config.js
+var configuredServerUrl = stripTrailingSlash(env["REACT_APP_API_URL"]);
+var browserAppDelivery = configureBrowserAppDelivery({
+	config: {
+		mode: "integrated",
+		serverUrl: configuredServerUrl,
+		waspApiMountPath: "/api"
+	},
+	storage
+});
+var config = {
+	serverUrl: browserAppDelivery.serverUrl,
+	apiUrl: browserAppDelivery.serverUrl
+};
+//#endregion
+//#region .wasp/out/sdk/wasp/dist/client/index.js
+var HttpMethod;
+(function(HttpMethod) {
+	HttpMethod["Get"] = "GET";
+	HttpMethod["Post"] = "POST";
+	HttpMethod["Put"] = "PUT";
+	HttpMethod["Delete"] = "DELETE";
+})(HttpMethod || (HttpMethod = {}));
+//#endregion
 //#region .wasp/out/sdk/wasp/dist/api/events.js
 var apiEventsEmitter = mitt();
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/api/index.js
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
-	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
+	return browserAppDelivery.currentSessionId();
 }
 function clearSessionId() {
-	storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
+	browserAppDelivery.clearSession();
 	apiEventsEmitter.emit("sessionId.clear");
 }
 ky.extend({
-	prefix: config.apiUrl,
+	prefix: config.serverUrl,
 	hooks: {
 		beforeRequest: [({ request }) => {
-			const sessionId = getSessionId();
-			if (sessionId !== null) request.headers.set("Authorization", `Bearer ${sessionId}`);
+			browserAppDelivery.prepareHttpRequest(request);
 		}],
 		afterResponse: [({ request, response }) => {
 			if (response.status === 401) {
-				if (getSessionIdFromAuthorizationHeader(request.headers.get("Authorization")) === getSessionId()) clearSessionId();
+				const failingSessionId = browserAppDelivery.sessionIdFromAuthorizationHeader(request.headers.get("Authorization"));
+				const currentSessionId = getSessionId();
+				if (failingSessionId !== null && failingSessionId === currentSessionId) clearSessionId();
 			}
 		}]
 	}
@@ -248,10 +267,6 @@ if (typeof window !== "undefined") window.addEventListener("storage", (event) =>
 		else apiEventsEmitter.emit("sessionId.clear");
 	}
 });
-function getSessionIdFromAuthorizationHeader(header) {
-	if (header && header.startsWith("Bearer ")) return header.substring(7);
-	else return null;
-}
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/operations/queryClient.js
 var defaultQueryClientConfig = {};
