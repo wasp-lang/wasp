@@ -76,14 +76,27 @@ failure message' =
         fileName = Nothing
       }
 
--- | Validates that the value exists and is equal to the expected value.
-eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
-eqJust expected (Just actual)
+-- | Validates that the value is equal to the expected value.
+eq :: (Eq a, Show a) => a -> Validator a
+eq expected actual
   | actual == expected = success
   | otherwise =
       failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
+
+-- | Validates that the value exists and is equal to the expected value.
+eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
+eqJust expected (Just actual) = eq expected actual
 eqJust expected Nothing =
   failure $ "Missing value, expected " ++ show expected ++ "."
+
+-- | Validates that the value exists and is one of the allowed values.
+oneOfJust :: (Eq a, Show a) => [a] -> Validator (Maybe a)
+oneOfJust allowed (Just actual)
+  | actual `elem` allowed = success
+  | otherwise =
+      failure $ "Expected one of " ++ show allowed ++ " but got " ++ show actual ++ "."
+oneOfJust allowed Nothing =
+  failure $ "Missing value, expected one of " ++ show allowed ++ "."
 
 -- | Validates that the list contains all of the expected elements. Additional
 -- elements are allowed. Combine with 'required' or 'ifJust' to validate an

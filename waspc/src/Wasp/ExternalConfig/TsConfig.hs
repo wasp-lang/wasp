@@ -43,6 +43,7 @@ data CompilerOptions = CompilerOptions
     moduleResolution :: !(Maybe String),
     moduleDetection :: !(Maybe String),
     isolatedModules :: !(Maybe Bool),
+    verbatimModuleSyntax :: !(Maybe Bool),
     jsx :: !(Maybe String),
     strict :: !(Maybe Bool),
     esModuleInterop :: !(Maybe Bool),
