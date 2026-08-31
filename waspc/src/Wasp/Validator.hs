@@ -76,14 +76,29 @@ failure message' =
         fileName = Nothing
       }
 
--- | Validates that the value exists and is equal to the expected value.
-eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
-eqJust expected (Just actual)
+-- | Validates that the value is equal to the expected value.
+eq :: (Eq a, Show a) => a -> Validator a
+eq expected actual
   | actual == expected = success
   | otherwise =
       failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
-eqJust expected Nothing =
-  failure $ "Missing value, expected " ++ show expected ++ "."
+
+-- | Validates that the value is one of the allowed values.
+oneOf :: (Eq a, Show a) => [a] -> Validator a
+oneOf allowed actual
+  | actual `elem` allowed = success
+  | otherwise =
+      failure $ "Expected one of " ++ show allowed ++ " but got " ++ show actual ++ "."
+
+-- | Validates that the value exists and is equal to the expected value.
+eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
+eqJust expected =
+  requiredWith ("Missing value, expected " ++ show expected ++ ".") (eq expected)
+
+-- | Validates that the value exists and is one of the allowed values.
+oneOfJust :: (Eq a, Show a) => [a] -> Validator (Maybe a)
+oneOfJust allowed =
+  requiredWith ("Missing value, expected one of " ++ show allowed ++ ".") (oneOf allowed)
 
 -- | Validates that the list contains all of the expected elements. Additional
 -- elements are allowed. Combine with 'required' or 'ifJust' to validate an
@@ -99,11 +114,15 @@ containsAll expected actual
 ifJust :: Validator a -> Validator (Maybe a)
 ifJust = maybe success
 
--- | Requires the value to be Just, then runs the inner validator on the
--- unwrapped value. If the value is Nothing, the validation fails.
+-- | Validates that the value exists, then runs the inner validator on it.
 required :: Validator a -> Validator (Maybe a)
-required _ Nothing = failure "Missing required value."
-required innerValidator (Just value) = innerValidator value
+required = requiredWith "Missing required value."
+
+-- | Validates that the value exists, then runs the inner validator on it.
+-- Reports the given message when the value is missing.
+requiredWith :: String -> Validator a -> Validator (Maybe a)
+requiredWith missingValueMessage _ Nothing = failure missingValueMessage
+requiredWith _ innerValidator (Just value) = innerValidator value
 
 instance Show ValidationError where
   show

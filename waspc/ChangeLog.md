@@ -23,6 +23,7 @@
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
+- You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 
 ### 🐞 Bug fixes
 
