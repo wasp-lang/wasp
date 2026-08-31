@@ -2,34 +2,6 @@ import { describe, expect, it } from "vitest";
 import { isValidEmail } from "../src/email";
 
 describe("isValidEmail", () => {
-  it.each([
-    "user@example.com",
-    "user.name+tag@example.co.uk",
-    "user_name@example.com",
-    "!#$%&'*+-/=?^_`{|}~@example.com",
-    "user@sub.domain.example.com",
-    "user@a.io",
-    // `input[type=email]` accepts a dotless domain, so we do too.
-    "user@localhost",
-  ])("accepts the ASCII address %j", (email) => {
-    expect(isValidEmail(email)).toBe(true);
-  });
-
-  it.each([
-    "",
-    "plainaddress",
-    "@example.com",
-    "user@",
-    "user@@example.com",
-    "user@-example.com",
-    "user@example-.com",
-    "user@exam ple.com",
-    "user name@example.com",
-    "user@example..com",
-  ])("rejects the malformed address %j", (email) => {
-    expect(isValidEmail(email)).toBe(false);
-  });
-
   it.each([null, undefined, 42, {}, ["user@example.com"]])(
     "rejects the non-string input %j",
     (input) => {
@@ -37,7 +9,36 @@ describe("isValidEmail", () => {
     },
   );
 
-  describe("internationalized addresses", () => {
+  describe("ASCII email addresses", () => {
+    it.each([
+      "user@example.com",
+      "user.name+tag@example.co.uk",
+      "user_name@example.com",
+      "!#$%&'*+-/=?^_`{|}~@example.com",
+      "user@sub.domain.example.com",
+      "user@a.io",
+      "user@localhost",
+    ])("accepts address %j", (email) => {
+      expect(isValidEmail(email)).toBe(true);
+    });
+
+    it.each([
+      "",
+      "plainaddress",
+      "@example.com",
+      "user@",
+      "user@@example.com",
+      "user@-example.com",
+      "user@example-.com",
+      "user@exam ple.com",
+      "user name@example.com",
+      "user@example..com",
+    ])("rejects the malformed address %j", (email) => {
+      expect(isValidEmail(email)).toBe(false);
+    });
+  });
+
+  describe("internationalized email addresses", () => {
     it.each([
       "jürgen@example.com",
       "user@münchen.de",
@@ -50,7 +51,7 @@ describe("isValidEmail", () => {
       "o\u0308ffentlich@example.com",
       // Arabic-Indic digits.
       "١٢@example.com",
-    ])("accepts %j", (email) => {
+    ])("accepts address %j", (email) => {
       expect(isValidEmail(email)).toBe(true);
     });
 
@@ -62,20 +63,21 @@ describe("isValidEmail", () => {
       // Numerals that are not decimal digits.
       "user@examp⑪le.com",
       "user@Ⅷ.com",
-    ])("rejects the unsupported character in %j", (email) => {
+    ])("rejects the unsupported Unicode character address %j", (email) => {
       expect(isValidEmail(email)).toBe(false);
     });
 
+    // Combining marks are rendered together with a preceding character.
+    // If an email address starts with one, it can combine visually with
+    // the character before the address, potentially making the address
+    // appear different from its actual spelling.
     it("rejects an address starting with a combining mark", () => {
-      // The mark has no character of its own to attach to, so it lands on
-      // whatever text precedes the address when it is rendered.
       expect(isValidEmail("\u0301user@example.com")).toBe(false);
     });
-  });
 
-  // These render as nothing, so they let two addresses that are spelled
-  // differently look identical.
-  describe("invisible characters", () => {
+    // An invisible character can be inserted into an email address without
+    // changing how it appears when rendered. This can make two differently
+    // spelled email addresses look identical.
     it.each([
       // Zero width joiner.
       "us\u200Der@example.com",
@@ -99,38 +101,33 @@ describe("isValidEmail", () => {
       "\uFFA0@example.com",
       // Hangul choseong filler, in the domain this time.
       "user@examp\u115Fle.com",
-    ])("rejects %j", (email) => {
+    ])("rejects an address containing invisible characters %j", (email) => {
       expect(isValidEmail(email)).toBe(false);
     });
   });
 
   describe("case", () => {
-    // The email signup endpoint validates the raw request body and only
-    // lowercases the address afterwards, so the validator has to accept
-    // whatever casing the user typed.
     it.each([
       "JOHN@EXAMPLE.COM",
       "John@Example.com",
       "jOhN@eXaMpLe.CoM",
-      // Uppercase confined to the domain.
       "john@Example.com",
       "john@example.COM",
-      // Uppercase confined to the local part, running right up to the "@".
       "JOHN@example.com",
       "john.DOE@example.com",
-    ])("accepts %j", (email) => {
+    ])("accepts address %j", (email) => {
       expect(isValidEmail(email)).toBe(true);
     });
   });
 
-  describe("anchoring", () => {
+  describe("requires the entire input to be an email address", () => {
     it.each([
       "user@example.com <script>alert(1)</script>",
       "I am not an email, ask user@example.com",
       "\nuser@example.com",
       "user@example.com\n",
       " user@example.com ",
-    ])("rejects %j, which merely contains an address", (input) => {
+    ])("rejects %j, which contains an address as a substring", (input) => {
       expect(isValidEmail(input)).toBe(false);
     });
   });

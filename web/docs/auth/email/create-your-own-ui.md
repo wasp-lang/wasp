@@ -13,7 +13,7 @@ Read more about the default email and password validation rules in the [auth ove
 Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times when you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions from your own code, similar to how Auth UI does it under the hood.
 
 :::note Handling the internationalized email input
-We use `type="text"` with `inputMode=email` because it allows unicode/international characters, while `type=email` only allows ASCII / english letters.
+We use `type="text"` with `inputMode="email"` and `autoComplete="email"` because it allows Unicode / international characters, while `type=email` only allows ASCII / english letters.
 :::
 
 ## Example code
@@ -59,6 +59,7 @@ Below you can find a starting point for making your own UI in the client code. T
           <input
             type="text"
             inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -109,6 +110,7 @@ Below you can find a starting point for making your own UI in the client code. T
           <input
             type="text"
             inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -187,6 +189,7 @@ Below you can find a starting point for making your own UI in the client code. T
           <input
             type="text"
             inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -276,6 +279,7 @@ Below you can find a starting point for making your own UI in the client code. T
           <input
             type="text"
             inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -326,6 +330,7 @@ Below you can find a starting point for making your own UI in the client code. T
           <input
             type="text"
             inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -404,6 +409,7 @@ Below you can find a starting point for making your own UI in the client code. T
           <input
             type="text"
             inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
