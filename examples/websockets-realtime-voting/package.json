@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
-    "test:install-deps": "playwright install --with-deps"
+    "test:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}"
   },
   "dependencies": {
     "express": "~5.1.0",
@@ -26,7 +26,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@wasp.sh/spec": "file:.wasp/spec",
-    "@wasp.sh/wasp-app-runner": "^0.0.16",
+    "@wasp.sh/wasp-app-runner": "^0.0.17",
     "prisma": "5.19.1",
     "typescript": "6.0.3",
     "vite": "^8.1.0",
