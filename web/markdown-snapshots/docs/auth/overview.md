@@ -360,7 +360,7 @@ If you use [Email](https://wasp.sh/docs/auth/email) authentication, the default 
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
-Because Wasp supports Unicode email addresses, browsers would reject their syntax with `input[type=email]`. If you are building your own form, please use `type="text"` with `inputMode="email"` instead. Keep in mind that `type="text"` doesn't strip surrounding whitespace the way `type="email"` does, so trim the address before you send it.
+Since Wasp's definition of valid email addresses is wider than the HTML5 grammar (we also support Unicode!), you won't want to use the usual `type="email"` attribute on the `input` element (which follows HTML5 grammar and doesn't accept Unicode). Instead use `type="text"` with `inputMode="email"` and `autoComplete="email"`.
 
 ## Customizing the Signup Process
 

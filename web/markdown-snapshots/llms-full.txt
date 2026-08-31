@@ -3923,7 +3923,7 @@ If you use [Email](https://wasp.sh/docs/auth/email) authentication, the default 
 
 Note that `email`s are stored in a **case-insensitive** manner.
 
-Because Wasp supports Unicode email addresses, browsers would reject their syntax with `input[type=email]`. If you are building your own form, please use `type="text"` with `inputMode="email"` instead. Keep in mind that `type="text"` doesn't strip surrounding whitespace the way `type="email"` does, so trim the address before you send it.
+Since Wasp's definition of valid email addresses is wider than the HTML5 grammar (we also support Unicode!), you won't want to use the usual `type="email"` attribute on the `input` element (which follows HTML5 grammar and doesn't accept Unicode). Instead use `type="text"` with `inputMode="email"` and `autoComplete="email"`.
 
 ### Customizing the Signup Process
 
@@ -5409,7 +5409,7 @@ Read more about the default email and password validation rules in the [auth ove
 Even though Wasp offers premade [Auth UI](https://wasp.sh/docs/auth/ui) for your authentication flows, there are times when you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions from your own code, similar to how Auth UI does it under the hood.
 
 :::note[Handling the internationalized email input]
-We use `type="text"` with `inputMode=email` because it allows unicode/international characters, while `type=email` only allows ASCII / english letters.
+We use `type="text"` with `inputMode="email"` and `autoComplete="email"` because it allows Unicode / international characters, while `type=email` only allows ASCII / english letters.
 :::
 
 ### Example code
@@ -5453,6 +5453,7 @@ export function LoginPage() {
       <input
         type="text"
         inputMode="email"
+        autoComplete="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
@@ -5503,6 +5504,7 @@ export function SignupPage() {
       <input
         type="text"
         inputMode="email"
+        autoComplete="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
@@ -5581,6 +5583,7 @@ export function RequestPasswordResetPage() {
       <input
         type="text"
         inputMode="email"
+        autoComplete="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
