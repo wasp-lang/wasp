@@ -16,14 +16,14 @@ The backend is hosted on Fly.io at https://waspello.fly.dev.
 
 ## Development
 
-This app uses Wasp's new TS spec. You will have to run `wasp ts-setup` before using the project.
-Check the docs for full instructions on using the Wasp TS Spec: https://wasp.sh/docs/general/wasp-ts-spec.
+Run `wasp install` before using the project.
 
 ### Database
 
 Wasp needs the Postgres database running.
 
 Easiest way to do this is to use `wasp start db` to start a PostgreSQL locally using Docker.
+Then run `wasp db migrate-dev` in another terminal.
 
 ### Env variables
 

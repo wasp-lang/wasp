@@ -70,9 +70,6 @@ data-files:
   packages/studio/dist/**/*.js
   packages/studio/package-lock.json
   packages/studio/package.json
-  packages/ts-inspect/dist/**/*.js
-  packages/ts-inspect/package-lock.json
-  packages/ts-inspect/package.json
 
 data-dir: data/
 
@@ -125,16 +122,16 @@ library
     aeson-pretty ^>=0.8.10,
     async ^>=2.2.5,
     base >=4.18 && <5,
-    bytestring ^>=0.11.5,
+    bytestring ^>=0.12.2,
     conduit ^>=1.3.6,
     conduit-extra ^>=1.3.7,
-    containers ^>=0.6.7,
+    containers ^>=0.7,
     cryptohash-sha256 ^>=0.11.102,
     directory ^>=1.3.8,
     dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
-    filepath ^>=1.4.301,
+    filepath ^>=1.5.4,
     githash ^>=0.1.7,
     Glob ^>=0.10.2,
     http-conduit ^>=2.3.9,
@@ -147,13 +144,12 @@ library
     parsec ^>=3.1.16,
     path ^>=0.9.5,
     path-io ^>=1.8.2,
-    pretty-simple ^>=4.1.3,
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
-    text ^>=2.0.2,
+    text ^>=2.1.3,
     time ^>=1.12.2,
     unliftio ^>=0.2.25,
     unordered-containers ^>=0.2.20,
@@ -198,6 +194,7 @@ library
     Wasp.Analyzer.TypeDefinitions.TH.Common
     Wasp.Analyzer.TypeDefinitions.TH.Decl
     Wasp.Analyzer.TypeDefinitions.TH.Enum
+    Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
@@ -221,6 +218,7 @@ library
     Wasp.AppSpec.Entity
     Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
+    Wasp.AppSpec.Inspectable
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
     Wasp.AppSpec.Operation
@@ -255,7 +253,6 @@ library
     Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
-    Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
@@ -285,8 +282,9 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
@@ -300,6 +298,7 @@ library
     Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
+    Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -314,13 +313,22 @@ library
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
+    Wasp.Generator.ServerGenerator.RunConfig
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
-    Wasp.Generator.SpecTypesGenerator
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.TypeAugmentationGenerator
+    Wasp.Generator.TypeAugmentationGenerator.App
+    Wasp.Generator.TypeAugmentationGenerator.App.Common
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk.Common
+    Wasp.Generator.TypeAugmentationGenerator.App.Sdk.JsImport
+    Wasp.Generator.TypeAugmentationGenerator.Common
+    Wasp.Generator.TypeAugmentationGenerator.Spec
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common
@@ -334,10 +342,12 @@ library
     Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.RunConfig
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
+    Wasp.Inspectable
     Wasp.Job
     Wasp.Job.Common
     Wasp.Job.Except
@@ -411,16 +421,12 @@ library
     Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
-    Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
-    Wasp.Util.Debug
     Wasp.Util.Docker
-    Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.GitRev
-    Wasp.Util.HashMap
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -454,8 +460,10 @@ library cli-lib
     http-conduit,
     lens,
     lens-aeson ^>=1.2.3,
+    lukko ^>=0.1.2,
     mtl,
     neat-interpolation,
+    network,
     optparse-applicative ^>=0.18.1,
     path-io,
     process,
@@ -473,6 +481,8 @@ library cli-lib
     Paths_waspc
 
   exposed-modules:
+    Wasp.Cli.AppComponentPorts
+    Wasp.Cli.AppComponentUrls
     Wasp.Cli.Archive
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
@@ -504,7 +514,6 @@ library cli-lib
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Doctor
-    Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
@@ -518,7 +527,13 @@ library cli-lib
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
     Wasp.Cli.Command.Require.WaspSpecAvailable
+    Wasp.Cli.Command.Show
+    Wasp.Cli.Command.Show.Build
+    Wasp.Cli.Command.Show.Spec
+    Wasp.Cli.Command.Show.Subcommand
+    Wasp.Cli.Command.Show.Table
     Wasp.Cli.Command.Start
+    Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
@@ -529,14 +544,19 @@ library cli-lib
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
+    Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.Port
+    Wasp.Cli.ProjectLock
+    Wasp.Cli.RunConfigs
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
+    Wasp.Cli.Util.PortArgument
 
 executable wasp-cli
   import: common-all, common-exe
@@ -547,7 +567,7 @@ executable wasp-cli
     base,
     cli-lib,
     waspc,
-    with-utf8 ^>=1.0.2,
+    with-utf8 ^>=1.1.0,
 
   other-modules:
     Paths_waspc
@@ -565,14 +585,12 @@ test-suite waspc-tests
     base,
     containers,
     deepseq,
-    Diff ^>=0.4.1,
     filepath,
     hspec >=2.11,
     megaparsec,
     mtl,
     neat-interpolation,
     parsec,
-    path,
     split,
     strong-path,
     tasty ^>=1.5.3,
@@ -639,11 +657,8 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    Test.Util
     Util.Control.MonadTest
-    Util.Diff
     Util.DockerTest
-    Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest
     Util.Prisma
@@ -664,6 +679,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    network,
     QuickCheck,
     tasty,
     tasty-hspec,
@@ -676,6 +692,7 @@ test-suite wasp-cli-tests
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests
@@ -732,9 +749,10 @@ test-suite waspc-e2e-tests
     Tests.WaspDbStudioTest
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
-    Tests.WaspInfoTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspProjectLockTest
+    Tests.WaspShowTest
     Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest

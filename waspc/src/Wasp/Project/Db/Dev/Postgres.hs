@@ -1,35 +1,74 @@
 -- | This module captures how Wasp runs a PostgreSQL dev database.
 module Wasp.Project.Db.Dev.Postgres
-  ( discoverDevConnectionUrl,
-    defaultDevUser,
-    makeDevDbName,
-    defaultDevPass,
-    defaultDevPort,
-    devDbPortEnvVarName,
-    getDevDbPort,
-    makeDevConnectionUrl,
-    makeWaspDevDbDockerContainerName,
-    makeWaspDevDbDockerVolumeName,
+  ( makeDevPostgresDbSpec,
+    runDevPostgresDb,
+    DevDbSpec (..),
+    getDevConnectionUrl,
+    discoverProjectsRunningDevDb,
     waspDevDbDockerVolumePrefix,
   )
 where
 
+import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
-import System.Environment (lookupEnv)
-import Text.Read (readMaybe)
-import Wasp.Db.Postgres (makeConnectionUrl, postgresMaxDbNameLength)
+import System.Process (callCommand)
+import Text.Printf (printf)
+import Wasp.Db.Postgres (defaultPostgresPort, makeConnectionUrl, postgresMaxDbNameLength)
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
-import Wasp.Util.Docker (getDockerContainerHostPort)
+import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath, discoverHostPortForDockerContainersInternalPort)
 
--- | Returns the connection URL of this Wasp project's dev db if it is up,
--- 'Nothing' otherwise.
-discoverDevConnectionUrl :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe String)
-discoverDevConnectionUrl waspProjectDir appName = do
-  devDbPort <- getDockerContainerHostPort devDbContainerName 5432
-  return $ makeUrlOnPort <$> devDbPort
+data DevDbSpec = DevDbSpec
+  { dockerVolumeName :: String,
+    dockerContainerName :: String,
+    dbName :: String,
+    user :: String,
+    password :: String,
+    port :: PortNumber
+  }
+
+makeDevPostgresDbSpec :: Path' Abs (Dir WaspProjectDir) -> String -> PortNumber -> DevDbSpec
+makeDevPostgresDbSpec waspProjectDir appName port =
+  DevDbSpec
+    { dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName,
+      dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName,
+      dbName = makeDevDbName waspProjectDir appName,
+      user = defaultDevUser,
+      password = defaultDevPass,
+      port
+    }
+
+getDevConnectionUrl :: DevDbSpec -> String
+getDevConnectionUrl devDbSpec =
+  makeConnectionUrl devDbSpec.user devDbSpec.password devDbSpec.port devDbSpec.dbName
+
+runDevPostgresDb :: DevDbSpec -> DockerImageName -> DockerVolumeMountPath -> IO ()
+runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath =
+  callCommand runDbCommand
   where
-    makeUrlOnPort port = makeConnectionUrl defaultDevUser defaultDevPass port devDbName
-    devDbName = makeDevDbName waspProjectDir appName
+    -- NOTE: POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB below are really used by the docker image
+    --   only when initializing the database -> if the volume was created previously, they will be ignored.
+    --   This is how the postgres Docker image works.
+    runDbCommand =
+      unwords
+        [ "docker run",
+          printf "--name %s" devDbSpec.dockerContainerName,
+          "--rm",
+          printf "--publish %s:%s" (show devDbSpec.port) (show postgresImageInternalPort),
+          printf "-v %s:%s" devDbSpec.dockerVolumeName dbDockerVolumeMountPath,
+          printf "--env POSTGRES_PASSWORD=%s" devDbSpec.password,
+          printf "--env POSTGRES_USER=%s" devDbSpec.user,
+          printf "--env POSTGRES_DB=%s" devDbSpec.dbName,
+          dbDockerImage
+        ]
+    postgresImageInternalPort = defaultPostgresPort
+
+-- | Returns all relevant info about this Wasp project's dev detabase if its
+-- container is running, 'Nothing' otherwise.
+discoverProjectsRunningDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Maybe DevDbSpec)
+discoverProjectsRunningDevDb waspProjectDir appName = do
+  devDbPort <- discoverHostPortForDockerContainersInternalPort devDbContainerName defaultPostgresPort
+  return $ makeDevPostgresDbSpec waspProjectDir appName <$> devDbPort
+  where
     devDbContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
 
 defaultDevUser :: String
@@ -48,30 +87,6 @@ makeDevDbName waspProjectDir appName =
   -- Wasp app has started. This way db name is unique for the specific Wasp app, and another Wasp app
   -- can't connect to it by accident.
   take postgresMaxDbNameLength $ makeAppUniqueId waspProjectDir appName
-
-defaultDevPort :: Int
-defaultDevPort = 5432 -- 5432 is default port for PostgreSQL db.
-
--- | Env var users can set to make Wasp run/connect to the dev database on a
--- custom host port, e.g. when 5432 is already taken by a local PostgreSQL server.
-devDbPortEnvVarName :: String
-devDbPortEnvVarName = "WASP_DEV_DB_PORT"
-
-getDevDbPort :: IO (Either String Int)
-getDevDbPort = do
-  maybePortStr <- lookupEnv devDbPortEnvVarName
-  return $ maybe (Right defaultDevPort) parseDevDbPort maybePortStr
-  where
-    parseDevDbPort :: String -> Either String Int
-    parseDevDbPort portStr = case readMaybe portStr of
-      Nothing -> Left $ devDbPortEnvVarName <> " must be a valid number, but it is empty"
-      Just port
-        | port > 0 && port <= 65535 -> Right port
-        | otherwise -> Left $ devDbPortEnvVarName <> " must be a TCP port number between 1 and 65535, but it is set to: " <> portStr
-
-makeDevConnectionUrl :: Int -> Path' Abs (Dir WaspProjectDir) -> String -> String
-makeDevConnectionUrl devDbPort waspProjectDir appName =
-  makeConnectionUrl defaultDevUser defaultDevPass devDbPort $ makeDevDbName waspProjectDir appName
 
 -- | Docker volume name unique for the Wasp project with specified path and name.
 makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String

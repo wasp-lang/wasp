@@ -4,11 +4,12 @@ module Wasp.Cli.Command.BashCompletion
   )
 where
 
-import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
+import qualified Wasp.Cli.Command.Show as Command.Show
+import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
 import Wasp.Util.Terminal (styleCode)
 
 -- generate bash completion depending on commands input
@@ -16,13 +17,17 @@ bashCompletion :: Command ()
 bashCompletion = do
   -- COMP_LINE is exposed by the bash `complete` builtin (https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html)
   inputEntered <- liftIO (ENV.getEnv "COMP_LINE")
-  let inputWords = words inputEntered
-  let inputArgs = assert (not (null inputWords) && head inputWords == "wasp") $ tail inputWords
+  -- COMP_LINE starts with the name of the program being completed (however the
+  -- user invoked it, e.g. `wasp`, `wasp-cli`, or an custom alias), which we
+  -- drop to get the arguments they entered.
+  let inputArgs = drop 1 (words inputEntered)
   case inputArgs of
     [] -> listCommands commands
     ["db"] -> listCommands dbSubCommands
+    ["show"] -> listCommands showSubCommands
     [cmdPrefix] -> listMatchingCommands cmdPrefix commands
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
+    ["show", cmdPrefix] -> listMatchingCommands cmdPrefix showSubCommands
     _ -> liftIO . putStrLn $ ""
   where
     commands =
@@ -40,11 +45,12 @@ bashCompletion = do
         "telemetry",
         "deps",
         "dockerfile",
-        "info",
+        "show",
         "test",
         "studio"
       ]
     dbSubCommands = ["start", "reset", "seed", "migrate-dev", "studio"]
+    showSubCommands = Command.Show.Subcommand.name <$> Command.Show.subcommands
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()

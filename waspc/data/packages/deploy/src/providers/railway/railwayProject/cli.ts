@@ -1,8 +1,11 @@
-import { $ } from "zx";
-
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
-import { createCommandWithCwd } from "../../../common/zx.js";
+import {
+  createCommand,
+  createCommandWithCwd,
+  runJsonCommand,
+  tryRunJsonCommand,
+} from "../../../common/zx.js";
 import { RailwayCliExe, RailwayProjectName } from "../brandedTypes.js";
 import {
   RailwayCliProjectSchema,
@@ -92,15 +95,15 @@ export async function getRailwayProjectForDirectory(
   directoryPath: string,
 ): Promise<RailwayProject | null> {
   const railwayCli = createCommandWithCwd(railwayExe, directoryPath);
-  const result = await railwayCli(["status", "--json"], {
-    verbose: false,
-    nothrow: true,
-  });
-  if (result.exitCode === 0) {
-    return createRailwayProject(RailwayCliProjectSchema.parse(result.json()));
-  } else {
+  const project = await tryRunJsonCommand(
+    railwayCli,
+    ["status", "--json"],
+    RailwayCliProjectSchema,
+  );
+  if (project === null) {
     return null;
   }
+  return createRailwayProject(project);
 }
 
 export async function getRailwayProjectById(
@@ -124,11 +127,12 @@ export async function getRailwayProjectByName(
 async function getRailwayProjects(
   railwayExe: RailwayCliExe,
 ): Promise<RailwayProject[]> {
-  const result = await $({
-    verbose: false,
-  })`${railwayExe} list --json`;
-
-  const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
+  const railwayCli = createCommand(railwayExe);
+  const projects = await runJsonCommand(
+    railwayCli,
+    ["list", "--json"],
+    RailwayProjectListSchema,
+  );
 
   return projects.map((cliProject) => {
     return createRailwayProject(cliProject);

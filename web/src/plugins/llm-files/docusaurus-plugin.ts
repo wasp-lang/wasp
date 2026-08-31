@@ -70,7 +70,7 @@ export function docusaurusPluginLlmFiles({
         await generateLlmFiles({
           baseUrl,
           outDir,
-          latestWaspVersion: loadedVersions[0].versionName,
+          latestWaspVersion: loadedVersions[0],
           loadedVersions,
           postCollections: collectPostCollections(
             baseUrl,

@@ -37,10 +37,7 @@ runs:
     - name: Install Mise
       uses: jdx/mise-action@v4
       with:
-        # Mise `2026.7.17` broke aqua version-override matching, which makes it
-        # install a broken `cabal` binary on Linux ("Exec format error").
-        # Unpin once fixed upstream: https://github.com/jdx/mise/discussions/11494
-        version: 2026.7.16
+        version: 2026.8.9
         bootstrap: true
         bootstrap_args: --update --yes
 

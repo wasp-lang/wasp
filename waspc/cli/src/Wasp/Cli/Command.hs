@@ -25,6 +25,7 @@ module Wasp.Cli.Command
   )
 where
 
+import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
@@ -36,7 +37,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 
 newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
-  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do

@@ -1,0 +1,93 @@
+---
+title: "Wasp now supports Resend for sending emails"
+authors: [matijasos]
+image: /img/resend-provider/banner.webp
+tags: [wasp, email, resend, webdev, fullstack]
+keywords:
+  [
+    "resend wasp integration",
+    "send emails resend node.js",
+    "wasp email sender provider",
+    "resend api key setup",
+    "transactional email react app",
+    "resend vs sendgrid",
+    "wasp emailSender config",
+    "email verification wasp auth",
+    "resend node sdk example",
+    "full-stack framework email sending",
+  ]
+description: "Wasp 0.25 adds Resend as a first-class email sender provider: set provider to Resend, add your API key, and start sending emails from your full-stack app."
+---
+
+Wasp 0.25 adds [Resend](https://resend.com) as a first-class email sender provider, right next to Mailgun, SendGrid, and SMTP. Set `provider: "Resend"`, add your API key, and you're sending emails. Big thanks to community contributor [Jamie Davenport](https://github.com/jamiedavenport), who built the whole thing!
+
+{/* truncate */}
+
+## Why Resend
+
+Resend has quickly become one of the most loved email APIs among developers, and it's easy to see why: a clean API, a generous free tier, and great DX around domain setup and debugging. It's also the team behind [React Email](https://react.email/), so it fits naturally into the React + Node.js world Wasp lives in.
+
+It's been one of our most requested integrations for a while. You could already use Resend with Wasp over SMTP, but now it's a first-class provider: no SMTP credentials, no extra packages, just the official Resend SDK wired in for you.
+
+## How to use it
+
+Set the provider to `Resend` in your `main.wasp.ts` file:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  emailSender: {
+    // highlight-next-line
+    provider: "Resend",
+    defaultFrom: {
+      name: "Example",
+      email: "hello@itsme.com",
+    },
+  },
+  // ...
+})
+```
+
+Then grab an API key from the [Resend dashboard](https://resend.com/api-keys) and add it to your `.env.server` file:
+
+```properties title=".env.server"
+RESEND_API_KEY=
+```
+
+That's the whole setup. Now you can send emails from anywhere on the server:
+
+```ts title="src/actions/sendEmail.ts"
+import { emailSender } from "wasp/server/email";
+
+// In some action handler...
+const info = await emailSender.send({
+  to: "user@domain.com",
+  subject: "Saying hello",
+  text: "Hello world",
+  html: "Hello <strong>world</strong>",
+});
+```
+
+And since `emailSender` is what Wasp uses under the hood for everything email-related, this also covers your [email authentication](/docs/auth/email) flows - verification emails and password resets now go through Resend too, with zero extra code.
+
+As with all Wasp providers, switching is a one-line change. Started on SMTP and want to move to Resend (or the other way around)? Change the `provider` field, swap the env variables, and everything else keeps working.
+
+## Built by the community
+
+This feature was contributed by [Jamie Davenport](https://github.com/jamiedavenport), who took it from idea to merged PR ([#4381](https://github.com/wasp-lang/wasp/pull/4381)): the provider implementation, env variable validation, and docs. This is exactly the kind of contribution that makes open source fun - thanks, Jamie! 🙏
+
+If you'd like to see your name here next time, check out our [contributing guide](https://github.com/wasp-lang/wasp/blob/main/CONTRIBUTING.md) or come say hi on [Discord](https://discord.gg/rzdnErX) - we're always happy to help you find a good first issue.
+
+## Try it out
+
+Resend support is live in Wasp 0.25. If you're not on it yet, update your Wasp CLI:
+
+```bash
+npm i -g @wasp.sh/wasp-cli
+```
+
+Then set `provider: "Resend"`, add your API key, and send your first email. Check out the [email sending docs](/docs/advanced/email#resend) for the full reference.
+
+We'd love to hear how it works for you - come chat with us on [Discord](https://discord.gg/rzdnErX)!

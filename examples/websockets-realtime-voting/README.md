@@ -30,13 +30,11 @@ Then navigate to the project directory
 
 ```bash
 cd examples/websockets-realtime-voting
-```
-
-```bash
+wasp install
 wasp db migrate-dev
 ```
 
-start the app! (this also installs all dependencies)
+Start the app:
 
 ```bash
 wasp start

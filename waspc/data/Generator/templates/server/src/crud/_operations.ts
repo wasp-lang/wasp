@@ -6,19 +6,19 @@ import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 {=/ isAuthEnabled =}
 import type {
   {=# crud.operations.GetAll =}
-  GetAllQueryResolved,
+  RegisteredGetAllQuery,
   {=/ crud.operations.GetAll =}
   {=# crud.operations.Get =}
-  GetQueryResolved,
+  RegisteredGetQuery,
   {=/ crud.operations.Get =}
   {=# crud.operations.Create =}
-  CreateActionResolved,
+  RegisteredCreateAction,
   {=/ crud.operations.Create =}
   {=# crud.operations.Update =}
-  UpdateActionResolved,
+  RegisteredUpdateAction,
   {=/ crud.operations.Update =}
   {=# crud.operations.Delete =}
-  DeleteActionResolved,
+  RegisteredDeleteAction,
   {=/ crud.operations.Delete =}
 } from 'wasp/server/crud/{= crud.name =}'
 {=# overrides.GetAll.isDefined =}
@@ -50,7 +50,7 @@ const entities = {
 // 1. We either use the default implementation of the operation...
 =}
 {=^ overrides.GetAll.isDefined =}
-const _waspGetAllQuery: GetAllQueryResolved = ((args, context) => {
+const _waspGetAllQuery: RegisteredGetAllQuery = ((args, context) => {
   {=^ crud.operations.GetAll.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.GetAll.isPublic =}
@@ -78,11 +78,11 @@ export async function getAllFn(args, context) {
 {=!
 // That's it! It is similar for all other operations.
 =}  
-
 {=# crud.operations.Get =}
+
 // Get query
 {=^ overrides.Get.isDefined =}
-const _waspGetQuery: GetQueryResolved = ((args, context) => {
+const _waspGetQuery: RegisteredGetQuery = ((args, context) => {
   {=^ crud.operations.Get.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Get.isPublic =}
@@ -100,11 +100,11 @@ export async function getFn(args, context) {
   });
 }
 {=/ crud.operations.Get =}
-
 {=# crud.operations.Create =}
+
 // Create action
 {=^ overrides.Create.isDefined =}
-const _waspCreateAction: CreateActionResolved = ((args, context) => {
+const _waspCreateAction: RegisteredCreateAction = ((args, context) => {
   {=^ crud.operations.Create.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Create.isPublic =}
@@ -122,11 +122,11 @@ export async function createFn(args, context) {
   });
 }
 {=/ crud.operations.Create =}
-
 {=# crud.operations.Update =}
+
 // Update action
 {=^ overrides.Update.isDefined =}
-const _waspUpdateAction: UpdateActionResolved = ((args, context) => {
+const _waspUpdateAction: RegisteredUpdateAction = ((args, context) => {
   {=^ crud.operations.Update.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Update.isPublic =}
@@ -148,11 +148,11 @@ export async function updateFn(args, context) {
   });
 }
 {=/ crud.operations.Update =}
-
 {=# crud.operations.Delete =}
+
 // Delete action
 {=^ overrides.Delete.isDefined =}
-const _waspDeleteAction: DeleteActionResolved = ((args, context) => {
+const _waspDeleteAction: RegisteredDeleteAction = ((args, context) => {
   {=^ crud.operations.Delete.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Delete.isPublic =}

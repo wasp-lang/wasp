@@ -20,10 +20,21 @@ const forcedOptions = {
   base: "{= baseDir =}",
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
+  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
+  // `build`, so it's not persisted in the final output.
+  "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),
+  "server.strictPort": true,
+  // `vite preview` falls back to `server` for most options, but not for `port`
+  // (it has its own default), so we have to set it separately.
+  "preview.port": envVarAsNumber("{= clientPortEnvVarName =}"),
 } as const;
 
 const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
   base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
+  "server.port":
+    "To run the client on a different port, use `wasp start --client-port <port>`.",
+  "preview.port":
+    "To run the client on a different port, use `wasp build start --client-port <port>`.",
 };
 
 export function waspConfig(): PluginOption {
@@ -40,8 +51,12 @@ export function waspConfig(): PluginOption {
           exclude: {=& depsExcludedFromOptimization =}
         },
         server: {
-          port: useUserValue(config.server?.port, {= defaultClientPort =}),
+          port: forcedOptions["server.port"],
+          strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
+        },
+        preview: {
+          port: forcedOptions["preview.port"],
         },
         envPrefix: forcedOptions["envPrefix"],
         build: {
@@ -111,4 +126,16 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
 
 function getByPath(obj: Record<string, any>, path: string): unknown {
   return path.split(".").reduce<any>((node, segment) => node?.[segment], obj);
+}
+
+function envVarAsNumber(envName: string): number | undefined {
+  const strValue = process.env[envName];
+  if (strValue === undefined) {
+    return undefined;
+  }
+  const numValue = Number.parseInt(strValue);
+  if (Number.isNaN(numValue)) {
+    throw new Error(`Environment variable ${envName} is not a valid number.`);
+  }
+  return numValue;
 }

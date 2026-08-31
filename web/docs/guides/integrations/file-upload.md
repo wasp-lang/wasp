@@ -80,7 +80,7 @@ export const MainPage = () => {
   const [name, setName] = useState("");
   const [file, setFile] = useState<File>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!file) return;
     const formData = new FormData();

@@ -6,6 +6,7 @@ import {
   toggleAllTasks,
   updateTaskIsDone,
 } from "./actions" with { type: "ref" };
+import getOldestTask from "./getOldestTask" with { type: "ref" };
 import { SerializationPage } from "./pages/SerializationPage" with { type: "ref" };
 import { TaskDetailPage } from "./pages/TaskDetailPage" with { type: "ref" };
 import { TasksPage } from "./pages/TasksPage" with { type: "ref" };
@@ -26,6 +27,7 @@ export const operationsSpec: Spec = [
   query(getTasks, { entities: ["Task"] }),
   query(getNumTasks, { entities: ["Task"], auth: false }),
   query(getTask, { entities: ["Task"] }),
+  query(getOldestTask, { entities: ["Task"] }),
   action(createTask, { entities: ["Task"] }),
   action(updateTaskIsDone, { entities: ["Task"] }),
   action(deleteCompletedTasks, { entities: ["Task"] }),

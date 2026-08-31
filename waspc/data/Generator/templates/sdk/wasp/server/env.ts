@@ -1,17 +1,25 @@
 {{={= =}=}}
 import * as z from "zod"
-
-import { ensureEnvSchema } from "../env/validation.js"
+import { ensureEnvSchema } from "../env/validation"
+import { FromRegister } from "../types/register";
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-const userServerEnvSchema = {= envValidationSchema.importIdentifier =};
+{=/ envValidationSchema.isDefined =}
+
+export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
+type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
+
+{=# envValidationSchema.isDefined =}
+const userServerEnvSchema: UserServerEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-const userServerEnvSchema = z.object({});
+const userServerEnvSchema: UserServerEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
 const waspCommonServerEnvSchema = z.object({
-  PORT: z.coerce.number().default({= defaultServerPort =}),
+  {= serverPortEnvVarName =}: z.coerce.number({
+    error: '{= serverPortEnvVarName =} is required and must be a number',
+  }),
   {= databaseUrlEnvVarName =}: z.string({
     error: '{= databaseUrlEnvVarName =} is required',
   }),
@@ -152,10 +160,8 @@ const jwtTokenSchema = z
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
-  "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default("{= defaultServerUrl =}"),
-  "{= clientUrlEnvVarName =}": clientUrlSchema
-    .default("{= defaultClientUrl =}"),
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
+  "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default("DEVJWTSECRET"),
@@ -175,13 +181,16 @@ const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
   z.object({...waspCommonServerEnvSchema.shape, ...waspDevServerEnvSchema.shape}),
   z.object({...waspCommonServerEnvSchema.shape, ...waspProdServerEnvSchema.shape}),
 ]);
-const serverEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
+
+type CompleteServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+
+const serverEnvSchema: CompleteServerEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
 const defaultNodeEnvValue = waspDevServerEnvSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
 
 // PUBLIC API
-export const env = ensureEnvSchema(
+export const env: z.infer<CompleteServerEnvSchema> = ensureEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,

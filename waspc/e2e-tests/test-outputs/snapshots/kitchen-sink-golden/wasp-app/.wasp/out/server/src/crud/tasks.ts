@@ -2,11 +2,11 @@ import { prisma } from 'wasp/server'
 
 import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 import type {
-  GetAllQueryResolved,
-  GetQueryResolved,
-  CreateActionResolved,
-  UpdateActionResolved,
-  DeleteActionResolved,
+  RegisteredGetAllQuery,
+  RegisteredGetQuery,
+  RegisteredCreateAction,
+  RegisteredUpdateAction,
+  RegisteredDeleteAction,
 } from 'wasp/server/crud/tasks'
 import { crudGetAllTasks } from '../../../../../src/features/crud/crud'
 import { crudCreateTask } from '../../../../../src/features/crud/crud'
@@ -26,7 +26,7 @@ export async function getAllFn(args, context) {
 }
 
 // Get query
-const _waspGetQuery: GetQueryResolved = ((args, context) => {
+const _waspGetQuery: RegisteredGetQuery = ((args, context) => {
   throwIfNotAuthenticated(context)
   return context.entities.Task.findUnique({ where: { id: args.id } });
 });
@@ -49,7 +49,7 @@ export async function createFn(args, context) {
 }
 
 // Update action
-const _waspUpdateAction: UpdateActionResolved = ((args, context) => {
+const _waspUpdateAction: RegisteredUpdateAction = ((args, context) => {
   throwIfNotAuthenticated(context)
   const { id: idFieldValue, ...rest } = args
   return context.entities.Task.update({
@@ -66,7 +66,7 @@ export async function updateFn(args, context) {
 }
 
 // Delete action
-const _waspDeleteAction: DeleteActionResolved = ((args, context) => {
+const _waspDeleteAction: RegisteredDeleteAction = ((args, context) => {
   throwIfNotAuthenticated(context)
   const { id: idFieldValue } = args
   return context.entities.Task.delete({ where:  { id: idFieldValue } });

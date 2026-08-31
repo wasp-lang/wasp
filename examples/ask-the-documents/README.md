@@ -22,13 +22,19 @@ This is an example Wasp app that supports:
    npm i -g @wasp.sh/wasp-cli@latest
    ```
 
-2. Start the database with:
+2. Install the project dependencies:
+
+   ```bash
+   wasp install
+   ```
+
+3. Start the database with:
 
    ```bash
    wasp start db --db-image pgvector/pgvector:pg18
    ```
 
-3. Copy `.env.server.example` to `.env.server` and fill out the environment variables.
+4. Copy `.env.server.example` to `.env.server` and fill out the environment variables.
 
    ```bash
    OPENAI_API_KEY="<your_openai_key>"
@@ -36,13 +42,13 @@ This is an example Wasp app that supports:
    GOOGLE_CLIENT_SECRET="<your_google_client_secret>"
    ```
 
-4. Migrate the database with:
+5. Migrate the database with:
 
    ```bash
    wasp db migrate-dev
    ```
 
-5. Start the server with:
+6. Start the server with:
 
    ```bash
    wasp start

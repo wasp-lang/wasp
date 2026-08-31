@@ -38,6 +38,16 @@ export type GetTask<Input extends Payload = never, Output extends Payload = Payl
   >
 
 // PUBLIC API
+export type GetOldestTask<Input extends Payload = never, Output extends Payload = Payload> = 
+  AuthenticatedQueryDefinition<
+    [
+      _Task,
+    ],
+    Input,
+    Output
+  >
+
+// PUBLIC API
 export type GetSerializedObjects<Input extends Payload = never, Output extends Payload = Payload> = 
   AuthenticatedQueryDefinition<
     [

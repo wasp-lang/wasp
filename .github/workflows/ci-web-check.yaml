@@ -32,7 +32,10 @@ jobs:
 
       - name: Build website
         working-directory: web
-        run: npm run build
+        # Unlike the production deploy, this build includes the "current"
+        # (next, unreleased) docs version. The markdown snapshots track it so
+        # docs drift shows up in the PR that causes it, not at release time.
+        run: npm run build-dev
 
       - name: Check markdown snapshots
         working-directory: web

@@ -14,30 +14,25 @@ import {
  */
 export async function generateVersionedLlmFiles(
   context: LlmFilesContext,
-  loadedVersion: LoadedVersion,
+  waspVersion: LoadedVersion,
 ): Promise<void> {
-  const waspVersion = loadedVersion.versionName;
-  console.log(`Processing Wasp version ${waspVersion}:`);
+  console.log(`Processing Wasp version ${waspVersion.versionName}:`);
 
   const markdownDocsIndex = buildLlmFilesMarkdownDocsIndex(
     context,
-    loadedVersion,
+    waspVersion,
   );
 
   await generateVersionedLlmsTxt(context, waspVersion, markdownDocsIndex);
-  console.log(`- Generated: llms-${waspVersion}.txt`);
+  console.log(`- Generated: llms-${waspVersion.versionName}.txt`);
 
   const llmsFullTxtContent = buildLlmsFullTxtContent(markdownDocsIndex);
 
   await generateVersionedLlmsFullTxt(context, waspVersion, llmsFullTxtContent);
-  console.log(`- Generated: llms-full-${waspVersion}.txt`);
+  console.log(`- Generated: llms-full-${waspVersion.versionName}.txt`);
 
-  if (waspVersion === context.latestWaspVersion) {
-    await generateLatestVersionLlmsFullTxt(
-      context,
-      waspVersion,
-      llmsFullTxtContent,
-    );
+  if (waspVersion.versionName === context.latestWaspVersion.versionName) {
+    await generateLatestVersionLlmsFullTxt(context, llmsFullTxtContent);
     console.log(`- Generated: llms-full.txt`);
   }
 }
@@ -50,17 +45,20 @@ export async function generateVersionedLlmFiles(
  */
 async function generateVersionedLlmsTxt(
   context: LlmFilesContext,
-  waspVersion: string,
+  waspVersion: LoadedVersion,
   markdownDocsIndex: LlmFilesMarkdownDocsIndex,
 ): Promise<void> {
-  const lines: string[] = [`# Wasp ${waspVersion} Documentation`, ""];
+  const lines: string[] = [`# Wasp ${waspVersion.label} Documentation`, ""];
   for (const section of markdownDocsIndex.sections) {
     lines.push(`## ${section.title}`);
     buildLlmsTxtBody(lines, section.items, 0);
     lines.push("");
   }
 
-  const absPath = path.join(context.outDir, `llms-${waspVersion}.txt`);
+  const absPath = path.join(
+    context.outDir,
+    `llms-${waspVersion.versionName}.txt`,
+  );
   const content = lines.join("\n").trimEnd() + "\n";
 
   await fs.writeFile(absPath, content, "utf8");
@@ -120,14 +118,17 @@ const LLMS_FULL_TXT_HEADER_DIVIDER = "\n---\n\n";
  */
 async function generateVersionedLlmsFullTxt(
   context: LlmFilesContext,
-  waspVersion: string,
+  waspVersion: LoadedVersion,
   llmsFullTxtContent: string,
 ): Promise<void> {
   const content =
-    buildFullDocsHeader(waspVersion) +
+    buildFullDocsHeader(waspVersion.label) +
     LLMS_FULL_TXT_HEADER_DIVIDER +
     llmsFullTxtContent;
-  const absPath = path.join(context.outDir, `llms-full-${waspVersion}.txt`);
+  const absPath = path.join(
+    context.outDir,
+    `llms-full-${waspVersion.versionName}.txt`,
+  );
 
   await fs.writeFile(absPath, content, "utf8");
 }
@@ -140,11 +141,10 @@ async function generateVersionedLlmsFullTxt(
  */
 async function generateLatestVersionLlmsFullTxt(
   context: LlmFilesContext,
-  waspVersion: string,
   llmsFullTxtContent: string,
 ): Promise<void> {
   const content =
-    buildLatestVersionFullDocsHeader(context, waspVersion) +
+    buildLatestVersionFullDocsHeader(context) +
     LLMS_FULL_TXT_HEADER_DIVIDER +
     llmsFullTxtContent;
   const absPath = path.join(context.outDir, `llms-full.txt`);
@@ -157,30 +157,24 @@ async function generateLatestVersionLlmsFullTxt(
  * This is because LLMs might default to this file even if their user has an outdated
  * Wasp version (if they skipped the `llms.txt` index).
  */
-function buildLatestVersionFullDocsHeader(
-  context: LlmFilesContext,
-  waspVersion: string,
-): string {
+function buildLatestVersionFullDocsHeader(context: LlmFilesContext): string {
   return [
-    buildFullDocsHeader(waspVersion),
+    buildFullDocsHeader(context.latestWaspVersion.label),
     "This is the full documentation for the latest version of Wasp.\nFor other versions, see the links below.\n",
     buildFullDocsIndexSection(context),
   ].join("\n");
 }
 
-function buildFullDocsHeader(waspVersion: string): string {
-  return `# Wasp ${waspVersion} Full Documentation\n`;
+function buildFullDocsHeader(waspVersionLabel: string): string {
+  return `# Wasp ${waspVersionLabel} Full Documentation\n`;
 }
 
 function buildFullDocsIndexSection(context: LlmFilesContext): string {
   const { baseUrl } = context;
-  const waspVersions = context.loadedVersions.map(
-    (version) => version.versionName,
-  );
   let section = `## Full Documentation by Version\n`;
-  section += `- [latest (currently ${context.latestWaspVersion})](${baseUrl}/llms-full.txt)\n`;
-  for (const waspVersion of waspVersions) {
-    section += `- [${waspVersion}](${baseUrl}/llms-full-${waspVersion}.txt)\n`;
+  section += `- [latest (currently ${context.latestWaspVersion.label})](${baseUrl}/llms-full.txt)\n`;
+  for (const version of context.loadedVersions) {
+    section += `- [${version.label}](${baseUrl}/llms-full-${version.versionName}.txt)\n`;
   }
   return section;
 }

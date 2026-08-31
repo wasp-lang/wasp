@@ -24,18 +24,26 @@ export function getSignupRoute({
     const fields = req.body ?? {}
     ensureValidArgs(fields)
 
+    const providerId = createProviderId('username', fields.username)
+
+    // The hook runs first so it can veto the signup (by throwing) before the
+    // developer's `userSignupFields` getters run.
+    try {
+      await onBeforeSignupHook({ req, providerId })
+    } catch (e: unknown) {
+      rethrowPossibleAuthError(e)
+    }
+
     const userFields = await validateAndGetUserFields(
       fields,
       userSignupFields,
     );
 
-    const providerId = createProviderId('username', fields.username)
     const providerData = await sanitizeAndSerializeProviderData<'username'>({
       hashedPassword: fields.password,
     })
 
     try {
-      await onBeforeSignupHook({ req, providerId })
       const user = await createUser(
         providerId,
         providerData,

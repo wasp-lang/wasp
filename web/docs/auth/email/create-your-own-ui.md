@@ -251,7 +251,7 @@ Below you can find a starting point for making your own UI in the client code. T
       const [error, setError] = useState<Error | null>(null)
       const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
@@ -290,7 +290,7 @@ Below you can find a starting point for making your own UI in the client code. T
       const [error, setError] = useState<Error | null>(null)
       const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
@@ -367,7 +367,7 @@ Below you can find a starting point for making your own UI in the client code. T
       const [error, setError] = useState<Error | null>(null)
       const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
@@ -411,7 +411,7 @@ Below you can find a starting point for making your own UI in the client code. T
       const [newPassword, setNewPassword] = useState('')
       const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {

@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, SubmitEvent } from "react";
 import type { AuthUser } from "wasp/auth";
 import { logout } from "wasp/client/auth";
 import {
@@ -62,7 +62,7 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
 };
 
 const NewTaskForm = () => {
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const target = event.target as HTMLFormElement;

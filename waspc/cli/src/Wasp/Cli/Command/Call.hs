@@ -2,7 +2,7 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New Arguments
-  | Start
+  | Start Arguments
   | StartDb Arguments
   | Clean
   | Install
@@ -16,7 +16,7 @@ data Call
   | Telemetry
   | Deps
   | Dockerfile
-  | Info
+  | Show Arguments
   | News
   | Studio
   | PrintBashCompletionInstruction

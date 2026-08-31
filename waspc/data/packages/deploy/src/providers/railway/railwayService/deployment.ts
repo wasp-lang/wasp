@@ -2,12 +2,12 @@ import { setTimeout } from "node:timers/promises";
 
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
-import { createCommandWithCwd } from "../../../common/zx.js";
-import { RailwayCliExe, RailwayServiceName } from "../brandedTypes.js";
+import { createCommandWithCwd, tryRunJsonCommand } from "../../../common/zx.js";
+import { RailwayCliExe } from "../brandedTypes.js";
 import {
   DeploymentStatus,
-  RailwayCliProjectStatus,
-  RailwayCliProjectStatusSchema,
+  RailwayCliService,
+  RailwayCliServiceStatusSchema,
 } from "../jsonOutputSchemas.js";
 
 const POLL_INTERVAL_MS = 5_000;
@@ -18,7 +18,7 @@ const SUCCESS_STATUS: DeploymentStatus = "SUCCESS";
 const FAILURE_STATUSES: DeploymentStatus[] = ["FAILED", "CRASHED"];
 
 export async function waitForServiceDeploymentSuccess(
-  serviceName: RailwayServiceName,
+  service: RailwayCliService,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
@@ -26,7 +26,7 @@ export async function waitForServiceDeploymentSuccess(
 ): Promise<void> {
   const deadline = Date.now() + TIMEOUT_MS;
   while (Date.now() < deadline) {
-    const status = await getLatestServiceDeploymentStatus(serviceName, options);
+    const status = await getLatestServiceDeploymentStatus(service, options);
 
     if (status === SUCCESS_STATUS) {
       return;
@@ -34,24 +34,24 @@ export async function waitForServiceDeploymentSuccess(
 
     if (status !== null && FAILURE_STATUSES.includes(status)) {
       throw new Error(
-        `"${serviceName}" deployment finished with status "${status}". Check the Railway dashboard for details.`,
+        `"${service.name}" deployment finished with status "${status}". Check the Railway dashboard for details.`,
       );
     }
 
     waspSays(
-      `Waiting for "${serviceName}" deployment... (Status: "${status ?? "UNKNOWN"}")`,
+      `Waiting for "${service.name}" deployment... (Status: "${status ?? "UNKNOWN"}")`,
     );
 
     await setTimeout(POLL_INTERVAL_MS);
   }
 
   throw new Error(
-    `Timed out waiting for "${serviceName}" to be deployed. Check the Railway dashboard for details.`,
+    `Timed out waiting for "${service.name}" to be deployed. Check the Railway dashboard for details.`,
   );
 }
 
 async function getLatestServiceDeploymentStatus(
-  serviceName: RailwayServiceName,
+  service: RailwayCliService,
   options: {
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
@@ -61,27 +61,12 @@ async function getLatestServiceDeploymentStatus(
     options.railwayExe,
     options.waspProjectDir,
   );
-  const result = await railwayCli(["status", "--json"], {
-    verbose: false,
-    nothrow: true,
-  });
-  if (result.exitCode !== 0) {
-    // Treat transient `railway status` failures as "not ready yet".
-    return null;
-  }
-
-  const projectStatus = RailwayCliProjectStatusSchema.parse(result.json());
-  return findServiceDeploymentStatus(projectStatus, serviceName);
-}
-
-export function findServiceDeploymentStatus(
-  projectStatus: RailwayCliProjectStatus,
-  serviceName: string,
-): DeploymentStatus | null {
-  const serviceInstance = projectStatus.environments.edges
-    .flatMap((environment) => environment.node.serviceInstances.edges)
-    .map((edge) => edge.node)
-    .find((instance) => instance.serviceName === serviceName);
-
-  return serviceInstance?.latestDeployment?.status ?? null;
+  const serviceStatus = await tryRunJsonCommand(
+    railwayCli,
+    ["service", "status", "--service", service.id, "--json"],
+    RailwayCliServiceStatusSchema,
+  );
+  // Treat a failed command as a transient Railway CLI failure, i.e. "not
+  // ready yet".
+  return serviceStatus?.status ?? null;
 }

@@ -10,14 +10,14 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr, stdout)
+import System.IO (BufferMode (LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
-import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.Compile (compileCommand)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
@@ -29,9 +29,9 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
-import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
+import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
@@ -46,11 +46,16 @@ import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+  -- If we don't explicitly set line buffering, the output gets block-buffered
+  -- when stdout is not a terminal (e.g. redirected to a file or another program),
+  -- so messages from long-running commands don't show up until the command exits.
+  hSetBuffering stdout LineBuffering
+
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
-        ["start"] -> Command.Call.Start
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
+        ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
@@ -63,7 +68,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
-        ["info"] -> Command.Call.Info
+        ("show" : showArgs) -> Command.Call.Show showArgs
         ["news"] -> Command.Call.News
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
@@ -78,11 +83,11 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.Start -> runCommand start
+    Command.Call.Start startArgs -> runCommand $ start startArgs
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
-    Command.Call.Compile -> runCommand compile
+    Command.Call.Compile -> runCommand compileCommand
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
@@ -93,7 +98,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
-    Command.Call.Info -> runCommand info
+    Command.Call.Show showArgs -> runCommand $ showCommand showArgs
     Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
@@ -146,7 +151,10 @@ printUsage =
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
+        cmd   "    start [--client-port <port>] [--server-port <port>]",
+              "                          Runs Wasp app in development mode, watching for file changes.",
+              "                          Optionally specify the ports the client and the server run on.",
+              "                          If not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom Docker image or Docker volume mount path.",
@@ -162,7 +170,8 @@ printUsage =
         cmd   "    telemetry             Prints telemetry status.",
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
-        cmd   "    info                  Prints basic information about the current Wasp project.",
+        cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
+        cmd   "    show build [--json]   Prints information about your app's current build.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
         cmd   "    news                  Read the latest Wasp-related news.",
@@ -180,7 +189,7 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = do
-  hPutStrLn stdout $ show waspVersion
+  print waspVersion
   hPutStrLn stderr $
     unlines
       [ "",

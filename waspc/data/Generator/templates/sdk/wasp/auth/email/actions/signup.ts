@@ -1,14 +1,14 @@
 {{={= =}=}}
 import { api, handleApiError } from '../../../api/index.js';
 import { SuccessResponseSchema } from '../../responseSchemas';
-{=# emailUserSignupFields.isDefined =}
+{=# isEmailUserSignupFieldsDefined =}
 import { type UserEmailSignupFields } from '../../providers'
-{=/ emailUserSignupFields.isDefined =}
+{=/ isEmailUserSignupFieldsDefined =}
 
 type EmailSignupData = {
   email: string
   password: string
-}{=# emailUserSignupFields.isDefined =} & UserEmailSignupFields{=/ emailUserSignupFields.isDefined =}
+}{=# isEmailUserSignupFieldsDefined =} & UserEmailSignupFields{=/ isEmailUserSignupFieldsDefined =}
 
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {

@@ -1,239 +1,260 @@
 
-import { prisma } from '../../index.js'
+import { prisma } from '../../index'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
-} from '../wrappers.js'
-import { customSignup as customSignup_ext } from 'wasp/src/features/auth/customSignup'
-import { createTask as createTask_ext } from 'wasp/src/features/operations/actions'
-import { updateTaskIsDone as updateTaskIsDone_ext } from 'wasp/src/features/operations/actions'
-import { deleteCompletedTasks as deleteCompletedTasks_ext } from 'wasp/src/features/operations/actions'
-import { toggleAllTasks as toggleAllTasks_ext } from 'wasp/src/features/operations/actions'
-import { requestUppercaseText as requestUppercaseText_ext } from 'wasp/src/features/jobs/uppercaseText'
-import { testingAction as testingAction_ext } from 'wasp/src/rpcTests/operations/server'
-import { taskToTaskUnspecified as taskToTaskUnspecified_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { taskToTaskSatisfies as taskToTaskSatisfies_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { taskToTaskSpecified as taskToTaskSpecified_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { voidToStringAuth as voidToStringAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { voidToStringNoAuth as voidToStringNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { unspecifiedToNumber as unspecifiedToNumber_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { boolToStringAuth as boolToStringAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { boolToStringNoAuth as boolToStringNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { boolToVoidNoAuth as boolToVoidNoAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { boolToVoidAuth as boolToVoidAuth_ext } from 'wasp/src/rpcTests/operations/definitions'
-import { jsActionWithArgs as jsActionWithArgs_ext } from 'wasp/src/rpcTests/operations/jsDefinitions'
+} from '../wrappers'
+import type { FromRegisterPath } from '../../../types/register'
+import type {
+  CustomSignup,
+  CreateTask,
+  UpdateTaskIsDone,
+  DeleteCompletedTasks,
+  ToggleAllTasks,
+  RequestUppercaseText,
+  TestingAction,
+  TaskToTaskUnspecified,
+  TaskToTaskSatisfies,
+  TaskToTaskSpecified,
+  VoidToStringAuth,
+  VoidToStringNoAuth,
+  UnspecifiedToNumber,
+  BoolToStringAuth,
+  BoolToStringNoAuth,
+  BoolToVoidNoAuth,
+  BoolToVoidAuth,
+  JsActionWithArgs,
+} from './types'
+import { customSignup as customSignup_ext } from 'virtual:wasp/user/features/auth/customSignup'
+import { createTask as createTask_ext } from 'virtual:wasp/user/features/operations/actions'
+import { updateTaskIsDone as updateTaskIsDone_ext } from 'virtual:wasp/user/features/operations/actions'
+import { deleteCompletedTasks as deleteCompletedTasks_ext } from 'virtual:wasp/user/features/operations/actions'
+import { toggleAllTasks as toggleAllTasks_ext } from 'virtual:wasp/user/features/operations/actions'
+import { requestUppercaseText as requestUppercaseText_ext } from 'virtual:wasp/user/features/jobs/uppercaseText'
+import { testingAction as testingAction_ext } from 'virtual:wasp/user/rpcTests/operations/server'
+import { taskToTaskUnspecified as taskToTaskUnspecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { taskToTaskSatisfies as taskToTaskSatisfies_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { taskToTaskSpecified as taskToTaskSpecified_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { voidToStringAuth as voidToStringAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { voidToStringNoAuth as voidToStringNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { unspecifiedToNumber as unspecifiedToNumber_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { boolToStringAuth as boolToStringAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { boolToStringNoAuth as boolToStringNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { boolToVoidNoAuth as boolToVoidNoAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { boolToVoidAuth as boolToVoidAuth_ext } from 'virtual:wasp/user/rpcTests/operations/definitions'
+import { jsActionWithArgs as jsActionWithArgs_ext } from 'virtual:wasp/user/rpcTests/operations/jsDefinitions'
 
 // PRIVATE API
-export type CustomSignup_ext = typeof customSignup_ext
+export type RegisteredCustomSignup = FromRegisterPath<['operations', 'customSignup'], CustomSignup>
 
 // PUBLIC API
-export const customSignup: AuthenticatedOperationFor<CustomSignup_ext> =
-  createAuthenticatedOperation(
-    customSignup_ext,
+export const customSignup: AuthenticatedOperationFor<RegisteredCustomSignup> =
+  createAuthenticatedOperation<RegisteredCustomSignup>(
+    () => customSignup_ext,
     {
     },
   )
 
 // PRIVATE API
-export type CreateTask_ext = typeof createTask_ext
+export type RegisteredCreateTask = FromRegisterPath<['operations', 'createTask'], CreateTask>
 
 // PUBLIC API
-export const createTask: AuthenticatedOperationFor<CreateTask_ext> =
-  createAuthenticatedOperation(
-    createTask_ext,
-    {
-      Task: prisma.task,
-    },
-  )
-
-// PRIVATE API
-export type UpdateTaskIsDone_ext = typeof updateTaskIsDone_ext
-
-// PUBLIC API
-export const updateTaskIsDone: AuthenticatedOperationFor<UpdateTaskIsDone_ext> =
-  createAuthenticatedOperation(
-    updateTaskIsDone_ext,
-    {
-      Task: prisma.task,
-    },
-  )
-
-// PRIVATE API
-export type DeleteCompletedTasks_ext = typeof deleteCompletedTasks_ext
-
-// PUBLIC API
-export const deleteCompletedTasks: AuthenticatedOperationFor<DeleteCompletedTasks_ext> =
-  createAuthenticatedOperation(
-    deleteCompletedTasks_ext,
+export const createTask: AuthenticatedOperationFor<RegisteredCreateTask> =
+  createAuthenticatedOperation<RegisteredCreateTask>(
+    () => createTask_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type ToggleAllTasks_ext = typeof toggleAllTasks_ext
+export type RegisteredUpdateTaskIsDone = FromRegisterPath<['operations', 'updateTaskIsDone'], UpdateTaskIsDone>
 
 // PUBLIC API
-export const toggleAllTasks: AuthenticatedOperationFor<ToggleAllTasks_ext> =
-  createAuthenticatedOperation(
-    toggleAllTasks_ext,
+export const updateTaskIsDone: AuthenticatedOperationFor<RegisteredUpdateTaskIsDone> =
+  createAuthenticatedOperation<RegisteredUpdateTaskIsDone>(
+    () => updateTaskIsDone_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type RequestUppercaseText_ext = typeof requestUppercaseText_ext
+export type RegisteredDeleteCompletedTasks = FromRegisterPath<['operations', 'deleteCompletedTasks'], DeleteCompletedTasks>
 
 // PUBLIC API
-export const requestUppercaseText: AuthenticatedOperationFor<RequestUppercaseText_ext> =
-  createAuthenticatedOperation(
-    requestUppercaseText_ext,
+export const deleteCompletedTasks: AuthenticatedOperationFor<RegisteredDeleteCompletedTasks> =
+  createAuthenticatedOperation<RegisteredDeleteCompletedTasks>(
+    () => deleteCompletedTasks_ext,
+    {
+      Task: prisma.task,
+    },
+  )
+
+// PRIVATE API
+export type RegisteredToggleAllTasks = FromRegisterPath<['operations', 'toggleAllTasks'], ToggleAllTasks>
+
+// PUBLIC API
+export const toggleAllTasks: AuthenticatedOperationFor<RegisteredToggleAllTasks> =
+  createAuthenticatedOperation<RegisteredToggleAllTasks>(
+    () => toggleAllTasks_ext,
+    {
+      Task: prisma.task,
+    },
+  )
+
+// PRIVATE API
+export type RegisteredRequestUppercaseText = FromRegisterPath<['operations', 'requestUppercaseText'], RequestUppercaseText>
+
+// PUBLIC API
+export const requestUppercaseText: AuthenticatedOperationFor<RegisteredRequestUppercaseText> =
+  createAuthenticatedOperation<RegisteredRequestUppercaseText>(
+    () => requestUppercaseText_ext,
     {
       UppercaseTextRequest: prisma.uppercaseTextRequest,
     },
   )
 
 // PRIVATE API
-export type TestingAction_ext = typeof testingAction_ext
+export type RegisteredTestingAction = FromRegisterPath<['operations', 'testingAction'], TestingAction>
 
 // PUBLIC API
-export const testingAction: AuthenticatedOperationFor<TestingAction_ext> =
-  createAuthenticatedOperation(
-    testingAction_ext,
+export const testingAction: AuthenticatedOperationFor<RegisteredTestingAction> =
+  createAuthenticatedOperation<RegisteredTestingAction>(
+    () => testingAction_ext,
     {
     },
   )
 
 // PRIVATE API
-export type TaskToTaskUnspecified_ext = typeof taskToTaskUnspecified_ext
+export type RegisteredTaskToTaskUnspecified = FromRegisterPath<['operations', 'taskToTaskUnspecified'], TaskToTaskUnspecified>
 
 // PUBLIC API
-export const taskToTaskUnspecified: AuthenticatedOperationFor<TaskToTaskUnspecified_ext> =
-  createAuthenticatedOperation(
-    taskToTaskUnspecified_ext,
-    {
-      Task: prisma.task,
-    },
-  )
-
-// PRIVATE API
-export type TaskToTaskSatisfies_ext = typeof taskToTaskSatisfies_ext
-
-// PUBLIC API
-export const taskToTaskSatisfies: AuthenticatedOperationFor<TaskToTaskSatisfies_ext> =
-  createAuthenticatedOperation(
-    taskToTaskSatisfies_ext,
+export const taskToTaskUnspecified: AuthenticatedOperationFor<RegisteredTaskToTaskUnspecified> =
+  createAuthenticatedOperation<RegisteredTaskToTaskUnspecified>(
+    () => taskToTaskUnspecified_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type TaskToTaskSpecified_ext = typeof taskToTaskSpecified_ext
+export type RegisteredTaskToTaskSatisfies = FromRegisterPath<['operations', 'taskToTaskSatisfies'], TaskToTaskSatisfies>
 
 // PUBLIC API
-export const taskToTaskSpecified: AuthenticatedOperationFor<TaskToTaskSpecified_ext> =
-  createAuthenticatedOperation(
-    taskToTaskSpecified_ext,
+export const taskToTaskSatisfies: AuthenticatedOperationFor<RegisteredTaskToTaskSatisfies> =
+  createAuthenticatedOperation<RegisteredTaskToTaskSatisfies>(
+    () => taskToTaskSatisfies_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type VoidToStringAuth_ext = typeof voidToStringAuth_ext
+export type RegisteredTaskToTaskSpecified = FromRegisterPath<['operations', 'taskToTaskSpecified'], TaskToTaskSpecified>
 
 // PUBLIC API
-export const voidToStringAuth: AuthenticatedOperationFor<VoidToStringAuth_ext> =
-  createAuthenticatedOperation(
-    voidToStringAuth_ext,
+export const taskToTaskSpecified: AuthenticatedOperationFor<RegisteredTaskToTaskSpecified> =
+  createAuthenticatedOperation<RegisteredTaskToTaskSpecified>(
+    () => taskToTaskSpecified_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type VoidToStringNoAuth_ext = typeof voidToStringNoAuth_ext
+export type RegisteredVoidToStringAuth = FromRegisterPath<['operations', 'voidToStringAuth'], VoidToStringAuth>
 
 // PUBLIC API
-export const voidToStringNoAuth: UnauthenticatedOperationFor<VoidToStringNoAuth_ext> =
-  createUnauthenticatedOperation(
-    voidToStringNoAuth_ext,
+export const voidToStringAuth: AuthenticatedOperationFor<RegisteredVoidToStringAuth> =
+  createAuthenticatedOperation<RegisteredVoidToStringAuth>(
+    () => voidToStringAuth_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type UnspecifiedToNumber_ext = typeof unspecifiedToNumber_ext
+export type RegisteredVoidToStringNoAuth = FromRegisterPath<['operations', 'voidToStringNoAuth'], VoidToStringNoAuth>
 
 // PUBLIC API
-export const unspecifiedToNumber: AuthenticatedOperationFor<UnspecifiedToNumber_ext> =
-  createAuthenticatedOperation(
-    unspecifiedToNumber_ext,
+export const voidToStringNoAuth: UnauthenticatedOperationFor<RegisteredVoidToStringNoAuth> =
+  createUnauthenticatedOperation<RegisteredVoidToStringNoAuth>(
+    () => voidToStringNoAuth_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type BoolToStringAuth_ext = typeof boolToStringAuth_ext
+export type RegisteredUnspecifiedToNumber = FromRegisterPath<['operations', 'unspecifiedToNumber'], UnspecifiedToNumber>
 
 // PUBLIC API
-export const boolToStringAuth: AuthenticatedOperationFor<BoolToStringAuth_ext> =
-  createAuthenticatedOperation(
-    boolToStringAuth_ext,
+export const unspecifiedToNumber: AuthenticatedOperationFor<RegisteredUnspecifiedToNumber> =
+  createAuthenticatedOperation<RegisteredUnspecifiedToNumber>(
+    () => unspecifiedToNumber_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type BoolToStringNoAuth_ext = typeof boolToStringNoAuth_ext
+export type RegisteredBoolToStringAuth = FromRegisterPath<['operations', 'boolToStringAuth'], BoolToStringAuth>
 
 // PUBLIC API
-export const boolToStringNoAuth: UnauthenticatedOperationFor<BoolToStringNoAuth_ext> =
-  createUnauthenticatedOperation(
-    boolToStringNoAuth_ext,
+export const boolToStringAuth: AuthenticatedOperationFor<RegisteredBoolToStringAuth> =
+  createAuthenticatedOperation<RegisteredBoolToStringAuth>(
+    () => boolToStringAuth_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type BoolToVoidNoAuth_ext = typeof boolToVoidNoAuth_ext
+export type RegisteredBoolToStringNoAuth = FromRegisterPath<['operations', 'boolToStringNoAuth'], BoolToStringNoAuth>
 
 // PUBLIC API
-export const boolToVoidNoAuth: UnauthenticatedOperationFor<BoolToVoidNoAuth_ext> =
-  createUnauthenticatedOperation(
-    boolToVoidNoAuth_ext,
+export const boolToStringNoAuth: UnauthenticatedOperationFor<RegisteredBoolToStringNoAuth> =
+  createUnauthenticatedOperation<RegisteredBoolToStringNoAuth>(
+    () => boolToStringNoAuth_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type BoolToVoidAuth_ext = typeof boolToVoidAuth_ext
+export type RegisteredBoolToVoidNoAuth = FromRegisterPath<['operations', 'boolToVoidNoAuth'], BoolToVoidNoAuth>
 
 // PUBLIC API
-export const boolToVoidAuth: AuthenticatedOperationFor<BoolToVoidAuth_ext> =
-  createAuthenticatedOperation(
-    boolToVoidAuth_ext,
+export const boolToVoidNoAuth: UnauthenticatedOperationFor<RegisteredBoolToVoidNoAuth> =
+  createUnauthenticatedOperation<RegisteredBoolToVoidNoAuth>(
+    () => boolToVoidNoAuth_ext,
     {
       Task: prisma.task,
     },
   )
 
 // PRIVATE API
-export type JsActionWithArgs_ext = typeof jsActionWithArgs_ext
+export type RegisteredBoolToVoidAuth = FromRegisterPath<['operations', 'boolToVoidAuth'], BoolToVoidAuth>
 
 // PUBLIC API
-export const jsActionWithArgs: AuthenticatedOperationFor<JsActionWithArgs_ext> =
-  createAuthenticatedOperation(
-    jsActionWithArgs_ext,
+export const boolToVoidAuth: AuthenticatedOperationFor<RegisteredBoolToVoidAuth> =
+  createAuthenticatedOperation<RegisteredBoolToVoidAuth>(
+    () => boolToVoidAuth_ext,
+    {
+      Task: prisma.task,
+    },
+  )
+
+// PRIVATE API
+export type RegisteredJsActionWithArgs = FromRegisterPath<['operations', 'jsActionWithArgs'], JsActionWithArgs>
+
+// PUBLIC API
+export const jsActionWithArgs: AuthenticatedOperationFor<RegisteredJsActionWithArgs> =
+  createAuthenticatedOperation<RegisteredJsActionWithArgs>(
+    () => jsActionWithArgs_ext,
     {
       Task: prisma.task,
     },

@@ -143,7 +143,7 @@ function formatZodEnvError(error) {
 //#region .wasp/out/sdk/wasp/dist/client/env/schema.js
 var userClientEnvSchema = z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
-z.object({ "REACT_APP_API_URL": serverUrlSchema.default("http://localhost:3001") });
+z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
 	"BASE_URL": "/",
@@ -243,8 +243,10 @@ ky.extend({
 	}
 });
 if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
-	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
-	else apiEventsEmitter.emit("sessionId.clear");
+	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+		if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
+		else apiEventsEmitter.emit("sessionId.clear");
+	}
 });
 function getSessionIdFromAuthorizationHeader(header) {
 	if (header && header.startsWith("Bearer ")) return header.substring(7);
@@ -265,8 +267,9 @@ function initializeQueryClient() {
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
 function WaspApp({ children }) {
+	const queryClient = use(queryClientInitialized);
 	return /* @__PURE__ */ jsx(QueryClientProvider, {
-		client: use(queryClientInitialized),
+		client: queryClient,
 		children
 	});
 }
@@ -279,8 +282,9 @@ var wrapperStyles = {
 	alignItems: "center"
 };
 function FullPageWrapper({ children, className }) {
+	const classNameWithDefaults = ["wasp-full-page-wrapper", className].filter(Boolean).join(" ");
 	return /* @__PURE__ */ jsx("div", {
-		className: ["wasp-full-page-wrapper", className].filter(Boolean).join(" "),
+		className: classNameWithDefaults,
 		style: wrapperStyles,
 		children
 	});
@@ -412,22 +416,24 @@ var routesMapping = { RootRoute: { lazy: async () => {
 	return { Component: await __vitePreload(() => import("./MainPage.js").then((m) => m.MainPage), __vite__mapDeps([0,1])) };
 } } };
 initializeQueryClient();
-//#endregion
-//#region client-entry.tsx
-var router = createBrowserRouter(getRouteObjects({
+var routeObjects = getRouteObjects({
 	routesMapping,
 	rootElement: /* @__PURE__ */ jsx("div", {
 		id: "root",
 		children: /* @__PURE__ */ jsx(Outlet, {})
 	})
-}), {
+});
+//#endregion
+//#region client-entry.tsx
+var router = createBrowserRouter(routeObjects, {
 	basename: "/",
 	hydrationData: window.__staticRouterHydrationData
 });
 var { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
+var routerProviderPromise = waitForRouterInitialized(router).then(() => /* @__PURE__ */ jsx(RouterProvider, { router }));
 var fullAppTree = /* @__PURE__ */ jsx(Layout, {
 	isFallbackPage,
-	children: /* @__PURE__ */ jsx(WaspApp, { children: waitForRouterInitialized(router).then(() => /* @__PURE__ */ jsx(RouterProvider, { router })) })
+	children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise })
 });
 startTransition(() => {
 	hydrateRoot(document, fullAppTree);

@@ -13,7 +13,7 @@ The Wasp Spec replaces two older ways of configuring a Wasp app:
 - The **Wasp DSL** (`main.wasp`).
 - The **TS Config** (`main.wasp.ts`, with the class-based `new App(...)` API).
 
-If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration guide](../migration-guide.md). Then pick the conversion guide matching your old config:
+If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration guide](/docs/0.24/migration-guide). Then pick the conversion guide matching your old config:
 
 - **Wasp DSL** → [Migrating from the Wasp DSL](../guides/legacy/wasp-dsl.md)
 - **TS Config** → [Migrating from the TS Config](../guides/legacy/wasp-ts-config.md)

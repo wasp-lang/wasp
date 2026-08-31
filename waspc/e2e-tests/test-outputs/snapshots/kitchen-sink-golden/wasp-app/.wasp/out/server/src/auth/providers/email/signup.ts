@@ -91,7 +91,7 @@ export function getSignupRoute({
       // we are not checking if the email was sent or not!
       const { isResendAllowed, timeLeft } = isEmailResendAllowed(
         providerData,
-        'passwordResetSentAt',
+        'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
         throw new HttpError(
@@ -107,6 +107,14 @@ export function getSignupRoute({
       }
     }
 
+    // The hook runs first so it can veto the signup (by throwing) before the
+    // developer's `userSignupFields` getters run.
+    try {
+      await onBeforeSignupHook({ req, providerId })
+    } catch (e: unknown) {
+      rethrowPossibleAuthError(e)
+    }
+
     const userFields = await validateAndGetUserFields(fields, userSignupFields)
 
     const newUserProviderData = await sanitizeAndSerializeProviderData<'email'>(
@@ -119,7 +127,6 @@ export function getSignupRoute({
     )
 
     try {
-      await onBeforeSignupHook({ req, providerId })
       const user = await createUser(
         providerId,
         newUserProviderData,
