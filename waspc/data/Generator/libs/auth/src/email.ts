@@ -45,7 +45,7 @@ const LETTERS_DIGITS = String.raw`\p{L}\p{Nd}`;
 const LOCAL_PART_SYMBOLS = ".!#$%&'*+/=?^_`{|}~-";
 const LOCAL_PART = `[${LETTERS_MARKS_DIGITS}${LOCAL_PART_SYMBOLS}]+`;
 
-// The limit should be 63 octets or 63 ASCII characters.
+// The limit should be 63 octets (63 ASCII characters).
 // Since we don't punycode (Unicode to ASCII), we approximate with 63 Unicode characters.
 const DOMAIN_LABEL = `[${LETTERS_DIGITS}](?:[${LETTERS_MARKS_DIGITS}-]{0,61}[${LETTERS_MARKS_DIGITS}])?`;
 const DOMAIN = `${DOMAIN_LABEL}(?:\\.${DOMAIN_LABEL})*`;
@@ -56,7 +56,7 @@ const HTML5_EMAIL_WITH_UNICODE_REGEX = new RegExp(
 );
 
 /**
- * Blocks possibily malicious patterns in regex.
+ * Blocks possibily malicious email address patterns.
  *
  * A large number of Unicode characters are not safe to display,
  * either by themsleves or in combination with surrounding text.
