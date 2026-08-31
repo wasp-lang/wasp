@@ -48,10 +48,6 @@ spec_SrcTsConfig = do
       validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react", "node", "vite/client"]})})
         `shouldBe` []
 
-    it "accepts module preserve" $
-      validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T._module = Just "preserve"})})
-        `shouldBe` []
-
     it "returns an error when module is not bundler-friendly" $
       assertReturnsValidationErrorMentioningField "module" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T._module = Just "commonjs"})}
@@ -64,16 +60,7 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "jsx" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react"})}
 
-    it "accepts verbatimModuleSyntax as an alternative to isolatedModules" $
-      validate
-        ( validTsConfig
-            { T.compilerOptions =
-                Just (validCompilerOptions {T.isolatedModules = Nothing, T.verbatimModuleSyntax = Just True})
-            }
-        )
-        `shouldBe` []
-
-    it "returns an error when both isolatedModules and verbatimModuleSyntax are off" $
+    it "returns an error when isolatedModules is off" $
       assertReturnsValidationErrorMentioningField "isolatedModules" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.isolatedModules = Just False})}
 
@@ -128,7 +115,6 @@ validCompilerOptions =
       T.moduleResolution = Just "bundler",
       T.moduleDetection = Just "force",
       T.isolatedModules = Just True,
-      T.verbatimModuleSyntax = Nothing,
       T.jsx = Just "preserve",
       T.strict = Just True,
       T.esModuleInterop = Just True,

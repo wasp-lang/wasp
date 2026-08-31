@@ -83,7 +83,6 @@ validCompilerOptions =
       T.moduleResolution = Just "bundler",
       T.moduleDetection = Just "force",
       T.isolatedModules = Just True,
-      T.verbatimModuleSyntax = Nothing,
       T.jsx = Just "preserve",
       T.strict = Just True,
       T.esModuleInterop = Nothing,

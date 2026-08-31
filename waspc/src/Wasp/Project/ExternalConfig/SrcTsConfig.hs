@@ -40,15 +40,19 @@ srcTsConfigValidator =
     compilerOptionsValidator =
       V.all
         [ -- Since Wasp ends up bundling the user code, the module options must
-          -- stay bundler-friendly.
-          V.inField ("module", T._module) $ V.oneOfJust ["esnext", "preserve"],
+          -- stay bundler-friendly. `esnext` also rejects CommonJS import syntax
+          -- that would end up as an unresolved `require` in the ESM bundle.
+          V.inField ("module", T._module) $ V.eqJust "esnext",
           V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
           -- Without `moduleDetection: force`, TypeScript treats files with no
           -- imports or exports as global scripts, while the bundler treats them
           -- as modules. Code relying on such globals type checks but breaks at
           -- runtime after bundling.
           V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
-          isolatedModulesValidator,
+          -- `isolatedModules` prevents users from using features that don't work
+          -- with single-file transpilers and would fail at runtime after Wasp
+          -- bundles the code (e.g., const enums).
+          V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
           -- Both options match the automatic JSX transform esbuild applies when
           -- bundling.
           V.inField ("jsx", T.jsx) $ V.oneOfJust ["preserve", "react-jsx"],
@@ -68,15 +72,3 @@ srcTsConfigValidator =
           V.inField ("composite", T.composite) $ V.eqJust True,
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True
         ]
-
-    -- `isolatedModules` prevents users from using features that don't work with
-    -- single-file transpilers and would fail at runtime after Wasp bundles the code
-    -- (e.g., const enums).
-    -- `verbatimModuleSyntax` is a stricter alternative that gives the same guarantee.
-    isolatedModulesValidator :: V.Validator T.CompilerOptions
-    isolatedModulesValidator compilerOptions
-      | T.isolatedModules compilerOptions == Just True = V.success
-      | T.verbatimModuleSyntax compilerOptions == Just True = V.success
-      | otherwise =
-          V.withFieldName "isolatedModules" $
-            V.failure "Expected \"isolatedModules\" (or the stricter \"verbatimModuleSyntax\") to be true."
