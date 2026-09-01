@@ -15,11 +15,16 @@ export function setupOneTimeCodeRoute(router: Router) {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code is missing.");
       }
 
-      if (tokenStore.isUsed(code)) {
+      const { namespace, subjectId } = await tokenStore.verifyToken(code)
+        .catch(() => {
+          throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
+        });
+
+      // Spending the code BEFORE minting settles concurrent redemptions:
+      // exactly one caller gets `true` here, whichever instance it hit.
+      if (!(await tokenStore.tryMarkUsed(code))) {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
       }
-
-      const { namespace, subjectId } = await tokenStore.verifyToken(code);
 
       // Minting goes through the same `wasp-sessions` facet an adapter
       // package gets. `skipHooks`: the app's login hooks already fired at the
@@ -30,8 +35,6 @@ export function setupOneTimeCodeRoute(router: Router) {
       ).catch(() => {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
       });
-
-      tokenStore.markUsed(code);
 
       res.json({
         sessionId,

@@ -13,6 +13,7 @@ import {
   onBeforeSignupHook,
 } from '../hookDispatch.js'
 import { config, prisma } from '../../index.js'
+import { env as validatedEnv } from '../../env.js'
 import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth-clerk/server'
 import { waspAuthProvider } from './wasp.js'
 
@@ -222,11 +223,14 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
   return {
     db: prisma,
     dbProvider: 'sqlite',
-    // Exactly the vars the manifest declared: what an adapter reads is what
-    // its manifest shows, and framework secrets (JWT_SECRET) stay unreachable
-    // (declaring a framework-owned name is a compile error).
+    // Exactly the vars the manifest declared -- read from the VALIDATED env,
+    // so `devDefault`s apply -- and framework secrets (JWT_SECRET) stay
+    // unreachable (declaring a framework-owned name is a compile error).
     env: Object.fromEntries(
-      spec.serverEnvVarNames.map((name) => [name, process.env[name]]),
+      spec.serverEnvVarNames.map((name) => [
+        name,
+        (validatedEnv as Record<string, string | undefined>)[name],
+      ]),
     ),
     serverUrl: config.serverUrl,
     clientUrl: config.frontendUrl,

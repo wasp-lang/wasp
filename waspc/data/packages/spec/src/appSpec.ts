@@ -216,6 +216,7 @@ export type ExternalProviderEnvVar = {
   name: string;
   optional: Optional<boolean>;
   doc: Optional<string>;
+  devDefault: Optional<string>;
 };
 
 export type AuthMethods = {

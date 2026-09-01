@@ -25,7 +25,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "346ffcd538eacf6083c6c9eb9f6007f26c782e32a7319ad779d8191b479b0658"
+        "003345ae9c97f8544613f7b2f6ce23a7204e23206b8cabef74211693357491a2"
     ],
     [
         [
@@ -1005,7 +1005,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/oneTimeCode.ts"
         ],
-        "7a659ded6768d6f5904f2e7c48f9f582607aab7bd3d22ea17d2458ad90878741"
+        "5459ca098803dd92d6fc2e17b932ce5c3d89b6cfa7a756996ce76d3e23eca135"
     ],
     [
         [
@@ -1068,7 +1068,7 @@
             "file",
             "sdk/wasp/server/auth/provider/index.ts"
         ],
-        "84c2d038f19c4ef265bdb7583dd996ccc08800e95aedced9f620e495c77d4b1e"
+        "1cef5f5c278d2d4df0013a3e9194aed0f389f4b8d1b7acb735170e6a43dda136"
     ],
     [
         [
@@ -1705,7 +1705,7 @@
             "file",
             "server/src/auth/providers/oauth/oneTimeCode.ts"
         ],
-        "2cc2da72d760f4b1fd6182e586b03bd5b5ec793f9d716cb2bc9cfdf84262fc79"
+        "52d1f1b2ef21264a0978521b44ac1da511654abc5380d36c138eb4093473139b"
     ],
     [
         [

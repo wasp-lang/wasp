@@ -336,6 +336,12 @@ export interface EnvVarRequirement {
   name: string;
   optional?: boolean;
   doc?: string;
+  /**
+   * Value used in development when the var is unset, so `wasp start` works
+   * out of the box; in production the var stays required (unless `optional`).
+   * Server-side vars only.
+   */
+  devDefault?: string;
 }
 
 /**

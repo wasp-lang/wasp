@@ -80,6 +80,11 @@ model Session {
   @@index([userId])
 }
 
+model UsedOneTimeCode {
+  code   String   @id
+  usedAt DateTime @default(now())
+}
+
 enum TaskVisibility {
   PRIVATE
   LINK_ONLY

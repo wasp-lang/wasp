@@ -76,7 +76,8 @@ spec_GeneratorAuthInjectionTest = do
                   someOtherEntity,
                   authEntity,
                   authIdentityEntity,
-                  sessionEntity
+                  sessionEntity,
+                  usedOneTimeCodeEntity
                 ]
 
     makeAuthEntity :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> (String, AS.Entity.Entity)
@@ -160,6 +161,14 @@ spec_GeneratorAuthInjectionTest = do
           auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
 
           @@index([userId])
+        |]
+
+    usedOneTimeCodeEntity =
+      makeEntity
+        "UsedOneTimeCode"
+        [trimming|
+          code   String   @id
+          usedAt DateTime @default(now())
         |]
 
     someOtherEntity =

@@ -25,7 +25,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "5fef80fc1817e795e26b26fa496f67ebca7ae1cd6179cc67b49b2beeb7e1ae49"
+        "602793b8a8a9bf6690aeebb3024c9d0529c7d7a0eaa05ccd48aaa240fd2d26d5"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/server/auth/provider/index.ts"
         ],
-        "d9d4d96ab852fa9d679724df9d0855aed16c0ae80109b5581ba79db6f77da79a"
+        "b0915c3cebc1d5de8fb81be30ce4614573712f2b9c9df5a08151b61d15a50463"
     ],
     [
         [

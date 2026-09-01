@@ -505,6 +505,7 @@ describe("mapAuth", () => {
                 name: "TEST_PROVIDER_SECRET",
                 optional: undefined,
                 doc: "Secret for tests",
+                devDefault: undefined,
               },
             ],
             client: [],

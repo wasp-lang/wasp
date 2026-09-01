@@ -261,7 +261,12 @@ function mapExternalAuthProvider(
 function mapEnvVarRequirement(
   envVar: WaspSpec.EnvVarRequirement,
 ): AppSpec.ExternalProviderEnvVar {
-  return { name: envVar.name, optional: envVar.optional, doc: envVar.doc };
+  return {
+    name: envVar.name,
+    optional: envVar.optional,
+    doc: envVar.doc,
+    devDefault: envVar.devDefault,
+  };
 }
 
 function mapProviderOptions(

@@ -245,7 +245,10 @@ data ExternalProviderEnvVars = ExternalProviderEnvVars
 data ExternalProviderEnvVar = ExternalProviderEnvVar
   { name :: String,
     optional :: Maybe Bool,
-    doc :: Maybe String
+    doc :: Maybe String,
+    -- | Development fallback value: applied when the var is unset in dev, so
+    -- @wasp start@ works out of the box; production keeps the var required.
+    devDefault :: Maybe String
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 

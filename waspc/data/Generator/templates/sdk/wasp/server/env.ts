@@ -126,11 +126,15 @@ const waspCommonServerEnvSchema = z.object({
   {=/ enabledAuthProviders.isMicrosoftAuthEnabled =}
   {=! Env vars the external auth provider's manifest declared. Rendering them
       here means a missing var fails at boot with the manifest's own
-      explanation, not at the first authenticated request. =}
+      explanation, not at the first authenticated request. Vars with a
+      devDefault render in the dev/prod schemas below instead, so the default
+      applies only in development. =}
   {=# externalAuthProviderServerEnvVars =}
+  {=^ hasDevDefault =}
   "{= name =}": z.string({
     error: {=& errorJson =},
   }){=# isOptional =}.optional(){=/ isOptional =},
+  {=/ hasDevDefault =}
   {=/ externalAuthProviderServerEnvVars =}
   {=/ isAuthEnabled =}
 });
@@ -174,6 +178,15 @@ const waspDevServerEnvSchema = z.object({
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default("DEVJWTSECRET"),
   {=/ isWaspAuthUsed =}
+  {=# isAuthEnabled =}
+  {=# externalAuthProviderServerEnvVars =}
+  {=# hasDevDefault =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }).default({=& devDefaultJson =}),
+  {=/ hasDevDefault =}
+  {=/ externalAuthProviderServerEnvVars =}
+  {=/ isAuthEnabled =}
 });
 
 const waspProdServerEnvSchema = z.object({
@@ -183,6 +196,15 @@ const waspProdServerEnvSchema = z.object({
   {=# isWaspAuthUsed =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema,
   {=/ isWaspAuthUsed =}
+  {=# isAuthEnabled =}
+  {=# externalAuthProviderServerEnvVars =}
+  {=# hasDevDefault =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }){=# isOptional =}.optional(){=/ isOptional =},
+  {=/ hasDevDefault =}
+  {=/ externalAuthProviderServerEnvVars =}
+  {=/ isAuthEnabled =}
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
