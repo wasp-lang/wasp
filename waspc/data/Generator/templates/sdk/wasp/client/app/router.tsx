@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
-import { OAuthCallbackPage } from "./pages/OAuthCallback"
+import { OAuthCallbackPage } from "@wasp.sh/auth/client"
 {=/ isExternalAuthEnabled =}
 
 import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'

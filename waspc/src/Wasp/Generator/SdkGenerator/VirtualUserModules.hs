@@ -26,6 +26,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.SdkGenerator.Auth.Common (waspAuthExtensionExtImports)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
 import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
 
@@ -105,6 +106,7 @@ getVirtualUserModules spec =
       maybeToList $ mkAuthHookModule "OnAfterSignupHook" <$> (maybeAuth >>= AS.Auth.onAfterSignup),
       maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
       maybeToList $ mkAuthHookModule "OnAfterLoginHook" <$> (maybeAuth >>= AS.Auth.onAfterLogin),
+      mkWaspAuthExtensionModule <$> waspAuthExtensions,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -175,6 +177,17 @@ getVirtualUserModules spec =
         [relfileP|./server/auth/provider/types|]
         "AuthProviderSetupFn"
 
+    -- The user functions Wasp's own auth (the @wasp.sh/auth lib) calls back
+    -- into: signup field getters, OAuth config functions, email content
+    -- functions and the method-specific hooks. The lib types them precisely;
+    -- the SDK only forwards them, so they are declared with a loose type.
+    mkWaspAuthExtensionModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "WaspAuthExtension"
+
     mkOperationModule operation =
       VirtualUserModule
         ServerRuntime
@@ -194,6 +207,7 @@ getVirtualUserModules spec =
     authProviderModules = mapMaybe AS.Auth.serverModule externalAuthProviders
     authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForExternalAuthProvider externalAuthProviders
     authProviderSetupFns = mapMaybe AS.Auth.setupFn externalAuthProviders
+    waspAuthExtensions = maybe [] (mapMaybe snd . waspAuthExtensionExtImports) maybeAuth
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.

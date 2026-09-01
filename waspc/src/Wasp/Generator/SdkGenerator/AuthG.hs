@@ -16,10 +16,6 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
-import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
-import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
-import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -42,28 +38,15 @@ genAuth spec =
           genProvidersTypes auth,
           genProvdersIndex auth
         ]
-        -- client stuff
+        -- client stuff. Wasp's own auth UI, flows and actions live in the
+        -- @wasp.sh/auth lib; the SDK only re-exports them.
         <++> sequence
-          [ genFileCopyInAuth [relfile|helpers/user.ts|],
-            genFileCopyInAuth [relfile|types.ts|],
+          [ genFileCopyInAuth [relfile|types.ts|],
             genLogoutTs auth,
-            genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
-        -- Wasp's own auth UI and flows exist iff Wasp's own auth is among
-        -- the providers. External providers bring their own UI, so in
-        -- externals-only apps importing `LoginForm` is a compile error, not a
-        -- component that breaks at runtime.
-        <++> onlyUnderWaspAuth auth (genAuthForms auth)
-        <++> onlyUnderWaspAuth auth (genLocalAuth auth)
-        <++> onlyUnderWaspAuth auth (genOAuthAuth auth)
-        <++> onlyUnderWaspAuth auth (genEmailAuth auth)
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
-    onlyUnderWaspAuth auth gen
-      | AS.Auth.isWaspAuthProviderUsed auth = gen
-      | otherwise = return []
 
 -- | The one module that always answers "which auth providers is this app on":
 -- literal ids the type system narrows, so provider-specific code can be

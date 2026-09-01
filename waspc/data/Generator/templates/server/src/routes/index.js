@@ -8,6 +8,11 @@ import auth from './auth/index.js'
 {=# anyExternalAuthProviderRoutes =}
 import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
 {=/ anyExternalAuthProviderRoutes =}
+{=^ anyExternalAuthProviderRoutes =}
+{=# isWaspAuthProviderUsed =}
+import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
+{=/ isWaspAuthProviderUsed =}
+{=/ anyExternalAuthProviderRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
 {=/ areThereAnyCustomApiRoutes =}
@@ -44,6 +49,13 @@ router.get('/', middleware,
 {=# isAuthEnabled =}
 router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
+{=# isWaspAuthProviderUsed =}
+// Wasp's own signup and login flows, brought along by the @wasp.sh/auth lib
+// and mounted under the framework's auth routes like any provider's routes.
+router.use('/auth', middleware, (req, res, next) => {
+  return Promise.resolve(authProviderRouteHandlers['wasp'](req, res)).catch(next)
+})
+{=/ isWaspAuthProviderUsed =}
 {=# externalAuthProviderRoutes =}
 // The routes provider '{= providerId =}' brought along, mounted where its
 // manifest asked. The usual middleware stack applies{=# rawBody =}, minus the

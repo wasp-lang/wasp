@@ -37,3 +37,12 @@ export {
 export type AuthProviderSetupFn = NonNullable<
   import('@wasp.sh/auth-contract').ServerAdapterExtensions['setupFn']
 >
+
+// PRIVATE API
+/**
+ * A user function Wasp's own auth (the `@wasp.sh/auth` lib) calls back into
+ * -- a signup field getter, an OAuth config function, an email content
+ * function or a method-specific hook. The lib types each precisely; the SDK
+ * only forwards them, so their virtual modules are declared loosely.
+ */
+export type WaspAuthExtension = unknown

@@ -5,6 +5,8 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.Char (toLower)
+import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -20,14 +22,18 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.SdkGenerator.Auth.Common
+  ( getOnAuthSucceededRedirectToOrDefault,
+    waspAuthExtensionExtImports,
+    waspAuthOptionsJson,
+    waspAuthServerEnvVarNames,
+  )
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
-import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 import qualified Wasp.Util.Aeson as Util.Aeson
@@ -61,15 +67,13 @@ genServerAuth spec =
             ++ ( if AS.Auth.isWaspAuthProviderUsed auth
                    then
                      [ genFileCopyInServerAuth [relfile|password.ts|],
-                       genFileCopyInServerAuth [relfile|jwt.ts|],
-                       genFileCopyInServerAuth [relfile|provider/wasp.ts|]
+                       genFileCopyInServerAuth [relfile|provider/wasp.ts|],
+                       genWaspAuthExtensionsTs auth
                      ]
                    else []
                )
         )
         <++> genAuthEmail auth
-        <++> genAuthUsername auth
-        <++> genOAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -178,6 +182,8 @@ genAuthProviderIndexTs spec auth =
       object
         [ "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth,
           "anyExternalProvidersUsed" .= AS.Auth.isExternalAuthProviderUsed auth,
+          "waspAuthOptionsJson" .= waspAuthOptionsJson spec auth,
+          "waspServerEnvVarNamesJs" .= makeJsArrayFromHaskellList (waspAuthServerEnvVarNames auth),
           "dbProvider" .= prismaDbProviderName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           -- The email-send grant can only be wired when the app has an email
@@ -294,35 +300,38 @@ genUtils auth =
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then
-      sequence
-        [ genFileCopyInServerAuth [relfile|email/index.ts|],
-          genEmailUtils auth
-        ]
+    then sequence [genFileCopyInServerAuth [relfile|email/index.ts|]]
     else return []
 
-genEmailUtils :: AS.Auth.Auth -> Generator FileDraft
-genEmailUtils auth =
+-- | The user-authored functions Wasp's own auth (the @wasp.sh/auth lib) calls
+-- back into, gathered into one object the lib is instantiated with. Each
+-- reaches the SDK through a virtual user module, like every other user function.
+genWaspAuthExtensionsTs :: AS.Auth.Auth -> Generator FileDraft
+genWaspAuthExtensionsTs auth =
   return $
     mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|email/utils.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|waspAuthExtensions.ts|])
       tmplData
   where
     tmplData =
       object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
+        [ "extensions" .= (mkExtensionTmplData <$> extensions),
+          "userSignupFields" .= grouped "userSignupFields",
+          "configFns" .= grouped "configFn",
+          "singles" .= [mkExtensionTmplData e | e@(name, _) <- extensions, isSingle name]
         ]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
-    else return []
+    extensions = waspAuthExtensionExtImports auth
+    isSingle name = not (any (`isPrefixOfName` name) ["userSignupFields", "configFn"])
+    isPrefixOfName prefix name = maybe False (const True) (stripPrefix prefix name)
+    grouped prefix =
+      [ object ["key" .= lowerFirst key, "import" .= importJson e]
+      | e@(name, _) <- extensions,
+        Just key <- [stripPrefix prefix name]
+      ]
+    mkExtensionTmplData e@(name, _) = object ["name" .= name, "import" .= importJson e]
+    importJson (name, maybeExtImport) = extImportToAliasedImportJson ("waspAuthExt_" ++ name) maybeExtImport
+    lowerFirst (c : cs) = toLower c : cs
+    lowerFirst [] = []
 
 serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
-import { OAuthCallbackPage } from "./pages/OAuthCallback"
+import { OAuthCallbackPage } from "@wasp.sh/auth/client"
 
 import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 

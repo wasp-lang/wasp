@@ -47,6 +47,11 @@ export function waspConfig(): PluginOption {
         build: {
           outDir: forcedOptions["build.outDir"],
         },
+        ssr: {
+          // Wasp's own auth UI ships CSS; Vite must process the package for
+          // prerendering rather than leaving it to Node's loader.
+          noExternal: ["@wasp.sh/auth"],
+        },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
           // causes runtime errors (e.g., hook rule violation in react, QueryClient

@@ -16,6 +16,8 @@ import { config, prisma } from '../../index.js'
 import { env as validatedEnv } from '../../env.js'
 import { emailSender } from '../../email/index.js'
 import { waspAuthProvider } from './wasp.js'
+import { createServerAdapter as createWaspAuthServerAdapter } from '@wasp.sh/auth/server'
+import { waspAuthExtensions } from '../waspAuthExtensions.js'
 
 // PRIVATE API
 export {
@@ -292,10 +294,23 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
  */
 export const waspAuthRuntime = makeAdapterRuntime({
   providerId: 'wasp',
-  serverEnvVarNames: [],
+  serverEnvVarNames: ['JWT_SECRET', 'SKIP_EMAIL_VERIFICATION_IN_DEV', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'SLACK_CLIENT_ID', 'SLACK_CLIENT_SECRET', 'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'MICROSOFT_CLIENT_ID', 'MICROSOFT_CLIENT_SECRET', 'MICROSOFT_TENANT_ID'],
   uses: ['wasp-sessions', 'identity-namespaces', 'email-send'],
   identityNamespaces: ['wasp', 'email', 'google', 'github', 'slack', 'discord', 'microsoft'],
 }) as WaspServerRuntime<'wasp-sessions' | 'identity-namespaces'>
+
+/**
+ * Wasp's own auth flows, instantiated from the `@wasp.sh/auth` lib exactly
+ * like an adapter package's server factory: options are the serializable
+ * method configuration, extensions are the user's functions.
+ */
+export const waspAuthServerAdapter = await Promise.resolve(
+  createWaspAuthServerAdapter(
+    waspAuthRuntime as any,
+    {"clientOAuthCallbackPath":"/oauth/callback","methods":{"discord":{"requiredScopes":["identify"]},"email":{"emailVerificationClientRoute":"/email-verification-","fromField":{"email":"kitchen-sink@wasp.sh","name":"Wasp Kitchen Sink"},"passwordResetClientRoute":"/password-reset"},"github":{"requiredScopes":[]},"google":{"requiredScopes":["profile"]},"microsoft":{"requiredScopes":["openid","profile","email"]},"slack":{"requiredScopes":["openid"]}},"onAuthSucceededRedirectTo":"/"},
+    waspAuthExtensions as any,
+  ),
+)
 
 // PRIVATE API
 /**
@@ -330,5 +345,6 @@ export function getAuthProvider(providerId: string): AuthProvider | undefined {
  * Node handlers for the routes external providers brought with them, keyed by
  * provider id. The server mounts each at the basePath its manifest declared.
  */
-export const authProviderRouteHandlers: Partial<Record<ExternalAuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+  'wasp': waspAuthServerAdapter.routeHandler,
 }

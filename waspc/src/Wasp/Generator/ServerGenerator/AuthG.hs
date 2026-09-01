@@ -6,15 +6,10 @@ module Wasp.Generator.ServerGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromJust)
 import StrongPath
-  ( Dir,
-    File',
-    Path,
+  ( File',
     Path',
-    Posix,
     Rel,
-    reldirP,
     relfile,
     (</>),
   )
@@ -24,30 +19,15 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.AuthProviders
-  ( discordAuthProvider,
-    emailAuthProvider,
-    gitHubAuthProvider,
-    googleAuthProvider,
-    keycloakAuthProvider,
-    localAuthProvider,
-    microsoftAuthProvider,
-    slackAuthProvider,
-  )
-import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
-import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
-import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
-import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (extImportToAliasedImportJson)
-import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
+-- | Only the framework-owned auth routes are generated here: `/auth/me`,
+-- `/auth/logout` and the credential exchange. Wasp's own signup and login
+-- flows live in the @wasp.sh/auth lib, mounted at `/auth` as that
+-- provider's route handler like any adapter package's routes.
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
   Nothing -> return []
@@ -55,27 +35,15 @@ genAuth spec = case maybeAuth of
     sequence
       [ genAuthRoutesIndex auth,
         genFileCopy [relfile|routes/auth/me.ts|],
-        genFileCopy [relfile|routes/auth/logout.ts|],
-        genProvidersIndex auth
+        genFileCopy [relfile|routes/auth/logout.ts|]
       ]
       -- The credential exchange route: external providers establish a Wasp
       -- session by trading the provider's credential for one. Wasp's own auth
       -- mints sessions from its login flows instead.
       <++> onlyUnderExternalProvider auth (sequence [genFileCopy [relfile|routes/auth/login.ts|]])
-      -- Wasp's auth hooks only fire from Wasp's own signup and login flows, so
-      -- under an external provider the module (and the types it needs) do not
-      -- exist.
-      <++> onlyUnderWaspAuth auth (sequence [genAuthHooks auth])
-      <++> genLocalAuth auth
-      <++> genOAuthAuth auth
-      <++> genEmailAuth spec auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     genFileCopy = return . C.mkSrcTmplFd
-
-    onlyUnderWaspAuth auth gen
-      | AS.Auth.isWaspAuthProviderUsed auth = gen
-      | otherwise = return []
 
     onlyUnderExternalProvider auth gen
       | AS.Auth.isExternalAuthProviderUsed auth = gen
@@ -94,56 +62,6 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
-
-genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
-  where
-    tmplData =
-      object
-        [ "providers" .= providers,
-          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
-        ]
-
-    providers =
-      makeConfigImportJson
-        <$> concat
-          [ [OAuthProvider.providerId slackAuthProvider | AS.Auth.isSlackAuthEnabled auth],
-            [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
-            [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
-            [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
-            [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
-            [OAuthProvider.providerId microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth],
-            [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-            [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
-          ]
-
-    makeConfigImportJson providerId =
-      jsImportToImportJson $
-        Just $
-          JI.JsImport
-            { JI._kind = JI.ValueImport,
-              JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
-              JI._name = JI.JsImportModule providerId,
-              JI._importAlias = Nothing
-            }
-
--- | Only the method-specific hooks stay wired here: the generic lifecycle
--- hooks (onBeforeSignup, onAfterSignup, onBeforeLogin, onAfterLogin) are
--- app-level and fire at Wasp-owned choke points in the SDK, for every
--- provider (see "Wasp.Generator.SdkGenerator.Server.AuthG".genHookDispatchTs).
-genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
-genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)
-  where
-    tmplData =
-      object
-        [ "onAfterEmailVerifiedHook" .= onAfterEmailVerifiedHook,
-          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook
-        ]
-    onAfterEmailVerifiedHook = extImportToAliasedImportJson "onAfterEmailVerifiedHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterEmailVerified auth
-    onBeforeOAuthRedirectHook = extImportToAliasedImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
-
-    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathToServerSrcDir = [reldirP|../|]
 
 depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByAuth spec = case maybeAuth of

@@ -51,6 +51,13 @@
     [
         [
             "file",
+            "libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
+        ],
+        "4f2c9f6af566e573452ea33aeaf41fd260790155eea84c6b92142adb930cf887"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -61,111 +68,6 @@
             "sdk/wasp/api/index.ts"
         ],
         "86fff92e771b0fc8548debbda11f4cf45bf9109bf54914d3d3918b82479c184b"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Auth.module.css"
-        ],
-        "b804d03ac790396cf152a5ca3290d018b03c8764f5edb78f45785013aae635d1"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Auth.tsx"
-        ],
-        "4d757ab03025115f80b0fc0e14b19bc738cfe581bcad818a7a13e832669ae13a"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Login.tsx"
-        ],
-        "c3701a563ca970cc9b67dd108cec9deb2d37985050ee7dc74061f4b4febe86c2"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/Signup.tsx"
-        ],
-        "7d5c3807c2b1c1356e1c2298352b611824c8034de4eb0e174cf4f7889a930611"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/Form.module.css"
-        ],
-        "e49b449078e9b6e140194ce8e933ad56db5445816b292cc90bd42df298997596"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/Form.tsx"
-        ],
-        "5978aa2474e051a44f5bd0de00daf1ecb2b324e42b40e6d0c01223dbaa7f394e"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/Message.module.css"
-        ],
-        "b283ee90a6179fdb266253042990ab7e9fbe2385532ff12d60d7c3c744a2c2c0"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/Message.tsx"
-        ],
-        "97bfac81743b6a042d89dfda961c0a2a2e18732e34446d7acd4b7d2bf68bc766"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/auth-styles.css"
-        ],
-        "228aa6aa6bdac07cc4c7c55cc85422682f56c6b9242bac9b673bd3bab2132dc6"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css"
-        ],
-        "ceb7e900e700da20b71487c1ad65d0d3148747990c1e2d4540b18ec001ea2bcd"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
-        ],
-        "a8a634536cc11433f56381a3df1a060ceeea021521feafbef049fd10fcff871d"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/usernameAndPassword/useUsernameAndPassword.ts"
-        ],
-        "c9bf1609f3153789322e97c72373bcbd336903ba273c8eba6c00f66405d0f620"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/internal/util.ts"
-        ],
-        "fa426b618af2e95dd5dc1e5646cc302d85b04128db07b8c0f66aa75eaa227e27"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/forms/types.ts"
-        ],
-        "afbd41f03b57dda60df286bb6e803c532c1cbf1e0756d161e1d85c7444c01908"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/helpers/user.ts"
-        ],
-        "df6c1f3ca2dda8d0d6366daf5b8659f0c6cd90441bee38055d8cb7b528ee28db"
     ],
     [
         [
@@ -212,13 +114,6 @@
     [
         [
             "file",
-            "sdk/wasp/auth/responseSchemas.ts"
-        ],
-        "bc3d6b4b31278babf07e9fff584a90cbb5d8aa8be9c66c5aecd239dfe43bd850"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/auth/types.ts"
         ],
         "625bb077e7c80a38a156bcc743ef5f95bd223e0bb0ca23b88a67109bcf7a3d4c"
@@ -236,27 +131,6 @@
             "sdk/wasp/auth/user.ts"
         ],
         "67804b80d8d89ab101fb04c083957994976db775841f0c1fb1a2bac28ce681d9"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/username/actions/login.ts"
-        ],
-        "4b2e7e0776cd9923c40111b33c1b2091e7ee4ea5b00f4fd59557d7ba73dbcf88"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/username/actions/signup.ts"
-        ],
-        "11d4e71d2fc47350e76fcf2a12d62e581b37c0b0bbbfd8795816576cc8beae14"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/auth/username/index.ts"
-        ],
-        "99ec9342b7e0c214ab5b477f7fc2f267eef3c757572cb20bfa498fbbe3605503"
     ],
     [
         [
@@ -340,28 +214,14 @@
             "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "4f00b8bbe0330e1d5d1610cbf75666d73eb388d737211ca8c21aa9aff2676374"
+        "11e2a33fd1f8ad51e77e76893ac705c14419f04d4332ad6e28ab15972b190048"
     ],
     [
         [
             "file",
             "sdk/wasp/client/auth/providers.ts"
         ],
-        "0979baa25af44a091a81b5756ef43b0c1b79dbfd677edbd54452c989f0d35782"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/auth/ui.ts"
-        ],
-        "053f25d4bb1798bac917b8abdd461f179a25f1ed8413daa59c011bd95e14496d"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/auth/username.ts"
-        ],
-        "5a3b9b515f012d1434eea61bc0a99e0af7bbf64622008037ae7d3ebd46ed05f6"
+        "7570818c80bf9a95e554c9151f4dc6874be5767d65af39788d84b7e8d9e7c043"
     ],
     [
         [
@@ -592,7 +452,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "c515a893c946c1ff89654db0eebf4c31f98a58ded78fff4a08564c7d3ecec3ee"
+        "f96f50c198f0bfa8e9d35a0d14e52b03319e434c041558b692f44f425e28a1b4"
     ],
     [
         [
@@ -683,7 +543,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "6c3cf82aae7dd39bdeab5f02a88529a081c733f4824c105fda97731804e2f365"
+        "62434117313b6b91a9aa0d2ce1b781b903e2c90a66f31e9b66de2a7fee1bbd30"
     ],
     [
         [
@@ -753,14 +613,7 @@
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "cac934d09e1ebf56bafa764646dcaec99b4484b05229965f489b8dfdf3a7c20b"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/server/auth/jwt.ts"
-        ],
-        "94ff0c4280ba5ba0f7be0100cc9bf48b528c49f1fb87624dbb5e4da8618160a0"
+        "8ae067b3b45c6f4e2b471f5ff9fc69b3e5f18b92943838797d9d0ea6f521e61f"
     ],
     [
         [
@@ -781,14 +634,14 @@
             "file",
             "sdk/wasp/server/auth/provider/index.ts"
         ],
-        "b0915c3cebc1d5de8fb81be30ce4614573712f2b9c9df5a08151b61d15a50463"
+        "7a7a465be0839905a724c76bea5f835c764975e0c74e10a030d83816c2ad1c2c"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/provider/types.ts"
         ],
-        "2642faa5f5047c8e624dec9380b3daff9b2743ac47364aa82d9df393ea230e0a"
+        "0118c1dfcab1e84879e4f133f61b6ac3272f98966bcf678cfb753f8c1915f0fb"
     ],
     [
         [
@@ -814,16 +667,16 @@
     [
         [
             "file",
-            "sdk/wasp/server/auth/username.ts"
+            "sdk/wasp/server/auth/utils.ts"
         ],
-        "b7428db79f60fa710632c6f5599f136dc8cdc4dd3bcfcac65bc87f60a0b986fe"
+        "0822aee405b0daedb2a8296c12a5db528b6c1a5c6ed8507e97e04fb1f490564d"
     ],
     [
         [
             "file",
-            "sdk/wasp/server/auth/utils.ts"
+            "sdk/wasp/server/auth/waspAuthExtensions.ts"
         ],
-        "0822aee405b0daedb2a8296c12a5db528b6c1a5c6ed8507e97e04fb1f490564d"
+        "212b8f86629aa6619ac8d41ec1bc35c6c4ecb0c4007c8bcd07742d627babddc5"
     ],
     [
         [
@@ -1040,7 +893,7 @@
             "file",
             "server/package.json"
         ],
-        "d7a5749d11b835a4a62105296a3f0d1386fca2357e0cb7f4e78c2c7d5c35ad86"
+        "614f7c81df0db4b1c82d4a82f1926fc047b66e4102187540640bc49fb9df1c3c"
     ],
     [
         [
@@ -1062,41 +915,6 @@
             "server/src/app.js"
         ],
         "a10bb6f3daab886b0685994368711fd7718a2a3e50a9329cd7da6394b9c59302"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/hooks.ts"
-        ],
-        "5d18073c0105f03d0a3d2b4688293bcb019d53a9e821e9e7568d3a89da52641a"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/config/username.ts"
-        ],
-        "cc5eead5a4dab9fb4f442eda920094d487f336bbdd1d42ebb4e248356f040ba7"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/index.ts"
-        ],
-        "817b8568a59583155ba52114434a55b5fcf5f0fe8381f6cc0a0da5e0417e77d3"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/username/login.ts"
-        ],
-        "cf2db22fd0ad25a9dec390557b645df18e0153a270164779fc0f320c8ee1c1ae"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/username/signup.ts"
-        ],
-        "3ed217f9741adeb151727b035d3e57fcbc835f0edbcf36e50430b3fe6963cefa"
     ],
     [
         [
@@ -1145,7 +963,7 @@
             "file",
             "server/src/routes/auth/index.js"
         ],
-        "7049762cdf8adf653c811902cc8ece9913d1597216fe10f17a0748fd7af32e70"
+        "064eb72404e551601ea1d54e09a3f19577e7bb398feda3de6455d393847e002f"
     ],
     [
         [
@@ -1173,7 +991,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "a9739099a2fbb9f5f80e3b4e4704361c0ae7ff9be407aaa213c6224b80d4fcc3"
+        "f401d3a05485c77f2d55e415838745d5b6bb4063b9ffdb201c32af94e460e23d"
     ],
     [
         [

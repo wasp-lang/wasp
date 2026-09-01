@@ -302,6 +302,7 @@ genRoutesIndex spec =
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (fst $ getApp spec :: String),
           "anyExternalAuthProviderRoutes" .= (not . null $ externalProviderRoutes),
+          "isWaspAuthProviderUsed" .= maybe False AS.App.Auth.isWaspAuthProviderUsed (AS.App.auth $ snd $ getApp spec),
           "externalAuthProviderRoutes" .= zipWith externalProviderRoutesTmplData [0 :: Int ..] externalProviderRoutes
         ]
 

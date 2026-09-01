@@ -1,16 +1,18 @@
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import type { ExternalAuthProviderId } from '../../auth/provider.js'
+import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js'
 import {
   api,
   getLastAuthProviderId,
   getSessionId,
   removeLocalUserData,
+  setSessionId,
 } from '../../api/index.js'
-import { exchangeCredentialForSession, setSessionId } from '../../api/index.js'
 import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
+import { exchangeCredentialForSession } from '../../api/index.js'
 import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth-clerk/client'
+import { createClientAdapter as createWaspAuthClientAdapter } from '@wasp.sh/auth/client'
 
 /**
  * The client halves of the app's auth providers, instantiated from each
@@ -24,7 +26,7 @@ import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth-cler
 // pre-bound to the provider id, so an adapter cannot write another provider's
 // resume/logout marker.
 function makeClientRuntime(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   declaredClientEnvVarNames: readonly string[],
 ) {
   return {
@@ -41,6 +43,10 @@ function makeClientRuntime(
     },
   }
 }
+
+// Wasp's own auth, instantiated from the @wasp.sh/auth lib exactly like an
+// adapter package's client entry: its forms and actions read this runtime.
+createWaspAuthClientAdapter(makeClientRuntime('wasp', []), {"clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}},"onAuthSucceededRedirectTo":"/"})
 
 // PRIVATE API
 export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {

@@ -306,7 +306,7 @@ export function getAuthProvider(providerId: string): AuthProvider | undefined {
  * Node handlers for the routes external providers brought with them, keyed by
  * provider id. The server mounts each at the basePath its manifest declared.
  */
-export const authProviderRouteHandlers: Partial<Record<ExternalAuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
   'external:clerk': serverAdapter_0.routeHandler,
 }
 

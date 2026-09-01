@@ -1,21 +1,25 @@
 {{={= =}=}}
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import type { ExternalAuthProviderId } from '../../auth/provider.js'
+import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js'
 import {
   api,
   getLastAuthProviderId,
   getSessionId,
   removeLocalUserData,
+  setSessionId,
 } from '../../api/index.js'
-{=# anyClientAdapters =}
-import { exchangeCredentialForSession, setSessionId } from '../../api/index.js'
 import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
+{=# anyClientAdapters =}
+import { exchangeCredentialForSession } from '../../api/index.js'
 {=# clientAdapterProviders =}
 import { createClientAdapter as createClientAdapter_{= index =} } from '{= clientPackage =}'
 {=/ clientAdapterProviders =}
 {=/ anyClientAdapters =}
+{=# isWaspAuthProviderUsed =}
+import { createClientAdapter as createWaspAuthClientAdapter } from '@wasp.sh/auth/client'
+{=/ isWaspAuthProviderUsed =}
 
 /**
  * The client halves of the app's auth providers, instantiated from each
@@ -24,13 +28,12 @@ import { createClientAdapter as createClientAdapter_{= index =} } from '{= clien
  * provider id; providers without a client package simply have no entry.
  */
 
-{=# anyClientAdapters =}
 // Each adapter's env is narrowed to exactly the vars its manifest declared:
 // what an adapter reads is what its manifest shows. The session sink is
 // pre-bound to the provider id, so an adapter cannot write another provider's
 // resume/logout marker.
 function makeClientRuntime(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   declaredClientEnvVarNames: readonly string[],
 ) {
   return {
@@ -47,7 +50,12 @@ function makeClientRuntime(
     },
   }
 }
-{=/ anyClientAdapters =}
+{=# isWaspAuthProviderUsed =}
+
+// Wasp's own auth, instantiated from the @wasp.sh/auth lib exactly like an
+// adapter package's client entry: its forms and actions read this runtime.
+createWaspAuthClientAdapter(makeClientRuntime('wasp', []), {=& waspAuthOptionsJson =})
+{=/ isWaspAuthProviderUsed =}
 
 // PRIVATE API
 export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {

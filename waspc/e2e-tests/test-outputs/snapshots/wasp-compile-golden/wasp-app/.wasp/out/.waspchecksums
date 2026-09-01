@@ -44,6 +44,13 @@
     [
         [
             "file",
+            "libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
+        ],
+        "4f2c9f6af566e573452ea33aeaf41fd260790155eea84c6b92142adb930cf887"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/api/events.ts"
         ],
         "91ec1889f649b608ca81cab8f048538b9dcc70f49444430b1e5b572af2a4970a"
@@ -347,7 +354,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "c515a893c946c1ff89654db0eebf4c31f98a58ded78fff4a08564c7d3ecec3ee"
+        "f96f50c198f0bfa8e9d35a0d14e52b03319e434c041558b692f44f425e28a1b4"
     ],
     [
         [
@@ -431,7 +438,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "021f51ceebbc2ce76569d8a787650647a7276a9604248a65107be1480734e1ee"
+        "bca1160d8a53d3877ff75540b50143f859c29a43dc5a1a5829a98c095d041568"
     ],
     [
         [
@@ -683,7 +690,7 @@
             "file",
             "server/package.json"
         ],
-        "756bb3677218e3f2286fa1a6dd82e7812af6caf0386550e78e252c892b0aecb1"
+        "14a52439e8b40a646fd2f663ee88c7fe5c2dbccd749f28cbeefb1ff4b5511765"
     ],
     [
         [

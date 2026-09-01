@@ -125,8 +125,6 @@
         is an error. =}
     {=# isWaspAuthProviderUsed =}
     "./server/auth/email": "./dist/server/auth/email/index.js",
-    "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
-    "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",
     {=/ isWaspAuthProviderUsed =}
     {=! Server: the contract a custom auth provider implements. Adapters live in
