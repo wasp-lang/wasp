@@ -14,7 +14,7 @@
   in #wasp-dev on Discord.
 -->
 
-- [ ] This is a small, obvious fix (typo, docs, clear small bug with a test).
+- [ ] This is a small, obvious fix (typo, docs corrections, clear small bug with a test).
 - [ ] A maintainer agreed on the approach beforehand, here: <!-- link the GitHub issue or Discord thread -->
 
 ## Description
