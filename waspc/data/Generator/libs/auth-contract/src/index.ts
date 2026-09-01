@@ -258,12 +258,29 @@ export type WaspSessions = {
    * Rejects a namespace outside the provider's declared set
    * (`wasp-auth/undeclared-namespace`) and an unknown subject
    * (`wasp-auth/identity-not-found`).
+   *
+   * Fires the app's `onBeforeLogin` (a throw vetoes the mint) and
+   * `onAfterLogin` hooks -- minting through this facet is the choke point
+   * that guarantees no provider skips the app's login policy.
    */
   issue(
     subject: SubjectRef,
     opts?: {
       /** The provider's own session id, stored for dual sign-out at logout. */
       providerSessionId?: string;
+      /**
+       * Opaque provider context surfaced to the app's login hooks as their
+       * `oauth` field (OAuth tokens, typically).
+       */
+      hookContext?: unknown;
+      /** The incoming request, surfaced to the app's login hooks. */
+      req?: unknown;
+      /**
+       * Skip the app's login hooks for THIS mint. Only for flows that
+       * already fired them at a more informative moment (an OAuth callback
+       * holding tokens the later redeem step no longer has).
+       */
+      skipHooks?: boolean;
     },
   ): Promise<{ sessionId: string }>;
 
@@ -455,6 +472,21 @@ export type ProviderIdentities = {
     getUserFields?: () =>
       | Promise<Record<string, JsonValue>>
       | Record<string, JsonValue>,
+    opts?: {
+      /**
+       * Skip the app's signup hooks for THIS create. For identity writes that
+       * are not a signup (migrations, admin imports) -- the documented escape
+       * hatch, so an ordinary signup can never forget the app's veto.
+       */
+      skipHooks?: boolean;
+      /**
+       * Opaque provider context surfaced to the app's `onAfterSignup` hook as
+       * its `oauth` field (OAuth tokens, typically).
+       */
+      hookContext?: unknown;
+      /** The incoming request, surfaced to the app's signup hooks. */
+      req?: unknown;
+    },
   ): Promise<{ authId: string }>;
 
   /**

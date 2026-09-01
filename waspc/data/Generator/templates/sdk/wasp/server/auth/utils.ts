@@ -87,6 +87,17 @@ export function rethrowPossibleAuthError(e: unknown): void {
     })
   }
 
+  // The identity facet reports the same conflict with a contract error code
+  // (codes, not classes -- adapter packages hold their own contract copy).
+  if (
+    typeof e === 'object' && e !== null && 'code' in e &&
+    (e as { code: unknown }).code === 'wasp-auth/duplicate-identity'
+  ) {
+    throw new HttpError(422, 'Save failed', {
+      message: `user with the same identity already exists`,
+    })
+  }
+
   if (e instanceof Prisma.PrismaClientValidationError) {
     // NOTE: Logging the error since this usually means that there are
     // required fields missing in the request, we want the developer

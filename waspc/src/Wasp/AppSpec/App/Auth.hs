@@ -7,6 +7,7 @@
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
+    AuthHooksSpec (..),
     AuthProvider (..),
     WaspAuthConfig (..),
     AuthMethods (..),
@@ -72,9 +73,35 @@ data Auth = Auth
     -- | The app's auth providers, in declaration order. Validation guarantees
     -- the list is non-empty, provider ids are pairwise distinct, and at most
     -- one element is a 'WaspAuthProvider'.
-    providers :: [AuthProvider]
+    providers :: [AuthProvider],
+    -- | App-level lifecycle hooks, fired at Wasp-owned choke points (identity
+    -- provisioning, session minting) for EVERY provider -- an adapter can
+    -- neither forget nor forge them. Method-specific hooks
+    -- (onAfterEmailVerified, onBeforeOAuthRedirect) stay wasp-auth config.
+    hooks :: Maybe AuthHooksSpec
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+-- | The app's generic auth lifecycle hooks. Field names carry a @hooks@
+-- prefix so this module can export the natural accessor names; the JSON
+-- representation uses the natural names (see the aeson options below).
+data AuthHooksSpec = AuthHooksSpec
+  { hooksOnBeforeSignup :: Maybe ExtImport,
+    hooksOnAfterSignup :: Maybe ExtImport,
+    hooksOnBeforeLogin :: Maybe ExtImport,
+    hooksOnAfterLogin :: Maybe ExtImport
+  }
+  deriving (Show, Eq, Data, Generic)
+
+authHooksSpecJsonOptions :: Aeson.Options
+authHooksSpecJsonOptions =
+  Aeson.defaultOptions {Aeson.fieldLabelModifier = toLowerFirst . drop (length ("hooks" :: String))}
+
+instance FromJSON AuthHooksSpec where
+  parseJSON = Aeson.genericParseJSON authHooksSpecJsonOptions
+
+instance ToJSON AuthHooksSpec where
+  toJSON = Aeson.genericToJSON authHooksSpecJsonOptions
 
 -- | One authentication provider of the app, mirroring the discriminated union
 -- in the user-facing spec: either Wasp's own auth, carrying everything that
@@ -115,12 +142,8 @@ instance ToJSON AuthProvider where
 data WaspAuthConfig = WaspAuthConfig
   { waspAuthMethods :: AuthMethods,
     waspAuthOnAuthSucceededRedirectTo :: Maybe String,
-    waspAuthOnBeforeSignup :: Maybe ExtImport,
-    waspAuthOnAfterSignup :: Maybe ExtImport,
     waspAuthOnAfterEmailVerified :: Maybe ExtImport,
-    waspAuthOnBeforeOAuthRedirect :: Maybe ExtImport,
-    waspAuthOnBeforeLogin :: Maybe ExtImport,
-    waspAuthOnAfterLogin :: Maybe ExtImport
+    waspAuthOnBeforeOAuthRedirect :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic)
 
@@ -298,10 +321,10 @@ onAuthSucceededRedirectTo :: Auth -> Maybe String
 onAuthSucceededRedirectTo = withWaspAuthConfig waspAuthOnAuthSucceededRedirectTo
 
 onBeforeSignup :: Auth -> Maybe ExtImport
-onBeforeSignup = withWaspAuthConfig waspAuthOnBeforeSignup
+onBeforeSignup auth = hooks auth >>= hooksOnBeforeSignup
 
 onAfterSignup :: Auth -> Maybe ExtImport
-onAfterSignup = withWaspAuthConfig waspAuthOnAfterSignup
+onAfterSignup auth = hooks auth >>= hooksOnAfterSignup
 
 onAfterEmailVerified :: Auth -> Maybe ExtImport
 onAfterEmailVerified = withWaspAuthConfig waspAuthOnAfterEmailVerified
@@ -310,10 +333,10 @@ onBeforeOAuthRedirect :: Auth -> Maybe ExtImport
 onBeforeOAuthRedirect = withWaspAuthConfig waspAuthOnBeforeOAuthRedirect
 
 onBeforeLogin :: Auth -> Maybe ExtImport
-onBeforeLogin = withWaspAuthConfig waspAuthOnBeforeLogin
+onBeforeLogin auth = hooks auth >>= hooksOnBeforeLogin
 
 onAfterLogin :: Auth -> Maybe ExtImport
-onAfterLogin = withWaspAuthConfig waspAuthOnAfterLogin
+onAfterLogin auth = hooks auth >>= hooksOnAfterLogin
 
 -- | The external providers among the app's providers, in declaration order.
 externalProviders :: Auth -> [ExternalAuthProviderSpec]

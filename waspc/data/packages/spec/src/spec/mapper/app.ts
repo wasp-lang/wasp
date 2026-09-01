@@ -48,7 +48,7 @@ export function mapAuth(
   auth: WaspSpec.Auth,
   ctx: AppMapperContext,
 ): AppSpec.Auth {
-  const { userEntity, onAuthFailedRedirectTo, providers } = auth;
+  const { userEntity, onAuthFailedRedirectTo, providers, hooks } = auth;
 
   if ("provider" in auth) {
     throw new WaspSpecUserError(
@@ -71,6 +71,16 @@ export function mapAuth(
     userEntity: ctx.resolveEntityRef(userEntity),
     onAuthFailedRedirectTo,
     providers: mappedProviders,
+    hooks: hooks && {
+      onBeforeSignup:
+        hooks.onBeforeSignup && ctx.parseRefObject(hooks.onBeforeSignup),
+      onAfterSignup:
+        hooks.onAfterSignup && ctx.parseRefObject(hooks.onAfterSignup),
+      onBeforeLogin:
+        hooks.onBeforeLogin && ctx.parseRefObject(hooks.onBeforeLogin),
+      onAfterLogin:
+        hooks.onAfterLogin && ctx.parseRefObject(hooks.onAfterLogin),
+    },
   };
 }
 
@@ -86,26 +96,29 @@ function mapAuthProvider(
       const {
         methods,
         onAuthSucceededRedirectTo,
-        onBeforeSignup,
-        onAfterSignup,
         onAfterEmailVerified,
         onBeforeOAuthRedirect,
-        onBeforeLogin,
-        onAfterLogin,
       } = provider.config;
+
+      if (
+        "onBeforeSignup" in provider.config ||
+        "onAfterSignup" in provider.config ||
+        "onBeforeLogin" in provider.config ||
+        "onAfterLogin" in provider.config
+      ) {
+        throw new WaspSpecUserError(
+          "The onBeforeSignup/onAfterSignup/onBeforeLogin/onAfterLogin hooks moved from waspAuth({ ... }) to app level: auth.hooks = { ... }. They now fire for every auth provider, not just Wasp's own.",
+        );
+      }
 
       return {
         kind: "wasp",
         methods: mapAuthMethods(methods, ctx),
         onAuthSucceededRedirectTo,
-        onBeforeSignup: onBeforeSignup && ctx.parseRefObject(onBeforeSignup),
-        onAfterSignup: onAfterSignup && ctx.parseRefObject(onAfterSignup),
         onAfterEmailVerified:
           onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
         onBeforeOAuthRedirect:
           onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
-        onBeforeLogin: onBeforeLogin && ctx.parseRefObject(onBeforeLogin),
-        onAfterLogin: onAfterLogin && ctx.parseRefObject(onAfterLogin),
       };
     }
     case "external":

@@ -60,6 +60,9 @@ describe("RefObject input types", () => {
     assertType<WaspSpec.WebSocket>({ fn: operation });
     assertType<WaspSpec.WaspAuthConfig>({
       methods: { usernameAndPassword: {} },
+      onAfterEmailVerified: hook,
+    });
+    assertType<WaspSpec.AuthLifecycleHooks>({
       onBeforeSignup: hook,
     });
     assertType<WaspSpec.SocialAuthConfig>({

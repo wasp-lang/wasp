@@ -46,16 +46,21 @@ export {
 } from '../../auth/validation.js'
 
 export type {
-  OnBeforeSignupHook,
-  OnAfterSignupHook,
   OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
+} from './hooks.js'
+{=/ isWaspAuthProviderUsed =}
+
+// The app-level lifecycle hooks (`auth.hooks`) fire for EVERY provider, so
+// their types exist for every provider mix.
+export type {
+  OnBeforeSignupHook,
+  OnAfterSignupHook,
   OnBeforeLoginHook,
   OnAfterLoginHook,
   InternalAuthHookParams,
   OAuthData,
 } from './hooks.js'
-{=/ isWaspAuthProviderUsed =}
 
 {=# isExternalAuthEnabled =}
 export * from './oauth/index.js'

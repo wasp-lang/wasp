@@ -585,6 +585,7 @@ test-suite waspc-tests
     base,
     containers,
     deepseq,
+    directory,
     Diff ^>=0.4.1,
     filepath,
     hspec >=2.11,

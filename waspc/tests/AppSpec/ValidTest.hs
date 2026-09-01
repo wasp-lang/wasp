@@ -131,6 +131,7 @@ spec_AppSpecValid = do
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                 AS.Auth.onAuthFailedRedirectTo = "/",
+                AS.Auth.hooks = Nothing,
                 AS.Auth.providers =
                   [ AS.Auth.WaspAuthProvider
                       AS.Auth.WaspAuthConfig
@@ -146,12 +147,8 @@ spec_AppSpecValid = do
                                 AS.Auth.email = Nothing
                               },
                           AS.Auth.waspAuthOnAuthSucceededRedirectTo = Nothing,
-                          AS.Auth.waspAuthOnBeforeSignup = Nothing,
-                          AS.Auth.waspAuthOnAfterSignup = Nothing,
                           AS.Auth.waspAuthOnAfterEmailVerified = Nothing,
-                          AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing,
-                          AS.Auth.waspAuthOnBeforeLogin = Nothing,
-                          AS.Auth.waspAuthOnAfterLogin = Nothing
+                          AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing
                         }
                   ]
               }
@@ -195,6 +192,7 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.hooks = Nothing,
                                     AS.Auth.providers = [makeWaspAuthProviderWithMethods authMethods]
                                   },
                             AS.App.emailSender =
@@ -359,6 +357,7 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.hooks = Nothing,
                                     AS.Auth.providers =
                                       [ makeWaspAuthProviderWithMethods
                                           AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing}
@@ -410,6 +409,7 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.hooks = Nothing,
                                     AS.Auth.providers = [AS.Auth.ExternalAuthProvider extProvider]
                                   }
                           },
@@ -979,10 +979,6 @@ makeWaspAuthProviderWithMethods authMethods =
     AS.Auth.WaspAuthConfig
       { AS.Auth.waspAuthMethods = authMethods,
         AS.Auth.waspAuthOnAuthSucceededRedirectTo = Nothing,
-        AS.Auth.waspAuthOnBeforeSignup = Nothing,
-        AS.Auth.waspAuthOnAfterSignup = Nothing,
         AS.Auth.waspAuthOnAfterEmailVerified = Nothing,
-        AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing,
-        AS.Auth.waspAuthOnBeforeLogin = Nothing,
-        AS.Auth.waspAuthOnAfterLogin = Nothing
+        AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing
       }

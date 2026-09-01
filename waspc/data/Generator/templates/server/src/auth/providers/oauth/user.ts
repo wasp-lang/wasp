@@ -6,17 +6,14 @@ import {
   createProviderId,
   findAuthWithUserBy,
 } from 'wasp/server/auth/utils'
-import { getIdentityStore } from 'wasp/server/auth/identityStore'
-import { type {= authEntityUpper =} } from 'wasp/entities'
+import { waspAuthRuntime } from 'wasp/server/auth/provider'
 import { type UserSignupFields, type ProviderConfig } from 'wasp/auth/providers/types'
 import { type OAuthData } from 'wasp/server/auth'
 import { getRedirectUriForOneTimeCode, tokenStore } from 'wasp/server/auth'
 import {
-  onBeforeSignupHook,
-  onAfterSignupHook,
   onBeforeLoginHook,
   onAfterLoginHook,
-} from '../../hooks.js'
+} from 'wasp/server/auth/hookDispatch'
 
 export async function finishOAuthFlowAndGetRedirectUri({
   provider,
@@ -35,7 +32,7 @@ export async function finishOAuthFlowAndGetRedirectUri({
 }): Promise<URL> {
   const providerId = createProviderId(provider.id, providerUserId);
 
-  const authId = await getAuthIdFromProviderDetails({
+  await ensureSubjectExistsAndRunHooks({
     providerId,
     providerProfile,
     userSignupFields,
@@ -43,14 +40,19 @@ export async function finishOAuthFlowAndGetRedirectUri({
     oauth,
   });
 
-  const oneTimeCode = await tokenStore.createToken(authId)
+  const oneTimeCode = await tokenStore.createToken({
+    namespace: providerId.providerName,
+    subjectId: providerId.providerUserId,
+  })
 
   return getRedirectUriForOneTimeCode(oneTimeCode)
 }
 
-// We need a user id to create the auth token, so we either find an existing user
-// or create a new one if none exists for this provider.
-async function getAuthIdFromProviderDetails({
+// We either find an existing subject or create a new one if none exists for
+// this provider, firing the app's hooks HERE (not at the later code
+// redemption): this is the moment the OAuth tokens exist, and the hooks
+// receive them.
+async function ensureSubjectExistsAndRunHooks({
   providerId,
   providerProfile,
   userSignupFields,
@@ -62,16 +64,14 @@ async function getAuthIdFromProviderDetails({
   userSignupFields: UserSignupFields | undefined;
   req: ExpressRequest;
   oauth: OAuthData;
-}): Promise<{= authEntityUpper =}['id']> {
-  const identities = getIdentityStore(providerId.providerName)
+}): Promise<void> {
+  const identities = waspAuthRuntime.identityNamespaces(providerId.providerName)
   const existingIdentity = await identities.find(providerId.providerUserId)
 
   if (existingIdentity) {
-    const authId = existingIdentity.authId
-
     // NOTE: Fetching the user to pass it to the login hooks - it's a bit wasteful
     // but we wanted to keep the onAfterLoginHook params consistent for all auth providers.
-    const auth = await findAuthWithUserBy({ id: authId })
+    const auth = await findAuthWithUserBy({ id: existingIdentity.authId })
 
     if (auth === null) {
         throw new Error('Auth entity not found while trying to log in with OAuth')
@@ -79,10 +79,8 @@ async function getAuthIdFromProviderDetails({
 
     // NOTE: We are calling login hooks here even though we didn't log in the user yet.
     // It's because we have access to the OAuth tokens here and we want to pass them to the hooks.
-    // We could have stored the tokens temporarily and called the hooks after the session is created,
-    // but this keeps the implementation simpler.
-    // The downside of this approach is that we can't provide the session to the login hooks, but this is
-    // an okay trade-off because OAuth tokens are more valuable to users than the session ID.
+    // The later one-time-code redemption mints with `skipHooks`, so the hooks
+    // fire exactly once per login -- here, where the tokens are.
     await onBeforeLoginHook({
       req,
       providerId,
@@ -96,33 +94,21 @@ async function getAuthIdFromProviderDetails({
       oauth,
       user: auth.user,
     })
-
-    return authId
   } else {
-    // The hook runs first so it can veto the signup (by throwing) before the
-    // developer's `userSignupFields` getters run.
-    await onBeforeSignupHook({ req, providerId })
-
-    const userFields = await validateAndGetUserFields(
-      { profile: providerProfile },
-      userSignupFields,
-    )
-
+    // The identity facet's `create` is the signup choke point: the app's
+    // onBeforeSignup veto fires first, then the lazy `userSignupFields`
+    // getters, then the atomic write, then onAfterSignup (with the tokens
+    // as its `oauth` payload).
     // For now, we don't store any data or secrets for the oauth providers.
-    const user = await identities.createIdentity(
+    await identities.create(
       providerId.providerUserId,
       {},
-      // Using any here because we want to avoid TypeScript errors and
-      // rely on Prisma to validate the data.
-      userFields as any,
+      // Using any because we want to rely on Prisma to validate the data.
+      (() => validateAndGetUserFields(
+        { profile: providerProfile },
+        userSignupFields,
+      )) as any,
+      { req, hookContext: oauth },
     )
-    await onAfterSignupHook({
-      req,
-      providerId,
-      user,
-      oauth,
-    })
-
-    return user.auth!.id
   }
 }

@@ -127,24 +127,20 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
               JI._importAlias = Nothing
             }
 
+-- | Only the method-specific hooks stay wired here: the generic lifecycle
+-- hooks (onBeforeSignup, onAfterSignup, onBeforeLogin, onAfterLogin) are
+-- app-level and fire at Wasp-owned choke points in the SDK, for every
+-- provider (see "Wasp.Generator.SdkGenerator.Server.AuthG".genHookDispatchTs).
 genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
 genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)
   where
     tmplData =
       object
-        [ "onBeforeSignupHook" .= onBeforeSignupHook,
-          "onAfterSignupHook" .= onAfterSignupHook,
-          "onAfterEmailVerifiedHook" .= onAfterEmailVerifiedHook,
-          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook,
-          "onBeforeLoginHook" .= onBeforeLoginHook,
-          "onAfterLoginHook" .= onAfterLoginHook
+        [ "onAfterEmailVerifiedHook" .= onAfterEmailVerifiedHook,
+          "onBeforeOAuthRedirectHook" .= onBeforeOAuthRedirectHook
         ]
-    onBeforeSignupHook = extImportToAliasedImportJson "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
-    onAfterSignupHook = extImportToAliasedImportJson "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
     onAfterEmailVerifiedHook = extImportToAliasedImportJson "onAfterEmailVerifiedHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterEmailVerified auth
     onBeforeOAuthRedirectHook = extImportToAliasedImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
-    onBeforeLoginHook = extImportToAliasedImportJson "onBeforeLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeLogin auth
-    onAfterLoginHook = extImportToAliasedImportJson "onAfterLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterLogin auth
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|../|]

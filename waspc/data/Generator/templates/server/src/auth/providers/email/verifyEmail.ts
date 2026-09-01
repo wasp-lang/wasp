@@ -4,7 +4,7 @@ import {
   createInvalidCredentialsError,
   findAuthWithUserBy,
 } from 'wasp/server/auth/utils';
-import { getIdentityStore } from 'wasp/server/auth/identityStore';
+import { waspAuthRuntime } from 'wasp/server/auth/provider';
 import { HttpError } from 'wasp/server';
 import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
@@ -19,7 +19,7 @@ export async function verifyEmail(
             throw new HttpError(400, "Email verification failed, invalid token");
         });
 
-    const emailIdentities = getIdentityStore('email');
+    const emailIdentities = waspAuthRuntime.identityNamespaces('email');
     const identity = await emailIdentities.find(email);
     if (!identity) {
         throw new HttpError(400, "Email verification failed, invalid token");

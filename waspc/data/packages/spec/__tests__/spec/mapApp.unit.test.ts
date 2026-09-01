@@ -509,8 +509,8 @@ describe("mapAuth", () => {
             ],
             client: [],
           },
-          uses: provider.uses,
-          identityNamespaces: provider.identityNamespaces,
+          uses: provider.uses ?? [],
+          identityNamespaces: provider.identityNamespaces ?? [provider.id],
           userSignupFields: mapRefObjectForMockProjectDir(
             provider.userSignupFields,
           ),
@@ -518,6 +518,7 @@ describe("mapAuth", () => {
           optionsJson: JSON.stringify(provider.options),
         },
       ],
+      hooks: undefined,
     } satisfies AppSpec.Auth);
   });
 
@@ -693,26 +694,28 @@ describe("mapAuth", () => {
           kind: "wasp",
           methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
           onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
-          onBeforeSignup:
-            waspConfig.onBeforeSignup &&
-            mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
-          onAfterSignup:
-            waspConfig.onAfterSignup &&
-            mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
           onAfterEmailVerified:
             waspConfig.onAfterEmailVerified &&
             mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
           onBeforeOAuthRedirect:
             waspConfig.onBeforeOAuthRedirect &&
             mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
-          onBeforeLogin:
-            waspConfig.onBeforeLogin &&
-            mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
-          onAfterLogin:
-            waspConfig.onAfterLogin &&
-            mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
         },
       ],
+      hooks: auth.hooks && {
+        onBeforeSignup:
+          auth.hooks.onBeforeSignup &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeSignup),
+        onAfterSignup:
+          auth.hooks.onAfterSignup &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterSignup),
+        onBeforeLogin:
+          auth.hooks.onBeforeLogin &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeLogin),
+        onAfterLogin:
+          auth.hooks.onAfterLogin &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterLogin),
+      },
     } satisfies AppSpec.Auth);
   }
 });

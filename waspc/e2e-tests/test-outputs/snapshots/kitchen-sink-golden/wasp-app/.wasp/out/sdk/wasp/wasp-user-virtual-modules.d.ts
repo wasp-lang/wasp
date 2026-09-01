@@ -18,6 +18,22 @@ declare module "virtual:wasp/user/features/db/prisma" {
   export const setUpPrisma: import("./server/dbClient").RegisteredPrismaSetupFn;
 }
 
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onBeforeSignup: import("./server/auth/hooks").OnBeforeSignupHook;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onAfterSignup: import("./server/auth/hooks").OnAfterSignupHook;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onBeforeLogin: import("./server/auth/hooks").OnBeforeLoginHook;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onAfterLogin: import("./server/auth/hooks").OnAfterLoginHook;
+}
+
 declare module "virtual:wasp/user/features/operations/queries" {
   export const getTasks: import("./server/operations/queries/index").RegisteredGetTasks;
 }

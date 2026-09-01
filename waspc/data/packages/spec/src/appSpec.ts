@@ -159,6 +159,16 @@ export type Auth = {
   userEntity: Ref<"Entity">;
   onAuthFailedRedirectTo: string;
   providers: AuthProvider[];
+  hooks: Optional<AuthHooksSpec>;
+};
+
+// App-level lifecycle hooks, fired at Wasp-owned choke points for every
+// provider. Method-specific hooks stay on WaspAuthProvider.
+export type AuthHooksSpec = {
+  onBeforeSignup: Optional<ExtImport>;
+  onAfterSignup: Optional<ExtImport>;
+  onBeforeLogin: Optional<ExtImport>;
+  onAfterLogin: Optional<ExtImport>;
 };
 
 // The IR mirrors the user-facing spec's discriminated union, so the impossible
@@ -170,12 +180,8 @@ export type WaspAuthProvider = {
   kind: "wasp";
   methods: AuthMethods;
   onAuthSucceededRedirectTo: Optional<string>;
-  onBeforeSignup: Optional<ExtImport>;
-  onAfterSignup: Optional<ExtImport>;
   onAfterEmailVerified: Optional<ExtImport>;
   onBeforeOAuthRedirect: Optional<ExtImport>;
-  onBeforeLogin: Optional<ExtImport>;
-  onAfterLogin: Optional<ExtImport>;
 };
 
 export type ExternalAuthProvider = {

@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
 import { createInvalidCredentialsError } from 'wasp/server/auth/utils'
 import { verifyPassword } from 'wasp/server/auth/password'
-import {
-    createProviderId,
-    findAuthWithUserBy,
-} from 'wasp/server/auth/utils'
-import { getIdentityStore } from 'wasp/server/auth/identityStore'
-import { createSession } from 'wasp/server/auth/session'
+import { waspAuthRuntime } from 'wasp/server/auth/provider'
 import { ensureValidEmail, ensurePasswordIsPresent } from 'wasp/auth/validation'
-import { onBeforeLoginHook, onAfterLoginHook } from '../../hooks.js';
 
 export function getLoginRoute() {
     return async function login(
@@ -18,8 +12,7 @@ export function getLoginRoute() {
         const fields = req.body ?? {}
         ensureValidArgs(fields)
 
-        const emailIdentities = getIdentityStore('email')
-        const providerId = createProviderId("email", fields.email)
+        const emailIdentities = waspAuthRuntime.identityNamespaces('email')
         const identity = await emailIdentities.find(fields.email)
         if (!identity) {
             throw createInvalidCredentialsError()
@@ -29,7 +22,7 @@ export function getLoginRoute() {
         }
         // The secret column is read explicitly and only here in this flow.
         const secrets = await emailIdentities.getSecrets(fields.email)
-        if (secrets === null) {
+        if (secrets === null || typeof secrets.hashedPassword !== 'string') {
             throw createInvalidCredentialsError()
         }
         try {
@@ -37,29 +30,16 @@ export function getLoginRoute() {
         } catch(e) {
             throw createInvalidCredentialsError()
         }
-    
-        const auth = await findAuthWithUserBy({ id: identity.authId })
 
-        if (auth === null) {
-            throw createInvalidCredentialsError()
-        }
-        
-        await onBeforeLoginHook({
-            req,
-            providerId,
-            user: auth.user,
-        })
-        
-        const session = await createSession(auth.id)
+        // The mint goes through the same `wasp-sessions` facet an adapter
+        // package gets; the app's login hooks fire inside it.
+        const { sessionId } = await waspAuthRuntime.sessions.issue(
+            { namespace: 'email', subjectId: fields.email },
+            { req },
+        )
 
-        await onAfterLoginHook({
-            req,
-            providerId,
-            user: auth.user,
-        })
-      
         res.json({
-            sessionId: session.id,
+            sessionId,
         })
     };
 }

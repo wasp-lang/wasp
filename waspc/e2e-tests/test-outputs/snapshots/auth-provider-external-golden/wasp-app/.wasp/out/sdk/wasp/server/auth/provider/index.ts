@@ -4,6 +4,13 @@ import type { ProviderIdentities, WaspEmail, WaspServerRuntime, WaspSessions } f
 import { computeProviderUserFields, provisionAuthUser } from '../session.js'
 import { getIdentityStore } from '../identityStore.js'
 import * as sessionStore from '../sessionStore.js'
+import { findAuthWithUserBy, type ProviderId } from '../utils.js'
+import {
+  onAfterLoginHook,
+  onAfterSignupHook,
+  onBeforeLoginHook,
+  onBeforeSignupHook,
+} from '../hookDispatch.js'
 import { config, prisma } from '../../index.js'
 import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth-clerk/server'
 
@@ -18,17 +25,19 @@ export {
 } from './types.js'
 
 /**
- * The runtime window an adapter package gets, with the identity store
- * pre-bound to that provider's id. This runtime object is the adapter's *only*
- * window into the app: adapters never import generated code and never read
- * `process.env` themselves, which is what lets them version independently of
- * any app. `provision` routes through that provider's `userSignupFields`,
- * exactly like just-in-time provisioning at the login exchange. The casts are
- * the runtime boundary: the store speaks `unknown`, the contract speaks
- * `JsonValue`, and both sides of every value are plain parsed JSON.
+ * The runtime window a provider gets, with the identity store pre-bound to
+ * that provider's id. For adapter packages it is their *only* window into the
+ * app: adapters never import generated code and never read `process.env`
+ * themselves, which is what lets them version independently of any app.
+ * Wasp's own auth runs on the very same runtime (see `waspAuthRuntime`), so
+ * its flows hold no powers an adapter cannot request. `provision` routes
+ * through that provider's `userSignupFields`, exactly like just-in-time
+ * provisioning at the login exchange. The casts are the runtime boundary: the
+ * store speaks `unknown`, the contract speaks `JsonValue`, and both sides of
+ * every value are plain parsed JSON.
  */
 type AdapterRuntimeSpec = {
-  providerId: ExternalAuthProviderId
+  providerId: AuthProviderId
   /** Env var names the manifest declared; the runtime env carries exactly these. */
   serverEnvVarNames: readonly string[]
   /** Runtime grants the manifest requested; only these facets get wired. */
@@ -81,16 +90,23 @@ function makeIdentitiesFacet(spec: AdapterRuntimeSpec, namespace: string): Provi
         data: identity?.data,
         secrets: identity?.secrets,
       }, namespace),
-    create: async (subjectId, identity, getUserFields) => {
-      // The lazy callback is what lets the provisioning layer order the app's
-      // signup veto before any user-supplied field getters run.
+    create: async (subjectId, identity, getUserFields, opts) => {
+      // The app's signup veto fires FIRST -- at this Wasp-owned choke point no
+      // provider can forget it -- and only then do any user-supplied field
+      // getters run (that ordering is why `getUserFields` is a lazy callback).
+      if (opts?.skipHooks !== true) {
+        await onBeforeSignupHook({
+          req: opts?.req as any,
+          providerId: makeHookProviderId(namespace, subjectId),
+        })
+      }
       const userFields =
         getUserFields !== undefined
           ? await getUserFields()
           : await computeProviderUserFields(spec.providerId, identity?.claims)
+      let created
       try {
-        const created = await store.createIdentity(subjectId, identity as any, userFields as any)
-        return { authId: created.auth!.id }
+        created = await store.createIdentity(subjectId, identity as any, userFields as any)
       } catch (e) {
         if (isUniqueConstraintViolation(e)) {
           throw contractError(
@@ -100,6 +116,15 @@ function makeIdentitiesFacet(spec: AdapterRuntimeSpec, namespace: string): Provi
         }
         throw e
       }
+      if (opts?.skipHooks !== true) {
+        await onAfterSignupHook({
+          req: opts?.req as any,
+          providerId: makeHookProviderId(namespace, subjectId),
+          user: created,
+          oauth: opts?.hookContext as any,
+        })
+      }
+      return { authId: created.auth!.id }
     },
     updateData: (subjectId, updates) => store.updateData(subjectId, updates),
     getSecrets: (subjectId) => store.getSecrets(subjectId) as any,
@@ -131,10 +156,44 @@ function makeSessionsFacet(spec: AdapterRuntimeSpec): WaspSessions {
   return {
     issue: async (subject, opts) => {
       const authId = await resolveSubjectAuthId(subject)
+      // The app's login hooks fire around every mint at this Wasp-owned choke
+      // point (veto by throwing), whichever provider is minting. `skipHooks`
+      // exists for flows that already fired them at a more informative moment
+      // (wasp-auth's OAuth callback holds the tokens; the redeem route does
+      // not).
+      const fireHooks = opts?.skipHooks !== true
+      const hookProviderId = makeHookProviderId(
+        resolveOwnNamespace(spec, subject.namespace),
+        subject.subjectId,
+      )
+      let hookUser: unknown = undefined
+      if (fireHooks) {
+        const auth = await findAuthWithUserBy({ id: authId })
+        if (auth === null) {
+          throw contractError(
+            'wasp-auth/identity-not-found',
+            'The subject resolves to an auth entity with no user.',
+          )
+        }
+        hookUser = auth.user
+        await onBeforeLoginHook({
+          req: opts?.req as any,
+          providerId: hookProviderId,
+          user: auth.user,
+        })
+      }
       const session = await sessionStore.createSession(authId, {
         providerId: spec.providerId,
         providerSessionId: opts?.providerSessionId,
       })
+      if (fireHooks) {
+        await onAfterLoginHook({
+          req: opts?.req as any,
+          providerId: hookProviderId,
+          user: hookUser as any,
+          oauth: opts?.hookContext as any,
+        })
+      }
       return { sessionId: session.id }
     },
     revoke: (sessionId) => sessionStore.revokeSession(sessionId),
@@ -143,6 +202,13 @@ function makeSessionsFacet(spec: AdapterRuntimeSpec): WaspSessions {
       await sessionStore.revokeAllSessions(authId)
     },
   }
+}
+
+// The hook payloads speak `ProviderId` ({ providerName, providerUserId });
+// external namespaces are not in the generated `ProviderName` union, so the
+// cast widens it -- the values are plain strings either way.
+function makeHookProviderId(namespace: string, subjectId: string): ProviderId {
+  return { providerName: namespace, providerUserId: subjectId } as ProviderId
 }
 
 

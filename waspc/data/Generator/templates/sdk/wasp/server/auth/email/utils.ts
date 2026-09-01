@@ -1,9 +1,8 @@
 {{={= =}=}}
 import { createJWT, TimeSpan } from '../jwt.js'
-import { emailSender } from '../../email/index.js';
 import { Email } from '../../email/core/types.js';
 import { type EmailProviderData } from '../utils.js';
-import { getIdentityStore } from '../identityStore.js';
+import { waspAuthRuntime } from '../provider/index.js';
 import { config as waspServerConfig } from '../../index.js';
 import { type {= userEntityUpper =}, type {= authEntityUpper =} } from '../../../entities/index.js'
 
@@ -57,7 +56,7 @@ async function sendEmailAndSaveMetadata(
 ): Promise<void> {
   // Save the metadata (e.g. timestamp) first, and then send the email
   // so the user can't send multiple requests while the email is being sent.
-  const emailIdentities = getIdentityStore('email');
+  const emailIdentities = waspAuthRuntime.identityNamespaces('email');
   const identity = await emailIdentities.find(email);
 
   if (!identity) {
@@ -68,7 +67,9 @@ async function sendEmailAndSaveMetadata(
   // neither read nor rewritten to store a timestamp.
   await emailIdentities.updateData(email, metadata);
 
-  emailSender.send(content).catch((e) => {
+  // The `email-send` grant: the same facet an adapter package requests.
+  // Present by construction -- the email method requires app.emailSender.
+  waspAuthRuntime.email!.send(content as Parameters<NonNullable<typeof waspAuthRuntime.email>['send']>[0]).catch((e) => {
     console.error('Failed to send email', e);
   });
 }

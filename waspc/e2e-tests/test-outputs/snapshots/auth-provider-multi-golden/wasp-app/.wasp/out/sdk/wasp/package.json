@@ -63,6 +63,7 @@
     "./server/auth": "./dist/server/auth/index.js",
     "./server/auth/email": "./dist/server/auth/email/index.js",
     "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
+    "./server/auth/hookDispatch": "./dist/server/auth/hookDispatch.js",
     "./server/auth/identityStore": "./dist/server/auth/identityStore.js",
     "./server/auth/jwt": "./dist/server/auth/jwt.js",
     "./server/auth/password": "./dist/server/auth/password.js",

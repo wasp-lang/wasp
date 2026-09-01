@@ -8,18 +8,19 @@ function createTokenStore() {
   const validFor = new TimeSpan(1, 'm') // 1 minute
   const cleanupAfter = 1000 * 60 * 60; // 1 hour
 
-  function createToken(userId: string): Promise<string> {
+  // The code names the SUBJECT (namespace + provider user id), not an auth
+  // id: redeeming it goes through the same `wasp-sessions` facet an adapter
+  // package uses, and that facet is subject-addressed by design.
+  function createToken(subject: { namespace: string; subjectId: string }): Promise<string> {
     return createJWT(
-      {
-        id: userId,
-      },
+      subject,
       {
         expiresIn: validFor,
       }
     );
   }
 
-  function verifyToken(token: string): Promise<{ id: string }> {
+  function verifyToken(token: string): Promise<{ namespace: string; subjectId: string }> {
     return validateJWT(token);
   }
 

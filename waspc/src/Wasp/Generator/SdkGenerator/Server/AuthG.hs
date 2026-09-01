@@ -51,12 +51,16 @@ genServerAuth spec =
             genSessionStoreTs auth,
             genIdentityStoreTs auth,
             genLuciaTs auth,
-            genUtils auth
+            genUtils auth,
+            -- Hook types and dispatch exist for every provider mix: the
+            -- app-level lifecycle hooks fire at Wasp-owned choke points
+            -- (provisioning, minting), whichever provider triggers them.
+            genHooks auth,
+            genHookDispatchTs auth
           ]
             ++ ( if AS.Auth.isWaspAuthProviderUsed auth
                    then
-                     [ genHooks auth,
-                       genFileCopyInServerAuth [relfile|password.ts|],
+                     [ genFileCopyInServerAuth [relfile|password.ts|],
                        genFileCopyInServerAuth [relfile|jwt.ts|],
                        genFileCopyInServerAuth [relfile|provider/wasp.ts|]
                      ]
@@ -93,6 +97,24 @@ genHooks auth =
       tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
+
+-- | Dispatch for the app-level lifecycle hooks (`auth.hooks`): fired from the
+-- SDK's provisioning and session-minting choke points, so every provider is
+-- covered and none can skip them.
+genHookDispatchTs :: AS.Auth.Auth -> Generator FileDraft
+genHookDispatchTs auth =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|hookDispatch.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "onBeforeSignupHook" .= extImportToAliasedImportJson "onBeforeSignupHook_ext" (AS.Auth.onBeforeSignup auth),
+          "onAfterSignupHook" .= extImportToAliasedImportJson "onAfterSignupHook_ext" (AS.Auth.onAfterSignup auth),
+          "onBeforeLoginHook" .= extImportToAliasedImportJson "onBeforeLoginHook_ext" (AS.Auth.onBeforeLogin auth),
+          "onAfterLoginHook" .= extImportToAliasedImportJson "onAfterLoginHook_ext" (AS.Auth.onAfterLogin auth)
+        ]
 
 genIdentityStoreTs :: AS.Auth.Auth -> Generator FileDraft
 genIdentityStoreTs auth =
@@ -163,9 +185,25 @@ genAuthProviderIndexTs spec auth =
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "defaultFromJson"
             .= maybe "undefined" Util.Aeson.encodeToString (AS.EmailSender.defaultFrom =<< maybeEmailSender),
+          -- The identity namespaces of Wasp's own auth: one per enabled
+          -- method, unprefixed by the wasp provider's compatibility privilege
+          -- (released AuthIdentity rows carry these providerName values).
+          "waspIdentityNamespacesJs" .= makeJsArrayFromHaskellList waspIdentityNamespaces,
           "externalAuthProviders" .= mkExternalAuthProvidersTmplData auth
         ]
     maybeEmailSender = AS.App.emailSender $ snd $ AS.Valid.getApp spec
+    waspIdentityNamespaces =
+      concat
+        [ ["wasp"],
+          ["username" | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
+          ["email" | AS.Auth.isEmailAuthEnabled auth],
+          ["google" | AS.Auth.isGoogleAuthEnabled auth],
+          ["github" | AS.Auth.isGitHubAuthEnabled auth],
+          ["keycloak" | AS.Auth.isKeycloakAuthEnabled auth],
+          ["slack" | AS.Auth.isSlackAuthEnabled auth],
+          ["discord" | AS.Auth.isDiscordAuthEnabled auth],
+          ["microsoft" | AS.Auth.isMicrosoftAuthEnabled auth]
+        ]
     prismaDbProviderName :: String
     prismaDbProviderName = case AS.Valid.getValidDbSystem spec of
       AS.Db.PostgreSQL -> "postgresql"

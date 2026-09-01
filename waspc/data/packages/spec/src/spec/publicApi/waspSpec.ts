@@ -197,6 +197,56 @@ export interface Auth {
    * provider vouched for the request (`user.sessionProviderId` says which).
    */
   providers: AuthProviders;
+  /**
+   * App-level auth lifecycle hooks, fired at Wasp-owned choke points --
+   * identity provisioning (`onBeforeSignup` can veto by throwing,
+   * `onAfterSignup` observes) and session minting (`onBeforeLogin` can veto,
+   * `onAfterLogin` observes) -- for EVERY provider: Wasp's own methods,
+   * adapter packages, hand-written providers. A provider can neither forget
+   * nor forge them, because they fire where Wasp owns the control flow.
+   *
+   * Method-specific hooks (`onAfterEmailVerified`, `onBeforeOAuthRedirect`)
+   * belong to Wasp's own auth and stay inside {@link waspAuth}.
+   */
+  hooks?: AuthLifecycleHooks;
+}
+
+/**
+ * See {@link Auth.hooks}.
+ *
+ * @category Auth
+ */
+export interface AuthLifecycleHooks {
+  /**
+   * Called before a user is created, whichever provider is signing them up.
+   * Throw to reject the signup. Runs before any `userSignupFields` getters.
+   *
+   * `req` is absent when an adapter provisions eagerly outside a request.
+   *
+   * @category Hooks
+   */
+  onBeforeSignup?: Reference<AnyFunction>;
+  /**
+   * Called after a user is created, whichever provider signed them up.
+   * For social auth, receives `oauth` fields including tokens.
+   *
+   * @category Hooks
+   */
+  onAfterSignup?: Reference<AnyFunction>;
+  /**
+   * Called before a Wasp session is minted, whichever provider verified the
+   * login. Throw to reject the login.
+   *
+   * @category Hooks
+   */
+  onBeforeLogin?: Reference<AnyFunction>;
+  /**
+   * Called after a Wasp session is minted, whichever provider verified the
+   * login. For social auth, receives `oauth` fields including tokens.
+   *
+   * @category Hooks
+   */
+  onAfterLogin?: Reference<AnyFunction>;
 }
 
 /**
@@ -398,22 +448,6 @@ export interface ExternalAuthProviderManifest {
 }
 
 interface AuthHooks {
-  /**
-   * Called before the user is created. Receives `providerId` plus the common
-   * hook input. Throw from this hook to reject a signup based on custom
-   * criteria.
-   *
-   * @category Hooks
-   */
-  onBeforeSignup?: Reference<AnyFunction>;
-  /**
-   * Called after the user is created. Receives `providerId`, the created
-   * `user`, and, for social auth, `oauth` fields including tokens and the
-   * unique OAuth request ID.
-   *
-   * @category Hooks
-   */
-  onAfterSignup?: Reference<AnyFunction>;
   /** Called once, after the user verifies their email. Receives `email` and `user`. */
   onAfterEmailVerified?: Reference<AnyFunction>;
   /**
@@ -421,24 +455,13 @@ interface AuthHooks {
    * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
    * the redirect URL.
    *
+   * The generic lifecycle hooks (`onBeforeSignup`, `onAfterSignup`,
+   * `onBeforeLogin`, `onAfterLogin`) moved to app level: see
+   * {@link Auth.hooks} -- they fire for every provider, not just Wasp's own.
+   *
    * @category Hooks
    */
   onBeforeOAuthRedirect?: Reference<AnyFunction>;
-  /**
-   * Called before the user is logged in. Receives `providerId` and `user`.
-   * Throw from this hook to reject a login based on custom criteria.
-   *
-   * @category Hooks
-   */
-  onBeforeLogin?: Reference<AnyFunction>;
-  /**
-   * Called after a successful login. Receives `providerId`, `user`, and, for
-   * social auth, `oauth` fields including tokens and the unique OAuth request
-   * ID.
-   *
-   * @category Hooks
-   */
-  onAfterLogin?: Reference<AnyFunction>;
 }
 
 /**

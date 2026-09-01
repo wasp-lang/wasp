@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { doFakeWork } from 'wasp/server/auth/utils';
-import { getIdentityStore } from 'wasp/server/auth/identityStore';
+import { waspAuthRuntime } from 'wasp/server/auth/provider';
 import {
     createPasswordResetLink,
     sendPasswordResetEmail,
@@ -27,7 +27,7 @@ export function getRequestPasswordResetRoute({
         const args = req.body ?? {};
         ensureValidEmail(args);
 
-        const emailIdentities = getIdentityStore('email');
+        const emailIdentities = waspAuthRuntime.identityNamespaces('email');
         const identity = await emailIdentities.find(args.email);
 
         /**
@@ -42,14 +42,16 @@ export function getRequestPasswordResetRoute({
             return
         }
 
-        const { isResendAllowed, timeLeft } = isEmailResendAllowed(identity.data, 'passwordResetSentAt');
+        const { isResendAllowed, timeLeft } = isEmailResendAllowed(identity.data as { passwordResetSentAt: string | null }, 'passwordResetSentAt');
         if (!isResendAllowed) {
             throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
         }
 
         const passwordResetLink = await createPasswordResetLink(args.email, clientRoute);
         try {
-            const email = identity.providerUserId
+            // The address as the user typed it; the identity key is its
+            // normalized (lowercased) form, which delivers identically.
+            const email = args.email
             await sendPasswordResetEmail(
                 email,
                 {

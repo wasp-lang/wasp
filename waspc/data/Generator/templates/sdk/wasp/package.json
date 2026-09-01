@@ -138,6 +138,9 @@
     {=! Server: the provider registry and its route handlers, for the exchange
         route and for mounting providers' own routes. =}
     "./server/auth/provider": "./dist/server/auth/provider/index.js",
+    {=! Server: dispatch for the app-level lifecycle hooks, fired at the SDK's
+        provisioning/minting choke points and from wasp-auth's OAuth callback. =}
+    "./server/auth/hookDispatch": "./dist/server/auth/hookDispatch.js",
     "./server/auth/identityStore": "./dist/server/auth/identityStore.js",
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
