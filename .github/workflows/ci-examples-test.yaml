@@ -24,6 +24,9 @@ jobs:
           # Runtime coverage for the auth provider contract: the credential
           # exchange, provider-attributed sessions, and logout revocation.
           - auth-providers/custom-password
+          # The externalized-wasp-auth POC: package-provider flows, app-level
+          # hook veto, and the OAuth redirect leg.
+          - auth-providers/wasp-auth-lib
 
     steps:
       - uses: actions/checkout@v7
@@ -32,6 +35,11 @@ jobs:
       - uses: ./.github/actions/setup-tools
 
       - uses: ./.github/actions/install-wasp-cli-artifact
+
+      - name: Build the local auth adapter package
+        if: matrix.example == 'auth-providers/wasp-auth-lib'
+        working-directory: examples/auth-providers/packages/auth
+        run: npm install && npm run build
 
       - name: Install app dependencies
         working-directory: examples/${{ matrix.example }}
