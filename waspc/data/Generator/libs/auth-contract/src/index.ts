@@ -329,7 +329,15 @@ export type EmailFrom = { name?: string; email: string };
 export type AuthContractErrorCode =
   | "wasp-auth/duplicate-identity"
   | "wasp-auth/identity-not-found"
-  | "wasp-auth/undeclared-namespace";
+  | "wasp-auth/undeclared-namespace"
+  /**
+   * The app's onBeforeSignup/onBeforeLogin hook rejected the action by
+   * throwing. The thrown error itself is what carries this code (Wasp tags
+   * it rather than wrapping, so its message and type survive) -- an
+   * adapter's routes should map it to a 4xx carrying `error.message`, not
+   * to a 500.
+   */
+  | "wasp-auth/policy-veto";
 
 /** The code of a granted-facet error, or null for any other value. */
 export function getAuthContractErrorCode(
@@ -341,7 +349,8 @@ export function getAuthContractErrorCode(
   const code = (error as { code: unknown }).code;
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
-    code === "wasp-auth/undeclared-namespace"
+    code === "wasp-auth/undeclared-namespace" ||
+    code === "wasp-auth/policy-veto"
     ? code
     : null;
 }

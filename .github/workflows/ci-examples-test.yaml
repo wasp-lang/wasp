@@ -21,6 +21,9 @@ jobs:
           - websockets-realtime-voting
           - ask-the-documents
           - kitchen-sink
+          # Runtime coverage for the auth provider contract: the credential
+          # exchange, provider-attributed sessions, and logout revocation.
+          - auth-providers/custom-password
 
     steps:
       - uses: actions/checkout@v7

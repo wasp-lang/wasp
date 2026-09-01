@@ -31,6 +31,11 @@
     "typescript": "6.0.3",
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "@playwright/test": "1.55.1"
+  },
+  "scripts": {
+    "test": "npm run test:install-deps && playwright test --config e2e-tests/",
+    "test:install-deps": "playwright install --with-deps chromium"
   }
 }

@@ -13,6 +13,7 @@ import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider
 import { getIdentityStore } from './identityStore.js';
 import { findAuthWithUserBy, validateAndGetUserFields, type ProviderId } from './utils.js';
 import {
+  fireVetoableHook,
   onAfterLoginHook,
   onAfterSignupHook,
   onBeforeLoginHook,
@@ -158,11 +159,13 @@ export async function exchangeRequestForSession(
   if (auth === null) {
     return null;
   }
-  await onBeforeLoginHook({
-    req,
-    providerId: makeHookProviderId(providerId, subjectId),
-    user: auth.user,
-  });
+  await fireVetoableHook(() =>
+    onBeforeLoginHook({
+      req,
+      providerId: makeHookProviderId(providerId, subjectId),
+      user: auth.user,
+    }),
+  );
 
   // A stateless verifier returns no provider session id -- then there is
   // nothing to revoke upstream at logout and Wasp's session stands alone.
@@ -239,10 +242,12 @@ async function resolveExternalSubject(
   // A brand-new subject IS a signup, so the app's signup hooks fire here --
   // this choke point is what makes the app's veto cover external providers
   // too. The veto runs BEFORE the `userSignupFields` getters.
-  await onBeforeSignupHook({
-    req,
-    providerId: makeHookProviderId(namespace, subjectId),
-  });
+  await fireVetoableHook(() =>
+    onBeforeSignupHook({
+      req,
+      providerId: makeHookProviderId(namespace, subjectId),
+    }),
+  );
 
   // The provider's `userSignupFields` compute the new user's own fields from
   // the claims the provider verified -- the only way a user entity with

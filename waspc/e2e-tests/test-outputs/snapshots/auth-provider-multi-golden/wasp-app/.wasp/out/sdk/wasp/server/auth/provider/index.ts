@@ -6,6 +6,7 @@ import { getIdentityStore } from '../identityStore.js'
 import * as sessionStore from '../sessionStore.js'
 import { findAuthWithUserBy, type ProviderId } from '../utils.js'
 import {
+  fireVetoableHook,
   onAfterLoginHook,
   onAfterSignupHook,
   onBeforeLoginHook,
@@ -96,10 +97,12 @@ function makeIdentitiesFacet(spec: AdapterRuntimeSpec, namespace: string): Provi
       // provider can forget it -- and only then do any user-supplied field
       // getters run (that ordering is why `getUserFields` is a lazy callback).
       if (opts?.skipHooks !== true) {
-        await onBeforeSignupHook({
-          req: opts?.req as any,
-          providerId: makeHookProviderId(namespace, subjectId),
-        })
+        await fireVetoableHook(() =>
+          onBeforeSignupHook({
+            req: opts?.req as any,
+            providerId: makeHookProviderId(namespace, subjectId),
+          }),
+        )
       }
       const userFields =
         getUserFields !== undefined
@@ -177,11 +180,13 @@ function makeSessionsFacet(spec: AdapterRuntimeSpec): WaspSessions {
           )
         }
         hookUser = auth.user
-        await onBeforeLoginHook({
-          req: opts?.req as any,
-          providerId: hookProviderId,
-          user: auth.user,
-        })
+        await fireVetoableHook(() =>
+          onBeforeLoginHook({
+            req: opts?.req as any,
+            providerId: hookProviderId,
+            user: auth.user,
+          }),
+        )
       }
       const session = await sessionStore.createSession(authId, {
         providerId: spec.providerId,

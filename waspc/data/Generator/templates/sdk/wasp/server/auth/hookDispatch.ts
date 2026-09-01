@@ -36,6 +36,33 @@ type InternalFunctionForHook<HookFn extends (params: never) => unknown> = (
   params: Omit<Parameters<HookFn>[0], 'prisma'>,
 ) => ReturnType<HookFn>
 
+/**
+ * Runs a veto-able hook (onBeforeSignup, onBeforeLogin) and tags whatever it
+ * throws with the contract's `wasp-auth/policy-veto` code -- tagging, not
+ * wrapping, so the error's type, message and any `statusCode` survive for
+ * Wasp's own error handling, while an adapter package (which only speaks
+ * contract codes) can map the rejection to a 4xx instead of a 500. An error
+ * that already carries a code keeps it.
+ */
+export async function fireVetoableHook(fire: () => unknown): Promise<void> {
+  try {
+    await fire()
+  } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      !(error as { code?: unknown }).code
+    ) {
+      try {
+        ;(error as { code?: string }).code = 'wasp-auth/policy-veto'
+      } catch {
+        // A frozen error object stays untagged; it still propagates.
+      }
+    }
+    throw error
+  }
+}
+
 {=# onBeforeSignupHook.isDefined =}
 export const onBeforeSignupHook: InternalFunctionForHook<OnBeforeSignupHook> = (params) =>
   {= onBeforeSignupHook.importIdentifier =}({ prisma, ...params })
