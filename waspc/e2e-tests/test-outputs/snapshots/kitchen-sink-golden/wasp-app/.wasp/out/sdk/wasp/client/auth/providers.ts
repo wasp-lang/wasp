@@ -1,11 +1,16 @@
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import type { ExternalAuthProviderId } from '../../auth/provider.js'
+import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js'
 import {
   api,
   getLastAuthProviderId,
   getSessionId,
   removeLocalUserData,
+  setSessionId,
 } from '../../api/index.js'
+import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
+import { config } from '../config.js'
+import { env } from '../env.js'
+import { createClientAdapter as createWaspAuthClientAdapter } from '@wasp.sh/auth/client'
 
 /**
  * The client halves of the app's auth providers, instantiated from each
@@ -14,6 +19,32 @@ import {
  * provider id; providers without a client package simply have no entry.
  */
 
+// Each adapter's env is narrowed to exactly the vars its manifest declared:
+// what an adapter reads is what its manifest shows. The session sink is
+// pre-bound to the provider id, so an adapter cannot write another provider's
+// resume/logout marker.
+function makeClientRuntime(
+  providerId: AuthProviderId,
+  declaredClientEnvVarNames: readonly string[],
+) {
+  return {
+    apiUrl: config.apiUrl,
+    env: Object.fromEntries(
+      declaredClientEnvVarNames.map((name) => [
+        name,
+        (env as Record<string, string | undefined>)[name],
+      ]),
+    ),
+    setSession: async (sessionId: string): Promise<void> => {
+      setSessionId(sessionId, providerId)
+      await invalidateAndRemoveQueries()
+    },
+  }
+}
+
+// Wasp's own auth, instantiated from the @wasp.sh/auth lib exactly like an
+// adapter package's client entry: its forms and actions read this runtime.
+createWaspAuthClientAdapter(makeClientRuntime('wasp', []), {"clientOAuthCallbackPath":"/oauth/callback","methods":{"discord":{"requiredScopes":["identify"]},"email":{"emailVerificationClientRoute":"/email-verification-","fromField":{"email":"kitchen-sink@wasp.sh","name":"Wasp Kitchen Sink"},"passwordResetClientRoute":"/password-reset"},"github":{"requiredScopes":[]},"google":{"requiredScopes":["profile"]},"microsoft":{"requiredScopes":["openid","profile","email"]},"slack":{"requiredScopes":["openid"]}},"onAuthSucceededRedirectTo":"/"})
 
 // PRIVATE API
 export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {

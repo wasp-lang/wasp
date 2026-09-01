@@ -62,14 +62,10 @@ export type {
   OAuthData,
 } from './hooks.js'
 
-{=# isExternalAuthEnabled =}
-export * from './oauth/index.js'
-{=/ isExternalAuthEnabled =}
-
 {=# enabledProviders.isEmailAuthEnabled =}
 export * from './email/index.js'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-export * from './username.js'
+export { ensureValidUsername } from '../../auth/validation.js'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}

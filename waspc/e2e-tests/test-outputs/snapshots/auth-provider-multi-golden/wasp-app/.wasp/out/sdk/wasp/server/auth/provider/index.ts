@@ -16,6 +16,8 @@ import { config, prisma } from '../../index.js'
 import { env as validatedEnv } from '../../env.js'
 import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth-clerk/server'
 import { waspAuthProvider } from './wasp.js'
+import { createServerAdapter as createWaspAuthServerAdapter } from '@wasp.sh/auth/server'
+import { waspAuthExtensions } from '../waspAuthExtensions.js'
 
 // PRIVATE API
 export {
@@ -260,10 +262,23 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
  */
 export const waspAuthRuntime = makeAdapterRuntime({
   providerId: 'wasp',
-  serverEnvVarNames: [],
+  serverEnvVarNames: ['JWT_SECRET'],
   uses: ['wasp-sessions', 'identity-namespaces'],
   identityNamespaces: ['wasp', 'username'],
 }) as WaspServerRuntime<'wasp-sessions' | 'identity-namespaces'>
+
+/**
+ * Wasp's own auth flows, instantiated from the `@wasp.sh/auth` lib exactly
+ * like an adapter package's server factory: options are the serializable
+ * method configuration, extensions are the user's functions.
+ */
+export const waspAuthServerAdapter = await Promise.resolve(
+  createWaspAuthServerAdapter(
+    waspAuthRuntime as any,
+    {"clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}},"onAuthSucceededRedirectTo":"/"},
+    waspAuthExtensions as any,
+  ),
+)
 
 /**
  * The adapter package's server factory for 'external:clerk', called with
@@ -324,7 +339,8 @@ export function getAuthProvider(providerId: string): AuthProvider | undefined {
  * Node handlers for the routes external providers brought with them, keyed by
  * provider id. The server mounts each at the basePath its manifest declared.
  */
-export const authProviderRouteHandlers: Partial<Record<ExternalAuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+  'wasp': waspAuthServerAdapter.routeHandler,
   'external:clerk': serverAdapter_0.routeHandler,
 }
 

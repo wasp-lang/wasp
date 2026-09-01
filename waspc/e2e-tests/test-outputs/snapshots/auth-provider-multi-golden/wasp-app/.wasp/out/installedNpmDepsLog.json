@@ -203,6 +203,10 @@
                 "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
+                "name": "@wasp.sh/auth",
+                "version": "file:../../libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
+            },
+            {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             }
@@ -237,6 +241,10 @@
     },
     "_waspServerNpmDeps": {
         "dependencies": [
+            {
+                "name": "@wasp.sh/auth",
+                "version": "file:../libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
+            },
             {
                 "name": "@wasp.sh/auth-contract",
                 "version": "file:../libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"

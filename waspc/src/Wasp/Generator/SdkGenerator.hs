@@ -65,7 +65,6 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( depsRequiredByJobs,
     genJobsApi,
   )
-import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
@@ -233,7 +232,6 @@ npmDepsForSdk spec =
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersionRange)
           ]
-          ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
           -- lists prisma/client as a dependency.
           -- Installing it inside .wasp/out/server/node_modules would also

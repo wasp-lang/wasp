@@ -5,8 +5,6 @@ import me from './me.js'
 import logout from './logout.js'
 import login from './login.js'
 
-import providersRouter from '../../auth/providers/index.js'
-
 const router = express.Router()
 
 router.get('/me', auth, me)
@@ -17,6 +15,4 @@ router.post('/logout', auth, logout)
 // contain a ':' ('external:clerk'), which a literal route pattern would parse
 // as a param marker.
 router.post('/login/:providerId', login)
-router.use('/', providersRouter)
-
 export default router

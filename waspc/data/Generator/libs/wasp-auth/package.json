@@ -1,0 +1,53 @@
+{
+  "name": "@wasp.sh/auth",
+  "version": "0.26.0",
+  "type": "module",
+  "description": "Wasp's own authentication (username & password, email, OAuth), as an auth provider package on the Wasp auth contract.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "waspc/data/Generator/libs/wasp-auth"
+  },
+  "license": "MIT",
+  "exports": {
+    "./package.json": "./package.json",
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc && node ./scripts/copy-css.mjs",
+    "prepare": "npm run build",
+    "test": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@wasp.sh/auth-contract": "*",
+    "@wasp.sh/lib-auth": "*",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-router": "^7.0.0 || ^8.0.0"
+  },
+  "dependencies": {
+    "arctic": "^1.2.1",
+    "react-hook-form": "^7.45.4"
+  },
+  "devDependencies": {
+    "@types/node": "~22.12",
+    "@types/react": "^19.2.0",
+    "@wasp.sh/auth-contract": "file:../auth-contract",
+    "@wasp.sh/lib-auth": "file:../auth",
+    "react": "^19.2.0",
+    "react-router": "^8.0.1",
+    "typescript": "~6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

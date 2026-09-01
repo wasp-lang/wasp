@@ -8,8 +8,6 @@ import logout from './logout.js'
 import login from './login.js'
 {=/ isExternalAuthProviderUsed =}
 
-import providersRouter from '../../auth/providers/index.js'
-
 const router = express.Router()
 
 router.get('/me', auth, me)
@@ -22,6 +20,4 @@ router.post('/logout', auth, logout)
 // as a param marker.
 router.post('/login/:providerId', login)
 {=/ isExternalAuthProviderUsed =}
-router.use('/', providersRouter)
-
 export default router

@@ -167,10 +167,6 @@
                 "version": "^2.2.1"
             },
             {
-                "name": "arctic",
-                "version": "^1.2.1"
-            },
-            {
                 "name": "lucia",
                 "version": "^3.0.1"
             },
@@ -231,6 +227,10 @@
                 "version": "file:../../libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
             },
             {
+                "name": "@wasp.sh/auth",
+                "version": "file:../../libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
+            },
+            {
                 "name": "@wasp.sh/lib-vite-ssr",
                 "version": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
             }
@@ -268,6 +268,10 @@
             {
                 "name": "@socket.io/component-emitter",
                 "version": "^4.0.0"
+            },
+            {
+                "name": "@wasp.sh/auth",
+                "version": "file:../libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
             },
             {
                 "name": "@wasp.sh/auth-contract",

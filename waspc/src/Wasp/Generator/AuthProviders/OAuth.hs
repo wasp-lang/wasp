@@ -8,6 +8,7 @@ module Wasp.Generator.AuthProviders.OAuth
     providerId,
     displayName,
     scopeStr,
+    requiredScopes,
     OAuthAuthProvider (..),
   )
 where
@@ -33,6 +34,9 @@ displayName = _displayName
 
 -- Generates the string used in JS e.g. ["profile"] list in Haskell becomes "[\"profile\"]"
 -- string which can be outputted in JS code verbatim.
+requiredScopes :: OAuthAuthProvider -> [String]
+requiredScopes = _requiredScope
+
 scopeStr :: OAuthAuthProvider -> String
 scopeStr oai = makeJsArrayFromHaskellList $ _requiredScope oai
 

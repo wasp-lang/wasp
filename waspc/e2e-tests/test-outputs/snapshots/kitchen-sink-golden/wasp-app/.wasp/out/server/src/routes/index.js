@@ -2,6 +2,7 @@ import express from 'express'
 import operations from './operations/index.js'
 import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 import auth from './auth/index.js'
+import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
 import apis from './apis/index.js'
 import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
@@ -23,6 +24,11 @@ router.get('/', middleware,
 )
 
 router.use('/auth', middleware, auth)
+// Wasp's own signup and login flows, brought along by the @wasp.sh/auth lib
+// and mounted under the framework's auth routes like any provider's routes.
+router.use('/auth', middleware, (req, res, next) => {
+  return Promise.resolve(authProviderRouteHandlers['wasp'](req, res)).catch(next)
+})
 router.use('/operations', middleware, operations)
 router.use('/crud', middleware, rootCrudRouter)
 // NOTE: Keep user-defined api routes last so they cannot override our routes.

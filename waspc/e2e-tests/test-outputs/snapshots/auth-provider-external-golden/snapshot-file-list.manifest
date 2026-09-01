@@ -41,14 +41,12 @@ wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
 wasp-app/.wasp/out/installedNpmDepsLog.json
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
-wasp-app/.wasp/out/sdk/wasp/auth/helpers/user.ts
 wasp-app/.wasp/out/sdk/wasp/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/logout.ts
 wasp-app/.wasp/out/sdk/wasp/auth/provider.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providerData.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/types.ts
-wasp-app/.wasp/out/sdk/wasp/auth/responseSchemas.ts
 wasp-app/.wasp/out/sdk/wasp/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/useAuth.ts
 wasp-app/.wasp/out/sdk/wasp/auth/user.ts
@@ -115,10 +113,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/api/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/api/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/api/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/api/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/user.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/user.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/user.js
-wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/user.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/index.js
@@ -143,10 +137,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js
-wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/types.js
@@ -582,7 +572,6 @@ wasp-app/.wasp/out/server/package.json
 wasp-app/.wasp/out/server/rollup.config.js
 wasp-app/.wasp/out/server/src/actions/createTask.ts
 wasp-app/.wasp/out/server/src/app.js
-wasp-app/.wasp/out/server/src/auth/providers/index.ts
 wasp-app/.wasp/out/server/src/middleware/globalMiddleware.ts
 wasp-app/.wasp/out/server/src/middleware/index.ts
 wasp-app/.wasp/out/server/src/middleware/operations.ts

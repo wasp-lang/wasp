@@ -31,6 +31,8 @@ import { createServerAdapter as createServerAdapter_{= index =} } from '{= serve
 {=/ externalAuthProviders =}
 {=# isWaspAuthProviderUsed =}
 import { waspAuthProvider } from './wasp.js'
+import { createServerAdapter as createWaspAuthServerAdapter } from '@wasp.sh/auth/server'
+import { waspAuthExtensions } from '../waspAuthExtensions.js'
 {=/ isWaspAuthProviderUsed =}
 
 // PRIVATE API
@@ -313,10 +315,23 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
  */
 export const waspAuthRuntime = makeAdapterRuntime({
   providerId: 'wasp',
-  serverEnvVarNames: [],
+  serverEnvVarNames: {=& waspServerEnvVarNamesJs =},
   uses: ['wasp-sessions', 'identity-namespaces'{=# isEmailSenderEnabled =}, 'email-send'{=/ isEmailSenderEnabled =}],
   identityNamespaces: {=& waspIdentityNamespacesJs =},
 }) as WaspServerRuntime<'wasp-sessions' | 'identity-namespaces'>
+
+/**
+ * Wasp's own auth flows, instantiated from the `@wasp.sh/auth` lib exactly
+ * like an adapter package's server factory: options are the serializable
+ * method configuration, extensions are the user's functions.
+ */
+export const waspAuthServerAdapter = await Promise.resolve(
+  createWaspAuthServerAdapter(
+    waspAuthRuntime as any,
+    {=& waspAuthOptionsJson =},
+    waspAuthExtensions as any,
+  ),
+)
 {=/ isWaspAuthProviderUsed =}
 {=# externalAuthProviders =}
 {=# isPackage =}
@@ -388,7 +403,10 @@ export function getAuthProvider(providerId: string): AuthProvider | undefined {
  * Node handlers for the routes external providers brought with them, keyed by
  * provider id. The server mounts each at the basePath its manifest declared.
  */
-export const authProviderRouteHandlers: Partial<Record<ExternalAuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+  {=# isWaspAuthProviderUsed =}
+  'wasp': waspAuthServerAdapter.routeHandler,
+  {=/ isWaspAuthProviderUsed =}
   {=# externalAuthProviders =}
   {=# isPackage =}
   '{= providerId =}': serverAdapter_{= index =}.routeHandler,

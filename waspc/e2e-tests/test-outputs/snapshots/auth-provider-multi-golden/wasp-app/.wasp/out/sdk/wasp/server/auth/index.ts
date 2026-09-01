@@ -55,5 +55,4 @@ export type {
 } from './hooks.js'
 
 
-
-export * from './username.js'
+export { ensureValidUsername } from '../../auth/validation.js'

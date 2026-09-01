@@ -11,3 +11,4 @@ web/**/*.md
 web/**/*.mdx
 web/static/img/
 waspc/data/packages/studio/public/assets/
+waspc/data/Generator/libs/wasp-auth/src/client/forms/internal/auth-styles.css
