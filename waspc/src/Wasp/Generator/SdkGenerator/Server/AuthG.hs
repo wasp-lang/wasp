@@ -12,6 +12,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.Generator.AuthProviders as AuthProviders
@@ -29,6 +30,7 @@ import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
+import qualified Wasp.Util.Aeson as Util.Aeson
 
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
@@ -49,12 +51,16 @@ genServerAuth spec =
             genSessionStoreTs auth,
             genIdentityStoreTs auth,
             genLuciaTs auth,
-            genUtils auth
+            genUtils auth,
+            -- Hook types and dispatch exist for every provider mix: the
+            -- app-level lifecycle hooks fire at Wasp-owned choke points
+            -- (provisioning, minting), whichever provider triggers them.
+            genHooks auth,
+            genHookDispatchTs auth
           ]
             ++ ( if AS.Auth.isWaspAuthProviderUsed auth
                    then
-                     [ genHooks auth,
-                       genFileCopyInServerAuth [relfile|password.ts|],
+                     [ genFileCopyInServerAuth [relfile|password.ts|],
                        genFileCopyInServerAuth [relfile|jwt.ts|],
                        genFileCopyInServerAuth [relfile|provider/wasp.ts|]
                      ]
@@ -91,6 +97,24 @@ genHooks auth =
       tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
+
+-- | Dispatch for the app-level lifecycle hooks (`auth.hooks`): fired from the
+-- SDK's provisioning and session-minting choke points, so every provider is
+-- covered and none can skip them.
+genHookDispatchTs :: AS.Auth.Auth -> Generator FileDraft
+genHookDispatchTs auth =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|hookDispatch.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "onBeforeSignupHook" .= extImportToAliasedImportJson "onBeforeSignupHook_ext" (AS.Auth.onBeforeSignup auth),
+          "onAfterSignupHook" .= extImportToAliasedImportJson "onAfterSignupHook_ext" (AS.Auth.onAfterSignup auth),
+          "onBeforeLoginHook" .= extImportToAliasedImportJson "onBeforeLoginHook_ext" (AS.Auth.onBeforeLogin auth),
+          "onAfterLoginHook" .= extImportToAliasedImportJson "onAfterLoginHook_ext" (AS.Auth.onAfterLogin auth)
+        ]
 
 genIdentityStoreTs :: AS.Auth.Auth -> Generator FileDraft
 genIdentityStoreTs auth =
@@ -155,7 +179,30 @@ genAuthProviderIndexTs spec auth =
         [ "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth,
           "anyExternalProvidersUsed" .= AS.Auth.isExternalAuthProviderUsed auth,
           "dbProvider" .= prismaDbProviderName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          -- The email-send grant can only be wired when the app has an email
+          -- sender; validation guarantees no manifest requests it otherwise.
+          "isEmailSenderEnabled" .= isJust maybeEmailSender,
+          "defaultFromJson"
+            .= maybe "undefined" Util.Aeson.encodeToString (AS.EmailSender.defaultFrom =<< maybeEmailSender),
+          -- The identity namespaces of Wasp's own auth: one per enabled
+          -- method, unprefixed by the wasp provider's compatibility privilege
+          -- (released AuthIdentity rows carry these providerName values).
+          "waspIdentityNamespacesJs" .= makeJsArrayFromHaskellList waspIdentityNamespaces,
           "externalAuthProviders" .= mkExternalAuthProvidersTmplData auth
+        ]
+    maybeEmailSender = AS.App.emailSender $ snd $ AS.Valid.getApp spec
+    waspIdentityNamespaces =
+      concat
+        [ ["wasp"],
+          ["username" | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
+          ["email" | AS.Auth.isEmailAuthEnabled auth],
+          ["google" | AS.Auth.isGoogleAuthEnabled auth],
+          ["github" | AS.Auth.isGitHubAuthEnabled auth],
+          ["keycloak" | AS.Auth.isKeycloakAuthEnabled auth],
+          ["slack" | AS.Auth.isSlackAuthEnabled auth],
+          ["discord" | AS.Auth.isDiscordAuthEnabled auth],
+          ["microsoft" | AS.Auth.isMicrosoftAuthEnabled auth]
         ]
     prismaDbProviderName :: String
     prismaDbProviderName = case AS.Valid.getValidDbSystem spec of
@@ -189,7 +236,13 @@ mkExternalAuthProvidersTmplData auth =
           -- The manifest's compile-time claims, checked against the runtime
           -- adapter object at boot so a wrong manifest fails loudly instead of
           -- generating a surface the adapter cannot back.
-          "capabilitiesJs" .= makeJsArrayFromHaskellList extProvider.capabilities
+          "capabilitiesJs" .= makeJsArrayFromHaskellList extProvider.capabilities,
+          -- The adapter runtime's env is narrowed to exactly these names.
+          "serverEnvVarNamesJs"
+            .= makeJsArrayFromHaskellList ((.name) <$> extProvider.envVars.server),
+          -- The runtime facets the manifest requested; only these get wired.
+          "usesJs" .= makeJsArrayFromHaskellList extProvider.uses,
+          "identityNamespacesJs" .= makeJsArrayFromHaskellList extProvider.identityNamespaces
         ]
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft

@@ -216,9 +216,16 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
         | null (Auth.providers auth)
         ],
         validateProviderIdsAreUnique auth,
+        concatMap validateExternalProviderIdPrefix (Auth.externalProviders auth),
+        concatMap validateCookieTransportImpliesRevocation (Auth.externalProviders auth),
         concatMap validateRoutesBasePath (Auth.externalProviders auth),
         validateProviderBasePathsDoNotOverlap (Auth.externalProviders auth),
-        validateProviderEnvVarsDoNotCollide (Auth.externalProviders auth)
+        validateProviderEnvVarsDoNotCollide (Auth.externalProviders auth),
+        concatMap validateProviderEnvVarsAreNotReserved (Auth.externalProviders auth),
+        concatMap validateProviderUses (Auth.externalProviders auth),
+        concatMap validateProviderIdentityNamespaces (Auth.externalProviders auth),
+        validateIdentityNamespacesAreDisjoint (Auth.externalProviders auth),
+        concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.externalProviders auth)
       ]
   where
     validateProviderIdsAreUnique auth =
@@ -233,6 +240,182 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
                   ++ duplicateId
                   ++ "' more than once. Identities are recorded under this id, so each provider may appear"
                   ++ " at most once (provider instance ids are not configurable yet)."
+
+    -- The TS mapper enforces the same rule; this mirror covers every entry
+    -- point that does not go through the TS spec (and any future one).
+    validateExternalProviderIdPrefix extProvider =
+      [ GenericValidationError $
+          "Auth provider id '"
+            ++ extProvider.providerId
+            ++ "' must start with 'external:' (e.g. 'external:clerk'). The unprefixed namespace is"
+            ++ " reserved for Wasp's own auth methods, which record identities in the same place --"
+            ++ " the prefix is what makes a collision impossible."
+      | not ("external:" `isPrefixOf` extProvider.providerId)
+      ]
+
+    -- A cookie-borne credential Wasp cannot revoke server-side would make
+    -- logout() a lie: the next visitor of a shared computer silently
+    -- re-authenticates.
+    validateCookieTransportImpliesRevocation extProvider =
+      [ GenericValidationError $
+          "Auth provider '"
+            ++ extProvider.providerId
+            ++ "' declares the 'cookie-transport' capability without 'session-revocation'. A provider"
+            ++ " whose credential lives in a cookie must be able to revoke sessions server-side, or"
+            ++ " logout would only appear to work."
+      | "cookie-transport" `elem` extProvider.capabilities,
+        "session-revocation" `notElem` extProvider.capabilities
+      ]
+
+    -- Adapter runtimes receive exactly the env vars their manifest declared,
+    -- so a manifest declaring a framework-owned name (JWT_SECRET) would be
+    -- handed the framework's secret through the sanctioned channel. Mirrors
+    -- reservedServerEnvVarNames / reservedClientEnvVarNames in the TS spec
+    -- package (spec/src/spec/authReservedEnvVarNames.ts) and the names owned
+    -- by the generated server env schema (sdk/wasp/server/env.ts template).
+    validateProviderEnvVarsAreNotReserved extProvider =
+      reservedNameErrors "server" extProvider.envVars.server reservedServerEnvVarNames
+        ++ reservedNameErrors "client" extProvider.envVars.client reservedClientEnvVarNames
+      where
+        reservedNameErrors side envVars reservedNames =
+          [ GenericValidationError $
+              "Auth provider '"
+                ++ extProvider.providerId
+                ++ "' declares the "
+                ++ side
+                ++ " env var '"
+                ++ envVar.name
+                ++ "', which Wasp owns. Framework env var names cannot be declared by providers;"
+                ++ " pick a provider-specific name."
+          | envVar <- envVars,
+            envVar.name `elem` reservedNames
+          ]
+        reservedServerEnvVarNames =
+          [ "NODE_ENV",
+            "PORT",
+            "DATABASE_URL",
+            "PG_BOSS_NEW_OPTIONS",
+            "WASP_SERVER_URL",
+            "WASP_WEB_CLIENT_URL",
+            "JWT_SECRET",
+            "SKIP_EMAIL_VERIFICATION_IN_DEV",
+            "SMTP_HOST",
+            "SMTP_PORT",
+            "SMTP_USERNAME",
+            "SMTP_PASSWORD",
+            "SENDGRID_API_KEY",
+            "MAILGUN_API_KEY",
+            "MAILGUN_DOMAIN",
+            "MAILGUN_API_URL",
+            "RESEND_API_KEY",
+            "GOOGLE_CLIENT_ID",
+            "GOOGLE_CLIENT_SECRET",
+            "GITHUB_CLIENT_ID",
+            "GITHUB_CLIENT_SECRET",
+            "SLACK_CLIENT_ID",
+            "SLACK_CLIENT_SECRET",
+            "DISCORD_CLIENT_ID",
+            "DISCORD_CLIENT_SECRET",
+            "KEYCLOAK_CLIENT_ID",
+            "KEYCLOAK_CLIENT_SECRET",
+            "KEYCLOAK_REALM_URL",
+            "MICROSOFT_TENANT_ID",
+            "MICROSOFT_CLIENT_ID",
+            "MICROSOFT_CLIENT_SECRET"
+          ]
+        reservedClientEnvVarNames = ["NODE_ENV", "REACT_APP_API_URL"]
+
+    -- Grants are a closed set: the generator can only wire facets it knows,
+    -- so an unknown name must be an error, not an absent property at runtime.
+    validateProviderUses extProvider =
+      [ GenericValidationError $
+          "Auth provider '"
+            ++ extProvider.providerId
+            ++ "' requests the unknown runtime grant '"
+            ++ grantName
+            ++ "'. Known grants: "
+            ++ intercalate ", " knownRuntimeGrantNames
+            ++ "."
+      | grantName <- extProvider.uses,
+        grantName `notElem` knownRuntimeGrantNames
+      ]
+      where
+        knownRuntimeGrantNames = ["wasp-sessions", "email-send", "identity-namespaces"]
+
+    -- A provider owns its manifest id and anything under `id ++ "/"`; that
+    -- shape is what makes cross-provider identity collisions impossible by
+    -- construction. Using more than the default namespace requires the
+    -- 'identity-namespaces' grant, so the power shows up in `uses`.
+    validateProviderIdentityNamespaces extProvider =
+      concat
+        [ [ GenericValidationError $
+              "Auth provider '"
+                ++ extProvider.providerId
+                ++ "' declares the identity namespace '"
+                ++ namespace
+                ++ "', which it does not own. A namespace must be the provider id or '"
+                ++ extProvider.providerId
+                ++ "/<suffix>' -- that rule is what makes cross-provider identity collisions impossible."
+          | namespace <- extProvider.identityNamespaces,
+            not (isOwnNamespace namespace)
+          ],
+          [ GenericValidationError $
+              "Auth provider '" ++ extProvider.providerId ++ "' declares a duplicate identity namespace."
+          | not (null (findDuplicateElems extProvider.identityNamespaces))
+          ],
+          [ GenericValidationError $
+              "Auth provider '"
+                ++ extProvider.providerId
+                ++ "' declares identity namespaces beyond its default one, which requires the"
+                ++ " 'identity-namespaces' grant in `uses`."
+          | usesNamespacesBeyondDefault,
+            "identity-namespaces" `notElem` extProvider.uses
+          ]
+        ]
+      where
+        isOwnNamespace namespace =
+          namespace == extProvider.providerId
+            || ( (extProvider.providerId ++ "/") `isPrefixOf` namespace
+                   && length namespace > length extProvider.providerId + 1
+               )
+        usesNamespacesBeyondDefault =
+          extProvider.identityNamespaces /= [extProvider.providerId]
+
+    -- Belt and braces on top of the per-provider ownership rule: even if the
+    -- shape rule ever loosens, two providers may never share a namespace,
+    -- because identities are recorded under it.
+    validateIdentityNamespacesAreDisjoint extProviders =
+      [ GenericValidationError $
+          "Auth providers "
+            ++ intercalate " and " (map (\ownerId -> "'" ++ ownerId ++ "'") ownerIds)
+            ++ " both declare the identity namespace '"
+            ++ namespace
+            ++ "'. Identities are recorded under the namespace, so each one must belong to exactly one provider."
+      | (namespace, ownerIds) <- duplicatedNamespacesWithOwners
+      ]
+      where
+        namespaceOwnership =
+          [ (namespace, extProvider.providerId)
+          | extProvider <- extProviders,
+            namespace <- extProvider.identityNamespaces
+          ]
+        duplicatedNamespacesWithOwners =
+          [ (namespace, snd <$> ownerships)
+          | ownerships@((namespace, _) : _ : _) <-
+              groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) namespaceOwnership
+          ]
+
+    -- Generalizes validateEmailSenderIsDefinedIfEmailAuthIsUsed to adapters:
+    -- an email-sending provider cannot ship into an app that would silently
+    -- drop its emails.
+    validateEmailSendGrantHasEmailSender spec' extProvider =
+      [ GenericValidationError $
+          "Auth provider '"
+            ++ extProvider.providerId
+            ++ "' requests the 'email-send' grant, which requires app.emailSender to be specified."
+      | "email-send" `elem` extProvider.uses,
+        isNothing (App.emailSender (snd $ getApp spec'))
+      ]
 
     validateRoutesBasePath extProvider = case Auth.routes extProvider of
       Nothing -> []

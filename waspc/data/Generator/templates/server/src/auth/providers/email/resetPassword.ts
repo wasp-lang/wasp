@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { getIdentityStore } from 'wasp/server/auth/identityStore';
+import { waspAuthRuntime } from 'wasp/server/auth/provider';
 import { hashPassword } from 'wasp/server/auth/password';
 import { validateJWT } from 'wasp/server/auth/jwt'
-import { invalidateAllSessionsForAuthId } from 'wasp/server/auth/session'
 import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
 import { HttpError } from 'wasp/server';
 
@@ -23,7 +22,7 @@ export async function resetPassword(
 
     ensureValidPasswordArg(args);
 
-    const emailIdentities = getIdentityStore('email');
+    const emailIdentities = waspAuthRuntime.identityNamespaces('email');
     const identity = await emailIdentities.find(email);
     if (!identity) {
         throw new HttpError(400, "Password reset failed, invalid token");
@@ -38,9 +37,13 @@ export async function resetPassword(
         isEmailVerified: true,
     });
 
-    // Changing the password invalidates all the existing sessions, so that
-    // somebody who got hold of a session can't keep using it.
-    await invalidateAllSessionsForAuthId(identity.authId);
+    // Changing the password invalidates all the user's Wasp sessions, so that
+    // somebody who got hold of a session can't keep using it -- through the
+    // same recursion-safe facet an adapter package gets.
+    await waspAuthRuntime.sessions.revokeAllForSubject({
+        namespace: 'email',
+        subjectId: email,
+    });
 
     res.json({ success: true });
 };

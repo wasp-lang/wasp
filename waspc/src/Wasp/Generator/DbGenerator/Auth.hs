@@ -3,6 +3,7 @@ module Wasp.Generator.DbGenerator.Auth
     authEntityName,
     authIdentityEntityName,
     sessionEntityName,
+    usedOneTimeCodeEntityName,
     userFieldOnAuthEntityName,
     authFieldOnUserEntityName,
     identitiesFieldOnAuthEntityName,
@@ -86,8 +87,9 @@ injectAuth entities (userEntityName, userEntity) = do
   authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
   authIdentityEntity <- makeAuthIdentityEntity
   sessionEntity <- makeSessionEntity
+  usedOneTimeCodeEntity <- makeUsedOneTimeCodeEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
-  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity]
+  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity, usedOneTimeCodeEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
@@ -194,6 +196,26 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
 
     authEntityNameText = T.pack authEntityName
     authFieldOnSessionEntityNameText = T.pack authFieldOnSessionEntityName
+
+usedOneTimeCodeEntityName :: String
+usedOneTimeCodeEntityName = "UsedOneTimeCode"
+
+-- | Replay protection for one-time login codes (the OAuth handback): a code
+-- is spent by inserting its row, so two concurrent redemptions are settled by
+-- the primary key, whichever server instance they hit -- the previous
+-- in-memory store was blind across instances. Rows expire with the code's
+-- short JWT lifetime; the store deletes stale ones lazily.
+makeUsedOneTimeCodeEntity :: Generator (String, AS.Entity.Entity)
+makeUsedOneTimeCodeEntity = case Psl.Parser.Model.parseBody usedOneTimeCodeEntityPslBody of
+  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ usedOneTimeCodeEntityName ++ " entity: " ++ show err
+  Right pslBody -> return (usedOneTimeCodeEntityName, AS.Entity.makeEntity pslBody)
+  where
+    usedOneTimeCodeEntityPslBody =
+      T.unpack
+        [trimming|
+          code   String   @id
+          usedAt DateTime @default(now())
+        |]
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =

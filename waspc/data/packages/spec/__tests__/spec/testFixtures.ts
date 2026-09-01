@@ -415,14 +415,16 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
           waspAuth({
             methods: getAuthMethods("full"),
             onAuthSucceededRedirectTo: "/profile",
-            onBeforeSignup: getRefObject("full", "named"),
-            onAfterSignup: getRefObject("full", "named"),
             onAfterEmailVerified: getRefObject("full", "named"),
             onBeforeOAuthRedirect: getRefObject("full", "named"),
-            onBeforeLogin: getRefObject("full", "named"),
-            onAfterLogin: getRefObject("full", "named"),
           }),
         ],
+        hooks: {
+          onBeforeSignup: getRefObject("full", "named"),
+          onAfterSignup: getRefObject("full", "named"),
+          onBeforeLogin: getRefObject("full", "named"),
+          onAfterLogin: getRefObject("full", "named"),
+        },
       } satisfies FullConfig<WaspSpec.Auth>;
     default:
       assertUnreachable(scope);

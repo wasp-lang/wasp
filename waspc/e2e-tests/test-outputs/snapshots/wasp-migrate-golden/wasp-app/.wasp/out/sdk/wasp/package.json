@@ -58,6 +58,7 @@
     "./server": "./dist/server/index.js",
     "./server/api": "./dist/server/api/index.js",
     "./server/auth": "./dist/server/auth/index.js",
+    "./server/auth/hookDispatch": "./dist/server/auth/hookDispatch.js",
     "./server/auth/identityStore": "./dist/server/auth/identityStore.js",
     "./server/auth/provider": "./dist/server/auth/provider/index.js",
     "./server/auth/provider/types": "./dist/server/auth/provider/types.js",

@@ -2,8 +2,7 @@ import { Router } from "express";
 
 import { HttpError } from 'wasp/server';
 import { defineHandler } from 'wasp/server/utils';
-import { findAuthWithUserBy } from 'wasp/server/auth/utils'
-import { createSession } from 'wasp/server/auth/session'
+import { waspAuthRuntime } from 'wasp/server/auth/provider';
 import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
 
 export function setupOneTimeCodeRoute(router: Router) {
@@ -16,23 +15,29 @@ export function setupOneTimeCodeRoute(router: Router) {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code is missing.");
       }
 
-      if (tokenStore.isUsed(code)) {
+      const { namespace, subjectId } = await tokenStore.verifyToken(code)
+        .catch(() => {
+          throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
+        });
+
+      // Spending the code BEFORE minting settles concurrent redemptions:
+      // exactly one caller gets `true` here, whichever instance it hit.
+      if (!(await tokenStore.tryMarkUsed(code))) {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
       }
 
-      const { id: authId } = await tokenStore.verifyToken(code);
-      const auth = await findAuthWithUserBy({ id: authId })
-
-      if (auth === null) {
+      // Minting goes through the same `wasp-sessions` facet an adapter
+      // package gets. `skipHooks`: the app's login hooks already fired at the
+      // OAuth callback, where the tokens were available to pass to them.
+      const { sessionId } = await waspAuthRuntime.sessions.issue(
+        { namespace, subjectId },
+        { req, skipHooks: true },
+      ).catch(() => {
         throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
-      }
-
-      const session = await createSession(auth.id);
-
-      tokenStore.markUsed(code);
+      });
 
       res.json({
-        sessionId: session.id,
+        sessionId,
       });
     })
   );

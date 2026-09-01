@@ -1,10 +1,15 @@
 import type { AnyObject } from "../../typeUtils.js";
+import {
+  reservedClientEnvVarNames,
+  reservedServerEnvVarNames,
+} from "../authReservedEnvVarNames.js";
 import { WaspSpecUserError } from "../waspSpecUserError.js";
 import type {
   Action,
   Api,
   ApiNamespace,
   App,
+  AuthRuntimeGrantName,
   Crud,
   EnvVarRequirement,
   ExternalAuthProviderManifest,
@@ -447,10 +452,12 @@ export function crud(
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: waspAuth({
- *     methods: { usernameAndPassword: {} },
- *     onAuthSucceededRedirectTo: "/",
- *   }),
+ *   providers: [
+ *     waspAuth({
+ *       methods: { usernameAndPassword: {} },
+ *       onAuthSucceededRedirectTo: "/",
+ *     }),
+ *   ],
  * }
  * ```
  *
@@ -476,9 +483,13 @@ export type AuthProviderManifestInput = Omit<
   | "__waspAuthProviderManifest"
   | "capabilities"
   | "env"
+  | "uses"
+  | "identityNamespaces"
 > & {
   capabilities?: string[];
   env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
+  uses?: AuthRuntimeGrantName[];
+  identityNamespaces?: string[];
 };
 
 /**
@@ -532,6 +543,38 @@ export function defineAuthProviderManifest(
     );
   }
 
+  // Adapters receive exactly the env vars they declared, so declaring a
+  // framework-owned name would hand the adapter framework secrets (JWT_SECRET)
+  // through the sanctioned channel.
+  for (const [side, envVars] of [
+    ["server", manifest.env?.server ?? []],
+    ["client", manifest.env?.client ?? []],
+  ] as const) {
+    const reservedNames =
+      side === "server" ? reservedServerEnvVarNames : reservedClientEnvVarNames;
+    for (const envVar of envVars) {
+      if (reservedNames.includes(envVar.name)) {
+        throw new WaspSpecUserError(
+          `Auth provider '${manifest.id}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by providers; pick a provider-specific name.`,
+        );
+      }
+    }
+  }
+
+  const uses = manifest.uses ?? [];
+  for (const grant of uses) {
+    if (!knownRuntimeGrantNames.includes(grant)) {
+      throw new WaspSpecUserError(
+        `Auth provider '${manifest.id}' requests the unknown runtime grant '${String(
+          grant,
+        )}'. Known grants: ${knownRuntimeGrantNames.join(", ")}.`,
+      );
+    }
+  }
+
+  const identityNamespaces = manifest.identityNamespaces ?? [manifest.id];
+  validateIdentityNamespaces(manifest.id, identityNamespaces, uses);
+
   return {
     ...manifest,
     kind: "external",
@@ -541,8 +584,49 @@ export function defineAuthProviderManifest(
       server: manifest.env?.server ?? [],
       client: manifest.env?.client ?? [],
     },
+    uses,
+    identityNamespaces,
     __waspAuthProviderManifest: true,
   } as ExternalAuthProviderManifest;
+}
+
+const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = [
+  "wasp-sessions",
+  "email-send",
+  "identity-namespaces",
+];
+
+// Shared by defineAuthProviderManifest and the mapper (which re-validates,
+// because the authenticity marker is forgeable as a plain property).
+export function validateIdentityNamespaces(
+  providerId: string,
+  identityNamespaces: readonly string[],
+  uses: readonly string[],
+): void {
+  for (const namespace of identityNamespaces) {
+    const isOwnNamespace =
+      namespace === providerId ||
+      (namespace.startsWith(`${providerId}/`) &&
+        namespace.length > providerId.length + 1);
+    if (!isOwnNamespace) {
+      throw new WaspSpecUserError(
+        `Auth provider '${providerId}' declares the identity namespace '${namespace}', which it does not own. A namespace must be the provider id or '${providerId}/<suffix>' -- that rule is what makes cross-provider identity collisions impossible.`,
+      );
+    }
+  }
+  if (new Set(identityNamespaces).size !== identityNamespaces.length) {
+    throw new WaspSpecUserError(
+      `Auth provider '${providerId}' declares a duplicate identity namespace.`,
+    );
+  }
+  const usesBeyondDefault =
+    identityNamespaces.length > 1 ||
+    (identityNamespaces.length === 1 && identityNamespaces[0] !== providerId);
+  if (usesBeyondDefault && !uses.includes("identity-namespaces")) {
+    throw new WaspSpecUserError(
+      `Auth provider '${providerId}' declares identity namespaces beyond its default one, which requires the 'identity-namespaces' grant in \`uses\`.`,
+    );
+  }
 }
 
 /**
@@ -566,6 +650,10 @@ export type CustomAuthProviderConfig = {
   capabilities?: string[];
   /** See {@link ExternalAuthProviderManifest.env}. */
   env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
+  /** See {@link ExternalAuthProviderManifest.uses}. */
+  uses?: AuthRuntimeGrantName[];
+  /** See {@link ExternalAuthProviderManifest.identityNamespaces}. */
+  identityNamespaces?: string[];
   /** See {@link ExternalAuthProviderManifest.userSignupFields}. */
   userSignupFields?: Reference<AnyObject>;
   /** See {@link ExternalAuthProviderManifest.options}. */
@@ -589,7 +677,9 @@ export type CustomAuthProviderConfig = {
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   provider: customAuthProvider({ id: "my-provider", server: myAuthProvider }),
+ *   providers: [
+ *     customAuthProvider({ id: "external:my-provider", server: myAuthProvider }),
+ *   ],
  * }
  * ```
  *

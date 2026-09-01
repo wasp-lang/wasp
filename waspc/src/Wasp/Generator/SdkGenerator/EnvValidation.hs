@@ -110,6 +110,8 @@ externalProviderEnvVarsTmplData getVars extProvider =
       object
         [ "name" .= AS.Auth.name envVar,
           "isOptional" .= (AS.Auth.optional envVar == Just True),
+          "hasDevDefault" .= isJust (AS.Auth.devDefault envVar),
+          "devDefaultJson" .= maybe "undefined" jsStringLiteral (AS.Auth.devDefault envVar),
           "errorJson" .= jsStringLiteral (errorMessage envVar)
         ]
 

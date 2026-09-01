@@ -77,7 +77,7 @@ type OnBeforeSignupHookParams = {
   /**
    * Request object that can be used to access the user's incoming signup request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterSignupHookParams = {
@@ -97,7 +97,7 @@ type OnAfterSignupHookParams = {
   /**
    * Request object that can be used to access the user's incoming signup request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterEmailVerifiedHookParams = {
@@ -142,7 +142,7 @@ type OnBeforeLoginHookParams = {
   /**
    * Request object that can be used to access the user's incoming login request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterLoginHookParams = {
@@ -162,7 +162,7 @@ type OnAfterLoginHookParams = {
   /**
    * Request object that can be used to access the user's incoming login request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 // PUBLIC API

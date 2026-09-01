@@ -101,9 +101,24 @@ getVirtualUserModules spec =
       mkAuthProviderModule <$> authProviderModules,
       mkAuthProviderUserSignupFieldsModule <$> authProviderUserSignupFields,
       mkAuthProviderSetupFnModule <$> authProviderSetupFns,
+      maybeToList $ mkAuthHookModule "OnBeforeSignupHook" <$> (maybeAuth >>= AS.Auth.onBeforeSignup),
+      maybeToList $ mkAuthHookModule "OnAfterSignupHook" <$> (maybeAuth >>= AS.Auth.onAfterSignup),
+      maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
+      maybeToList $ mkAuthHookModule "OnAfterLoginHook" <$> (maybeAuth >>= AS.Auth.onAfterLogin),
       map mkOperationModule (AS.getOperations spec)
     ]
   where
+    -- The app-level lifecycle hooks are user code consumed by the SDK's
+    -- choke points (provisioning, minting), so they reach the SDK through
+    -- virtual modules like everything else user-authored. Several hooks
+    -- typically live in one user file; TS merges the per-hook module
+    -- declarations, since each declares a different export.
+    mkAuthHookModule typeName extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/hooks|]
+        typeName
     mkClientEnvValidationSchemaModule extImport' =
       VirtualUserModule
         ClientRuntime
@@ -174,7 +189,8 @@ getVirtualUserModules spec =
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    externalAuthProviders = maybe [] AS.Auth.externalProviders (AS.App.auth app)
+    maybeAuth = AS.App.auth app
+    externalAuthProviders = maybe [] AS.Auth.externalProviders maybeAuth
     authProviderModules = mapMaybe AS.Auth.serverModule externalAuthProviders
     authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForExternalAuthProvider externalAuthProviders
     authProviderSetupFns = mapMaybe AS.Auth.setupFn externalAuthProviders

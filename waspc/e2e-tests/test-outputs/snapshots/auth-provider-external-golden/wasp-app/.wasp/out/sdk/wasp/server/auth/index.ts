@@ -14,5 +14,16 @@ export {
 
 export { createInvalidCredentialsError } from './utils.js'
 
+// The app-level lifecycle hooks (`auth.hooks`) fire for EVERY provider, so
+// their types exist for every provider mix.
+export type {
+  OnBeforeSignupHook,
+  OnAfterSignupHook,
+  OnBeforeLoginHook,
+  OnAfterLoginHook,
+  InternalAuthHookParams,
+  OAuthData,
+} from './hooks.js'
+
 
 

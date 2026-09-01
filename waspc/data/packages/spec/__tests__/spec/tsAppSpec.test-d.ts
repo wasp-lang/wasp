@@ -93,13 +93,27 @@ describe("Auth provider union", () => {
     };
   });
 
-  test("forbids wasp auth hooks on auth itself", () => {
+  test("forbids bare hook fields on auth itself (they live under auth.hooks)", () => {
     const _invalid: WaspSpec.Auth = {
       userEntity: "User",
       onAuthFailedRedirectTo: "/login",
       providers: [waspProvider],
-      // @ts-expect-error -- hooks only exist inside waspAuth()
+      // @ts-expect-error -- lifecycle hooks live under auth.hooks
       onBeforeSignup: () => undefined,
+    };
+  });
+
+  test("forbids the generic lifecycle hooks inside waspAuth()", () => {
+    const _invalid: WaspSpec.Auth = {
+      userEntity: "User",
+      onAuthFailedRedirectTo: "/login",
+      providers: [
+        waspAuth({
+          methods: { usernameAndPassword: {} },
+          // @ts-expect-error -- generic lifecycle hooks moved to auth.hooks
+          onBeforeSignup: () => undefined,
+        }),
+      ],
     };
   });
 

@@ -1,12 +1,11 @@
 import { Request, Response } from 'express'
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
-  createProviderId,
   doFakeWork,
   rethrowPossibleAuthError,
   validateAndGetUserFields,
 } from 'wasp/server/auth/utils'
-import { getIdentityStore } from 'wasp/server/auth/identityStore'
+import { waspAuthRuntime } from 'wasp/server/auth/provider'
 import { hashPassword } from 'wasp/server/auth/password'
 import {
   ensurePasswordIsPresent,
@@ -21,7 +20,6 @@ import {
   sendEmailVerificationEmail,
 } from 'wasp/server/auth/email/utils'
 import { EmailFromField } from 'wasp/server/email/core/types'
-import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
 export function getSignupRoute({
   userSignupFields,
@@ -43,8 +41,7 @@ export function getSignupRoute({
     const fields = req.body
     ensureValidArgs(fields)
 
-    const emailIdentities = getIdentityStore('email')
-    const providerId = createProviderId('email', fields.email)
+    const emailIdentities = waspAuthRuntime.identityNamespaces('email')
     const existingIdentity = await emailIdentities.find(fields.email)
 
     /**
@@ -85,7 +82,7 @@ export function getSignupRoute({
       // TODO: we are still leaking information here since when we are faking work
       // we are not checking if the email was sent or not!
       const { isResendAllowed, timeLeft } = isEmailResendAllowed(
-        existingIdentity.data,
+        existingIdentity.data as { emailVerificationSentAt: string | null },
         'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
@@ -102,18 +99,11 @@ export function getSignupRoute({
       }
     }
 
-    // The hook runs first so it can veto the signup (by throwing) before the
-    // developer's `userSignupFields` getters run.
     try {
-      await onBeforeSignupHook({ req, providerId })
-    } catch (e: unknown) {
-      rethrowPossibleAuthError(e)
-    }
-
-    const userFields = await validateAndGetUserFields(fields, userSignupFields)
-
-    try {
-      const user = await emailIdentities.createIdentity(
+      // The identity facet's `create` is the signup choke point: the app's
+      // onBeforeSignup veto fires first, then the lazy `userSignupFields`
+      // getters, then the atomic write, then onAfterSignup.
+      await emailIdentities.create(
         fields.email,
         {
           data: {
@@ -126,11 +116,10 @@ export function getSignupRoute({
             hashedPassword: await hashPassword(fields.password),
           },
         },
-        // Using any here because we want to avoid TypeScript errors and
-        // rely on Prisma to validate the data.
-        userFields as any,
+        // Using any because we want to rely on Prisma to validate the data.
+        (() => validateAndGetUserFields(fields, userSignupFields)) as any,
+        { req },
       )
-      await onAfterSignupHook({ req, providerId, user })
     } catch (e: unknown) {
       rethrowPossibleAuthError(e)
     }

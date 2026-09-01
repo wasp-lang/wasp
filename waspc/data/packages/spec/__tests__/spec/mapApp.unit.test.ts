@@ -505,10 +505,13 @@ describe("mapAuth", () => {
                 name: "TEST_PROVIDER_SECRET",
                 optional: undefined,
                 doc: "Secret for tests",
+                devDefault: undefined,
               },
             ],
             client: [],
           },
+          uses: provider.uses ?? [],
+          identityNamespaces: provider.identityNamespaces ?? [provider.id],
           userSignupFields: mapRefObjectForMockProjectDir(
             provider.userSignupFields,
           ),
@@ -516,6 +519,7 @@ describe("mapAuth", () => {
           optionsJson: JSON.stringify(provider.options),
         },
       ],
+      hooks: undefined,
     } satisfies AppSpec.Auth);
   });
 
@@ -534,6 +538,60 @@ describe("mapAuth", () => {
 
     expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
       /hand-crafted external provider manifest/,
+    );
+  });
+
+  // The authenticity marker is an ordinary property, so a manifest built as an
+  // object literal can carry it without ever passing defineAuthProviderManifest's
+  // checks. These prove the mapper re-validates the substantive rules itself.
+  test("should reject a marker-forged manifest with an unprefixed id at the mapper", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      providers: [
+        { ...getExternalProviderManifest(auth), id: "clerk" },
+      ] as unknown as WaspSpec.Auth["providers"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /must start with 'external:'/,
+    );
+  });
+
+  test("should reject a marker-forged manifest with cookie-transport but no session-revocation at the mapper", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          capabilities: ["cookie-transport"],
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /'cookie-transport' capability without 'session-revocation'/,
+    );
+  });
+
+  test("should reject a marker-forged manifest declaring a framework env var at the mapper", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          env: { server: [{ name: "JWT_SECRET" }], client: [] },
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /'JWT_SECRET', which Wasp owns/,
     );
   });
 
@@ -637,26 +695,28 @@ describe("mapAuth", () => {
           kind: "wasp",
           methods: AppSpecMapper.mapAuthMethods(waspConfig.methods, ctx),
           onAuthSucceededRedirectTo: waspConfig.onAuthSucceededRedirectTo,
-          onBeforeSignup:
-            waspConfig.onBeforeSignup &&
-            mapRefObjectForMockProjectDir(waspConfig.onBeforeSignup),
-          onAfterSignup:
-            waspConfig.onAfterSignup &&
-            mapRefObjectForMockProjectDir(waspConfig.onAfterSignup),
           onAfterEmailVerified:
             waspConfig.onAfterEmailVerified &&
             mapRefObjectForMockProjectDir(waspConfig.onAfterEmailVerified),
           onBeforeOAuthRedirect:
             waspConfig.onBeforeOAuthRedirect &&
             mapRefObjectForMockProjectDir(waspConfig.onBeforeOAuthRedirect),
-          onBeforeLogin:
-            waspConfig.onBeforeLogin &&
-            mapRefObjectForMockProjectDir(waspConfig.onBeforeLogin),
-          onAfterLogin:
-            waspConfig.onAfterLogin &&
-            mapRefObjectForMockProjectDir(waspConfig.onAfterLogin),
         },
       ],
+      hooks: auth.hooks && {
+        onBeforeSignup:
+          auth.hooks.onBeforeSignup &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeSignup),
+        onAfterSignup:
+          auth.hooks.onAfterSignup &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterSignup),
+        onBeforeLogin:
+          auth.hooks.onBeforeLogin &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeLogin),
+        onAfterLogin:
+          auth.hooks.onAfterLogin &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterLogin),
+      },
     } satisfies AppSpec.Auth);
   }
 });

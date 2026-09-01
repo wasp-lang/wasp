@@ -92,13 +92,17 @@ export const authConfig: Auth = {
         },
       },
       onAuthSucceededRedirectTo: "/",
-      onBeforeSignup,
-      onAfterSignup,
       onAfterEmailVerified,
-      onBeforeLogin,
-      onAfterLogin,
     }),
   ],
+  // The generic lifecycle hooks are app-level: they fire at Wasp-owned choke
+  // points for EVERY provider, not just Wasp's own auth.
+  hooks: {
+    onBeforeSignup,
+    onAfterSignup,
+    onBeforeLogin,
+    onAfterLogin,
+  },
 };
 
 export const authSpec: Spec = [

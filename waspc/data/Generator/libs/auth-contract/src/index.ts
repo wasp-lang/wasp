@@ -213,6 +213,165 @@ export function canManageSessions(
 }
 
 /**
+ * Runtime facets an adapter may request from Wasp through its manifest's
+ * `uses` list.
+ *
+ * A closed set on purpose: the generator wires only the facets it knows, so an
+ * unknown name is a compile error rather than an absent property at runtime.
+ * Requesting a grant is also an audit surface -- a reviewer reads `uses: [...]`
+ * in the manifest and knows the adapter's blast radius.
+ */
+export type RuntimeGrantName =
+  | "wasp-sessions"
+  | "email-send"
+  | "identity-namespaces";
+
+/**
+ * A reference to a subject of the calling provider.
+ *
+ * `namespace` must be one of the provider's declared identity namespaces
+ * (default: the manifest id). The namespace-membership check is what makes
+ * acting on another provider's user unrepresentable through the granted
+ * facets -- the identity store itself resolves any namespace string, so the
+ * guard, not the lookup, carries that guarantee.
+ */
+export type SubjectRef = {
+  /** One of the provider's declared identity namespaces. Default: the manifest id. */
+  namespace?: string;
+  /** The provider's stable subject id in that namespace -- same value {@link VerifiedSession} carries. */
+  subjectId: string;
+};
+
+/**
+ * The `wasp-sessions` grant: mint and revoke Wasp's own sessions.
+ *
+ * Minting is subject-bound: `issue` resolves the subject through the calling
+ * provider's OWN declared namespaces and stamps THIS provider's id on the
+ * session (feeding `authRequired: [...]` provider lists) -- an adapter can
+ * neither mint a session for a user it never provisioned nor attribute a
+ * session to another provider. The revocation methods are fail-safe: their
+ * worst misuse is a forced logout, never a login.
+ */
+export type WaspSessions = {
+  /**
+   * Mint a Wasp session for a subject this provider has provisioned.
+   * Rejects a namespace outside the provider's declared set
+   * (`wasp-auth/undeclared-namespace`) and an unknown subject
+   * (`wasp-auth/identity-not-found`).
+   *
+   * Fires the app's `onBeforeLogin` (a throw vetoes the mint) and
+   * `onAfterLogin` hooks -- minting through this facet is the choke point
+   * that guarantees no provider skips the app's login policy.
+   */
+  issue(
+    subject: SubjectRef,
+    opts?: {
+      /** The provider's own session id, stored for dual sign-out at logout. */
+      providerSessionId?: string;
+      /**
+       * Opaque provider context surfaced to the app's login hooks as their
+       * `oauth` field (OAuth tokens, typically).
+       */
+      hookContext?: unknown;
+      /** The incoming request, surfaced to the app's login hooks. */
+      req?: unknown;
+      /**
+       * Skip the app's login hooks for THIS mint. Only for flows that
+       * already fired them at a more informative moment (an OAuth callback
+       * holding tokens the later redeem step no longer has).
+       */
+      skipHooks?: boolean;
+    },
+  ): Promise<{ sessionId: string }>;
+
+  /** Revoke a single Wasp session. */
+  revoke(sessionId: string): Promise<void>;
+
+  /**
+   * Revoke every WASP session of the person behind this subject, across all
+   * minting providers (the password-rotation semantic). Deliberately
+   * Wasp-side only: it does NOT call into any provider's own `revokeSession`,
+   * so an adapter may call it from inside its own revocation path without
+   * recursion. Upstream dual sign-out stays Wasp-owned, at logout.
+   */
+  revokeAllForSubject(subject: SubjectRef): Promise<void>;
+};
+
+/**
+ * The `email-send` grant: send through the app's configured `emailSender`.
+ *
+ * Requesting it is a compile-time claim -- Wasp rejects the manifest when the
+ * app has no `emailSender` -- so an OTP or magic-link adapter can never ship
+ * into an app that silently drops its emails. SMTP credentials never reach
+ * the adapter; only the send capability does.
+ */
+export type WaspEmail = {
+  send(email: {
+    to: string;
+    from?: EmailFrom;
+    subject: string;
+    text: string;
+    html: string;
+  }): Promise<void>;
+  /** The app-level default sender (`app.emailSender.defaultFrom`), if configured. */
+  defaultFrom?: EmailFrom;
+};
+
+export type EmailFrom = { name?: string; email: string };
+
+/**
+ * Error codes the granted facets reject with.
+ *
+ * Codes rather than error classes on purpose: adapter packages hold their own
+ * copy of this contract, and `instanceof` does not survive package-copy
+ * boundaries (tsc unifies by name@version, Node does not).
+ */
+export type AuthContractErrorCode =
+  | "wasp-auth/duplicate-identity"
+  | "wasp-auth/identity-not-found"
+  | "wasp-auth/undeclared-namespace"
+  /**
+   * The app's onBeforeSignup/onBeforeLogin hook rejected the action by
+   * throwing. The thrown error itself is what carries this code (Wasp tags
+   * it rather than wrapping, so its message and type survive) -- an
+   * adapter's routes should map it to a 4xx carrying `error.message`, not
+   * to a 500.
+   */
+  | "wasp-auth/policy-veto";
+
+/** The code of a granted-facet error, or null for any other value. */
+export function getAuthContractErrorCode(
+  error: unknown,
+): AuthContractErrorCode | null {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return null;
+  }
+  const code = (error as { code: unknown }).code;
+  return code === "wasp-auth/duplicate-identity" ||
+    code === "wasp-auth/identity-not-found" ||
+    code === "wasp-auth/undeclared-namespace" ||
+    code === "wasp-auth/policy-veto"
+    ? code
+    : null;
+}
+
+/**
+ * The facets a manifest's `uses` list grants, as types: a declared grant is a
+ * non-optional member of the adapter's runtime, an undeclared one is absent.
+ * An adapter annotates its factory as
+ * `ServerAdapterFactory<MyOptions, "wasp-sessions" | "email-send">` and gets
+ * exactly the surface its manifest claims.
+ */
+export type GrantedFacets<G extends RuntimeGrantName> =
+  ("wasp-sessions" extends G
+    ? { sessions: WaspSessions }
+    : { sessions?: WaspSessions }) &
+    ("email-send" extends G ? { email: WaspEmail } : { email?: WaspEmail }) &
+    ("identity-namespaces" extends G
+      ? { identityNamespaces: (namespace: string) => ProviderIdentities }
+      : { identityNamespaces?: (namespace: string) => ProviderIdentities });
+
+/**
  * Everything Wasp hands a server-side adapter about the app it runs in.
  *
  * This is the adapter's *only* window into the app: adapters must not import
@@ -220,7 +379,10 @@ export function canManageSessions(
  * the boundary here is what lets an adapter package typecheck and version
  * independently of any particular Wasp app.
  */
-export type WaspServerRuntime = {
+export type WaspServerRuntime<G extends RuntimeGrantName = never> =
+  WaspServerRuntimeBase & GrantedFacets<G>;
+
+type WaspServerRuntimeBase = {
   /**
    * The app's PrismaClient instance. Typed as `unknown` because the client's type
    * is generated per app; adapters that need it narrow it themselves.
@@ -245,6 +407,12 @@ export type WaspServerRuntime = {
 
   /** The URL the Wasp client is served from. Useful for trusted-origin checks. */
   clientUrl: string;
+
+  /**
+   * Whether the app runs in development mode. For dev-only conveniences and
+   * the `secure` flag on any cookies the adapter's routes set.
+   */
+  isDevelopment: boolean;
 
   /**
    * The identity store, pre-bound to this provider's manifest id: the
@@ -291,6 +459,51 @@ export type ProviderIdentities = {
       secrets?: Record<string, JsonValue>;
     },
   ): Promise<{ authId: string } | null>;
+
+  /**
+   * Strict create of the local user for a subject: signup semantics, where
+   * `provision` is login semantics. Rejects with
+   * `wasp-auth/duplicate-identity` when the subject already exists.
+   *
+   * `getUserFields` computes the new user entity's own fields; it is a
+   * callback (not a value) so the provisioning layer controls when it runs --
+   * the app's signup veto, once it fires at this choke point, must run before
+   * any user-supplied field getters do. When omitted, the provider's
+   * manifest-level `userSignupFields` run over the claims instead.
+   */
+  create(
+    subjectId: string,
+    identity?: {
+      claims?: Record<string, JsonValue>;
+      data?: Record<string, JsonValue>;
+      secrets?: Record<string, JsonValue>;
+    },
+    getUserFields?: () =>
+      | Promise<Record<string, JsonValue>>
+      | Record<string, JsonValue>,
+    opts?: {
+      /**
+       * Skip the app's signup hooks for THIS create. For identity writes that
+       * are not a signup (migrations, admin imports) -- the documented escape
+       * hatch, so an ordinary signup can never forget the app's veto.
+       */
+      skipHooks?: boolean;
+      /**
+       * Opaque provider context surfaced to the app's `onAfterSignup` hook as
+       * its `oauth` field (OAuth tokens, typically).
+       */
+      hookContext?: unknown;
+      /** The incoming request, surfaced to the app's signup hooks. */
+      req?: unknown;
+    },
+  ): Promise<{ authId: string }>;
+
+  /**
+   * Deletes the subject's identity AND its whole local user, cascading to auth
+   * data and sessions. Returns whether anything was deleted. Loud on purpose:
+   * this removes the app's business user, not just the identity row.
+   */
+  deleteUser(subjectId: string): Promise<boolean>;
 
   /** Merges the updates into the identity's non-secret data. */
   updateData(
@@ -356,8 +569,11 @@ export type ServerAdapterExtensions = {
  * verbatim; `extensions` carries the user-code escape hatches referenced by the
  * manifest.
  */
-export type ServerAdapterFactory<Options = unknown> = (
-  runtime: WaspServerRuntime,
+export type ServerAdapterFactory<
+  Options = unknown,
+  Grants extends RuntimeGrantName = never,
+> = (
+  runtime: WaspServerRuntime<Grants>,
   options: Options,
   extensions?: ServerAdapterExtensions,
 ) => ServerAdapter | Promise<ServerAdapter>;
