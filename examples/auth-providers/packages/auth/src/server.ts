@@ -483,14 +483,17 @@ type TokenHelpers = {
 };
 
 function makeTokenHelpers(runtime: Runtime): TokenHelpers {
+  // Delivered through the manifest's env declaration: `devDefault` fills it
+  // in development, production requires it -- the same semantics the in-tree
+  // JWT_SECRET has, now expressible by any adapter.
   const secret = runtime.env.WASP_AUTH_TOKENS_SECRET;
-  if (secret === undefined && !runtime.isDevelopment) {
+  if (secret === undefined) {
     throw new Error(
-      "WASP_AUTH_TOKENS_SECRET is required in production: it signs email links and OAuth one-time codes.",
+      "WASP_AUTH_TOKENS_SECRET is required: it signs email links and OAuth one-time codes.",
     );
   }
   const { createJWT, validateJWT } = createJWTHelpers(
-    new TextEncoder().encode(secret ?? "DEV_WASP_AUTH_TOKENS_SECRET"),
+    new TextEncoder().encode(secret),
     "HS256",
   );
 

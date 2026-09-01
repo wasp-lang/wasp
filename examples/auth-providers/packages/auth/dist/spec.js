@@ -61,8 +61,8 @@ export function waspAuthLib(options) {
             server: [
                 {
                     name: "WASP_AUTH_TOKENS_SECRET",
-                    optional: true,
-                    doc: "Signs email verification links, password reset links and OAuth one-time codes. Required in production; a fixed development secret is used otherwise.",
+                    devDefault: "DEV_WASP_AUTH_TOKENS_SECRET",
+                    doc: "Signs email verification links, password reset links and OAuth one-time codes. Required in production, defaulted in development.",
                 },
                 ...(methods.google !== undefined
                     ? [

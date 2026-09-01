@@ -13,6 +13,7 @@ export type EnvVarRequirement = {
     name: string;
     optional?: boolean;
     doc?: string;
+    devDefault?: string;
 };
 /**
  * The serializable options `waspAuthLib` captures in `main.wasp.ts`. Wasp
