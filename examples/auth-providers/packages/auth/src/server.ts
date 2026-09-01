@@ -134,6 +134,14 @@ function makeRouteHandler(
       if (error instanceof ValidationError) {
         return json(res, 400, { message: error.message });
       }
+      // The app's onBeforeSignup/onBeforeLogin veto: Wasp tags the thrown
+      // error with a contract code, so a policy rejection surfaces as a 4xx
+      // with the app's own message, never as a 500.
+      if (getAuthContractErrorCode(error) === "wasp-auth/policy-veto") {
+        return json(res, 400, {
+          message: error instanceof Error ? error.message : "Rejected.",
+        });
+      }
       console.error("[wasp-auth] request failed:", error);
       return json(res, 500, { message: "Something went wrong." });
     }
