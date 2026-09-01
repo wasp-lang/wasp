@@ -93,7 +93,7 @@ export async function performLogin(page: Page, credentials: Credentials) {
 }
 
 async function submitLoginForm(page: Page, credentials: Credentials) {
-  await page.locator("input[type='email']").fill(credentials.email);
+  await page.locator("input[name='email']").fill(credentials.email);
   await page.locator("input[type='password']").fill(credentials.password);
   await page.getByRole("button", { name: "Log in" }).click();
 }
