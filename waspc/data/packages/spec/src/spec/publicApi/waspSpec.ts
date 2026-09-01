@@ -289,6 +289,18 @@ export interface EnvVarRequirement {
 }
 
 /**
+ * Runtime facets an adapter may request from Wasp (the manifest's `uses`
+ * list). Mirrors `RuntimeGrantName` in `@wasp.sh/auth-contract`; a closed set,
+ * because the generator can only wire facets it knows.
+ *
+ * @category Experimental
+ */
+export type AuthRuntimeGrantName =
+  | "wasp-sessions"
+  | "email-send"
+  | "identity-namespaces";
+
+/**
  * EXPERIMENTAL. An external auth provider, described declaratively.
  *
  * Adapter packages produce this from their spec helpers (e.g. `clerk()` from
@@ -344,6 +356,21 @@ export interface ExternalAuthProviderManifest {
   capabilities: string[];
   /** Env vars the provider needs, rendered into generated env validation. */
   env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
+  /**
+   * Runtime facets the adapter requests from Wasp. A declared grant appears
+   * as a member of the adapter's `WaspServerRuntime`; an undeclared one is
+   * absent. Declaring `"email-send"` requires the app to configure
+   * `emailSender` (a compile error otherwise). Default: none.
+   */
+  uses?: AuthRuntimeGrantName[];
+  /**
+   * Identity namespaces this provider records identities under. Defaults to
+   * `[id]`. Every extra namespace must be `` `${id}/${suffix}` `` (e.g.
+   * `"external:better-auth/passkey"`), which makes cross-provider identity
+   * collisions impossible by construction, and declaring more than one
+   * requires the `"identity-namespaces"` grant in `uses`.
+   */
+  identityNamespaces?: string[];
   /**
    * Populates the app's user entity when Wasp provisions a local user for a
    * subject it has not seen before, from the claims the provider verified.

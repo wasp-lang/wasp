@@ -153,6 +153,13 @@ data ExternalAuthProviderSpec = ExternalAuthProviderSpec
     routes :: Maybe ExternalProviderRoutes,
     capabilities :: [String],
     envVars :: ExternalProviderEnvVars,
+    -- | Runtime facets the adapter requests from Wasp ("wasp-sessions",
+    -- "email-send", "identity-namespaces"). Validation rejects unknown names:
+    -- the generator can only wire facets it knows.
+    uses :: [String],
+    -- | Identity namespaces this provider records identities under. Defaults
+    -- to @[providerId]@; extras must be @providerId ++ "/" ++ suffix@.
+    identityNamespaces :: [String],
     -- | Populates the user entity when Wasp provisions a local user for a
     -- subject it has not seen before.
     userSignupFields :: Maybe ExtImport,

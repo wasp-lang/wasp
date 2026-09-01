@@ -25,16 +25,25 @@ import { createClientAdapter as createClientAdapter_{= index =} } from '{= clien
  */
 
 {=# anyClientAdapters =}
-const clientRuntime = {
-  apiUrl: config.apiUrl,
-  env,
+// Each adapter's env is narrowed to exactly the vars its manifest declared:
+// what an adapter reads is what its manifest shows.
+function makeClientRuntime(declaredClientEnvVarNames: readonly string[]) {
+  return {
+    apiUrl: config.apiUrl,
+    env: Object.fromEntries(
+      declaredClientEnvVarNames.map((name) => [
+        name,
+        (env as Record<string, string | undefined>)[name],
+      ]),
+    ),
+  }
 }
 {=/ anyClientAdapters =}
 
 // PRIVATE API
 export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {
   {=# clientAdapterProviders =}
-  '{= providerId =}': createClientAdapter_{= index =}(clientRuntime, {=# hasOptions =}{=& optionsJson =}{=/ hasOptions =}{=^ hasOptions =}undefined{=/ hasOptions =}),
+  '{= providerId =}': createClientAdapter_{= index =}(makeClientRuntime({=& clientEnvVarNamesJs =}), {=# hasOptions =}{=& optionsJson =}{=/ hasOptions =}{=^ hasOptions =}undefined{=/ hasOptions =}),
   {=/ clientAdapterProviders =}
 }
 

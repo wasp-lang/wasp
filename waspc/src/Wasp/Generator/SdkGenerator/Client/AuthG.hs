@@ -11,6 +11,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -74,7 +75,10 @@ genClientAuthProvidersTs auth =
           "providerId" Aeson..= extProvider.providerId,
           "clientPackage" Aeson..= clientPackage,
           "hasOptions" Aeson..= maybe False (const True) extProvider.optionsJson,
-          "optionsJson" Aeson..= extProvider.optionsJson
+          "optionsJson" Aeson..= extProvider.optionsJson,
+          -- The client adapter runtime's env is narrowed to exactly these names.
+          "clientEnvVarNamesJs"
+            Aeson..= makeJsArrayFromHaskellList ((.name) <$> extProvider.envVars.client)
         ]
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft

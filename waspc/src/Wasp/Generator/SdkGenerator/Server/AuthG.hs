@@ -12,6 +12,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.Generator.AuthProviders as AuthProviders
@@ -29,6 +30,7 @@ import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
+import qualified Wasp.Util.Aeson as Util.Aeson
 
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
@@ -155,8 +157,15 @@ genAuthProviderIndexTs spec auth =
         [ "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth,
           "anyExternalProvidersUsed" .= AS.Auth.isExternalAuthProviderUsed auth,
           "dbProvider" .= prismaDbProviderName,
+          "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          -- The email-send grant can only be wired when the app has an email
+          -- sender; validation guarantees no manifest requests it otherwise.
+          "isEmailSenderEnabled" .= isJust maybeEmailSender,
+          "defaultFromJson"
+            .= maybe "undefined" Util.Aeson.encodeToString (AS.EmailSender.defaultFrom =<< maybeEmailSender),
           "externalAuthProviders" .= mkExternalAuthProvidersTmplData auth
         ]
+    maybeEmailSender = AS.App.emailSender $ snd $ AS.Valid.getApp spec
     prismaDbProviderName :: String
     prismaDbProviderName = case AS.Valid.getValidDbSystem spec of
       AS.Db.PostgreSQL -> "postgresql"
@@ -189,7 +198,13 @@ mkExternalAuthProvidersTmplData auth =
           -- The manifest's compile-time claims, checked against the runtime
           -- adapter object at boot so a wrong manifest fails loudly instead of
           -- generating a surface the adapter cannot back.
-          "capabilitiesJs" .= makeJsArrayFromHaskellList extProvider.capabilities
+          "capabilitiesJs" .= makeJsArrayFromHaskellList extProvider.capabilities,
+          -- The adapter runtime's env is narrowed to exactly these names.
+          "serverEnvVarNamesJs"
+            .= makeJsArrayFromHaskellList ((.name) <$> extProvider.envVars.server),
+          -- The runtime facets the manifest requested; only these get wired.
+          "usesJs" .= makeJsArrayFromHaskellList extProvider.uses,
+          "identityNamespacesJs" .= makeJsArrayFromHaskellList extProvider.identityNamespaces
         ]
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft

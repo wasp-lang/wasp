@@ -32,7 +32,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "e703173b00a2ff16213ec60024e36148f5f53b7e56f1988b56d42ef35b0d289b"
+        "52a119079088f992597693876bcc4dae910cd4e4ec6e567ad19c4f8c0859a464"
     ],
     [
         [
@@ -1068,7 +1068,7 @@
             "file",
             "sdk/wasp/server/auth/provider/types.ts"
         ],
-        "fddcc716d39477ebd8e3379e8e01603636117a0a7f025677cb1a411d746df6e6"
+        "2642faa5f5047c8e624dec9380b3daff9b2743ac47364aa82d9df393ea230e0a"
     ],
     [
         [

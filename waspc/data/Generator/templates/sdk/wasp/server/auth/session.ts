@@ -131,7 +131,16 @@ export async function exchangeRequestForSession(
   req: ExpressRequest,
 ): Promise<{ id: string } | null> {
   const provider = externalAuthProviders[providerId];
-  const result = await provider.authenticate(toWebRequest(req));
+  // A provider that throws instead of returning `unauthenticated` must still
+  // produce a 401, not a 500: whether a bad credential is rejected by return
+  // value or by exception is the adapter's internal business, and neither
+  // shape may leak provider internals to the caller.
+  const result = await Promise.resolve()
+    .then(() => provider.authenticate(toWebRequest(req)))
+    .catch((error) => {
+      console.error(`Auth provider '${providerId}' threw while authenticating:`, error);
+      return { status: 'unauthenticated' } as const;
+    });
   if (result.status !== 'authenticated') {
     return null;
   }
@@ -193,8 +202,12 @@ async function resolveExternalSubject(
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
   },
+  // The identity namespace to record under; callers with the
+  // 'identity-namespaces' grant multiplex several, everyone else records
+  // under the provider id. The runtime guards membership before we get here.
+  namespace: string = providerId,
 ): Promise<string | null> {
-  const identities = getIdentityStore(providerId);
+  const identities = getIdentityStore(namespace);
 
   const existing = await identities.find(subjectId);
   if (existing) {
@@ -205,10 +218,7 @@ async function resolveExternalSubject(
   // the claims the provider verified -- the only way a user entity with
   // required columns can be provisioned at all. Computed only for brand-new
   // subjects.
-  const userFields = await validateAndGetUserFields(
-    { ...(claims ?? {}) },
-    userSignupFieldsByProviderId[providerId] as any,
-  );
+  const userFields = await computeProviderUserFields(providerId, claims);
 
   // `provision` is the store's idempotent create: a concurrent request for the
   // same brand-new subject is settled by the unique constraint, and the loser
@@ -245,9 +255,26 @@ export async function provisionAuthUser(
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
   },
+  namespace?: string,
 ): Promise<{ authId: string } | null> {
-  const authId = await resolveExternalSubject(providerId, subjectId, claims, identity);
+  const authId = await resolveExternalSubject(providerId, subjectId, claims, identity, namespace);
   return authId === null ? null : { authId };
+}
+
+// PRIVATE API
+/**
+ * Runs the provider's manifest-level `userSignupFields` over verified claims,
+ * producing the user entity's own fields. Shared by just-in-time provisioning
+ * and the identity facet's `create` (when no field getter is passed).
+ */
+export async function computeProviderUserFields(
+  providerId: ExternalAuthProviderId,
+  claims: VerifiedSession['claims'],
+): Promise<Record<string, unknown>> {
+  return validateAndGetUserFields(
+    { ...(claims ?? {}) },
+    userSignupFieldsByProviderId[providerId] as any,
+  );
 }
 {=/ anyExternalProvidersUsed =}
 

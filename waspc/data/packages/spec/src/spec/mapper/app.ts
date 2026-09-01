@@ -1,6 +1,11 @@
 import { isEqual } from "es-toolkit";
 import * as AppSpec from "../../appSpec.js";
 import type { AnyObject } from "../../typeUtils.js";
+import {
+  reservedClientEnvVarNames,
+  reservedServerEnvVarNames,
+} from "../authReservedEnvVarNames.js";
+import { validateIdentityNamespaces } from "../publicApi/constructors.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { WaspSpecUserError } from "../waspSpecUserError.js";
 import { AppMapperContext } from "./context.js";
@@ -151,6 +156,53 @@ function mapExternalAuthProvider(
     );
   }
 
+  // The rules below repeat defineAuthProviderManifest's checks on purpose:
+  // the authenticity marker is an ordinary property, so a manifest built as an
+  // object literal can carry it without ever passing those checks. The mapper
+  // is the layer no manifest can skip; the Haskell validator mirrors these
+  // rules once more for the non-TS entry points.
+  if (!manifest.id.startsWith("external:")) {
+    throw new WaspSpecUserError(
+      `Auth provider id '${manifest.id}' must start with 'external:' (e.g. 'external:clerk'). ` +
+        "The unprefixed namespace is reserved for Wasp's own auth methods, which record " +
+        "identities in the same place -- the prefix is what makes a collision impossible.",
+    );
+  }
+  if (
+    manifest.capabilities.includes("cookie-transport") &&
+    !manifest.capabilities.includes("session-revocation")
+  ) {
+    throw new WaspSpecUserError(
+      `Auth provider '${manifest.id}' declares the 'cookie-transport' capability without 'session-revocation'. A provider whose credential lives in a cookie must be able to revoke sessions server-side, or logout would only appear to work.`,
+    );
+  }
+  for (const [side, envVars, reservedNames] of [
+    ["server", manifest.env.server, reservedServerEnvVarNames],
+    ["client", manifest.env.client, reservedClientEnvVarNames],
+  ] as const) {
+    for (const envVar of envVars) {
+      if (reservedNames.includes(envVar.name)) {
+        throw new WaspSpecUserError(
+          `Auth provider '${manifest.id}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by providers; pick a provider-specific name.`,
+        );
+      }
+    }
+  }
+  const uses = manifest.uses ?? [];
+  for (const grant of uses) {
+    if (
+      !["wasp-sessions", "email-send", "identity-namespaces"].includes(grant)
+    ) {
+      throw new WaspSpecUserError(
+        `Auth provider '${manifest.id}' requests the unknown runtime grant '${String(
+          grant,
+        )}'. Known grants: wasp-sessions, email-send, identity-namespaces.`,
+      );
+    }
+  }
+  const identityNamespaces = manifest.identityNamespaces ?? [manifest.id];
+  validateIdentityNamespaces(manifest.id, identityNamespaces, uses);
+
   // Reserved for a future in which adapter packages contribute Prisma models.
   // Erroring (rather than ignoring) means an adapter relying on them can never
   // appear to work while its models silently don't exist.
@@ -183,6 +235,8 @@ function mapExternalAuthProvider(
       server: manifest.env.server.map(mapEnvVarRequirement),
       client: manifest.env.client.map(mapEnvVarRequirement),
     },
+    uses,
+    identityNamespaces,
     userSignupFields:
       manifest.userSignupFields &&
       ctx.parseRefObject(manifest.userSignupFields),

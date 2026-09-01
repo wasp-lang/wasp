@@ -19,14 +19,23 @@ import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth-cler
  * provider id; providers without a client package simply have no entry.
  */
 
-const clientRuntime = {
-  apiUrl: config.apiUrl,
-  env,
+// Each adapter's env is narrowed to exactly the vars its manifest declared:
+// what an adapter reads is what its manifest shows.
+function makeClientRuntime(declaredClientEnvVarNames: readonly string[]) {
+  return {
+    apiUrl: config.apiUrl,
+    env: Object.fromEntries(
+      declaredClientEnvVarNames.map((name) => [
+        name,
+        (env as Record<string, string | undefined>)[name],
+      ]),
+    ),
+  }
 }
 
 // PRIVATE API
 export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {
-  'external:clerk': createClientAdapter_0(clientRuntime, undefined),
+  'external:clerk': createClientAdapter_0(makeClientRuntime(['REACT_APP_CLERK_PUBLISHABLE_KEY']), undefined),
 }
 
 // PUBLIC API

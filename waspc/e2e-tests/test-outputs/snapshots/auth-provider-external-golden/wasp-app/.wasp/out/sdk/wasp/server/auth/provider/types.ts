@@ -10,13 +10,21 @@
 export {
   canManageSessions,
   canRevokeSessions,
+  getAuthContractErrorCode,
+  type AuthContractErrorCode,
   type AuthenticateResult,
   type AuthProvider,
+  type ProviderIdentities,
+  type RuntimeGrantName,
   type SessionManagingAuthProvider,
+  type SubjectRef,
   type SupportsAllSessionsRevocation,
   type SupportsSessionIssuance,
   type SupportsSessionRevocation,
   type VerifiedSession,
+  type WaspEmail,
+  type WaspServerRuntime,
+  type WaspSessions,
 } from '@wasp.sh/auth-contract'
 
 // PRIVATE API

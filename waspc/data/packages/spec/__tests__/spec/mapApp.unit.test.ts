@@ -509,6 +509,8 @@ describe("mapAuth", () => {
             ],
             client: [],
           },
+          uses: provider.uses,
+          identityNamespaces: provider.identityNamespaces,
           userSignupFields: mapRefObjectForMockProjectDir(
             provider.userSignupFields,
           ),
@@ -534,6 +536,60 @@ describe("mapAuth", () => {
 
     expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
       /hand-crafted external provider manifest/,
+    );
+  });
+
+  // The authenticity marker is an ordinary property, so a manifest built as an
+  // object literal can carry it without ever passing defineAuthProviderManifest's
+  // checks. These prove the mapper re-validates the substantive rules itself.
+  test("should reject a marker-forged manifest with an unprefixed id at the mapper", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      providers: [
+        { ...getExternalProviderManifest(auth), id: "clerk" },
+      ] as unknown as WaspSpec.Auth["providers"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /must start with 'external:'/,
+    );
+  });
+
+  test("should reject a marker-forged manifest with cookie-transport but no session-revocation at the mapper", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          capabilities: ["cookie-transport"],
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /'cookie-transport' capability without 'session-revocation'/,
+    );
+  });
+
+  test("should reject a marker-forged manifest declaring a framework env var at the mapper", () => {
+    const auth = Fixtures.getExternalAuthConfig();
+    const forged = {
+      ...auth,
+      providers: [
+        {
+          ...getExternalProviderManifest(auth),
+          env: { server: [{ name: "JWT_SECRET" }], client: [] },
+        },
+      ] as unknown as WaspSpec.Auth["providers"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /'JWT_SECRET', which Wasp owns/,
     );
   });
 

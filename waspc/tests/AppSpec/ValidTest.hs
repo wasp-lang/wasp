@@ -399,6 +399,174 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
             `shouldBe` [Valid.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
 
+      describe "should validate external auth provider manifests" $ do
+        let makeSpec extProvider =
+              basicAppSpec
+                { AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $
+                        basicApp
+                          { AS.App.auth =
+                              Just
+                                AS.Auth.Auth
+                                  { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.providers = [AS.Auth.ExternalAuthProvider extProvider]
+                                  }
+                          },
+                      AS.Decl.makeDecl userEntityName validUserEntity,
+                      basicPageDecl,
+                      basicRouteDecl
+                    ]
+                }
+        let basicExternalProvider =
+              AS.Auth.ExternalAuthProviderSpec
+                { AS.Auth.providerId = "external:test",
+                  AS.Auth.server = AS.Auth.ExternalProviderServer (Left "@wasp.sh/auth-test"),
+                  AS.Auth.clientPackage = Nothing,
+                  AS.Auth.routes = Nothing,
+                  AS.Auth.capabilities = [],
+                  AS.Auth.envVars =
+                    AS.Auth.ExternalProviderEnvVars
+                      { AS.Auth.server = [],
+                        AS.Auth.client = []
+                      },
+                  AS.Auth.uses = [],
+                  AS.Auth.identityNamespaces = ["external:test"],
+                  AS.Auth.userSignupFields = Nothing,
+                  AS.Auth.setupFn = Nothing,
+                  AS.Auth.optionsJson = Nothing
+                }
+        let makeEnvVar name =
+              AS.Auth.ExternalProviderEnvVar
+                { AS.Auth.name = name,
+                  AS.Auth.optional = Nothing,
+                  AS.Auth.doc = Nothing
+                }
+
+        it "returns no error for a well-formed external provider" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider) `shouldBe` []
+
+        it "returns an error when the provider id lacks the external: prefix" $ do
+          ASV.validateAppSpec
+            (makeSpec basicExternalProvider {AS.Auth.providerId = "test", AS.Auth.identityNamespaces = ["test"]})
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth provider id 'test' must start with 'external:' (e.g. 'external:clerk')."
+                             ++ " The unprefixed namespace is reserved for Wasp's own auth methods, which record"
+                             ++ " identities in the same place -- the prefix is what makes a collision impossible."
+                       ]
+
+        it "returns an error when cookie-transport is declared without session-revocation" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.capabilities = ["cookie-transport"]})
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth provider 'external:test' declares the 'cookie-transport' capability without"
+                             ++ " 'session-revocation'. A provider whose credential lives in a cookie must be able"
+                             ++ " to revoke sessions server-side, or logout would only appear to work."
+                       ]
+
+        it "returns no error when cookie-transport comes with session-revocation" $ do
+          ASV.validateAppSpec
+            (makeSpec basicExternalProvider {AS.Auth.capabilities = ["cookie-transport", "session-revocation"]})
+            `shouldBe` []
+
+        it "returns an error when a reserved server env var name is declared" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.envVars =
+                      AS.Auth.ExternalProviderEnvVars
+                        { AS.Auth.server = [makeEnvVar "JWT_SECRET"],
+                          AS.Auth.client = []
+                        }
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth provider 'external:test' declares the server env var 'JWT_SECRET', which Wasp"
+                             ++ " owns. Framework env var names cannot be declared by providers; pick a"
+                             ++ " provider-specific name."
+                       ]
+
+        it "returns an error when a reserved client env var name is declared" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.envVars =
+                      AS.Auth.ExternalProviderEnvVars
+                        { AS.Auth.server = [],
+                          AS.Auth.client = [makeEnvVar "REACT_APP_API_URL"]
+                        }
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth provider 'external:test' declares the client env var 'REACT_APP_API_URL', which"
+                             ++ " Wasp owns. Framework env var names cannot be declared by providers; pick a"
+                             ++ " provider-specific name."
+                       ]
+
+        it "returns no error for provider-specific env var names" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.envVars =
+                      AS.Auth.ExternalProviderEnvVars
+                        { AS.Auth.server = [makeEnvVar "TEST_API_SECRET"],
+                          AS.Auth.client = [makeEnvVar "REACT_APP_TEST_KEY"]
+                        }
+                  }
+            )
+            `shouldBe` []
+
+        it "returns an error for an unknown runtime grant" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["mint-gold"]})
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth provider 'external:test' requests the unknown runtime grant 'mint-gold'. Known grants: wasp-sessions, email-send, identity-namespaces."
+                       ]
+
+        it "returns no error for known runtime grants" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["wasp-sessions"]})
+            `shouldBe` []
+
+        it "returns an error for an identity namespace the provider does not own" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.uses = ["identity-namespaces"],
+                    AS.Auth.identityNamespaces = ["external:test", "email"]
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth provider 'external:test' declares the identity namespace 'email', which it"
+                             ++ " does not own. A namespace must be the provider id or 'external:test/<suffix>'"
+                             ++ " -- that rule is what makes cross-provider identity collisions impossible."
+                       ]
+
+        it "returns an error for extra namespaces without the identity-namespaces grant" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.identityNamespaces = ["external:test", "external:test/passkey"]
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth provider 'external:test' declares identity namespaces beyond its default one,"
+                             ++ " which requires the 'identity-namespaces' grant in `uses`."
+                       ]
+
+        it "returns no error for extra owned namespaces with the grant" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.uses = ["identity-namespaces"],
+                    AS.Auth.identityNamespaces = ["external:test", "external:test/passkey"]
+                  }
+            )
+            `shouldBe` []
+
+        it "returns an error for the email-send grant without an email sender" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["email-send"]})
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth provider 'external:test' requests the 'email-send' grant, which requires app.emailSender to be specified."
+                       ]
+
     describe "duplicate declarations validation" $ do
       -- Page
       let pageDecl = makeBasicPageDecl "testPage"
