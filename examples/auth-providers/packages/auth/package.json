@@ -1,0 +1,42 @@
+{
+  "name": "@wasp.sh/auth",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Wasp's own auth (username & password, email, OAuth), externalized as an auth provider package (POC).",
+  "license": "MIT",
+  "exports": {
+    "./spec": {
+      "types": "./dist/spec.d.ts",
+      "default": "./dist/spec.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "@wasp.sh/auth-contract": "*",
+    "@wasp.sh/lib-auth": "*",
+    "react": "^18.0.0 || ^19.0.0",
+    "arctic": "^1.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@wasp.sh/auth-contract": "file:../../../../waspc/data/Generator/libs/auth-contract",
+    "@wasp.sh/lib-auth": "file:../../../../waspc/data/Generator/libs/auth",
+    "react": "^19.0.0",
+    "typescript": "~6.0.3",
+    "arctic": "^1.2.1"
+  }
+}
