@@ -23,6 +23,18 @@ export type WaspClientRuntime = {
    * adapter's manifest declared.
    */
   env: Record<string, string | undefined>;
+
+  /**
+   * Adopt a Wasp session this adapter obtained through its own routes (a
+   * login-code redemption, a token its server minted through the
+   * `wasp-sessions` grant).
+   *
+   * Pre-bound to this provider's id: adopting records the minting provider
+   * for logout routing and silent resume, so an adapter cannot misdirect
+   * dual sign-out by writing another provider's marker. Also refreshes the
+   * client's cached queries, so the UI reflects the new user immediately.
+   */
+  setSession(sessionId: string): Promise<void>;
 };
 
 export type ClientAuthAdapter = {

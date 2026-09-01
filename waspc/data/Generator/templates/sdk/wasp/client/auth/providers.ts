@@ -8,7 +8,7 @@ import {
   removeLocalUserData,
 } from '../../api/index.js'
 {=# anyClientAdapters =}
-import { exchangeCredentialForSession } from '../../api/index.js'
+import { exchangeCredentialForSession, setSessionId } from '../../api/index.js'
 import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
@@ -26,8 +26,13 @@ import { createClientAdapter as createClientAdapter_{= index =} } from '{= clien
 
 {=# anyClientAdapters =}
 // Each adapter's env is narrowed to exactly the vars its manifest declared:
-// what an adapter reads is what its manifest shows.
-function makeClientRuntime(declaredClientEnvVarNames: readonly string[]) {
+// what an adapter reads is what its manifest shows. The session sink is
+// pre-bound to the provider id, so an adapter cannot write another provider's
+// resume/logout marker.
+function makeClientRuntime(
+  providerId: ExternalAuthProviderId,
+  declaredClientEnvVarNames: readonly string[],
+) {
   return {
     apiUrl: config.apiUrl,
     env: Object.fromEntries(
@@ -36,6 +41,10 @@ function makeClientRuntime(declaredClientEnvVarNames: readonly string[]) {
         (env as Record<string, string | undefined>)[name],
       ]),
     ),
+    setSession: async (sessionId: string): Promise<void> => {
+      setSessionId(sessionId, providerId)
+      await invalidateAndRemoveQueries()
+    },
   }
 }
 {=/ anyClientAdapters =}
@@ -43,7 +52,7 @@ function makeClientRuntime(declaredClientEnvVarNames: readonly string[]) {
 // PRIVATE API
 export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {
   {=# clientAdapterProviders =}
-  '{= providerId =}': createClientAdapter_{= index =}(makeClientRuntime({=& clientEnvVarNamesJs =}), {=# hasOptions =}{=& optionsJson =}{=/ hasOptions =}{=^ hasOptions =}undefined{=/ hasOptions =}),
+  '{= providerId =}': createClientAdapter_{= index =}(makeClientRuntime('{= providerId =}', {=& clientEnvVarNamesJs =}), {=# hasOptions =}{=& optionsJson =}{=/ hasOptions =}{=^ hasOptions =}undefined{=/ hasOptions =}),
   {=/ clientAdapterProviders =}
 }
 
