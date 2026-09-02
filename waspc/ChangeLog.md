@@ -25,6 +25,7 @@
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - Added support for the `--port` flag which helps set the custom port for dev database (by @Nihal-Ahamed-MS). ([#4424](https://github.com/wasp-lang/wasp/issues/4424))
+- You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 
 ### 🐞 Bug fixes
 
@@ -43,6 +44,8 @@
 - Password reset now rejects an invalid or expired token before it looks at the new password, so someone without a valid reset link can no longer probe your app's password rules. ([#4657](https://github.com/wasp-lang/wasp/pull/4657))
 - `onBeforeSignup` now runs before `userSignupFields` on every signup method: email, username and password, and OAuth. ([#4659](https://github.com/wasp-lang/wasp/pull/4659))
 - Improved the wording of some CLI messages. ([#4717](https://github.com/wasp-lang/wasp/pull/4717))
+- Email validation now accepts internationalized addresses such as `jürgen@münchen.de`, accepts addresses typed in uppercase, and no longer accepts a string that merely contains an address somewhere inside it. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
+- The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 
 ## 0.25.0
 

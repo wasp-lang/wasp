@@ -32,7 +32,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
         ],
-        "35480e2a814f4c24e9bb22f8e6c0a43fbca98c1cf0612108bcf0f4c1302262f0"
+        "0a75cefde6b47011db01906cef338dabe1a541b878a959db1a2fa8b0625a410a"
     ],
     [
         [
@@ -186,14 +186,14 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "dcc63ceab024657653b082cd772b7ec50f53e47583a8f20974c605dfdb200a91"
+        "2accd8d7e5f95f9374f86f0bfd30c3576e7e55c7a544248fb528451a8dea45fa"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx"
         ],
-        "0cffa908694b6eb863d094c1e0027fd92876fe58e244a2ee092ef2aa38f07c12"
+        "e5a766bcd839a37385201480dd30a93a36c0e9850aed4dc15b5dbb5fbf7079a8"
     ],
     [
         [
@@ -215,6 +215,13 @@
             "sdk/wasp/auth/forms/internal/email/useEmail.ts"
         ],
         "7751b34516bc55579c5f556ff4092a255a09b4ecb94ce3ab9cc08ffe324a4bf0"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/forms/internal/emailField.ts"
+        ],
+        "032b1303247a0787e5f24c6ef4c23cdf35440c5ce4f1dd59ac492a0cbe6d8752"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "sdk/wasp/auth/validation.ts"
         ],
-        "5a408544fade201c599d9c0d66a1a847ed4bfdd8f44a7f957fab74a97ecaa43c"
+        "7c1a41e0d3456da0cd98b52ab127e197895036a063c9c567898637c63083b840"
     ],
     [
         [
@@ -1278,7 +1285,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "18da980b9549422f0750fa8d4f90fe2614f2a5aa6ef8e6828abdc257fe22266f"
+        "029a4aca9060b5937b82167ab57cdf181bcb3eb73a71cecef3683482f066a1cd"
     ],
     [
         [
@@ -1600,7 +1607,7 @@
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "36980d460729b3ae58c2bbee24144cf21909ea77e642f4ad65c75b107455fad8"
+        "398fbf1958fc0d272b80c977996fd598adc6266d08ac322faf4ce93d9ac306d7"
     ],
     [
         [
@@ -2139,7 +2146,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "9acba4a5ce9c3e21a9794485c8e26f152747e1fa670776fbc111d85253669aa7"
     ],
     [
         [

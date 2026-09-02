@@ -16,11 +16,8 @@
 
     /* Strictness and type checking */
     /*
-       User code was compiled using `"strict": true`, so we know we can use it
-       here as well. We override some of strict's options because parts of the SDK
-       code don't respect them. This only makes the SDK ruleset more permissive than
-       the user's ruleset. Therefore, we can sefely include users code inside the
-       SDK without casuing errors during the SDK build step.
+       We keep the SDK strict, but override some of strict's options
+       because parts of the SDK code don't respect them.
        Reference: https://github.com/wasp-lang/wasp/issues/1938
     */
     "strict": true,
@@ -28,8 +25,7 @@
     "noImplicitAny": false,
     "strictPropertyInitialization": false,
     /*
-       The following two properties are disabled because we don't
-       yet want to force user code to use them.
+       We haven't adopted the following two properties yet.
        Reference: https://github.com/wasp-lang/wasp/issues/2655
     */
     "noUncheckedIndexedAccess": false,

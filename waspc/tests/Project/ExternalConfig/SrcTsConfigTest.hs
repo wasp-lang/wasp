@@ -13,20 +13,28 @@ spec_SrcTsConfig = do
       validate validTsConfig `shouldBe` []
 
     it "returns an error when a compilerOption has a wrong value" $
-      assertReturnsValidationErrorMentioningField "strict" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
+      assertReturnsValidationErrorMentioningField "moduleResolution" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleResolution = Just "nodenext"})}
 
     it "returns an error when a compilerOption is missing" $
       assertReturnsValidationErrorMentioningField "jsx" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Nothing})}
 
-    it "returns an error when include is wrong" $
+    it "returns an error when include is missing a required entry" $
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
-    it "returns an error when exclude is wrong" $
+    it "accepts extra entries in include" $
+      validate (validTsConfig {T.include = Just ["src", ".wasp/out/types/app", "lib"]})
+        `shouldBe` []
+
+    it "returns an error when exclude is missing" $
       assertReturnsValidationErrorMentioningField "exclude" $
         validTsConfig {T.exclude = Nothing}
+
+    it "accepts extra entries in exclude" $
+      validate (validTsConfig {T.exclude = Just ["**/*.wasp.ts", "scripts"]})
+        `shouldBe` []
 
     it "returns an error when types is missing a required entry" $
       assertReturnsValidationErrorMentioningField "types" $
@@ -38,6 +46,46 @@ spec_SrcTsConfig = do
 
     it "accepts extra entries in types as long as react and node are present" $
       validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react", "node", "vite/client"]})})
+        `shouldBe` []
+
+    it "returns an error when module is not bundler-friendly" $
+      assertReturnsValidationErrorMentioningField "module" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T._module = Just "commonjs"})}
+
+    it "accepts jsx react-jsx" $
+      validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react-jsx"})})
+        `shouldBe` []
+
+    it "returns an error when jsx does not match the bundler's transform" $
+      assertReturnsValidationErrorMentioningField "jsx" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react"})}
+
+    it "returns an error when isolatedModules is off" $
+      assertReturnsValidationErrorMentioningField "isolatedModules" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.isolatedModules = Just False})}
+
+    it "returns an error when moduleDetection is not force" $
+      assertReturnsValidationErrorMentioningField "moduleDetection" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleDetection = Nothing})}
+
+    it "returns an error when noEmit is true" $
+      assertReturnsValidationErrorMentioningField "noEmit" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Just True})}
+
+    it "accepts any values for the options Wasp doesn't require" $
+      validate
+        ( validTsConfig
+            { T.compilerOptions =
+                Just
+                  ( validCompilerOptions
+                      { T.strict = Just False,
+                        T.target = Just "es2020",
+                        T.lib = Just ["esnext"],
+                        T.allowJs = Nothing
+                      }
+                  )
+            }
+        )
         `shouldBe` []
 
 validate :: T.TsConfig -> [String]
