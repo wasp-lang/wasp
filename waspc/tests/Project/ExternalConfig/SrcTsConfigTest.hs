@@ -20,55 +20,56 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "jsx" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Nothing})}
 
-    it "returns an error when include is missing a required entry" $
+    it "returns an error when `include` is missing a required entry" $
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
-    it "accepts extra entries in include" $
+    it "accepts extra entries in `include`" $
       validate (validTsConfig {T.include = Just ["src", ".wasp/out/types/app", "lib"]})
         `shouldBe` []
 
-    it "returns an error when exclude is missing" $
+    it "returns an error when `exclude` is missing" $
       assertReturnsValidationErrorMentioningField "exclude" $
         validTsConfig {T.exclude = Nothing}
 
-    it "accepts extra entries in exclude" $
+    it "accepts extra entries in `exclude`" $
       validate (validTsConfig {T.exclude = Just ["**/*.wasp.ts", "scripts"]})
         `shouldBe` []
 
-    it "returns an error when types is missing a required entry" $
+    it "returns an error when `types` is missing a required entry" $
       assertReturnsValidationErrorMentioningField "types" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["node"]})}
 
-    it "returns an error when types is missing" $
+    it "returns an error when `types` is missing" $
       assertReturnsValidationErrorMentioningField "types" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Nothing})}
 
-    it "accepts extra entries in types as long as react and node are present" $
+    it "accepts extra entries in `types` as long as `react` and `node` are present" $
       validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react", "node", "vite/client"]})})
         `shouldBe` []
 
-    it "returns an error when module is not bundler-friendly" $
+    it "returns an error when `module` is not bundler-friendly" $
       assertReturnsValidationErrorMentioningField "module" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T._module = Just "commonjs"})}
 
-    it "accepts jsx react-jsx" $
-      validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react-jsx"})})
-        `shouldBe` []
+    it "accepts every `jsx` value matching the bundler's transform" $
+      let validateWithJsx jsx =
+            validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just jsx})})
+       in map validateWithJsx ["preserve", "react-jsx"] `shouldBe` [[], []]
 
-    it "returns an error when jsx does not match the bundler's transform" $
+    it "returns an error when `jsx` does not match the bundler's transform" $
       assertReturnsValidationErrorMentioningField "jsx" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react"})}
 
-    it "returns an error when isolatedModules is off" $
+    it "returns an error when `isolatedModules` is off" $
       assertReturnsValidationErrorMentioningField "isolatedModules" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.isolatedModules = Just False})}
 
-    it "returns an error when moduleDetection is not force" $
+    it "returns an error when `moduleDetection` is not `force`" $
       assertReturnsValidationErrorMentioningField "moduleDetection" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleDetection = Nothing})}
 
-    it "returns an error when noEmit is true" $
+    it "returns an error when `noEmit` is `true`" $
       assertReturnsValidationErrorMentioningField "noEmit" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Just True})}
 
@@ -78,6 +79,7 @@ spec_SrcTsConfig = do
             { T.compilerOptions =
                 Just
                   ( validCompilerOptions
+                      -- These are deliberately set to values different than the ones we have in starter templates.
                       { T.strict = Just False,
                         T.target = Just "es2020",
                         T.lib = Just ["esnext"],
