@@ -13,7 +13,6 @@ context (motivation, trade-offs, approaches considered, concerns, ...).
 
 ## Agreement
 
-
 <!-- Select just one with [x] -->
 
 - [ ] This is a small, obvious fix (typo, docs corrections, clear small bug with a test).
