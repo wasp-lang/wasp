@@ -79,8 +79,8 @@ spec_SrcTsConfig = do
             { T.compilerOptions =
                 Just
                   ( validCompilerOptions
-                      -- These are deliberately set to values different than the ones we have in starter templates.
-                      { T.strict = Just False,
+                      { -- These are deliberately set to values different than the ones we have in starter templates.
+                        T.strict = Just False,
                         T.target = Just "es2020",
                         T.lib = Just ["esnext"],
                         T.allowJs = Nothing
