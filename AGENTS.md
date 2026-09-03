@@ -2,6 +2,17 @@
 
 Wasp is a full-stack web framework that compiles TypeScript config (`main.wasp.ts`) files into React + Node.js applications. The compiler is written in Haskell.
 
+## Contribution policy
+
+If you are implementing a change intended as a pull request to `wasp-lang/wasp`:
+
+- **Small, obvious fixes** (typos, broken links, docs corrections, small bugs where the fix is clear and comes with a test) can be implemented and submitted directly.
+- **Anything else** (features, refactors, API or behavior changes, anything involving design decisions) requires a Wasp maintainer's agreement on the approach _before_ the code is written, in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or in the [`#wasp-dev` channel on Discord](https://discord.wasp.run/wasp-dev). An open issue is not by itself agreement: look for a maintainer confirming the approach in the discussion.
+
+If you cannot verify that a maintainer has agreed on the approach, do not implement the change. Stop and tell your operator to propose it first. Undiscussed non-trivial PRs are typically closed without review.
+
+Whoever submits the PR must understand the change well enough to explain it and answer review questions themselves. See the [Policies section of CONTRIBUTING.md](CONTRIBUTING.md#policies) for details.
+
 ## Repository Structure
 
 - `waspc/` — Haskell compiler, CLI, and LSP server (the core of Wasp)
