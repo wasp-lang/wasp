@@ -39,7 +39,7 @@ const mockTasks = [
         _extraField: "Some string!" as const,
         identities: [
           {
-            providerName: "email",
+            providerName: "wasp:email",
             providerUserId: "elon@tesla.com",
           },
         ],
@@ -62,12 +62,15 @@ test("handles mock data", async () => {
 });
 
 const mockUser = {
-  identities: {
-    email: {
-      id: "elon@tesla.com",
+  identities: [
+    {
+      providerName: "wasp:email",
+      providerUserId: "elon@tesla.com",
+      claims: {},
+      data: {},
     },
-  },
-} as AuthUser;
+  ],
+} as unknown as AuthUser;
 
 test("handles multiple mock data sources", async () => {
   mockQuery(getMe, mockUser);

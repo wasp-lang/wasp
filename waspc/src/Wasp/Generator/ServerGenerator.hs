@@ -16,6 +16,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
+import Data.List (nub)
 import Data.Maybe
   ( isJust,
     maybeToList,
@@ -46,7 +47,7 @@ import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.Common (ServerRootDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
@@ -301,19 +302,18 @@ genRoutesIndex spec =
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (fst $ getApp spec :: String),
-          "anyExternalAuthProviderRoutes" .= (not . null $ externalProviderRoutes),
-          "isWaspAuthProviderUsed" .= maybe False AS.App.Auth.isWaspAuthProviderUsed (AS.App.auth $ snd $ getApp spec),
-          "externalAuthProviderRoutes" .= zipWith externalProviderRoutesTmplData [0 :: Int ..] externalProviderRoutes
+          "anyAuthProviderRoutes" .= (not . null $ providerRoutes),
+          "authProviderRoutes" .= zipWith providerRoutesTmplData [0 :: Int ..] providerRoutes
         ]
 
-    -- Routes external auth providers brought along (Better Auth's own
-    -- endpoints), each mounted at the basePath its manifest declared.
-    externalProviderRoutes =
-      [ (extProvider, providerRoutes)
-      | extProvider <- AS.Valid.getExternalAuthProviders spec,
-        Just providerRoutes <- [AS.App.Auth.routes extProvider]
+    -- Routes auth providers brought along (Wasp's own auth flows, Better
+    -- Auth's endpoints), each mounted at the basePath its manifest declared.
+    providerRoutes =
+      [ (provider, routes)
+      | provider <- AS.Valid.getAuthProviders spec,
+        Just routes <- [AS.App.Auth.routes provider]
       ]
-    externalProviderRoutesTmplData idx (extProvider, providerRoutes) =
+    providerRoutesTmplData idx (extProvider, providerRoutes) =
       object
         [ "index" .= idx,
           "providerId" .= AS.App.Auth.providerId extProvider,
@@ -373,6 +373,29 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
+    tmplData =
+      object
+        [ "areDbSeedsDefined" .= areDbSeedsDefined,
+          "authProviderPackagesJs" .= makeJsArrayFromHaskellList authProviderPackageNames
+        ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+
+    -- The adapter packages' server entries (`@wasp.sh/auth/server`), reduced
+    -- to package names so every subpath of a package stays external.
+    authProviderPackageNames =
+      nub
+        [ packageNameOfSpecifier serverPackage
+        | provider <- AS.Valid.getAuthProviders spec,
+          Just serverPackage <- [AS.App.Auth.serverPackage provider]
+        ]
+    packageNameOfSpecifier specifier = case splitOn '/' specifier of
+      (scope@('@' : _) : name : _) -> scope ++ "/" ++ name
+      (name : _) -> name
+      [] -> specifier
+    splitOn separator = foldr step [[]]
+      where
+        step c acc@(current : rest)
+          | c == separator = [] : acc
+          | otherwise = (c : current) : rest
+        step c [] = [[c]]

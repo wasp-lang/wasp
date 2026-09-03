@@ -11,8 +11,7 @@ router.get('/me', auth, me)
 router.post('/logout', auth, logout)
 // The credential exchange, addressed to one provider -- deliberately NOT
 // behind the `auth` middleware, since it is the route that establishes the
-// session in the first place. Mounted as a param route because provider ids
-// contain a ':' ('external:clerk'), which a literal route pattern would parse
-// as a param marker.
+// session in the first place.
 router.post('/login/:providerId', login)
+
 export default router

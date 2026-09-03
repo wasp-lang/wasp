@@ -1,25 +1,6 @@
-// Wasp's own auth UI and actions come from the @wasp.sh/auth lib, instantiated
-// for this app in './providers'.
-import './providers'
-export {
-  LoginForm,
-  SignupForm,
-  ForgotPasswordForm,
-  ResetPasswordForm,
-  VerifyEmailForm,
-  FormError,
-  FormInput,
-  FormTextarea,
-  FormItemGroup,
-  FormLabel,
-  SubmitButton,
-  type CustomizationOptions,
-  login,
-  signup,
-  requestPasswordReset,
-  resetPassword,
-  verifyEmail,
-} from '@wasp.sh/auth/client'
+// The uniform client auth surface, the same for every provider mix. Provider
+// UI (login forms, sign-in buttons) comes from each auth package's own client
+// entry (`@wasp.sh/auth/client` for Wasp's own auth).
 export {
   default as useAuth,
   getMe,

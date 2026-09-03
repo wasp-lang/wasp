@@ -12,7 +12,6 @@ export {
   page,
   query,
   route,
-  waspAuth,
 } from "./constructors.js";
 export type {
   ActionConfig,

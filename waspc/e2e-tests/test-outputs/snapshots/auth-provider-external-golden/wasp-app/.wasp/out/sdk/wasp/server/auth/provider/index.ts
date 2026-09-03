@@ -1,5 +1,5 @@
 import { canManageSessions as canProviderManageSessions, canRevokeSessions as canProviderRevokeSessions, type AuthProvider } from './types.js'
-import type { AuthProviderId, ExternalAuthProviderId } from '../../../auth/provider.js'
+import type { AuthProviderId } from '../../../auth/provider.js'
 import type { ProviderIdentities, WaspEmail, WaspServerRuntime, WaspSessions } from '@wasp.sh/auth-contract'
 import { computeProviderUserFields, provisionAuthUser } from '../session.js'
 import { getIdentityStore } from '../identityStore.js'
@@ -28,11 +28,10 @@ export {
 
 /**
  * The runtime window a provider gets, with the identity store pre-bound to
- * that provider's id. For adapter packages it is their *only* window into the
- * app: adapters never import generated code and never read `process.env`
- * themselves, which is what lets them version independently of any app.
- * Wasp's own auth runs on the very same runtime (see `waspAuthRuntime`), so
- * its flows hold no powers an adapter cannot request. `provision` routes
+ * that provider's id. It is an adapter's *only* window into the app: adapters
+ * never import generated code and never read `process.env` themselves, which
+ * is what lets them version independently of any app. Wasp's own auth is an
+ * adapter package like any other and runs on exactly this. `provision` routes
  * through that provider's `userSignupFields`, exactly like just-in-time
  * provisioning at the login exchange. The casts are the runtime boundary: the
  * store speaks `unknown`, the contract speaks `JsonValue`, and both sides of
@@ -249,7 +248,7 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
 }
 
 /**
- * The adapter package's server factory for 'external:clerk', called with
+ * The adapter package's server factory for 'clerk', called with
  * everything it may know about the app.
  */
 const serverAdapter_0 = await Promise.resolve(
@@ -258,16 +257,18 @@ const serverAdapter_0 = await Promise.resolve(
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and adapter honest.
     makeAdapterRuntime({
-      providerId: 'external:clerk',
+      providerId: 'clerk',
       serverEnvVarNames: ['CLERK_SECRET_KEY', 'CLERK_PUBLISHABLE_KEY', 'CLERK_JWT_KEY'],
       uses: [],
-      identityNamespaces: ['external:clerk'],
+      identityNamespaces: ['clerk'],
     }) as Parameters<typeof createServerAdapter_0>[0],
     undefined,
     {
       // The user's setup function for the adapter's underlying library; the
       // adapter calls it with its integration config and uses the result.
       setupFn: undefined,
+      // Every other user function the manifest referenced, under the name
+      // the adapter expects.
     },
   ),
 )
@@ -282,18 +283,7 @@ const serverAdapter_0 = await Promise.resolve(
  * looking up a session's minting provider always succeeds.
  */
 export const authProviders: { readonly [Id in AuthProviderId]: AuthProvider } = {
-  'external:clerk': serverAdapter_0.provider,
-}
-
-// PRIVATE API
-/**
- * The external providers a credential can be exchanged with (`POST
- * /auth/login/:providerId`). Deliberately excludes 'wasp': Wasp's own auth
- * mints sessions through its own routes, and exchanging a Wasp credential for
- * a Wasp session would be a loop.
- */
-export const externalAuthProviders: { readonly [Id in ExternalAuthProviderId]: AuthProvider } = {
-  'external:clerk': authProviders['external:clerk'],
+  'clerk': serverAdapter_0.provider,
 }
 
 // PRIVATE API
@@ -307,7 +297,7 @@ export function getAuthProvider(providerId: string): AuthProvider | undefined {
  * provider id. The server mounts each at the basePath its manifest declared.
  */
 export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
-  'external:clerk': serverAdapter_0.routeHandler,
+  'clerk': serverAdapter_0.routeHandler,
 }
 
 /**
@@ -318,7 +308,7 @@ export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: imp
  */
 function assertProvidersMatchManifests(): void {
   const manifests: Array<{ providerId: string; capabilities: string[]; uses: string[] }> = [
-    { providerId: 'external:clerk', capabilities: ['session-revocation'], uses: [] },
+    { providerId: 'clerk', capabilities: ['session-revocation'], uses: [] },
   ]
   const knownRuntimeGrants = ['wasp-sessions', 'email-send', 'identity-namespaces']
 
@@ -333,10 +323,10 @@ function assertProvidersMatchManifests(): void {
     // Both rules below are compile-time errors too (mapper + Haskell
     // validator); asserting them here as well means no generated-code path can
     // quietly outlive a validation gap.
-    if (!manifest.providerId.startsWith('external:')) {
+    if (manifest.providerId.length === 0 || manifest.providerId.includes(':')) {
       errors.push(
-        `the manifest declares id '${manifest.providerId}', which does not start with 'external:' -- ` +
-          `the unprefixed namespace is reserved for Wasp's own auth methods`,
+        `the manifest declares id '${manifest.providerId}', which is empty or contains a ':' -- ` +
+          `the ':' separates a provider id from its identity namespaces`,
       )
     }
 

@@ -69,7 +69,6 @@ import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as Serve
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
-import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
@@ -101,19 +100,16 @@ buildSdk generatedAppDir = do
 
 -- | The client HTTP wrapper. Deliberately provider-free: requests carry the
 -- Wasp session and nothing else, and the credential exchange helper exists iff
--- external providers do.
+-- auth does.
 genApiIndexTs :: AppSpec -> Generator FileDraft
 genApiIndexTs spec =
   return $
     C.mkTmplFdWithData
       [relfile|api/index.ts|]
       ( object
-          [ "anyExternalProvidersUsed" .= isExternalProviderUsed
+          [ "isAuthEnabled" .= isAuthEnabled spec
           ]
       )
-  where
-    isExternalProviderUsed =
-      maybe False AS.App.Auth.isExternalAuthProviderUsed (AS.App.auth $ snd $ AS.Valid.getApp spec)
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -206,7 +202,6 @@ genPackageJson spec = do
       ( object
           [ "sdkPackageName" .= C.sdkPackageName,
             "isAuthEnabled" .= isAuthEnabled spec,
-            "isWaspAuthProviderUsed" .= AS.Valid.isWaspAuthUsed spec,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
@@ -305,10 +300,8 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "isWaspAuthUsed" .= AS.Valid.isWaspAuthUsed spec,
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
 

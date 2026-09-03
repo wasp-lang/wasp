@@ -3,8 +3,8 @@ export {
 } from '../../auth/providers/types.js'
 
 // The identity store: the one channel for reading and writing auth
-// identities. Wasp's own auth flows use the exact same facet a user-made
-// provider gets -- no privileged access.
+// identities. Every auth provider package uses the exact same facet a
+// hand-written provider gets -- no privileged access.
 export {
   getIdentityStore,
   type Identity,
@@ -14,6 +14,14 @@ export {
 
 export { createInvalidCredentialsError } from './utils.js'
 
+export {
+  createProviderId,
+  parseProviderData,
+  parseProviderSecrets,
+  type ProviderId,
+  type ProviderName,
+} from './utils.js'
+
 // The app-level lifecycle hooks (`auth.hooks`) fire for EVERY provider, so
 // their types exist for every provider mix.
 export type {
@@ -22,7 +30,4 @@ export type {
   OnBeforeLoginHook,
   OnAfterLoginHook,
   InternalAuthHookParams,
-  OAuthData,
 } from './hooks.js'
-
-

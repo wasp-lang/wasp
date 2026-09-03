@@ -34,7 +34,7 @@ export const clerkAuthProvider: AuthProvider & SupportsSessionRevocation = {
   /**
    * Becomes `AuthIdentity.providerName`, so it must stay stable across deploys.
    */
-  id: "external:clerk",
+  id: "clerk",
 
   /**
    * Wasp hands every adapter a standard web `Request` -- built from the HTTP

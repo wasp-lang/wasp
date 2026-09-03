@@ -48,9 +48,10 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          // Wasp's own auth UI ships CSS; Vite must process the package for
-          // prerendering rather than leaving it to Node's loader.
-          noExternal: ["@wasp.sh/auth"],
+          // Client auth adapter packages may ship CSS (Wasp's own auth forms
+          // do); Vite must process them for prerendering rather than leaving
+          // them to Node's loader.
+          noExternal: {=& ssrNoExternal =},
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them

@@ -36,7 +36,7 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: ['wasp', '@wasp.sh/auth-contract', '@wasp.sh/lib-auth', '@wasp.sh/auth', '@wasp.sh/lib-vite-ssr']
+          exclude: ['wasp', '@wasp.sh/auth-contract', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
         },
         server: {
           port: useUserValue(config.server?.port, 3000),
@@ -47,9 +47,10 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          // Wasp's own auth UI ships CSS; Vite must process the package for
-          // prerendering rather than leaving it to Node's loader.
-          noExternal: ["@wasp.sh/auth"],
+          // Client auth adapter packages may ship CSS (Wasp's own auth forms
+          // do); Vite must process them for prerendering rather than leaving
+          // them to Node's loader.
+          noExternal: ['@wasp.sh/auth', '@wasp.sh/auth-clerk'],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them

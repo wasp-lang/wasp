@@ -1,4 +1,5 @@
 import ky, { isHTTPError } from 'ky'
+import type { AuthProviderId } from '../auth/provider.js'
 import { config } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
@@ -110,6 +111,51 @@ export const api = ky.extend({
     ],
   },
 })
+
+/**
+ * Exchanges an auth provider's credential for a Wasp session
+ * (`POST /auth/login/:providerId`). Uses plain `fetch` rather than the `api`
+ * instance so the request does not recurse through the hooks above. The
+ * provider id rides in the path percent-encoded, in one place.
+ */
+async function fetchSessionForCredential(
+  providerId: AuthProviderId,
+  credential: string,
+): Promise<string | null> {
+  const response = await fetch(buildExchangeUrl(providerId), {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${credential}` },
+  })
+  if (!response.ok) {
+    return null
+  }
+  const { sessionId } = (await response.json()) as { sessionId: string }
+  return sessionId
+}
+
+function buildExchangeUrl(providerId: AuthProviderId): string {
+  return `${config.apiUrl}/auth/login/${encodeURIComponent(providerId)}`
+}
+
+// PUBLIC API
+/**
+ * Exchanges the named auth provider's credential for a Wasp session and
+ * stores it, so every subsequent API call is authenticated. The addressed
+ * provider rejecting the credential is final -- there is no fallthrough to
+ * other providers. Client wiring calls this once after the provider's own
+ * login flow succeeds; from then on the provider is off the request path
+ * until logout.
+ */
+export async function exchangeCredentialForSession(
+  providerId: AuthProviderId,
+  credential: string,
+): Promise<void> {
+  const sessionId = await fetchSessionForCredential(providerId, credential)
+  if (sessionId === null) {
+    throw new Error(`Exchanging the '${providerId}' auth provider credential for a session failed.`)
+  }
+  setSessionId(sessionId, providerId)
+}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.

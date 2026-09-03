@@ -1,8 +1,8 @@
 {{={= =}=}}
 import ky, { isHTTPError } from 'ky'
-{=# anyExternalProvidersUsed =}
-import type { ExternalAuthProviderId } from '../auth/provider.js'
-{=/ anyExternalProvidersUsed =}
+{=# isAuthEnabled =}
+import type { AuthProviderId } from '../auth/provider.js'
+{=/ isAuthEnabled =}
 import { config } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
@@ -114,17 +114,16 @@ export const api = ky.extend({
     ],
   },
 })
-{=# anyExternalProvidersUsed =}
+{=# isAuthEnabled =}
 
 /**
  * Exchanges an auth provider's credential for a Wasp session
  * (`POST /auth/login/:providerId`). Uses plain `fetch` rather than the `api`
  * instance so the request does not recurse through the hooks above. The
- * provider id rides in the path percent-encoded, in one place, because ids
- * contain a ':' ('external:clerk').
+ * provider id rides in the path percent-encoded, in one place.
  */
 async function fetchSessionForCredential(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   credential: string,
 ): Promise<string | null> {
   const response = await fetch(buildExchangeUrl(providerId), {
@@ -138,7 +137,7 @@ async function fetchSessionForCredential(
   return sessionId
 }
 
-function buildExchangeUrl(providerId: ExternalAuthProviderId): string {
+function buildExchangeUrl(providerId: AuthProviderId): string {
   return `${config.apiUrl}/auth/login/${encodeURIComponent(providerId)}`
 }
 
@@ -152,7 +151,7 @@ function buildExchangeUrl(providerId: ExternalAuthProviderId): string {
  * until logout.
  */
 export async function exchangeCredentialForSession(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   credential: string,
 ): Promise<void> {
   const sessionId = await fetchSessionForCredential(providerId, credential)
@@ -161,7 +160,7 @@ export async function exchangeCredentialForSession(
   }
   setSessionId(sessionId, providerId)
 }
-{=/ anyExternalProvidersUsed =}
+{=/ isAuthEnabled =}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.

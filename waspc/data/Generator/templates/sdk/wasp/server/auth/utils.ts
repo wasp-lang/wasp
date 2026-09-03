@@ -7,27 +7,16 @@ import {
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { throwValidationError } from '../../auth/validation.js'
-
 import { type UserSignupFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).
 export {
   createProviderId,
-  normalizeProviderUserId,
   parseProviderData,
   parseProviderSecrets,
   type ProviderId,
   type ProviderName,
-  type PossibleProviderData,
-  type PossibleProviderSecrets,
-  type EmailProviderData,
-  type EmailProviderSecrets,
-  type UsernameProviderData,
-  type UsernameProviderSecrets,
-  type OAuthProviderData,
-  type OAuthProviderSecrets,
 } from '../../auth/providerData.js'
 
 // PRIVATE API
@@ -40,7 +29,6 @@ export const contextWithUserEntity = {
 // PRIVATE API
 export const authConfig = {
   failureRedirectPath: "{= failureRedirectPath =}",
-  successRedirectPath: "{= successRedirectPath =}",
 }
 
 // PRIVATE API
@@ -155,7 +143,7 @@ export async function validateAndGetUserFields(
       const value = await getFieldValue(sanitizedData)
       result[field] = value
     } catch (e) {
-      throwValidationError(e.message)
+      throw new HttpError(422, 'Validation failed', { message: e.message })
     }
   }
   return result;

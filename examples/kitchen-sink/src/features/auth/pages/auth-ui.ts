@@ -1,4 +1,4 @@
-import { CustomizationOptions } from "wasp/client/auth";
+import { CustomizationOptions } from "@wasp.sh/auth/client";
 
 export const customisationProps = {
   appearance: {

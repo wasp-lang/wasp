@@ -41,7 +41,7 @@ export function LoginPage() {
     // operation call pick it up.
     const { exchangeCredentialForSession } = await import("wasp/client/api");
     try {
-      await exchangeCredentialForSession("external:better-auth", token);
+      await exchangeCredentialForSession("better-auth", token);
     } catch {
       setError("Signing in to the app with the Better Auth session failed");
       return;

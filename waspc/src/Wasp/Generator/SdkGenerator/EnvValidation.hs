@@ -18,13 +18,11 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
@@ -59,17 +57,14 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
-          "isWaspAuthUsed" .= AS.Valid.isWaspAuthUsed spec,
-          "externalAuthProviderServerEnvVars"
-            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getExternalAuthProviders spec),
+          "authProviderServerEnvVars"
+            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getAuthProviders spec),
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
           "defaultServerPort" .= Server.defaultServerPort,
-          "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
@@ -87,21 +82,21 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "isExternalAuthProviderUsed" .= (not . null $ externalProviders),
-          "externalAuthProviderClientEnvVars"
-            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) externalProviders,
+          "isAuthEnabled" .= (not . null $ providers),
+          "authProviderClientEnvVars"
+            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) providers,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
-    externalProviders = AS.Valid.getExternalAuthProviders spec
+    providers = AS.Valid.getAuthProviders spec
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
 
--- | Env vars an external auth provider's manifest declared, rendered into the
+-- | Env vars an auth provider's manifest declared, rendered into the
 -- generated zod schemas so a missing var fails at boot with the manifest's own
 -- explanation.
 externalProviderEnvVarsTmplData ::
-  (AS.Auth.ExternalProviderEnvVars -> [AS.Auth.ExternalProviderEnvVar]) ->
-  AS.Auth.ExternalAuthProviderSpec ->
+  (AS.Auth.AuthProviderEnvVars -> [AS.Auth.AuthProviderEnvVar]) ->
+  AS.Auth.AuthProviderSpec ->
   [Aeson.Value]
 externalProviderEnvVarsTmplData getVars extProvider =
   toTmplData <$> getVars (AS.Auth.envVars extProvider)

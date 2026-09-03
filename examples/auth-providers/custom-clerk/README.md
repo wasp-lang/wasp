@@ -11,7 +11,7 @@ auth: {
   userEntity: "User",
   onAuthFailedRedirectTo: "/login",
   provider: customAuthProvider({
-    id: "external:clerk",
+    id: "clerk",
     server: clerkAuthProvider,
     capabilities: ["session-revocation"],
     env: { server: [/* CLERK_SECRET_KEY, ... */], client: [] },

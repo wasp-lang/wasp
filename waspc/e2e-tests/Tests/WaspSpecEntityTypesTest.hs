@@ -92,7 +92,7 @@ waspSpecEntityTypesTest =
     mainWaspTs :: T.Text -> T.Text
     mainWaspTs entityName =
       [trimming|
-        import { app, ref, route, waspAuth } from "@wasp.sh/spec";
+        import { app, customAuthProvider, ref, route } from "@wasp.sh/spec";
 
         export default app({
           name: "enti",
@@ -103,10 +103,9 @@ waspSpecEntityTypesTest =
             userEntity: "$entityName",
             onAuthFailedRedirectTo: "/",
             providers: [
-              waspAuth({
-                methods: {
-                  usernameAndPassword: {},
-                },
+              customAuthProvider({
+                id: "test",
+                server: ref({ from: "./src/auth", import: "provider" }),
               }),
             ],
           },

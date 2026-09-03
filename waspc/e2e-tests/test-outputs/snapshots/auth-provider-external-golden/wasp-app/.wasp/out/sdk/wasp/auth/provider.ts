@@ -11,20 +11,11 @@
  * ```
  */
 export const authProviderIds = [
-  "external:clerk",
+  "clerk",
 ] as const;
 
 // PUBLIC API
 export type AuthProviderId = (typeof authProviderIds)[number];
-
-// PUBLIC API
-/**
- * The provider ids a credential can be exchanged with (`POST
- * /auth/login/:providerId`): every provider except Wasp's own auth, which
- * mints sessions through its own routes. `never` when the app has no external
- * providers.
- */
-export type ExternalAuthProviderId = Exclude<AuthProviderId, "wasp">;
 
 // PUBLIC API
 /**
@@ -33,5 +24,5 @@ export type ExternalAuthProviderId = Exclude<AuthProviderId, "wasp">;
  * about.
  */
 export const authCapabilities: { readonly [Id in AuthProviderId]: readonly string[] } = {
-  "external:clerk": ['session-revocation'],
+  "clerk": ['session-revocation'],
 };

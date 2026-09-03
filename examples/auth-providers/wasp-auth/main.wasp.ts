@@ -1,4 +1,5 @@
-import { action, app, page, query, route, waspAuth } from "@wasp.sh/spec";
+import { waspAuth } from "@wasp.sh/auth/spec";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
@@ -11,6 +12,8 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
+    // Wasp's own auth is an adapter package like Better Auth or Clerk: the
+    // compiler knows nothing about it beyond its manifest.
     providers: [
       waspAuth({
         methods: {

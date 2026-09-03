@@ -1,6 +1,6 @@
 {{={= =}=}}
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js'
+import type { AuthProviderId } from '../../auth/provider.js'
 import {
   api,
   getLastAuthProviderId,
@@ -17,9 +17,6 @@ import { exchangeCredentialForSession } from '../../api/index.js'
 import { createClientAdapter as createClientAdapter_{= index =} } from '{= clientPackage =}'
 {=/ clientAdapterProviders =}
 {=/ anyClientAdapters =}
-{=# isWaspAuthProviderUsed =}
-import { createClientAdapter as createWaspAuthClientAdapter } from '@wasp.sh/auth/client'
-{=/ isWaspAuthProviderUsed =}
 
 /**
  * The client halves of the app's auth providers, instantiated from each
@@ -50,15 +47,9 @@ function makeClientRuntime(
     },
   }
 }
-{=# isWaspAuthProviderUsed =}
-
-// Wasp's own auth, instantiated from the @wasp.sh/auth lib exactly like an
-// adapter package's client entry: its forms and actions read this runtime.
-createWaspAuthClientAdapter(makeClientRuntime('wasp', []), {=& waspAuthOptionsJson =})
-{=/ isWaspAuthProviderUsed =}
 
 // PRIVATE API
-export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {
+export const clientAuthAdapters: Partial<Record<AuthProviderId, ClientAuthAdapter>> = {
   {=# clientAdapterProviders =}
   '{= providerId =}': createClientAdapter_{= index =}(makeClientRuntime('{= providerId =}', {=& clientEnvVarNamesJs =}), {=# hasOptions =}{=& optionsJson =}{=/ hasOptions =}{=^ hasOptions =}undefined{=/ hasOptions =}),
   {=/ clientAdapterProviders =}
@@ -104,10 +95,11 @@ async function attemptResumeSession(): Promise<boolean> {
   if (lastProviderId === null) {
     return false
   }
-  const adapter = clientAuthAdapters[lastProviderId as ExternalAuthProviderId]
+  const adapter = clientAuthAdapters[lastProviderId as AuthProviderId]
   if (adapter?.getCredential === undefined) {
-    // 'wasp' or an adapter-less provider: nothing exists outside the Wasp
-    // session itself, so an expired session correctly means "log in again".
+    // An adapter without a credential source (Wasp's own auth, for one):
+    // nothing exists outside the Wasp session itself, so an expired session
+    // correctly means "log in again".
     return false
   }
   const credential = await adapter.getCredential()
@@ -115,7 +107,7 @@ async function attemptResumeSession(): Promise<boolean> {
     return false
   }
   try {
-    await exchangeCredentialForSession(lastProviderId as ExternalAuthProviderId, credential)
+    await exchangeCredentialForSession(lastProviderId as AuthProviderId, credential)
   } catch {
     return false
   }
@@ -132,7 +124,7 @@ async function attemptResumeSession(): Promise<boolean> {
  * For providers without a client adapter, obtain the credential yourself and
  * call `exchangeCredentialForSession`.
  */
-export async function loginWithAuthProvider(providerId: ExternalAuthProviderId): Promise<void> {
+export async function loginWithAuthProvider(providerId: AuthProviderId): Promise<void> {
   {=# anyClientAdapters =}
   const adapter = clientAuthAdapters[providerId]
   if (adapter?.getCredential === undefined) {
@@ -176,11 +168,11 @@ export async function loginWithAuthProvider(providerId: ExternalAuthProviderId):
  *    minted it (Clerk signing out must not kill a Better Auth session).
  */
 for (const [providerId, adapter] of Object.entries(clientAuthAdapters)) {
-  wireAdapterCredentialEvents(providerId as ExternalAuthProviderId, adapter as ClientAuthAdapter)
+  wireAdapterCredentialEvents(providerId as AuthProviderId, adapter as ClientAuthAdapter)
 }
 
 function wireAdapterCredentialEvents(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   adapter: ClientAuthAdapter,
 ): void {
   const getCredential = adapter.getCredential?.bind(adapter)

@@ -18,8 +18,6 @@ import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
-import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
@@ -132,25 +130,7 @@ spec_AppSpecValid = do
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                 AS.Auth.onAuthFailedRedirectTo = "/",
                 AS.Auth.hooks = Nothing,
-                AS.Auth.providers =
-                  [ AS.Auth.WaspAuthProvider
-                      AS.Auth.WaspAuthConfig
-                        { AS.Auth.waspAuthMethods =
-                            AS.Auth.AuthMethods
-                              { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
-                                AS.Auth.discord = Nothing,
-                                AS.Auth.slack = Nothing,
-                                AS.Auth.google = Nothing,
-                                AS.Auth.gitHub = Nothing,
-                                AS.Auth.keycloak = Nothing,
-                                AS.Auth.microsoft = Nothing,
-                                AS.Auth.email = Nothing
-                              },
-                          AS.Auth.waspAuthOnAuthSucceededRedirectTo = Nothing,
-                          AS.Auth.waspAuthOnAfterEmailVerified = Nothing,
-                          AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing
-                        }
-                  ]
+                AS.Auth.providers = [makeTestAuthProvider "wasp"]
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -180,100 +160,6 @@ spec_AppSpecValid = do
           ASV.doesUserEntityContainField (makeSpec Nothing Nothing) "id" `shouldBe` Nothing
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "id" `shouldBe` Just True
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "missing" `shouldBe` Just False
-
-      describe "should validate that UsernameAndPassword and Email auth cannot used at the same time" $ do
-        let makeSpec authMethods userEntity =
-              basicAppSpec
-                { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $
-                        basicApp
-                          { AS.App.auth =
-                              Just
-                                AS.Auth.Auth
-                                  { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.hooks = Nothing,
-                                    AS.Auth.providers = [makeWaspAuthProviderWithMethods authMethods]
-                                  },
-                            AS.App.emailSender =
-                              Just
-                                AS.EmailSender.EmailSender
-                                  { AS.EmailSender.provider = AS.EmailSender.Mailgun,
-                                    AS.EmailSender.defaultFrom = Nothing
-                                  }
-                          },
-                      AS.Decl.makeDecl userEntityName userEntity,
-                      basicPageDecl,
-                      basicRouteDecl
-                    ]
-                }
-        let emailAuthConfig =
-              AS.Auth.EmailAuthConfig
-                { AS.Auth.userSignupFields = Nothing,
-                  AS.Auth.fromField =
-                    AS.EmailSender.EmailFromField
-                      { AS.EmailSender.email = "dummy@info.com",
-                        AS.EmailSender.name = Nothing
-                      },
-                  AS.Auth.emailVerification =
-                    AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.passwordReset =
-                    AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      }
-                }
-
-        it "returns no error if app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
-
-        it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
-          ASV.validateAppSpec
-            ( makeSpec
-                ( AS.Auth.AuthMethods
-                    { usernameAndPassword =
-                        Just
-                          AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.userSignupFields = Nothing
-                            },
-                      discord = Nothing,
-                      slack = Nothing,
-                      google = Nothing,
-                      keycloak = Nothing,
-                      gitHub = Nothing,
-                      microsoft = Nothing,
-                      email = Nothing
-                    }
-                )
-                validUserEntity
-            )
-            `shouldBe` []
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
-
-        it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
-          ASV.validateAppSpec
-            ( makeSpec
-                ( AS.Auth.AuthMethods
-                    { usernameAndPassword =
-                        Just
-                          AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.userSignupFields = Nothing
-                            },
-                      slack = Nothing,
-                      discord = Nothing,
-                      google = Nothing,
-                      keycloak = Nothing,
-                      gitHub = Nothing,
-                      microsoft = Nothing,
-                      email = Just emailAuthConfig
-                    }
-                )
-                validUserEntity
-            )
-            `shouldContain` [Valid.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
         let makeSpec appAuth userEntity =
@@ -326,26 +212,6 @@ spec_AppSpecValid = do
                        ]
 
       describe "should validate email sender setup." $ do
-        let emailAuthConfig =
-              AS.Auth.EmailAuthConfig
-                { AS.Auth.userSignupFields = Nothing,
-                  AS.Auth.fromField =
-                    AS.EmailSender.EmailFromField
-                      { AS.EmailSender.email = "dummy@info.com",
-                        AS.EmailSender.name = Nothing
-                      },
-                  AS.Auth.emailVerification =
-                    AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.passwordReset =
-                    AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      }
-                }
-
         let makeSpec emailSender isProduction =
               basicAppSpec
                 { AS.buildType = if isProduction then BuildType.Production else BuildType.Development,
@@ -359,9 +225,7 @@ spec_AppSpecValid = do
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.hooks = Nothing,
                                     AS.Auth.providers =
-                                      [ makeWaspAuthProviderWithMethods
-                                          AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing}
-                                      ]
+                                      [(makeTestAuthProvider "wasp") {AS.Auth.uses = ["email-send"]}]
                                   },
                             AS.App.emailSender = emailSender
                           },
@@ -388,9 +252,9 @@ spec_AppSpecValid = do
                   AS.EmailSender.defaultFrom = Nothing
                 }
 
-        it "returns an error if no email sender is set but email auth is used" $ do
-          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [Valid.GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
-        it "returns no error if email sender is defined while using email auth" $ do
+        it "returns an error if no email sender is set but a provider requests the email-send grant" $ do
+          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [Valid.GenericValidationError "Auth provider 'wasp' requests the 'email-send' grant, which requires app.emailSender to be specified."]
+        it "returns no error if email sender is defined while a provider requests the email-send grant" $ do
           ASV.validateAppSpec (makeSpec (Just mailgunEmailSender) False) `shouldBe` []
         it "returns no error if the Dummy email sender is used in development" $ do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) False) `shouldBe` []
@@ -398,7 +262,7 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
             `shouldBe` [Valid.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
 
-      describe "should validate external auth provider manifests" $ do
+      describe "should validate auth provider manifests" $ do
         let makeSpec extProvider =
               basicAppSpec
                 { AS.decls =
@@ -410,7 +274,7 @@ spec_AppSpecValid = do
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.hooks = Nothing,
-                                    AS.Auth.providers = [AS.Auth.ExternalAuthProvider extProvider]
+                                    AS.Auth.providers = [extProvider]
                                   }
                           },
                       AS.Decl.makeDecl userEntityName validUserEntity,
@@ -418,47 +282,30 @@ spec_AppSpecValid = do
                       basicRouteDecl
                     ]
                 }
-        let basicExternalProvider =
-              AS.Auth.ExternalAuthProviderSpec
-                { AS.Auth.providerId = "external:test",
-                  AS.Auth.server = AS.Auth.ExternalProviderServer (Left "@wasp.sh/auth-test"),
-                  AS.Auth.clientPackage = Nothing,
-                  AS.Auth.routes = Nothing,
-                  AS.Auth.capabilities = [],
-                  AS.Auth.envVars =
-                    AS.Auth.ExternalProviderEnvVars
-                      { AS.Auth.server = [],
-                        AS.Auth.client = []
-                      },
-                  AS.Auth.uses = [],
-                  AS.Auth.identityNamespaces = ["external:test"],
-                  AS.Auth.userSignupFields = Nothing,
-                  AS.Auth.setupFn = Nothing,
-                  AS.Auth.optionsJson = Nothing
-                }
+        let basicExternalProvider = makeTestAuthProvider "test"
         let makeEnvVar name =
-              AS.Auth.ExternalProviderEnvVar
+              AS.Auth.AuthProviderEnvVar
                 { AS.Auth.name = name,
                   AS.Auth.optional = Nothing,
-                  AS.Auth.doc = Nothing
+                  AS.Auth.doc = Nothing,
+                  AS.Auth.devDefault = Nothing
                 }
 
-        it "returns no error for a well-formed external provider" $ do
+        it "returns no error for a well-formed provider" $ do
           ASV.validateAppSpec (makeSpec basicExternalProvider) `shouldBe` []
 
-        it "returns an error when the provider id lacks the external: prefix" $ do
+        it "returns an error when the provider id contains a ':'" $ do
           ASV.validateAppSpec
-            (makeSpec basicExternalProvider {AS.Auth.providerId = "test", AS.Auth.identityNamespaces = ["test"]})
+            (makeSpec basicExternalProvider {AS.Auth.providerId = "te:st", AS.Auth.identityNamespaces = ["te:st"]})
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth provider id 'test' must start with 'external:' (e.g. 'external:clerk')."
-                             ++ " The unprefixed namespace is reserved for Wasp's own auth methods, which record"
-                             ++ " identities in the same place -- the prefix is what makes a collision impossible."
+                           "Auth provider id 'te:st' must be non-empty and contain no ':' -- the ':' separates"
+                             ++ " a provider id from its identity namespaces ('wasp:email')."
                        ]
 
         it "returns an error when cookie-transport is declared without session-revocation" $ do
           ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.capabilities = ["cookie-transport"]})
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth provider 'external:test' declares the 'cookie-transport' capability without"
+                           "Auth provider 'test' declares the 'cookie-transport' capability without"
                              ++ " 'session-revocation'. A provider whose credential lives in a cookie must be able"
                              ++ " to revoke sessions server-side, or logout would only appear to work."
                        ]
@@ -473,14 +320,14 @@ spec_AppSpecValid = do
             ( makeSpec
                 basicExternalProvider
                   { AS.Auth.envVars =
-                      AS.Auth.ExternalProviderEnvVars
-                        { AS.Auth.server = [makeEnvVar "JWT_SECRET"],
+                      AS.Auth.AuthProviderEnvVars
+                        { AS.Auth.server = [makeEnvVar "DATABASE_URL"],
                           AS.Auth.client = []
                         }
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth provider 'external:test' declares the server env var 'JWT_SECRET', which Wasp"
+                           "Auth provider 'test' declares the server env var 'DATABASE_URL', which Wasp"
                              ++ " owns. Framework env var names cannot be declared by providers; pick a"
                              ++ " provider-specific name."
                        ]
@@ -490,14 +337,14 @@ spec_AppSpecValid = do
             ( makeSpec
                 basicExternalProvider
                   { AS.Auth.envVars =
-                      AS.Auth.ExternalProviderEnvVars
+                      AS.Auth.AuthProviderEnvVars
                         { AS.Auth.server = [],
                           AS.Auth.client = [makeEnvVar "REACT_APP_API_URL"]
                         }
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth provider 'external:test' declares the client env var 'REACT_APP_API_URL', which"
+                           "Auth provider 'test' declares the client env var 'REACT_APP_API_URL', which"
                              ++ " Wasp owns. Framework env var names cannot be declared by providers; pick a"
                              ++ " provider-specific name."
                        ]
@@ -507,7 +354,7 @@ spec_AppSpecValid = do
             ( makeSpec
                 basicExternalProvider
                   { AS.Auth.envVars =
-                      AS.Auth.ExternalProviderEnvVars
+                      AS.Auth.AuthProviderEnvVars
                         { AS.Auth.server = [makeEnvVar "TEST_API_SECRET"],
                           AS.Auth.client = [makeEnvVar "REACT_APP_TEST_KEY"]
                         }
@@ -518,7 +365,7 @@ spec_AppSpecValid = do
         it "returns an error for an unknown runtime grant" $ do
           ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["mint-gold"]})
             `shouldBe` [ Valid.GenericValidationError
-                           "Auth provider 'external:test' requests the unknown runtime grant 'mint-gold'. Known grants: wasp-sessions, email-send, identity-namespaces."
+                           "Auth provider 'test' requests the unknown runtime grant 'mint-gold'. Known grants: wasp-sessions, email-send, identity-namespaces."
                        ]
 
         it "returns no error for known runtime grants" $ do
@@ -530,12 +377,12 @@ spec_AppSpecValid = do
             ( makeSpec
                 basicExternalProvider
                   { AS.Auth.uses = ["identity-namespaces"],
-                    AS.Auth.identityNamespaces = ["external:test", "email"]
+                    AS.Auth.identityNamespaces = ["test", "email"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth provider 'external:test' declares the identity namespace 'email', which it"
-                             ++ " does not own. A namespace must be the provider id or 'external:test/<suffix>'"
+                           "Auth provider 'test' declares the identity namespace 'email', which it"
+                             ++ " does not own. A namespace must be the provider id or 'test:<suffix>'"
                              ++ " -- that rule is what makes cross-provider identity collisions impossible."
                        ]
 
@@ -543,11 +390,11 @@ spec_AppSpecValid = do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.identityNamespaces = ["external:test", "external:test/passkey"]
+                  { AS.Auth.identityNamespaces = ["test", "test:passkey"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth provider 'external:test' declares identity namespaces beyond its default one,"
+                           "Auth provider 'test' declares identity namespaces beyond its default one,"
                              ++ " which requires the 'identity-namespaces' grant in `uses`."
                        ]
 
@@ -556,7 +403,7 @@ spec_AppSpecValid = do
             ( makeSpec
                 basicExternalProvider
                   { AS.Auth.uses = ["identity-namespaces"],
-                    AS.Auth.identityNamespaces = ["external:test", "external:test/passkey"]
+                    AS.Auth.identityNamespaces = ["test", "test:passkey"]
                   }
             )
             `shouldBe` []
@@ -564,7 +411,7 @@ spec_AppSpecValid = do
         it "returns an error for the email-send grant without an email sender" $ do
           ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["email-send"]})
             `shouldBe` [ Valid.GenericValidationError
-                           "Auth provider 'external:test' requests the 'email-send' grant, which requires app.emailSender to be specified."
+                           "Auth provider 'test' requests the 'email-send' grant, which requires app.emailSender to be specified."
                        ]
 
     describe "duplicate declarations validation" $ do
@@ -973,12 +820,24 @@ spec_AppSpecValid = do
         (fromJust $ SP.parseRelFileP "dummy/File")
         Nothing
 
-makeWaspAuthProviderWithMethods :: AS.Auth.AuthMethods -> AS.Auth.AuthProvider
-makeWaspAuthProviderWithMethods authMethods =
-  AS.Auth.WaspAuthProvider
-    AS.Auth.WaspAuthConfig
-      { AS.Auth.waspAuthMethods = authMethods,
-        AS.Auth.waspAuthOnAuthSucceededRedirectTo = Nothing,
-        AS.Auth.waspAuthOnAfterEmailVerified = Nothing,
-        AS.Auth.waspAuthOnBeforeOAuthRedirect = Nothing
-      }
+-- | A minimal, well-formed provider manifest with the given id.
+makeTestAuthProvider :: String -> AS.Auth.AuthProviderSpec
+makeTestAuthProvider providerId =
+  AS.Auth.AuthProviderSpec
+    { AS.Auth.providerId = providerId,
+      AS.Auth.server = AS.Auth.AuthProviderServer (Left ("@wasp.sh/auth-" ++ providerId)),
+      AS.Auth.clientPackage = Nothing,
+      AS.Auth.routes = Nothing,
+      AS.Auth.capabilities = [],
+      AS.Auth.envVars =
+        AS.Auth.AuthProviderEnvVars
+          { AS.Auth.server = [],
+            AS.Auth.client = []
+          },
+      AS.Auth.uses = [],
+      AS.Auth.identityNamespaces = [providerId],
+      AS.Auth.userSignupFields = Nothing,
+      AS.Auth.setupFn = Nothing,
+      AS.Auth.extensions = M.empty,
+      AS.Auth.optionsJson = Nothing
+    }

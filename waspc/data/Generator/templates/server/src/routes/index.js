@@ -5,14 +5,9 @@ import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
 {=/ isAuthEnabled =}
-{=# anyExternalAuthProviderRoutes =}
+{=# anyAuthProviderRoutes =}
 import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
-{=/ anyExternalAuthProviderRoutes =}
-{=^ anyExternalAuthProviderRoutes =}
-{=# isWaspAuthProviderUsed =}
-import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
-{=/ isWaspAuthProviderUsed =}
-{=/ anyExternalAuthProviderRoutes =}
+{=/ anyAuthProviderRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
 {=/ areThereAnyCustomApiRoutes =}
@@ -49,16 +44,10 @@ router.get('/', middleware,
 {=# isAuthEnabled =}
 router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
-{=# isWaspAuthProviderUsed =}
-// Wasp's own signup and login flows, brought along by the @wasp.sh/auth lib
-// and mounted under the framework's auth routes like any provider's routes.
-router.use('/auth', middleware, (req, res, next) => {
-  return Promise.resolve(authProviderRouteHandlers['wasp'](req, res)).catch(next)
-})
-{=/ isWaspAuthProviderUsed =}
-{=# externalAuthProviderRoutes =}
+{=# authProviderRoutes =}
 // The routes provider '{= providerId =}' brought along, mounted where its
-// manifest asked. The usual middleware stack applies{=# rawBody =}, minus the
+// manifest asked (Wasp's own auth at /auth/wasp, after the framework's own
+// /auth routes above). The usual middleware stack applies{=# rawBody =}, minus the
 // body parsers: the provider's handler reads the raw request stream itself,
 // and a body that was already consumed would make every request to it
 // hang{=/ rawBody =}.
@@ -76,7 +65,7 @@ router.use('{= basePath =}', authProviderMiddleware_{= index =}, (req, res, next
   }
   return Promise.resolve(routeHandler(req, res)).catch(next)
 })
-{=/ externalAuthProviderRoutes =}
+{=/ authProviderRoutes =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
 {=# areThereAnyCrudRoutes =}
 router.use('/{= crudRouteInRootRouter =}', middleware, rootCrudRouter)

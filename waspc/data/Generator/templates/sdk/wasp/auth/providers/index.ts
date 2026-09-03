@@ -1,9 +1,2 @@
-{{={= =}=}}
-
-{=# isEmailUserSignupFieldsDefined =}
-export type { UserEmailSignupFields } from './types';
-{=/ isEmailUserSignupFieldsDefined =}
-
-{=# isUsernameAndPasswordUserSignupFieldsDefined =}
-export type { UserUsernameAndPasswordSignupFields } from './types';
-{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
+// PUBLIC API
+export type { UserSignupFields } from './types.js';

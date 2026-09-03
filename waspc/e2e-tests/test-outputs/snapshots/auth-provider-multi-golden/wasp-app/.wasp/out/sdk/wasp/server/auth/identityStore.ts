@@ -3,12 +3,6 @@ import {
   type User,
   type Auth,
 } from '../../entities/index.js'
-import {
-  normalizeProviderUserId,
-  type PossibleProviderData,
-  type PossibleProviderSecrets,
-  type ProviderName,
-} from '../../auth/providerData.js'
 import { type PossibleUserFields } from '../../auth/providers/types.js'
 
 /**
@@ -103,31 +97,18 @@ export type IdentityStore<Data extends object, Secrets extends object> = {
 
 // PUBLIC API
 /**
- * The facet for one of Wasp's own auth methods, typed with its data shapes.
+ * The facet for one identity namespace (a provider id, or one of a
+ * provider's namespaces like `wasp:email`). Data shapes are the provider's
+ * own; normalizing the subject id (lower-casing an email, say) is the
+ * provider's job before it calls in.
  */
-export function getIdentityStore<PN extends ProviderName>(
-  providerName: PN,
-): IdentityStore<PossibleProviderData[PN], PossibleProviderSecrets[PN]>
-// PUBLIC API
-/**
- * The facet for a user-made provider (e.g. an `external:*` id): same powers
- * Wasp's own auth uses, with untyped data shapes -- the provider owns them.
- */
-export function getIdentityStore(
-  providerName: string,
-): IdentityStore<Record<string, unknown>, Record<string, unknown>>
 export function getIdentityStore(
   providerName: string,
 ): IdentityStore<Record<string, unknown>, Record<string, unknown>> {
-  // Unknown provider names pass through normalization unchanged (its default
-  // branch), so the cast only widens the accepted names.
-  const normalize = (providerUserId: string) =>
-    normalizeProviderUserId(providerName as ProviderName, providerUserId);
-
   const whereIdentity = (providerUserId: string) => ({
     providerName_providerUserId: {
       providerName,
-      providerUserId: normalize(providerUserId),
+      providerUserId,
     },
   });
 
@@ -159,7 +140,7 @@ export function getIdentityStore(
               identities: {
                 create: {
                   providerName,
-                  providerUserId: normalize(providerUserId),
+                  providerUserId: providerUserId,
                   providerClaims: JSON.stringify(identity?.claims ?? {}),
                   providerData: JSON.stringify(identity?.data ?? {}),
                   providerSecrets: JSON.stringify(identity?.secrets ?? {}),
@@ -232,7 +213,7 @@ export function getIdentityStore(
             identities: {
               some: {
                 providerName,
-                providerUserId: normalize(providerUserId),
+                providerUserId: providerUserId,
               },
             },
           },

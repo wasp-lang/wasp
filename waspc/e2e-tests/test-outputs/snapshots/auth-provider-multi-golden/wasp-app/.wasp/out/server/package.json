@@ -1,7 +1,6 @@
 {
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
-    "@wasp.sh/auth": "file:../libs/wasp-auth/wasp.sh-auth-0.26.0.tgz",
     "@wasp.sh/auth-contract": "file:../libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz",
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.26.0.tgz",
     "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz",

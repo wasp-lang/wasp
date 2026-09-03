@@ -1,3 +1,2 @@
-
-export type { UserEmailSignupFields } from './types';
-
+// PUBLIC API
+export type { UserSignupFields } from './types.js';

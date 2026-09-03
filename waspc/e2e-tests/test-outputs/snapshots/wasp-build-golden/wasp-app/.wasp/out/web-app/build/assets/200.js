@@ -328,18 +328,16 @@ var routes = { RootRoute: {
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/app/router.jsx
 function getRouteObjects({ routesMapping, rootElement }) {
-	const waspDefinedRoutes = [];
-	const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
-		return {
-			path: route.to,
-			...routesMapping[routeKey]
-		};
-	});
 	return [{
 		path: "/",
 		element: rootElement,
 		ErrorBoundary: DefaultRootErrorBoundary,
-		children: [...waspDefinedRoutes, ...userDefinedRoutes]
+		children: Object.entries(routes).map(([routeKey, route]) => {
+			return {
+				path: route.to,
+				...routesMapping[routeKey]
+			};
+		})
 	}];
 }
 //#endregion

@@ -1,4 +1,4 @@
-import { FormItemGroup, SignupForm } from "wasp/client/auth";
+import { FormItemGroup, SignupForm } from "@wasp.sh/auth/client";
 
 import { Link } from "wasp/client/router";
 

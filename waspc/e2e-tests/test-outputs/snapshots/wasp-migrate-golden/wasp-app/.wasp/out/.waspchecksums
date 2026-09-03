@@ -25,7 +25,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "09f3d541c4ebb8b0781a2725ee2c1f91f190fb3d152704bff41347414a2e298b"
+        "1051a9a0802b866160239ef495ef2a714a37c9f32ca531d58e6d5747baea57b1"
     ],
     [
         [
@@ -40,13 +40,6 @@
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.26.0.tgz"
         ],
         "5861342fc44ba43a186562a67b729c98a140f69aef4efb1b33474832dbeba466"
-    ],
-    [
-        [
-            "file",
-            "libs/wasp-auth/wasp.sh-auth-0.26.0.tgz"
-        ],
-        "4f2c9f6af566e573452ea33aeaf41fd260790155eea84c6b92142adb930cf887"
     ],
     [
         [
@@ -123,7 +116,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "3f8db611f300550058764b1ea3c453710828d335fb909ba7069e44f6eebda416"
+        "8decb44b930469d13158870a1b59095862a031a85fc29e7005f84cb950ab61e9"
     ],
     [
         [
@@ -354,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "f96f50c198f0bfa8e9d35a0d14e52b03319e434c041558b692f44f425e28a1b4"
+        "596fe14fa150db3f3e649951ed015ab760e2464459b2b8e4930bfd25cb2c1ab6"
     ],
     [
         [
@@ -445,7 +438,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "bca1160d8a53d3877ff75540b50143f859c29a43dc5a1a5829a98c095d041568"
+        "25cb1784ea13177438dcd9bae40e9fd9dc416cb476b4731853a208e74d2b9b7a"
     ],
     [
         [
@@ -508,7 +501,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "04da539c5de39d5424208af837f642eefe62c7647abddf150840bb62e396c51c"
+        "e7903e3deccf04b1efa693dca13e143bfac0a8266e34aa0a74574ea0f91b01ed"
     ],
     [
         [
@@ -697,14 +690,14 @@
             "file",
             "server/package.json"
         ],
-        "614f7c81df0db4b1c82d4a82f1926fc047b66e4102187540640bc49fb9df1c3c"
+        "d7a5749d11b835a4a62105296a3f0d1386fca2357e0cb7f4e78c2c7d5c35ad86"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "ad3308f02976dc31d660543bf2840c2d71ecc611eded594d4530aeb9946e8c97"
+        "31a1a45ab63301229185f9bd8ac533a3ba8f9572b8ce6185d0aeb14d57009705"
     ],
     [
         [

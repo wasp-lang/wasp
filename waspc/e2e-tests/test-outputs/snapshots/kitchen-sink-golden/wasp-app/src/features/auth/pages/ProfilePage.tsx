@@ -14,6 +14,10 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
     fetchCustomRoute();
   }, []);
 
+  const isEmailVerified =
+    user.identities.find((identity) => identity.providerName === "wasp:email")
+      ?.data.isEmailVerified === true;
+
   return (
     <FeatureContainer>
       <div className="space-y-4">
@@ -38,15 +42,13 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
                   <span
                     className={cn(
                       "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      user.identities.email?.isEmailVerified
+                      isEmailVerified
                         ? "border border-green-200 bg-green-100 text-green-800"
                         : "border border-amber-200 bg-amber-100 text-amber-800",
                     )}
                     data-testid="email-status"
                   >
-                    {user.identities.email?.isEmailVerified
-                      ? "Verified"
-                      : "Unverified"}
+                    {isEmailVerified ? "Verified" : "Unverified"}
                   </span>
                 </div>
               </SimpleCard>

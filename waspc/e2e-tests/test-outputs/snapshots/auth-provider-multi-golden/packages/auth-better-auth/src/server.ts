@@ -119,7 +119,7 @@ export const createServerAdapter: ServerAdapterFactory = (
      * this adapter, so it must stay stable across deploys. Changing it
      * orphans users.
      */
-    id: "external:better-auth",
+    id: "better-auth",
 
     /**
      * Wasp hands every adapter a standard web `Request` -- built from the

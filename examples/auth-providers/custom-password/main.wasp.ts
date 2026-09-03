@@ -28,7 +28,7 @@ export default app({
     // to issue or revoke -- Wasp's own session is the only one.
     providers: [
       customAuthProvider({
-        id: "external:password",
+        id: "password",
         server: passwordAuthProvider,
         capabilities: [],
         env: { server: [], client: [] },

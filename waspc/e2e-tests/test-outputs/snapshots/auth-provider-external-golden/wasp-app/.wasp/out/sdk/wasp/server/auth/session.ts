@@ -3,12 +3,12 @@ import { Request as ExpressRequest } from "express";
 import { type AuthUserData } from '../../auth/user.js';
 
 import { canRevokeSessions, type AuthProvider, type VerifiedSession } from "./provider/types.js";
-import { getAuthProvider, externalAuthProviders } from "./provider/index.js";
+import { getAuthProvider, authProviders } from "./provider/index.js";
 import * as sessionStore from "./sessionStore.js";
 
 import { prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
-import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js';
+import type { AuthProviderId } from '../../auth/provider.js';
 import { getIdentityStore } from './identityStore.js';
 import { findAuthWithUserBy, validateAndGetUserFields, type ProviderId } from './utils.js';
 import {
@@ -93,8 +93,8 @@ async function loadSessionAndUser(sessionId: string, authId: string, sessionProv
 
 // The provider's `userSignupFields` compute a provisioned user's own fields
 // from the claims that provider verified. Each provider brings its own.
-const userSignupFieldsByProviderId: Partial<Record<ExternalAuthProviderId, unknown>> = {
-  'external:clerk': undefined,
+const userSignupFieldsByProviderId: Partial<Record<AuthProviderId, unknown>> = {
+  'clerk': undefined,
 }
 
 // PRIVATE API
@@ -114,14 +114,11 @@ const userSignupFieldsByProviderId: Partial<Record<ExternalAuthProviderId, unkno
  * entirely.
  */
 export async function exchangeRequestForSession(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   req: ExpressRequest,
 ): Promise<{ id: string } | null> {
-  // The indexed-access type collapses to `never` in apps with no external
-  // providers (the route 404s before ever calling this), so the lookup is
-  // typed defensively.
   const provider: AuthProvider | undefined =
-    (externalAuthProviders as Record<string, AuthProvider>)[providerId];
+    (authProviders as Record<string, AuthProvider>)[providerId];
   if (provider === undefined) {
     return null;
   }
@@ -289,11 +286,8 @@ function isUniqueConstraintViolation(e: unknown): boolean {
   );
 }
 
-// The hook payloads speak `ProviderId`; external namespaces are not in the
-// generated `ProviderName` union, so the cast widens it -- the values are
-// plain strings either way.
 function makeHookProviderId(namespace: string, subjectId: string): ProviderId {
-  return { providerName: namespace, providerUserId: subjectId } as ProviderId;
+  return { providerName: namespace, providerUserId: subjectId };
 }
 
 // PRIVATE API

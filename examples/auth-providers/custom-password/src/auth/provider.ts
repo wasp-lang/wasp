@@ -18,10 +18,10 @@ import type {
  *   the result. A stateless verifier returns no `sessionId`, so logout has
  *   nothing to revoke upstream -- Wasp's session is the only one.
  */
-export const identities = getIdentityStore("external:password");
+export const identities = getIdentityStore("password");
 
 export const passwordAuthProvider: AuthProvider = {
-  id: "external:password",
+  id: "password",
 
   async authenticate(request: Request): Promise<AuthenticateResult> {
     const credentials = parseBasicAuthHeader(

@@ -137,7 +137,7 @@ Database afterwards — one local `User`, linked to the Clerk subject:
 
 ```
 local Users: 1
-[{ providerName: "external:clerk",
+[{ providerName: "clerk",
    providerUserId: "user_3HsJoebz26WA7ijAA3l16xxeC5T",
    authId: "a751e437-…" }]
 tasks: [{ description: "created via Clerk auth", userId: "0f134392-…" }]

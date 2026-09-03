@@ -8,7 +8,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.App.Auth (Auth, enabledAuthMethodNames)
+import Wasp.AppSpec.App.Auth (Auth)
 import qualified Wasp.AppSpec.App.Auth as Auth
 import Wasp.AppSpec.App.Client (Client)
 import Wasp.AppSpec.App.Db (Db)
@@ -44,6 +44,6 @@ instance Inspectable App where
     where
       inspectAuth' Nothing = []
       inspectAuth' (Just appAuth) =
-        [ ("Auth", intercalate ", " $ enabledAuthMethodNames $ Auth.methods appAuth),
+        [ ("Auth providers", intercalate ", " $ Auth.providerId <$> Auth.providers appAuth),
           ("User entity", refName (Auth.userEntity appAuth))
         ]

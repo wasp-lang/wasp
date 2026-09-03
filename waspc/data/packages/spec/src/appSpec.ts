@@ -163,7 +163,7 @@ export type Auth = {
 };
 
 // App-level lifecycle hooks, fired at Wasp-owned choke points for every
-// provider. Method-specific hooks stay on WaspAuthProvider.
+// provider. Method-specific hooks belong to the provider package's own config.
 export type AuthHooksSpec = {
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
@@ -171,24 +171,10 @@ export type AuthHooksSpec = {
   onAfterLogin: Optional<ExtImport>;
 };
 
-// The IR mirrors the user-facing spec's discriminated union, so the impossible
-// states (auth methods next to an external provider, wasp hooks next to a
-// manifest) are unrepresentable here too.
-export type AuthProvider = WaspAuthProvider | ExternalAuthProvider;
+// Every provider is an adapter manifest; Wasp's own auth is one of them.
+export type AuthProvider = AuthProviderSpec;
 
-export type WaspAuthProvider = {
-  kind: "wasp";
-  methods: AuthMethods;
-  onAuthSucceededRedirectTo: Optional<string>;
-  onAfterEmailVerified: Optional<ExtImport>;
-  onBeforeOAuthRedirect: Optional<ExtImport>;
-};
-
-export type ExternalAuthProvider = {
-  kind: "external";
-} & ExternalAuthProviderSpec;
-
-export type ExternalAuthProviderSpec = {
+export type AuthProviderSpec = {
   providerId: string;
   server: { package: string } | { module: ExtImport };
   clientPackage: Optional<string>;
@@ -199,6 +185,7 @@ export type ExternalAuthProviderSpec = {
   identityNamespaces: string[];
   userSignupFields: Optional<ExtImport>;
   setupFn: Optional<ExtImport>;
+  extensions: Record<string, ExtImport>;
   optionsJson: Optional<string>;
 };
 
@@ -219,33 +206,6 @@ export type ExternalProviderEnvVar = {
   devDefault: Optional<string>;
 };
 
-export type AuthMethods = {
-  usernameAndPassword: Optional<UsernameAndPasswordConfig>;
-  slack: Optional<ExternalAuthConfig>;
-  discord: Optional<ExternalAuthConfig>;
-  google: Optional<ExternalAuthConfig>;
-  gitHub: Optional<ExternalAuthConfig>;
-  keycloak: Optional<ExternalAuthConfig>;
-  microsoft: Optional<ExternalAuthConfig>;
-  email: Optional<EmailAuthConfig>;
-};
-
-export type UsernameAndPasswordConfig = {
-  userSignupFields: Optional<ExtImport>;
-};
-
-export type ExternalAuthConfig = {
-  configFn: Optional<ExtImport>;
-  userSignupFields: Optional<ExtImport>;
-};
-
-export type EmailAuthConfig = {
-  userSignupFields: Optional<ExtImport>;
-  fromField: EmailFromField;
-  emailVerification: EmailVerificationConfig;
-  passwordReset: PasswordResetConfig;
-};
-
 export type EmailSender = {
   provider: EmailProvider;
   defaultFrom: Optional<EmailFromField>;
@@ -261,16 +221,6 @@ export type EmailProvider =
 export type EmailFromField = {
   name: Optional<string>;
   email: string;
-};
-
-export type EmailVerificationConfig = {
-  getEmailContentFn: Optional<ExtImport>;
-  clientRoute: Ref<"Route">;
-};
-
-export type PasswordResetConfig = {
-  getEmailContentFn: Optional<ExtImport>;
-  clientRoute: Ref<"Route">;
 };
 
 export type Ref<T extends DeclType> = {

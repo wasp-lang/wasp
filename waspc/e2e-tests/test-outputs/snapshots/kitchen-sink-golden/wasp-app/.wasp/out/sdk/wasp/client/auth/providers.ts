@@ -1,5 +1,5 @@
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js'
+import type { AuthProviderId } from '../../auth/provider.js'
 import {
   api,
   getLastAuthProviderId,
@@ -10,7 +10,8 @@ import {
 import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
-import { createClientAdapter as createWaspAuthClientAdapter } from '@wasp.sh/auth/client'
+import { exchangeCredentialForSession } from '../../api/index.js'
+import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth/client'
 
 /**
  * The client halves of the app's auth providers, instantiated from each
@@ -42,12 +43,9 @@ function makeClientRuntime(
   }
 }
 
-// Wasp's own auth, instantiated from the @wasp.sh/auth lib exactly like an
-// adapter package's client entry: its forms and actions read this runtime.
-createWaspAuthClientAdapter(makeClientRuntime('wasp', []), {"clientOAuthCallbackPath":"/oauth/callback","methods":{"discord":{"requiredScopes":["identify"]},"email":{"emailVerificationClientRoute":"/email-verification-","fromField":{"email":"kitchen-sink@wasp.sh","name":"Wasp Kitchen Sink"},"passwordResetClientRoute":"/password-reset"},"github":{"requiredScopes":[]},"google":{"requiredScopes":["profile"]},"microsoft":{"requiredScopes":["openid","profile","email"]},"slack":{"requiredScopes":["openid"]}},"onAuthSucceededRedirectTo":"/"})
-
 // PRIVATE API
-export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {
+export const clientAuthAdapters: Partial<Record<AuthProviderId, ClientAuthAdapter>> = {
+  'wasp': createClientAdapter_0(makeClientRuntime('wasp', []), {"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","routesBasePath":"/auth/wasp","methods":{"email":{"fromField":{"name":"Wasp Kitchen Sink","email":"kitchen-sink@wasp.sh"},"emailVerificationClientRoute":"/email-verification-","passwordResetClientRoute":"/password-reset"},"google":{"requiredScopes":["profile"]},"github":{"requiredScopes":[]},"slack":{"requiredScopes":["openid"]},"discord":{"requiredScopes":["identify"]},"microsoft":{"requiredScopes":["openid","profile","email"]}}}),
 }
 
 // PUBLIC API
@@ -66,11 +64,41 @@ export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAu
  * callers share one attempt.
  */
 export function resumeSession(): Promise<boolean> {
-  // No provider brings a client-side credential source, so there is nothing
-  // to resume from; a live session is the only way to be authenticated.
-  return Promise.resolve(getSessionId() !== null)
+  resumeInFlight ??= attemptResumeSession().finally(() => {
+    resumeInFlight = null
+  })
+  return resumeInFlight
 }
 
+let resumeInFlight: Promise<boolean> | null = null
+
+async function attemptResumeSession(): Promise<boolean> {
+  if (getSessionId() !== null) {
+    return true
+  }
+  const lastProviderId = getLastAuthProviderId()
+  if (lastProviderId === null) {
+    return false
+  }
+  const adapter = clientAuthAdapters[lastProviderId as AuthProviderId]
+  if (adapter?.getCredential === undefined) {
+    // An adapter without a credential source (Wasp's own auth, for one):
+    // nothing exists outside the Wasp session itself, so an expired session
+    // correctly means "log in again".
+    return false
+  }
+  const credential = await adapter.getCredential()
+  if (credential === null) {
+    return false
+  }
+  try {
+    await exchangeCredentialForSession(lastProviderId as AuthProviderId, credential)
+  } catch {
+    return false
+  }
+  await invalidateAndRemoveQueries()
+  return true
+}
 
 // PUBLIC API
 /**
@@ -80,10 +108,93 @@ export function resumeSession(): Promise<boolean> {
  * For providers without a client adapter, obtain the credential yourself and
  * call `exchangeCredentialForSession`.
  */
-export async function loginWithAuthProvider(providerId: ExternalAuthProviderId): Promise<void> {
-  throw new Error(
-    `Auth provider '${providerId}' has no client-side credential source; ` +
-      `obtain the credential yourself and call exchangeCredentialForSession().`,
-  )
+export async function loginWithAuthProvider(providerId: AuthProviderId): Promise<void> {
+  const adapter = clientAuthAdapters[providerId]
+  if (adapter?.getCredential === undefined) {
+    throw new Error(
+      `Auth provider '${providerId}' has no client-side credential source; ` +
+        `obtain the credential yourself and call exchangeCredentialForSession().`,
+    )
+  }
+  const credential = await adapter.getCredential()
+  if (credential === null) {
+    throw new Error(
+      `Auth provider '${providerId}' has no active credential; ` +
+        `complete the provider's own sign-in flow first.`,
+    )
+  }
+  await exchangeCredentialForSession(providerId, credential)
+  await invalidateAndRemoveQueries()
 }
 
+/**
+ * Credential-event wiring, per adapter. Two jobs, both attributed to the
+ * emitting adapter -- nothing here ever guesses across providers:
+ *
+ * 1. Fresh sign-in: a null -> non-null credential transition observed after
+ *    startup means the user just completed THIS provider's own UI flow, so it
+ *    is exchanged for a Wasp session -- but only when no session exists (a
+ *    live session is never silently replaced; log out first).
+ *    A credential that already exists at startup is baseline state, not a
+ *    sign-in, and is deliberately NOT exchanged: adopting it ambiently is how
+ *    a lingering widget session would silently log someone in as a different
+ *    account. Resume for the *last-used* provider is `resumeSession`'s job.
+ * 2. Provider-side sign-out: ends the Wasp session only when THIS provider
+ *    minted it (Clerk signing out must not kill a Better Auth session).
+ */
+for (const [providerId, adapter] of Object.entries(clientAuthAdapters)) {
+  wireAdapterCredentialEvents(providerId as AuthProviderId, adapter as ClientAuthAdapter)
+}
+
+function wireAdapterCredentialEvents(
+  providerId: AuthProviderId,
+  adapter: ClientAuthAdapter,
+): void {
+  const getCredential = adapter.getCredential?.bind(adapter)
+  if (getCredential === undefined || adapter.onCredentialChange === undefined) {
+    return
+  }
+
+  // Baseline snapshot; `undefined` = not yet known. Only transitions observed
+  // relative to a KNOWN null baseline count as fresh sign-ins.
+  let lastKnownCredential: string | null | undefined = undefined
+  void getCredential().then((credential) => {
+    if (lastKnownCredential === undefined) {
+      lastKnownCredential = credential
+    }
+  })
+
+  adapter.onCredentialChange(() => {
+    void handleCredentialChange()
+  })
+
+  async function handleCredentialChange(): Promise<void> {
+    const credential = await getCredential!()
+    const previous = lastKnownCredential
+    lastKnownCredential = credential
+
+    if (credential === null) {
+      if (getSessionId() !== null && getLastAuthProviderId() === providerId) {
+        try {
+          await api.post('/auth/logout')
+        } catch {
+          // Best-effort: the session row expires on its own if the server is
+          // unreachable; locally the user is logged out either way.
+        }
+        removeLocalUserData()
+        await invalidateAndRemoveQueries()
+      }
+      return
+    }
+
+    if (previous === null && getSessionId() === null) {
+      try {
+        await exchangeCredentialForSession(providerId, credential)
+        await invalidateAndRemoveQueries()
+      } catch {
+        // The provider's UI flow completed but the exchange failed; the login
+        // page surface handles retries explicitly.
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import type { AnyObject } from "../../typeUtils.js";
+import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import {
   reservedClientEnvVarNames,
   reservedServerEnvVarNames,
@@ -9,17 +9,15 @@ import type {
   Api,
   ApiNamespace,
   App,
+  AuthProviderManifest,
   AuthRuntimeGrantName,
   Crud,
   EnvVarRequirement,
-  ExternalAuthProviderManifest,
   Job,
   Page,
   Query,
   Reference,
   Route,
-  WaspAuthConfig,
-  WaspAuthProviderConfig,
 } from "./waspSpec.js";
 
 // Throughout this file, in order for the constructor's input type to be
@@ -437,39 +435,6 @@ export function crud(
 }
 
 /**
- * Selects Wasp's own authentication as the app's auth provider and configures
- * it: enabled methods, auth hooks, and the post-login redirect.
- *
- * Everything in here only makes sense when Wasp itself runs the signup and
- * login flows, which is why it lives inside `waspAuth()` rather than on
- * `app.auth` -- under an external provider none of it would apply, and the
- * types make that state impossible to write.
- *
- * @example
- * ```ts
- * import { app, waspAuth } from '@wasp.sh/spec'
- *
- * auth: {
- *   userEntity: "User",
- *   onAuthFailedRedirectTo: "/login",
- *   providers: [
- *     waspAuth({
- *       methods: { usernameAndPassword: {} },
- *       onAuthSucceededRedirectTo: "/",
- *     }),
- *   ],
- * }
- * ```
- *
- * @param config Wasp auth configuration; `methods` must enable at least one.
- *
- * @category Auth
- */
-export function waspAuth(config: WaspAuthConfig): WaspAuthProviderConfig {
-  return { kind: "wasp", config } as WaspAuthProviderConfig;
-}
-
-/**
  * The input accepted by {@link defineAuthProviderManifest}: everything in the
  * manifest that carries information, without the fields the definition step
  * fills in itself (`kind`, `contractVersion`, the authenticity marker).
@@ -477,7 +442,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthProviderConfig {
  * @category Experimental
  */
 export type AuthProviderManifestInput = Omit<
-  ExternalAuthProviderManifest,
+  AuthProviderManifest,
   | "kind"
   | "contractVersion"
   | "__waspAuthProviderManifest"
@@ -485,11 +450,13 @@ export type AuthProviderManifestInput = Omit<
   | "env"
   | "uses"
   | "identityNamespaces"
+  | "extensions"
 > & {
   capabilities?: string[];
   env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
   uses?: AuthRuntimeGrantName[];
   identityNamespaces?: string[];
+  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
 };
 
 /**
@@ -508,17 +475,10 @@ export type AuthProviderManifestInput = Omit<
  */
 export function defineAuthProviderManifest(
   manifest: AuthProviderManifestInput,
-): ExternalAuthProviderManifest {
-  if (!manifest.id) {
+): AuthProviderManifest {
+  if (!isValidProviderId(manifest.id)) {
     throw new WaspSpecUserError(
-      "An auth provider manifest must declare a non-empty `id`.",
-    );
-  }
-  if (!manifest.id.startsWith("external:")) {
-    throw new WaspSpecUserError(
-      `Auth provider id '${manifest.id}' must start with 'external:' (e.g. 'external:clerk'). ` +
-        "The unprefixed namespace is reserved for Wasp's own auth methods, which record " +
-        "identities in the same place -- the prefix is what makes a collision impossible.",
+      `Auth provider id '${String(manifest.id)}' must be non-empty and contain no ':' -- the ':' separates a provider id from its identity namespaces ('wasp:email').`,
     );
   }
   if (
@@ -586,8 +546,18 @@ export function defineAuthProviderManifest(
     },
     uses,
     identityNamespaces,
+    extensions: manifest.extensions ?? {},
     __waspAuthProviderManifest: true,
-  } as ExternalAuthProviderManifest;
+  } as AuthProviderManifest;
+}
+
+/**
+ * A provider id names an identity namespace, and ':' is the separator between
+ * a provider id and its sub-namespaces ('wasp:email'), so an id cannot carry
+ * one.
+ */
+export function isValidProviderId(id: unknown): id is string {
+  return typeof id === "string" && id.length > 0 && !id.includes(":");
 }
 
 const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = [
@@ -606,11 +576,11 @@ export function validateIdentityNamespaces(
   for (const namespace of identityNamespaces) {
     const isOwnNamespace =
       namespace === providerId ||
-      (namespace.startsWith(`${providerId}/`) &&
+      (namespace.startsWith(`${providerId}:`) &&
         namespace.length > providerId.length + 1);
     if (!isOwnNamespace) {
       throw new WaspSpecUserError(
-        `Auth provider '${providerId}' declares the identity namespace '${namespace}', which it does not own. A namespace must be the provider id or '${providerId}/<suffix>' -- that rule is what makes cross-provider identity collisions impossible.`,
+        `Auth provider '${providerId}' declares the identity namespace '${namespace}', which it does not own. A namespace must be the provider id or '${providerId}:<suffix>' -- that rule is what makes cross-provider identity collisions impossible.`,
       );
     }
   }
@@ -646,18 +616,20 @@ export type CustomAuthProviderConfig = {
   id: string;
   /** Reference to a user-code module exporting an `AuthProvider` object. */
   server: Reference<AnyObject>;
-  /** See {@link ExternalAuthProviderManifest.capabilities}. */
+  /** See {@link AuthProviderManifest.capabilities}. */
   capabilities?: string[];
-  /** See {@link ExternalAuthProviderManifest.env}. */
+  /** See {@link AuthProviderManifest.env}. */
   env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
-  /** See {@link ExternalAuthProviderManifest.uses}. */
+  /** See {@link AuthProviderManifest.uses}. */
   uses?: AuthRuntimeGrantName[];
-  /** See {@link ExternalAuthProviderManifest.identityNamespaces}. */
+  /** See {@link AuthProviderManifest.identityNamespaces}. */
   identityNamespaces?: string[];
-  /** See {@link ExternalAuthProviderManifest.userSignupFields}. */
+  /** See {@link AuthProviderManifest.userSignupFields}. */
   userSignupFields?: Reference<AnyObject>;
-  /** See {@link ExternalAuthProviderManifest.options}. */
+  /** See {@link AuthProviderManifest.options}. */
   options?: unknown;
+  /** See {@link AuthProviderManifest.extensions}. */
+  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
 };
 
 /**
@@ -678,7 +650,7 @@ export type CustomAuthProviderConfig = {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
  *   providers: [
- *     customAuthProvider({ id: "external:my-provider", server: myAuthProvider }),
+ *     customAuthProvider({ id: "my-provider", server: myAuthProvider }),
  *   ],
  * }
  * ```
@@ -687,6 +659,6 @@ export type CustomAuthProviderConfig = {
  */
 export function customAuthProvider(
   config: CustomAuthProviderConfig,
-): ExternalAuthProviderManifest {
+): AuthProviderManifest {
   return defineAuthProviderManifest(config);
 }

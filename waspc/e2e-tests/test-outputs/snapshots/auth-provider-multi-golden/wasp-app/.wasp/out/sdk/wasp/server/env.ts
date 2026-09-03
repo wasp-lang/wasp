@@ -13,20 +13,14 @@ const waspCommonServerEnvSchema = z.object({
     error: 'DATABASE_URL is required',
   }),
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
-  SKIP_EMAIL_VERIFICATION_IN_DEV: z
-    .enum(['true', 'false'], {
-      error: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
-    })
-    .default('false')
-    .transform((value) => value === 'true'),
   "CLERK_SECRET_KEY": z.string({
-    error: "CLERK_SECRET_KEY is required by the 'external:clerk' auth provider: Clerk dashboard → API keys",
+    error: "CLERK_SECRET_KEY is required by the 'clerk' auth provider: Clerk dashboard → API keys",
   }),
   "CLERK_PUBLISHABLE_KEY": z.string({
-    error: "CLERK_PUBLISHABLE_KEY is required by the 'external:clerk' auth provider: Clerk dashboard → API keys",
+    error: "CLERK_PUBLISHABLE_KEY is required by the 'clerk' auth provider: Clerk dashboard → API keys",
   }),
   "CLERK_JWT_KEY": z.string({
-    error: "CLERK_JWT_KEY is required by the 'external:clerk' auth provider: enables networkless JWT verification",
+    error: "CLERK_JWT_KEY is required by the 'clerk' auth provider: enables networkless JWT verification",
   }).optional(),
 });
 
@@ -50,11 +44,6 @@ const clientUrlSchema =
     })
   )
 
-const jwtTokenSchema = z
-  .string({
-    error: 'JWT_SECRET is required',
-  })
-
 // In development, we provide default values for some environment variables
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
@@ -63,15 +52,12 @@ const waspDevServerEnvSchema = z.object({
     .default("http://localhost:3001"),
   "WASP_WEB_CLIENT_URL": clientUrlSchema
     .default("http://localhost:3000/"),
-  "JWT_SECRET": jwtTokenSchema
-    .default("DEVJWTSECRET"),
 });
 
 const waspProdServerEnvSchema = z.object({
   NODE_ENV: z.literal("production"),
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
-  "JWT_SECRET": jwtTokenSchema,
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
