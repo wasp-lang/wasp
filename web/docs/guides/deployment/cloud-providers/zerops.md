@@ -102,7 +102,8 @@ zerops:
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
         - cd .wasp/out/server && npm run bundle
       deployFiles:
-        - .wasp/out/~
+        # Keep the .wasp/out tree — runtime commands cd into .wasp/out/server
+        - .wasp/out
       cache:
         - node_modules
     deploy:
@@ -220,12 +221,16 @@ Zerops has two layers. The project **value store** is set once (recipe import or
 | `DATABASE_URL` | `postgresql://${db_user}:${db_password}@${db_hostname}:${db_port}/${db_dbName}` | Zerops injects the `db` service credentials automatically |
 | `WASP_SERVER_URL` | `${API_URL}` | Public API URL, including `https://` |
 | `WASP_WEB_CLIENT_URL` | `${APP_URL}` | Public client URL, including `https://` |
-| `JWT_SECRET` | `${APP_SECRET}` | At least 32 characters. Generated at import — do not hardcode it |
+| `JWT_SECRET` | `${APP_SECRET}` | At least 32 characters. Comes from the project value store — do not hardcode it |
 | `PORT` | `3001` | Wasp server port (must match `API_URL` and the readiness check) |
 
 <AddExternalAuthEnvVarsReminder />
 
-The hello-world recipe currently ships a static demo `JWT_SECRET` so the sample login works out of the box. For your own app, generate `APP_SECRET` at import as shown above — or set `JWT_SECRET` in the dashboard to a random string at least 32 characters long:<br /><SecretGeneratorBlock />
+Because `zerops.yaml` maps `JWT_SECRET` to `${APP_SECRET}`, you must supply `APP_SECRET` in the project value store. Setting `JWT_SECRET` in the dashboard will not work — runtime `envVariables` in `zerops.yaml` take precedence over dashboard secrets.
+
+Generate `APP_SECRET` at import with the YAML preprocessor (as shown in `import.yaml` above), or add it manually in the dashboard (**Project → Environment variables → Secrets**) as a random string at least 32 characters long:<br /><SecretGeneratorBlock />
+
+The hello-world recipe demo hardcodes `JWT_SECRET` in its `zerops.yaml` so the sample login works out of the box. If you reuse a recipe project for your own app, add `APP_SECRET` in the dashboard before pointing `buildFromGit` at your repository.
 
 Do not self-reference Wasp keys in `zerops.yaml` (for example `${WASP_SERVER_URL}`). Those names are created by the mapping; only the value-store keys (`APP_URL`, `API_URL`, `APP_SECRET`) and Zerops service keys (`${db_password}`, …) resolve.
 
@@ -236,7 +241,7 @@ Do not self-reference Wasp keys in `zerops.yaml` (for example `${WASP_SERVER_URL
 1. Point `buildFromGit` at your repository (or connect the GitHub / GitLab integration so later pushes rebuild automatically).
 1. Wait for `db`, then `api`, then `app` to finish building.
 
-If you started from the recipe, you can keep that project and switch `buildFromGit` (or the Git connection) to your own repo — you don't have to re-import.
+If you started from the recipe, you can keep that project and switch `buildFromGit` (or the Git connection) to your own repo — you don't have to re-import. Before doing so, add `APP_SECRET` to the project value store (see [Environment variables](#environment-variables)) — the recipe's `import.yaml` does not include it, but your `zerops.yaml` needs it for `JWT_SECRET`.
 
 ### Verify your deployment
 
