@@ -39,22 +39,18 @@
     /* Modules */
     "module": "esnext",
     "esModuleInterop": true,
-    // TODO: Enable this once we enable it for users:
-    // https://github.com/wasp-lang/wasp/issues/2654
+    // We haven't adopted this yet.
+    // Reference: https://github.com/wasp-lang/wasp/issues/2654
     "resolveJsonModule": false,
     /*
        The `isolatedModules` flag tells typescript to throw errors on code that
-       doesn't work with bundlers:
-         - The user code must enable it because Wasp bundles user code when bundling
-        server code and web app code (which directly import the user code).
-         - The SDK code must disable it because parts of the SDK code rely on
-        such features. Since we build the SDK with TSC before bundling it,
-        these features don't cause problems.
-      More details in https://github.com/wasp-lang/wasp/issues/2150
+       doesn't work with bundlers. We disable it because parts of the SDK code
+       rely on such features. Since we build the SDK with TSC before bundling
+       it, these features don't cause problems.
+       More details in https://github.com/wasp-lang/wasp/issues/2150
     */
     "isolatedModules": false,
-    // `verbatimModuleSyntax` is disabled because we don't yet want to
-    // force user code into using `type` imports.
+    // We haven't adopted `verbatimModuleSyntax` yet.
     "verbatimModuleSyntax": false,
     "moduleDetection": "force", // Assume all files are modules
     /*
@@ -62,8 +58,7 @@
       - We want users to import stuff from the SDK with `wasp/something`, and we
         don't want to do extra processing on those imports (for now).
 
-      These requirements force us to bundle user code and, because we copy user
-      code into the SDK code, they force us to bundle the SDK too.
+      These requirements force us to bundle the SDK.
 
       We currently bundle the SDK in a very hacky way (indirectly while bundling
       the server and client): https://github.com/wasp-lang/wasp/issues/2150
