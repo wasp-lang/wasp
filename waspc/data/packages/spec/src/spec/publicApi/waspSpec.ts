@@ -44,6 +44,8 @@ export interface App {
    * Used as the browser tab title.
    */
   title: string;
+  /** Configuration for how the app is deployed. */
+  deployment?: Deployment;
   /**
    * Extra tags injected into the HTML `<head>`.
    *
@@ -78,6 +80,23 @@ export interface App {
    */
   spec: Spec;
 }
+
+/**
+ * Deployment configuration for the app.
+ */
+export interface Deployment {
+  /**
+   * How the client and server are deployed.
+   *
+   * @default "split"
+   */
+  mode?: DeploymentMode;
+}
+
+/**
+ * Supported app deployment modes.
+ */
+export type DeploymentMode = "split";
 
 /**
  * Wasp compiler metadata used by the app.

@@ -98,6 +98,7 @@ export type Crud = {
 export type App = {
   wasp: Wasp;
   title: string;
+  deployment: Optional<Deployment>;
   head: Optional<string[]>;
   auth: Optional<Auth>;
   server: Optional<Server>;
@@ -106,6 +107,12 @@ export type App = {
   emailSender: Optional<EmailSender>;
   webSocket: Optional<WebSocket>;
 };
+
+export type Deployment = {
+  mode: Optional<DeploymentMode>;
+};
+
+export type DeploymentMode = "split";
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export type ExtImportKind = ExtImport["kind"];
