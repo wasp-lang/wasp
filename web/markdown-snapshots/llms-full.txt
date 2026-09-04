@@ -3628,6 +3628,10 @@ Wasp supports the following auth methods:
 
 [Users sign in with their Discord account](https://wasp.sh/docs/auth/social-auth/discord)
 
+#### [LinkedIn »](https://wasp.sh/docs/auth/social-auth/linkedin)
+
+[Users sign in with their LinkedIn account](https://wasp.sh/docs/auth/social-auth/linkedin)
+
 Click on each auth method for more details.
 
 Let's say we enabled the [Username & password](https://wasp.sh/docs/auth/username-and-pass) authentication.
@@ -5753,6 +5757,10 @@ Wasp currently supports the following social login providers:
 
 [Users sign in with their Microsoft account.](https://wasp.sh/docs/auth/social-auth/microsoft)
 
+#### [LinkedIn »](https://wasp.sh/docs/auth/social-auth/linkedin)
+
+[Users sign in with their LinkedIn account.](https://wasp.sh/docs/auth/social-auth/linkedin)
+
 Click on each provider for more details.
 
 ### User Entity
@@ -5910,6 +5918,10 @@ Account details are provider-specific. Each provider has their own rules for def
 
 [Users sign in with their Microsoft account.](https://wasp.sh/docs/auth/social-auth/microsoft#overrides)
 
+#### [LinkedIn »](https://wasp.sh/docs/auth/social-auth/linkedin#overrides)
+
+[Users sign in with their LinkedIn account.](https://wasp.sh/docs/auth/social-auth/linkedin#overrides)
+
 Click on each provider for more details.
 
 ### API Reference
@@ -5945,6 +5957,10 @@ For more information on the provider-specific behavior of the `userSignupFields`
 #### [Microsoft »](https://wasp.sh/docs/auth/social-auth/microsoft#api-reference)
 
 [Users sign in with their Microsoft account.](https://wasp.sh/docs/auth/social-auth/microsoft#api-reference)
+
+#### [LinkedIn »](https://wasp.sh/docs/auth/social-auth/linkedin#api-reference)
+
+[Users sign in with their LinkedIn account.](https://wasp.sh/docs/auth/social-auth/linkedin#api-reference)
 
 Click on each provider for more details.
 
@@ -8040,6 +8056,282 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](https://wasp.sh/docs/auth/social-auth/overview).
 
 
+## Authentication / Social Auth / LinkedIn
+
+Wasp supports LinkedIn authentication out of the box. Users can log in with an existing LinkedIn account through LinkedIn's OpenID Connect integration.
+
+### Setting up LinkedIn Auth
+
+Setting up LinkedIn authentication takes these steps:
+
+1. Enable LinkedIn authentication in the Wasp file.
+2. Add the `User` entity.
+3. Create and configure a LinkedIn app.
+4. Add the login Route and Page.
+5. Use Wasp's Auth UI on the login Page.
+
+Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
+
+// Configuring the social authentication
+export default app({
+  name: "myApp",
+  wasp: { version: "^0.25" },
+  title: "My App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
+  auth: {
+    // ...
+  },
+  spec: [
+    // Defining routes and pages
+    route("LoginRoute", "/login", page(LoginPage)),
+  ],
+})
+```
+
+#### 1. Add LinkedIn Auth to the Wasp file
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "^0.25" },
+  title: "My App",
+  auth: {
+    userEntity: "User",
+    methods: {
+      linkedin: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+  // ...
+})
+```
+
+#### 2. Add the User entity
+
+```prisma title="schema.prisma"
+model User {
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
+```
+
+#### 3. Create a LinkedIn app
+
+1. Open the [LinkedIn Developer Portal](https://www.linkedin.com/developers/apps) and create an app.
+2. On the app's **Products** tab, request access to **Sign in with LinkedIn using OpenID Connect**.
+3. On the **Auth** tab, add `http://localhost:3001/auth/linkedin/callback` under **Authorized redirect URLs for your app**.
+4. Add your deployed server callback URL too, for example `https://your-server-url.com/auth/linkedin/callback`.
+5. Copy the app's Client ID and Client Secret.
+
+Add the credentials to `.env.server` at the root of your project:
+
+```bash title=".env.server"
+LINKEDIN_CLIENT_ID=your-linkedin-client-id
+LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
+```
+
+Keep the client secret private. The callback URL must match the URL configured in the LinkedIn Developer Portal.
+
+#### 4. Add the login Route and Page
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    route("LoginRoute", "/login", page(LoginPage)),
+  ],
+})
+```
+
+#### 5. Create the client Page
+
+:::info
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+:::
+
+Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
+
+```tsx title="src/pages/auth.tsx"
+import type { ReactNode } from "react";
+import { LoginForm } from "wasp/client/auth";
+
+export function LoginPage() {
+  return (
+    <Layout>
+      <LoginForm />
+    </Layout>
+  );
+}
+
+// A layout component to center the content
+export function Layout({ children }: { children: ReactNode }) {
+  return (
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
+          <div>{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/auth/ui).
+
+Run `wasp db migrate-dev` and `wasp start`. The generated login form will include a LinkedIn button.
+
+### Default behavior
+
+Add `linkedin: {}` to `auth.methods` to use the default settings:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "^0.25" },
+  title: "My App",
+  auth: {
+    userEntity: "User",
+    methods: {
+      linkedin: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+  // ...
+})
+```
+
+When a user **signs in for the first time**, Wasp creates a new user account and links it to the chosen auth provider account for future logins.
+
+Wasp requests the `openid`, `profile`, and `email` scopes by default. LinkedIn may omit the email fields from its response.
+
+### Overrides
+
+By default, Wasp doesn't store any information it receives from the social login provider. It only stores the user's ID specific to the provider.
+
+There are two mechanisms used for overriding the default behavior:
+
+- `userSignupFields`
+- `configFn`
+
+Let's explore them in more detail.
+
+#### Data received from LinkedIn
+
+Wasp fetches the user's profile from LinkedIn's `/v2/userinfo` endpoint. A response can contain these fields:
+
+```json
+{
+  "sub": "782bbtaQ",
+  "name": "John Doe",
+  "given_name": "John",
+  "family_name": "Doe",
+  "picture": "https://media.licdn-ei.com/dms/image/example",
+  "locale": "en-US",
+  "email": "john@example.com",
+  "email_verified": true
+}
+```
+
+See LinkedIn's [OpenID Connect documentation](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2) for the current response fields. The `email` and `email_verified` fields are optional.
+
+#### Use the data received from LinkedIn
+
+When a user logs in using a social login provider, the backend receives some data about the user. Wasp lets you access this data inside the `userSignupFields` getters.
+
+For example, the User entity can include a `displayName` field which you can set based on the details received from the provider.
+
+Wasp also lets you customize the configuration of the providers' settings using the `configFn` function.
+
+Let's use this example to show both fields in action:
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/linkedin" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "^0.25" },
+  title: "My App",
+  auth: {
+    userEntity: "User",
+    methods: {
+      linkedin: {
+        configFn: getConfig,
+        userSignupFields
+      }
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+  // ...
+})
+```
+
+```prisma title="schema.prisma"
+model User {
+  id          Int     @id @default(autoincrement())
+  displayName String
+  email       String?
+}
+```
+
+```ts title="src/auth/linkedin.ts"
+import { defineUserSignupFields } from "wasp/server/auth";
+
+export const userSignupFields = defineUserSignupFields({
+  displayName: (data: any) => data.profile.name,
+  email: (data: any) => data.profile.email,
+});
+
+export function getConfig() {
+  return {
+    scopes: ["profile", "email"],
+  };
+}
+```
+
+Wasp automatically generates the `defineUserSignupFields` function to help you correctly type your `userSignupFields` object.
+
+The Arctic client always includes the required `openid` scope. When overriding `scopes`, include `profile` and `email` if your signup fields use those claims.
+
+### Using Auth
+
+To read more about how to set up the logout button and get access to the logged-in user in both client and server code, read the docs on [using auth](https://wasp.sh/docs/auth/overview).
+
+The `AuthUser` object exposes the user's LinkedIn subject identifier:
+
+```ts
+const linkedinIdentity = user.identities.linkedin
+
+// LinkedIn subject identifier, for example "782bbtaQ"
+linkedinIdentity.id
+```
+
+Read more about accessing the user data in the [Accessing User Data](https://wasp.sh/docs/auth/entities#accessing-the-auth-fields) section of the docs.
+
+### API reference
+
+[API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+
+#### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+
+[All the options for the linkedin auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+
+For provider-specific behavior, see [Overrides](#overrides). For behavior shared by all social providers, see the [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview).
+
+
 ## Authentication / Social Auth / Create your own UI
 
 [Auth UI](https://wasp.sh/docs/auth/ui) is a common name for all high-level auth forms that come with Wasp.
@@ -8211,6 +8503,15 @@ Let's look at the data for each of the available auth methods:
 
   // Discord User ID for example "80351110224678912"
   discordIdentity.id
+  ```
+
+- [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin) data
+
+  ```ts
+  const linkedinIdentity = user.identities.linkedin
+
+  // LinkedIn subject identifier, for example "782bbtaQ"
+  linkedinIdentity.id
   ```
 
 If you support multiple auth methods, you'll need to find which identity exists for the user and then access its data:

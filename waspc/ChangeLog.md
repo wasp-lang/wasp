@@ -15,6 +15,7 @@
 
 ### 🎉 New Features
 
+- Added LinkedIn as a built-in OAuth provider. Configure it with `linkedin: {}` and the `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` environment variables. ([#2016](https://github.com/wasp-lang/wasp/issues/2016))
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
 - You can now run dev databases for multiple Wasp projects in parallel: `wasp start db` looks for a first port instead of failing when the default one is taken, and `wasp start` automatically finds the port the database ended up on. ([#4571](https://github.com/wasp-lang/wasp/pull/4571))
