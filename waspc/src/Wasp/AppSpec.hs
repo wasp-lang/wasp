@@ -57,7 +57,7 @@ import qualified Wasp.SemanticVersion as SV
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
 -- It is standalone and de-coupled from other parts of the compiler and knows nothing about them,
--- instead other parts are using it: Analyzer produces AppSpec while Generator consumes it.
+-- instead other parts are using it: project analysis produces AppSpec while Generator consumes it.
 --
 -- IMPORTANT: Do not change this data structure without updating the AppSpec in
 -- packages/spec/src/appSpec.ts. That module is a TypeScript mirror
@@ -137,7 +137,7 @@ resolveRef spec ref =
         "Failed to resolve declaration reference: "
           ++ refName ref
           ++ "."
-          ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
+          ++ " This should never happen, as AppSpec validation should ensure all references are valid."
     )
     $ find ((== refName ref) . fst)
     $ getDecls spec
