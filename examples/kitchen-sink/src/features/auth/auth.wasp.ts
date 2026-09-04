@@ -34,6 +34,10 @@ import {
   googleUserSignupFields,
 } from "./providers/google" with { type: "ref" };
 import {
+  linkedinConfig,
+  linkedinUserSignupFields,
+} from "./providers/linkedin" with { type: "ref" };
+import {
   microsoftConfig,
   microsoftUserSignupFields,
 } from "./providers/microsoft" with { type: "ref" };
@@ -60,6 +64,10 @@ export const authConfig: Auth = {
     gitHub: {
       configFn: gitHubConfig,
       userSignupFields: gitHubUserSignupFields,
+    },
+    linkedin: {
+      configFn: linkedinConfig,
+      userSignupFields: linkedinUserSignupFields,
     },
     microsoft: {
       configFn: microsoftConfig,
