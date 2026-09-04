@@ -504,7 +504,7 @@ export function defineAuthProviderManifest(
   }
 
   // Adapters receive exactly the env vars they declared, so declaring a
-  // framework-owned name would hand the adapter framework secrets (JWT_SECRET)
+  // framework-owned name would hand the adapter framework secrets (DATABASE_URL)
   // through the sanctioned channel.
   for (const [side, envVars] of [
     ["server", manifest.env?.server ?? []],
