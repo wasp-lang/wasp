@@ -5,7 +5,10 @@ import {
   reservedClientEnvVarNames,
   reservedServerEnvVarNames,
 } from "../authReservedEnvVarNames.js";
-import { validateIdentityNamespaces } from "../publicApi/constructors.js";
+import {
+  isValidProviderId,
+  validateIdentityNamespaces,
+} from "../publicApi/constructors.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { WaspSpecUserError } from "../waspSpecUserError.js";
 import { AppMapperContext } from "./context.js";
@@ -52,13 +55,13 @@ export function mapAuth(
 
   if ("provider" in auth) {
     throw new WaspSpecUserError(
-      "app.auth.provider was renamed to app.auth.providers (an array of providers). Wrap your provider in an array: providers: [waspAuth({ ... })].",
+      "app.auth.provider was renamed to app.auth.providers (an array of providers). Wrap your provider in an array: providers: [waspAuth({ ... })] (waspAuth comes from @wasp.sh/auth/spec).",
     );
   }
 
   if (!Array.isArray(providers) || providers.length === 0) {
     throw new WaspSpecUserError(
-      "app.auth.providers must be a non-empty array of providers, each created with waspAuth(), an auth adapter package's spec helper, or customAuthProvider().",
+      "app.auth.providers must be a non-empty array of providers, each created with an auth adapter package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec) or customAuthProvider().",
     );
   }
 
@@ -84,53 +87,20 @@ export function mapAuth(
   };
 }
 
-// The user-facing union maps 1:1 onto the IR's union -- the IR is the same
-// discriminated shape, so the impossible states never exist in any
-// representation the compiler consumes.
 function mapAuthProvider(
   provider: WaspSpec.AuthProviderConfig,
   ctx: AppMapperContext,
 ): AppSpec.AuthProvider {
-  switch (provider.kind) {
-    case "wasp": {
-      const {
-        methods,
-        onAuthSucceededRedirectTo,
-        onAfterEmailVerified,
-        onBeforeOAuthRedirect,
-      } = provider.config;
-
-      if (
-        "onBeforeSignup" in provider.config ||
-        "onAfterSignup" in provider.config ||
-        "onBeforeLogin" in provider.config ||
-        "onAfterLogin" in provider.config
-      ) {
-        throw new WaspSpecUserError(
-          "The onBeforeSignup/onAfterSignup/onBeforeLogin/onAfterLogin hooks moved from waspAuth({ ... }) to app level: auth.hooks = { ... }. They now fire for every auth provider, not just Wasp's own.",
-        );
-      }
-
-      return {
-        kind: "wasp",
-        methods: mapAuthMethods(methods, ctx),
-        onAuthSucceededRedirectTo,
-        onAfterEmailVerified:
-          onAfterEmailVerified && ctx.parseRefObject(onAfterEmailVerified),
-        onBeforeOAuthRedirect:
-          onBeforeOAuthRedirect && ctx.parseRefObject(onBeforeOAuthRedirect),
-      };
-    }
-    case "external":
-      return {
-        kind: "external",
-        ...mapExternalAuthProvider(provider, ctx),
-      };
-    default:
-      throw new WaspSpecUserError(
-        "Each entry of app.auth.providers must be created with waspAuth(), an auth adapter package's spec helper, or customAuthProvider().",
-      );
+  if (
+    typeof provider !== "object" ||
+    provider === null ||
+    (provider as { kind?: unknown }).kind !== "external"
+  ) {
+    throw new WaspSpecUserError(
+      "Each entry of app.auth.providers must be created with an auth adapter package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec) or customAuthProvider().",
+    );
   }
+  return mapAuthProviderManifest(provider, ctx);
 }
 
 // Identities (and sessions) are recorded under the provider id, so a
@@ -139,22 +109,20 @@ function mapAuthProvider(
 function assertProviderIdsAreUnique(providers: AppSpec.AuthProvider[]): void {
   const seenIds = new Set<string>();
   for (const provider of providers) {
-    const providerId = provider.kind === "wasp" ? "wasp" : provider.providerId;
+    const providerId = provider.providerId;
     if (seenIds.has(providerId)) {
       throw new WaspSpecUserError(
-        providerId === "wasp"
-          ? "app.auth.providers may contain at most one waspAuth(...) provider."
-          : `app.auth.providers contains provider id '${providerId}' more than once. Identities are recorded under this id, so each provider may appear at most once (provider instance ids are not configurable yet).`,
+        `app.auth.providers contains provider id '${providerId}' more than once. Identities are recorded under this id, so each provider may appear at most once (provider instance ids are not configurable yet).`,
       );
     }
     seenIds.add(providerId);
   }
 }
 
-function mapExternalAuthProvider(
-  manifest: WaspSpec.ExternalAuthProviderManifest,
+function mapAuthProviderManifest(
+  manifest: WaspSpec.AuthProviderManifest,
   ctx: AppMapperContext,
-): AppSpec.ExternalAuthProviderSpec {
+): AppSpec.AuthProviderSpec {
   if (manifest.__waspAuthProviderManifest !== true) {
     throw new WaspSpecUserError(
       "app.auth.providers received a hand-crafted external provider manifest. Manifests must be created through an adapter package's spec helper or customAuthProvider(), so they go through Wasp's validation.",
@@ -174,11 +142,9 @@ function mapExternalAuthProvider(
   // object literal can carry it without ever passing those checks. The mapper
   // is the layer no manifest can skip; the Haskell validator mirrors these
   // rules once more for the non-TS entry points.
-  if (!manifest.id.startsWith("external:")) {
+  if (!isValidProviderId(manifest.id)) {
     throw new WaspSpecUserError(
-      `Auth provider id '${manifest.id}' must start with 'external:' (e.g. 'external:clerk'). ` +
-        "The unprefixed namespace is reserved for Wasp's own auth methods, which record " +
-        "identities in the same place -- the prefix is what makes a collision impossible.",
+      `Auth provider id '${manifest.id}' must be non-empty and contain no ':' -- the ':' separates a provider id from its identity namespaces ('wasp:email').`,
     );
   }
   if (
@@ -254,6 +220,12 @@ function mapExternalAuthProvider(
       manifest.userSignupFields &&
       ctx.parseRefObject(manifest.userSignupFields),
     setupFn: manifest.setupFn && ctx.parseRefObject(manifest.setupFn),
+    extensions: Object.fromEntries(
+      Object.entries(manifest.extensions ?? {}).map(([name, ref]) => [
+        name,
+        ctx.parseRefObject(ref),
+      ]),
+    ),
     optionsJson: mapProviderOptions(manifest),
   };
 }
@@ -270,7 +242,7 @@ function mapEnvVarRequirement(
 }
 
 function mapProviderOptions(
-  manifest: WaspSpec.ExternalAuthProviderManifest,
+  manifest: WaspSpec.AuthProviderManifest,
 ): string | undefined {
   if (manifest.options === undefined) {
     return undefined;
@@ -292,80 +264,6 @@ function mapProviderOptions(
   }
 
   return optionsJson;
-}
-
-export function mapAuthMethods(
-  methods: WaspSpec.AuthMethods,
-  ctx: AppMapperContext,
-): AppSpec.AuthMethods {
-  const {
-    usernameAndPassword,
-    slack,
-    discord,
-    google,
-    gitHub,
-    keycloak,
-    microsoft,
-    email,
-  } = methods;
-  return {
-    usernameAndPassword:
-      usernameAndPassword && mapUsernameAndPassword(usernameAndPassword, ctx),
-    slack: slack && mapSocialAuth(slack, ctx),
-    discord: discord && mapSocialAuth(discord, ctx),
-    google: google && mapSocialAuth(google, ctx),
-    gitHub: gitHub && mapSocialAuth(gitHub, ctx),
-    keycloak: keycloak && mapSocialAuth(keycloak, ctx),
-    microsoft: microsoft && mapSocialAuth(microsoft, ctx),
-    email: email && mapEmailAuth(email, ctx),
-  };
-}
-
-export function mapUsernameAndPassword(
-  usernameAndPassword: WaspSpec.UsernameAndPasswordConfig,
-  ctx: AppMapperContext,
-): AppSpec.UsernameAndPasswordConfig {
-  const { userSignupFields } = usernameAndPassword;
-  return {
-    userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
-  };
-}
-
-export function mapSocialAuth(
-  socialAuth: WaspSpec.SocialAuthConfig,
-  ctx: AppMapperContext,
-): AppSpec.ExternalAuthConfig {
-  const { configFn, userSignupFields } = socialAuth;
-  return {
-    configFn: configFn && ctx.parseRefObject(configFn),
-    userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
-  };
-}
-
-export function mapEmailAuth(
-  emailAuth: WaspSpec.EmailAuthConfig,
-  ctx: AppMapperContext,
-): AppSpec.EmailAuthConfig {
-  const { userSignupFields, fromField, emailVerification, passwordReset } =
-    emailAuth;
-  return {
-    userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
-    fromField: mapEmailFromField(fromField),
-    emailVerification: mapEmailFlow(emailVerification, ctx),
-    passwordReset: mapEmailFlow(passwordReset, ctx),
-  };
-}
-
-export function mapEmailFlow(
-  emailFlow: WaspSpec.EmailFlowConfig,
-  ctx: AppMapperContext,
-): AppSpec.EmailVerificationConfig {
-  const { getEmailContentFn, clientRoute } = emailFlow;
-  return {
-    getEmailContentFn:
-      getEmailContentFn && ctx.parseRefObject(getEmailContentFn),
-    clientRoute: ctx.resolveRouteRef(clientRoute),
-  };
 }
 
 export function mapServer(

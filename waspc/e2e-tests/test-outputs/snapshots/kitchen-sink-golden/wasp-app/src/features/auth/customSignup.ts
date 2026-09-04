@@ -2,12 +2,9 @@ import {
   ensurePasswordIsPresent,
   ensureValidEmail,
   ensureValidPassword,
-} from "wasp/auth/validation";
-import {
-  defineUserSignupFields,
-  getIdentityStore,
   hashPassword,
-} from "wasp/server/auth";
+} from "@wasp.sh/auth/server";
+import { defineUserSignupFields, getIdentityStore } from "wasp/server/auth";
 import { CustomSignup } from "wasp/server/operations";
 
 export const userSignupFields = defineUserSignupFields({
@@ -43,7 +40,7 @@ export const customSignup: CustomSignup<
   try {
     // The same identity store Wasp's own signup flow uses -- no raw table
     // access needed. Hashing stays the caller's explicit job.
-    await getIdentityStore("email").createIdentity(
+    await getIdentityStore("wasp:email").createIdentity(
       args.email,
       {
         data: {

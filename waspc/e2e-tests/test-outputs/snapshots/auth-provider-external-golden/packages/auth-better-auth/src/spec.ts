@@ -35,7 +35,7 @@ export type BetterAuthProviderManifest<
   readonly __waspAuthProviderManifest: true;
   kind: "external";
   contractVersion: 1;
-  id: "external:better-auth";
+  id: "better-auth";
   server: { package: string };
   routes: { basePath: "/better-auth"; rawBody: true };
   capabilities: string[];
@@ -113,7 +113,7 @@ export function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(
     __waspAuthProviderManifest: true,
     kind: "external",
     contractVersion: 1,
-    id: "external:better-auth",
+    id: "better-auth",
     server: { package: "@wasp.sh/auth-better-auth/server" },
     routes: { basePath: "/better-auth", rawBody: true },
     capabilities: ["session-revocation"],

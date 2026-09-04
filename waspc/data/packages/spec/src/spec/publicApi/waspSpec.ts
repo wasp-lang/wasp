@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { RequireOneOrNone } from "type-fest";
-import type { Branded } from "../../branded.js";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { RefObject } from "../refObject.js";
 import { FromRegister } from "./register.js";
@@ -95,11 +93,11 @@ export interface Wasp {
 /**
  * Authentication configuration and lifecycle hooks.
  *
- * See the [Auth overview](https://wasp.sh/docs/auth/overview) for the
- * supported auth methods and how the `User` entity is connected to auth.
+ * See the [Auth overview](https://wasp.sh/docs/auth/overview) for how the
+ * `User` entity is connected to auth. Auth methods (username, email, OAuth)
+ * are configured on the auth provider package that implements them.
  * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
- * in their input. Hook return values are ignored except for
- * {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect URL.
+ * in their input.
  *
  * In TypeScript, you can type each hook implementation with its matching
  * type from `wasp/server/auth` (e.g. `OnBeforeSignupHook`). See
@@ -108,17 +106,22 @@ export interface Wasp {
  *
  * @example
  * ```ts
+ * import { waspAuth } from "@wasp.sh/auth/spec"
  * import { app } from "@wasp.sh/spec"
  *
  * export default app({
  *   // ...
  *   auth: {
  *     userEntity: "User",
- *     methods: {
- *       usernameAndPassword: {}, // use this or email, not both
- *       google: {},
- *       gitHub: {},
- *     },
+ *     providers: [
+ *       waspAuth({
+ *         methods: {
+ *           usernameAndPassword: {}, // use this or email, not both
+ *           google: {},
+ *           gitHub: {},
+ *         },
+ *       }),
+ *     ],
  *     onAuthFailedRedirectTo: "/login",
  *   },
  * })
@@ -165,20 +168,10 @@ export interface Auth {
    * providers (the same human signing in through two providers gets two
    * separate rows of your user entity).
    *
-   * Wasp's own auth, configured with {@link waspAuth}:
+   * Every provider is an adapter package, Wasp's own auth included:
    *
    * ```ts
-   * auth: {
-   *   userEntity: "User",
-   *   onAuthFailedRedirectTo: "/login",
-   *   providers: [waspAuth({ methods: { email: { ... } } })],
-   * }
-   * ```
-   *
-   * external providers, through an adapter package's spec helper (or
-   * {@link customAuthProvider} for a hand-written adapter), or any mix:
-   *
-   * ```ts
+   * import { waspAuth } from "@wasp.sh/auth/spec";
    * import { clerk } from "@wasp.sh/auth-clerk/spec";
    *
    * auth: {
@@ -188,13 +181,13 @@ export interface Auth {
    * }
    * ```
    *
-   * Each entry is a discriminated union, so provider-specific configuration
-   * (auth methods, wasp auth hooks) is only expressible under the provider it
-   * belongs to. Provider ids must be pairwise distinct and at most one entry
-   * may be {@link waspAuth}. Wasp still owns everything downstream of
-   * authentication: every provider's login ends in the same Wasp session, and
-   * `context.user` is always a row in your own user entity, whichever
-   * provider vouched for the request (`user.sessionProviderId` says which).
+   * A hand-written adapter goes through {@link customAuthProvider}.
+   * Provider-specific configuration (auth methods, method hooks) lives in the
+   * package's own spec helper. Provider ids must be pairwise distinct. Wasp
+   * still owns everything downstream of authentication: every provider's
+   * login ends in the same Wasp session, and `context.user` is always a row
+   * in your own user entity, whichever provider vouched for the request
+   * (`user.sessionProviderId` says which).
    */
   providers: AuthProviders;
   /**
@@ -206,7 +199,8 @@ export interface Auth {
    * nor forge them, because they fire where Wasp owns the control flow.
    *
    * Method-specific hooks (`onAfterEmailVerified`, `onBeforeOAuthRedirect`)
-   * belong to Wasp's own auth and stay inside {@link waspAuth}.
+   * belong to the auth package that implements the method, and are configured
+   * through its spec helper.
    */
   hooks?: AuthLifecycleHooks;
 }
@@ -260,70 +254,14 @@ export type AuthProviders = readonly [
 ];
 
 /**
- * The authentication provider of the app: Wasp's own auth (see
- * {@link waspAuth}) or an external provider's manifest (see
- * {@link customAuthProvider} and adapter packages like `@wasp.sh/auth-clerk`).
+ * One authentication provider of the app: a manifest produced by an adapter
+ * package's spec helper (`waspAuth()` from `@wasp.sh/auth/spec`, `clerk()`
+ * from `@wasp.sh/auth-clerk/spec`, ...) or by {@link customAuthProvider}.
+ * Wasp's own auth is an adapter package like any other.
  *
  * @category Auth
  */
-export type AuthProviderConfig =
-  | WaspAuthProviderConfig
-  | ExternalAuthProviderManifest;
-
-/**
- * Wasp's own authentication, selected and configured via {@link waspAuth}.
- *
- * @category Auth
- */
-export type WaspAuthProviderConfig = Branded<
-  {
-    kind: "wasp";
-    config: WaspAuthConfig;
-  },
-  "WaspAuthProviderConfig"
->;
-
-/**
- * Configuration of Wasp's own auth: which methods are enabled, plus everything
- * that only makes sense when Wasp itself runs the signup and login flows.
- *
- * @category Auth
- */
-export interface WaspAuthConfig extends AuthHooks {
-  /**
-   * Enabled authentication methods. At least one method must be enabled --
-   * with none, nobody could ever sign in, which is better expressed by
-   * choosing an external provider or dropping `auth` altogether.
-   */
-  methods: EnabledAuthMethods;
-  /**
-   * Route that Wasp redirects users to after a successful login or signup.
-   *
-   * Only takes effect when using Wasp's built-in Auth UI.
-   *
-   * See [Auth UI](https://wasp.sh/docs/auth/ui).
-   *
-   * @default "/"
-   */
-  onAuthSucceededRedirectTo?: string;
-}
-
-/**
- * {@link AuthMethods} with at least one method enabled.
- *
- * @category Auth
- */
-export type EnabledAuthMethods = AuthMethods & AtLeastOneAuthMethod;
-
-type AtLeastOneAuthMethod =
-  | { usernameAndPassword: UsernameAndPasswordConfig }
-  | { email: EmailAuthConfig }
-  | { slack: SocialAuthConfig }
-  | { discord: SocialAuthConfig }
-  | { google: SocialAuthConfig }
-  | { gitHub: SocialAuthConfig }
-  | { keycloak: SocialAuthConfig }
-  | { microsoft: SocialAuthConfig };
+export type AuthProviderConfig = AuthProviderManifest;
 
 /**
  * An env var an external auth provider needs. Wasp renders these into the
@@ -367,7 +305,7 @@ export type AuthRuntimeGrantName =
  *
  * @category Experimental
  */
-export interface ExternalAuthProviderManifest {
+export interface AuthProviderManifest {
   /** Discriminates the provider union. Always `"external"`. */
   kind: "external";
   /**
@@ -377,12 +315,11 @@ export interface ExternalAuthProviderManifest {
    */
   contractVersion: 1;
   /**
-   * Stable identifier of the provider ("external:clerk",
-   * "external:better-auth"). Must carry the `external:` prefix -- the
-   * unprefixed namespace is reserved for Wasp's own auth methods, which record
-   * identities in the same place. Identities Wasp provisions for this
-   * provider's subjects are recorded under this name, so it must stay stable
-   * across deploys.
+   * Stable identifier of the provider ("wasp", "clerk", "better-auth"). It is
+   * the provider's identity namespace: identities Wasp provisions for this
+   * provider's subjects are recorded under it (or under `${id}:${suffix}`,
+   * see {@link identityNamespaces}), and sessions record it as their minting
+   * provider. Must stay stable across deploys and contain no `:`.
    */
   id: string;
   /**
@@ -399,8 +336,11 @@ export interface ExternalAuthProviderManifest {
   client?: { package: string };
   /**
    * Routes the provider wants mounted on Wasp's server, for providers that
-   * bring their own HTTP endpoints (Better Auth). `rawBody` mounts them
-   * without the JSON body parser, for handlers that read the body themselves.
+   * bring their own HTTP endpoints (Wasp's own auth mounts at `/auth/wasp`,
+   * Better Auth at `/better-auth`). Anything under `/auth` is fine except the
+   * framework's own `/auth/me`, `/auth/logout` and `/auth/login`. `rawBody`
+   * mounts them without the JSON body parser, for handlers that read the body
+   * themselves.
    */
   routes?: { basePath: `/${string}`; rawBody?: boolean };
   /**
@@ -421,10 +361,10 @@ export interface ExternalAuthProviderManifest {
   uses?: AuthRuntimeGrantName[];
   /**
    * Identity namespaces this provider records identities under. Defaults to
-   * `[id]`. Every extra namespace must be `` `${id}/${suffix}` `` (e.g.
-   * `"external:better-auth/passkey"`), which makes cross-provider identity
-   * collisions impossible by construction, and declaring more than one
-   * requires the `"identity-namespaces"` grant in `uses`.
+   * `[id]`. Every extra namespace must be `` `${id}:${suffix}` `` (e.g.
+   * `"wasp:email"`, `"better-auth:passkey"`), which makes cross-provider
+   * identity collisions impossible by construction, and declaring more than
+   * one requires the `"identity-namespaces"` grant in `uses`.
    */
   identityNamespaces?: string[];
   /**
@@ -442,6 +382,14 @@ export interface ExternalAuthProviderManifest {
    */
   setupFn?: Reference<AnyFunction>;
   /**
+   * Any other user code the adapter calls back into (signup field getters,
+   * OAuth config functions, email content functions, method-specific hooks),
+   * keyed by the name the adapter expects. Each reference reaches the
+   * adapter's server factory as `extensions[name]`; the adapter types them
+   * precisely, Wasp only forwards them.
+   */
+  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
+  /**
    * Serializable adapter options, passed verbatim to the adapter's server
    * factory. Must survive a JSON round-trip; the compiler checks.
    */
@@ -451,278 +399,6 @@ export interface ExternalAuthProviderManifest {
    * than hand-crafted. Adapters never set this themselves.
    */
   readonly __waspAuthProviderManifest: true;
-}
-
-interface AuthHooks {
-  /** Called once, after the user verifies their email. Receives `email` and `user`. */
-  onAfterEmailVerified?: Reference<AnyFunction>;
-  /**
-   * Called before redirecting the user to the OAuth provider. Receives the
-   * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
-   * the redirect URL.
-   *
-   * The generic lifecycle hooks (`onBeforeSignup`, `onAfterSignup`,
-   * `onBeforeLogin`, `onAfterLogin`) moved to app level: see
-   * {@link Auth.hooks} -- they fire for every provider, not just Wasp's own.
-   *
-   * @category Hooks
-   */
-  onBeforeOAuthRedirect?: Reference<AnyFunction>;
-}
-
-/**
- * Enabled authentication methods for the app.
- *
- * At most one local auth method ({@link LocalAuthMethods}) can be used, but you
- * can enable as many external auth methods ({@link ExternalAuthMethods}) as you
- * need.
- */
-export type AuthMethods = RequireOneOrNone<LocalAuthMethods> &
-  ExternalAuthMethods;
-
-/**
- * Built-in local auth methods.
- *
- * Pick at most one of these.
- */
-export interface LocalAuthMethods {
-  /** Enables username and password auth. */
-  usernameAndPassword: UsernameAndPasswordConfig;
-  /**
-   * Enables email and password auth with email verification and password
-   * reset flows.
-   */
-  email: EmailAuthConfig;
-}
-
-/**
- * Social (OAuth) auth methods.
- *
- * Each enabled provider also requires the matching client ID and secret to
- * be set as environment variables. See the
- * [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview) for
- * details on each provider.
- */
-export interface ExternalAuthMethods
-  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
-
-/**
- * Supported social auth providers.
- */
-type SocialAuthMethodName =
-  | "discord"
-  | "google"
-  | "gitHub"
-  | "keycloak"
-  | "microsoft"
-  | "slack";
-
-/**
- * Username and password auth configuration.
- *
- * @example
- * ```ts
- * import { app } from "@wasp.sh/spec"
- * import { userSignupFields } from "./src/auth" with { type: "ref" }
- *
- * export default app({
- *   // ...
- *   auth: {
- *     userEntity: "User",
- *     methods: {
- *       usernameAndPassword: {
- *         userSignupFields,
- *       },
- *     },
- *     onAuthFailedRedirectTo: "/login",
- *   },
- * })
- * ```
- */
-export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
-
-/**
- * Social auth provider configuration.
- *
- * By default, Wasp stores only the user's provider-specific ID. Use
- * `userSignupFields` to save provider account details or custom signup state
- * on your {@link Auth.userEntity}. Each provider has provider-specific
- * `userSignupFields` and `configFn` behavior, documented in the
- * [Social Auth docs](https://wasp.sh/docs/auth/social-auth/overview).
- *
- * @example
- * ```ts
- * import { app } from "@wasp.sh/spec"
- * import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
- *
- * export default app({
- *   // ...
- *   auth: {
- *     userEntity: "User",
- *     methods: {
- *       google: {
- *         configFn: getConfig,
- *         userSignupFields,
- *       },
- *     },
- *     onAuthFailedRedirectTo: "/login",
- *   },
- * })
- * ```
- */
-export interface SocialAuthConfig extends BaseAuthMethodConfig {
-  /**
-   * Function that returns provider-specific OAuth options (scopes, prompt,
-   * etc.). Use this to request extra scopes, such as requesting email/profile
-   * data from providers that do not include it by default, or to customize the
-   * OAuth flow.
-   *
-   * @example
-   * ```ts
-   * export function getConfig() {
-   *   return {
-   *     scopes: ["openid", "profile", "email"],
-   *   }
-   * }
-   * ```
-   */
-  configFn?: Reference<AnyFunction>;
-}
-
-/**
- * Email auth configuration.
- *
- * See the [Email auth docs](https://wasp.sh/docs/auth/email) for the full
- * signup, verification, and password reset flows.
- *
- * @example
- * ```ts
- * import { app } from "@wasp.sh/spec"
- * import { userSignupFields } from "./src/auth" with { type: "ref" }
- * import {
- *   getVerificationEmailContent,
- *   getPasswordResetEmailContent,
- * } from "./src/auth/email" with { type: "ref" }
- *
- * export default app({
- *   // ...
- *   auth: {
- *     userEntity: "User",
- *     methods: {
- *       email: {
- *         userSignupFields,
- *         fromField: {
- *           name: "My App",
- *           email: "hello@itsme.com",
- *         },
- *         emailVerification: {
- *           clientRoute: "EmailVerificationRoute",
- *           getEmailContentFn: getVerificationEmailContent,
- *         },
- *         passwordReset: {
- *           clientRoute: "PasswordResetRoute",
- *           getEmailContentFn: getPasswordResetEmailContent,
- *         },
- *       },
- *     },
- *     onAuthFailedRedirectTo: "/login",
- *   },
- * })
- * ```
- */
-export interface EmailAuthConfig extends BaseAuthMethodConfig {
-  /** Sender identity used for verification and password reset emails. */
-  fromField: EmailFromField;
-  /**
-   * An object that specifies the details of the e-mail verification process.
-   */
-  emailVerification: EmailFlowConfig;
-  /**
-   * An object that specifies the password reset process.
-   */
-  passwordReset: EmailFlowConfig;
-}
-
-interface BaseAuthMethodConfig {
-  /**
-   * Object that defines extra fields to save on the user during signup
-   * (e.g. `firstName`, `address`). Each field name must exist on the
-   * configured {@link Auth.userEntity}.
-   *
-   * Each field function receives the data sent from the client and returns
-   * the value Wasp saves to the database. For social auth, this data includes
-   * provider-specific profile information. If the value is invalid, throw an
-   * error. The `password` field is excluded from this object and handled by
-   * Wasp's auth backend.
-   *
-   * See [Signup Fields Customization](https://wasp.sh/docs/auth/overview#signup-fields-customization).
-   *
-   * @example
-   * ```ts
-   * import { defineUserSignupFields } from 'wasp/server/auth'
-   *
-   * export const userSignupFields = defineUserSignupFields({
-   *   address: (data) => {
-   *     if (!data.address) {
-   *       throw new Error('Address is required')
-   *     }
-   *     return data.address
-   *   },
-   *   phone: (data) => data.phone,
-   * })
-   * ```
-   */
-  userSignupFields?: Reference<AnyObject>;
-}
-
-/**
- * Configuration for an email-based auth flow (verification or password reset).
- */
-export interface EmailFlowConfig {
-  /**
-   * Function that returns the email content (subject, html, text) Wasp sends
-   * for this flow. Verification email functions receive
-   * `{ verificationLink }`, and password reset email functions receive
-   * `{ passwordResetLink }`. If omitted, Wasp uses a built-in default
-   * template.
-   *
-   * In TypeScript, you can type the function with the
-   * `GetVerificationEmailContentFn` or `GetPasswordResetEmailContentFn` type
-   * from `wasp/server/auth`.
-   *
-   * @example
-   * ```ts title="src/email.ts"
-   * import { GetVerificationEmailContentFn } from "wasp/server/auth"
-   *
-   * export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
-   *   verificationLink,
-   * }) => ({
-   *   subject: "Verify your email",
-   *   text: `Click the link below to verify your email: ${verificationLink}`,
-   *   html: `
-   *         <p>Click the link below to verify your email</p>
-   *         <a href="${verificationLink}">Verify email</a>
-   *     `,
-   * })
-   * ```
-   */
-  getEmailContentFn?: Reference<AnyFunction>;
-  /**
-   * Name of the route that handles the link sent in the email (e.g.
-   * `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
-   *
-   * The route must be defined in {@link App.spec} with the {@link route}
-   * constructor.
-   *
-   * This route should handle the process of taking a token from the URL and
-   * sending it to the server to verify the e-mail address. You can use our
-   * [`verifyEmail`
-   * action](https://wasp.sh/docs/auth/email/create-your-own-ui#verifyemail) and
-   * [`resetPassword`
-   * action](https://wasp.sh/docs/auth/email/create-your-own-ui#resetpassword)
-   * helpers for that.
-   */
-  clientRoute: string;
 }
 
 /**

@@ -4,26 +4,8 @@ import {
   type {= authEntityName =},
   type {= authIdentityEntityName =},
 } from '../entities/index.js'
-import {
-  type PossibleProviderData,
-  type ProviderName,
-  parseProviderData,
-} from './providerData.js'
-import { Expand } from '../universal/types.js'
+import { parseProviderData } from './providerData.js'
 import { type AuthProviderId } from './provider.js'
-{=# isWaspAuthProviderUsed =}
-import { isNotNull } from '../universal/predicates.js'
-{=/ isWaspAuthProviderUsed =}
-
-// PUBLIC API
-export function getEmail(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "email")?.providerUserId ?? null;
-}
-
-// PUBLIC API
-export function getUsername(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "username")?.providerUserId ?? null;
-}
 
 // PUBLIC API
 export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
@@ -32,6 +14,21 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
   }
 
   return user.auth.identities[0].providerUserId ?? null;
+}
+
+// PUBLIC API
+/**
+ * One identity of the user, as the auth provider that owns it recorded it:
+ * the namespace it lives in (`wasp:email`, `clerk`), the provider's own id
+ * for the subject, the claims the provider verified, and its non-secret
+ * working data. Provider packages ship typed views over this (Wasp's own
+ * auth's `getEmail`/`getUsername`).
+ */
+export type AuthUserIdentity = {
+  providerName: string
+  providerUserId: string
+  claims: Record<string, unknown>
+  data: Record<string, unknown>
 }
 
 // PUBLIC API
@@ -55,44 +52,16 @@ export type AuthUser = AuthUserData & {
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
   /**
    * Id of the auth provider that minted the current session -- i.e. how this
-   * user logged in this time ('wasp', 'external:clerk', ...). A session is
-   * always minted by exactly one provider, so this is a single compile-checked
+   * user logged in this time ('wasp', 'clerk', ...). A session is always
+   * minted by exactly one provider, so this is a single compile-checked
    * literal, pinned when the session was created and never re-derived.
    */
   sessionProviderId: AuthProviderId,
-  identities: {
-    {=# enabledProviders.isEmailAuthEnabled =}
-    email: Expand<UserFacingProviderData<'email'>> | null
-    {=/ enabledProviders.isEmailAuthEnabled =}
-    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    username: Expand<UserFacingProviderData<'username'>> | null
-    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    {=# enabledProviders.isSlackAuthEnabled =}
-    slack: Expand<UserFacingProviderData<'slack'>> | null
-    {=/ enabledProviders.isSlackAuthEnabled =}
-    {=# enabledProviders.isDiscordAuthEnabled =}
-    discord: Expand<UserFacingProviderData<'discord'>> | null
-    {=/ enabledProviders.isDiscordAuthEnabled =}
-    {=# enabledProviders.isGoogleAuthEnabled =}
-    google: Expand<UserFacingProviderData<'google'>> | null
-    {=/ enabledProviders.isGoogleAuthEnabled =}
-    {=# enabledProviders.isKeycloakAuthEnabled =}
-    keycloak: Expand<UserFacingProviderData<'keycloak'>> | null
-    {=/ enabledProviders.isKeycloakAuthEnabled =}
-    {=# enabledProviders.isGitHubAuthEnabled =}
-    github: Expand<UserFacingProviderData<'github'>> | null
-    {=/ enabledProviders.isGitHubAuthEnabled =}
-    {=# enabledProviders.isMicrosoftAuthEnabled =}
-    microsoft: Expand<UserFacingProviderData<'microsoft'>> | null
-    {=/ enabledProviders.isMicrosoftAuthEnabled =}
-  },
+  /**
+   * Every identity of this user, across all providers and namespaces.
+   */
+  identities: AuthUserIdentity[],
 }
-
-// With secrets in their own (client-omitted) column, the user-facing view is
-// the provider's data verbatim -- no field stripping needed or possible.
-type UserFacingProviderData<PN extends ProviderName> = {
-  id: string
-} & PossibleProviderData[PN]
 
 // PRIVATE API
 export type CompleteUserEntityWithAuth =
@@ -106,7 +75,7 @@ export type CompleteAuthEntityWithIdentities =
 // PRIVATE API
 /**
  * User entity with all of the auth related data that's needed for the user facing
- * helper functions like `getUsername` and `getEmail`.
+ * helper functions like `getFirstProviderUserId`.
  */
 export type UserEntityWithAuth = MakeUserEntityWithAuth<
   MakeAuthEntityWithIdentities<
@@ -137,19 +106,8 @@ export function makeAuthUserIfPossible(
 function makeAuthUser(data: AuthUserData): AuthUser {
   return {
     ...data,
-    {=^ isWaspAuthProviderUsed =}
-    // The identities map only carries Wasp's own auth methods, and none are
-    // enabled without waspAuth among the providers, so there is nothing to
-    // read. External identities are reachable server-side through the
-    // identity store.
-    getFirstProviderUserId: () => null,
-    {=/ isWaspAuthProviderUsed =}
-    {=# isWaspAuthProviderUsed =}
-    getFirstProviderUserId: () => {
-      const identities = Object.values(data.identities).filter(isNotNull);
-      return identities.length > 0 ? identities[0].id : null;
-    },
-    {=/ isWaspAuthProviderUsed =}
+    getFirstProviderUserId: () =>
+      data.identities.length > 0 ? data.identities[0].providerUserId : null,
   };
 }
 
@@ -163,67 +121,15 @@ export function createAuthUserData(
     throw new Error(`🐝 Error: trying to create a user without auth data.
 This should never happen, but it did which means there is a bug in the code.`)
   }
-  const identities = {
-    {=# enabledProviders.isEmailAuthEnabled =}
-    email: getProviderInfo<'email'>({= authFieldOnUserEntityName =}, 'email'),
-    {=/ enabledProviders.isEmailAuthEnabled =}
-    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    username: getProviderInfo<'username'>({= authFieldOnUserEntityName =}, 'username'),
-    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
-    {=# enabledProviders.isSlackAuthEnabled =}
-    slack: getProviderInfo<'slack'>({= authFieldOnUserEntityName =}, 'slack'),
-    {=/ enabledProviders.isSlackAuthEnabled =}
-    {=# enabledProviders.isDiscordAuthEnabled =}
-    discord: getProviderInfo<'discord'>({= authFieldOnUserEntityName =}, 'discord'),
-    {=/ enabledProviders.isDiscordAuthEnabled =}
-    {=# enabledProviders.isGoogleAuthEnabled =}
-    google: getProviderInfo<'google'>({= authFieldOnUserEntityName =}, 'google'),
-    {=/ enabledProviders.isGoogleAuthEnabled =}
-    {=# enabledProviders.isKeycloakAuthEnabled =}
-    keycloak: getProviderInfo<'keycloak'>({= authFieldOnUserEntityName =}, 'keycloak'),
-    {=/ enabledProviders.isKeycloakAuthEnabled =}
-    {=# enabledProviders.isGitHubAuthEnabled =}
-    github: getProviderInfo<'github'>({= authFieldOnUserEntityName =}, 'github'),
-    {=/ enabledProviders.isGitHubAuthEnabled =}
-    {=# enabledProviders.isMicrosoftAuthEnabled =}
-    microsoft: getProviderInfo<'microsoft'>({= authFieldOnUserEntityName =}, 'microsoft'),
-    {=/ enabledProviders.isMicrosoftAuthEnabled =}
-  }
+  const identities = {= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =}.map((identity) => ({
+    providerName: identity.providerName,
+    providerUserId: identity.providerUserId,
+    claims: parseProviderData(identity.providerClaims),
+    data: parseProviderData(identity.providerData),
+  }))
   return {
     ...rest,
     sessionProviderId: sessionProviderId as AuthProviderId,
     identities,
   }
-}
-
-function getProviderInfo<PN extends ProviderName>(
-  auth: CompleteAuthEntityWithIdentities,
-  providerName: PN
-):
-  | UserFacingProviderData<PN>
-  | null {
-  const identity = getIdentity(auth, providerName)
-  if (!identity) {
-    return null
-  }
-  return {
-    ...parseProviderData<PN>(identity.providerData),
-    id: identity.providerUserId,
-  }
-}
-
-function getIdentity(
-  auth: CompleteAuthEntityWithIdentities,
-  providerName: ProviderName
-): Omit<{= authIdentityEntityName =}, 'providerSecrets'> | null {
-  return auth.{= identitiesFieldOnAuthEntityName =}.find((i) => i.providerName === providerName) ?? null
-}
-
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): NonNullable<UserEntityWithAuth['auth']>['identities'][number] | null {
-  if (!user.auth) {
-    return null;
-  }
-  return user.auth.identities.find(
-    (identity) => identity.providerName === providerName
-  ) ?? null;
 }

@@ -4,44 +4,41 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
 where
 
 import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.KeyMap as KeyMap
 import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.Common (waspAuthOptionsJson)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
+    genFileCopy,
     mkTmplFdWithData,
   )
 
 -- | The uniform client surface (useAuth, logout, resumeSession, the adapter
--- registry) exists for every provider mix. Wasp's own auth UI and actions
--- live in the @wasp.sh/auth lib and are re-exported iff Wasp's own auth is
--- among the providers -- external providers bring their own UI.
+-- registry) exists for every provider mix. Provider UI (forms, sign-in
+-- buttons) comes from each provider package's own client entry.
 genClientAuth :: AppSpec -> Generator [FileDraft]
 genClientAuth spec =
   case maybeAuth of
     Nothing -> return []
     Just auth ->
       sequence
-        [ genAuthIndex auth,
-          genClientAuthProvidersTs spec auth
+        [ genFileCopy (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|]),
+          genClientAuthProvidersTs auth
         ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
 -- | The client halves of the auth providers: instantiates each adapter
--- package's client entry (Wasp's own auth lib included) with the same
--- runtime-window discipline as the server halves, and carries the
--- session-resume and login helpers built on them.
-genClientAuthProvidersTs :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genClientAuthProvidersTs spec auth =
+-- package's client entry with the same runtime-window discipline as the
+-- server halves, and carries the session-resume and login helpers built on
+-- them.
+genClientAuthProvidersTs :: AS.Auth.Auth -> Generator FileDraft
+genClientAuthProvidersTs auth =
   return $
     mkTmplFdWithData
       (clientAuthDirInSdkTemplatesDir </> [relfile|providers.ts|])
@@ -50,42 +47,24 @@ genClientAuthProvidersTs spec auth =
     tmplData =
       Aeson.object
         [ "anyClientAdapters" Aeson..= (not . null $ clientAdapterProviders),
-          "isWaspAuthProviderUsed" Aeson..= AS.Auth.isWaspAuthProviderUsed auth,
-          "waspAuthOptionsJson" Aeson..= waspAuthOptionsJson spec auth,
           "clientAdapterProviders" Aeson..= zipWith mkClientAdapterProviderTmplData [0 :: Int ..] clientAdapterProviders
         ]
     clientAdapterProviders =
-      [ (extProvider, clientPackage)
-      | extProvider <- AS.Auth.externalProviders auth,
-        Just clientPackage <- [AS.Auth.clientPackage extProvider]
+      [ (provider, clientPackage)
+      | provider <- AS.Auth.providers auth,
+        Just clientPackage <- [AS.Auth.clientPackage provider]
       ]
-    mkClientAdapterProviderTmplData idx (extProvider, clientPackage) =
+    mkClientAdapterProviderTmplData idx (provider, clientPackage) =
       Aeson.object
         [ "index" Aeson..= idx,
-          "providerId" Aeson..= extProvider.providerId,
+          "providerId" Aeson..= provider.providerId,
           "clientPackage" Aeson..= clientPackage,
-          "hasOptions" Aeson..= maybe False (const True) extProvider.optionsJson,
-          "optionsJson" Aeson..= extProvider.optionsJson,
+          "hasOptions" Aeson..= maybe False (const True) provider.optionsJson,
+          "optionsJson" Aeson..= provider.optionsJson,
           -- The client adapter runtime's env is narrowed to exactly these names.
           "clientEnvVarNamesJs"
-            Aeson..= makeJsArrayFromHaskellList ((.name) <$> extProvider.envVars.client)
+            Aeson..= makeJsArrayFromHaskellList ((.name) <$> provider.envVars.client)
         ]
-
-genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
-genAuthIndex auth =
-  return $
-    mkTmplFdWithData
-      (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
-      tmplData
-  where
-    tmplData = case AuthProviders.getEnabledAuthProvidersJson auth of
-      Aeson.Object enabledProvidersFlags ->
-        Aeson.Object $
-          KeyMap.insert
-            "isWaspAuthProviderUsed"
-            (Aeson.toJSON $ AS.Auth.isWaspAuthProviderUsed auth)
-            enabledProvidersFlags
-      otherJson -> otherJson
 
 clientAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 clientAuthDirInSdkTemplatesDir = [reldir|client/auth|]

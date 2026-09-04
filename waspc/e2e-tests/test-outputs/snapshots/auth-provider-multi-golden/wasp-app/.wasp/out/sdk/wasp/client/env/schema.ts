@@ -16,21 +16,21 @@ const serverUrlSchema =
     })
   )
 
-const externalAuthProviderEnvSchema = z.object({
+const authProviderEnvSchema = z.object({
   "REACT_APP_CLERK_PUBLISHABLE_KEY": z.string({
-    error: "REACT_APP_CLERK_PUBLISHABLE_KEY is required by the 'external:clerk' auth provider: Clerk dashboard → API keys (publishable key)",
+    error: "REACT_APP_CLERK_PUBLISHABLE_KEY is required by the 'clerk' auth provider: Clerk dashboard → API keys (publishable key)",
   }),
 });
 
 const waspDevClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
     .default("http://localhost:3001"),
-  ...externalAuthProviderEnvSchema.shape,
+  ...authProviderEnvSchema.shape,
 });
 
 const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema,
-  ...externalAuthProviderEnvSchema.shape,
+  ...authProviderEnvSchema.shape,
 });
 
 const waspClientEnvSchema = import.meta.env.MODE === "production"

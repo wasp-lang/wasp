@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
  * revocation, and the anti-fallthrough/anti-enumeration edges.
  */
 
-const PROVIDER_ID = "external:password";
+const PROVIDER_ID = "password";
 const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 const email = `exchange-${uniqueSuffix}@example.com`;
 const password = "password1234";
@@ -78,13 +78,15 @@ test("an unknown subject is a 401 indistinguishable from a wrong password", asyn
 });
 
 test("an unknown provider id is a 404", async ({ request }) => {
-  const response = await request.post("/auth/login/external:no-such-provider", {
+  const response = await request.post("/auth/login/no-such-provider", {
     headers: { Authorization: basicCredential(email, password) },
   });
   expect(response.status()).toBe(404);
 });
 
-test("'wasp' is excluded from the exchange", async ({ request }) => {
+test("a provider id the app does not configure is a 404", async ({
+  request,
+}) => {
   const response = await request.post("/auth/login/wasp", {
     headers: { Authorization: basicCredential(email, password) },
   });

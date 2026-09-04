@@ -5,8 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Char (toLower)
-import Data.List (stripPrefix)
+import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -17,90 +16,42 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.Common
-  ( getOnAuthSucceededRedirectToOrDefault,
-    waspAuthExtensionExtImports,
-    waspAuthOptionsJson,
-    waspAuthServerEnvVarNames,
-  )
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
-import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 import qualified Wasp.Util.Aeson as Util.Aeson
 
+-- | The provider seam, the session layer, the identity store and the hook
+-- dispatch: the provider-agnostic server auth surface. Every provider,
+-- Wasp's own auth included, is an adapter instantiated in the registry.
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
   case maybeAuth of
     Nothing -> return []
-    -- The provider seam, the session layer, and the identity store exist for
-    -- every provider mix. Everything password-shaped -- hashing, jwt, Wasp's
-    -- own provider, hooks -- exists iff Wasp's own auth is among the
-    -- providers, so it cannot be imported (and its dependencies are not
-    -- installed) in externals-only apps.
     Just auth ->
       sequence
-        ( [ genFileCopy [relfile|server/core/auth.ts|],
-            genAuthIndex auth,
-            genFileCopyInServerAuth [relfile|provider/types.ts|],
-            genAuthProviderIndexTs spec auth,
-            genSessionTs auth,
-            genSessionStoreTs auth,
-            genIdentityStoreTs auth,
-            genLuciaTs auth,
-            genUtils auth,
-            -- Hook types and dispatch exist for every provider mix: the
-            -- app-level lifecycle hooks fire at Wasp-owned choke points
-            -- (provisioning, minting), whichever provider triggers them.
-            genHooks auth,
-            genHookDispatchTs auth
-          ]
-            ++ ( if AS.Auth.isWaspAuthProviderUsed auth
-                   then
-                     [ genFileCopyInServerAuth [relfile|password.ts|],
-                       genFileCopyInServerAuth [relfile|provider/wasp.ts|],
-                       genWaspAuthExtensionsTs auth
-                     ]
-                   else []
-               )
-        )
-        <++> genAuthEmail auth
+        [ genFileCopy [relfile|server/core/auth.ts|],
+          genFileCopyInServerAuth [relfile|index.ts|],
+          genFileCopyInServerAuth [relfile|provider/types.ts|],
+          genAuthProviderIndexTs spec auth,
+          genSessionTs auth,
+          genSessionStoreTs auth,
+          genIdentityStoreTs auth,
+          genLuciaTs auth,
+          genUtils auth,
+          genFileCopyInServerAuth [relfile|hooks.ts|],
+          genHookDispatchTs auth
+        ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
-genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
-genAuthIndex auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
-          "isExternalAuthEnabled" .= isExternalAuthEnabled,
-          "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth,
-          "anyExternalProvidersUsed" .= AS.Auth.isExternalAuthProviderUsed auth
-        ]
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
-
-genHooks :: AS.Auth.Auth -> Generator FileDraft
-genHooks auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|hooks.ts|])
-      tmplData
-  where
-    tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
 -- | Dispatch for the app-level lifecycle hooks (`auth.hooks`): fired from the
 -- SDK's provisioning and session-minting choke points, so every provider is
@@ -170,7 +121,7 @@ genLuciaTs auth =
 -- | The provider registry the app runs on: one entry per configured provider,
 -- keyed by provider id. Adapter packages are instantiated here (each with the
 -- identity store pre-bound to its own id), user-module providers are imported
--- through virtual user modules, and Wasp's own auth joins under the 'wasp' id.
+-- through virtual user modules.
 genAuthProviderIndexTs :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
 genAuthProviderIndexTs spec auth =
   return $
@@ -180,75 +131,64 @@ genAuthProviderIndexTs spec auth =
   where
     tmplData =
       object
-        [ "isWaspAuthProviderUsed" .= AS.Auth.isWaspAuthProviderUsed auth,
-          "anyExternalProvidersUsed" .= AS.Auth.isExternalAuthProviderUsed auth,
-          "waspAuthOptionsJson" .= waspAuthOptionsJson spec auth,
-          "waspServerEnvVarNamesJs" .= makeJsArrayFromHaskellList (waspAuthServerEnvVarNames auth),
-          "dbProvider" .= prismaDbProviderName,
+        [ "dbProvider" .= prismaDbProviderName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           -- The email-send grant can only be wired when the app has an email
           -- sender; validation guarantees no manifest requests it otherwise.
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "defaultFromJson"
             .= maybe "undefined" Util.Aeson.encodeToString (AS.EmailSender.defaultFrom =<< maybeEmailSender),
-          -- The identity namespaces of Wasp's own auth: one per enabled
-          -- method, unprefixed by the wasp provider's compatibility privilege
-          -- (released AuthIdentity rows carry these providerName values).
-          "waspIdentityNamespacesJs" .= makeJsArrayFromHaskellList waspIdentityNamespaces,
-          "externalAuthProviders" .= mkExternalAuthProvidersTmplData auth
+          "authProviders" .= mkAuthProvidersTmplData auth
         ]
     maybeEmailSender = AS.App.emailSender $ snd $ AS.Valid.getApp spec
-    waspIdentityNamespaces =
-      concat
-        [ ["wasp"],
-          ["username" | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-          ["email" | AS.Auth.isEmailAuthEnabled auth],
-          ["google" | AS.Auth.isGoogleAuthEnabled auth],
-          ["github" | AS.Auth.isGitHubAuthEnabled auth],
-          ["keycloak" | AS.Auth.isKeycloakAuthEnabled auth],
-          ["slack" | AS.Auth.isSlackAuthEnabled auth],
-          ["discord" | AS.Auth.isDiscordAuthEnabled auth],
-          ["microsoft" | AS.Auth.isMicrosoftAuthEnabled auth]
-        ]
     prismaDbProviderName :: String
     prismaDbProviderName = case AS.Valid.getValidDbSystem spec of
       AS.Db.PostgreSQL -> "postgresql"
       AS.Db.SQLite -> "sqlite"
 
--- | Per-external-provider template data, in declaration order. Import aliases
--- carry the provider's index so that two providers whose user modules share an
+-- | Per-provider template data, in declaration order. Import aliases carry
+-- the provider's index so that two providers whose user modules share an
 -- export name never collide in one generated file.
-mkExternalAuthProvidersTmplData :: AS.Auth.Auth -> [Aeson.Value]
-mkExternalAuthProvidersTmplData auth =
-  zipWith mkProviderTmplData [0 :: Int ..] (AS.Auth.externalProviders auth)
+mkAuthProvidersTmplData :: AS.Auth.Auth -> [Aeson.Value]
+mkAuthProvidersTmplData auth =
+  zipWith mkProviderTmplData [0 :: Int ..] (AS.Auth.providers auth)
   where
-    mkProviderTmplData idx extProvider =
+    mkProviderTmplData idx provider =
       object
         [ "index" .= idx,
-          "providerId" .= extProvider.providerId,
-          "isPackage" .= isJust (AS.Auth.serverPackage extProvider),
-          "serverPackage" .= AS.Auth.serverPackage extProvider,
+          "providerId" .= provider.providerId,
+          "isPackage" .= isJust (AS.Auth.serverPackage provider),
+          "serverPackage" .= AS.Auth.serverPackage provider,
           "providerModule"
-            .= extImportToAliasedImportJson ("authProviderModule_" ++ show idx) (AS.Auth.serverModule extProvider),
+            .= extImportToAliasedImportJson ("authProviderModule_" ++ show idx) (AS.Auth.serverModule provider),
           -- The adapter's serializable options, spliced in verbatim -- the
           -- mapper already proved the text is valid JSON.
-          "optionsJson" .= fromMaybe "undefined" extProvider.optionsJson,
+          "optionsJson" .= fromMaybe "undefined" provider.optionsJson,
           "setupFn"
-            .= extImportToAliasedImportJson ("authProviderSetupFn_" ++ show idx) extProvider.setupFn,
+            .= extImportToAliasedImportJson ("authProviderSetupFn_" ++ show idx) provider.setupFn,
           "userSignupFields"
             .= extImportToAliasedImportJson
               ("authProviderUserSignupFields_" ++ show idx)
-              (AS.Auth.userSignupFieldsForExternalAuthProvider extProvider),
+              (AS.Auth.userSignupFieldsForAuthProvider provider),
+          -- Every other user function the manifest referenced, delivered to
+          -- the adapter's server factory under the name it expects.
+          "extensions"
+            .= [ object
+                   [ "name" .= name,
+                     "import" .= extImportToAliasedImportJson ("authProviderExtension_" ++ show idx ++ "_" ++ name) (Just extImport)
+                   ]
+               | (name, extImport) <- Map.toList provider.extensions
+               ],
           -- The manifest's compile-time claims, checked against the runtime
           -- adapter object at boot so a wrong manifest fails loudly instead of
           -- generating a surface the adapter cannot back.
-          "capabilitiesJs" .= makeJsArrayFromHaskellList extProvider.capabilities,
+          "capabilitiesJs" .= makeJsArrayFromHaskellList provider.capabilities,
           -- The adapter runtime's env is narrowed to exactly these names.
           "serverEnvVarNamesJs"
-            .= makeJsArrayFromHaskellList ((.name) <$> extProvider.envVars.server),
+            .= makeJsArrayFromHaskellList ((.name) <$> provider.envVars.server),
           -- The runtime facets the manifest requested; only these get wired.
-          "usesJs" .= makeJsArrayFromHaskellList extProvider.uses,
-          "identityNamespacesJs" .= makeJsArrayFromHaskellList extProvider.identityNamespaces
+          "usesJs" .= makeJsArrayFromHaskellList provider.uses,
+          "identityNamespacesJs" .= makeJsArrayFromHaskellList provider.identityNamespaces
         ]
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
@@ -265,12 +205,7 @@ genSessionTs auth =
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-          -- Just-in-time provisioning only exists for external providers.
-          -- Emitting it unconditionally breaks apps whose user entity has
-          -- required fields, because the provisioning insert supplies none of
-          -- them.
-          "anyExternalProvidersUsed" .= AS.Auth.isExternalAuthProviderUsed auth,
-          "externalAuthProviders" .= mkExternalAuthProvidersTmplData auth
+          "authProviders" .= mkAuthProvidersTmplData auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
@@ -292,46 +227,9 @@ genUtils auth =
           "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
           "authFieldOnUserEntityName" .= (DbAuth.authFieldOnUserEntityName :: String),
           "identitiesFieldOnAuthEntityName" .= (DbAuth.identitiesFieldOnAuthEntityName :: String),
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
-genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthEmail auth =
-  if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genFileCopyInServerAuth [relfile|email/index.ts|]]
-    else return []
-
--- | The user-authored functions Wasp's own auth (the @wasp.sh/auth lib) calls
--- back into, gathered into one object the lib is instantiated with. Each
--- reaches the SDK through a virtual user module, like every other user function.
-genWaspAuthExtensionsTs :: AS.Auth.Auth -> Generator FileDraft
-genWaspAuthExtensionsTs auth =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|waspAuthExtensions.ts|])
-      tmplData
-  where
-    tmplData =
-      object
-        [ "extensions" .= (mkExtensionTmplData <$> extensions),
-          "userSignupFields" .= grouped "userSignupFields",
-          "configFns" .= grouped "configFn",
-          "singles" .= [mkExtensionTmplData e | e@(name, _) <- extensions, isSingle name]
-        ]
-    extensions = waspAuthExtensionExtImports auth
-    isSingle name = not (any (`isPrefixOfName` name) ["userSignupFields", "configFn"])
-    isPrefixOfName prefix name = maybe False (const True) (stripPrefix prefix name)
-    grouped prefix =
-      [ object ["key" .= lowerFirst key, "import" .= importJson e]
-      | e@(name, _) <- extensions,
-        Just key <- [stripPrefix prefix name]
-      ]
-    mkExtensionTmplData e@(name, _) = object ["name" .= name, "import" .= importJson e]
-    importJson (name, maybeExtImport) = extImportToAliasedImportJson ("waspAuthExt_" ++ name) maybeExtImport
-    lowerFirst (c : cs) = toLower c : cs
-    lowerFirst [] = []
 
 serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]

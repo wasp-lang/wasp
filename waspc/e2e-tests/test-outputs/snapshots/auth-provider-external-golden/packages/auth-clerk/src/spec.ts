@@ -32,7 +32,7 @@ export type ClerkAuthProviderManifest<UserSignupFieldsRef = never> = {
   readonly __waspAuthProviderManifest: true;
   kind: "external";
   contractVersion: 1;
-  id: "external:clerk";
+  id: "clerk";
   server: { package: string };
   client: { package: string };
   capabilities: string[];
@@ -84,7 +84,7 @@ export function clerk<UserSignupFieldsRef = never>(
     __waspAuthProviderManifest: true,
     kind: "external",
     contractVersion: 1,
-    id: "external:clerk",
+    id: "clerk",
     server: { package: "@wasp.sh/auth-clerk/server" },
     client: { package: "@wasp.sh/auth-clerk/client" },
     capabilities: ["session-revocation"],

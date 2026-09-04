@@ -1,9 +1,5 @@
 // PUBLIC API
-export {
-  getEmail,
-  getUsername,
-  getFirstProviderUserId,
-} from './user.js'
+export { getFirstProviderUserId } from './user.js'
 
 // PUBLIC API
-export { type AuthUser } from './user.js'
+export { type AuthUser, type AuthUserIdentity } from './user.js'

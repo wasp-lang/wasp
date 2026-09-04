@@ -30,7 +30,7 @@ export type ClerkAuthProviderManifest<UserSignupFieldsRef = never> = {
     readonly __waspAuthProviderManifest: true;
     kind: "external";
     contractVersion: 1;
-    id: "external:clerk";
+    id: "clerk";
     server: {
         package: string;
     };

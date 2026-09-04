@@ -11,9 +11,6 @@ type Config = {
   frontendUrl: string;
   serverUrl: string;
   allowedCORSOrigins: (string | RegExp)[];
-  auth: {
-    jwtSecret: string;
-  }
 }
 
 const frontendUrl = stripTrailingSlash(env['WASP_WEB_CLIENT_URL'])
@@ -33,9 +30,6 @@ const config: Config = {
   isDevelopment: env.NODE_ENV === 'development',
   port: env.PORT,
   databaseUrl: env.DATABASE_URL,
-  auth: {
-    jwtSecret: env["JWT_SECRET"]
-  }
 }
 
 // PUBLIC API

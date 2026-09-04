@@ -1,4 +1,4 @@
-import { ForgotPasswordForm } from "wasp/client/auth";
+import { ForgotPasswordForm } from "@wasp.sh/auth/client";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { customisationProps } from "./auth-ui";
 

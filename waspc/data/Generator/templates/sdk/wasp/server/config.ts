@@ -12,11 +12,6 @@ type Config = {
   frontendUrl: string;
   serverUrl: string;
   allowedCORSOrigins: (string | RegExp)[];
-  {=# isWaspAuthUsed =}
-  auth: {
-    jwtSecret: string;
-  }
-  {=/ isWaspAuthUsed =}
 }
 
 const frontendUrl = stripTrailingSlash(env['{= clientUrlEnvVarName =}'])
@@ -36,11 +31,6 @@ const config: Config = {
   isDevelopment: env.NODE_ENV === 'development',
   port: env.PORT,
   databaseUrl: env.{= databaseUrlEnvVarName =},
-  {=# isWaspAuthUsed =}
-  auth: {
-    jwtSecret: env["{= jwtSecretEnvVarName =}"]
-  }
-  {=/ isWaspAuthUsed =}
 }
 
 // PUBLIC API

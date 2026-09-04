@@ -1,13 +1,17 @@
 module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
+import Data.List (nub)
 import Data.Maybe (fromJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Route as AS.Route
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -74,12 +78,36 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "defaultClientPort" .= WebApp.defaultClientPort,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
+          -- Client adapter packages may ship CSS (Wasp's own auth forms do);
+          -- Vite must process them for prerendering rather than leaving them
+          -- to Node's loader.
+          "ssrNoExternal" .= makeJsArrayFromHaskellList clientAdapterPackages,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
+
+    -- Vite matches `ssr.noExternal` entries against package names, so the
+    -- manifest's entry specifier (`@wasp.sh/auth/client`) is reduced to its
+    -- package name (`@wasp.sh/auth`).
+    clientAdapterPackages =
+      nub
+        [ packageNameOfSpecifier clientPackage
+        | provider <- maybe [] AS.Auth.providers (AS.App.auth $ snd $ getApp spec),
+          Just clientPackage <- [AS.Auth.clientPackage provider]
+        ]
+    packageNameOfSpecifier specifier = case splitOn '/' specifier of
+      (scope@('@' : _) : name : _) -> scope ++ "/" ++ name
+      (name : _) -> name
+      [] -> specifier
+    splitOn separator = foldr step [[]]
+      where
+        step c acc@(current : rest)
+          | c == separator = [] : acc
+          | otherwise = (c : current) : rest
+        step c [] = [[c]]
 
     depsExcludedFromOptimization =
       -- Why do we exclude Wasp SDK from optimization?

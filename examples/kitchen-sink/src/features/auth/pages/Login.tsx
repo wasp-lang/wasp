@@ -1,6 +1,6 @@
 import { Link } from "wasp/client/router";
 
-import { LoginForm } from "wasp/client/auth";
+import { LoginForm } from "@wasp.sh/auth/client";
 
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { customisationProps } from "./auth-ui";

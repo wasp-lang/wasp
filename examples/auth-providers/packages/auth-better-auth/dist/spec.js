@@ -40,7 +40,7 @@ export function betterAuth(config) {
         __waspAuthProviderManifest: true,
         kind: "external",
         contractVersion: 1,
-        id: "external:better-auth",
+        id: "better-auth",
         server: { package: "@wasp.sh/auth-better-auth/server" },
         routes: { basePath: "/better-auth", rawBody: true },
         capabilities: ["session-revocation"],

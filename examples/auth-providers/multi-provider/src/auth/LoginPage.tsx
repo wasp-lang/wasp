@@ -1,6 +1,6 @@
 import { SignIn } from "@wasp.sh/auth-clerk/client";
 import { useState } from "react";
-import { LoginForm, SignupForm } from "wasp/client/auth";
+import { LoginForm, SignupForm } from "@wasp.sh/auth/client";
 
 /**
  * One login page, two independent front doors, composed by the app.

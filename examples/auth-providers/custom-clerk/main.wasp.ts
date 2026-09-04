@@ -23,7 +23,7 @@ export default app({
     onAuthFailedRedirectTo: "/login",
     providers: [
       customAuthProvider({
-        id: "external:clerk",
+        id: "clerk",
         server: clerkAuthProvider,
         capabilities: ["session-revocation"],
         env: {

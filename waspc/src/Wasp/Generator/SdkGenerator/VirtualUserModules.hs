@@ -13,6 +13,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
+import qualified Data.Map as Map
 import Data.Maybe (mapMaybe, maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
@@ -26,7 +27,6 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.SdkGenerator.Auth.Common (waspAuthExtensionExtImports)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
 import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
 
@@ -106,7 +106,7 @@ getVirtualUserModules spec =
       maybeToList $ mkAuthHookModule "OnAfterSignupHook" <$> (maybeAuth >>= AS.Auth.onAfterSignup),
       maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
       maybeToList $ mkAuthHookModule "OnAfterLoginHook" <$> (maybeAuth >>= AS.Auth.onAfterLogin),
-      mkWaspAuthExtensionModule <$> waspAuthExtensions,
+      mkAuthProviderExtensionModule <$> authProviderExtensions,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -177,16 +177,16 @@ getVirtualUserModules spec =
         [relfileP|./server/auth/provider/types|]
         "AuthProviderSetupFn"
 
-    -- The user functions Wasp's own auth (the @wasp.sh/auth lib) calls back
-    -- into: signup field getters, OAuth config functions, email content
-    -- functions and the method-specific hooks. The lib types them precisely;
-    -- the SDK only forwards them, so they are declared with a loose type.
-    mkWaspAuthExtensionModule extImport' =
+    -- Every other user function an adapter's manifest references
+    -- (`extensions`): signup field getters, OAuth config functions, email
+    -- content functions, method-specific hooks. The adapter types them
+    -- precisely; the SDK only forwards them, so they are declared loosely.
+    mkAuthProviderExtensionModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/auth/provider/types|]
-        "WaspAuthExtension"
+        "AuthProviderExtension"
 
     mkOperationModule operation =
       VirtualUserModule
@@ -203,11 +203,11 @@ getVirtualUserModules spec =
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuth = AS.App.auth app
-    externalAuthProviders = maybe [] AS.Auth.externalProviders maybeAuth
-    authProviderModules = mapMaybe AS.Auth.serverModule externalAuthProviders
-    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForExternalAuthProvider externalAuthProviders
-    authProviderSetupFns = mapMaybe AS.Auth.setupFn externalAuthProviders
-    waspAuthExtensions = maybe [] (mapMaybe snd . waspAuthExtensionExtImports) maybeAuth
+    authProviders = maybe [] AS.Auth.providers maybeAuth
+    authProviderModules = mapMaybe AS.Auth.serverModule authProviders
+    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForAuthProvider authProviders
+    authProviderSetupFns = mapMaybe AS.Auth.setupFn authProviders
+    authProviderExtensions = concatMap (Map.elems . AS.Auth.extensions) authProviders
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.

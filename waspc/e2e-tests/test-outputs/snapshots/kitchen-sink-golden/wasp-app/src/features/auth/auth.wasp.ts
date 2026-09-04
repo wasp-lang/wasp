@@ -1,11 +1,5 @@
-import {
-  action,
-  page,
-  route,
-  waspAuth,
-  type Auth,
-  type Spec,
-} from "@wasp.sh/spec";
+import { waspAuth } from "@wasp.sh/auth/spec";
+import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
@@ -19,6 +13,7 @@ import { CustomSignupPage } from "./pages/CustomSignupPage" with { type: "ref" }
 import { EmailVerification } from "./pages/EmailVerification" with { type: "ref" };
 import Login from "./pages/Login" with { type: "ref" };
 import { ManualSignupPage } from "./pages/ManualSignupPage" with { type: "ref" };
+import { OAuthCallbackPage } from "./pages/OAuthCallbackPage" with { type: "ref" };
 import { PasswordReset } from "./pages/PasswordReset" with { type: "ref" };
 import { ProfilePage } from "./pages/ProfilePage" with { type: "ref" };
 import { RequestPasswordReset } from "./pages/RequestPasswordReset" with { type: "ref" };
@@ -83,11 +78,11 @@ export const authConfig: Auth = {
           },
           emailVerification: {
             getEmailContentFn: getVerificationEmailContent,
-            clientRoute: "EmailVerificationRoute",
+            clientRoute: "/email-verification-",
           },
           passwordReset: {
             getEmailContentFn: getPasswordResetEmailContent,
-            clientRoute: "PasswordResetRoute",
+            clientRoute: "/password-reset",
           },
         },
       },
@@ -122,5 +117,7 @@ export const authSpec: Spec = [
   route("ProfileRoute", "/profile", page(ProfilePage, { authRequired: true })),
   route("ManualSignupRoute", "/manual-signup", page(ManualSignupPage)),
   route("CustomSignupRoute", "/custom-signup", page(CustomSignupPage)),
+  // Where Wasp's own OAuth flow hands the browser back to the client.
+  route("OAuthCallbackRoute", "/oauth/callback", page(OAuthCallbackPage)),
   action(customSignup),
 ];

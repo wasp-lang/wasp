@@ -81,7 +81,7 @@ export const createServerAdapter = (runtime, _options, extensions) => {
          * this adapter, so it must stay stable across deploys. Changing it
          * orphans users.
          */
-        id: "external:better-auth",
+        id: "better-auth",
         /**
          * Wasp hands every adapter a standard web `Request` -- built from the
          * HTTP request, or synthesized with just an `Authorization` header for

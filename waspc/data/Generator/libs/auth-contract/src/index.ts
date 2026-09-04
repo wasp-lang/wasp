@@ -560,6 +560,12 @@ export type ServerAdapter = {
  */
 export type ServerAdapterExtensions = {
   setupFn?: (config: never) => unknown;
+  /**
+   * Every other user function the manifest referenced under `extensions`,
+   * under the name the adapter chose. The adapter types them precisely; Wasp
+   * only forwards them.
+   */
+  [name: string]: unknown;
 };
 
 /**

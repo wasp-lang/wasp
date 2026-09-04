@@ -39,7 +39,7 @@ export const createServerAdapter: ServerAdapterFactory = (runtime) => {
      * Becomes `AuthIdentity.providerName`, so it must stay stable across
      * deploys and package versions.
      */
-    id: "external:clerk",
+    id: "clerk",
 
     /**
      * Wasp hands every adapter a standard web `Request` -- built from the

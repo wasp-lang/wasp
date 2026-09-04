@@ -6,7 +6,7 @@ builds from byte-for-byte the same primitives Wasp's own auth uses.
 
 ```ts
 provider: customAuthProvider({
-  id: "external:password",
+  id: "password",
   server: passwordAuthProvider,
   capabilities: [],   // a stateless verifier has no provider session to issue or revoke
   env: { server: [], client: [] },
@@ -15,7 +15,7 @@ provider: customAuthProvider({
 
 The three primitives, and where this app uses them:
 
-- **The identity store** (`getIdentityStore("external:password")`) — signup creates
+- **The identity store** (`getIdentityStore("password")`) — signup creates
   User + Auth + AuthIdentity atomically; the argon2 hash goes into the `secrets` channel (the
   column the Prisma client omits by default), the asserted email into `claims`. Hashing happens
   in this app, explicitly — Wasp ships no crypto to providers.
@@ -53,7 +53,7 @@ The identity row afterwards — claims, data, and secrets in their own columns, 
 one the Prisma client omits by default:
 
 ```
-providerName    = external:password
+providerName    = password
 providerUserId  = pw-test-…@example.com
 providerClaims  = {"email":"pw-test-…@example.com"}
 providerData    = {}

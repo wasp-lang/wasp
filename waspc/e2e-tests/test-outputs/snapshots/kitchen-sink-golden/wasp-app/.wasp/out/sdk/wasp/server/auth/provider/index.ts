@@ -1,5 +1,5 @@
-import { type AuthProvider } from './types.js'
-import type { AuthProviderId, ExternalAuthProviderId } from '../../../auth/provider.js'
+import { canManageSessions as canProviderManageSessions, canRevokeSessions as canProviderRevokeSessions, type AuthProvider } from './types.js'
+import type { AuthProviderId } from '../../../auth/provider.js'
 import type { ProviderIdentities, WaspEmail, WaspServerRuntime, WaspSessions } from '@wasp.sh/auth-contract'
 import { computeProviderUserFields, provisionAuthUser } from '../session.js'
 import { getIdentityStore } from '../identityStore.js'
@@ -15,9 +15,21 @@ import {
 import { config, prisma } from '../../index.js'
 import { env as validatedEnv } from '../../env.js'
 import { emailSender } from '../../email/index.js'
-import { waspAuthProvider } from './wasp.js'
-import { createServerAdapter as createWaspAuthServerAdapter } from '@wasp.sh/auth/server'
-import { waspAuthExtensions } from '../waspAuthExtensions.js'
+import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth/server'
+import { discordConfig as authProviderExtension_0_discordConfigFn } from 'virtual:wasp/user/features/auth/providers/discord'
+import { discordUserSignupFields as authProviderExtension_0_discordUserSignupFields } from 'virtual:wasp/user/features/auth/providers/discord'
+import { emailUserSignupFields as authProviderExtension_0_emailUserSignupFields } from 'virtual:wasp/user/features/auth/providers/email'
+import { getPasswordResetEmailContent as authProviderExtension_0_getPasswordResetEmailContent } from 'virtual:wasp/user/features/auth/providers/email'
+import { getVerificationEmailContent as authProviderExtension_0_getVerificationEmailContent } from 'virtual:wasp/user/features/auth/providers/email'
+import { gitHubConfig as authProviderExtension_0_githubConfigFn } from 'virtual:wasp/user/features/auth/providers/github'
+import { gitHubUserSignupFields as authProviderExtension_0_githubUserSignupFields } from 'virtual:wasp/user/features/auth/providers/github'
+import { googleConfig as authProviderExtension_0_googleConfigFn } from 'virtual:wasp/user/features/auth/providers/google'
+import { googleUserSignupFields as authProviderExtension_0_googleUserSignupFields } from 'virtual:wasp/user/features/auth/providers/google'
+import { microsoftConfig as authProviderExtension_0_microsoftConfigFn } from 'virtual:wasp/user/features/auth/providers/microsoft'
+import { microsoftUserSignupFields as authProviderExtension_0_microsoftUserSignupFields } from 'virtual:wasp/user/features/auth/providers/microsoft'
+import { onAfterEmailVerified as authProviderExtension_0_onAfterEmailVerified } from 'virtual:wasp/user/features/auth/hooks'
+import { slackConfig as authProviderExtension_0_slackConfigFn } from 'virtual:wasp/user/features/auth/providers/slack'
+import { slackUserSignupFields as authProviderExtension_0_slackUserSignupFields } from 'virtual:wasp/user/features/auth/providers/slack'
 
 // PRIVATE API
 export {
@@ -31,11 +43,10 @@ export {
 
 /**
  * The runtime window a provider gets, with the identity store pre-bound to
- * that provider's id. For adapter packages it is their *only* window into the
- * app: adapters never import generated code and never read `process.env`
- * themselves, which is what lets them version independently of any app.
- * Wasp's own auth runs on the very same runtime (see `waspAuthRuntime`), so
- * its flows hold no powers an adapter cannot request. `provision` routes
+ * that provider's id. It is an adapter's *only* window into the app: adapters
+ * never import generated code and never read `process.env` themselves, which
+ * is what lets them version independently of any app. Wasp's own auth is an
+ * adapter package like any other and runs on exactly this. `provision` routes
  * through that provider's `userSignupFields`, exactly like just-in-time
  * provisioning at the login exchange. The casts are the runtime boundary: the
  * store speaks `unknown`, the contract speaks `JsonValue`, and both sides of
@@ -257,7 +268,7 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
     db: prisma,
     dbProvider: 'postgresql',
     // Exactly the vars the manifest declared -- read from the VALIDATED env,
-    // so `devDefault`s apply -- and framework secrets (JWT_SECRET) stay
+    // so `devDefault`s apply -- and framework secrets (DATABASE_URL) stay
     // unreachable (declaring a framework-owned name is a compile error).
     env: Object.fromEntries(
       spec.serverEnvVarNames.map((name) => [
@@ -283,32 +294,43 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
   }
 }
 
-// PRIVATE API
 /**
- * Wasp's own auth, running on the very same runtime window an adapter package
- * gets: sessions through the `wasp-sessions` grant, identities through
- * namespace facets (one per enabled method), email through the `email-send`
- * grant. Its only manifest-level privileges are compatibility-shaped -- the
- * unprefixed method namespaces and reading its configuration from the
- * generated env schema instead of a declared env list.
+ * The adapter package's server factory for 'wasp', called with
+ * everything it may know about the app.
  */
-export const waspAuthRuntime = makeAdapterRuntime({
-  providerId: 'wasp',
-  serverEnvVarNames: ['JWT_SECRET', 'SKIP_EMAIL_VERIFICATION_IN_DEV', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'SLACK_CLIENT_ID', 'SLACK_CLIENT_SECRET', 'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'MICROSOFT_CLIENT_ID', 'MICROSOFT_CLIENT_SECRET', 'MICROSOFT_TENANT_ID'],
-  uses: ['wasp-sessions', 'identity-namespaces', 'email-send'],
-  identityNamespaces: ['wasp', 'email', 'google', 'github', 'slack', 'discord', 'microsoft'],
-}) as WaspServerRuntime<'wasp-sessions' | 'identity-namespaces'>
-
-/**
- * Wasp's own auth flows, instantiated from the `@wasp.sh/auth` lib exactly
- * like an adapter package's server factory: options are the serializable
- * method configuration, extensions are the user's functions.
- */
-export const waspAuthServerAdapter = await Promise.resolve(
-  createWaspAuthServerAdapter(
-    waspAuthRuntime as any,
-    {"clientOAuthCallbackPath":"/oauth/callback","methods":{"discord":{"requiredScopes":["identify"]},"email":{"emailVerificationClientRoute":"/email-verification-","fromField":{"email":"kitchen-sink@wasp.sh","name":"Wasp Kitchen Sink"},"passwordResetClientRoute":"/password-reset"},"github":{"requiredScopes":[]},"google":{"requiredScopes":["profile"]},"microsoft":{"requiredScopes":["openid","profile","email"]},"slack":{"requiredScopes":["openid"]}},"onAuthSucceededRedirectTo":"/"},
-    waspAuthExtensions as any,
+const serverAdapter_0 = await Promise.resolve(
+  createServerAdapter_0(
+    // The cast narrows the built runtime to the grants the factory's type
+    // declares; the generator wired exactly the manifest's `uses`, and the
+    // boot assert keeps manifest and adapter honest.
+    makeAdapterRuntime({
+      providerId: 'wasp',
+      serverEnvVarNames: ['JWT_SECRET', 'SKIP_EMAIL_VERIFICATION_IN_DEV', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'SLACK_CLIENT_ID', 'SLACK_CLIENT_SECRET', 'DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'MICROSOFT_CLIENT_ID', 'MICROSOFT_CLIENT_SECRET', 'MICROSOFT_TENANT_ID'],
+      uses: ['wasp-sessions', 'identity-namespaces', 'email-send'],
+      identityNamespaces: ['wasp', 'wasp:email', 'wasp:google', 'wasp:github', 'wasp:slack', 'wasp:discord', 'wasp:microsoft'],
+    }) as Parameters<typeof createServerAdapter_0>[0],
+    {"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","routesBasePath":"/auth/wasp","methods":{"email":{"fromField":{"name":"Wasp Kitchen Sink","email":"kitchen-sink@wasp.sh"},"emailVerificationClientRoute":"/email-verification-","passwordResetClientRoute":"/password-reset"},"google":{"requiredScopes":["profile"]},"github":{"requiredScopes":[]},"slack":{"requiredScopes":["openid"]},"discord":{"requiredScopes":["identify"]},"microsoft":{"requiredScopes":["openid","profile","email"]}}},
+    {
+      // The user's setup function for the adapter's underlying library; the
+      // adapter calls it with its integration config and uses the result.
+      setupFn: undefined,
+      // Every other user function the manifest referenced, under the name
+      // the adapter expects.
+      'discordConfigFn': authProviderExtension_0_discordConfigFn,
+      'discordUserSignupFields': authProviderExtension_0_discordUserSignupFields,
+      'emailUserSignupFields': authProviderExtension_0_emailUserSignupFields,
+      'getPasswordResetEmailContent': authProviderExtension_0_getPasswordResetEmailContent,
+      'getVerificationEmailContent': authProviderExtension_0_getVerificationEmailContent,
+      'githubConfigFn': authProviderExtension_0_githubConfigFn,
+      'githubUserSignupFields': authProviderExtension_0_githubUserSignupFields,
+      'googleConfigFn': authProviderExtension_0_googleConfigFn,
+      'googleUserSignupFields': authProviderExtension_0_googleUserSignupFields,
+      'microsoftConfigFn': authProviderExtension_0_microsoftConfigFn,
+      'microsoftUserSignupFields': authProviderExtension_0_microsoftUserSignupFields,
+      'onAfterEmailVerified': authProviderExtension_0_onAfterEmailVerified,
+      'slackConfigFn': authProviderExtension_0_slackConfigFn,
+      'slackUserSignupFields': authProviderExtension_0_slackUserSignupFields,
+    },
   ),
 )
 
@@ -322,17 +344,7 @@ export const waspAuthServerAdapter = await Promise.resolve(
  * looking up a session's minting provider always succeeds.
  */
 export const authProviders: { readonly [Id in AuthProviderId]: AuthProvider } = {
-  'wasp': waspAuthProvider,
-}
-
-// PRIVATE API
-/**
- * The external providers a credential can be exchanged with (`POST
- * /auth/login/:providerId`). Deliberately excludes 'wasp': Wasp's own auth
- * mints sessions through its own routes, and exchanging a Wasp credential for
- * a Wasp session would be a loop.
- */
-export const externalAuthProviders: { readonly [Id in ExternalAuthProviderId]: AuthProvider } = {
+  'wasp': serverAdapter_0.provider,
 }
 
 // PRIVATE API
@@ -346,5 +358,91 @@ export function getAuthProvider(providerId: string): AuthProvider | undefined {
  * provider id. The server mounts each at the basePath its manifest declared.
  */
 export const authProviderRouteHandlers: Partial<Record<AuthProviderId, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
-  'wasp': waspAuthServerAdapter.routeHandler,
+  'wasp': serverAdapter_0.routeHandler,
 }
+
+/**
+ * Each manifest in `main.wasp.ts` made compile-time claims about its provider
+ * (its id, its capabilities), and code was generated from them. Checking the
+ * claims against the adapter objects at boot turns a wrong manifest into a
+ * loud startup failure instead of a subtly broken app.
+ */
+function assertProvidersMatchManifests(): void {
+  const manifests: Array<{ providerId: string; capabilities: string[]; uses: string[] }> = [
+    { providerId: 'wasp', capabilities: [], uses: ['wasp-sessions', 'identity-namespaces', 'email-send'] },
+  ]
+  const knownRuntimeGrants = ['wasp-sessions', 'email-send', 'identity-namespaces']
+
+  const errors: string[] = []
+
+  for (const manifest of manifests) {
+    const provider = getAuthProvider(manifest.providerId)
+    if (provider === undefined) {
+      continue
+    }
+
+    // Both rules below are compile-time errors too (mapper + Haskell
+    // validator); asserting them here as well means no generated-code path can
+    // quietly outlive a validation gap.
+    if (manifest.providerId.length === 0 || manifest.providerId.includes(':')) {
+      errors.push(
+        `the manifest declares id '${manifest.providerId}', which is empty or contains a ':' -- ` +
+          `the ':' separates a provider id from its identity namespaces`,
+      )
+    }
+
+    if (
+      manifest.capabilities.includes('cookie-transport') &&
+      !manifest.capabilities.includes('session-revocation')
+    ) {
+      errors.push(
+        `the manifest for '${manifest.providerId}' declares 'cookie-transport' without 'session-revocation' -- ` +
+          `a cookie-borne credential Wasp cannot revoke server-side would make logout() a lie`,
+      )
+    }
+
+    for (const grant of manifest.uses) {
+      if (!knownRuntimeGrants.includes(grant)) {
+        errors.push(
+          `the manifest for '${manifest.providerId}' requests the unknown runtime grant '${grant}' -- ` +
+            `the generator could not have wired it`,
+        )
+      }
+    }
+
+    if (provider.id !== manifest.providerId) {
+      errors.push(
+        `the manifest declares id '${manifest.providerId}', but the adapter's id is '${provider.id}' -- ` +
+          `identities are recorded under the provider id, so the two must match`,
+      )
+    }
+
+    if (
+      manifest.capabilities.includes('issue-sessions') &&
+      !canProviderManageSessions(provider)
+    ) {
+      errors.push(
+        `the manifest for '${manifest.providerId}' declares the 'issue-sessions' capability, but the adapter does not implement the full ` +
+          `issueSession/revokeSession/revokeAllSessions set Wasp requires for session management`,
+      )
+    }
+
+    if (
+      manifest.capabilities.includes('session-revocation') &&
+      !canProviderRevokeSessions(provider)
+    ) {
+      errors.push(
+        `the manifest for '${manifest.providerId}' declares the 'session-revocation' capability, but the adapter does not implement revokeSession`,
+      )
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      'Auth provider adapters do not match their manifests:\n' +
+        errors.map((error) => `  - ${error}`).join('\n'),
+    )
+  }
+}
+
+assertProvidersMatchManifests()

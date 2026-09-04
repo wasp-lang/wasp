@@ -11,8 +11,8 @@ import {
   type OptimisticUpdateDefinition,
 } from "wasp/client/operations";
 
+import { getEmail } from "@wasp.sh/auth/user";
 import { ChangeEventHandler, SubmitEventHandler, useState } from "react";
-import { getEmail } from "wasp/auth";
 import { cn } from "../../../cn";
 import { Button } from "../../../components/Button";
 import { Input } from "../../../components/Input";

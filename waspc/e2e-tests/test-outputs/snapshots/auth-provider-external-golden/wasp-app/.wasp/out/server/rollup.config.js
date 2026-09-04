@@ -2,6 +2,8 @@ import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
 import { virtualUserModules } from "./src/plugins/virtualUserModules.js";
 
+const authProviderPackages = ['@wasp.sh/auth-clerk'];
+
 export default [
   createBundle("src/server.ts", "bundle/server.js"),
 ];
@@ -26,8 +28,13 @@ function createBundle(inputFilePath, outputFilePath) {
       }),
     ],
     // We don't want to bundle any of the node_module deps because we want to
-    // keep them as external dependencies.
-    external: /node_modules/,
+    // keep them as external dependencies. Auth provider packages are external
+    // by name too: a package installed through a `file:` link resolves to a
+    // realpath outside node_modules, and inlining it would strip it of its own
+    // dependencies.
+    external: (id) =>
+      /node_modules/.test(id) ||
+      authProviderPackages.some((pkg) => id === pkg || id.startsWith(pkg + "/")),
     // 'preserveSymlinks: false' tells Rollup to fully follow symlinks when
     // resolving modules. This is the default option, but we're setting it
     // explicitly because we rely on it.

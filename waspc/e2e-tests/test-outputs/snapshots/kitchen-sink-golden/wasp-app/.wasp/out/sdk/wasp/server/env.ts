@@ -26,44 +26,41 @@ const waspCommonServerEnvSchema = z.object({
   SMTP_PASSWORD: z.string({
     error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_PASSWORD'),
   }),
-  SKIP_EMAIL_VERIFICATION_IN_DEV: z
-    .enum(['true', 'false'], {
-      error: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
-    })
-    .default('false')
-    .transform((value) => value === 'true'),
-  GOOGLE_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_ID'),
+  "SKIP_EMAIL_VERIFICATION_IN_DEV": z.string({
+    error: "SKIP_EMAIL_VERIFICATION_IN_DEV is required by the 'wasp' auth provider: Set to 'true' to skip email verification in development",
+  }).optional(),
+  "GOOGLE_CLIENT_ID": z.string({
+    error: "GOOGLE_CLIENT_ID is required by the 'wasp' auth provider.",
   }),
-  GOOGLE_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_SECRET'),
+  "GOOGLE_CLIENT_SECRET": z.string({
+    error: "GOOGLE_CLIENT_SECRET is required by the 'wasp' auth provider.",
   }),
-  GITHUB_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_ID'),
+  "GITHUB_CLIENT_ID": z.string({
+    error: "GITHUB_CLIENT_ID is required by the 'wasp' auth provider.",
   }),
-  GITHUB_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_SECRET'),
+  "GITHUB_CLIENT_SECRET": z.string({
+    error: "GITHUB_CLIENT_SECRET is required by the 'wasp' auth provider.",
   }),
-  SLACK_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_ID'),
+  "SLACK_CLIENT_ID": z.string({
+    error: "SLACK_CLIENT_ID is required by the 'wasp' auth provider.",
   }),
-  SLACK_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_SECRET'),
+  "SLACK_CLIENT_SECRET": z.string({
+    error: "SLACK_CLIENT_SECRET is required by the 'wasp' auth provider.",
   }),
-  DISCORD_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_ID'),
+  "DISCORD_CLIENT_ID": z.string({
+    error: "DISCORD_CLIENT_ID is required by the 'wasp' auth provider.",
   }),
-  DISCORD_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_SECRET'),
+  "DISCORD_CLIENT_SECRET": z.string({
+    error: "DISCORD_CLIENT_SECRET is required by the 'wasp' auth provider.",
   }),
-  MICROSOFT_TENANT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_TENANT_ID'),
+  "MICROSOFT_CLIENT_ID": z.string({
+    error: "MICROSOFT_CLIENT_ID is required by the 'wasp' auth provider.",
   }),
-  MICROSOFT_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_ID'),
+  "MICROSOFT_CLIENT_SECRET": z.string({
+    error: "MICROSOFT_CLIENT_SECRET is required by the 'wasp' auth provider.",
   }),
-  MICROSOFT_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
+  "MICROSOFT_TENANT_ID": z.string({
+    error: "MICROSOFT_TENANT_ID is required by the 'wasp' auth provider.",
   }),
 });
 
@@ -87,11 +84,6 @@ const clientUrlSchema =
     })
   )
 
-const jwtTokenSchema = z
-  .string({
-    error: 'JWT_SECRET is required',
-  })
-
 // In development, we provide default values for some environment variables
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
@@ -100,15 +92,18 @@ const waspDevServerEnvSchema = z.object({
     .default("http://localhost:3001"),
   "WASP_WEB_CLIENT_URL": clientUrlSchema
     .default("http://localhost:3000/"),
-  "JWT_SECRET": jwtTokenSchema
-    .default("DEVJWTSECRET"),
+  "JWT_SECRET": z.string({
+    error: "JWT_SECRET is required by the 'wasp' auth provider: Signs email and OAuth tokens. openssl rand -base64 32",
+  }).default("DEVJWTSECRET"),
 });
 
 const waspProdServerEnvSchema = z.object({
   NODE_ENV: z.literal("production"),
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
-  "JWT_SECRET": jwtTokenSchema,
+  "JWT_SECRET": z.string({
+    error: "JWT_SECRET is required by the 'wasp' auth provider: Signs email and OAuth tokens. openssl rand -base64 32",
+  }),
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [

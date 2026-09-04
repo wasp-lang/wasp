@@ -4,8 +4,7 @@ module Wasp.AppSpec.Valid
   ( validateAppSpec,
     getApp,
     isAuthEnabled,
-    isWaspAuthUsed,
-    getExternalAuthProviders,
+    getAuthProviders,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -66,8 +65,6 @@ validateAppSpec spec =
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateUserEntity spec,
-          validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
-          validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateAuthProviders spec,
           validateAuthRequirements spec,
           validateDummyEmailSenderIsNotUsedInProduction spec,
@@ -162,34 +159,12 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   where
     anyPageRequiresAuth = any (AuthRequirement.isAuthRequiredWithDefault False . Page.authRequired) (snd <$> AS.getPages spec)
 
-validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
-validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
-  case App.auth (snd $ getApp spec) of
-    Nothing -> []
-    Just auth ->
-      [ GenericValidationError
-          "Expected app.auth to use either email or username and password authentication, but not both."
-      | areBothAuthMethodsUsed
-      ]
-      where
-        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
-
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
       ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.dbProviderPostgresqlStringLiteral ++ "\" since there are jobs with executor set to PgBoss.")
   | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
-
-validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
-validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
-  Nothing -> []
-  Just auth ->
-    if Auth.isEmailAuthEnabled auth && isNothing (App.emailSender app)
-      then [GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
-      else []
-  where
-    app = snd $ getApp spec
 
 validateDummyEmailSenderIsNotUsedInProduction :: AppSpec -> [ValidationError]
 validateDummyEmailSenderIsNotUsedInProduction spec =
@@ -200,13 +175,10 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
     isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
     app = snd $ getApp spec
 
--- | Coherence checks for an external auth provider manifest.
---
--- Wasp-auth config next to an external provider needs no check here: each
--- provider is a sum type, so that state is unrepresentable. What remains are
--- data-level properties the types cannot express: per-provider route checks,
--- and the cross-provider properties (unique ids, non-colliding route mounts,
--- non-colliding env vars) that only exist now that providers are a list.
+-- | Coherence checks for the auth provider manifests: data-level properties
+-- the types cannot express -- per-provider route, env, grant and namespace
+-- checks, and the cross-provider properties (unique ids, non-colliding route
+-- mounts, non-colliding env vars, disjoint namespaces).
 validateAuthProviders :: AppSpec -> [ValidationError]
 validateAuthProviders spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
@@ -216,41 +188,38 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
         | null (Auth.providers auth)
         ],
         validateProviderIdsAreUnique auth,
-        concatMap validateExternalProviderIdPrefix (Auth.externalProviders auth),
-        concatMap validateCookieTransportImpliesRevocation (Auth.externalProviders auth),
-        concatMap validateRoutesBasePath (Auth.externalProviders auth),
-        validateProviderBasePathsDoNotOverlap (Auth.externalProviders auth),
-        validateProviderEnvVarsDoNotCollide (Auth.externalProviders auth),
-        concatMap validateProviderEnvVarsAreNotReserved (Auth.externalProviders auth),
-        concatMap validateProviderUses (Auth.externalProviders auth),
-        concatMap validateProviderIdentityNamespaces (Auth.externalProviders auth),
-        validateIdentityNamespacesAreDisjoint (Auth.externalProviders auth),
-        concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.externalProviders auth)
+        concatMap validateProviderId (Auth.providers auth),
+        concatMap validateCookieTransportImpliesRevocation (Auth.providers auth),
+        concatMap validateRoutesBasePath (Auth.providers auth),
+        validateProviderBasePathsDoNotOverlap (Auth.providers auth),
+        validateProviderEnvVarsDoNotCollide (Auth.providers auth),
+        concatMap validateProviderEnvVarsAreNotReserved (Auth.providers auth),
+        concatMap validateProviderUses (Auth.providers auth),
+        concatMap validateProviderIdentityNamespaces (Auth.providers auth),
+        validateIdentityNamespacesAreDisjoint (Auth.providers auth),
+        concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.providers auth)
       ]
   where
     validateProviderIdsAreUnique auth =
-      map duplicateIdError $ findDuplicateElems (Auth.authProviderId <$> Auth.providers auth)
+      map duplicateIdError $ findDuplicateElems (Auth.providerId <$> Auth.providers auth)
       where
-        duplicateIdError duplicateId
-          | duplicateId == Auth.waspAuthProviderId =
-              GenericValidationError "app.auth.providers may contain at most one waspAuth(...) provider."
-          | otherwise =
-              GenericValidationError $
-                "app.auth.providers contains provider id '"
-                  ++ duplicateId
-                  ++ "' more than once. Identities are recorded under this id, so each provider may appear"
-                  ++ " at most once (provider instance ids are not configurable yet)."
+        duplicateIdError duplicateId =
+          GenericValidationError $
+            "app.auth.providers contains provider id '"
+              ++ duplicateId
+              ++ "' more than once. Identities are recorded under this id, so each provider may appear"
+              ++ " at most once (provider instance ids are not configurable yet)."
 
-    -- The TS mapper enforces the same rule; this mirror covers every entry
-    -- point that does not go through the TS spec (and any future one).
-    validateExternalProviderIdPrefix extProvider =
+    -- A provider id names an identity namespace, and ':' separates an id from
+    -- its sub-namespaces ('wasp:email'). The TS mapper enforces the same
+    -- rule; this mirror covers every entry point that does not go through it.
+    validateProviderId extProvider =
       [ GenericValidationError $
           "Auth provider id '"
             ++ extProvider.providerId
-            ++ "' must start with 'external:' (e.g. 'external:clerk'). The unprefixed namespace is"
-            ++ " reserved for Wasp's own auth methods, which record identities in the same place --"
-            ++ " the prefix is what makes a collision impossible."
-      | not ("external:" `isPrefixOf` extProvider.providerId)
+            ++ "' must be non-empty and contain no ':' -- the ':' separates a provider id from its"
+            ++ " identity namespaces ('wasp:email')."
+      | null extProvider.providerId || ':' `elem` extProvider.providerId
       ]
 
     -- A cookie-borne credential Wasp cannot revoke server-side would make
@@ -268,7 +237,7 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
       ]
 
     -- Adapter runtimes receive exactly the env vars their manifest declared,
-    -- so a manifest declaring a framework-owned name (JWT_SECRET) would be
+    -- so a manifest declaring a framework-owned name (DATABASE_URL) would be
     -- handed the framework's secret through the sanctioned channel. Mirrors
     -- reservedServerEnvVarNames / reservedClientEnvVarNames in the TS spec
     -- package (spec/src/spec/authReservedEnvVarNames.ts) and the names owned
@@ -297,8 +266,6 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
             "PG_BOSS_NEW_OPTIONS",
             "WASP_SERVER_URL",
             "WASP_WEB_CLIENT_URL",
-            "JWT_SECRET",
-            "SKIP_EMAIL_VERIFICATION_IN_DEV",
             "SMTP_HOST",
             "SMTP_PORT",
             "SMTP_USERNAME",
@@ -307,21 +274,7 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
             "MAILGUN_API_KEY",
             "MAILGUN_DOMAIN",
             "MAILGUN_API_URL",
-            "RESEND_API_KEY",
-            "GOOGLE_CLIENT_ID",
-            "GOOGLE_CLIENT_SECRET",
-            "GITHUB_CLIENT_ID",
-            "GITHUB_CLIENT_SECRET",
-            "SLACK_CLIENT_ID",
-            "SLACK_CLIENT_SECRET",
-            "DISCORD_CLIENT_ID",
-            "DISCORD_CLIENT_SECRET",
-            "KEYCLOAK_CLIENT_ID",
-            "KEYCLOAK_CLIENT_SECRET",
-            "KEYCLOAK_REALM_URL",
-            "MICROSOFT_TENANT_ID",
-            "MICROSOFT_CLIENT_ID",
-            "MICROSOFT_CLIENT_SECRET"
+            "RESEND_API_KEY"
           ]
         reservedClientEnvVarNames = ["NODE_ENV", "REACT_APP_API_URL"]
 
@@ -342,7 +295,7 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
       where
         knownRuntimeGrantNames = ["wasp-sessions", "email-send", "identity-namespaces"]
 
-    -- A provider owns its manifest id and anything under `id ++ "/"`; that
+    -- A provider owns its manifest id and anything under `id ++ ":"`; that
     -- shape is what makes cross-provider identity collisions impossible by
     -- construction. Using more than the default namespace requires the
     -- 'identity-namespaces' grant, so the power shows up in `uses`.
@@ -355,7 +308,7 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
                 ++ namespace
                 ++ "', which it does not own. A namespace must be the provider id or '"
                 ++ extProvider.providerId
-                ++ "/<suffix>' -- that rule is what makes cross-provider identity collisions impossible."
+                ++ ":<suffix>' -- that rule is what makes cross-provider identity collisions impossible."
           | namespace <- extProvider.identityNamespaces,
             not (isOwnNamespace namespace)
           ],
@@ -375,7 +328,7 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
       where
         isOwnNamespace namespace =
           namespace == extProvider.providerId
-            || ( (extProvider.providerId ++ "/") `isPrefixOf` namespace
+            || ( (extProvider.providerId ++ ":") `isPrefixOf` namespace
                    && length namespace > length extProvider.providerId + 1
                )
         usesNamespacesBeyondDefault =
@@ -405,8 +358,7 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
               groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) namespaceOwnership
           ]
 
-    -- Generalizes validateEmailSenderIsDefinedIfEmailAuthIsUsed to adapters:
-    -- an email-sending provider cannot ship into an app that would silently
+    -- An email-sending provider cannot ship into an app that would silently
     -- drop its emails.
     validateEmailSendGrantHasEmailSender spec' extProvider =
       [ GenericValidationError $
@@ -421,7 +373,9 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
       Nothing -> []
       Just providerRoutes ->
         let bPath = providerRoutes.basePath
-            reservedPathPrefixes = ["/auth", "/operations", "/crud"]
+            -- The framework's own routes. Providers may mount anywhere else
+            -- under /auth (Wasp's own auth lives at /auth/wasp).
+            reservedPathPrefixes = ["/auth/me", "/auth/logout", "/auth/login", "/operations", "/crud"]
             declaredApiPaths =
               (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
                 ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
@@ -431,14 +385,23 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
                 | not ("/" `isPrefixOf` bPath)
                 ],
                 [ GenericValidationError $
-                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " reservedPathPrefixes ++ ")."
-                | any (`isPrefixOf` bPath) reservedPathPrefixes
+                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " ("/auth" : reservedPathPrefixes) ++ ")."
+                | bPath == "/auth" || any (`isPathPrefixOfPath` bPath) reservedPathPrefixes
                 ],
                 [ GenericValidationError $
                     "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a declared api or apiNamespace path."
                 | any (\apiPath -> bPath `isPrefixOf` apiPath || apiPath `isPrefixOf` bPath) declaredApiPaths
                 ]
               ]
+
+    -- Prefix on segment boundaries: /better-auth prefixes /better-auth/x
+    -- but not /better-auth-2.
+    isPathPrefixOfPath pathA pathB = splitPathSegments pathA `isPrefixOf` splitPathSegments pathB
+    splitPathSegments = filter (not . null) . foldr splitOnSlash [[]]
+      where
+        splitOnSlash '/' segments = [] : segments
+        splitOnSlash c (segment : segments) = (c : segment) : segments
+        splitOnSlash c [] = [[c]]
 
     validateProviderBasePathsDoNotOverlap extProviders =
       [ GenericValidationError $
@@ -461,14 +424,6 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
           | extProvider <- extProviders,
             Just providerRoutes <- [Auth.routes extProvider]
           ]
-        -- Prefix on segment boundaries: /better-auth prefixes /better-auth/x
-        -- but not /better-auth-2.
-        isPathPrefixOfPath pathA pathB = splitPathSegments pathA `isPrefixOf` splitPathSegments pathB
-        splitPathSegments = filter (not . null) . foldr splitOnSlash [[]]
-          where
-            splitOnSlash '/' segments = [] : segments
-            splitOnSlash c (segment : segments) = (c : segment) : segments
-            splitOnSlash c [] = [[c]]
 
     -- Two providers declaring the same env var name is always an error: even
     -- an identically named and typed variable is separate per-instance
@@ -529,7 +484,7 @@ validateAuthRequirements spec =
         ]
 
     configuredProviderIds =
-      maybe [] (map Auth.authProviderId . Auth.providers) (App.auth $ snd $ getApp spec)
+      maybe [] (map Auth.providerId . Auth.providers) (App.auth $ snd $ getApp spec)
 
     validateRequirement site requirement = case AuthRequirement.requiredAuthProviderIds requirement of
       Nothing -> []
@@ -881,14 +836,8 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
--- | Whether Wasp's own auth is among the app's auth providers. Everything
--- password-shaped (login routes, auth forms, wasp-auth method routes) is
--- generated only when this holds.
-isWaspAuthUsed :: AppSpec -> Bool
-isWaspAuthUsed spec = maybe False Auth.isWaspAuthProviderUsed (App.auth $ snd $ getApp spec)
-
-getExternalAuthProviders :: AppSpec -> [Auth.ExternalAuthProviderSpec]
-getExternalAuthProviders spec = maybe [] Auth.externalProviders (App.auth $ snd $ getApp spec)
+getAuthProviders :: AppSpec -> [Auth.AuthProviderSpec]
+getAuthProviders spec = maybe [] Auth.providers (App.auth $ snd $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

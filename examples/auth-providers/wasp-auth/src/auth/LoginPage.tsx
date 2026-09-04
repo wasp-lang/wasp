@@ -1,12 +1,12 @@
+import { LoginForm, SignupForm } from "@wasp.sh/auth/client";
 import { useState } from "react";
-import { LoginForm, SignupForm } from "wasp/client/auth";
 
 /**
- * This file is the ONLY meaningful difference between the three example apps.
+ * This file is the ONLY meaningful difference between the example apps.
  *
- * Wasp's own auth can mint a session server-side, so Wasp renders the forms and
- * posts credentials to its own endpoints. Compare `clerk/src/auth/LoginPage.tsx`,
- * where none of this is possible.
+ * Wasp's own auth can mint a session server-side, so its package renders the
+ * forms and posts credentials to its own endpoints. Compare
+ * `clerk/src/auth/LoginPage.tsx`, where none of this is possible.
  */
 export function LoginPage() {
   const [isSignup, setIsSignup] = useState(false);

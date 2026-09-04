@@ -17,13 +17,18 @@ const serverUrlSchema =
     })
   )
 
+const authProviderEnvSchema = z.object({
+});
+
 const waspDevClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
     .default("http://localhost:3001"),
+  ...authProviderEnvSchema.shape,
 });
 
 const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema,
+  ...authProviderEnvSchema.shape,
 });
 
 const waspClientEnvSchema = import.meta.env.MODE === "production"

@@ -1,23 +1,17 @@
-{{={= =}=}}
 import express from 'express'
 
 import auth from 'wasp/server/core/auth'
 import me from './me.js'
 import logout from './logout.js'
-{=# isExternalAuthProviderUsed =}
 import login from './login.js'
-{=/ isExternalAuthProviderUsed =}
 
 const router = express.Router()
 
 router.get('/me', auth, me)
 router.post('/logout', auth, logout)
-{=# isExternalAuthProviderUsed =}
 // The credential exchange, addressed to one provider -- deliberately NOT
 // behind the `auth` middleware, since it is the route that establishes the
-// session in the first place. Mounted as a param route because provider ids
-// contain a ':' ('external:clerk'), which a literal route pattern would parse
-// as a param marker.
+// session in the first place.
 router.post('/login/:providerId', login)
-{=/ isExternalAuthProviderUsed =}
+
 export default router

@@ -30,7 +30,7 @@ export function LoginPage() {
       // `exchangeCredentialForSession` helper always sends a Bearer
       // credential, and this provider authenticates a Basic one.
       const response = await fetch(
-        `${config.apiUrl}/auth/login/${encodeURIComponent("external:password")}`,
+        `${config.apiUrl}/auth/login/${encodeURIComponent("password")}`,
         {
           method: "POST",
           headers: { Authorization: `Basic ${btoa(`${email}:${password}`)}` },
@@ -41,7 +41,7 @@ export function LoginPage() {
         return;
       }
       const { sessionId } = (await response.json()) as { sessionId: string };
-      setSessionId(sessionId, "external:password");
+      setSessionId(sessionId, "password");
       window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

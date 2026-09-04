@@ -206,8 +206,6 @@ library
     Wasp.AppSpec.ApiNamespace
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
-    Wasp.AppSpec.App.Auth.EmailVerification
-    Wasp.AppSpec.App.Auth.PasswordReset
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.EmailSender
@@ -243,11 +241,6 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
-    Wasp.Generator.AuthProviders
-    Wasp.Generator.AuthProviders.Common
-    Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.AuthProviders.Local
-    Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -276,7 +269,6 @@ library
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
-    Wasp.Generator.SdkGenerator.Auth.Common
     Wasp.Generator.SdkGenerator.AuthG
     Wasp.Generator.SdkGenerator.Client.AppG
     Wasp.Generator.SdkGenerator.Client.AuthG

@@ -17,7 +17,6 @@ import {
   page,
   query,
   route,
-  waspAuth,
 } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
@@ -402,8 +401,9 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
         userEntity: "User",
         onAuthFailedRedirectTo: "/login",
         providers: [
-          waspAuth({
-            methods: { usernameAndPassword: {} },
+          customAuthProvider({
+            id: "test-provider",
+            server: getRefObject("minimal", "named"),
           }),
         ],
       } satisfies MinimalConfig<WaspSpec.Auth>;
@@ -412,11 +412,24 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
         userEntity: "User",
         onAuthFailedRedirectTo: "/login",
         providers: [
-          waspAuth({
-            methods: getAuthMethods("full"),
-            onAuthSucceededRedirectTo: "/profile",
-            onAfterEmailVerified: getRefObject("full", "named"),
-            onBeforeOAuthRedirect: getRefObject("full", "named"),
+          customAuthProvider({
+            id: "test-provider",
+            server: getRefObject("full", "named"),
+            capabilities: ["session-revocation"],
+            env: {
+              server: [
+                { name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" },
+              ],
+              client: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
+            },
+            uses: ["wasp-sessions", "identity-namespaces"],
+            identityNamespaces: ["test-provider", "test-provider:passkey"],
+            userSignupFields: getRefObject("full", "named"),
+            extensions: {
+              configFn: getRefObject("full", "named"),
+              getEmailContent: getRefObject("full", "named"),
+            },
+            options: { flag: true },
           }),
         ],
         hooks: {
@@ -437,7 +450,7 @@ export function getExternalAuthConfig(): WaspSpec.Auth {
     onAuthFailedRedirectTo: "/login",
     providers: [
       customAuthProvider({
-        id: "external:test-provider",
+        id: "test-provider",
         server: getRefObject("full", "named"),
         capabilities: ["session-revocation"],
         env: {
@@ -449,134 +462,6 @@ export function getExternalAuthConfig(): WaspSpec.Auth {
       }),
     ],
   };
-}
-
-export function getAuthMethods<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.AuthMethods>;
-export function getAuthMethods(
-  scope: ConfigScope,
-): Config<WaspSpec.AuthMethods> {
-  switch (scope) {
-    case "minimal":
-      return {} satisfies MinimalConfig<WaspSpec.AuthMethods>;
-    case "full":
-      return {
-        slack: getSocialAuthConfig("full"),
-        discord: getSocialAuthConfig("full"),
-        google: getSocialAuthConfig("full"),
-        gitHub: getSocialAuthConfig("full"),
-        keycloak: getSocialAuthConfig("full"),
-        microsoft: getSocialAuthConfig("full"),
-        email: getEmailAuthConfig("full"),
-      } satisfies FullConfig<WaspSpec.AuthMethods>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getUsernameAndPasswordConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.UsernameAndPasswordConfig>;
-export function getUsernameAndPasswordConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.UsernameAndPasswordConfig> {
-  switch (scope) {
-    case "minimal":
-      return {} satisfies MinimalConfig<WaspSpec.UsernameAndPasswordConfig>;
-    case "full":
-      return {
-        userSignupFields: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.UsernameAndPasswordConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getSocialAuthConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.SocialAuthConfig>;
-export function getSocialAuthConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.SocialAuthConfig> {
-  switch (scope) {
-    case "minimal":
-      return {} satisfies MinimalConfig<WaspSpec.SocialAuthConfig>;
-    case "full":
-      return {
-        configFn: getRefObject("full", "named"),
-        userSignupFields: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.SocialAuthConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getEmailAuthConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.EmailAuthConfig>;
-export function getEmailAuthConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.EmailAuthConfig> {
-  switch (scope) {
-    case "minimal":
-      return {
-        fromField: getEmailFromField("minimal"),
-        emailVerification: getEmailVerificationConfig("minimal"),
-        passwordReset: getPasswordResetConfig("minimal"),
-      } satisfies MinimalConfig<WaspSpec.EmailAuthConfig>;
-    case "full":
-      return {
-        fromField: getEmailFromField("full"),
-        emailVerification: getEmailVerificationConfig("full"),
-        passwordReset: getPasswordResetConfig("full"),
-        userSignupFields: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.EmailAuthConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getEmailVerificationConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.EmailFlowConfig>;
-export function getEmailVerificationConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.EmailFlowConfig> {
-  switch (scope) {
-    case "minimal":
-      return {
-        clientRoute: EMAIL_VERIFY_ROUTE_NAME,
-      } satisfies MinimalConfig<WaspSpec.EmailFlowConfig>;
-    case "full":
-      return {
-        clientRoute: EMAIL_VERIFY_ROUTE_NAME,
-        getEmailContentFn: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.EmailFlowConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getPasswordResetConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.EmailFlowConfig>;
-export function getPasswordResetConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.EmailFlowConfig> {
-  switch (scope) {
-    case "minimal":
-      return {
-        clientRoute: PASSWORD_RESET_ROUTE_NAME,
-      } satisfies MinimalConfig<WaspSpec.EmailFlowConfig>;
-    case "full":
-      return {
-        clientRoute: PASSWORD_RESET_ROUTE_NAME,
-        getEmailContentFn: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.EmailFlowConfig>;
-    default:
-      assertUnreachable(scope);
-  }
 }
 
 export function getEmailFromField<Scope extends ConfigScope>(

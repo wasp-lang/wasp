@@ -1,38 +1,55 @@
 # Auth providers — Wasp's own auth
 
-The baseline. `app.auth.provider` is **not set**, which is the default and means "use Wasp's
-built-in auth" — exactly what every existing Wasp app does today.
+Wasp's own auth, declared the way every other provider is: as an adapter package.
 
 ```ts
+import { waspAuth } from "@wasp.sh/auth/spec";
+
 auth: {
   userEntity: "User",
-  methods: { usernameAndPassword: {} },
   onAuthFailedRedirectTo: "/login",
+  providers: [waspAuth({ methods: { usernameAndPassword: {} } })],
 }
 ```
 
-It exists so the other two apps have something to be compared against: `src/operations.ts`,
-`src/MainPage.tsx` and `schema.prisma` here are byte-for-byte identical to the Better Auth and
-Clerk versions.
+The package lives in `../packages/auth`. The compiler knows nothing about it beyond its
+manifest: the flows mount at `/auth/wasp/...`, identities live in `wasp:username`, forms come
+from `@wasp.sh/auth/client`, and the framework keeps only what every provider shares
+(sessions, the identity store, `/auth/me`, `/auth/logout`, the credential exchange, hooks).
+
+`src/operations.ts`, `src/MainPage.tsx` and `schema.prisma` are byte-for-byte identical to
+the other apps in this directory.
 
 ## Run it
 
 ```sh
-echo 'JWT_SECRET=example-app-development-secret-0123456789abcdef' > .env.server
 wasp db migrate-dev
 wasp start
 ```
 
+## Tests
+
+```sh
+npm run test
+```
+
+API specs cover signup, duplicate signup, login, session attribution to `wasp`, a wrong
+password, the old unprefixed `/auth/username/login` being gone, and logout revocation. One
+browser spec signs up, logs out and logs back in through the package's forms.
+
 ## Verified
 
 ```
-POST /auth/username/signup                      200  {"success":true}
-POST /auth/username/login                       200  {"sessionId":"wznhanafh4ilzy…"}
-GET  /auth/me                                   200  {"id":"b71f739e-…","identities":{"username":{"id":"alice"}}}
-POST /operations/create-task    (with token)    200  task created with userId = b71f739e-…
-POST /operations/get-my-tasks   (with token)    200  the task
-POST /operations/get-my-tasks   (no token)      401
+POST /auth/wasp/username/signup                 200  {"success":true}
+POST /auth/wasp/username/signup   (again)       422
+POST /auth/wasp/username/login                  200  {"sessionId":"…"}
+GET  /auth/me                                   200  sessionProviderId = wasp
+POST /auth/username/login                       404
+POST /auth/logout                               200
+GET  /auth/me      (old session)                401
 ```
 
-Note the `userId` on the created task is the app's own `User.id`. That is the invariant the
-provider interface protects, and it holds identically in the other two apps.
+```
+AuthIdentity.providerName = wasp:username
+Session.providerId        = wasp
+```

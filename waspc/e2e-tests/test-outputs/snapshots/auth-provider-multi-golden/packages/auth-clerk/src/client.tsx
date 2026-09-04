@@ -25,7 +25,7 @@ type ViteLikeImportMeta = ImportMeta & {
  *
  * Deliberately contains no Wasp imports. Apps wiring Clerk by hand (without
  * the packaged adapter) exchange Clerk's token for a Wasp session themselves
- * via `exchangeCredentialForSession("external:clerk", token)` from
+ * via `exchangeCredentialForSession("clerk", token)` from
  * `wasp/client/api`.
  */
 export function ClerkAuthProvider({

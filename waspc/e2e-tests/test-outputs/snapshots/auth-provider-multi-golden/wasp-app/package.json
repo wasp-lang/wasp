@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@clerk/clerk-react": "5.51.0",
+    "@wasp.sh/auth": "file:../packages/auth",
     "@wasp.sh/auth-clerk": "file:../packages/auth-clerk",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

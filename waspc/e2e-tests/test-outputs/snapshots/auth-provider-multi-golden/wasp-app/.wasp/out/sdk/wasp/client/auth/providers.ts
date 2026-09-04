@@ -1,5 +1,5 @@
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import type { AuthProviderId, ExternalAuthProviderId } from '../../auth/provider.js'
+import type { AuthProviderId } from '../../auth/provider.js'
 import {
   api,
   getLastAuthProviderId,
@@ -11,8 +11,8 @@ import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
 import { exchangeCredentialForSession } from '../../api/index.js'
-import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth-clerk/client'
-import { createClientAdapter as createWaspAuthClientAdapter } from '@wasp.sh/auth/client'
+import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth/client'
+import { createClientAdapter as createClientAdapter_1 } from '@wasp.sh/auth-clerk/client'
 
 /**
  * The client halves of the app's auth providers, instantiated from each
@@ -44,13 +44,10 @@ function makeClientRuntime(
   }
 }
 
-// Wasp's own auth, instantiated from the @wasp.sh/auth lib exactly like an
-// adapter package's client entry: its forms and actions read this runtime.
-createWaspAuthClientAdapter(makeClientRuntime('wasp', []), {"clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}},"onAuthSucceededRedirectTo":"/"})
-
 // PRIVATE API
-export const clientAuthAdapters: Partial<Record<ExternalAuthProviderId, ClientAuthAdapter>> = {
-  'external:clerk': createClientAdapter_0(makeClientRuntime('external:clerk', ['REACT_APP_CLERK_PUBLISHABLE_KEY']), undefined),
+export const clientAuthAdapters: Partial<Record<AuthProviderId, ClientAuthAdapter>> = {
+  'wasp': createClientAdapter_0(makeClientRuntime('wasp', []), {"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","routesBasePath":"/auth/wasp","methods":{"usernameAndPassword":{}}}),
+  'clerk': createClientAdapter_1(makeClientRuntime('clerk', ['REACT_APP_CLERK_PUBLISHABLE_KEY']), undefined),
 }
 
 // PUBLIC API
@@ -85,10 +82,11 @@ async function attemptResumeSession(): Promise<boolean> {
   if (lastProviderId === null) {
     return false
   }
-  const adapter = clientAuthAdapters[lastProviderId as ExternalAuthProviderId]
+  const adapter = clientAuthAdapters[lastProviderId as AuthProviderId]
   if (adapter?.getCredential === undefined) {
-    // 'wasp' or an adapter-less provider: nothing exists outside the Wasp
-    // session itself, so an expired session correctly means "log in again".
+    // An adapter without a credential source (Wasp's own auth, for one):
+    // nothing exists outside the Wasp session itself, so an expired session
+    // correctly means "log in again".
     return false
   }
   const credential = await adapter.getCredential()
@@ -96,7 +94,7 @@ async function attemptResumeSession(): Promise<boolean> {
     return false
   }
   try {
-    await exchangeCredentialForSession(lastProviderId as ExternalAuthProviderId, credential)
+    await exchangeCredentialForSession(lastProviderId as AuthProviderId, credential)
   } catch {
     return false
   }
@@ -112,7 +110,7 @@ async function attemptResumeSession(): Promise<boolean> {
  * For providers without a client adapter, obtain the credential yourself and
  * call `exchangeCredentialForSession`.
  */
-export async function loginWithAuthProvider(providerId: ExternalAuthProviderId): Promise<void> {
+export async function loginWithAuthProvider(providerId: AuthProviderId): Promise<void> {
   const adapter = clientAuthAdapters[providerId]
   if (adapter?.getCredential === undefined) {
     throw new Error(
@@ -147,11 +145,11 @@ export async function loginWithAuthProvider(providerId: ExternalAuthProviderId):
  *    minted it (Clerk signing out must not kill a Better Auth session).
  */
 for (const [providerId, adapter] of Object.entries(clientAuthAdapters)) {
-  wireAdapterCredentialEvents(providerId as ExternalAuthProviderId, adapter as ClientAuthAdapter)
+  wireAdapterCredentialEvents(providerId as AuthProviderId, adapter as ClientAuthAdapter)
 }
 
 function wireAdapterCredentialEvents(
-  providerId: ExternalAuthProviderId,
+  providerId: AuthProviderId,
   adapter: ClientAuthAdapter,
 ): void {
   const getCredential = adapter.getCredential?.bind(adapter)

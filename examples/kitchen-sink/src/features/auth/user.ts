@@ -1,4 +1,14 @@
+import { getEmail } from "@wasp.sh/auth/user";
 import { type AuthUser } from "wasp/auth";
+
+const oauthMethodLabels: Record<string, string> = {
+  "wasp:google": "Google",
+  "wasp:github": "GitHub",
+  "wasp:discord": "Discord",
+  "wasp:slack": "Slack",
+  "wasp:microsoft": "Microsoft",
+  "wasp:keycloak": "Keycloak",
+};
 
 export function getName(user?: AuthUser) {
   if (!user) {
@@ -6,33 +16,18 @@ export function getName(user?: AuthUser) {
   }
 
   // We use multiple auth methods, so we need to check which one is available.
-  if (user.identities.email !== null) {
-    return user.identities.email.id;
+  const email = getEmail(user);
+  if (email !== null) {
+    return email;
   }
 
-  if (user.identities.google !== null) {
-    return `Google user ${user.identities.google.id}`;
+  const oauthIdentity = user.identities.find(
+    (identity) => identity.providerName in oauthMethodLabels,
+  );
+  if (oauthIdentity) {
+    const label = oauthMethodLabels[oauthIdentity.providerName];
+    return `${label} user ${oauthIdentity.providerUserId}`;
   }
-
-  if (user.identities.github !== null) {
-    return `GitHub user ${user.identities.github.id}`;
-  }
-
-  if (user.identities.discord !== null) {
-    return `Discord user ${user.identities.discord.id}`;
-  }
-
-  if (user.identities.slack !== null) {
-    return `Slack user ${user.identities.slack.id}`;
-  }
-
-  if (user.identities.microsoft !== null) {
-    return `Microsoft user ${user.identities.microsoft.id}`;
-  }
-
-  // if (user.identities.keycloak !== null) {
-  //   return `Keycloak user ${user.identities.keycloak.id}`
-  // }
 
   // If we don't know how to get the name, return null.
   return null;

@@ -30,7 +30,7 @@ export type BetterAuthProviderManifest<UserSignupFieldsRef = never, SetupFnRef =
     readonly __waspAuthProviderManifest: true;
     kind: "external";
     contractVersion: 1;
-    id: "external:better-auth";
+    id: "better-auth";
     server: {
         package: string;
     };
