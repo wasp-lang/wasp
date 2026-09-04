@@ -435,6 +435,7 @@ export function getAuthMethods(
         google: getSocialAuthConfig("full"),
         gitHub: getSocialAuthConfig("full"),
         keycloak: getSocialAuthConfig("full"),
+        linkedin: getSocialAuthConfig("full"),
         microsoft: getSocialAuthConfig("full"),
         email: getEmailAuthConfig("full"),
       } satisfies FullConfig<WaspSpec.AuthMethods>;
