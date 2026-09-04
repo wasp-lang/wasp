@@ -158,29 +158,6 @@ library
 
   other-modules: Paths_waspc
   exposed-modules:
-    Wasp.Analyzer
-    Wasp.Analyzer.AnalyzeError
-    Wasp.Analyzer.AST
-    Wasp.Analyzer.Ctx
-    Wasp.Analyzer.ErrorMessage
-    Wasp.Analyzer.Evaluator
-    Wasp.Analyzer.Evaluator.Bindings
-    Wasp.Analyzer.Evaluator.EvaluationError
-    Wasp.Analyzer.Prisma
-    Wasp.Analyzer.SourcePosition
-    Wasp.Analyzer.SourceRegion
-    Wasp.Analyzer.StdTypeDefinitions
-    Wasp.Analyzer.StdTypeDefinitions.Entity
-    Wasp.Analyzer.Type
-    Wasp.Analyzer.TypeChecker
-    Wasp.Analyzer.TypeChecker.AST
-    Wasp.Analyzer.TypeChecker.Internal
-    Wasp.Analyzer.TypeChecker.Monad
-    Wasp.Analyzer.TypeChecker.TypeError
-    Wasp.Analyzer.TypeDefinitions
-    Wasp.Analyzer.TypeDefinitions.Class.IsDeclType
-    Wasp.Analyzer.TypeDefinitions.Class.IsEnumType
-    Wasp.Analyzer.TypeDefinitions.Internal
     Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
@@ -584,14 +561,9 @@ test-suite waspc-tests
     tasty-quickcheck ^>=0.10.3,
     text,
     time,
-    unordered-containers,
     waspc,
 
   other-modules:
-    Analyzer.Evaluation.EvaluationErrorTest
-    Analyzer.TestUtil
-    Analyzer.TypeChecker.InternalTest
-    Analyzer.TypeCheckerTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
