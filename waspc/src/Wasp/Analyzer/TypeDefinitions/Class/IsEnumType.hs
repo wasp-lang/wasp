@@ -10,9 +10,6 @@ import Wasp.Analyzer.TypeDefinitions.Internal (EnumType)
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
 -- Analogous to IsDeclType, but for enums.
---
--- NOTE: If this Haskell type satisfies certain requirements, the IsEnumType instance for it
--- can be automatically derived from its shape by using 'Analyzer.Evaluator.TH.makeEnumType'.
 class (Typeable a) => IsEnumType a where
   enumType :: EnumType
 

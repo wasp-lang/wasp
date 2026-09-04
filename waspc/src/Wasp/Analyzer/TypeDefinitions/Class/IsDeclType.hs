@@ -23,10 +23,6 @@ import qualified Wasp.AppSpec.Core.IsDecl as AppSpecIsDecl
 -- name, Wasp type and evaluation from that Wasp type into Haskell type as specified
 -- by this instance, and therefore you just added a new declaration type to the
 -- Wasp language and Analyzer will include it in the final result it produces.
---
--- NOTE: If this Haskell type satisfies certain requirements, the IsDeclType instance for it
--- can be automatically derived from its shape by using
--- 'Wasp.Analyzer.TypeDefinitions.TH.makeDeclType'.
 class (Typeable a, AppSpecIsDecl.IsDecl a) => IsDeclType a where
   declType :: DeclType
 
