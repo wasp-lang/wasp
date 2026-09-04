@@ -11,6 +11,7 @@ import Test.Hspec
 import Wasp.AppSpec (Ref)
 import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db
+import qualified Wasp.AppSpec.App.Deployment as Deployment
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
@@ -24,6 +25,25 @@ import qualified Wasp.AppSpec.Route as Route
 
 spec_AppSpecFromJSON :: Spec
 spec_AppSpecFromJSON = do
+  describe "Deployment" $ do
+    it "parses the split deployment mode" $ do
+      [trimming|
+          {
+            "mode": "split"
+          }
+        |]
+        `shouldDecodeTo` Just
+          ( Deployment.Deployment
+              { Deployment.mode = Just Deployment.Split
+              }
+          )
+    it "does not parse the integrated deployment mode yet" $ do
+      [trimming|
+          {
+            "mode": "integrated"
+          }
+        |]
+        `shouldDecodeTo` (Nothing :: Maybe Deployment.Deployment)
   describe "ExtImport" $ do
     it "parses a valid named ext import" $
       extNamedImportJson

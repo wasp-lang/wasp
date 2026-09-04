@@ -5,6 +5,18 @@
 import { describe, expectTypeOf, test } from "vitest";
 import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
+describe("Deployment", () => {
+  test("allows an omitted mode or split mode", () => {
+    expectTypeOf<{}>().toExtend<WaspSpec.Deployment>();
+    expectTypeOf<{ mode: "split" }>().toExtend<WaspSpec.Deployment>();
+  });
+
+  test("does not expose integrated mode", () => {
+    expectTypeOf<{ mode: "integrated" }>().not.toExtend<WaspSpec.Deployment>();
+    expectTypeOf<WaspSpec.DeploymentMode>().toEqualTypeOf<"split">();
+  });
+});
+
 describe("AuthMethods", () => {
   const usernameAndPassword: Required<
     Pick<WaspSpec.AuthMethods, "usernameAndPassword">
