@@ -1114,6 +1114,7 @@ wasp-app/src/features/auth/providers/discord.ts
 wasp-app/src/features/auth/providers/email.ts
 wasp-app/src/features/auth/providers/github.ts
 wasp-app/src/features/auth/providers/google.ts
+wasp-app/src/features/auth/providers/linkedin.ts
 wasp-app/src/features/auth/providers/microsoft.ts
 wasp-app/src/features/auth/providers/slack.ts
 wasp-app/src/features/auth/user.ts
