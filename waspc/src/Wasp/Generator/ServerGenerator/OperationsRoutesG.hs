@@ -97,7 +97,7 @@ operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $
 
 genOperationsRouter :: AppSpec -> Generator FileDraft
 genOperationsRouter spec
-  -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
+  -- TODO: Move this semantic check to AppSpec validation.
   | any isAuthSpecifiedForOperation operations && not isAuthEnabledGlobally = logAndThrowGeneratorError $ GenericGeneratorError "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
   | otherwise = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
