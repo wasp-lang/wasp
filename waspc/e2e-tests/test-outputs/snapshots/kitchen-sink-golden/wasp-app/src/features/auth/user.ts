@@ -26,6 +26,10 @@ export function getName(user?: AuthUser) {
     return `Slack user ${user.identities.slack.id}`;
   }
 
+  if (user.identities.linkedin !== null) {
+    return `LinkedIn user ${user.identities.linkedin.id}`;
+  }
+
   if (user.identities.microsoft !== null) {
     return `Microsoft user ${user.identities.microsoft.id}`;
   }

@@ -4,6 +4,7 @@ export * from './slack'
 export * from './discord'
 export * from './google'
 export * from './github'
+export * from './linkedin'
 export * from './microsoft'
 export {
   default as useAuth,
