@@ -222,7 +222,7 @@ function makeAdapterRuntime(spec: AdapterRuntimeSpec): WaspServerRuntime<never> 
     db: prisma,
     dbProvider: 'sqlite',
     // Exactly the vars the manifest declared -- read from the VALIDATED env,
-    // so `devDefault`s apply -- and framework secrets (JWT_SECRET) stay
+    // so `devDefault`s apply -- and framework secrets (DATABASE_URL) stay
     // unreachable (declaring a framework-owned name is a compile error).
     env: Object.fromEntries(
       spec.serverEnvVarNames.map((name) => [
