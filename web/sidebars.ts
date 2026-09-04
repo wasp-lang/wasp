@@ -91,6 +91,7 @@ const sidebars: SidebarsConfig = {
             "auth/social-auth/slack",
             "auth/social-auth/discord",
             "auth/social-auth/microsoft",
+            "auth/social-auth/linkedin",
             "auth/social-auth/create-your-own-ui",
           ],
         },
