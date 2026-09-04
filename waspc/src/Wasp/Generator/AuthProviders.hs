@@ -71,6 +71,14 @@ microsoftAuthProvider =
       OA._requiredScope = ["openid", "profile", "email"]
     }
 
+linkedinAuthProvider :: OA.OAuthAuthProvider
+linkedinAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "linkedin",
+      OA._displayName = "LinkedIn",
+      OA._requiredScope = ["profile", "email"]
+    }
+
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object
@@ -79,6 +87,7 @@ getEnabledAuthProvidersJson auth =
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
+      "isLinkedInAuthEnabled" .= AS.Auth.isLinkedInAuthEnabled auth,
       "isMicrosoftAuthEnabled" .= AS.Auth.isMicrosoftAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
       "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth

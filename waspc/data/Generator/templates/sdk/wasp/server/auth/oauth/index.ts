@@ -18,6 +18,10 @@ export { discord } from './providers/discord.js';
 // PUBLIC API
 export { github } from './providers/github.js';
 {=/ enabledProviders.isGitHubAuthEnabled =}
+{=# enabledProviders.isLinkedInAuthEnabled =}
+// PUBLIC API
+export { linkedin } from './providers/linkedin.js';
+{=/ enabledProviders.isLinkedInAuthEnabled =}
 {=# enabledProviders.isKeycloakAuthEnabled =}
 // PUBLIC API
 export { keycloak } from './providers/keycloak.js';

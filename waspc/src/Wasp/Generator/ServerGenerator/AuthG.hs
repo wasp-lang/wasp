@@ -30,6 +30,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    linkedinAuthProvider,
     localAuthProvider,
     microsoftAuthProvider,
     slackAuthProvider,
@@ -94,6 +95,7 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
             [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
             [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
+            [OAuthProvider.providerId linkedinAuthProvider | AS.Auth.isLinkedInAuthEnabled auth],
             [OAuthProvider.providerId microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth],
             [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
             [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]

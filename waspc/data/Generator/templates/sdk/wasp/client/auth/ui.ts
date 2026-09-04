@@ -23,6 +23,9 @@ export { SignInButton as KeycloakSignInButton } from '../../auth/helpers/Keycloa
 {=# isGitHubAuthEnabled =}
 export { SignInButton as GitHubSignInButton } from '../../auth/helpers/GitHub'
 {=/ isGitHubAuthEnabled =}
+{=# isLinkedInAuthEnabled =}
+export { SignInButton as LinkedInSignInButton } from '../../auth/helpers/LinkedIn'
+{=/ isLinkedInAuthEnabled =}
 {=# isMicrosoftAuthEnabled =}
 export { SignInButton as MicrosoftSignInButton } from '../../auth/helpers/Microsoft'
 {=/ isMicrosoftAuthEnabled =}

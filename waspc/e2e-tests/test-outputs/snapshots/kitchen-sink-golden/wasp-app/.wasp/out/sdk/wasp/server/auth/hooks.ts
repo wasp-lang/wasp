@@ -174,6 +174,7 @@ export type OAuthData = {
   | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
   | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
   | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
+  | { providerName: 'linkedin'; tokens: import('arctic').LinkedInTokens }
   | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
   | { providerName: 'slack'; tokens: import('arctic').SlackTokens }
   | never

@@ -30,6 +30,7 @@ export type PossibleProviderData = {
   google: OAuthProviderData;
   keycloak: OAuthProviderData;
   github: OAuthProviderData;
+  linkedin: OAuthProviderData;
   microsoft: OAuthProviderData;
 }
 
@@ -70,6 +71,7 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
     case 'discord':
     case 'keycloak':
     case 'slack':
+    case 'linkedin':
     case 'microsoft':
       return providerUserId;
     /*

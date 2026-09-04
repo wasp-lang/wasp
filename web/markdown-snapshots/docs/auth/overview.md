@@ -65,6 +65,10 @@ Wasp supports the following auth methods:
 
 [Users sign in with their Discord account](https://wasp.sh/docs/auth/social-auth/discord)
 
+### [LinkedIn »](https://wasp.sh/docs/auth/social-auth/linkedin)
+
+[Users sign in with their LinkedIn account](https://wasp.sh/docs/auth/social-auth/linkedin)
+
 Click on each auth method for more details.
 
 Let's say we enabled the [Username & password](https://wasp.sh/docs/auth/username-and-pass) authentication.

@@ -16,6 +16,7 @@ module Wasp.AppSpec.App.Auth
     isGoogleAuthEnabled,
     isKeycloakAuthEnabled,
     isGitHubAuthEnabled,
+    isLinkedInAuthEnabled,
     isMicrosoftAuthEnabled,
     isEmailAuthEnabled,
     enabledAuthMethodNames,
@@ -57,6 +58,7 @@ data AuthMethods = AuthMethods
     google :: Maybe ExternalAuthConfig,
     gitHub :: Maybe ExternalAuthConfig,
     keycloak :: Maybe ExternalAuthConfig,
+    linkedin :: Maybe ExternalAuthConfig,
     microsoft :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
@@ -94,6 +96,7 @@ isExternalAuthEnabled auth =
       isGoogleAuthEnabled,
       isGitHubAuthEnabled,
       isKeycloakAuthEnabled,
+      isLinkedInAuthEnabled,
       isMicrosoftAuthEnabled
     ]
 
@@ -111,6 +114,9 @@ isKeycloakAuthEnabled = isJust . keycloak . methods
 
 isGitHubAuthEnabled :: Auth -> Bool
 isGitHubAuthEnabled = isJust . gitHub . methods
+
+isLinkedInAuthEnabled :: Auth -> Bool
+isLinkedInAuthEnabled = isJust . linkedin . methods
 
 isMicrosoftAuthEnabled :: Auth -> Bool
 isMicrosoftAuthEnabled = isJust . microsoft . methods
@@ -130,6 +136,7 @@ enabledAuthMethodNames authMethods =
         ("google", isJust $ google authMethods),
         ("gitHub", isJust $ gitHub authMethods),
         ("keycloak", isJust $ keycloak authMethods),
+        ("linkedin", isJust $ linkedin authMethods),
         ("microsoft", isJust $ microsoft authMethods),
         ("email", isJust $ email authMethods)
       ],

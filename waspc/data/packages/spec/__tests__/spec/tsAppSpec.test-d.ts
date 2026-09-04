@@ -28,6 +28,10 @@ describe("AuthMethods", () => {
     slack: {},
   };
 
+  const linkedin: Required<Pick<WaspSpec.AuthMethods, "linkedin">> = {
+    linkedin: {},
+  };
+
   test("allows only usernameAndPassword", () => {
     expectTypeOf<typeof usernameAndPassword>().toExtend<WaspSpec.AuthMethods>();
   });
@@ -39,6 +43,7 @@ describe("AuthMethods", () => {
   test("allows no local auth method (e.g. only a social method)", () => {
     expectTypeOf<typeof google>().toExtend<WaspSpec.AuthMethods>();
     expectTypeOf<typeof slack>().toExtend<WaspSpec.AuthMethods>();
+    expectTypeOf<typeof linkedin>().toExtend<WaspSpec.AuthMethods>();
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     expectTypeOf<{}>().toExtend<WaspSpec.AuthMethods>();
   });

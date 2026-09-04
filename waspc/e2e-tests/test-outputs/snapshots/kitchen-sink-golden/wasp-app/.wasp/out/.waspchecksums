@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2accd8d7e5f95f9374f86f0bfd30c3576e7e55c7a544248fb528451a8dea45fa"
+        "604c63034128fe6b4fc3ee165f7ee5d3b1f1ac0abfac48552a949116726ed7db"
     ],
     [
         [
@@ -249,7 +249,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "8b936fcdd74f8d8245cab8bf99095e9d802c1fbc935c5452a60516a62fec33c6"
+        "78f5fb365db87114deba9e65f782786145bd689a05aaec1e406b9ecb082a79a8"
     ],
     [
         [
@@ -285,6 +285,13 @@
             "sdk/wasp/auth/helpers/Google.tsx"
         ],
         "c17835b880d906c7f90ad0cd7f61f02f0b6eb20b0f3479910fc785e7321f203d"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/helpers/LinkedIn.tsx"
+        ],
+        "9da64c54aabb1f7ee98570ba245e7c1b98e54b53215402413f2dca5b7271275a"
     ],
     [
         [
@@ -326,7 +333,7 @@
             "file",
             "sdk/wasp/auth/providerData.ts"
         ],
-        "0325226f972b575d213046bafc16c3585c87c943a8da64679da773088fd9d77a"
+        "b120126509a234d21d6d6d2a86e53469f5d4d998c721746dbe821e66857c1a61"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "sdk/wasp/auth/user.ts"
         ],
-        "ebe4ea85e345c70544ea69031616396bcc56e49893e45a7ce350d6dbe2a2775a"
+        "da19e04c53029724101af3bf33f0e64c8933062a38be64a7c972963a313f0ee4"
     ],
     [
         [
@@ -487,7 +494,14 @@
             "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "d637e7f7ac33a73ed335a6c8889dc43e6a6cf23035aec8b0ab062e88f6d7c2e6"
+        "3f5a675c2e71fd2840c4185150b2d5b29d5a339d3e7aeb0ddc70e42fd03f1261"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/auth/linkedin.ts"
+        ],
+        "187ffa3d486c32719e15f23ed8ed669e3c3fe48ec5c196b3f8ba92baf0907916"
     ],
     [
         [
@@ -508,7 +522,7 @@
             "file",
             "sdk/wasp/client/auth/ui.ts"
         ],
-        "f4fa00950f9fa65280c9180d4dbe13039412773d021dbc7bfe9d9ee1845d40c5"
+        "2384a7db0600ee826879de02f65c957f8a886b851af7482dea6539de52a15526"
     ],
     [
         [
@@ -872,7 +886,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "51dbfb69a530319fa40e9eeda98c1f1a9b64713f5712eec93493ea1739bec3ff"
+        "f6e644b6206414b712322f3769101daea97d51aacf8b9c6d8f6563f308ad7d69"
     ],
     [
         [
@@ -942,7 +956,7 @@
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "9ce8ef2582a86b3bc4301f26b7327f38952fc3b4fec7c4930440cac2484475d8"
+        "fbbd0918dc8478919f4bfbafd5a83930036c590f6606d441358ae0725ee8adc2"
     ],
     [
         [
@@ -970,7 +984,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "65ea738b50a72e3dd7b95cc8223d5954150c6c9192854c2e67e7ffc8613bb03b"
+        "1e18bb5387f11d3a86748e47b91932293ecd9e72b19bf4acb256b50cb81f0d4c"
     ],
     [
         [
@@ -1006,6 +1020,13 @@
             "sdk/wasp/server/auth/oauth/providers/google.ts"
         ],
         "42fe943be534df3df054480df3c3672742159a5f9d48a5a2bb0cb0a3500168e7"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/auth/oauth/providers/linkedin.ts"
+        ],
+        "9313edd2cd4d8ba99cfb90ec9d88a05bb0be44e0c90f9873ea8dcab10f04f181"
     ],
     [
         [
@@ -1131,7 +1152,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "a9d7f86795e9e3db31f77e2690137f47928eeefb7c2db716bed9c15257757876"
+        "e1ae9ada895fec11f4339dbf60355d3050e645525e8303eb183900ed8f68f139"
     ],
     [
         [
@@ -1362,7 +1383,7 @@
             "file",
             "server/.env"
         ],
-        "b1a6be6e91e7b5d10652479a6ed732628ef1378f3831acb0fe8fcf6329794c04"
+        "9594a0478745440ff51d94fff7f030379c65d3ed0323467418d80a68c0dd658a"
     ],
     [
         [
@@ -1570,6 +1591,13 @@
     [
         [
             "file",
+            "server/src/auth/providers/config/linkedin.ts"
+        ],
+        "2e6e23ce0fb9521929d39fb123b14100dffeea83219fc85de58b67a2c43f2a93"
+    ],
+    [
+        [
+            "file",
             "server/src/auth/providers/config/microsoft.ts"
         ],
         "09ffb4ccd5350cf0434ba16c610e96e2253183565862cbf12b8d17147abe1bb7"
@@ -1621,7 +1649,7 @@
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "0aaf2369abd9f59ec8f77af0ae4a1ab25ea68480502f3f8c67a00c6aaa6f822f"
+        "af9eb92af315766605e5798904f6632df5fbffcbc8d1429c6fb635afdf577c9a"
     ],
     [
         [

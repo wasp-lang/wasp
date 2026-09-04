@@ -80,6 +80,7 @@ export function mapAuthMethods(
     google,
     gitHub,
     keycloak,
+    linkedin,
     microsoft,
     email,
   } = methods;
@@ -91,6 +92,7 @@ export function mapAuthMethods(
     google: google && mapSocialAuth(google, ctx),
     gitHub: gitHub && mapSocialAuth(gitHub, ctx),
     keycloak: keycloak && mapSocialAuth(keycloak, ctx),
+    linkedin: linkedin && mapSocialAuth(linkedin, ctx),
     microsoft: microsoft && mapSocialAuth(microsoft, ctx),
     email: email && mapEmailAuth(email, ctx),
   };
