@@ -1,6 +1,6 @@
 {{={= =}=}}
 import path from "node:path";
-import { type Plugin } from "vite";
+import type { Plugin } from "vite";
 
 /**
  * Maps virtual module IDs (pointing to user's client modules)

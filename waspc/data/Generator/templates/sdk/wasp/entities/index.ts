@@ -1,17 +1,17 @@
 {{={= =}=}}
-import {
+import type {
   {=# entities =}
-  type {= name =},
+  {= name =},
   {=/ entities =}
 } from "@prisma/client"
 
-export {
+export type {
   {=# entities =}
-  type {= name =},
+  {= name =},
   {=/ entities =}
   {=# isAuthEnabled =}
-  type {= authEntityName =},
-  type {= authIdentityEntityName =},
+  {= authEntityName =},
+  {= authIdentityEntityName =},
   {=/ isAuthEnabled =}
 } from "@prisma/client"
 

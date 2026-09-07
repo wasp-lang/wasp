@@ -1,7 +1,7 @@
-import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
+import type { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
-import { type AuthUser } from '../../auth/user.js'
-import {
+import type { AuthUser } from '../../auth/user.js'
+import type {
   _Entity,
   AuthenticatedOperationDefinition,
   UnauthenticatedOperationDefinition,

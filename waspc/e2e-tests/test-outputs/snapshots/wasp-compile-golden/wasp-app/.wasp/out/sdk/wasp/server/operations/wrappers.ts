@@ -1,6 +1,6 @@
-import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
+import type { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
 
-import {
+import type {
   _Entity,
   UnauthenticatedOperationDefinition,
   Payload,
