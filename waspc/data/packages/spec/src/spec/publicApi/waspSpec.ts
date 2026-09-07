@@ -44,7 +44,7 @@ export interface App {
    * Used as the browser tab title.
    */
   title: string;
-  /** Configuration for how the app is deployed. */
+  /** Configuration for how the app will be deployed. */
   deployment?: Deployment;
   /**
    * Extra tags injected into the HTML `<head>`.

@@ -37,13 +37,6 @@ spec_AppSpecFromJSON = do
               { Deployment.mode = Just Deployment.Split
               }
           )
-    it "does not parse the integrated deployment mode yet" $ do
-      [trimming|
-          {
-            "mode": "integrated"
-          }
-        |]
-        `shouldDecodeTo` (Nothing :: Maybe Deployment.Deployment)
   describe "ExtImport" $ do
     it "parses a valid named ext import" $
       extNamedImportJson

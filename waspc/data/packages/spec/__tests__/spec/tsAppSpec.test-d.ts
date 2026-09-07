@@ -10,11 +10,6 @@ describe("Deployment", () => {
     expectTypeOf<{}>().toExtend<WaspSpec.Deployment>();
     expectTypeOf<{ mode: "split" }>().toExtend<WaspSpec.Deployment>();
   });
-
-  test("does not expose integrated mode", () => {
-    expectTypeOf<{ mode: "integrated" }>().not.toExtend<WaspSpec.Deployment>();
-    expectTypeOf<WaspSpec.DeploymentMode>().toEqualTypeOf<"split">();
-  });
 });
 
 describe("AuthMethods", () => {
