@@ -26,8 +26,9 @@ export function virtualUserModules(): Plugin {
       clientRootDir = config.root;
     },
     async resolveId(id, importer, options) {
-      if (Object.hasOwn(clientVirtualUserModuleMap, id)) {
-        const absPath = path.resolve(clientRootDir, clientVirtualUserModuleMap[id]);
+      const userModulePath = clientVirtualUserModuleMap[id];
+      if (userModulePath !== undefined) {
+        const absPath = path.resolve(clientRootDir, userModulePath);
         return this.resolve(absPath, importer, { ...options, skipSelf: true });
       }
       return null;
