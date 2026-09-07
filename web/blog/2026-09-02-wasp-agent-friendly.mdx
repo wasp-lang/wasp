@@ -28,7 +28,8 @@ import { ImgWithCaption } from './components/ImgWithCaption';
     source="img/wasp-agent-friendly/banner.png"
 />
 
-If you've tried running multiple coding agents on a Wasp project at the same time, you've probably hit a wall. Two worktrees, two agents, and only one of them can actually start the app. Sound familiar? Wasp 0.26 fixes this. Each worktree now gets its own ports automatically, so `wasp start` and `wasp start db` work side by side across as many worktrees as you need.
+If you've tried running multiple coding agents on a Wasp project at the same time, you've probably hit a wall.
+Two worktrees, two agents, and only one of them can actually start the app. Sound familiar? Wasp 0.26 fixes this. Each worktree now gets its own ports automatically, so `wasp start` and `wasp start db` work side by side across as many worktrees as you need.
 
 We also improved what happens when two Wasp commands collide in the same project. Instead of a cryptic failure, you now get a clear error that tells you exactly which process is in the way.
 
