@@ -4368,7 +4368,7 @@ The following components are available for you to use in your app:
 
 #### Login Form
 
-Used with [Username & Password](https://wasp.sh/docs/auth/username-and-pass), [Email](https://wasp.sh/docs/auth/email), [Github](https://wasp.sh/docs/auth/social-auth/github), [Google](https://wasp.sh/docs/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/auth/social-auth/slack) and [Discord](https://wasp.sh/docs/auth/social-auth/discord) authentication.
+Used with [Username & Password](https://wasp.sh/docs/auth/username-and-pass), [Email](https://wasp.sh/docs/auth/email), [Github](https://wasp.sh/docs/auth/social-auth/github), [Google](https://wasp.sh/docs/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/auth/social-auth/slack), [Discord](https://wasp.sh/docs/auth/social-auth/discord) and [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin) authentication.
 
 ![Login form](https://wasp.sh/assets/images/login-8ea785a886771acd0b29543625c4f377.png)
 
@@ -4399,7 +4399,7 @@ It will automatically show the correct authentication providers based on your `m
 
 #### Signup Form
 
-Used with [Username & Password](https://wasp.sh/docs/auth/username-and-pass), [Email](https://wasp.sh/docs/auth/email), [Github](https://wasp.sh/docs/auth/social-auth/github), [Google](https://wasp.sh/docs/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/auth/social-auth/slack) and [Discord](https://wasp.sh/docs/auth/social-auth/discord) authentication.
+Used with [Username & Password](https://wasp.sh/docs/auth/username-and-pass), [Email](https://wasp.sh/docs/auth/email), [Github](https://wasp.sh/docs/auth/social-auth/github), [Google](https://wasp.sh/docs/auth/social-auth/google), [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak), [Slack](https://wasp.sh/docs/auth/social-auth/slack), [Discord](https://wasp.sh/docs/auth/social-auth/discord) and [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin) authentication.
 
 ![Signup form](https://wasp.sh/assets/images/signup-6d04c4e24d598ce3552a5603aebea0df.png)
 
@@ -9023,7 +9023,7 @@ Wasp calls the `onBeforeSignup` hook before the user is created.
 
 The `onBeforeSignup` hook can be useful if you want to reject a user based on some criteria before they sign up.
 
-Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Slack](https://wasp.sh/docs/auth/social-auth/slack) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak)
+Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Slack](https://wasp.sh/docs/auth/social-auth/slack) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak) [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin)
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -9076,7 +9076,7 @@ The `onAfterSignup` hook can be useful if you want to send the user a welcome em
 
 Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook to store the OAuth access token and/or [refresh token](#refreshing-the-oauth-access-token) in your database.
 
-Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Slack](https://wasp.sh/docs/auth/social-auth/slack) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak)
+Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Slack](https://wasp.sh/docs/auth/social-auth/slack) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak) [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin)
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -9175,7 +9175,7 @@ Wasp calls the `onBeforeOAuthRedirect` hook after the OAuth redirect URL is gene
 
 The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.g. request query parameters) that you can use later in the OAuth flow. You can use the `uniqueRequestId` parameter to reference this data later in the `onAfterSignup` or `onAfterLogin` hooks.
 
-Works with [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak)
+Works with [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak) [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin)
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -9220,7 +9220,7 @@ Wasp calls the `onBeforeLogin` hook before the user is logged in.
 
 The `onBeforeLogin` hook can be useful if you want to reject a user based on some criteria before they log in.
 
-Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Slack](https://wasp.sh/docs/auth/social-auth/slack) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak)
+Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Slack](https://wasp.sh/docs/auth/social-auth/slack) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak) [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin)
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -9265,7 +9265,7 @@ The `onAfterLogin` hook can be useful if you want to perform some action after t
 
 Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to update the OAuth access token for the user in your database. You can also use it to [refresh the OAuth access token](#refreshing-the-oauth-access-token) if the provider supports it.
 
-Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak)
+Works with [Email](https://wasp.sh/docs/auth/email) [Username & Password](https://wasp.sh/docs/auth/username-and-pass) [Discord](https://wasp.sh/docs/auth/social-auth/discord) [Github](https://wasp.sh/docs/auth/social-auth/github) [Google](https://wasp.sh/docs/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/auth/social-auth/keycloak) [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin)
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"

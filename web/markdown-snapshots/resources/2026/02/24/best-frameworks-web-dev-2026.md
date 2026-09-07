@@ -392,4 +392,4 @@ There's no single "best" framework but there is a best framework *for you*:
 - [frameworks](https://wasp.sh/resources/tags/frameworks)
 - [web-development](https://wasp.sh/resources/tags/web-development)
 
-[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/resources/2026-02-24-best-frameworks-web-dev-2026.mdx)Last updated on **Jun 11, 2026**
+[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/resources/2026-02-24-best-frameworks-web-dev-2026.mdx)Last updated on **Sep 4, 2026**

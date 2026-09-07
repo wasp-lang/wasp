@@ -1997,4 +1997,4 @@ And, once again, here's the repo for the finished app we built in this tutorial:
 - [react](https://wasp.sh/blog/tags/react)
 - [agent](https://wasp.sh/blog/tags/agent)
 
-[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/blog/2023-06-27-build-your-own-twitter-agent-langchain.mdx)Last updated on **Feb 13, 2026**
+[Edit this page](https://github.com/wasp-lang/wasp/edit/release/web/blog/2023-06-27-build-your-own-twitter-agent-langchain.mdx)Last updated on **Sep 4, 2026**
