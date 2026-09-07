@@ -13,7 +13,7 @@ test.describe("auth", () => {
     await page.goto("/signup");
 
     await expect(
-      page.locator(`a[href='${WASP_SERVER_URL}/auth/google/login']`),
+      page.locator(`a[href='${WASP_SERVER_URL}/api/auth/google/login']`),
     ).toBeVisible();
   });
 

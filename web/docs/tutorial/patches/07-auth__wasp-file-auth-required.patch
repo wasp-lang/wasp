@@ -1,9 +1,9 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index 52438c9..6a71803 100644
+index 9c8106a..cf512c7 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
-@@ -18,7 +18,13 @@ export default app({
-     onAuthFailedRedirectTo: "/login",
+@@ -21,7 +21,13 @@ export default app({
+     basePath: "/api",
    },
    spec: [
 -    route("RootRoute", "/", page(MainPage)),

@@ -550,6 +550,31 @@ export interface Server {
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
   envValidationSchema?: Reference<ZodSchema>;
+  /**
+   * The path under which the whole server is mounted: Wasp's own routes
+   * (auth, operations and CRUD), your `api` and `apiNamespace` routes, and
+   * routes you add in `setupFn`. Defaults to `/`.
+   *
+   * Declare `api` and `apiNamespace` paths relative to it: with `/api`, an
+   * `api("GET", "/foo")` is served at `/api/foo`. Wasp's own routes are
+   * mounted first, so an `api` at exactly one of Wasp's paths (`/auth/...`,
+   * `/operations/<name>`, `/crud/<name>/...`) is shadowed by them; other
+   * paths under those prefixes work.
+   *
+   * The starter templates set it to `/api` so the API lives under its own
+   * prefix.
+   *
+   * @example
+   * ```ts
+   * export default app({
+   *   // ...
+   *   server: {
+   *     basePath: "/api",
+   *   },
+   * })
+   * ```
+   */
+  basePath?: `/${string}`;
 }
 
 /**
@@ -1058,6 +1083,19 @@ export interface Api extends BaseSpecElement<"api"> {
    * parsing the JWT from the Authorization header.
    */
   auth?: boolean;
+  /**
+   * If `true`, the endpoint is served at `path` on the server's origin
+   * root instead of under `server.basePath`. Defaults to `false`.
+   *
+   * Use it for endpoints whose path is dictated from the outside, such as
+   * `/.well-known/...` files. The endpoint is matched after the routes
+   * under the base path, and its path must not start with the base path.
+   * An `apiNamespace` applies to this endpoint only if it sets
+   * `ignoreServerBasePath` too.
+   *
+   * See [Opting an endpoint out of the base path](https://wasp.sh/docs/advanced/apis#opting-an-endpoint-out-of-the-base-path).
+   */
+  ignoreServerBasePath?: boolean;
 }
 
 /**
@@ -1073,6 +1111,15 @@ export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
   middlewareConfigFn: Reference<AnyFunction>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
   path: string;
+  /**
+   * If `true`, the namespace applies to `path` on the server's origin root
+   * instead of under `server.basePath`, so it covers the `api`s that set
+   * `ignoreServerBasePath` too. Its path must not start with the base path.
+   * Defaults to `false`.
+   *
+   * See [Opting an endpoint out of the base path](https://wasp.sh/docs/advanced/apis#opting-an-endpoint-out-of-the-base-path).
+   */
+  ignoreServerBasePath?: boolean;
 }
 
 /**

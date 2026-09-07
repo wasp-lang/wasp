@@ -37,6 +37,9 @@ export default app({
   emailSender: {
     provider: "Dummy",
   },
+  server: {
+    basePath: "/api",
+  },
   client: {
     rootComponent: App,
   },

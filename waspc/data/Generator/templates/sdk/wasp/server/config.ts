@@ -11,6 +11,7 @@ type Config = {
   databaseUrl: string;
   frontendUrl: string;
   serverUrl: string;
+  serverBasePath: string;
   allowedCORSOrigins: (string | RegExp)[];
   {=# isAuthEnabled =}
   auth: {
@@ -21,6 +22,8 @@ type Config = {
 
 const frontendUrl = stripTrailingSlash(env['{= clientUrlEnvVarName =}'])
 const serverUrl = stripTrailingSlash(env['{= serverUrlEnvVarName =}'])
+// "" when it is the root, otherwise the path without a trailing slash (e.g. "/api").
+const serverBasePath: string = '{=& serverBasePathPrefix =}'
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, Config['allowedCORSOrigins']> = {
   development: [/.*/],
@@ -31,6 +34,7 @@ const allowedCORSOrigins = allowedCORSOriginsPerEnv[env.NODE_ENV]
 const config: Config = {
   frontendUrl,
   serverUrl,
+  serverBasePath,
   allowedCORSOrigins,
   env: env.NODE_ENV,
   isDevelopment: env.NODE_ENV === 'development',

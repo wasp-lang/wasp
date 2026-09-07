@@ -273,7 +273,8 @@ export type ActionConfig = Omit<Action, "kind" | "fn">;
  * @param fn The API's NodeJS implementation.
  *
  * {@include ./referenceImports.md}
- * @param config Optional settings: `middlewareConfigFn`, `entities`, `auth`.
+ * @param config Optional settings: `middlewareConfigFn`, `entities`, `auth`,
+ * `ignoreServerBasePath`.
  *
  * @category Constructors
  */
@@ -316,7 +317,7 @@ export type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
  * ```
  *
  * @param path Path prefix the namespace applies to.
- * @param config Required `middlewareConfigFn`.
+ * @param config Required `middlewareConfigFn`, optional `ignoreServerBasePath`.
  *
  * {@include ./referenceImports.md}
  *

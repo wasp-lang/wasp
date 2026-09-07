@@ -27,6 +27,20 @@ Wasp gives you runtime access to the processes' configurations through **configu
 
 The server configuration object contains these fields:
 
+- `serverUrl: String` - Set it with env var `WASP_SERVER_URL`.
+
+  The origin of your server, for example `https://api.myapp.com`, without the base path.<br />
+  Wasp automatically sets it during development when you run `wasp start`.<br />
+  In production, you should set it to your server's URL as the user's browser sees it
+  (i.e., with the DNS and proxies considered).
+
+- `serverBasePath: String` - Comes from [`server.basePath`](../project/server-config.md#base-path) in your Wasp file.
+
+  The path under which the whole server lives, for example `/api`: Wasp's routes,
+  your `api`s and the routes you add in `setupFn`. It is `""` when the base path is `/`.
+  Server URLs are `serverUrl + serverBasePath + route`, so an `api` declared at
+  `/foo/bar` is at `${config.serverUrl}${config.serverBasePath}/foo/bar`.
+
 - `frontendUrl: String` - Set it with env var `WASP_WEB_CLIENT_URL`.
 
   The URL of your client (the app's frontend).<br />
@@ -46,12 +60,14 @@ console.log(config.frontendUrl)
 
 The client configuration object contains these fields:
 
-- `apiUrl: String` - Set it with env var `REACT_APP_API_URL`
+- `apiUrl: String` - Derived from env var `REACT_APP_API_URL`.
 
-  The URL of your server (the app's backend).<br />
-  Wasp automatically sets it during development when you run `wasp start`.<br />
-  In production, it should contain the value of your server's URL as the user's browser
-  sees it (i.e., with the DNS and proxies considered).
+  The URL of the API: the server's origin plus its [base path](../project/server-config.md#base-path),
+  for example `https://api.myapp.com/api`. Everything the server answers lives under it, so
+  `${config.apiUrl}/foo/bar` is your `api` declared at `/foo/bar`.<br />
+  Wasp sets it automatically during development when you run `wasp start`.<br />
+  In production, it comes from `REACT_APP_API_URL`, which you set to your server's origin as the user's browser
+  sees it (i.e., with the DNS and proxies considered), without the base path.
 
 You can access it like this:
 

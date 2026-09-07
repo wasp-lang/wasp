@@ -145,6 +145,7 @@ export function getApi(scope: ConfigScope): Config<WaspSpec.Api> {
         middlewareConfigFn: getRefObject("full", "named"),
         entities: ["Task"],
         auth: true,
+        ignoreServerBasePath: true,
       });
     default:
       assertUnreachable(scope);
@@ -165,6 +166,7 @@ export function getApiNamespace(
     case "full":
       return apiNamespace("/foo", {
         middlewareConfigFn: getRefObject("full", "named"),
+        ignoreServerBasePath: true,
       });
     default:
       assertUnreachable(scope);
@@ -306,6 +308,7 @@ export function getServerConfig(scope: ConfigScope): Config<WaspSpec.Server> {
         setupFn: getRefObject("full", "named"),
         middlewareConfigFn: getRefObject("full", "named"),
         envValidationSchema: getRefObject("full", "named"),
+        basePath: "/api",
       } satisfies FullConfig<WaspSpec.Server>;
     default:
       assertUnreachable(scope);

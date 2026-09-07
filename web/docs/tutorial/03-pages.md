@@ -139,6 +139,9 @@ export default app({
   wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  server: {
+    basePath: "/api",
+  },
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],

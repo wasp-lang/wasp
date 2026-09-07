@@ -5,7 +5,7 @@
 
 module Wasp.Generator.ServerGenerator
   ( genServer,
-    operationsRouteInRootRouter,
+    operationsRouteInWaspRouter,
     npmDepsFromWasp,
 
     -- * Exported for testing only
@@ -41,7 +41,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, getServerBasePath, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
@@ -266,7 +266,11 @@ genServerJs spec =
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|],
+              "isDevelopment" .= AS.isDevelopment spec,
+              "appName" .= (fst $ getApp spec :: String),
+              "serverBasePath" .= getServerBasePath spec,
+              "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec)
             ]
       )
   where
@@ -292,17 +296,15 @@ genRoutesIndex spec =
   where
     tmplData =
       object
-        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+        [ "operationsRouteInWaspRouter" .= (operationsRouteInWaspRouter :: String),
+          "crudRouteInWaspRouter" .= (CrudRoutes.crudRouteInWaspRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
-          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
-          "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
         ]
 
-operationsRouteInRootRouter :: String
-operationsRouteInRootRouter = "operations"
+operationsRouteInWaspRouter :: String
+operationsRouteInWaspRouter = "operations"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

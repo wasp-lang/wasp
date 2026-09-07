@@ -87,8 +87,12 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 
 3. We have to fill out **App name** and **Homepage URL** fields.
    Additionally we will add our authorization **Callback URL**s:
-    - For development, put: `http://localhost:3001/auth/github/callback`.
-    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
+    - For development, put: `http://localhost:3001/api/auth/github/callback`.
+    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/api/auth/github/callback`.
+
+   :::note
+   The `/api` prefix is your [`server.basePath`](../../project/server-config.md#base-path). If you changed it, use your value; with no base path set it's `http://localhost:3001/auth/github/callback`.
+   :::
 
    ![GitHub App Screenshot 2](/img/github-social-login/github-app-2.png)
 

@@ -109,11 +109,15 @@ To use Google as an authentication method, you'll first need to create a Google 
     | - | ------------------------ | -------------------------------------------- |
     | 1 | Application type         | Web application                              |
     | 2 | Name                     | (your wasp app name)                         |
-    | 3 | Authorized redirect URIs | `http://localhost:3001/auth/google/callback` |
+    | 3 | Authorized redirect URIs | `http://localhost:3001/api/auth/google/callback` |
 
     :::note
     Once you know on which URL(s) your API server will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
-    For example: `https://your-server-url.com/auth/google/callback`
+    For example: `https://your-server-url.com/api/auth/google/callback`
+    :::
+
+    :::note
+    The `/api` prefix is your [`server.basePath`](../../project/server-config.md#base-path). If you changed it, use your value; with no base path set it's `http://localhost:3001/auth/google/callback`.
     :::
 
     ![Google Console Screenshot 8](/img/integrations-google-v2-8.png)

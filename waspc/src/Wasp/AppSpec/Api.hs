@@ -7,6 +7,7 @@ module Wasp.AppSpec.Api
     HttpMethod (..),
     method,
     path,
+    ignoresServerBasePath,
   )
 where
 
@@ -25,7 +26,8 @@ data Api = Api
     middlewareConfigFn :: Maybe ExtImport,
     entities :: Maybe [Ref Entity],
     httpRoute :: (HttpMethod, String), -- (method, path), exe: (GET, "/foo/bar")
-    auth :: Maybe Bool
+    auth :: Maybe Bool,
+    ignoreServerBasePath :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -40,6 +42,7 @@ instance Inspectable Api where
         ]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities api]]
           ++ [("Auth", "Enabled") | auth api == Just True]
+          ++ [("Ignores server base path", "Yes") | ignoresServerBasePath api]
     ]
 
 method :: Api -> HttpMethod
@@ -47,6 +50,10 @@ method = fst . httpRoute
 
 path :: Api -> String
 path = snd . httpRoute
+
+-- | Whether the api is served at its path on the server's origin root instead of under the server base path.
+ignoresServerBasePath :: Api -> Bool
+ignoresServerBasePath = (== Just True) . ignoreServerBasePath
 
 data HttpMethod = ALL | GET | POST | PUT | DELETE
   deriving (Show, Eq, Ord, Data, Generic, FromJSON, ToJSON)

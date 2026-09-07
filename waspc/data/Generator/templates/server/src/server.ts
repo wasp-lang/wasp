@@ -1,8 +1,13 @@
 {{={= =}=}}
 import http from 'http'
+import express from 'express'
 
-import app from './app.js'
+import app, { handleHttpError } from './app.js'
 import { config } from 'wasp/server'
+import { globalMiddlewareConfigForExpress } from './middleware/index.js'
+{=# areThereAnyCustomApiRoutes =}
+import { rootRouter as rootApis } from './routes/apis/index.js'
+{=/ areThereAnyCustomApiRoutes =}
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
@@ -19,6 +24,36 @@ import './jobs/core/allJobs.js'
 import { init as initWebSocket } from './webSocket/initialization.js'
 {=/ userWebSocketFn.isDefined =}
 
+{=# isDevelopment =}
+import { makeWrongPortPage } from './views/wrong-port.js'
+{=/ isDevelopment =}
+
+// The whole app (Wasp's routes, user apis and anything added in `setupFn`) lives under the
+// server base path, so it is mounted there on a root app that owns everything else.
+const rootApp = express()
+// Helmet only runs on routes, so both apps disable the header themselves.
+rootApp.disable('x-powered-by')
+rootApp.use('{=& serverBasePath =}', app)
+{=# areThereAnyCustomApiRoutes =}
+// Apis that set `ignoreServerBasePath` are matched after everything under the base path,
+// so they can never shadow Wasp's routes, even when the base path is `/`.
+rootApp.use(rootApis)
+{=/ areThereAnyCustomApiRoutes =}
+
+// The server root stays at the origin root, outside the server base path.
+{=# isDevelopment =}
+rootApp.get('/', globalMiddlewareConfigForExpress(), sendWrongPortPage)
+{=/ isDevelopment =}
+{=^ isDevelopment =}
+// In production the server root has nothing to serve, so it answers with an empty 200.
+rootApp.get('/', globalMiddlewareConfigForExpress(), function (_req, res) {
+  res.status(200).send()
+})
+{=/ isDevelopment =}
+
+// Errors from under the base path were already handled inside `app`; this serves `rootApis` and the root page.
+rootApp.use(handleHttpError)
+
 const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}
   await startPgBoss()
@@ -27,7 +62,7 @@ const startServer = async () => {
   const port = normalizePort(config.port)
   app.set('port', port)
 
-  const server = http.createServer(app)
+  const server = http.createServer(rootApp)
 
   {=# setupFn.isDefined =}
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
@@ -64,6 +99,16 @@ const startServer = async () => {
 }
 
 startServer().catch(e => console.error(e))
+
+{=# isDevelopment =}
+function sendWrongPortPage(_req, res) {
+  const wrongPortPage = makeWrongPortPage({
+    appName: "{= appName =}",
+    frontendUrl: config.frontendUrl,
+  })
+  res.status(200).type('html').send(wrongPortPage)
+}
+{=/ isDevelopment =}
 
 /**
  * Normalize a port into a number, string, or false.

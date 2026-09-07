@@ -124,7 +124,15 @@ export function mapApiSpec(
   api: WaspSpec.Api,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Api"> {
-  const { method, path, fn, middlewareConfigFn, entities, auth } = api;
+  const {
+    method,
+    path,
+    fn,
+    middlewareConfigFn,
+    entities,
+    auth,
+    ignoreServerBasePath,
+  } = api;
   return {
     declType: "Api",
     declName: getRefObjectDeclarationName(api.fn),
@@ -135,6 +143,7 @@ export function mapApiSpec(
       entities: entities?.map(ctx.resolveEntityRef),
       httpRoute: [method, path],
       auth,
+      ignoreServerBasePath,
     },
   };
 }
@@ -143,13 +152,14 @@ export function mapApiNamespaceSpec(
   apiNamespace: WaspSpec.ApiNamespace,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"ApiNamespace"> {
-  const { middlewareConfigFn, path } = apiNamespace;
+  const { middlewareConfigFn, path, ignoreServerBasePath } = apiNamespace;
   return {
     declType: "ApiNamespace",
     declName: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
     declValue: {
       middlewareConfigFn: ctx.parseRefObject(middlewareConfigFn),
       path,
+      ignoreServerBasePath,
     },
   };
 }

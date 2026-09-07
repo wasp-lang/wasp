@@ -35,8 +35,8 @@ export default app({
   spec: [
     route("RootRoute", "/", page(MainPage)),
     // highlight-start
-    apiNamespace("/api/upload", { middlewareConfigFn: configureFileUploadMiddleware }),
-    api("POST", "/api/upload", uploadFile),
+    apiNamespace("/upload", { middlewareConfigFn: configureFileUploadMiddleware }),
+    api("POST", "/upload", uploadFile),
     // highlight-end
   ],
 })
@@ -87,7 +87,7 @@ export const MainPage = () => {
     formData.append("name", name);
     formData.append("file", file);
     const data = await api
-      .post("/api/upload", { body: formData })
+      .post("/upload", { body: formData })
       .json<{ fileExists: boolean }>();
     alert(JSON.stringify(data, null, 2));
   };

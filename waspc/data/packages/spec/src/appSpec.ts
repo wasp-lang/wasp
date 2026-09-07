@@ -83,11 +83,13 @@ export type Api = {
   entities: Optional<Ref<"Entity">[]>;
   httpRoute: HttpRoute;
   auth: Optional<boolean>;
+  ignoreServerBasePath: Optional<boolean>;
 };
 
 export type ApiNamespace = {
   middlewareConfigFn: ExtImport;
   path: string;
+  ignoreServerBasePath: Optional<boolean>;
 };
 
 export type Crud = {
@@ -231,6 +233,7 @@ export type Server = {
   setupFn: Optional<ExtImport>;
   middlewareConfigFn: Optional<ExtImport>;
   envValidationSchema: Optional<ExtImport>;
+  basePath: Optional<string>;
 };
 
 export type Client = {
