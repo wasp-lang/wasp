@@ -16,7 +16,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
 ## Repository Structure
 
 - `waspc/` — Haskell compiler, CLI, and LSP server (the core of Wasp)
-  - `src/` — Main compiler library (Generator, AppSpec, Psl, Project)
+  - `src/` — Main compiler library (`Wasp.Project.Analyze`, AppSpec, Generator, Psl)
   - `cli/src/` — CLI commands (start, build, new, deploy, etc.)
   - `data/packages/` — TypeScript packages called by the CLI when compiling projects as FFI
   - `data/Generator/libs/` — TypeScript libraries embedded into generated project code
