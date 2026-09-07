@@ -13,31 +13,81 @@ spec_SrcTsConfig = do
       validateApp validTsConfig `shouldBe` []
 
     it "returns an error when a compilerOption has a wrong value" $
-      assertReturnsValidationErrorMentioningField "strict" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
+      assertReturnsValidationErrorMentioningField "moduleResolution" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleResolution = Just "nodenext"})}
 
     it "returns an error when a compilerOption is missing" $
       assertReturnsValidationErrorMentioningField "jsx" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Nothing})}
 
-    it "returns an error when include is wrong" $
+    it "returns an error when `include` is missing a required entry" $
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
-    it "returns an error when exclude is wrong" $
+    it "accepts extra entries in `include`" $
+      validateApp (validTsConfig {T.include = Just ["src", ".wasp/out/types/app", "lib"]})
+        `shouldBe` []
+
+    it "returns an error when `exclude` is missing" $
       assertReturnsValidationErrorMentioningField "exclude" $
         validTsConfig {T.exclude = Nothing}
 
-    it "returns an error when types is missing a required entry" $
+    it "accepts extra entries in `exclude`" $
+      validateApp (validTsConfig {T.exclude = Just ["**/*.wasp.ts", "scripts"]})
+        `shouldBe` []
+
+    it "returns an error when `types` is missing a required entry" $
       assertReturnsValidationErrorMentioningField "types" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["node"]})}
 
-    it "returns an error when types is missing" $
+    it "returns an error when `types` is missing" $
       assertReturnsValidationErrorMentioningField "types" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Nothing})}
 
-    it "accepts extra entries in types as long as react and node are present" $
+    it "accepts extra entries in `types` as long as `react` and `node` are present" $
       validateApp (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["react", "node", "vite/client"]})})
+        `shouldBe` []
+
+    it "returns an error when `module` is not bundler-friendly" $
+      assertReturnsValidationErrorMentioningField "module" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T._module = Just "commonjs"})}
+
+    it "accepts every `jsx` value matching the bundler's transform" $
+      let validateWithJsx jsx =
+            validateApp (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just jsx})})
+       in map validateWithJsx ["preserve", "react-jsx"] `shouldBe` [[], []]
+
+    it "returns an error when `jsx` does not match the bundler's transform" $
+      assertReturnsValidationErrorMentioningField "jsx" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react"})}
+
+    it "returns an error when `isolatedModules` is off" $
+      assertReturnsValidationErrorMentioningField "isolatedModules" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.isolatedModules = Just False})}
+
+    it "returns an error when `moduleDetection` is not `force`" $
+      assertReturnsValidationErrorMentioningField "moduleDetection" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleDetection = Nothing})}
+
+    it "returns an error when `noEmit` is `true`" $
+      assertReturnsValidationErrorMentioningField "noEmit" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Just True})}
+
+    it "accepts any values for the options Wasp doesn't require" $
+      validateApp
+        ( validTsConfig
+            { T.compilerOptions =
+                Just
+                  ( validCompilerOptions
+                      { -- These are deliberately set to values different than the ones we have in starter templates.
+                        T.strict = Just False,
+                        T.target = Just "es2020",
+                        T.lib = Just ["esnext"],
+                        T.allowJs = Nothing
+                      }
+                  )
+            }
+        )
         `shouldBe` []
 
   describe "moduleSrcTsConfigValidator" $ do
@@ -45,12 +95,37 @@ spec_SrcTsConfig = do
       validateModule validModuleTsConfig `shouldBe` []
 
     it "reuses the app source compiler option requirements" $
-      assertReturnsModuleValidationErrorMentioningField "target" $
-        validModuleTsConfig {T.compilerOptions = Just (validModuleCompilerOptions {T.target = Just "ES2022"})}
+      assertReturnsModuleValidationErrorMentioningField "moduleResolution" $
+        validModuleTsConfig {T.compilerOptions = Just (validModuleCompilerOptions {T.moduleResolution = Just "nodenext"})}
 
     it "requires the Wasp SDK shim declaration" $
       assertReturnsModuleValidationErrorMentioningField "include" $
         validModuleTsConfig {T.include = Just ["src"]}
+
+    it "accepts extra include and exclude entries" $
+      validateModule
+        ( validModuleTsConfig
+            { T.include = Just ["src", ".wasp/wasp/ambient.d.ts", "lib"],
+              T.exclude = Just ["**/*.wasp.ts", "scripts"]
+            }
+        )
+        `shouldBe` []
+
+    it "accepts custom options Wasp doesn't require" $
+      validateModule
+        ( validModuleTsConfig
+            { T.compilerOptions =
+                Just
+                  ( validModuleCompilerOptions
+                      { T.strict = Just False,
+                        T.target = Just "es2020",
+                        T.lib = Just ["esnext"],
+                        T.allowJs = Nothing
+                      }
+                  )
+            }
+        )
+        `shouldBe` []
 
     it "requires noEmit" $
       assertReturnsModuleValidationErrorMentioningField "noEmit" $

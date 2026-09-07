@@ -25,7 +25,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
         ],
-        "35480e2a814f4c24e9bb22f8e6c0a43fbca98c1cf0612108bcf0f4c1302262f0"
+        "0a75cefde6b47011db01906cef338dabe1a541b878a959db1a2fa8b0625a410a"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "b782df6dd62288e0211f9c5f61eb6da65f6563ec7f2ab16401a726c18bb47dbf"
+        "8b57cac05f21a72098b756e6de7442d5161ae692bcdd299d82141792b8e565b8"
     ],
     [
         [
@@ -767,7 +767,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "9f63354105e0b98df7a0d54f27798a97dd92f66cbea2f4fd67b9f73243fe8c01"
+        "9acba4a5ce9c3e21a9794485c8e26f152747e1fa670776fbc111d85253669aa7"
     ],
     [
         [

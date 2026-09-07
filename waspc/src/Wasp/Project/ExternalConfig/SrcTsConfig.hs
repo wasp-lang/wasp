@@ -27,6 +27,10 @@ parseAndValidateModuleSrcTsConfig ::
   IO (Validation [CompileError] T.TsConfig)
 parseAndValidateModuleSrcTsConfig = parseAndValidateTsConfigFile moduleSrcTsConfigValidator
 
+-- Wasp only requires the options it needs to compile and bundle the project.
+-- Everything else (strictness, target, lib, ...) is the user's choice.
+-- We ensure proper defaults through starter templates.
+--
 -- References for understanding the required compiler options:
 --   - The comments in templates/sdk/wasp/tsconfig.json
 --   - https://www.typescriptlang.org/docs/handbook/modules/introduction.html
@@ -35,13 +39,13 @@ parseAndValidateModuleSrcTsConfig = parseAndValidateTsConfigFile moduleSrcTsConf
 srcTsConfigValidator :: V.Validator T.TsConfig
 srcTsConfigValidator =
   makeSrcTsConfigValidator
-    (V.eqJust ["src", ".wasp/out/types/app"])
+    (V.required $ V.containsAll ["src", ".wasp/out/types/app"])
     appCompilerOptionsValidator
 
 moduleSrcTsConfigValidator :: V.Validator T.TsConfig
 moduleSrcTsConfigValidator =
   makeSrcTsConfigValidator
-    (V.eqJust ["src", ".wasp/wasp/ambient.d.ts"])
+    (V.required $ V.containsAll ["src", ".wasp/wasp/ambient.d.ts"])
     moduleCompilerOptionsValidator
 
 makeSrcTsConfigValidator ::
@@ -51,7 +55,7 @@ makeSrcTsConfigValidator ::
 makeSrcTsConfigValidator includeValidator compilerOptionsLayer =
   V.all
     [ V.inField ("include", T.include) includeValidator,
-      V.inField ("exclude", T.exclude) $ V.eqJust ["**/*.wasp.ts"],
+      V.inField ("exclude", T.exclude) $ V.required $ V.containsAll ["**/*.wasp.ts"],
       V.inField ("compilerOptions", T.compilerOptions) $
         V.required $
           V.all [commonCompilerOptionsValidator, compilerOptionsLayer]
@@ -60,33 +64,42 @@ makeSrcTsConfigValidator includeValidator compilerOptionsLayer =
 commonCompilerOptionsValidator :: V.Validator T.CompilerOptions
 commonCompilerOptionsValidator =
   V.all
-    [ V.inField ("module", T._module) $ V.eqJust "esnext",
-      V.inField ("target", T.target) $ V.eqJust "esnext",
-      -- Since Wasp ends up bundling source code, `bundler` is the most
-      -- appropriate `moduleResolution` option.
+    [ -- Since Wasp ends up bundling the user code, the module options must
+      -- stay bundler-friendly. `esnext` also rejects CommonJS import syntax
+      -- that would end up as an unresolved `require` in the ESM bundle.
+      V.inField ("module", T._module) $ V.eqJust "esnext",
       V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
+      -- Without `moduleDetection: force`, TypeScript treats files with no
+      -- imports or exports as global scripts, while the bundler treats them
+      -- as modules. Code relying on such globals type checks but breaks at
+      -- runtime after bundling.
       V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
       -- `isolatedModules` prevents users from using features that don't work
-      -- with Wasp's transpilers (e.g., const enums).
+      -- with single-file transpilers and would fail at runtime after Wasp
+      -- bundles the code (e.g., const enums).
       V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
-      V.inField ("strict", T.strict) $ V.eqJust True,
+      -- Bundlers emulate `esModuleInterop` behavior at runtime, so type
+      -- checking must assume it too.
       V.inField ("esModuleInterop", T.esModuleInterop) $ V.eqJust True,
-      V.inField ("lib", T.lib) $ V.eqJust ["dom", "dom.iterable", "esnext"],
       -- From TypeScript 6 onwards, we need to manually specify which
       -- packages' globals we want to load.
       V.inField ("types", T.types) $ V.required $ V.containsAll ["react", "node"],
-      V.inField ("allowJs", T.allowJs) $ V.eqJust True,
       V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True
     ]
 
 appCompilerOptionsValidator :: V.Validator T.CompilerOptions
 appCompilerOptionsValidator =
   V.all
-    [ -- Vite transforms app source, so JSX can stay untouched.
-      V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
-      -- Wasp uses project references to compile user code. Referenced projects
-      -- may not disable emit, so they need a dedicated output directory.
+    [ -- Both options match the automatic JSX transform esbuild applies when
+      -- bundling.
+      V.inField ("jsx", T.jsx) $ V.oneOfJust ["preserve", "react-jsx"],
+      -- Wasp internally uses TypeScript's project references to compile the
+      -- code. Referenced projects may not disable emit, so we must specify an
+      -- `outDir` and keep `noEmit` off.
       V.inField ("outDir", T.outDir) $ V.eqJust ".wasp/out/user",
+      V.inField ("noEmit", T.noEmit) $ V.ifJust $ V.eq False,
+      -- The composite flag is required because Wasp uses project references
+      -- (i.e., web app and server reference user code as a subproject)
       V.inField ("composite", T.composite) $ V.eqJust True
     ]
 
