@@ -3,10 +3,10 @@
 //
 // We must explicitly tag all entities with their name to avoid issues with
 // structural typing. See https://github.com/wasp-lang/wasp/pull/982 for details.
-import { 
-  type Entity, 
-  type EntityName,
-  type Task,
+import type { 
+  Entity, 
+  EntityName,
+  Task,
 } from '../../entities/index.js'
 
 export type _Task = WithName<Task, "Task">

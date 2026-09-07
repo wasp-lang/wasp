@@ -1,6 +1,6 @@
 {{={= =}=}}
 import * as z from "zod"
-import { FromRegister } from "../../types/register";
+import type { FromRegister } from "../../types/register";
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
 {=/ envValidationSchema.isDefined =}

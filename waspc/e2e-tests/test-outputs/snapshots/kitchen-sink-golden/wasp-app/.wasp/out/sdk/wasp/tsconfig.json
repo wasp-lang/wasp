@@ -39,8 +39,9 @@
     // `isolatedModules` rejects code that single-file transpilers (like esbuild)
     // can't handle. The SDK gets bundled, so it must not rely on such code.
     "isolatedModules": true,
-    // We haven't adopted `verbatimModuleSyntax` yet.
-    "verbatimModuleSyntax": false,
+    // `verbatimModuleSyntax` makes type-only imports explicit, so single-file
+    // transpilers can drop them without having to know what they refer to.
+    "verbatimModuleSyntax": true,
     "moduleDetection": "force", // Assume all files are modules
     /*
       The SDK code uses extensionless relative imports and imports its own

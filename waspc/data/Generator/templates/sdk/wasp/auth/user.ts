@@ -1,15 +1,15 @@
 {{={= =}=}}
-import {
-  type {= userEntityName =},
-  type {= authEntityName =},
-  type {= authIdentityEntityName =},
+import type {
+  {= userEntityName =},
+  {= authEntityName =},
+  {= authIdentityEntityName =},
 } from '../entities/index.js'
 import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
 } from './providerData.js'
-import { Expand } from '../universal/types.js'
+import type { Expand } from '../universal/types.js'
 import { isNotNull } from '../universal/predicates.js'
 
 // PUBLIC API

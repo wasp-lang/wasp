@@ -1,1 +1,1 @@
-export { type Register } from "./register";
+export type { Register } from "./register";

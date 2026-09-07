@@ -1,14 +1,14 @@
-import {
-  type User,
-  type Auth,
-  type AuthIdentity,
+import type {
+  User,
+  Auth,
+  AuthIdentity,
 } from '../entities/index.js'
 import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
 } from './providerData.js'
-import { Expand } from '../universal/types.js'
+import type { Expand } from '../universal/types.js'
 import { isNotNull } from '../universal/predicates.js'
 
 // PUBLIC API

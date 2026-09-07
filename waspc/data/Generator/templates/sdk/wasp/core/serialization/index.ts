@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { deserialize, serialize } from "superjson"
-import { CustomSerializableJSONValue } from "./custom-register"
+import type { CustomSerializableJSONValue } from "./custom-register"
 
 {=# entitiesExist =}
 import "./prisma"

@@ -1,5 +1,5 @@
 
-import {
-  type Payload,
+import type {
+  Payload,
 } from '../../_types/index.js'
 
