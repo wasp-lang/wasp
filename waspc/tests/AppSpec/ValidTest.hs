@@ -22,6 +22,7 @@ import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerific
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import qualified Wasp.AppSpec.App.Server as AS.Server
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
@@ -493,6 +494,102 @@ spec_AppSpecValid = do
                          "The query 'myQuery' lists the same entity more than once in its 'entities' list: \"Task\". Please remove the duplicate entity references."
                      ]
 
+    describe "server basePath validation" $ do
+      let makeSpecWithBasePathAndDecls basePath extraDecls =
+            basicAppSpec
+              { AS.decls =
+                  AS.Decl.makeDecl
+                    "TestApp"
+                    basicApp
+                      { AS.App.server =
+                          Just $
+                            AS.Server.Server
+                              { AS.Server.setupFn = Nothing,
+                                AS.Server.middlewareConfigFn = Nothing,
+                                AS.Server.envValidationSchema = Nothing,
+                                AS.Server.basePath = basePath
+                              }
+                      }
+                    : basicRouteDecl
+                    : extraDecls
+              }
+      let makeSpecWithBasePath basePath = makeSpecWithBasePathAndDecls basePath []
+
+      it "returns no error when it is not set" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath Nothing) `shouldBe` []
+      it "returns no error for the root" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/")) `shouldBe` []
+      it "returns no error for a nested path" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/api/v1")) `shouldBe` []
+      it "returns an error if it does not start with a slash" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "api"))
+          `shouldBe` [Valid.GenericValidationError "app.server.basePath must start with a slash e.g. \"/api\"."]
+      it "returns an error if it ends with a slash" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/api/"))
+          `shouldBe` [Valid.GenericValidationError "app.server.basePath must not end with a slash (unless it is just \"/\")."]
+      it "returns an error if it contains a double slash" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/api//v1"))
+          `shouldBe` [Valid.GenericValidationError "app.server.basePath must not contain \"//\"."]
+      it "returns an error if it contains a query string or a fragment" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/api?x#y"))
+          `shouldBe` [Valid.GenericValidationError "app.server.basePath must contain only letters, digits and the characters \"-\", \".\", \"_\", \"~\" and \"/\"."]
+      it "returns an error if it contains characters that are not allowed in a URL path" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/my api%20v1"))
+          `shouldBe` [Valid.GenericValidationError "app.server.basePath must contain only letters, digits and the characters \"-\", \".\", \"_\", \"~\" and \"/\"."]
+      it "returns no error for a path made of the allowed characters" $ do
+        ASV.validateAppSpec (makeSpecWithBasePath (Just "/My-api.v1_2~x")) `shouldBe` []
+
+      describe "routes ignoring the server basePath" $ do
+        it "returns no error for a flagged api outside the basePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiDeclIgnoringServerBasePath "wellKnown" (AS.Api.GET, "/.well-known/atproto-did")])
+            `shouldBe` []
+        it "returns no error for a flagged api that only shares segment text with the basePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/apis")])
+            `shouldBe` []
+        it "returns no error for an unflagged api whose path starts with the basePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeBasicApiDecl "myApi" (AS.Api.GET, "/api/foo")])
+            `shouldBe` []
+        it "returns no error for a flagged api when the basePath is the root" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls Nothing [makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/foo")])
+            `shouldBe` []
+        it "returns an error for a flagged api whose path starts with the basePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/api/foo")])
+            `shouldBe` [ Valid.GenericValidationError
+                           "The api 'myApi' has path \"/api/foo\" which starts with app.server.basePath (\"/api\") but sets ignoreServerBasePath, so it overlaps with the routes under the base path. Drop ignoreServerBasePath or use a path outside the base path."
+                       ]
+        it "returns an error for a flagged api at the basePath itself" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/api")])
+            `shouldBe` [ Valid.GenericValidationError
+                           "The api 'myApi' has path \"/api\" which starts with app.server.basePath (\"/api\") but sets ignoreServerBasePath, so it overlaps with the routes under the base path. Drop ignoreServerBasePath or use a path outside the base path."
+                       ]
+        it "returns an error for a flagged apiNamespace whose path starts with the basePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiNamespaceDeclIgnoringServerBasePath "myNamespace" "/api/foo"])
+            `shouldBe` [ Valid.GenericValidationError
+                           "The apiNamespace 'myNamespace' has path \"/api/foo\" which starts with app.server.basePath (\"/api\") but sets ignoreServerBasePath, so it overlaps with the routes under the base path. Drop ignoreServerBasePath or use a path outside the base path."
+                       ]
+
+      describe "apiNamespaces and apis on different sides of the server basePath" $ do
+        let sameSideWarning = "The apiNamespace 'myNamespace' (\"/foo\") does not apply to the api 'myApi' (\"/foo/bar\") because only one of them sets ignoreServerBasePath."
+
+        it "returns no warning when neither sets ignoreServerBasePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeBasicApiNamespaceDecl "myNamespace" "/foo", makeBasicApiDecl "myApi" (AS.Api.GET, "/foo/bar")])
+            `shouldBe` []
+        it "returns no warning when both set ignoreServerBasePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiNamespaceDeclIgnoringServerBasePath "myNamespace" "/foo", makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/foo/bar")])
+            `shouldBe` []
+        it "returns no warning when the namespace path is not a prefix of the api path" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiNamespaceDeclIgnoringServerBasePath "myNamespace" "/foo", makeBasicApiDecl "myApi" (AS.Api.GET, "/foobar")])
+            `shouldBe` []
+        it "returns a warning when only the api sets ignoreServerBasePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeBasicApiNamespaceDecl "myNamespace" "/foo", makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/foo/bar")])
+            `shouldBe` [Valid.GenericValidationWarning sameSideWarning]
+        it "returns a warning when only the namespace sets ignoreServerBasePath" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls (Just "/api") [makeApiNamespaceDeclIgnoringServerBasePath "myNamespace" "/foo", makeBasicApiDecl "myApi" (AS.Api.GET, "/foo/bar")])
+            `shouldBe` [Valid.GenericValidationWarning sameSideWarning]
+        it "returns a warning even when the basePath is the root" $ do
+          ASV.validateAppSpec (makeSpecWithBasePathAndDecls Nothing [makeBasicApiNamespaceDecl "myNamespace" "/foo", makeApiDeclIgnoringServerBasePath "myApi" (AS.Api.GET, "/foo/bar")])
+            `shouldBe` [Valid.GenericValidationWarning sameSideWarning]
+
     describe "should validate that there's at least one 'route' declaration" $ do
       it "returns no error if there is at least one 'route' declaration" $ do
         ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
@@ -754,7 +851,20 @@ spec_AppSpecValid = do
             AS.Api.middlewareConfigFn = Nothing,
             AS.Api.entities = Nothing,
             AS.Api.httpRoute = route,
-            AS.Api.auth = Nothing
+            AS.Api.auth = Nothing,
+            AS.Api.ignoreServerBasePath = Nothing
+          }
+
+    makeApiDeclIgnoringServerBasePath name route =
+      AS.Decl.makeDecl
+        name
+        AS.Api.Api
+          { AS.Api.fn = dummyExtImport,
+            AS.Api.middlewareConfigFn = Nothing,
+            AS.Api.entities = Nothing,
+            AS.Api.httpRoute = route,
+            AS.Api.auth = Nothing,
+            AS.Api.ignoreServerBasePath = Just True
           }
 
     makeBasicApiNamespaceDecl name path =
@@ -762,7 +872,17 @@ spec_AppSpecValid = do
         name
         AS.ApiNamespace.ApiNamespace
           { AS.ApiNamespace.middlewareConfigFn = dummyExtImport,
-            AS.ApiNamespace.path = path
+            AS.ApiNamespace.path = path,
+            AS.ApiNamespace.ignoreServerBasePath = Nothing
+          }
+
+    makeApiNamespaceDeclIgnoringServerBasePath name path =
+      AS.Decl.makeDecl
+        name
+        AS.ApiNamespace.ApiNamespace
+          { AS.ApiNamespace.middlewareConfigFn = dummyExtImport,
+            AS.ApiNamespace.path = path,
+            AS.ApiNamespace.ignoreServerBasePath = Just True
           }
 
     makeBasicCrudDecl name entityName =

@@ -3,6 +3,7 @@ import { type MiddlewareConfigFn } from "wasp/server";
 import {
   type BarBaz,
   type FooBar,
+  type OutsideBasePath,
   type WebhookCallback,
 } from "wasp/server/api";
 
@@ -62,4 +63,9 @@ export const webhookCallbackMiddlewareFn: MiddlewareConfigFn = (
   middlewareConfig.set("express.raw", express.raw({ type: "*/*" }));
 
   return middlewareConfig;
+};
+
+// Served at `/outside-base-path` on the server's origin root, not under `server.basePath`.
+export const outsideBasePath: OutsideBasePath = (_req, res, _context) => {
+  res.json({ ok: true });
 };

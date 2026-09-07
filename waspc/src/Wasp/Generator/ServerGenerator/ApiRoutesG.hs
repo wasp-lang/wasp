@@ -52,6 +52,7 @@ genApiRoutes spec =
     getNamespaceTmplData (namespaceName, namespace) =
       object
         [ "namespacePath" .= ApiNamespace.path namespace,
+          "routerName" .= getRouterName (ApiNamespace.ignoresServerBasePath namespace),
           "namespaceMiddlewareConfigFnImportStatement" .= middlewareConfigFnImport,
           "namespaceMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
@@ -64,6 +65,7 @@ genApiRoutes spec =
       object
         [ "routeMethod" .= map toLower (show $ Api.method api),
           "routePath" .= Api.path api,
+          "routerName" .= getRouterName (Api.ignoresServerBasePath api),
           "importStatement" .= jsImportStmt,
           "importIdentifier" .= jsImportIdentifier,
           "entities" .= getApiEntitiesObject api,
@@ -83,6 +85,11 @@ genApiRoutes spec =
                   "importStatement" .= maybe "" fst maybeMiddlewareConfigFnImport,
                   "importAlias" .= middlewareConfigFnAlias
                 ]
+
+-- | Apis and namespaces go on the router mounted under the server base path, unless they ignore
+-- it, in which case they go on the router mounted at the origin root.
+getRouterName :: Bool -> String
+getRouterName ignoresServerBasePath = if ignoresServerBasePath then "rootRouter" else "router"
 
 relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]

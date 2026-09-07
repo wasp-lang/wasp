@@ -437,6 +437,7 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH
+    Wasp.Util.UrlPath
     Wasp.Util.WebRouterPath
     Wasp.Valid
     Wasp.Validator
@@ -626,6 +627,7 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.CommonTest
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
     JsImportTest
@@ -664,6 +666,7 @@ test-suite waspc-tests
     Util.IO.RetryTest
     Util.Prisma
     Util.StrongPathTest
+    Util.UrlPathTest
     Util.WebRouterPathTest
     UtilTest
     ValidatorTest

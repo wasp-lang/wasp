@@ -12,6 +12,16 @@ describe("Deployment", () => {
   });
 });
 
+describe("Server", () => {
+  test("allows an absolute basePath", () => {
+    expectTypeOf<{ basePath: "/api" }>().toExtend<WaspSpec.Server>();
+  });
+
+  test("rejects a basePath that does not start with a slash", () => {
+    expectTypeOf<{ basePath: "api" }>().not.toExtend<WaspSpec.Server>();
+  });
+});
+
 describe("AuthMethods", () => {
   const usernameAndPassword: Required<
     Pick<WaspSpec.AuthMethods, "usernameAndPassword">

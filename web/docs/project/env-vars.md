@@ -52,7 +52,7 @@ These are some general env variables used for various Wasp features:
 
 <EnvVarsTable
   envVars={[
-{ name: "REACT_APP_API_URL", type: "URL", isRequired: true, note: <>The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> }
+{ name: "REACT_APP_API_URL", type: "URL", isRequired: true, note: <>The client uses this as the server's origin (scheme, host and port, no path) and appends <a href="./server-config#base-path"><code>server.basePath</code></a> itself. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> }
 ]}
 />
 
@@ -92,7 +92,7 @@ These are some general env variables used for various Wasp features:
   envVars={[
 { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
 { name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: <>Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --client-port</code></a>.</> },
-{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: <>Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> },
+{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: <>Server uses this value as your server's origin (scheme, host and port, no path) in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub, appending <a href="./server-config#base-path"><code>server.basePath</code></a> itself. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> },
 { name: "JWT_SECRET", type: "String", isRequired: true, note: <>A random string of at least 32 characters. Needed to generate secure tokens. Defaults to <code>DEVJWTSECRET</code> in development.<br /><SecretGeneratorBlock /></> },
 { name: "PORT", type: "Integer", isRequired: true, note: <>This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> }
 ]}

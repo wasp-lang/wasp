@@ -31,7 +31,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
 
 // PRIVATE API (SDK)
 export function getRedirectUriForCallback(providerName: string): URL {
-  return new URL(`${config.serverUrl}/auth/${providerName}/${callbackPath}`);
+  return new URL(`${config.serverUrl}${config.serverBasePath}/auth/${providerName}/${callbackPath}`);
 }
 
 function getRedirectUriForError(error: string): URL {

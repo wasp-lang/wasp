@@ -18,6 +18,9 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login",
   },
+  server: {
+    basePath: "/api",
+  },
   spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),
     route("SignupRoute", "/signup", page(SignupPage)),

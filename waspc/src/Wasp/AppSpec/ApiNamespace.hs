@@ -4,6 +4,7 @@
 
 module Wasp.AppSpec.ApiNamespace
   ( ApiNamespace (..),
+    ignoresServerBasePath,
   )
 where
 
@@ -16,7 +17,8 @@ import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 
 data ApiNamespace = ApiNamespace
   { middlewareConfigFn :: ExtImport,
-    path :: String
+    path :: String,
+    ignoreServerBasePath :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -26,7 +28,13 @@ instance Inspectable ApiNamespace where
   inspect apiNamespace =
     [ InspectionEntry
         "API namespaces"
-        [ ("Path", path apiNamespace),
-          ("Import", showExtImportFromProjectDir $ middlewareConfigFn apiNamespace)
-        ]
+        ( [ ("Path", path apiNamespace),
+            ("Import", showExtImportFromProjectDir $ middlewareConfigFn apiNamespace)
+          ]
+            ++ [("Ignores server base path", "Yes") | ignoresServerBasePath apiNamespace]
+        )
     ]
+
+-- | Whether the namespace applies to its path on the server's origin root instead of under the server base path.
+ignoresServerBasePath :: ApiNamespace -> Bool
+ignoresServerBasePath = (== Just True) . ignoreServerBasePath

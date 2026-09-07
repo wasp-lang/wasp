@@ -36,6 +36,7 @@ export default app({
   webSocket,
   auth: authConfig,
   server: {
+    basePath: "/api",
     setupFn: serverSetup,
     middlewareConfigFn: serverMiddlewareFn,
     envValidationSchema: serverEnvValidationSchema,

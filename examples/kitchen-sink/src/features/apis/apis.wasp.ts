@@ -5,6 +5,7 @@ import {
   barNamespaceMiddlewareFn,
   fooBar,
   fooBarMiddlewareFn,
+  outsideBasePath,
   webhookCallback,
   webhookCallbackMiddlewareFn,
 } from "./apis" with { type: "ref" };
@@ -23,5 +24,9 @@ export const apisSpec: Spec = [
   api("POST", "/webhook/callback", webhookCallback, {
     middlewareConfigFn: webhookCallbackMiddlewareFn,
     auth: false,
+  }),
+  api("GET", "/outside-base-path", outsideBasePath, {
+    auth: false,
+    ignoreServerBasePath: true,
   }),
 ];

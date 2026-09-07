@@ -24,6 +24,9 @@ export default app({
   webSocket: {
     fn: votingWebSocket,
   },
+  server: {
+    basePath: "/api",
+  },
   spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),
     route("LoginRoute", "/login", page(LoginPage)),

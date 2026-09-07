@@ -11,7 +11,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
+import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath, serverExchangeCodeForTokenUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -98,7 +98,11 @@ genOAuthCallbackPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
+      ( object
+          [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+            "serverExchangeCodeForTokenPath" .= serverExchangeCodeForTokenUrl
+          ]
+      )
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

@@ -1,5 +1,5 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index 4d3c796..cfdf5eb 100644
+index 4246d1a..5323589 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -8,6 +8,13 @@ export default app({
@@ -13,6 +13,6 @@ index 4d3c796..cfdf5eb 100644
 +    },
 +    onAuthFailedRedirectTo: "/login",
 +  },
-   spec: [
-     route("RootRoute", "/", page(MainPage)),
-     query(getTasks, { entities: ["Task"] }),
+   server: {
+     basePath: "/api",
+   },

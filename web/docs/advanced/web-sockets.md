@@ -11,6 +11,8 @@ Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](h
 
 We handle making sure your URLs are correctly setup, CORS is enabled, and provide a useful `useSocket` and `useSocketListener` abstractions for use in React components.
 
+The client connects to the server's origin and Socket.IO listens on `<server.basePath>/socket.io` (for example `/api/socket.io`), so WebSockets follow the server's [base path](../project/server-config.md#base-path) like the rest of its routes.
+
 To get started, you need to:
 
 1. Define your WebSocket logic on the server.

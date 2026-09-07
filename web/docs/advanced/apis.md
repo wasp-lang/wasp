@@ -37,6 +37,8 @@ export default app({
 
 <ReferencingCodeFromSrcNote />
 
+The path is relative to the server's [base path](../project/server-config.md#base-path), like every other route on the server: with `basePath: "/api"`, this API is served at `/api/foo/bar`; with the default `/`, at `/foo/bar`. Wasp's own routes are mounted first, so an `api` at exactly one of Wasp's paths (`/auth/...`, `/operations/<name>`, `/crud/<name>/...`) is shadowed by them; other paths under those prefixes work.
+
 Read more about the supported fields in the [API Reference](#api-reference).
 
 ### Defining the API's NodeJS Implementation
@@ -106,13 +108,13 @@ export const fooBar: FooBar = (req, res, context) => {
 
 ### Using the API externally
 
-To use the API externally, you simply call the endpoint using the method and path you used.
+To use the API externally, you simply call the endpoint using the method you declared and the server's base path followed by the path you declared.
 
-For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example/com/foo/callback` (in your browser, Postman, `curl`, another web service, etc.).
+For example, if your server is running at `https://api.example.com` with `basePath: "/api"`, then from the above you could issue a `GET` to `https://api.example.com/api/foo/bar` (in your browser, Postman, `curl`, another web service, etc.). With the base path at `/`, that's `https://api.example.com/foo/bar`.
 
 ### Using the API from the Client
 
-To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API base URL, authentication, and error handling. For example:
+To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API's URL (`config.apiUrl`, the server origin plus the base path), authentication, and error handling. Pass it the path as you declared it, without the base path: `api.get("/foo/bar")` hits `/api/foo/bar` when the base path is `/api`. For example:
 
 ```tsx title="src/pages/SomePage.tsx" auto-js with-hole
 import React, { useEffect } from "react";
@@ -165,6 +167,32 @@ We are returning the default middleware which enables CORS for all APIs under th
 
 For more information about middleware configuration, please see: [Middleware Configuration](../advanced/middleware-config)
 
+## Opting an endpoint out of the base path
+
+Some endpoints have a path dictated from the outside, so the [base path](../project/server-config.md#base-path) gets in the way. A Bluesky handle verification, for example, must answer at exactly `/.well-known/atproto-did` on the server's origin. Set `ignoreServerBasePath: true` on the `api` and Wasp serves it at the path you declared, on the origin root, instead of under the base path:
+
+```ts title="main.wasp.ts"
+import { api, app } from "@wasp.sh/spec"
+import { atprotoDid } from "./src/apis" with { type: "ref" }
+
+export default app({
+  // ...
+  server: {
+    basePath: "/api",
+  },
+  spec: [
+    api("GET", "/.well-known/atproto-did", atprotoDid, {
+      auth: false,
+      ignoreServerBasePath: true,
+    }),
+  ],
+})
+```
+
+This endpoint is served at `https://api.example.com/.well-known/atproto-did`, while the rest of the server stays under `/api`. Everything else about the `api` works the same: `auth`, `entities`, `middlewareConfigFn` and the global middleware. These endpoints are matched after the routes under the base path, and their path must not start with it.
+
+An `apiNamespace` applies only to the `api`s on the same side of the base path as itself: a namespace with `ignoreServerBasePath: true` covers the `api`s that set it too, and a namespace without it covers the ones under the base path. Wasp warns you when a namespace prefix matches an `api` on the other side.
+
 ## Using Entities in APIs
 
 In many cases, resources used in APIs will be [Entities](../data-model/entities.md).
@@ -213,13 +241,13 @@ import { getStreamingText } from "./src/streaming" with { type: "ref" }
 export default app({
   // ...
   spec: [
-    api("POST", "/api/streaming-example", getStreamingText),
+    api("POST", "/streaming-example", getStreamingText),
   ],
 })
 ```
 
 <small>
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+With the server's base path at `/api`, this endpoint is served at `/api/streaming-example`. Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
 </small>
 
 ```ts title="src/streaming.ts" auto-js
@@ -268,7 +296,7 @@ import { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 
 export function StreamingPage() {
-  const { response } = useTextStream("/api/streaming-example", {
+  const { response } = useTextStream("/streaming-example", {
     message: "Best Office episode?",
   });
 

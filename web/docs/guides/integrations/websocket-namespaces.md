@@ -32,6 +32,9 @@ export default app({
   wasp: { version: "^0.24.0" },
   title: "websocket-test",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  server: {
+    basePath: "/api",
+  },
   // highlight-start
   webSocket: {
     fn: webSocketFn,
@@ -84,7 +87,12 @@ import { useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { config } from "wasp/client";
 
-const messagesSocket: Socket = io(`${config.apiUrl}/messages`, {
+// `config.apiUrl` includes the server's base path, the socket only needs the origin.
+const serverOrigin = new URL(config.apiUrl).origin;
+
+const messagesSocket: Socket = io(`${serverOrigin}/messages`, {
+  // Must match `server.basePath`: Socket.IO listens at `<basePath>/socket.io`.
+  path: "/api/socket.io",
   transports: ["websocket"],
   // Vite pre-bundles socket.io-client which breaks autoConnect: https://github.com/vitejs/vite/issues/4798
   autoConnect: false,

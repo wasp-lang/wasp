@@ -88,8 +88,9 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 <img alt="Slack Applications Screenshot" src={useBaseUrl('img/integrations-slack-1.png')} width="400px" />
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
-    - Enter the value `https://<subdomain>.local.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
+    - Enter the value `https://<subdomain>.loca.lt/api/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
     - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
+    - The `/api` prefix is your [`server.basePath`](../../project/server-config.md#base-path). If you changed it, use your value. In production the redirect URL is `https://your-server-url.com/api/auth/slack/callback`.
 
 4. Hit **Save URLs**.
 5. Go to **Basic Information** tab
@@ -99,7 +100,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 :::tip
 
 Be precise with your redirect URL. Slack’s redirect URLs are case-sensitive and sensitive to trailing slashes.
-For example, `https://your-app.loca.lt/auth/slack/callback` and `https://your-app.loca.lt/auth/slack/callback/` are **not** the same.
+For example, `https://your-app.loca.lt/api/auth/slack/callback` and `https://your-app.loca.lt/api/auth/slack/callback/` are **not** the same.
 :::
 
 ### 4. Adding Environment Variables

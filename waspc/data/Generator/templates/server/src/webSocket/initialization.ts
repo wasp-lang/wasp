@@ -21,6 +21,7 @@ export async function init(server: http.Server): Promise<void> {
   // TODO: Uncomment the type annotation once we make sure that the types between different packages are aligned.
   // Ref: https://github.com/wasp-lang/wasp/issues/2726
   const io /* : ServerType */ = new Server(server, {
+    path: '{=& webSocketPath =}',
     cors: {
       origin: config.frontendUrl,
     }

@@ -19,6 +19,10 @@ module Wasp.Generator.ServerGenerator.Common
     serverUrlEnvVarName,
     serverPortEnvVarName,
     libsRootDirFromServerDir,
+    getServerBasePath,
+    getServerBasePathPrefix,
+    webSocketPathInServerBasePath,
+    getWebSocketPath,
   )
 where
 
@@ -26,6 +30,8 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
@@ -35,6 +41,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
 import Wasp.Util.StrongPath (invertRelDir)
+import Wasp.Util.UrlPath (toUrlPathPrefix)
 
 data ServerSrcDir
 
@@ -126,3 +133,21 @@ serverPortEnvVarName =
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
+
+-- | The path under which the whole server is mounted: "/" for the root, otherwise the path
+-- without a trailing slash (e.g. "/api"). Meant for mounting routers and displaying.
+getServerBasePath :: AppSpec -> String
+getServerBasePath = AS.Valid.getServerBasePath
+
+-- | Same as 'getServerBasePath' but in the form meant for concatenation: "" for the root,
+-- so that @prefix ++ "/foo"@ is always a valid path.
+getServerBasePathPrefix :: AppSpec -> String
+getServerBasePathPrefix = toUrlPathPrefix . getServerBasePath
+
+-- | The socket.io path relative to the server base path (socket.io's default).
+webSocketPathInServerBasePath :: String
+webSocketPathInServerBasePath = "/socket.io"
+
+-- | The socket.io path on the server origin (e.g. "/api/socket.io"), shared by the server and the client.
+getWebSocketPath :: AppSpec -> String
+getWebSocketPath spec = getServerBasePathPrefix spec ++ webSocketPathInServerBasePath

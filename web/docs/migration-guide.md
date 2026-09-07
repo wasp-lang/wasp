@@ -25,6 +25,10 @@ wasp build start --client-port 4000 --server-port 4001
 
 In development, setting the ports manually in the env vars or the Vite config now fails, and you should use these new CLI flags. In production, the `PORT` variable is now required.
 
+### Server base path
+
+The whole server can now live under a path of your choice with the new [`server.basePath`](./project/server-config.md#base-path) option: Wasp's own routes (`/auth/*`, `/operations/*`, `/crud/*`), your `api`s and anything you add in `setupFn`. New projects set it to `/api`; if you don't set it, it stays `/` and nothing moves.
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -216,6 +220,74 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 7. Enjoy your updated Wasp app
+### 7. Set the server base path (optional)
+
+The server now mounts under `server.basePath`: Wasp's routes, your `api` and `apiNamespace` routes, and anything you add in `setupFn`. New projects use `/api`, and we recommend it: it keeps the server's routes under one prefix. Add it to your Wasp file:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    export default app({
+      server: {
+        setupFn: mySetupFunction,
+      },
+      // ...
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    export default app({
+      server: {
+        // highlight-next-line
+        basePath: "/api",
+        setupFn: mySetupFunction,
+      },
+      // ...
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+If you'd rather not move anything, leave it out: the base path stays `/`, Wasp's routes stay at `/auth/*`, `/operations/*` and `/crud/*`, your `api` paths stay where they are, and your OAuth redirect URIs don't change. You can skip the rest of this step.
+
+If you set it, a few things move with it:
+
+- Your `api` and `apiNamespace` paths are relative to the base path, so an API declared at `/foo/bar` is now served at `/api/foo/bar`. Calls through the `api` instance from `wasp/client/api` follow along (`api.get("/foo/bar")` now hits `/api/foo/bar`), but update external callers and any hardcoded URLs.
+- Routes you register directly on the Express app in `setupFn` move under the base path too, since the app you get is mounted there: `app.get("/customRoute", ...)` now answers on `/api/customRoute`. The server root (`GET /`) stays where it was.
+- Server code that builds URLs to the server's own routes from `config.serverUrl` needs `config.serverBasePath` in between: `${config.serverUrl}${config.serverBasePath}/foo`.
+- Socket.IO now listens at `<basePath>/socket.io`. Wasp's `useSocket` follows along, but a custom `socket.io-client` you create yourself must pass `path: "/api/socket.io"`.
+- If you use Google, GitHub, Discord, Keycloak, Microsoft or Slack auth, the redirect URI you registered with the provider now includes the base path. Do this for every provider and every environment (development, staging, production). The [social auth pages](./auth/social-auth/overview.md) have the updated values.
+
+  | Before                                       | After                                            |
+  | -------------------------------------------- | ------------------------------------------------ |
+  | `http://localhost:3001/auth/google/callback` | `http://localhost:3001/api/auth/google/callback` |
+  | `https://api.myapp.com/auth/google/callback` | `https://api.myapp.com/api/auth/google/callback` |
+
+- On the client, `config.apiUrl` from `wasp/client` is now the URL of the API, the server's origin plus the base path (for example `http://localhost:3001/api`), rather than the bare server URL. `REACT_APP_API_URL` and `WASP_SERVER_URL` stay the server's origin, Wasp appends the base path itself. String concatenation like `` `${config.apiUrl}/foo` `` keeps pointing at your `api` declared at `/foo`; code that used `config.apiUrl` as the server's origin needs `new URL(config.apiUrl).origin` instead.
+- Hand-written `msw` handlers in client tests that hardcode the server URL need the API URL instead. `mockQuery` and `mockApi` from `wasp/client/test` keep working.
+
+  <Tabs sideBySide>
+    <TabItem value="before" label="Before">
+      ```ts title="src/MainPage.test.tsx"
+      http.post("http://localhost:3001/operations/get-tasks", () =>
+        HttpResponse.json([]),
+      )
+      ```
+    </TabItem>
+    <TabItem value="after" label="After">
+      ```ts title="src/MainPage.test.tsx"
+      // highlight-next-line
+      import { config } from "wasp/client";
+
+      // highlight-next-line
+      http.post(`${config.apiUrl}/operations/get-tasks`, () =>
+        HttpResponse.json([]),
+      )
+      ```
+    </TabItem>
+  </Tabs>
+
+### 8. Enjoy your updated Wasp app
 
 That's it!

@@ -1,5 +1,5 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index dc1b39f..53e10fc 100644
+index 11f129d..2f7bbe9 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -1,5 +1,6 @@
@@ -10,8 +10,8 @@ index dc1b39f..53e10fc 100644
  
  export default app({
    name: "TodoApp",
-@@ -8,5 +9,6 @@ export default app({
-   head: ["<link rel='icon' href='/favicon.ico' />"],
+@@ -11,5 +12,6 @@ export default app({
+   },
    spec: [
      route("RootRoute", "/", page(MainPage)),
 +    query(getTasks, { entities: ["Task"] }),

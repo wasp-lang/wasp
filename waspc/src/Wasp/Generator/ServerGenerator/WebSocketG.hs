@@ -54,7 +54,8 @@ genWebSocketInitialization spec =
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|../|],
-              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
+              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec),
+              "webSocketPath" .= C.getWebSocketPath spec
             ]
       )
   where
