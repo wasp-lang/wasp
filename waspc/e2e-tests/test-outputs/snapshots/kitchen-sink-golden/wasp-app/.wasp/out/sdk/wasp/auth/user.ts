@@ -1,14 +1,14 @@
-import {
-  type User,
-  type Auth,
-  type AuthIdentity,
+import type {
+  User,
+  Auth,
+  AuthIdentity,
 } from '../entities/index.js'
 import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
 } from './providerData.js'
-import { Expand } from '../universal/types.js'
+import type { Expand } from '../universal/types.js'
 import { isNotNull } from '../universal/predicates.js'
 
 // PUBLIC API
@@ -27,7 +27,7 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
     return null;
   }
 
-  return user.auth.identities[0].providerUserId ?? null;
+  return user.auth.identities[0]?.providerUserId ?? null;
 }
 
 // PUBLIC API
@@ -108,7 +108,7 @@ function makeAuthUser(data: AuthUserData): AuthUser {
     ...data,
     getFirstProviderUserId: () => {
       const identities = Object.values(data.identities).filter(isNotNull);
-      return identities.length > 0 ? identities[0].id : null;
+      return identities[0]?.id ?? null;
     },
   };
 }
