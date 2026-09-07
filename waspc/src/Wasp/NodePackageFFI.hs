@@ -52,6 +52,7 @@ import qualified Wasp.Util.IO as IOUtil
 -- their global installation path.
 data RunnablePackage
   = DeployPackage
+  | ModuleBuilderPackage
   | -- | TODO(martin): I implemented this ts package because I planned to use prisma's TS sdk
     --   (@prisma/internals) inside it, but I ended up calling `prisma format` cli cmd directly,
     --   which means I could have really done it from Haskell!
@@ -79,6 +80,7 @@ packagesDirInDataDir = [reldir|packages|]
 runnablePackageDirInPackagesDir :: RunnablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
 runnablePackageDirInPackagesDir = \case
   DeployPackage -> [reldir|deploy|]
+  ModuleBuilderPackage -> [reldir|module-builder|]
   PrismaPackage -> [reldir|prisma|]
   WaspStudioPackage -> [reldir|studio|]
 

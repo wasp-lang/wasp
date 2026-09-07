@@ -1,8 +1,11 @@
-import { type RequestHandler } from 'express'
+import { type RequestHandler } from "express";
+import {
+  type MiddlewareConfig as BaseMiddlewareConfig,
+  type MiddlewareConfigFn as BaseMiddlewareConfigFn,
+} from "../types/base.js";
 
 // PUBLIC API
-export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
+export type MiddlewareConfigFn = BaseMiddlewareConfigFn<MiddlewareConfig>;
 
 // PRIVATE API
-export type MiddlewareConfig = Map<string, RequestHandler>
-
+export type MiddlewareConfig = BaseMiddlewareConfig<RequestHandler>;

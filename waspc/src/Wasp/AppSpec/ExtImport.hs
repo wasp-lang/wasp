@@ -5,32 +5,29 @@
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
     ExtImportName (..),
-    ExtImportPath,
     importIdentifier,
-    parseExtImportPath,
     showExtImportFromProjectDir,
     showExtImportPathFromProjectDir,
   )
 where
 
-import Control.Arrow (left)
-import Data.Aeson (FromJSON (parseJSON), object, withObject, (.:), (.:?), (.=))
+import Data.Aeson (FromJSON (parseJSON), Value, object, withObject, (.:), (.:?), (.=))
 import Data.Aeson.Types (ToJSON (toJSON))
 import Data.Data (Data)
-import Data.List (isPrefixOf, stripPrefix)
+import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
-import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import Wasp.AppSpec.ExtImport.Source (ExtImportSource)
+import qualified Wasp.AppSpec.ExtImport.Source as ExtImportSource
 import qualified Wasp.Project.Common as Project
 
 data ExtImport = ExtImport
   { -- | What is being imported.
     name :: ExtImportName,
-    -- | Path from which we are importing.
-    path :: ExtImportPath,
+    -- | Source from which we are importing.
+    source :: ExtImportSource,
     -- | Local alias used in the Wasp config.
     alias :: Maybe Identifier
   }
@@ -41,7 +38,7 @@ instance ToJSON ExtImport where
     object
       [ "kind" .= kindStr,
         "name" .= nameStr,
-        "path" .= showExtImportPathFromProjectDir (path extImport),
+        "source" .= extImportSourceToJSONFromProjectDir (source extImport),
         "alias" .= alias extImport
       ]
     where
@@ -53,18 +50,15 @@ instance FromJSON ExtImport where
   parseJSON = withObject "ExtImport" $ \o -> do
     kindStr <- o .: "kind"
     nameStr <- o .: "name"
-    pathStr <- o .: "path"
+    source <- o .: "source"
     aliasStr <- o .:? "alias"
     extImportName <- parseExtImportName kindStr nameStr
-    extImportPath <- either fail pure $ parseExtImportPath pathStr
-    return $ ExtImport extImportName extImportPath aliasStr
+    return $ ExtImport extImportName source aliasStr
     where
       parseExtImportName kindStr nameStr = case kindStr of
         "default" -> pure $ ExtImportModule nameStr
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
-
-type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
 type Identifier = String
 
@@ -82,18 +76,8 @@ importIdentifier (ExtImport importName _ maybeAlias) = case maybeAlias of
     ExtImportModule n -> n
     ExtImportField n -> n
 
-parseExtImportPath :: String -> Either String ExtImportPath
-parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
-  Nothing -> Left $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
-  Just relFileFP ->
-    left
-      (("Failed to parse relative posix path to file: " ++) . show)
-      $ SP.parseRelFileP relFileFP
-  where
-    stripImportPrefix = stripPrefix extSrcPrefix
-
 showExtImportFromProjectDir :: ExtImport -> String
-showExtImportFromProjectDir extImport = importClause ++ " from \"" ++ showExtImportPathFromProjectDir (path extImport) ++ "\""
+showExtImportFromProjectDir extImport = importClause ++ " from \"" ++ showExtImportSourceFromProjectDir (source extImport) ++ "\""
   where
     importClause = case name extImport of
       ExtImportModule n -> withAlias n
@@ -102,7 +86,13 @@ showExtImportFromProjectDir extImport = importClause ++ " from \"" ++ showExtImp
       Just a | a /= n -> n ++ " as " ++ a
       _ -> n
 
-showExtImportPathFromProjectDir :: ExtImportPath -> String
+showExtImportSourceFromProjectDir :: ExtImportSource -> String
+showExtImportSourceFromProjectDir extImportSource = case extImportSource of
+  ExtImportSource.ProjectSrcExtImportSource path -> showExtImportPathFromProjectDir path
+  ExtImportSource.PackageExtImportSource packageImportSource ->
+    ExtImportSource.packageImportSourceToImportSpecifier packageImportSource
+
+showExtImportPathFromProjectDir :: ExtImportSource.ProjectSrcExtImportPath -> String
 showExtImportPathFromProjectDir extImportPath
   | [".."] `isPrefixOf` FP.splitPath relPathStr = relPathStr
   | otherwise = FP.joinPath [".", relPathStr]
@@ -114,14 +104,16 @@ showExtImportPathFromProjectDir extImportPath
         (error "Internal error. Failed to convert srcDirInWaspProjectDir to POSIX. This should never happen.")
         (SP.relDirToPosix Project.srcDirInWaspProjectDir)
 
--- Filip: We no longer want separation between client and server code
--- todo (filip): Do we still want to know which is which. We might (because of the reloading).
--- For now, as we'd like (expect):
---   - Nodemon watches all files in the user's source folder (client files
---   included), but tsc only compiles the server files (I think because it
---   knows that the others aren't used). I am not yet sure how it knows this.
---   - Vite also only triggers on client files. I am not sure how it knows
---   about the difference either.
--- todo (filip): investigate
-extSrcPrefix :: String
-extSrcPrefix = "@src/"
+extImportSourceToJSONFromProjectDir :: ExtImportSource -> Value
+extImportSourceToJSONFromProjectDir extImportSource = case extImportSource of
+  ExtImportSource.ProjectSrcExtImportSource path ->
+    object
+      [ "kind" .= ("project-src" :: String),
+        "path" .= showExtImportPathFromProjectDir path
+      ]
+  ExtImportSource.PackageExtImportSource packageImportSource ->
+    object
+      [ "kind" .= ("package" :: String),
+        "packageName" .= ExtImportSource.packageName packageImportSource,
+        "subpath" .= ExtImportSource.subpath packageImportSource
+      ]

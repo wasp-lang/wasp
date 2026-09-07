@@ -22,4 +22,4 @@ genVirtualUserModulesPlugin spec =
   where
     mkPluginData = VUM.mkVirtualUserModulePluginData extImportToImportJson
     extImportToImportJson =
-      GJI.jsImportToImportJson . Just . GJI.extImportToRelativeSrcImportFromViteExecution
+      GJI.jsImportToImportJson . Just . GJI.extImportToJsImportFromViteExecution

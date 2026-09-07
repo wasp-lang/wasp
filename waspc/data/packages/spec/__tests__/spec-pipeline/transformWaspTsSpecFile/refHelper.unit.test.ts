@@ -2,6 +2,7 @@ import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import { transformRefHelper_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/refHelper/index.js";
+import type { RefOrigin } from "../../../src/spec/refObject.js";
 import { WaspSpecUserError } from "../../../src/spec/waspSpecUserError.js";
 
 describe("transformRefHelper", () => {
@@ -23,7 +24,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const ref = _waspMakeRef("/path/main.wasp.ts");`,
+        `const ref = _waspMakeRef({"kind":"project","specFilePath":"main.wasp.ts"});`,
         ``,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -43,9 +44,26 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef({"kind":"project","specFilePath":"main.wasp.ts"});`,
         ``,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("binds refs to a package logical origin", () => {
+    expect(
+      transformRefHelper(`import { ref } from "@wasp.sh/spec";\n`, {
+        kind: "package",
+        packageName: "@acme/module",
+        specFilePath: "src/features/feature.wasp.ts",
+      }),
+    ).toBe(
+      [
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `const ref = _waspMakeRef({"kind":"package","packageName":"@acme/module","specFilePath":"src/features/feature.wasp.ts"});`,
+        ``,
         ``,
       ].join("\n"),
     );
@@ -64,7 +82,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef_0("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef_0({"kind":"project","specFilePath":"main.wasp.ts"});`,
         `const ref = "taken";`,
         `const _waspMakeRef = "taken";`,
         ``,
@@ -85,7 +103,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef_0("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef_0({"kind":"project","specFilePath":"main.wasp.ts"});`,
         `class _waspMakeRef {}`,
         ``,
         ``,
@@ -106,7 +124,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const refA = _waspMakeRef("/path/main.wasp.ts");`,
+        `const refA = _waspMakeRef({"kind":"project","specFilePath":"main.wasp.ts"});`,
         `const refB = refA;`,
         `const refC = refA;`,
         `const ref = refA;`,
@@ -132,7 +150,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef({"kind":"project","specFilePath":"main.wasp.ts"});`,
         `import { type RefObject, page } from "@wasp.sh/spec";`,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -155,7 +173,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const ref = _waspMakeRef("/path/main.wasp.ts");`,
+        `const ref = _waspMakeRef({"kind":"project","specFilePath":"main.wasp.ts"});`,
         ``,
         `export { ref };`,
         ``,
@@ -170,11 +188,14 @@ describe("transformRefHelper", () => {
   });
 });
 
-function transformRefHelper(sourceText: string): string {
+function transformRefHelper(
+  sourceText: string,
+  origin: RefOrigin = { kind: "project", specFilePath: "main.wasp.ts" },
+): string {
   const ast = parseAst(sourceText, { lang: "ts" });
   const source = new RolldownMagicString(sourceText);
 
-  transformRefHelper_mutate("/path/main.wasp.ts", ast, source);
+  transformRefHelper_mutate(origin, ast, source);
 
   return source.toString();
 }

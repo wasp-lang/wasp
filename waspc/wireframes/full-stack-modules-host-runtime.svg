@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Simple host compile and runtime flow. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">How the host uses a module</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">The host adds the module spec, then Wasp generates the client and server.</text>
+
+  <g transform="translate(48,176)">
+    <rect width="248" height="152" rx="8" fill="#e6e6e6" />
+    <text x="124" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Host app</text>
+    <text x="124" y="88" font-size="14" text-anchor="middle" stroke="none" fill="#000">Import module/spec</text>
+    <text x="124" y="120" font-size="14" text-anchor="middle" stroke="none" fill="#000">Call the module function</text>
+  </g>
+
+  <line x1="296" y1="248" x2="360" y2="248" marker-end="url(#arrow)" />
+
+  <g transform="translate(368,176)">
+    <rect width="248" height="152" rx="8" />
+    <text x="124" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Spec package</text>
+    <text x="124" y="88" font-size="14" text-anchor="middle" stroke="none" fill="#000">Combine declarations</text>
+    <text x="124" y="120" font-size="14" text-anchor="middle" stroke="none" fill="#000">Keep package imports</text>
+  </g>
+
+  <line x1="616" y1="248" x2="680" y2="248" marker-end="url(#arrow)" />
+
+  <g transform="translate(688,176)">
+    <rect width="248" height="152" rx="8" />
+    <text x="124" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Wasp compiler</text>
+    <text x="124" y="88" font-size="14" text-anchor="middle" stroke="none" fill="#000">Normal AppSpec entries</text>
+    <text x="124" y="120" font-size="14" text-anchor="middle" stroke="none" fill="#000">Generate app files</text>
+  </g>
+
+  <line x1="936" y1="248" x2="1000" y2="248" marker-end="url(#arrow)" />
+
+  <g transform="translate(1008,176)">
+    <rect width="224" height="152" rx="8" fill="#e6e6e6" />
+    <text x="112" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Generated app</text>
+    <text x="112" y="88" font-size="14" text-anchor="middle" stroke="none" fill="#000">Client</text>
+    <text x="112" y="120" font-size="14" text-anchor="middle" stroke="none" fill="#000">Server</text>
+  </g>
+
+  <line x1="1120" y1="328" x2="1120" y2="392" marker-end="url(#arrow)" />
+
+  <rect x="592" y="400" width="640" height="208" rx="8" />
+  <text x="616" y="440" font-size="20" font-weight="600" stroke="none" fill="#000">Server bundle</text>
+  <line x1="616" y1="464" x2="1208" y2="464" />
+  <text x="616" y="504" font-size="14" stroke="none" fill="#000">Inside</text>
+  <text x="704" y="504" font-size="14" stroke="none" fill="#666">Host code + direct Wasp modules + Wasp SDK</text>
+  <text x="616" y="544" font-size="14" stroke="none" fill="#000">Outside</text>
+  <text x="704" y="544" font-size="14" stroke="none" fill="#666">Other packages</text>
+  <text x="912" y="584" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">One Wasp SDK copy</text>
+
+  <rect x="48" y="400" width="496" height="208" rx="8" fill="#e6e6e6" />
+  <text x="72" y="440" font-size="20" font-weight="600" stroke="none" fill="#000">Generated module parts</text>
+  <line x1="72" y1="464" x2="520" y2="464" />
+  <text x="72" y="504" font-size="14" stroke="none" fill="#000">Page + route</text>
+  <text x="240" y="504" font-size="14" stroke="none" fill="#000">Query + action</text>
+  <text x="72" y="552" font-size="14" stroke="none" fill="#000">API</text>
+  <text x="240" y="552" font-size="14" stroke="none" fill="#000">Job</text>
+
+  <rect x="264" y="672" width="752" height="64" rx="8" />
+  <text x="640" y="712" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Direct modules only. Modules inside modules are not supported yet.</text>
+
+  <g data-region="annotations">
+    <rect x="32" y="160" width="280" height="184" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="32" cy="160" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="32" y="164" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+
+    <rect x="576" y="384" width="672" height="240" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="576" cy="384" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="576" y="388" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+
+    <rect x="248" y="656" width="784" height="96" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="248" cy="656" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="248" y="660" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">3</text>
+  </g>
+</svg>

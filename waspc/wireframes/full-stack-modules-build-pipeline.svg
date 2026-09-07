@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Simple module build flow. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">How a module is built</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">The spec and source code are built separately, then published together.</text>
+
+  <g transform="translate(48,192)">
+    <rect width="280" height="144" rx="8" fill="#e6e6e6" />
+    <text x="140" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">module.wasp.ts</text>
+    <text x="140" y="88" font-size="14" text-anchor="middle" stroke="none" fill="#666">A function that returns Spec</text>
+  </g>
+
+  <g transform="translate(48,392)">
+    <rect width="280" height="144" rx="8" fill="#e6e6e6" />
+    <text x="140" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">src/*.ts and *.tsx</text>
+    <text x="140" y="88" font-size="14" text-anchor="middle" stroke="none" fill="#666">Pages, handlers, shared code</text>
+  </g>
+
+  <line x1="328" y1="264" x2="432" y2="320" marker-end="url(#arrow)" />
+  <line x1="328" y1="464" x2="432" y2="376" marker-end="url(#arrow)" />
+
+  <g transform="translate(440,224)">
+    <rect width="320" height="280" rx="8" />
+    <text x="160" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Module builder</text>
+    <line x1="24" y1="72" x2="296" y2="72" />
+    <text x="160" y="120" font-size="14" text-anchor="middle" stroke="none" fill="#000">Remember the package name</text>
+    <text x="160" y="168" font-size="14" text-anchor="middle" stroke="none" fill="#000">Check the spec</text>
+    <text x="160" y="216" font-size="14" text-anchor="middle" stroke="none" fill="#000">Build every source file</text>
+  </g>
+
+  <line x1="760" y1="360" x2="864" y2="360" marker-end="url(#arrow)" />
+
+  <g transform="translate(872,192)">
+    <rect width="360" height="344" rx="8" fill="#e6e6e6" />
+    <text x="180" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Published package</text>
+    <line x1="24" y1="72" x2="336" y2="72" />
+    <text x="32" y="120" font-size="14" stroke="none" fill="#000">dist/spec.js + types</text>
+    <text x="32" y="168" font-size="14" stroke="none" fill="#000">dist source files + types</text>
+    <text x="32" y="224" font-size="14" stroke="none" fill="#000">Export ./spec</text>
+    <text x="32" y="272" font-size="14" stroke="none" fill="#000">Export each source file</text>
+  </g>
+
+  <rect x="200" y="616" width="880" height="96" rx="8" />
+  <text x="640" y="656" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Wasp, React, and @wasp.sh/spec stay outside the package output.</text>
+  <text x="640" y="688" font-size="14" text-anchor="middle" stroke="none" fill="#666">Normal libraries stay in package dependencies.</text>
+
+  <g data-region="annotations">
+    <rect x="32" y="176" width="312" height="376" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="32" cy="176" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="32" y="180" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+
+    <rect x="856" y="176" width="392" height="376" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="856" cy="176" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="856" y="180" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+</svg>

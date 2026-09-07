@@ -179,6 +179,20 @@ const featureGroups: FeatureGroup[] = [
       },
     ],
   },
+  {
+    title: "Full-stack modules",
+    features: [
+      {
+        to: "/fsm",
+        title: "Module-owned page",
+      },
+      {
+        to: "/fsm-api",
+        title: "Host-owned page",
+        isPublic: true,
+      },
+    ],
+  },
 ];
 
 function FeatureTree() {

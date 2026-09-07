@@ -1,0 +1,57 @@
+{
+  "name": "@wasp.sh/kitchen-sink-example-module",
+  "version": "0.0.4",
+  "type": "module",
+  "description": "Experimental example full-stack module for Wasp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "examples/wasp.sh-kitchen-sink-example-module"
+  },
+  "homepage": "https://github.com/wasp-lang/wasp/tree/main/examples/wasp.sh-kitchen-sink-example-module#readme",
+  "license": "MIT",
+  "exports": {
+    "./actions": "./dist/actions.js",
+    "./apiNamespaceMiddleware": "./dist/apiNamespaceMiddleware.js",
+    "./crud": "./dist/crud.js",
+    "./MainPage": "./dist/MainPage.js",
+    "./moduleApiClient": "./dist/moduleApiClient.js",
+    "./moduleApiContract": "./dist/moduleApiContract.js",
+    "./moduleApiServer": "./dist/moduleApiServer.js",
+    "./queries": "./dist/queries.js",
+    "./spec": "./dist/spec.js",
+    "./types": "./dist/types.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "wasp module build",
+    "pack": "npm pack --pack-destination .",
+    "prepack": "npm run build",
+    "typecheck": "tsc -p tsconfig.wasp.json && tsc -p tsconfig.src.json"
+  },
+  "peerDependencies": {
+    "@wasp.sh/spec": "^0.26.0",
+    "react": "^19.2.1",
+    "wasp": "*"
+  },
+  "dependencies": {
+    "quote-lib": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0",
+    "@types/react": "^19.2.7",
+    "@wasp.sh/spec": "file:.wasp/spec/",
+    "react": "^19.2.1",
+    "typescript": "6.0.3",
+    "wasp": "file:.wasp/wasp"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "wasp": {
+    "module": {}
+  }
+}

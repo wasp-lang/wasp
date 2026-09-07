@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop 1280x800. Simple system overview. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#000" stroke="none" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="56" font-size="28" font-weight="700" stroke="none" fill="#000">Full-stack module overview</text>
+  <text x="48" y="88" font-size="14" stroke="none" fill="#666">Write a module, publish it, then add it to a Wasp app.</text>
+
+  <g transform="translate(48,224)">
+    <rect width="240" height="240" rx="8" fill="#e6e6e6" />
+    <text x="120" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Module source</text>
+    <line x1="24" y1="72" x2="216" y2="72" />
+    <text x="120" y="112" font-size="14" text-anchor="middle" stroke="none" fill="#000">module.wasp.ts</text>
+    <text x="120" y="152" font-size="14" text-anchor="middle" stroke="none" fill="#000">src/</text>
+    <text x="120" y="192" font-size="14" text-anchor="middle" stroke="none" fill="#000">package.json</text>
+  </g>
+
+  <line x1="288" y1="344" x2="352" y2="344" marker-end="url(#arrow)" />
+
+  <g transform="translate(360,224)">
+    <rect width="240" height="240" rx="8" />
+    <text x="120" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Wasp build</text>
+    <line x1="24" y1="72" x2="216" y2="72" />
+    <text x="120" y="112" font-size="14" text-anchor="middle" stroke="none" fill="#000">Check the spec</text>
+    <text x="120" y="152" font-size="14" text-anchor="middle" stroke="none" fill="#000">Build source files</text>
+    <text x="120" y="192" font-size="14" text-anchor="middle" stroke="none" fill="#000">Write dist/</text>
+  </g>
+
+  <line x1="600" y1="344" x2="664" y2="344" marker-end="url(#arrow)" />
+
+  <g transform="translate(672,224)">
+    <rect width="240" height="240" rx="8" fill="#e6e6e6" />
+    <text x="120" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">npm package</text>
+    <line x1="24" y1="72" x2="216" y2="72" />
+    <text x="120" y="112" font-size="14" text-anchor="middle" stroke="none" fill="#000">./spec</text>
+    <text x="120" y="152" font-size="14" text-anchor="middle" stroke="none" fill="#000">Pages and handlers</text>
+    <text x="120" y="192" font-size="14" text-anchor="middle" stroke="none" fill="#000">Dependencies</text>
+  </g>
+
+  <line x1="912" y1="344" x2="976" y2="344" marker-end="url(#arrow)" />
+
+  <g transform="translate(984,224)">
+    <rect width="248" height="240" rx="8" />
+    <text x="124" y="48" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">Host app</text>
+    <line x1="24" y1="72" x2="224" y2="72" />
+    <text x="124" y="112" font-size="14" text-anchor="middle" stroke="none" fill="#000">Import the module</text>
+    <text x="124" y="152" font-size="14" text-anchor="middle" stroke="none" fill="#000">Compile the app</text>
+    <text x="124" y="192" font-size="14" text-anchor="middle" stroke="none" fill="#000">Run client + server</text>
+  </g>
+
+  <rect x="264" y="552" width="752" height="112" rx="8" />
+  <text x="640" y="592" font-size="20" font-weight="600" text-anchor="middle" stroke="none" fill="#000">The compiler sees normal Wasp declarations</text>
+  <text x="640" y="632" font-size="14" text-anchor="middle" stroke="none" fill="#666">The only difference is that their code comes from an npm package.</text>
+
+  <g data-region="annotations">
+    <rect x="968" y="208" width="280" height="272" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="968" cy="208" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="968" y="212" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+
+    <rect x="248" y="536" width="784" height="144" fill="none" stroke="#d33" stroke-dasharray="6 3" />
+    <circle cx="248" cy="536" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+    <text x="248" y="540" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+</svg>

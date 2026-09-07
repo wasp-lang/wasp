@@ -5,19 +5,12 @@ import { makeAppMapperContext } from "./context.js";
 
 export function convertWaspSpecToAppSpec(
   app: WaspSpec.App,
-  {
-    projectRootDir,
-    entityNames,
-  }: {
-    projectRootDir: string;
-    entityNames: string[];
-  },
+  { entityNames }: { entityNames: string[] },
 ): AppSpec.Decl[] {
   const specElements = flattenSpecElements(app.spec);
 
   const { ctx, collectedDeclsByKey } = makeAppMapperContext({
     entityNames,
-    projectRootDir,
     specElements,
   });
 

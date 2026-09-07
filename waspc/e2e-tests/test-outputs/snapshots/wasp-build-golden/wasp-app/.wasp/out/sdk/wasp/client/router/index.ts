@@ -14,7 +14,6 @@ export const routes = {
       options?:
       OptionalRouteOptions
     ) => interpolatePath(
-        
         "/",
         undefined,
         options?.search,

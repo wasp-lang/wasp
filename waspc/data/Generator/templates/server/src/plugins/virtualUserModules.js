@@ -17,6 +17,10 @@ const serverVirtualUserModuleMap = {
   {=/ virtualUserModules =}
 };
 
+export function isVirtualUserModuleId(moduleId) {
+  return Object.hasOwn(serverVirtualUserModuleMap, moduleId);
+}
+
 /**
  * Resolves virtual modules pointing to user's modules.
  * Virtual user modules allow Wasp code to depend on user code at runtime,
@@ -26,7 +30,7 @@ export function virtualUserModules() {
   return {
     name: "wasp:virtual-user-modules",
     async resolveId(id) {
-      if (Object.hasOwn(serverVirtualUserModuleMap, id)) {
+      if (isVirtualUserModuleId(id)) {
         const absPath = path.resolve(serverRootDir, serverVirtualUserModuleMap[id]);
         return await this.resolve(absPath, undefined, { skipSelf: true });
       }

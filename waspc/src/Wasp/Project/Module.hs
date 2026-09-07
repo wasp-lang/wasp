@@ -1,0 +1,166 @@
+module Wasp.Project.Module
+  ( createModuleOnDisk,
+    installModuleIO,
+    buildModuleIO,
+    packageNameToDirName,
+  )
+where
+
+import Control.Concurrent (newChan)
+import Control.Monad (forM_)
+import Data.Char (isAlphaNum, toLower)
+import Data.List (intercalate)
+import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
+import Path.IO (copyDirRecur)
+import StrongPath (Abs, Dir, Dir', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
+import StrongPath.Path (toPathAbsDir)
+import System.Directory (createDirectoryIfMissing, doesFileExist, doesPathExist)
+import System.Exit (ExitCode (..))
+import qualified System.FilePath as FP
+import qualified System.Process as P
+import Validation (Validation (..))
+import qualified Wasp.Data as Data
+import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), RunnablePackage (ModuleBuilderPackage), ensurePackageIsAtInstallationPathInProject, getPackageProcessOptions)
+import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.ExternalConfig.PackageJson (parseAndValidateModulePackageJson)
+import Wasp.Project.ExternalConfig.SrcTsConfig (parseAndValidateModuleSrcTsConfig)
+import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
+import Wasp.Project.Install (isInstalledWaspSpecMatchingCliVersion)
+import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Terminal (styleCode)
+import qualified Wasp.Version as WV
+
+createModuleOnDisk :: Path' Abs (Dir WaspProjectDir) -> String -> IO (Either String ())
+createModuleOnDisk moduleDir packageName = do
+  doesModuleDirExist <- doesPathExist $ fromAbsDir moduleDir
+  if doesModuleDirExist
+    then return $ Left $ fromAbsDir moduleDir ++ " already exists."
+    else do
+      dataDir <- Data.getAbsDataDirPath
+      copyDirRecur (toPathAbsDir $ dataDir </> moduleTemplateDirInDataDir) (toPathAbsDir moduleDir)
+      replaceModuleTemplatePlaceholders moduleDir packageName
+      IOUtil.renameDotfiles moduleDir moduleTemplateDotfiles
+      return $ Right ()
+
+installModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+installModuleIO moduleDir = do
+  ensureIsModuleDir moduleDir >>= \case
+    Left errorMessage -> return $ Left errorMessage
+    Right () ->
+      ensureValidModuleTsConfigs moduleDir >>= \case
+        Left errorMessage -> return $ Left errorMessage
+        Right () -> installModuleDependenciesIO moduleDir
+
+installModuleDependenciesIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+installModuleDependenciesIO moduleDir = do
+  ensureWaspOwnedNpmArtifactsInModule moduleDir
+  messageChan <- newChan
+  installProjectNpmDependencies messageChan moduleDir
+
+-- | Modules resolve the spec package and a development SDK from disk instead
+-- of the lib tarballs used by generated apps.
+ensureWaspOwnedNpmArtifactsInModule :: Path' Abs (Dir WaspProjectDir) -> IO ()
+ensureWaspOwnedNpmArtifactsInModule moduleDir = do
+  ensurePackageIsAtInstallationPathInProject moduleDir WaspSpecPackage
+  ensureModuleDevelopmentSdkIO moduleDir
+
+buildModuleIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+buildModuleIO moduleDir = do
+  ensureIsModuleDir moduleDir >>= \case
+    Left errorMessage -> return $ Left errorMessage
+    Right () ->
+      ensureValidModuleTsConfigs moduleDir >>= \case
+        Left errorMessage -> return $ Left errorMessage
+        Right () -> do
+          ensureModuleDevelopmentSdkIO moduleDir
+          ensureInstalledModuleDependencies moduleDir >>= \case
+            Left errorMessage -> return $ Left errorMessage
+            Right () -> runModuleBuilder moduleDir
+
+ensureValidModuleTsConfigs :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+ensureValidModuleTsConfigs moduleDir = do
+  srcTsConfigValidation <- parseAndValidateModuleSrcTsConfig moduleDir [relfile|tsconfig.src.json|]
+  waspTsConfigValidation <- parseAndValidateWaspTsConfig moduleDir [relfile|tsconfig.wasp.json|]
+  return $ case srcTsConfigValidation *> waspTsConfigValidation of
+    Success _ -> Right ()
+    Failure errors -> Left $ intercalate "\n" errors
+
+ensureInstalledModuleDependencies :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+ensureInstalledModuleDependencies moduleDir = do
+  isCurrent <- isInstalledWaspSpecMatchingCliVersion moduleDir
+  return $ if isCurrent then Right () else Left missingDepsError
+  where
+    missingDepsError =
+      "Your module dependencies are out of date. Run " ++ styleCode "wasp module install" ++ " to fix this."
+
+runModuleBuilder :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+runModuleBuilder moduleDir = do
+  cp <- getPackageProcessOptions ModuleBuilderPackage ["--module-dir", fromAbsDir moduleDir]
+  let cpInheritHandles =
+        cp
+          { P.std_in = P.Inherit,
+            P.std_out = P.Inherit,
+            P.std_err = P.Inherit,
+            P.delegate_ctlc = True
+          }
+  exitCode <- P.withCreateProcess cpInheritHandles $ \_ _ _ ph -> P.waitForProcess ph
+  case exitCode of
+    ExitSuccess -> return $ Right ()
+    ExitFailure code -> return $ Left $ "Module build failed with exit code: " ++ show code
+
+ensureIsModuleDir :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+ensureIsModuleDir moduleDir = do
+  packageJsonValidation <- parseAndValidateModulePackageJson moduleDir
+  case packageJsonValidation of
+    Failure errors -> return $ Left $ intercalate "\n" errors
+    Success _ -> do
+      hasModuleSpec <- doesFileExist $ fromAbsFile $ moduleDir </> [relfile|module.wasp.ts|]
+      if hasModuleSpec
+        then return $ Right ()
+        else return $ Left $ fromAbsDir moduleDir ++ " is not a Wasp module directory. Expected module.wasp.ts."
+
+moduleTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
+moduleTemplateDirInDataDir = [reldir|Cli/module-template|]
+
+-- | Files stored without their leading dot in the module template directory,
+-- to prevent tools (e.g. npm, cabal) from stripping them during packaging.
+moduleTemplateDotfiles :: [String]
+moduleTemplateDotfiles = ["gitignore"]
+
+moduleDevelopmentSdkTemplateDirInDataDir :: Path' (Rel Data.DataDir) (Dir Dir')
+moduleDevelopmentSdkTemplateDirInDataDir = [reldir|Generator/templates/sdk/wasp/module-development-sdk|]
+
+ensureModuleDevelopmentSdkIO :: Path' Abs (Dir WaspProjectDir) -> IO ()
+ensureModuleDevelopmentSdkIO moduleDir = do
+  dataDir <- Data.getAbsDataDirPath
+  let sdkDir = moduleDir </> [reldir|.wasp/wasp|]
+      baseTypesSource = dataDir </> [relfile|Generator/templates/sdk/wasp/server/types/base.ts|]
+      baseTypesDestination = sdkDir </> [relfile|server/types/base.ts|]
+  IOUtil.deleteDirectoryIfExists sdkDir
+  IOUtil.copyDirectory (dataDir </> moduleDevelopmentSdkTemplateDirInDataDir) sdkDir
+  createDirectoryIfMissing True $ FP.takeDirectory $ fromAbsFile baseTypesDestination
+  IOUtil.copyFile baseTypesSource baseTypesDestination
+
+replaceModuleTemplatePlaceholders :: Path' Abs (Dir WaspProjectDir) -> String -> IO ()
+replaceModuleTemplatePlaceholders moduleDir packageName = do
+  forM_ ["package.json", "README.md"] $ \fileName -> do
+    let filePath = fromAbsDir moduleDir FP.</> fileName
+    contents <- TIO.readFile filePath
+    TIO.writeFile filePath $ replacePackageName $ replaceWaspVersion contents
+  where
+    replacePackageName = T.replace "__waspModulePackageName__" $ T.pack packageName
+    replaceWaspVersion = T.replace "__waspVersion__" $ T.pack $ show $ SV.backwardsCompatibleWith WV.waspVersion
+
+packageNameToDirName :: String -> FilePath
+packageNameToDirName name = case sanitized of
+  "" -> "wasp-module"
+  _ -> sanitized
+  where
+    sanitized = trimDashes $ map sanitizeChar $ map toLower name
+    sanitizeChar c
+      | isAlphaNum c = c
+      | otherwise = '-'
+    trimDashes = dropWhile (== '-') . reverse . dropWhile (== '-') . reverse

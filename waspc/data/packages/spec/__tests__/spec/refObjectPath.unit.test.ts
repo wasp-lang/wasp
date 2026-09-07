@@ -1,138 +1,95 @@
-import * as fs from "node:fs";
-import * as os from "node:os";
-import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import { describe, expect, test } from "vitest";
 import { normalizeRefObjectPath } from "../../src/spec/refObjectPath.js";
 import { WaspSpecUserError } from "../../src/spec/waspSpecUserError.js";
 
 describe("normalizeRefObjectPath", () => {
-  test("maps a top-level spec ref import targeting src", () => {
-    using project = makeTempProject();
-
+  test("maps a top-level spec ref targeting src", () => {
     expect(
       normalizeRefObjectPath({
         importPath: "./src/MainPage",
-        importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
-        projectRootDir: project.rootDir,
+        specFilePath: "main.wasp.ts",
+        originKind: "project",
       }),
-    ).toBe("@src/MainPage");
+    ).toBe("MainPage");
   });
 
-  test("maps a nested spec ref import from its importing file", () => {
-    using project = makeTempProject();
-
+  test("maps a nested spec ref from its logical path", () => {
     expect(
       normalizeRefObjectPath({
         importPath: "./MainPage",
-        importingFilePath: path.join(
-          project.rootDir,
-          "src",
-          "features",
-          "home.wasp.ts",
-        ),
-        projectRootDir: project.rootDir,
+        specFilePath: "src/features/home.wasp.ts",
+        originKind: "project",
       }),
-    ).toBe("@src/features/MainPage");
+    ).toBe("features/MainPage");
   });
 
-  test("maps a nested ref import that climbs to the src root", () => {
-    using project = makeTempProject();
-
+  test("maps a nested package ref and strips its extension", () => {
     expect(
       normalizeRefObjectPath({
-        importPath: "../../MainPage",
-        importingFilePath: path.join(
-          project.rootDir,
-          "src",
-          "features",
-          "home",
-          "home.wasp.ts",
-        ),
-        projectRootDir: project.rootDir,
+        importPath: "../../MainPage.tsx",
+        specFilePath: "src/features/home/home.wasp.ts",
+        originKind: "package",
       }),
-    ).toBe("@src/MainPage");
+    ).toBe("MainPage");
   });
 
-  test("normalizes ref import path segments", () => {
-    using project = makeTempProject();
-
+  test("normalizes ref path segments", () => {
     expect(
       normalizeRefObjectPath({
         importPath: "./src/features/../MainPage",
-        importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
-        projectRootDir: project.rootDir,
+        specFilePath: "main.wasp.ts",
+        originKind: "project",
       }),
-    ).toBe("@src/MainPage");
+    ).toBe("MainPage");
   });
 
-  test("rejects ref imports that resolve outside src", () => {
-    using project = makeTempProject();
-
+  test("rejects refs that resolve outside src", () => {
     expect(() =>
       normalizeRefObjectPath({
         importPath: "./helpers/helper",
-        importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
-        projectRootDir: project.rootDir,
+        specFilePath: "main.wasp.ts",
+        originKind: "project",
       }),
     ).toThrow(WaspSpecUserError);
     expect(() =>
       normalizeRefObjectPath({
         importPath: "./helpers/helper",
-        importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
-        projectRootDir: project.rootDir,
+        specFilePath: "main.wasp.ts",
+        originKind: "project",
       }),
     ).toThrow(/must resolve to a file inside the app src\/ directory/);
   });
 
-  test("rejects ref imports that resolve to src itself", () => {
-    using project = makeTempProject();
-
+  test("rejects refs that resolve to src itself", () => {
     expect(() =>
       normalizeRefObjectPath({
         importPath: "./src",
-        importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
-        projectRootDir: project.rootDir,
+        specFilePath: "module.wasp.ts",
+        originKind: "package",
       }),
-    ).toThrow(WaspSpecUserError);
-    expect(() =>
-      normalizeRefObjectPath({
-        importPath: "./src",
-        importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
-        projectRootDir: project.rootDir,
-      }),
-    ).toThrow(/must resolve to a file inside the app src\/ directory/);
+    ).toThrow(/must resolve to a file inside the package src\/ directory/);
   });
 
-  test("allows ref imports that leave src and resolve back inside", () => {
-    using project = makeTempProject();
-
+  test("allows refs that leave src and resolve back inside", () => {
     expect(
       normalizeRefObjectPath({
         importPath: "../../../src/MainPage",
-        importingFilePath: path.join(
-          project.rootDir,
-          "src",
-          "features",
-          "home",
-          "home.wasp.ts",
-        ),
-        projectRootDir: project.rootDir,
+        specFilePath: "src/features/home/home.wasp.ts",
+        originKind: "project",
       }),
-    ).toBe("@src/MainPage");
+    ).toBe("MainPage");
   });
+
+  test.each(["", "/main.wasp.ts", "C:\\main.wasp.ts", "../main.wasp.ts"])(
+    "rejects invalid logical spec path %j",
+    (specFilePath) => {
+      expect(() =>
+        normalizeRefObjectPath({
+          importPath: "./src/MainPage",
+          specFilePath,
+          originKind: "project",
+        }),
+      ).toThrow(/must be relative to its project or package root/);
+    },
+  );
 });
-
-type TempProject = Disposable & {
-  rootDir: string;
-};
-
-function makeTempProject(): TempProject {
-  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "wasp-ref-path-"));
-  fs.mkdirSync(path.join(rootDir, "src"));
-
-  return {
-    rootDir,
-    [Symbol.dispose]: () =>
-      fs.rmSync(rootDir, { recursive: true, force: true }),
-  };
-}

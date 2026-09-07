@@ -61,8 +61,11 @@ spec_genDotEnv = do
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.version = Nothing,
+                Npm.PackageJson.packageType = Nothing,
+                Npm.PackageJson.files = Nothing,
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
+                Npm.PackageJson.peerDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
                 Npm.PackageJson.wasp = Nothing
               },

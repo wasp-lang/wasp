@@ -30,15 +30,17 @@ extOperationImportToImportJson =
     . extImportToJsImport
 
 extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
+extImportToJsImport extImport@(EI.ExtImport extImportName extImportSource _) =
   JsImport
     { _kind = TypeImport,
-      _path = RelativeImportPath importPath,
+      _path = importPath,
       _name = GJI.extImportNameToJsImportName extImportName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    importPath = dropExtensionFromImportPath $ SP.castRel $ extSrcDirFromSdkTypesRootDir </> extImportPath
+    importPath = GJI.extImportSourceToJsImportPath projectSrcPathToJsImportPath extImportSource
+    projectSrcPathToJsImportPath projectSrcPath =
+      RelativeImportPath $ dropExtensionFromImportPath $ SP.castRel $ extSrcDirFromSdkTypesRootDir </> projectSrcPath
 
 extSrcDirFromSdkTypesRootDir :: Path Posix (Rel SdkTypeAugmentationRootDir) (Dir SourceExternalCodeDir)
 extSrcDirFromSdkTypesRootDir =
