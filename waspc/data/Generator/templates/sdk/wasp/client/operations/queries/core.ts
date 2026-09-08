@@ -1,4 +1,4 @@
-import { Route } from '../../index.js'
+import type { Route } from '../../index.js'
 import type { _Awaited, _ReturnType } from '../../../universal/types.js'
 import type {
   GenericBackendOperation,

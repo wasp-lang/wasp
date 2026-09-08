@@ -3,7 +3,7 @@ import type {
   _Awaited,
   _ReturnType
 } from "../../universal/types";
-import { type Route } from "../index";
+import type { Route } from "../index";
 
 // PRIVATE API (for SDK, should maybe be public, users define values of this
 // type).

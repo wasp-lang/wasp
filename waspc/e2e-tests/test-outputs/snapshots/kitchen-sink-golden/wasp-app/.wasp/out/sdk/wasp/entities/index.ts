@@ -1,17 +1,17 @@
-import {
-  type User,
-  type Task,
-  type TaskVote,
-  type UppercaseTextRequest,
+import type {
+  User,
+  Task,
+  TaskVote,
+  UppercaseTextRequest,
 } from "@prisma/client"
 
-export {
-  type User,
-  type Task,
-  type TaskVote,
-  type UppercaseTextRequest,
-  type Auth,
-  type AuthIdentity,
+export type {
+  User,
+  Task,
+  TaskVote,
+  UppercaseTextRequest,
+  Auth,
+  AuthIdentity,
 } from "@prisma/client"
 
 export type Entity = 

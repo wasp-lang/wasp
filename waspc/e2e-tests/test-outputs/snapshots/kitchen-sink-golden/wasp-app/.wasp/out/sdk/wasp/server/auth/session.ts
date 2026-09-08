@@ -1,7 +1,7 @@
-import { Request as ExpressRequest } from "express";
+import type { Request as ExpressRequest } from "express";
 
-import { type User } from '../../entities/index.js';
-import { type AuthUserData } from '../../auth/user.js';
+import type { User } from '../../entities/index.js';
+import type { AuthUserData } from '../../auth/user.js';
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";

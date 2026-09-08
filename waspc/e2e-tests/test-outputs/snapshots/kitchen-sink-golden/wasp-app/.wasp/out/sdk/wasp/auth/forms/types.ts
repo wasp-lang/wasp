@@ -1,4 +1,4 @@
-import { UseFormReturn, RegisterOptions } from 'react-hook-form'
+import type { UseFormReturn, RegisterOptions } from 'react-hook-form'
 import type { LoginSignupFormFields } from './internal/common/LoginSignupForm'
 
 // PRIVATE API

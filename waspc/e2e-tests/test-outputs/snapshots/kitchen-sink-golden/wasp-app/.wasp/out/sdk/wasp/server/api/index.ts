@@ -1,10 +1,10 @@
 
-import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
+import type { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
 
-import {
-  type _Task,
-  type Api,
-  type AuthenticatedApi,
+import type {
+  _Task,
+  Api,
+  AuthenticatedApi,
 } from '../_types'
 
 
