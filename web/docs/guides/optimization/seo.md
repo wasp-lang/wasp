@@ -132,10 +132,6 @@ export function ProductPage({ productId }) {
       <meta property="og:title" content={product.name} />
       <meta property="og:image" content={product.imageUrl} />
 
-      {/* Twitter/X falls back to the og: tags for everything else;
-          this tag enables the large preview layout */}
-      <meta name="twitter:card" content="summary_large_image" />
-
       {/* The "original" URL of this page, without tracking parameters,
           so crawlers don't index duplicate variations of it */}
       <link

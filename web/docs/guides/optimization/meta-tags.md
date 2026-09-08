@@ -37,12 +37,6 @@ export default app({
     "<meta property='og:url' content='https://your-app.com' />",
     "<meta property='og:description' content='Your apps main description and features.' />",
     "<meta property='og:image' content='https://your-app.com/public-banner.webp' />",
-
-    // Twitter Card tags
-    "<meta name='twitter:image' content='https://your-app.com/public-banner.webp' />",
-    "<meta name='twitter:image:width' content='800' />",
-    "<meta name='twitter:image:height' content='400' />",
-    "<meta name='twitter:card' content='summary_large_image' />",
   ],
   // ...
 })
@@ -70,7 +64,6 @@ export function HomePage() {
           property="og:image"
           content="https://your-app.com/home-page-banner.webp"
         />
-        <meta name="twitter:card" content="summary_large_image" />
       </head>
       <div>
         <h1>Welcome to the Home Page</h1>
@@ -91,7 +84,7 @@ export function HomePage() {
 
 ### Open Graph tags
 
-This is the most common standard used by social media platforms (e.g. Facebook, LinkedIn, Slack, Discord, and more) to generate rich link previews.
+This is the most common standard used by social media platforms (e.g. Facebook, LinkedIn, Slack, Discord, X, and more) to generate rich link previews.
 
 - `og:type`: Usually "website" for web apps
 - `og:title`: The title shown in previews
@@ -101,19 +94,6 @@ This is the most common standard used by social media platforms (e.g. Facebook, 
 - `og:image`: Preview image URL
 
 You can check [Open Graph tag guidelines](https://ogp.me/) for more information on how this information is used.
-
-### X Card tags
-
-This is used by X (formerly Twitter) to create rich link previews.
-
-- `twitter:card`: Use "summary_large_image" for large image previews
-- `twitter:image`: Image URL for Twitter previews
-- `twitter:image:width`: Image width in pixels
-- `twitter:image:height`: Image height in pixels
-
-X falls back to the Open Graph tags for the title, description, and image, so if you've already set those, the only tag you strictly need to add is `twitter:card`.
-
-You can check [X's guidelines](https://developer.x.com/en/docs/x-for-websites/cards/overview/markup) for more information on how this information is used.
 
 ### Canonical URL
 
@@ -133,5 +113,4 @@ After deploying, you can verify your meta tags using these tools:
 
 - [Google Tag Assistant](https://tagassistant.google.com/)
 - [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/)
-- [X Card Validator](https://cards-dev.x.com/validator)
 - [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
