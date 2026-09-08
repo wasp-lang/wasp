@@ -12,7 +12,9 @@ import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldNotBe, shouldReturn)
 import Test.Process.Util (isPortAvailable, isProcessAlive, killProcess, makeTempPath, trim, waitUntil)
+import Wasp.AppComponentUrl (AppComponentUrl (..))
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
+import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
 import Wasp.Generator.ServerGenerator.Start
   ( ServerEffect (..),
     ServerProcessController,
@@ -51,11 +53,13 @@ spec_ServerProcessController =
         chan <- newChan
         controller <- newServerProcessController
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-        withAsync (Job.runJob (startServer generatedAppDir controller) chan) $ \controllerJob -> do
+        withAsync (Job.runJob (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
           readBundleCount fixture `shouldReturn` 1
+          readFile' (serverDirPath fixture </> "runtime-env.txt")
+            `shouldReturn` "0\nhttp://localhost:0\nhttp://localhost:3000"
           isPortAvailable serverPort `shouldReturn` False
 
           -- Client-only change: no bundle, no restart.
@@ -126,7 +130,7 @@ spec_ServerProcessController =
           chan <- newChan
           controller <- newServerProcessController
           generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-          withAsync (Job.runJob (startServer generatedAppDir controller) chan) $ \controllerJob -> do
+          withAsync (Job.runJob (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
             waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
             crashedPid <- readServerPid fixture
             waitUntil "leftover process port file" $ doesFileExist $ leftoverPortFilePath fixture
@@ -147,6 +151,9 @@ spec_ServerProcessController =
             cancel controllerJob
             isPortAvailable newPort `shouldReturn` True
             clearServerPid fixture
+
+serverRunConfig :: ServerRunConfig
+serverRunConfig = makeServerRunConfig (Local 0 Nothing) "http://localhost:3000"
 
 newtype GeneratedAppDirFixture = GeneratedAppDirFixture
   { _generatedAppDirPath :: FilePath
@@ -193,6 +200,7 @@ loopingServerScript =
   unlines
     [ "const fs = require('node:fs');",
       "const net = require('node:net');",
+      "fs.writeFileSync('runtime-env.txt', [process.env.PORT, process.env.WASP_SERVER_URL, process.env.WASP_WEB_CLIENT_URL].join('\\n'));",
       "const port = Number(fs.readFileSync('" <> serverPortFileName <> "', 'utf8'));",
       "const server = net.createServer();",
       "server.listen(port, '127.0.0.1', () => {",
