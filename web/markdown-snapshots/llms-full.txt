@@ -20819,15 +20819,17 @@ npx vercel integration add supabase
 
 The first time, the CLI will ask you to accept the Marketplace terms in your browser. Open the link it prints, accept the terms and run the command again. Vercel creates a Supabase database, connects it to your server project and adds a set of `POSTGRES_*` and `SUPABASE_*` environment variables to it.
 
-Wasp expects the connection string in the `DATABASE_URL` environment variable, so we need to copy it over. Use the value of `POSTGRES_URL_NON_POOLING`: this is Supabase's session-mode pooler, which works both for running Prisma migrations and for serving queries. You can use the CLI to copy the value from one environment variable to the other:
+Wasp expects the connection string in the `DATABASE_URL` environment variable, so we need to copy it over. Use the value of `POSTGRES_PRISMA_URL`: this is Supabase's transaction-mode pooler, which is the one [recommended for serverless](https://supabase.com/docs/guides/database/connecting-to-postgres#pooler-transaction-mode). You can use the CLI to copy the value from one environment variable to the other:
 
 ```shell
-npx vercel env run -- printenv POSTGRES_URL_NON_POOLING
+npx vercel env run -- printenv POSTGRES_PRISMA_URL
 # Copy the line that starts with "postgres://"
 
 npx vercel env add --no-sensitive DATABASE_URL production
 # Paste it when prompted
 ```
+
+Prisma migrations can't run through the transaction-mode pooler, so the build command in the next section runs them against `POSTGRES_URL_NON_POOLING` (Supabase's session-mode pooler) instead.
 
 :::warning
 The Supabase database is linked to your Vercel account. If you remove the integration or delete your Vercel account, the database will be deleted along with it.
@@ -20844,12 +20846,12 @@ You can also use the Supabase dashboard to manage your database, run queries, an
      "$schema": "https://openapi.vercel.sh/vercel.json",
      "framework": "express",
      "installCommand": "npm install",
-     "buildCommand": "cd .wasp/out/server && npm install && npx prisma generate --schema=../db/schema.prisma && npm run bundle && npm run db-migrate-prod",
+     "buildCommand": "cd .wasp/out/server && npm install && npx prisma generate --schema=../db/schema.prisma && npm run bundle && DATABASE_URL=$POSTGRES_URL_NON_POOLING npm run db-migrate-prod",
      "outputDirectory": ".wasp/out/server/bundle"
    }
    ```
 
-   The build command mirrors what the generated `Dockerfile` does: it installs the server's dependencies, generates the Prisma client, bundles the server and runs any pending database migrations. Vercel then looks for the bundled `server.js` in the output directory and wraps it in a function.
+   The build command mirrors what the generated `Dockerfile` does: it installs the server's dependencies, generates the Prisma client, bundles the server and runs any pending database migrations (using the session-mode pooler, as explained above). Vercel then looks for the bundled `server.js` in the output directory and wraps it in a function.
 
 2. Create a `.vercelignore` that keeps local files (and, importantly, your `.env` files) out of the upload:
 
