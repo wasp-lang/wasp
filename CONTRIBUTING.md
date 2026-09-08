@@ -15,6 +15,12 @@ There are several main ways in which you can contribute to Wasp:
 - Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. Check [Ways to contribute](#ways-to-contribute) for more details.
 - Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set! `#wasp-dev` channel is the perfect place to ping us with the task you want to do and how you plan to do it, which reduces duplicate or misdirected efforts.
 
+And before you open a PR, check if it will need agreement from the maintainers:
+
+- **Small, obvious fixes are welcome as direct PRs.** Typos, broken links, docs corrections, small bugs where the fix is clear and comes with a test.
+
+- **Everything else: talk to us before writing code.** Bigger fixes or new features always need maintainer agreement in advance. Open a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or post in the [`#wasp-dev` channel on our Discord](https://discord.wasp.run/wasp-dev), and wait for a maintainer to agree on the approach. We will usually close PRs for undiscussed non-trivial changes without reviewing them. See [Policies](#policies) below for details, including our policy on AI-assisted contributions.
+
 ## This repo
 
 We are using a monorepo approach, where one git repo contains multiple related projects.
@@ -115,6 +121,12 @@ Happy hacking!
 ## Policies
 
 These are some general policies that we follow when it comes to contributions. They are not meant to be strict or exhaustive, but rather to give you a sense of what we value and expect. If you are linked here from a PR, it means that we think your contribution could be improved in some way, and following these guidelines is the best way to do it.
+
+### Discuss before you code
+
+Anything beyond a small, obvious fix needs a maintainer's agreement on the approach _before_ you write the code: features, refactors, API or behavior changes, and anything where you had to choose between approaches. Propose it in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or in the [`#wasp-dev` channel on our Discord](https://discord.wasp.run/wasp-dev). An open issue is not by itself a request for PRs: check that a maintainer has confirmed the approach in the discussion first.
+
+If a non-trivial PR arrives without that agreement, we will usually close it and ask you to start the discussion, instead of reviewing it. This is not us being unfriendly: a PR review is the wrong place to design a solution together, and we would rather spend that time helping you land something we can all agree on.
 
 ### AIs and LLMs
 

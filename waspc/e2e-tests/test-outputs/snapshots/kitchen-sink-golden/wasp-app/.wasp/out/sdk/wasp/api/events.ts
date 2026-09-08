@@ -1,4 +1,5 @@
-import mitt, { Emitter } from 'mitt';
+import mitt from 'mitt';
+import type { Emitter } from 'mitt';
 
 type ApiEvents = {
   // key: Event name

@@ -24,12 +24,8 @@
     "useUnknownInCatchVariables": false,
     "noImplicitAny": false,
     "strictPropertyInitialization": false,
-    /*
-       We haven't adopted the following two properties yet.
-       Reference: https://github.com/wasp-lang/wasp/issues/2655
-    */
-    "noUncheckedIndexedAccess": false,
-    "noImplicitOverride": false,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
 
     /* DX */
     "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
@@ -39,37 +35,22 @@
     /* Modules */
     "module": "esnext",
     "esModuleInterop": true,
-    // TODO: Enable this once we enable it for users:
-    // https://github.com/wasp-lang/wasp/issues/2654
-    "resolveJsonModule": false,
-    /*
-       The `isolatedModules` flag tells typescript to throw errors on code that
-       doesn't work with bundlers:
-         - The user code must enable it because Wasp bundles user code when bundling
-        server code and web app code (which directly import the user code).
-         - The SDK code must disable it because parts of the SDK code rely on
-        such features. Since we build the SDK with TSC before bundling it,
-        these features don't cause problems.
-      More details in https://github.com/wasp-lang/wasp/issues/2150
-    */
-    "isolatedModules": false,
-    // `verbatimModuleSyntax` is disabled because we don't yet want to
-    // force user code into using `type` imports.
-    "verbatimModuleSyntax": false,
+    "resolveJsonModule": true,
+    // `isolatedModules` rejects code that single-file transpilers (like esbuild)
+    // can't handle. The SDK gets bundled, so it must not rely on such code.
+    "isolatedModules": true,
+    // `verbatimModuleSyntax` makes type-only imports explicit, so single-file
+    // transpilers can drop them without having to know what they refer to.
+    "verbatimModuleSyntax": true,
     "moduleDetection": "force", // Assume all files are modules
     /*
-      - We want to allow users to use extensionless and directory imports.
-      - We want users to import stuff from the SDK with `wasp/something`, and we
-        don't want to do extra processing on those imports (for now).
+      The SDK code uses extensionless relative imports and imports its own
+      modules through the `wasp/*` package exports. TSC emits those imports
+      as-is, and only a bundler can resolve them at runtime.
 
-      These requirements force us to bundle user code and, because we copy user
-      code into the SDK code, they force us to bundle the SDK too.
-
-      We currently bundle the SDK in a very hacky way (indirectly while bundling
-      the server and client): https://github.com/wasp-lang/wasp/issues/2150
-      Regardless of how we do it, the SDK code is eventually bundled, so this
-      `tsconfig.json` file must reflect that (which means `moduleResolution:
-      bundler`).
+      The SDK output is never run directly: it's bundled into the server and
+      the client (https://github.com/wasp-lang/wasp/issues/2150), so this
+      `tsconfig.json` must resolve modules the way a bundler does.
     */
     "moduleResolution": "bundler",
     /*

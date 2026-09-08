@@ -1,6 +1,6 @@
 import { createJWT, TimeSpan } from '../jwt.js'
 import { emailSender } from '../../email/index.js';
-import { Email } from '../../email/core/types.js';
+import type { Email } from '../../email/core/types.js';
 import {
   createProviderId,
   updateAuthIdentityProviderData,
@@ -9,7 +9,7 @@ import {
   type EmailProviderData,
 } from '../utils.js';
 import { config as waspServerConfig } from '../../index.js';
-import { type User, type Auth } from '../../../entities/index.js'
+import type { User, Auth } from '../../../entities/index.js'
 
 // PUBLIC API
 export async function createEmailVerificationLink(
