@@ -134,7 +134,11 @@ function getCodeVerifier(
     req,
     'codeVerifier'
   );
-  return { codeVerifier };
+  // The cookie can be missing (dropped by the browser, or expired while the user
+  // sat on the consent screen). `validateOAuthState` rejects an empty code
+  // verifier, so we normalize the missing case into one instead of lying about
+  // the type.
+  return { codeVerifier: codeVerifier ?? '' };
 }
 
 function isOAuthStateWithPKCE(

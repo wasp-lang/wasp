@@ -17,7 +17,10 @@ import System.Directory (makeAbsolute)
 -- monad.
 
 newtype FilePathArgument = FilePathArgument FilePath
-  deriving (Show, Eq)
+  deriving (Eq)
+
+instance Show FilePathArgument where
+  show (FilePathArgument filePath) = filePath
 
 filePathReader :: ReadM FilePathArgument
 filePathReader = FilePathArgument <$> str

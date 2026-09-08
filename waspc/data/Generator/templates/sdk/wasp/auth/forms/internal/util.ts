@@ -1,4 +1,4 @@
-import { CSSProperties } from "react"
+import type { CSSProperties } from "react"
 
 export const clsx = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(" ");

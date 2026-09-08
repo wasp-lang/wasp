@@ -1,6 +1,5 @@
 module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
-    webAppPackageName,
     requiredWorkspaceGlobs,
   )
 where
@@ -46,9 +45,6 @@ requiredWorkspaceGlobs =
 
 serverPackageName :: String
 serverPackageName = workspacePackageName "server"
-
-webAppPackageName :: String
-webAppPackageName = workspacePackageName "webapp"
 
 workspacePackageName :: String -> String
 workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName

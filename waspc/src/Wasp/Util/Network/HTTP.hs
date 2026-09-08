@@ -1,7 +1,5 @@
 module Wasp.Util.Network.HTTP
-  ( catchRetryableHttpException,
-    getHttpExceptionStatusCode,
-    httpJSONThatThrowsIfNot2xx,
+  ( httpJSONThatThrowsIfNot2xx,
     checkUrlExists,
   )
 where
@@ -14,30 +12,7 @@ import qualified Data.Aeson as Aeson
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Network.HTTP.Types.Status (statusIsSuccessful)
-import UnliftIO (MonadUnliftIO)
-import UnliftIO.Exception (catch, throwIO)
-
-catchRetryableHttpException :: (MonadUnliftIO m) => m a -> (HTTP.HttpException -> m a) -> m a
-catchRetryableHttpException action handle =
-  action
-    `catch` ( \e -> case e of
-                HTTP.HttpExceptionRequest _req HTTP.C.ResponseTimeout -> handle e
-                HTTP.HttpExceptionRequest _req HTTP.C.ConnectionTimeout -> handle e
-                HTTP.HttpExceptionRequest _req (HTTP.C.StatusCodeException response _)
-                  | shouldRetry response -> handle e
-                _nonRetrayableException -> throwIO e
-            )
-  where
-    shouldRetry response =
-      HTTP.getResponseStatusCode response `elem` retrayableHttpErrorStatusCodes
-
-    retrayableHttpErrorStatusCodes = [503, 429, 408, 502, 504]
-
-getHttpExceptionStatusCode :: HTTP.HttpException -> Maybe Int
-getHttpExceptionStatusCode = \case
-  HTTP.HttpExceptionRequest _req (HTTP.C.StatusCodeException response _) ->
-    Just $ HTTP.getResponseStatusCode response
-  _otherwise -> Nothing
+import UnliftIO.Exception (throwIO)
 
 -- | Throws an HttpException if status is not 2xx.
 -- Returns JSON parse error as Left if JSON parsing failed.

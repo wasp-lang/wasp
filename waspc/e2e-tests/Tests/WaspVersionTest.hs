@@ -10,7 +10,7 @@ waspVersionTest =
     "wasp-version"
     [ TestCase
         "match-waspc-version"
-        (return . (: []) $ (~| ("{ read ver; [ \"$ver\" = '" ++ show waspVersion ++ "' ]; }")) $ waspCliVersion)
+        (return . (: []) $ (~| ("{ read ver; [ \"$ver\" = '" ++ show waspVersion ++ "' ]; }")) waspCliVersion)
     ]
 
 waspCliVersion :: ShellCommand

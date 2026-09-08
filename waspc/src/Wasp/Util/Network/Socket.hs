@@ -8,6 +8,7 @@ module Wasp.Util.Network.Socket
   )
 where
 
+import Data.List (isInfixOf)
 import Data.Word (Word8)
 import Foreign.C.Error (Errno (..), eADDRINUSE, eCONNREFUSED)
 import GHC.IO.Exception (IOException (..))
@@ -35,7 +36,12 @@ checkIfPortIsAcceptingConnections sockAddr = do
             else throwIO e
   where
     createSocket = createIPv4TCPSocket
-    isConnRefusedException e = (Errno <$> ioe_errno e) == Just eCONNREFUSED
+    -- On Windows, the exception doesn't have the errno field set at all: the
+    -- network package puts a WinSock error name in the exception's description
+    -- instead, so we have to check for both.
+    isConnRefusedException e =
+      (Errno <$> ioe_errno e) == Just eCONNREFUSED
+        || "WSAECONNREFUSED" `isInfixOf` ioe_description e
 
 -- | True if port is in use, False if it is free, exception in all other cases.
 checkIfPortIsInUse :: S.SockAddr -> IO Bool
@@ -62,10 +68,23 @@ checkIfPortCanBeOpened sockAddr = do
   where
     createSocket = do
       sock <- createIPv4TCPSocket
-      S.setSocketOption sock S.ReuseAddr 1 -- Connect even if port is in TIME_WAIT state.
+      -- Lets us bind even if the port is in TIME_WAIT state. On Windows, this
+      -- is also what makes binding to a taken port report WSAEACCES instead of
+      -- WSAEADDRINUSE (see 'isAddrInUseException' below).
+      S.setSocketOption sock S.ReuseAddr 1
       return sock
     queueLength = 1
-    isAddrInUseException e = (Errno <$> ioe_errno e) == Just eADDRINUSE
+    -- On Windows, the exception doesn't have the errno field set at all: the
+    -- network package puts a WinSock error name in the exception's description
+    -- instead, so we have to check for both.
+    --
+    -- Windows reports our bind over a taken port as WSAEACCES rather than
+    -- WSAEADDRINUSE, since we ask for address reuse while the socket holding
+    -- the port didn't opt into it. See the bind outcome tables in
+    -- https://learn.microsoft.com/en-us/windows/win32/winsock/using-so-reuseaddr-and-so-exclusiveaddruse
+    isAddrInUseException e =
+      (Errno <$> ioe_errno e) == Just eADDRINUSE
+        || any (`isInfixOf` ioe_description e) ["WSAEADDRINUSE", "WSAEACCES"]
 
 createIPv4TCPSocket :: IO S.Socket
 createIPv4TCPSocket = S.socket S.AF_INET S.Stream S.defaultProtocol

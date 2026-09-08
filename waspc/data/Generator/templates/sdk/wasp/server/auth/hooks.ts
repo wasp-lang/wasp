@@ -1,8 +1,8 @@
 {{={= =}=}}
 import type { Request as ExpressRequest } from 'express'
-import { type ProviderId, type CreateUserResult, type FindAuthWithUserResult } from './utils.js'
+import type { ProviderId, CreateUserResult, FindAuthWithUserResult } from './utils.js'
 import { prisma } from '../index.js'
-import { Expand } from '../../universal/types.js'
+import type { Expand } from '../../universal/types.js'
 
 // PUBLIC API
 export type OnBeforeSignupHook = (
@@ -187,5 +187,8 @@ export type OAuthData = {
   {=# enabledProviders.isMicrosoftAuthEnabled =}
   | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
   {=/ enabledProviders.isMicrosoftAuthEnabled =}
+  {=# enabledProviders.isSlackAuthEnabled =}
+  | { providerName: 'slack'; tokens: import('arctic').SlackTokens }
+  {=/ enabledProviders.isSlackAuthEnabled =}
   | never
 )

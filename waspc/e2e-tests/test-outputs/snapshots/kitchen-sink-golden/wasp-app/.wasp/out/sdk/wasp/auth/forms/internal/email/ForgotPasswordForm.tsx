@@ -3,6 +3,7 @@ import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
+import { emailFieldRules, emailInputProps } from '../emailField'
 
 
 // PRIVATE API
@@ -34,10 +35,8 @@ export const ForgotPasswordForm = () => {
         <FormItemGroup>
           <FormLabel>E-mail</FormLabel>
           <FormInput
-            {...register('email', {
-              required: 'Email is required',
-            })}
-            type="email"
+            {...register('email', emailFieldRules)}
+            {...emailInputProps}
             disabled={isLoading}
           />
           {errors.email && <FormError>{errors.email.message}</FormError>}

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { interpolatePath } from './linkHelpers'
-import { type Routes } from './index'
+import type { Routes } from './index'
 
 type RouterLinkProps = Parameters<typeof RouterLink>[0]
 

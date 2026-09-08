@@ -68,7 +68,12 @@ export const CustomSignupPage = () => {
           )}
           <FormItemGroup>
             <FormLabel>E-mail</FormLabel>
-            <FormInput type="email" {...register("email")} />
+            <FormInput
+              type="text"
+              inputMode="email"
+              autoComplete="email"
+              {...register("email")}
+            />
             <FormError>{errors.email?.message}</FormError>
           </FormItemGroup>
           <FormItemGroup>

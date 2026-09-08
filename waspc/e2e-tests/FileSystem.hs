@@ -4,7 +4,6 @@ module FileSystem
     getWaspcDirPath,
     waspCliDevToolInWaspcDir,
     SeedsDir,
-    SeedsFile,
     seedsDirInWaspProjectDir,
     seedsFileInSeedsDir,
     TestOutputsDir,
@@ -67,8 +66,6 @@ testsOutputsDirInWaspcDir = [reldir|e2e-tests/test-outputs|]
 -- WaspProject file system
 
 data SeedsDir
-
-data SeedsFile
 
 seedsDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SeedsDir)
 seedsDirInWaspProjectDir = [reldir|src/db|]

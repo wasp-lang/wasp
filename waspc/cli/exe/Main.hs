@@ -10,7 +10,7 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr, stdout)
+import System.IO (BufferMode (LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -46,11 +46,16 @@ import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+  -- If we don't explicitly set line buffering, the output gets block-buffered
+  -- when stdout is not a terminal (e.g. redirected to a file or another program),
+  -- so messages from long-running commands don't show up until the command exits.
+  hSetBuffering stdout LineBuffering
+
   args <- getArgs
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
-        ["start"] -> Command.Call.Start
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
+        ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
@@ -78,7 +83,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.Start -> runCommand start
+    Command.Call.Start startArgs -> runCommand $ start startArgs
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
@@ -146,7 +151,10 @@ printUsage =
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
+        cmd   "    start [--client-port <port>] [--server-port <port>]",
+              "                          Runs Wasp app in development mode, watching for file changes.",
+              "                          Optionally specify the ports the client and the server run on.",
+              "                          If not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom Docker image or Docker volume mount path.",
@@ -180,7 +188,7 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = do
-  hPutStrLn stdout $ show waspVersion
+  print waspVersion
   hPutStrLn stderr $
     unlines
       [ "",

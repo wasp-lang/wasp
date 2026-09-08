@@ -42,7 +42,7 @@ function CreateRequestForm() {
     },
   });
 
-  async function onSubmitJob(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmitJob(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     requestMutation.mutate();

@@ -7,20 +7,17 @@ module Wasp.Generator.ServerGenerator.Common
     mkSrcTmplFd,
     srcDirInServerTemplatesDir,
     asTmplFile,
-    asTmplSrcFile,
     asServerFile,
     asServerSrcFile,
     toESModulesImportPath,
-    mkUniversalTmplFdWithDst,
     mkTmplFdWithData,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
-    defaultDevServerUrl,
-    defaultServerPort,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
+    serverPortEnvVarName,
     libsRootDirFromServerDir,
   )
 where
@@ -33,8 +30,6 @@ import Wasp.Generator.Common
   ( GeneratedAppComponentSrcDir,
     GeneratedAppDir,
     ServerRootDir,
-    UniversalTemplatesDir,
-    universalTemplatesDirInTemplatesDir,
   )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -51,9 +46,6 @@ instance GeneratedAppComponentSrcDir ServerSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
 asTmplFile = SP.castRel
-
-asTmplSrcFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesSrcDir) File'
-asTmplSrcFile = SP.castRel
 
 asServerFile :: Path' (Rel d) File' -> Path' (Rel ServerRootDir) File'
 asServerFile = SP.castRel
@@ -89,7 +81,7 @@ mkTmplFdWithData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath dstPath tmplData
+mkTmplFdWithData relSrcPath = mkTmplFdWithDstAndData relSrcPath dstPath
   where
     dstPath = SP.castRel relSrcPath :: Path' (Rel ServerRootDir) File'
 
@@ -98,21 +90,10 @@ mkTmplFdWithDstAndData ::
   Path' (Rel ServerRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInGeneratedAppDir </> relDstPath)
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
-
-mkUniversalTmplFdWithDst ::
-  Path' (Rel UniversalTemplatesDir) File' ->
-  Path' (Rel ServerRootDir) File' ->
-  FileDraft
-mkUniversalTmplFdWithDst relSrcPath relDstPath =
-  createTemplateFileDraft
-    (serverRootDirInGeneratedAppDir </> relDstPath)
-    (universalTemplatesDirInTemplatesDir </> relSrcPath)
-    Nothing
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)
@@ -138,11 +119,10 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
-defaultServerPort :: Int
-defaultServerPort = 3001
-
-defaultDevServerUrl :: String
-defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+serverPortEnvVarName :: String
+serverPortEnvVarName =
+  -- Not prefixed with `WASP_` because many deployment platforms use this env.
+  "PORT"
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

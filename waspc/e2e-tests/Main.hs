@@ -23,6 +23,7 @@ import Tests.WaspCompletionTest (waspCompletionTest)
 import Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest)
 import Tests.WaspDbResetTest (waspDbResetTest)
 import Tests.WaspDbSeedTest (waspDbSeedTest)
+import Tests.WaspDbStartTest (waspDbStartTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInstallTest (waspInstallTest)
@@ -114,7 +115,7 @@ e2eTests = do
         waspDockerfileTest,
         -- FIXME: waspStudioTest,
         -- Wasp project db commands
-        -- FIXME: waspDbStartTest,
+        waspDbStartTest,
         -- FIXME: waspDbStudioTest,
         waspDbSeedTest,
         waspDbResetTest,

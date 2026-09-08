@@ -6,8 +6,9 @@ where
 
 import qualified StrongPath as SP
 import System.Process (proc)
-import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
+import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Subprocess as Subprocess
 
@@ -17,7 +18,7 @@ buildServer config =
     Subprocess.run (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
-    buildDir = Config.buildDir config
+    buildDir = config.buildDir
     dockerImageName = Config.dockerImageName config
 
 startServer :: BuildStartConfig -> Job.Job
@@ -31,7 +32,7 @@ startServer config =
             <> [dockerImageName]
         )
   where
-    envVarParams = toEnvVarParams $ Config.serverEnvVars config
+    envVarParams = toEnvVarParams $ getEnvVars config.serverRunConfig
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config
 

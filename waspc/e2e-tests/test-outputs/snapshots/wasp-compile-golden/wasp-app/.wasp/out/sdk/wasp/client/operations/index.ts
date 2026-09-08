@@ -21,7 +21,7 @@ export {
     queryClientInitialized
 } from './queryClient'
 
-export {
+export type {
     // PUBLIC API
-    type QueryMetadata,
+    QueryMetadata,
 } from './rpc'

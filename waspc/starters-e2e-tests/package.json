@@ -8,12 +8,12 @@
     "start": "node ./dist/src/main.js",
     "test": "npm run build && npm run test:install-deps && DEBUG=pw:webserver npm run start -- --wasp-cli-command wasp",
     "test:dev": "npm run build && npm run test:install-deps && DEBUG=pw:webserver npm run start -- --wasp-cli-command \"${WASP_CLI_CMD:-wasp-cli}\"",
-    "test:install-deps": "playwright install --with-deps"
+    "test:install-deps": "playwright install ${WASP_PLAYWRIGHT_INSTALL_FLAGS---with-deps}"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "@playwright/test": "1.55.1",
-    "@wasp.sh/wasp-app-runner": "^0.0.16",
+    "@wasp.sh/wasp-app-runner": "^0.0.17",
     "commander": "^14.0.0",
     "zx": "^8.8.0"
   },

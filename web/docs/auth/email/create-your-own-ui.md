@@ -12,6 +12,10 @@ Read more about the default email and password validation rules in the [auth ove
 
 Even though Wasp offers premade [Auth UI](../ui.md) for your authentication flows, there are times when you might want more customization, so we also give you the option to create your own UI and call Wasp's auth actions from your own code, similar to how Auth UI does it under the hood.
 
+:::note Handling the internationalized email input
+We use `type="text"` with `inputMode="email"` and `autoComplete="email"` because it allows Unicode / international characters, while `type=email` only allows ASCII / english letters.
+:::
+
 ## Example code
 
 Below you can find a starting point for making your own UI in the client code. This example has all the necessary components to handle login, signup, email verification, and the password reset flow. You can customize any of its look and behaviour, just make sure to call the functions imported from `wasp/client/auth`.
@@ -41,7 +45,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await login({ email, password })
+          await login({ email: email.trim(), password })
           navigate('/')
         } catch (error) {
           setError(error)
@@ -53,7 +57,9 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -80,7 +86,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await signup({ email, password })
+          await signup({ email: email.trim(), password })
           setNeedsConfirmation(true)
         } catch (error) {
           console.error('Error during signup:', error)
@@ -102,7 +108,9 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -157,7 +165,7 @@ Below you can find a starting point for making your own UI in the client code. T
         event.preventDefault()
         setError(null)
         try {
-          await requestPasswordReset({ email })
+          await requestPasswordReset({ email: email.trim() })
           setNeedsConfirmation(true)
         } catch (error) {
           console.error('Error during requesting reset:', error)
@@ -179,7 +187,9 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -251,11 +261,11 @@ Below you can find a starting point for making your own UI in the client code. T
       const [error, setError] = useState<Error | null>(null)
       const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
-          await login({ email, password })
+          await login({ email: email.trim(), password })
           navigate('/')
         } catch (error: unknown) {
           setError(error as Error)
@@ -267,7 +277,9 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -290,11 +302,11 @@ Below you can find a starting point for making your own UI in the client code. T
       const [error, setError] = useState<Error | null>(null)
       const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
-          await signup({ email, password })
+          await signup({ email: email.trim(), password })
           setNeedsConfirmation(true)
         } catch (error: unknown) {
           console.error('Error during signup:', error)
@@ -316,7 +328,9 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -367,11 +381,11 @@ Below you can find a starting point for making your own UI in the client code. T
       const [error, setError] = useState<Error | null>(null)
       const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {
-          await requestPasswordReset({ email })
+          await requestPasswordReset({ email: email.trim() })
           setNeedsConfirmation(true)
         } catch (error: unknown) {
           console.error('Error during requesting reset:', error)
@@ -393,7 +407,9 @@ Below you can find a starting point for making your own UI in the client code. T
           {error && <p>Error: {error.message}</p>}
 
           <input
-            type="email"
+            type="text"
+            inputMode="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -411,7 +427,7 @@ Below you can find a starting point for making your own UI in the client code. T
       const [newPassword, setNewPassword] = useState('')
       const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
         event.preventDefault()
         setError(null)
         try {

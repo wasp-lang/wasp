@@ -45,15 +45,25 @@ export async function createDb(
     "--region",
     deploymentInstructions.region,
     "--vm-size",
-    cmdOptions.vmSize,
+    cmdOptions.dbVmSize,
     "--initial-cluster-size",
-    cmdOptions.initialClusterSize,
+    cmdOptions.dbInitialClusterSize,
     "--volume-size",
-    cmdOptions.volumeSize,
+    cmdOptions.dbVolumeSize,
+    "--image-ref",
+    cmdOptions.dbImage,
   ];
 
-  if (cmdOptions.dbImage) {
-    createArgs.push("--image-ref", cmdOptions.dbImage);
+  if (cmdOptions.dbVmMemory) {
+    createArgs.push("--vm-memory", cmdOptions.dbVmMemory);
+  }
+
+  if (cmdOptions.dbVmCpus) {
+    createArgs.push("--vm-cpus", cmdOptions.dbVmCpus);
+  }
+
+  if (cmdOptions.dbVmCpuKind) {
+    createArgs.push("--vm-cpu-kind", cmdOptions.dbVmCpuKind);
   }
 
   if (deploymentInstructions.cmdOptions.org) {

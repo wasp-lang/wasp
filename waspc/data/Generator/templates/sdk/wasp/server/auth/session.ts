@@ -1,8 +1,8 @@
 {{={= =}=}}
-import { Request as ExpressRequest } from "express";
+import type { Request as ExpressRequest } from "express";
 
-import { type {= userEntityUpper =} } from '../../entities/index.js';
-import { type AuthUserData } from '../../auth/user.js';
+import type { {= userEntityUpper =} } from '../../entities/index.js';
+import type { AuthUserData } from '../../auth/user.js';
 
 import { auth } from "./lucia.js";
 import type { Session } from "lucia";
@@ -46,6 +46,11 @@ export async function getSessionAndUserFromSessionId(sessionId: string): Promise
     return null;
   }
 
+  // Such a session can't identify a user, so we treat it as unauthenticated.
+  if (authEntity.userId === null) {
+    return null;
+  }
+
   return {
     session,
     user: await getAuthUserData(authEntity.userId)
@@ -75,4 +80,10 @@ async function getAuthUserData(userId: {= userEntityUpper =}['id']): Promise<Aut
 // PRIVATE API
 export function invalidateSession(sessionId: string): Promise<void> {
   return auth.invalidateSession(sessionId);
+}
+
+// PRIVATE API
+// Invalidates all sessions belonging to the `authId` in the database
+export function invalidateAllSessionsForAuthId(authId: string): Promise<void> {
+  return auth.invalidateUserSessions(authId);
 }

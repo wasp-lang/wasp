@@ -150,7 +150,7 @@ url_api = "https://api.github.com/repos/jqlang/jq/releases/assets/453012788"
 provenance = "github-attestations"
 
 [[tools."mise-cabal:hlint"]]
-version = "3.6.1"
+version = "3.8"
 backend = "mise-cabal:hlint"
 
 [[tools."mise-cabal:stan"]]

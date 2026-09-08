@@ -11,7 +11,6 @@ import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (allocate, release)
-import Data.Functor ((<&>))
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
@@ -26,8 +25,7 @@ import Wasp.Job.Internal (JobOutputSink, getJobOutputSink, writeJobOutput)
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
-import Wasp.Util (secondsToMicroSeconds)
-import qualified Wasp.Util.IO as IOUitl
+import qualified Wasp.Util.IO as IOUtil
 
 -- Runs `npm install` in the user's Wasp project directory.
 -- Thanks to npm workspaces, this single install covers the user's project deps,
@@ -69,11 +67,11 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
   Chan Job.JobEvent -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir =
-  Job.Output.printEventsPrefixedUntilExit messagesChan `concurrently` Job.runJob installProjectDepsJob messagesChan
-    <&> \case
-      (_, ExitFailure code) -> Left $ "Project setup failed with exit code " ++ show code ++ "."
-      (_, ExitSuccess) -> Right ()
+installProjectNpmDependencies messagesChan projectDir = do
+  (_, installExitCode) <- Job.Output.printEventsPrefixedUntilExit messagesChan `concurrently` Job.runJob installProjectDepsJob messagesChan
+  return $ case installExitCode of
+    ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
+    _success -> Right ()
   where
     installProjectDepsJob =
       Job.makeJob Job.Wasp $
@@ -90,23 +88,25 @@ installNpmDependenciesAndReport install = do
   return result
 
 reportInstallationProgress :: JobOutputSink -> IO ()
-reportInstallationProgress outputSink = reportPeriodically allPossibleMessages
+reportInstallationProgress outputSink =
+  mapM_ reportMessage $ cycle possibleMessages
   where
-    reportPeriodically messages = do
-      threadDelay $ secondsToMicroSeconds 5
-      writeJobOutput outputSink Job.Stdout $ T.append (head messages) "\n"
-      threadDelay $ secondsToMicroSeconds 5
-      reportPeriodically $ drop 1 messages
-    allPossibleMessages =
-      cycle
-        [ "Still installing npm dependencies!",
-          "Installation going great - we'll get there soon!",
-          "The installation is taking a while, but we'll get there!",
-          "Yup, still not done installing.",
-          "We're getting closer and closer, everything will be installed soon!",
-          "Still waiting for the installation to finish? You should! We got too far to give up now!",
-          "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
-        ]
+    reportMessage message = do
+      threadDelay $ secToMicroSec 5
+      writeJobOutput outputSink Job.Stdout $ T.append message "\n"
+      threadDelay $ secToMicroSec 5
+
+    secToMicroSec = (* 1000000)
+
+    possibleMessages =
+      [ "Still installing npm dependencies!",
+        "Installation going great - we'll get there soon!",
+        "The installation is taking a while, but we'll get there!",
+        "Yup, still not done installing.",
+        "We're getting closer and closer, everything will be installed soon!",
+        "Still waiting for the installation to finish? You should! We got too far to give up now!",
+        "You've been waiting so patiently, just wait a little longer (for the installation to finish)..."
+      ]
 
 -- | Figure out if installation of npm deps is needed, be it for npm workspace deps (top level
 -- package.json + web app + server), or for wasp sdk npm deps.
@@ -123,6 +123,6 @@ areThereNpmDepsToInstall allNpmDeps dstDir = do
   return $ installedNpmDeps /= Just allNpmDeps
 
 doesNodeModulesDirExist :: Path' Abs (Dir WaspProjectDir) -> IO Bool
-doesNodeModulesDirExist waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
+doesNodeModulesDirExist waspProjectDirPath = IOUtil.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
   where
     nodeModulesDirInWaspProjectDirAbs = waspProjectDirPath SP.</> nodeModulesDirInWaspProjectDir

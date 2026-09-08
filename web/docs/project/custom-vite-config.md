@@ -46,7 +46,7 @@ Here's the minimal required configuration:
 The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
 :::
 
-## Enforced Options
+## Enforced Options {#enforced-options}
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
@@ -55,6 +55,9 @@ The `wasp()` plugin enforces certain Vite config values that Wasp needs to funct
 | `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
 | `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
+| `server.port` | dynamically assigned | Wasp needs to manage the port so it can tell the server and client where to find each other. Use [`wasp start --client-port`](#custom-dev-server-port) to control it. |
+| `server.strictPort` | `true` | Without it, Vite would silently move to another port when the one Wasp gave it is taken, and the server would then point at the wrong URL. |
+| `preview.port` | dynamically assigned | Same as `server.port`, but for the preview server that [`wasp build start`](../deployment/local-testing.md) runs. Use [`wasp build start --client-port`](../general/cli.md#project-commands) to control it. |
 
 ## Customization
 
@@ -105,29 +108,13 @@ export default defineConfig({
 })
 ```
 
-### Custom Dev Server Port
+### Custom Dev Server Port {#custom-dev-server-port}
 
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the **client** dev server port by setting the `port` option. To change the Wasp **server** port, see the [`PORT` server env var](./env-vars.md#server-general-configuration).
+`wasp start` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
-```ts title="vite.config.ts" auto-js
-import { wasp } from 'wasp/client/vite'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [wasp()],
-  server: {
-    port: 4000,
-  },
-})
+```bash
+wasp start --client-port 4000
 ```
-
-```env title=".env.server"
-WASP_WEB_CLIENT_URL=http://localhost:4000
-```
-
-:::warning Changing the client dev server port
-Be careful when changing the client dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
-:::
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 

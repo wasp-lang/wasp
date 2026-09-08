@@ -1,4 +1,4 @@
-import { OAuth2Provider, OAuth2ProviderWithPKCE } from "arctic";
+import type { OAuth2Provider, OAuth2ProviderWithPKCE } from "arctic";
 
 export function defineProvider<
   OAuthClient extends OAuth2Provider | OAuth2ProviderWithPKCE,

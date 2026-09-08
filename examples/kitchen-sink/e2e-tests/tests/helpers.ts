@@ -12,3 +12,10 @@ export function isRunningInDeployedMode() {
 export function generateRandomEmail(): string {
   return `${randomUUID()}@test.com`;
 }
+
+/**
+ * Generates an address with non-ASCII characters on both sides of the `@`.
+ */
+export function generateRandomInternationalizedEmail(): string {
+  return `jürgen-${randomUUID()}@münchen.test`;
+}

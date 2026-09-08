@@ -1,8 +1,8 @@
 {{={= =}=}}
-import { Response, RequestHandler } from 'express'
+import type { Response, RequestHandler } from 'express'
 
 {=# isAuthEnabled =}
-import { type AuthUserData } from '../auth/user.js'
+import type { AuthUserData } from '../auth/user.js'
 {=/ isAuthEnabled =}
 
 // This is explicitly how Express expects extensions to their

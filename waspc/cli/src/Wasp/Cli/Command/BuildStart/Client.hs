@@ -4,8 +4,8 @@ module Wasp.Cli.Command.BuildStart.Client
   )
 where
 
-import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
-import qualified Wasp.Cli.Command.BuildStart.Config as Config
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
+import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
 
@@ -18,22 +18,20 @@ buildClient config =
     ["vite", "build"]
     Job.WebApp
   where
-    envVars = Config.clientEnvVars config
-    projectDir = Config.projectDir config
+    envVars = getEnvVars config.clientRunConfig
+    projectDir = config.projectDir
 
 startClient :: BuildStartConfig -> Job.Job
 startClient config =
-  Node.makeJob
+  Node.makeJobWithExtraEnv
+    envVars
     projectDir
     "npx"
     [ "vite",
       "preview", -- `preview` launches a static file server for the built client.
-      "--port",
-      port,
       "--strictPort" -- This will make it fail if the port is already in use.
     ]
     Job.WebApp
   where
-    port = show $ Config.clientPort config
-
-    projectDir = Config.projectDir config
+    envVars = getEnvVars config.clientRunConfig
+    projectDir = config.projectDir
