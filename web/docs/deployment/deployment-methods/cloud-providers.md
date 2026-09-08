@@ -9,7 +9,9 @@ You can deploy the built Wasp app wherever and however you want, as long as your
 
 ## Guides
 
-We have step-by-step guides for deploying your Wasp app to some of the most popular providers you can follow:
+We have step-by-step guides for deploying your Wasp app to some of the most popular providers:
+
+<CardLink to="../../guides/deployment/cloud-providers/vercel" kind="guide" title="Deploying Wasp to Vercel" description="Uses Vercel, Vercel CLI, Supabase integration" />
 
 <CardLink to="../../guides/deployment/cloud-providers/cloudflare" kind="guide" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
 

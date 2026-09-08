@@ -12145,7 +12145,13 @@ You can deploy the built Wasp app wherever and however you want, as long as your
 
 ### Guides
 
-We have step-by-step guides for deploying your Wasp app to some of the most popular providers you can follow:
+We have step-by-step guides for deploying your Wasp app to some of the most popular providers:
+
+[Guide](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel)
+
+#### [Deploying Wasp to Vercel »](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel)
+
+[Uses Vercel, Vercel CLI, Supabase integration](https://wasp.sh/docs/guides/deployment/cloud-providers/vercel)
 
 [Guide](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare)
 
@@ -20748,6 +20754,205 @@ If you have new database model changes, make sure to run `wasp db migrate-dev` l
 :::note[Build time]
 Both services install Wasp and compile the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.
 :::
+
+
+## Deployment / Cloud Providers / Vercel
+
+:::note
+Last checked with Wasp 0.26 and Vercel (as of Sep 7, 2026).
+
+This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
+:::
+
+### Deploy Wasp to Vercel server client database {#deploy-wasp-to-vercel---}
+
+This guide shows you how to deploy the server as an Express app running on [Vercel Functions](https://vercel.com/docs/functions), deploy the client as a static site, and provision a PostgreSQL database from the [Vercel Marketplace](https://vercel.com/marketplace). You will need a Vercel account to follow these instructions.
+
+#### Overview
+
+A Wasp app has three parts. While they all come from the same project, on Vercel each one gets its own home:
+
+- **The server** server becomes a [Vercel Function](https://vercel.com/docs/functions) in its own project. Vercel builds it and wraps the generated Express app in a single function using its [Express preset](https://vercel.com/docs/frameworks/backend/express).
+- **The client** client is deployed as a static site to a second Vercel project. You build it locally with Vite and upload the resulting assets, with an extra rule to make sure non-[prerendered](https://wasp.sh/docs/advanced/prerendering) pages work correctly.
+- **The database** database is a PostgreSQL database, provisioned through the Vercel Marketplace (we use [Supabase](https://supabase.com/) in this guide). Vercel injects the connection details into your server project as environment variables.
+
+Throughout this guide, we will use `my-wasp-app-server` and `my-wasp-app-client` as the names of the Vercel projects for the server and client, respectively, but you can pick any names you like. Vercel gives each project a production domain of the form `https://<project-name>.vercel.app` (you can change it to a custom domain in your **Settings → Domains** tab).
+
+#### Limitations
+
+Your Wasp server runs as a [Vercel Function](https://vercel.com/docs/functions), which is a serverless platform. This works well for most apps, but it does come with some constraints you should be aware of:
+
+- Functions spin up on demand and run for up to 5 minutes by default. If your app needs to run long-running processes, Vercel Functions are not a good fit:
+
+  - [Jobs](https://wasp.sh/docs/advanced/jobs) are not supported.
+  - [WebSockets](https://wasp.sh/docs/advanced/web-sockets) are not supported.
+  - Global state (e.g. singletons or top-level variables) will be reset periodically, so you should only use it for caching and not for storing important data or app logic.
+
+- If your app defines a [server `setupFn`](https://wasp.sh/docs/project/server-config#setup-function), it must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
+
+:::caution
+As Wasp does not yet have a way to detect where you're deploying your server to, we can't warn you if your app relies on any of the above features, so please double check before deploying to Vercel.
+:::
+
+If your app relies on any of these, deploy the server to a different provider (see the [other guides](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers)). You may still use Vercel to deploy your Wasp app's client.
+
+#### Pricing
+
+Check [Vercel's pricing page](https://vercel.com/pricing#:~\:text=Vercel%20Functions) to see if the free plan is sufficient for your app, and what benefits paid plans bring. In our experience, the free plan is enough for testing most apps as you're starting out, but if you get a lot of traffic, you may want to upgrade to a paid plan.
+
+#### Prerequisites
+
+To get started, follow these steps:
+
+1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+2. Create a [Vercel](https://vercel.com/signup) account.
+3. Log in with the Vercel CLI by running `npx vercel login`. A browser tab will open to authenticate you.
+4. Go to your Wasp project root and run `npx vercel link`. Follow the prompts to link your project to a new Vercel project for your Wasp app's server (e.g. `my-wasp-app-server`), and use the default settings otherwise.
+
+#### Setting up the database
+
+We'll use [Supabase](https://supabase.com/) from the Vercel Marketplace. From your project root (which should now be linked to the server project), run:
+
+```shell
+npx vercel integration add supabase
+```
+
+The first time, the CLI will ask you to accept the Marketplace terms in your browser. Open the link it prints, accept the terms and run the command again. Vercel creates a Supabase database, connects it to your server project and adds a set of `POSTGRES_*` and `SUPABASE_*` environment variables to it.
+
+Wasp expects the connection string in the `DATABASE_URL` environment variable, so we need to copy it over. Use the value of `POSTGRES_URL_NON_POOLING`: this is Supabase's session-mode pooler, which works both for running Prisma migrations and for serving queries. You can use the CLI to copy the value from one environment variable to the other:
+
+```shell
+npx vercel env run -- printenv POSTGRES_URL_NON_POOLING
+# Copy the line that starts with "postgres://"
+
+npx vercel env add --no-sensitive DATABASE_URL production
+# Paste it when prompted
+```
+
+:::warning
+The Supabase database is linked to your Vercel account. If you remove the integration or delete your Vercel account, the database will be deleted along with it.
+:::
+
+You can also use the Supabase dashboard to manage your database, run queries, and view logs. You can access it from the **Storage** tab of your Vercel project: click the database, then the **Open in Supabase** button.
+
+#### Deploying the server
+
+1. Create a `vercel.json` that tells Vercel to treat the built server as an Express app:
+
+   ```json title="vercel.json"
+   {
+     "$schema": "https://openapi.vercel.sh/vercel.json",
+     "framework": "express",
+     "installCommand": "npm install",
+     "buildCommand": "cd .wasp/out/server && npm install && npx prisma generate --schema=../db/schema.prisma && npm run bundle && npm run db-migrate-prod",
+     "outputDirectory": ".wasp/out/server/bundle"
+   }
+   ```
+
+   The build command mirrors what the generated `Dockerfile` does: it installs the server's dependencies, generates the Prisma client, bundles the server and runs any pending database migrations. Vercel then looks for the bundled `server.js` in the output directory and wraps it in a function.
+
+2. Create a `.vercelignore` that keeps local files (and, importantly, your `.env` files) out of the upload:
+
+   ```gitignore title=".vercelignore"
+   node_modules
+   .vercel
+   .env*
+   /public
+   /migrations
+   .wasp/out/web-app
+   .wasp/out/server/bundle
+   .wasp/out/user
+   ```
+
+   `/migrations` is excluded because `wasp build` already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
+
+3. Add the remaining [required server env variables](https://wasp.sh/docs/project/env-vars#server-general-configuration) to the production environment, one at a time, with `npx vercel env add <NAME> production`:
+
+   - `PORT` set to `3000`.
+   - `WASP_WEB_CLIENT_URL` set to the client's domain (e.g. `https://my-wasp-app-client.vercel.app`). `https://` prefix is required!
+   - `WASP_SERVER_URL` set to the server's domain (e.g. `https://my-wasp-app-server.vercel.app`). `https://` prefix is required!
+   - `JWT_SECRET` set to a random string at least 32 characters long
+
+   :::tip[Using an external auth method?]
+   If your app is using an external authentication method(s) supported by Wasp (such as [Google](https://wasp.sh/docs/auth/social-auth/google#4-adding-environment-variables) or [GitHub](https://wasp.sh/docs/auth/social-auth/github#4-adding-environment-variables)), make sure to additionally set the necessary environment variables specifically required by these method(s).
+   :::
+
+4. Deploy the server from your project root:
+
+   ```shell
+   npx vercel deploy --prod
+   ```
+
+   Vercel uploads the project, runs the build command (including the database migrations) and turns the bundled server into a function. Once it finishes, your server is live at `https://my-wasp-app-server.vercel.app`.
+
+#### Deploying the client
+
+The client is deployed as a static site from the `.wasp/out/web-app/build` directory. Wasp uses a `200.html` file as a fallback for client-side pages, so we'll need to tell Vercel about it:
+
+1. Create a `vercel.json` file in your project's `public/` directory with the following content:
+
+   ```json title="public/vercel.json"
+   {
+     "$schema": "https://openapi.vercel.sh/vercel.json",
+     "rewrites": [{ "source": "/(.*)", "destination": "/200.html" }]
+   }
+   ```
+
+   When a user visits your app, Vercel tries to find a prerendered page by default. If it can't find it, it will return the `200.html` file that renders client-side pages.
+
+2. To build the web app, run the following command from your project root:
+
+   ```
+   REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
+   ```
+
+   where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
+
+   The build output will be in `.wasp/out/web-app/build`.
+
+   :::caution[Client Env Variables]
+   Remember, if you have defined any other [client-side env variables](https://wasp.sh/docs/project/env-vars#defining-env-vars-in-development) in your project, make sure to add them to the command above when [building your client](https://wasp.sh/docs/deployment/env-vars#client-env-vars)
+   :::
+
+3. Next, create the Vercel project for the client:
+
+   ```shell
+   npx vercel project add my-wasp-app-client
+   ```
+
+4. Finally, deploy the build directory to the client project:
+
+   ```shell
+   cd .wasp/out/web-app/build
+   npx vercel deploy --prod --yes --project my-wasp-app-client
+   ```
+
+That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
+
+#### Updates and redeploying
+
+When you make updates and need to redeploy:
+
+1. Run `wasp build` to rebuild your app.
+
+2. Deploy the server from the project root:
+
+   ```shell
+   npx vercel deploy --prod
+   ```
+
+3. Rebuild the client from the project root:
+
+   ```shell
+   REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
+   ```
+
+   And then deploy the client with:
+
+   ```shell
+   cd .wasp/out/web-app/build
+   npx vercel deploy --prod --yes --project my-wasp-app-client
+   ```
 
 
 ## Deployment / Self-Hosted / Caprover
