@@ -7,11 +7,8 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.AppComponentUrl (AppComponentUrl (..))
-import Wasp.AppSpec (AppSpec)
+import StrongPath ((</>))
 import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
-import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
@@ -24,14 +21,14 @@ import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectLock (withProjectLock)
-import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
+import Wasp.Cli.ProjectRunConfig (makeProjectRunConfig, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
-import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
-import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
+import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
+import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
 -- | Does initial compile of wasp code and then runs the generated project.
@@ -56,15 +53,28 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   (warnings, appSpec) <- compile
 
-  appComponentUrls <- makeDevAppComponentUrls appSpec args
-  let runConfigs = makeRunConfigs appComponentUrls
-  assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
+  ports <- findAppComponentPorts (args.clientPort, args.serverPort)
+
+  let projectRunConfig = makeProjectRunConfig appSpec ports
+      waspClientEnvVars = WebAppGenerator.makeEnvVars projectRunConfig
+      waspServerEnvVars = ServerGenerator.makeEnvVars projectRunConfig
+
+  -- We only use this to check for Wasp env vars being overriden by user-defined
+  -- env vars. We throw away the merged result, because the generated apps have
+  -- their own logic for reading the .env files and inherited environment
+  -- themselves. (https://github.com/wasp-lang/wasp/issues/4739)
+  _ <-
+    readUserEnvVars waspProjectDir Env.dotEnvClient
+      >>= addEnvVarsUniqueC waspClientEnvVars
+  _ <-
+    readUserEnvVars waspProjectDir Env.dotEnvServer
+      >>= addEnvVarsUniqueC waspServerEnvVars
 
   DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls projectRunConfig
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
@@ -76,7 +86,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
     let startGeneratedWebApp =
           Wasp.Generator.start
-            runConfigs
+            projectRunConfig
             waspProjectDir
             outDir
             (onJobsQuietDown ongoingCompilationResultMVar)
@@ -110,39 +120,13 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
           printWarningsAndErrorsIfAny (warnings, errors)
           putStrLn ""
 
-makeDevAppComponentUrls :: AppSpec -> StartArgs -> Command (AppComponentUrl, AppComponentUrl)
-makeDevAppComponentUrls appSpec args = do
-  (clientPort, serverPort) <- findAppComponentPorts (args.clientPort, args.serverPort)
-  return
-    ( (makeDefaultDevClientUrl appSpec) {port = clientPort},
-      defaultDevServerUrl {port = serverPort}
-    )
+    readUserEnvVars waspProjectDir dotEnvFile =
+      liftIO $
+        mconcat
+          [ readProjectFileIfExists waspProjectDir dotEnvFile,
+            EnvVarWithCtx.readEnvironment
+          ]
 
--- | The web app and server have their own logic for reading environment
--- variables autonomously, so we don't need to merge the different sources of
--- environment variables ourselves
--- (https://github.com/wasp-lang/wasp/issues/4739). However, we should still
--- check that they do not conflict with the environment variables that Wasp
--- itself uses to tell these apps where to run.
-assertImplicitEnvVarsDontOverrideWaspEnvVars :: Path' Abs (Dir WaspProjectDir) -> (WebAppRunConfig, ServerRunConfig) -> Command ()
-assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir (clientRunConfig, serverRunConfig) = do
-  implicitClientEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvClient
-  implicitServerEnvVars <- liftIO $ readImplicitEnvVars Env.dotEnvServer
-
-  -- We only use this to check for env vars being overriden. We throw away the
-  -- merged env vars, because the generated apps will read the .env files and
-  -- inherited environment themselves.
-  _ <- clientRunConfig `addEnvVarsUniqueC` implicitClientEnvVars
-  _ <- serverRunConfig `addEnvVarsUniqueC` implicitServerEnvVars
-
-  return ()
-  where
-    readImplicitEnvVars dotEnvFile =
-      mconcat
-        [ readProjectFileIfExists dotEnvFile,
-          EnvVarWithCtx.readEnvironment
-        ]
-
-    readProjectFileIfExists dotEnvFile =
+    readProjectFileIfExists waspProjectDir dotEnvFile =
       findFileInWaspProjectDir waspProjectDir dotEnvFile
         >>= maybe (return []) (EnvVarWithCtx.readDotEnvFile (show dotEnvFile))
