@@ -90,13 +90,12 @@ compileWithOptions options = do
   let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
   liftIO $ printCompilationResult (warnings, errors)
-  case (_compileAppSpec compileResult, errors) of
-    (Just appSpec, []) -> return (warnings, appSpec)
-    (_, compileErrors@(_ : _)) ->
+  case _compileOutcome compileResult of
+    Right appSpec -> return (warnings, appSpec)
+    Left compileErrors ->
       throwError $
         CommandError "Compilation of wasp project failed" $
           show (length compileErrors) ++ " errors found"
-    (Nothing, []) -> error "Compilation succeeded without producing an AppSpec"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,

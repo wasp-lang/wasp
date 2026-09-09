@@ -137,4 +137,4 @@ outputDrainTimeoutMicroseconds :: Int
 outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
 
 processTreeDidNotStopMessage :: T.Text
-processTreeDidNotStopMessage = "Process tree did not stop after a kill signal; it may still be running."
+processTreeDidNotStopMessage = "Could not stop all development processes. A child process may still be running."
