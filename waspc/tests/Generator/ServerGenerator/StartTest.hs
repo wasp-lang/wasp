@@ -122,6 +122,36 @@ spec_ServerProcessController =
           isPortAvailable serverPort `shouldReturn` True
           clearServerPid fixture
 
+    it "stops the server after a failed bundle and recovers on the next successful compile" $
+      withGeneratedAppDirFixture $ \fixture -> do
+        chan <- newChan
+        controller <- newServerProcessController
+        generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
+        let bundleScriptPath = serverDirPath fixture </> "bundle.js"
+        originalBundleScript <- readFile' bundleScriptPath
+        withAsync (Job.runJob (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+          waitForServerStart fixture
+          initialPid <- readServerPid fixture
+          serverPort <- readServerPort fixture
+
+          writeFile bundleScriptPath "process.exit(1);\n"
+          notifySuccessfulCompileOrFail controller RebundleAndRestartServer
+          isProcessAlive initialPid `shouldReturn` False
+          isPortAvailable serverPort `shouldReturn` True
+
+          writeFile bundleScriptPath originalBundleScript
+          clearServerPid fixture
+          notifySuccessfulCompileOrFail controller NoServerEffect
+          waitForServerStart fixture
+          recoveredPid <- readServerPid fixture
+          recoveredPid `shouldNotBe` initialPid
+          readBundleCount fixture `shouldReturn` 2
+
+          cancel controllerJob
+          isProcessAlive recoveredPid `shouldReturn` False
+          isPortAvailable serverPort `shouldReturn` True
+          clearServerPid fixture
+
     -- TODO: Windows Job Objects need separate root/tree handles; native supervisor work is out of scope here.
     when (os /= "mingw32") $
       it "cleans up a crashed server with a pipe-holding child before restarting it" $

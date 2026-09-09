@@ -145,11 +145,11 @@ watch waspProjectDir outDir ongoingCompilationResultMVar watchCompileHooks = FSN
               { _watchProjectFileChanges = fileChanges,
                 _watchCompileResult = compileResult
               }
-      if null errors
-        then do
+      case _compileOutcome compileResult of
+        Right _ -> do
           updateOngoingCompilationResultMVar (warnings, errors)
           _onSuccessfulCompile watchCompileHooks watchCompileResult
-        else do
+        Left _ -> do
           cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
           updateOngoingCompilationResultMVar (warnings, errors)
           _onFailedCompile watchCompileHooks watchCompileResult
