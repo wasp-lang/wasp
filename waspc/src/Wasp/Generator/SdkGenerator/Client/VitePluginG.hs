@@ -8,6 +8,7 @@ import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
+import Wasp.AppSpec.Valid (getServerPathPrefixes, isSingleDeploymentAndDevelopment)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -72,6 +73,9 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
+          "isSingleDeploymentAndDevelopment" .= isSingleDeploymentAndDevelopment spec,
+          "devProxyTargetEnvVarName" .= WebApp.devProxyTargetEnvVarName,
+          "proxiedPathPrefixes" .= makeJsArrayFromHaskellList (getServerPathPrefixes spec),
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"

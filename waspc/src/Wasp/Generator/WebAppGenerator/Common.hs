@@ -1,6 +1,7 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
     serverUrlEnvVarName,
+    devProxyTargetEnvVarName,
     clientPortEnvVarName,
   )
 where
@@ -20,6 +21,11 @@ getBaseDir spec = fromMaybe [absdirP|/|] maybeBaseDir
 
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "REACT_APP_API_URL"
+
+-- | In single deployment mode the Vite dev server proxies server requests to this URL.
+-- Users can reuse it in their own `server.proxy` entries in `vite.config.ts`.
+devProxyTargetEnvVarName :: String
+devProxyTargetEnvVarName = "WASP_DEV_PROXY_TARGET"
 
 clientPortEnvVarName :: String
 clientPortEnvVarName =

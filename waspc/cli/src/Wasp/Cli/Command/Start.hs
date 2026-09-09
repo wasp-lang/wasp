@@ -10,6 +10,7 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec.Valid (getDeploymentMode)
 import Wasp.Cli.AppComponentPorts (findAppComponentPorts)
 import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
 import Wasp.Cli.Command (Command, CommandError (..), require)
@@ -57,14 +58,14 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
   (warnings, appSpec) <- compile
 
   appComponentUrls <- makeDevAppComponentUrls appSpec args
-  let runConfigs = makeRunConfigs appComponentUrls
+  let runConfigs = makeRunConfigs (getDeploymentMode appSpec) appComponentUrls
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 
   DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls (getDeploymentMode appSpec) runConfigs
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in

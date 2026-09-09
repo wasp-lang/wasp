@@ -29,7 +29,7 @@ export const DetailPage = () => {
           )}
         </div>
         <div>
-          <Link to="/crud" className="link">
+          <Link to="/crud-tasks" className="link">
             Return to task list
           </Link>
         </div>

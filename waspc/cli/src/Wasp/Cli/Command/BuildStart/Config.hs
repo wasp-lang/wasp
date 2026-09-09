@@ -15,6 +15,7 @@ import StrongPath ((</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppComponentUrl as AppComponentUrl
 import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec.App.Deployment (DeploymentMode (..))
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.AppComponentUrls (defaultDevServerUrl, makeDefaultDevClientUrl)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -52,7 +53,11 @@ makeBuildStartConfig appSpec args projectDir' = do
   let clientUrl = (makeDefaultDevClientUrl appSpec) {AppComponentUrl.port = args.clientPort}
       serverUrl = defaultDevServerUrl {AppComponentUrl.port = args.serverPort}
 
-      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs (clientUrl, serverUrl)
+      -- TODO: The server does not serve the built client yet, so `wasp build start`
+      -- still runs them as two separate apps, which need the split run configs no
+      -- matter what the project's deployment mode says. This follows the deployment
+      -- mode once the server serves the client.
+      (baseClientRunConfig, baseServerRunConfig) = makeRunConfigs Split (clientUrl, serverUrl)
 
   clientRunConfig' <- baseClientRunConfig `addEnvVarsUniqueC` userClientEnvVars
   serverRunConfig' <- baseServerRunConfig `addEnvVarsUniqueC` userServerEnvVars

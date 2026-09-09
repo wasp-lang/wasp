@@ -1,6 +1,6 @@
 {{={= =}=}}
 /// <reference types="vitest/config" />
-import type { PluginOption } from "vite";
+import type { ConfigEnv, PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
@@ -16,32 +16,23 @@ import { defaultExclude } from "vitest/config";
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
-const forcedOptions = {
-  base: "{= baseDir =}",
-  envPrefix: "REACT_APP_",
-  "build.outDir": "{= clientBuildDirPath =}",
-  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
-  // `build`, so it's not persisted in the final output.
-  "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),
-  "server.strictPort": true,
-  // `vite preview` falls back to `server` for most options, but not for `port`
-  // (it has its own default), so we have to set it separately.
-  "preview.port": envVarAsNumber("{= clientPortEnvVarName =}"),
-} as const;
-
-const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
-  base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
-  "server.port":
-    "To run the client on a different port, use `wasp start --client-port <port>`.",
-  "preview.port":
-    "To run the client on a different port, use `wasp build start --client-port <port>`.",
-};
-
 export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
     enforce: "pre",
-    config(config) {
+{=# isSingleDeploymentAndDevelopment =}
+    configureServer(server) {
+      if (isAppDevServer(server.config)) {
+        throwIfDevProxyTargetMissing();
+      }
+    },
+{=/ isSingleDeploymentAndDevelopment =}
+    config(
+      config,
+{=# isSingleDeploymentAndDevelopment =}
+      configEnv,
+{=/ isSingleDeploymentAndDevelopment =}
+    ) {
       throwIfOverridingForcedOptions(config);
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
@@ -54,6 +45,9 @@ export function waspConfig(): PluginOption {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
+{=# isSingleDeploymentAndDevelopment =}
+          proxy: makeDevServerProxy(configEnv),
+{=/ isSingleDeploymentAndDevelopment =}
         },
         preview: {
           port: forcedOptions["preview.port"],
@@ -101,6 +95,27 @@ export function waspConfig(): PluginOption {
   };
 }
 
+const forcedOptions = {
+  base: "{= baseDir =}",
+  envPrefix: "REACT_APP_",
+  "build.outDir": "{= clientBuildDirPath =}",
+  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
+  // `build`, so it's not persisted in the final output.
+  "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),
+  "server.strictPort": true,
+  // `vite preview` falls back to `server` for most options, but not for `port`
+  // (it has its own default), so we have to set it separately.
+  "preview.port": envVarAsNumber("{= clientPortEnvVarName =}"),
+} as const;
+
+const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
+  base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
+  "server.port":
+    "To run the client on a different port, use `wasp start --client-port <port>`.",
+  "preview.port":
+    "To run the client on a different port, use `wasp build start --client-port <port>`.",
+};
+
 function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;
 }
@@ -139,3 +154,72 @@ function envVarAsNumber(envName: string): number | undefined {
   }
   return numValue;
 }
+{=# isSingleDeploymentAndDevelopment =}
+
+// The client and the server share one origin. In development, the Vite dev
+// server forwards Wasp's server routes (and the user's `api` routes) to the
+// server process, whose URL `wasp start` passes in the env var below.
+//
+// `server.proxy` is not a forced option: entries from the user's
+// `vite.config.ts` are merged with these, so users can proxy extra paths to
+// the server by targeting `process.env.{= devProxyTargetEnvVarName =}`.
+const devProxyTargetEnvVarName = "{= devProxyTargetEnvVarName =}";
+
+const proxiedPathPrefixes: string[] = {=& proxiedPathPrefixes =};
+
+function makeDevServerProxy(
+  configEnv: ConfigEnv,
+): Record<string, { target: string; changeOrigin: boolean; ws: boolean }> | undefined {
+  if (!isAppDevServer(configEnv)) {
+    return undefined;
+  }
+  // Other Wasp plugins (e.g. `wasp:validate-env`) create throwaway
+  // middleware-mode servers during `vite build`, which also report `serve`
+  // and never have the env var. `throwIfDevProxyTargetMissing` reports it from
+  // `configureServer`, which only real dev servers run.
+  const target = process.env[devProxyTargetEnvVarName];
+  if (target === undefined) {
+    return undefined;
+  }
+  return Object.fromEntries(
+    proxiedPathPrefixes.map((pathPrefix) => [
+      makePathPrefixProxyKey(pathPrefix),
+      { target, changeOrigin: false, ws: true },
+    ]),
+  );
+}
+
+// Vite treats plain string keys as `startsWith` matches, which would also
+// swallow unrelated client routes (e.g. "/api" would match an "/apis" page),
+// so the key is an anchored regex that only matches whole path segments.
+function makePathPrefixProxyKey(pathPrefix: string): string {
+  return `^${escapeRegExp(pathPrefix)}(?:/|\\?|$)`;
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function throwIfDevProxyTargetMissing(): void {
+  if (process.env[devProxyTargetEnvVarName] === undefined) {
+    throw new Error(
+      `The environment variable ${devProxyTargetEnvVarName} is not set. It tells the ` +
+        "client dev server where the Wasp server is, so it can forward Wasp's routes to it.\n" +
+        "Run your app with `wasp start`, which sets it for you. If you are starting the " +
+        `dev server yourself, set it to the Wasp server's URL first, for example ` +
+        `${devProxyTargetEnvVarName}=http://localhost:3001.`,
+    );
+  }
+}
+
+// The dev server that serves your app, as opposed to the other things Vite
+// reports as `serve`: `vite preview` serves the built client on its own, and
+// Vitest starts a dev server that has nothing to proxy.
+function isAppDevServer({
+  command,
+  mode,
+  isPreview,
+}: Pick<ConfigEnv, "command" | "mode" | "isPreview">): boolean {
+  return command === "serve" && !isPreview && mode !== "test";
+}
+{=/ isSingleDeploymentAndDevelopment =}

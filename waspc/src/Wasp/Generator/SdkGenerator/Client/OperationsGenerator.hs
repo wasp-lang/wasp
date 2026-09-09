@@ -20,8 +20,7 @@ import Wasp.Generator.SdkGenerator.Common
     getRegisteredOperationTypeName,
     mkTmplFdWithData,
   )
-import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -82,9 +81,9 @@ getQueryData :: (String, AS.Query.Query) -> Aeson.Value
 getQueryData (queryName, query) =
   object $
     [ "queryRoute"
-        .= ( ServerGenerator.operationsRouteInRootRouter
+        .= ( ServerRoutes.operationsRouteInRootRouter
                ++ "/"
-               ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
+               ++ ServerRoutes.operationRouteInOperationsRouter operation
            ),
       "entitiesArray" .= makeJsArrayOfEntityNames operation
     ]
@@ -96,9 +95,9 @@ getActionData :: (String, AS.Action.Action) -> Aeson.Value
 getActionData (actionName, action) =
   object $
     [ "actionRoute"
-        .= ( ServerGenerator.operationsRouteInRootRouter
+        .= ( ServerRoutes.operationsRouteInRootRouter
                ++ "/"
-               ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
+               ++ ServerRoutes.operationRouteInOperationsRouter operation
            ),
       "entitiesArray" .= makeJsArrayOfEntityNames operation
     ]

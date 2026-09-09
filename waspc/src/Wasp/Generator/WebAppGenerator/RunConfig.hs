@@ -6,6 +6,7 @@ where
 
 import Wasp.AppComponentUrl (AppComponentUrl)
 import qualified Wasp.AppComponentUrl as AppComponentUrl
+import Wasp.AppSpec.App.Deployment (DeploymentMode (..))
 import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
@@ -24,10 +25,16 @@ instance HasEnvVars WebAppRunConfig where
   getEnvVars = envVars
   setEnvVars config newEnvVars = config {envVars = newEnvVars}
 
-makeWebAppRunConfig :: AppComponentUrl -> String -> WebAppRunConfig
-makeWebAppRunConfig expectedUrl serverUrl =
+makeWebAppRunConfig :: DeploymentMode -> AppComponentUrl -> AppComponentUrl -> WebAppRunConfig
+makeWebAppRunConfig deploymentMode expectedUrl serverUrl =
   WebAppRunConfig
     expectedUrl
-    [ (Common.serverUrlEnvVarName, serverUrl),
+    [ serverUrlEnvVar,
       (Common.clientPortEnvVarName, show $ AppComponentUrl.port expectedUrl)
     ]
+  where
+    serverUrlEnvVar = case deploymentMode of
+      -- The client calls the server on its own origin and the Vite dev server
+      -- proxies those calls to the server.
+      Single -> (Common.devProxyTargetEnvVarName, AppComponentUrl.origin serverUrl)
+      Split -> (Common.serverUrlEnvVarName, AppComponentUrl.url serverUrl)

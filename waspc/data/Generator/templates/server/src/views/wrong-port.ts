@@ -11,14 +11,28 @@
   resources needed (CSS, images, etc.) must be inlined into the file.
 */
 
+type DeploymentMode = "single" | "split";
+
+// A total map, so a new deployment mode is a type error here instead of a wrong page.
+const frontendUrlIntros: Record<DeploymentMode, string> = {
+  single: "Your app runs at this URL, open it in your browser:",
+  split:
+    "If you want to visit your frontend application, go to this URL in your browser:",
+};
+
 // The /* HTML */ comment is a hint to `prettier` to format this string as HTML.
 export const makeWrongPortPage = ({
   appName,
   frontendUrl,
+  deploymentMode,
 }: {
   appName: string;
   frontendUrl: string;
-}): string => /* HTML */ `
+  deploymentMode: DeploymentMode;
+}): string => {
+  const frontendUrlIntro = frontendUrlIntros[deploymentMode];
+
+  return /* HTML */ `
   <!doctype html>
   <html lang="en">
     <head>
@@ -102,10 +116,7 @@ export const makeWrongPortPage = ({
             The server is up and running. This is the backend part of your Wasp
             application.
           </p>
-          <p>
-            If you want to visit your frontend application, go to this URL in
-            your browser:
-          </p>
+          <p>${frontendUrlIntro}</p>
           <a href="${frontendUrl}" class="main-link">
             <p>${frontendUrl}</p>
           </a>
@@ -121,3 +132,4 @@ export const makeWrongPortPage = ({
     </body>
   </html>
 `;
+};

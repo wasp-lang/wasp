@@ -21,10 +21,10 @@ export const crudSpec: Spec = [
   crud("taskVotes", "TaskVote", {
     getAll: {},
   }),
-  route("CrudListRoute", "/crud", page(ListPage, { authRequired: true })),
+  route("CrudListRoute", "/crud-tasks", page(ListPage, { authRequired: true })),
   route(
     "CrudDetailRoute",
-    "/crud/:id",
+    "/crud-tasks/:id",
     page(DetailPage, { authRequired: true }),
   ),
 ];

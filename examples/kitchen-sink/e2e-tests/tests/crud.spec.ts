@@ -8,7 +8,7 @@ test.describe("CRUD test", () => {
     await performLogin(page, credentials);
     await expect(page).toHaveURL("/");
 
-    await page.goto("/crud");
+    await page.goto("/crud-tasks");
     await expect(page.getByTestId("crud-tasks")).toBeVisible();
 
     // Create a task
@@ -60,12 +60,12 @@ test.describe("CRUD test", () => {
     await performLogin(page, credentials);
     await expect(page).toHaveURL("/");
 
-    await page.goto("/crud");
+    await page.goto("/crud-tasks");
     // Create a task
     await createTask(page, "second task");
     // Go to the detail page of the task
     await page.locator("a").filter({ hasText: "second task" }).click();
-    await expect(page).toHaveURL(/\/crud\/\d+/);
+    await expect(page).toHaveURL(/\/crud-tasks\/\d+/);
     // Check if the task is displayed
     // await expect(page.locator("body")).toContainText("second task");
     await expect(page.getByTestId("task-detail-view")).toContainText(

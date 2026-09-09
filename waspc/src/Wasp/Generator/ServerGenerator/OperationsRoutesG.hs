@@ -2,7 +2,6 @@
 
 module Wasp.Generator.ServerGenerator.OperationsRoutesG
   ( genOperationsRoutes,
-    operationRouteInOperationsRouter,
   )
 where
 
@@ -29,7 +28,7 @@ import Wasp.JsImport
     getJsImportStmtAndIdentifier,
     makeValueJsImport,
   )
-import qualified Wasp.Util as U
+import Wasp.ServerRoutes (operationRouteInOperationsRouter)
 
 genOperationsRoutes :: AppSpec -> Generator [FileDraft]
 genOperationsRoutes spec =
@@ -125,6 +124,3 @@ genOperationsRouter spec
     isAuthEnabledGlobally = isAuthEnabled spec
     isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     isAuthSpecifiedForOperation operation = isJust $ AS.Operation.getAuth operation
-
-operationRouteInOperationsRouter :: AS.Operation.Operation -> String
-operationRouteInOperationsRouter = U.camelToKebabCase . AS.Operation.getName

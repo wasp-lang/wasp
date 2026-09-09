@@ -17,8 +17,8 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
-import qualified Wasp.Generator.Crud.Routes as Routes
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.ServerRoutes as ServerRoutes
 import qualified Wasp.Util as Util
 
 getCrudOperationJson :: String -> AS.Crud.Crud -> Psl.Model.Field -> Aeson.Value
@@ -41,8 +41,8 @@ getCrudOperationJson crudOperationName crud idField =
       makeCrudOperationKeyAndJsonPair
         operation
         ( object
-            [ "route" .= Routes.getRoute operation,
-              "fullPath" .= Routes.makeFullPath crudOperationName operation,
+            [ "route" .= ServerRoutes.crudOperationRouteInCrudRouter operation,
+              "fullPath" .= ServerRoutes.makeCrudOperationFullPath crudOperationName operation,
               "isPublic" .= fromMaybe False (AS.Crud.isPublic options)
             ]
         )

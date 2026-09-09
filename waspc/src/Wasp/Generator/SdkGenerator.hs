@@ -20,7 +20,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled, isSingleDeploymentAndDevelopment)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -119,7 +119,7 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
-      genClientConfigFile,
+      genClientConfigFile spec,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -254,13 +254,17 @@ depsRequiredForTesting =
       ("msw", "^2.12.7")
     ]
 
-genClientConfigFile :: Generator FileDraft
-genClientConfigFile =
+genClientConfigFile :: AppSpec -> Generator FileDraft
+genClientConfigFile spec =
   return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
+          -- TODO: Wired to `isSingleDeploymentAndDevelopment` for now, since the
+          -- server only serves the client in development. It becomes a plain
+          -- `Single` mode check once it serves it in production too.
+          "isSingleDeployment" .= isSingleDeploymentAndDevelopment spec
         ]
 
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]

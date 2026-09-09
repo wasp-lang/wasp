@@ -12,6 +12,7 @@
 - Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
+- Wasp now serves a health check at `GET /health`, replacing the empty `200` the server used to answer at `GET /`. This also means `/health` is now a reserved Wasp route. ([#4835](https://github.com/wasp-lang/wasp/pull/4835))
 - Wasp apps can now deploy as one app (server serves the client), which allows simple single origin deployment. Wasp will default to the new single app deployment. ([#4834](https://github.com/wasp-lang/wasp/pull/4834))
 
 ### 🎉 New Features

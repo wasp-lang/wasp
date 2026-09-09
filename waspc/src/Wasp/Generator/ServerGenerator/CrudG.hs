@@ -20,13 +20,13 @@ import Wasp.Generator.Crud
     getCrudOperationJson,
     makeCrudOperationKeyAndJsonPair,
   )
-import qualified Wasp.Generator.Crud.Routes as Routes
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.JsImport (JsImportPath (RelativeImportPath))
 import qualified Wasp.JsImport as JI
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genCrud :: AppSpec -> Generator [FileDraft]
@@ -52,7 +52,7 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
       object
         [ "importStatement" .= importStatement,
           "importIdentifier" .= importIdentifier,
-          "route" .= Routes.getCrudOperationRouterRoute name
+          "route" .= ServerRoutes.getCrudOperationRouterRoute name
         ]
       where
         (importStatement, importIdentifier) =
