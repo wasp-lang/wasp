@@ -3065,7 +3065,7 @@ wasp start db
 wasp start db --db-image postgres:18
 
 # Use PostgreSQL with PostGIS extension for geographic data:
-wasp start db --db-image postgis/postgis:18-3.6
+wasp start db --db-image postgis/postgis:18-3.6 
 
 # Use PostgreSQL with pgvector extension for AI embeddings:
 wasp start db --db-image pgvector/pgvector:pg18
@@ -9954,7 +9954,7 @@ export const mySetupFunction: ServerSetupFn = async () => {
   // Let's pretend functions setUpSomeResource and startSomeCronJob
   // are implemented below or imported from another file.
   someResource = await setUpSomeResource()
-  startSomeCronJob()
+  startSomeCronJob()  
 }
 
 export const getSomeResource = () => someResource
