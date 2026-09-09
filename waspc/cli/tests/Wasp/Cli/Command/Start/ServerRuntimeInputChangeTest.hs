@@ -45,6 +45,16 @@ spec_classifyServerEffect =
       classifyServerEffect [] [Left [SP.relfile|src/actions/foo.ts|]] `shouldBe` NoServerEffect
       classifyServerEffect [] [Right [SP.reldir|server/.env|]] `shouldBe` NoServerEffect
 
+    it "rebundles when email configuration changes only generated SDK code" $ do
+      classifyServerEffect
+        [ProjectFileChange "main.wasp.ts"]
+        [Left [SP.relfile|sdk/wasp/server/email/core/helpers.ts|]]
+        `shouldBe` RebundleAndRestartServer
+
+    it "detects generated server SDK directory changes" $ do
+      classifyServerEffect [] [Right [SP.reldir|sdk/wasp/server/email|]]
+        `shouldBe` RebundleAndRestartServer
+
     it "ignores generated paths outside server runtime inputs" $ do
       classifyServerEffect [] [Left [SP.relfile|server/README.md|]] `shouldBe` NoServerEffect
-      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/server/index.ts|]] `shouldBe` NoServerEffect
+      classifyServerEffect [] [Left [SP.relfile|sdk/wasp/client/index.ts|]] `shouldBe` NoServerEffect
