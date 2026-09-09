@@ -114,8 +114,10 @@ You can skip nip.io if you're not using features that require proper hostnames, 
 If you're using OAuth providers (Google, GitHub, etc.), remember to add your local network URLs to the allowed redirect URIs in each provider's configuration:
 
 ```
-http://192.168.1.39.nip.io:3001/auth/google/callback
+http://192.168.1.39.nip.io:3001/api/auth/google/callback
 ```
+
+The `/api` prefix is your [`server.basePath`](../../project/server-config.md#base-path).
 
 ## Troubleshooting
 

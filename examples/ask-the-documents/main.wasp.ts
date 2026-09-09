@@ -36,6 +36,7 @@ export default app({
     rootComponent: Layout,
   },
   server: {
+    basePath: "/api",
     envValidationSchema: serverEnvValidation,
   },
   spec: [

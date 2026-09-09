@@ -6,6 +6,9 @@ export default app({
   wasp: { version: "__waspVersion__" },
   title: "__waspProjectName__",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  server: {
+    basePath: "/api",
+  },
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],

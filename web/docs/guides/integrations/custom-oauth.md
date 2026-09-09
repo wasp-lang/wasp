@@ -31,6 +31,9 @@ export default app({
   wasp: { version: "^0.24.0" },
   title: "spotify-oauth",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  server: {
+    basePath: "/api",
+  },
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/",
@@ -52,7 +55,9 @@ export default app({
 ```
 
 :::note
-The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
+The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/api/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
+
+The paths are relative to [`server.basePath`](../../project/server-config.md#base-path), so with `/api` they are served at `/api/auth/spotify` and `/api/auth/spotify/callback` (drop the `/api` everywhere in this guide if you keep the base path at `/`).
 :::
 
 ### 2. Configure environment variables
@@ -112,7 +117,7 @@ if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirectURI = `${config.serverUrl}/auth/spotify/callback`;
+const redirectURI = `${config.serverUrl}${config.serverBasePath}/auth/spotify/callback`;
 
 export const spotify = new arctic.Spotify(clientId, clientSecret, redirectURI);
 

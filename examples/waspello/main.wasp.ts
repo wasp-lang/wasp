@@ -21,6 +21,9 @@ export default app({
   client: {
     rootComponent: Layout,
   },
+  server: {
+    basePath: "/api",
+  },
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     authSpec,

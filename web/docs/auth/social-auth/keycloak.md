@@ -90,12 +90,16 @@ model User {
 
 ![Keycloak Screenshot 3](/img/auth/keycloak/3-keycloak.png)
 
-1. Under **Valid Redirect URIs**, add `http://localhost:3001/auth/keycloak/callback` for local development.
+1. Under **Valid Redirect URIs**, add `http://localhost:3001/api/auth/keycloak/callback` for local development.
 
 ![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
 
 - Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-- For example: `https://my-server-url.com/auth/keycloak/callback`.
+- For example: `https://my-server-url.com/api/auth/keycloak/callback`.
+
+:::note
+The `/api` prefix is your [`server.basePath`](../../project/server-config.md#base-path). If you changed it, use your value; with no base path set it's `http://localhost:3001/auth/keycloak/callback`.
+:::
 
 1. Click **Save**.
 2. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.

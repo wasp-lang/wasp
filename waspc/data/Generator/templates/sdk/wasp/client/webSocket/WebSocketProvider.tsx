@@ -4,7 +4,8 @@ import { io, type Socket } from 'socket.io-client'
 
 import { getSessionId } from '../../api/index.js'
 import { apiEventsEmitter } from '../../api/events.js'
-import { config } from '../index.js'
+import { env } from '../env.js'
+import { getOrigin } from '../../universal/url.js'
 
 import type { ClientToServerEvents, ServerToClientEvents } from '../../server/webSocket/index.js';
 
@@ -16,9 +17,11 @@ export type WebSocketContextValue = {
 // PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
+// The socket connects to the server origin, the server base path is covered by `path`.
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  config.apiUrl,
+  getOrigin(env["{= serverUrlEnvVarName =}"]),
   {
+    path: '{=& webSocketPath =}',
     transports: ['websocket'],
     autoConnect: {= autoConnect =} && !import.meta.env.SSR,
   }

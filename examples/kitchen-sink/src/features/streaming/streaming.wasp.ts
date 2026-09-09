@@ -7,8 +7,8 @@ import {
 import { StreamingTestPage } from "./pages/StreamingTestPage" with { type: "ref" };
 
 export const streamingSpec: Spec = [
-  api("GET", "/api/streaming-test", streamingText),
-  apiNamespace("/api/streaming-test", {
+  api("GET", "/streaming-test", streamingText),
+  apiNamespace("/streaming-test", {
     middlewareConfigFn: defaultMiddlewareForStreamingText,
   }),
   route("StreamingRoute", "/streaming", page(StreamingTestPage)),

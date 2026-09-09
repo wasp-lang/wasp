@@ -106,11 +106,15 @@ To use Microsoft as an authentication method, you'll first need to register an a
     | - | ------------------------ | -------------------------------------------- |
     | 1 | Name                     | (your wasp app name)                                             |
     | 1 | Supported account types  | Read through **[Understanding tenants](#understanding-tenants)** |
-    | 3 | Authorized redirect URIs | Web: `http://localhost:3001/auth/microsoft/callback`             |
+    | 3 | Authorized redirect URIs | Web: `http://localhost:3001/api/auth/microsoft/callback`         |
 
     :::note
     Once you know on which URL(s) your API server will be deployed, also add those URL(s) in the **Authentication** section.\
-    For example: `https://your-server-url.com/auth/microsoft/callback`
+    For example: `https://your-server-url.com/api/auth/microsoft/callback`
+    :::
+
+    :::note
+    The `/api` prefix is your [`server.basePath`](../../project/server-config.md#base-path). If you changed it, use your value; with no base path set it's `http://localhost:3001/auth/microsoft/callback`.
     :::
 
     ![Microsoft Entra console screenshot 2](/img/integrations-microsoft-2.png)

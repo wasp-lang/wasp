@@ -27,15 +27,18 @@ const {=& routeMiddlewareConfigFn.importAlias =} = idFn
 {=/ routeMiddlewareConfigFn.isDefined =}
 {=/ apiRoutes =}
 
+// Apis and namespaces live under the server base path, unless they set
+// `ignoreServerBasePath`, in which case they live at the origin root (see `server.ts`).
 const router = express.Router()
+const rootRouter = express.Router()
 
 {=# apiNamespaces =}
-router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
+{= routerName =}.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
 {=/ apiNamespaces =}
 
 {=# apiRoutes =}
 const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importAlias =})
-router.{= routeMethod =}(
+{= routerName =}.{= routeMethod =}(
   '{= routePath =}',
   {=# usesAuth =}
   [auth, ...{= apiName =}Middleware],
@@ -64,4 +67,4 @@ router.{= routeMethod =}(
 )
 {=/ apiRoutes =}
 
-export default router
+export { router, rootRouter }

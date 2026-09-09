@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { WASP_SERVER_URL } from "../playwright.config";
 import { performLogin, setupTestUser } from "./auth";
 
 test.describe("custom APIs", () => {
@@ -36,6 +37,19 @@ test.describe("custom APIs", () => {
       testId: "unauthenticated-api",
       expectedData: "Hello, stranger!",
     });
+  });
+
+  test("APIs that ignore the server base path are served at the origin root", async ({
+    request,
+  }) => {
+    const response = await request.get(`${WASP_SERVER_URL}/outside-base-path`);
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+
+    const responseUnderBasePath = await request.get(
+      `${WASP_SERVER_URL}/api/outside-base-path`,
+    );
+    expect(responseUnderBasePath.status()).not.toBe(200);
   });
 });
 

@@ -8,12 +8,14 @@ module Wasp.AppSpec.Valid
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
     getValidDbSystem,
+    getServerBasePath,
   )
 where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, groupBy, intercalate, sortBy)
+import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
+import Data.List (find, groupBy, intercalate, isInfixOf, isPrefixOf, isSuffixOf, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.Analyzer.AST (isValidWaspIdentifier)
@@ -28,6 +30,7 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
@@ -47,6 +50,7 @@ import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.UrlPath (isPathSegmentPrefixOf)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
@@ -72,6 +76,9 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
+          validateServerBasePath spec,
+          validateRoutesIgnoringServerBasePathDoNotShadowIt spec,
+          validateApiNamespacesAreOnTheSameSideOfServerBasePathAsTheirApis spec,
           validateUserNodeVersionRange spec,
           validateAtLeastOneRoute spec,
           validatePrerenderRoutes spec
@@ -409,6 +416,79 @@ validateWebAppBaseDir spec = case maybeBaseDir of
     startsWithSlash ('/' : _) = True
     startsWithSlash _ = False
 
+validateServerBasePath :: AppSpec -> [ValidationError]
+validateServerBasePath spec = case maybeBasePath of
+  Nothing -> []
+  Just basePath -> map (GenericValidationError . ("app.server.basePath " ++)) (getBasePathProblems basePath)
+  where
+    maybeBasePath = Server.basePath =<< AS.App.server (snd $ getApp spec)
+
+    getBasePathProblems :: String -> [String]
+    getBasePathProblems basePath =
+      concat
+        [ ["must start with a slash e.g. \"/api\"." | not ("/" `isPrefixOf` basePath)],
+          ["must not end with a slash (unless it is just \"/\")." | basePath /= "/" && "/" `isSuffixOf` basePath],
+          ["must not contain \"//\"." | "//" `isInfixOf` basePath],
+          [ "must contain only letters, digits and the characters \"-\", \".\", \"_\", \"~\" and \"/\"."
+          | not (all isAllowedBasePathChar basePath)
+          ]
+        ]
+
+    -- The base path is inlined into the generated code and used as an Express mount path,
+    -- so it is restricted to the unreserved URL characters and "/".
+    isAllowedBasePathChar :: Char -> Bool
+    isAllowedBasePathChar c = isAsciiUpper c || isAsciiLower c || isDigit c || c `elem` ("-._~/" :: String)
+
+-- | Routes that ignore the server base path are matched after the routes under it, so one whose
+-- path starts with the base path would be reachable only where the server has no route of its own.
+validateRoutesIgnoringServerBasePathDoNotShadowIt :: AppSpec -> [ValidationError]
+validateRoutesIgnoringServerBasePathDoNotShadowIt spec
+  | serverBasePath == "/" = []
+  | otherwise =
+      [ GenericValidationError $
+          "The "
+            ++ declTypeName
+            ++ " '"
+            ++ declName
+            ++ "' has path "
+            ++ show declPath
+            ++ " which starts with app.server.basePath ("
+            ++ show serverBasePath
+            ++ ") but sets ignoreServerBasePath, so it overlaps with the routes under the base path."
+            ++ " Drop ignoreServerBasePath or use a path outside the base path."
+      | (declTypeName, declName, declPath) <- apisIgnoringBasePath ++ apiNamespacesIgnoringBasePath,
+        serverBasePath `isPathSegmentPrefixOf` declPath
+      ]
+  where
+    serverBasePath = getServerBasePath spec
+    apisIgnoringBasePath =
+      [("api", name, AS.Api.path api) | (name, api) <- AS.getApis spec, AS.Api.ignoresServerBasePath api]
+    apiNamespacesIgnoringBasePath =
+      [ ("apiNamespace", name, AS.ApiNamespace.path namespace)
+      | (name, namespace) <- AS.getApiNamespaces spec,
+        AS.ApiNamespace.ignoresServerBasePath namespace
+      ]
+
+-- | Apis and namespaces that ignore the server base path live on their own router, so a namespace
+-- only applies to an api when both are on the same side of the base path.
+validateApiNamespacesAreOnTheSameSideOfServerBasePathAsTheirApis :: AppSpec -> [ValidationError]
+validateApiNamespacesAreOnTheSameSideOfServerBasePathAsTheirApis spec =
+  [ GenericValidationWarning $
+      "The apiNamespace '"
+        ++ namespaceName
+        ++ "' ("
+        ++ show (AS.ApiNamespace.path namespace)
+        ++ ") does not apply to the api '"
+        ++ apiName
+        ++ "' ("
+        ++ show (AS.Api.path api)
+        ++ ") because only one of them sets ignoreServerBasePath."
+  | (namespaceName, namespace) <- AS.getApiNamespaces spec,
+    (apiName, api) <- AS.getApis spec,
+    AS.ApiNamespace.path namespace `isPathSegmentPrefixOf` AS.Api.path api,
+    AS.ApiNamespace.ignoresServerBasePath namespace /= AS.Api.ignoresServerBasePath api
+  ]
+
 validateUserNodeVersionRange :: AppSpec -> [ValidationError]
 validateUserNodeVersionRange spec =
   concat
@@ -519,6 +599,11 @@ isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- Returns "/" when `app.server.basePath` is not set. Never has a trailing slash (except for the root).
+getServerBasePath :: AppSpec -> String
+getServerBasePath spec = fromMaybe "/" $ Server.basePath =<< AS.App.server (snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool

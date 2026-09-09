@@ -14,6 +14,7 @@ import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" 
 export default app({
   name: "MyApp",
   server: {
+    basePath: "/api",
     setupFn: mySetupFunction,
     middlewareConfigFn: myMiddlewareConfigFn,
   },
@@ -67,6 +68,10 @@ As an example, adding a custom route would look something like:
     ```
   </TabItem>
 </Tabs>
+
+:::note
+`setupFn` receives the Express app mounted at the [base path](#base-path), so a route you add there lives under it like everything else on the server: with `basePath: "/api"`, `app.get("/customRoute", ...)` answers on `http://localhost:3001/api/customRoute`.
+:::
 
 ### Storing Some Values for Later Use
 
@@ -144,6 +149,34 @@ For the full description of the `setupFn` field, check the [`Server` API Referen
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
 
 Read more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).
+
+## Base Path
+
+The `basePath` option is the path under which the whole server lives: Wasp's own routes (auth, operations and CRUD), your [`api`](../advanced/apis.md) and `apiNamespace` routes, and anything you add in [`setupFn`](#setup-function):
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
+  server: {
+    basePath: "/api",
+  },
+  // ...
+})
+```
+
+With `basePath: "/api"`, the server answers on `/api/auth/*`, `/api/operations/*` and `/api/crud/*`, and an `api` declared at `/foo/bar` is served at `/api/foo/bar`. New Wasp projects come with `/api`. If you leave the option out, the base path is `/` and the server's routes sit at the server's root, as before.
+
+The base path is an absolute path on the server's origin. It must start with `/` and must not end with `/` (except for `/` itself).
+
+A few things follow from it:
+
+- Wasp derives every server URL from it. The OAuth redirect URI you register with a provider is `<server origin><basePath>/auth/<provider>/callback`, for example `https://api.myapp.com/api/auth/google/callback`. `WASP_SERVER_URL` and `REACT_APP_API_URL` stay the server's origin, without the base path: Wasp appends it itself.
+- Your own [`api`](../advanced/apis.md) and `apiNamespace` paths are declared relative to it and served under it. Wasp's own routes are mounted first, so an `api` at exactly one of Wasp's paths (`/auth/...`, `/operations/<name>`, `/crud/<name>/...`) is shadowed by them; other paths under those prefixes work. An endpoint whose path is dictated from the outside (a `/.well-known/...` file, say) can [opt out of the base path](../advanced/apis.md#opting-an-endpoint-out-of-the-base-path) with `ignoreServerBasePath: true`.
+- On the client, `config.apiUrl` from `wasp/client` is the server origin plus the base path, and the `api` instance from `wasp/client/api` is rooted there: `api.get("/foo/bar")` hits `/api/foo/bar`.
+- The server root (`GET /`) stays outside the base path: in development it shows a page pointing to the client, in production it returns an empty `200`.
+- Server code can read it as `config.serverBasePath` from `wasp/server`.
 
 ## API Reference
 

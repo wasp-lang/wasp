@@ -103,6 +103,10 @@ export default app({
   wasp: { version: "{latestWaspVersion}" },
   title: "TodoApp", // Used as the browser tab title.
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  // Wasp's own server routes (auth, operations, etc.) live under this path.
+  server: {
+    basePath: "/api",
+  },
   // Add your specs here so Wasp knows to register them.
   spec: [
     route("RootRoute", "/", page(MainPage)),

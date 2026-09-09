@@ -12,6 +12,7 @@ export default app({
   title: "Waspleau",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
+    basePath: "/api",
     setupFn: serverSetup,
   },
   spec: [

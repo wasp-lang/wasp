@@ -3,7 +3,7 @@ import { config } from "wasp/client";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export const StreamingTestPage = () => {
-  const { response } = useTextStream("/api/streaming-test");
+  const { response } = useTextStream("/streaming-test");
   return (
     <FeatureContainer>
       <div className="space-y-4">

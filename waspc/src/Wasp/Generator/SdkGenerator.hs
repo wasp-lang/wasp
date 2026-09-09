@@ -119,7 +119,7 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
-      genClientConfigFile,
+      genClientConfigFile spec,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
@@ -254,13 +254,14 @@ depsRequiredForTesting =
       ("msw", "^2.12.7")
     ]
 
-genClientConfigFile :: Generator FileDraft
-genClientConfigFile =
+genClientConfigFile :: AppSpec -> Generator FileDraft
+genClientConfigFile spec =
   return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
+        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
+          "serverBasePathPrefix" .= Server.getServerBasePathPrefix spec
         ]
 
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
@@ -291,7 +292,8 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
+          "serverBasePathPrefix" .= Server.getServerBasePathPrefix spec
         ]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the

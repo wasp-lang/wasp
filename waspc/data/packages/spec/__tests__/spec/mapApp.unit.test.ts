@@ -816,6 +816,7 @@ describe("mapApi", () => {
         entities: api.entities?.map(ctx.resolveEntityRef),
         httpRoute: [api.method, api.path],
         auth: api.auth,
+        ignoreServerBasePath: api.ignoreServerBasePath,
       },
     } satisfies AppSpec.GetDeclForType<"Api">);
   }
@@ -842,6 +843,7 @@ describe("mapApiNamespace", () => {
           apiNamespace.middlewareConfigFn,
         ),
         path: apiNamespace.path,
+        ignoreServerBasePath: apiNamespace.ignoreServerBasePath,
       },
     } satisfies AppSpec.GetDeclForType<"ApiNamespace">);
   }
@@ -868,6 +870,7 @@ describe("mapServer", () => {
       envValidationSchema:
         server.envValidationSchema &&
         mapRefObjectForMockProjectDir(server.envValidationSchema),
+      basePath: server.basePath,
     } satisfies AppSpec.Server);
   }
 });

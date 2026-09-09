@@ -35,6 +35,9 @@ export default app({
   wasp: { version: "^0.24.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  server: {
+    basePath: "/api",
+  },
   spec: [
     // highlight-next-line
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),
@@ -108,12 +111,14 @@ Create the Swagger UI middleware that serves the pre-generated spec:
 import * as express from "express";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
-import { env, MiddlewareConfigFn } from "wasp/server";
+import { config, env, MiddlewareConfigFn } from "wasp/server";
 import baseSwaggerDoc from "./swaggerSpec";
 
 const swaggerDoc = {
   ...baseSwaggerDoc,
-  servers: [{ url: env.WASP_SERVER_URL, description: "API server" }],
+  servers: [
+    { url: env.WASP_SERVER_URL + config.serverBasePath, description: "API server" },
+  ],
 };
 
 export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
@@ -142,7 +147,7 @@ export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
         customCss: ".swagger-ui .topbar { display: none }",
         swaggerOptions: {
           persistAuthorization: true,
-          url: "/api-docs/swagger.json",
+          url: `${config.serverBasePath}/api-docs/swagger.json`,
         },
       })(req, res, next);
     },
@@ -191,7 +196,7 @@ export const getStatus: GetStatus = async (req, res) => {
 
 ### 6. Access the documentation
 
-Start your Wasp application and navigate to `http://localhost:3001/api-docs` to see your API documentation.
+Start your Wasp application and navigate to `http://localhost:3001/api/api-docs` to see your API documentation. The `/api-docs` namespace, like every `api`, is served under the server's [base path](../../project/server-config.md#base-path) (`/api` here; with the base path at `/` it's `http://localhost:3001/api-docs`). The `servers` entry above points Swagger's "Try it out" at the same base path, so `/status` is called as `/api/status`.
 
 ## Documenting Different Request Types
 

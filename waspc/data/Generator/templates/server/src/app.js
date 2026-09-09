@@ -12,8 +12,10 @@ const app = express()
 
 app.use('/', indexRouter)
 
+app.use(handleHttpError)
+
 // Custom error handler.
-app.use((err, _req, res, next) => {
+export function handleHttpError(err, _req, res, next) {
   // As by expressjs documentation, when the headers have already
   // been sent to the client, we must delegate to the default error handler.
   if (res.headersSent) { return next(err) }
@@ -31,6 +33,6 @@ app.use((err, _req, res, next) => {
   // In development it will also share the error stack though, which is useful.
   // If the user wants to put more information about the error into the response, they should use HttpError.
   return next(err)
-})
+}
 
 export default app
