@@ -14,6 +14,7 @@ import Control.Exception (SomeException, throwIO, try)
 import Control.Monad (unless, void, when)
 import Control.Monad.Extra (anyM)
 import qualified Data.ByteString as BS
+import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import qualified System.Process as P
 import System.Timeout (timeout)
@@ -21,7 +22,6 @@ import Wasp.Util (secondsToMicroSeconds)
 
 #if !mingw32_HOST_OS
 import qualified Data.ByteString.Char8 as BSC
-import Data.Maybe (fromMaybe)
 import System.Directory (listDirectory)
 import System.FilePath ((</>))
 import System.IO.Error (catchIOError, isDoesNotExistError, isPermissionError, tryIOError)
@@ -165,17 +165,17 @@ isProcessGroupGoneError ioErr =
 #endif
 
 waitForCondition :: IO Bool -> Int -> IO Bool
-waitForCondition condition = go
+waitForCondition condition timeoutMicroseconds
+  | timeoutMicroseconds <= 0 = return False
+  | otherwise = fromMaybe False <$> timeout timeoutMicroseconds loop
   where
-    go remainingMicroseconds
-      | remainingMicroseconds <= 0 = return False
-      | otherwise = do
-          conditionMet <- condition
-          if conditionMet
-            then return True
-            else do
-              threadDelay pollIntervalMicroseconds
-              go $ remainingMicroseconds - pollIntervalMicroseconds
+    loop = do
+      conditionMet <- condition
+      if conditionMet
+        then return True
+        else do
+          threadDelay pollIntervalMicroseconds
+          loop
 
 ignoreExceptions :: IO a -> IO ()
 ignoreExceptions action = void (try (void action) :: IO (Either SomeException ()))
