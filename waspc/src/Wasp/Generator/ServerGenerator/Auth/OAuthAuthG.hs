@@ -25,7 +25,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
-    linkedinAuthProvider,
+    linkedInAuthProvider,
     microsoftAuthProvider,
     slackAuthProvider,
   )
@@ -49,7 +49,7 @@ genOAuthAuth auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
-        <++> genOAuthProvider linkedinAuthProvider (AS.Auth.linkedin . AS.Auth.methods $ auth)
+        <++> genOAuthProvider linkedInAuthProvider (AS.Auth.linkedIn . AS.Auth.methods $ auth)
         <++> genOAuthProvider microsoftAuthProvider (AS.Auth.microsoft . AS.Auth.methods $ auth)
   | otherwise = return []
 

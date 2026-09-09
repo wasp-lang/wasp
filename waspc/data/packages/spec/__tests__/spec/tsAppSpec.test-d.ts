@@ -35,8 +35,8 @@ describe("AuthMethods", () => {
     slack: {},
   };
 
-  const linkedin: Required<Pick<WaspSpec.AuthMethods, "linkedin">> = {
-    linkedin: {},
+  const linkedIn: Required<Pick<WaspSpec.AuthMethods, "linkedIn">> = {
+    linkedIn: {},
   };
 
   test("allows only usernameAndPassword", () => {
@@ -50,7 +50,7 @@ describe("AuthMethods", () => {
   test("allows no local auth method (e.g. only a social method)", () => {
     expectTypeOf<typeof google>().toExtend<WaspSpec.AuthMethods>();
     expectTypeOf<typeof slack>().toExtend<WaspSpec.AuthMethods>();
-    expectTypeOf<typeof linkedin>().toExtend<WaspSpec.AuthMethods>();
+    expectTypeOf<typeof linkedIn>().toExtend<WaspSpec.AuthMethods>();
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     expectTypeOf<{}>().toExtend<WaspSpec.AuthMethods>();
   });

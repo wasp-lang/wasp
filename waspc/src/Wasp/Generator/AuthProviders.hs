@@ -71,8 +71,8 @@ microsoftAuthProvider =
       OA._requiredScope = ["openid", "profile", "email"]
     }
 
-linkedinAuthProvider :: OA.OAuthAuthProvider
-linkedinAuthProvider =
+linkedInAuthProvider :: OA.OAuthAuthProvider
+linkedInAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "linkedin",
       OA._displayName = "LinkedIn",

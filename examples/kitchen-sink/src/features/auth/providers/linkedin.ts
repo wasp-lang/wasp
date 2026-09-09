@@ -1,9 +1,9 @@
 import { defineUserSignupFields } from "wasp/server/auth";
 
-export function linkedinConfig() {
+export function linkedInConfig() {
   return {
     scopes: ["profile", "email"],
   };
 }
 
-export const linkedinUserSignupFields = defineUserSignupFields({});
+export const linkedInUserSignupFields = defineUserSignupFields({});

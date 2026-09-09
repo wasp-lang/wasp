@@ -11,7 +11,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
-    linkedinAuthProvider,
+    linkedInAuthProvider,
     microsoftAuthProvider,
     slackAuthProvider,
   )
@@ -154,7 +154,7 @@ genLoginSignupForm auth =
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
           "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "linkedinSignInPath" .= OAuth.serverLoginUrl linkedinAuthProvider,
+          "linkedInSignInPath" .= OAuth.serverLoginUrl linkedInAuthProvider,
           "microsoftSignInPath" .= OAuth.serverLoginUrl microsoftAuthProvider,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]

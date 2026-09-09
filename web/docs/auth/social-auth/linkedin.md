@@ -40,7 +40,7 @@ export default app({
     userEntity: "User",
     methods: {
       // highlight-next-line
-      linkedin: {}
+      linkedIn: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
@@ -97,7 +97,7 @@ Run `wasp db migrate-dev` and `wasp start`. The generated login form will includ
 
 ## Default behavior
 
-Add `linkedin: {}` to `auth.methods` to use the default settings:
+Add `linkedIn: {}` to `auth.methods` to use the default settings:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -109,7 +109,7 @@ export default app({
   auth: {
     userEntity: "User",
     methods: {
-      linkedin: {}
+      linkedIn: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
@@ -159,7 +159,7 @@ export default app({
   auth: {
     userEntity: "User",
     methods: {
-      linkedin: {
+      linkedIn: {
         configFn: getConfig,
         userSignupFields
       }
@@ -213,7 +213,7 @@ The `AuthUser` object exposes the user's LinkedIn subject identifier:
   to="../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
   kind="api"
   title="SocialAuthConfig"
-  description="All the options for the linkedin auth method."
+  description="All the options for the LinkedIn auth method."
 />
 
 For provider-specific behavior, see [Overrides](#overrides). For behavior shared by all social providers, see the [Social Auth overview](./overview.md).

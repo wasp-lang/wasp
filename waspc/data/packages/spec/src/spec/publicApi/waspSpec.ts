@@ -274,7 +274,7 @@ type SocialAuthMethodName =
   | "google"
   | "gitHub"
   | "keycloak"
-  | "linkedin"
+  | "linkedIn"
   | "microsoft"
   | "slack";
 

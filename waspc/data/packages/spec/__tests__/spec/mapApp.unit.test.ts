@@ -598,9 +598,9 @@ describe("mapAuthMethods", () => {
       keycloak:
         authMethods.keycloak &&
         AppSpecMapper.mapSocialAuth(authMethods.keycloak, ctx),
-      linkedin:
-        authMethods.linkedin &&
-        AppSpecMapper.mapSocialAuth(authMethods.linkedin, ctx),
+      linkedIn:
+        authMethods.linkedIn &&
+        AppSpecMapper.mapSocialAuth(authMethods.linkedIn, ctx),
       microsoft:
         authMethods.microsoft &&
         AppSpecMapper.mapSocialAuth(authMethods.microsoft, ctx),

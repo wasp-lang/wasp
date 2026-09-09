@@ -58,7 +58,7 @@ const keycloakSignInUrl = `${config.apiUrl}{= keycloakSignInPath =}`
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ enabledProviders.isGitHubAuthEnabled =}
 {=# enabledProviders.isLinkedInAuthEnabled =}
-const linkedinSignInUrl = `${config.apiUrl}{= linkedinSignInPath =}`
+const linkedInSignInUrl = `${config.apiUrl}{= linkedInSignInPath =}`
 {=/ enabledProviders.isLinkedInAuthEnabled =}
 {=# enabledProviders.isMicrosoftAuthEnabled =}
 const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
@@ -161,7 +161,7 @@ export const LoginSignupForm = ({
             {=/ enabledProviders.isGitHubAuthEnabled =}
 
             {=# enabledProviders.isLinkedInAuthEnabled =}
-              <SocialButton href={linkedinSignInUrl}><SocialIcons.LinkedIn/></SocialButton>
+              <SocialButton href={linkedInSignInUrl}><SocialIcons.LinkedIn/></SocialButton>
             {=/ enabledProviders.isLinkedInAuthEnabled =}
 
             {=# enabledProviders.isMicrosoftAuthEnabled =}

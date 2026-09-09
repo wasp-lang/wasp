@@ -58,7 +58,7 @@ data AuthMethods = AuthMethods
     google :: Maybe ExternalAuthConfig,
     gitHub :: Maybe ExternalAuthConfig,
     keycloak :: Maybe ExternalAuthConfig,
-    linkedin :: Maybe ExternalAuthConfig,
+    linkedIn :: Maybe ExternalAuthConfig,
     microsoft :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
@@ -116,7 +116,7 @@ isGitHubAuthEnabled :: Auth -> Bool
 isGitHubAuthEnabled = isJust . gitHub . methods
 
 isLinkedInAuthEnabled :: Auth -> Bool
-isLinkedInAuthEnabled = isJust . linkedin . methods
+isLinkedInAuthEnabled = isJust . linkedIn . methods
 
 isMicrosoftAuthEnabled :: Auth -> Bool
 isMicrosoftAuthEnabled = isJust . microsoft . methods
@@ -136,7 +136,7 @@ enabledAuthMethodNames authMethods =
         ("google", isJust $ google authMethods),
         ("gitHub", isJust $ gitHub authMethods),
         ("keycloak", isJust $ keycloak authMethods),
-        ("linkedin", isJust $ linkedin authMethods),
+        ("linkedIn", isJust $ linkedIn authMethods),
         ("microsoft", isJust $ microsoft authMethods),
         ("email", isJust $ email authMethods)
       ],
