@@ -26,20 +26,20 @@ classifyServerEffect projectFileChanges changedGeneratedAppPaths =
     generatedAppPathServerEffect (Left file)
       | file == generatedServerPackageFile = RebundleAndRestartServer
       | file == generatedServerEnvFile = RestartServer
-      | generatedServerSrcPatterns `matchesAny` SP.fromRelFile file = RebundleAndRestartServer
+      | generatedServerInputPatterns `matchesAny` SP.fromRelFile file = RebundleAndRestartServer
       | otherwise = NoServerEffect
     generatedAppPathServerEffect (Right dir)
-      | generatedServerSrcPatterns `matchesAny` FP.dropTrailingPathSeparator (SP.fromRelDir dir) = RebundleAndRestartServer
+      | generatedServerInputPatterns `matchesAny` FP.dropTrailingPathSeparator (SP.fromRelDir dir) = RebundleAndRestartServer
       | otherwise = NoServerEffect
 
-    -- SDK changes ('sdk/wasp/...') are deliberately not covered by these globs,
-    -- even though the server bundle includes the SDK. We assume every
-    -- server-relevant SDK regeneration comes with a change to the generated
-    -- server src or the user's src.
     projectServerInputPatterns =
       map compile $ recursiveFileGlobsWithExtensions projectSrcDir serverRuntimeInputFileExtensions
 
-    generatedServerSrcPatterns = map compile $ dirAndDescendantsGlobs generatedServerSrcDir
+    generatedServerInputPatterns =
+      map compile $
+        dirAndDescendantsGlobs generatedServerSrcDir
+          -- The server bundles SDK code, which can change independently.
+          ++ dirAndDescendantsGlobs "sdk/wasp/server"
 
     patterns `matchesAny` path = any (`match` path) patterns
 
