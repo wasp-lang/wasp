@@ -12,9 +12,9 @@ import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> J.Job
 startWebApp webAppRunConfig waspProjectDir = do
-  Node.makeJobWithExtraEnv
-    (getEnvVars webAppRunConfig)
-    waspProjectDir
-    "npx"
-    ["vite"]
-    J.WebApp
+  J.makeJob J.WebApp $
+    Node.run
+      (getEnvVars webAppRunConfig)
+      waspProjectDir
+      "npx"
+      ["vite"]

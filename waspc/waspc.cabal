@@ -563,7 +563,6 @@ test-suite waspc-tests
     mtl,
     neat-interpolation,
     parsec,
-    path,
     process,
     resourcet,
     strong-path,

@@ -1,19 +1,41 @@
 module Wasp.Job.Output
-  ( printEventsPrefixedUntilExit,
+  ( runAndPrintPrefixedOutput,
+    runAndPrintOutput,
+    runAndCaptureOutput,
+    printEventsPrefixedUntilExit,
     printEvent,
     printEventsUntilExit,
     collectTextUntilExit,
   )
 where
 
-import Control.Concurrent (Chan, readChan)
+import Control.Concurrent (Chan, newChan, readChan)
+import Control.Concurrent.Async (concurrently)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
+import System.Exit (ExitCode)
 import System.IO (hFlush)
 import qualified Wasp.Job as Job
 import Wasp.Job.Output.Internal (getEventContent, getEventOutHandle)
 import Wasp.Job.Output.Prefixed (printEventPrefixed, runPrefixedWriter)
+
+runAndPrintPrefixedOutput :: Job.Job -> IO ExitCode
+runAndPrintPrefixedOutput job = fst <$> runWithOutput printEventsPrefixedUntilExit job
+
+runAndPrintOutput :: Job.Job -> IO ExitCode
+runAndPrintOutput job = fst <$> runWithOutput printEventsUntilExit job
+
+runAndCaptureOutput :: Job.Job -> IO (ExitCode, Text)
+runAndCaptureOutput job = do
+  (exitCode, chunks) <- runWithOutput collectTextUntilExit job
+  return (exitCode, T.concat $ reverse chunks)
+
+runWithOutput :: (Chan Job.JobEvent -> IO a) -> Job.Job -> IO (ExitCode, a)
+runWithOutput consumeOutput job = do
+  events <- newChan
+  Job.runJob job events `concurrently` consumeOutput events
 
 printEventsUntilExit :: Chan Job.JobEvent -> IO ()
 printEventsUntilExit = consumeEventsUntilExit $ liftIO . printEvent
