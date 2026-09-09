@@ -4,10 +4,10 @@ import { linkedin } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { linkedinUserSignupFields } from '../../../../../../../src/features/auth/providers/linkedin'
-const _waspUserSignupFields = linkedinUserSignupFields
-import { linkedinConfig } from '../../../../../../../src/features/auth/providers/linkedin'
-const _waspUserDefinedConfigFn = linkedinConfig
+import { linkedInUserSignupFields } from '../../../../../../../src/features/auth/providers/linkedin'
+const _waspUserSignupFields = linkedInUserSignupFields
+import { linkedInConfig } from '../../../../../../../src/features/auth/providers/linkedin'
+const _waspUserDefinedConfigFn = linkedInConfig
 
 const _waspConfig: ProviderConfig = {
     id: linkedin.id,

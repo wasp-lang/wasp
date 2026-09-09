@@ -8104,7 +8104,7 @@ export default app({
   auth: {
     userEntity: "User",
     methods: {
-      linkedin: {}
+      linkedIn: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
@@ -8193,7 +8193,7 @@ Run `wasp db migrate-dev` and `wasp start`. The generated login form will includ
 
 ### Default behavior
 
-Add `linkedin: {}` to `auth.methods` to use the default settings:
+Add `linkedIn: {}` to `auth.methods` to use the default settings:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -8205,7 +8205,7 @@ export default app({
   auth: {
     userEntity: "User",
     methods: {
-      linkedin: {}
+      linkedIn: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
@@ -8268,7 +8268,7 @@ export default app({
   auth: {
     userEntity: "User",
     methods: {
-      linkedin: {
+      linkedIn: {
         configFn: getConfig,
         userSignupFields
       }
@@ -8327,7 +8327,7 @@ Read more about accessing the user data in the [Accessing User Data](https://was
 
 #### [SocialAuthConfig »](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
 
-[All the options for the linkedin auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
+[All the options for the LinkedIn auth method.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/SocialAuthConfig)
 
 For provider-specific behavior, see [Overrides](#overrides). For behavior shared by all social providers, see the [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview).
 

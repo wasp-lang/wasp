@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "eaf505afc57425dc6ac79d05040a7af829060f9e51fba9461d713a78010e83ef"
+        "fa5dc9e2c87b8d8ba30e7aa572259a77a34f4f4d6eea2f5c4cdd49bd09a19cc5"
     ],
     [
         [
@@ -1593,7 +1593,7 @@
             "file",
             "server/src/auth/providers/config/linkedin.ts"
         ],
-        "2e6e23ce0fb9521929d39fb123b14100dffeea83219fc85de58b67a2c43f2a93"
+        "9ec81db7f820aeac9fab7ccad6586ef4bef0c4e491315215532bc18d0e80052e"
     ],
     [
         [
