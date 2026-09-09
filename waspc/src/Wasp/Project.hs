@@ -13,6 +13,7 @@ module Wasp.Project
 where
 
 import Control.Arrow (ArrowChoice (left))
+import Data.Either (fromLeft)
 import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
@@ -28,13 +29,12 @@ import qualified Wasp.Project.Env as Project.Env
 
 data CompileResult = CompileResult
   { _compileWarnings :: [CompileWarning],
-    _compileErrors :: [CompileError],
-    _compileAppSpec :: Maybe AS.AppSpec,
+    _compileOutcome :: Either [CompileError] AS.AppSpec,
     _compileChangedGeneratedAppPaths :: [FileOrDirPathRelativeTo Generator.GeneratedAppDir]
   }
 
 compileResultWarningsAndErrors :: CompileResult -> ([CompileWarning], [CompileError])
-compileResultWarningsAndErrors compileResult = (_compileWarnings compileResult, _compileErrors compileResult)
+compileResultWarningsAndErrors compileResult = (_compileWarnings compileResult, fromLeft [] $ _compileOutcome compileResult)
 
 compile ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -48,16 +48,14 @@ compile waspDir outDir options = do
         return
           CompileResult
             { _compileWarnings = analyzerWarnings,
-              _compileErrors = analyzerErrors,
-              _compileAppSpec = Nothing,
+              _compileOutcome = Left analyzerErrors,
               _compileChangedGeneratedAppPaths = []
             }
       (Right appSpec, analyzerWarnings) -> do
         generateResult <- generateCode appSpec outDir options
         return
           generateResult
-            { _compileWarnings = _compileWarnings generateResult <> analyzerWarnings,
-              _compileAppSpec = Just appSpec
+            { _compileWarnings = _compileWarnings generateResult <> analyzerWarnings
             }
   dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
   return compileResult {_compileWarnings = _compileWarnings compileResult <> dotEnvWarnings}
@@ -73,8 +71,7 @@ generateCode appSpec outDir options = do
   return
     CompileResult
       { _compileWarnings = show <$> filteredWarnings,
-        _compileErrors = show <$> generatorErrors,
-        _compileAppSpec = Just appSpec,
+        _compileOutcome = if null generatorErrors then Right appSpec else Left $ show <$> generatorErrors,
         _compileChangedGeneratedAppPaths = changedGeneratedAppPaths
       }
 

@@ -6,6 +6,7 @@ module Wasp.Job.Subprocess
     wait,
     poll,
     stop,
+    ProcessTreeDidNotStop (..),
   )
 where
 
@@ -14,6 +15,7 @@ import System.Exit (ExitCode)
 import qualified System.Process as P
 import Wasp.Job.Internal (JobAction, getJobOutputSink, requireExitSuccess)
 import qualified Wasp.Job.Subprocess.Finite as Finite
+import Wasp.Job.Subprocess.Managed (ProcessTreeDidNotStop (..))
 import qualified Wasp.Job.Subprocess.Managed as Managed
 
 data Subprocess = Subprocess ReleaseKey Managed.ManagedSubprocess

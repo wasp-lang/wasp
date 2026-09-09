@@ -79,13 +79,10 @@ startServer serverRunConfig generatedAppDir =
 runServerProcessController :: ServerRunConfig -> Path' Abs (Dir ServerRootDir) -> ServerProcessController -> Job.Job
 runServerProcessController serverRunConfig serverDir controller =
   Job.makeJob Job.Server $ do
-    -- Only the controller thread (this one) reads and writes these refs,
-    -- including the 'finally' cleanup below. The process exit watchers spawned
-    -- in 'startServerProcess' only write commands to the controller channel.
+    -- Only the controller thread accesses these refs. Exit watchers send commands.
     serverStateRef <- liftIO $ newIORef ServerNotRunning
     nextServerProcessIdRef <- liftIO $ newIORef 0
     runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
-      `finally` stopServerFromStateRef serverStateRef
 
 sendBlockingServerControllerCommand :: ServerProcessController -> (MVar () -> ServerControllerCommand) -> IO ()
 sendBlockingServerControllerCommand (ServerProcessController commandChan) mkCommand = do
@@ -107,119 +104,92 @@ runServerProcessControllerLoop ::
   IORef Int ->
   Job.JobAction ()
 runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef = do
-  handleSuccessfulCompile serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef RebundleAndRestartServer
+  handleSuccessfulCompile RebundleAndRestartServer
   processServerCommands
   where
+    processServerCommands :: Job.JobAction ()
     processServerCommands = do
       command <- liftIO $ readServerControllerCommand controller
       case command of
         SuccessfulCompile serverEffect done ->
-          processBlockingCommand done $
-            handleSuccessfulCompile serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef serverEffect
+          acknowledgeCommand done $ handleSuccessfulCompile serverEffect
         FailedCompile done ->
-          processBlockingCommand done $
-            stopServerFromStateRef serverStateRef
+          acknowledgeCommand done stopServerProcess
         ServerProcessExited serverProcessId exitCode ->
-          handleServerProcessExited serverStateRef serverProcessId exitCode
+          handleServerProcessExited serverProcessId exitCode
       processServerCommands
 
-    processBlockingCommand done action = action `finally` liftIO (putMVar done ())
+    acknowledgeCommand done action = action `finally` liftIO (putMVar done ())
 
-handleSuccessfulCompile ::
-  ServerRunConfig ->
-  Path' Abs (Dir ServerRootDir) ->
-  ServerProcessController ->
-  IORef ServerProcessState ->
-  IORef Int ->
-  ServerEffect ->
-  Job.JobAction ()
-handleSuccessfulCompile serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef serverEffect = do
-  reconcileExitedServerProcess serverStateRef
-  serverState <- liftIO $ readIORef serverStateRef
-  case (serverState, serverEffect) of
-    (ServerRunning {}, NoServerEffect) -> return ()
-    (ServerRunning {}, RestartServer) ->
-      replaceServerProcess serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
-    _ -> do
-      bundleExitCode <- bundleServer serverDir
-      case bundleExitCode of
-        ExitSuccess -> replaceServerProcess serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
-        ExitFailure {} -> stopServerFromStateRef serverStateRef
+    handleSuccessfulCompile :: ServerEffect -> Job.JobAction ()
+    handleSuccessfulCompile serverEffect = do
+      reconcileExitedServerProcess
+      serverState <- liftIO $ readIORef serverStateRef
+      case (serverState, serverEffect) of
+        (ServerRunning {}, NoServerEffect) -> return ()
+        (ServerRunning {}, RestartServer) -> replaceServerProcess
+        _ -> do
+          bundleExitCode <- Node.runReturningExitCode [] serverDir "npm" ["run", "bundle"]
+          case bundleExitCode of
+            ExitSuccess -> replaceServerProcess
+            ExitFailure {} -> stopServerProcess
 
-replaceServerProcess ::
-  ServerRunConfig ->
-  Path' Abs (Dir ServerRootDir) ->
-  ServerProcessController ->
-  IORef ServerProcessState ->
-  IORef Int ->
-  Job.JobAction ()
-replaceServerProcess serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef = do
-  stopServerFromStateRef serverStateRef
-  startServerProcess serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
+    replaceServerProcess :: Job.JobAction ()
+    replaceServerProcess = stopServerProcess >> startServerProcess
 
-bundleServer :: Path' Abs (Dir ServerRootDir) -> Job.JobAction ExitCode
-bundleServer serverDir = Node.runReturningExitCode [] serverDir "npm" ["run", "bundle"]
+    startServerProcess :: Job.JobAction ()
+    startServerProcess = do
+      createProcess <- liftIO $ Node.makeCreateProcess (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
+      mask_ $ do
+        serverProcessId <- liftIO getNextServerProcessId
+        subprocess <- Subprocess.spawn createProcess
+        liftIO $ writeIORef serverStateRef $ ServerRunning ServerProcess {_serverProcessId = serverProcessId, _subprocess = subprocess}
+        exitWatcher <- liftIO $ async $ do
+          exitCode <- Subprocess.wait subprocess
+          writeServerControllerCommand controller $ ServerProcessExited serverProcessId exitCode
+        liftIO $ link exitWatcher
 
-startServerProcess ::
-  ServerRunConfig ->
-  Path' Abs (Dir ServerRootDir) ->
-  ServerProcessController ->
-  IORef ServerProcessState ->
-  IORef Int ->
-  Job.JobAction ()
-startServerProcess serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef = do
-  createProcess <- liftIO $ Node.makeCreateProcess (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
-  mask_ $ do
-    serverProcessId <- liftIO $ getNextServerProcessId nextServerProcessIdRef
-    subprocess <- Subprocess.spawn createProcess
-    liftIO $ writeIORef serverStateRef $ ServerRunning ServerProcess {_serverProcessId = serverProcessId, _subprocess = subprocess}
-    exitWatcher <- liftIO $ async $ do
-      exitCode <- Subprocess.wait subprocess
-      writeServerControllerCommand controller $ ServerProcessExited serverProcessId exitCode
-    liftIO $ link exitWatcher
-    return ()
+    getNextServerProcessId :: IO ServerProcessId
+    getNextServerProcessId = do
+      nextServerProcessId <- (+ 1) <$> readIORef nextServerProcessIdRef
+      writeIORef nextServerProcessIdRef nextServerProcessId
+      return $ ServerProcessId nextServerProcessId
 
-getNextServerProcessId :: IORef Int -> IO ServerProcessId
-getNextServerProcessId nextServerProcessIdRef = do
-  nextServerProcessId <- (+ 1) <$> readIORef nextServerProcessIdRef
-  writeIORef nextServerProcessIdRef nextServerProcessId
-  return $ ServerProcessId nextServerProcessId
+    stopServerProcess :: Job.JobAction ()
+    stopServerProcess = mask_ $ do
+      serverState <- liftIO $ readIORef serverStateRef
+      case serverState of
+        ServerNotRunning -> return ()
+        ServerRunning serverProcess -> do
+          Subprocess.stop $ _subprocess serverProcess
+          liftIO $ writeIORef serverStateRef ServerNotRunning
 
-stopServerFromStateRef :: IORef ServerProcessState -> Job.JobAction ()
-stopServerFromStateRef serverStateRef = mask_ $ do
-  serverState <- liftIO $ readIORef serverStateRef
-  case serverState of
-    ServerNotRunning -> return ()
-    ServerRunning serverProcess -> do
+    handleServerProcessExited :: ServerProcessId -> ExitCode -> Job.JobAction ()
+    handleServerProcessExited serverProcessId exitCode = do
+      serverState <- liftIO $ readIORef serverStateRef
+      case serverState of
+        ServerRunning serverProcess
+          | _serverProcessId serverProcess == serverProcessId ->
+              cleanUpExitedServerProcess serverProcess exitCode
+        _ -> return ()
+
+    reconcileExitedServerProcess :: Job.JobAction ()
+    reconcileExitedServerProcess = do
+      serverState <- liftIO $ readIORef serverStateRef
+      case serverState of
+        ServerNotRunning -> return ()
+        ServerRunning serverProcess ->
+          liftIO (Subprocess.poll $ _subprocess serverProcess) >>= \case
+            Nothing -> return ()
+            Just exitCode -> cleanUpExitedServerProcess serverProcess exitCode
+
+    cleanUpExitedServerProcess :: ServerProcess -> ExitCode -> Job.JobAction ()
+    cleanUpExitedServerProcess serverProcess exitCode = do
+      -- The root process exited on its own, but its descendants may have survived
+      -- and could still hold the server port or output pipes.
       Subprocess.stop $ _subprocess serverProcess
+      printServerProcessExit exitCode
       liftIO $ writeIORef serverStateRef ServerNotRunning
-
-handleServerProcessExited :: IORef ServerProcessState -> ServerProcessId -> ExitCode -> Job.JobAction ()
-handleServerProcessExited serverStateRef serverProcessId exitCode = do
-  serverState <- liftIO $ readIORef serverStateRef
-  case serverState of
-    ServerRunning serverProcess
-      | _serverProcessId serverProcess == serverProcessId ->
-          cleanUpExitedServerProcess serverStateRef serverProcess exitCode
-    _ -> return ()
-
-reconcileExitedServerProcess :: IORef ServerProcessState -> Job.JobAction ()
-reconcileExitedServerProcess serverStateRef = do
-  serverState <- liftIO $ readIORef serverStateRef
-  case serverState of
-    ServerNotRunning -> return ()
-    ServerRunning serverProcess ->
-      liftIO (Subprocess.poll $ _subprocess serverProcess) >>= \case
-        Nothing -> return ()
-        Just exitCode -> cleanUpExitedServerProcess serverStateRef serverProcess exitCode
-
-cleanUpExitedServerProcess :: IORef ServerProcessState -> ServerProcess -> ExitCode -> Job.JobAction ()
-cleanUpExitedServerProcess serverStateRef serverProcess exitCode = do
-  -- The root process exited on its own, but its descendants may have survived
-  -- and could still hold the server port or output pipes.
-  Subprocess.stop $ _subprocess serverProcess
-  printServerProcessExit exitCode
-  liftIO $ writeIORef serverStateRef ServerNotRunning
 
 printServerProcessExit :: ExitCode -> Job.JobAction ()
 printServerProcessExit exitCode =

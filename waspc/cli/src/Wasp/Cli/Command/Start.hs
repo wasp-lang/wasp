@@ -22,7 +22,7 @@ import Wasp.Cli.Command.Require.DbConnectionEstablished (DbConnectionEstablished
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Start.ServerRuntimeInputChange (classifyServerEffect)
-import Wasp.Cli.Command.Watch (WatchCompileHooks (..), watch)
+import Wasp.Cli.Command.Watch (WatchCompileHooks (..), WatchCompileResult (..), watch)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.Message (cliSendMessage)
@@ -35,7 +35,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning)
+import Wasp.Project (CompileError, CompileResult (..), CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
@@ -82,7 +82,10 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
     let watchCompileHooks =
           WatchCompileHooks
             { _onSuccessfulCompile = \watchCompileResult -> do
-                let serverEffect = classifyServerEffect watchCompileResult
+                let serverEffect =
+                      classifyServerEffect
+                        (_watchProjectFileChanges watchCompileResult)
+                        (_compileChangedGeneratedAppPaths $ _watchCompileResult watchCompileResult)
                 when (serverEffect /= ServerGenerator.Start.NoServerEffect) $
                   cliSendMessage (Msg.Start "Updating server...")
                 ServerGenerator.Start.notifySuccessfulCompile serverProcessController serverEffect,

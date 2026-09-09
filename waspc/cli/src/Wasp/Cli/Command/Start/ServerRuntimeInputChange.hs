@@ -5,8 +5,7 @@ where
 
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.Compile (CompileResult (..))
-import Wasp.Cli.Command.Watch (ProjectFileChange (..), WatchCompileResult (..))
+import Wasp.Cli.Command.Watch (ProjectFileChange (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
@@ -14,10 +13,10 @@ import Wasp.Generator.ServerGenerator.Start (ServerEffect (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Util.Glob (compile, dirAndDescendantsGlobs, match, recursiveFileGlobsWithExtensions)
 
-classifyServerEffect :: WatchCompileResult -> ServerEffect
-classifyServerEffect watchCompileResult =
-  foldMap projectFileChangeServerEffect (_watchProjectFileChanges watchCompileResult)
-    <> foldMap generatedAppPathServerEffect (_compileChangedGeneratedAppPaths $ _watchCompileResult watchCompileResult)
+classifyServerEffect :: [ProjectFileChange] -> [FileOrDirPathRelativeTo GeneratedAppDir] -> ServerEffect
+classifyServerEffect projectFileChanges changedGeneratedAppPaths =
+  foldMap projectFileChangeServerEffect projectFileChanges
+    <> foldMap generatedAppPathServerEffect changedGeneratedAppPaths
   where
     projectFileChangeServerEffect (ProjectFileChange path)
       | projectServerInputPatterns `matchesAny` path = RebundleAndRestartServer
