@@ -23,31 +23,30 @@ As it turns out, working around circular dependencies in Typescript is an intere
 
 {/* truncate */}
 
-We will start with why our SDK depends on the the user project.
-Once we are set that we do want to depend on the user peojct, we will look at how you usually solve circular dependencies, why that is not possible here.
-Finally, we will look how can we emulate the same behavior, but without circular dependencies.
+We will start with why our SDK wants to depend on the the user project and why is that impossible.
+Then we will check out how you usually solve circular dependencies between Typescript projects, and why that is not possible here.
+Finally, we will look at how frameworks emulate the same behavior, but without the circular dependencies.
 
 ## Framework magic is a tradeoff
 
 Have you ever wondered why different frameworks have different degrees of abstraction?
-One framework seems to connect everything magically in the backgroudn, while the other one forces you to do the work yourself.
+One framework seems to connect everything magically in the background, while the other one forces you to do the work yourself.
 
 This is because that degree of magic you feel is not some ideal that every framework should persuade, but rather a tradeoff.
-Magic *can* feel **good as DX, but it requires harness to work**. A tradeoff between abstraction and a loss of freedom.
-{/* AI: What does it mean to require harness to work? */}
+**Framework magic *can* feel good as DX, but it requires harness to work**. It's a tradeoff between abstraction and a loss of freedom.
+The less wiring you write yourself, the more the framework needs to wrap your application.
+{/* TODO: explain harness */}
 
 To get a better feel of this magic, I will take an example of defining a server operation (procedure, if you wish) and using it on the client.
-We will skip defining operations themselves, as that is an obvious necessary step.
-{/* AI: Maybe include operation definitions after all? */}
+We will skip defining operations themselves, as that is an more-or-less identical and a necessary step.
 
-For purpose of exaggerating, I'm going to pick polar opposites, a library and a framework: tRPC and Wasp.
-Let's pay attention to the flow of types and values in both examples.
+For the purpose of exaggerating, I'm going to pick polar opposites, a library and a highly *magical* framework: **tRPC** and **Wasp**.
 
 ### RPC in tRPC
 
 Let's start with a "less magical" experience, a library called tRPC.
 
-1. We start by initializing the tRPC, which gives us access to our router.
+1. To start, **we** have to initialize the tRPC which gives us access to a router.
 
     ```tsx title="src/server/trpc.ts"
     import { initTRPC } from '@trpc/server';
@@ -59,16 +58,15 @@ Let's start with a "less magical" experience, a library called tRPC.
     export const publicProcedure = t.procedure;
     ```
 
-2. After defining our operations, **we** (the people) have to collect all of them into our `router` constructor.
-   A single intialization point is necessary for proper type infererence.
+2. After defining our operations, **we** have to collect all of them into the `router` constructor.
 
     ```tsx title="src/server/appRouter.ts"
     import { router } from "./trpc";
     import { userGetAll } from "./users";
     import { taskGetAll, taskCreate } from "./tasks";
     // highlight-start
-    export const appRouter = router({
-      userGetAll,
+    export const appRouter = router({ // A single intialization point is necessary
+      userGetAll,                     // for proper type infererence
       taskGetAll,
       taskCreate,
     });
@@ -77,7 +75,7 @@ Let's start with a "less magical" experience, a library called tRPC.
     export type AppRouter = typeof appRouter;
     ```
 
-3. To use the type-safe client, **we** have to create it.
+3. To use a type-safe client, **we** have to create it.
    Type-safety comes from passing the server router type to the client constructor.
 
     ```tsx title="src/client/index.ts"
@@ -95,7 +93,7 @@ Let's start with a "less magical" experience, a library called tRPC.
     });
     ```
 
-4. Finally, we can use our operation by calling it through the client we created.
+4. Finally, we can use our operations by calling them through the client.
 
     ```tsx title="src/client/someFile.ts(x)"
     import { trpc } from "./index";
@@ -104,17 +102,17 @@ Let's start with a "less magical" experience, a library called tRPC.
     const users = await trpc.userGetAll.query();
     ```
 
-We can see that tRPC only helped with the initialization of the client and the router. The rest is on the user.
+We can see that tRPC only helped with the initialization of the client and the router.
+The wiring is on the user.
 
-If we give it a thought, **it's easy to understand the TypeScript machinery in the background**.
+If we give it a thought, **it's easy to understand** the TypeScript machinery in the background.
 The flow of types and values is pretty straightforward.
 
 ### RPC in Wasp
 
-And now, for something a bit more magical, let's see how Wasp works:
+And now, for something a bit "more magical", let's see how Wasp works:
 
-1. Before defining our operations, we specify them in the [Wasp Spec](/blog/2026/06/15/wasp-typescript-spec).
-   Wasp in turn, generates helper types for safer operation definitions.
+1. Before defining our operations, **we** specify them in the [Wasp Spec](/blog/2026/06/15/wasp-typescript-spec).
 
     ```tsx title="main.wasp.ts"
     import { app, page, route, action, query } from "@wasp.sh/spec";
@@ -128,15 +126,16 @@ And now, for something a bit more magical, let's see how Wasp works:
       // highlight-start
       spec: [
         // ...
-        query(userGetAll, { entities: ["User"] }),
-        query(taskGetAll, { entities: ["Task"] }),
-        action(taskCreate, { entities: ["Task"] }),
+        query(userGetAll, { entities: ["User"] }),  // Wasp uses this information
+        query(taskGetAll, { entities: ["Task"] }),  // to e.g. generate helper types
+        action(taskCreate, { entities: ["Task"] }), // for defining operations
       ],
       // highlight-end
     });
     ```
 
-2. After we've defined our operations, Wasp exports the type-safe client. We can use our operation by importing it.
+2. After we've defined our operations, **Wasp** exports the type-safe client. 
+   We can use our operations by importing them.
 
     ```tsx title="src/user/someFile.ts(x)"
     import { userGetAll } from "wasp/client/operations";
@@ -145,7 +144,7 @@ And now, for something a bit more magical, let's see how Wasp works:
     const users = await userGetAll();
     ```
 
-Wasp handles a bit more wiring for the users.
+Wasp handles more wiring for the users.
 Albeit more stuff is hidden in the background, on first thought, everything also seems sound here.
 Wasp locates the operations through the Wasp Spec, where it can find the rest of the information necessary to generate a client for you.
 
@@ -160,10 +159,11 @@ Let's take a look at what you have to do in each scenario:
 
 While magic helps you by making you faster (user has to do less operations), it is also misdirection.
 You just somehow get all of the functionalities you need, without it always having a fully clear flow to follow.
-It may sound logical in actions, but you **have to learn a framework to actually use it**.
-It's not TypeScript flow you could write yourself (like in tRPC), it's the frameworks.
+It may sound logical in steps you have to make, but you **have to learn a framework to actually use it**.
+It's not TypeScript's flow you could write yourself (like in tRPC), it's the frameworks.
 
-But why all of this “magic” introduction? Let's actually think a bit more deeply about how Wasp's TypeScript flow would work:
+But why all of this “magic” introduction?
+Let's actually think a bit more deeply about how Wasp's TypeScript flow would work:
 
 1. You specify the operations in the Wasp Spec.
 
@@ -175,10 +175,10 @@ But why all of this “magic” introduction? Let's actually think a bit more de
 
 3. Wasp generates the wiring.
 
-   Okay. We guess Wasp just does tRPC's manual wiring automatically.
-   In short, Wasp collects information from operation definitions, creates “some router”, creates “some client” from “some router”, and exports it to the user.
-    
-But wait, “collects the type information from all user's operation definitions”?
+Okay, we guess that Wasp just does tRPC's manual wiring automatically:
+Wasp collects information from user's operations definitions, creates “some router”, creates “some client” from said “some router”, and exports that "some client" to the user.
+
+But wait, “collects the information from user's operations definitions”?
 That means that the SDK must import user operations definitions to get their types and values?
 
 That would mean that:
@@ -186,13 +186,7 @@ That would mean that:
 1. **User's project imports from the Wasp's SDK**. Okay, this is the intended flow, that is the purpose of any SDK.
 2. **Wasp's SDK imports from the user's project**. Wasp needs to slot in the user's types and values into the SDK.
 
-{/* FIXME: need a better image here */}
-<ImgWithCaption
-  source="img/blog/sdk-circular-deps/circular-deps-paradox.png"
-  alt="User project depends on the SDK while the SDK depends on the user project, forming an impossible cycle"
-/>
-
-This is a **circular dependency between TypeScript projects**! This is illegal in TypeScript! But Wasp still does it? How?
+This is a **circular dependency between TypeScript projects**! This is illegal in TypeScript! But Wasp still works? How?
 
 ## Circular dependencies in TypeScript
 
@@ -200,7 +194,7 @@ If you thinking “Aren't circular dependencies allowed in TypeScript?”, you a
 We need to be aware of the distinction of circular dependencies between TypeScript modules (inside the same TypeScript project) and TypeScript projects.
 
 When importing in context of a single TypeScript project, circular imports are allowed.
-The problem starts when you do circular imports between TypeScript projects, where the [dependency graph must be acyclical](https://github.com/microsoft/TypeScript/issues/33685) ([a DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph)).
+**The problem starts when you do circular imports between TypeScript projects**, where the [dependency graph must be acyclical](https://github.com/microsoft/TypeScript/issues/33685) ([a DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph)).
 
 <ImgWithCaption
   source="img/blog/sdk-circular-deps/typescript-circular-imports.png"
@@ -209,52 +203,41 @@ The problem starts when you do circular imports between TypeScript projects, whe
 
 The SDK and the user project are two different TypeScript projects, so it is illegal afterall.
 
-### How to solve circular dependencies between TypeScript projects
+### How to solve circular dependencies between TypeScript projects?
 
 If you have circular deps between TypeScript projects, that is usually a sign of:
 1. **Bad code placement**.
 2. You actually don't have two difference TypeScript projects. **You have a single TypeScript project** that was mistakenly split into two.
 
-It our case bad code placement? I don't think so. I mean, if we move most of the logic to the user project, we will end up with tRPC, which is **not what Wasp is aiming for**.
+It our case bad code placement? I don't think so. I mean, if we move most of the wiring logic to the user project, we will end up with tRPC, which is **not what Wasp is aiming for**.
 
-We also **can't combine the projects**. SDK is something which we must ship to users as a standalone package.
+We also can't combine the projects. **The SDK is something which we must ship to users as a standalone package**.
 
 And even if do try to combine the projects, we encounter problems.
 Both the SDK and the user project **would need to follow the same compilation rules**.
 Either our SDK is at mercy of the user (which is a no go), or the user is not in control of it's `tsconfig.json` (which is where Wasp was previously).
-This *can* work, but it's bad DX.
+Techincally, this *can* work, but it's bad DX.
 
-So, it's just impossible. **SDK can never have a dependency on the user project**.
+So, it's just impossible (with good DX). **SDK can never have a dependency on the user project**.
 
-The solution is not in project dependencies, but still, it is the behavior we want emulate.
-We must emulate the same behavior, but without dependencies.
+The solution is not in project dependencies, but still, it is the behavior we want to emulate.
+So, let's emulate it!
 
-## Emulating TypeScript project dependencies behavior
+## Emulating TypeScript project dependencies
 
-Since the SDK can't have a TypeScript project dependency on the user project, let's emulate it!
-What do project dependencies even enable us?
+What do we even want to emaulate?
+In simple terms, Typescript project dependencies give us two things: **types** and **values**.
 
-Well, [put very simply](https://grugbrain.dev/), we can:
+Since the SDK cannot import either from the user project, the user project has to somehow *register* its types and values on the SDK.
+**Dependency inversion**. Instead of the SDK pulling the user project types/values (importing), the user project has to push them to the SDK instead.
 
-1. **Import types from a dependency**.
-
-   E.g. SDK imports user operation definition type to create a type-safe client for that operation.
-
-2. **Import values from a dependency**.
-
-   E.g. The operation client must actually call the operation that the user defined. So we must have a reference to that value (operation definition).
-
-So, to emulate project dependencies, we must figure out how to push user's values and types to the SDK, in that way SDK can access them without directly depending on them.
-{/* AI: Filip does not like the word "push" in this context, Martin did not understand the word "bridge". Find something third? Update it in all places (also further titles) */}
-{/* AI: Reword wording in this whole title, avoid so much duplication, make it easier to understand (grug brain this title) */}
-
-## Pushing types from the user project to the SDK
+## Registering user project types in the SDK
 
 Believe it or not, TypeScript provides this functionality out of box.
 You've probably used this feature yourself, without even knowing what you are actually doing.
 
 Maybe you wanted [`tanstack-query` to use your custom error by default](https://tanstack.com/query/latest/docs/framework/react/typescript#registering-a-global-error)?
-In that case you copied something like this in your project:
+In that case, you had to copy something like this in your project:
 ```ts
 import '@tanstack/react-query'
 
@@ -267,8 +250,8 @@ declare module '@tanstack/react-query' {
 This is the same trick that we are going to use to ensure type safety.
 
 The trick lives on two separate TypeScript concepts working together:
-1. **[Interface declaration merging](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces)**
-2. **[Module augmentation](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation)** (not to be confused with [module declaration](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html), which is a similar, but separate concept we will be using a bit later).
+1. [**Interface declaration merging**](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces)
+2. [**Module augmentation**](https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation) (not to be confused with [module declaration](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html), which is a similar, but separate concept we will be using a bit later).
 
 ### Interface declaration merging
 
@@ -301,13 +284,10 @@ interface Box { width: number; }
 
 ### Module augmentation
 
-Module augmentation allows us to to augment (modify in a way which expands) existing modules.
+Module augmentation allows us to to *augment* (modify in a way which expands) existing modules.
 The target module is specified the same as in the `import/export` syntax.
 
-As the name implies, we can only *“augment”* them.
-We are not allowed to declare new top-level declarations, we can **only patch existing declarations**.
-And **only named exports** are allowed (because `default` is a reserved keyword).
-{/* AI: also some duplication, make it a bit shorter somehow? */}
+You can only extend **existing declarations** (no new top-level declarations) and **named exports** (`default` is a reserved keyword).
 
 ```ts title="a.ts"
 export interface Box { height: number; };
@@ -326,22 +306,20 @@ const fail: Box = { height: 5 };
 //        but required in type 'Box'.(2741)
 ```
 
-### How Wasp bridges the types between the SDK and the user project
+### How Wasp registers user's types to its SDK
 
-The big idea was for the the user project to push types into the SDK.
-So, let's show an actual example on how Wasp does it:
+So, user needs to register its types, but Wasp wants to do the wiring?
+Exactly the reason why the harness is necessary, we must be able to do some actions for the user in their own project.
+Let's see on an example how exactly does Wasp do it (links lead to code, we are open source after all):
 
-{/* TODO: link to github files once merged */}
-{/* Here: https://github.com/wasp-lang/wasp/pull/4049, see how to incorporate it */}
-
-1. The SDK defines an empty `Register` interface (name by convention).
-   This interface must be a part of the public API, otherwise the user project can't augment it.
+1. The SDK defines an empty [`Register` interface](https://github.com/wasp-lang/wasp/blob/d60c7f49ba0b3fc26768cba58078d98ca895de30/waspc/data/Generator/templates/sdk/wasp/types/register.ts#L4) (name by convention).
+   This interface must be a [part of the public API](https://github.com/wasp-lang/wasp/blob/d60c7f49ba0b3fc26768cba58078d98ca895de30/waspc/data/Generator/templates/sdk/wasp/package.json#L112), otherwise the user project can't augment it.
     
     ```ts title="sdk/wasp/types/register.ts"
     export interface Register {}
     ```
     
-2. In a file which is part of the user's project (Wasp made it so in user's `tsconfig.src.json` file):
+2. In a file which is part of the user's project (Wasp made it so in [user's `tsconfig.src.json` file](https://github.com/wasp-lang/wasp/blob/d60c7f49ba0b3fc26768cba58078d98ca895de30/waspc/data/Cli/starters/skeleton/tsconfig.src.json#L18)):
     
     ```ts title="tsconfig.src.json"
     {
@@ -351,7 +329,7 @@ So, let's show an actual example on how Wasp does it:
     }
     ```
     
-    Wasps generate a module thats augments the SDK's `Register` interface:
+    Wasps generate a [module thats augments](https://github.com/wasp-lang/wasp/blob/d60c7f49ba0b3fc26768cba58078d98ca895de30/waspc/data/Generator/templates/types/app/sdk/register.ts#L10) the SDK's `Register` interface:
     
     ```ts title=".wasp/out/types/app/sdk/register.ts"
     import "wasp/types";
@@ -368,12 +346,9 @@ So, let's show an actual example on how Wasp does it:
       }
     }
     ```
-    This "pushes" types of user defined code to the SDK.
+    This effectively registers the user's types in the SDK.
     
-3. Finally, the **SDK derives all the user-code dependent types from the `Register` interface**.
-   `FromRegister` checks if a type exists at the specified `Register` path, and if it does, we use it.
-    If not, it falls back to some default type.
-    
+3. Finally, the **SDK derives all the user-code dependent types from the [`Register` interface](https://github.com/wasp-lang/wasp/blob/d60c7f49ba0b3fc26768cba58078d98ca895de30/waspc/data/Generator/templates/sdk/wasp/types/register.ts#L6-L24)**.
     ```ts title="sdk/wasp/types/register.ts (simplified)"
     /** 
      * Safely reads values from {@link Register}.
@@ -384,12 +359,13 @@ So, let's show an actual example on how Wasp does it:
       : Fallback;
     ```
     
-    This fallback is really important. The SDK compiles by itself before any other TypeScript project,
-    so at that point **`Register` is always empty and every conditional type resolves to its fallback**.
-    By having the fallback types satisfy everything the SDK expects of them, the SDK can still compile on its own.
-    {/* AI: Reword so it's more truthful. Explain relationship between module augmentation and compiling better. */}
+    This `Fallback` is really important.
+    The SDK is a standalone Typescript project which compiles before the user project.
+    That means, that during the SDK compilation, module augmentation is not in scope,
+    so the **`Register` interface is empty and every conditional type dervied from it resolves to its `Fallback`**.
+    By having the `Fallback` type satisfy everything the SDK expects of the type, the SDK can still compile on its own.
     
-    E.g. for `serverEnvValidationSchema`, if user didn't specify anything, we default to a empty `zod` object schema: 
+    E.g. for [`serverEnvValidationSchema`](https://github.com/wasp-lang/wasp/blob/d60c7f49ba0b3fc26768cba58078d98ca895de30/waspc/data/Generator/templates/sdk/wasp/server/env.ts#L9), we default to a empty `zod` object schema: 
     
     ```ts title="sdk/wasp/server/env.ts"
     export type RegisteredServerEnvValidationSchema = FromRegister<
@@ -397,24 +373,36 @@ So, let's show an actual example on how Wasp does it:
       z.ZodObject<{}>
     >;
     ```
-    Same pattern is applied to any SDK code that depends on the user project types.
-    
-This seems easy enough, but using these "registered" types as we want would not work.
+
+So far so good, but using these "registered" types as we want would not work.
 This is due how TypeScript emits declaration files.
 
 ### Forcing the conditional types to survive
-{/* AI: this module can be shortned, and have better order of paragraphs */}
+{/* TODO: this module can be shortned, and have better order of paragraphs */}
+
+{/* 
+User project consumes SDK .d.ts files, not SDK .ts files.
+For inferred values, TypeScript writes the resolved type into .d.ts.
+During SDK compile, that resolved type is always Fallback.
+Show the inferred env.d.ts (Record<string, never> & { PORT: number }).
+Then: an explicit annotation is copied verbatim, so the conditional survives.
+Show the explicit version.
+Close with the rule: every type derived from Register needs :, as, or extends.
+Cut the "TypeScript really does not want to keep it that way" throat-clearing. Start with the .d.ts fact. 
+*/}
+
+
+
 
 The whole approach depends on `FromRegister` staying a conditional type.
 And TypeScript really does not want to keep it that way.
 
-Remember, the SDK is a standalone project, so it compiles alone.
-Whatever module augmentation the user project does, is not a part of the SDK compilation.
+Let's recap. The SDK is a standalone project, so it compiles alone.
+Whatever module augmentation the user project does, is not a part of the SDK compilation (in fact none module augmentation ever is).
 Whenever the compiler sees `FromRegister<"someKey", Fallback>`, it resolves it on the spot.
 `Register` is always empty, so the whole conditional collapses to `Fallback`.
-No need for all that extra `FromRegister` complexity.
 
-{/* AI: should this go first? order seems a bit wrong */}
+{/* TODO: should this go first? order seems a bit wrong */}
 While the compilation succeeds, the problem is how the user project sees the SDK.
 In emitted `.d.ts` files, for every value whose type is *inferred*, TypeScript emits the *resolved* type.
 
@@ -511,20 +499,19 @@ The conditional type survives, written out exactly as we wrote it.
 Yep, a lot of forced types, but that is the whole trick.
 You can get away with this approach as long as every type derived from the `Register` is set explicitly, be it `: RegisteredType`, `as RegisteredType` or `T extends RegisteredType`. 
 
-## Pushing values from the user project to the SDK
+## Registering user project values in the SDK
 
 So the SDK must accept values from a consumer.
 And what it can accept is defined by a contract / interface.
 This is usually known as dependency inversion.
 
-### The straightforward approach
+### Dependency injection
 
 A straightforward way to implement this would be to use dependency injection.
 You export a function to “register” external dependencies, and your SDK handles logic depending if the dependencies had been registered.
 
 Suppose a full-stack framework's dependency graph looks like this:
 
-{/* NOTE(claude): alt text is my (AI) suggestion. */}
 <ImgWithCaption
   source="img/blog/sdk-circular-deps/full-stack-app-deps.png"
   alt="Dependency graph of a Wasp app: the user project depends on the SDK, and the generated client and server depend on both"
@@ -540,11 +527,12 @@ The dependencies must be registered before they are used for the first time.
 This requires precise balancing of module initialization order, which is a chore.
 It'd be best if we could avoid it.
 
-### The proxy approach (also how Wasp does it currently, but we *might* do DI in the end afterall)
-{/* FIXME: AI generated, tidy up */}
+### Virtual modules (also how Wasp does it currently, but we *might* do DI in the end afterall)
+
+{/* TODO: make sure this is generalized concept, and actual Wasp examples are in title below */}
 
 One thing to remember is that circular dependencies are a problem only between TypeScript projects.
-Once the code is bundle, there are no more circular dependencies.
+Once the code is bundled to javscript, there are no more TypeScript projects.
 
 And in the end, our code will be nothing but a bunch of JavaScript bundles.
 The server bundle will be a mix of generated server code, SDK code, and user project code. 
@@ -615,9 +603,28 @@ We *could* use package imports (e.g. `from "wasp/server/operations"`), those are
 Inline `import("...")` types dodge both problems. They're legal, and they resolve relative to the declaration file itself, which does have a location.
 :::
 
+### How Wasp registers user's values to its SDK
+
+{/* TODO: link to github files once merged */}
+{/* Here: https://github.com/wasp-lang/wasp/pull/4067, see how to incorporate it */}
+
 ### Recap of putting everything together
 
+Recap:
+
+- User project → SDK is the only legal project dependency.
+- Types: user project augments Register. SDK reads it with FromRegister. Annotations keep the conditional alive in .d.ts.
+- Values: SDK imports virtual:wasp/user/.... Bundler rewrites those after tsc.
+- Ambient declare module types those virtual imports with the same Register types.
+- If the conclusion says the same thing, delete the recap.
+
+
 ## Conclusion
+
+{/* TODO: write */}
+
+
+
 
 {/* TODO: convert to another blog post instead, a lot to expand */}
 {/* ## Addendum: type portability, the price of the package boundary
