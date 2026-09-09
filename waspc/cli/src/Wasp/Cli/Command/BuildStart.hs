@@ -49,12 +49,12 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Building client..."
-  runAndPrintJobOutput (Job.runJob $ buildClient config)
+  liftIO (Output.runAndPrintPrefixedOutput $ buildClient config)
     >>= throwOnExitFailure "Building client failed."
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  runAndPrintJobOutput (Job.runJob $ buildServer config)
+  liftIO (Output.runAndPrintPrefixedOutput $ buildServer config)
     >>= throwOnExitFailure "Building server failed."
   cliSendMessageC $ Msg.Success "Server built."
 

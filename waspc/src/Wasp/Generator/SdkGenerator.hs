@@ -7,8 +7,6 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
@@ -88,11 +86,10 @@ import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
-  chan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (Output.printEventsPrefixedUntilExit chan)
-      (Job.runJob (Node.makeJob sdkRootDir "npm" ["run", "build"] Job.Wasp) chan)
+  exitCode <-
+    Output.runAndPrintPrefixedOutput $
+      Job.makeJob Job.Wasp $
+        Node.run [] sdkRootDir "npm" ["run", "build"]
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
