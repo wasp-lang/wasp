@@ -1,9 +1,13 @@
 module Wasp.Cli.Command.Common
   ( throwIfExeIsNotAvailable,
     deleteDirectoryIfExistsVerbosely,
+    runAndPrintJob,
   )
 where
 
+import Control.Concurrent.Async (concurrently)
+import Control.Concurrent.Chan (newChan)
+import Control.Monad.Except (runExceptT)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
@@ -12,6 +16,8 @@ import StrongPath.Operations
 import System.Directory (findExecutable)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Job.Except (ExceptJob)
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.IO as IOUtil
 
@@ -35,3 +41,12 @@ deleteDirectoryIfExistsVerbosely dir = do
       cliSendMessageC $ Msg.Success $ "Nothing to delete: The " ++ dirName ++ " directory does not exist."
   where
     dirName = SP.toFilePath $ basename dir
+
+-- | Runs the job while printing its output, and fails the command with the given message if the
+-- job fails.
+runAndPrintJob :: String -> ExceptJob -> Command ()
+runAndPrintJob errorMessage job = do
+  result <- liftIO $ do
+    chan <- newChan
+    fst <$> concurrently (runExceptT $ job chan) (readJobMessagesAndPrintThemPrefixed chan)
+  either (E.throwError . CommandError errorMessage) return result

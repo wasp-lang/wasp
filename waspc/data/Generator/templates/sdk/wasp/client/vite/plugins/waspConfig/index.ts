@@ -57,6 +57,7 @@ export function waspConfig(): PluginOption {
         envPrefix: forcedOptions["envPrefix"],
         build: {
           outDir: forcedOptions["build.outDir"],
+          assetsDir: forcedOptions["build.assetsDir"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them
@@ -98,6 +99,8 @@ const forcedOptions = {
   base: "{= baseDir =}",
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
+  // The server tells fingerprinted files from client routes by this dir when it serves the client.
+  "build.assetsDir": "{= assetsDir =}",
   // Heads up! The env referred to by `clientPortEnvVarName` is empty during
   // `build`, so it's not persisted in the final output.
   "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),

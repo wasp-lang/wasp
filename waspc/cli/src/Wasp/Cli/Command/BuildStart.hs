@@ -3,17 +3,15 @@ module Wasp.Cli.Command.BuildStart
   )
 where
 
-import Control.Concurrent.Async (concurrently)
-import Control.Concurrent.Chan (newChan)
-import Control.Monad.Except (MonadError (throwError), runExceptT)
-import Control.Monad.IO.Class (liftIO)
 import Wasp.AppSpec.App.Deployment (DeploymentMode (..))
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, require)
+import Wasp.Cli.Command.Build.Client (buildClient)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
-import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
+import Wasp.Cli.Command.BuildStart.Client (startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Cli.Command.Common (runAndPrintJob)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (GeneratedAppIsProduction))
@@ -22,10 +20,10 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.RunConfigs (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
-import Wasp.Job.Except (ExceptJob)
+import Wasp.Env (getEnvVars)
 import qualified Wasp.Job.Except as ExceptJob
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
+import Wasp.Project.BuildType (BuildType (Production))
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
@@ -49,9 +47,10 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 
 buildAndStartServerAndClient :: BuildStartConfig -> Command ()
 buildAndStartServerAndClient config = do
+  -- `wasp build` already built the client, but we build it again here so the `--client-env` vars apply.
   cliSendMessageC $ Msg.Start "Building client..."
   runAndPrintJob "Building client failed." $
-    buildClient config
+    buildClient (getEnvVars config.clientRunConfig) config.projectDir
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
@@ -59,26 +58,24 @@ buildAndStartServerAndClient config = do
     buildServer config
   cliSendMessageC $ Msg.Success "Server built."
 
-  cliSendMessageC $ Msg.Start "Starting client and server..."
-  cliSendMessageC $
-    Msg.Info $
-      showRunConfigUrls Split (config.clientRunConfig, config.serverRunConfig)
-
-  runAndPrintJob "Starting Wasp app failed." $
-    ExceptJob.race_
-      (startClient config)
-      (startServer config)
+  case config.deploymentMode of
+    Single -> do
+      cliSendMessageC $ Msg.Start "Starting the app..."
+      cliSendMessageC $ Msg.Info $ showUrls config
+      -- The server container serves the built client, so there is no
+      -- separate client to start.
+      runAndPrintJob "Starting Wasp app failed." $
+        startServer config
+    Split -> do
+      cliSendMessageC $ Msg.Start "Starting client and server..."
+      cliSendMessageC $ Msg.Info $ showUrls config
+      runAndPrintJob "Starting Wasp app failed." $
+        ExceptJob.race_
+          (startClient config)
+          (startServer config)
   where
-    runAndPrintJob :: String -> ExceptJob -> Command ()
-    runAndPrintJob errorMessage job = do
-      liftIO (runAndPrintJobIO job)
-        >>= either (throwError . CommandError errorMessage) return
-
-    runAndPrintJobIO :: ExceptJob -> IO (Either String ())
-    runAndPrintJobIO job = do
-      chan <- newChan
-      (result, _) <-
-        concurrently
-          (runExceptT $ job chan)
-          (readJobMessagesAndPrintThemPrefixed chan)
-      return result
+    showUrls buildStartConfig =
+      showRunConfigUrls
+        Production
+        buildStartConfig.deploymentMode
+        (buildStartConfig.clientRunConfig, buildStartConfig.serverRunConfig)

@@ -19,8 +19,9 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import Wasp.AppSpec.App.Deployment (DeploymentMode (Single))
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled, isSingleDeploymentAndDevelopment)
+import Wasp.AppSpec.Valid (getApp, getDeploymentMode, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -261,10 +262,7 @@ genClientConfigFile spec =
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          -- TODO: Wired to `isSingleDeploymentAndDevelopment` for now, since the
-          -- server only serves the client in development. It becomes a plain
-          -- `Single` mode check once it serves it in production too.
-          "isSingleDeployment" .= isSingleDeploymentAndDevelopment spec
+          "isSingleDeployment" .= (getDeploymentMode spec == Single)
         ]
 
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
@@ -295,7 +293,9 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
+          "clientBaseDir" .= WebApp.getBaseDirPathPrefix spec,
+          "isSingleDeployment" .= (getDeploymentMode spec == Single)
         ]
 
 -- todo(filip): remove this duplication, we have almost the same thing in the

@@ -16,7 +16,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows)
+import Wasp.AppSpec.Valid (getLowestNodeVersionUserAllows, isClientServedByServer)
 import Wasp.Generator.Common
   ( GeneratedAppDir,
     ServerRootDir,
@@ -46,7 +46,8 @@ genDockerfile spec = do
             [ "usingPrisma" .= hasEntities spec,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
-              "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
+              "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec),
+              "isClientServedByServer" .= isClientServedByServer spec
             ]
       )
 

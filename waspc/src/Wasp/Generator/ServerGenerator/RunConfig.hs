@@ -29,15 +29,15 @@ makeServerRunConfig :: DeploymentMode -> AppComponentUrl -> AppComponentUrl -> S
 makeServerRunConfig deploymentMode expectedUrl clientUrl =
   ServerRunConfig
     expectedUrl
-    [ (Common.clientUrlEnvVarName, AppComponentUrl.url clientUrl),
+    [ (Common.clientUrlEnvVarName, publicClientUrl),
       (Common.serverUrlEnvVarName, publicServerUrl),
       (Common.serverPortEnvVarName, show $ AppComponentUrl.port expectedUrl)
     ]
   where
-    publicServerUrl = case deploymentMode of
+    (publicClientUrl, publicServerUrl) = case deploymentMode of
       -- The server is reached through the client's origin, in dev via the
       -- Vite proxy and in production because the server serves the client.
-      -- TODO: production does not serve the client from the server yet, and
-      -- the client URL will need the client base dir appended once it does.
-      Single -> AppComponentUrl.origin clientUrl
-      Split -> AppComponentUrl.url expectedUrl
+      -- It only needs the client's origin, since it appends the client base
+      -- dir itself in this mode.
+      Single -> (AppComponentUrl.origin clientUrl, AppComponentUrl.origin clientUrl)
+      Split -> (AppComponentUrl.url clientUrl, AppComponentUrl.url expectedUrl)

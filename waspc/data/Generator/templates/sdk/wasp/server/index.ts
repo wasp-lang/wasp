@@ -1,7 +1,7 @@
 import type { PrismaClient } from './dbClient.js'
 
 // PUBLIC API
-export { default as config } from './config.js'
+export { default as config, type Config } from './config.js'
 // PUBLIC API
 export { default as prisma, type PrismaClient } from './dbClient.js'
 // PUBLIC API

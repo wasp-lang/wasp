@@ -148,6 +148,10 @@ const clientUrlSchema =
       error: '{= clientUrlEnvVarName =} must be a valid URL',
     })
   )
+{=# isSingleDeployment =}
+  // In single deployment mode the server serves the client, so the client URL defaults to {= serverUrlEnvVarName =}.
+  .optional()
+{=/ isSingleDeployment =}
 
 {=# isAuthEnabled =}
 const jwtTokenSchema = z

@@ -6,7 +6,7 @@ module Wasp.Cli.Command.Build
 where
 
 import Control.Lens (at, (%~), (&), (.~))
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
@@ -14,7 +14,12 @@ import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import Data.Either (fromLeft)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec.App.Deployment (DeploymentMode (..))
+import Wasp.AppSpec.Valid (getDeploymentMode)
 import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command.Build.Client (buildClient)
+import Wasp.Cli.Command.Common (runAndPrintJob)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -69,16 +74,27 @@ build = withProjectLock $ do
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
-  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
-  liftIO $ printCompilationResult (warnings, errors)
-  unless (null errors) $
-    throwError $
-      CommandError "Building of wasp project failed" $
-        show (length errors) ++ " errors found."
+  (warnings, appSpecOrErrors) <- liftIO $ buildIO waspProjectDir buildDir
+  liftIO $ printCompilationResult (warnings, fromLeft [] appSpecOrErrors)
+  appSpec <- case appSpecOrErrors of
+    Left errors ->
+      throwError $
+        CommandError "Building of wasp project failed" $
+          show (length errors) ++ " errors found."
+    Right appSpec -> return appSpec
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
+
+  -- In single deployment mode the server serves the built client, so the client
+  -- has to be built before the Docker image is.
+  case getDeploymentMode appSpec of
+    Single -> do
+      cliSendMessageC $ Msg.Start "Building the client..."
+      runAndPrintJob "Building the client failed." $ buildClient [] waspProjectDir
+      cliSendMessageC $ Msg.Success "Client built."
+    Split -> return ()
 
   cliSendMessageC $
     Msg.Success $
@@ -151,10 +167,8 @@ build = withProjectLock $ do
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir =
-  fmap (fromLeft [])
-    <$> compileIOWithOptions options waspProjectDir buildDir
+  IO ([CompileWarning], Either [CompileError] AppSpec)
+buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions

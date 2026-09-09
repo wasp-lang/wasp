@@ -19,6 +19,9 @@ module Wasp.Generator.ServerGenerator.Common
     serverUrlEnvVarName,
     serverPortEnvVarName,
     libsRootDirFromServerDir,
+    ServerBundleDir,
+    bundleDirInServerRootDir,
+    clientBuildDirFromServerBundleDir,
   )
 where
 
@@ -34,9 +37,13 @@ import Wasp.Generator.Common
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
+import Wasp.Generator.WebAppGenerator.Common (WebAppViteBuildDir, viteBuildDirInWebAppDir, webAppRootDirInGeneratedAppDir)
 import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
+
+-- | The dir inside the generated server dir where the rollup output lives.
+data ServerBundleDir
 
 data ServerTemplatesDir
 
@@ -126,3 +133,14 @@ serverPortEnvVarName =
 
 libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
 libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
+
+bundleDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir ServerBundleDir)
+bundleDirInServerRootDir = [reldir|bundle|]
+
+-- | Where the built client lives, relative to the server bundle. The server uses it to serve the
+-- client when it is the one serving it.
+clientBuildDirFromServerBundleDir :: Path' (Rel ServerBundleDir) (Dir WebAppViteBuildDir)
+clientBuildDirFromServerBundleDir =
+  invertRelDir (serverRootDirInGeneratedAppDir </> bundleDirInServerRootDir)
+    </> webAppRootDirInGeneratedAppDir
+    </> viteBuildDirInWebAppDir

@@ -8,9 +8,9 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..), makeServe
 
 spec_makeServerRunConfig :: Spec
 spec_makeServerRunConfig = do
-  it "in single deployment mode is reached on the client origin" $ do
+  it "in single deployment mode is reached on the client origin and gets the client origin without the base dir" $ do
     envVars (makeServerRunConfig Single serverUrl clientUrl)
-      `shouldBe` [ ("WASP_WEB_CLIENT_URL", "http://localhost:3000/app/"),
+      `shouldBe` [ ("WASP_WEB_CLIENT_URL", "http://localhost:3000"),
                    ("WASP_SERVER_URL", "http://localhost:3000"),
                    ("PORT", "3001")
                  ]
