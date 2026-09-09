@@ -36,9 +36,6 @@ export async function generateServiceUrl(
 
   if (domains.length > 1) {
     waspInfo(`Multiple domains detected, using the first one: ${domain}.`);
-    waspInfo(
-      'If you want to use a custom domain for the server, you should add the "--custom-server-url <url>" flag.',
-    );
   }
 
   return domain;

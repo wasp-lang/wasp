@@ -8,6 +8,7 @@ import {
 } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
+  DeploymentMode,
   getClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
@@ -34,7 +35,7 @@ import { DeployCmdOptions } from "./DeployCmdOptions.js";
 export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
 
-  await ensureWaspProjectIsBuilt(cmdOptions);
+  const { deploymentMode } = await ensureWaspProjectIsBuilt(cmdOptions);
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
 
@@ -57,10 +58,24 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
       cmdOptions,
       tomlFilePaths,
     });
-    await deployServer(deploymentInstructions, cmdOptions);
+    await deployServer(deploymentInstructions, cmdOptions, deploymentMode);
   }
 
-  if (!clientTomlExistsInProject(tomlFilePaths)) {
+  if (deploymentMode === "single") {
+    waspSays(
+      "Single deployment mode: the server app also serves the web client. Skipping client deploy.",
+    );
+    if (cmdOptions.skipClient) {
+      waspSays(
+        "The --skip-client option has no effect in single deployment mode.",
+      );
+    }
+    if (cmdOptions.customServerUrl) {
+      waspSays(
+        "The --custom-server-url option has no effect in single deployment mode, the client always uses its own origin.",
+      );
+    }
+  } else if (!clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(
       `${
         tomlFilePaths.clientTomlPath
@@ -84,6 +99,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
 async function deployServer(
   deploymentInstructions: DeploymentInstructions<DeployCmdOptions>,
   { buildLocally }: DeployCmdOptions,
+  deploymentMode: DeploymentMode,
 ) {
   waspSays("Deploying your server now...");
 
@@ -106,7 +122,14 @@ async function deployServer(
   // TOOD: Consider how to best handle this situation across all operations.
   copyLocalServerTomlToProject(deploymentInstructions.tomlFilePaths);
 
-  waspSays("Server has been deployed!");
+  if (deploymentMode === "single") {
+    displayWaspRocketImage();
+    waspSays(
+      `Server has been deployed! Your Wasp app is accessible at: ${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
+    );
+  } else {
+    waspSays("Server has been deployed!");
+  }
 }
 
 async function deployClient(

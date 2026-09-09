@@ -5,6 +5,7 @@ import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
+  DeploymentMode,
   getClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
@@ -37,7 +38,7 @@ export async function setup(
 ): Promise<void> {
   waspSays("Setting up your Wasp app with Fly.io!");
 
-  await ensureWaspProjectIsBuilt(cmdOptions);
+  const { deploymentMode } = await ensureWaspProjectIsBuilt(cmdOptions);
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
   const deploymentInstructions = createDeploymentInstructions({
@@ -50,10 +51,19 @@ export async function setup(
   if (serverTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
   } else {
-    await setupServer(deploymentInstructions);
+    await setupServer(deploymentInstructions, deploymentMode);
   }
 
-  if (clientTomlExistsInProject(tomlFilePaths)) {
+  if (deploymentMode === "single") {
+    waspSays(
+      "Single deployment mode: the server app also serves the web client. Skipping client setup.",
+    );
+    if (cmdOptions.clientSecret.length > 0) {
+      waspSays(
+        "The --client-secret option has no effect in single deployment mode.",
+      );
+    }
+  } else if (clientTomlExistsInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.clientTomlPath} exists. Skipping client setup.`);
   } else {
     await setupClient(deploymentInstructions);
@@ -66,6 +76,7 @@ export async function setup(
 
 async function setupServer(
   deploymentInstructions: DeploymentInstructions<SetupCmdOptions>,
+  deploymentMode: DeploymentMode,
 ) {
   waspSays(
     `Setting up server app with name ${deploymentInstructions.serverFlyAppName}`,
@@ -133,13 +144,21 @@ Press any key to continue or Ctrl+C to cancel.`);
 
   const jwtSecret = generateRandomHexString();
 
+  const serverUrl = getFlyAppUrl(deploymentInstructions.serverFlyAppName);
+  // In single deployment mode the server app serves the web client, so the client
+  // lives on the server origin.
+  const clientUrl =
+    deploymentMode === "single"
+      ? serverUrl
+      : getFlyAppUrl(deploymentInstructions.clientFlyAppName);
+
   const secretsArgs = [
     `JWT_SECRET=${jwtSecret}`,
     // NOTE: Normally these would just be envars, but flyctl
     // doesn't provide a way to set envars that persist to fly.toml.
     `PORT=${serverAppPort}`,
-    `WASP_WEB_CLIENT_URL=${getFlyAppUrl(deploymentInstructions.clientFlyAppName)}`,
-    `WASP_SERVER_URL=${getFlyAppUrl(deploymentInstructions.serverFlyAppName)}`,
+    `WASP_WEB_CLIENT_URL=${clientUrl}`,
+    `WASP_SERVER_URL=${serverUrl}`,
   ];
 
   if (deploymentInstructions.cmdOptions.serverSecret.length > 0) {

@@ -49,7 +49,7 @@ jobs:
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
           # `fly launch` fails if Fly toml files already exist.
-          rm -f fly-server.toml fly-client.toml
+          rm -f fly-server.toml
 
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
@@ -71,17 +71,15 @@ jobs:
             config_file="$1"
             flyctl status -j -c "$config_file" | jq -r '.Hostname'
           }
+          # The server app also serves the client, so it is the only app URL.
           SERVER_HOSTNAME=$(get_fly_app_hostname fly-server.toml)
-          CLIENT_HOSTNAME=$(get_fly_app_hostname fly-client.toml)
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
-          echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         env:
           WASP_RUN_MODE: deployed
-          PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
-          PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
+          PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.server }}"
         run: npm test
 
   cleanup_fly_deploy_test:
@@ -104,7 +102,6 @@ jobs:
         run: |
           # NOTE: We are relying on Wasp's naming conventions here
           flyctl apps destroy -y $APP_PREFIX-server || true
-          flyctl apps destroy -y $APP_PREFIX-client || true
           flyctl apps destroy -y $APP_PREFIX-db || true
 
   test_railway_deployment:
@@ -147,12 +144,10 @@ jobs:
             service_name="$1"
             railway status --json | jq -r --arg NAME "$service_name" '.environments.edges[].node.serviceInstances.edges[].node | select(.serviceName == $NAME) | .domains.serviceDomains[0].domain'
           }
+          # The server service also serves the client, so it is the only app URL.
           server_service_name="${APP_PREFIX}-server"
-          client_service_name="${APP_PREFIX}-client"
           SERVER_HOSTNAME=$(get_railway_service_hostname "$server_service_name")
-          CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
-          echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
       # NOTE: `railway up --ci` (used by `wasp-cli deploy railway launch`)
       # returns when the build finishes, not when the deployment serves
@@ -162,7 +157,6 @@ jobs:
       - name: Wait for deployed app to be reachable
         env:
           SERVER_HOSTNAME: ${{ steps.get-hostnames.outputs.server }}
-          CLIENT_HOSTNAME: ${{ steps.get-hostnames.outputs.client }}
         run: |
           function wait_for_url() {
             url="$1"
@@ -178,14 +172,12 @@ jobs:
             return 1
           }
           wait_for_url "https://${SERVER_HOSTNAME}"
-          wait_for_url "https://${CLIENT_HOSTNAME}"
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         env:
           WASP_RUN_MODE: deployed
-          PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
-          PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
+          PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.server }}"
         run: npm test
 
   cleanup_railway_deploy_test:
