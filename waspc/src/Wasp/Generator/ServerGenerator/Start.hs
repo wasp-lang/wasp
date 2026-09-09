@@ -14,9 +14,9 @@ import qualified Wasp.Job.Node as Node
 startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job
 startServer serverRunConfig generatedAppDir = do
   let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-  Node.makeJobWithExtraEnv
-    (getEnvVars serverRunConfig)
-    serverDir
-    "npm"
-    ["run", "watch"]
-    J.Server
+  J.makeJob J.Server $
+    Node.run
+      (getEnvVars serverRunConfig)
+      serverDir
+      "npm"
+      ["run", "watch"]

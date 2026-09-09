@@ -6,8 +6,6 @@ module Wasp.Project.WaspFile.TypeScript
 where
 
 import Control.Arrow (left)
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
@@ -78,40 +76,34 @@ runWaspSpecAnalyzer ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
 runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
-  chan <- newChan
-  (_, runExitCode) <- do
-    concurrently
-      (Output.printEventsPrefixedUntilExit chan)
-      -- We invoke the script directly via `node` instead of `npx` because
-      -- `npx` requires the bin file to be executable, and `cabal install`
-      -- strips executable permissions from data files.
-      ( Job.runJob
-          ( Node.makeJobWithExtraEnv
-              [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
-                -- Not related to `node` itself, so we have to set it manually.
-                -- It enables users to write environment specific code in the TS config.
-                -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
-                --       also provide the `NODE_ENV` values for the "configuration runtime".
-                --       Maybe consider using a different key, e.g. `WASP_MODE`?
-                ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
-              ]
-              compileOptions.waspProjectDir
-              "node"
-              [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
-                "analyze",
-                fromAbsFile waspFilePath,
-                fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-                fromAbsDir compileOptions.waspProjectDir,
-                fromAbsFile absSpecResultFile,
-                -- When the user is coding main.wasp.ts, TypeScript must know about
-                -- all the available entities to warn the user if they use an
-                -- entity that doesn't exist.
-                encodeToString allowedEntityNames
-              ]
-              Job.Wasp
-          )
-          chan
-      )
+  -- We invoke the script directly via `node` instead of `npx` because
+  -- `npx` requires the bin file to be executable, and `cabal install`
+  -- strips executable permissions from data files.
+  runExitCode <-
+    Output.runAndPrintPrefixedOutput $
+      Job.makeJob Job.Wasp $
+        Node.run
+          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+            -- Not related to `node` itself, so we have to set it manually.
+            -- It enables users to write environment specific code in the TS config.
+            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+            --       also provide the `NODE_ENV` values for the "configuration runtime".
+            --       Maybe consider using a different key, e.g. `WASP_MODE`?
+            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+          ]
+          compileOptions.waspProjectDir
+          "node"
+          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
+            "analyze",
+            fromAbsFile waspFilePath,
+            fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+            fromAbsDir compileOptions.waspProjectDir,
+            fromAbsFile absSpecResultFile,
+            -- When the user is coding main.wasp.ts, TypeScript must know about
+            -- all the available entities to warn the user if they use an
+            -- entity that doesn't exist.
+            encodeToString allowedEntityNames
+          ]
   case runExitCode of
     ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
     ExitSuccess -> readSpecResultFile

@@ -10,6 +10,7 @@ import System.Exit (ExitCode (..))
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldReturn, shouldSatisfy)
 import qualified Wasp.Job as Job
+import qualified Wasp.Job.Output as Output
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_Job :: Spec
@@ -70,3 +71,25 @@ spec_Job =
       takeMVar released
       maybeEvent <- timeout (secondsToMicroSeconds 0.1) $ readChan events
       maybeEvent `shouldSatisfy` isNothing
+
+spec_runAndCaptureOutput :: Spec
+spec_runAndCaptureOutput =
+  describe "runAndCaptureOutput" $ do
+    it "returns all stdout and stderr chunks in emission order" $ do
+      let action = do
+            Job.emitJobOutput Job.Stdout "first "
+            Job.emitJobOutput Job.Stderr "second "
+            Job.emitJobOutput Job.Stdout "last"
+      Output.runAndCaptureOutput (Job.makeJob Job.Wasp action)
+        `shouldReturn` (ExitSuccess, "first second last")
+
+    it "returns output and the failure code after releasing resources" $ do
+      released <- newIORef False
+      let action = do
+            _ <- register $ writeIORef released True
+            Job.emitJobOutput Job.Stderr "failed"
+            Job.requireExitSuccess $ ExitFailure 7
+            Job.emitJobOutput Job.Stdout "unreachable"
+      Output.runAndCaptureOutput (Job.makeJob Job.Wasp action)
+        `shouldReturn` (ExitFailure 7, "failed")
+      readIORef released `shouldReturn` True

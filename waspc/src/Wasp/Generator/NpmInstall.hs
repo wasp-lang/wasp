@@ -4,8 +4,7 @@ module Wasp.Generator.NpmInstall
   )
 where
 
-import Control.Concurrent (Chan, newChan, threadDelay)
-import Control.Concurrent.Async (concurrently)
+import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
@@ -35,8 +34,6 @@ installNpmDependenciesWithInstallRecord ::
   Path' Abs (Dir GeneratedAppDir) ->
   IO (Either GeneratorError ())
 installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
-  messagesChan <- liftIO newChan
-
   let allNpmDeps = getAllNpmDeps spec
 
   shouldInstallNpmDeps <-
@@ -54,7 +51,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
-    liftIO (installProjectNpmDependencies messagesChan waspProjectDirPath)
+    liftIO (installProjectNpmDependencies waspProjectDirPath)
       >>= onLeftThrowError
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
@@ -66,9 +63,9 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 
 -- Installs npm dependencies from the user's package.json, by running `npm install` .
 installProjectNpmDependencies ::
-  Chan Job.JobEvent -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies messagesChan projectDir = do
-  (_, installExitCode) <- Job.Output.printEventsPrefixedUntilExit messagesChan `concurrently` Job.runJob installProjectDepsJob messagesChan
+  SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependencies projectDir = do
+  installExitCode <- Job.Output.runAndPrintPrefixedOutput installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
@@ -76,7 +73,7 @@ installProjectNpmDependencies messagesChan projectDir = do
     installProjectDepsJob =
       Job.makeJob Job.Wasp $
         installNpmDependenciesAndReport $
-          Node.run projectDir "npm" ["install"]
+          Node.run [] projectDir "npm" ["install"]
 
 installNpmDependenciesAndReport :: Job.JobAction a -> Job.JobAction a
 installNpmDependenciesAndReport install = do
