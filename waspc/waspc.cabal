@@ -559,6 +559,7 @@ library cli-lib
     Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
     Wasp.Cli.Util.PortArgument
+    Wasp.Cli.Util.UrlArgument
 
 executable wasp-cli
   import: common-all, common-exe

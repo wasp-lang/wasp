@@ -88,7 +88,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 <img alt="Slack Applications Screenshot" src={useBaseUrl('img/integrations-slack-1.png')} width="400px" />
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
-    - Enter the value `https://<subdomain>.local.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
+    - Enter the value `https://<subdomain>.loca.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
     - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
 
 4. Hit **Save URLs**.
@@ -172,18 +172,13 @@ After starting the tunnel, you will see your tunnel URL in the terminal. Go to t
 in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure
 what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places:
-server and client configuration.
+Now that your server is exposed to the public, we need to tell Wasp about the new public domain. Start your app with the `--server-url` option:
 
-To configure client, add this line to your `.env.client` file (create it if doesn't exist):
-```bash title=".env.client"
-REACT_APP_API_URL=https://<subdomain>.loca.lt
+```bash
+wasp start --server-url https://<subdomain>.loca.lt --server-port 3001
 ```
 
-Similarly, to configure the server, add this line to your `.env.server`:
-```bash title=".env.server"
-WASP_SERVER_URL=https://<subdomain>.loca.lt
-```
+`--server-url` tells the app where the browser will find it, so both OAuth redirects and the client's API calls go through the tunnel. It doesn't change the port the server listens on, which is why we also pin it with `--server-port` to the port we're tunneling.
 
 </Collapse>
 
