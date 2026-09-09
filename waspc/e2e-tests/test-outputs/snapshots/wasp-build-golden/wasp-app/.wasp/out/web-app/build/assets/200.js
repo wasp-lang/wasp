@@ -243,8 +243,10 @@ ky.extend({
 	}
 });
 if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
-	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
-	else apiEventsEmitter.emit("sessionId.clear");
+	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+		if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
+		else apiEventsEmitter.emit("sessionId.clear");
+	}
 });
 function getSessionIdFromAuthorizationHeader(header) {
 	if (header && header.startsWith("Bearer ")) return header.substring(7);
@@ -253,13 +255,12 @@ function getSessionIdFromAuthorizationHeader(header) {
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/client/operations/queryClient.js
 var defaultQueryClientConfig = {};
-var queryClientConfig;
 var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
 function initializeQueryClient() {
-	const queryClient = new QueryClient(queryClientConfig ?? defaultQueryClientConfig);
+	const queryClient = new QueryClient(defaultQueryClientConfig);
 	resolveQueryClientInitialized(queryClient);
 }
 //#endregion
