@@ -153,6 +153,8 @@ Use the same URL pattern as the versioned documentation maps: https://wasp.sh/ll
 - [Hello Wasp!](https://wasp.sh/blog/2019/09/01/hello-wasp.md)
 
 ## Resources
+- [Is There a Laravel for JavaScript? AdonisJS, Next.js, and Wasp Compared (2026)](https://wasp.sh/resources/2026/09/09/laravel-for-javascript-2026.md)
+- [RedwoodJS Alternatives in 2026: CedarJS, RedwoodSDK, or Wasp?](https://wasp.sh/resources/2026/09/09/redwoodjs-alternatives-2026.md)
 - [What Are the Best Full-stack Web App Frameworks in 2026?](https://wasp.sh/resources/2026/02/24/best-frameworks-web-dev-2026.md)
 
 ## Other Resources
