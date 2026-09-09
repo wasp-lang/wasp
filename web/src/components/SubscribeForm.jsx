@@ -7,7 +7,16 @@ const createNewEmailSubscriberApiEndpoint =
 
 const NEWSLETTER_INPUT_ID = "newsletter-input";
 
-const SubscribeForm = ({ className, inputBgColor }) => {
+const buttonVariantClasses = {
+  yellow: "bg-wasp-yellow text-wasp-black hover:bg-wasp-yellow-dark",
+  black: "bg-wasp-black text-wasp-yellow hover:bg-wasp-g7",
+};
+
+const SubscribeForm = ({
+  className,
+  inputBgColor = "bg-wasp-white",
+  buttonVariant = "yellow",
+}) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   useBrokenLinks().collectAnchor(NEWSLETTER_INPUT_ID);
@@ -33,7 +42,9 @@ const SubscribeForm = ({ className, inputBgColor }) => {
   return (
     <>
       {message ? (
-        <p className="text-lg text-neutral-500">{message}</p>
+        <p className="border-2 border-wasp-black bg-wasp-yellow-light px-4 py-3 font-mono text-sm font-bold text-wasp-black">
+          {message}
+        </p>
       ) : (
         <form
           onSubmit={handleSubmit}
@@ -49,15 +60,18 @@ const SubscribeForm = ({ className, inputBgColor }) => {
             required
             autoComplete="email"
             placeholder="you@awesomedev.com"
-            className={
-              `w-full appearance-none rounded-md border border-yellow-500 px-4 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 ` +
-              ` ${inputBgColor}`
-            }
+            className={classNames(
+              "w-full appearance-none border-2 border-wasp-black px-4 py-2.5 font-mono text-sm text-wasp-black placeholder:text-wasp-g4 focus:outline-none focus:ring-2 focus:ring-wasp-yellow-dark",
+              inputBgColor,
+            )}
           />
-          <div className="mt-3 rounded-md sm:ml-3 sm:mt-0">
+          <div className="mt-3 sm:ml-3 sm:mt-0">
             <button
               type="submit"
-              className={`w-full rounded-md border border-transparent bg-yellow-500 px-4 py-2 text-sm text-white transition duration-200 ease-out hover:bg-yellow-400`}
+              className={classNames(
+                "w-full whitespace-nowrap border-2 border-wasp-black px-5 py-2.5 font-mono text-sm font-bold uppercase tracking-wide transition duration-150 ease-out",
+                buttonVariantClasses[buttonVariant],
+              )}
             >
               Subscribe
             </button>

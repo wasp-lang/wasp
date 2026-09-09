@@ -7078,7 +7078,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
 
-   - Enter the value `https://<subdomain>.local.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
+   - Enter the value `https://<subdomain>.loca.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
    - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
 
 5. Hit **Save URLs**.
