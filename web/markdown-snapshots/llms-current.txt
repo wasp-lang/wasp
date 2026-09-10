@@ -120,6 +120,7 @@
 - [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify.md)
 - [Railway](https://wasp.sh/docs/guides/deployment/cloud-providers/railway.md)
 - [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render.md)
+- [Zerops](https://wasp.sh/docs/guides/deployment/cloud-providers/zerops.md)
 #### Self-Hosted
 - [Caprover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover.md)
 - [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify.md)
