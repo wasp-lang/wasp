@@ -79,11 +79,11 @@ npx vercel env add --no-sensitive DATABASE_URL production
 
 Prisma migrations can't run through the transaction-mode pooler, so the build command in the next section runs them against `POSTGRES_URL_NON_POOLING` (Supabase's session-mode pooler) instead.
 
-:::warning
-The Supabase database is linked to your Vercel account. If you remove the integration or delete your Vercel account, the database will be deleted along with it.
-:::
-
 You can also use the Supabase dashboard to manage your database, run queries, and view logs. You can access it from the **Storage** tab of your Vercel project: click the database, then the **Open in Supabase** button.
+
+:::warning
+The Supabase database is linked to your Vercel account. If you remove the integration or delete your Vercel account, the database will be deleted along with it. If you're moving out of Vercel but want to keep your data in Supabase, [transfer the project](https://supabase.com/docs/guides/platform/project-transfer) to a standalone Supabase organization first.
+:::
 
 ### Deploying the server
 

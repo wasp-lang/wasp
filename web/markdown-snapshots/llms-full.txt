@@ -20798,7 +20798,9 @@ If your app relies on any of these, deploy the server to a different provider (s
 
 #### Pricing
 
-Check [Vercel's pricing page](https://vercel.com/pricing#:~\:text=Vercel%20Functions) to see if the free plan is sufficient for your app, and what benefits paid plans bring. In our experience, the free plan is enough for testing most apps as you're starting out, but if you get a lot of traffic, you may want to upgrade to a paid plan.
+We estimate that Vercel's free plan is sufficient as a testing ground for most apps, or as production deployment for small-scale, non-commercial apps. For a large-scale app or a commercial one, you may need to consider a paid plan to handle increased traffic.
+
+Please check Vercel's [pricing page](https://vercel.com/pricing#:~\:text=Vercel%20Functions) for the most up-to-date information on their plans and their allowances; as well as their [Fair Usage guidelines](https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage) on what constitutes commercial use.
 
 #### Prerequisites
 
@@ -20831,15 +20833,15 @@ npx vercel env add --no-sensitive DATABASE_URL production
 
 Prisma migrations can't run through the transaction-mode pooler, so the build command in the next section runs them against `POSTGRES_URL_NON_POOLING` (Supabase's session-mode pooler) instead.
 
-:::warning
-The Supabase database is linked to your Vercel account. If you remove the integration or delete your Vercel account, the database will be deleted along with it.
-:::
-
 You can also use the Supabase dashboard to manage your database, run queries, and view logs. You can access it from the **Storage** tab of your Vercel project: click the database, then the **Open in Supabase** button.
+
+:::warning
+The Supabase database is linked to your Vercel account. If you remove the integration or delete your Vercel account, the database will be deleted along with it. If you're moving out of Vercel but want to keep your data in Supabase, [transfer the project](https://supabase.com/docs/guides/platform/project-transfer) to a standalone Supabase organization first.
+:::
 
 #### Deploying the server
 
-1. Create a `vercel.json` that tells Vercel to treat the built server as an Express app:
+1. Create a `vercel.json` in your project root that tells Vercel to treat the built server as an Express app:
 
    ```json title="vercel.json"
    {
