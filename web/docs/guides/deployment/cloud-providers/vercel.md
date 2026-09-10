@@ -44,7 +44,9 @@ If your app relies on any of these, deploy the server to a different provider (s
 
 ### Pricing
 
-Check [Vercel's pricing page](https://vercel.com/pricing#:~:text=Vercel%20Functions) to see if the free plan is sufficient for your app, and what benefits paid plans bring. In our experience, the free plan is enough for testing most apps as you're starting out, but if you get a lot of traffic, you may want to upgrade to a paid plan.
+We estimate that Vercel's free plan is sufficient as a testing ground for most apps, or as production deployment for small-scale, non-commercial apps. For a large-scale app or a commercial one, you may need to consider a paid plan to handle increased traffic.
+
+Please check Vercel's [pricing page](https://vercel.com/pricing#:~:text=Vercel%20Functions) for the most up-to-date information on their plans and their allowances; as well as their [Fair Usage guidelines](https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage) on what constitutes commercial use.
 
 ### Prerequisites
 
@@ -85,7 +87,7 @@ You can also use the Supabase dashboard to manage your database, run queries, an
 
 ### Deploying the server
 
-1. Create a `vercel.json` that tells Vercel to treat the built server as an Express app:
+1. Create a `vercel.json` in your project root that tells Vercel to treat the built server as an Express app:
 
    ```json title="vercel.json"
    {
