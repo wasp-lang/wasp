@@ -16,7 +16,7 @@ To deploy to Fly.io using Wasp CLI:
 
 1. Create a [Fly.io](https://fly.io/) account
 
-1. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy Wasp apps, you need three Fly apps: the client, the server, and the database.
+1. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy a Wasp app, you need two Fly apps: the server (which also serves the client) and the database. In [split mode](../../intro.md#deployment-modes) you need three: the client, the server and the database.
 
 2. Install the [`fly` CLI](https://fly.io/docs/hands-on/install-flyctl/) on your machine.
 
@@ -40,9 +40,28 @@ Two things to keep in mind:
 
 The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for _Dallas, Texas (US)_). Read more about Fly.io regions [here](#flyio-regions).
 
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The basename is used to create both apps, resulting in two separate apps in your Fly dashboard:
+
+- `my-wasp-app-server`, which runs the server and serves the client. Your app is available at `https://my-wasp-app-server.fly.dev`.
+- `my-wasp-app-db`
+
+You'll notice that Wasp creates a new file in your project root directory: `fly-server.toml`.
+
+You should include this file in your version control so that you can deploy your app with a single command in the future.
+
+:::note Upgrading a project deployed before 0.26
+Earlier Wasp versions also created a `my-wasp-app-client` app and a `fly-client.toml` file. Wasp no longer deploys the client app, but it does not delete it either. After your first deploy with the new version, point `WASP_WEB_CLIENT_URL` at the server app (`wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://my-wasp-app-server.fly.dev`), re-register your OAuth redirect URIs on the server URL, delete the client app with `fly apps destroy my-wasp-app-client`, and remove `fly-client.toml`. See the [migration guide](../../../migration-guide.md).
+:::
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
-- `my-wasp-app-client`
+- `my-wasp-app-client`, where your app is available
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
@@ -52,6 +71,9 @@ You'll notice that Wasp creates two new files in your project root directory:
 - `fly-client.toml`
 
 You should include these files in your version control so that you can deploy your app with a single command in the future.
+
+</TabItem>
+</Tabs>
 
 <LaunchCommandEnvVars />
 
@@ -63,11 +85,26 @@ If your app requires any additional environment variables, use the `wasp deploy 
 
 Setting up a custom domain is a three-step process:
 
-1. You need to add your domain to your Fly client app. You can do this by running:
+1. You need to add your domain to your Fly app. You can do this by running:
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+```shell
+wasp deploy fly cmd --context server certs create mycoolapp.com
+```
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+Your users visit the client, so the domain goes on the client app:
 
 ```shell
 wasp deploy fly cmd --context client certs create mycoolapp.com
 ```
+
+</TabItem>
+</Tabs>
 
 :::note Use Your Domain
 Make sure to replace `mycoolapp.com` with your domain in all of the commands mentioned in this section.
@@ -93,15 +130,32 @@ You can validate your ownership of mycoolapp.com by:
 
    _This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command._
 
-3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
+3. You need to tell the server about your domain through its environment variables:
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+```shell
+wasp deploy fly cmd --context server secrets set WASP_SERVER_URL=https://mycoolapp.com WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
+
+<small>
+  Wasp uses these to build OAuth redirect URIs, email links and the CORS configuration. If you use OAuth, update the redirect URI with your provider to `https://mycoolapp.com/auth/<provider>/callback`.
+</small>
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
 ```shell
 wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
 
 <small>
-  We need to do this to keep our CORS configuration up to date.
+  We need to do this to keep our CORS configuration up to date. The server keeps its own URL, so the OAuth redirect URI stays `https://my-wasp-app-server.fly.dev/auth/<provider>/callback`.
 </small>
+
+</TabItem>
+</Tabs>
 
 That's it, your app should be available at `https://mycoolapp.com`!
 
@@ -110,8 +164,10 @@ That's it, your app should be available at `https://mycoolapp.com`!
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
 ```shell
-wasp deploy fly cmd --context client certs create www.mycoolapp.com
+wasp deploy fly cmd --context server certs create www.mycoolapp.com
 ```
+
+<small>In split mode, use `--context client` instead, since the domain is on the client app.</small>
 
 Once you do that, you will need to add another DNS record for your domain. It should be a CNAME record for `www` with the value of your root domain.
 Here's an example:
@@ -124,9 +180,11 @@ With the CNAME record (Canonical name), you are assigning the `www` subdomain as
 
 Your app should now be available both at the root domain `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`.
 
-:::caution CORS Configuration
+:::caution One canonical domain
 
-Using the `www` and `non-www` domains at the same time will require you to update your CORS configuration to allow both domains. You'll need to provide [custom CORS configuration](https://gist.github.com/infomiho/5ca98e5e2161df4ea78f76fc858d3ca2) in your server app to allow requests from both domains.
+Wasp builds OAuth redirect URIs and email links from `WASP_SERVER_URL`, so pick one of the two domains as canonical and set the env vars to it. Since the server serves the client, requests from either domain are same-origin and need no CORS changes.
+
+In [split mode](../../intro.md#deployment-modes), using the `www` and `non-www` domains at the same time also requires [custom CORS configuration](../../../guides/configuration/cors-multiple-domains.md) on the server, so it accepts requests from both.
 
 :::
 
@@ -145,7 +203,7 @@ If your app requires any other server-side environment variables (like social au
 
 ### Client Environment Variables
 
-If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+If you've added any [client-side environment variables](../../../project/env-vars.md#client-env-vars) to your app, pass them to the terminal session before running a deployment command. `wasp deploy` builds the client as part of `wasp build`, so the variables must be in its environment. For example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
@@ -268,8 +326,8 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 
 ### `setup`
 
-The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
-It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy for the client or server apps.
+The `setup` command registers your app on Fly, and sets up needed environment variables.
+It only needs to be run once, when initially creating the app. It does _not_ trigger a deploy. In the default single deployment mode it registers the server app, which also serves the client; in [split mode](../../intro.md#deployment-modes) it registers the client and server apps.
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -285,10 +343,10 @@ It accepts the following arguments:
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
-After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`.
+After running `setup`, Wasp creates a new file in your project root directory: `fly-server.toml` (plus `fly-client.toml` in split mode).
 You should include these files in your version control.
 
-You **can edit the `fly-server.toml` and `fly-client.toml` files** to further configure your Fly deployments. Wasp will use the TOML files when you run `deploy`.
+You **can edit them** to further configure your Fly deployments. Wasp will use the TOML files when you run `deploy`.
 
 If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 
@@ -324,7 +382,7 @@ You should only run `create-db` once per app. If you run it multiple times, it c
 wasp deploy fly deploy
 ```
 
-The `deploy` command pushes your built client and server live.
+The `deploy` command builds your app (server and client) and pushes it live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 

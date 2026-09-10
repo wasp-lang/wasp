@@ -4,15 +4,28 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
-import { Server, Database } from '../DeploymentTag'
+import { Server, Client, Database } from '../DeploymentTag'
 
 # Heroku
 
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Heroku: new Date("2026-04-06") }} />
 
-## Deploy Wasp to Heroku <Server /> <Database />
+## Deploy Wasp to Heroku <Server /> <Client /> <Database />
 
-This guide shows you how to deploy the server and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
+This guide shows you how to deploy your Wasp app and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The Docker image Wasp generates contains both the server and the built client, so one Heroku app is the whole Wasp app.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The Docker image Wasp generates contains the server, so this Heroku app is your server. You host the client separately, for example on [Netlify](./netlify.md) or [Cloudflare](./cloudflare.md).
+
+</TabItem>
+</Tabs>
 
 ### Prerequisites
 
@@ -45,23 +58,39 @@ We are using the `essential-0` database instance. It's the cheapest database ins
 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
-The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET`, `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` env vars:
+The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET` and `WASP_SERVER_URL` env vars:
 
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
-heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
-heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
+heroku config:set --app <app-name> WASP_SERVER_URL=https://<app-name>.herokuapp.com
 ```
 
 We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
-:::note
+Find out the exact app URL with `heroku info --app <app-name>`.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+`WASP_SERVER_URL` is the app's public origin. `WASP_WEB_CLIENT_URL` defaults to it, so you don't need to set it.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+`WASP_SERVER_URL` is the server's own origin. You also need `WASP_WEB_CLIENT_URL`, the URL where you host the client:
+
+```
+heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
+```
+
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
-:::
+
+</TabItem>
+</Tabs>
 
 ### Deploy the Heroku app
 
-After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code) (remember to pass any `REACT_APP_*` client env vars to `wasp build`), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -96,7 +125,11 @@ Deploy the pushed image and restart the app:
 heroku container:release --app <app-name> web
 ```
 
-This is it, the backend is deployed at `https://<app-name>.herokuapp.com` 🎉
+This is it, your app is deployed at `https://<app-name>.herokuapp.com` 🎉
+
+If you use OAuth, register `https://<app-name>.herokuapp.com/auth/<provider>/callback` as the redirect URI with your provider.
+
+In split mode, this URL is your server. Build the client with `REACT_APP_API_URL=https://<app-name>.herokuapp.com npx vite build` and deploy it to a static host such as [Netlify](./netlify.md).
 
 Find out the exact app URL with:
 

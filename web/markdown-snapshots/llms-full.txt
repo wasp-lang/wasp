@@ -6039,10 +6039,18 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 
 3. We have to fill out **App name** and **Homepage URL** fields. Additionally we will add our authorization **Callback URL**s:
 
-   - For development, put: `http://localhost:3001/auth/github/callback`.
-   - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
+   - For development, put: `http://localhost:3000/auth/github/callback`.
+   - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-app-url.com/auth/github/callback`.
 
-   ![GitHub App Screenshot 2](https://wasp.sh/assets/images/github-app-2-07c8b302bb0cc42d0c4298970f0dc20f.png)
+**Single deployment**
+
+The redirect URL is your **app's** URL, since the server serves the client and the browser talks to one origin. In development that's `http://localhost:3000`, where the client dev server proxies Wasp's auth routes to the server.
+
+**Split deployment**
+
+The redirect URL is your **server's** URL, which is a different origin than the client. In development that's `http://localhost:3001`, and in production the server's public origin.
+
+![GitHub App Screenshot 2](https://wasp.sh/assets/images/github-app-2-07c8b302bb0cc42d0c4298970f0dc20f.png)
 
 4. We will turn off the **Active** checkbox under the Webhook title, and then we can click **Create GitHub App**.
 
@@ -6401,16 +6409,24 @@ To use Google as an authentication method, you'll first need to create a Google 
    | - | ------------------------ | -------------------------------------------- |
    | 1 | Application type         | Web application                              |
    | 2 | Name                     | (your wasp app name)                         |
-   | 3 | Authorized redirect URIs | `http://localhost:3001/auth/google/callback` |
+   | 3 | Authorized redirect URIs | `http://localhost:3000/auth/google/callback` |
 
    :::note
-   Once you know on which URL(s) your API server will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
-   For example: `https://your-server-url.com/auth/google/callback`
+   Once you know on which URL(s) your app will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
+   For example: `https://your-app-url.com/auth/google/callback`
    :::
 
-   ![Google Console Screenshot 8](https://wasp.sh/assets/images/integrations-google-v2-8-cbd285263686de2dfa533a835ae192e8.png)
+**Single deployment**
 
-   Then click on **Create** (4).
+The redirect URL is your **app's** URL, since the server serves the client and the browser talks to one origin. In development that's `http://localhost:3000`, where the client dev server proxies Wasp's auth routes to the server.
+
+**Split deployment**
+
+The redirect URL is your **server's** URL, which is a different origin than the client. In development that's `http://localhost:3001`, and in production the server's public origin.
+
+![Google Console Screenshot 8](https://wasp.sh/assets/images/integrations-google-v2-8-cbd285263686de2dfa533a835ae192e8.png)
+
+Then click on **Create** (4).
 
 7. You will see a box saying **OAuth client created**. Click on **OK**.
 
@@ -6759,12 +6775,20 @@ model User {
 
 ![Keycloak Screenshot 3](https://wasp.sh/assets/images/3-keycloak-8840e9161762ffce794c83d5cf5b4474.png)
 
-1. Under **Valid Redirect URIs**, add `http://localhost:3001/auth/keycloak/callback` for local development.
+1. Under **Valid Redirect URIs**, add `http://localhost:3000/auth/keycloak/callback` for local development.
 
 ![Keycloak Screenshot 4](https://wasp.sh/assets/images/4-keycloak-33ed7897f5a7bd8a8666ffc302888abd.png)
 
-- Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-- For example: `https://my-server-url.com/auth/keycloak/callback`.
+- Once you know on which URL(s) your app will be deployed, also add those URL(s).
+- For example: `https://my-app-url.com/auth/keycloak/callback`.
+
+**Single deployment**
+
+The redirect URL is your **app's** URL, since the server serves the client and the browser talks to one origin. In development that's `http://localhost:3000`, where the client dev server proxies Wasp's auth routes to the server.
+
+**Split deployment**
+
+The redirect URL is your **server's** URL, which is a different origin than the client. In development that's `http://localhost:3001`, and in production the server's public origin.
 
 1. Click **Save**.
 2. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.
@@ -7080,14 +7104,20 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 
    - Enter the value `https://<subdomain>.loca.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
    - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
+   - In production the redirect URL is `https://your-app-url.com/auth/slack/callback`.
 
-5. Hit **Save URLs**.
+**Single deployment**
 
-6. Go to **Basic Information** tab
+The redirect URL is your **app's** URL, since the server serves the client and the browser talks to one origin. In development that's `http://localhost:3000`, where the client dev server proxies Wasp's auth routes to the server.
 
-7. Hit **Show** next to **Client Secret**
+**Split deployment**
 
-8. Copy your Client ID and Client Secret as you'll need them in the next step.
+The redirect URL is your **server's** URL, which is a different origin than the client. In development that's `http://localhost:3001`, and in production the server's public origin.
+
+4. Hit **Save URLs**.
+5. Go to **Basic Information** tab
+6. Hit **Show** next to **Client Secret**
+7. Copy your Client ID and Client Secret as you'll need them in the next step.
 
 :::tip
 Be precise with your redirect URL. Slack’s redirect URLs are case-sensitive and sensitive to trailing slashes. For example, `https://your-app.loca.lt/auth/slack/callback` and `https://your-app.loca.lt/auth/slack/callback/` are **not** the same.
@@ -7168,7 +7198,7 @@ Running `wasp db migrate-dev` and `wasp start` should now give you a working app
 
 ### Developing with Slack auth and HTTPS {#slack-https}
 
-Unlike most OAuth providers, Slack **requires HTTPS and publicly accessible URL for the OAuth redirect URL**. This means that we can't simply use `localhost:3001` as a base host for redirect urls. Instead, we need to configure Wasp server to be publicly available under HTTPS, even in the local development environment.
+Unlike most OAuth providers, Slack **requires HTTPS and publicly accessible URL for the OAuth redirect URL**. This means that we can't simply use `localhost:3000` as a base host for redirect urls. Instead, we need to make the Wasp app publicly available under HTTPS, even in the local development environment.
 
 Fortunately, there are quite a few free and convenient tools available to simplify the process, such as [localtunnel.me](https://localtunnel.me/) (free) and [ngrok.com](https://ngrok.com) (lots of features, but free tier is limited).
 
@@ -7176,7 +7206,7 @@ Using localtunnel
 
 Install localtunnel globally with `npm install -g localtunnel`.
 
-Start a tunnel with `lt --port 3001 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
+Start a tunnel with `lt --port 3000 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have. Port `3000` is the client dev server, which proxies the auth routes to the server, so one tunnel covers the whole app.
 
 :::info[Subdomain option]
 Usually localtunnel will assign you a random subdomain on each start, but you can specify it with the `-s` flag. Doing it this way will make it easier to remember the URL and will also make it easier to set up the redirect URL in Slack app settings.
@@ -7184,19 +7214,13 @@ Usually localtunnel will assign you a random subdomain on each start, but you ca
 
 After starting the tunnel, you will see your tunnel URL in the terminal. Go to that URL to unlock the tunnel by entering your IP address in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places: server and client configuration.
-
-To configure client, add this line to your `.env.client` file (create it if doesn't exist):
-
-```bash title=".env.client"
-REACT_APP_API_URL=https://<subdomain>.loca.lt
-```
-
-Similarly, to configure the server, add this line to your `.env.server`:
+Now that your app is exposed to the public, we need to tell Wasp its new public origin so the OAuth redirect URI matches. Add this line to your `.env.server`:
 
 ```bash title=".env.server"
 WASP_SERVER_URL=https://<subdomain>.loca.lt
 ```
+
+You also need to allow the tunnel hostname in Vite, see [Local Network Testing](https://wasp.sh/docs/guides/debugging/local-network-testing#step-4-allow-the-host-in-vite-config).
 
 ### Default Behaviour
 
@@ -7454,8 +7478,16 @@ To use Discord as an authentication method, you'll first need to create a Discor
 
 4. Go to the **OAuth2** tab on the sidebar and click **Add Redirect**
 
-- For development, put: `http://localhost:3001/auth/discord/callback`.
-- Once you know on which URL your API server will be deployed, you can create a new app with that URL instead e.g. `https://your-server-url.com/auth/discord/callback`.
+- For development, put: `http://localhost:3000/auth/discord/callback`.
+- Once you know on which URL your app will be deployed, you can create a new app with that URL instead e.g. `https://your-app-url.com/auth/discord/callback`.
+
+**Single deployment**
+
+The redirect URL is your **app's** URL, since the server serves the client and the browser talks to one origin. In development that's `http://localhost:3000`, where the client dev server proxies Wasp's auth routes to the server.
+
+**Split deployment**
+
+The redirect URL is your **server's** URL, which is a different origin than the client. In development that's `http://localhost:3001`, and in production the server's public origin.
 
 4. Hit **Save Changes**.
 5. Hit **Reset Secret**.
@@ -7796,14 +7828,22 @@ To use Microsoft as an authentication method, you'll first need to register an a
    | - | ------------------------ | ---------------------------------------------------------------- |
    | 1 | Name                     | (your wasp app name)                                             |
    | 1 | Supported account types  | Read through **[Understanding tenants](#understanding-tenants)** |
-   | 3 | Authorized redirect URIs | Web: `http://localhost:3001/auth/microsoft/callback`             |
+   | 3 | Authorized redirect URIs | Web: `http://localhost:3000/auth/microsoft/callback`             |
 
    :::note
-   Once you know on which URL(s) your API server will be deployed, also add those URL(s) in the **Authentication** section.\
-   For example: `https://your-server-url.com/auth/microsoft/callback`
+   Once you know on which URL(s) your app will be deployed, also add those URL(s) in the **Authentication** section.\
+   For example: `https://your-app-url.com/auth/microsoft/callback`
    :::
 
-   ![Microsoft Entra console screenshot 2](https://wasp.sh/assets/images/integrations-microsoft-2-f4ea0d2da49cb869d7581a37342ebdeb.png)
+**Single deployment**
+
+The redirect URL is your **app's** URL, since the server serves the client and the browser talks to one origin. In development that's `http://localhost:3000`, where the client dev server proxies Wasp's auth routes to the server.
+
+**Split deployment**
+
+The redirect URL is your **server's** URL, which is a different origin than the client. In development that's `http://localhost:3001`, and in production the server's public origin.
+
+![Microsoft Entra console screenshot 2](https://wasp.sh/assets/images/integrations-microsoft-2-f4ea0d2da49cb869d7581a37342ebdeb.png)
 
 4. You should now see your app registration's overview page. Take note of the **Application (client) ID (1)** and the **Directory (tenant) ID (2)**, as you'll need them in the next steps.
 
@@ -9695,6 +9735,25 @@ export default app({
 })
 ```
 
+#### Choosing the Deployment Mode
+
+The `deployment.mode` field decides how the client and the server of your app are deployed:
+
+- `"single"` (default): one deployable app serves both the client and the server.
+- `"split"`: the client and the server are deployed separately, each with its own URL.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "^0.25" },
+  title: "My App",
+  deployment: { mode: "split" },
+  // ...
+})
+```
+
 ### API Reference
 
 [API reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
@@ -9990,6 +10049,38 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
+:::note[Custom routes and the dev proxy]
+This depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes):
+
+**Single deployment**
+
+In development the browser talks only to the client dev server, which proxies Wasp's own routes (`/auth`, `/operations`, `/crud`, `/health` and the WebSocket path) and the paths of your declared [`api`s](https://wasp.sh/docs/advanced/apis) to the server. A route you add in `setupFn` (for example `app.get("/customRoute", ...)`) is reachable only on the server port (`http://localhost:3001/customRoute`), not through the app URL. If you want it on the app URL in development too, add a `server.proxy` entry to your `vite.config.ts` that targets `process.env.WASP_DEV_PROXY_TARGET`, the server URL `wasp start` passes to the client:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  server: {
+    proxy: {
+      ...(process.env.WASP_DEV_PROXY_TARGET && {
+        "/customRoute": process.env.WASP_DEV_PROXY_TARGET,
+      }),
+    },
+  },
+  plugins: [wasp()],
+});
+```
+
+The [kitchen-sink example](https://github.com/wasp-lang/wasp/blob/main/examples/kitchen-sink/vite.config.ts) does this for its `/customRoute`.
+
+In production the server serves both the client and your custom routes, so they are always reachable on the app URL. Keep in mind that a custom route with the same path as one of your pages shadows that page.
+
+**Split deployment**
+
+The client and the server are separate origins in development and in production, so there is no proxy: a route you add in `setupFn` is reachable on the server's URL, for example `http://localhost:3001/customRoute` in development. Your pages are served by the client, so a custom route can never shadow one.
+:::
+
 For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server#setupfn).
 
 ### Middleware Config Function
@@ -10093,9 +10184,17 @@ Here are the client env vars that Wasp defines:
 
 These are some general env variables used for various Wasp features:
 
-| Name                | Type        | Notes                                                                                                                                                                                                                  |
-| ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands). |
+| Name                | Type        | Notes                                                                                                                                                                                                                                                                   |
+| ------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REACT_APP_API_URL` | URLoptional | The server's origin, used by the client only when you host it separately from the server ([split mode](https://wasp.sh/docs/deployment/intro#deployment-modes)). By default the server serves the client and the client talks to its own origin, so you don't set this. |
+
+**Single deployment**
+
+The server serves the client, so the client talks to its own origin and needs no URL of its own. Leave `REACT_APP_API_URL` unset.
+
+**Split deployment**
+
+The client is hosted separately from the server, so it has to know where the server is: set `REACT_APP_API_URL` to the server's origin when you [build the client](https://wasp.sh/docs/deployment/env-vars#client-env-vars).
 
 ### Server Env Vars
 
@@ -10117,13 +10216,21 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                           |
-| --------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                    |
-| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --client-port`](https://wasp.sh/docs/general/cli#project-commands).                                               |
-| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands). |
-| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                         |
-| `PORT`                | Integerrequired | This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands).                                                                                                   |
+| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                                              |
+| `WASP_SERVER_URL`     | URLrequired     | Your app's public URL, for example `https://myapp.com`. The server uses it to build its own URLs, e.g. the OAuth redirect URI. This is set by Wasp in development, but required in production.                                                                                                                                                            |
+| `WASP_WEB_CLIENT_URL` | URLoptional     | The client's URL, used to build links to your app in e-mails and OAuth redirects and to allow CORS. Defaults to `WASP_SERVER_URL`, which is right when the server serves the client (the default). Set it only when you host the client separately ([split hosting](https://wasp.sh/docs/deployment/intro#deployment-modes)). Set by Wasp in development. |
+| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                                                   |
+| `PORT`                | Integerrequired | This is where the server listens for requests. In production it is also the port your whole app is served on, since the server serves the client. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands).                          |
+
+**Single deployment**
+
+`WASP_SERVER_URL` is your whole app's public URL, and `WASP_WEB_CLIENT_URL` defaults to it, so you only set the one.
+
+**Split deployment**
+
+The client and the server have separate URLs, so set `WASP_SERVER_URL` to the server's and `WASP_WEB_CLIENT_URL` to the client's. The server needs the latter to allow CORS and to build links to your app.
 
 ##### SMTP Email Sender
 
@@ -10943,39 +11050,87 @@ After developing your app locally on your machine, the next step is to deploy it
 
 In this section, we'll walk you through the steps to deploy your Wasp app.
 
-#### Wasp app structure
+### What a Wasp app is made of
 
 Before we start, let's understand what Wasp generates when it builds your app.
 
 What we call a "Wasp app" consists of three different parts:
 
-- **Client app**
+- **Client**
 
-  - It's a single-page application (SPA), built using [React](https://react.dev/). It's what the user sees and interacts with.
-  - It's usually served by some static file server or you can host it on a CDN like Cloudflare or Netlify.
+  - A single-page application (SPA), built using [React](https://react.dev/). It's what the user sees and interacts with.
+  - It is compiled into static files: HTML, CSS and JavaScript.
 
-- **Server app**:
+- **Server**
 
   - The backend of your app, built using [Express](https://expressjs.com/) on Node.js.
-  - It handles requests from the client app, interacts with the database, and returns responses.
-  - It comes with a ready-to-use `Dockerfile` so you can easily package it and deploy it anywhere where Docker is supported.
+  - It handles requests from the client, interacts with the database, and returns responses.
+  - Wasp's own routes live here: `/auth`, `/operations`, `/crud` and `/health`.
 
-- **Database**:
+- **Database**
 
   - Wasp uses [PostgreSQL](https://www.postgresql.org/) as its production database.
   - You can host the database on your own server or use a cloud service.
 
-![Wasp app structure](https://wasp.sh/img/deploying/wasp-app-flow.gif)
+The database is always its own service. How the client and the server are deployed is up to you, and that choice is what we call the **deployment mode**.
 
-Data flow in a typical deployed Wasp app where all three parts are deployed separately
+### Deployment modes
 
-The thing to take away from this: the client app and server app are separate applications that communicate with each other over HTTP. This means you can deploy them on the same or different servers, depending on your needs.
+Wasp has two deployment modes: **single deployment**, the default, and **split deployment**.
 
-We'll show you different ways of how deploy your app in the [deployment methods](https://wasp.sh/docs/deployment/deployment-methods/overview) section.
+#### Single deployment: one app on one origin {#single-deployment-mode}
 
-Server needs to be able to communicate with the database, we'll show you how to set that up using [env variables](https://wasp.sh/docs/deployment/env-vars).
+The server serves the built client, so the whole app is one deployable unit behind one URL. Your pages and Wasp's routes live side by side on the same origin.
 
-#### Deploying your app
+`wasp build` builds the client and the server, and the generated Dockerfile packages them into one image. You deploy that image and a database, and you are done.
+
+Because the browser only ever talks to one origin, requests from your client are same-origin: no CORS setup, no second URL to keep in sync, and one place to point your domain at.
+
+#### Split deployment: client and server hosted separately {#split-deployment-mode}
+
+The client is a static site on a host or CDN of your choice, and the server runs on a Node.js host. Each has its own URL, and the browser talks to both.
+
+`wasp build` builds only the server. You build the client yourself with `REACT_APP_API_URL` pointing at the server's origin, upload the static files, and tell the server about the client's URL with `WASP_WEB_CLIENT_URL` so that CORS, e-mail links and OAuth redirects work.
+
+This is how every Wasp app was deployed before 0.26. It costs you an extra deployable and some cross-origin configuration, and in exchange you get to host your pages on a static host or CDN.
+
+#### Comparing the two modes
+
+|                          | Single deployment                                       | Split deployment                                      |
+| ------------------------ | ------------------------------------------------------- | ----------------------------------------------------- |
+| What you deploy          | One app and a database                                  | A static client, a server and a database              |
+| `wasp build` produces    | Server and client, packaged into one Docker image       | Server only                                           |
+| Building the client      | Part of `wasp build`                                    | You run `npx vite build` yourself                     |
+| Origins                  | One (`https://myapp.com`)                               | Two (`https://myapp.com` and `https://api.myapp.com`) |
+| Required server env vars | `DATABASE_URL`, `WASP_SERVER_URL`, `PORT`, `JWT_SECRET` | The same, plus `WASP_WEB_CLIENT_URL`                  |
+| Required client env vars | None                                                    | `REACT_APP_API_URL`                                   |
+| CORS                     | Not involved, requests are same-origin                  | The server must allow the client's origin             |
+| OAuth redirect URI       | `https://myapp.com/auth/<provider>/callback`            | `https://api.myapp.com/auth/<provider>/callback`      |
+| `wasp deploy` creates    | One app plus a database                                 | A client app, a server app and a database             |
+| Static hosts and CDNs    | Not applicable, the server serves the client            | Supported (Netlify, Cloudflare Pages, ...)            |
+
+Both modes are fully supported, and every deployment guide in this section covers both. Future work such as server-side rendering and cookie-based sessions builds on a shared origin, so single deployment mode is where Wasp is heading.
+
+#### How to choose
+
+**Use single deployment mode** unless you have a reason not to. It's the default, it's one thing to deploy and configure, and it's the setup the rest of these docs assume.
+
+**Use split mode** when you specifically want the client somewhere the server isn't: on a static host or CDN with its own caching and edge network, on a separate domain from your API, or when your server is only an API that several clients talk to.
+
+#### Setting the deployment mode
+
+Single deployment mode is the default, so there is nothing to set. To use split mode, set it in your Wasp file:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  deployment: { mode: "split" },
+});
+```
+
+Read more about the field in the [app configuration](https://wasp.sh/docs/project/customizing-app#choosing-the-deployment-mode) docs.
+
+### Deploying your app
 
 In the following sections, we'll go through all the different things you need to know about deployment:
 
@@ -10996,19 +11151,69 @@ However, when we are deploying our app, **`.env.client` and `.env.server` files 
 
 ![Env vars usage in development and production](https://wasp.sh/assets/images/prod_dev_fade_2-d0ff1e438a29011a68bcf630a9470254.svg)
 
-#### Client Env Vars
+### Which env vars your app needs
+
+Which URL variables you have to set, and what they point at, depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes).
+
+**Single deployment**
+
+The server serves the client, so there is a single URL to configure: `WASP_SERVER_URL`, your app's public origin.
+
+| Env var               | Where you set it | Value                                                                   |
+| --------------------- | ---------------- | ----------------------------------------------------------------------- |
+| `DATABASE_URL`        | Server           | The connection URL of your PostgreSQL database.                         |
+| `WASP_SERVER_URL`     | Server           | Your app's public URL, e.g. `https://myapp.com`.                        |
+| `PORT`                | Server           | The port your app listens on. Most hosts set this for you.              |
+| `JWT_SECRET`          | Server           | A random string of at least 32 characters. Only needed if you use auth. |
+| `WASP_WEB_CLIENT_URL` | Server           | Optional. Defaults to `WASP_SERVER_URL`, which is what you want here.   |
+| `REACT_APP_API_URL`   | `wasp build`     | Not needed. The client talks to its own origin.                         |
+
+**Split deployment**
+
+The client and the server live on different origins, so each one needs to know where the other is: the client is built with `REACT_APP_API_URL`, and the server gets `WASP_WEB_CLIENT_URL`.
+
+| Env var               | Where you set it | Value                                                                                               |
+| --------------------- | ---------------- | --------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Server           | The connection URL of your PostgreSQL database.                                                     |
+| `WASP_SERVER_URL`     | Server           | The server's public URL, e.g. `https://api.myapp.com`.                                              |
+| `WASP_WEB_CLIENT_URL` | Server           | The client's public URL, e.g. `https://myapp.com`. Used for CORS, e-mail links and OAuth redirects. |
+| `PORT`                | Server           | The port the server listens on. Most hosts set this for you.                                        |
+| `JWT_SECRET`          | Server           | A random string of at least 32 characters. Only needed if you use auth.                             |
+| `REACT_APP_API_URL`   | `npx vite build` | The server's origin, baked into the client at build time.                                           |
+
+On top of these, set any env vars your own code and your auth or e-mail providers need.
+
+### Client Env Vars
 
 During the build process, client env vars are injected into the client Javascript code, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 
-When building for production, the `.env.client` file will be ignored, since it is meant to be used only during development. Instead, you should provide the production client env vars directly to the build command that turns client code into static files.
+When building for production, the `.env.client` file will be ignored, since it is meant to be used only during development. Instead, you provide the production client env vars in the environment of the command that builds the client:
 
-Make sure to check the [required client env vars](https://wasp.sh/docs/project/env-vars#client-general-configuration) and set them when building for production, the build will fail if any required env vars are missing.
+**Single deployment**
+
+`wasp build` builds the client, so put the client env vars in front of it:
 
 ```shell
-REACT_APP_API_URL=<url_to_wasp_backend> REACT_APP_SOME_OTHER_VAR_NAME=someothervalue npx vite build
+REACT_APP_SOME_VAR_NAME=somevalue REACT_APP_SOME_OTHER_VAR_NAME=someothervalue wasp build
 ```
 
-Also, notice **that you can't and shouldn't provide client env vars to the client code by setting them on the hosting provider** (unlike providing server env vars to the server app, in that case this is how you should do it). Your client code will ignore those, as at that point client code is just static files.
+The same goes for `wasp deploy`, which runs `wasp build` for you.
+
+Wasp itself needs no client env vars: the client talks to its own origin, so you don't set `REACT_APP_API_URL`.
+
+**Split deployment**
+
+`wasp build` doesn't build the client, you do it yourself with `npx vite build`, so put the client env vars in front of that:
+
+```shell
+REACT_APP_API_URL=https://api.myapp.com REACT_APP_SOME_VAR_NAME=somevalue npx vite build
+```
+
+`REACT_APP_API_URL` is required here: it's how the built client knows where your server is.
+
+Make sure to check the [client env vars](https://wasp.sh/docs/project/env-vars#client-general-configuration) your app requires and set them when building for production, the build will fail if any required env vars are missing.
+
+Also, notice **that you can't and shouldn't provide client env vars to the client code by setting them on the hosting provider** (unlike providing server env vars to the server, in that case this is how you should do it). Your client code will ignore those, as at that point client code is just static files.
 
 :::info[How it works]
 What happens behind the scenes is that Wasp will replace all occurrences of `import.meta.env.REACT_APP_SOME_VAR_NAME` in your client code with the env var value you provided. This is done during the build process, so the value is injected into the static files produced from the client code.
@@ -11016,14 +11221,14 @@ What happens behind the scenes is that Wasp will replace all occurrences of `imp
 Read more about it in Vite's [docs](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
 :::
 
-#### Server Env Vars
+### Server Env Vars
 
 When building your Wasp app for production `.env.server` will be ignored, since it is meant to be used only during development.
 
 You can provide production env vars to your server code in production by defining them and making them available on the server where your server code is running.
 
 :::caution[Set the required env vars]
-Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, `PORT` etc. and set them up in your production environment.
+Make sure to go through [all the required server env vars](https://wasp.sh/docs/project/env-vars#server-general-configuration) like `DATABASE_URL`, `WASP_SERVER_URL`, `PORT`, `JWT_SECRET` etc. and set them up in your production environment.
 
 Even though you don't set these variables in development, they are **required in production** and must be explicitly set. If any of them are missing, your server will fail to start.
 
@@ -11032,7 +11237,7 @@ Even though you don't set these variables in development, they are **required in
 
 Setting server env variables up will highly depend on where you are deploying your server, but in general it comes down to defining the env vars via mechanisms that your hosting provider provides.
 
-For example, if you deploy your server to [Fly](https://fly.io), you can define them using the `fly` CLI tool:
+For example, if you deploy to [Fly](https://fly.io), you can define them using the `fly` CLI tool:
 
 ```shell
 fly secrets set SOME_VAR_NAME=somevalue
@@ -11122,7 +11327,7 @@ If you are looking how to connect to a Fly.io production database, we wrote a gu
 
 `wasp build start` lets you test your production build locally before deployment, ensuring everything works correctly before going live.
 
-This command takes the output of `wasp build` and starts a local server to run it. That means that you can test using the same optimized code that would be deployed to production. You also configure it with the same environment variables you'd use in production, which helps you catch configuration issues before deploying.
+This command takes the output of `wasp build` and starts it locally the same way it runs in production, following your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes): one Docker container with the server serving the built client, or, in split mode, that container plus a static server for the client. That means that you can test using the same optimized code that would be deployed to production. You also configure it with the same environment variables you'd use in production, which helps you catch configuration issues before deploying.
 
 While it's not identical to a real production environment, it's the closest you can get to testing your deployed app without actually deploying it.
 
@@ -11149,10 +11354,19 @@ You might need to pass other environment variables as well, depending on your ap
 
 This command will:
 
-- Start a local server serving your production build (the output of `wasp build`).
+- Build the client with the client env vars you pass, and build the Docker image from the output of `wasp build`.
+- Start your production build and print the URLs it runs on.
 - Use only the environment variables you set explicitly.
 - Use the same bundled assets that would be deployed.
 - Run in production mode with optimizations enabled.
+
+**Single deployment**
+
+There is one container, and the whole app is available on the server port, for example `http://localhost:3001`.
+
+**Split deployment**
+
+There is the server container and a static server for the client, so the app is available on the client port, for example `http://localhost:3000`, and the server on `http://localhost:3001`.
 
 ### Why?
 
@@ -11173,7 +11387,7 @@ You should treat this command as the last check before deploying your app, confi
 | Runs your app for general production use | **No**              | **No** (check our [deployment guide](https://wasp.sh/docs/deployment/intro)) |
 | Intended for                             | Local development   | Local production testing                                                     |
 | Server environment                       | Node.js             | Node.js in a Docker container                                                |
-| Client environment                       | Static server       | Static server                                                                |
+| Client environment                       | Vite dev server     | Static files, served by the server or a static server                        |
 | Assets                                   | Served individually | Bundled and minified                                                         |
 | React dev mode                           | Enabled             | Disabled                                                                     |
 | Hot reload                               | Enabled             | Disabled                                                                     |
@@ -11187,7 +11401,9 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](https://wasp.sh/docs/project/env-vars#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](https://wasp.sh/docs/project/env-vars).
 
-The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands) if you need specific ports.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL` and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--server-port` and `--client-port`](https://wasp.sh/docs/general/cli#project-commands) if you need specific ports.
+
+In the default single deployment mode the server serves the client, so there is only one port and `--client-port` is ignored with a warning.
 
 #### Which values should I use when testing?
 
@@ -11227,7 +11443,7 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 #### Client environment variables
 
-Use `--client-env` to specify environment variables for the client:
+Use `--client-env` to specify environment variables for the client. `wasp build start` builds the client with them before it builds the Docker image:
 
 ```bash
 wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
@@ -11252,11 +11468,15 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 ## Deployment / Deployment Methods / Overview
 
-Wasp apps are full-stack apps that consist of:
+Wasp apps are full-stack apps that consist of a Node.js server, a static client and a PostgreSQL database. How many things you deploy depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes):
 
-- A Node.js server.
-- A static client.
-- A PostgreSQL database.
+**Single deployment**
+
+You deploy **one app** and **one database**. `wasp build` builds the client and the server, and the generated Dockerfile packages them into a single image, which the server runs and serves the client from.
+
+**Split deployment**
+
+You deploy **a static client**, **a server** and **one database**. `wasp build` builds only the server; you build the client yourself and upload it to a static host or CDN.
 
 To make deploying as smooth as possible, Wasp also offers a single-command deployment called **Wasp Deploy**.
 
@@ -11266,7 +11486,7 @@ To make deploying as smooth as possible, Wasp also offers a single-command deplo
 
 [One-command deployment & redeployment](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/overview)
 
-But even when not using Wasp Deploy, you can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
+But even when not using Wasp Deploy, you can deploy the app **anywhere** where you can usually deploy Node.js apps or Docker images, and the database anywhere you can run PostgreSQL. For example, you can deploy your app on [Fly.io](https://fly.io/) and the database on [Neon](https://neon.tech/).
 
 You can read our guides on how to deploy your Wasp app to different platforms, both from cloud providers and on your own infrastructure:
 
@@ -11282,6 +11502,18 @@ You can read our guides on how to deploy your Wasp app to different platforms, b
 
 [Use your own servers to host your app](https://wasp.sh/docs/deployment/deployment-methods/self-hosted)
 
+### Which method works with which mode
+
+Every method below works in both deployment modes, except the static hosts, which host a client and therefore only make sense in split mode.
+
+| Method                                                                                                                                                                                                                                                                                              | Single deployment                           | Split deployment                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | -------------------------------------------- |
+| [Wasp Deploy on Fly](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/fly)                                                                                                                                                                                                            | One app plus the database                   | Client and server apps plus the database     |
+| [Wasp Deploy on Railway](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/railway)                                                                                                                                                                                                    | One service plus the database               | Client and server services plus the database |
+| [Fly.io](https://wasp.sh/docs/guides/deployment/cloud-providers/flyio), [Railway](https://wasp.sh/docs/guides/deployment/cloud-providers/railway), [Heroku](https://wasp.sh/docs/guides/deployment/cloud-providers/heroku), [Render](https://wasp.sh/docs/guides/deployment/cloud-providers/render) | Yes                                         | Yes, plus a static host for the client       |
+| [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify), [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare)                                                                                                                                          | Not applicable, they host static files only | Yes, for the client                          |
+| [Coolify](https://wasp.sh/docs/guides/deployment/self-hosted/coolify), [CapRover](https://wasp.sh/docs/guides/deployment/self-hosted/caprover), [your own VPS](https://wasp.sh/docs/guides/deployment/self-hosted/vps)                                                                              | Yes                                         | Yes                                          |
+
 Regardless of how you choose to deploy your app (i.e., manually or using the Wasp CLI), you'll need to know about some common patterns covered below.
 
 :::tip[Deployed? Get some swag! 👕🐝]
@@ -11290,7 +11522,7 @@ Do you have a Wasp app running in production? If yes, we'd love to send some swa
 
 ### Customizing the Dockerfile
 
-By default, Wasp generates a multi-stage Dockerfile. This file is used to build and run a Docker image with the Wasp-generated server code. It also runs any pending migrations.
+By default, Wasp generates a multi-stage Dockerfile. This file is used to build and run a Docker image with the Wasp-generated server code and the built client files, which the server serves. It also runs any pending migrations.
 
 You can **add extra steps to this multi-stage `Dockerfile`** by creating your own `Dockerfile` in the project's root directory. If Wasp finds a Dockerfile in the project's root, it appends its contents at the *bottom* of the default multi-stage Dockerfile.
 
@@ -11301,6 +11533,7 @@ A few things to keep in mind:
 - If you override an intermediate build stage, no later build stages will be used unless you reproduce them below.
 - The generated Dockerfile's content is dynamic and depends on which features your app uses. The content can also change in future releases, so please verify it from time to time.
 - Make sure to supply `ENTRYPOINT` in your final build stage. Your changes won't have any effect if you don't.
+- If your final stage starts from scratch instead of continuing from ours, copy the client build too (`COPY web-app/build .wasp/out/web-app/build`), or the server won't have anything to serve.
 
 Read more in the official Docker docs on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/).
 
@@ -11323,7 +11556,7 @@ It looks like this:
 wasp deploy <provider> launch my-wasp-app
 ```
 
-The `wasp deploy` command sets up all the necessary services on the provider, builds your Wasp app, and deploys it.
+The `wasp deploy` command sets up all the necessary services on the provider, builds your Wasp app, and deploys it. It creates one app (or service) for your Wasp app, which serves both the server and the client, and one for the database.
 
 #### Supported Providers
 
@@ -11346,7 +11579,7 @@ To deploy to Fly.io using Wasp CLI:
 
 1. Create a [Fly.io](https://fly.io/) account
 
-2. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy Wasp apps, you need three Fly apps: the client, the server, and the database.
+2. Fly requires you to add a payment method before you can deploy more than two Fly apps. To deploy a Wasp app, you need two Fly apps: the server (which also serves the client) and the database. In [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) you need three: the client, the server and the database.
 
 3. Install the [`fly` CLI](https://fly.io/docs/hands-on/install-flyctl/) on your machine.
 
@@ -11368,9 +11601,26 @@ Two things to keep in mind:
 
 The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for *Dallas, Texas (US)*). Read more about Fly.io regions [here](#flyio-regions).
 
+**Single deployment**
+
+The basename is used to create both apps, resulting in two separate apps in your Fly dashboard:
+
+- `my-wasp-app-server`, which runs the server and serves the client. Your app is available at `https://my-wasp-app-server.fly.dev`.
+- `my-wasp-app-db`
+
+You'll notice that Wasp creates a new file in your project root directory: `fly-server.toml`.
+
+You should include this file in your version control so that you can deploy your app with a single command in the future.
+
+:::note[Upgrading a project deployed before 0.26]
+Earlier Wasp versions also created a `my-wasp-app-client` app and a `fly-client.toml` file. Wasp no longer deploys the client app, but it does not delete it either. After your first deploy with the new version, point `WASP_WEB_CLIENT_URL` at the server app (`wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://my-wasp-app-server.fly.dev`), re-register your OAuth redirect URIs on the server URL, delete the client app with `fly apps destroy my-wasp-app-client`, and remove `fly-client.toml`. See the [migration guide](https://wasp.sh/docs/migration-guide).
+:::
+
+**Split deployment**
+
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
-- `my-wasp-app-client`
+- `my-wasp-app-client`, where your app is available
 - `my-wasp-app-server`
 - `my-wasp-app-db`
 
@@ -11383,9 +11633,21 @@ You should include these files in your version control so that you can deploy yo
 
 When you run the `launch` command, Wasp CLI knows how to connect different parts of your Wasp app together, so it sets up the required environment variables for your server app:
 
-1. `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` which are required to connect your client and server apps.
+**Single deployment**
+
+1. `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL`, both set to your app's URL, since the server also serves the client.
 2. `DATABASE_URL` which is required to connect your server app to the database.
 3. `JWT_SECRET` which is required for authentication to work.
+
+If you use OAuth, register `<app URL>/auth/<provider>/callback` (for example `https://my-wasp-app-server.fly.dev/auth/google/callback`) as the redirect URI with your provider.
+
+**Split deployment**
+
+1. `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL`, set to the server's and the client's URLs, which is what connects your client and server apps.
+2. `DATABASE_URL` which is required to connect your server app to the database.
+3. `JWT_SECRET` which is required for authentication to work.
+
+If you use OAuth, register `<server URL>/auth/<provider>/callback` as the redirect URI with your provider.
 
 If your app requires any additional environment variables, use the `wasp deploy fly cmd secrets set` command. Read more in the [API Reference](#flyio-cli-environment-variables) section.
 
@@ -11395,7 +11657,17 @@ If you want to automate the deployment process, check out the [CI/CD Deployment]
 
 Setting up a custom domain is a three-step process:
 
-1. You need to add your domain to your Fly client app. You can do this by running:
+1. You need to add your domain to your Fly app. You can do this by running:
+
+**Single deployment**
+
+```shell
+wasp deploy fly cmd --context server certs create mycoolapp.com
+```
+
+**Split deployment**
+
+Your users visit the client, so the domain goes on the client app:
 
 ```shell
 wasp deploy fly cmd --context client certs create mycoolapp.com
@@ -11425,13 +11697,23 @@ You can validate your ownership of mycoolapp.com by:
 
    *This will depend on your domain provider, but it should be a matter of adding an A record for `@` and an AAAA record for `@` with the values provided by the previous command.*
 
-3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
+3. You need to tell the server about your domain through its environment variables:
+
+**Single deployment**
+
+```shell
+wasp deploy fly cmd --context server secrets set WASP_SERVER_URL=https://mycoolapp.com WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
+
+Wasp uses these to build OAuth redirect URIs, email links and the CORS configuration. If you use OAuth, update the redirect URI with your provider to `https://mycoolapp.com/auth/<provider>/callback`.
+
+**Split deployment**
 
 ```shell
 wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
 
-We need to do this to keep our CORS configuration up to date.
+We need to do this to keep our CORS configuration up to date. The server keeps its own URL, so the OAuth redirect URI stays `https://my-wasp-app-server.fly.dev/auth/<provider>/callback`.
 
 That's it, your app should be available at `https://mycoolapp.com`!
 
@@ -11440,8 +11722,10 @@ That's it, your app should be available at `https://mycoolapp.com`!
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
 ```shell
-wasp deploy fly cmd --context client certs create www.mycoolapp.com
+wasp deploy fly cmd --context server certs create www.mycoolapp.com
 ```
+
+In split mode, use `--context client` instead, since the domain is on the client app.
 
 Once you do that, you will need to add another DNS record for your domain. It should be a CNAME record for `www` with the value of your root domain. Here's an example:
 
@@ -11453,8 +11737,10 @@ With the CNAME record (Canonical name), you are assigning the `www` subdomain as
 
 Your app should now be available both at the root domain `https://mycoolapp.com` and the `www` sub-domain `https://www.mycoolapp.com`.
 
-:::caution[CORS Configuration]
-Using the `www` and `non-www` domains at the same time will require you to update your CORS configuration to allow both domains. You'll need to provide [custom CORS configuration](https://gist.github.com/infomiho/5ca98e5e2161df4ea78f76fc858d3ca2) in your server app to allow requests from both domains.
+:::caution[One canonical domain]
+Wasp builds OAuth redirect URIs and email links from `WASP_SERVER_URL`, so pick one of the two domains as canonical and set the env vars to it. Since the server serves the client, requests from either domain are same-origin and need no CORS changes.
+
+In [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes), using the `www` and `non-www` domains at the same time also requires [custom CORS configuration](https://wasp.sh/docs/guides/configuration/cors-multiple-domains) on the server, so it accepts requests from both.
 :::
 
 ### Environment Variables {#flyio-cli-environment-variables}
@@ -11473,7 +11759,7 @@ If your app requires any other server-side environment variables (like social au
 
 #### Client Environment Variables
 
-If you've added any [client-side environment variables](https://wasp.sh/docs/project/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+If you've added any [client-side environment variables](https://wasp.sh/docs/project/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command. `wasp deploy` builds the client as part of `wasp build`, so the variables must be in its environment. For example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
@@ -11610,15 +11896,17 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 
 ##### Custom Server URL
 
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+In the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), the client is built with the server's URL baked in. If you want it to connect to a different server URL (for example, a custom domain for your server), use the `--custom-server-url` option:
 
 ```shell
 wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
 ```
 
+In the default single deployment mode the client talks to its own origin, so the option has no effect and Wasp prints a notice if you pass it.
+
 #### `setup`
 
-The `setup` command registers your client and server apps on Fly, and sets up needed environment variables. It only needs to be run once, when initially creating the app. It does *not* trigger a deploy for the client or server apps.
+The `setup` command registers your app on Fly, and sets up needed environment variables. It only needs to be run once, when initially creating the app. It does *not* trigger a deploy. In the default single deployment mode it registers the server app, which also serves the client; in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) it registers the client and server apps.
 
 ```shell
 wasp deploy fly setup <app-name> <region>
@@ -11634,9 +11922,9 @@ It accepts the following arguments:
 
   The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
 
-After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`. You should include these files in your version control.
+After running `setup`, Wasp creates a new file in your project root directory: `fly-server.toml` (plus `fly-client.toml` in split mode). You should include these files in your version control.
 
-You **can edit the `fly-server.toml` and `fly-client.toml` files** to further configure your Fly deployments. Wasp will use the TOML files when you run `deploy`.
+You **can edit them** to further configure your Fly deployments. Wasp will use the TOML files when you run `deploy`.
 
 If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 
@@ -11690,7 +11978,7 @@ You should only run `create-db` once per app. If you run it multiple times, it c
 wasp deploy fly deploy
 ```
 
-The `deploy` command pushes your built client and server live.
+The `deploy` command builds your app (server and client) and pushes it live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
@@ -11708,11 +11996,13 @@ You must specify your client-side environment variables every time you redeploy 
 
 ##### Custom Server URL {#custom-server-url}
 
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+In the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), the client is built with the server's URL baked in. If you want it to connect to a different server URL (for example, a custom domain for your server), use the `--custom-server-url` option:
 
 ```shell
 wasp deploy fly deploy --custom-server-url https://api.myapp.com
 ```
+
+In the default single deployment mode the client talks to its own origin, so the option has no effect and Wasp prints a notice if you pass it.
 
 #### `cmd`
 
@@ -11751,18 +12041,44 @@ Keep in mind that:
 
 2. If you are a member of multiple Railway organizations, the CLI will prompt you to select the organization under which you want to deploy your app.
 
+**Single deployment**
+
+The project name is used as a base for your server service name on Railway:
+
+- `my-wasp-app-server`, which runs the server and serves the client.
+
+The database service is always named `Postgres`, regardless of the project name.
+
+:::note[Upgrading a project deployed before 0.26]
+Earlier Wasp versions also created a `my-wasp-app-client` service. Wasp no longer deploys it, but it does not delete it either. After your first deploy with the new version, set `WASP_WEB_CLIENT_URL` on the server service to the server's own URL, re-register your OAuth redirect URIs on the server URL, and delete the client service in the Railway dashboard. See the [migration guide](https://wasp.sh/docs/migration-guide).
+:::
+
+**Split deployment**
+
 The project name is used as a base for your server and client service names on Railway:
 
-- `my-wasp-app-client`
+- `my-wasp-app-client`, where your app is available
 - `my-wasp-app-server`
 
 The database service is always named `Postgres`, regardless of the project name.
 
 When you run the `launch` command, Wasp CLI knows how to connect different parts of your Wasp app together, so it sets up the required environment variables for your server app:
 
-1. `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` which are required to connect your client and server apps.
+**Single deployment**
+
+1. `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL`, both set to your app's URL, since the server also serves the client.
 2. `DATABASE_URL` which is required to connect your server app to the database.
 3. `JWT_SECRET` which is required for authentication to work.
+
+If you use OAuth, register `<app URL>/auth/<provider>/callback` (for example `https://my-wasp-app-server.fly.dev/auth/google/callback`) as the redirect URI with your provider.
+
+**Split deployment**
+
+1. `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL`, set to the server's and the client's URLs, which is what connects your client and server apps.
+2. `DATABASE_URL` which is required to connect your server app to the database.
+3. `JWT_SECRET` which is required for authentication to work.
+
+If you use OAuth, register `<server URL>/auth/<provider>/callback` as the redirect URI with your provider.
 
 If you have any additional environment variables that your app needs, read how to set them in the [API Reference](#railway-environment-variables) section.
 
@@ -11772,25 +12088,31 @@ If you want to automate the deployment process, check out the [CI/CD Deployment]
 
 Setting up a custom domain is a three-step process:
 
-1. Add your domain to the Railway client service:
+1. Add your domain to the Railway service your users visit: the server service in the default single deployment mode, the client service in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes).
 
    - Go into the [Railway dashboard](https://railway.com/dashboard?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp).
    - Select your project (for example `my-wasp-app`).
-   - Click on the client service (for example `my-wasp-app-client`).
+   - Click on that service (for example `my-wasp-app-server`).
    - Go to the **Settings** tab and click **Custom Domain**.
    - Enter your domain name (for example `mycoolapp.com`) and port `8080`.
    - Click **Add Domain**.
 
 2. Update the DNS records for your domain, adding a CNAME record at the domain or subdomain you want, pointing to the address you've been given in the previous step. *This step depends on your domain provider, consult their documentation in case of doubt.*
 
-3. To avoid [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) errors, you need to set your new client URL as the `WASP_WEB_CLIENT_URL` environment variable (for example `https://mycoolapp.com`) for your **server service** in the Railway dashboard.
+3. Tell the server about your new domain through the environment variables of your **server service** in the Railway dashboard.
 
    - Go into the [Railway dashboard](https://railway.com/dashboard?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp).
    - Select your project (for example `my-wasp-app`).
    - Click on the server service (for example `my-wasp-app-server`).
    - Go to the **Variables** tab.
 
-   Update the `WASP_WEB_CLIENT_URL` variable with the new domain for your client.
+**Single deployment**
+
+Set both `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` to the new domain (for example `https://mycoolapp.com`). Wasp uses them to build OAuth redirect URIs and email links, so if you use OAuth, update the redirect URI with your provider to `https://mycoolapp.com/auth/<provider>/callback`.
+
+**Split deployment**
+
+Set `WASP_WEB_CLIENT_URL` to the new client domain (for example `https://mycoolapp.com`), so that [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) allows it. The server keeps its own URL, so the OAuth redirect URI doesn't change.
 
 That's it, your app should be available at `https://mycoolapp.com`!
 
@@ -11870,15 +12192,17 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 
 ##### Custom Server URL
 
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+In the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), the client is built with the server's URL baked in. If you want it to connect to a different server URL (for example, a custom domain for your server), use the `--custom-server-url` option:
 
 ```shell
 wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
 ```
 
+In the default single deployment mode the client talks to its own origin, so the option has no effect and Wasp prints a notice if you pass it.
+
 #### The `deploy` command
 
-The `deploy` command deploys your client and server apps to Railway.
+The `deploy` command builds your app (server and client) and deploys it to Railway.
 
 ```shell
 wasp deploy railway deploy <project-name>
@@ -11908,8 +12232,8 @@ wasp deploy railway deploy <project-name> --existing-project-id <railway-project
 
 ##### Other Available Options
 
-- `--skip-client` - do not deploy the web client
 - `--skip-server` - do not deploy the server
+- `--skip-client` - do not deploy the web client. Only applies in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes); in the default single deployment mode the server serves the client, so the option has no effect and Wasp prints a notice.
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/project/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
@@ -11921,15 +12245,17 @@ You must specify your client-side environment variables every time you redeploy 
 
 ##### Custom Server URL {#custom-server-url}
 
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+In the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), the client is built with the server's URL baked in. If you want it to connect to a different server URL (for example, a custom domain for your server), use the `--custom-server-url` option:
 
 ```shell
 wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
 ```
 
+In the default single deployment mode the client talks to its own origin, so the option has no effect and Wasp prints a notice if you pass it.
+
 #### The `setup` command
 
-The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does *not* deploy the client or server services.
+The `setup` command creates your server and database services on Railway, plus the client service in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes). It also configures environment variables. It does *not* deploy the services.
 
 ```shell
 wasp deploy railway setup <project-name>
@@ -11941,10 +12267,10 @@ It accepts the following arguments:
 
   the name of your project.
 
-The project name is used as a base for your server and client service names on Railway:
+The project name is used as a base for your service names on Railway:
 
-- `<project-name>-client`
 - `<project-name>-server`
+- `<project-name>-client`, in split mode only
 
 Railway also creates a PostgreSQL database service named `Postgres`.
 
@@ -11996,7 +12322,7 @@ If your app requires any other server-side environment variables (like social au
 
 ##### Client Environment Variables
 
-If you've added any [client-side environment variables](https://wasp.sh/docs/project/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
+If you've added any [client-side environment variables](https://wasp.sh/docs/project/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command. `wasp deploy` builds the client as part of `wasp build`, so the variables must be in its environment. For example:
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
@@ -12141,7 +12467,7 @@ jobs:
 
 ## Deployment / Deployment Methods / Cloud Providers
 
-You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.
+You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server (or a Docker image) and running a PostgreSQL database.
 
 ### Guides
 
@@ -12196,43 +12522,44 @@ If your desired provider isn't on the list, no worries, you can still deploy you
 Deploying a Wasp app comes down to the following:
 
 1. Generating deployable code.
-2. Deploying the API server (backend).
-3. Deploying the web client (frontend).
-4. Deploying a PostgreSQL database and keeping it running.
+2. Deploying the app.
+3. Deploying a PostgreSQL database and keeping it running.
 
-Let's go through each of these steps.
+What exactly steps 1 and 2 produce depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), so pick yours below and the steps will follow it.
 
 #### 1. Generating Deployable Code
 
-Running the command `wasp build` generates deployable code for the whole app in the `.wasp/out/` directory.
-
-```
-wasp build
-```
+Running the command `wasp build` generates deployable code for your app in the `.wasp/out/` directory. It needs your dependencies installed, so run `wasp install` first.
 
 :::caution[PostgreSQL in production]
 You won't be able to build the app if you are using SQLite as a database (which is the default database). You'll have to [switch to PostgreSQL](https://wasp.sh/docs/data-model/databases#migrating-from-sqlite-to-postgresql) before deploying to production.
 :::
 
-#### 2. Deploying the API Server
+**Single deployment**
 
-There's a Dockerfile that defines an image for building the server in the `.wasp/out` directory.
+`wasp build` also builds the client into static files in `.wasp/out/web-app/build`, so give it any [client env vars](https://wasp.sh/docs/deployment/env-vars#client-env-vars) your app uses:
 
-To run the server in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
+```
+REACT_APP_SOME_VAR=somevalue wasp build
+```
 
-Check the [required server env variables](https://wasp.sh/docs/deployment/env-vars#server-env-vars) and make sure they are set up for your server.
+**Split deployment**
 
-While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
+`wasp build` builds only the server:
 
-#### 3. Deploying the Web Client
+```
+wasp build
+```
 
-To build the web app, run the following command from your project root:
+You build the client yourself, with `REACT_APP_API_URL` set to the origin of the server you are about to deploy:
+
+To build the web client for hosting it separately from the server, run the following command from your project root after `wasp build`:
 
 ```
 REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
 ```
 
-where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
+where `<url_to_wasp_backend>` is the origin of the Wasp server that you previously deployed (for example `https://api.myapp.com`).
 
 The build output will be in `.wasp/out/web-app/build`.
 
@@ -12240,11 +12567,33 @@ The build output will be in `.wasp/out/web-app/build`.
 Remember, if you have defined any other [client-side env variables](https://wasp.sh/docs/project/env-vars#defining-env-vars-in-development) in your project, make sure to add them to the command above when [building your client](https://wasp.sh/docs/deployment/env-vars#client-env-vars)
 :::
 
-The command above will build the web client and put it in the `.wasp/out/web-app/build` directory, including the `200.html` file at the root that acts as the SPA fallback.
+The command above puts the client in `.wasp/out/web-app/build`, including the `200.html` file at the root that acts as the SPA fallback.
 
-Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
+#### 2. Deploying the App
 
-#### 4. Deploying the Database
+**Single deployment**
+
+There's a Dockerfile in the `.wasp/out` directory that defines an image with the server and the built client. The server serves the client's files next to Wasp's own routes (`/auth`, `/operations`, ...), so the whole app is reachable on one URL.
+
+To run the app in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
+
+Check the [required server env variables](https://wasp.sh/docs/deployment/env-vars#server-env-vars) and make sure they are set up for your app. `WASP_SERVER_URL` is the app's public origin, and you can leave `WASP_WEB_CLIENT_URL` out.
+
+If your provider checks the app's health, point the check at `/health`, which returns `200` with `{"status":"ok"}`. `GET /` also returns `200`, but it serves your app's HTML.
+
+**Split deployment**
+
+There's a Dockerfile in the `.wasp/out` directory that defines an image with the server. Deploy this Docker image to a hosting provider that runs Node.js apps or Docker images, and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
+
+Check the [required server env variables](https://wasp.sh/docs/deployment/env-vars#server-env-vars) and make sure they are set up for your server. `WASP_SERVER_URL` is the server's own origin, and `WASP_WEB_CLIENT_URL` has to be the client's URL, so that CORS, e-mail links and OAuth redirects point at it.
+
+The client is just a bunch of static files, so you can deploy the contents of `.wasp/out/web-app/build` to any static hosting provider, for example [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) or [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare).
+
+If your provider checks the server's health, point the check at `/health`, which returns `200` with `{"status":"ok"}`.
+
+While these are the general instructions on deploying the app anywhere, we also have more detailed instructions for chosen providers above, so check that out for more guidance if you are deploying to one of those providers.
+
+#### 3. Deploying the Database
 
 Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
 
@@ -12293,18 +12642,30 @@ To successfully self-host your Wasp app, you need to have the following:
 
 To self-host your Wasp app, you'll follow these general steps:
 
-1. From your **app's code**, let Wasp build a **server app** and a **client app**.
+**Single deployment**
+
+1. From your **app's code**, let Wasp build the **app** (the server, which also serves the client).
+2. Set up the **server environment variables** on the server.
+3. Run a **database** on the server or use a managed database service.
+4. Run the **app** on the server, with or without Docker.
+5. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
+
+**Split deployment**
+
+1. From your **app's code**, let Wasp build the **server app**, and build the **client** yourself.
 2. Set up the **server environment variables** on the server.
 3. Run a **database** on the server or use a managed database service.
 4. Run the **server app** on the server, with or without Docker.
-5. Serve the **client app** with a static file server.
-6. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
+5. Serve the **client's** static files, from your reverse proxy or from a static host.
+6. Set up a **reverse proxy** on the server to be able to use domain names with HTTPS for your app.
 
 ![One of many possible self-hosting setups](https://wasp.sh/img/deploying/self-hosting.png)
 
-One possible self-hosting setup
+One possible self-hosting setup in split mode
 
 #### Steps
+
+**Single deployment**
 
 1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](https://wasp.sh/docs/quick-start#installation).
 
@@ -12312,33 +12673,57 @@ One possible self-hosting setup
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
 
 3. Install dependencies with **`wasp install`** and build your app with **`wasp build`**.
+   - `wasp build` also builds the client, so pass any [client env vars](https://wasp.sh/docs/deployment/env-vars#client-env-vars) your app uses to it.
 
-4. Build and run the **server app**.
+4. Build and run the **app**.
 
-   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server app.
-   - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
-   - When you run the server app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
+   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the app. The image contains the server and the built client.
+   - We are using Docker to run the app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
+   - When you run the app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
 
 5. Start the **database** on the server or use a managed database service.
 
    - We usually run the database in Docker on the same server, but you can run the database directly on the server.
    - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
 
-6. Build the **client app** into static files.
-
-   - Wasp outputs the client app in the `.wasp/out/web-app` directory.
-
-   * You should [build the client app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#3-deploying-the-web-client) into static files.
-
-7. Install and set up a **reverse proxy** to serve your client and server apps.
+6. Install and set up a **reverse proxy** to serve your app over HTTPS.
 
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
-   - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.
+   - The reverse proxy forwards all requests for your domain to the app's port. The app serves both the pages and Wasp's routes.
+   - If the proxy runs a health check, point it at `/health`.
 
-8. Point your **domain(s)** to your server's IP address.
+7. Point your **domain** to your server's IP address.
+   - One domain is enough, for example `myapp.com`. Set `WASP_SERVER_URL=https://myapp.com` in the app's [env variables](https://wasp.sh/docs/deployment/env-vars).
 
-   - We recommend setting `myapp.com` for the client and `api.myapp.com` for the server.
-   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure your [env variables](https://wasp.sh/docs/deployment/env-vars) are using these client and server URLs.
+**Split deployment**
+
+1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](https://wasp.sh/docs/quick-start#installation).
+
+2. Get your **app's source code**.
+   - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
+
+3. Install dependencies with **`wasp install`** and build the server with **`wasp build`**.
+   - Then build the **client** with `REACT_APP_API_URL` set to the server's origin, plus any other [client env vars](https://wasp.sh/docs/deployment/env-vars#client-env-vars) your app uses: `REACT_APP_API_URL=https://api.myapp.com npx vite build`. The output is in `.wasp/out/web-app/build`.
+
+4. Build and run the **server app**.
+
+   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server.
+   - We are using Docker to run the server, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
+   - When you run the server with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
+
+5. Start the **database** on the server or use a managed database service.
+
+   - We usually run the database in Docker on the same server, but you can run the database directly on the server.
+   - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
+
+6. Install and set up a **reverse proxy** to serve your app over HTTPS.
+
+   - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
+   - The proxy serves the client's static files on your app's domain, with a fallback to `200.html` for unknown paths, and forwards requests for the server's domain to the server's port.
+   - If the proxy runs a health check for the server, point it at `/health`.
+
+7. Point your **domains** to your server's IP address.
+   - You need two, for example `myapp.com` for the client and `api.myapp.com` for the server. Set `WASP_WEB_CLIENT_URL=https://myapp.com` and `WASP_SERVER_URL=https://api.myapp.com` in the server's [env variables](https://wasp.sh/docs/deployment/env-vars).
 
 ### Database setup
 
@@ -12415,26 +12800,32 @@ You can use Wasp's built in [client tests](https://wasp.sh/docs/project/testing)
 
 ### Continuous deployment
 
-We'll look at two ways you can use the CI/CD pipeline to deploy your Wasp app:
+How you deploy from CI depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes). In the default single deployment mode you package the whole app into one Docker image. In split mode you do that for the server and upload the client's static files separately.
 
-1. Package the server and client with Docker.
-2. Deploy the client as static files.
-
-#### Package the server and client with Docker
+#### Package the app with Docker
 
 The most common way to package your app for deployment is using Docker images. This way you can easily deploy the same image to different environments (staging, production, etc.).
+
+**Single deployment**
+
+The image Wasp generates contains the server and the built client, so one image is the whole app.
 
 **To build the app as a Docker image**, you'll need to:
 
 1. Install Docker in the CD environment.
+2. Install dependencies with `wasp install` and build the app with `wasp build`. Pass any [client env vars](https://wasp.sh/docs/deployment/env-vars#client-env-vars) to `wasp build`, since it builds the client.
+3. Build the Docker image from `.wasp/out` and push it to a Docker registry.
+4. For some providers: notify them to deploy the new app version.
 
-2. Install dependencies with `wasp install` and build the app with `wasp build`.
+**Split deployment**
 
-3. Build the Docker image and push it to a Docker registry:
+The image Wasp generates contains the server. You deploy the client separately, as described below.
 
-   - for our server app
-   - for our client app
+**To build the server as a Docker image**, you'll need to:
 
+1. Install Docker in the CD environment.
+2. Install dependencies with `wasp install` and build the server with `wasp build`.
+3. Build the Docker image from `.wasp/out` and push it to a Docker registry.
 4. For some providers: notify them to deploy the new app version.
 
 :::info[What is a Docker Registry?]
@@ -12457,29 +12848,26 @@ Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade739649
 
 3. Next, we **install dependencies** with `wasp install` and **build the Wasp app** with `wasp build`.
 
-   This creates our server and the client app in the `.wasp/out` folder.
+   This creates our server and the built client in the `.wasp/out` folder.
 
-4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
+4. Then, we **package the app** into a Docker image and **push it to the GHCR**.
 
-   We use the `Dockerfile` in the `.wasp/out` directory to build and push the server Docker image using the `docker/build-push-action` action.
+   We use the `Dockerfile` in the `.wasp/out` directory to build and push the Docker image using the `docker/build-push-action` action.
 
-5. Next, we create a `Dockerfile` for our client and then **package the client app** into a Docker image and **push it to the GHCR**.
-
-   We create a `Dockerfile` that uses a simple Go static server to serve the client app. We again use the `docker/build-push-action` action to build and push the client Docker image.
-
-6. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
+5. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
 
    And now you can open the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide and see the full deployment process.
 
 #### Static build of the client
 
-Wasp's client app is a single page application (SPA) which you build into static HTML, CSS, and JS files that you can upload to any hosting provider that supports serving static files. This means that for the client app, you don't need to use Docker images if don't want to. It's usually cheaper to host static files than to host Docker images.
+This step only applies in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes). Wasp's client is a single page application (SPA) which you build into static HTML, CSS, and JS files and upload to any hosting provider that supports serving static files. In the default single deployment mode the client is already in the Docker image and there is nothing to do here.
 
-**To deploy the client app as static files**, you'll need to:
+**To deploy the client as static files**, you'll need to:
 
 1. Install dependencies with `wasp install` and build the app with `wasp build` in the CD environment.
-2. Build the client app with `npx vite build`.
+2. Build the client with `REACT_APP_API_URL=<server_origin> npx vite build`, so it talks to your separately deployed server.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
+4. Set `WASP_WEB_CLIENT_URL` on the server to the client's URL.
 
 Check out our instructions for deploying the client app to [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) or [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare) where you can check out the example deployment using Github Actions.
 
@@ -12490,13 +12878,17 @@ In this section, we will cover some additional topics that are important for dep
 
 #### Custom domain setup
 
-If you want to set up a custom domain for your Wasp app, you can do it for both the client and the server.
+**Single deployment**
 
-The important part is setting up the custom domain for the client - that's what your users visit from their browsers. Setting up a custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
+Since the server serves the client, your Wasp app lives on one domain, and that's the one your users visit from their browsers.
+
+**Split deployment**
+
+The client and the server are hosted separately, so you can set up a custom domain for each of them. The important one is the client's, since that's what your users visit from their browsers. A custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
 
 ##### How to do it?
 
-It's usually a two-step process, and it's the same for both the client and the server:
+It's usually a two-step process:
 
 1. Set up the **DNS records** for the domain.
 
@@ -12508,31 +12900,34 @@ Check out how to set up custom domains with [Fly.io](https://wasp.sh/docs/deploy
 
 2. Set up the **environment variables** for the app.
 
-   You need to set the environment variables so Wasp configures the app correctly (for example, for CORS to work correctly).
+   Wasp configures the app from these, for example when building OAuth redirect URIs, e-mail links and the CORS configuration.
 
-   ##### Client domain env vars
+**Single deployment**
 
-   When [building the client](https://wasp.sh/docs/deployment/env-vars#client-env-vars), set `REACT_APP_API_URL` to point to your server domain:
+Set [`WASP_SERVER_URL`](https://wasp.sh/docs/deployment/env-vars#server-env-vars) to your domain. `WASP_WEB_CLIENT_URL` defaults to the same value:
 
-   ```bash
-   REACT_APP_API_URL=https://api.myapp.com
-   ```
+```bash
+WASP_SERVER_URL=https://myapp.com
+```
 
-   Learn more about client configuration in the [env vars section](https://wasp.sh/docs/project/env-vars#client-general-configuration).
+If you use OAuth, update the redirect URI with your provider to `https://myapp.com/auth/<provider>/callback`.
 
-   ##### Server domain env vars
+**Split deployment**
 
-   For the server, you need to [configure two variables](https://wasp.sh/docs/deployment/env-vars#server-env-vars):
+You have two domains, so [build the client](https://wasp.sh/docs/deployment/env-vars#client-env-vars) with `REACT_APP_API_URL` pointing at the server's domain, and set both server variables:
 
-   - `WASP_WEB_CLIENT_URL`: Your client app's domain
-   - `WASP_SERVER_URL`: Your server domain
+```bash
+REACT_APP_API_URL=https://api.myapp.com
+```
 
-   ```bash
-   WASP_WEB_CLIENT_URL=https://myapp.com
-   WASP_SERVER_URL=https://server.myapp.com
-   ```
+```bash
+WASP_WEB_CLIENT_URL=https://myapp.com
+WASP_SERVER_URL=https://api.myapp.com
+```
 
-   Learn more about server env variables in the [env vars section](https://wasp.sh/docs/project/env-vars#server-general-configuration).
+If you use OAuth, update the redirect URI with your provider to `https://api.myapp.com/auth/<provider>/callback`.
+
+Learn more about server env variables in the [env vars section](https://wasp.sh/docs/project/env-vars#server-general-configuration).
 
 #### DDoS protection and CDN recommendations
 
@@ -12540,11 +12935,11 @@ When deploying your Wasp app, you might want to consider using a Content Deliver
 
 1. **Content Delivery Network (CDN)** is a network of servers distributed worldwide that caches static assets like images, CSS, and JavaScript files.
 
-   Using a CDN in front of your **client** can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times.
+   Using a CDN in front of your **app** (or, in split mode, in front of your **client**) can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times. Wasp serves the files under `/assets/` with immutable cache headers and the HTML without caching, so a CDN in front of the whole app does the right thing.
 
 2. **Distributed Denial of Service (DDoS)** attacks are a common threat to web applications.
 
-   Attackers send a large amount of traffic to your server, overwhelming it and making it unavailable to legitimate users. You can use a DDoS protection service for both your **client and server** to protect your app from these attacks.
+   Attackers send a large amount of traffic to your server, overwhelming it and making it unavailable to legitimate users. You can use a DDoS protection service in front of your **app** (in split mode, in front of both the **client and the server**) to protect it from these attacks.
 
 We recommend using [Cloudflare](https://www.cloudflare.com/) for both CDN and DDoS protection. It's easy to set up and provides a free tier that should be enough for most small to medium-sized apps.
 
@@ -12556,7 +12951,7 @@ As we mentioned in the [introduction](https://wasp.sh/docs/deployment/intro) sec
 
 For the server, we are using Node.js and the battle-tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well-maintained.
 
-Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
+Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. The server serving the client is plain Express static file serving, nothing exotic. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
 
 
 ## AI & Coding Agents / Agent Plugin / Skills
@@ -13301,6 +13696,8 @@ Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](h
 
 We handle making sure your URLs are correctly setup, CORS is enabled, and provide a useful `useSocket` and `useSocketListener` abstractions for use in React components.
 
+The client connects to `config.apiUrl` and Socket.IO listens on `/socket.io`. In the default [single deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes) that's the page's own origin, so the connection works through the same URL as the rest of your app, in development (where the client dev server proxies it) and in production. In split mode it's the server's own URL, taken from `REACT_APP_API_URL`.
+
 To get started, you need to:
 
 1. Define your WebSocket logic on the server.
@@ -13497,7 +13894,7 @@ Whenever you start a Wasp app, you are starting two processes.
 
 - **The client process** - A React app that implements your app's frontend.
 
-  During development, this is a dev server with hot reloading. In production, it's a simple process that serves pre-built static files with environment variables embedded during the build (details depend on [how you deploy it](https://wasp.sh/docs/deployment/intro)).
+  During development, this is a dev server with hot reloading, which proxies Wasp's routes to the server so the browser only ever talks to one origin. In production, the client is a set of pre-built static files with environment variables embedded during the build, served by the server process (or by a static host under [split hosting](https://wasp.sh/docs/deployment/intro#deployment-modes)).
 
 - **The server process** - An Express server that implements your app's backend.
 
@@ -13513,17 +13910,28 @@ Wasp gives you runtime access to the processes' configurations through **configu
 
 The server configuration object contains these fields:
 
-- `frontendUrl: String` - Set it with env var `WASP_WEB_CLIENT_URL`.
+- `serverUrl: String` - Set it with env var `WASP_SERVER_URL`.
+
+  Your app's public URL, for example `https://myapp.com`.\
+  Wasp automatically sets it during development when you run `wasp start`.\
+  In production, you should set it to your app's URL as the user's browser sees it (i.e., with the DNS and proxies considered).
+
+- `frontendUrl: String` - Derived from env var `WASP_WEB_CLIENT_URL`, which defaults to `WASP_SERVER_URL`.
 
   The URL of your client (the app's frontend).\
   Wasp automatically sets it during development when you run `wasp start`.\
-  In production, you should set it to your client's URL as the server sees it (i.e., with the DNS and proxies considered).
+  In production, it is the origin of `WASP_WEB_CLIENT_URL` (or of `WASP_SERVER_URL` when that is not set) plus `client.baseDir`, so it equals your app's URL unless you host the client separately. Under [split hosting](https://wasp.sh/docs/deployment/intro#deployment-modes) it is `WASP_WEB_CLIENT_URL` exactly as you set it.
 
-You can access it like this:
+- `clientBaseDir: String` - Comes from [`client.baseDir`](https://wasp.sh/docs/project/client-config#base-directory) in your Wasp file.
+
+  The path under which your pages live, `/` by default.
+
+You can access them like this:
 
 ```js
 import { config } from 'wasp/server'
 
+console.log(config.serverUrl)
 console.log(config.frontendUrl)
 ```
 
@@ -13531,11 +13939,19 @@ console.log(config.frontendUrl)
 
 The client configuration object contains these fields:
 
-- `apiUrl: String` - Set it with env var `REACT_APP_API_URL`
+- `apiUrl: String`
 
-  The URL of your server (the app's backend).\
-  Wasp automatically sets it during development when you run `wasp start`.\
-  In production, it should contain the value of your server's URL as the user's browser sees it (i.e., with the DNS and proxies considered).
+  The URL the client sends its API requests to. Where it comes from depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes):
+
+**Single deployment**
+
+In the browser this is the page's own origin (`window.location.origin`): the server serves the client in production, and during development the client dev server proxies Wasp's routes to the server, so the client never needs the server's address.
+
+Outside the browser (for example while [prerendering](https://wasp.sh/docs/advanced/prerendering)) there is no page origin, so it comes from the `REACT_APP_API_URL` env var, or is an empty string if that is not set.
+
+**Split deployment**
+
+The client is hosted separately from the server, so it always comes from the `REACT_APP_API_URL` env var you build the client with.
 
 You can access it like this:
 
@@ -13587,6 +14003,8 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](https://wasp.sh/docs/general/spec#reference-imports).
 :::
 
+Wasp serves its own routes under `/auth`, `/operations` and `/crud` and at `/health`, and registers them before your APIs. An API with the same path as one of them, whether that is `/health` or an operation or CRUD route such as `/operations/get-tasks`, produces a warning, since Wasp's route would answer instead. A page route that sits under a path the server handles (Wasp's routes or one of your API paths) also produces a warning, since when the client and the server share an origin the server would answer instead of the page.
+
 Read more about the supported fields in the [API Reference](#api-reference).
 
 #### Defining the API's NodeJS Implementation
@@ -13605,7 +14023,6 @@ After you defined the API, it should be implemented as a NodeJS function that ta
 import type { FooBar } from "wasp/server/api";
 
 export const fooBar: FooBar = (req, res, context) => {
-  res.set("Access-Control-Allow-Origin", "*"); // Example of modifying headers to override Wasp default CORS middleware.
   res.json({ msg: `Hello, ${context.user ? "registered user" : "stranger"}!` });
 };
 ```
@@ -13654,11 +14071,21 @@ export const fooBar: FooBar<
 
 To use the API externally, you simply call the endpoint using the method and path you used.
 
-For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example/com/foo/callback` (in your browser, Postman, `curl`, another web service, etc.).
+For example, if your server is running at `https://example.com` then from the above you could issue a `GET` to `https://example.com/foo/bar` (in your browser, Postman, `curl`, another web service, etc.).
+
+In development, Wasp runs the server on its own port (`3001` by default). Whether your app's URL also serves the API depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes):
+
+**Single deployment**
+
+The client dev server forwards Wasp's routes and your declared API paths to the server, so both `http://localhost:3000/foo/bar` and `http://localhost:3001/foo/bar` work. An API path with no pattern segment is forwarded exactly, so it takes nothing else from your pages. One that has a pattern segment (for example `/foo/bar/:email`) is forwarded along with everything under its static beginning, here `/foo/bar`. An API whose path *starts* with a pattern segment (for example `/:id`) has no static beginning at all, so the whole site goes to the server and your pages become unreachable in development; Wasp warns you about every page route when that happens.
+
+**Split deployment**
+
+The client and the server are separate origins, so your API lives only on the server's: `http://localhost:3001/foo/bar` in development, and `<server origin>/foo/bar` in production.
 
 #### Using the API from the Client
 
-To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API base URL, authentication, and error handling. For example:
+To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API's URL (`config.apiUrl`), authentication, and error handling. For example:
 
 ```tsx title="src/pages/SomePage.tsx"
 import React, { useEffect } from "react";
@@ -13678,11 +14105,21 @@ export const Foo = () => {
 };
 ```
 
-##### Making Sure CORS Works
+##### Calling the API from another origin
 
-APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
+Whether your own client's calls are cross-origin depends on your [deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes):
 
-You can do this by defining custom middleware for your APIs in the Wasp file.
+**Single deployment**
+
+The server serves the client, so calls from your own client are same-origin and need no CORS setup. Only calls from somewhere else (another site, another app) are cross-origin.
+
+**Split deployment**
+
+The client is a different origin than the server, so every call from your client is cross-origin.
+
+For cross-origin calls, CORS (Cross-Origin Resource Sharing) has to allow the calling origin. Wasp's default middleware, which APIs share with Operations, allows `WASP_WEB_CLIENT_URL`; anything else needs custom middleware.
+
+You can define custom middleware for your APIs in the Wasp file.
 
 For example, an `apiNamespace` is a simple spec used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
@@ -13707,7 +14144,7 @@ export const apiMiddleware: MiddlewareConfigFn = (config) => {
 };
 ```
 
-We are returning the default middleware which enables CORS for all APIs under the `/foo` path.
+We are returning the default middleware, which keeps CORS enabled for all APIs under the `/foo` path. To allow more origins, see the [multiple domains CORS guide](https://wasp.sh/docs/guides/configuration/cors-multiple-domains).
 
 For more information about middleware configuration, please see: [Middleware Configuration](https://wasp.sh/docs/advanced/middleware-config)
 
@@ -13763,7 +14200,7 @@ export default app({
 })
 ```
 
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+In the default single deployment mode the client calls this endpoint on its own origin, so it needs no CORS setup. In split mode, see the [section on cross-origin calls](#calling-the-api-from-another-origin).
 
 ```ts title="src/streaming.ts"
 import OpenAI from "openai";
@@ -13913,7 +14350,7 @@ Wasp's Express server has the following middleware by default:
 - [CORS](https://github.com/expressjs/cors#readme): CORS is a package for providing a middleware that can be used to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) with various options.
 
   :::note
-  CORS middleware is required for the frontend to communicate with the backend.
+  By default the server serves the client, so your own frontend's requests are same-origin and CORS is not involved. CORS matters when a different origin calls your server, for example the client under [split hosting](https://wasp.sh/docs/deployment/intro#deployment-modes), where it must allow `WASP_WEB_CLIENT_URL`.
   :::
 
 - [Morgan](https://github.com/expressjs/morgan#readme): HTTP request logger middleware.
@@ -15046,7 +15483,7 @@ wasp db start
 
 #### Project Commands
 
-- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
+- `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Your app's URL is the client's (`http://localhost:3000`): the client dev server proxies Wasp's routes to the server, so the browser never talks to port 3001 directly. In [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) there is no proxy and the browser talks to both. Wasp prints the app URL and the internal server URL when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
@@ -15065,9 +15502,9 @@ $ wasp clean
 
 - `wasp compile` compiles your Wasp project and reports any errors, without running the app. It's a quick way to check that your project is valid, which makes it especially handy in CI or for AI agents.
 
-- `wasp build` generates the complete web app code, which is ready for [deployment](https://wasp.sh/docs/deployment/intro). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
+- `wasp build` generates the complete web app code, which is ready for [deployment](https://wasp.sh/docs/deployment/intro). It needs your dependencies installed (`wasp install`). In the default single deployment mode it also builds the client into static files in `.wasp/out/web-app/build`, so give it any client env vars (`REACT_APP_*`) your app uses; in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) you build the client yourself. Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
-- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port` and `--server-port` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
+- `wasp build start` takes the output of `wasp build` and runs it locally the same way it runs in production: one Docker container with the server serving the client, plus a static server for the client in split mode. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the `--server-port` and `--client-port` options to pick the ports (`--client-port` is ignored in single deployment mode, since the server serves the client). This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
@@ -15367,6 +15804,16 @@ npm i -g @wasp.sh/wasp-cli@0.26
 
 ### What's new in 0.26?
 
+#### One app instead of two
+
+Wasp apps now deploy as a single app: the server serves the built client, and the browser talks to one origin. There is no separate client app to build, host or point at the server anymore.
+
+- `wasp build` builds the client too, and the generated Dockerfile packages it with the server.
+- `wasp build start` runs one container, and `wasp deploy fly` / `wasp deploy railway` create one app plus the database.
+- In development, `wasp start` still runs the client on port `3000` and the server on `3001`, but the browser only talks to `3000`: the client dev server proxies Wasp's routes (`/auth`, `/operations`, `/crud`, the new `/health`) and your `api` paths to the server.
+
+Hosting the client separately from the server (the way it worked before, now called the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes)) still works, but it's no longer the default: opt into it with `deployment: { mode: "split" }` in `main.wasp.ts`.
+
 #### Running multiple Wasp apps side by side
 
 `wasp start` now decides which ports the client and the server run on. If the default ports (`3000` and `3001`) are taken, it moves the app to free ones instead of failing, so you can run several Wasp apps side by side.
@@ -15544,6 +15991,29 @@ COPY libs .wasp/out/libs
 # ...
 ```
 
+If your final stage doesn't continue from Wasp's, it also needs the built client, which the server now serves:
+
+**Before**
+
+```dockerfile title="Dockerfile"
+FROM node:24 AS production
+# ...
+COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
+ENTRYPOINT ["npm", "run", "start-production"]
+```
+
+**After**
+
+```dockerfile title="Dockerfile"
+FROM node:24 AS production
+# ...
+COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
+COPY web-app/build .wasp/out/web-app/build
+ENTRYPOINT ["npm", "run", "start-production"]
+```
+
+Run `wasp dockerfile` to see the exact stage names and paths in your generated Dockerfile.
+
 #### 6. Update Fly database deployment flags
 
 If you use database sizing options with `wasp deploy fly launch` or `wasp deploy fly create-db`, rename them as follows:
@@ -15554,7 +16024,133 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size` |
 | `--volume-size`          | `--db-volume-size`          |
 
-#### 7. Enjoy your updated Wasp app
+#### 7. Pick your deployment mode
+
+Your app now deploys as one app by default: the server serves the built client, and the browser talks to one origin. That's the [single deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), and it's what steps 9 to 13 walk you through.
+
+The previous topology, the client hosted separately from the server, is still fully supported as the **split mode**. If that's what you want, take [step 8](#8-keep-hosting-the-client-separately) and you're done with this part of the migration.
+
+#### 8. Keep hosting the client separately
+
+Only do this if you want to keep the client on a static host like Netlify or Cloudflare, separate from the server. That's the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes), the topology you already have. Opt into it in `main.wasp.ts`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  deployment: { mode: "split" },
+});
+```
+
+Nothing else about your deployment changes: keep building the client yourself with `REACT_APP_API_URL=<server origin> npx vite build` after `wasp build`, keep `WASP_WEB_CLIENT_URL` pointed at the client's URL, and keep your OAuth redirect URIs on the server's origin. You can **skip steps 9 to 13** and go straight to [step 14](#14-update-hand-written-mocks-in-client-tests).
+
+The [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) and [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare) guides describe this setup.
+
+#### 9. Stop building the client separately
+
+`wasp build` now builds the client into `.wasp/out/web-app/build` and the Dockerfile copies it into the image, so remove the `npx vite build` step from your deployment scripts and CI. Because the client is built by `wasp build`, your `REACT_APP_*` client env vars have to be in **its** environment (or in the environment of `wasp deploy`, which runs it):
+
+**Before**
+
+```yaml title=".github/workflows/deploy.yml"
+- run: wasp build
+- run: REACT_APP_API_URL=https://api.myapp.com REACT_APP_NAME="My App" npx vite build
+```
+
+**After**
+
+```yaml title=".github/workflows/deploy.yml"
+- run: REACT_APP_NAME="My App" wasp build
+```
+
+`wasp build` needs your dependencies installed, so run `wasp install` first. `REACT_APP_API_URL` is gone: the client talks to its own origin. Keep it only if you host the client separately (see [step 8](#8-keep-hosting-the-client-separately)).
+
+#### 10. Update your server env vars
+
+**If you use `wasp deploy fly` or `wasp deploy railway`, skip to [step 13](#13-upgrade-an-existing-wasp-deploy-project).**
+
+`WASP_SERVER_URL` is now your app's public URL, the one users open in the browser. `WASP_WEB_CLIENT_URL` is optional and defaults to `WASP_SERVER_URL`, which is right when the server serves the client.
+
+**Before**
+
+```env title="Server env vars"
+WASP_SERVER_URL=https://api.myapp.com
+WASP_WEB_CLIENT_URL=https://myapp.com
+```
+
+**After**
+
+```env title="Server env vars"
+WASP_SERVER_URL=https://myapp.com
+```
+
+Since there's only one app, point your domain at it and delete the client's static hosting once the new version is up. The [deployment guides](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers) have been updated for the single app.
+
+#### 11. Update your OAuth redirect URIs
+
+If you use Google, GitHub, Discord, Keycloak, Microsoft or Slack auth, the redirect URI you registered with the provider now uses the app's origin (the one the browser talks to) instead of the server's. The path stays the same.
+
+| Before                                       | After                                        |
+| -------------------------------------------- | -------------------------------------------- |
+| `http://localhost:3001/auth/google/callback` | `http://localhost:3000/auth/google/callback` |
+| `https://api.myapp.com/auth/google/callback` | `https://myapp.com/auth/google/callback`     |
+
+Do this for every provider and every environment (development, staging, production). The [social auth pages](https://wasp.sh/docs/auth/social-auth/overview) have the updated values.
+
+#### 12. Update your health checks
+
+`GET /` used to return an empty `200` on the server. That route is gone: in single deployment mode the client is served there, and in split mode `/` returns a `404` unless one of your `api`s claims it. Either way, if your host or reverse proxy has a health check, point it at `/health`, which returns `{"status":"ok"}`:
+
+**Before**
+
+```caddyfile title="Caddyfile"
+reverse_proxy localhost:3001 {
+  health_uri /
+}
+```
+
+**After**
+
+```caddyfile title="Caddyfile"
+reverse_proxy localhost:3001 {
+  health_uri /health
+}
+```
+
+#### 13. Upgrade an existing `wasp deploy` project
+
+`wasp deploy fly` and `wasp deploy railway` now deploy one app and no longer touch the client app or service they created earlier. They don't delete it either, so after your first deploy with 0.26:
+
+1. Deploy as usual, for example `wasp deploy fly deploy` or `wasp deploy railway deploy <project-name>`.
+2. Point `WASP_WEB_CLIENT_URL` at the server app, since that is where your app lives now. On Fly, run `wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://<app-name>-server.fly.dev`. On Railway, set it on the server service in the Railway dashboard.
+3. Update your OAuth redirect URIs to the server app's URL, as in [step 11](#11-update-your-oauth-redirect-uris). Your app now lives at the server URL (for example `https://my-wasp-app-server.fly.dev`).
+4. If you had a custom domain on the client app, move it to the server app (Fly: `wasp deploy fly cmd --context server certs create mycoolapp.com`; Railway: add the domain to the server service) and set `WASP_SERVER_URL` and `WASP_WEB_CLIENT_URL` to it.
+5. Delete the old client app: `fly apps destroy <app-name>-client` on Fly, or remove the `<project-name>-client` service in the Railway dashboard. On Fly, also delete `fly-client.toml` from your project.
+
+`--custom-server-url`, `--skip-client` and `--client-secret` only apply in split mode; Wasp prints a notice if you pass them otherwise.
+
+#### 14. Update hand-written mocks in client tests
+
+`mockQuery` and `mockApi` from `wasp/client/test` keep working. So do hand-written `msw` handlers built on `config.apiUrl`, since it follows the client's own origin. Handlers with a hardcoded server URL need the API URL instead:
+
+**Before**
+
+```ts title="src/MainPage.test.tsx"
+http.post("http://localhost:3001/operations/get-tasks", () =>
+  HttpResponse.json([]),
+)
+```
+
+**After**
+
+```ts title="src/MainPage.test.tsx"
+import { config } from "wasp/client";
+
+http.post(`${config.apiUrl}/operations/get-tasks`, () =>
+  HttpResponse.json([]),
+)
+```
+
+#### 15. Enjoy your updated Wasp app
 
 That's it!
 
@@ -19448,10 +20044,10 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Getting St
 
 ### When You Need This
 
-By default, Wasp configures CORS to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). You might need to support multiple domains when:
+By default, the server serves the client, so your own frontend's requests are same-origin and CORS never comes into play. Wasp still configures CORS to allow requests from `WASP_WEB_CLIENT_URL` (which defaults to `WASP_SERVER_URL`) for the cases where another origin calls your server. You might need to support multiple domains when:
 
-- You have multiple domains for the same client application
-- You're building a public API
+- You host the client separately from the server ([split hosting](https://wasp.sh/docs/deployment/intro#deployment-modes)) on more than one domain
+- You're building a public API that browsers on other sites call
 - You're migrating from one domain to another
 
 ### Setting up Multiple Domain CORS
@@ -19775,22 +20371,17 @@ The app won't be fully functional until you configure the environment variables.
 #### .env.server
 
 ```bash title=".env.server"
-WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
-```
-
-#### .env.client
-
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
+WASP_SERVER_URL=http://192.168.1.39.nip.io:3000
 ```
 
 Replace `192.168.1.39` with your actual IP address from Step 2.
 
-:::note[Why these variables?]
-- **WASP\_WEB\_CLIENT\_URL**: Ensures CORS works correctly
-- **WASP\_SERVER\_URL**: Makes OAuth redirects work properly
-- **REACT\_APP\_API\_URL**: Tells the client where to find the server on the local network
+:::note[Why this variable?]
+The client dev server on port `3000` proxies Wasp's routes to the server, so other devices only need to reach port `3000` and the client finds the server on its own origin. `WASP_SERVER_URL` is the one thing Wasp can't guess: it's the public origin it puts into OAuth redirect URIs, and it must match what the browser sees. `WASP_WEB_CLIENT_URL` defaults to it.
+:::
+
+:::note[Split mode]
+In [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) there is no proxy: other devices have to reach both ports, and you set `WASP_SERVER_URL=http://192.168.1.39.nip.io:3001`, `WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000` in `.env.server` and `REACT_APP_API_URL=http://192.168.1.39.nip.io:3001` in `.env.client`.
 :::
 
 ### Step 4: Allow the Host in Vite Config
@@ -19842,7 +20433,7 @@ You can skip nip.io if you're not using features that require proper hostnames, 
 If you're using OAuth providers (Google, GitHub, etc.), remember to add your local network URLs to the allowed redirect URIs in each provider's configuration:
 
 ```
-http://192.168.1.39.nip.io:3001/auth/google/callback
+http://192.168.1.39.nip.io:3000/auth/google/callback
 ```
 
 ### Troubleshooting
@@ -19850,14 +20441,14 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 #### Can't access from other devices
 
 1. Make sure both devices are on the same network
-2. Check if your firewall is blocking incoming connections on ports 3000 and 3001
+2. Check if your firewall is blocking incoming connections on port 3000
 3. Try different Network URLs if you have multiple
 
 #### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
-2. Make sure the server is accessible on port 3001
-3. Check browser console for CORS errors
+1. Make sure you opened the app through the `.nip.io` hostname on port 3000, not the server port
+2. Check the terminal for proxy errors from the client dev server
+3. In split mode, verify `REACT_APP_API_URL` is set correctly in `.env.client`, that the server is reachable on port 3001, and check the browser console for CORS errors
 
 #### OAuth not working
 
@@ -19878,6 +20469,25 @@ This guide depends on external libraries or services, so it may become outdated 
 
 This guide shows you how to deploy your Wasp app's client to [Cloudflare](https://www.cloudflare.com/) Workers, a free hosting service. You will need a Cloudflare account to follow these instructions.
 
+:::info[This guide is for split mode]
+Hosting the client separately from the server is the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes). It is not the default, so opt into it in `main.wasp.ts`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  deployment: { mode: "split" },
+});
+```
+
+In this mode:
+
+- `wasp build` builds only the server. You build the client yourself with `REACT_APP_API_URL` set to the server's origin, as shown below.
+- The server must know the client's origin: set `WASP_WEB_CLIENT_URL` to your Workers URL so CORS, e-mail links and OAuth redirects work.
+- OAuth redirect URIs point at the server: `<server_origin>/auth/<provider>/callback`.
+
+In the default single deployment mode the server serves the client, so there is no separate client host and this guide does not apply.
+:::
+
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
 ```bash
@@ -19886,13 +20496,13 @@ npx wrangler login
 
 Before you continue, make sure you have [built the Wasp app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#1-generating-deployable-code). We'll build the client web app next.
 
-To build the web app, run the following command from your project root:
+To build the web client for hosting it separately from the server, run the following command from your project root after `wasp build`:
 
 ```
 REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
 ```
 
-where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
+where `<url_to_wasp_backend>` is the origin of the Wasp server that you previously deployed (for example `https://api.myapp.com`).
 
 The build output will be in `.wasp/out/web-app/build`.
 
@@ -20011,11 +20621,19 @@ This guide depends on external libraries or services, so it may become outdated 
 
 ### Automatic Deployment server client database {#automatic-deployment---}
 
-We recommend that you use [Wasp Deploy](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/fly) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/fly) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the app (the server, which also serves the client) and the database with one command.
 
-### Manual Deployment server database {#manual-deployment--}
+### Manual Deployment server client database {#manual-deployment---}
 
-This guide shows you how to deploy your Wasp app's server and provision a database on Fly.io.
+This guide shows you how to deploy your Wasp app and provision a database on Fly.io.
+
+**Single deployment**
+
+The Docker image Wasp generates contains both the server and the built client, so one Fly app is the whole Wasp app.
+
+**Split deployment**
+
+The Docker image Wasp generates contains the server, so this Fly app is your server. You host the client separately, for example on [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) or [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare).
 
 #### Prerequisites
 
@@ -20035,7 +20653,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#1-generating-deployable-code) (remember to pass any `REACT_APP_*` client env vars to `wasp build`), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -20078,15 +20696,24 @@ Next, add a few more environment variables for the server code.
 ```bash
 fly secrets set PORT=8080
 fly secrets set JWT_SECRET=<random_string_at_least_32_characters_long>
-fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
-fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
+fly secrets set WASP_SERVER_URL=https://<app-name>.fly.dev
 ```
 
 We can help you generate a `JWT_SECRET`:
 
-:::note
+**Single deployment**
+
+`WASP_SERVER_URL` is the app's public origin. `WASP_WEB_CLIENT_URL` defaults to it, so you don't need to set it.
+
+**Split deployment**
+
+`WASP_SERVER_URL` is the server's own origin. You also need `WASP_WEB_CLIENT_URL`, the URL where you host the client:
+
+```bash
+fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
+```
+
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
-:::
 
 :::tip[Using an external auth method?]
 If your app is using an external authentication method(s) supported by Wasp (such as [Google](https://wasp.sh/docs/auth/social-auth/google#4-adding-environment-variables) or [GitHub](https://wasp.sh/docs/auth/social-auth/github#4-adding-environment-variables)), make sure to additionally set the necessary environment variables specifically required by these method(s).
@@ -20102,9 +20729,17 @@ While still in the `.wasp/out/` directory, run:
 fly deploy --remote-only --config ../../fly.toml
 ```
 
-This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
+This will build and deploy your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) for your client, but you can use any static hosting provider.
+If you use OAuth, register `https://<app-name>.fly.dev/auth/<provider>/callback` as the redirect URI with your provider.
+
+**Single deployment**
+
+That's the whole app: the pages and Wasp's routes are both served from this URL.
+
+**Split deployment**
+
+That's the server. Now build the client with `REACT_APP_API_URL=https://<app-name>.fly.dev npx vite build`, deploy it to a static host such as [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify), and point the server at it with `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`.
 
 Additionally, some useful `fly` commands:
 
@@ -20139,9 +20774,17 @@ Last checked with Wasp 0.24 and Heroku (as of Apr 6, 2026).
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
 
-### Deploy Wasp to Heroku server database {#deploy-wasp-to-heroku--}
+### Deploy Wasp to Heroku server client database {#deploy-wasp-to-heroku---}
 
-This guide shows you how to deploy the server and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
+This guide shows you how to deploy your Wasp app and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
+
+**Single deployment**
+
+The Docker image Wasp generates contains both the server and the built client, so one Heroku app is the whole Wasp app.
+
+**Split deployment**
+
+The Docker image Wasp generates contains the server, so this Heroku app is your server. You host the client separately, for example on [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) or [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare).
 
 #### Prerequisites
 
@@ -20173,23 +20816,34 @@ We are using the `essential-0` database instance. It's the cheapest database ins
 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using an external database, you will have to set it up yourself.
 
-The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET`, `WASP_WEB_CLIENT_URL` and `WASP_SERVER_URL` env vars:
+The `PORT` env var will also be provided by Heroku, so the ones left to set are the `JWT_SECRET` and `WASP_SERVER_URL` env vars:
 
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
-heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
-heroku config:set --app <app-name> WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
+heroku config:set --app <app-name> WASP_SERVER_URL=https://<app-name>.herokuapp.com
 ```
 
 We can help you generate a `JWT_SECRET`:
 
-:::note
+Find out the exact app URL with `heroku info --app <app-name>`.
+
+**Single deployment**
+
+`WASP_SERVER_URL` is the app's public origin. `WASP_WEB_CLIENT_URL` defaults to it, so you don't need to set it.
+
+**Split deployment**
+
+`WASP_SERVER_URL` is the server's own origin. You also need `WASP_WEB_CLIENT_URL`, the URL where you host the client:
+
+```
+heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
+```
+
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
-:::
 
 #### Deploy the Heroku app
 
-After you have [built the app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#1-generating-deployable-code) (remember to pass any `REACT_APP_*` client env vars to `wasp build`), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -20223,7 +20877,11 @@ Deploy the pushed image and restart the app:
 heroku container:release --app <app-name> web
 ```
 
-This is it, the backend is deployed at `https://<app-name>.herokuapp.com` 🎉
+This is it, your app is deployed at `https://<app-name>.herokuapp.com` 🎉
+
+If you use OAuth, register `https://<app-name>.herokuapp.com/auth/<provider>/callback` as the redirect URI with your provider.
+
+In split mode, this URL is your server. Build the client with `REACT_APP_API_URL=https://<app-name>.herokuapp.com npx vite build` and deploy it to a static host such as [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify).
 
 Find out the exact app URL with:
 
@@ -20256,17 +20914,36 @@ This guide depends on external libraries or services, so it may become outdated 
 
 This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
 
+:::info[This guide is for split mode]
+Hosting the client separately from the server is the [split deployment mode](https://wasp.sh/docs/deployment/intro#deployment-modes). It is not the default, so opt into it in `main.wasp.ts`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  deployment: { mode: "split" },
+});
+```
+
+In this mode:
+
+- `wasp build` builds only the server. You build the client yourself with `REACT_APP_API_URL` set to the server's origin, as shown below.
+- The server must know the client's origin: set `WASP_WEB_CLIENT_URL` to your Netlify URL so CORS, e-mail links and OAuth redirects work.
+- OAuth redirect URIs point at the server: `<server_origin>/auth/<provider>/callback`.
+
+In the default single deployment mode the server serves the client, so there is no separate client host and this guide does not apply.
+:::
+
 Make sure you are logged in with Netlify CLI. You can check if you are logged in with `npx netlify-cli status`, and if you are not, you can log in with `npx netlify-cli login`.
 
 First, make sure you have [built the Wasp app](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers#1-generating-deployable-code). We'll build the client web app next.
 
-To build the web app, run the following command from your project root:
+To build the web client for hosting it separately from the server, run the following command from your project root after `wasp build`:
 
 ```
 REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
 ```
 
-where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
+where `<url_to_wasp_backend>` is the origin of the Wasp server that you previously deployed (for example `https://api.myapp.com`).
 
 The build output will be in `.wasp/out/web-app/build`.
 
@@ -20384,17 +21061,25 @@ This guide depends on external libraries or services, so it may become outdated 
 
 ### Automatic Deployment server client database {#automatic-deployment---}
 
-We recommend that you use [Wasp Deploy](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/railway) to deploy your Wasp app to Railway. Wasp CLI automates deploying the app (the server, which also serves the client) and the database with one command.
 
 ### Manual Deployment server client database {#manual-deployment---}
 
-This guide shows you how to deploy the client, the server, and provision a database on Railway.
+This guide shows you how to deploy your Wasp app and provision a database on Railway.
+
+**Single deployment**
+
+The Docker image Wasp generates contains both the server and the built client, so one Railway service is the whole Wasp app.
+
+**Split deployment**
+
+The Docker image Wasp generates contains the server, and the client is a second Railway service serving static files.
 
 #### Prerequisites
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. Make sure your Wasp app is built by running `wasp build` in the project dir (pass any `REACT_APP_*` client env vars to it).
 2. Create a [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp) account.
 3. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp#installing-the-cli).
 4. Run `railway login` and a browser tab will open to authenticate you.
@@ -20406,23 +21091,21 @@ Let's create our Railway project:
 1. Go to your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp), click on **New Project**, and select **Deploy PostgreSQL** from the dropdown menu.
 2. Once the project is created, left-click on the **Create** button in the top right corner and select **Empty Service**.
 3. Click on the new service, and change the name to `server`.
-4. Create another empty service and name it `client`.
+4. In split mode, create another empty service and name it `client`.
 5. Deploy the changes by pressing the **Deploy** button on top.
 
 #### Deploy Your App to Railway
 
-##### Setup Domains
+##### Setup Domain
 
-We'll need the domains for both the `server` and `client` services:
+We'll need a domain for the `server` service:
 
 1. Go to the `server` instance's **Settings** tab, and click **Generate Domain**.
 2. Enter `8080` as the port and click **Generate Domain**.
-3. Do the same under the `client`'s **Settings**.
-4. Copy both domains, as we will need them later.
+3. Copy the domain, as we will need it later.
+4. In split mode, do the same under the `client`'s **Settings** and copy that domain too.
 
-##### Deploying the Server
-
-You'll deploy the server first:
+##### Deploying the App
 
 1. Move into the `.wasp/out` directory:
 
@@ -20444,11 +21127,9 @@ You'll deploy the server first:
 
    1. Click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
 
-   2. Add `WASP_WEB_CLIENT_URL` with the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
+   2. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required! In the default single deployment mode `WASP_WEB_CLIENT_URL` defaults to it, so you don't need to set it; in split mode, add it with the `client` domain.
 
-   3. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
-
-   4. Add `JWT_SECRET` with a random string at least 32 characters long
+   3. Add `JWT_SECRET` with a random string at least 32 characters long
 
    :::tip[Using an external auth method?]
    If your app is using an external authentication method(s) supported by Wasp (such as [Google](https://wasp.sh/docs/auth/social-auth/google#4-adding-environment-variables) or [GitHub](https://wasp.sh/docs/auth/social-auth/github#4-adding-environment-variables)), make sure to additionally set the necessary environment variables specifically required by these method(s).
@@ -20462,9 +21143,15 @@ You'll deploy the server first:
 
    We use the `--ci` flag to limit the log output to only the build process.
 
-   Railway will locate the `Dockerfile` in `.wasp/out` and deploy your server.
+   Railway will locate the `Dockerfile` in `.wasp/out` and deploy your app. It is now live at the `server` domain. If you use OAuth, register `<server domain>/auth/<provider>/callback` as the redirect URI with your provider.
 
-##### Deploying the Client
+**Single deployment**
+
+That's the whole app: the pages and Wasp's routes are both served from the `server` domain, and there is nothing else to deploy.
+
+**Split deployment**
+
+Now deploy the client to its own service:
 
 1. Create the production build from the project root, using the `server` domain as the `REACT_APP_API_URL`:
 
@@ -20565,34 +21252,25 @@ You'll deploy the server first:
 
 And now your Wasp should be deployed!
 
-Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
+Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp), click on your project and you should see your newly deployed services: PostgreSQL and Server (plus Client, in split mode).
 
 #### Updates & Redeploying
 
 When you make updates and need to redeploy:
 
-1. Run `wasp build` to rebuild your app.
-
-2. Go into the `.wasp/out` directory and:
-
-   Deploy the server with:
-
+1. Run `wasp build` to rebuild your app (with the same `REACT_APP_*` client env vars).
+2. Go into the `.wasp/out` directory and deploy with:
    ```shell
    railway up --ci
    ```
 
-3. Rebuild the client from the project root:
+In split mode, also rebuild the client from the project root and deploy it:
 
-   ```shell
-   REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
-   ```
-
-   And then deploy the client with:
-
-   ```shell
-   cd .wasp/out/web-app/build
-   railway up --ci
-   ```
+```shell
+REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
+cd .wasp/out/web-app/build
+railway up --ci
+```
 
 
 ## Deployment / Cloud Providers / Render
@@ -20605,7 +21283,7 @@ This guide depends on external libraries or services, so it may become outdated 
 
 ### Deploy Wasp on Render server client database {#deploy-wasp-on-render---}
 
-This guide shows you how to deploy the server, client, and provision a database on Render.
+This guide shows you how to deploy your Wasp app and provision a database on Render. In the default single deployment mode the server serves the client, so one Web Service is the whole Wasp app; in [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) the client is a separate Static Site.
 
 Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
 
@@ -20619,7 +21297,56 @@ To get started, follow these steps:
 
 #### Create the render.yaml Blueprint
 
-Create a `render.yaml` file in the root of your repository. This defines all three services (database, server, and client):
+Create a `render.yaml` file in the root of your repository, defining your services.
+
+**Single deployment**
+
+The server serves the client, so you need two services: the database and one Web Service for the app.
+
+```yaml title="render.yaml"
+services:
+  # Wasp app (server + client) -- Render installs Wasp and builds from source
+  - type: web
+    name: <app-name>
+    runtime: node
+    plan: <plan>
+    region: <region>
+    branch: main
+    buildCommand: >-
+      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      export PATH="$(npm prefix -g)/bin:$PATH" &&
+      wasp install &&
+      wasp build &&
+      cd .wasp/out/server &&
+      npm install &&
+      npx prisma generate --schema=../db/schema.prisma &&
+      npm run bundle
+    startCommand: cd .wasp/out/server && npm run start-production
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: <app-name>-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WASP_SERVER_URL
+        sync: false # you'll fill this in after the first deploy
+      - key: NODE_VERSION
+        value: "24"
+
+databases:
+  - name: <app-name>-db
+    plan: <plan>
+    region: <region>
+    postgresMajorVersion: "18"
+```
+
+`wasp build` builds the client, so add any `REACT_APP_*` client env vars your app uses to the service's `envVars` (they are read at build time).
+
+**Split deployment**
+
+The client is hosted separately, so you need three services: the database, a Web Service for the server and a Static Site for the client.
 
 ```yaml title="render.yaml"
 services:
@@ -20640,6 +21367,7 @@ services:
       npx prisma generate --schema=../db/schema.prisma &&
       npm run bundle
     startCommand: cd .wasp/out/server && npm run start-production
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -20710,9 +21438,29 @@ git push origin main
 2. Connect your Git repository and select the branch with the `render.yaml`.
 3. Render will parse the Blueprint and show the resources it will create. Do not fill out the environment variables form yet. Click **Apply**.
 
-This will try to create all three services. It will fail initially, as some environment variables are missing.
+This will try to create all the services. It will fail initially, as some environment variables are missing.
 
 ##### Set the Environment Variables
+
+**Single deployment**
+
+Wait until the services are created. Go to the Web Service in the Render Dashboard and note its URL (usually `https://<app-name>.onrender.com`).
+
+On the Web Service, go to **Settings > Environment** and set the following variable. When you're done, click **Save and rebuild**:
+
+| Variable          | Value                             |
+| ----------------- | --------------------------------- |
+| `WASP_SERVER_URL` | `https://<app-name>.onrender.com` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it.
+
+:::tip[Using an external auth method?]
+If your app is using an external authentication method(s) supported by Wasp (such as [Google](https://wasp.sh/docs/auth/social-auth/google#4-adding-environment-variables) or [GitHub](https://wasp.sh/docs/auth/social-auth/github#4-adding-environment-variables)), make sure to additionally set the necessary environment variables specifically required by these method(s).
+:::
+
+If you use OAuth, register `https://<app-name>.onrender.com/auth/<provider>/callback` as the redirect URI with your provider.
+
+**Split deployment**
 
 Wait until all services are created. Go to each one in the Render Dashboard and note its URL (usually `https://<app-name>-server.onrender.com` and `https://<app-name>-client.onrender.com`).
 
@@ -20741,6 +21489,8 @@ On the **client** Static Site, go to **Settings > Environment** and set the foll
 Rather than setting variables on each service separately, you can create an [Environment Group](https://docs.render.com/configure-environment-variables#environment-groups) and link it to both services to manage shared variables in one place. This is a best practice on the Render platform.
 :::
 
+If you use OAuth, register `https://<app-name>-server.onrender.com/auth/<provider>/callback` as the redirect URI with your provider.
+
 #### Redeploying After Changes
 
 Render auto-deploys when it detects a new commit on the configured branch. Just push your changes:
@@ -20752,7 +21502,7 @@ git push origin main
 If you have new database model changes, make sure to run `wasp db migrate-dev` locally first and commit the generated migration files along with your code changes. The server runs `prisma migrate deploy` on startup, so new migrations are applied automatically on each deploy.
 
 :::note[Build time]
-Both services install Wasp and compile the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.
+Each service installs Wasp and compiles the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.
 :::
 
 
@@ -20904,13 +21654,13 @@ The client is deployed as a static site from the `.wasp/out/web-app/build` direc
 
    When a user visits your app, Vercel tries to find a prerendered page by default. If it can't find it, it will return the `200.html` file that renders client-side pages.
 
-2. To build the web app, run the following command from your project root:
+2. To build the web client for hosting it separately from the server, run the following command from your project root after `wasp build`:
 
    ```
    REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
    ```
 
-   where `<url_to_wasp_backend>` is the URL of the Wasp server that you previously deployed.
+   where `<url_to_wasp_backend>` is the origin of the Wasp server that you previously deployed (for example `https://api.myapp.com`).
 
    The build output will be in `.wasp/out/web-app/build`.
 
@@ -20981,11 +21731,31 @@ This guide shows you how to deploy a Wasp application to [Caprover](https://capr
 
 Deploying to Caprover involves:
 
-1. Creating Caprover apps (client, server, and database)
+1. Creating Caprover apps
 2. Building Docker images using GitHub Actions
 3. Triggering Caprover to deploy the images
 
+**Single deployment**
+
+The Docker image Wasp generates contains both the server and the built client, so one Caprover app plus the database is the whole Wasp app.
+
+**Split deployment**
+
+The client is hosted separately, so you create a Caprover app for the server, one for the client and one for the database.
+
 #### Step 1: Set Up Your Domain
+
+**Single deployment**
+
+Point your DNS A record to your server IP:
+
+- `@` (root) → server IP (for `myapp.com`)
+
+:::tip
+If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp-server.apps.mydomain.com` for quick testing.
+:::
+
+**Split deployment**
 
 Point your DNS A records to your server IP:
 
@@ -21006,7 +21776,24 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
 4. Deploy it
 5. Note the connection string: `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres`
 
-##### Create the Server App
+##### Create the App
+
+**Single deployment**
+
+1. Create a new app named `myapp-server`
+
+2. Go to **HTTP Settings**:
+
+   - Connect domain `https://<your-domain>`
+   - Click **Enable HTTPS**
+   - Set **Container HTTP Port** to `3001`
+   - Enable **Force HTTPS** and **Websocket Support**
+
+3. Click **Save & Restart**
+
+**Split deployment**
+
+Create the **server** app:
 
 1. Create a new app named `myapp-server`
 
@@ -21019,7 +21806,7 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
 
 3. Click **Save & Restart**
 
-##### Create the Client App
+Then the **client** app:
 
 1. Create a new app named `myapp-client`
 
@@ -21036,13 +21823,28 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
 
 In the server app, go to **App Configs > Environment Variables** and add:
 
-| Variable              | Value                                                                  |
-| --------------------- | ---------------------------------------------------------------------- |
-| `DATABASE_URL`        | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
-| `JWT_SECRET`          | Random string at least 32 characters long:                             |
-| `PORT`                | `3001`                                                                 |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
+| Variable       | Value                                                                  |
+| -------------- | ---------------------------------------------------------------------- |
+| `DATABASE_URL` | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
+| `JWT_SECRET`   | Random string at least 32 characters long:                             |
+| `PORT`         | `3001`                                                                 |
+
+**Single deployment**
+
+| Variable          | Value                   |
+| ----------------- | ----------------------- |
+| `WASP_SERVER_URL` | `https://<your-domain>` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it. If you use OAuth, register `https://<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+**Split deployment**
+
+| Variable              | Value                       |
+| --------------------- | --------------------------- |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>` |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`     |
+
+If you use OAuth, register `https://api.<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
 
 Add any other environment variables your app needs (from `.env.server`).
 
@@ -21060,6 +21862,91 @@ Add any other environment variables your app needs (from `.env.server`).
 #### Step 5: Create GitHub Action
 
 Create `.github/workflows/deploy.yml` in your repository:
+
+**Single deployment**
+
+```yaml title=".github/workflows/deploy.yml"
+name: "Deploy"
+
+on:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: deployment
+  cancel-in-progress: true
+
+env:
+  WASP_VERSION: "0.25"
+  SERVER_APP_NAME: "myapp-server"
+  DOCKER_REGISTRY: "ghcr.io"
+  DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
+  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-and-push-images:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    # Remove this block if your app is NOT in an 'app' folder
+    defaults:
+      run:
+        working-directory: ./app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: (server) Extract metadata for Docker
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.14.1"
+
+      - name: Install Wasp
+        shell: bash
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
+      - name: Install Wasp app dependencies
+        run: wasp install
+
+      - name: Build Wasp app
+        # wasp build also builds the client. Add any REACT_APP_* client env vars here.
+        run: wasp build
+
+      - name: (server) Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          # Remove 'app/' if your app is at the repo root
+          context: ./app/.wasp/out
+          file: ./app/.wasp/out/Dockerfile
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+
+      - name: (server) Deploy to Caprover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: ${{ env.SERVER_APP_NAME }}
+          token: ${{ secrets.SERVER_APP_TOKEN }}
+          image: ${{ steps.meta-server.outputs.tags }}
+```
+
+**Split deployment**
 
 ```yaml title=".github/workflows/deploy.yml"
 name: "Deploy"
@@ -21192,21 +22079,16 @@ Your Caprover dashboard URL, e.g., `https://captain.apps.mydomain.com`
 3. Click **Enable App Token**
 4. Copy the token
 
-##### `CLIENT_APP_TOKEN`
-
-1. Go to your client app in Caprover
-2. Under **Deployment**, find **Method 1: Official CLI**
-3. Click **Enable App Token**
-4. Copy the token
+In split mode you also need a `CLIENT_APP_TOKEN`, obtained the same way from your client app in Caprover.
 
 #### Step 7: Deploy
 
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
-2. Create Docker images for server and client
-3. Push images to GitHub Container Registry
-4. Deploy both apps to Caprover
+2. Create the Docker image (or images, in split mode)
+3. Push the image to GitHub Container Registry
+4. Deploy the app to Caprover
 
 
 ## Deployment / Self-Hosted / Coolify
@@ -21231,11 +22113,27 @@ This guide shows you how to deploy a Wasp application to [Coolify](https://cooli
 
 Deploying to Coolify involves:
 
-1. Creating Coolify apps (client, server, and database)
+1. Creating Coolify apps
 2. Building Docker images using GitHub Actions
 3. Triggering Coolify to pull and deploy the images
 
+**Single deployment**
+
+The Docker image Wasp generates contains both the server and the built client, so one Coolify app plus the database is the whole Wasp app.
+
+**Split deployment**
+
+The client is hosted separately, so you create a Coolify app for the server, one for the client and one for the database.
+
 #### Step 1: Set Up Your Domain
+
+**Single deployment**
+
+Point your DNS A record to your server IP:
+
+- `@` (root) → server IP (for `myapp.com`)
+
+**Split deployment**
 
 Point your DNS A records to your server IP:
 
@@ -21254,6 +22152,26 @@ Point your DNS A records to your server IP:
 
 ##### Create the Server App
 
+**Single deployment**
+
+1. Create a new resource and select **Docker Image**
+
+2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
+
+3. Name it `myapp-server`
+
+4. Configure:
+
+   - **Domains**: `https://<your-domain>`
+   - **Docker Image Tag**: `main`
+   - **Port Exposes**: `3001`
+
+5. Click **Save**
+
+**Split deployment**
+
+Create the **server** app:
+
 1. Create a new resource and select **Docker Image**
 
 2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
@@ -21268,7 +22186,7 @@ Point your DNS A records to your server IP:
 
 5. Click **Save**
 
-##### Create the Client App
+Then the **client** app:
 
 1. Create a new resource and select **Docker Image**
 
@@ -21288,19 +22206,118 @@ Point your DNS A records to your server IP:
 
 In the server app, go to **Environment Variables** and add:
 
-| Variable              | Value                                      |
-| --------------------- | ------------------------------------------ |
-| `DATABASE_URL`        | The Postgres URL (internal) from step 2    |
-| `JWT_SECRET`          | Random string at least 32 characters long: |
-| `PORT`                | `3001`                                     |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                    |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                |
+| Variable       | Value                                      |
+| -------------- | ------------------------------------------ |
+| `DATABASE_URL` | The Postgres URL (internal) from step 2    |
+| `JWT_SECRET`   | Random string at least 32 characters long: |
+| `PORT`         | `3001`                                     |
+
+**Single deployment**
+
+| Variable          | Value                   |
+| ----------------- | ----------------------- |
+| `WASP_SERVER_URL` | `https://<your-domain>` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it. If you use OAuth, register `https://<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+**Split deployment**
+
+| Variable              | Value                       |
+| --------------------- | --------------------------- |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>` |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`     |
+
+If you use OAuth, register `https://api.<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
 
 Add any other environment variables your app needs (from `.env.server`).
 
 #### Step 4: Create GitHub Action
 
 Create `.github/workflows/deploy.yml` in your repository:
+
+**Single deployment**
+
+```yaml title=".github/workflows/deploy.yml"
+name: "Deploy"
+
+on:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: deployment
+  cancel-in-progress: true
+
+env:
+  WASP_VERSION: "0.25"
+  SERVER_APP_NAME: "myapp-server"
+  DOCKER_REGISTRY: "ghcr.io"
+  DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
+  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-and-push-images:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    # Remove this block if your app is NOT in an 'app' folder
+    defaults:
+      run:
+        working-directory: ./app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: (server) Extract metadata for Docker
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.14.1"
+
+      - name: Install Wasp
+        shell: bash
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
+      - name: Install Wasp app dependencies
+        run: wasp install
+
+      - name: Build Wasp app
+        # wasp build also builds the client. Add any REACT_APP_* client env vars here.
+        run: wasp build
+
+      - name: (server) Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          # Remove 'app/' if your app is at the repo root
+          context: ./app/.wasp/out
+          file: ./app/.wasp/out/Dockerfile
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+
+      - name: Trigger Deploy Webhook
+        env:
+          SERVER_COOLIFY_WEBHOOK: ${{ secrets.SERVER_COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          curl "${{ env.SERVER_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
+```
+
+**Split deployment**
 
 ```yaml title=".github/workflows/deploy.yml"
 name: "Deploy"
@@ -21421,11 +22438,7 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 2. Click **Webhooks**
 3. Copy the **Deploy Webhook** URL
 
-##### `CLIENT_COOLIFY_WEBHOOK`
-
-1. Go to your client app in Coolify
-2. Click **Webhooks**
-3. Copy the **Deploy Webhook** URL
+In split mode you also need a `CLIENT_COOLIFY_WEBHOOK`, the Deploy Webhook URL of your client app.
 
 ##### `COOLIFY_TOKEN`
 
@@ -21439,9 +22452,9 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
-2. Create Docker images for server and client
-3. Push images to GitHub Container Registry
-4. Trigger Coolify to deploy the new images
+2. Create the Docker image (or images, in split mode)
+3. Push the image to GitHub Container Registry
+4. Trigger Coolify to deploy the new image
 
 
 ## Deployment / Self-Hosted / Simple VPS
@@ -21468,8 +22481,15 @@ Our deployment setup includes:
 
 - **Ubuntu LTS** as the operating system
 - **Caddy** as a reverse proxy for HTTPS and domain handling
-- **Docker** for running the server and database
-- Serving the client with a static file server
+- **Docker** for running the app and the database
+
+**Single deployment**
+
+One container runs the server, which also serves the client, and Caddy proxies your domain to it.
+
+**Split deployment**
+
+One container runs the server, and Caddy serves the client's static files on your root domain and proxies `api.<your-domain>` to the server.
 
 #### Step 1: Connect to Your Server
 
@@ -21592,6 +22612,8 @@ wasp install
 wasp build
 ```
 
+In the default single deployment mode, `wasp build` also builds the client, so if your app uses any `REACT_APP_*` client env vars, put them in front of the command. In split mode you build the client in a separate step, further down.
+
 #### Step 10: Start the Database
 
 Create a Docker network:
@@ -21622,36 +22644,59 @@ Verify you are connected to the `myapp` database by typing `\conninfo`. You can 
 
 #### Step 11: Configure Your Domain
 
+**Single deployment**
+
+Set up a DNS A record pointing to your server IP:
+
+- `@` (root) → your server IP (for `myapp.com`)
+
+**Split deployment**
+
 Set up DNS A records pointing to your server IP:
 
 - `@` (root) → your server IP (for `myapp.com`)
 - `api` → your server IP (for `api.myapp.com`)
 
-#### Step 12: Start the Server
+#### Step 12: Start the App
 
-After you built the app with `wasp build`, build the server app Docker image:
+After you built the app with `wasp build`, build the Docker image. In the default single deployment mode it contains the server and the built client; in split mode it contains the server only:
 
 ```bash
 # Navigate to the out directory
 cd .wasp/out
 
-# Build the server Docker image
+# Build the Docker image
 docker build . -t myapp-server
 ```
 
 Create an `.env.production` environment file in your project directory and add:
 
-| Variable              | Value                                                        |
-| --------------------- | ------------------------------------------------------------ |
-| `DATABASE_URL`        | `postgresql://postgres:mysecretpassword@myapp-db:5432/myapp` |
-| `JWT_SECRET`          | Random string at least 32 characters long:                   |
-| `PORT`                | `3001`                                                       |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                      |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                  |
+| Variable       | Value                                                        |
+| -------------- | ------------------------------------------------------------ |
+| `DATABASE_URL` | `postgresql://postgres:mysecretpassword@myapp-db:5432/myapp` |
+| `JWT_SECRET`   | Random string at least 32 characters long:                   |
+| `PORT`         | `3001`                                                       |
+
+**Single deployment**
+
+| Variable          | Value                   |
+| ----------------- | ----------------------- |
+| `WASP_SERVER_URL` | `https://<your-domain>` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it. If you use OAuth, register `https://<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+**Split deployment**
+
+| Variable              | Value                       |
+| --------------------- | --------------------------- |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>` |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`     |
+
+If you use OAuth, register `https://api.<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
 
 Add any other environment variables your app needs (from `.env.server`).
 
-Start the server container:
+Start the app container:
 
 ```bash
 docker run -d \
@@ -21663,26 +22708,37 @@ docker run -d \
 ```
 
 :::note
-We bind the server to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet.
+We bind the app to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet.
 :::
 
 Verify it's running:
 
 ```bash
-curl -I http://localhost:3001
+curl -I http://localhost:3001/health
 ```
 
 You should see a `200 OK` HTTP status code.
 
-#### Step 13: Build the Client
+#### Step 13: Configure Caddy
 
-In the project directory run:
+**Single deployment**
+
+Edit the Caddyfile at `/etc/caddy/Caddyfile`:
+
+```caddyfile
+myapp.com {
+    encode gzip
+    reverse_proxy localhost:3001
+}
+```
+
+**Split deployment**
+
+First build the client and copy it where Caddy can serve it. In the project directory run:
 
 ```bash
 REACT_APP_API_URL=https://api.myapp.com npx vite build
 ```
-
-Copy the built files to a serving directory:
 
 ```bash
 sudo mkdir -p /var/www
@@ -21690,9 +22746,7 @@ sudo cp -R .wasp/out/web-app/build/* /var/www/
 sudo chown -R caddy:caddy /var/www
 ```
 
-#### Step 14: Configure Caddy
-
-Edit the Caddyfile at `/etc/caddy/Caddyfile`:
+Then edit the Caddyfile at `/etc/caddy/Caddyfile`:
 
 ```caddyfile
 myapp.com {
@@ -21726,7 +22780,6 @@ set -e
 
 APP_DIR="your-app-name"
 SERVER_APP_NAME="myapp-server"
-SERVER_APP_URL=https://api.myapp.com
 
 echo "Pulling latest changes..."
 cd ~/"$APP_DIR"
@@ -21745,9 +22798,13 @@ docker container stop $SERVER_APP_NAME && docker container rm $SERVER_APP_NAME |
 echo "Starting new server..."
 cd ~/"$APP_DIR"
 docker run -d --name $SERVER_APP_NAME --env-file .env.production -p 127.0.0.1:3001:3001 --network myapp-network $SERVER_APP_NAME
+```
 
+In split mode, add the client build and copy steps at the end:
+
+```bash
 echo "Building client..."
-REACT_APP_API_URL=$SERVER_APP_URL npx vite build
+REACT_APP_API_URL=https://api.myapp.com npx vite build
 
 echo "Copying new client files..."
 sudo rm -rf /var/www/*
@@ -21767,13 +22824,16 @@ chmod +x redeploy.sh
 Configure Caddy to retry connections during restarts:
 
 ```caddyfile
-api.myapp.com {
+myapp.com {
+    encode gzip
     reverse_proxy localhost:3001 {
-        health_uri /
+        health_uri /health
         lb_try_duration 15s
     }
 }
 ```
+
+In split mode, apply the same block to `api.myapp.com` instead, since that is where the server is.
 
 This makes Caddy wait up to 15 seconds for the server to become available again.
 
@@ -21826,7 +22886,7 @@ export default app({
 ```
 
 :::note
-The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
+The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3000/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2. In development the client dev server proxies your `api` paths to the server, so the redirect URI uses the app's URL on port `3000`.
 :::
 
 #### 2. Configure environment variables
@@ -21843,13 +22903,13 @@ GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
 
 # Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
+WASP_SERVER_URL=http://127.0.0.1:3000
 WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
 ```
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
-```
+Then open the app at `http://127.0.0.1:3000` instead of `http://localhost:3000`, so the page origin matches.
+
+In [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) the redirect URI is on the server instead, so register `http://127.0.0.1:3001/auth/spotify/callback`, set `WASP_SERVER_URL=http://127.0.0.1:3001` and add `REACT_APP_API_URL=http://127.0.0.1:3001` to `.env.client`.
 
 :::note
 Most OAuth providers accept `localhost` directly; the `127.0.0.1` setup above is specific to Spotify. Other providers (e.g., Slack) require a real hostname. See [Local Network Testing](https://wasp.sh/docs/guides/debugging/local-network-testing) for the `nip.io` workaround.
@@ -22589,7 +23649,27 @@ export const getStatus: GetStatus = async (req, res) => {
 
 #### 6. Access the documentation
 
-Start your Wasp application and navigate to `http://localhost:3001/api-docs` to see your API documentation.
+Swagger UI is served by the namespace's middleware rather than by a declared `api`, so Wasp doesn't know about it and doesn't forward it to the server in development. Point the client dev server at it yourself in `vite.config.ts`:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  server: {
+    proxy: {
+      ...(process.env.WASP_DEV_PROXY_TARGET && {
+        "/api-docs": process.env.WASP_DEV_PROXY_TARGET,
+      }),
+    },
+  },
+  plugins: [wasp()],
+});
+```
+
+Start your Wasp application and navigate to `http://localhost:3000/api-docs` to see your API documentation. In [split mode](https://wasp.sh/docs/deployment/intro#deployment-modes) the client and the server are separate origins, so use the server's URL instead, `http://localhost:3001/api-docs`; no proxy entry is needed.
+
+In production the server serves the middleware itself, so the docs are on your app's URL with nothing extra to configure.
 
 ### Documenting Different Request Types
 
@@ -24269,7 +25349,7 @@ You can check [X's guidelines](https://developer.x.com/en/docs/x-for-websites/ca
 
 ### Best practices for images
 
-1. Use your client app's absolute URL (including `https://`) for your preview images.
+1. Use your app's absolute URL (including `https://`) for your preview images.
 2. Check the recommended dimensions for each platform's images in their documentation.
 3. Keep important content centered (some platforms crop differently).
 4. Use WebP or PNG format for best quality.

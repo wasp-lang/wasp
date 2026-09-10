@@ -191,7 +191,27 @@ export const getStatus: GetStatus = async (req, res) => {
 
 ### 6. Access the documentation
 
-Start your Wasp application and navigate to `http://localhost:3001/api-docs` to see your API documentation.
+Swagger UI is served by the namespace's middleware rather than by a declared `api`, so Wasp doesn't know about it and doesn't forward it to the server in development. Point the client dev server at it yourself in `vite.config.ts`:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  server: {
+    proxy: {
+      ...(process.env.WASP_DEV_PROXY_TARGET && {
+        "/api-docs": process.env.WASP_DEV_PROXY_TARGET,
+      }),
+    },
+  },
+  plugins: [wasp()],
+});
+```
+
+Start your Wasp application and navigate to `http://localhost:3000/api-docs` to see your API documentation. In [split mode](../../deployment/intro.md#deployment-modes) the client and the server are separate origins, so use the server's URL instead, `http://localhost:3001/api-docs`; no proxy entry is needed.
+
+In production the server serves the middleware itself, so the docs are on your app's URL with nothing extra to configure.
 
 ## Documenting Different Request Types
 

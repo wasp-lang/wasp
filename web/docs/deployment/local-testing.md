@@ -6,7 +6,7 @@ import { SecretGeneratorBlock } from '../project/SecretGeneratorBlock'
 
 `wasp build start` lets you test your production build locally before deployment, ensuring everything works correctly before going live.
 
-This command takes the output of `wasp build` and starts a local server to run it. That means that you can test using the same optimized code that would be deployed to production. You also configure it with the same environment variables you'd use in production, which helps you catch configuration issues before deploying.
+This command takes the output of `wasp build` and starts it locally the same way it runs in production, following your [deployment mode](./intro.md#deployment-modes): one Docker container with the server serving the built client, or, in split mode, that container plus a static server for the client. That means that you can test using the same optimized code that would be deployed to production. You also configure it with the same environment variables you'd use in production, which helps you catch configuration issues before deploying.
 
 While it's not identical to a real production environment, it's the closest you can get to testing your deployed app without actually deploying it.
 
@@ -33,10 +33,24 @@ You might need to pass other environment variables as well, depending on your ap
 
 This command will:
 
-- Start a local server serving your production build (the output of `wasp build`).
+- Build the client with the client env vars you pass, and build the Docker image from the output of `wasp build`.
+- Start your production build and print the URLs it runs on.
 - Use only the environment variables you set explicitly.
 - Use the same bundled assets that would be deployed.
 - Run in production mode with optimizations enabled.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+There is one container, and the whole app is available on the server port, for example `http://localhost:3001`.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+There is the server container and a static server for the client, so the app is available on the client port, for example `http://localhost:3000`, and the server on `http://localhost:3001`.
+
+</TabItem>
+</Tabs>
 
 ## Why?
 
@@ -57,7 +71,7 @@ You should treat this command as the last check before deploying your app, confi
 | Runs your app for general production use | **No**              | **No** (check our [deployment guide](./intro.md)) |
 | Intended for                             | Local development   | Local production testing                          |
 | Server environment                       | Node.js             | Node.js in a Docker container                     |
-| Client environment                       | Static server       | Static server                                     |
+| Client environment                       | Vite dev server     | Static files, served by the server or a static server |
 | Assets                                   | Served individually | Bundled and minified                              |
 | React dev mode                           | Enabled             | Disabled                                          |
 | Hot reload                               | Enabled             | Disabled                                          |
@@ -71,7 +85,9 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](../project/env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](../project/env-vars.md).
 
-The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](../general/cli.md#project-commands) if you need specific ports.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_SERVER_URL`, `WASP_WEB_CLIENT_URL` and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--server-port` and `--client-port`](../general/cli.md#project-commands) if you need specific ports.
+
+In the default single deployment mode the server serves the client, so there is only one port and `--client-port` is ignored with a warning.
 
 ### Which values should I use when testing?
 
@@ -111,7 +127,7 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 ### Client environment variables
 
-Use `--client-env` to specify environment variables for the client:
+Use `--client-env` to specify environment variables for the client. `wasp build start` builds the client with them before it builds the Docker image:
 
 ```bash
 wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456

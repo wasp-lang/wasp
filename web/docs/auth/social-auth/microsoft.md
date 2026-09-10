@@ -13,6 +13,7 @@ import { CardLink } from '@site/src/components/CardLink';
 import MicrosoftData from '../entities/\_microsoft-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
+import RedirectUrlNote from './\_redirect-url-note.md';
 
 Wasp supports Microsoft Authentication out of the box.
 
@@ -106,12 +107,14 @@ To use Microsoft as an authentication method, you'll first need to register an a
     | - | ------------------------ | -------------------------------------------- |
     | 1 | Name                     | (your wasp app name)                                             |
     | 1 | Supported account types  | Read through **[Understanding tenants](#understanding-tenants)** |
-    | 3 | Authorized redirect URIs | Web: `http://localhost:3001/auth/microsoft/callback`             |
+    | 3 | Authorized redirect URIs | Web: `http://localhost:3000/auth/microsoft/callback`             |
 
     :::note
-    Once you know on which URL(s) your API server will be deployed, also add those URL(s) in the **Authentication** section.\
-    For example: `https://your-server-url.com/auth/microsoft/callback`
+    Once you know on which URL(s) your app will be deployed, also add those URL(s) in the **Authentication** section.\
+    For example: `https://your-app-url.com/auth/microsoft/callback`
     :::
+
+<RedirectUrlNote />
 
     ![Microsoft Entra console screenshot 2](/img/integrations-microsoft-2.png)
 

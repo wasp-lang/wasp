@@ -45,24 +45,19 @@ The app won't be fully functional until you configure the environment variables.
 ### .env.server
 
 ```bash title=".env.server"
-WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
-```
-
-### .env.client
-
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
+WASP_SERVER_URL=http://192.168.1.39.nip.io:3000
 ```
 
 Replace `192.168.1.39` with your actual IP address from Step 2.
 
-:::note Why these variables?
+:::note Why this variable?
 
-- **WASP_WEB_CLIENT_URL**: Ensures CORS works correctly
-- **WASP_SERVER_URL**: Makes OAuth redirects work properly
-- **REACT_APP_API_URL**: Tells the client where to find the server on the local network
-  :::
+The client dev server on port `3000` proxies Wasp's routes to the server, so other devices only need to reach port `3000` and the client finds the server on its own origin. `WASP_SERVER_URL` is the one thing Wasp can't guess: it's the public origin it puts into OAuth redirect URIs, and it must match what the browser sees. `WASP_WEB_CLIENT_URL` defaults to it.
+:::
+
+:::note Split mode
+In [split mode](../../deployment/intro.md#deployment-modes) there is no proxy: other devices have to reach both ports, and you set `WASP_SERVER_URL=http://192.168.1.39.nip.io:3001`, `WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000` in `.env.server` and `REACT_APP_API_URL=http://192.168.1.39.nip.io:3001` in `.env.client`.
+:::
 
 ## Step 4: Allow the Host in Vite Config
 
@@ -114,7 +109,7 @@ You can skip nip.io if you're not using features that require proper hostnames, 
 If you're using OAuth providers (Google, GitHub, etc.), remember to add your local network URLs to the allowed redirect URIs in each provider's configuration:
 
 ```
-http://192.168.1.39.nip.io:3001/auth/google/callback
+http://192.168.1.39.nip.io:3000/auth/google/callback
 ```
 
 ## Troubleshooting
@@ -122,14 +117,14 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 ### Can't access from other devices
 
 1. Make sure both devices are on the same network
-2. Check if your firewall is blocking incoming connections on ports 3000 and 3001
+2. Check if your firewall is blocking incoming connections on port 3000
 3. Try different Network URLs if you have multiple
 
 ### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
-2. Make sure the server is accessible on port 3001
-3. Check browser console for CORS errors
+1. Make sure you opened the app through the `.nip.io` hostname on port 3000, not the server port
+2. Check the terminal for proxy errors from the client dev server
+3. In split mode, verify `REACT_APP_API_URL` is set correctly in `.env.client`, that the server is reachable on port 3001, and check the browser console for CORS errors
 
 ### OAuth not working
 

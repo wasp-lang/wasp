@@ -13,6 +13,7 @@ import { CardLink } from '@site/src/components/CardLink';
 import KeycloakData from '../entities/\_keycloak-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
+import RedirectUrlNote from './\_redirect-url-note.md';
 
 Wasp supports Keycloak Authentication out of the box.
 
@@ -90,12 +91,14 @@ model User {
 
 ![Keycloak Screenshot 3](/img/auth/keycloak/3-keycloak.png)
 
-1. Under **Valid Redirect URIs**, add `http://localhost:3001/auth/keycloak/callback` for local development.
+1. Under **Valid Redirect URIs**, add `http://localhost:3000/auth/keycloak/callback` for local development.
 
 ![Keycloak Screenshot 4](/img/auth/keycloak/4-keycloak.png)
 
-- Once you know on which URL(s) your API server will be deployed, also add those URL(s).
-- For example: `https://my-server-url.com/auth/keycloak/callback`.
+- Once you know on which URL(s) your app will be deployed, also add those URL(s).
+- For example: `https://my-app-url.com/auth/keycloak/callback`.
+
+<RedirectUrlNote />
 
 1. Click **Save**.
 2. In the **Credentials** tab, copy the **Client Secret** value, which we'll use in the next step.

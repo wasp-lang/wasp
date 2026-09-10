@@ -37,6 +37,8 @@ export default app({
 
 <ReferencingCodeFromSrcNote />
 
+Wasp serves its own routes under `/auth`, `/operations` and `/crud` and at `/health`, and registers them before your APIs. An API with the same path as one of them, whether that is `/health` or an operation or CRUD route such as `/operations/get-tasks`, produces a warning, since Wasp's route would answer instead. A page route that sits under a path the server handles (Wasp's routes or one of your API paths) also produces a warning, since when the client and the server share an origin the server would answer instead of the page.
+
 Read more about the supported fields in the [API Reference](#api-reference).
 
 ### Defining the API's NodeJS Implementation
@@ -57,7 +59,6 @@ After you defined the API, it should be implemented as a NodeJS function that ta
 import type { FooBar } from "wasp/server/api";
 
 export const fooBar: FooBar = (req, res, context) => {
-  res.set("Access-Control-Allow-Origin", "*"); // Example of modifying headers to override Wasp default CORS middleware.
   res.json({ msg: `Hello, ${context.user ? "registered user" : "stranger"}!` });
 };
 ```
@@ -108,11 +109,26 @@ export const fooBar: FooBar = (req, res, context) => {
 
 To use the API externally, you simply call the endpoint using the method and path you used.
 
-For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example/com/foo/callback` (in your browser, Postman, `curl`, another web service, etc.).
+For example, if your server is running at `https://example.com` then from the above you could issue a `GET` to `https://example.com/foo/bar` (in your browser, Postman, `curl`, another web service, etc.).
+
+In development, Wasp runs the server on its own port (`3001` by default). Whether your app's URL also serves the API depends on your [deployment mode](../deployment/intro.md#deployment-modes):
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The client dev server forwards Wasp's routes and your declared API paths to the server, so both `http://localhost:3000/foo/bar` and `http://localhost:3001/foo/bar` work. An API path with no pattern segment is forwarded exactly, so it takes nothing else from your pages. One that has a pattern segment (for example `/foo/bar/:email`) is forwarded along with everything under its static beginning, here `/foo/bar`. An API whose path *starts* with a pattern segment (for example `/:id`) has no static beginning at all, so the whole site goes to the server and your pages become unreachable in development; Wasp warns you about every page route when that happens.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client and the server are separate origins, so your API lives only on the server's: `http://localhost:3001/foo/bar` in development, and `<server origin>/foo/bar` in production.
+
+</TabItem>
+</Tabs>
 
 ### Using the API from the Client
 
-To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API base URL, authentication, and error handling. For example:
+To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API's URL (`config.apiUrl`), authentication, and error handling. For example:
 
 ```tsx title="src/pages/SomePage.tsx" auto-js with-hole
 import React, { useEffect } from "react";
@@ -132,11 +148,26 @@ export const Foo = () => {
 };
 ```
 
-#### Making Sure CORS Works
+#### Calling the API from another origin
 
-APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
+Whether your own client's calls are cross-origin depends on your [deployment mode](../deployment/intro.md#deployment-modes):
 
-You can do this by defining custom middleware for your APIs in the Wasp file.
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The server serves the client, so calls from your own client are same-origin and need no CORS setup. Only calls from somewhere else (another site, another app) are cross-origin.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client is a different origin than the server, so every call from your client is cross-origin.
+
+</TabItem>
+</Tabs>
+
+For cross-origin calls, CORS (Cross-Origin Resource Sharing) has to allow the calling origin. Wasp's default middleware, which APIs share with Operations, allows `WASP_WEB_CLIENT_URL`; anything else needs custom middleware.
+
+You can define custom middleware for your APIs in the Wasp file.
 
 For example, an `apiNamespace` is a simple spec used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
@@ -161,7 +192,7 @@ export const apiMiddleware: MiddlewareConfigFn = (config) => {
 };
 ```
 
-We are returning the default middleware which enables CORS for all APIs under the `/foo` path.
+We are returning the default middleware, which keeps CORS enabled for all APIs under the `/foo` path. To allow more origins, see the [multiple domains CORS guide](../guides/configuration/cors-multiple-domains.md).
 
 For more information about middleware configuration, please see: [Middleware Configuration](../advanced/middleware-config)
 
@@ -219,7 +250,7 @@ export default app({
 ```
 
 <small>
-Don't forget to set up the CORS middleware. See the [section explaning CORS](#making-sure-cors-works) for details.
+In the default single deployment mode the client calls this endpoint on its own origin, so it needs no CORS setup. In split mode, see the [section on cross-origin calls](#calling-the-api-from-another-origin).
 </small>
 
 ```ts title="src/streaming.ts" auto-js

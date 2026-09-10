@@ -25,8 +25,20 @@ Our deployment setup includes:
 
 - **Ubuntu LTS** as the operating system
 - **Caddy** as a reverse proxy for HTTPS and domain handling
-- **Docker** for running the server and database
-- Serving the client with a static file server
+- **Docker** for running the app and the database
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+One container runs the server, which also serves the client, and Caddy proxies your domain to it.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+One container runs the server, and Caddy serves the client's static files on your root domain and proxies `api.<your-domain>` to the server.
+
+</TabItem>
+</Tabs>
 
 ### Step 1: Connect to Your Server
 
@@ -149,6 +161,8 @@ wasp install
 wasp build
 ```
 
+In the default single deployment mode, `wasp build` also builds the client, so if your app uses any `REACT_APP_*` client env vars, put them in front of the command. In split mode you build the client in a separate step, further down.
+
 ### Step 10: Start the Database
 
 Create a Docker network:
@@ -179,20 +193,33 @@ Verify you are connected to the `myapp` database by typing `\conninfo`. You can 
 
 ### Step 11: Configure Your Domain
 
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+Set up a DNS A record pointing to your server IP:
+
+- `@` (root) → your server IP (for `myapp.com`)
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
 Set up DNS A records pointing to your server IP:
 
 - `@` (root) → your server IP (for `myapp.com`)
 - `api` → your server IP (for `api.myapp.com`)
 
-### Step 12: Start the Server
+</TabItem>
+</Tabs>
 
-After you built the app with `wasp build`, build the server app Docker image:
+### Step 12: Start the App
+
+After you built the app with `wasp build`, build the Docker image. In the default single deployment mode it contains the server and the built client; in split mode it contains the server only:
 
 ```bash
 # Navigate to the out directory
 cd .wasp/out
 
-# Build the server Docker image
+# Build the Docker image
 docker build . -t myapp-server
 ```
 
@@ -203,13 +230,32 @@ Create an `.env.production` environment file in your project directory and add:
 | `DATABASE_URL`        | `postgresql://postgres:mysecretpassword@myapp-db:5432/myapp`       |
 | `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
 | `PORT`                | `3001`                                                                 |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
 
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+| Variable          | Value                   |
+| ----------------- | ----------------------- |
+| `WASP_SERVER_URL` | `https://<your-domain>` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it. If you use OAuth, register `https://<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+| Variable              | Value                       |
+| --------------------- | --------------------------- |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>` |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`     |
+
+If you use OAuth, register `https://api.<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+</Tabs>
 
 Add any other environment variables your app needs (from `.env.server`).
 
-Start the server container:
+Start the app container:
 
 ```bash
 docker run -d \
@@ -221,35 +267,48 @@ docker run -d \
 ```
 
 :::note
-We bind the server to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet.
+We bind the app to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet.
 :::
 
 Verify it's running:
 
 ```bash
-curl -I http://localhost:3001
+curl -I http://localhost:3001/health
 ```
 
 You should see a `200 OK` HTTP status code.
 
-### Step 13: Build the Client
+### Step 13: Configure Caddy
 
-In the project directory run:
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+Edit the Caddyfile at `/etc/caddy/Caddyfile`:
+
+```caddyfile
+myapp.com {
+    encode gzip
+    reverse_proxy localhost:3001
+}
+```
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+First build the client and copy it where Caddy can serve it. In the project directory run:
 
 ```bash
 REACT_APP_API_URL=https://api.myapp.com npx vite build
 ```
 
-Copy the built files to a serving directory:
 ```bash
 sudo mkdir -p /var/www
 sudo cp -R .wasp/out/web-app/build/* /var/www/
 sudo chown -R caddy:caddy /var/www
 ```
 
-### Step 14: Configure Caddy
+Then edit the Caddyfile at `/etc/caddy/Caddyfile`:
 
-Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 ```caddyfile
 myapp.com {
     root * /var/www
@@ -262,6 +321,9 @@ api.myapp.com {
     reverse_proxy localhost:3001
 }
 ```
+
+</TabItem>
+</Tabs>
 
 Reload Caddy:
 ```bash
@@ -281,7 +343,6 @@ set -e
 
 APP_DIR="your-app-name"
 SERVER_APP_NAME="myapp-server"
-SERVER_APP_URL=https://api.myapp.com
 
 echo "Pulling latest changes..."
 cd ~/"$APP_DIR"
@@ -300,9 +361,13 @@ docker container stop $SERVER_APP_NAME && docker container rm $SERVER_APP_NAME |
 echo "Starting new server..."
 cd ~/"$APP_DIR"
 docker run -d --name $SERVER_APP_NAME --env-file .env.production -p 127.0.0.1:3001:3001 --network myapp-network $SERVER_APP_NAME
+```
 
+In split mode, add the client build and copy steps at the end:
+
+```bash
 echo "Building client..."
-REACT_APP_API_URL=$SERVER_APP_URL npx vite build
+REACT_APP_API_URL=https://api.myapp.com npx vite build
 
 echo "Copying new client files..."
 sudo rm -rf /var/www/*
@@ -322,12 +387,15 @@ chmod +x redeploy.sh
 Configure Caddy to retry connections during restarts:
 
 ```caddyfile
-api.myapp.com {
+myapp.com {
+    encode gzip
     reverse_proxy localhost:3001 {
-        health_uri /
+        health_uri /health
         lb_try_duration 15s
     }
 }
 ```
+
+In split mode, apply the same block to `api.myapp.com` instead, since that is where the server is.
 
 This makes Caddy wait up to 15 seconds for the server to become available again.

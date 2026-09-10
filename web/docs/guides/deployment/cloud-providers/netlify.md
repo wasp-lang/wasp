@@ -11,7 +11,28 @@ import { Client } from '../DeploymentTag'
 <LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Netlify: new Date("2026-05-28") }} />
 
 ## Deploy Wasp to Netlify <Client />
+
 This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
+
+:::info This guide is for split mode
+Hosting the client separately from the server is the [split deployment mode](../../../deployment/intro.md#deployment-modes). It is not the default, so opt into it in `main.wasp.ts`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  // highlight-next-line
+  deployment: { mode: "split" },
+});
+```
+
+In this mode:
+
+- `wasp build` builds only the server. You build the client yourself with `REACT_APP_API_URL` set to the server's origin, as shown below.
+- The server must know the client's origin: set `WASP_WEB_CLIENT_URL` to your Netlify URL so CORS, e-mail links and OAuth redirects work.
+- OAuth redirect URIs point at the server: `<server_origin>/auth/<provider>/callback`.
+
+In the default single deployment mode the server serves the client, so there is no separate client host and this guide does not apply.
+:::
 
 Make sure you are logged in with Netlify CLI. You can check if you are logged in with `npx netlify-cli status`, and if you are not, you can log in with `npx netlify-cli login`.
 

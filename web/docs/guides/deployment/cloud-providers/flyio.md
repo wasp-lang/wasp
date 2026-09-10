@@ -13,11 +13,24 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the app (the server, which also serves the client) and the database with one command.
 
-## Manual Deployment <Server /> <Database />
+## Manual Deployment <Server /> <Client /> <Database />
 
-This guide shows you how to deploy your Wasp app's server and provision a database on Fly.io.
+This guide shows you how to deploy your Wasp app and provision a database on Fly.io.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The Docker image Wasp generates contains both the server and the built client, so one Fly app is the whole Wasp app.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The Docker image Wasp generates contains the server, so this Fly app is your server. You host the client separately, for example on [Netlify](./netlify.md) or [Cloudflare](./cloudflare.md).
+
+</TabItem>
+</Tabs>
 
 ### Prerequisites
 
@@ -37,7 +50,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code) (remember to pass any `REACT_APP_*` client env vars to `wasp build`), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -86,15 +99,29 @@ Next, add a few more environment variables for the server code.
 ```bash
 fly secrets set PORT=8080
 fly secrets set JWT_SECRET=<random_string_at_least_32_characters_long>
-fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
-fly secrets set WASP_SERVER_URL=<url_of_where_server_will_be_deployed>
+fly secrets set WASP_SERVER_URL=https://<app-name>.fly.dev
 ```
 
 We can help you generate a `JWT_SECRET`:<br/><SecretGeneratorBlock />
 
-:::note
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+`WASP_SERVER_URL` is the app's public origin. `WASP_WEB_CLIENT_URL` defaults to it, so you don't need to set it.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+`WASP_SERVER_URL` is the server's own origin. You also need `WASP_WEB_CLIENT_URL`, the URL where you host the client:
+
+```bash
+fly secrets set WASP_WEB_CLIENT_URL=<url_of_where_client_will_be_deployed>
+```
+
 If you do not know what your client URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your client.
-:::
+
+</TabItem>
+</Tabs>
 
 <AddExternalAuthEnvVarsReminder />
 
@@ -108,9 +135,22 @@ While still in the `.wasp/out/` directory, run:
 fly deploy --remote-only --config ../../fly.toml
 ```
 
-This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
+This will build and deploy your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](./netlify.md) for your client, but you can use any static hosting provider.
+If you use OAuth, register `https://<app-name>.fly.dev/auth/<provider>/callback` as the redirect URI with your provider.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+That's the whole app: the pages and Wasp's routes are both served from this URL.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+That's the server. Now build the client with `REACT_APP_API_URL=https://<app-name>.fly.dev npx vite build`, deploy it to a static host such as [Netlify](./netlify.md), and point the server at it with `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`.
+
+</TabItem>
+</Tabs>
 
 Additionally, some useful `fly` commands:
 

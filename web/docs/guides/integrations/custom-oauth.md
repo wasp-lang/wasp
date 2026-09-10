@@ -52,7 +52,7 @@ export default app({
 ```
 
 :::note
-The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
+The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3000/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2. In development the client dev server proxies your `api` paths to the server, so the redirect URI uses the app's URL on port `3000`.
 :::
 
 ### 2. Configure environment variables
@@ -69,13 +69,13 @@ GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
 
 # Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
+WASP_SERVER_URL=http://127.0.0.1:3000
 WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
 ```
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
-```
+Then open the app at `http://127.0.0.1:3000` instead of `http://localhost:3000`, so the page origin matches.
+
+In [split mode](../../deployment/intro.md#deployment-modes) the redirect URI is on the server instead, so register `http://127.0.0.1:3001/auth/spotify/callback`, set `WASP_SERVER_URL=http://127.0.0.1:3001` and add `REACT_APP_API_URL=http://127.0.0.1:3001` to `.env.client`.
 
 :::note
 Most OAuth providers accept `localhost` directly; the `127.0.0.1` setup above is specific to Spotify. Other providers (e.g., Slack) require a real hostname. See [Local Network Testing](../debugging/local-network-testing.md) for the `nip.io` workaround.

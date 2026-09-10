@@ -13,6 +13,7 @@ import { CardLink } from '@site/src/components/CardLink';
 import GithubData from '../entities/\_github-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
+import RedirectUrlNote from './\_redirect-url-note.md';
 
 Wasp supports GitHub Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.
@@ -87,8 +88,10 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 
 3. We have to fill out **App name** and **Homepage URL** fields.
    Additionally we will add our authorization **Callback URL**s:
-    - For development, put: `http://localhost:3001/auth/github/callback`.
-    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
+    - For development, put: `http://localhost:3000/auth/github/callback`.
+    - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-app-url.com/auth/github/callback`.
+
+<RedirectUrlNote />
 
    ![GitHub App Screenshot 2](/img/github-social-login/github-app-2.png)
 

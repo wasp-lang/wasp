@@ -15,7 +15,7 @@ Wasp's Express server has the following middleware by default:
 - [CORS](https://github.com/expressjs/cors#readme): CORS is a package for providing a middleware that can be used to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) with various options.
 
   :::note
-  CORS middleware is required for the frontend to communicate with the backend.
+  By default the server serves the client, so your own frontend's requests are same-origin and CORS is not involved. CORS matters when a different origin calls your server, for example the client under [split hosting](../deployment/intro.md#deployment-modes), where it must allow `WASP_WEB_CLIENT_URL`.
   :::
 - [Morgan](https://github.com/expressjs/morgan#readme): HTTP request logger middleware.
 - [express.json](https://expressjs.com/en/api.html#express.json) (which uses [body-parser](https://github.com/expressjs/body-parser#bodyparserjsonoptions)): parses incoming request bodies in a middleware before your handlers, making the result available under the `req.body` property.

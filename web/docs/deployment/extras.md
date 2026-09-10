@@ -6,13 +6,22 @@ In this section, we will cover some additional topics that are important for dep
 
 ### Custom domain setup
 
-If you want to set up a custom domain for your Wasp app, you can do it for both the client and the server.
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
 
-The important part is setting up the custom domain for the client - that's what your users visit from their browsers. Setting up a custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
+Since the server serves the client, your Wasp app lives on one domain, and that's the one your users visit from their browsers.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client and the server are hosted separately, so you can set up a custom domain for each of them. The important one is the client's, since that's what your users visit from their browsers. A custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
+
+</TabItem>
+</Tabs>
 
 #### How to do it?
 
-It's usually a two-step process, and it's the same for both the client and the server:
+It's usually a two-step process:
 
 1. Set up the **DNS records** for the domain.
 
@@ -26,33 +35,37 @@ Check out how to set up custom domains with [Fly.io](./deployment-methods/wasp-d
 
 2. Set up the **environment variables** for the app.
 
-   You need to set the environment variables so Wasp configures the app correctly (for example, for CORS to work correctly).
+   Wasp configures the app from these, for example when building OAuth redirect URIs, e-mail links and the CORS configuration.
 
-   #### Client domain env vars
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
 
-   When [building the client](./env-vars.md#client-env-vars), set `REACT_APP_API_URL` to point to your server domain:
+Set [`WASP_SERVER_URL`](./env-vars.md#server-env-vars) to your domain. `WASP_WEB_CLIENT_URL` defaults to the same value:
 
-   ```bash
-   REACT_APP_API_URL=https://api.myapp.com
-   ```
+```bash
+WASP_SERVER_URL=https://myapp.com
+```
 
-   <small>
-     Learn more about client configuration in the [env vars section](../project/env-vars.md#client-general-configuration).
-   </small>
+If you use OAuth, update the redirect URI with your provider to `https://myapp.com/auth/<provider>/callback`.
 
-   #### Server domain env vars
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
-   For the server, you need to [configure two variables](./env-vars.md#server-env-vars):
+You have two domains, so [build the client](./env-vars.md#client-env-vars) with `REACT_APP_API_URL` pointing at the server's domain, and set both server variables:
 
-   - `WASP_WEB_CLIENT_URL`: Your client app's domain
-   - `WASP_SERVER_URL`: Your server domain
+```bash
+REACT_APP_API_URL=https://api.myapp.com
+```
 
-   <br />
+```bash
+WASP_WEB_CLIENT_URL=https://myapp.com
+WASP_SERVER_URL=https://api.myapp.com
+```
 
-   ```bash
-   WASP_WEB_CLIENT_URL=https://myapp.com
-   WASP_SERVER_URL=https://server.myapp.com
-   ```
+If you use OAuth, update the redirect URI with your provider to `https://api.myapp.com/auth/<provider>/callback`.
+
+</TabItem>
+</Tabs>
 
    <small>
      Learn more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
@@ -64,11 +77,11 @@ When deploying your Wasp app, you might want to consider using a Content Deliver
 
 1. **Content Delivery Network (CDN)** is a network of servers distributed worldwide that caches static assets like images, CSS, and JavaScript files.
 
-   Using a CDN in front of your **client** can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times.
+   Using a CDN in front of your **app** (or, in split mode, in front of your **client**) can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times. Wasp serves the files under `/assets/` with immutable cache headers and the HTML without caching, so a CDN in front of the whole app does the right thing.
 
 2. **Distributed Denial of Service (DDoS)** attacks are a common threat to web applications.
 
-   Attackers send a large amount of traffic to your server, overwhelming it and making it unavailable to legitimate users. You can use a DDoS protection service for both your **client and server** to protect your app from these attacks.
+   Attackers send a large amount of traffic to your server, overwhelming it and making it unavailable to legitimate users. You can use a DDoS protection service in front of your **app** (in split mode, in front of both the **client and the server**) to protect it from these attacks.
 
 We recommend using [Cloudflare](https://www.cloudflare.com/) for both CDN and DDoS protection. It's easy to set up and provides a free tier that should be enough for most small to medium-sized apps.
 
@@ -80,4 +93,4 @@ As we mentioned in the [introduction](./intro.md) section, what we call **Wasp a
 
 For the server, we are using Node.js and the battle-tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well-maintained.
 
-Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
+Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. The server serving the client is plain Express static file serving, nothing exotic. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.

@@ -12,7 +12,7 @@ It looks like this:
 wasp deploy <provider> launch my-wasp-app
 ```
 
-The `wasp deploy` command sets up all the necessary services on the provider, builds your Wasp app, and deploys it.
+The `wasp deploy` command sets up all the necessary services on the provider, builds your Wasp app, and deploys it. It creates one app (or service) for your Wasp app, which serves both the server and the client, and one for the database.
 
 ### Supported Providers
 

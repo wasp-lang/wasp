@@ -52,9 +52,22 @@ These are some general env variables used for various Wasp features:
 
 <EnvVarsTable
   envVars={[
-{ name: "REACT_APP_API_URL", type: "URL", isRequired: true, note: <>The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> }
+{ name: "REACT_APP_API_URL", type: "URL", isRequired: false, note: <>The server's origin, used by the client only when you host it separately from the server (<a href="../deployment/intro#deployment-modes">split mode</a>). By default the server serves the client and the client talks to its own origin, so you don't set this.</> }
 ]}
 />
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The server serves the client, so the client talks to its own origin and needs no URL of its own. Leave `REACT_APP_API_URL` unset.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client is hosted separately from the server, so it has to know where the server is: set `REACT_APP_API_URL` to the server's origin when you [build the client](../deployment/env-vars.md#client-env-vars).
+
+</TabItem>
+</Tabs>
 
 ## Server Env Vars
 
@@ -91,12 +104,25 @@ These are some general env variables used for various Wasp features:
 <EnvVarsTable
   envVars={[
 { name: "DATABASE_URL", type: "String", isRequired: true, note: "The URL of the PostgreSQL database you want your app to use." },
-{ name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: true, note: <>Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --client-port</code></a>.</> },
-{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: <>Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> },
+{ name: "WASP_SERVER_URL", type: "URL", isRequired: true, note: <>Your app's public URL, for example <code>https://myapp.com</code>. The server uses it to build its own URLs, e.g. the OAuth redirect URI. This is set by Wasp in development, but required in production.</> },
+{ name: "WASP_WEB_CLIENT_URL", type: "URL", isRequired: false, note: <>The client's URL, used to build links to your app in e-mails and OAuth redirects and to allow CORS. Defaults to <code>WASP_SERVER_URL</code>, which is right when the server serves the client (the default). Set it only when you host the client separately (<a href="../deployment/intro#deployment-modes">split hosting</a>). Set by Wasp in development.</> },
 { name: "JWT_SECRET", type: "String", isRequired: true, note: <>A random string of at least 32 characters. Needed to generate secure tokens. Defaults to <code>DEVJWTSECRET</code> in development.<br /><SecretGeneratorBlock /></> },
-{ name: "PORT", type: "Integer", isRequired: true, note: <>This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> }
+{ name: "PORT", type: "Integer", isRequired: true, note: <>This is where the server listens for requests. In production it is also the port your whole app is served on, since the server serves the client. This is set by Wasp in development, but required in production. Change it in development with <a href="../general/cli#project-commands"><code>wasp start --server-port</code></a>.</> }
 ]}
 />
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+`WASP_SERVER_URL` is your whole app's public URL, and `WASP_WEB_CLIENT_URL` defaults to it, so you only set the one.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client and the server have separate URLs, so set `WASP_SERVER_URL` to the server's and `WASP_WEB_CLIENT_URL` to the client's. The server needs the latter to allow CORS and to build links to your app.
+
+</TabItem>
+</Tabs>
 
 #### SMTP Email Sender
 

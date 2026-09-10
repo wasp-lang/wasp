@@ -21,10 +21,10 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Getting St
 
 ## When You Need This
 
-By default, Wasp configures CORS to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). You might need to support multiple domains when:
+By default, the server serves the client, so your own frontend's requests are same-origin and CORS never comes into play. Wasp still configures CORS to allow requests from `WASP_WEB_CLIENT_URL` (which defaults to `WASP_SERVER_URL`) for the cases where another origin calls your server. You might need to support multiple domains when:
 
-- You have multiple domains for the same client application
-- You're building a public API
+- You host the client separately from the server ([split hosting](../../deployment/intro.md#deployment-modes)) on more than one domain
+- You're building a public API that browsers on other sites call
 - You're migrating from one domain to another
 
 ## Setting up Multiple Domain CORS
