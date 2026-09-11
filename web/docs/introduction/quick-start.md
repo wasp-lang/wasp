@@ -1,5 +1,5 @@
 ---
-title: Installation
+title: Quick start
 slug: /quick-start
 ---
 
