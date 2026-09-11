@@ -181,7 +181,6 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
     Wasp.AppSpec.Entity
-    Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Identifier
     Wasp.AppSpec.Inspectable
@@ -342,7 +341,6 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
-    Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
