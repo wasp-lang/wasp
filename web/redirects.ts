@@ -27,6 +27,7 @@ export function getRedirects({
 // prettier-ignore
 const legacyDocsRedirects: RedirectRule[] = [
   permanent("/docs/advanced/deployment/overview",       "/docs/deployment/intro"),
+  permanent("/docs/advanced/routing",                   "/docs/pages-and-routes"),
   permanent("/docs/data-model/backends",                "/docs/data-model/databases"),
   permanent("/docs/deploying",                          "/docs/deployment/intro"),
   permanent("/docs/deployment/deployment-methods/cli",  "/docs/deployment/deployment-methods/wasp-deploy/overview"),

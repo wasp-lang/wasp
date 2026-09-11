@@ -16,7 +16,7 @@
 - [7. Adding authentication](https://wasp.sh/docs/tutorial/auth.md)
 ### Features
 - [Wasp Spec (main.wasp.ts)](https://wasp.sh/docs/general/spec.md)
-- [Routes](https://wasp.sh/docs/advanced/routing.md)
+- [Pages and routes](https://wasp.sh/docs/pages-and-routes.md)
 #### Data
 - [Entities](https://wasp.sh/docs/data-model/entities.md)
 ##### Operations

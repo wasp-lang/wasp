@@ -42,8 +42,7 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         "general/spec",
-        // TODO: Pages docs go here: https://github.com/wasp-lang/wasp/issues/2072
-        "advanced/routing",
+        "pages-and-routes",
         {
           type: "category",
           label: "Data",

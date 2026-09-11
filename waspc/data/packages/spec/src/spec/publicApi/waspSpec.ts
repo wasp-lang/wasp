@@ -887,7 +887,7 @@ export interface Page extends BaseSpecElement<"page"> {
  *
  * Create one with the {@link route} constructor.
  *
- * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
+ * See [Pages & Routes](https://wasp.sh/docs/pages-and-routes) for path patterns
  * (dynamic segments, optional segments, splats).
  *
  * @category Specifications
