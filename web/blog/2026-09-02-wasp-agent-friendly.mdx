@@ -60,12 +60,10 @@ Wasp's intolerance of worktrees and orchestrators came down to:
 - Process conflicts between CLI commands in the same worktree.
 - Port conflicts between CLI commands in different worktrees.
 
-Even though you could set everything up, common failures caused by these issues prevented agents from getting any work done.
+When an agent ran into these problems, it wouldn't just realize what was happening and stop.
+Wasp's error messages would act as a red herring and keep the agent wasting time and tokens until the user realized what was happening and intervened[^1].
 
-To make things worse, when an agent ran into these problems, it wouldn't just realize what was happening and stop.
-Wasp's error messages would act as a red herring and keep the agent wasting time and tokens until the user realized what was happening and intervened.
-
-Let's now look at both problems in more detail.
+Let's explore both problems in more detail.
 
 ### Process conflicts inside a worktree
 
@@ -200,3 +198,5 @@ npm i -g @wasp.sh/wasp-cli
 If you haven't set up worktrees for your Wasp project yet, the [Git worktree setup](/docs/wasp-ai/git-worktrees) guide walks you through it.
 
 We'd love to hear how it works for you - come chat with us on [Discord](https://discord.gg/rzdnErX)!
+
+[^1]: Not that agents need much convincing to waste time and tokens, but those weird error messages definitely didn't help.
