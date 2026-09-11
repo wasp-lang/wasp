@@ -665,7 +665,6 @@ spec_AppSpecValid = do
         { AS.decls = [basicAppDecl],
           AS.prismaSchema = getPrismaSchemaWithConfig "",
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
-          AS.externalCodeFiles = [],
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
