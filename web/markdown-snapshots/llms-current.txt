@@ -3,7 +3,7 @@
 ## Docs
 ### Getting started
 - [What's Wasp?](https://wasp.sh/docs.md)
-- [Installation](https://wasp.sh/docs/quick-start.md)
+- [Quick start](https://wasp.sh/docs/quick-start.md)
 - [Starter templates](https://wasp.sh/docs/project/starter-templates.md)
 - [Agent integration](https://wasp.sh/docs/wasp-ai/coding-agent-plugin.md)
 ### Tutorial
@@ -47,7 +47,7 @@
 - [Jobs](https://wasp.sh/docs/advanced/jobs.md)
 - [WebSockets](https://wasp.sh/docs/advanced/web-sockets.md)
 - [API routes](https://wasp.sh/docs/advanced/apis.md)
-### Project
+### Advanced
 - [Dependencies](https://wasp.sh/docs/project/dependencies.md)
 - [Type-safe links](https://wasp.sh/docs/advanced/links.md)
 - [Worktrees](https://wasp.sh/docs/wasp-ai/git-worktrees.md)
@@ -69,15 +69,15 @@
 - [Environment variables](https://wasp.sh/docs/deployment/env-vars.md)
 - [Database](https://wasp.sh/docs/deployment/database.md)
 - [Testing locally](https://wasp.sh/docs/deployment/local-testing.md)
-- [CI & CD](https://wasp.sh/docs/deployment/ci-cd.md)
-- [Extras](https://wasp.sh/docs/deployment/extras.md)
-### Deployment methods
-#### Wasp Deploy
+#### Methods
+##### Wasp Deploy
 - [Fly.io](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/fly.md)
 - [Railway](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/railway.md)
 - [Continuous deployment](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/ci-cd.md)
 - [Cloud providers](https://wasp.sh/docs/deployment/deployment-methods/cloud-providers.md)
 - [Self-hosted](https://wasp.sh/docs/deployment/deployment-methods/self-hosted.md)
+- [CI & CD](https://wasp.sh/docs/deployment/ci-cd.md)
+- [Extras](https://wasp.sh/docs/deployment/extras.md)
 ### Migration guides
 - [From 0.25 to 0.26](https://wasp.sh/docs/migration-guide.md)
 - [From 0.24 to 0.25](https://wasp.sh/docs/0.25/migration-guide.md)
