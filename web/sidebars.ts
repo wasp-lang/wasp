@@ -120,7 +120,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Project",
+      label: "Advanced",
       collapsed: false,
       collapsible: true,
       items: [
@@ -157,41 +157,41 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Deployment",
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       link: { type: "doc", id: "deployment/intro" },
       items: [
         "deployment/env-vars",
         "deployment/database",
         "deployment/local-testing",
-        "deployment/ci-cd",
-        "deployment/extras",
-      ],
-    },
-    {
-      type: "category",
-      label: "Deployment methods",
-      collapsed: false,
-      collapsible: true,
-      link: { type: "doc", id: "deployment/deployment-methods/overview" },
-      items: [
         {
           type: "category",
-          label: "Wasp Deploy",
+          label: "Methods",
           collapsed: false,
           collapsible: true,
-          link: {
-            type: "doc",
-            id: "deployment/deployment-methods/wasp-deploy/overview",
-          },
+          link: { type: "doc", id: "deployment/deployment-methods/overview" },
           items: [
-            "deployment/deployment-methods/wasp-deploy/fly",
-            "deployment/deployment-methods/wasp-deploy/railway",
-            "deployment/deployment-methods/wasp-deploy/ci-cd",
+            {
+              type: "category",
+              label: "Wasp Deploy",
+              collapsed: false,
+              collapsible: true,
+              link: {
+                type: "doc",
+                id: "deployment/deployment-methods/wasp-deploy/overview",
+              },
+              items: [
+                "deployment/deployment-methods/wasp-deploy/fly",
+                "deployment/deployment-methods/wasp-deploy/railway",
+                "deployment/deployment-methods/wasp-deploy/ci-cd",
+              ],
+            },
+            "deployment/deployment-methods/cloud-providers",
+            "deployment/deployment-methods/self-hosted",
           ],
         },
-        "deployment/deployment-methods/cloud-providers",
-        "deployment/deployment-methods/self-hosted",
+        "deployment/ci-cd",
+        "deployment/extras",
       ],
     },
     {
