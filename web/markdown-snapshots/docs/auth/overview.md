@@ -355,10 +355,12 @@ Note that `username`s are stored in a **case-insensitive** manner.
 
 If you use [Email](https://wasp.sh/docs/auth/email) authentication, the default validations are:
 
-- The `email` must not be empty and a valid email address
+- The `email` must not be empty and a valid email address (HTML5 format widened to support Unicode)
 - The `password` must not be empty, have at least 8 characters, and contain a number
 
 Note that `email`s are stored in a **case-insensitive** manner.
+
+Since Wasp's definition of valid email addresses is wider than the HTML5 grammar (we also support Unicode!), you won't want to use the usual `type="email"` attribute on the `input` element (which follows HTML5 grammar and doesn't accept Unicode). Instead use `type="text"` with `inputMode="email"` and `autoComplete="email"`.
 
 ## Customizing the Signup Process
 

@@ -1,11 +1,14 @@
 {{={= =}=}}
-import { useForm, UseFormReturn } from 'react-hook-form'
+import { useForm, type UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
 import { config } from '../../../../client/index.js'
 import { clsx } from '../util'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+{=# enabledProviders.isEmailAuthEnabled =}
+import { emailFieldRules, emailInputProps } from '../emailField'
+{=/ enabledProviders.isEmailAuthEnabled =}
 import {
   Form,
   FormInput,
@@ -189,10 +192,8 @@ export const LoginSignupForm = ({
           <FormItemGroup>
             <FormLabel>E-mail</FormLabel>
             <FormInput
-              {...register('email', {
-                required: 'Email is required',
-              })}
-              type="email"
+              {...register('email', emailFieldRules)}
+              {...emailInputProps}
               disabled={isLoading}
             />
             {errors.email && <FormError>{errors.email.message}</FormError>}

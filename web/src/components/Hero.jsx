@@ -1,10 +1,10 @@
 import Link from "@docusaurus/Link";
-import classNames from "classnames";
 import { useState } from "react";
 import { BookOpen, Check, Copy, Terminal } from "react-feather";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
+import TextLink from "./TextLink";
 
 const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
 
@@ -206,21 +206,13 @@ const Hero = () => {
             </h1>
 
             <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
-              React, Node.js, and Prisma — wired together with auth, jobs, and
+              React, Node.js, and Prisma - wired together with auth, jobs, and
               deployment built in. Ship in a day and own every line.
               <span className="mt-1 block font-bold">
                 Designed for humans,{" "}
-                <a
-                  href="#ai"
-                  className={classNames(
-                    "box-decoration-clone px-0.5 text-wasp-g6",
-                    "underline decoration-wasp-purple decoration-2 underline-offset-4",
-                    "transition-colors duration-200 ease-out",
-                    "hover:bg-wasp-purple-light hover:text-wasp-black hover:no-underline",
-                  )}
-                >
+                <TextLink to="#ai" variant="purple" className="text-wasp-g6">
                   works beautifully with AI.
-                </a>
+                </TextLink>
               </span>
             </p>
           </div>{" "}

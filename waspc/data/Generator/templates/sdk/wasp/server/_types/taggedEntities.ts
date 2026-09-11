@@ -4,11 +4,11 @@
 //
 // We must explicitly tag all entities with their name to avoid issues with
 // structural typing. See https://github.com/wasp-lang/wasp/pull/982 for details.
-import { 
-  type Entity, 
-  type EntityName,
+import type { 
+  Entity, 
+  EntityName,
   {=# entities =}
-  type {= name =},
+  {= name =},
   {=/ entities =}
 } from '../../entities/index.js'
 

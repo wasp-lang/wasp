@@ -1,4 +1,4 @@
-import { EmailFromField } from "./types";
+import type { EmailFromField } from "./types";
 
 // PRIVATE API
 // Formats an email address and an optional name into a string that can be used

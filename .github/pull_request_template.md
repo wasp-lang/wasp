@@ -11,6 +11,13 @@
 Replace this message here, and write a high-level overview with any additional
 context (motivation, trade-offs, approaches considered, concerns, ...).
 
+## Agreement
+
+<!-- Select just one with [x] -->
+
+- [ ] This is a small, obvious fix (typo, docs corrections, clear small bug with a test).
+- [ ] A maintainer agreed on the approach beforehand: <!-- link to the GitHub issue or Discord thread -->
+
 ## Type of change
 
 <!-- Select just one with [x] -->

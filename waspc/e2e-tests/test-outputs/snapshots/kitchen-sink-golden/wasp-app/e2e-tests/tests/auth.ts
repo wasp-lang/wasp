@@ -107,7 +107,7 @@ async function navigateToLoginPage(page: Page) {
 }
 
 async function submitLoginForm(page: Page, credentials: BaseEmailCredentials) {
-  await page.locator("input[type='email']").fill(credentials.email);
+  await page.locator("input[name='email']").fill(credentials.email);
   await page.locator("input[type='password']").fill(credentials.password);
   await page.getByRole("button", { name: "Log in" }).click();
 }
