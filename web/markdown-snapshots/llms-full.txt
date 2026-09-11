@@ -234,7 +234,7 @@ Wasp does not match typical expectations of a web app framework: it is not just 
 This spec-driven approach lets Wasp focus on one purpose: **building modern web applications with 10x less code and less stack-specific knowledge**.
 
 
-## Getting started / Installation
+## Getting started / Quick start
 
 ### Installation
 
@@ -9539,7 +9539,7 @@ async function fetchStream(
 [All the options for declaring an API namespace in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/apiNamespace)
 
 
-## Project / Dependencies
+## Advanced / Dependencies
 
 In a Wasp project, dependencies are defined in a standard way for JavaScript projects: using the [package.json](https://docs.npmjs.com/cli/configuring-npm/package-json) file, located at the root of your project. You can list your dependencies under the `dependencies` or `devDependencies` fields.
 
@@ -9634,7 +9634,7 @@ npm install some-package --min-release-age=0
 Or you can adjust the value in your project's `.npmrc` file.
 
 
-## Project / Type-safe links
+## Advanced / Type-safe links
 
 If you are using Typescript, Wasp gives you typesafe building blocks for navigation. You get autocompletion on route paths, compile errors when params are missing, and a single source of truth between your `main.wasp.ts` file and your client code.
 
@@ -9925,7 +9925,7 @@ const linkToCatchAll = routes.CatchAllRoute.build({
 ```
 
 
-## Project / Worktrees
+## Advanced / Worktrees
 
 Git worktrees let you work on several isolated instances of the same repository. This is useful when several coding agents work on the app in parallel.
 
@@ -10038,7 +10038,7 @@ Some coding tools (e.g., [Claude Code](https://code.claude.com/docs/en/worktrees
 Keep in mind that `.worktreeinclude` is not a Git feature, and support differs between tools.
 
 
-## Project / Environment variables
+## Advanced / Environment variables
 
 **Environment variables** are used to configure projects based on the context in which they run. This allows them to exhibit different behaviors in different environments, such as development, staging, or production.
 
@@ -10435,7 +10435,7 @@ const stripeApiKey = env.STRIPE_API_KEY
 You can use `process.env.SOME_SECRET` directly in your code. We don't recommend this since `process.env` isn't validated and missing env vars can cause runtime errors.
 
 
-## Project / Testing
+## Advanced / Testing
 
 :::info
 Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly some changes with testing support in the future. If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
@@ -10671,7 +10671,7 @@ test("handles mock data", async () => {
 ```
 
 
-## Project / Accessing the configuration
+## Advanced / Accessing the configuration
 
 Whenever you start a Wasp app, you are starting two processes.
 
@@ -10726,7 +10726,7 @@ console.log(config.apiUrl)
 ```
 
 
-## Project / Prerendering
+## Advanced / Prerendering
 
 By default, Wasp apps are single-page applications: the browser downloads JavaScript, and React renders the page on the client. This means search engines, AI crawlers, and users on slow connections see a blank page until JavaScript loads and executes.
 
@@ -10928,7 +10928,7 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 [The full description of the prerender option of the route spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Route#prerender)
 
 
-## Project / SEO & GEO
+## Advanced / SEO & GEO
 
 Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible and attractive to search engines, social media platforms, and AI assistants. This page is a quick overview of what Wasp already handles for you, and the features you'll use to optimize your app.
 
@@ -10961,7 +10961,7 @@ For the full picture, including how to measure your app, where to apply each tec
 [Measure and optimize your app for search engines and AI assistants.](https://wasp.sh/docs/guides/optimization/seo)
 
 
-## Project / Client customization / Customizing the <head>
+## Advanced / Client customization / Customizing the <head>
 
 Each Wasp project can have only one `app` spec. It is used to configure your app and its components.
 
@@ -11029,7 +11029,7 @@ export default app({
 [All the options for the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/App)
 
 
-## Project / Client customization / Client configuration
+## Advanced / Client customization / Client configuration
 
 You can configure the client using the `client` field inside the `app` spec:
 
@@ -11235,7 +11235,7 @@ For example, if you are serving your app from `https://example.com/my-app`, the 
 [All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Client)
 
 
-## Project / Client customization / Static assets
+## Advanced / Client customization / Static assets
 
 ### Importing an Asset as URL
 
@@ -11285,7 +11285,7 @@ Note that:
 :::
 
 
-## Project / Client customization / Custom Vite config
+## Advanced / Client customization / Custom Vite config
 
 Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.ts` file in your project root directory.
 
@@ -11437,7 +11437,7 @@ The `wasp()` plugin accepts the following options:
   This allows you to configure React-specific options like Babel plugins, Fast Refresh settings, and JSX configuration.
 
 
-## Project / Server customization / Server config
+## Advanced / Server customization / Server config
 
 You can configure the behavior of the server via the `server` field of `app` spec:
 
@@ -11534,7 +11534,7 @@ Read more in the [configuring middleware section](https://wasp.sh/docs/advanced/
 [All the options for the server field of the app spec.](https://wasp.sh/docs/api/@wasp.sh/spec/interfaces/Server)
 
 
-## Project / Server customization / Middleware
+## Advanced / Server customization / Middleware
 
 Wasp comes with a minimal set of useful Express middleware in every application. While this is good for most users, we realize some may wish to add, modify, or remove some of these choices both globally, or on a per-`api`/path basis.
 
@@ -11721,7 +11721,7 @@ router.use("/foo/bar", fooBarNamespaceMiddleware)
 :::
 
 
-## Project / CLI Reference
+## Advanced / CLI Reference
 
 This guide provides an overview of the Wasp CLI commands, arguments, and options.
 
@@ -12247,219 +12247,7 @@ Do not commit your `.env` files with sensitive information to your version contr
 :::
 
 
-## Deployment / CI & CD
-
-Setting up a CI/CD pipeline is an optional but highly recommended part of deploying applications.
-
-**Continuous Integration (CI)** involves verifying/testing code changes through an automated process whenever code is pushed to the repository. This helps us catch bugs early and make sure that our app works.
-
-**Continuous Deployment (CD)** refers to the automatic deployment of code changes to the production environment. This is commonly know as "push to deploy" and frees developers from having to manually deploy code changes.
-
-### Running tests in CI
-
-#### End to end tests
-
-End to end (e2e) tests simulate real user using your app and you can test different scenarios like login, adding items to cart, etc. Writing end to end tests frees you from manually testing your app after every change.
-
-**To run e2e tests with Wasp in the CI**, you'll need to:
-
-1. Install Wasp in the CI environment.
-2. Run your app (with the database) in the CI environment.
-3. Run the e2e tests against the running app.
-
-##### Example app
-
-We'll show you how to run end-to-end tests in CI using the [Github Actions](https://github.com/features/actions) as our CI and the [Playwright](https://playwright.dev/) as our e2e testing framework.
-
-1. Check our example app and its e2e tests in the [e2e-tests](https://github.com/wasp-lang/e2e-test-example/tree/main/e2e-tests) directory.
-
-   You can copy the `e2e-tests` directory to your own project and modify it to fit your app. This will enable you to run the e2e tests locally.
-
-   Example e2e test
-
-   ```ts
-   import { expect, test } from '@playwright/test'
-   import { generateRandomUser, logUserIn } from './utils'
-
-   const user = generateRandomUser()
-
-   test.describe('basic user flow test', () => {
-     test('log in and add task', async ({ page }) => {
-       await logUserIn({ page, user })
-       await expect(page).toHaveURL('/')
-       await expect(page.locator('body')).toContainText('No tasks yet.')
-
-       // Add a task
-       await page.fill('input[name="description"]', 'First task')
-       await page.click('input:has-text("Create task")')
-       await expect(page.locator('body')).toContainText('First task')
-     })
-   })
-   ```
-
-2. To run the tests in the Github Actions CI, you'll need to create a workflow file in your repository.
-
-   You should create a `.github/workflows/e2e-tests.yml` file in your repository. You can copy the contents of the [e2e-tests.yml](https://github.com/wasp-lang/e2e-test-example/blob/main/.github/workflows/e2e-tests.yml) file from our example app.
-
-#### Unit tests
-
-Unit tests test pieces of your code logic in isolation. They are much simpler and faster than e2e tests, but they don't simulate the real user interaction with your app.
-
-You can use Wasp's built in [client tests](https://wasp.sh/docs/project/testing) support to test the client side code of your app. You are free to use any testing framework for the server side code.
-
-**You'd run the unit tests in the CI** in a similar way as the e2e tests:
-
-1. Install Wasp in the CI environment.
-2. Run the client tests with `wasp test client run`.
-3. Run the server tests with your testing framework.
-
-### Continuous deployment
-
-We'll look at two ways you can use the CI/CD pipeline to deploy your Wasp app:
-
-1. Package the server and client with Docker.
-2. Deploy the client as static files.
-
-#### Package the server and client with Docker
-
-The most common way to package your app for deployment is using Docker images. This way you can easily deploy the same image to different environments (staging, production, etc.).
-
-**To build the app as a Docker image**, you'll need to:
-
-1. Install Docker in the CD environment.
-
-2. Install dependencies with `wasp install` and build the app with `wasp build`.
-
-3. Build the Docker image and push it to a Docker registry:
-
-   - for our server app
-   - for our client app
-
-4. For some providers: notify them to deploy the new app version.
-
-:::info[What is a Docker Registry?]
-Docker Registry is a place where you can store your Docker images and then your deployment provider can pull them from there. The most common Docker Registry is the [Docker Hub](https://hub.docker.com/), but you can also use other registries like the [Github Container Registry (GHCR)](https://docs.github.com/en/packages/guides/about-github-container-registry).
-:::
-
-##### Example deployment
-
-We'll take a look at our Coolify deployment example in the [deployment](https://wasp.sh/docs/guides/deployment/self-hosted/coolify) section. We are using Github Actions to build the Docker images and their Github Container Registry (GHCR) to store them.
-
-Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide:
-
-1. First, we **authenticate with the Github Container Registry (GHCR)**.
-
-   We are using the `docker/login-action` action to authenticate with the GHCR.
-
-2. Then, we **prepare the Docker image metadata** for later use.
-
-   We are using the `docker/metadata-action` action to prepare some extra info that we'll use later in the deployment process.
-
-3. Next, we **install dependencies** with `wasp install` and **build the Wasp app** with `wasp build`.
-
-   This creates our server and the client app in the `.wasp/out` folder.
-
-4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
-
-   We use the `Dockerfile` in the `.wasp/out` directory to build and push the server Docker image using the `docker/build-push-action` action.
-
-5. Next, we create a `Dockerfile` for our client and then **package the client app** into a Docker image and **push it to the GHCR**.
-
-   We create a `Dockerfile` that uses a simple Go static server to serve the client app. We again use the `docker/build-push-action` action to build and push the client Docker image.
-
-6. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
-
-   And now you can open the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide and see the full deployment process.
-
-#### Static build of the client
-
-Wasp's client app is a single page application (SPA) which you build into static HTML, CSS, and JS files that you can upload to any hosting provider that supports serving static files. This means that for the client app, you don't need to use Docker images if don't want to. It's usually cheaper to host static files than to host Docker images.
-
-**To deploy the client app as static files**, you'll need to:
-
-1. Install dependencies with `wasp install` and build the app with `wasp build` in the CD environment.
-2. Build the client app with `npx vite build`.
-3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
-
-Check out our instructions for deploying the client app to [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) or [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare) where you can check out the example deployment using Github Actions.
-
-
-## Deployment / Extras
-
-In this section, we will cover some additional topics that are important for deploying Wasp apps in production.
-
-#### Custom domain setup
-
-If you want to set up a custom domain for your Wasp app, you can do it for both the client and the server.
-
-The important part is setting up the custom domain for the client - that's what your users visit from their browsers. Setting up a custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
-
-##### How to do it?
-
-It's usually a two-step process, and it's the same for both the client and the server:
-
-1. Set up the **DNS records** for the domain.
-
-   This will depend on your hosting provider. You can usually do this by adding an `A` record in your DNS settings that points to the app's IPv4 address. You often set the `AAAA` record for IPv6 address as well. Some hosting providers ask you to set the `CNAME` record instead of the `A` and `AAAA` records.
-
-:::note[Using wasp deploy?]
-Check out how to set up custom domains with [Fly.io](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/fly#custom-domain) or [Railway](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/railway#custom-domain).
-:::
-
-2. Set up the **environment variables** for the app.
-
-   You need to set the environment variables so Wasp configures the app correctly (for example, for CORS to work correctly).
-
-   ##### Client domain env vars
-
-   When [building the client](https://wasp.sh/docs/deployment/env-vars#client-env-vars), set `REACT_APP_API_URL` to point to your server domain:
-
-   ```bash
-   REACT_APP_API_URL=https://api.myapp.com
-   ```
-
-   Learn more about client configuration in the [env vars section](https://wasp.sh/docs/project/env-vars#client-general-configuration).
-
-   ##### Server domain env vars
-
-   For the server, you need to [configure two variables](https://wasp.sh/docs/deployment/env-vars#server-env-vars):
-
-   - `WASP_WEB_CLIENT_URL`: Your client app's domain
-   - `WASP_SERVER_URL`: Your server domain
-
-   ```bash
-   WASP_WEB_CLIENT_URL=https://myapp.com
-   WASP_SERVER_URL=https://server.myapp.com
-   ```
-
-   Learn more about server env variables in the [env vars section](https://wasp.sh/docs/project/env-vars#server-general-configuration).
-
-#### DDoS protection and CDN recommendations
-
-When deploying your Wasp app, you might want to consider using a Content Delivery Network (CDN) and DDoS protection service to improve the performance and security of your app:
-
-1. **Content Delivery Network (CDN)** is a network of servers distributed worldwide that caches static assets like images, CSS, and JavaScript files.
-
-   Using a CDN in front of your **client** can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times.
-
-2. **Distributed Denial of Service (DDoS)** attacks are a common threat to web applications.
-
-   Attackers send a large amount of traffic to your server, overwhelming it and making it unavailable to legitimate users. You can use a DDoS protection service for both your **client and server** to protect your app from these attacks.
-
-We recommend using [Cloudflare](https://www.cloudflare.com/) for both CDN and DDoS protection. It's easy to set up and provides a free tier that should be enough for most small to medium-sized apps.
-
-There are other CDN providers like [Fastly](https://www.fastly.com/), [Bunny](https://bunnycdn.com/) and [Amazon Cloudfront](https://aws.amazon.com/cloudfront/) that you can consider as well.
-
-#### Are Wasp apps production ready?
-
-As we mentioned in the [introduction](https://wasp.sh/docs/deployment/intro) section, what we call **Wasp apps** are three separate pieces: the client, the server, and the database.
-
-For the server, we are using Node.js and the battle-tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well-maintained.
-
-Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
-
-
-## Deployment methods / Wasp Deploy / Fly.io
+## Deployment / Methods / Wasp Deploy / Fly.io
 
 [Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 
@@ -12846,7 +12634,7 @@ wasp deploy fly cmd secrets list --context server
 ```
 
 
-## Deployment methods / Wasp Deploy / Railway
+## Deployment / Methods / Wasp Deploy / Railway
 
 [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp) is a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
 
@@ -13144,7 +12932,7 @@ Please note that you should do this for **every deployment**, not just the first
 Then you can run `npm run deploy` to deploy your app.
 
 
-## Deployment methods / Wasp Deploy / Continuous deployment
+## Deployment / Methods / Wasp Deploy / Continuous deployment
 
 You can use CI/CD platforms like Github Actions to re-deploy your application automatically whenever changes are pushed to your repository.
 
@@ -13262,7 +13050,7 @@ jobs:
 ```
 
 
-## Deployment methods / Cloud providers
+## Deployment / Methods / Cloud providers
 
 You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.
 
@@ -13372,7 +13160,7 @@ Since the result of building is just a bunch of static files, you can now deploy
 Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
 
 
-## Deployment methods / Self-hosted
+## Deployment / Methods / Self-hosted
 
 If you have your server or rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
 
@@ -13468,6 +13256,218 @@ One possible self-hosting setup
 By default, our self-hosted deployment methods run the **database on your server**. When you run the database on your server, you need to take care of backups, updates, and scaling. We suggest setting up [PostgresSQL periodic backups](https://tembo.io/docs/getting-started/postgres_guides/how-to-backup-and-restore-a-postgres-database) and/or taking snapshots of your server's disk. In case something bad happens to your server, you can restore your database from the backups.
 
 If you prefer not to manage the database yourself, you can use a **managed database service**. The service provider takes care of backups, updates, and scaling for you but it can be more expensive than running the database on your server. Some popular managed database services are [AWS RDS](https://aws.amazon.com/rds/), [DigitalOcean Managed Databases](https://www.digitalocean.com/products/managed-databases/), and [Supabase](https://supabase.io/).
+
+
+## Deployment / CI & CD
+
+Setting up a CI/CD pipeline is an optional but highly recommended part of deploying applications.
+
+**Continuous Integration (CI)** involves verifying/testing code changes through an automated process whenever code is pushed to the repository. This helps us catch bugs early and make sure that our app works.
+
+**Continuous Deployment (CD)** refers to the automatic deployment of code changes to the production environment. This is commonly know as "push to deploy" and frees developers from having to manually deploy code changes.
+
+### Running tests in CI
+
+#### End to end tests
+
+End to end (e2e) tests simulate real user using your app and you can test different scenarios like login, adding items to cart, etc. Writing end to end tests frees you from manually testing your app after every change.
+
+**To run e2e tests with Wasp in the CI**, you'll need to:
+
+1. Install Wasp in the CI environment.
+2. Run your app (with the database) in the CI environment.
+3. Run the e2e tests against the running app.
+
+##### Example app
+
+We'll show you how to run end-to-end tests in CI using the [Github Actions](https://github.com/features/actions) as our CI and the [Playwright](https://playwright.dev/) as our e2e testing framework.
+
+1. Check our example app and its e2e tests in the [e2e-tests](https://github.com/wasp-lang/e2e-test-example/tree/main/e2e-tests) directory.
+
+   You can copy the `e2e-tests` directory to your own project and modify it to fit your app. This will enable you to run the e2e tests locally.
+
+   Example e2e test
+
+   ```ts
+   import { expect, test } from '@playwright/test'
+   import { generateRandomUser, logUserIn } from './utils'
+
+   const user = generateRandomUser()
+
+   test.describe('basic user flow test', () => {
+     test('log in and add task', async ({ page }) => {
+       await logUserIn({ page, user })
+       await expect(page).toHaveURL('/')
+       await expect(page.locator('body')).toContainText('No tasks yet.')
+
+       // Add a task
+       await page.fill('input[name="description"]', 'First task')
+       await page.click('input:has-text("Create task")')
+       await expect(page.locator('body')).toContainText('First task')
+     })
+   })
+   ```
+
+2. To run the tests in the Github Actions CI, you'll need to create a workflow file in your repository.
+
+   You should create a `.github/workflows/e2e-tests.yml` file in your repository. You can copy the contents of the [e2e-tests.yml](https://github.com/wasp-lang/e2e-test-example/blob/main/.github/workflows/e2e-tests.yml) file from our example app.
+
+#### Unit tests
+
+Unit tests test pieces of your code logic in isolation. They are much simpler and faster than e2e tests, but they don't simulate the real user interaction with your app.
+
+You can use Wasp's built in [client tests](https://wasp.sh/docs/project/testing) support to test the client side code of your app. You are free to use any testing framework for the server side code.
+
+**You'd run the unit tests in the CI** in a similar way as the e2e tests:
+
+1. Install Wasp in the CI environment.
+2. Run the client tests with `wasp test client run`.
+3. Run the server tests with your testing framework.
+
+### Continuous deployment
+
+We'll look at two ways you can use the CI/CD pipeline to deploy your Wasp app:
+
+1. Package the server and client with Docker.
+2. Deploy the client as static files.
+
+#### Package the server and client with Docker
+
+The most common way to package your app for deployment is using Docker images. This way you can easily deploy the same image to different environments (staging, production, etc.).
+
+**To build the app as a Docker image**, you'll need to:
+
+1. Install Docker in the CD environment.
+
+2. Install dependencies with `wasp install` and build the app with `wasp build`.
+
+3. Build the Docker image and push it to a Docker registry:
+
+   - for our server app
+   - for our client app
+
+4. For some providers: notify them to deploy the new app version.
+
+:::info[What is a Docker Registry?]
+Docker Registry is a place where you can store your Docker images and then your deployment provider can pull them from there. The most common Docker Registry is the [Docker Hub](https://hub.docker.com/), but you can also use other registries like the [Github Container Registry (GHCR)](https://docs.github.com/en/packages/guides/about-github-container-registry).
+:::
+
+##### Example deployment
+
+We'll take a look at our Coolify deployment example in the [deployment](https://wasp.sh/docs/guides/deployment/self-hosted/coolify) section. We are using Github Actions to build the Docker images and their Github Container Registry (GHCR) to store them.
+
+Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide:
+
+1. First, we **authenticate with the Github Container Registry (GHCR)**.
+
+   We are using the `docker/login-action` action to authenticate with the GHCR.
+
+2. Then, we **prepare the Docker image metadata** for later use.
+
+   We are using the `docker/metadata-action` action to prepare some extra info that we'll use later in the deployment process.
+
+3. Next, we **install dependencies** with `wasp install` and **build the Wasp app** with `wasp build`.
+
+   This creates our server and the client app in the `.wasp/out` folder.
+
+4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
+
+   We use the `Dockerfile` in the `.wasp/out` directory to build and push the server Docker image using the `docker/build-push-action` action.
+
+5. Next, we create a `Dockerfile` for our client and then **package the client app** into a Docker image and **push it to the GHCR**.
+
+   We create a `Dockerfile` that uses a simple Go static server to serve the client app. We again use the `docker/build-push-action` action to build and push the client Docker image.
+
+6. Finally, we notify Coolify using their Webhook API to **deploy our new app version**.
+
+   And now you can open the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide and see the full deployment process.
+
+#### Static build of the client
+
+Wasp's client app is a single page application (SPA) which you build into static HTML, CSS, and JS files that you can upload to any hosting provider that supports serving static files. This means that for the client app, you don't need to use Docker images if don't want to. It's usually cheaper to host static files than to host Docker images.
+
+**To deploy the client app as static files**, you'll need to:
+
+1. Install dependencies with `wasp install` and build the app with `wasp build` in the CD environment.
+2. Build the client app with `npx vite build`.
+3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
+
+Check out our instructions for deploying the client app to [Netlify](https://wasp.sh/docs/guides/deployment/cloud-providers/netlify) or [Cloudflare](https://wasp.sh/docs/guides/deployment/cloud-providers/cloudflare) where you can check out the example deployment using Github Actions.
+
+
+## Deployment / Extras
+
+In this section, we will cover some additional topics that are important for deploying Wasp apps in production.
+
+#### Custom domain setup
+
+If you want to set up a custom domain for your Wasp app, you can do it for both the client and the server.
+
+The important part is setting up the custom domain for the client - that's what your users visit from their browsers. Setting up a custom domain for the server is optional, but it can be useful if you'd like to hide some server details (for example, the IP address or auto-generated domain name) from the users.
+
+##### How to do it?
+
+It's usually a two-step process, and it's the same for both the client and the server:
+
+1. Set up the **DNS records** for the domain.
+
+   This will depend on your hosting provider. You can usually do this by adding an `A` record in your DNS settings that points to the app's IPv4 address. You often set the `AAAA` record for IPv6 address as well. Some hosting providers ask you to set the `CNAME` record instead of the `A` and `AAAA` records.
+
+:::note[Using wasp deploy?]
+Check out how to set up custom domains with [Fly.io](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/fly#custom-domain) or [Railway](https://wasp.sh/docs/deployment/deployment-methods/wasp-deploy/railway#custom-domain).
+:::
+
+2. Set up the **environment variables** for the app.
+
+   You need to set the environment variables so Wasp configures the app correctly (for example, for CORS to work correctly).
+
+   ##### Client domain env vars
+
+   When [building the client](https://wasp.sh/docs/deployment/env-vars#client-env-vars), set `REACT_APP_API_URL` to point to your server domain:
+
+   ```bash
+   REACT_APP_API_URL=https://api.myapp.com
+   ```
+
+   Learn more about client configuration in the [env vars section](https://wasp.sh/docs/project/env-vars#client-general-configuration).
+
+   ##### Server domain env vars
+
+   For the server, you need to [configure two variables](https://wasp.sh/docs/deployment/env-vars#server-env-vars):
+
+   - `WASP_WEB_CLIENT_URL`: Your client app's domain
+   - `WASP_SERVER_URL`: Your server domain
+
+   ```bash
+   WASP_WEB_CLIENT_URL=https://myapp.com
+   WASP_SERVER_URL=https://server.myapp.com
+   ```
+
+   Learn more about server env variables in the [env vars section](https://wasp.sh/docs/project/env-vars#server-general-configuration).
+
+#### DDoS protection and CDN recommendations
+
+When deploying your Wasp app, you might want to consider using a Content Delivery Network (CDN) and DDoS protection service to improve the performance and security of your app:
+
+1. **Content Delivery Network (CDN)** is a network of servers distributed worldwide that caches static assets like images, CSS, and JavaScript files.
+
+   Using a CDN in front of your **client** can help with caching static assets and serving them faster to users around the world. When a user requests a file, the CDN serves it from the server closest to the user, improving load times.
+
+2. **Distributed Denial of Service (DDoS)** attacks are a common threat to web applications.
+
+   Attackers send a large amount of traffic to your server, overwhelming it and making it unavailable to legitimate users. You can use a DDoS protection service for both your **client and server** to protect your app from these attacks.
+
+We recommend using [Cloudflare](https://www.cloudflare.com/) for both CDN and DDoS protection. It's easy to set up and provides a free tier that should be enough for most small to medium-sized apps.
+
+There are other CDN providers like [Fastly](https://www.fastly.com/), [Bunny](https://bunnycdn.com/) and [Amazon Cloudfront](https://aws.amazon.com/cloudfront/) that you can consider as well.
+
+#### Are Wasp apps production ready?
+
+As we mentioned in the [introduction](https://wasp.sh/docs/deployment/intro) section, what we call **Wasp apps** are three separate pieces: the client, the server, and the database.
+
+For the server, we are using Node.js and the battle-tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well-maintained.
+
+Each of these pieces is production-ready on its own, and Wasp just makes it easy to connect them together. Keep in mind that Wasp is still considered beta software, so there might be some rough edges here and there.
 
 
 ## Migration guides / From 0.25 to 0.26
