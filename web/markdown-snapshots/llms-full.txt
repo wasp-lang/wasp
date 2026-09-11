@@ -15083,7 +15083,7 @@ $ wasp telemetry
 
 Telemetry is currently: ENABLED
 Telemetry cache directory: /home/user/.cache/wasp/telemetry/
-Last time telemetry data was sent for this project: 2021-05-27 09:21:16.79537226 UTC
+Last time we attempted to send telemetry data for this project: 2021-05-27 09:21:16.79537226 UTC
 Our telemetry is anonymized and very limited in its scope: check https://wasp.sh/docs/telemetry for more details.
 ```
 
