@@ -46,6 +46,12 @@ const waspCommonServerEnvSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string({
     error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_SECRET'),
   }),
+  LINKEDIN_CLIENT_ID: z.string({
+    error: getRequiredEnvVarErrorMessage('LinkedIn auth provider', 'LINKEDIN_CLIENT_ID'),
+  }),
+  LINKEDIN_CLIENT_SECRET: z.string({
+    error: getRequiredEnvVarErrorMessage('LinkedIn auth provider', 'LINKEDIN_CLIENT_SECRET'),
+  }),
   SLACK_CLIENT_ID: z.string({
     error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_ID'),
   }),

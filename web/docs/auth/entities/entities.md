@@ -11,6 +11,7 @@ import GoogleData from './\_google-data.md';
 import GithubData from './\_github-data.md';
 import KeycloakData from './\_keycloak-data.md';
 import DiscordData from './\_discord-data.md';
+import LinkedInData from './\_linkedin-data.md';
 
 First, we'll check out the most practical info: **how to access the user's data in your app**.
 
@@ -114,6 +115,10 @@ Let's look at the data for each of the available auth methods:
 - [Discord](../social-auth/discord.md) data
 
   <DiscordData />
+
+- [LinkedIn](../social-auth/linkedin.md) data
+
+  <LinkedInData />
 
 If you support multiple auth methods, you'll need to find which identity exists for the user and then access its data:
 

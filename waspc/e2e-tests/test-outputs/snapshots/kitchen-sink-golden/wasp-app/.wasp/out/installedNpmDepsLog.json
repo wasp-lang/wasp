@@ -168,7 +168,7 @@
             },
             {
                 "name": "arctic",
-                "version": "^1.2.1"
+                "version": "^1.8.0"
             },
             {
                 "name": "lucia",

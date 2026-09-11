@@ -36,6 +36,11 @@ const authMethods = [
     description: "Users sign in with their Discord account",
     linkTo: "./social-auth/discord",
   },
+  {
+    title: "LinkedIn",
+    description: "Users sign in with their LinkedIn account",
+    linkTo: "./social-auth/linkedin",
+  },
 ];
 
 export function AuthMethodsGrid() {

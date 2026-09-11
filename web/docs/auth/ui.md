@@ -2,7 +2,7 @@
 title: Auth UI
 ---
 
-import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";
+import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill, LinkedInPill } from "./Pills";
 
 To make using authentication in your app as easy as possible, Wasp generates the server-side code but also the client-side UI for you. It enables you to quickly get the login, signup, password reset and email verification flows in your app.
 
@@ -83,7 +83,7 @@ The following components are available for you to use in your app:
 
 ### Login Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill />, <DiscordPill /> and <LinkedInPill /> authentication.
 
 ![Login form](/img/authui/login.png)
 
@@ -129,7 +129,7 @@ It will automatically show the correct authentication providers based on your `m
 
 ### Signup Form
 
-Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill /> and <DiscordPill /> authentication.
+Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePill />, <KeycloakPill />, <SlackPill />, <DiscordPill /> and <LinkedInPill /> authentication.
 
 ![Signup form](/img/authui/signup.png)
 

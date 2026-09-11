@@ -38,3 +38,7 @@ export function GooglePill() {
 export function KeycloakPill() {
   return <Pill linkToPage="/docs/auth/social-auth/keycloak">Keycloak</Pill>;
 }
+
+export function LinkedInPill() {
+  return <Pill linkToPage="/docs/auth/social-auth/linkedin">LinkedIn</Pill>;
+}

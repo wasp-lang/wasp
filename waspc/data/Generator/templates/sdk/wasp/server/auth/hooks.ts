@@ -181,6 +181,9 @@ export type OAuthData = {
   {=# enabledProviders.isGitHubAuthEnabled =}
   | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
   {=/ enabledProviders.isGitHubAuthEnabled =}
+  {=# enabledProviders.isLinkedInAuthEnabled =}
+  | { providerName: 'linkedin'; tokens: import('arctic').LinkedInTokens }
+  {=/ enabledProviders.isLinkedInAuthEnabled =}
   {=# enabledProviders.isKeycloakAuthEnabled =}
   | { providerName: 'keycloak'; tokens: import('arctic').KeycloakTokens }
   {=/ enabledProviders.isKeycloakAuthEnabled =}

@@ -21,6 +21,9 @@ export * from './keycloak'
 {=# isGitHubAuthEnabled =}
 export * from './github'
 {=/ isGitHubAuthEnabled =}
+{=# isLinkedInAuthEnabled =}
+export * from './linkedin'
+{=/ isLinkedInAuthEnabled =}
 {=# isMicrosoftAuthEnabled =}
 export * from './microsoft'
 {=/ isMicrosoftAuthEnabled =}

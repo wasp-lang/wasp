@@ -5,6 +5,7 @@ import slack from './config/slack.js'
 import discord from './config/discord.js'
 import github from './config/github.js'
 import google from './config/google.js'
+import linkedin from './config/linkedin.js'
 import microsoft from './config/microsoft.js'
 import email from './config/email.js'
 
@@ -13,6 +14,7 @@ const providers = [
   discord,
   github,
   google,
+  linkedin,
   microsoft,
   email,
 ];

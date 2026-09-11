@@ -34,6 +34,11 @@ export function SocialAuthGrid({
       description: "Users sign in with their Microsoft account.",
       linkTo: "./microsoft" + pagePart,
     },
+    {
+      title: "LinkedIn",
+      description: "Users sign in with their LinkedIn account.",
+      linkTo: "./linkedin" + pagePart,
+    },
   ];
 
   return (

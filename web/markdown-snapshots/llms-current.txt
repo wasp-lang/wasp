@@ -39,6 +39,7 @@
 - [Slack](https://wasp.sh/docs/auth/social-auth/slack.md)
 - [Discord](https://wasp.sh/docs/auth/social-auth/discord.md)
 - [Microsoft](https://wasp.sh/docs/auth/social-auth/microsoft.md)
+- [LinkedIn](https://wasp.sh/docs/auth/social-auth/linkedin.md)
 - [Create your own UI](https://wasp.sh/docs/auth/social-auth/create-your-own-ui.md)
 - [Accessing User Data](https://wasp.sh/docs/auth/entities.md)
 - [Auth Hooks](https://wasp.sh/docs/auth/auth-hooks.md)

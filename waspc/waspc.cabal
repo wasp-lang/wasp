@@ -608,6 +608,7 @@ test-suite waspc-tests
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
     Analyzer.TypeCheckerTest
+    AppSpec.App.AuthTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest

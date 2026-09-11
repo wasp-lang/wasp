@@ -11,6 +11,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
+    linkedInAuthProvider,
     microsoftAuthProvider,
     slackAuthProvider,
   )
@@ -35,6 +36,7 @@ genOAuthHelpers auth =
         [gitHubHelpersFd | AS.Auth.isGitHubAuthEnabled auth],
         [googleHelpersFd | AS.Auth.isGoogleAuthEnabled auth],
         [keycloakHelpersFd | AS.Auth.isKeycloakAuthEnabled auth],
+        [linkedInHelpersFd | AS.Auth.isLinkedInAuthEnabled auth],
         [microsoftHelpersFd | AS.Auth.isMicrosoftAuthEnabled auth]
       ]
   where
@@ -43,6 +45,7 @@ genOAuthHelpers auth =
     gitHubHelpersFd = makeOAuthHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
     googleHelpersFd = makeOAuthHelpersFd googleAuthProvider [relfile|Google.tsx|]
     keycloakHelpersFd = makeOAuthHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
+    linkedInHelpersFd = makeOAuthHelpersFd linkedInAuthProvider [relfile|LinkedIn.tsx|]
     microsoftHelpersFd = makeOAuthHelpersFd microsoftAuthProvider [relfile|Microsoft.tsx|]
 
     makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft

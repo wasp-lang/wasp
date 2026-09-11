@@ -9,7 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy as BSL
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import StrongPath.Operations ()
@@ -172,33 +172,5 @@ studio = do
               .= object
                 [ "name" .= fst (AS.resolveRef spec $ AS.App.Auth.userEntity auth)
                 ],
-            "methods"
-              .= let methods = AS.App.Auth.methods auth
-                  in -- TODO: Make this type safe, so it gives compile time error/warning if
-                     --   new field is added to AuthMethods and we haven't covered it here.
-                     --   Best to use TH here to generate this object from AuthMethods?
-                     concat
-                       [ [ "usernameAndPassword"
-                         | isJust $ AS.App.Auth.usernameAndPassword methods
-                         ],
-                         [ "slack"
-                         | isJust $ AS.App.Auth.slack methods
-                         ],
-                         [ "discord"
-                         | isJust $ AS.App.Auth.discord methods
-                         ],
-                         [ "google"
-                         | isJust $ AS.App.Auth.google methods
-                         ],
-                         [ "keycloak"
-                         | isJust $ AS.App.Auth.keycloak methods
-                         ],
-                         [ "gitHub"
-                         | isJust $ AS.App.Auth.gitHub methods
-                         ],
-                         [ "email"
-                         | isJust $ AS.App.Auth.email methods
-                         ]
-                       ] ::
-                       [String]
+            "methods" .= AS.App.Auth.enabledAuthMethodNames (AS.App.Auth.methods auth)
           ]
