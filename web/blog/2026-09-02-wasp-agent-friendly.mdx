@@ -30,10 +30,10 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 
 Wasp 0.26 improves support for agent orchestrators and Git worktrees.
 
-If you're the kind of person to use a web framwork in Beta, you almost certainly know what those things are.
-But just in case you don't:
+If you're the kind of person to use a web framework in Beta, you almost certainly know what those things are.
+But just in case you somehow missed it:
 - An **agent orchestrator** is a tool for coordinating agents. It helps you assign tasks to agents and keep track of their work, without juggling thirteen terminal windows and losing your mind. Examples of popular agent orchestrators are [Herdr](https://github.com/herdrdev/herdr), [Workmux](https://github.com/raine/workmux), and [Conductor](https://www.conductor.build/).
-- **[Git worktrees](https://git-scm.com/docs/git-worktree)** are a Git feature that lets you checkout multiple branches of a Git project at the same time, each one in its own isolated directory.
+- **[Git worktrees](https://git-scm.com/docs/git-worktree)** are a Git feature that lets you check out multiple branches of a Git project at the same time, each one in its own isolated directory.
 
 Using these two tools in tandem creates a perfect setup for a team of agents working on several features at the same time.
 Worktrees keep each agent in its own lane, and the orchestrator lets you easily oversee the whole ordeal.
@@ -44,26 +44,26 @@ A typical workflow goes something like this:
 - When a feature is done, you review the diff in its worktree. If all is well, you use the orchestrator to merge it into `main` and delete the worktree.
 
 It's a great way to get things done, but previous versions of Wasp had a few problems that made such workflows impractical.
-It wasn't impossible to set it up, but, since you'd have to fight Wasp every step of the way, it almost defeated the whole purpose.
+It wasn't impossible to set it up, but you'd have to fight Wasp every step of the way, which almost defeated the whole purpose.
 
 Wasp 0.26.0 finally solves all these problems. Multiple agents can now work on a Wasp project without getting in each other's way, and without you having to do anything special.
 
 We're about to get into the specifics of what makes Wasp 0.26.0 agent-friendly.
 We'll explain the problems Wasp used to have and how the new version solves them.
-If you don't care about any of this and just want to get some work done, skip over to [How to use this?](#how-to-use-this)
+If you don't care about any of this and just want to get some work done, skip over to [How to use this?](#how-to-use-this).
 
 {/* truncate */}
 
 ## What were the problems anyway?
 
-Wasp's intolerance of worktres and orchestrators came down to:
+Wasp's intolerance of worktrees and orchestrators came down to:
 - Process conflicts between CLI commands in the same worktrees.
 - Port conflicts between CLI commands in different worktrees.
 
 Even though you could set everything up, common failures caused by these issues prevented agents from getting any work done.
 
-To make things worse, when an agent ran into these problems, it wouldn't just realize what's happening and stop.
-Wasp's error messages would act as a red herring and keep the agent wasting time and tokens until the user realized what's happening and intervened.
+To make things worse, when an agent ran into these problems, it wouldn't just realize what was happening and stop.
+Wasp's error messages would act as a red herring and keep the agent wasting time and tokens until the user realized what was happening and intervened.
 
 Let's now look at both problems in more detail.
 
@@ -77,10 +77,10 @@ Well, it turns out that both humans and agents tend to accidentally do exactly t
 - Let's say you have a `wasp start` process running.
 - Then, in a different terminal, you accidentally call `wasp build`.
 
-Older versions of Wasp didn't handle this conflict well. `wasp build` would either silently break something in the background or fail with a cryptic error that sends its reader, be it you or the agent, on a wild goose chase.
+Older versions of Wasp didn't handle this conflict well. `wasp build` would either silently break something in the background or fail with a cryptic error that sent its reader, be it you or the agent, on a wild goose chase.
 
-Wasp 0.26.0 still has the same constraint, that only one of these commands run at any given time, but it handles the situation more gracefully.
-The error now features a nice explanation together with the PID of the already running process:
+Wasp 0.26.0 still has the same constraint, that only one of these commands can run at any given time, but it handles the situation more gracefully.
+The error now features a nice explanation together with the PID of the offending process:
 
 ```
 $ wasp build
@@ -111,15 +111,15 @@ To run a Wasp app in development mode, you must usually use **two `wasp` command
 
 Each worktree gets its own processes and its own database. No issues there.
 
-But each process needs a port and, since the processes must to know where to reach each other, these ports must be decided ahead of time.
+But each process needs a port and, since the processes must know where to reach each other, these ports must be decided ahead of time.
 If Wasp dynamically picked an available port when starting up each process, the client wouldn't know where to find the server, the server wouldn't know where to find the database, and so on.
 
 When you're only working on a single thing, predetermined fixed ports aren't a problem - the database always runs at `5432`, the client at `3000`, and the server at `3001`.
 
 But what happens when you bring multiple agents into the picture, each with their own workspace? Well, that's where the trouble begins.
 
-In previous version of Wasp, all three processes (client, server, database) always wanted to run on the same three ports, regardless of the worktree.
-In practice, this meant that no two agents can have their dev servers running at the same time.
+In previous versions of Wasp, all three processes (client, server, database) always wanted to run on the same three ports, regardless of the worktree.
+In practice, this meant that no two agents could have their dev servers running at the same time.
 
 With Wasp 0.26.0, this is no longer the case. You can now have all the worktrees your heart desires, and run `wasp start` and `wasp start db` in each worktree with no interference.
 
@@ -159,13 +159,13 @@ wasp start
 wasp start db
 ```
 
-Though there are two things to keep in mind.
+That said, there are two things to keep in mind.
 
-First, your Wasp processes will no longer always run on the same port (i.e., `3000` for the client, `3001` for the server, and `5432` for the dev database).
+First, your Wasp processes will no longer always run on the same ports (i.e., `3000` for the client, `3001` for the server, and `5432` for the dev database).
 They'll run on the first available port after those, so pay attention to where Wasp tells you they're listening.
 
 And second, since you'll now be working in many worktrees, that also means you'll have many databases (remember, each worktree gets its own database).
-Database are not terribly useful without data, so you might want explore how to [seed them](/docs/data-model/databases#seeding-the-database).
+Databases are not terribly useful without data, so we recommend you explore how to [seed them](/docs/data-model/databases#seeding-the-database).
 
 ### Bonus feature
 
@@ -189,7 +189,7 @@ Parallel worktree support is live in Wasp 0.26. If you're not on it yet, update 
 npm i -g @wasp.sh/wasp-cli
 ```
 
-Since Wasp now manages the ports and URLs in development, setting them yourself (e.g., `server.port` in `vite.config.ts` or `PORT` in `.env.server`) is now an error.
+Since Wasp now manages the ports and URLs in development, setting them yourself (e.g., `server.port` in `vite.config.ts` or `PORT` in `.env.server`) is an error.
 Check the [migration guide](/docs/migration-guide) for the full list of changes and how to update your project.
 
 We'd love to hear how it works for you - come chat with us on [Discord](https://discord.gg/rzdnErX)!
