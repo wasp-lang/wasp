@@ -53,9 +53,10 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   (warnings, appSpec) <- compile
 
-  ports <- findAppComponentPorts (args.clientPort, args.serverPort)
+  (clientPort, serverPort) <- findAppComponentPorts (args.clientPort, args.serverPort)
 
-  let projectRunConfig = makeProjectRunConfig appSpec ports
+  let projectRunConfig =
+        makeProjectRunConfig appSpec (clientPort, args.clientUrl) (serverPort, args.serverUrl)
       waspClientEnvVars = WebAppGenerator.makeEnvVars projectRunConfig
       waspServerEnvVars = ServerGenerator.makeEnvVars projectRunConfig
 

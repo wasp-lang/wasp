@@ -50,7 +50,8 @@ makeBuildStartConfig appSpec args projectDir' = do
   userClientEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.clientEnvVars
   userServerEnvVars <- liftIO $ concatMapM EnvVarWithCtx.readEnvVarArgument args.serverEnvVars
 
-  let projectRunConfig = makeProjectRunConfig appSpec (args.clientPort, args.serverPort)
+  let projectRunConfig =
+        makeProjectRunConfig appSpec (args.clientPort, args.clientUrl) (args.serverPort, args.serverUrl)
       waspClientEnvVars = WebAppGenerator.makeEnvVars projectRunConfig
       waspServerEnvVars = ServerGenerator.makeEnvVars projectRunConfig
 

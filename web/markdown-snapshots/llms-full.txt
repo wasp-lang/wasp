@@ -7184,19 +7184,13 @@ Usually localtunnel will assign you a random subdomain on each start, but you ca
 
 After starting the tunnel, you will see your tunnel URL in the terminal. Go to that URL to unlock the tunnel by entering your IP address in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places: server and client configuration.
+Now that your server is exposed to the public, we need to tell Wasp about the new public domain. Start your app with the `--server-url` option:
 
-To configure client, add this line to your `.env.client` file (create it if doesn't exist):
-
-```bash title=".env.client"
-REACT_APP_API_URL=https://<subdomain>.loca.lt
+```bash
+wasp start --server-url https://<subdomain>.loca.lt --server-port 3001
 ```
 
-Similarly, to configure the server, add this line to your `.env.server`:
-
-```bash title=".env.server"
-WASP_SERVER_URL=https://<subdomain>.loca.lt
-```
+`--server-url` tells the app where the browser will find it, so both OAuth redirects and the client's API calls go through the tunnel. It doesn't change the port the server listens on, which is why we also pin it with `--server-port` to the port we're tunneling.
 
 ### Default Behaviour
 
@@ -10093,9 +10087,9 @@ Here are the client env vars that Wasp defines:
 
 These are some general env variables used for various Wasp features:
 
-| Name                | Type        | Notes                                                                                                                                                                                                                  |
-| ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands). |
+| Name                | Type        | Notes                                                                                                                                                                                                                                                                                          |
+| ------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REACT_APP_API_URL` | URLrequired | The client uses this as the server URL. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands) and [`--server-url`](https://wasp.sh/docs/general/cli#project-commands). |
 
 ### Server Env Vars
 
@@ -10117,13 +10111,13 @@ Read more about the `env` object in the [API reference](#server-env-vars-1).
 
 These are some general env variables used for various Wasp features:
 
-| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                           |
-| --------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                    |
-| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --client-port`](https://wasp.sh/docs/general/cli#project-commands).                                               |
-| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands). |
-| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                         |
-| `PORT`                | Integerrequired | This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands).                                                                                                   |
+| Name                  | Type            | Notes                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | Stringrequired  | The URL of the PostgreSQL database you want your app to use.                                                                                                                                                                                                                                                                                                                                            |
+| `WASP_WEB_CLIENT_URL` | URLrequired     | Server uses this value as your client URL in various features e.g. linking to your app in e-mails. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --client-port`](https://wasp.sh/docs/general/cli#project-commands) and [`--client-url`](https://wasp.sh/docs/general/cli#project-commands).                                               |
+| `WASP_SERVER_URL`     | URLrequired     | Server uses this value as your server URL in various features e.g. to redirect users when logging in with OAuth providers like Google or GitHub. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands) and [`--server-url`](https://wasp.sh/docs/general/cli#project-commands). |
+| `JWT_SECRET`          | Stringrequired  | A random string of at least 32 characters. Needed to generate secure tokens. Defaults to `DEVJWTSECRET` in development.                                                                                                                                                                                                                                                                                 |
+| `PORT`                | Integerrequired | This is where the server listens for requests. This is set by Wasp in development, but required in production. Change it in development with [`wasp start --server-port`](https://wasp.sh/docs/general/cli#project-commands).                                                                                                                                                                           |
 
 ##### SMTP Email Sender
 
@@ -11187,7 +11181,7 @@ You must manually specify any environment variables that your app needs to run i
 
 Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](https://wasp.sh/docs/project/env-vars#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](https://wasp.sh/docs/project/env-vars).
 
-The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands) if you need specific ports.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands) if you need specific ports, and [`--client-url` and `--server-url`](https://wasp.sh/docs/general/cli#project-commands) if your app isn't reached at `http://localhost:<port>`.
 
 #### Which values should I use when testing?
 
@@ -12720,7 +12714,7 @@ wasp start
 
 ### Running worktrees at the same time
 
-`wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands).
+`wasp start` picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](https://wasp.sh/docs/general/cli#project-commands), and if your app isn't reached at `http://localhost:<port>`, use [`--client-url` and `--server-url`](https://wasp.sh/docs/general/cli#project-commands).
 
 Wasp's dev PostgreSQL database still requires port `5432`, so to run apps in parallel worktrees, we need to manually provision a separate database for each worktree and set its `DATABASE_URL` in `.env.server`.
 
@@ -14964,9 +14958,12 @@ COMMANDS
     uninstall             Removes Wasp from your system.
   IN PROJECT
     start [--client-port <port>] [--server-port <port>]
+          [--client-url <url>] [--server-url <url>]
                           Runs Wasp app in development mode, watching for file changes.
                           Optionally specify the ports the client and the server run on.
                           If not specified, Wasp picks the first free port when the default one is taken.
+                          Optionally specify the public URLs they are reached at (e.g. on your local
+                          network or through an HTTPS tunnel). The URL options don't change the ports.
     start db [--db-image <image>] [--db-volume-mount-path <path>]
                           Starts managed development database for you.
                           Optionally specify a custom Docker image or Docker volume mount path.
@@ -14977,7 +14974,7 @@ COMMANDS
     compile               Compiles your Wasp project and reports any errors, without running it.
     build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
-                          Accepts the same port options as 'start'.
+                          Accepts the same port and URL options as 'start'.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
@@ -15047,7 +15044,11 @@ wasp db start
 #### Project Commands
 
 - `wasp start` launches the Wasp app in development mode. It automatically opens a browser tab with your application running and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself.
+
+  If your app isn't reached at `http://localhost:<port>` (for example, when you're [testing on your local network](https://wasp.sh/docs/guides/debugging/local-network-testing) or exposing the server through an HTTPS tunnel), tell Wasp about it with `--client-url <url>` and `--server-url <url>`. `--client-url` sets `WASP_WEB_CLIENT_URL` on the server, and `--server-url` sets both `WASP_SERVER_URL` on the server and `REACT_APP_API_URL` on the client, so CORS, OAuth redirects and API requests all agree. These options only change the URLs your app advertises, not the ports it listens on, so if the URL contains a port, pin the same port with `--client-port` / `--server-port`.
+
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app.
+
 - `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
 ```
@@ -15067,7 +15068,7 @@ $ wasp clean
 
 - `wasp build` generates the complete web app code, which is ready for [deployment](https://wasp.sh/docs/deployment/intro). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
-- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port` and `--server-port` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
+- `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively, and the same `--client-port`, `--server-port`, `--client-url` and `--server-url` options as `wasp start`. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](https://wasp.sh/docs/deployment/local-testing).
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
@@ -15504,6 +15505,14 @@ wasp start --client-port 4000 --server-port 4001
 ```
 
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
+
+If you were customizing environment variables such as `REACT_APP_API_URL`, `WASP_SERVER_URL`, or `WASP_WEB_CLIENT_URL` in development; you should now use `--client-url` and `--server-url`:
+
+```bash
+wasp start --server-url https://myapp.loca.lt --server-port 3001
+```
+
+See [Local Network Testing](https://wasp.sh/docs/guides/debugging/local-network-testing) for complete examples.
 
 :::info
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
@@ -19732,7 +19741,7 @@ This will open a web interface where you can view and modify your database recor
 ## Debugging / Local Network Testing
 
 :::note
-Last checked with Wasp 0.24.
+Last checked with Wasp 0.26.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -19768,30 +19777,17 @@ Look for the network URLs in Wasp's terminal output:
 
 If you have multiple network interfaces, you'll see multiple Network URLs. Note one of these IPs (you may need to try a few to find the one that works).
 
-### Step 3: Configure Environment Variables
+### Step 3: Tell Wasp Which URLs to Use
 
-The app won't be fully functional until you configure the environment variables. Edit your environment files:
+The app won't be fully functional until Wasp knows the URLs your app is reached at on the network. Pass them to `wasp start`:
 
-#### .env.server
-
-```bash title=".env.server"
-WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
-```
-
-#### .env.client
-
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
+```bash
+wasp start \
+  --client-url http://192.168.1.39.nip.io:3000 --client-port 3000 \
+  --server-url http://192.168.1.39.nip.io:3001 --server-port 3001
 ```
 
 Replace `192.168.1.39` with your actual IP address from Step 2.
-
-:::note[Why these variables?]
-- **WASP\_WEB\_CLIENT\_URL**: Ensures CORS works correctly
-- **WASP\_SERVER\_URL**: Makes OAuth redirects work properly
-- **REACT\_APP\_API\_URL**: Tells the client where to find the server on the local network
-:::
 
 ### Step 4: Allow the Host in Vite Config
 
@@ -19815,10 +19811,12 @@ Replace `192.168.1.39.nip.io` with the hostname matching your IP from Step 2.
 
 ### Step 5: Restart and Test
 
-After saving the environment files, restart your app:
+After saving the Vite config, restart your app with the command from Step 3:
 
 ```bash
-wasp start
+wasp start \
+  --client-url http://192.168.1.39.nip.io:3000 --client-port 3000 \
+  --server-url http://192.168.1.39.nip.io:3001 --server-port 3001
 ```
 
 On your phone or tablet, open the URL with the `.nip.io` suffix:
@@ -19855,15 +19853,15 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 
 #### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
+1. Verify you passed the right `--server-url` to `wasp start`
 2. Make sure the server is accessible on port 3001
 3. Check browser console for CORS errors
 
 #### OAuth not working
 
 1. Update redirect URIs in your OAuth provider's settings
-2. Make sure `WASP_SERVER_URL` uses the nip.io hostname
-3. Restart the server after changing environment variables
+2. Make sure the `--server-url` you passed uses the nip.io hostname
+3. Restart the app after changing the options you pass to `wasp start`
 
 
 ## Deployment / Cloud Providers / Cloudflare
@@ -21826,7 +21824,7 @@ export default app({
 ```
 
 :::note
-The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and set Wasp's URLs to match in step 2.
+The route names are arbitrary, but the path on `authWithSpotifyCallback` must match the redirect URI you register with your provider. Spotify rejects `localhost` over HTTP, so register `http://127.0.0.1:3001/auth/spotify/callback` in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and start Wasp with matching URLs, see step 2.
 :::
 
 #### 2. Configure environment variables
@@ -21841,14 +21839,14 @@ SPOTIFY_CLIENT_SECRET=your_client_secret
 # just to get the arctic package installed
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
-
-# Spotify rejects `localhost`, so point Wasp at 127.0.0.1 instead
-WASP_SERVER_URL=http://127.0.0.1:3001
-WASP_WEB_CLIENT_URL=http://127.0.0.1:3000
 ```
 
-```bash title=".env.client"
-REACT_APP_API_URL=http://127.0.0.1:3001
+Spotify rejects `localhost`, so point Wasp at `127.0.0.1` instead when you start your app:
+
+```bash
+wasp start \
+  --client-url http://127.0.0.1:3000 --client-port 3000 \
+  --server-url http://127.0.0.1:3001 --server-port 3001
 ```
 
 :::note

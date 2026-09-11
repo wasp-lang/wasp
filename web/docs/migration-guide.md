@@ -162,6 +162,14 @@ wasp start --client-port 4000 --server-port 4001
 
 Wasp fills in the URLs for you from the ports it picked, so you no longer have to keep them in sync by hand.
 
+If you were customizing environment variables such as `REACT_APP_API_URL`, `WASP_SERVER_URL`, or `WASP_WEB_CLIENT_URL` in development; you should now use `--client-url` and `--server-url`:
+
+```bash
+wasp start --server-url https://myapp.loca.lt --server-port 3001
+```
+
+See [Local Network Testing](./guides/debugging/local-network-testing.md) for complete examples.
+
 :::info
 
 Your deployed app still uses these environment variables, so don't remove them from your deploy configuration. Wasp only takes them over in development, where it is the one starting your app.
