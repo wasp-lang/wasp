@@ -158,7 +158,7 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Deployment",
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       link: { type: "doc", id: "deployment/intro" },
       items: [
