@@ -20787,7 +20787,7 @@ When you make updates and need to redeploy:
 ## Deployment / Self-Hosted / Caprover
 
 :::note
-Last checked with Wasp 0.24 and Caprover (as of Jan 30, 2026).
+Last checked with Wasp 0.24 and Caprover 1.14.1.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21037,7 +21037,7 @@ Push to the `main` branch and the GitHub Action will:
 ## Deployment / Self-Hosted / Coolify
 
 :::note
-Last checked with Wasp 0.24 and Coolify (as of Jan 30, 2026).
+Last checked with Wasp 0.24 and Coolify 4.0.0-beta.462.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -21272,7 +21272,7 @@ Push to the `main` branch and the GitHub Action will:
 ## Deployment / Self-Hosted / Simple VPS
 
 :::note
-Last checked with Wasp 0.24, Caddy (as of Jan 30, 2026), and Ubuntu (as of Jan 30, 2026).
+Last checked with Wasp 0.24, Caddy 2.10.2, and Ubuntu LTS 24.04.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
