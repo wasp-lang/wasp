@@ -7,8 +7,6 @@ module Wasp.Generator.SdkGenerator
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, maybeToList)
@@ -76,9 +74,9 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Node as Node
+import qualified Wasp.Job.Output as Output
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
@@ -88,11 +86,10 @@ import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
-  chan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
+  exitCode <-
+    Output.runAndPrintPrefixedOutput $
+      Job.makeJob Job.Wasp $
+        Node.run [] sdkRootDir "npm" ["run", "build"]
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code

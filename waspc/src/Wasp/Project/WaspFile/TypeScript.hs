@@ -6,8 +6,6 @@ module Wasp.Project.WaspFile.TypeScript
 where
 
 import Control.Arrow (left)
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
@@ -27,9 +25,9 @@ import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
-import qualified Wasp.Job as J
-import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
+import qualified Wasp.Job as Job
+import qualified Wasp.Job.Node as Node
+import qualified Wasp.Job.Output as Output
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
@@ -78,14 +76,13 @@ runWaspSpecAnalyzer ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
 runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
-  chan <- newChan
-  (_, runExitCode) <- do
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      -- We invoke the script directly via `node` instead of `npx` because
-      -- `npx` requires the bin file to be executable, and `cabal install`
-      -- strips executable permissions from data files.
-      ( runNodeCommandAsJobWithExtraEnv
+  -- We invoke the script directly via `node` instead of `npx` because
+  -- `npx` requires the bin file to be executable, and `cabal install`
+  -- strips executable permissions from data files.
+  runExitCode <-
+    Output.runAndPrintPrefixedOutput $
+      Job.makeJob Job.Wasp $
+        Node.run
           [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
             -- Not related to `node` itself, so we have to set it manually.
             -- It enables users to write environment specific code in the TS config.
@@ -107,9 +104,6 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
             -- entity that doesn't exist.
             encodeToString allowedEntityNames
           ]
-          J.Wasp
-          chan
-      )
   case runExitCode of
     ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
     ExitSuccess -> readSpecResultFile
