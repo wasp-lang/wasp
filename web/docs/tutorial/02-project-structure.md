@@ -1,5 +1,5 @@
 ---
-title: 2. Project Structure
+title: 2. Project structure
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';

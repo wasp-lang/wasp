@@ -1,5 +1,5 @@
 ---
-title: Custom HTTP API Endpoints
+title: API routes
 ---
 
 import { CardLink } from '@site/src/components/CardLink'

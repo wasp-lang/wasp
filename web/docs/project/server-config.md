@@ -1,5 +1,5 @@
 ---
-title: Server Config
+title: Server config
 ---
 
 import { CardLink } from "@site/src/components/CardLink";
@@ -111,7 +111,7 @@ Dummy example of such function and its usage:
       // Let's pretend functions setUpSomeResource and startSomeCronJob
       // are implemented below or imported from another file.
       someResource = await setUpSomeResource()
-      startSomeCronJob()  
+      startSomeCronJob()
     }
 
     export const getSomeResource = () => someResource

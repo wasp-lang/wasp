@@ -1,5 +1,5 @@
 ---
-title: 4. Database Entities
+title: 4. Database entities
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';

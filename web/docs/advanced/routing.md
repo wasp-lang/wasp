@@ -1,5 +1,5 @@
 ---
-title: Routing
+title: Routes
 ---
 
 Wasp uses [React Router](https://reactrouter.com) under the hood. Route paths support all the standard patterns described below.

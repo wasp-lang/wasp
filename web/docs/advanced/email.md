@@ -1,5 +1,5 @@
 ---
-title: Sending Emails
+title: Email
 ---
 
 import { CardLink } from '@site/src/components/CardLink'

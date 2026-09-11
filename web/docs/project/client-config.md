@@ -1,5 +1,5 @@
 ---
-title: Client Config
+title: Client configuration
 ---
 
 import BaseDirEnvNote from './\_baseDirEnvNote.md'

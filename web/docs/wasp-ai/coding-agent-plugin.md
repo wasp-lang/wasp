@@ -1,8 +1,8 @@
 ---
-title: Agent Plugin / Skills
+title: Agent integration
 ---
 
-Wasp provides an official plugin for coding agents that transforms them into Wasp framework experts. 
+Wasp provides an official plugin for coding agents that transforms them into Wasp framework experts.
 
 The plugin gives your agent curated access to Wasp docs, workflows, and best practices so it can develop full-stack web apps (React, Node.js, Prisma) more effectively.
 

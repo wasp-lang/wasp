@@ -1,5 +1,5 @@
 ---
-title: Cloud Providers
+title: Cloud providers
 ---
 
 import BuildingTheWebClient from './_building-the-web-client.md'

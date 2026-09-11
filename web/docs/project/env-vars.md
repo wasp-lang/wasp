@@ -1,5 +1,5 @@
 ---
-title: Env Variables
+title: Environment variables
 ---
 
 import ClientEnvVarsNote from './\_clientEnvVarsNote.md'

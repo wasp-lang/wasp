@@ -1,5 +1,5 @@
 ---
-title: 5. Querying the Database
+title: 5. Querying the database
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';

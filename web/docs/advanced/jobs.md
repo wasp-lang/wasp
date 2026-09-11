@@ -1,5 +1,5 @@
 ---
-title: Recurring Jobs
+title: Jobs
 ---
 
 import { CardLink } from '@site/src/components/CardLink'

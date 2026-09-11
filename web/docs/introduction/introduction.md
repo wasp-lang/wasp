@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: What's Wasp?
 slug: /
 ---
 

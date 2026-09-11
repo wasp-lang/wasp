@@ -1,5 +1,5 @@
 ---
-title: 3. Pages & Routes
+title: 3. Pages and routes
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
