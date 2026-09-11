@@ -8,11 +8,7 @@ const sidebars: SidebarsConfig = {
       label: "Getting Started",
       collapsed: false,
       collapsible: true,
-      items: [
-        "introduction/introduction",
-        "introduction/quick-start",
-        "introduction/editor-setup",
-      ],
+      items: ["introduction/introduction", "introduction/quick-start"],
     },
     {
       type: "category",
@@ -186,7 +182,7 @@ const sidebars: SidebarsConfig = {
       label: "General",
       collapsed: false,
       collapsible: true,
-      items: ["general/spec", "general/cli", "general/typescript"],
+      items: ["general/spec", "general/cli"],
     },
     {
       type: "link",

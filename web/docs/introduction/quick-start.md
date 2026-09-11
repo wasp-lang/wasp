@@ -66,7 +66,6 @@ Check [More Details](#more-details) section below if anything went wrong with th
 ### What next?
 
 - [ ] 👉 **Check out the [Todo App tutorial](../tutorial/01-create.md), which will take you through all the core features of Wasp!** 👈
-- [ ] [Setup your editor](./editor-setup.md) for working with Wasp.
 - [ ] Join us on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
 - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp.sh/#signup . We usually send 1 per month, and [Matija](https://github.com/matijaSos) does his best to unleash his creativity to make them engaging and fun to read :D!
 
