@@ -1,7 +1,14 @@
 {{={= =}=}}
 /// <reference types="vitest/config" />
-import type { ConfigEnv, PluginOption } from "vite";
+import type { PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
+{=# isSingleDeploymentAndDevelopment =}
+import {
+  isAppDevServer,
+  makeDevServerProxy,
+  throwIfDevProxyTargetMissing,
+} from "./devProxy.js";
+{=/ isSingleDeploymentAndDevelopment =}
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -27,19 +34,14 @@ export function waspConfig(): PluginOption {
       }
     },
 {=/ isSingleDeploymentAndDevelopment =}
-    config(
-      config,
-{=# isSingleDeploymentAndDevelopment =}
-      configEnv,
-{=/ isSingleDeploymentAndDevelopment =}
-    ) {
+    config(config{=# isSingleDeploymentAndDevelopment =}, configEnv{=/ isSingleDeploymentAndDevelopment =}) {
       throwIfOverridingForcedOptions(config);
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: {=& depsExcludedFromOptimization =}
+          exclude: {=& depsExcludedFromOptimization =},
         },
         server: {
           port: forcedOptions["server.port"],
@@ -85,10 +87,7 @@ export function waspConfig(): PluginOption {
           globals: useUserValue(config.test?.globals, true),
           environment: useUserValue(config.test?.environment, "jsdom"),
           setupFiles: {=& vitest.setupFilesArray =},
-          exclude: [
-            ...defaultExclude,
-            "{= vitest.excludeWaspArtefactsPattern =}",
-          ],
+          exclude: [...defaultExclude, "{= vitest.excludeWaspArtefactsPattern =}"],
         },
       };
     },
@@ -154,72 +153,3 @@ function envVarAsNumber(envName: string): number | undefined {
   }
   return numValue;
 }
-{=# isSingleDeploymentAndDevelopment =}
-
-// The client and the server share one origin. In development, the Vite dev
-// server forwards Wasp's server routes (and the user's `api` routes) to the
-// server process, whose URL `wasp start` passes in the env var below.
-//
-// `server.proxy` is not a forced option: entries from the user's
-// `vite.config.ts` are merged with these, so users can proxy extra paths to
-// the server by targeting `process.env.{= devProxyTargetEnvVarName =}`.
-const devProxyTargetEnvVarName = "{= devProxyTargetEnvVarName =}";
-
-const proxiedPathPrefixes: string[] = {=& proxiedPathPrefixes =};
-
-function makeDevServerProxy(
-  configEnv: ConfigEnv,
-): Record<string, { target: string; changeOrigin: boolean; ws: boolean }> | undefined {
-  if (!isAppDevServer(configEnv)) {
-    return undefined;
-  }
-  // Other Wasp plugins (e.g. `wasp:validate-env`) create throwaway
-  // middleware-mode servers during `vite build`, which also report `serve`
-  // and never have the env var. `throwIfDevProxyTargetMissing` reports it from
-  // `configureServer`, which only real dev servers run.
-  const target = process.env[devProxyTargetEnvVarName];
-  if (target === undefined) {
-    return undefined;
-  }
-  return Object.fromEntries(
-    proxiedPathPrefixes.map((pathPrefix) => [
-      makePathPrefixProxyKey(pathPrefix),
-      { target, changeOrigin: false, ws: true },
-    ]),
-  );
-}
-
-// Vite treats plain string keys as `startsWith` matches, which would also
-// swallow unrelated client routes (e.g. "/api" would match an "/apis" page),
-// so the key is an anchored regex that only matches whole path segments.
-function makePathPrefixProxyKey(pathPrefix: string): string {
-  return `^${escapeRegExp(pathPrefix)}(?:/|\\?|$)`;
-}
-
-function escapeRegExp(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function throwIfDevProxyTargetMissing(): void {
-  if (process.env[devProxyTargetEnvVarName] === undefined) {
-    throw new Error(
-      `The environment variable ${devProxyTargetEnvVarName} is not set. It tells the ` +
-        "client dev server where the Wasp server is, so it can forward Wasp's routes to it.\n" +
-        "Run your app with `wasp start`, which sets it for you. If you are starting the " +
-        `dev server yourself, set it to the Wasp server's URL first, for example ` +
-        `${devProxyTargetEnvVarName}=http://localhost:3001.`,
-    );
-  }
-}
-
-// The dev server that serves your app, as opposed to the other things Vite
-// reports as `serve`: `vite preview` serves the built client on its own, and
-// Vitest starts a dev server that has nothing to proxy.
-function isAppDevServer({
-  command,
-  mode,
-  isPreview,
-}: Pick<ConfigEnv, "command" | "mode" | "isPreview">): boolean {
-  return command === "serve" && !isPreview && mode !== "test";
-}
-{=/ isSingleDeploymentAndDevelopment =}

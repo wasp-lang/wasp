@@ -122,7 +122,7 @@ function TaskView({
     <div className="space-y-3" data-testid="task-view">
       <div>
         <Link
-          to="/crud-tasks/:id"
+          to="/crud/:id"
           params={{ id: task.id }}
           className="hover:text-primary-600 text-lg font-medium text-gray-900 transition-colors"
           data-testid="text"

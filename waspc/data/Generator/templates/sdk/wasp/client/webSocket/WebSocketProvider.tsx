@@ -25,13 +25,14 @@ export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 )
 
 function getWebSocketUrl(): string {
+{=!
+  TODO: In production the server does not serve the client yet, so for now the
+  shared origin below only exists in development.
+  The client and the server share one origin, so the socket connects to the
+  page's own origin. During SSR and prerendering there is no `window`, and
+  `autoConnect` is off there anyway, so we just fall back to the API URL.
+=}
 {=# isSingleDeployment =}
-  // TODO: In production the server does not serve the client yet, so for now the
-  // shared origin below only exists in development.
-  // The client and the server share one origin, so the socket connects to the
-  // page's own origin (in development, the Vite dev server proxies it to the
-  // server process). During SSR and prerendering there is no `window`, and
-  // `autoConnect` is off there anyway, so we just hand back the API URL.
   return typeof window !== 'undefined' ? window.location.origin : config.apiUrl
 {=/ isSingleDeployment =}
 {=^ isSingleDeployment =}

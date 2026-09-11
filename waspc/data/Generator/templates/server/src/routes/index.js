@@ -20,12 +20,6 @@ import { makeWrongPortPage } from '../views/wrong-port.js'
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
-{=^ isDevelopment =}
-router.get('/', middleware, function (_req, res) {
-  res.status(200).send();
-})
-{=/ isDevelopment =}
-
 {=# isAuthEnabled =}
 router.use('/{= authRouteInRootRouter =}', middleware, auth)
 {=/ isAuthEnabled =}
@@ -45,9 +39,9 @@ router.use(apis)
 {=/ areThereAnyCustomApiRoutes =}
 
 {=# isDevelopment =}
-// Registered last, so if you declare an `api` at `/` it answers instead of this page.
-// The page is reachable only on the server's own port anyway, since the client dev
-// server does not proxy `/`.
+// Registered last, so an `api` at `/` answers instead of this page.
+// You normally reach this page only on the server's own port, since the client dev
+// server proxies `/` only when an `api` claims the root.
 router.get('/', middleware, function (_req, res) {
   const data = {
     appName: "{= appName =}",

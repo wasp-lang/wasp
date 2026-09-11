@@ -103,7 +103,7 @@ const featureGroups: FeatureGroup[] = [
         title: "Operations",
       },
       {
-        to: "/crud-tasks",
+        to: "/crud",
         title: "Automatic CRUD",
       },
       {

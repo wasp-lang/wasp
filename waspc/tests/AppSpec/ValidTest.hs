@@ -53,12 +53,6 @@ shouldWarnMentioning [Valid.GenericValidationWarning message] fragments =
 shouldWarnMentioning reported _ =
   expectationFailure $ "Expected a single warning, got: " ++ show reported
 
-shouldErrorMentioning :: [Valid.ValidationError] -> [String] -> Expectation
-shouldErrorMentioning [Valid.GenericValidationError message] fragments =
-  mapM_ (\fragment -> message `shouldSatisfy` (fragment `isInfixOf`)) fragments
-shouldErrorMentioning reported _ =
-  expectationFailure $ "Expected a single error, got: " ++ show reported
-
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
   describe "validateAppSpec" $ do
@@ -522,23 +516,32 @@ spec_AppSpecValid = do
       it "returns nothing for a POST api at the health route" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.POST, "/health")])
           `shouldBe` []
-      it "returns a warning for an api at an operation's route" $ do
-        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.GET, "/operations/get-tasks")])
+      it "returns a warning for a POST api at an operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/get-tasks")])
           `shouldWarnMentioning` ["myApi", "/operations/get-tasks"]
+      it "returns a warning for an ALL api at an operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.ALL, "/operations/get-tasks")])
+          `shouldWarnMentioning` ["myApi", "/operations/get-tasks"]
+      it "returns nothing for a GET api at an operation's route, since operations are POST" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.GET, "/operations/get-tasks")])
+          `shouldBe` []
       it "returns a warning for an api at a crud operation's route" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicCrudDecl "tasks" "TestEntity", makeBasicEntityDecl "TestEntity", makeBasicApiDecl "myApi" (AS.Api.POST, "/crud/tasks/get/")])
           `shouldWarnMentioning` ["myApi", "/crud/tasks/get/"]
+      it "returns nothing for a GET api at a crud operation's route, since crud operations are POST" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicCrudDecl "tasks" "TestEntity", makeBasicEntityDecl "TestEntity", makeBasicApiDecl "myApi" (AS.Api.GET, "/crud/tasks/get/")])
+          `shouldBe` []
       it "returns nothing for an api at a crud operation's route that the crud does not enable" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicCrudDecl "tasks" "TestEntity", makeBasicEntityDecl "TestEntity", makeBasicApiDecl "myApi" (AS.Api.POST, "/crud/tasks/create")])
           `shouldBe` []
-      it "returns an error for a GET api at the health route" $ do
+      it "returns a warning for a GET api at the health route" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.GET, "/health")])
-          `shouldErrorMentioning` ["myApi", "/health"]
-      it "returns an error for an ALL api at the health route with a trailing slash" $ do
+          `shouldWarnMentioning` ["myApi", "/health"]
+      it "returns a warning for an ALL api at the health route with a trailing slash" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.ALL, "/health/")])
-          `shouldErrorMentioning` ["myApi", "/health/"]
+          `shouldWarnMentioning` ["myApi", "/health/"]
 
-    describe "user apis without a static path prefix" $ do
+    describe "what a user api's path claims" $ do
       let makeSpecWithApiAt deploymentMode apiPath =
             basicAppSpec
               { AS.decls =
@@ -552,42 +555,61 @@ spec_AppSpecValid = do
         ASV.validateAppSpec (makeSpecWithApiAt AS.Deployment.Split "/:id") `shouldBe` []
       it "returns nothing for an api with a static prefix" $ do
         ASV.validateAppSpec (makeSpecWithApiAt AS.Deployment.Single "/foo/:id") `shouldBe` []
-      it "returns nothing for an api at the root, which the dev server does proxy" $ do
+      it "returns nothing for an api at the root, which claims only the root" $ do
         ASV.validateAppSpec (makeSpecWithApiAt AS.Deployment.Single "/") `shouldBe` []
-      it "returns a warning for an api starting with a pattern segment" $ do
+      it "warns about every page route when an api's path starts with a pattern segment" $ do
+        -- `/:id` has no static prefix, so the server claims the whole site.
         ASV.validateAppSpec (makeSpecWithApiAt AS.Deployment.Single "/:id")
-          `shouldWarnMentioning` ["myApi", "/:id"]
+          `shouldWarnMentioning` ["TestRoute", "/test", "/"]
 
     describe "page routes under paths the server handles" $ do
-      let makeSpecWithRouteAndApi routePath apiPath =
+      let makeSpecWithRouteAndApi routePath api =
             basicAppSpec
               { AS.decls =
                   [ basicAppDecl,
                     basicPageDecl,
                     makeRouteDeclAt "MyRoute" routePath,
-                    makeBasicApiDecl "myApi" (AS.Api.POST, apiPath)
+                    makeBasicApiDecl "myApi" api
                   ]
               }
       it "returns nothing for a route outside the server's paths" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" "/api/tasks") `shouldBe` []
-      it "returns a warning for a route at the root when an api claims it" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/" "/")
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" (AS.Api.GET, "/api/tasks")) `shouldBe` []
+      it "returns a warning for a route at the root when a GET api claims it" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/" (AS.Api.GET, "/"))
           `shouldWarnMentioning` ["MyRoute", "/", "/"]
       it "returns nothing for a route when an api claims only the root" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" "/") `shouldBe` []
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" (AS.Api.GET, "/")) `shouldBe` []
       it "returns nothing for a route that only shares segment text with a server path" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/operations-overview" "/api") `shouldBe` []
-      it "returns a warning for a route at an api's path, whatever the api's method" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" "/tasks")
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/operations-overview" (AS.Api.GET, "/api")) `shouldBe` []
+      it "returns a warning for a route at a GET api's path" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" (AS.Api.GET, "/tasks"))
           `shouldWarnMentioning` ["MyRoute", "/tasks", "/tasks"]
-      it "returns a warning for a route under an api's static path prefix" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/api/tasks/:id" "/api/:id")
+      it "returns a warning for a route at an ALL api's path" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" (AS.Api.ALL, "/tasks"))
+          `shouldWarnMentioning` ["MyRoute", "/tasks", "/tasks"]
+      it "returns nothing for a route at a POST api's path, since the browser asks for the page with GET" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" (AS.Api.POST, "/tasks")) `shouldBe` []
+      it "returns nothing for a route at a PATCH api's path" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/tasks" (AS.Api.PATCH, "/tasks")) `shouldBe` []
+      it "returns a warning for a route under a GET api's static path prefix" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/api/tasks/:id" (AS.Api.GET, "/api/:id"))
           `shouldWarnMentioning` ["MyRoute", "/api/tasks/:id", "/api"]
-      it "returns a warning for a route under one of Wasp's routes" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/operations/overview" "/api")
-          `shouldWarnMentioning` ["MyRoute", "/operations/overview", "/operations"]
+      it "returns nothing for a page route under Wasp's operations that is not an operation" $ do
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/operations/overview" (AS.Api.GET, "/api")) `shouldBe` []
+      it "returns nothing for a page route at an operation's path, since operations answer POST" $ do
+        ASV.validateAppSpec
+          ( basicAppSpec
+              { AS.decls =
+                  [ basicAppDecl,
+                    basicPageDecl,
+                    makeRouteDeclAt "MyRoute" "/operations/get-tasks",
+                    makeBasicQueryDecl "getTasks"
+                  ]
+              }
+          )
+          `shouldBe` []
       it "does not treat the auth routes as taken when auth is off" $ do
-        ASV.validateAppSpec (makeSpecWithRouteAndApi "/auth/login" "/api") `shouldBe` []
+        ASV.validateAppSpec (makeSpecWithRouteAndApi "/auth/login" (AS.Api.GET, "/api")) `shouldBe` []
 
     describe "should validate that there's at least one 'route' declaration" $ do
       it "returns no error if there is at least one 'route' declaration" $ do

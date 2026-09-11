@@ -22,7 +22,7 @@ const WASP_SERVER_URL =
 // The origin the client sends its API requests to. In dev mode the client dev server
 // proxies Wasp's routes to the server, so it is the app's own origin.
 // TODO: In build and deployed modes the client is still served separately, so it is the
-// server's own URL. Both become the app URL as the later stages of #4784 land.
+// server's own URL.
 export const WASP_API_URL = isDevMode ? WASP_APP_URL : WASP_SERVER_URL;
 
 /**

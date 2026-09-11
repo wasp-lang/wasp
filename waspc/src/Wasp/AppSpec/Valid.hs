@@ -11,15 +11,20 @@ module Wasp.AppSpec.Valid
     getValidDbSystem,
     isSingleDeploymentAndDevelopment,
     areWebSocketsUsed,
-    getWaspServerRoutePrefixes,
-    getServerPathPrefixes,
+    ServerPath (..),
+    ClaimedHttpMethods (..),
+    getServerPaths,
+    serverPathClaimedPath,
+    serverPathClaimedHttpMethods,
   )
 where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, groupBy, intercalate, nub, sortBy)
+import Data.List (find, groupBy, intercalate, sortBy, sortOn)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import qualified Text.Parsec as P
 import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
@@ -81,7 +86,6 @@ validateAppSpec spec =
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
           validateUserApisDoNotCollideWithWaspRoutes spec,
-          validateUserApisHaveStaticPathPrefixInSingleDeploymentMode spec,
           validatePageRoutesAreNotUnderServerPathPrefixes spec,
           validateUserNodeVersionRange spec,
           validateAtLeastOneRoute spec,
@@ -420,22 +424,22 @@ validateWebAppBaseDir spec = case maybeBaseDir of
     startsWithSlash ('/' : _) = True
     startsWithSlash _ = False
 
--- | Wasp registers its own routes ahead of the user's apis, so an api at one of Wasp's exact
--- routes would never be reached.
+-- | Wasp registers its own routes ahead of the user's apis, so an api that shares both the
+-- path and the method with one of them gets shadowed. We throw warnings in such cases.
 validateUserApisDoNotCollideWithWaspRoutes :: AppSpec -> [ValidationError]
 validateUserApisDoNotCollideWithWaspRoutes spec =
   concatMap validateUserApi (AS.getApis spec)
   where
     validateUserApi (apiName, api)
-      | apiPath == healthRoutePath && AS.Api.method api `elem` [AS.Api.GET, AS.Api.ALL] =
-          [ GenericValidationError $
+      | apiPath == healthRoutePath && apiAnswersTo AS.Api.GET =
+          [ GenericValidationWarning $
               "The api '"
                 ++ apiName
                 ++ "' has path "
                 ++ show (AS.Api.path api)
-                ++ ", which is Wasp's own health check route. Please use a different path."
+                ++ ", which is Wasp's own health check route, so Wasp's route would answer instead of the api."
           ]
-      | apiPath `elem` waspOperationAndCrudRoutePaths =
+      | apiPath `elem` waspOperationAndCrudRoutePaths && apiAnswersTo AS.Api.POST =
           [ GenericValidationWarning $
               "The api '"
                 ++ apiName
@@ -447,67 +451,35 @@ validateUserApisDoNotCollideWithWaspRoutes spec =
       where
         apiPath = stripTrailingSlashes $ AS.Api.path api
 
-    healthRoutePath = "/" ++ ServerRoutes.healthRouteInRootRouter
+        -- Operations and cruds are all POST, the health check is GET.
+        apiAnswersTo httpMethod = AS.Api.method api `elem` [httpMethod, AS.Api.ALL]
 
-    waspOperationAndCrudRoutePaths =
-      [ "/" ++ ServerRoutes.operationsRouteInRootRouter ++ "/" ++ ServerRoutes.operationRouteInOperationsRouter operation
-      | operation <- AS.getOperations spec
-      ]
-        ++ [ "/" ++ ServerRoutes.makeCrudOperationFullPath crudName crudOperation
-           | (crudName, crud) <- AS.getCruds spec,
-             (crudOperation, _) <- AS.Crud.toOperationList (AS.Crud.operations crud)
-           ]
-
--- | In single deployment mode the client dev server proxies the static path prefix of every api to the
--- server, so an api whose path has no static prefix is only reachable on the server port.
-validateUserApisHaveStaticPathPrefixInSingleDeploymentMode :: AppSpec -> [ValidationError]
-validateUserApisHaveStaticPathPrefixInSingleDeploymentMode spec
-  | getDeploymentMode spec == Split = []
-  | otherwise =
-      [ GenericValidationWarning $
-          "The api '"
-            ++ apiName
-            ++ "' has path "
-            ++ show apiPath
-            ++ ", "
-            ++ "which starts with a pattern segment, so it has no static path prefix the client dev server can proxy to the server."
-            ++ " In development it is reachable only on the server port; to reach it through the app URL, add a `server.proxy` entry for it to your `vite.config.ts`."
-      | (apiName, api) <- AS.getApis spec,
-        let apiPath = AS.Api.path api,
-        getStaticPathPrefix apiPath == "/",
-        stripTrailingSlashes apiPath /= "/"
-      ]
-
--- | Whether a path the server handles takes over the given path. A server path prefix claims
--- its whole subtree, except the root: an `api` at `/` answers `GET /`, it does not take over
--- every page below it.
-claimsPath :: String -> String -> Bool
-claimsPath serverPathPrefix path
-  | stripTrailingSlashes serverPathPrefix == "/" = stripTrailingSlashes path == "/"
-  | otherwise = serverPathPrefix `isPathSegmentPrefixOf` path
+    waspOperationAndCrudRoutePaths = getWaspOperationAndCrudRoutePaths spec
 
 -- TODO: Add `server.basePath` so users can move Wasp's routes and their apis under a
 -- prefix of their own (e.g. `/api`), which is the real fix for these collisions instead
 -- of asking them to rename their pages. Once it exists, point this warning at it as the
 -- way to resolve the conflict.
 
--- | Paths the server handles (Wasp's own routes and the user's apis) are never served by the client
--- when the client and the server share an origin, so a page route under one of them would be
--- answered by the server instead.
+-- | In single deployment mode, the client serves pages requested with `GET`, so a page route
+-- sharing a path with a server `GET` route gets shadowed. We throw warnings in such cases.
+-- Sharing a path with e.g. a `POST`-only api is fine, the browser's `GET` still reaches the client.
 validatePageRoutesAreNotUnderServerPathPrefixes :: AppSpec -> [ValidationError]
-validatePageRoutesAreNotUnderServerPathPrefixes spec =
-  [ GenericValidationWarning $
-      "The route '"
-        ++ routeName
-        ++ "' has path "
-        ++ show (Route.path route)
-        ++ ", which is under "
-        ++ show serverPathPrefix
-        ++ ", a path handled by the server (Wasp's own routes and your apis), so the server would answer instead of the page."
-  | (routeName, route) <- AS.getRoutes spec,
-    serverPathPrefix <- getServerPathPrefixes spec,
-    serverPathPrefix `claimsPath` Route.path route
-  ]
+validatePageRoutesAreNotUnderServerPathPrefixes spec
+  | getDeploymentMode spec == Split = []
+  | otherwise =
+      [ GenericValidationWarning $
+          "The route '"
+            ++ routeName
+            ++ "' has path "
+            ++ show (Route.path route)
+            ++ ", which is under "
+            ++ show (serverPathClaimedPath serverPath)
+            ++ ", a path handled by the server (Wasp's own routes and your apis), so the server would answer instead of the page."
+      | (routeName, route) <- AS.getRoutes spec,
+        serverPath <- getServerPaths spec,
+        serverPathClaimsHttpMethod serverPath AS.Api.GET (Route.path route)
+      ]
 
 validateUserNodeVersionRange :: AppSpec -> [ValidationError]
 validateUserNodeVersionRange spec =
@@ -627,31 +599,130 @@ isSingleDeploymentAndDevelopment :: AppSpec -> Bool
 isSingleDeploymentAndDevelopment spec = getDeploymentMode spec == Single && AS.isDevelopment spec
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- TODO: This is here only because defining it in `Wasp.Generator.WebSocket` would give
+-- us cyclic imports. The whole `Valid` module needs a cleanup.
 areWebSocketsUsed :: AppSpec -> Bool
 areWebSocketsUsed spec = isJust (App.webSocket $ snd $ getApp spec)
 
--- | Path prefixes under which the Wasp server registers its own routes, ahead of the user's apis.
--- This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
-getWaspServerRoutePrefixes :: AppSpec -> [String]
-getWaspServerRoutePrefixes spec =
-  map ("/" ++) $
-    [ServerRoutes.operationsRouteInRootRouter, ServerRoutes.healthRouteInRootRouter]
-      ++ [ServerRoutes.authRouteInRootRouter | isAuthEnabled spec]
-      ++ [ServerRoutes.crudRouteInRootRouter | not (null (AS.getCruds spec))]
-      ++ [ServerRoutes.webSocketRouteInRootRouter | areWebSocketsUsed spec]
+-- | A path the server answers on, and the methods it answers with. We claim a subtree only
+-- when we cannot name the path in full, so the client keeps the pages the server does not
+-- serve. An unclaimed `GET` renders a page; every other method stays with the server.
+data ServerPath
+  = -- | Exactly this path, and nothing under it.
+    ExactPath String ClaimedHttpMethods
+  | -- | This path and everything under it.
+    SubtreePath String ClaimedHttpMethods
+  deriving (Show, Eq)
 
--- | Every path prefix the server handles: Wasp's own routes and the static path prefix of each
--- user api and api namespace. An api with no static prefix would claim every path, so it is left
--- out; validation warns about it separately.
--- This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
-getServerPathPrefixes :: AppSpec -> [String]
-getServerPathPrefixes spec =
-  nub $ getWaspServerRoutePrefixes spec ++ userApiStaticPathPrefixes
+-- | The methods a server path answers on.
+data ClaimedHttpMethods
+  = -- | Every httpMethod there is, for paths whose routes we cannot enumerate (and so neither
+    -- can we their methods), and for an `api` declared as `ALL`.
+    AllHttpMethods
+  | OnlyHttpMethods (Set AS.Api.HttpMethod)
+  deriving (Show, Eq)
+
+-- | The path a server path claims. Used in the warning message.
+serverPathClaimedPath :: ServerPath -> String
+serverPathClaimedPath (ExactPath serverPath _) = serverPath
+serverPathClaimedPath (SubtreePath serverPath _) = serverPath
+
+-- | The methods a server path claims.
+serverPathClaimedHttpMethods :: ServerPath -> ClaimedHttpMethods
+serverPathClaimedHttpMethods (ExactPath _ httpMethods) = httpMethods
+serverPathClaimedHttpMethods (SubtreePath _ httpMethods) = httpMethods
+
+-- | Whether the server path takes over the given path, whatever the method.
+serverPathClaims :: ServerPath -> String -> Bool
+serverPathClaims (ExactPath serverPath _) path = stripTrailingSlashes serverPath == stripTrailingSlashes path
+serverPathClaims (SubtreePath serverPath _) path = serverPath `isPathSegmentPrefixOf` path
+
+-- | Whether the server path takes over the given path for the given method. An unclaimed
+-- `GET` is the client's, so a `GET` on a `POST`-only path renders the page rather than 404ing.
+serverPathClaimsHttpMethod :: ServerPath -> AS.Api.HttpMethod -> String -> Bool
+serverPathClaimsHttpMethod serverPath httpMethod path =
+  serverPath `serverPathClaims` path && claimsMethod (serverPathClaimedHttpMethods serverPath)
   where
-    userApiStaticPathPrefixes =
-      map getStaticPathPrefix $
-        map (AS.Api.path . snd) (AS.getApis spec)
-          ++ map (AS.ApiNamespace.path . snd) (AS.getApiNamespaces spec)
+    claimsMethod AllHttpMethods = True
+    claimsMethod (OnlyHttpMethods httpMethods) = httpMethod `Set.member` httpMethods
+
+-- | Every path the server answers on: Wasp's own routes and the user's apis.
+-- This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+getServerPaths :: AppSpec -> [ServerPath]
+getServerPaths spec = mergeServerPathsClaimingSamePath $ waspServerPaths ++ userApiServerPaths
+  where
+    waspServerPaths =
+      map (`ExactPath` onlyHttpMethod AS.Api.POST) (getWaspOperationAndCrudRoutePaths spec)
+        ++ [ExactPath healthRoutePath (onlyHttpMethod AS.Api.GET)]
+        -- We cannot enumerate the routes under these paths, so neither can we their methods.
+        ++ map (`SubtreePath` AllHttpMethods) waspSubtreePaths
+
+    -- TODO: Auth claims its whole subtree because there is no easy way to derive all of its
+    -- routes: they are spread across the auth generator and the enabled providers. Enumerate
+    -- them so that auth claims exact paths too.
+    waspSubtreePaths =
+      map ("/" ++) $
+        [ServerRoutes.authRouteInRootRouter | isAuthEnabled spec]
+          -- Socket.IO owns this whole path space, including its polling endpoints.
+          ++ [ServerRoutes.webSocketRouteInRootRouter | areWebSocketsUsed spec]
+
+    -- An `apiNamespace` claims nothing: it only customises middleware for the apis under
+    -- it, and each of those claims its own path. Middleware that answers requests itself,
+    -- such as one serving Swagger UI, is the user's own mount, like a route added in
+    -- `setupFn`, so they proxy it with their own `server.proxy` entry.
+    userApiServerPaths = map (toServerPath . AS.Api.httpRoute . snd) (AS.getApis spec)
+
+    -- A path we can spell out in full is claimed exactly. One with a pattern segment has no
+    -- such spelling, so we claim the subtree under its static prefix. For `/:id` that
+    -- subtree is the whole site.
+    toServerPath (httpMethod, path)
+      | staticPathPrefix == stripTrailingSlashes path = ExactPath staticPathPrefix httpMethods
+      | otherwise = SubtreePath staticPathPrefix httpMethods
+      where
+        staticPathPrefix = stripTrailingSlashes $ getStaticPathPrefix path
+        httpMethods = case httpMethod of
+          AS.Api.ALL -> AllHttpMethods
+          _ -> onlyHttpMethod httpMethod
+
+    onlyHttpMethod = OnlyHttpMethods . Set.singleton
+
+-- | Several apis, or an api and one of Wasp's routes, can claim the same path with different
+-- methods. They have to end up as one server path claiming all of those methods, so that
+-- whoever reads these (e.g. the dev proxy, which keys its entries by path) sees them all.
+mergeServerPathsClaimingSamePath :: [ServerPath] -> [ServerPath]
+mergeServerPathsClaimingSamePath = map mergeGroup . groupBy claimTheSame . sortOn claimKey
+  where
+    claimKey serverPath = (isSubtree serverPath, serverPathClaimedPath serverPath)
+    claimTheSame a b = claimKey a == claimKey b
+
+    isSubtree (SubtreePath _ _) = True
+    isSubtree (ExactPath _ _) = False
+
+    mergeGroup serverPaths@(firstServerPath : _) =
+      withClaimedHttpMethods firstServerPath $ foldr1 unionHttpMethods (map serverPathClaimedHttpMethods serverPaths)
+    mergeGroup [] = error "Impossible: groupBy never produces an empty group."
+
+    withClaimedHttpMethods (ExactPath path _) httpMethods = ExactPath path httpMethods
+    withClaimedHttpMethods (SubtreePath path _) httpMethods = SubtreePath path httpMethods
+
+    unionHttpMethods AllHttpMethods _ = AllHttpMethods
+    unionHttpMethods _ AllHttpMethods = AllHttpMethods
+    unionHttpMethods (OnlyHttpMethods a) (OnlyHttpMethods b) = OnlyHttpMethods (a `Set.union` b)
+
+-- | The path of the health check route the server registers.
+healthRoutePath :: String
+healthRoutePath = "/" ++ ServerRoutes.healthRouteInRootRouter
+
+-- | The full path of every operation and CRUD route the server registers.
+getWaspOperationAndCrudRoutePaths :: AppSpec -> [String]
+getWaspOperationAndCrudRoutePaths spec =
+  [ "/" ++ ServerRoutes.operationsRouteInRootRouter ++ "/" ++ ServerRoutes.operationRouteInOperationsRouter operation
+  | operation <- AS.getOperations spec
+  ]
+    ++ [ "/" ++ ServerRoutes.makeCrudOperationFullPath crudName crudOperation
+       | (crudName, crud) <- AS.getCruds spec,
+         (crudOperation, _) <- AS.Crud.toOperationList (AS.Crud.operations crud)
+       ]
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

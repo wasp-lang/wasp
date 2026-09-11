@@ -8,14 +8,17 @@ module Wasp.Generator.Common
     makeJsonWithEntityData,
     GeneratedAppComponentSrcDir,
     makeJsArrayFromHaskellList,
+    makeJsStringLiteral,
     dropExtensionFromImportPath,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
+import Data.Aeson.Text (encodeToLazyText)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import qualified Data.Text.Lazy as TL
 import StrongPath (Dir, File, Path, Posix, Rel, reldir)
 import qualified StrongPath as SP
 import StrongPath.Types (Path')
@@ -62,9 +65,13 @@ makeJsonWithEntityData name =
     entityNameToPrismaIdentifier = toLowerFirst
 
 makeJsArrayFromHaskellList :: [String] -> String
-makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
-  where
-    listOfJsStrings = map (\s -> "'" ++ s ++ "'") list
+makeJsArrayFromHaskellList list = "[" ++ intercalate ", " (map makeJsStringLiteral list) ++ "]"
+
+-- | Renders a string as a JS string literal.
+-- We must assume arbitrary user input (e.g. quotation mark collisions can happen),
+-- so it goes through a JSON encoder.
+makeJsStringLiteral :: String -> String
+makeJsStringLiteral = TL.unpack . encodeToLazyText
 
 dropExtensionFromImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
 dropExtensionFromImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP

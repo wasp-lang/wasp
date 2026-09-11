@@ -4,7 +4,7 @@ import StrongPath (absdirP)
 import Test.Hspec
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import Wasp.AppSpec.App.Deployment (DeploymentMode (..))
-import Wasp.Cli.RunConfigs (makeRunConfigs, showAppUrl, showRunConfigUrls)
+import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
 
 spec_showRunConfigUrls :: Spec
 spec_showRunConfigUrls = do
@@ -22,9 +22,5 @@ spec_showRunConfigUrls = do
         [ " ℹ Client: http://localhost:3000/app/",
           " ℹ Server: http://localhost:3001/"
         ]
-
-  it "shows just the app URL" $ do
-    showAppUrl (fst $ makeRunConfigs Single urls)
-      `shouldBe` " ℹ App: http://localhost:3000/app/"
   where
     urls = (Local {port = 3000, path = Just [absdirP|/app/|]}, Local {port = 3001, path = Nothing})

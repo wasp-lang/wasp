@@ -13,7 +13,6 @@
 
 type DeploymentMode = "single" | "split";
 
-// A total map, so a new deployment mode is a type error here instead of a wrong page.
 const frontendUrlIntros: Record<DeploymentMode, string> = {
   single: "Your app runs at this URL, open it in your browser:",
   split:

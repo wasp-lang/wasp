@@ -58,6 +58,10 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
   (warnings, appSpec) <- compile
 
   appComponentUrls <- makeDevAppComponentUrls appSpec args
+  -- TODO: These run configs are computed once, but `watch` recompiles the project
+  -- without restarting the client or server. If `app.deployment.mode` changes while
+  -- `wasp start` is running, both processes keep the env vars from the old mode until
+  -- manually restarted.
   let runConfigs = makeRunConfigs (getDeploymentMode appSpec) appComponentUrls
   assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir runConfigs
 

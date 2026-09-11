@@ -2,7 +2,6 @@ module Wasp.Cli.RunConfigs
   ( makeDefaultDevRunConfigs,
     makeRunConfigs,
     showRunConfigUrls,
-    showAppUrl,
   )
 where
 
@@ -39,10 +38,6 @@ showRunConfigUrls deploymentMode (clientRunConfig, serverRunConfig) =
       [ " ℹ Client: " ++ showUrl (WebAppRunConfig.url clientRunConfig),
         " ℹ Server: " ++ showUrl (ServerRunConfig.url serverRunConfig)
       ]
-
--- | Shows the single URL the whole app is reached on in single deployment mode.
-showAppUrl :: WebAppRunConfig -> String
-showAppUrl clientRunConfig = " ℹ App: " ++ showUrl (WebAppRunConfig.url clientRunConfig)
 
 -- The server and client URLs have different expectations for trailing
 -- slashes, so for display consistency we just ensure they both have it.
