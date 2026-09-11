@@ -1,5 +1,5 @@
 ---
-title: CI/CD Deployment
+title: Continuous deployment
 ---
 
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';

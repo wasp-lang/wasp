@@ -1,5 +1,5 @@
 ---
-title: 7. Adding Authentication
+title: 7. Adding authentication
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';

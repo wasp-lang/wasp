@@ -1,5 +1,5 @@
 ---
-title: Custom Vite Config
+title: Custom Vite config
 ---
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'

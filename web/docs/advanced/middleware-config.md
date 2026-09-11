@@ -1,5 +1,5 @@
 ---
-title: Configuring Middleware
+title: Middleware
 ---
 
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
@@ -35,7 +35,7 @@ You have three places where you can customize middleware:
     :::caution Modifying global middleware
     Please treat modifications to global middleware with extreme care as they will affect all operations and APIs. If you are unsure, use one of the other two options.
     :::
-    
+
 2. [per-api](#2-customize-api-specific-middleware): you can override middleware for a specific api route (e.g. `POST /webhook/callback`). This is helpful if you want to disable JSON parsing for some callback, for example.
 3. [per-path](#3-customize-per-path-middleware): this is helpful if you need to customize middleware for all methods under a given path.
    - It's helpful for things like "complex CORS requests" which may need to apply to both `OPTIONS` and `GET`, or to apply some middleware to a _set of `api` routes_.

@@ -1,5 +1,5 @@
 ---
-title: Web Sockets
+title: WebSockets
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';

@@ -1,5 +1,5 @@
 ---
-title: Static Asset Handling
+title: Static assets
 ---
 
 import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'

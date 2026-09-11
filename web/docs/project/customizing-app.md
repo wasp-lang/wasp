@@ -1,5 +1,5 @@
 ---
-title: Customizing the App
+title: "Customizing the <head>"
 ---
 
 import { CardLink } from '@site/src/components/CardLink';

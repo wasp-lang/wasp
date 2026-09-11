@@ -1,8 +1,7 @@
 ---
-title: From 0.25 to 0.26
+title: Migration from 0.25 to 0.26
+sidebar_label: From 0.25 to 0.26
 ---
-
-# Migration from 0.25 to 0.26
 
 import InstallInstructions from './\_install-instructions.md'
 

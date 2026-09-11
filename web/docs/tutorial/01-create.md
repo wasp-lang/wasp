@@ -1,5 +1,5 @@
 ---
-title: 1. Creating a New Project
+title: 1. Creating a new project
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';

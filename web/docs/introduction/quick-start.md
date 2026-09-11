@@ -1,5 +1,5 @@
 ---
-title: Quick Start
+title: Installation
 slug: /quick-start
 ---
 
@@ -37,7 +37,7 @@ That's it 🎉 You have successfully created a new full-stack web app at [http:/
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
 
 4. **Install Agent Plugin / Skills:**
-   
+
    **Claude Code:**
     ```bash
     claude plugin marketplace add wasp-lang/wasp-agent-plugins

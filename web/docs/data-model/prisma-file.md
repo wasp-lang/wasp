@@ -1,5 +1,5 @@
 ---
-title: Prisma Schema File
+title: Prisma Schema file
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'

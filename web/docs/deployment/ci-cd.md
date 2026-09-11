@@ -1,5 +1,5 @@
 ---
-title: CI/CD Overview
+title: CI & CD
 ---
 
 Setting up a CI/CD pipeline is an optional but highly recommended part of deploying applications.

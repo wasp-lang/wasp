@@ -1,5 +1,6 @@
 ---
-title: Auth Hooks
+title: Auth hooks
+sidebar_label: Hooks
 ---
 
 import { EmailPill, UsernameAndPasswordPill, GithubPill, GooglePill, KeycloakPill, SlackPill, DiscordPill } from "./Pills";

@@ -1,5 +1,5 @@
 ---
-title: Self-Hosted
+title: Self-hosted
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'

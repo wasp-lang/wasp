@@ -1,5 +1,5 @@
 ---
-title: Accessing User Data
+title: Accessing user data
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'

@@ -1,5 +1,5 @@
 ---
-title: Testing the build locally
+title: Testing locally
 ---
 
 import { SecretGeneratorBlock } from '../project/SecretGeneratorBlock'
