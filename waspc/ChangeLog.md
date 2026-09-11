@@ -28,6 +28,7 @@
 ### 🐞 Bug fixes
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
+- Fixed `wasp start` failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. Wasp no longer opens every file in `src/` during compilation. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
 
 ### 🔧 Small improvements
 
