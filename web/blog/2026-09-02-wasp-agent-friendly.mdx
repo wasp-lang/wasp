@@ -119,7 +119,7 @@ Users got around this by having different port configurations depending on the w
 With Wasp 0.26, this is no longer a problem. You can now have all the worktrees your heart desires, and run `wasp start` and `wasp start db` in each worktree with no interference.
 
 The solution seems simple enough - just get each process to dynamically choose an available port.
-The tricky part is communicating chosen ports to the other processes in the group, like telling the server where exactly to find the database.
+The tricky part is communicating the chosen ports to the other processes in the group, like telling the server where exactly to find the database.
 
 There are quite a few ways to approach this and plenty of edge cases to consider. It's all interesting stuff, but out of scope for a feature announcement - you don't need to know how it works to put it to use!
 
