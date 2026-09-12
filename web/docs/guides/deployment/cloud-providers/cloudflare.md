@@ -14,6 +14,26 @@ import { Client } from '../DeploymentTag'
 
 This guide shows you how to deploy your Wasp app's client to [Cloudflare](https://www.cloudflare.com/) Workers, a free hosting service. You will need a Cloudflare account to follow these instructions.
 
+:::info This guide is for split mode
+Hosting the client separately from the server is the [split deployment mode](../../../deployment/intro.md#deployment-modes). It is not the default, so opt into it in `main.wasp.ts`:
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  // highlight-next-line
+  deployment: { mode: "split" },
+});
+```
+
+In this mode:
+
+- `wasp build` builds only the server. You build the client yourself with `REACT_APP_API_URL` set to the server's origin, as shown below.
+- The server must know the client's origin: set `WASP_WEB_CLIENT_URL` to your Workers URL so CORS, e-mail links and OAuth redirects work.
+- OAuth redirect URIs point at the server: `<server_origin>/auth/<provider>/callback`.
+
+In the default single deployment mode the server serves the client, so there is no separate client host and this guide does not apply.
+:::
+
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
 ```bash

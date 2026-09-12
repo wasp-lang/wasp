@@ -23,16 +23,42 @@ This guide shows you how to deploy a Wasp application to [Coolify](https://cooli
 
 Deploying to Coolify involves:
 
-1. Creating Coolify apps (client, server, and database)
+1. Creating Coolify apps
 2. Building Docker images using GitHub Actions
 3. Triggering Coolify to pull and deploy the images
 
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The Docker image Wasp generates contains both the server and the built client, so one Coolify app plus the database is the whole Wasp app.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client is hosted separately, so you create a Coolify app for the server, one for the client and one for the database.
+
+</TabItem>
+</Tabs>
+
 ### Step 1: Set Up Your Domain
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+Point your DNS A record to your server IP:
+
+- `@` (root) → server IP (for `myapp.com`)
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
 Point your DNS A records to your server IP:
 
 - `@` (root) → server IP (for `myapp.com` - client)
 - `api` → server IP (for `api.myapp.com` - server)
+
+</TabItem>
+</Tabs>
 
 ### Step 2: Create Coolify Resources
 
@@ -46,6 +72,23 @@ Point your DNS A records to your server IP:
 
 #### Create the Server App
 
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+1. Create a new resource and select **Docker Image**
+2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
+3. Name it `myapp-server`
+4. Configure:
+   - **Domains**: `https://<your-domain>`
+   - **Docker Image Tag**: `main`
+   - **Port Exposes**: `3001`
+5. Click **Save**
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+Create the **server** app:
+
 1. Create a new resource and select **Docker Image**
 2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
 3. Name it `myapp-server`
@@ -55,7 +98,7 @@ Point your DNS A records to your server IP:
    - **Port Exposes**: `3001`
 5. Click **Save**
 
-#### Create the Client App
+Then the **client** app:
 
 1. Create a new resource and select **Docker Image**
 2. Set the image name to `ghcr.io/<your-github-username>/myapp-client`
@@ -66,6 +109,9 @@ Point your DNS A records to your server IP:
    - **Port Exposes**: `8043`
 5. Click **Save**
 
+</TabItem>
+</Tabs>
+
 ### Step 3: Configure Server Environment Variables
 
 In the server app, go to **Environment Variables** and add:
@@ -75,14 +121,120 @@ In the server app, go to **Environment Variables** and add:
 | `DATABASE_URL`        | The Postgres URL (internal) from step 2             |
 | `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
 | `PORT`                | `3001`                                              |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                             |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                         |
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+| Variable          | Value                   |
+| ----------------- | ----------------------- |
+| `WASP_SERVER_URL` | `https://<your-domain>` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it. If you use OAuth, register `https://<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+| Variable              | Value                       |
+| --------------------- | --------------------------- |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>` |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`     |
+
+If you use OAuth, register `https://api.<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+</Tabs>
 
 Add any other environment variables your app needs (from `.env.server`).
 
 ### Step 4: Create GitHub Action
 
 Create `.github/workflows/deploy.yml` in your repository:
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+```yaml title=".github/workflows/deploy.yml"
+name: "Deploy"
+
+on:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: deployment
+  cancel-in-progress: true
+
+env:
+  WASP_VERSION: "{pinnedLatestWaspVersion}"
+  SERVER_APP_NAME: "myapp-server"
+  DOCKER_REGISTRY: "ghcr.io"
+  DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
+  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-and-push-images:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    # Remove this block if your app is NOT in an 'app' folder
+    defaults:
+      run:
+        working-directory: ./app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: (server) Extract metadata for Docker
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "{minimumNodeJsVersion}"
+
+      - name: Install Wasp
+        shell: bash
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
+      - name: Install Wasp app dependencies
+        run: wasp install
+
+      - name: Build Wasp app
+        # wasp build also builds the client. Add any REACT_APP_* client env vars here.
+        run: wasp build
+
+      - name: (server) Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          # Remove 'app/' if your app is at the repo root
+          context: ./app/.wasp/out
+          file: ./app/.wasp/out/Dockerfile
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+
+      - name: Trigger Deploy Webhook
+        env:
+          SERVER_COOLIFY_WEBHOOK: ${{ secrets.SERVER_COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          curl "${{ env.SERVER_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
+```
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
 ```yaml title=".github/workflows/deploy.yml"
 name: "Deploy"
@@ -193,6 +345,9 @@ jobs:
           curl "${{ env.SERVER_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
 ```
 
+</TabItem>
+</Tabs>
+
 ### Step 5: Configure GitHub Secrets
 
 In your GitHub repository, go to **Settings > Secrets and variables > Actions** and add:
@@ -203,11 +358,7 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 2. Click **Webhooks**
 3. Copy the **Deploy Webhook** URL
 
-#### `CLIENT_COOLIFY_WEBHOOK`
-
-1. Go to your client app in Coolify
-2. Click **Webhooks**
-3. Copy the **Deploy Webhook** URL
+In split mode you also need a `CLIENT_COOLIFY_WEBHOOK`, the Deploy Webhook URL of your client app.
 
 #### `COOLIFY_TOKEN`
 
@@ -221,6 +372,6 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
-2. Create Docker images for server and client
-3. Push images to GitHub Container Registry
-4. Trigger Coolify to deploy the new images
+2. Create the Docker image (or images, in split mode)
+3. Push the image to GitHub Container Registry
+4. Trigger Coolify to deploy the new image

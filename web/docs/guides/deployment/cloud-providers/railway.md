@@ -13,17 +13,30 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the app (the server, which also serves the client) and the database with one command.
 
 ## Manual Deployment <Server /> <Client /> <Database />
 
-This guide shows you how to deploy the client, the server, and provision a database on Railway.
+This guide shows you how to deploy your Wasp app and provision a database on Railway.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The Docker image Wasp generates contains both the server and the built client, so one Railway service is the whole Wasp app.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The Docker image Wasp generates contains the server, and the client is a second Railway service serving static files.
+
+</TabItem>
+</Tabs>
 
 ### Prerequisites
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. Make sure your Wasp app is built by running `wasp build` in the project dir (pass any `REACT_APP_*` client env vars to it).
 1. Create a [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) account.
 1. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration&utm_source=docs&utm_campaign=wasp#installing-the-cli).
 1. Run `railway login` and a browser tab will open to authenticate you.
@@ -35,23 +48,21 @@ Let's create our Railway project:
 1. Go to your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp), click on **New Project**, and select **Deploy PostgreSQL** from the dropdown menu.
 1. Once the project is created, left-click on the **Create** button in the top right corner and select **Empty Service**.
 1. Click on the new service, and change the name to `server`.
-1. Create another empty service and name it `client`.
+1. In split mode, create another empty service and name it `client`.
 1. Deploy the changes by pressing the **Deploy** button on top.
 
 ### Deploy Your App to Railway
 
-#### Setup Domains
+#### Setup Domain
 
-We'll need the domains for both the `server` and `client` services:
+We'll need a domain for the `server` service:
 
 1. Go to the `server` instance's **Settings** tab, and click **Generate Domain**.
 1. Enter `8080` as the port and click **Generate Domain**.
-1. Do the same under the `client`'s **Settings**.
-1. Copy both domains, as we will need them later.
+1. Copy the domain, as we will need it later.
+1. In split mode, do the same under the `client`'s **Settings** and copy that domain too.
 
-#### Deploying the Server
-
-You'll deploy the server first:
+#### Deploying the App
 
 1. Move into the `.wasp/out` directory:
 
@@ -73,9 +84,7 @@ You'll deploy the server first:
 
    1. Click **Variable reference** and select `DATABASE_URL` (it will populate it with the correct value)
 
-   1. Add `WASP_WEB_CLIENT_URL` with the `client` domain (e.g. `https://client-production-XXXX.up.railway.app`). `https://` prefix is required!
-
-   1. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required!
+   1. Add `WASP_SERVER_URL` with the `server` domain (e.g. `https://server-production-XXXX.up.railway.app`). `https://` prefix is required! In the default single deployment mode `WASP_WEB_CLIENT_URL` defaults to it, so you don't need to set it; in split mode, add it with the `client` domain.
    1. Add `JWT_SECRET` with a random string at least 32 characters long<br /><SecretGeneratorBlock />
 
      <AddExternalAuthEnvVarsReminder />
@@ -91,9 +100,17 @@ You'll deploy the server first:
     We use the `--ci` flag to limit the log output to only the build process.
     </small>
 
-    Railway will locate the `Dockerfile` in `.wasp/out` and deploy your server.
+    Railway will locate the `Dockerfile` in `.wasp/out` and deploy your app. It is now live at the `server` domain. If you use OAuth, register `<server domain>/auth/<provider>/callback` as the redirect URI with your provider.
 
-#### Deploying the Client
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+That's the whole app: the pages and Wasp's routes are both served from the `server` domain, and there is nothing else to deploy.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+Now deploy the client to its own service:
 
 1. Create the production build from the project root, using the `server` domain as the `REACT_APP_API_URL`:
 
@@ -200,28 +217,27 @@ You'll deploy the server first:
 
     Select `client` when prompted to select a service.
 
+</TabItem>
+</Tabs>
 
 And now your Wasp should be deployed!
 
-Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp), click on your project and you should see your newly deployed services: PostgreSQL, Server, and Client.
+Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integration&utm_source=docs&utm_campaign=wasp), click on your project and you should see your newly deployed services: PostgreSQL and Server (plus Client, in split mode).
 
 ### Updates & Redeploying
 
 When you make updates and need to redeploy:
 
-1. Run `wasp build` to rebuild your app.
-1. Go into the `.wasp/out` directory and:
+1. Run `wasp build` to rebuild your app (with the same `REACT_APP_*` client env vars).
+1. Go into the `.wasp/out` directory and deploy with:
+    ```shell
+    railway up --ci
+    ```
 
-    Deploy the server with:
-    ```shell
-    railway up --ci
-    ```
-1. Rebuild the client from the project root:
-    ```shell
-    REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
-    ```
-    And then deploy the client with:
-    ```shell
-    cd .wasp/out/web-app/build
-    railway up --ci
-    ```
+In split mode, also rebuild the client from the project root and deploy it:
+
+```shell
+REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
+cd .wasp/out/web-app/build
+railway up --ci
+```

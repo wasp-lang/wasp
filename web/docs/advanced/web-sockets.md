@@ -11,6 +11,8 @@ Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](h
 
 We handle making sure your URLs are correctly setup, CORS is enabled, and provide a useful `useSocket` and `useSocketListener` abstractions for use in React components.
 
+The client connects to `config.apiUrl` and Socket.IO listens on `/socket.io`. In the default [single deployment mode](../deployment/intro.md#deployment-modes) that's the page's own origin, so the connection works through the same URL as the rest of your app, in development (where the client dev server proxies it) and in production. In split mode it's the server's own URL, taken from `REACT_APP_API_URL`.
+
 To get started, you need to:
 
 1. Define your WebSocket logic on the server.

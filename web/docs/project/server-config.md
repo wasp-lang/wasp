@@ -137,6 +137,43 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
+:::note Custom routes and the dev proxy
+This depends on your [deployment mode](../deployment/intro.md#deployment-modes):
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+In development the browser talks only to the client dev server, which proxies Wasp's own routes (`/auth`, `/operations`, `/crud`, `/health` and the WebSocket path) and the paths of your declared [`api`s](../advanced/apis.md) to the server. A route you add in `setupFn` (for example `app.get("/customRoute", ...)`) is reachable only on the server port (`http://localhost:3001/customRoute`), not through the app URL. If you want it on the app URL in development too, add a `server.proxy` entry to your `vite.config.ts` that targets `process.env.WASP_DEV_PROXY_TARGET`, the server URL `wasp start` passes to the client:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  server: {
+    proxy: {
+      ...(process.env.WASP_DEV_PROXY_TARGET && {
+        "/customRoute": process.env.WASP_DEV_PROXY_TARGET,
+      }),
+    },
+  },
+  plugins: [wasp()],
+});
+```
+
+The [kitchen-sink example](https://github.com/wasp-lang/wasp/blob/main/examples/kitchen-sink/vite.config.ts) does this for its `/customRoute`.
+
+In production the server serves both the client and your custom routes, so they are always reachable on the app URL. Keep in mind that a custom route with the same path as one of your pages shadows that page.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client and the server are separate origins in development and in production, so there is no proxy: a route you add in `setupFn` is reachable on the server's URL, for example `http://localhost:3001/customRoute` in development. Your pages are served by the client, so a custom route can never shadow one.
+
+</TabItem>
+</Tabs>
+:::
+
 For the full description of the `setupFn` field, check the [`Server` API Reference](../api/@wasp.sh/spec/interfaces/Server.md#setupfn).
 
 ## Middleware Config Function

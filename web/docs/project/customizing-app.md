@@ -61,6 +61,25 @@ export default app({
 })
 ```
 
+### Choosing the Deployment Mode
+
+The `deployment.mode` field decides how the client and the server of your app are deployed:
+
+- `"single"` (default): one deployable app serves both the client and the server.
+- `"split"`: the client and the server are deployed separately, each with its own URL.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
+  deployment: { mode: "split" },
+  // ...
+})
+```
+
 ## API Reference
 
 <CardLink

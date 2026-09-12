@@ -12,7 +12,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Deploy Wasp on Render <Server /> <Client /> <Database />
 
-This guide shows you how to deploy the server, client, and provision a database on Render.
+This guide shows you how to deploy your Wasp app and provision a database on Render. In the default single deployment mode the server serves the client, so one Web Service is the whole Wasp app; in [split mode](../../../deployment/intro.md#deployment-modes) the client is a separate Static Site.
 
 Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
 
@@ -26,7 +26,58 @@ To get started, follow these steps:
 
 ### Create the render.yaml Blueprint
 
-Create a `render.yaml` file in the root of your repository. This defines all three services (database, server, and client):
+Create a `render.yaml` file in the root of your repository, defining your services.
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The server serves the client, so you need two services: the database and one Web Service for the app.
+
+```yaml title="render.yaml"
+services:
+  # Wasp app (server + client) -- Render installs Wasp and builds from source
+  - type: web
+    name: <app-name>
+    runtime: node
+    plan: <plan>
+    region: <region>
+    branch: main
+    buildCommand: >-
+      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
+      export PATH="$(npm prefix -g)/bin:$PATH" &&
+      wasp install &&
+      wasp build &&
+      cd .wasp/out/server &&
+      npm install &&
+      npx prisma generate --schema=../db/schema.prisma &&
+      npm run bundle
+    startCommand: cd .wasp/out/server && npm run start-production
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: <app-name>-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WASP_SERVER_URL
+        sync: false # you'll fill this in after the first deploy
+      - key: NODE_VERSION
+        value: "24"
+
+databases:
+  - name: <app-name>-db
+    plan: <plan>
+    region: <region>
+    postgresMajorVersion: "18"
+```
+
+`wasp build` builds the client, so add any `REACT_APP_*` client env vars your app uses to the service's `envVars` (they are read at build time).
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client is hosted separately, so you need three services: the database, a Web Service for the server and a Static Site for the client.
 
 ```yaml title="render.yaml"
 services:
@@ -47,6 +98,7 @@ services:
       npx prisma generate --schema=../db/schema.prisma &&
       npm run bundle
     startCommand: cd .wasp/out/server && npm run start-production
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -90,6 +142,9 @@ databases:
     postgresMajorVersion: "18"
 ```
 
+</TabItem>
+</Tabs>
+
 You should replace the following values for your app:
 
 | Variable | Value | Example |
@@ -117,9 +172,29 @@ git push origin main
 2. Connect your Git repository and select the branch with the `render.yaml`.
 3. Render will parse the Blueprint and show the resources it will create. Do not fill out the environment variables form yet. Click **Apply**.
 
-This will try to create all three services. It will fail initially, as some environment variables are missing.
+This will try to create all the services. It will fail initially, as some environment variables are missing.
 
 #### Set the Environment Variables
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+Wait until the services are created. Go to the Web Service in the Render Dashboard and note its URL (usually `https://<app-name>.onrender.com`).
+
+On the Web Service, go to **Settings > Environment** and set the following variable. When you're done, click **Save and rebuild**:
+
+| Variable | Value |
+|---|---|
+| `WASP_SERVER_URL` | `https://<app-name>.onrender.com` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it.
+
+<AddExternalAuthEnvVarsReminder />
+
+If you use OAuth, register `https://<app-name>.onrender.com/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
 Wait until all services are created. Go to each one in the Render Dashboard and note its URL (usually `https://<app-name>-server.onrender.com` and `https://<app-name>-client.onrender.com`).
 
@@ -146,6 +221,11 @@ On the **client** Static Site, go to **Settings > Environment** and set the foll
 Rather than setting variables on each service separately, you can create an [Environment Group](https://docs.render.com/configure-environment-variables#environment-groups) and link it to both services to manage shared variables in one place. This is a best practice on the Render platform.
 :::
 
+If you use OAuth, register `https://<app-name>-server.onrender.com/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+</Tabs>
+
 ### Redeploying After Changes
 
 Render auto-deploys when it detects a new commit on the configured branch. Just push your changes:
@@ -157,5 +237,5 @@ git push origin main
 If you have new database model changes, make sure to run `wasp db migrate-dev` locally first and commit the generated migration files along with your code changes. The server runs `prisma migrate deploy` on startup, so new migrations are applied automatically on each deploy.
 
 :::note Build time
-Both services install Wasp and compile the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.
+Each service installs Wasp and compiles the app from source on each deploy. On the free tier, this can take 10-15 minutes. If builds consistently time out, consider upgrading to the Starter plan.
 :::

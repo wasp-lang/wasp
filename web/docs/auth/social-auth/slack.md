@@ -14,6 +14,7 @@ import SlackData from '../entities/\_slack-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
 import Collapse from '@site/src/components/Collapse';
+import RedirectUrlNote from './\_redirect-url-note.md';
 
 Wasp supports Slack Authentication out of the box.
 
@@ -90,6 +91,9 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
     - Enter the value `https://<subdomain>.loca.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
     - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
+    - In production the redirect URL is `https://your-app-url.com/auth/slack/callback`.
+
+<RedirectUrlNote />
 
 4. Hit **Save URLs**.
 5. Go to **Basic Information** tab
@@ -147,8 +151,8 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 ## Developing with Slack auth and HTTPS {#slack-https}
 
 Unlike most OAuth providers, Slack **requires HTTPS and publicly accessible URL for the OAuth redirect URL**.
-This means that we can't simply use `localhost:3001` as a base host for redirect urls. Instead, we need to configure
-Wasp server to be publicly available under HTTPS, even in the local development environment.
+This means that we can't simply use `localhost:3000` as a base host for redirect urls. Instead, we need to make
+the Wasp app publicly available under HTTPS, even in the local development environment.
 
 Fortunately, there are quite a few free and convenient tools available to simplify the process, such as
 [localtunnel.me](https://localtunnel.me/) (free) and [ngrok.com](https://ngrok.com) (lots of features,
@@ -158,7 +162,7 @@ but free tier is limited).
 
 Install localtunnel globally with `npm install -g localtunnel`.
 
-Start a tunnel with `lt --port 3001 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
+Start a tunnel with `lt --port 3000 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have. Port `3000` is the client dev server, which proxies the auth routes to the server, so one tunnel covers the whole app.
 
 :::info Subdomain option
 
@@ -172,18 +176,12 @@ After starting the tunnel, you will see your tunnel URL in the terminal. Go to t
 in a field that appears on the page the first time you open it in the browser. This is a basic anti-abuse mechanism. If you're not sure
 what your IP is, you can find it by running `curl ifconfig.me` or going to [ifconfig.me](https://ifconfig.me).
 
-Now that your server is exposed to the public, we need to configure Wasp to use the new public domain. This needs to be done in two places:
-server and client configuration.
-
-To configure client, add this line to your `.env.client` file (create it if doesn't exist):
-```bash title=".env.client"
-REACT_APP_API_URL=https://<subdomain>.loca.lt
-```
-
-Similarly, to configure the server, add this line to your `.env.server`:
+Now that your app is exposed to the public, we need to tell Wasp its new public origin so the OAuth redirect URI matches. Add this line to your `.env.server`:
 ```bash title=".env.server"
 WASP_SERVER_URL=https://<subdomain>.loca.lt
 ```
+
+You also need to allow the tunnel hostname in Vite, see [Local Network Testing](../../guides/debugging/local-network-testing.md#step-4-allow-the-host-in-vite-config).
 
 </Collapse>
 

@@ -13,6 +13,7 @@ import { CardLink } from '@site/src/components/CardLink';
 import GoogleData from '../entities/\_google-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
+import RedirectUrlNote from './\_redirect-url-note.md';
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
@@ -109,12 +110,14 @@ To use Google as an authentication method, you'll first need to create a Google 
     | - | ------------------------ | -------------------------------------------- |
     | 1 | Application type         | Web application                              |
     | 2 | Name                     | (your wasp app name)                         |
-    | 3 | Authorized redirect URIs | `http://localhost:3001/auth/google/callback` |
+    | 3 | Authorized redirect URIs | `http://localhost:3000/auth/google/callback` |
 
     :::note
-    Once you know on which URL(s) your API server will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
-    For example: `https://your-server-url.com/auth/google/callback`
+    Once you know on which URL(s) your app will be deployed, also add those URL(s) to the **Authorized redirect URIs**.\
+    For example: `https://your-app-url.com/auth/google/callback`
     :::
+
+<RedirectUrlNote />
 
     ![Google Console Screenshot 8](/img/integrations-google-v2-8.png)
 

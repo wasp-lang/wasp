@@ -4,11 +4,20 @@ title: Overview
 
 import { CardLink } from '@site/src/components/CardLink';
 
-Wasp apps are full-stack apps that consist of:
+Wasp apps are full-stack apps that consist of a Node.js server, a static client and a PostgreSQL database. How many things you deploy depends on your [deployment mode](../intro.md#deployment-modes):
 
-- A Node.js server.
-- A static client.
-- A PostgreSQL database.
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+You deploy **one app** and **one database**. `wasp build` builds the client and the server, and the generated Dockerfile packages them into a single image, which the server runs and serves the client from.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+You deploy **a static client**, **a server** and **one database**. `wasp build` builds only the server; you build the client yourself and upload it to a static host or CDN.
+
+</TabItem>
+</Tabs>
 
 To make deploying as smooth as possible, Wasp also offers a single-command deployment called **Wasp Deploy**.
 
@@ -19,7 +28,7 @@ To make deploying as smooth as possible, Wasp also offers a single-command deplo
   description="One-command deployment & redeployment"
 />
 
-But even when not using Wasp Deploy, you can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
+But even when not using Wasp Deploy, you can deploy the app **anywhere** where you can usually deploy Node.js apps or Docker images, and the database anywhere you can run PostgreSQL. For example, you can deploy your app on [Fly.io](https://fly.io/) and the database on [Neon](https://neon.tech/).
 
 You can read our guides on how to deploy your Wasp app to different platforms, both from cloud providers and on your own infrastructure:
 
@@ -37,6 +46,18 @@ You can read our guides on how to deploy your Wasp app to different platforms, b
   description="Use your own servers to host your app"
 />
 
+## Which method works with which mode {#which-method-works-with-which-mode}
+
+Every method below works in both deployment modes, except the static hosts, which host a client and therefore only make sense in split mode.
+
+| Method                                                                       | Single deployment          | Split deployment                          |
+| ---------------------------------------------------------------------------- | ----------------------------- | ------------------------------ |
+| [Wasp Deploy on Fly](./wasp-deploy/fly.md)                                    | One app plus the database     | Client and server apps plus the database |
+| [Wasp Deploy on Railway](./wasp-deploy/railway.md)                            | One service plus the database | Client and server services plus the database |
+| [Fly.io](../../guides/deployment/cloud-providers/flyio.md), [Railway](../../guides/deployment/cloud-providers/railway.md), [Heroku](../../guides/deployment/cloud-providers/heroku.md), [Render](../../guides/deployment/cloud-providers/render.md) | Yes | Yes, plus a static host for the client |
+| [Netlify](../../guides/deployment/cloud-providers/netlify.md), [Cloudflare](../../guides/deployment/cloud-providers/cloudflare.md) | Not applicable, they host static files only | Yes, for the client |
+| [Coolify](../../guides/deployment/self-hosted/coolify.md), [CapRover](../../guides/deployment/self-hosted/caprover.md), [your own VPS](../../guides/deployment/self-hosted/vps.md) | Yes | Yes |
+
 Regardless of how you choose to deploy your app (i.e., manually or using the Wasp CLI), you'll need to know about some common patterns covered below.
 
 :::tip Deployed? Get some swag! 👕🐝
@@ -49,7 +70,7 @@ fill [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) out and we'll mak
 ## Customizing the Dockerfile
 
 By default, Wasp generates a multi-stage Dockerfile.
-This file is used to build and run a Docker image with the Wasp-generated server code.
+This file is used to build and run a Docker image with the Wasp-generated server code and the built client files, which the server serves.
 It also runs any pending migrations.
 
 You can **add extra steps to this multi-stage `Dockerfile`** by creating your own `Dockerfile` in the project's root directory.
@@ -63,6 +84,7 @@ A few things to keep in mind:
 - If you override an intermediate build stage, no later build stages will be used unless you reproduce them below.
 - The generated Dockerfile's content is dynamic and depends on which features your app uses. The content can also change in future releases, so please verify it from time to time.
 - Make sure to supply `ENTRYPOINT` in your final build stage. Your changes won't have any effect if you don't.
+- If your final stage starts from scratch instead of continuing from ours, copy the client build too (`COPY web-app/build .wasp/out/web-app/build`), or the server won't have anything to serve.
 
 Read more in the official Docker docs on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/).
 

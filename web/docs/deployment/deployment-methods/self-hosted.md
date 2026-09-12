@@ -36,38 +36,78 @@ To successfully self-host your Wasp app, you need to have the following:
 
 To self-host your Wasp app, you'll follow these general steps:
 
-1. From your **app's code**, let Wasp build a **server app** and a **client app**.
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+1. From your **app's code**, let Wasp build the **app** (the server, which also serves the client).
+1. Set up the **server environment variables** on the server.
+1. Run a **database** on the server or use a managed database service.
+1. Run the **app** on the server, with or without Docker.
+1. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+1. From your **app's code**, let Wasp build the **server app**, and build the **client** yourself.
 1. Set up the **server environment variables** on the server.
 1. Run a **database** on the server or use a managed database service.
 1. Run the **server app** on the server, with or without Docker.
-1. Serve the **client app** with a static file server.
-1. Set up a **reverse proxy** on the server to be able to use a domain name with HTTPS for your app.
+1. Serve the **client's** static files, from your reverse proxy or from a static host.
+1. Set up a **reverse proxy** on the server to be able to use domain names with HTTPS for your app.
 
-<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup" />
+<ImgWithCaption source="/img/deploying/self-hosting.png" alt="One of many possible self-hosting setups" caption="One possible self-hosting setup in split mode" />
+
+</TabItem>
+</Tabs>
 
 ### Steps
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
 
 1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](/introduction/quick-start.md#installation).
 2. Get your **app's source code**.
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
 3. Install dependencies with **`wasp install`** and build your app with **`wasp build`**.
-4. Build and run the **server app**.
-   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server app.
-   - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
-   - When you run the server app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
+   - `wasp build` also builds the client, so pass any [client env vars](../env-vars.md#client-env-vars) your app uses to it.
+4. Build and run the **app**.
+   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the app. The image contains the server and the built client.
+   - We are using Docker to run the app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
+   - When you run the app with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
 5. Start the **database** on the server or use a managed database service.
    - We usually run the database in Docker on the same server, but you can run the database directly on the server.
    - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
-6. Build the **client app** into static files.
-   - Wasp outputs the client app in the `.wasp/out/web-app` directory.
-   <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](./cloud-providers.md#3-deploying-the-web-client) into static files.
-7. Install and set up a **reverse proxy** to serve your client and server apps.
+6. Install and set up a **reverse proxy** to serve your app over HTTPS.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
-   - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.
-8. Point your **domain(s)** to your server's IP address.
-   - We recommend setting `myapp.com` for the client and `api.myapp.com` for the server.
-   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure your [env variables](../env-vars.md) are using these client and server URLs.
+   - The reverse proxy forwards all requests for your domain to the app's port. The app serves both the pages and Wasp's routes.
+   - If the proxy runs a health check, point it at `/health`.
+7. Point your **domain** to your server's IP address.
+   - One domain is enough, for example `myapp.com`. Set `WASP_SERVER_URL=https://myapp.com` in the app's [env variables](../env-vars.md).
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](/introduction/quick-start.md#installation).
+2. Get your **app's source code**.
+   - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
+3. Install dependencies with **`wasp install`** and build the server with **`wasp build`**.
+   - Then build the **client** with `REACT_APP_API_URL` set to the server's origin, plus any other [client env vars](../env-vars.md#client-env-vars) your app uses: `REACT_APP_API_URL=https://api.myapp.com npx vite build`. The output is in `.wasp/out/web-app/build`.
+4. Build and run the **server app**.
+   - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server.
+   - We are using Docker to run the server, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
+   - When you run the server with Docker, you need to setup the server env variables. You can do this with a `.env` file or by passing the env variables directly to the `docker run` command.
+5. Start the **database** on the server or use a managed database service.
+   - We usually run the database in Docker on the same server, but you can run the database directly on the server.
+   - You can also use a managed database service which you can connect to from your server. This is a great option if you don't want to manage the database yourself, but it can be more expensive.
+6. Install and set up a **reverse proxy** to serve your app over HTTPS.
+   - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
+   - The proxy serves the client's static files on your app's domain, with a fallback to `200.html` for unknown paths, and forwards requests for the server's domain to the server's port.
+   - If the proxy runs a health check for the server, point it at `/health`.
+7. Point your **domains** to your server's IP address.
+   - You need two, for example `myapp.com` for the client and `api.myapp.com` for the server. Set `WASP_WEB_CLIENT_URL=https://myapp.com` and `WASP_SERVER_URL=https://api.myapp.com` in the server's [env variables](../env-vars.md).
+
+</TabItem>
+</Tabs>
 
 ## Database setup
 

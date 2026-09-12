@@ -23,11 +23,38 @@ This guide shows you how to deploy a Wasp application to [Caprover](https://capr
 
 Deploying to Caprover involves:
 
-1. Creating Caprover apps (client, server, and database)
+1. Creating Caprover apps
 2. Building Docker images using GitHub Actions
 3. Triggering Caprover to deploy the images
 
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+The Docker image Wasp generates contains both the server and the built client, so one Caprover app plus the database is the whole Wasp app.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+The client is hosted separately, so you create a Caprover app for the server, one for the client and one for the database.
+
+</TabItem>
+</Tabs>
+
 ### Step 1: Set Up Your Domain
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+Point your DNS A record to your server IP:
+
+- `@` (root) → server IP (for `myapp.com`)
+
+:::tip
+If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp-server.apps.mydomain.com` for quick testing.
+:::
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
 Point your DNS A records to your server IP:
 
@@ -37,6 +64,9 @@ Point your DNS A records to your server IP:
 :::tip
 If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp-client.apps.mydomain.com` and `https://myapp-server.apps.mydomain.com` for quick testing.
 :::
+
+</TabItem>
+</Tabs>
 
 ### Step 2: Create Caprover Apps
 
@@ -48,7 +78,23 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
 4. Deploy it
 5. Note the connection string: `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres`
 
-#### Create the Server App
+#### Create the App
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+1. Create a new app named `myapp-server`
+2. Go to **HTTP Settings**:
+   - Connect domain `https://<your-domain>`
+   - Click **Enable HTTPS**
+   - Set **Container HTTP Port** to `3001`
+   - Enable **Force HTTPS** and **Websocket Support**
+3. Click **Save & Restart**
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+Create the **server** app:
 
 1. Create a new app named `myapp-server`
 2. Go to **HTTP Settings**:
@@ -58,7 +104,7 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
    - Enable **Force HTTPS** and **Websocket Support**
 3. Click **Save & Restart**
 
-#### Create the Client App
+Then the **client** app:
 
 1. Create a new app named `myapp-client`
 2. Go to **HTTP Settings**:
@@ -67,6 +113,9 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
    - Set **Container HTTP Port** to `8043`
    - Enable **Force HTTPS** and **Websocket Support**
 3. Click **Save & Restart**
+
+</TabItem>
+</Tabs>
 
 ### Step 3: Configure Server Environment Variables
 
@@ -77,8 +126,28 @@ In the server app, go to **App Configs > Environment Variables** and add:
 | `DATABASE_URL`        | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
 | `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
 | `PORT`                | `3001`                                                                 |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+| Variable          | Value                   |
+| ----------------- | ----------------------- |
+| `WASP_SERVER_URL` | `https://<your-domain>` |
+
+`WASP_WEB_CLIENT_URL` defaults to `WASP_SERVER_URL`, so you don't need to set it. If you use OAuth, register `https://<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+| Variable              | Value                       |
+| --------------------- | --------------------------- |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>` |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`     |
+
+If you use OAuth, register `https://api.<your-domain>/auth/<provider>/callback` as the redirect URI with your provider.
+
+</TabItem>
+</Tabs>
 
 Add any other environment variables your app needs (from `.env.server`).
 
@@ -94,6 +163,93 @@ Add any other environment variables your app needs (from `.env.server`).
 ### Step 5: Create GitHub Action
 
 Create `.github/workflows/deploy.yml` in your repository:
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+```yaml title=".github/workflows/deploy.yml"
+name: "Deploy"
+
+on:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: deployment
+  cancel-in-progress: true
+
+env:
+  WASP_VERSION: "{pinnedLatestWaspVersion}"
+  SERVER_APP_NAME: "myapp-server"
+  DOCKER_REGISTRY: "ghcr.io"
+  DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
+  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-and-push-images:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    # Remove this block if your app is NOT in an 'app' folder
+    defaults:
+      run:
+        working-directory: ./app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: (server) Extract metadata for Docker
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "{minimumNodeJsVersion}"
+
+      - name: Install Wasp
+        shell: bash
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
+      - name: Install Wasp app dependencies
+        run: wasp install
+
+      - name: Build Wasp app
+        # wasp build also builds the client. Add any REACT_APP_* client env vars here.
+        run: wasp build
+
+      - name: (server) Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          # Remove 'app/' if your app is at the repo root
+          context: ./app/.wasp/out
+          file: ./app/.wasp/out/Dockerfile
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+
+      - name: (server) Deploy to Caprover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: ${{ env.SERVER_APP_NAME }}
+          token: ${{ secrets.SERVER_APP_TOKEN }}
+          image: ${{ steps.meta-server.outputs.tags }}
+```
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
 ```yaml title=".github/workflows/deploy.yml"
 name: "Deploy"
@@ -211,6 +367,9 @@ jobs:
           image: ${{ steps.meta-client.outputs.tags }}
 ```
 
+</TabItem>
+</Tabs>
+
 ### Step 6: Configure GitHub Secrets
 
 In your GitHub repository, go to **Settings > Secrets and variables > Actions** and add:
@@ -226,18 +385,13 @@ Your Caprover dashboard URL, e.g., `https://captain.apps.mydomain.com`
 3. Click **Enable App Token**
 4. Copy the token
 
-#### `CLIENT_APP_TOKEN`
-
-1. Go to your client app in Caprover
-2. Under **Deployment**, find **Method 1: Official CLI**
-3. Click **Enable App Token**
-4. Copy the token
+In split mode you also need a `CLIENT_APP_TOKEN`, obtained the same way from your client app in Caprover.
 
 ### Step 7: Deploy
 
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
-2. Create Docker images for server and client
-3. Push images to GitHub Container Registry
-4. Deploy both apps to Caprover
+2. Create the Docker image (or images, in split mode)
+3. Push the image to GitHub Container Registry
+4. Deploy the app to Caprover

@@ -5,7 +5,7 @@ title: Cloud Providers
 import BuildingTheWebClient from './_building-the-web-client.md'
 import { CardLink } from '@site/src/components/CardLink'
 
-You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.
+You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server (or a Docker image) and running a PostgreSQL database.
 
 ## Guides
 
@@ -33,43 +33,76 @@ Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/
 Deploying a Wasp app comes down to the following:
 
 1. Generating deployable code.
-2. Deploying the API server (backend).
-3. Deploying the web client (frontend).
-4. Deploying a PostgreSQL database and keeping it running.
+2. Deploying the app.
+3. Deploying a PostgreSQL database and keeping it running.
 
-Let's go through each of these steps.
+What exactly steps 1 and 2 produce depends on your [deployment mode](../intro.md#deployment-modes), so pick yours below and the steps will follow it.
 
 ### 1. Generating Deployable Code
 
-Running the command `wasp build` generates deployable code for the whole app in the `.wasp/out/` directory.
-
-```
-wasp build
-```
+Running the command `wasp build` generates deployable code for your app in the `.wasp/out/` directory. It needs your dependencies installed, so run `wasp install` first.
 
 :::caution PostgreSQL in production
 You won't be able to build the app if you are using SQLite as a database (which is the default database).
 You'll have to [switch to PostgreSQL](../../data-model/databases.md#migrating-from-sqlite-to-postgresql) before deploying to production.
 :::
 
-### 2. Deploying the API Server
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
 
-There's a Dockerfile that defines an image for building the server in the `.wasp/out` directory.
+`wasp build` also builds the client into static files in `.wasp/out/web-app/build`, so give it any [client env vars](../env-vars.md#client-env-vars) your app uses:
 
-To run the server in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
+```
+REACT_APP_SOME_VAR=somevalue wasp build
+```
 
-Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your server.
+</TabItem>
+<TabItem value="split" label="Split deployment">
 
-While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
+`wasp build` builds only the server:
 
-### 3. Deploying the Web Client
+```
+wasp build
+```
+
+You build the client yourself, with `REACT_APP_API_URL` set to the origin of the server you are about to deploy:
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `.wasp/out/web-app/build` directory, including the `200.html` file at the root that acts as the SPA fallback.
+The command above puts the client in `.wasp/out/web-app/build`, including the `200.html` file at the root that acts as the SPA fallback.
 
-Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
+</TabItem>
+</Tabs>
 
-### 4. Deploying the Database
+### 2. Deploying the App
+
+<Tabs groupId="deployment-mode">
+<TabItem value="single" label="Single deployment">
+
+There's a Dockerfile in the `.wasp/out` directory that defines an image with the server and the built client. The server serves the client's files next to Wasp's own routes (`/auth`, `/operations`, ...), so the whole app is reachable on one URL.
+
+To run the app in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
+
+Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your app. `WASP_SERVER_URL` is the app's public origin, and you can leave `WASP_WEB_CLIENT_URL` out.
+
+If your provider checks the app's health, point the check at `/health`, which returns `200` with `{"status":"ok"}`. `GET /` also returns `200`, but it serves your app's HTML.
+
+</TabItem>
+<TabItem value="split" label="Split deployment">
+
+There's a Dockerfile in the `.wasp/out` directory that defines an image with the server. Deploy this Docker image to a hosting provider that runs Node.js apps or Docker images, and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
+
+Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your server. `WASP_SERVER_URL` is the server's own origin, and `WASP_WEB_CLIENT_URL` has to be the client's URL, so that CORS, e-mail links and OAuth redirects point at it.
+
+The client is just a bunch of static files, so you can deploy the contents of `.wasp/out/web-app/build` to any static hosting provider, for example [Netlify](../../guides/deployment/cloud-providers/netlify.md) or [Cloudflare](../../guides/deployment/cloud-providers/cloudflare.md).
+
+If your provider checks the server's health, point the check at `/health`, which returns `200` with `{"status":"ok"}`.
+
+</TabItem>
+</Tabs>
+
+While these are the general instructions on deploying the app anywhere, we also have more detailed instructions for chosen providers above, so check that out for more guidance if you are deploying to one of those providers.
+
+### 3. Deploying the Database
 
 Any PostgreSQL database will do, as long as you provide the server with the correct `DATABASE_URL` env var and ensure that the database is accessible from the server.
