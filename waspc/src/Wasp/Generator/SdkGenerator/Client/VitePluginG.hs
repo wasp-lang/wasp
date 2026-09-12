@@ -1,14 +1,18 @@
 module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
+import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import qualified Data.Set as Set
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.Generator.Common (makeJsArrayFromHaskellList)
+import Wasp.AppSpec.Valid (ClaimedHttpMethods (..), ServerPath (..), getServerPaths, isSingleDeploymentAndDevelopment)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList, makeJsStringLiteral)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
@@ -40,6 +44,7 @@ genVitePlugins spec =
       genFileCopy [relfile|typescriptCheck.ts|],
       genVirtualUserModulesPlugin spec
     ]
+    <++> genDevProxy spec
     <++> genVirtualWaspModulesPlugin spec
   where
     genFileCopy = return . C.mkTmplFd . (C.vitePluginsDirInSdkTemplatesDir </>)
@@ -67,11 +72,12 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspConfig.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspConfig/index.ts|]
     tmplData =
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
+          "isSingleDeploymentAndDevelopment" .= isSingleDeploymentAndDevelopment spec,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
@@ -96,6 +102,19 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         -- Read more about libs versioning in `waspc/libs/README.md`.
         map WaspLib.packageName waspLibs
 
+genDevProxy :: AppSpec -> Generator [FileDraft]
+genDevProxy spec
+  | not (isSingleDeploymentAndDevelopment spec) = return []
+  | otherwise = return [C.mkTmplFdWithData tmplPath tmplData]
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspConfig/devProxy.ts|]
+    tmplData =
+      object
+        [ "devProxyTargetEnvVarName" .= WebApp.devProxyTargetEnvVarName,
+          "proxiedExactPaths" .= makeJsArrayOfProxiedPaths [(path, httpMethods) | ExactPath path httpMethods <- getServerPaths spec],
+          "proxiedSubtreePaths" .= makeJsArrayOfProxiedPaths [(path, httpMethods) | SubtreePath path httpMethods <- getServerPaths spec]
+        ]
+
 genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
@@ -116,3 +135,19 @@ genValidateEnvPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
 
     clientEnvSchemaValidationModulePath = SP.fromRelFileP . fromJust . SP.relFileToPosix $ clientEnvSchemaValidationModuleDir
     clientEnvSchemaValidationModuleDir = generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]
+
+-- | Renders the paths the dev proxy forwards, with the methods each one answers on, as
+-- `[{ path: "/health", httpMethods: ["GET"] }, { path: "/auth", httpMethods: "ALL" }]`. The
+-- template reads `"ALL"` as "forward everything here", and a list as "forward only these, the
+-- client serves the rest".
+makeJsArrayOfProxiedPaths :: [(String, ClaimedHttpMethods)] -> String
+makeJsArrayOfProxiedPaths proxiedPaths = renderJsArray (map renderProxiedPath proxiedPaths)
+  where
+    renderProxiedPath (path, claimedHttpMethods) =
+      "{ path: " ++ makeJsStringLiteral path ++ ", httpMethods: " ++ renderClaimedHttpMethods claimedHttpMethods ++ " }"
+
+    renderClaimedHttpMethods AllHttpMethods = makeJsStringLiteral (show AS.Api.ALL)
+    renderClaimedHttpMethods (OnlyHttpMethods httpMethods) =
+      renderJsArray (map (makeJsStringLiteral . show) $ Set.toAscList httpMethods)
+
+    renderJsArray items = "[" ++ intercalate ", " items ++ "]"

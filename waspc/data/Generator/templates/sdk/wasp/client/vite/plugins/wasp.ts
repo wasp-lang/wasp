@@ -9,7 +9,7 @@ import { detectServerImports } from "./detectServerImports.js";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
 import { typescriptCheck } from "./typescriptCheck.js";
-import { waspConfig } from "./waspConfig.js";
+import { waspConfig } from "./waspConfig/index.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;

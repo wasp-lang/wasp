@@ -245,7 +245,6 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.Common
     Wasp.Generator.Crud
-    Wasp.Generator.Crud.Routes
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -422,6 +421,7 @@ library
     Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
+    Wasp.ServerRoutes
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
@@ -437,6 +437,7 @@ library
     Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH
+    Wasp.Util.UrlPath
     Wasp.Util.WebRouterPath
     Wasp.Valid
     Wasp.Validator
@@ -608,6 +609,7 @@ test-suite waspc-tests
     Analyzer.TestUtil
     Analyzer.TypeChecker.InternalTest
     Analyzer.TypeCheckerTest
+    AppComponentUrlTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -626,8 +628,10 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
+    Generator.ServerGenerator.RunConfigTest
     Generator.ServerGeneratorTest
     Generator.WaspInfoTest
+    Generator.WebAppGenerator.RunConfigTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
@@ -665,6 +669,7 @@ test-suite waspc-tests
     Util.IO.RetryTest
     Util.Prisma
     Util.StrongPathTest
+    Util.UrlPathTest
     Util.WebRouterPathTest
     UtilTest
     ValidatorTest
@@ -683,6 +688,7 @@ test-suite wasp-cli-tests
     hspec,
     network,
     QuickCheck,
+    strong-path,
     tasty,
     tasty-hspec,
     time,
@@ -695,6 +701,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
     Wasp.Cli.PortTest
+    Wasp.Cli.RunConfigsTest
     Wasp.Cli.Util.EnvVarArgumentTest
 
 test-suite waspc-e2e-tests

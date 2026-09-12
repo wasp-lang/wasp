@@ -15,6 +15,20 @@ const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importId
 const userClientEnvSchema: UserClientEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
+{=!
+  TODO: This only applies in development for now, since the server does not
+  serve the client in production yet.
+  In single deployment mode the client talks to the server through its own origin,
+  so the server URL is optional (it is only used outside the browser).
+=}
+{=# isSingleDeployment =}
+const serverUrlSchema =
+  z.url({
+    error: '{= serverUrlEnvVarName =} must be a valid URL',
+  })
+  .optional()
+{=/ isSingleDeployment =}
+{=^ isSingleDeployment =}
 const serverUrlSchema =
   z.string({
     error: '{= serverUrlEnvVarName =} is required',
@@ -24,6 +38,7 @@ const serverUrlSchema =
       error: '{= serverUrlEnvVarName =} must be a valid URL',
     })
   )
+{=/ isSingleDeployment =}
 
 const waspDevClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,

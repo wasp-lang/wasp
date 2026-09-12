@@ -2,6 +2,13 @@
 /// <reference types="vitest/config" />
 import type { PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
+{=# isSingleDeploymentAndDevelopment =}
+import {
+  isAppDevServer,
+  makeDevServerProxy,
+  throwIfDevProxyTargetMissing,
+} from "./devProxy.js";
+{=/ isSingleDeploymentAndDevelopment =}
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -16,44 +23,33 @@ import { defaultExclude } from "vitest/config";
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
-const forcedOptions = {
-  base: "{= baseDir =}",
-  envPrefix: "REACT_APP_",
-  "build.outDir": "{= clientBuildDirPath =}",
-  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
-  // `build`, so it's not persisted in the final output.
-  "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),
-  "server.strictPort": true,
-  // `vite preview` falls back to `server` for most options, but not for `port`
-  // (it has its own default), so we have to set it separately.
-  "preview.port": envVarAsNumber("{= clientPortEnvVarName =}"),
-} as const;
-
-const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
-  base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
-  "server.port":
-    "To run the client on a different port, use `wasp start --client-port <port>`.",
-  "preview.port":
-    "To run the client on a different port, use `wasp build start --client-port <port>`.",
-};
-
 export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
     enforce: "pre",
-    config(config) {
+{=# isSingleDeploymentAndDevelopment =}
+    configureServer(server) {
+      if (isAppDevServer(server.config)) {
+        throwIfDevProxyTargetMissing();
+      }
+    },
+{=/ isSingleDeploymentAndDevelopment =}
+    config(config{=# isSingleDeploymentAndDevelopment =}, configEnv{=/ isSingleDeploymentAndDevelopment =}) {
       throwIfOverridingForcedOptions(config);
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: {=& depsExcludedFromOptimization =}
+          exclude: {=& depsExcludedFromOptimization =},
         },
         server: {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],
           host: useUserValue(config.server?.host, "0.0.0.0"),
+{=# isSingleDeploymentAndDevelopment =}
+          proxy: makeDevServerProxy(configEnv),
+{=/ isSingleDeploymentAndDevelopment =}
         },
         preview: {
           port: forcedOptions["preview.port"],
@@ -91,15 +87,33 @@ export function waspConfig(): PluginOption {
           globals: useUserValue(config.test?.globals, true),
           environment: useUserValue(config.test?.environment, "jsdom"),
           setupFiles: {=& vitest.setupFilesArray =},
-          exclude: [
-            ...defaultExclude,
-            "{= vitest.excludeWaspArtefactsPattern =}",
-          ],
+          exclude: [...defaultExclude, "{= vitest.excludeWaspArtefactsPattern =}"],
         },
       };
     },
   };
 }
+
+const forcedOptions = {
+  base: "{= baseDir =}",
+  envPrefix: "REACT_APP_",
+  "build.outDir": "{= clientBuildDirPath =}",
+  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
+  // `build`, so it's not persisted in the final output.
+  "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),
+  "server.strictPort": true,
+  // `vite preview` falls back to `server` for most options, but not for `port`
+  // (it has its own default), so we have to set it separately.
+  "preview.port": envVarAsNumber("{= clientPortEnvVarName =}"),
+} as const;
+
+const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
+  base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
+  "server.port":
+    "To run the client on a different port, use `wasp start --client-port <port>`.",
+  "preview.port":
+    "To run the client on a different port, use `wasp build start --client-port <port>`.",
+};
 
 function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;

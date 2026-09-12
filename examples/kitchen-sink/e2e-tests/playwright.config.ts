@@ -5,11 +5,25 @@ const WASP_APP_RUNNER_CLI_CMD =
 const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
 const WASP_CLI_CMD = process.env.WASP_CLI_CMD ?? "wasp-cli";
 
-export const WASP_SERVER_PORT = 3001;
-export const WASP_SERVER_URL =
+const isDeployedMode = WASP_RUN_MODE === "deployed";
+const isDevMode = WASP_RUN_MODE === "dev";
+
+const WASP_SERVER_PORT = 3001;
+const WASP_CLIENT_PORT = 3000;
+
+// In dev mode Vite serves the app and proxies API requests to the server.
+// TODO: In build mode a single container serves both the app and the API on the server port.
+export const WASP_APP_URL =
+  process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${WASP_CLIENT_PORT}`;
+
+const WASP_SERVER_URL =
   process.env.PLAYWRIGHT_SERVER_URL ?? `http://localhost:${WASP_SERVER_PORT}`;
 
-const isDeployedMode = WASP_RUN_MODE === "deployed";
+// The origin the client sends its API requests to. In dev mode the client dev server
+// proxies Wasp's routes to the server, so it is the app's own origin.
+// TODO: In build and deployed modes the client is still served separately, so it is the
+// server's own URL.
+export const WASP_API_URL = isDevMode ? WASP_APP_URL : WASP_SERVER_URL;
 
 /**
  * Read environment variables from file.
@@ -35,7 +49,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+    baseURL: WASP_APP_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -58,8 +72,8 @@ export default defineConfig({
     ? undefined
     : {
         command: `${WASP_APP_RUNNER_CLI_CMD} ${WASP_RUN_MODE} --path-to-app=../ --wasp-cli-cmd=${WASP_CLI_CMD}`,
-        // Wait for the backend to start
-        url: `http://localhost:${WASP_SERVER_PORT}`,
+        // Wait for the server to start.
+        url: `http://localhost:${WASP_SERVER_PORT}/health`,
         reuseExistingServer: !process.env.CI,
         timeout: 180 * 1000,
         gracefulShutdown: { signal: "SIGTERM", timeout: 500 },

@@ -5,7 +5,6 @@
 
 module Wasp.Generator.ServerGenerator
   ( genServer,
-    operationsRouteInRootRouter,
     npmDepsFromWasp,
 
     -- * Exported for testing only
@@ -37,15 +36,15 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import Wasp.AppSpec.App.Deployment (deploymentModeName)
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getDeploymentMode, getLowestNodeVersionUserAllows, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
-import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
@@ -75,6 +74,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -292,17 +292,17 @@ genRoutesIndex spec =
   where
     tmplData =
       object
-        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+        [ "authRouteInRootRouter" .= ServerRoutes.authRouteInRootRouter,
+          "operationsRouteInRootRouter" .= ServerRoutes.operationsRouteInRootRouter,
+          "crudRouteInRootRouter" .= ServerRoutes.crudRouteInRootRouter,
+          "healthRouteInRootRouter" .= ServerRoutes.healthRouteInRootRouter,
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
+          "deploymentMode" .= deploymentModeName (getDeploymentMode spec),
           "appName" .= (fst $ getApp spec :: String)
         ]
-
-operationsRouteInRootRouter :: String
-operationsRouteInRootRouter = "operations"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

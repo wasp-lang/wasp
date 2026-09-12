@@ -6,6 +6,7 @@ where
 
 import Wasp.AppComponentUrl (AppComponentUrl)
 import qualified Wasp.AppComponentUrl as AppComponentUrl
+import Wasp.AppSpec.App.Deployment (DeploymentMode (..))
 import Wasp.Env (EnvVar, HasEnvVars (..))
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 
@@ -24,11 +25,19 @@ instance HasEnvVars ServerRunConfig where
   getEnvVars = envVars
   setEnvVars config newEnvVars = config {envVars = newEnvVars}
 
-makeServerRunConfig :: AppComponentUrl -> String -> ServerRunConfig
-makeServerRunConfig expectedUrl clientUrl =
+makeServerRunConfig :: DeploymentMode -> AppComponentUrl -> AppComponentUrl -> ServerRunConfig
+makeServerRunConfig deploymentMode expectedUrl clientUrl =
   ServerRunConfig
     expectedUrl
-    [ (Common.clientUrlEnvVarName, clientUrl),
-      (Common.serverUrlEnvVarName, AppComponentUrl.url expectedUrl),
+    [ (Common.clientUrlEnvVarName, AppComponentUrl.url clientUrl),
+      (Common.serverUrlEnvVarName, publicServerUrl),
       (Common.serverPortEnvVarName, show $ AppComponentUrl.port expectedUrl)
     ]
+  where
+    publicServerUrl = case deploymentMode of
+      -- The server is reached through the client's origin, in dev via the
+      -- Vite proxy and in production because the server serves the client.
+      -- TODO: production does not serve the client from the server yet, and
+      -- the client URL will need the client base dir appended once it does.
+      Single -> AppComponentUrl.origin clientUrl
+      Split -> AppComponentUrl.url expectedUrl

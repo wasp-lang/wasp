@@ -12,6 +12,7 @@
 - Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
+- Wasp now serves a health check at `GET /health`, replacing the empty `200` the server used to answer at `GET /`. This also means `/health` is now a reserved Wasp route. ([#4835](https://github.com/wasp-lang/wasp/pull/4835))
 - Wasp apps can now deploy as one app (server serves the client), which allows simple single origin deployment. Wasp will default to the new single app deployment. ([#4834](https://github.com/wasp-lang/wasp/pull/4834))
 
 ### 🎉 New Features
@@ -25,6 +26,7 @@
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
+- An `api` can now declare the `PATCH` method, instead of having to fall back to `ALL`. ([#4835](https://github.com/wasp-lang/wasp/pull/4835))
 
 ### 🐞 Bug fixes
 

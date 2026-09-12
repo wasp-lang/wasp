@@ -1085,7 +1085,7 @@ export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
  *
  * Use `"ALL"` to match any method.
  */
-export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 /**
  * A background job. Can be submitted ad-hoc or run on a recurring schedule.

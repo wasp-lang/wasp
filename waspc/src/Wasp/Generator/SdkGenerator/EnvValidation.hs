@@ -11,7 +11,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isSingleDeploymentAndDevelopment)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
@@ -76,7 +76,11 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema,
+          -- TODO: Wired to `isSingleDeploymentAndDevelopment` for now, since the
+          -- server only serves the client in development. It becomes a plain
+          -- `Single` mode check once it serves it in production too.
+          "isSingleDeployment" .= isSingleDeploymentAndDevelopment spec
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
