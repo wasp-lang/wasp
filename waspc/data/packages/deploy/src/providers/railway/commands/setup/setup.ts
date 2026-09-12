@@ -5,6 +5,7 @@ import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
+  DeploymentMode,
   getClientDeploymentDir,
   getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
@@ -57,7 +58,7 @@ export async function setup(
     workspace: options.workspace,
   });
 
-  await ensureWaspProjectIsBuilt(options);
+  const { deploymentMode } = await ensureWaspProjectIsBuilt(options);
 
   const dbService = project.findService(deploymentInstructions.dbServiceName);
   if (dbService) {
@@ -71,7 +72,18 @@ export async function setup(
     await setupDb(deploymentInstructions);
   }
 
-  if (project.doesServiceExist(deploymentInstructions.clientServiceName)) {
+  if (deploymentMode === "single") {
+    waspSays(
+      "Single deployment mode: the server service also serves the web client. Skipping client setup.",
+    );
+    if (options.clientSecret.length > 0) {
+      waspSays(
+        "The --client-secret option has no effect in single deployment mode.",
+      );
+    }
+  } else if (
+    project.doesServiceExist(deploymentInstructions.clientServiceName)
+  ) {
     waspSays("Client service already exists. Skipping client setup.");
   } else {
     await setupClient(deploymentInstructions);
@@ -80,7 +92,7 @@ export async function setup(
   if (project.doesServiceExist(deploymentInstructions.serverServiceName)) {
     waspSays("Server service already exists. Skipping server setup.");
   } else {
-    await setupServer(deploymentInstructions);
+    await setupServer(deploymentInstructions, deploymentMode);
   }
 }
 
@@ -158,17 +170,22 @@ async function setupDb({
   await waitForServiceDeploymentSuccess(dbService, options);
 }
 
-async function setupServer({
-  cmdOptions: options,
-  serverServiceName,
-  clientServiceName,
-  dbServiceName,
-}: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
+async function setupServer(
+  {
+    cmdOptions: options,
+    serverServiceName,
+    clientServiceName,
+    dbServiceName,
+  }: DeploymentInstructions<SetupCmdOptions>,
+  deploymentMode: DeploymentMode,
+): Promise<void> {
   waspSays(`Setting up server app with name ${serverServiceName}`);
 
-  // The client service needs a URL so it can be referenced in the
-  // server service env variables.
-  await generateServiceUrl(clientServiceName, clientAppPort, options);
+  if (deploymentMode === "split") {
+    // The client service needs a URL so it can be referenced in the
+    // server service env variables.
+    await generateServiceUrl(clientServiceName, clientAppPort, options);
+  }
 
   const serverDeploymentDir = getServerDeploymentDir(options.waspProjectDir);
   const railwayCli = createCommandWithCwd(
@@ -176,12 +193,14 @@ async function setupServer({
     serverDeploymentDir,
   );
 
-  const clientUrl = `https://${getRailwayEnvVarValueReference(
-    "RAILWAY_PUBLIC_DOMAIN",
-    { serviceName: clientServiceName },
-  )}`;
   // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
   const serverUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
+  // In single deployment mode the server service serves the web client, so the
+  // client lives on the server origin.
+  const clientUrl =
+    deploymentMode === "single"
+      ? serverUrl
+      : `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN", { serviceName: clientServiceName })}`;
   const databaseUrl = getRailwayEnvVarValueReference("DATABASE_URL", {
     serviceName: dbServiceName,
   });

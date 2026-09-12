@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "node:path";
+import * as z from "zod";
 
 import { WaspCliExe, WaspProjectDir } from "./brandedTypes.js";
 import { assertDirExists, assertDirPathIsAbsolute } from "./validation.js";
@@ -50,6 +51,51 @@ export function getClientBuildArtefactsDir(
 
 function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {
   return path.join(waspProjectDir, ".wasp", "out");
+}
+
+export function getWaspInfoPath(waspProjectDir: WaspProjectDir): string {
+  return path.join(getWaspBuildDir(waspProjectDir), ".waspinfo");
+}
+
+const waspInfoSchema = z.object({
+  // "single": the server serves the web client, one app/service to deploy.
+  // "split": the client is a separate static app/service, the server is CORS'd.
+  deploymentMode: z.enum(["single", "split"]).optional(),
+});
+
+export type WaspInfo = z.infer<typeof waspInfoSchema>;
+
+export type DeploymentMode = NonNullable<WaspInfo["deploymentMode"]>;
+
+// `wasp build` writes `.wasp/out/.waspinfo`, so call this only after the
+// project has been built.
+export function readWaspInfo(waspProjectDir: WaspProjectDir): WaspInfo {
+  const waspInfoPath = getWaspInfoPath(waspProjectDir);
+
+  let contents: string;
+  try {
+    contents = fs.readFileSync(waspInfoPath, "utf8");
+  } catch {
+    throw new Error(
+      `Could not read ${waspInfoPath}. Run \`wasp build\` and retry.`,
+    );
+  }
+
+  try {
+    return waspInfoSchema.parse(JSON.parse(contents));
+  } catch (error) {
+    throw new Error(
+      `${waspInfoPath} is not a valid .waspinfo file (${describeError(error)}). ` +
+        "Run `wasp build` with the current Wasp CLI and retry.",
+    );
+  }
+}
+
+function describeError(error: unknown): string {
+  if (error instanceof z.ZodError) {
+    return z.prettifyError(error);
+  }
+  return error instanceof Error ? error.message : String(error);
 }
 
 export function getServerDeploymentDir(waspProjectDir: WaspProjectDir): string {

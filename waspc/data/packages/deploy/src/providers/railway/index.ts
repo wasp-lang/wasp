@@ -36,7 +36,7 @@ class RailwayCommand extends Command {
       [],
     ).option(
       "--client-secret <clientSecret>",
-      "secret to set on the client app (of form FOO=BAR)",
+      "secret to set on the client app (of form FOO=BAR) (split deployment mode only)",
       collect,
       [],
     );
@@ -44,7 +44,7 @@ class RailwayCommand extends Command {
   addCustomServerUrlOption(): this {
     return this.option(
       "--custom-server-url <url>",
-      "URL of the server that the client will connect to",
+      "URL of the server that the client will connect to (split deployment mode only)",
     );
   }
   addDbOptions(): this {
@@ -146,7 +146,10 @@ function makeRailwayDeployCommand(): Command {
   return new RailwayCommand("deploy")
     .description("Deploys the app to Railway")
     .addProjectNameArgument()
-    .option("--skip-client", "do not deploy the web client")
+    .option(
+      "--skip-client",
+      "do not deploy the web client (split deployment mode only)",
+    )
     .option("--skip-server", "do not deploy the server")
     .option(
       "--existing-project-id [projectId]",

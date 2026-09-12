@@ -38,15 +38,29 @@ export async function deploy(
 
   waspSays("Deploying your Wasp app to Railway!");
 
-  await ensureWaspProjectIsBuilt(options);
+  const { deploymentMode } = await ensureWaspProjectIsBuilt(options);
 
   if (options.skipServer) {
     waspSays("Skipping server deploy due to CLI option.");
   } else {
-    await deployServer(deploymentInstructions);
+    await deployServer(deploymentInstructions, deploymentMode);
   }
 
-  if (options.skipClient) {
+  if (deploymentMode === "single") {
+    waspSays(
+      "Single deployment mode: the server service also serves the web client. Skipping client deploy.",
+    );
+    if (options.skipClient) {
+      waspSays(
+        "The --skip-client option has no effect in single deployment mode.",
+      );
+    }
+    if (options.customServerUrl) {
+      waspSays(
+        "The --custom-server-url option has no effect in single deployment mode, the client always uses its own origin.",
+      );
+    }
+  } else if (options.skipClient) {
     waspSays("Skipping client deploy due to CLI option.");
   } else {
     await deployClient(deploymentInstructions);

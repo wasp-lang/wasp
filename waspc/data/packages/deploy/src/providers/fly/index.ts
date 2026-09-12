@@ -76,7 +76,7 @@ class FlyCommand extends Command {
       [],
     ).option(
       "--client-secret <clientSecret>",
-      "secret to set on the client app (of form FOO=BAR)",
+      "secret to set on the client app (of form FOO=BAR) (split deployment mode only)",
       collect,
       [],
     );
@@ -84,7 +84,7 @@ class FlyCommand extends Command {
   addCustomServerUrlOption(): this {
     return this.option(
       "--custom-server-url <url>",
-      "URL of the server that the client will connect to",
+      "URL of the server that the client will connect to (split deployment mode only)",
     );
   }
 }
@@ -193,7 +193,10 @@ function makeFlySetupCommand(): Command {
 function makeFlyDeployCommand(): Command {
   return new FlyCommand("deploy")
     .description("(Re-)Deploy existing app to Fly.io")
-    .option("--skip-client", "do not deploy the web client")
+    .option(
+      "--skip-client",
+      "do not deploy the web client (split deployment mode only)",
+    )
     .option("--skip-server", "do not deploy the server")
     .addLocalBuildOption()
     .addCustomServerUrlOption()

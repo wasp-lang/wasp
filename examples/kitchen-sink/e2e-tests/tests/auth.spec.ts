@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { WASP_API_URL } from "../playwright.config";
+import { WASP_APP_URL } from "../playwright.config";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
 import {
   generateRandomEmail,
@@ -13,7 +13,7 @@ test.describe("auth", () => {
     await page.goto("/signup");
 
     await expect(
-      page.locator(`a[href='${WASP_API_URL}/auth/google/login']`),
+      page.locator(`a[href='${WASP_APP_URL}/auth/google/login']`),
     ).toBeVisible();
   });
 
