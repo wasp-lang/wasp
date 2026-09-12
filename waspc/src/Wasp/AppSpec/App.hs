@@ -41,7 +41,7 @@ instance IsDecl App
 
 getDeploymentMode :: App -> Deployment.DeploymentMode
 getDeploymentMode app =
-  fromMaybe Deployment.Split $ deployment app >>= Deployment.mode
+  fromMaybe Deployment.defaultMode $ deployment app >>= Deployment.mode
 
 instance Inspectable App where
   inspect app =

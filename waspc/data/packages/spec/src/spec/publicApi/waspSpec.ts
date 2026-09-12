@@ -88,7 +88,12 @@ export interface Deployment {
   /**
    * How the client and server are deployed.
    *
-   * @default "split"
+   * - `"single"`: one deployable app that serves both the client and the
+   *   server.
+   * - `"split"`: the client and the server are deployed separately, each with
+   *   its own URL.
+   *
+   * @default "single"
    */
   mode?: DeploymentMode;
 }
@@ -96,7 +101,7 @@ export interface Deployment {
 /**
  * Supported app deployment modes.
  */
-export type DeploymentMode = "split";
+export type DeploymentMode = "single" | "split";
 
 /**
  * Wasp compiler metadata used by the app.
