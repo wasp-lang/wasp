@@ -10,8 +10,9 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import Wasp.AppSpec.App.Deployment (DeploymentMode (Single))
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled, isSingleDeploymentAndDevelopment)
+import Wasp.AppSpec.Valid (getApp, getDeploymentMode, isAuthEnabled)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -49,10 +50,7 @@ genClientWebSocketProvider spec =
     tmplData =
       object
         [ "autoConnect" .= map toLower (show shouldAutoConnect),
-          -- TODO: Wired to `isSingleDeploymentAndDevelopment` for now, since the
-          -- server only serves the client in development. It becomes a plain
-          -- `Single` mode check once it serves it in production too.
-          "isSingleDeployment" .= isSingleDeploymentAndDevelopment spec
+          "isSingleDeployment" .= (getDeploymentMode spec == Single)
         ]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec

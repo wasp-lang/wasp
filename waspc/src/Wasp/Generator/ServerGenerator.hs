@@ -33,18 +33,20 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
+import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.Deployment (deploymentModeName)
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import Wasp.AppSpec.Valid (getApp, getDeploymentMode, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (ServerPath (..), claimedHttpMethodsInclude, getApp, getDeploymentMode, getLowestNodeVersionUserAllows, getServerPaths, isAuthEnabled, isClientServedByServer)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.Common (ServerRootDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsArrayFromHaskellList)
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
@@ -70,6 +72,7 @@ import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserM
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -245,6 +248,7 @@ genSrcDir spec =
     [ genFileCopy [relfile|app.js|],
       genServerJs spec
     ]
+    <++> genClientAssets spec
     <++> genRoutesDir spec
     <++> genViewsDir spec
     <++> genOperationsRoutes spec
@@ -256,6 +260,30 @@ genSrcDir spec =
   where
     genFileCopy = return . C.mkSrcTmplFd
 
+-- | See `serveClientAssets` in the template.
+genClientAssets :: AppSpec -> Generator [FileDraft]
+genClientAssets spec
+  | isClientServedByServer spec =
+      return
+        [ C.mkTmplFdWithDstAndData
+            (C.asTmplFile [relfile|src/clientAssets.ts|])
+            (C.asServerFile [relfile|src/clientAssets.ts|])
+            ( Just $
+                object
+                  [ "clientBuildDirFromServerBundleDir" .= FP.dropTrailingPathSeparator (fromRelDir C.clientBuildDirFromServerBundleDir),
+                    "serverGetExactPaths" .= makeJsArrayFromHaskellList [path | ExactPath path httpMethods <- getServerPaths spec, claimsGet httpMethods],
+                    "serverGetSubtreePaths" .= makeJsArrayFromHaskellList [path | SubtreePath path httpMethods <- getServerPaths spec, claimsGet httpMethods],
+                    "assetsDir" .= WebApp.viteAssetsDirName
+                  ]
+            )
+        ]
+  | otherwise = return []
+  where
+    -- The client only ever serves a page, which the browser asks for with GET (or HEAD, which
+    -- Express answers with the GET route). Paths the server claims for other httpMethods cannot
+    -- take a page away from it, so they are none of its business.
+    claimsGet = claimedHttpMethodsInclude AS.Api.GET
+
 genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
@@ -266,7 +294,8 @@ genServerJs spec =
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|],
+              "isClientServedByServer" .= isClientServedByServer spec
             ]
       )
   where

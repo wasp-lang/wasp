@@ -12,7 +12,8 @@ import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument, envVarArgumentFileParser, e
 import Wasp.Cli.Util.PortArgument (portOption)
 
 data BuildStartArgs = BuildStartArgs
-  { clientPort :: PortNumber,
+  { -- | Kept optional so we can tell the user it is ignored in single deployment mode.
+    clientPort :: Maybe PortNumber,
     serverPort :: PortNumber,
     clientEnvVars :: [EnvVarArgument],
     serverEnvVars :: [EnvVarArgument]
@@ -22,15 +23,14 @@ buildStartArgsParser :: Opt.Parser BuildStartArgs
 buildStartArgsParser =
   BuildStartArgs
     <$> portParserForComponent "client" defaultDevClientPort
-    <*> portParserForComponent "server" defaultDevServerPort
+    <*> (fromMaybe defaultDevServerPort <$> portParserForComponent "server" defaultDevServerPort)
     <*> environmentVariableParsersForComponent 'c' "client"
     <*> environmentVariableParsersForComponent 's' "server"
   where
     portParserForComponent name defaultPort =
-      fromMaybe defaultPort
-        <$> portOption
-          (name ++ "-port")
-          ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
+      portOption
+        (name ++ "-port") -- e.g. "--client-port"
+        ("Port to run the " ++ name ++ " on (default: " ++ show defaultPort ++ ")")
 
     environmentVariableParsersForComponent shortOptionName name =
       liftA2

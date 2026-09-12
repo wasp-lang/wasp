@@ -489,6 +489,7 @@ library cli-lib
     Wasp.Cli.Command
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
+    Wasp.Cli.Command.Build.Client
     Wasp.Cli.Command.BuildStart
     Wasp.Cli.Command.BuildStart.ArgumentsParser
     Wasp.Cli.Command.BuildStart.Client

@@ -1,5 +1,6 @@
 {{={= =}=}}
 import http from 'http'
+import express from 'express'
 
 import app from './app.js'
 import { config } from 'wasp/server'
@@ -19,6 +20,21 @@ import './jobs/core/allJobs.js'
 import { init as initWebSocket } from './webSocket/initialization.js'
 {=/ userWebSocketFn.isDefined =}
 
+{=# isClientServedByServer =}
+import { serveClientAssets } from './clientAssets.js'
+{=/ isClientServedByServer =}
+
+// The server's routes (Wasp's own, the user's apis and anything added in `setupFn`) live on
+// `app`. A root app mounts it, and serves the client around it.
+const rootApp = express()
+rootApp.use(app)
+
+{=# isClientServedByServer =}
+// The client is served after the server's routes so those (and the ones added in
+// `setupFn`) take precedence. Its errors go to Express's default error handler.
+serveClientAssets(rootApp, config)
+{=/ isClientServedByServer =}
+
 const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}
   await startPgBoss()
@@ -27,7 +43,7 @@ const startServer = async () => {
   const port = normalizePort(config.port)
   app.set('port', port)
 
-  const server = http.createServer(app)
+  const server = http.createServer(rootApp)
 
   {=# setupFn.isDefined =}
   const serverSetupFnContext: ServerSetupFnContext = { app, server }

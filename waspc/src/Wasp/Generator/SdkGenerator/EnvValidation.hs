@@ -10,8 +10,9 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.App.Deployment (DeploymentMode (Single))
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import Wasp.AppSpec.Valid (getApp, isSingleDeploymentAndDevelopment)
+import Wasp.AppSpec.Valid (getApp, getDeploymentMode)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
@@ -62,7 +63,8 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema,
+          "isSingleDeployment" .= (getDeploymentMode spec == Single)
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
@@ -77,10 +79,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema,
-          -- TODO: Wired to `isSingleDeploymentAndDevelopment` for now, since the
-          -- server only serves the client in development. It becomes a plain
-          -- `Single` mode check once it serves it in production too.
-          "isSingleDeployment" .= isSingleDeploymentAndDevelopment spec
+          "isSingleDeployment" .= (getDeploymentMode spec == Single)
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec

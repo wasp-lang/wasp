@@ -6,24 +6,25 @@ const WASP_RUN_MODE = process.env.WASP_RUN_MODE ?? "dev";
 const WASP_CLI_CMD = process.env.WASP_CLI_CMD ?? "wasp-cli";
 
 const isDeployedMode = WASP_RUN_MODE === "deployed";
-const isDevMode = WASP_RUN_MODE === "dev";
+const isBuildMode = WASP_RUN_MODE === "build";
 
 const WASP_SERVER_PORT = 3001;
-const WASP_CLIENT_PORT = 3000;
+const WASP_CLIENT_DEV_PORT = 3000;
 
 // In dev mode Vite serves the app and proxies API requests to the server.
-// TODO: In build mode a single container serves both the app and the API on the server port.
+// In build mode a single container serves both the app and the API on the server port.
 export const WASP_APP_URL =
-  process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${WASP_CLIENT_PORT}`;
+  process.env.PLAYWRIGHT_BASE_URL ??
+  `http://localhost:${isBuildMode ? WASP_SERVER_PORT : WASP_CLIENT_DEV_PORT}`;
 
 const WASP_SERVER_URL =
   process.env.PLAYWRIGHT_SERVER_URL ?? `http://localhost:${WASP_SERVER_PORT}`;
 
-// The origin the client sends its API requests to. In dev mode the client dev server
-// proxies Wasp's routes to the server, so it is the app's own origin.
-// TODO: In build and deployed modes the client is still served separately, so it is the
-// server's own URL.
-export const WASP_API_URL = isDevMode ? WASP_APP_URL : WASP_SERVER_URL;
+// The origin the client sends its API requests to. The server serves the client, and in
+// dev mode the client dev server proxies Wasp's routes to it, so it is the app's own origin.
+// TODO: In deployed mode the client is still deployed separately, so it is the server's
+// own URL. It becomes the app URL once `wasp deploy` creates a single app.
+export const WASP_API_URL = isDeployedMode ? WASP_SERVER_URL : WASP_APP_URL;
 
 /**
  * Read environment variables from file.

@@ -72,6 +72,10 @@ COPY --from=server-builder /app/node_modules ./node_modules
 COPY --from=server-builder /app/.wasp/out/server/node_modules .wasp/out/server/node_modules
 COPY --from=server-builder /app/.wasp/out/server/bundle .wasp/out/server/bundle
 COPY --from=server-builder /app/.wasp/out/server/package*.json .wasp/out/server/
+{=# isClientServedByServer =}
+# The server serves the client built by `wasp build` from this directory.
+COPY web-app/build .wasp/out/web-app/build
+{=/ isClientServedByServer =}
 COPY db/ .wasp/out/db/
 EXPOSE ${PORT}
 WORKDIR /app/.wasp/out/server

@@ -79,6 +79,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "isSingleDeploymentAndDevelopment" .= isSingleDeploymentAndDevelopment spec,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
+          "assetsDir" .= WebApp.viteAssetsDirName,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object

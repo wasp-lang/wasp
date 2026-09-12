@@ -32,6 +32,7 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
+import Wasp.Project.BuildType (BuildType (Development))
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 
@@ -69,7 +70,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
-  cliSendMessageC $ Msg.Info $ showRunConfigUrls (getDeploymentMode appSpec) runConfigs
+  cliSendMessageC $ Msg.Info $ showRunConfigUrls Development (getDeploymentMode appSpec) runConfigs
 
   watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in

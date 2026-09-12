@@ -10,12 +10,14 @@ module Wasp.AppSpec.Valid
     getLowestNodeVersionUserAllows,
     getValidDbSystem,
     isSingleDeploymentAndDevelopment,
+    isClientServedByServer,
     areWebSocketsUsed,
     ServerPath (..),
     ClaimedHttpMethods (..),
     getServerPaths,
     serverPathClaimedPath,
     serverPathClaimedHttpMethods,
+    claimedHttpMethodsInclude,
   )
 where
 
@@ -598,6 +600,11 @@ getDeploymentMode = App.getDeploymentMode . snd . getApp
 isSingleDeploymentAndDevelopment :: AppSpec -> Bool
 isSingleDeploymentAndDevelopment spec = getDeploymentMode spec == Single && AS.isDevelopment spec
 
+-- | Single deployment mode in a production build, where the server serves the built client itself.
+-- This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+isClientServedByServer :: AppSpec -> Bool
+isClientServedByServer spec = getDeploymentMode spec == Single && AS.isProduction spec
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: This is here only because defining it in `Wasp.Generator.WebSocket` would give
 -- us cyclic imports. The whole `Valid` module needs a cleanup.
@@ -641,10 +648,12 @@ serverPathClaims (SubtreePath serverPath _) path = serverPath `isPathSegmentPref
 -- `GET` is the client's, so a `GET` on a `POST`-only path renders the page rather than 404ing.
 serverPathClaimsHttpMethod :: ServerPath -> AS.Api.HttpMethod -> String -> Bool
 serverPathClaimsHttpMethod serverPath httpMethod path =
-  serverPath `serverPathClaims` path && claimsMethod (serverPathClaimedHttpMethods serverPath)
-  where
-    claimsMethod AllHttpMethods = True
-    claimsMethod (OnlyHttpMethods httpMethods) = httpMethod `Set.member` httpMethods
+  serverPath `serverPathClaims` path && claimedHttpMethodsInclude httpMethod (serverPathClaimedHttpMethods serverPath)
+
+-- | Whether the claimed methods include the given one.
+claimedHttpMethodsInclude :: AS.Api.HttpMethod -> ClaimedHttpMethods -> Bool
+claimedHttpMethodsInclude _ AllHttpMethods = True
+claimedHttpMethodsInclude httpMethod (OnlyHttpMethods httpMethods) = httpMethod `Set.member` httpMethods
 
 -- | Every path the server answers on: Wasp's own routes and the user's apis.
 -- This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).

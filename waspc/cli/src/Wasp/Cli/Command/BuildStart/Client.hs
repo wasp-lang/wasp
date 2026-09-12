@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.BuildStart.Client
-  ( buildClient,
-    startClient,
+  ( startClient,
   )
 where
 
@@ -10,19 +9,6 @@ import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as J
 import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-
-buildClient :: BuildStartConfig -> ExceptJob
-buildClient config =
-  runNodeCommandAsJobWithExtraEnv
-    envVars
-    projectDir
-    "npx"
-    ["vite", "build"]
-    J.WebApp
-    & toExceptJob (("Building the client failed with exit code: " <>) . show)
-  where
-    envVars = getEnvVars config.clientRunConfig
-    projectDir = config.projectDir
 
 startClient :: BuildStartConfig -> ExceptJob
 startClient config =

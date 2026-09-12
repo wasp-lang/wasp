@@ -11,6 +11,7 @@ import ShellCommands
     appendToFile,
     createTestWaspProject,
     inTestWaspProjectDir,
+    replaceMainWaspTsFile,
     setWaspDbToPSQL,
     waspCliBuild,
     writeToFile,
@@ -21,12 +22,16 @@ import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
+import Wasp.Version (waspVersion)
 
 viteBuildTest :: Test
 viteBuildTest =
   Test
     "vite-build"
     [ TestCase
+        "wasp-build-builds-client-in-single-deployment-mode"
+        (createSingleDeploymentBuildTestCase [assertClientBuildExists]),
+      TestCase
         "fail-on-missing-required-env-vars"
         (createViteBuildTestCase [expectCommandFailure <$> viteBuild]),
       TestCase
@@ -86,18 +91,53 @@ viteBuildTest =
         )
     ]
   where
-    createViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
-    createViteBuildTestCase commands =
+    -- In single deployment mode `wasp build` builds the client itself.
+    createSingleDeploymentBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
+    createSingleDeploymentBuildTestCase commands =
       sequence
         [ createTestWaspProject minimalStarterTemplate,
           inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
         ]
+
+    -- In split mode `wasp build` doesn't build the client, so the test cases run `npx vite build` themselves.
+    createViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
+    createViteBuildTestCase commands =
+      sequence
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, setSplitDeploymentMode, waspCliBuild] ++ commands
+        ]
+
+    setSplitDeploymentMode :: ShellCommandBuilder WaspProjectContext ShellCommand
+    setSplitDeploymentMode = replaceMainWaspTsFile mainWaspTsWithSplitDeployment
+
+    mainWaspTsWithSplitDeployment :: T.Text
+    mainWaspTsWithSplitDeployment =
+      [trimming|
+        import { app, page, route } from "@wasp.sh/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+
+        export default app({
+          name: "viteBuildTest",
+          title: "viteBuildTest",
+          wasp: { version: "$textWaspVersion" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
+          deployment: { mode: "split" },
+          spec: [
+            route("RootRoute", "/", page(MainPage)),
+          ],
+        });
+      |]
+      where
+        textWaspVersion = T.pack $ show waspVersion
 
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"
 
     viteBuildWithApiUrl :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuildWithApiUrl = appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
+
+    assertClientBuildExists :: ShellCommandBuilder WaspProjectContext ShellCommand
+    assertClientBuildExists = return $ "test -f " ++ SP.fromRelFile (viteBuildDirPath </> [relfile|200.html|])
 
     assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
