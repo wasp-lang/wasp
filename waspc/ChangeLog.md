@@ -13,6 +13,7 @@
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 
+
 ### 🎉 New Features
 
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
@@ -23,6 +24,7 @@
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
+- Added support for the `--port` flag which helps set the custom port for dev database (by @Nihal-Ahamed-MS). ([#4424](https://github.com/wasp-lang/wasp/issues/4424))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 
 ### 🐞 Bug fixes

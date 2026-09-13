@@ -23,14 +23,16 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Port (findFirstFreeLocalPortInRange)
+import Wasp.Cli.Port (checkIfLocalPortIsTaken, findFirstFreeLocalPortInRange)
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Cli.Util.PortArgument (portOption)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
+import Wasp.Util (whenM)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -53,6 +55,7 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
       startPostgresDevDb
         waspProjectDir
         appName
+        (dbPort args)
         (dbImage args)
         (dbVolumeMountPath args)
   where
@@ -63,7 +66,8 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
-    <$> Opt.strOption
+    <$> portOption "port" "Port to run the dev database on"
+    <*> Opt.strOption
       ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
           <> Opt.help "Docker image to use for the database"
@@ -79,7 +83,8 @@ startDbArgsParser =
       )
 
 data StartDbArgs = StartDbArgs
-  { dbImage :: DockerImageName,
+  { dbPort :: Maybe PortNumber,
+    dbImage :: DockerImageName,
     dbVolumeMountPath :: DockerVolumeMountPath
   }
 
@@ -117,23 +122,35 @@ throwIfCustomDbAlreadyInUse spec = do
     throwCustomDbAlreadyInUseError msg =
       E.throwError $ CommandError "You are using custom database already" msg
 
-startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DockerImageName -> DockerVolumeMountPath -> Command ()
-startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath = do
+startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> Maybe PortNumber -> DockerImageName -> DockerVolumeMountPath -> Command ()
+startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDockerVolumeMountPath = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
-    Nothing -> startDbOnPort =<< findFreeDevDbPort
+    Nothing -> startDbOnPort =<< resolveDevDbPort
   where
+    resolveDevDbPort :: Command PortNumber
+    resolveDevDbPort = maybe findFreeDevDbPort assertPortIsFree requestedDbPort
+
+    assertPortIsFree :: PortNumber -> Command PortNumber
+    assertPortIsFree port = do
+      whenM (liftIO $ checkIfLocalPortIsTaken port) $
+        E.throwError $
+          CommandError
+            "Port already in use"
+            ("Port " ++ show port ++ " is already in use. Choose a different port with --port, or free up this one.")
+      return port
+
     findFreeDevDbPort :: Command PortNumber
     findFreeDevDbPort =
       liftIO
         ( findFirstFreeLocalPortInRange
             defaultPostgresPort
             []
-            "Free at least one of those ports by exiting the program listening on it."
+            "Free at least one of those ports by exiting the program listening on it, or choose one yourself with --port."
         )
         >>= either throwNoFreePortError return
 
