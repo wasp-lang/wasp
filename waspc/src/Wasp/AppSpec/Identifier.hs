@@ -20,4 +20,5 @@ isValidWaspIdentifier str = matchesIdentifierRule str && str `notElem` reservedK
         (body, primes) = span (/= '\'') cs
     isIdentStart ch = isAlpha ch || ch == '_'
     isIdentChar ch = isAlphaNum ch || ch == '_'
+    -- TODO: Revisit identifier restrictions: https://github.com/wasp-lang/wasp/issues/4851
     reservedKeywords = ["import", "from", "true", "false"]
