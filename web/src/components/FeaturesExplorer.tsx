@@ -224,7 +224,7 @@ const features: Feature[] = [
     id: "spec",
     title: "High-Level Spec",
     sub: "app, auth, route, ...",
-    docUrl: "/docs/general/spec",
+    docUrl: "/docs/features/spec",
     intro: (
       <>
         Define your app via a specialized full-stack logic layer in TypeScript,
@@ -274,7 +274,7 @@ export default app({
     id: "auth",
     title: "Full-Stack Auth",
     sub: "username · email · social",
-    docUrl: "/docs/auth/overview",
+    docUrl: "/docs/features/auth/overview",
     intro:
       "Declare the auth methods you want, Wasp does the rest. Use the high-level API of premade but customizable Login/Signup/... forms, or drop lower and implement your own.",
     codeBlocks: [
@@ -324,7 +324,7 @@ export default function ProfilePage() {
     id: "data",
     title: "Data Models",
     sub: "typed · integrated",
-    docUrl: "/docs/data-model/entities",
+    docUrl: "/docs/features/data/entities",
     intro:
       "Declare your data models in Prisma, have them integrated and fully-typed through the whole stack.",
     codeBlocks: [
@@ -368,7 +368,7 @@ $ wasp db migrate-dev | wasp db studio | wasp db seed`,
     id: "rpc",
     title: "Type-Safe RPC",
     sub: "typed client ↔ server",
-    docUrl: "/docs/data-model/operations/overview",
+    docUrl: "/docs/features/data/operations/overview",
     intro:
       "Define functions on the server, call them from the client. No need for REST / GQL / ... . Fully typed and reactive. Powered by TanStack Query.",
     codeBlocks: [
@@ -407,7 +407,7 @@ export default function TaskCounter() {
     id: "jobs",
     title: "Background Jobs",
     sub: "cron · one-off · retry",
-    docUrl: "/docs/advanced/jobs",
+    docUrl: "/docs/features/jobs",
     intro:
       "Cron jobs, one-offs, retries, all working out of the box. No external service needed.",
     codeBlocks: [
@@ -455,7 +455,7 @@ export const createTask: CreateTask<{ title: string }, Task> =
     id: "email",
     title: "Email Sending",
     sub: "provider-agnostic",
-    docUrl: "/docs/advanced/email",
+    docUrl: "/docs/features/email",
     intro:
       "Provider-agnostic, integrated API for easy sending of emails from your web app.",
     codeBlocks: [
@@ -496,7 +496,7 @@ export const sendGreeting: SendGreeting<{ userId: number }, void> =
     id: "ws",
     title: "WebSockets",
     sub: "typed real-time",
-    docUrl: "/docs/advanced/web-sockets",
+    docUrl: "/docs/features/web-sockets",
     intro:
       "Make your web app alive with a fully integrated WebSocket experience (using Socket.IO).",
     codeBlocks: [
@@ -573,7 +573,7 @@ spec: [
     id: "deploy",
     title: "Simple Deployment",
     sub: "one command, any platform",
-    docUrl: "/docs/deployment/deployment-methods/overview",
+    docUrl: "/docs/deployment/methods/overview",
     intro:
       "No magic — you are deploying just a React / Node.js / Prisma app. Deploy with a single command to supported providers (Fly.io and Railway for now), or deploy yourself wherever you want. Comes with a generated Dockerfile to make it easier.",
     codeBlocks: [
@@ -651,7 +651,7 @@ const taskUrl = routes.TaskRoute.build({ params: { id: someTaskId } }); // e.g. 
     id: "api",
     title: "Custom HTTP API",
     sub: "REST · webhooks",
-    docUrl: "/docs/advanced/apis",
+    docUrl: "/docs/features/apis",
     intro:
       "Define custom HTTP APIs while still being integrated with the rest of your web app (entities, auth, ...). Powered by ExpressJS.",
     codeBlocks: [
@@ -697,7 +697,7 @@ export default function Stats() {
     id: "cli",
     title: "Wasp CLI",
     sub: "create · build · deploy",
-    docUrl: "/docs/general/cli",
+    docUrl: "/docs/advanced/cli",
     intro: "A single CLI to manage your whole app lifecycle.",
     codeBlocks: [
       {

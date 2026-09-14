@@ -61,7 +61,7 @@ We'll show you how to run end-to-end tests in CI using the [Github Actions](http
 
 Unit tests test pieces of your code logic in isolation. They are much simpler and faster than e2e tests, but they don't simulate the real user interaction with your app.
 
-You can use Wasp's built in [client tests](../project/testing.md) support to test the client side code of your app. You are free to use any testing framework for the server side code.
+You can use Wasp's built in [client tests](../advanced/testing.md) support to test the client side code of your app. You are free to use any testing framework for the server side code.
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 

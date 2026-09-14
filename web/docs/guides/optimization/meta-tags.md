@@ -125,7 +125,7 @@ You can check [X's guidelines](https://developer.x.com/en/docs/x-for-websites/ca
 2. Check the recommended dimensions for each platform's images in their documentation.
 3. Keep important content centered (some platforms crop differently).
 4. Use WebP or PNG format for best quality.
-5. Place your image [in the `public/` folder](https://wasp.sh/docs/project/static-assets#the-public-directory).
+5. Place your image [in the `public/` folder](https://wasp.sh/docs/advanced/client-customization/static-assets#the-public-directory).
 
 ## Testing your metadata
 

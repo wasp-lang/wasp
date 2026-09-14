@@ -23,7 +23,7 @@ Once `prerender` is enabled, Wasp will know to render this route's HTML on `wasp
 
 ### Static routes
 
-For routes with no [dynamic segments](./routing.md#dynamic-segments), you can just set `prerender: true`:
+For routes with no [dynamic segments](../features/routing.md#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -47,7 +47,7 @@ export default app({
 
 ### Dynamic routes
 
-If your route has [dynamic segments](./routing.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
+If your route has [dynamic segments](../features/routing.md#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -90,7 +90,7 @@ export default app({
 })
 ```
 
-[Wasp Spec files](../general/spec.md) run like regular Node.js scripts, so you can use any Node.js APIs (like `fs`, `path`, or `fetch`), or npm libraries, to generate the prerendered paths.
+[Wasp Spec files](../features/spec.md) run like regular Node.js scripts, so you can use any Node.js APIs (like `fs`, `path`, or `fetch`), or npm libraries, to generate the prerendered paths.
 
 ## How it works
 

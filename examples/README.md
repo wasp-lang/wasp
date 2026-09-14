@@ -8,12 +8,12 @@ The **tutorials** directory contains [Wasp tutorial](https://wasp.sh/docs/tutori
 1. **waspello**
 
    - A simple Trello clone.
-   - Demonstrates: [auth](https://wasp.sh/docs/auth/overview), [rpc](https://wasp.sh/docs/data-model/operations/overview)
+   - Demonstrates: [auth](https://wasp.sh/docs/features/auth/overview), [rpc](https://wasp.sh/docs/features/data/operations/overview)
 
 1. **waspleau**
 
    - A simple clone of Tableau. The app regularly pulls in external data and shows it on a nice dashboard.
-   - Demonstrates: **[jobs](https://wasp.sh/docs/advanced/jobs)**, analytics
+   - Demonstrates: **[jobs](https://wasp.sh/docs/features/jobs)**, analytics
 
 1. **websockets-realtime-voting**
-   - Demonstrates: **[web sockets](https://wasp.sh/docs/advanced/web-sockets)**, [auth](https://wasp.sh/docs/auth/overview), voting system
+   - Demonstrates: **[web sockets](https://wasp.sh/docs/features/web-sockets)**, [auth](https://wasp.sh/docs/features/auth/overview), voting system

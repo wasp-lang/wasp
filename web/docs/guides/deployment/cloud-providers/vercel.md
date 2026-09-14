@@ -4,8 +4,8 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import BuildingTheWebClient from '../../../deployment/methods/_building-the-web-client.md'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Vercel
@@ -31,16 +31,16 @@ Throughout this guide, we will use `my-wasp-app-server` and `my-wasp-app-client`
 Your Wasp server runs as a [Vercel Function](https://vercel.com/docs/functions), which is a serverless platform. This works well for most apps, but it does come with some constraints you should be aware of:
 
 - Functions spin up on demand and run for up to 5 minutes by default. If your app needs to run long-running processes, Vercel Functions are not a good fit:
-  - [Jobs](../../../advanced/jobs.md) are not supported.
-  - [WebSockets](../../../advanced/web-sockets.md) are not supported.
+  - [Jobs](../../../features/jobs.md) are not supported.
+  - [WebSockets](../../../features/web-sockets.md) are not supported.
   - Global state (e.g. singletons or top-level variables) will be reset periodically, so you should only use it for caching and not for storing important data or app logic.
-- If your app defines a [server `setupFn`](../../../project/server-config.md#setup-function), it must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
+- If your app defines a [server `setupFn`](../../../advanced/server-customization/server-config.md#setup-function), it must finish quickly (well under a second). Vercel waits a limited time for the server to start listening before it gives up on a request.
 
 :::caution
 As Wasp does not yet have a way to detect where you're deploying your server to, we can't warn you if your app relies on any of the above features, so please double check before deploying to Vercel.
 :::
 
-If your app relies on any of these, deploy the server to a different provider (see the [other guides](../../../deployment/deployment-methods/cloud-providers.md)). You may still use Vercel to deploy your Wasp app's client.
+If your app relies on any of these, deploy the server to a different provider (see the [other guides](../../../deployment/methods/cloud-providers.md)). You may still use Vercel to deploy your Wasp app's client.
 
 ### Pricing
 
@@ -118,7 +118,7 @@ The Supabase database is linked to your Vercel account. If you remove the integr
      `/migrations` is excluded because `wasp build` already copies your migrations into `.wasp/out/db/`, which is where the build command runs them from. `/public` is excluded so Vercel doesn't serve your client's static files from the server's domain.
    </small>
 
-1. Add the remaining [required server env variables](../../../project/env-vars.md#server-general-configuration) to the production environment, one at a time, with `npx vercel env add <NAME> production`:
+1. Add the remaining [required server env variables](../../../advanced/env-vars.md#server-general-configuration) to the production environment, one at a time, with `npx vercel env add <NAME> production`:
    - `PORT` set to `3000`.
    - `WASP_WEB_CLIENT_URL` set to the client's domain (e.g. `https://my-wasp-app-client.vercel.app`). `https://` prefix is required!
    - `WASP_SERVER_URL` set to the server's domain (e.g. `https://my-wasp-app-server.vercel.app`). `https://` prefix is required!

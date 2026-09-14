@@ -33,7 +33,7 @@ export function EmailPill() {
       style={{
         backgroundColor: "var(--auth-pills-email)",
       }}
-      linkToPage="/docs/auth/email"
+      linkToPage="/docs/features/auth/email/overview"
     >
       Email
     </Pill>
@@ -46,7 +46,7 @@ export function UsernameAndPasswordPill() {
       style={{
         backgroundColor: "var(--auth-pills-username-and-pass)",
       }}
-      linkToPage="/docs/auth/username-and-pass"
+      linkToPage="/docs/features/auth/username-and-pass/overview"
     >
       Username & Password
     </Pill>
@@ -59,7 +59,7 @@ export function GithubPill() {
       style={{
         backgroundColor: "var(--auth-pills-github)",
       }}
-      linkToPage="/docs/auth/social-auth/github"
+      linkToPage="/docs/features/auth/social-auth/github"
     >
       Github
     </Pill>
@@ -72,7 +72,7 @@ export function GooglePill() {
       style={{
         backgroundColor: "var(--auth-pills-google)",
       }}
-      linkToPage="/docs/auth/social-auth/google"
+      linkToPage="/docs/features/auth/social-auth/google"
     >
       Google
     </Pill>

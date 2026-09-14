@@ -20,7 +20,7 @@ To add users to your app, you must:
 
 ## Creating a User Entity
 
-Since Wasp manages authentication, it will create [the auth related entities](../auth/entities) for you in the background. Nothing to do here!
+Since Wasp manages authentication, it will create [the auth related entities](../features/auth/entities.md) for you in the background. Nothing to do here!
 
 You must only add the `User` Entity to keep track of who owns which tasks:
 
@@ -37,7 +37,7 @@ model User {
 
 ## Adding Auth to the Project
 
-Next, tell Wasp to use full-stack [authentication](../auth/overview):
+Next, tell Wasp to use full-stack [authentication](../features/auth/overview):
 
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
@@ -81,13 +81,13 @@ wasp db migrate-dev
 
 By doing this, Wasp will create:
 
-- [Auth UI](../auth/ui) with login and signup forms.
+- [Auth UI](../features/auth/ui) with login and signup forms.
 - A `logout()` action.
 - A React hook `useAuth()`.
 - `context.user` for use in Queries and Actions.
 
 :::info
-Wasp also supports authentication using [Google](../auth/social-auth/google), [GitHub](../auth/social-auth/github), and [email](../auth/email), with more on the way!
+Wasp also supports authentication using [Google](../features/auth/social-auth/google), [GitHub](../features/auth/social-auth/github), and [email](../features/auth/email/overview), with more on the way!
 :::
 
 ## Adding Login and Signup Pages
@@ -235,7 +235,7 @@ You'll notice that we now have a `User` entity in the database alongside the `Ta
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
 <small>
-  You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../auth/entities).
+  You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../features/auth/entities.md).
 </small>
 
 ## Defining a User-Task Relation
@@ -413,9 +413,9 @@ You should be ready to learn about more complicated features and go more in-dept
 
 Looking for inspiration?
 
-- Get a jump start on your next project with [Starter Templates](../project/starter-templates).
+- Get a jump start on your next project with [Starter Templates](../getting-started/starter-templates).
 - Check out our [official examples](https://github.com/wasp-lang/wasp/tree/release/examples).
-- Make a real-time app with [Web Sockets](../advanced/web-sockets).
+- Make a real-time app with [Web Sockets](../features/web-sockets).
 
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏

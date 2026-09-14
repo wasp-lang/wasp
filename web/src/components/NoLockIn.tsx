@@ -56,7 +56,7 @@ const NoLockIn = () => (
         <Item>
           Or take the generated <Strong>Dockerfile + static files</Strong> and
           deploy them{" "}
-          <TextLink to="/docs/deployment/deployment-methods/self-hosted">
+          <TextLink to="/docs/deployment/methods/self-hosted">
             however you want
           </TextLink>
           .
