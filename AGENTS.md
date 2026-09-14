@@ -58,7 +58,7 @@ Key things to know:
 
 ### Architecture
 
-- TypeScript config (`main.wasp.ts`) is read by `Wasp.Project.WaspFile.TypeScript` → **AppSpec** (IR) → **Generator** produces React/Node.js code. The **Analyzer** derives entity declarations from the Prisma schema.
+- **Analyzer** reads the TypeScript config (`main.wasp.ts`) and Prisma schema and produces **AppSpec** (IR). **Generator** consumes AppSpec and produces React/Node.js code.
 - Code generation uses a file draft system and Mustache templates in `data/Generator/templates/`.
 
 ## Important Rules
