@@ -20,7 +20,7 @@ When you run `wasp build`, your app is automatically optimized for production. Y
 
 - **Prerendering.** Wasp apps are single-page applications, and many crawlers and AI assistants don't run JavaScript, so they'd see an empty page. Mark a route with `prerender: true` and [Wasp generates its HTML at build time](/advanced/prerendering.md), making your content readable without JavaScript.
 
-- **Crawlable navigation.** Crawlers discover your pages by following `<a>` tags. [Wasp's `Link` component](/advanced/links.md) renders real, type-checked `<a>` tags, unlike programmatic navigation, which crawlers can't see.
+- **Crawlable navigation.** Crawlers discover your pages by following `<a>` tags. [Wasp's `Link` component](/features/pages-and-routes.md#navigating-between-pages) renders real, type-checked `<a>` tags, unlike programmatic navigation, which crawlers can't see.
 
 - **Lazy loading.** Split heavy or below-the-fold components out of the initial bundle with [`React.lazy`](https://react.dev/reference/react/lazy), so your pages stay small and fast.
 
