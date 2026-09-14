@@ -3,7 +3,7 @@ comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
-import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
+import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock";
 
 # Caprover
 

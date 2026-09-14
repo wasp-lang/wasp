@@ -8,7 +8,7 @@ import { TutorialAction } from './TutorialAction';
 
 We want to know which tasks we need to do, so let's list them!
 
-The primary way of working with Entities in Wasp is with [Queries and Actions](../data-model/operations/overview), collectively known as **_Operations_**.
+The primary way of working with Entities in Wasp is with [Queries and Actions](../features/data/operations/overview), collectively known as **_Operations_**.
 
 Queries are used to read an entity, while Actions are used to create, modify, and delete entities. Since we want to list the tasks, we'll want to use a Query.
 
@@ -156,12 +156,12 @@ Most of this code is regular React, the only exception being the <ShowForJs>two<
 
 <ShowForJs>
   - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-  - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+  - `useQuery` - Wasp's [useQuery](../features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 </ShowForJs>
 
 <ShowForTs>
   - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
-  - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
+  - `useQuery` - Wasp's [useQuery](../features/data/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
   - `Task` - The type for the Task entity defined in `schema.prisma`.
 
 Notice how you don't need to annotate the type of the Query's return value: Wasp uses the types you defined while implementing the Query for the generated client-side function. This is **full-stack type safety**: the types on the client always match the types on the server.

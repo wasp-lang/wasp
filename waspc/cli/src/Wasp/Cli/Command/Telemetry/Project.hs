@@ -4,7 +4,7 @@ module Wasp.Cli.Command.Telemetry.Project
   ( getWaspProjectPathHash,
     considerSendingData,
     readProjectTelemetryCacheFile,
-    getTimeOfLastTelemetryDataSent,
+    getTimeOfLastTelemetryDataSendAttempt,
   )
 where
 
@@ -40,30 +40,37 @@ considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> Pro
 considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
   projectCache <- readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash
 
-  let relevantLastCheckIn = case cmdCall of
-        Command.Call.Build -> _lastCheckInBuild projectCache
-        Command.Call.Deploy _ -> _lastCheckInDeploy projectCache
-        _ -> _lastCheckIn projectCache
+  let relevantLastSendAttempt = case cmdCall of
+        Command.Call.Build -> _lastSendAttemptBuild projectCache
+        Command.Call.Deploy _ -> _lastSendAttemptDeploy projectCache
+        _ -> _lastSendAttempt projectCache
 
-  shouldSendData <- case relevantLastCheckIn of
+  shouldSendData <- case relevantLastSendAttempt of
     Nothing -> return True
-    Just lastCheckIn -> isOlderThanNHours 12 lastCheckIn
+    Just lastSendAttempt -> isOlderThanNHours 12 lastSendAttempt
 
   when shouldSendData $ do
-    telemetryContext <- getTelemetryContext
-    sendTelemetryData $ getProjectTelemetryData userSignature projectHash cmdCall telemetryContext
+    -- NOTE: We record the send attempt on disk *before* actually sending the data.
+    --   If we did it after, a slow or failed request (e.g. PostHog being down, or the CLI
+    --   aborting the telemetry thread because the main command finished) would leave the
+    --   cache unchanged, and we would keep attempting to send on every invocation.
     projectCache' <- newProjectCache projectCache
     writeProjectTelemetryFile telemetryCacheDirPath projectHash projectCache'
+    telemetryContext <- getTelemetryContext
+    sendTelemetryData $ getProjectTelemetryData userSignature projectHash cmdCall telemetryContext
   where
     newProjectCache :: ProjectTelemetryCache -> IO ProjectTelemetryCache
     newProjectCache currentProjectCache = do
       now <- T.getCurrentTime
       return
         currentProjectCache
-          { _lastCheckIn = Just now,
-            _lastCheckInBuild = case cmdCall of
+          { _lastSendAttempt = Just now,
+            _lastSendAttemptBuild = case cmdCall of
               Command.Call.Build -> Just now
-              _ -> _lastCheckInBuild currentProjectCache
+              _ -> _lastSendAttemptBuild currentProjectCache,
+            _lastSendAttemptDeploy = case cmdCall of
+              Command.Call.Deploy _ -> Just now
+              _ -> _lastSendAttemptDeploy currentProjectCache
           }
 
 getTelemetryContext :: IO String
@@ -94,9 +101,12 @@ getWaspProjectPathHash = do
 -- * Project telemetry cache.
 
 data ProjectTelemetryCache = ProjectTelemetryCache
-  { _lastCheckIn :: Maybe T.UTCTime, -- Last time when CLI was called for this project, any command.
-    _lastCheckInBuild :: Maybe T.UTCTime, -- Last time when CLI was called for this project, with Build command.
-    _lastCheckInDeploy :: Maybe T.UTCTime -- Last time when CLI was called for this project, with Deploy command.
+  { -- Last time we attempted to send telemetry data for this project, for any command.
+    _lastSendAttempt :: Maybe T.UTCTime,
+    -- Last time we attempted to send telemetry data for this project, for the Build command.
+    _lastSendAttemptBuild :: Maybe T.UTCTime,
+    -- Last time we attempted to send telemetry data for this project, for the Deploy command.
+    _lastSendAttemptDeploy :: Maybe T.UTCTime
   }
   deriving (Generic, Show)
 
@@ -105,12 +115,13 @@ instance Aeson.ToJSON ProjectTelemetryCache
 instance Aeson.FromJSON ProjectTelemetryCache
 
 initialCache :: ProjectTelemetryCache
-initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild = Nothing, _lastCheckInDeploy = Nothing}
+initialCache = ProjectTelemetryCache {_lastSendAttempt = Nothing, _lastSendAttemptBuild = Nothing, _lastSendAttemptDeploy = Nothing}
 
 -- * Project telemetry cache file.
 
-getTimeOfLastTelemetryDataSent :: ProjectTelemetryCache -> Maybe T.UTCTime
-getTimeOfLastTelemetryDataSent cache = max (_lastCheckIn cache) (_lastCheckInBuild cache)
+getTimeOfLastTelemetryDataSendAttempt :: ProjectTelemetryCache -> Maybe T.UTCTime
+getTimeOfLastTelemetryDataSendAttempt cache =
+  maximum [_lastSendAttempt cache, _lastSendAttemptBuild cache, _lastSendAttemptDeploy cache]
 
 readProjectTelemetryCacheFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
 readProjectTelemetryCacheFile telemetryCacheDirPath projectHash =

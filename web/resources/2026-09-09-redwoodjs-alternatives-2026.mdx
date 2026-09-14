@@ -162,7 +162,7 @@ The concrete parallels:
 - **No GraphQL required.** A lot of RedwoodJS users loved the framework but never loved maintaining the GraphQL layer for an app that didn't need it. Wasp uses type-safe RPC (with Postgres + Prisma underneath) instead of a GraphQL layer, so you skip the SDL files, resolvers, and Apollo wiring entirely.
 - **AI-coding compatibility.** This is where Wasp goes beyond what RedwoodJS offered. The `.wasp.ts` file gives Cursor, Claude Code, and other AI tools a single source of truth for your app's architecture: routes, pages, auth, and operations all declared together. RedwoodJS spreads the equivalent information across `Routes.tsx`, `redwood.toml`, `web/src/auth.ts`, the GraphQL handler, and the Prisma schema, so AI tools have to stitch the map together themselves.
 
-Concretely, here's what that single source of truth looks like (abridged from the [Wasp Spec reference](/docs/general/spec)):
+Concretely, here's what that single source of truth looks like (abridged from the [Wasp Spec reference](/docs/features/spec)):
 
 ```typescript
 import { app, action, job, page, query, route } from '@wasp.sh/spec'

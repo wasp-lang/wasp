@@ -29,7 +29,7 @@ We recommend **first to measure your app** against common industry tools and see
 SEO can come with costs; at a minimum, the cost of development time and maintenance burden. So while there's always room for improvement, it's important to focus on the techniques that will give you the biggest boost. A little improvement can go a long way, and you don't need to get a perfect score to see significant benefits.
 
 :::warning Always run measurements against your production build
-Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](/docs/deployment/local-testing) or [after deploying](/docs/deployment/intro).
+Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](../../deployment/local-testing.md) or [after deploying](../../deployment/overview.md).
 :::
 
 ### Lighthouse
@@ -297,7 +297,7 @@ You can read more about structured data in Google's documentation:
 
 Search engines factor page speed into ranking through [Core Web Vitals](https://web.dev/articles/vitals); and the smaller the page, the faster it loads. A couple of things help the most:
 
-- **Optimize your images.** Serve images at the size they're displayed, and prefer modern formats like WebP or AVIF. And [importing an image from your source code](/project/static-assets.md#importing-an-asset-as-url) lets Vite hash its filename so browsers can cache it aggressively. See Chrome Lighthouse's docs for more tips on image optimization:
+- **Optimize your images.** Serve images at the size they're displayed, and prefer modern formats like WebP or AVIF. And [importing an image from your source code](/advanced/client-customization/static-assets.md#importing-an-asset-as-url) lets Vite hash its filename so browsers can cache it aggressively. See Chrome Lighthouse's docs for more tips on image optimization:
 
   <CardLink
     kind="external"
@@ -349,7 +349,7 @@ Crawlers look for a couple of standard files at the root of your site, for examp
 - [A `sitemap.xml` file](#sitemap-xml) lists the pages you want crawlers to find and index.
 - [An `llms.txt` file](#llms-txt) that can give instructions to AI assistants about how to interact with your site and which pages to read.
 
-Place these in the [`public` directory](/project/static-assets.md#the-public-directory) at the root of your project. Files there are served as-is from the root path, so `public/robots.txt` becomes available at `https://your-app.com/robots.txt`:
+Place these in the [`public` directory](/advanced/client-customization/static-assets.md#the-public-directory) at the root of your project. Files there are served as-is from the root path, so `public/robots.txt` becomes available at `https://your-app.com/robots.txt`:
 
 ```
 .

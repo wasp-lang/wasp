@@ -169,7 +169,7 @@ The concrete differentiators:
 - **No cloud lock-in deploy.** `wasp deploy` ships to Fly or Railway in one command, and you can self-host on any VPS via Docker. AdonisJS deployment is BYO (Docker is the happy path); Next.js works best on Vercel, with caveats elsewhere.
 - **PostgreSQL-backed jobs by default.** No Redis required, and the scheduler runs in the same process as the server. AdonisJS's queue package needs a separate `node ace queue:work` process and is currently labeled experimental.
 
-Concretely, here's what the single architectural map looks like (abridged from the [Wasp Spec reference](/docs/general/spec)):
+Concretely, here's what the single architectural map looks like (abridged from the [Wasp Spec reference](/docs/features/spec)):
 
 ```typescript
 import { app, action, job, page, query, route } from '@wasp.sh/spec'

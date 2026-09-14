@@ -26,14 +26,14 @@ const benefits = [
     title: "It's got skills",
     description:
       "Plugins and Agent Skills for your coding tool of choice turn your agent into a Wasp expert.",
-    url: "docs/wasp-ai/coding-agent-plugin",
+    url: "/docs/getting-started/agent-integration",
   },
   {
     Icon: Code,
     title: "Focus on the fun stuff",
     description:
       "Login, database, email, background jobs, etc. Wasp handles it all so your agents can focus on your app's unique features.",
-    url: "/docs/auth/overview",
+    url: "/docs/features/auth/overview",
   },
   {
     Icon: DollarSign,
@@ -47,7 +47,7 @@ const benefits = [
     title: "Deploy to any platform",
     description:
       "Other frameworks tie you to their expensive platforms and pricing. Wasp lets you deploy anywhere easily.",
-    url: "/docs/deployment/intro",
+    url: "/docs/deployment/overview",
   },
   {
     Icon: Grid,

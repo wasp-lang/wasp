@@ -13,7 +13,10 @@ export function getRedirects({
 }): RedirectRule[] {
   // Order matters: Cloudflare applies the first matching rule, so list more
   // specific rules before more general ones.
-  const redirects: RedirectRule[] = [...legacyDocsRedirects];
+  const redirects: RedirectRule[] = [
+    ...legacyDocsRedirects,
+    ...docsReorganizationRedirects,
+  ];
 
   if (redirectCurrentVersionToCanonical) {
     const latestWaspVersion = docsVersions[0];
@@ -26,26 +29,25 @@ export function getRedirects({
 
 // prettier-ignore
 const legacyDocsRedirects: RedirectRule[] = [
-  permanent("/docs/advanced/deployment/overview",       "/docs/deployment/intro"),
-  permanent("/docs/advanced/routing",                   "/docs/pages-and-routes"),
-  permanent("/docs/data-model/backends",                "/docs/data-model/databases"),
-  permanent("/docs/deploying",                          "/docs/deployment/intro"),
-  permanent("/docs/deployment/deployment-methods/cli",  "/docs/deployment/deployment-methods/wasp-deploy/overview"),
-  permanent("/docs/deployment/deployment-methods/paas", "/docs/deployment/deployment-methods/cloud-providers"),
-  permanent("/docs/editor-setup",                       "/docs/general/spec"),
+  permanent("/docs/advanced/deployment/overview",       "/docs/deployment/overview"),
+  permanent("/docs/data-model/backends",                "/docs/features/data/databases"),
+  permanent("/docs/deploying",                          "/docs/deployment/overview"),
+  permanent("/docs/deployment/deployment-methods/cli",  "/docs/deployment/methods/wasp-deploy/overview"),
+  permanent("/docs/deployment/deployment-methods/paas", "/docs/deployment/methods/cloud-providers"),
+  permanent("/docs/editor-setup",                       "/docs/features/spec"),
   permanent("/docs/general/language",                   "/docs/guides/legacy/wasp-dsl"),
-  permanent("/docs/general/typescript",                 "/docs/general/spec"),
+  permanent("/docs/general/typescript",                 "/docs/features/spec"),
   permanent("/docs/general/wasp-ts-config",             "/docs/guides/legacy/wasp-ts-config"),
-  permanent("/docs/guides/auth-ui",                     "/docs/auth/ui"),
-  permanent("/docs/guides/crud",                        "/docs/data-model/crud"),
-  permanent("/docs/guides/email-auth",                  "/docs/auth/email"),
-  permanent("/docs/guides/middleware-customization",    "/docs/advanced/middleware-config"),
-  permanent("/docs/guides/testing",                     "/docs/project/testing"),
-  permanent("/docs/guides/username-password",           "/docs/auth/username-and-pass"),
-  permanent("/docs/guides/websockets",                  "/docs/advanced/web-sockets"),
+  permanent("/docs/guides/auth-ui",                     "/docs/features/auth/ui"),
+  permanent("/docs/guides/crud",                        "/docs/features/data/crud"),
+  permanent("/docs/guides/email-auth",                  "/docs/features/auth/email/overview"),
+  permanent("/docs/guides/middleware-customization",    "/docs/advanced/server-customization/middleware"),
+  permanent("/docs/guides/testing",                     "/docs/advanced/testing"),
+  permanent("/docs/guides/username-password",           "/docs/features/auth/username-and-pass/overview"),
+  permanent("/docs/guides/websockets",                  "/docs/features/websockets"),
   permanent("/docs/integrations/css-frameworks",        "/docs/project/css-frameworks"),
-  permanent("/docs/integrations/github",                "/docs/auth/social-auth/github"),
-  permanent("/docs/integrations/google",                "/docs/auth/social-auth/google"),
+  permanent("/docs/integrations/github",                "/docs/features/auth/social-auth/github"),
+  permanent("/docs/integrations/google",                "/docs/features/auth/social-auth/google"),
   permanent("/docs/project/css-frameworks",             "/docs/guides/libraries/tailwind"),
   permanent("/docs/tutorials/todo-app",                 "/docs/tutorial/create"),
 
@@ -80,6 +82,63 @@ const legacyDocsRedirects: RedirectRule[] = [
   permanent("/docs/0.18.0/*", "/docs/0.18/:splat"),
   permanent("/docs/0.19.0/*", "/docs/0.19/:splat"),
   permanent("/docs/0.20.0/*", "/docs/0.20/:splat"),
+];
+
+// Redirects for the big docs reorganization that introduced the "Getting
+// started", "Features" and "Advanced" sections.
+// prettier-ignore
+const docsReorganizationRedirects: RedirectRule[] = [
+  permanent("/docs/advanced/apis",                                      "/docs/features/apis"),
+  permanent("/docs/advanced/email",                                     "/docs/features/email"),
+  permanent("/docs/advanced/jobs",                                      "/docs/features/jobs"),
+  permanent("/docs/advanced/middleware-config",                         "/docs/advanced/server-customization/middleware"),
+  permanent("/docs/advanced/routing",                                   "/docs/features/pages-and-routes"),
+  permanent("/docs/advanced/web-sockets",                               "/docs/features/websockets"),
+  permanent("/docs/auth/advanced/custom-auth-actions",                  "/docs/features/auth/advanced/custom-auth-actions"),
+  permanent("/docs/auth/auth-hooks",                                    "/docs/features/auth/hooks"),
+  permanent("/docs/auth/email",                                         "/docs/features/auth/email/overview"),
+  permanent("/docs/auth/email/create-your-own-ui",                      "/docs/features/auth/email/create-your-own-ui"),
+  permanent("/docs/auth/entities",                                      "/docs/features/auth/entities"),
+  permanent("/docs/auth/overview",                                      "/docs/features/auth/overview"),
+  permanent("/docs/auth/social-auth/create-your-own-ui",                "/docs/features/auth/social-auth/create-your-own-ui"),
+  permanent("/docs/auth/social-auth/discord",                           "/docs/features/auth/social-auth/discord"),
+  permanent("/docs/auth/social-auth/github",                            "/docs/features/auth/social-auth/github"),
+  permanent("/docs/auth/social-auth/google",                            "/docs/features/auth/social-auth/google"),
+  permanent("/docs/auth/social-auth/keycloak",                          "/docs/features/auth/social-auth/keycloak"),
+  permanent("/docs/auth/social-auth/microsoft",                         "/docs/features/auth/social-auth/microsoft"),
+  permanent("/docs/auth/social-auth/overview",                          "/docs/features/auth/social-auth/overview"),
+  permanent("/docs/auth/social-auth/slack",                             "/docs/features/auth/social-auth/slack"),
+  permanent("/docs/auth/ui",                                            "/docs/features/auth/ui"),
+  permanent("/docs/auth/username-and-pass",                             "/docs/features/auth/username-and-pass/overview"),
+  permanent("/docs/auth/username-and-pass/create-your-own-ui",          "/docs/features/auth/username-and-pass/create-your-own-ui"),
+  permanent("/docs/data-model/crud",                                    "/docs/features/data/crud"),
+  permanent("/docs/data-model/databases",                               "/docs/features/data/databases"),
+  permanent("/docs/data-model/entities",                                "/docs/features/data/entities"),
+  permanent("/docs/data-model/operations/actions",                      "/docs/features/data/operations/actions"),
+  permanent("/docs/data-model/operations/overview",                     "/docs/features/data/operations/overview"),
+  permanent("/docs/data-model/operations/queries",                      "/docs/features/data/operations/queries"),
+  permanent("/docs/data-model/prisma-file",                             "/docs/features/data/prisma-file"),
+  permanent("/docs/deployment/deployment-methods/cloud-providers",      "/docs/deployment/methods/cloud-providers"),
+  permanent("/docs/deployment/deployment-methods/overview",             "/docs/deployment/methods/overview"),
+  permanent("/docs/deployment/deployment-methods/self-hosted",          "/docs/deployment/methods/self-hosted"),
+  permanent("/docs/deployment/deployment-methods/wasp-deploy/ci-cd",    "/docs/deployment/methods/wasp-deploy/cd"),
+  permanent("/docs/deployment/deployment-methods/wasp-deploy/fly",      "/docs/deployment/methods/wasp-deploy/fly"),
+  permanent("/docs/deployment/deployment-methods/wasp-deploy/overview", "/docs/deployment/methods/wasp-deploy/overview"),
+  permanent("/docs/deployment/deployment-methods/wasp-deploy/railway",  "/docs/deployment/methods/wasp-deploy/railway"),
+  permanent("/docs/deployment/intro",                                   "/docs/deployment/overview"),
+  permanent("/docs/general/cli",                                        "/docs/advanced/cli"),
+  permanent("/docs/general/spec",                                       "/docs/features/spec"),
+  permanent("/docs/project/client-config",                              "/docs/advanced/client-customization/client-config"),
+  permanent("/docs/project/custom-vite-config",                         "/docs/advanced/client-customization/custom-vite-config"),
+  permanent("/docs/project/customizing-app",                            "/docs/advanced/client-customization/customizing-app"),
+  permanent("/docs/project/dependencies",                               "/docs/advanced/dependencies"),
+  permanent("/docs/project/env-vars",                                   "/docs/advanced/env-vars"),
+  permanent("/docs/project/server-config",                              "/docs/advanced/server-customization/server-config"),
+  permanent("/docs/project/starter-templates",                          "/docs/getting-started/starter-templates"),
+  permanent("/docs/project/static-assets",                              "/docs/advanced/client-customization/static-assets"),
+  permanent("/docs/project/testing",                                    "/docs/advanced/testing"),
+  permanent("/docs/wasp-ai/coding-agent-plugin",                        "/docs/getting-started/agent-integration"),
+  permanent("/docs/wasp-ai/git-worktrees",                              "/docs/advanced/git-worktrees"),
 ];
 
 /** Builds a permanent redirect rule (301). */
