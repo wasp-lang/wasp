@@ -100,7 +100,7 @@ Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 <ShowForTs>
   :::tip Type-safe links
-  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](../advanced/links) for more details.
+  Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](../features/pages-and-routes#navigating-between-pages) for more details.
   :::
 </ShowForTs>
 

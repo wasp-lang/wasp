@@ -211,7 +211,7 @@ If an image is purely decorative, you can give it an empty `alt=""` so crawlers 
 
 You should also use semantic HTML to help crawlers understand your content. For example, use one `<h1>` per page for the main heading, and use `<h2>`, `<h3>`, etc. for subheadings in order. Most indexers will understand that as your page's subject matter and closely relate it with those terms. You should also use descriptive link text instead of generic phrases like "click here," so crawlers know what the linked page is about.
 
-Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](/advanced/links.md), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
+Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](/features/pages-and-routes.md#navigating-between-pages), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
 
 ```tsx title="src/components/Navbar.tsx" auto-js
 import { Link } from "wasp/client/router"

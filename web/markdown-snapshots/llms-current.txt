@@ -54,7 +54,6 @@
 - [API routes](https://wasp.sh/docs/features/apis.md)
 ### Advanced
 - [Dependencies](https://wasp.sh/docs/advanced/dependencies.md)
-- [Type-safe links](https://wasp.sh/docs/advanced/links.md)
 - [Worktrees](https://wasp.sh/docs/advanced/git-worktrees.md)
 - [Environment variables](https://wasp.sh/docs/advanced/env-vars.md)
 - [Testing](https://wasp.sh/docs/advanced/testing.md)

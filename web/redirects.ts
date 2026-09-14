@@ -91,6 +91,7 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/advanced/apis",                                      "/docs/features/apis"),
   permanent("/docs/advanced/email",                                     "/docs/features/email"),
   permanent("/docs/advanced/jobs",                                      "/docs/features/jobs"),
+  permanent("/docs/advanced/links",                                     "/docs/features/pages-and-routes#navigating-between-pages"),
   permanent("/docs/advanced/middleware-config",                         "/docs/advanced/server-customization/middleware"),
   permanent("/docs/advanced/routing",                                   "/docs/features/pages-and-routes"),
   permanent("/docs/advanced/web-sockets",                               "/docs/features/websockets"),

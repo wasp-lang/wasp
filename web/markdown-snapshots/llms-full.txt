@@ -737,7 +737,7 @@ export const HelloPage = () => {
 Now you can visit `/hello/johnny` and see "Here's johnny!"
 
 :::tip[Type-safe links]
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](https://wasp.sh/docs/advanced/links) for more details.
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#navigating-between-pages) for more details.
 :::
 
 ### Cleaning Up
@@ -1349,7 +1349,7 @@ export const SignupPage = () => {
 ```
 
 :::tip[Type-safe links]
-Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out the [type-safe links docs](https://wasp.sh/docs/advanced/links) for more details.
+Since you are using Typescript, you can benefit from using Wasp's type-safe `Link` component and the `routes` object. Check out [Navigating between pages](https://wasp.sh/docs/features/pages-and-routes#navigating-between-pages) for more details.
 :::
 
 ### Update the Main Page to Require Auth
@@ -1752,7 +1752,7 @@ export default app({
 
 ## Features / Pages and routes
 
-A **page** is a React component that Wasp renders as a full screen of your app. A **route** connects a URL path to a page. You declare both in your `main.wasp.ts` file and Wasp generates the client-side router for you, so you never have to set up [React Router](https://reactrouter.com) by hand.
+A **page** is a React component that Wasp renders as a full screen of your app. A **route** connects a URL path to a page. You declare both in your `main.wasp.ts` file and Wasp generates all the wiring for you. Internally, we use the industry-standard [React Router](https://reactrouter.com/8.0.1/home) to handle routing.
 
 ### Declaring a page and a route
 
@@ -1772,7 +1772,7 @@ export default app({
 })
 ```
 
-The component is a regular React component. It doesn't receive any special props and doesn't need to be exported in a particular way, as long as you import it into the Wasp Spec with a [reference import](https://wasp.sh/docs/features/spec#reference-imports):
+The component is a regular React component. It doesn't receive any special props and doesn't need to be exported in a particular way:
 
 ```tsx title="src/AboutPage.tsx"
 export function AboutPage() {
@@ -1785,7 +1785,7 @@ export function AboutPage() {
 }
 ```
 
-With this in place, visiting `/about` renders `AboutPage`. Every route needs a unique name (`"AboutRoute"` above). You use that name later to build links to the route in a type-safe way, as shown in [Navigating between pages](#navigating-between-pages).
+With this example, visiting `/about` would show your `AboutPage` component. Every route needs a unique name (in this case, `"AboutRoute"`), which you can use to build type-safe links between pages, as shown in [Navigating between pages](#navigating-between-pages).
 
 Wasp collects every route in the `spec` array and turns them into a single React Router configuration. If you have many pages, you can [split the routes across several `*.wasp.ts` files](https://wasp.sh/docs/features/spec#splitting-your-spec-into-multiple-files).
 
@@ -1897,7 +1897,7 @@ export function TasksPage() {
 
 ### Navigating between pages
 
-To link from one page to another, use the `Link` component from `wasp/client/router`. It works like React Router's `Link`, but the `to` prop is checked against the routes in your `main.wasp.ts` file, and it asks for the right `params` when the path has dynamic segments:
+To link from one page to another, use the `Link` component from `wasp/client/router`. It behaves the same as [React Router's `Link`](https://reactrouter.com/8.0.1/api/components/Link), but we add types for route paths and parameters. If you give it a route path that doesn't exist or the wrong parameters, you'll get a type error.
 
 ```tsx title="src/PhotoList.tsx"
 import { Link } from "wasp/client/router";
@@ -1917,7 +1917,7 @@ export function PhotoList({ photoIds }: { photoIds: string[] }) {
 }
 ```
 
-When you need to navigate from code instead of from a link, for example after a form submits, build the URL with the `routes` object and pass it to React Router's `useNavigate` hook:
+When you need to navigate from your own code instead of as a link (for example after a form submits), build the URL with the `routes` object. `routes` has one entry per route name from your spec, and you can pass it to React Router's `useNavigate` hook:
 
 ```tsx title="src/NewPhotoForm.tsx"
 import { useNavigate } from "react-router";
@@ -1935,7 +1935,28 @@ export function NewPhotoForm() {
 }
 ```
 
-`routes` has one entry per route name from your spec. See [Type-safe links](https://wasp.sh/docs/advanced/links) for `NavLink`, search params, hashes, and the full API.
+#### Reacting to navigation state with `NavLink`
+
+Use `NavLink` when the current page should be highlighted, or when you want to show a spinner during a pending transition. It takes the same props as `Link`, but `className`, `style`, and `children` can be render-prop functions that receive `{ isActive, isPending, isTransitioning }`.
+
+```tsx title="src/Navigation.tsx"
+import { NavLink } from "wasp/client/router";
+
+export function Navigation() {
+  return (
+    <nav>
+      <NavLink
+        to="/tasks"
+        className={({ isActive }) =>
+          isActive ? "font-bold text-blue-600" : "text-gray-600"
+        }
+      >
+        Tasks
+      </NavLink>
+    </nav>
+  );
+}
+```
 
 ### Restricting a page to logged-in users
 
@@ -2003,7 +2024,11 @@ See [Root Component](https://wasp.sh/docs/advanced/client-customization/client-c
 
 ### Setting the page title and metadata
 
-The `title` and `head` fields of your `app` config apply to every page. To change the document title or add `<meta>` tags for a single page, render `<title>` and `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
+The `title` and `head` fields of your `app` config apply to every page.
+
+Use either `app.title` or a `<title>` element to set the document title, never both. These approaches are mutually exclusive because React does not deduplicate `<title>` elements. Wasp currently requires `app.title` and always renders it, so page-level `<title>` elements are not supported as an alternative yet.
+
+To add metadata for a single page, render `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
 
 ```tsx title="src/PhotoPage.tsx"
 import { useParams } from "react-router";
@@ -2012,7 +2037,6 @@ export function PhotoPage() {
   const { photoId } = useParams<"photoId">();
   return (
     <>
-      <title>{`Photo ${photoId} | My App`}</title>
       <meta name="description" content="A photo from my collection" />
       <div>Viewing photo {photoId}</div>
     </>
@@ -2041,9 +2065,9 @@ export default app({
 
 ### Lazy-loaded routes
 
-By default, Wasp lazy-loads all page routes using React Router's [`lazy`](https://reactrouter.com/how-to/code-splitting) property. This means each page's code is only downloaded when the user navigates to it, resulting in smaller initial bundle sizes. This is especially useful for apps with many routes.
+By default, Wasp splits and lazy-loads all pages. This means that, for example, while the user is in the `/about` page, all the other pages' code is not loaded. And, when the user navigates to another page, that bundle of code is downloaded on-demand. This reduces the amount of data your users need to download and execute, and thus provides a faster initial load experience, similar to classic HTML sites. This is especially useful for apps with many routes.
 
-If you need a specific route to be eagerly loaded (included in the main bundle), you can set `lazy: false` on the route spec:
+Most apps won't need to change this. But if you need a specific route to always be loaded, and have instant rendering, you can set the `lazy: false` option on the `route` spec:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -2058,8 +2082,8 @@ export default app({
 })
 ```
 
-:::note
-Most apps won't need to change this. Disabling lazy loading is useful when you want to avoid the brief loading delay for a page that users navigate to very frequently, at the cost of a larger initial download.
+:::caution
+Disabling lazy loading means that this page's code will always be downloaded by the user's browser ahead of time. This will increase the initial load time of your app, especially if the page has a lot of code.
 :::
 
 ### Prerendered routes
@@ -2096,11 +2120,93 @@ See the [Prerendering](https://wasp.sh/docs/advanced/prerendering) page for the 
 
 [All the options for declaring a route in the Wasp spec.](https://wasp.sh/docs/api/@wasp.sh/spec/functions/route)
 
-#### JavaScript API
+#### `Link` Component
 
-Wasp exposes the `Link` and `NavLink` components and the `routes` object from `wasp/client/router`. They are documented in the [Type-safe links API reference](https://wasp.sh/docs/advanced/links#api-reference).
+The `Link` component accepts the following props:
 
-Inside page components, you can use every hook and component from `react-router`, such as `useParams`, `useSearchParams`, `useLocation`, `useNavigate`, and `Outlet`. See the [React Router API reference](https://reactrouter.com/8.0.1/api/hooks/useParams).
+- `to` required
+
+  - A valid Wasp Route path from your `main.wasp.ts` file.
+
+    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
+
+- `params: { [name: string]: string | number }` required (if the path contains params)
+
+  - An object with keys and values for each param in the path.
+  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
+
+- `search: string[][] | Record<string, string> | string | URLSearchParams`
+
+  - Any valid input for `URLSearchParams` constructor.
+  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
+
+- `hash: string`
+
+- all other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
+
+#### `NavLink` Component
+
+The `NavLink` component accepts the same `to`, `params`, `search`, and `hash` props as the [`Link` component](#link-component), plus:
+
+- all other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
+
+  - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
+
+#### `routes` Object
+
+The `routes` object contains a function for each route in your app.
+
+```ts title="router.tsx"
+export const routes = {
+  // RootRoute has a path like "/"
+  RootRoute: {
+    build: (options?: {
+      search?: string[][] | Record<string, string> | string | URLSearchParams
+      hash?: string
+    }) => // ...
+  },
+
+  // DetailRoute has a path like "/task/:id/:userId?"
+  DetailRoute: {
+    build: (
+      options: {
+        params: { id: ParamValue; userId?: ParamValue; },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+
+  // OptionalRoute has a path like "/task/:id/details?"
+  OptionalRoute: {
+    build: (
+      options: {
+        path: "/task/:id/details" | "/task/:id",
+        params: { id: ParamValue },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+
+  // CatchAllRoute has a path like "/pages/*"
+  CatchAllRoute: {
+    build: (
+      options: {
+        params: { "*": ParamValue },
+        search?: string[][] | Record<string, string> | string | URLSearchParams
+        hash?: string
+      }
+    ) => // ...
+  },
+}
+```
+
+The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
+
+#### React Router API
+
+Inside page components, you can use every hook and component from `react-router`, such as [`useParams`](https://reactrouter.com/8.0.1/api/hooks/useParams), [`useSearchParams`](https://reactrouter.com/8.0.1/api/hooks/useSearchParams), [`useLocation`](https://reactrouter.com/8.0.1/api/hooks/useLocation), [`useNavigate`](https://reactrouter.com/8.0.1/api/hooks/useNavigate), and [`Outlet`](https://reactrouter.com/8.0.1/api/components/Outlet).
 
 
 ## Features / Data / Entities
@@ -11422,297 +11528,6 @@ npm install some-package --min-release-age=0
 Or you can adjust the value in your project's `.npmrc` file.
 
 
-## Advanced / Type-safe links
-
-If you are using Typescript, Wasp gives you typesafe building blocks for navigation. You get autocompletion on route paths, compile errors when params are missing, and a single source of truth between your `main.wasp.ts` file and your client code.
-
-### Typesafe navigation with components
-
-For navigating between pages inside JSX, Wasp exposes two components from `wasp/client/router`: `Link` for simple links, and `NavLink` when you need to react to navigation state.
-
-#### Simple links with `Link`
-
-Reach for `Link` when you just need to send the user to another page. Given this route:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { TaskPage } from "./src/TaskPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("TaskRoute", "/task/:id", page(TaskPage)),
-  ],
-})
-```
-
-You'd use it like this:
-
-```jsx title="TaskList.tsx"
-import { Link } from "wasp/client/router"
-
-export const TaskList = () => {
-  // ...
-
-  return (
-    <div>
-      {tasks.map((task) => (
-        <Link
-          key={task.id}
-          to="/task/:id"
-          {/* 👆 Autocompleted from your wasp routes */}
-          params={{ id: task.id }}>
-          {/* 👆 Required and typechecked against the path */}
-          {task.description}
-        </Link>
-      ))}
-    </div>
-  )
-}
-```
-
-The `to` prop is autocompleted from the routes you defined in `main.wasp.ts`, and `params` is typechecked against the path you picked. Rename a route or change a param, and any broken `Link` is pointed out by Typescript.
-
-#### Reacting to navigation state with `NavLink`
-
-Use `NavLink` when the current page should be highlighted, or when you want to show a spinner during a pending transition. It takes the same props as `Link`, but `className`, `style`, and `children` can be render-prop functions that receive `{ isActive, isPending, isTransitioning }`.
-
-```tsx title="Navigation.tsx"
-import { NavLink } from "wasp/client/router"
-
-export const Navigation = () => {
-  return (
-    <nav>
-      <NavLink
-        to="/tasks"
-        className={({ isActive }) =>
-          isActive ? "font-bold text-blue-600" : "text-gray-600"
-        }
-      >
-        Tasks
-      </NavLink>
-    </nav>
-  )
-}
-```
-
-Everything below applies to both `Link` and `NavLink`.
-
-#### Catch-all routes
-
-If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/8.0.1/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { CatchAllPage } from "./src/CatchAllPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("CatchAllRoute", "/pages/*", page(CatchAllPage)),
-  ],
-})
-```
-
-```jsx title="TaskList.tsx"
-<Link to="/pages/*" params={{ "*": "about" }}>
-  About
-</Link>
-```
-
-This renders as `/pages/about`.
-
-#### Optional static segments
-
-If a route has an optional static segment, you can choose at the call site whether to include it or not:
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { OptionalPage } from "./src/OptionalPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("OptionalRoute", "/task/:id/details?", page(OptionalPage)),
-  ],
-})
-```
-
-```jsx title="TaskList.tsx"
-/* You can include the optional segment ... */
-<Link to="/task/:id/details" params={{ id: 1 }}>
-  Task 1
-</Link>
-
-/* ... or leave it out */
-<Link to="/task/:id" params={{ id: 1 }}>
-  Task 1
-</Link>
-```
-
-#### Search params and hash
-
-You can also pass `search` and `hash` to attach a query string and fragment:
-
-```tsx title="TaskList.tsx"
-<Link
-  to="/task/:id"
-  params={{ id: task.id }}
-  search={{ sortBy: "date" }}
-  hash="comments"
->
-  {task.description}
-</Link>
-```
-
-This renders as `/task/1?sortBy=date#comments`. Check out the [API Reference](#link-component) for the full list of accepted props.
-
-### Typesafe navigation outside of components
-
-When you need a URL string instead of a component, for example for `useNavigate`, redirects, `window.location`, or anywhere you are not rendering JSX, use the `routes` object from `wasp/client/router`:
-
-```jsx title="TaskList.tsx"
-import { routes } from "wasp/client/router"
-
-const linkToTask = routes.TaskRoute.build({ params: { id: 1 } })
-```
-
-`linkToTask` is the string `/task/1`. Each route from `main.wasp.ts` shows up on `routes` with a `build` function whose options are typed against the route's path, so the same compile-time safety you get from `Link` is also available outside of JSX.
-
-`build` follows the same rules as the [components above](#typesafe-navigation-with-components): catch-all routes take a `*` param, optional static segments pick a concrete `path`, and you can attach a query string and fragment via `search` and `hash`.
-
-```tsx
-const linkToTaskComments = routes.OptionalRoute.build({
-  path: "/task/:id/details",
-  params: { id: 1 },
-  search: { sortBy: "date" },
-  hash: "comments",
-})
-```
-
-This renders as `/task/1/details?sortBy=date#comments`. Check out the [API Reference](#routes-object) for the full shape.
-
-### API Reference
-
-#### `Link` Component
-
-The `Link` component accepts the following props:
-
-- `to` required
-
-  - A valid Wasp Route path from your `main.wasp.ts` file.
-
-    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
-
-- `params: { [name: string]: string | number }` required (if the path contains params)
-
-  - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
-
-- `search: string[][] | Record<string, string> | string | URLSearchParams`
-
-  - Any valid input for `URLSearchParams` constructor.
-  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
-
-- `hash: string`
-
-- all other props that the `react-router`'s [Link](https://reactrouter.com/8.0.1/api/components/Link) component accepts
-
-#### `NavLink` Component
-
-The `NavLink` component accepts the following props:
-
-- `to` required
-
-  - A valid Wasp Route path from your `main.wasp.ts` file.
-
-    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
-
-- `params: { [name: string]: string | number }` required (if the path contains params)
-
-  - An object with keys and values for each param in the path.
-  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
-
-- `search: string[][] | Record<string, string> | string | URLSearchParams`
-
-  - Any valid input for `URLSearchParams` constructor.
-  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
-
-- `hash: string`
-
-- all other props that the `react-router`'s [NavLink](https://reactrouter.com/8.0.1/api/components/NavLink) component accepts
-
-  - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
-
-#### `routes` Object
-
-The `routes` object contains a function for each route in your app.
-
-```ts title="router.tsx"
-export const routes = {
-  // RootRoute has a path like "/"
-  RootRoute: {
-    build: (options?: {
-      search?: string[][] | Record<string, string> | string | URLSearchParams
-      hash?: string
-    }) => // ...
-  },
-
-  // DetailRoute has a path like "/task/:id/:userId?"
-  DetailRoute: {
-    build: (
-      options: {
-        params: { id: ParamValue; userId?: ParamValue; },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // OptionalRoute has a path like "/task/:id/details?"
-  OptionalRoute: {
-    build: (
-      options: {
-        path: "/task/:id/details" | "/task/:id",
-        params: { id: ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-
-  // CatchAllRoute has a path like "/pages/*"
-  CatchAllRoute: {
-    build: (
-      options: {
-        params: { "*": ParamValue },
-        search?: string[][] | Record<string, string> | string | URLSearchParams
-        hash?: string
-      }
-    ) => // ...
-  },
-}
-```
-
-The `params` object is required if the route contains params. The `search` and `hash` parameters are optional.
-
-You can use the `routes` object like this:
-
-```tsx
-import { routes } from "wasp/client/router"
-
-const linkToRoot = routes.RootRoute.build()
-const linkToTask = routes.DetailRoute.build({ params: { id: 1 } })
-const linkToOptional = routes.DetailRoute.build({
-  path: "/task/:id/details",
-  params: { id: 1 },
-})
-const linkToCatchAll = routes.CatchAllRoute.build({
-  params: { "*": "about" },
-})
-```
-
-
 ## Advanced / Worktrees
 
 Git worktrees let you work on several isolated instances of the same repository. This is useful when several coding agents work on the app in parallel.
@@ -12734,7 +12549,7 @@ When you run `wasp build`, your app is automatically optimized for production. Y
 
 - **Prerendering.** Wasp apps are single-page applications, and many crawlers and AI assistants don't run JavaScript, so they'd see an empty page. Mark a route with `prerender: true` and [Wasp generates its HTML at build time](https://wasp.sh/docs/advanced/prerendering), making your content readable without JavaScript.
 
-- **Crawlable navigation.** Crawlers discover your pages by following `<a>` tags. [Wasp's `Link` component](https://wasp.sh/docs/advanced/links) renders real, type-checked `<a>` tags, unlike programmatic navigation, which crawlers can't see.
+- **Crawlable navigation.** Crawlers discover your pages by following `<a>` tags. [Wasp's `Link` component](https://wasp.sh/docs/features/pages-and-routes#navigating-between-pages) renders real, type-checked `<a>` tags, unlike programmatic navigation, which crawlers can't see.
 
 - **Lazy loading.** Split heavy or below-the-fold components out of the initial bundle with [`React.lazy`](https://react.dev/reference/react/lazy), so your pages stay small and fast.
 
@@ -24515,7 +24330,7 @@ If an image is purely decorative, you can give it an empty `alt=""` so crawlers 
 
 You should also use semantic HTML to help crawlers understand your content. For example, use one `<h1>` per page for the main heading, and use `<h2>`, `<h3>`, etc. for subheadings in order. Most indexers will understand that as your page's subject matter and closely relate it with those terms. You should also use descriptive link text instead of generic phrases like "click here," so crawlers know what the linked page is about.
 
-Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](https://wasp.sh/docs/advanced/links), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
+Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](https://wasp.sh/docs/features/pages-and-routes#navigating-between-pages), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
 
 ```tsx title="src/components/Navbar.tsx"
 import { Link } from "wasp/client/router";

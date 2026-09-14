@@ -127,7 +127,6 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         "advanced/dependencies",
-        "advanced/links",
         "advanced/git-worktrees",
         "advanced/env-vars",
         "advanced/testing",
