@@ -1,4 +1,8 @@
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
+import type {
+  SidebarItemConfig,
+  SidebarItemLink,
+} from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
 import typedocSidebar from "./docs/api/typedoc-sidebar";
 
 const sidebars: SidebarsConfig = {
@@ -196,76 +200,22 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         { type: "doc", id: "migration-guide" },
-        {
-          type: "link",
-          label: "From 0.24 to 0.25",
-          href: "/docs/0.25/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.23 to 0.24",
-          href: "/docs/0.24/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.22 to 0.23",
-          href: "/docs/0.23/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.21 to 0.22",
-          href: "/docs/0.22/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.20 to 0.21",
-          href: "/docs/0.21/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.19 to 0.20",
-          href: "/docs/0.20/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.18 to 0.19",
-          href: "/docs/0.19/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.17 to 0.18",
-          href: "/docs/0.18/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.16 to 0.17",
-          href: "/docs/0.17/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.15 to 0.16",
-          href: "/docs/0.16/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.14 to 0.15",
-          href: "/docs/0.15/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.13 to 0.14",
-          href: "/docs/0.14/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.12 to 0.13",
-          href: "/docs/0.13/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.11 to 0.12",
-          href: "/docs/0.12/migration-guide",
-        },
+        ...generateMigrationGuideLinks("0.11", [
+          "0.12",
+          "0.13",
+          "0.14",
+          "0.15",
+          "0.16",
+          "0.17",
+          "0.18",
+          "0.19",
+          "0.20",
+          "0.21",
+          "0.22",
+          "0.23",
+          "0.24",
+          "0.25",
+        ]),
       ],
     },
     {
@@ -294,3 +244,21 @@ const sidebars: SidebarsConfig = {
 };
 
 export default sidebars;
+
+function generateMigrationGuideLinks(
+  earliestUndocumentedVersion: string,
+  docsVersions: string[],
+): SidebarItemConfig[] {
+  return docsVersions
+    .map((currentVersion, index, arr): SidebarItemLink => {
+      const prevVersion =
+        index == 0 ? earliestUndocumentedVersion : arr[index - 1];
+
+      return {
+        type: "link",
+        label: `From ${prevVersion} to ${currentVersion}`,
+        href: `/docs/${currentVersion}/migration-guide`,
+      };
+    })
+    .reverse();
+}
