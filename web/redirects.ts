@@ -98,7 +98,7 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/auth/auth-hooks",                                    "/docs/features/auth/hooks"),
   permanent("/docs/auth/email",                                         "/docs/features/auth/email/overview"),
   permanent("/docs/auth/email/create-your-own-ui",                      "/docs/features/auth/email/create-your-own-ui"),
-  permanent("/docs/auth/entities/entities",                             "/docs/features/auth/entities"),
+  permanent("/docs/auth/entities",                                      "/docs/features/auth/entities"),
   permanent("/docs/auth/overview",                                      "/docs/features/auth/overview"),
   permanent("/docs/auth/social-auth/create-your-own-ui",                "/docs/features/auth/social-auth/create-your-own-ui"),
   permanent("/docs/auth/social-auth/discord",                           "/docs/features/auth/social-auth/discord"),
