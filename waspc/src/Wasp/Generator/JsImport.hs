@@ -13,7 +13,6 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.JsImport
   ( JsImport (..),
@@ -25,11 +24,11 @@ import Wasp.JsImport
     getJsImportStmtAndIdentifier,
     makeValueJsImport,
   )
-import Wasp.Project.Common (srcDirInWaspProjectDir)
+import Wasp.Project.Common (UserSrcDir, srcDirInWaspProjectDir)
 
 extImportToJsImport ::
   (GeneratedAppComponentSrcDir d) =>
-  Path Posix (Rel d) (Dir SourceExternalCodeDir) ->
+  Path Posix (Rel d) (Dir UserSrcDir) ->
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport

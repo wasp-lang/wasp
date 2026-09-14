@@ -23,7 +23,6 @@ import GHC.Generics (Generic)
 import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.Project.Common as Project
 
 data ExtImport = ExtImport
@@ -64,7 +63,7 @@ instance FromJSON ExtImport where
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
 
-type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
+type ExtImportPath = Path Posix (Rel Project.UserSrcDir) File'
 
 type Identifier = String
 
