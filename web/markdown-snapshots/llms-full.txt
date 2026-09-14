@@ -2026,8 +2026,6 @@ See [Root Component](https://wasp.sh/docs/advanced/client-customization/client-c
 
 The `title` and `head` fields of your `app` config apply to every page.
 
-Use either `app.title` or a `<title>` element to set the document title, never both. These approaches are mutually exclusive because React does not deduplicate `<title>` elements. Wasp currently requires `app.title` and always renders it, so page-level `<title>` elements are not supported as an alternative yet.
-
 To add metadata for a single page, render `<meta>` elements inside the page component. React moves them into the document `<head>` for you:
 
 ```tsx title="src/PhotoPage.tsx"
@@ -2044,7 +2042,7 @@ export function PhotoPage() {
 }
 ```
 
-Read more in the [React docs on `<title>`](https://react.dev/reference/react-dom/components/title) and [`<meta>`](https://react.dev/reference/react-dom/components/meta), and in the [SEO & GEO](https://wasp.sh/docs/advanced/seo) page.
+Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/components/meta), and in the [SEO & GEO](https://wasp.sh/docs/advanced/seo) page.
 
 ### Showing a page for unknown URLs
 
