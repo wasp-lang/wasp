@@ -37,6 +37,7 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
         name: "FullApp",
         wasp: { version: "^0.16.3" },
         title: "Mock App",
+        deployment: getDeploymentConfig("full"),
         head: ['<link rel="icon" href="/favicon.ico" />'],
         auth: getAuthConfig("full"),
         server: getServerConfig("full"),
@@ -343,6 +344,24 @@ export function getDbConfig(scope: ConfigScope): Config<WaspSpec.Db> {
         seeds: [getRefObject("full", "named"), getRefObject("full", "default")],
         prismaSetupFn: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.Db>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getDeploymentConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.Deployment>;
+export function getDeploymentConfig(
+  scope: ConfigScope,
+): Config<WaspSpec.Deployment> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<WaspSpec.Deployment>;
+    case "full":
+      return {
+        mode: "split",
+      } satisfies FullConfig<WaspSpec.Deployment>;
     default:
       assertUnreachable(scope);
   }

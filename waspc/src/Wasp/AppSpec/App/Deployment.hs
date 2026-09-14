@@ -6,11 +6,15 @@
 module Wasp.AppSpec.App.Deployment
   ( Deployment (..),
     DeploymentMode (..),
+    defaultMode,
+    deploymentModeName,
   )
 where
 
 import Data.Aeson (FromJSON (parseJSON), ToJSON (toJSON), Value (String), withText)
 import Data.Data (Data)
+import Data.List (find)
+import qualified Data.Text as T
 import GHC.Generics (Generic)
 
 data Deployment = Deployment
@@ -18,14 +22,26 @@ data Deployment = Deployment
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
-data DeploymentMode = Split
-  deriving (Show, Eq, Data, Generic)
+-- | How the client and the server of a Wasp app are deployed.
+data DeploymentMode
+  = -- | One deployable app that serves both the client and the server.
+    Single
+  | -- | The client and the server are deployed separately, each with its own URL.
+    Split
+  deriving (Show, Eq, Data, Generic, Enum, Bounded)
+
+defaultMode :: DeploymentMode
+defaultMode = Single
+
+deploymentModeName :: DeploymentMode -> String
+deploymentModeName Single = "single"
+deploymentModeName Split = "split"
 
 instance FromJSON DeploymentMode where
-  parseJSON = withText "DeploymentMode" $ \deploymentMode ->
-    case deploymentMode of
-      "split" -> pure Split
-      _ -> fail $ "Unknown deployment mode: " ++ show deploymentMode
+  parseJSON = withText "DeploymentMode" $ \name ->
+    case find ((== T.unpack name) . deploymentModeName) [minBound .. maxBound] of
+      Just mode -> pure mode
+      Nothing -> fail $ "Unknown deployment mode: " ++ show name
 
 instance ToJSON DeploymentMode where
-  toJSON Split = String "split"
+  toJSON = String . T.pack . deploymentModeName

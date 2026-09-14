@@ -112,7 +112,7 @@ export type Deployment = {
   mode: Optional<DeploymentMode>;
 };
 
-export type DeploymentMode = "split";
+export type DeploymentMode = "single" | "split";
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export type ExtImportKind = ExtImport["kind"];
