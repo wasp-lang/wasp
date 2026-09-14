@@ -14,7 +14,7 @@ It can be a PostgreSQL database running on the same server as the server app, or
 
 ## Migrations
 
-Every time you make a change in your [Prisma schema](../data-model/prisma-file.md) e.g. adding a new model, changing a field type, etc., you need to create a migration. Migrations are some code that describes the change you made in the schema, and they are used to apply the change to the database.
+Every time you make a change in your [Prisma schema](../features/data/prisma-file.md) e.g. adding a new model, changing a field type, etc., you need to create a migration. Migrations are some code that describes the change you made in the schema, and they are used to apply the change to the database.
 
 The benefit of migrations is that you can apply the same change to multiple databases. If there are multiple people working on the project, they can all apply the same changes to their local databases. When you deploy the app to production, the same chaanges are applied to the production database.
 

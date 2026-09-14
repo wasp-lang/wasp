@@ -144,7 +144,7 @@ export async function getSpotifyUser(accessToken: string): Promise<SpotifyUser> 
 }
 ```
 
-`src/auth.ts` wires the route handlers and uses `wasp/server/auth` helpers (`findAuthIdentity`, `createUser`) to connect the OAuth identity to a Wasp session (see [Custom Auth Actions](../../auth/advanced/custom-auth-actions.md) for details). This is similar to what Wasp does internally for [Google, GitHub and other supported providers](../../auth/social-auth/overview.md):
+`src/auth.ts` wires the route handlers and uses `wasp/server/auth` helpers (`findAuthIdentity`, `createUser`) to connect the OAuth identity to a Wasp session (see [Custom Auth Actions](../../features/auth/advanced/custom-auth-actions.md) for details). This is similar to what Wasp does internally for [Google, GitHub and other supported providers](../../features/auth/social-auth/overview.md):
 
 ```ts title="src/auth.ts" auto-js
 import * as arctic from "arctic";
@@ -211,7 +211,7 @@ The `tokenStore` and `getRedirectUriForOneTimeCode` are internal Wasp APIs that 
 
 ### 5. Create the login page
 
-Add a login button that redirects to your OAuth endpoint. This follows the same pattern as Wasp's [custom social auth UI](../../auth/social-auth/create-your-own-ui.md):
+Add a login button that redirects to your OAuth endpoint. This follows the same pattern as Wasp's [custom social auth UI](../../features/auth/social-auth/create-your-own-ui.md):
 
 ```tsx title="src/MainPage.tsx" auto-js
 import { logout, useAuth } from "wasp/client/auth";

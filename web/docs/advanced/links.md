@@ -1,5 +1,5 @@
 ---
-title: Type-Safe Links
+title: Type-safe links
 ---
 
 import { Required } from '@site/src/components/Tag'
