@@ -77,7 +77,7 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
             [ "crud" .= getCrudOperationJson name crud idField,
               "isAuthEnabled" .= isAuthEnabled spec
             ]
-        -- AppSpec validation ensures that the entity field exists.
+        -- Analyzer ensures that the entity field exists, so fromJust is safe here.
         idField = getIdFieldFromCrudEntity spec crud
 
 genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]

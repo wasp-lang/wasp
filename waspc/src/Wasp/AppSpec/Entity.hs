@@ -54,9 +54,7 @@ instance Inspectable Entity where
         [("Fields", intercalate ", " $ Psl.Model._name <$> getFields entity)]
     ]
 
--- | Constructs declarations from parsed Prisma models. Parsing and schema
--- validation happen in Wasp.Project.Analyze before this conversion; declaration
--- validation happens after the AppSpec is constructed.
+-- | Constructs entity declarations from parsed Prisma models.
 makeEntityDecls :: Psl.Schema.Schema -> [Decl]
 makeEntityDecls = map (makeEntityDecl . Psl.WithCtx.getNode) . Psl.Schema.getModels
   where

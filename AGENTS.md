@@ -16,7 +16,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
 ## Repository Structure
 
 - `waspc/` — Haskell compiler, CLI, and LSP server (the core of Wasp)
-  - `src/` — Main compiler library (`Wasp.Project.Analyze`, AppSpec, Generator, Psl)
+  - `src/` — Main compiler library (Analyzer, Generator, AppSpec, Psl)
   - `cli/src/` — CLI commands (start, build, new, deploy, etc.)
   - `data/packages/` — TypeScript packages called by the CLI when compiling projects as FFI
   - `data/Generator/libs/` — TypeScript libraries embedded into generated project code
@@ -58,7 +58,7 @@ Key things to know:
 
 ### Architecture
 
-- TypeScript config (`main.wasp.ts`) and the Prisma schema are read by `Wasp.Project.Analyze` → **AppSpec** (IR) → **Generator** produces React/Node.js code.
+- **Analyzer** reads the TypeScript config (`main.wasp.ts`) and Prisma schema and produces **AppSpec** (IR). **Generator** consumes AppSpec and produces React/Node.js code.
 - Code generation uses a file draft system and Mustache templates in `data/Generator/templates/`.
 
 ## Important Rules

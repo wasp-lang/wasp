@@ -8,8 +8,8 @@ import Data.Char (isAlpha, isAlphaNum)
 -- | Checks if a string is a valid Wasp identifier.
 --
 -- A valid identifier starts with a Unicode letter or underscore, continues
--- with Unicode letters, numbers or underscores, may end with any number of apostrophes, and is not one of
--- the reserved keywords.
+-- with Unicode letters, numbers or underscores, may end with any number of
+-- apostrophes, and is not one of the reserved keywords.
 isValidWaspIdentifier :: String -> Bool
 isValidWaspIdentifier str = matchesIdentifierRule str && str `notElem` reservedKeywords
   where
