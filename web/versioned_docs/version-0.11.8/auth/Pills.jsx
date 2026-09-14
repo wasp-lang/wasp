@@ -1,10 +1,13 @@
 import Link from "@docusaurus/Link";
+import { useActiveVersion } from "@docusaurus/plugin-content-docs/client";
 import "./Pills.css";
 
 export function Pill({ children, linkToPage, style = {} }) {
+  // Link within the docs version this page belongs to, not the latest one.
+  const { path: versionPath } = useActiveVersion();
   return (
     <Link
-      to={linkToPage}
+      to={versionPath + linkToPage}
       style={{
         padding: "0.1rem 0.5rem",
         borderRadius: "0.375rem",
@@ -33,7 +36,7 @@ export function EmailPill() {
       style={{
         backgroundColor: "var(--auth-pills-email)",
       }}
-      linkToPage="/docs/features/auth/email/overview"
+      linkToPage="/auth/email"
     >
       Email
     </Pill>
@@ -46,7 +49,7 @@ export function UsernameAndPasswordPill() {
       style={{
         backgroundColor: "var(--auth-pills-username-and-pass)",
       }}
-      linkToPage="/docs/features/auth/username-and-pass/overview"
+      linkToPage="/auth/username-and-pass"
     >
       Username & Password
     </Pill>
@@ -59,7 +62,7 @@ export function GithubPill() {
       style={{
         backgroundColor: "var(--auth-pills-github)",
       }}
-      linkToPage="/docs/features/auth/social-auth/github"
+      linkToPage="/auth/social-auth/github"
     >
       Github
     </Pill>
@@ -72,7 +75,7 @@ export function GooglePill() {
       style={{
         backgroundColor: "var(--auth-pills-google)",
       }}
-      linkToPage="/docs/features/auth/social-auth/google"
+      linkToPage="/auth/social-auth/google"
     >
       Google
     </Pill>

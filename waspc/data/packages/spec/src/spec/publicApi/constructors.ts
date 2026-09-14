@@ -66,7 +66,7 @@ export type AppConfig = Omit<App, "kind">;
  *
  * A page is a React component rendered by a {@link route}.
  *
- * See [Routing](https://wasp.sh/docs/features/routing) and the
+ * See [Routing](https://wasp.sh/docs/features/routes) and the
  * [Auth overview](https://wasp.sh/docs/features/auth/overview#protecting-a-page-with-authrequired)
  * for protecting pages with `authRequired`.
  *
@@ -305,7 +305,7 @@ export type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
  * CORS) for a group of related endpoints.
  *
  * See the
- * [per-path middleware section](https://wasp.sh/docs/advanced/server-customization/middleware-config#3-customize-per-path-middleware).
+ * [per-path middleware section](https://wasp.sh/docs/advanced/server-customization/middleware#3-customize-per-path-middleware).
  *
  * @example
  * ```ts

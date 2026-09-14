@@ -5,7 +5,7 @@
 - [What's Wasp?](https://wasp.sh/docs.md)
 - [Quick start](https://wasp.sh/docs/quick-start.md)
 - [Starter templates](https://wasp.sh/docs/getting-started/starter-templates.md)
-- [Agent integration](https://wasp.sh/docs/getting-started/coding-agent-plugin.md)
+- [Agent integration](https://wasp.sh/docs/getting-started/agent-integration.md)
 ### Tutorial
 - [1. Creating a new project](https://wasp.sh/docs/tutorial/create.md)
 - [2. Project structure](https://wasp.sh/docs/tutorial/project-structure.md)
@@ -16,7 +16,7 @@
 - [7. Adding authentication](https://wasp.sh/docs/tutorial/auth.md)
 ### Features
 - [Wasp Spec (main.wasp.ts)](https://wasp.sh/docs/features/spec.md)
-- [Routes](https://wasp.sh/docs/features/routing.md)
+- [Routes](https://wasp.sh/docs/features/routes.md)
 #### Data
 - [Entities](https://wasp.sh/docs/features/data/entities.md)
 ##### Operations
@@ -50,7 +50,7 @@
 - [Custom sign-up actions](https://wasp.sh/docs/features/auth/advanced/custom-auth-actions.md)
 - [Email](https://wasp.sh/docs/features/email.md)
 - [Jobs](https://wasp.sh/docs/features/jobs.md)
-- [WebSockets](https://wasp.sh/docs/features/web-sockets.md)
+- [WebSockets](https://wasp.sh/docs/features/websockets.md)
 - [API routes](https://wasp.sh/docs/features/apis.md)
 ### Advanced
 - [Dependencies](https://wasp.sh/docs/advanced/dependencies.md)
@@ -62,13 +62,13 @@
 - [Prerendering](https://wasp.sh/docs/advanced/prerendering.md)
 - [SEO & GEO](https://wasp.sh/docs/advanced/seo.md)
 #### Client customization
-- [Customizing the <head>](https://wasp.sh/docs/advanced/client-customization/customizing-app.md)
+- [Customizing the app](https://wasp.sh/docs/advanced/client-customization/customizing-app.md)
 - [Client configuration](https://wasp.sh/docs/advanced/client-customization/client-config.md)
 - [Static assets](https://wasp.sh/docs/advanced/client-customization/static-assets.md)
 - [Custom Vite config](https://wasp.sh/docs/advanced/client-customization/custom-vite-config.md)
 #### Server customization
 - [Server config](https://wasp.sh/docs/advanced/server-customization/server-config.md)
-- [Middleware](https://wasp.sh/docs/advanced/server-customization/middleware-config.md)
+- [Middleware](https://wasp.sh/docs/advanced/server-customization/middleware.md)
 - [CLI reference](https://wasp.sh/docs/advanced/cli.md)
 ### Deployment
 - [Overview](https://wasp.sh/docs/deployment/overview.md)
@@ -81,7 +81,7 @@
 - [Overview](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview.md)
 - [Fly.io](https://wasp.sh/docs/deployment/methods/wasp-deploy/fly.md)
 - [Railway](https://wasp.sh/docs/deployment/methods/wasp-deploy/railway.md)
-- [Continuous deployment](https://wasp.sh/docs/deployment/methods/wasp-deploy/ci-cd.md)
+- [Continuous deployment](https://wasp.sh/docs/deployment/methods/wasp-deploy/cd.md)
 - [Cloud providers](https://wasp.sh/docs/deployment/methods/cloud-providers.md)
 - [Self-hosted](https://wasp.sh/docs/deployment/methods/self-hosted.md)
 - [CI & CD](https://wasp.sh/docs/deployment/ci-cd.md)

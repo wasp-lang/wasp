@@ -71,7 +71,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../features/routing#dynamic-segments). Let's test this out by adding a new page:
+To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../features/routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"

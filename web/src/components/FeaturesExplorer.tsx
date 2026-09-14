@@ -496,7 +496,7 @@ export const sendGreeting: SendGreeting<{ userId: number }, void> =
     id: "ws",
     title: "WebSockets",
     sub: "typed real-time",
-    docUrl: "/docs/features/web-sockets",
+    docUrl: "/docs/features/websockets",
     intro:
       "Make your web app alive with a fully integrated WebSocket experience (using Socket.IO).",
     codeBlocks: [

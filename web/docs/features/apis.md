@@ -163,7 +163,7 @@ export const apiMiddleware: MiddlewareConfigFn = (config) => {
 
 We are returning the default middleware which enables CORS for all APIs under the `/foo` path.
 
-For more information about middleware configuration, please see: [Middleware Configuration](../advanced/server-customization/middleware-config)
+For more information about middleware configuration, please see: [Middleware Configuration](../advanced/server-customization/middleware)
 
 ## Using Entities in APIs
 

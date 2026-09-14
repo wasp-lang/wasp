@@ -529,7 +529,7 @@ export interface Server {
    * Function that customizes the global Express middleware stack. Affects
    * all operations and APIs.
    *
-   * See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware-config).
+   * See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
@@ -781,7 +781,7 @@ export interface EmailFromField {
 /**
  * WebSocket configuration.
  *
- * See [Web Sockets](https://wasp.sh/docs/features/web-sockets) for handler
+ * See [Web Sockets](https://wasp.sh/docs/features/websockets) for handler
  * shape and client-side usage.
  *
  * @example
@@ -805,7 +805,7 @@ export interface WebSocket {
    * all app entities. If a connected socket is authenticated, Wasp stores the
    * user on `socket.data.user`.
    *
-   * See [the `websocketFn` docs](https://wasp.sh/docs/features/web-sockets#websocketfn).
+   * See [the `websocketFn` docs](https://wasp.sh/docs/features/websockets#websocketfn).
    */
   fn: Reference<AnyFunction>;
   /**
@@ -887,7 +887,7 @@ export interface Page extends BaseSpecElement<"page"> {
  *
  * Create one with the {@link route} constructor.
  *
- * See [Routing](https://wasp.sh/docs/features/routing) for path patterns
+ * See [Routing](https://wasp.sh/docs/features/routes) for path patterns
  * (dynamic segments, optional segments, splats).
  *
  * @category Specifications
@@ -1041,7 +1041,7 @@ export interface Api extends BaseSpecElement<"api"> {
   /**
    * Reference to an Express middleware config function for this endpoint only.
    *
-   * See [Configuring API middleware](https://wasp.sh/docs/advanced/server-customization/middleware-config#2-customize-api-specific-middleware).
+   * See [Configuring API middleware](https://wasp.sh/docs/advanced/server-customization/middleware#2-customize-api-specific-middleware).
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**

@@ -26,7 +26,7 @@ const benefits = [
     title: "It's got skills",
     description:
       "Plugins and Agent Skills for your coding tool of choice turn your agent into a Wasp expert.",
-    url: "/docs/getting-started/coding-agent-plugin",
+    url: "/docs/getting-started/agent-integration",
   },
   {
     Icon: Code,

@@ -145,7 +145,7 @@ If you have a Wasp application running in production, we'd love to send some swa
 
 ## AI Agent Plugins
 
-Wasp has official AI agent plugins to help you kickstart your next Wasp project. You can use them with your favorite AI-assisted coding tool (Cursor, Claude Code, etc.) to get a better result and development experience. Check out the [Wasp Agent Plugins](https://wasp.sh/docs/getting-started/coding-agent-plugin) page for more details.
+Wasp has official AI agent plugins to help you kickstart your next Wasp project. You can use them with your favorite AI-assisted coding tool (Cursor, Claude Code, etc.) to get a better result and development experience. Check out the [Wasp Agent Plugins](https://wasp.sh/docs/getting-started/agent-integration) page for more details.
 
 ## Project status
 

@@ -12,7 +12,7 @@ This guide shows you how to use Socket.IO namespaces with Wasp's WebSocket suppo
 
 ## Understanding Namespaces
 
-Wasp's built-in WebSocket support gives you a single default connection with type-safe events via `useSocket` and `useSocketListener` (see the [Web Sockets docs](../../features/web-sockets.md)). Namespaces are a Socket.IO feature that lets you split real-time logic over separate channels on a single shared connection. This is useful when you want to separate concerns, for example having a `/chat` namespace for chat-related events and a `/notifications` namespace for notification events.
+Wasp's built-in WebSocket support gives you a single default connection with type-safe events via `useSocket` and `useSocketListener` (see the [Web Sockets docs](../../features/websockets.md)). Namespaces are a Socket.IO feature that lets you split real-time logic over separate channels on a single shared connection. This is useful when you want to separate concerns, for example having a `/chat` namespace for chat-related events and a `/notifications` namespace for notification events.
 
 When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `useSocketListener`) and manage connections directly with `socket.io-client`. Wasp still handles the server-side setup and provides the `io` server instance.
 

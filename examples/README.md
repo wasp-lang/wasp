@@ -16,4 +16,4 @@ The **tutorials** directory contains [Wasp tutorial](https://wasp.sh/docs/tutori
    - Demonstrates: **[jobs](https://wasp.sh/docs/features/jobs)**, analytics
 
 1. **websockets-realtime-voting**
-   - Demonstrates: **[web sockets](https://wasp.sh/docs/features/web-sockets)**, [auth](https://wasp.sh/docs/features/auth/overview), voting system
+   - Demonstrates: **[web sockets](https://wasp.sh/docs/features/websockets)**, [auth](https://wasp.sh/docs/features/auth/overview), voting system

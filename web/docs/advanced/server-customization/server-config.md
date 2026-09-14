@@ -143,7 +143,7 @@ For the full description of the `setupFn` field, check the [`Server` API Referen
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
 
-Read more in the [configuring middleware section](./middleware-config#1-customize-global-middleware).
+Read more in the [configuring middleware section](./middleware#1-customize-global-middleware).
 
 ## API Reference
 

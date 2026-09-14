@@ -16,7 +16,7 @@ const sidebars: SidebarsConfig = {
         "getting-started/introduction",
         "getting-started/quick-start",
         "getting-started/starter-templates",
-        "getting-started/coding-agent-plugin",
+        "getting-started/agent-integration",
       ],
     },
     {
@@ -42,7 +42,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "features/spec",
         // TODO: Pages docs go here: https://github.com/wasp-lang/wasp/issues/2072
-        "features/routing",
+        "features/routes",
         {
           type: "category",
           label: "Data",
@@ -117,7 +117,7 @@ const sidebars: SidebarsConfig = {
         },
         "features/email",
         "features/jobs",
-        "features/web-sockets",
+        "features/websockets",
         "features/apis",
       ],
     },
@@ -154,7 +154,7 @@ const sidebars: SidebarsConfig = {
           collapsible: true,
           items: [
             "advanced/server-customization/server-config",
-            "advanced/server-customization/middleware-config",
+            "advanced/server-customization/middleware",
           ],
         },
         "advanced/cli",
@@ -189,7 +189,7 @@ const sidebars: SidebarsConfig = {
               items: [
                 "deployment/methods/wasp-deploy/fly",
                 "deployment/methods/wasp-deploy/railway",
-                "deployment/methods/wasp-deploy/ci-cd",
+                "deployment/methods/wasp-deploy/cd",
               ],
             },
             "deployment/methods/cloud-providers",

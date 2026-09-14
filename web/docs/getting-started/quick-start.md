@@ -52,7 +52,7 @@ But don't stop there! Turn your coding agent into a Wasp framework expert in the
     ```bash
     Run the '/wasp-plugin-init' skill.
     ```
-   For more info check out the [Wasp Agent Plugin / Skills](./coding-agent-plugin.md) page.
+   For more info check out the [Wasp Agent Plugin / Skills](./agent-integration.md) page.
 
 :::note Something Unclear?
 Check [More Details](#more-details) section below if anything went wrong with the installation, or if you have additional questions.
