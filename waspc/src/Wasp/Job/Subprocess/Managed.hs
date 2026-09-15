@@ -20,7 +20,7 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Internal (JobOutputKind (..), JobOutputSink, writeJobOutput)
+import Wasp.Job (JobOutputKind (..), JobOutputSink, writeJobOutput)
 import qualified Wasp.Job.Subprocess.System as System
 import Wasp.Util (secondsToMicroSeconds)
 
