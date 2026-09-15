@@ -15,7 +15,7 @@ import qualified Wasp.Job.Subprocess as Subprocess
 buildServer :: BuildStartConfig -> Job.Job
 buildServer config =
   Job.makeJob Job.Server $
-    Subprocess.run (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+    Subprocess.runChecked (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
@@ -24,7 +24,7 @@ buildServer config =
 startServer :: BuildStartConfig -> Job.Job
 startServer config =
   Job.makeJob Job.Server $
-    Subprocess.run $
+    Subprocess.runChecked $
       proc
         "docker"
         ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]

@@ -76,7 +76,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   runExitCode <-
     Output.runAndPrintPrefixedOutput $
       Job.makeJob Job.Wasp $
-        Node.run
+        Node.runChecked
           [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
             -- Not related to `node` itself, so we have to set it manually.
             -- It enables users to write environment specific code in the TS config.

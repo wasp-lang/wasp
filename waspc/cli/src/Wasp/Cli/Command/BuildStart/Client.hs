@@ -12,7 +12,7 @@ import qualified Wasp.Job.Node as Node
 buildClient :: BuildStartConfig -> Job.Job
 buildClient config =
   Job.makeJob Job.WebApp $
-    Node.run
+    Node.runChecked
       envVars
       projectDir
       "npx"
@@ -24,7 +24,7 @@ buildClient config =
 startClient :: BuildStartConfig -> Job.Job
 startClient config =
   Job.makeJob Job.WebApp $
-    Node.run
+    Node.runChecked
       envVars
       projectDir
       "npx"

@@ -14,7 +14,7 @@ import Wasp.Util (secondsToMicroSeconds)
 
 spec_runSubprocess :: Spec
 spec_runSubprocess =
-  describe "Subprocess.run" $ do
+  describe "Subprocess.runChecked" $ do
     it "decodes split and incomplete UTF-8 on stdout" $
       runSplitUtf8Process "stdout" J.Stdout `shouldReturn` "€�"
 
@@ -23,7 +23,7 @@ spec_runSubprocess =
 
     it "fails the Job on a nonzero child exit" $ do
       chan <- newChan
-      let action = Subprocess.run $ P.proc "node" ["-e", "process.exit(7)"]
+      let action = Subprocess.runChecked $ P.proc "node" ["-e", "process.exit(7)"]
       J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitFailure 7
 
     it "can return a nonzero child exit for explicit handling" $ do
@@ -36,7 +36,7 @@ spec_runSubprocess =
 runSplitUtf8Process :: String -> J.JobOutputKind -> IO T.Text
 runSplitUtf8Process streamName expectedOutputKind = do
   chan <- newChan
-  let action = Subprocess.run $ P.proc "node" ["-e", splitUtf8Script streamName]
+  let action = Subprocess.runChecked $ P.proc "node" ["-e", splitUtf8Script streamName]
   exitCode <- J.runJob (J.makeJob J.Wasp action) chan
   exitCode `shouldBe` ExitSuccess
   output <- collectOutputUntilExit expectedOutputKind chan
