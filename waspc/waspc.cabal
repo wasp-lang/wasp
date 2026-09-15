@@ -160,7 +160,6 @@ library
   other-modules:
     Paths_waspc
     Wasp.Job.Output.Internal
-    Wasp.Job.Subprocess.Finite
 
   exposed-modules:
     Wasp.AppComponentUrl

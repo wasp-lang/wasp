@@ -15,7 +15,7 @@ startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job
 startServer serverRunConfig generatedAppDir = do
   let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
   J.makeJob J.Server $
-    Node.run
+    Node.runChecked
       (getEnvVars serverRunConfig)
       serverDir
       "npm"

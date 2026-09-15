@@ -80,7 +80,7 @@ installNpmDependenciesAndReport projectDir = do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
   outputSink <- getJobOutputSink
   (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputSink) Async.cancel
-  Node.run [] projectDir "npm" ["install"]
+  Node.runChecked [] projectDir "npm" ["install"]
   release progressReporterKey
 
 reportInstallationProgress :: JobOutputSink -> IO ()

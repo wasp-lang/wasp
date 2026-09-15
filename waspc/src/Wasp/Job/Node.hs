@@ -1,6 +1,6 @@
 module Wasp.Job.Node
   ( makeCreateProcess,
-    run,
+    runChecked,
     runReturningExitCode,
   )
 where
@@ -18,8 +18,8 @@ import qualified Wasp.Job.Subprocess as Subprocess
 import qualified Wasp.Node.Version as NodeVersion
 
 -- | Runs the command to completion, failing the Job on a nonzero child exit.
-run :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ()
-run = runCommandUsing Subprocess.run
+runChecked :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ()
+runChecked = runCommandUsing Subprocess.runChecked
 
 -- | Runs the command and returns the child process's exit status for explicit handling.
 runReturningExitCode :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> Job.JobAction ExitCode

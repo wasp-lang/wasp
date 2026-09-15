@@ -89,7 +89,7 @@ buildSdk generatedAppDir = do
   exitCode <-
     Output.runAndPrintPrefixedOutput $
       Job.makeJob Job.Wasp $
-        Node.run [] sdkRootDir "npm" ["run", "build"]
+        Node.runChecked [] sdkRootDir "npm" ["run", "build"]
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
