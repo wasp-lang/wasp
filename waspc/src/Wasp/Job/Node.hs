@@ -12,8 +12,8 @@ import qualified StrongPath as SP
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode)
 import qualified System.Process as P
+import Wasp.Job (failWithExitCode)
 import qualified Wasp.Job as Job
-import Wasp.Job.Internal (failWithExitCode)
 import qualified Wasp.Job.Subprocess as Subprocess
 import qualified Wasp.Node.Version as NodeVersion
 
