@@ -34,14 +34,14 @@ spec_runSubprocess =
       J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitSuccess
 
 runSplitUtf8Process :: String -> J.JobOutputKind -> IO T.Text
-runSplitUtf8Process streamName expectedOutputType = do
+runSplitUtf8Process streamName expectedOutputKind = do
   chan <- newChan
   let action = Subprocess.run $ P.proc "node" ["-e", splitUtf8Script streamName]
   exitCode <- J.runJob (J.makeJob J.Wasp action) chan
   exitCode `shouldBe` ExitSuccess
-  output <- collectOutputUntilExit expectedOutputType chan
-  remainingMessage <- timeout (secondsToMicroSeconds 0.1) $ readChan chan
-  remainingMessage `shouldSatisfy` isNothing
+  output <- collectOutputUntilExit expectedOutputKind chan
+  remainingEvent <- timeout (secondsToMicroSeconds 0.1) $ readChan chan
+  remainingEvent `shouldSatisfy` isNothing
   return output
 
 splitUtf8Script :: String -> String
@@ -53,14 +53,14 @@ splitUtf8Script streamName =
     <> ".write(Buffer.from([0x82, 0xac, 0xe2])), 200);"
 
 collectOutputUntilExit :: J.JobOutputKind -> Chan J.JobEvent -> IO T.Text
-collectOutputUntilExit expectedOutputType chan = go []
+collectOutputUntilExit expectedOutputKind chan = go []
   where
     go collected = do
       event <- readChan chan
       J._jobKind event `shouldBe` J.Wasp
       case J._eventData event of
         J.JobOutput outputKind output -> do
-          outputKind `shouldBe` expectedOutputType
+          outputKind `shouldBe` expectedOutputKind
           go (output : collected)
         J.JobExited exitCode -> do
           exitCode `shouldBe` ExitSuccess
