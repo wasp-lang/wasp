@@ -1,5 +1,6 @@
 module Wasp.Job.Output
   ( runAndPrintPrefixedOutput,
+    withPrefixedOutput,
     runAndPrintOutput,
     runAndCaptureOutput,
     printEventsPrefixedUntilExit,
@@ -22,20 +23,26 @@ import Wasp.Job.Output.Internal (getEventContent, getEventOutHandle)
 import Wasp.Job.Output.Prefixed (printEventPrefixed, runPrefixedWriter)
 
 runAndPrintPrefixedOutput :: Job.Job -> IO ExitCode
-runAndPrintPrefixedOutput job = fst <$> runWithOutput printEventsPrefixedUntilExit job
+runAndPrintPrefixedOutput job = withPrefixedOutput $ Job.runJob job
+
+-- | Prints output until the first JobExited event. The producer must emit
+-- an exit event on normal completion so the output consumer can finish.
+withPrefixedOutput :: (Chan Job.JobEvent -> IO a) -> IO a
+withPrefixedOutput produceEvents =
+  fst <$> runWithOutput printEventsPrefixedUntilExit produceEvents
 
 runAndPrintOutput :: Job.Job -> IO ExitCode
-runAndPrintOutput job = fst <$> runWithOutput printEventsUntilExit job
+runAndPrintOutput job = fst <$> runWithOutput printEventsUntilExit (Job.runJob job)
 
 runAndCaptureOutput :: Job.Job -> IO (ExitCode, Text)
 runAndCaptureOutput job = do
-  (exitCode, chunks) <- runWithOutput collectTextUntilExit job
+  (exitCode, chunks) <- runWithOutput collectTextUntilExit (Job.runJob job)
   return (exitCode, T.concat $ reverse chunks)
 
-runWithOutput :: (Chan Job.JobEvent -> IO a) -> Job.Job -> IO (ExitCode, a)
-runWithOutput consumeOutput job = do
+runWithOutput :: (Chan Job.JobEvent -> IO b) -> (Chan Job.JobEvent -> IO a) -> IO (a, b)
+runWithOutput consumeOutput produceEvents = do
   events <- newChan
-  Job.runJob job events `concurrently` consumeOutput events
+  produceEvents events `concurrently` consumeOutput events
 
 printEventsUntilExit :: Chan Job.JobEvent -> IO ()
 printEventsUntilExit = consumeEventsUntilExit $ liftIO . printEvent

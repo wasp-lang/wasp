@@ -3,7 +3,6 @@ module Wasp.Cli.Command.BuildStart
   )
 where
 
-import Control.Concurrent (Chan, newChan)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad.Except (MonadError (throwError))
 import Control.Monad.IO.Class (liftIO)
@@ -64,7 +63,7 @@ buildAndStartServerAndClient config = do
       showRunConfigUrls (config.clientRunConfig, config.serverRunConfig)
 
   firstExit <-
-    runAndPrintJobOutput $ \events ->
+    liftIO $ Output.withPrefixedOutput $ \events ->
       Async.race
         (Job.runJob (startClient config) events)
         (Job.runJob (startServer config) events)
@@ -72,14 +71,6 @@ buildAndStartServerAndClient config = do
     Left clientExit -> throwOnExitFailure "Serving client failed." clientExit
     Right serverExit -> throwOnExitFailure "Running server failed." serverExit
   where
-    runAndPrintJobOutput :: (Chan Job.JobEvent -> IO a) -> Command a
-    runAndPrintJobOutput run = liftIO $ do
-      chan <- newChan
-      fst
-        <$> Async.concurrently
-          (run chan)
-          (Output.printEventsPrefixedUntilExit chan)
-
     throwOnExitFailure :: String -> ExitCode -> Command ()
     throwOnExitFailure _ ExitSuccess = return ()
     throwOnExitFailure errorTitle (ExitFailure code) =
