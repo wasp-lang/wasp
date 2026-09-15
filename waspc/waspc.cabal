@@ -159,7 +159,6 @@ library
 
   other-modules:
     Paths_waspc
-    Wasp.Job.Internal
     Wasp.Job.Output.Internal
     Wasp.Job.Subprocess.Finite
 

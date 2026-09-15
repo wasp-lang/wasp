@@ -6,7 +6,7 @@ where
 
 import System.Exit (ExitCode)
 import qualified System.Process as P
-import Wasp.Job.Internal (JobAction, requireExitSuccess)
+import Wasp.Job (JobAction, requireExitSuccess)
 import qualified Wasp.Job.Subprocess.Finite as Finite
 
 -- | Runs the process to completion, failing the Job on a nonzero child exit.

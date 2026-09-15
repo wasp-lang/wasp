@@ -12,7 +12,7 @@ import qualified Data.Conduit.Text as CT
 import System.Exit (ExitCode)
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
-import Wasp.Job.Internal (JobAction, JobOutputKind (..), getJobOutputSink, writeJobOutput)
+import Wasp.Job (JobAction, JobOutputKind (..), getJobOutputSink, writeJobOutput)
 
 -- TODO(#4575):
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.

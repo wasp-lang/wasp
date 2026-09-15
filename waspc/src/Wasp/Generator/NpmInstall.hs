@@ -19,8 +19,8 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
+import Wasp.Job (JobOutputSink, getJobOutputSink, writeJobOutput)
 import qualified Wasp.Job as Job
-import Wasp.Job.Internal (JobOutputSink, getJobOutputSink, writeJobOutput)
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
@@ -73,17 +73,15 @@ installProjectNpmDependencies projectDir = do
   where
     installProjectDepsJob =
       Job.makeJob Job.Wasp $
-        installNpmDependenciesAndReport $
-          Node.run [] projectDir "npm" ["install"]
+        installNpmDependenciesAndReport projectDir
 
-installNpmDependenciesAndReport :: Job.JobAction a -> Job.JobAction a
-installNpmDependenciesAndReport install = do
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.JobAction ()
+installNpmDependenciesAndReport projectDir = do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
   outputSink <- getJobOutputSink
   (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputSink) Async.cancel
-  result <- install
+  Node.run [] projectDir "npm" ["install"]
   release progressReporterKey
-  return result
 
 reportInstallationProgress :: JobOutputSink -> IO ()
 reportInstallationProgress outputSink =
