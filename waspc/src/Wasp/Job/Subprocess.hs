@@ -12,16 +12,15 @@ where
 
 import Control.Concurrent.Async (Concurrently (..))
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Resource (ReleaseKey, allocate, release)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Conduit.Text as CT
-import Control.Monad.Trans.Resource (ReleaseKey, allocate, release)
 import System.Exit (ExitCode)
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
 import Wasp.Job (JobAction, JobOutputKind (..), getJobOutputSink, requireExitSuccess, writeJobOutput)
-
 import Wasp.Job.Subprocess.Managed (ProcessTreeDidNotStop (..))
 import qualified Wasp.Job.Subprocess.Managed as Managed
 
