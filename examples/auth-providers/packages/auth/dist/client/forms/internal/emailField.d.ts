@@ -17,5 +17,5 @@ export declare const emailInputProps: {
 export declare const emailFieldRules: {
     required: string;
     setValueAs: (email: string) => string;
-    validate: (email: string) => any;
+    validate: (email: string) => true | "Email must be a valid email";
 };

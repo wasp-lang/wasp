@@ -7,12 +7,12 @@ import { getClientOptions } from "../../../runtime.js";
 import { Form, FormError, FormInput, FormItemGroup, FormLabel, FormTextarea, SubmitButton, } from "../Form.js";
 import "../auth-styles.css";
 import { useEmail } from "../email/useEmail.js";
+import { emailFieldRules, emailInputProps } from "../emailField.js";
 import { SocialButton } from "../social/SocialButton.js";
 import * as SocialIcons from "../social/SocialIcons.js";
 import { useUsernameAndPassword } from "../usernameAndPassword/useUsernameAndPassword.js";
 import { clsx } from "../util.js";
 import styles from "./LoginSignupForm.module.css";
-import { emailFieldRules, emailInputProps } from "../emailField.js";
 const socialIcons = {
     slack: SocialIcons.Slack,
     discord: SocialIcons.Discord,
