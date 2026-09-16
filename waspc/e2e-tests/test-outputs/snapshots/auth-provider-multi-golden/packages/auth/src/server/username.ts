@@ -12,6 +12,7 @@ import {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureValidUsername,
+  normalizeUsername,
 } from "./validation.js";
 
 /** The username & password method: `/auth/username/{login,signup}`. */
@@ -26,7 +27,7 @@ export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
         const fields = getBody(req);
         ensureValidUsername(fields);
         ensurePasswordIsPresent(fields);
-        const username = fields.username as string;
+        const username = normalizeUsername(fields.username as string);
 
         const identity = await identities().find(username);
         if (!identity) {
@@ -68,7 +69,7 @@ export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
           // onBeforeSignup veto, then the lazy userSignupFields getters, then
           // the atomic write, then onAfterSignup.
           await identities().create(
-            fields.username as string,
+            normalizeUsername(fields.username as string),
             {
               secrets: {
                 hashedPassword: await hashPassword(fields.password as string),

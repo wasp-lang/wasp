@@ -1,10 +1,10 @@
-import {
-  type User,
-  type Auth,
-  type AuthIdentity,
+import type {
+  User,
+  Auth,
+  AuthIdentity,
 } from '../entities/index.js'
 import { parseProviderData } from './providerData.js'
-import { type AuthProviderId } from './provider.js'
+import type { AuthProviderId } from './provider.js'
 
 // PUBLIC API
 export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
@@ -12,7 +12,7 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
     return null;
   }
 
-  return user.auth.identities[0].providerUserId ?? null;
+  return user.auth.identities[0]?.providerUserId ?? null;
 }
 
 // PUBLIC API
@@ -105,8 +105,7 @@ export function makeAuthUserIfPossible(
 function makeAuthUser(data: AuthUserData): AuthUser {
   return {
     ...data,
-    getFirstProviderUserId: () =>
-      data.identities.length > 0 ? data.identities[0].providerUserId : null,
+    getFirstProviderUserId: () => data.identities[0]?.providerUserId ?? null,
   };
 }
 

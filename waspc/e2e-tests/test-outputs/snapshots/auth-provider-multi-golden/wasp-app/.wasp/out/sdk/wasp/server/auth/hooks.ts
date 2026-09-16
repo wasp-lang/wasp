@@ -1,8 +1,8 @@
 import type { Request as ExpressRequest } from 'express'
-import { type ProviderId, type FindAuthWithUserResult } from './utils.js'
-import { type CreateUserResult } from './identityStore.js'
+import type { ProviderId, FindAuthWithUserResult } from './utils.js'
+import type { CreateUserResult } from './identityStore.js'
 import { prisma } from '../index.js'
-import { Expand } from '../../universal/types.js'
+import type { Expand } from '../../universal/types.js'
 
 // PUBLIC API
 export type OnBeforeSignupHook = (

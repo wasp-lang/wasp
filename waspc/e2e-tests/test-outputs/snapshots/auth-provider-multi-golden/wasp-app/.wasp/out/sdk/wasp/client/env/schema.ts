@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { FromRegister } from "../../types/register";
+import type { FromRegister } from "../../types/register";
 
 export type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
 type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
@@ -23,8 +23,7 @@ const authProviderEnvSchema = z.object({
 });
 
 const waspDevClientEnvSchema = z.object({
-  "REACT_APP_API_URL": serverUrlSchema
-    .default("http://localhost:3001"),
+  "REACT_APP_API_URL": serverUrlSchema,
   ...authProviderEnvSchema.shape,
 });
 

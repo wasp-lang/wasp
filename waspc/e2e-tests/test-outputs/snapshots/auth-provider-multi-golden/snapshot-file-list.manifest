@@ -54,6 +54,8 @@ packages/auth/dist/client/forms/internal/email/VerifyEmailForm.d.ts
 packages/auth/dist/client/forms/internal/email/VerifyEmailForm.js
 packages/auth/dist/client/forms/internal/email/useEmail.d.ts
 packages/auth/dist/client/forms/internal/email/useEmail.js
+packages/auth/dist/client/forms/internal/emailField.d.ts
+packages/auth/dist/client/forms/internal/emailField.js
 packages/auth/dist/client/forms/internal/social/SocialButton.d.ts
 packages/auth/dist/client/forms/internal/social/SocialButton.js
 packages/auth/dist/client/forms/internal/social/SocialButton.module.css
@@ -121,6 +123,7 @@ packages/auth/src/client/forms/internal/email/ForgotPasswordForm.tsx
 packages/auth/src/client/forms/internal/email/ResetPasswordForm.tsx
 packages/auth/src/client/forms/internal/email/VerifyEmailForm.tsx
 packages/auth/src/client/forms/internal/email/useEmail.ts
+packages/auth/src/client/forms/internal/emailField.ts
 packages/auth/src/client/forms/internal/social/SocialButton.module.css
 packages/auth/src/client/forms/internal/social/SocialButton.tsx
 packages/auth/src/client/forms/internal/social/SocialIcons.module.css

@@ -10,6 +10,7 @@ import {
   FormLabel,
   SubmitButton,
 } from "../Form.js";
+import { emailFieldRules, emailInputProps } from "../emailField.js";
 
 export const ForgotPasswordForm = () => {
   const {
@@ -42,8 +43,8 @@ export const ForgotPasswordForm = () => {
       <FormItemGroup>
         <FormLabel>E-mail</FormLabel>
         <FormInput
-          {...register("email", { required: "Email is required" })}
-          type="email"
+          {...register("email", emailFieldRules)}
+          {...emailInputProps}
           disabled={isLoading}
         />
         {errors.email && <FormError>{errors.email.message}</FormError>}

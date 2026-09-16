@@ -1,13 +1,13 @@
-import {
-  type User,
-  type Task,
+import type {
+  User,
+  Task,
 } from "@prisma/client"
 
-export {
-  type User,
-  type Task,
-  type Auth,
-  type AuthIdentity,
+export type {
+  User,
+  Task,
+  Auth,
+  AuthIdentity,
 } from "@prisma/client"
 
 export type Entity = 

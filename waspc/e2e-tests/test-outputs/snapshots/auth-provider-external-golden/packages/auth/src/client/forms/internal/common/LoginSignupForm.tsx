@@ -23,6 +23,7 @@ import {
 } from "../Form.js";
 import "../auth-styles.css";
 import { useEmail } from "../email/useEmail.js";
+import { emailFieldRules, emailInputProps } from "../emailField.js";
 import { SocialButton } from "../social/SocialButton.js";
 import * as SocialIcons from "../social/SocialIcons.js";
 import { useUsernameAndPassword } from "../usernameAndPassword/useUsernameAndPassword.js";
@@ -167,8 +168,8 @@ export const LoginSignupForm = ({
             <FormItemGroup>
               <FormLabel>E-mail</FormLabel>
               <FormInput
-                {...register("email", { required: "Email is required" })}
-                type="email"
+                {...register("email", emailFieldRules)}
+                {...emailInputProps}
                 disabled={isLoading}
               />
               {errors.email && <FormError>{errors.email.message}</FormError>}

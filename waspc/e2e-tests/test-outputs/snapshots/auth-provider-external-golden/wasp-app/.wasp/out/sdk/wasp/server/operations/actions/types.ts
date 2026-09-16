@@ -1,7 +1,7 @@
-import {
-  type _Task,
-  type AuthenticatedActionDefinition,
-  type Payload,
+import type {
+  _Task,
+  AuthenticatedActionDefinition,
+  Payload,
 } from '../../_types/index.js'
 
 // PUBLIC API

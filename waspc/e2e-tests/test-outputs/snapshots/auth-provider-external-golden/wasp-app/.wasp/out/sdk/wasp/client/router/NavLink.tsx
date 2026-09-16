@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { NavLink as RouterNavLink } from 'react-router'
 import { interpolatePath } from './linkHelpers'
-import { type Routes } from './index'
+import type { Routes } from './index'
 
 type RouterNavLinkProps = Parameters<typeof RouterNavLink>[0]
 

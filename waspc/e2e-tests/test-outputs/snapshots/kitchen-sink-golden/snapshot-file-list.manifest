@@ -54,6 +54,8 @@ auth-providers/packages/auth/dist/client/forms/internal/email/VerifyEmailForm.d.
 auth-providers/packages/auth/dist/client/forms/internal/email/VerifyEmailForm.js
 auth-providers/packages/auth/dist/client/forms/internal/email/useEmail.d.ts
 auth-providers/packages/auth/dist/client/forms/internal/email/useEmail.js
+auth-providers/packages/auth/dist/client/forms/internal/emailField.d.ts
+auth-providers/packages/auth/dist/client/forms/internal/emailField.js
 auth-providers/packages/auth/dist/client/forms/internal/social/SocialButton.d.ts
 auth-providers/packages/auth/dist/client/forms/internal/social/SocialButton.js
 auth-providers/packages/auth/dist/client/forms/internal/social/SocialButton.module.css
@@ -121,6 +123,7 @@ auth-providers/packages/auth/src/client/forms/internal/email/ForgotPasswordForm.
 auth-providers/packages/auth/src/client/forms/internal/email/ResetPasswordForm.tsx
 auth-providers/packages/auth/src/client/forms/internal/email/VerifyEmailForm.tsx
 auth-providers/packages/auth/src/client/forms/internal/email/useEmail.ts
+auth-providers/packages/auth/src/client/forms/internal/emailField.ts
 auth-providers/packages/auth/src/client/forms/internal/social/SocialButton.module.css
 auth-providers/packages/auth/src/client/forms/internal/social/SocialButton.tsx
 auth-providers/packages/auth/src/client/forms/internal/social/SocialIcons.module.css
@@ -920,6 +923,8 @@ wasp-app/.wasp/out/types/spec/register.ts
 wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
 wasp-app/.wasproot
+wasp-app/AGENTS.md
+wasp-app/CLAUDE.md
 wasp-app/Dockerfile
 wasp-app/README.md
 wasp-app/e2e-tests/playwright.config.ts
@@ -929,6 +934,7 @@ wasp-app/e2e-tests/tests/auth.spec.ts
 wasp-app/e2e-tests/tests/auth.ts
 wasp-app/e2e-tests/tests/catch-all-route.spec.ts
 wasp-app/e2e-tests/tests/crud.spec.ts
+wasp-app/e2e-tests/tests/custom-apis-methods.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
 wasp-app/e2e-tests/tests/custom-signup.spec.ts
 wasp-app/e2e-tests/tests/helpers.ts

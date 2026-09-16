@@ -19,6 +19,7 @@ import {
   ensureTokenIsPresent,
   ensureValidEmail,
   ensureValidPassword,
+  normalizeEmail,
 } from "../validation.js";
 import { isEmailResendAllowed, makeEmailHelpers } from "./utils.js";
 
@@ -70,7 +71,7 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
         ensureValidEmail(fields);
         ensurePasswordIsPresent(fields);
         ensureValidPassword(fields);
-        const email = fields.email as string;
+        const email = normalizeEmail(fields.email as string);
 
         const existingIdentity = await identities().find(email);
         // An already-verified address responds exactly like a fresh signup
@@ -152,7 +153,7 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
         const fields = getBody(req);
         ensureValidEmail(fields);
         ensurePasswordIsPresent(fields);
-        const email = fields.email as string;
+        const email = normalizeEmail(fields.email as string);
 
         const identity = await identities().find(email);
         if (!identity || !identity.data.isEmailVerified) {
@@ -212,7 +213,7 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
       handler: async (req, res) => {
         const args = getBody(req);
         ensureValidEmail(args);
-        const email = args.email as string;
+        const email = normalizeEmail(args.email as string);
 
         const identity = await identities().find(email);
         // Fake work: an unknown address takes as long as a known one.

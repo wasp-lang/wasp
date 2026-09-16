@@ -1,8 +1,8 @@
 
-import {
-  type _Task,
-  type AuthenticatedQueryDefinition,
-  type Payload,
+import type {
+  _Task,
+  AuthenticatedQueryDefinition,
+  Payload,
 } from '../../_types/index.js'
 
 // PUBLIC API
