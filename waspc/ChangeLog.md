@@ -31,8 +31,8 @@
 
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 
-- Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
+- OAuth login failures caused by an invalid callback (a missing authorization code, a mismatched state, or a missing PKCE code verifier) now redirect back to the app with a specific error message instead of a generic "unknown error". ([#4693](https://github.com/wasp-lang/wasp/issues/4693))
 
 ### 🔧 Small improvements
 
