@@ -29,6 +29,7 @@
 ### 🐞 Bug fixes
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
+- OAuth login failures caused by an invalid callback (a missing authorization code, a mismatched state, or a missing PKCE code verifier) now redirect back to the app with a specific error message instead of a generic "unknown error". ([#4693](https://github.com/wasp-lang/wasp/issues/4693))
 
 ### 🔧 Small improvements
 
