@@ -9,6 +9,8 @@ import System.Process (callCommand)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
+import Tests.SnapshotTests.AuthProviderExternalSnapshotTest (authProviderExternalSnapshotTest)
+import Tests.SnapshotTests.AuthProviderMultiSnapshotTest (authProviderMultiSnapshotTest)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -85,7 +87,9 @@ e2eTests = do
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
         waspMigrateSnapshotTest,
-        kitchenSinkSnapshotTest
+        kitchenSinkSnapshotTest,
+        authProviderExternalSnapshotTest,
+        authProviderMultiSnapshotTest
       ]
   shellTestTrees <-
     mapM

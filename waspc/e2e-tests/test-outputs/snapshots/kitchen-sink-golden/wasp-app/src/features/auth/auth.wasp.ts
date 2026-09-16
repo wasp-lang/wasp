@@ -1,3 +1,4 @@
+import { waspAuth } from "@wasp.sh/auth/spec";
 import { action, page, route, type Auth, type Spec } from "@wasp.sh/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
@@ -12,6 +13,7 @@ import { CustomSignupPage } from "./pages/CustomSignupPage" with { type: "ref" }
 import { EmailVerification } from "./pages/EmailVerification" with { type: "ref" };
 import Login from "./pages/Login" with { type: "ref" };
 import { ManualSignupPage } from "./pages/ManualSignupPage" with { type: "ref" };
+import { OAuthCallbackPage } from "./pages/OAuthCallbackPage" with { type: "ref" };
 import { PasswordReset } from "./pages/PasswordReset" with { type: "ref" };
 import { ProfilePage } from "./pages/ProfilePage" with { type: "ref" };
 import { RequestPasswordReset } from "./pages/RequestPasswordReset" with { type: "ref" };
@@ -44,50 +46,58 @@ import {
 
 export const authConfig: Auth = {
   userEntity: "User",
-  methods: {
-    slack: {
-      configFn: slackConfig,
-      userSignupFields: slackUserSignupFields,
-    },
-    discord: {
-      configFn: discordConfig,
-      userSignupFields: discordUserSignupFields,
-    },
-    google: {
-      configFn: googleConfig,
-      userSignupFields: googleUserSignupFields,
-    },
-    gitHub: {
-      configFn: gitHubConfig,
-      userSignupFields: gitHubUserSignupFields,
-    },
-    microsoft: {
-      configFn: microsoftConfig,
-      userSignupFields: microsoftUserSignupFields,
-    },
-    email: {
-      userSignupFields: emailUserSignupFields,
-      fromField: {
-        name: "Wasp Kitchen Sink",
-        email: "kitchen-sink@wasp.sh",
-      },
-      emailVerification: {
-        getEmailContentFn: getVerificationEmailContent,
-        clientRoute: "EmailVerificationRoute",
-      },
-      passwordReset: {
-        getEmailContentFn: getPasswordResetEmailContent,
-        clientRoute: "PasswordResetRoute",
-      },
-    },
-  },
   onAuthFailedRedirectTo: "/login",
-  onAuthSucceededRedirectTo: "/",
-  onBeforeSignup,
-  onAfterSignup,
-  onAfterEmailVerified,
-  onBeforeLogin,
-  onAfterLogin,
+  schemes: {
+    wasp: waspAuth({
+      methods: {
+        slack: {
+          configFn: slackConfig,
+          userSignupFields: slackUserSignupFields,
+        },
+        discord: {
+          configFn: discordConfig,
+          userSignupFields: discordUserSignupFields,
+        },
+        google: {
+          configFn: googleConfig,
+          userSignupFields: googleUserSignupFields,
+        },
+        gitHub: {
+          configFn: gitHubConfig,
+          userSignupFields: gitHubUserSignupFields,
+        },
+        microsoft: {
+          configFn: microsoftConfig,
+          userSignupFields: microsoftUserSignupFields,
+        },
+        email: {
+          userSignupFields: emailUserSignupFields,
+          fromField: {
+            name: "Wasp Kitchen Sink",
+            email: "kitchen-sink@wasp.sh",
+          },
+          emailVerification: {
+            getEmailContentFn: getVerificationEmailContent,
+            clientRoute: "/email-verification-",
+          },
+          passwordReset: {
+            getEmailContentFn: getPasswordResetEmailContent,
+            clientRoute: "/password-reset",
+          },
+        },
+      },
+      onAuthSucceededRedirectTo: "/",
+      onAfterEmailVerified,
+    }),
+  },
+  // The generic lifecycle hooks are app-level: they fire at Wasp-owned choke
+  // points for EVERY scheme, not just Wasp's own auth.
+  hooks: {
+    onBeforeSignup,
+    onAfterSignup,
+    onBeforeLogin,
+    onAfterLogin,
+  },
 };
 
 export const authSpec: Spec = [
@@ -107,5 +117,7 @@ export const authSpec: Spec = [
   route("ProfileRoute", "/profile", page(ProfilePage, { authRequired: true })),
   route("ManualSignupRoute", "/manual-signup", page(ManualSignupPage)),
   route("CustomSignupRoute", "/custom-signup", page(CustomSignupPage)),
+  // Where Wasp's own OAuth flow hands the browser back to the client.
+  route("OAuthCallbackRoute", "/oauth/callback", page(OAuthCallbackPage)),
   action(customSignup),
 ];

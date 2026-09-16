@@ -4,6 +4,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext,
+    copyContentsOfGitTrackedDirToSnapshotDir,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
     inSnapshotWaspProjectDir,
     waspCliCompile,
@@ -16,7 +17,11 @@ kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
+    [ -- The app depends on `@wasp.sh/auth` (Wasp's own auth as a package) via a
+      -- relative file: dependency, so the packages dir has to sit where the
+      -- app expects it.
+      copyContentsOfGitTrackedDirToSnapshotDir [reldir|examples/auth-providers/packages|] "auth-providers/packages",
+      copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
       inSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,

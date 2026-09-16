@@ -15,8 +15,9 @@ import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
 import qualified Wasp.AppSpec.ApiNamespace as ApiNamespace
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
+import Wasp.Generator.Common (ServerRootDir, makeJsArrayFromHaskellList, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -68,6 +69,8 @@ genApiRoutes spec =
           "importIdentifier" .= jsImportIdentifier,
           "entities" .= getApiEntitiesObject api,
           "usesAuth" .= isAuthEnabledForApi spec api,
+          "hasRequiredAuthProviderIds" .= isJust (requiredAuthProviderIdsForApi api),
+          "requiredAuthProviderIdsJs" .= (makeJsArrayFromHaskellList <$> requiredAuthProviderIdsForApi api),
           "routeMiddlewareConfigFn" .= middlewareConfigFnTmplData,
           "apiName" .= apiName
         ]
@@ -94,4 +97,7 @@ isAuthEnabledGlobally :: AppSpec -> Bool
 isAuthEnabledGlobally = isAuthEnabled
 
 isAuthEnabledForApi :: AppSpec -> Api.Api -> Bool
-isAuthEnabledForApi spec api = fromMaybe (isAuthEnabled spec) (Api.auth api)
+isAuthEnabledForApi spec api = AuthRequirement.isAuthRequiredWithDefault (isAuthEnabled spec) (Api.auth api)
+
+requiredAuthProviderIdsForApi :: Api.Api -> Maybe [String]
+requiredAuthProviderIdsForApi api = Api.auth api >>= AuthRequirement.requiredAuthProviderIds

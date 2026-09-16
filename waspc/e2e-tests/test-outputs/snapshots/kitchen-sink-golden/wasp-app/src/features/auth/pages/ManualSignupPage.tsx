@@ -1,11 +1,11 @@
-import { useState } from "react";
 import {
   FormError,
   FormInput,
   FormItemGroup,
   FormLabel,
   signup,
-} from "wasp/client/auth";
+} from "@wasp.sh/auth/client";
+import { useState } from "react";
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";

@@ -8,7 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (find)
-import Data.Maybe (maybeToList)
+import Data.Maybe (isJust, maybeToList)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -109,8 +109,35 @@ genPrismaSchema spec = do
       _ -> error "Prisma schema doesn't have exactly one datasource block. This is probably a bug in the Wasp compiler, please report it."
 
     generators =
-      -- We are not overriding any values for now in the generator blocks.
-      Psl.Ast.ConfigBlock.overrideKeyValuePairs [] . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
+      ensureAuthPreviewFeatures . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst
+
+    -- Wasp omits the auth identity's `providerSecrets` column from the
+    -- generated Prisma client (secrets must never cross a serialization
+    -- boundary by accident), which on Prisma 5 requires the `omitApi` preview
+    -- feature. We add it to the user's client generator block, preserving any
+    -- preview features they enabled themselves.
+    ensureAuthPreviewFeatures configBlock
+      | isAuthEnabled && isPrismaClientJsGenerator configBlock =
+          Psl.Ast.ConfigBlock.overrideKeyValuePairs
+            [("previewFeatures", mergedPreviewFeatures configBlock)]
+            configBlock
+      | otherwise = configBlock
+
+    isAuthEnabled = isJust $ AS.App.auth $ snd $ getApp spec
+
+    isPrismaClientJsGenerator configBlock =
+      ("provider", Psl.Argument.StringExpr "prisma-client-js") `elem` keyValueTuples configBlock
+
+    mergedPreviewFeatures configBlock = case lookup "previewFeatures" (keyValueTuples configBlock) of
+      Just (Psl.Argument.ArrayExpr features)
+        | omitApiFeature `elem` features -> Psl.Argument.ArrayExpr features
+        | otherwise -> Psl.Argument.ArrayExpr (features ++ [omitApiFeature])
+      _ -> Psl.Argument.ArrayExpr [omitApiFeature]
+
+    keyValueTuples (Psl.Ast.ConfigBlock.ConfigBlock _ _ keyValuePairs) =
+      map (\(Psl.Ast.ConfigBlock.KeyValuePair key value) -> (key, value)) keyValuePairs
+
+    omitApiFeature = Psl.Argument.StringExpr "omitApi"
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
@@ -123,9 +150,19 @@ genPrismaSchema spec = do
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.
 getEntitiesForPrismaSchema :: AppSpec -> Generator [(String, AS.Entity.Entity)]
-getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
+getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth usesPrismaCredentialStore userDefinedEntities) maybeUserEntity
   where
     userDefinedEntities = getEntities spec
+
+    -- The Session model backs the "prisma" credential store; without a
+    -- scheme using it there is nothing to store.
+    usesPrismaCredentialStore =
+      any
+        ( \scheme -> case AS.Auth.inlineCredentials scheme of
+            Just (_, AS.Auth.PrismaStore, _) -> True
+            _ -> False
+        )
+        (maybe [] AS.Auth.schemes (AS.App.auth $ snd $ getApp spec))
 
     maybeUserEntity :: Maybe (String, AS.Entity.Entity)
     maybeUserEntity = do

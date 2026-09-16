@@ -2,12 +2,9 @@ import {
   ensurePasswordIsPresent,
   ensureValidEmail,
   ensureValidPassword,
-} from "wasp/auth/validation";
-import { prisma } from "wasp/server";
-import {
-  defineUserSignupFields,
-  sanitizeAndSerializeProviderData,
-} from "wasp/server/auth";
+  hashPassword,
+} from "@wasp.sh/auth/server";
+import { defineUserSignupFields, getIdentityStore } from "wasp/server/auth";
 import { CustomSignup } from "wasp/server/operations";
 
 export const userSignupFields = defineUserSignupFields({
@@ -41,27 +38,22 @@ export const customSignup: CustomSignup<
   ensureValidPassword(args);
 
   try {
-    await prisma.auth.create({
-      data: {
-        user: {
-          create: {
-            address: args.address,
-          },
+    // The same identity store Wasp's own signup flow uses -- no raw table
+    // access needed. Hashing stays the caller's explicit job.
+    await getIdentityStore("wasp:email").createIdentity(
+      args.email,
+      {
+        data: {
+          isEmailVerified: true,
+          emailVerificationSentAt: null,
+          passwordResetSentAt: null,
         },
-        identities: {
-          create: {
-            providerName: "email",
-            providerUserId: args.email,
-            providerData: await sanitizeAndSerializeProviderData<"email">({
-              hashedPassword: args.password,
-              isEmailVerified: true,
-              emailVerificationSentAt: null,
-              passwordResetSentAt: null,
-            }),
-          },
+        secrets: {
+          hashedPassword: await hashPassword(args.password),
         },
       },
-    });
+      { address: args.address },
+    );
   } catch (e: any) {
     return {
       success: false,

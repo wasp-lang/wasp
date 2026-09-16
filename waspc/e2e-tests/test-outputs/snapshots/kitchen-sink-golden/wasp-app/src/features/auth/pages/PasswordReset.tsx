@@ -1,6 +1,6 @@
 import { Link } from "wasp/client/router";
 
-import { ResetPasswordForm } from "wasp/client/auth";
+import { ResetPasswordForm } from "@wasp.sh/auth/client";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { customisationProps } from "./auth-ui";
 

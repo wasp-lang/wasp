@@ -16,6 +16,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
+import Data.List (nub)
 import Data.Maybe
   ( isJust,
     maybeToList,
@@ -37,14 +38,16 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import qualified Wasp.AppSpec.Valid as AS.Valid
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.Common (ServerRootDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
@@ -298,7 +301,24 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (fst $ getApp spec :: String)
+          "appName" .= (fst $ getApp spec :: String),
+          "anyAuthProviderRoutes" .= (not . null $ providerRoutes),
+          "authProviderRoutes" .= zipWith providerRoutesTmplData [0 :: Int ..] providerRoutes
+        ]
+
+    -- Routes auth providers brought along (Wasp's own auth flows, Better
+    -- Auth's endpoints), each mounted at the basePath its manifest declared.
+    providerRoutes =
+      [ (scheme, routes)
+      | scheme <- AS.Valid.getAuthSchemes spec,
+        Just routes <- [AS.App.Auth.routes scheme]
+      ]
+    providerRoutesTmplData idx (scheme, schemeRoutes) =
+      object
+        [ "index" .= idx,
+          "schemeName" .= AS.App.Auth.name scheme,
+          "basePath" .= ("/auth/" ++ AS.App.Auth.name scheme),
+          "rawBody" .= (AS.App.Auth.rawBody schemeRoutes == Just True)
         ]
 
 operationsRouteInRootRouter :: String
@@ -353,6 +373,29 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
+    tmplData =
+      object
+        [ "areDbSeedsDefined" .= areDbSeedsDefined,
+          "authProviderPackagesJs" .= makeJsArrayFromHaskellList authProviderPackageNames
+        ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+
+    -- The adapter packages' server entries (`@wasp.sh/auth/server`), reduced
+    -- to package names so every subpath of a package stays external.
+    authProviderPackageNames =
+      nub
+        [ packageNameOfSpecifier serverPackage
+        | scheme <- AS.Valid.getAuthSchemes spec,
+          Just serverPackage <- [AS.App.Auth.serverPackage scheme]
+        ]
+    packageNameOfSpecifier specifier = case splitOn '/' specifier of
+      (scope@('@' : _) : name : _) -> scope ++ "/" ++ name
+      (name : _) -> name
+      [] -> specifier
+    splitOn separator = foldr step [[]]
+      where
+        step c acc@(current : rest)
+          | c == separator = [] : acc
+          | otherwise = (c : current) : rest
+        step c [] = [[c]]

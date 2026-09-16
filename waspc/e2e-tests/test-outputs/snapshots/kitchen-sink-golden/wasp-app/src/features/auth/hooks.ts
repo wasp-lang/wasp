@@ -1,6 +1,7 @@
-import { HttpError } from "wasp/server";
+import { type OnAfterEmailVerifiedHook } from "@wasp.sh/auth/server";
+import { type User } from "wasp/entities";
+import { HttpError, type PrismaClient } from "wasp/server";
 import {
-  type OnAfterEmailVerifiedHook,
   type OnAfterLoginHook,
   type OnAfterSignupHook,
   type OnBeforeLoginHook,
@@ -22,10 +23,10 @@ export const onAfterSignup: OnAfterSignupHook = async ({ prisma, user }) => {
   });
 };
 
-export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
-  prisma,
-  user,
-}) => {
+export const onAfterEmailVerified: OnAfterEmailVerifiedHook<
+  User,
+  PrismaClient
+> = async ({ prisma, user }) => {
   await prisma.user.update({
     where: { id: user.id },
     data: {

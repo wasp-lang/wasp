@@ -69,14 +69,15 @@ spec_GeneratorAuthInjectionTest = do
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
-        let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth allEntities userEntity
+        let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth True allEntities userEntity
          in generatorResult
               `shouldBe` Right
                 [ userEntityWithInjectedRelationship,
                   someOtherEntity,
                   authEntity,
                   authIdentityEntity,
-                  sessionEntity
+                  sessionEntity,
+                  usedOneTimeCodeEntity
                 ]
 
     makeAuthEntity :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> (String, AS.Entity.Entity)
@@ -115,6 +116,12 @@ spec_GeneratorAuthInjectionTest = do
                               [],
                           Psl.Model.ElementField $
                             Psl.Model.Field
+                              "credentialsInvalidatedAt"
+                              Psl.Model.DateTime
+                              [Psl.Model.Optional]
+                              [],
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
                               "sessions"
                               (Psl.Model.UserType "Session")
                               [Psl.Model.List]
@@ -139,7 +146,9 @@ spec_GeneratorAuthInjectionTest = do
         [trimming|
           providerName String
           providerUserId String
+          providerClaims String @default("{}")
           providerData String @default("{}")
+          providerSecrets String @default("{}")
           authId String
           auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
 
@@ -152,10 +161,19 @@ spec_GeneratorAuthInjectionTest = do
         [trimming|
           id String @id @unique
           expiresAt DateTime
+          signedInBy String
           userId String
           auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
 
           @@index([userId])
+        |]
+
+    usedOneTimeCodeEntity =
+      makeEntity
+        "UsedOneTimeCode"
+        [trimming|
+          code   String   @id
+          usedAt DateTime @default(now())
         |]
 
     someOtherEntity =

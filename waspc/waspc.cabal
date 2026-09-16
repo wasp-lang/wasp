@@ -161,12 +161,11 @@ library
     Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
+    Wasp.AppSpec.AuthRequirement
     Wasp.AppSpec.Api
     Wasp.AppSpec.ApiNamespace
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
-    Wasp.AppSpec.App.Auth.EmailVerification
-    Wasp.AppSpec.App.Auth.PasswordReset
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.Deployment
@@ -203,11 +202,6 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
-    Wasp.Generator.AuthProviders
-    Wasp.Generator.AuthProviders.Common
-    Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.AuthProviders.Local
-    Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
@@ -236,11 +230,6 @@ library
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
-    Wasp.Generator.SdkGenerator.Auth.AuthFormsG
-    Wasp.Generator.SdkGenerator.Auth.Common
-    Wasp.Generator.SdkGenerator.Auth.EmailAuthG
-    Wasp.Generator.SdkGenerator.Auth.LocalAuthG
-    Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
     Wasp.Generator.SdkGenerator.AuthG
     Wasp.Generator.SdkGenerator.Client.AppG
     Wasp.Generator.SdkGenerator.Client.AuthG
@@ -261,16 +250,12 @@ library
     Wasp.Generator.SdkGenerator.Server.CrudG
     Wasp.Generator.SdkGenerator.Server.EmailSenderG
     Wasp.Generator.SdkGenerator.Server.JobGenerator
-    Wasp.Generator.SdkGenerator.Server.OAuthG
     Wasp.Generator.SdkGenerator.Server.OperationsGenerator
     Wasp.Generator.SdkGenerator.ServerApiG
     Wasp.Generator.SdkGenerator.VirtualUserModules
     Wasp.Generator.SdkGenerator.WebSocketGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.ApiRoutesG
-    Wasp.Generator.ServerGenerator.Auth.EmailAuthG
-    Wasp.Generator.ServerGenerator.Auth.LocalAuthG
-    Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.CrudG
@@ -689,6 +674,8 @@ test-suite waspc-e2e-tests
     Test
     TestLogging
     Tests.SdkPackageExportsTest
+    Tests.SnapshotTests.AuthProviderExternalSnapshotTest
+    Tests.SnapshotTests.AuthProviderMultiSnapshotTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest

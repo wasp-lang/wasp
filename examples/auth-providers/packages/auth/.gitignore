@@ -1,0 +1,8 @@
+node_modules
+coverage
+.vscode
+.DS_Store
+.eslintcache
+*.log*
+*.env*
+*.tgz

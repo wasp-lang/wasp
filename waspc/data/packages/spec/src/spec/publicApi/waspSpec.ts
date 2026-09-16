@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { RefObject } from "../refObject.js";
 import { FromRegister } from "./register.js";
@@ -111,378 +110,321 @@ export interface Wasp {
 }
 
 /**
- * Authentication configuration and lifecycle hooks.
+ * Authentication configuration: the app's auth schemes and lifecycle hooks.
  *
- * See the [Auth overview](https://wasp.sh/docs/features/auth/overview) for the
- * supported auth methods and how the `User` entity is connected to auth.
+ * See the [Auth overview](https://wasp.sh/docs/features/auth/overview) for how
+ * the `User` entity is connected to auth. Auth methods (username, email,
+ * OAuth) are configured on the auth handler package that implements them.
  * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
- * in their input. Hook return values are ignored except for
- * {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect URL.
+ * in their input.
  *
  * In TypeScript, you can type each hook implementation with its matching
  * type from `wasp/server/auth` (e.g. `OnBeforeSignupHook`). See
- * [Auth Hooks](https://wasp.sh/docs/features/auth/hooks) for the full hook
+ * [Auth Hooks](https://wasp.sh/docs/auth/auth-hooks) for the full hook
  * inputs and examples.
  *
  * @example
  * ```ts
+ * import { waspAuth } from "@wasp.sh/auth/spec"
  * import { app } from "@wasp.sh/spec"
  *
  * export default app({
  *   // ...
  *   auth: {
  *     userEntity: "User",
- *     methods: {
- *       usernameAndPassword: {}, // use this or email, not both
- *       google: {},
- *       gitHub: {},
+ *     schemes: {
+ *       wasp: waspAuth({
+ *         methods: {
+ *           usernameAndPassword: {}, // use this or email, not both
+ *           google: {},
+ *           gitHub: {},
+ *         },
+ *       }),
  *     },
  *     onAuthFailedRedirectTo: "/login",
  *   },
  * })
  * ```
  */
-export interface Auth extends AuthHooks {
+export interface Auth {
   /**
    * Name of the Prisma model that represents the application user connected to
    * your business logic.
    *
-   * The user entity needs to have an ID field that uniquely identifies each
-   * user. It can be of any name and type, but it needs to be marked with `@id`:
+   * `context.user` is always a row of this entity, whichever scheme
+   * authenticated the request.
    *
-   * ```prisma title="schema.prisma"
-   * model User {
-   *   id Int @id @default(autoincrement())
-   * }
-   * ```
-   *
-   * You can add any other fields you want to the user entity. Make sure to also
-   * define them in the `userSignupFields` field if they need to be set during
-   * the sign-up process.
-   *
-   * See [Accessing User Data](https://wasp.sh/docs/features/auth/entities) for how the
-   * user entity connects to the rest of the auth system.
+   * See [Auth Entities](https://wasp.sh/docs/features/auth/entities).
    */
   userEntity: EntityName;
-  /** Enabled authentication methods. */
-  methods: AuthMethods;
   /**
-   * Route that Wasp redirects unauthenticated users to when they try to
-   * access a page that has `authRequired: true`.
+   * Path to redirect users to when they try to access a page that requires
+   * authentication without being logged in.
    *
-   * See [Adding Auth to the Project](https://wasp.sh/docs/tutorial/auth#adding-auth-to-the-project)
-   * for an example.
+   * See [Auth overview](https://wasp.sh/docs/features/auth/overview).
    */
   onAuthFailedRedirectTo: string;
   /**
-   * Route that Wasp redirects users to after a successful login or signup.
+   * The app's auth schemes: named, configured instances of auth handlers.
+   * Every scheme is an adapter package, Wasp's own auth included:
    *
-   * Only takes effect when using Wasp's built-in Auth UI.
+   * ```ts
+   * import { waspAuth } from "@wasp.sh/auth/spec";
+   * import { clerk } from "@wasp.sh/auth-clerk/spec";
    *
-   * See [Auth UI](https://wasp.sh/docs/features/auth/ui).
+   * auth: {
+   *   userEntity: "User",
+   *   onAuthFailedRedirectTo: "/login",
+   *   schemes: {
+   *     wasp: waspAuth({ methods: { email: { ... } } }),
+   *     clerk: clerk({ credentials: { scheme: "wasp" } }),
+   *   },
+   *   default: "wasp",
+   * }
+   * ```
    *
-   * @default "/"
+   * The key is the scheme name. Wasp records it on every session
+   * (`user.sessionScheme`), prefixes the scheme's identity namespaces and
+   * routes with it (`wasp:email`, `/auth/wasp/...`), and accepts it in
+   * `authRequired` lists. Two entries may use the same handler package under
+   * different names. A hand-written handler goes through
+   * {@link customAuthHandler}.
+   *
+   * Wasp still owns everything downstream of authentication: the identity
+   * store, provisioning, and the app-level hooks, so `context.user` is always
+   * a row in your own user entity, whichever scheme authenticated the request.
    */
-  onAuthSucceededRedirectTo?: string;
+  schemes: AuthSchemes;
+  /**
+   * The scheme that authenticates a request when an asset says only
+   * `authRequired: true` (or `auth: true`). Required when more than one
+   * scheme is declared; the single scheme is the default otherwise.
+   */
+  default?: string;
+  /**
+   * App-level auth lifecycle hooks, fired at Wasp-owned choke points --
+   * identity provisioning (`onBeforeSignup` can veto by throwing,
+   * `onAfterSignup` observes) and credential issuance (`onBeforeLogin` can
+   * veto, `onAfterLogin` observes) -- for EVERY scheme. A handler can neither
+   * forget nor forge them, because they fire where Wasp owns the control flow.
+   *
+   * Method-specific hooks (`onAfterEmailVerified`, `onBeforeOAuthRedirect`)
+   * belong to the auth package that implements the method, and are configured
+   * through its spec helper.
+   */
+  hooks?: AuthLifecycleHooks;
 }
 
-interface AuthHooks {
-  /**
-   * Called before the user is created. Receives `providerId` plus the common
-   * hook input. Throw from this hook to reject a signup based on custom
-   * criteria.
-   *
-   * @category Hooks
-   */
+/**
+ * See {@link Auth.hooks}.
+ *
+ * @category Auth
+ */
+export interface AuthLifecycleHooks {
+  /** Called before a new identity is provisioned. Throw to veto the signup. */
   onBeforeSignup?: Reference<AnyFunction>;
-  /**
-   * Called after the user is created. Receives `providerId`, the created
-   * `user`, and, for social auth, `oauth` fields including tokens and the
-   * unique OAuth request ID.
-   *
-   * @category Hooks
-   */
+  /** Called after a new identity was provisioned. */
   onAfterSignup?: Reference<AnyFunction>;
-  /** Called once, after the user verifies their email. Receives `email` and `user`. */
-  onAfterEmailVerified?: Reference<AnyFunction>;
-  /**
-   * Called before redirecting the user to the OAuth provider. Receives the
-   * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
-   * the redirect URL.
-   *
-   * @category Hooks
-   */
-  onBeforeOAuthRedirect?: Reference<AnyFunction>;
-  /**
-   * Called before the user is logged in. Receives `providerId` and `user`.
-   * Throw from this hook to reject a login based on custom criteria.
-   *
-   * @category Hooks
-   */
+  /** Called before a credential is issued for a login. Throw to veto. */
   onBeforeLogin?: Reference<AnyFunction>;
-  /**
-   * Called after a successful login. Receives `providerId`, `user`, and, for
-   * social auth, `oauth` fields including tokens and the unique OAuth request
-   * ID.
-   *
-   * @category Hooks
-   */
+  /** Called after a credential was issued for a login. */
   onAfterLogin?: Reference<AnyFunction>;
 }
 
 /**
- * Enabled authentication methods for the app.
+ * The app's auth schemes, keyed by scheme name. At least one is required.
+ * A scheme name must be non-empty and contain neither `:` (the namespace
+ * separator) nor `/` (it appears in route paths).
  *
- * At most one local auth method ({@link LocalAuthMethods}) can be used, but you
- * can enable as many external auth methods ({@link ExternalAuthMethods}) as you
- * need.
+ * @category Auth
  */
-export type AuthMethods = RequireOneOrNone<LocalAuthMethods> &
-  ExternalAuthMethods;
+export type AuthSchemes = Record<string, AuthSchemeManifest>;
 
 /**
- * Built-in local auth methods.
+ * An env var an auth scheme needs. Wasp renders these into the app's
+ * generated env validation, so a missing var fails at boot with `doc` as the
+ * explanation instead of failing at the first authenticated request.
  *
- * Pick at most one of these.
+ * @category Auth
  */
-export interface LocalAuthMethods {
-  /** Enables username and password auth. */
-  usernameAndPassword: UsernameAndPasswordConfig;
+export interface EnvVarRequirement {
+  name: string;
+  optional?: boolean;
+  doc?: string;
   /**
-   * Enables email and password auth with email verification and password
-   * reset flows.
+   * Value used in development when the var is unset, so `wasp start` works
+   * out of the box; in production the var stays required (unless `optional`).
+   * Server-side vars only.
    */
-  email: EmailAuthConfig;
+  devDefault?: string;
 }
 
 /**
- * Social (OAuth) auth methods.
+ * Runtime facets a handler may request from Wasp (the manifest's `uses`
+ * list). Mirrors `RuntimeGrantName` in `@wasp.sh/auth-contract`; a closed set,
+ * because the generator can only wire facets it knows.
  *
- * Each enabled provider also requires the matching client ID and secret to
- * be set as environment variables. See the
- * [Social Auth overview](https://wasp.sh/docs/features/auth/social-auth/overview) for
- * details on each provider.
+ * @category Experimental
  */
-export interface ExternalAuthMethods
-  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
+export type AuthRuntimeGrantName = "email-send" | "identity-namespaces";
 
 /**
- * Supported social auth providers.
+ * The transport a Wasp-issued credential travels by.
+ *
+ * - `"bearer"`: an `Authorization: Bearer` header the generated client
+ *   attaches to every request. Works for browsers, native apps and scripts,
+ *   and across origins.
+ * - `"cookie"`: an `HttpOnly` cookie the browser attaches on its own. Same-site
+ *   deployments only; no client-side handling at all.
+ *
+ * @category Auth
  */
-type SocialAuthMethodName =
-  | "discord"
-  | "google"
-  | "gitHub"
-  | "keycloak"
-  | "microsoft"
-  | "slack";
+export type CredentialTransport = "bearer" | "cookie";
 
 /**
- * Username and password auth configuration.
+ * Where a Wasp-issued credential's record lives.
  *
- * @example
- * ```ts
- * import { app } from "@wasp.sh/spec"
- * import { userSignupFields } from "./src/auth" with { type: "ref" }
+ * - `"prisma"`: a row per credential in the `Session` model Wasp injects.
+ *   Immediate revocation.
+ * - `"signed-token"`: the record travels inside a signed token. No table; a
+ *   token stays valid until it expires, and "sign out everywhere" works by
+ *   stamping the user.
+ * - A reference to your own `CredentialStore` (from `@wasp.sh/auth-contract`).
  *
- * export default app({
- *   // ...
- *   auth: {
- *     userEntity: "User",
- *     methods: {
- *       usernameAndPassword: {
- *         userSignupFields,
- *       },
- *     },
- *     onAuthFailedRedirectTo: "/login",
- *   },
- * })
- * ```
+ * @category Auth
  */
-export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
+export type CredentialStore = "prisma" | "signed-token" | Reference<AnyObject>;
 
 /**
- * Social auth provider configuration.
+ * How a scheme hands out the credential the client carries after a login.
  *
- * By default, Wasp stores only the user's provider-specific ID. Use
- * `userSignupFields` to save provider account details or custom signup state
- * on your {@link Auth.userEntity}. Each provider has provider-specific
- * `userSignupFields` and `configFn` behavior, documented in the
- * [Social Auth docs](https://wasp.sh/docs/features/auth/social-auth/overview).
+ * - `{ scheme }`: sign into another scheme that can issue credentials
+ *   (`capabilities: ["sign-in"]`): a `waspBearer`/`waspCookie` scheme, or a
+ *   scheme like Wasp's own auth that issues its own.
+ * - `{ transport, store }`: a private Wasp issuer, configured inline. Defaults
+ *   to `"bearer"` and `"prisma"`.
  *
- * @example
- * ```ts
- * import { app } from "@wasp.sh/spec"
- * import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
+ * Both reach the handler as the same `credentials` facet.
  *
- * export default app({
- *   // ...
- *   auth: {
- *     userEntity: "User",
- *     methods: {
- *       google: {
- *         configFn: getConfig,
- *         userSignupFields,
- *       },
- *     },
- *     onAuthFailedRedirectTo: "/login",
- *   },
- * })
- * ```
+ * @category Auth
  */
-export interface SocialAuthConfig extends BaseAuthMethodConfig {
+export type CredentialsConfig =
+  | { scheme: string }
+  | {
+      transport?: CredentialTransport;
+      store?: CredentialStore;
+      /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
+      ttl?: string;
+    };
+
+/**
+ * EXPERIMENTAL. An auth scheme, described declaratively by the handler
+ * package that implements it.
+ *
+ * Adapter packages produce this from their spec helpers (`waspAuth()` from
+ * `@wasp.sh/auth/spec`, `clerk()` from `@wasp.sh/auth-clerk/spec`), and
+ * hand-written handlers produce it via {@link customAuthHandler}. Both go
+ * through `defineAuthSchemeManifest`, which validates the manifest and stamps
+ * it as authentic -- the compiler rejects hand-crafted object literals.
+ *
+ * The manifest knows nothing about the name the app gives the scheme:
+ * namespaces and routes are declared relative and prefixed by Wasp.
+ *
+ * @category Experimental
+ */
+export interface AuthSchemeManifest {
+  /** Discriminates the value. Always `"scheme"`. */
+  kind: "scheme";
   /**
-   * Function that returns provider-specific OAuth options (scopes, prompt,
-   * etc.). Use this to request extra scopes, such as requesting email/profile
-   * data from providers that do not include it by default, or to customize the
-   * OAuth flow.
-   *
-   * @example
-   * ```ts
-   * export function getConfig() {
-   *   return {
-   *     scopes: ["openid", "profile", "email"],
-   *   }
-   * }
-   * ```
+   * Version of the auth contract the handler was built against. Wasp rejects
+   * manifests with a contract version it does not support, which turns
+   * adapter/compiler version skew into a clear error.
    */
-  configFn?: Reference<AnyFunction>;
-}
-
-/**
- * Email auth configuration.
- *
- * See the [Email auth docs](https://wasp.sh/docs/features/auth/email/overview) for the full
- * signup, verification, and password reset flows.
- *
- * @example
- * ```ts
- * import { app } from "@wasp.sh/spec"
- * import { userSignupFields } from "./src/auth" with { type: "ref" }
- * import {
- *   getVerificationEmailContent,
- *   getPasswordResetEmailContent,
- * } from "./src/auth/email" with { type: "ref" }
- *
- * export default app({
- *   // ...
- *   auth: {
- *     userEntity: "User",
- *     methods: {
- *       email: {
- *         userSignupFields,
- *         fromField: {
- *           name: "My App",
- *           email: "hello@itsme.com",
- *         },
- *         emailVerification: {
- *           clientRoute: "EmailVerificationRoute",
- *           getEmailContentFn: getVerificationEmailContent,
- *         },
- *         passwordReset: {
- *           clientRoute: "PasswordResetRoute",
- *           getEmailContentFn: getPasswordResetEmailContent,
- *         },
- *       },
- *     },
- *     onAuthFailedRedirectTo: "/login",
- *   },
- * })
- * ```
- */
-export interface EmailAuthConfig extends BaseAuthMethodConfig {
-  /** Sender identity used for verification and password reset emails. */
-  fromField: EmailFromField;
+  contractVersion: 2;
   /**
-   * An object that specifies the details of the e-mail verification process.
+   * The handler package this manifest comes from ("@wasp.sh/auth",
+   * "@wasp.sh/auth-clerk", ...). Informational: error messages and docs.
    */
-  emailVerification: EmailFlowConfig;
+  handler: string;
   /**
-   * An object that specifies the password reset process.
+   * The scheme's server handler: either the module specifier of an adapter
+   * package's server entry (which must export `createServerAdapter`), or a
+   * reference to a user-code module exporting an `AuthHandler`.
    */
-  passwordReset: EmailFlowConfig;
-}
-
-interface BaseAuthMethodConfig {
+  server: { package: string } | Reference<AnyObject>;
   /**
-   * Object that defines extra fields to save on the user during signup
-   * (e.g. `firstName`, `address`). Each field name must exist on the
-   * configured {@link Auth.userEntity}.
-   *
-   * Each field function receives the data sent from the client and returns
-   * the value Wasp saves to the database. For social auth, this data includes
-   * provider-specific profile information. If the value is invalid, throw an
-   * error. The `password` field is excluded from this object and handled by
-   * Wasp's auth backend.
-   *
-   * See [Signup Fields Customization](https://wasp.sh/docs/features/auth/overview#signup-fields-customization).
-   *
-   * @example
-   * ```ts
-   * import { defineUserSignupFields } from 'wasp/server/auth'
-   *
-   * export const userSignupFields = defineUserSignupFields({
-   *   address: (data) => {
-   *     if (!data.address) {
-   *       throw new Error('Address is required')
-   *     }
-   *     return data.address
-   *   },
-   *   phone: (data) => data.phone,
-   * })
-   * ```
+   * Module specifier of an adapter package's client entry (which must export
+   * `createClientAdapter`). Wasp instantiates it and wires the client side --
+   * context wrapper, credential transport, logout -- automatically.
+   */
+  client?: { package: string };
+  /**
+   * Whether the handler brings its own HTTP routes. They mount at
+   * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`
+   * mounts them without the JSON body parser, for handlers that read the body
+   * themselves.
+   */
+  routes?: { rawBody?: boolean };
+  /**
+   * The handler's capabilities, as an open set of strings. Known today:
+   * `"sign-in"` (other schemes may use this one as their credentials scheme),
+   * `"cookie-transport"`. Unknown entries are ignored, so adapters can
+   * declare capabilities newer than the compiler.
+   */
+  capabilities: string[];
+  /** Env vars the handler needs, rendered into generated env validation. */
+  env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
+  /**
+   * Runtime facets the handler requests from Wasp. A declared grant appears
+   * as a member of the handler's `WaspServerRuntime`; an undeclared one is
+   * absent. Declaring `"email-send"` requires the app to configure
+   * `emailSender` (a compile error otherwise). Default: none.
+   */
+  uses?: AuthRuntimeGrantName[];
+  /**
+   * Extra identity namespaces the handler records identities under, as
+   * suffixes: `["username", "email"]` becomes `<scheme>:username` and
+   * `<scheme>:email`. The scheme name itself is always a namespace. Declaring
+   * any requires the `"identity-namespaces"` grant in `uses`.
+   */
+  identityNamespaces?: string[];
+  /**
+   * How this scheme hands out credentials after a login it verified. Absent
+   * for schemes whose own credential authenticates every request (a hosted
+   * provider's token, a self-issuing library like Better Auth).
+   */
+  credentials?: CredentialsConfig;
+  /**
+   * Populates the app's user entity when Wasp provisions a local user for a
+   * subject it has not seen before, from the claims the handler verified.
+   * Required in practice when the user entity has non-nullable fields.
    */
   userSignupFields?: Reference<AnyObject>;
-}
-
-/**
- * Configuration for an email-based auth flow (verification or password reset).
- */
-export interface EmailFlowConfig {
   /**
-   * Function that returns the email content (subject, html, text) Wasp sends
-   * for this flow. Verification email functions receive
-   * `{ verificationLink }`, and password reset email functions receive
-   * `{ passwordResetLink }`. If omitted, Wasp uses a built-in default
-   * template.
-   *
-   * In TypeScript, you can type the function with the
-   * `GetVerificationEmailContentFn` or `GetPasswordResetEmailContentFn` type
-   * from `wasp/server/auth`.
-   *
-   * @example
-   * ```ts title="src/email.ts"
-   * import { GetVerificationEmailContentFn } from "wasp/server/auth"
-   *
-   * export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
-   *   verificationLink,
-   * }) => ({
-   *   subject: "Verify your email",
-   *   text: `Click the link below to verify your email: ${verificationLink}`,
-   *   html: `
-   *         <p>Click the link below to verify your email</p>
-   *         <a href="${verificationLink}">Verify email</a>
-   *     `,
-   * })
-   * ```
+   * Setup function for the handler's underlying library, following the same
+   * convention as `db.prismaSetupFn`: a reference to a user-code function the
+   * handler calls with its integration config, whose return value becomes the
+   * configuration to use.
    */
-  getEmailContentFn?: Reference<AnyFunction>;
+  setupFn?: Reference<AnyFunction>;
   /**
-   * Name of the route that handles the link sent in the email (e.g.
-   * `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
-   *
-   * The route must be defined in {@link App.spec} with the {@link route}
-   * constructor.
-   *
-   * This route should handle the process of taking a token from the URL and
-   * sending it to the server to verify the e-mail address. You can use our
-   * [`verifyEmail`
-   * action](https://wasp.sh/docs/features/auth/email/create-your-own-ui#verifyemail) and
-   * [`resetPassword`
-   * action](https://wasp.sh/docs/features/auth/email/create-your-own-ui#resetpassword)
-   * helpers for that.
+   * Any other user code the handler calls back into (signup field getters,
+   * OAuth config functions, email content functions, method-specific hooks),
+   * keyed by the name the handler expects. Each reference reaches the
+   * handler's server factory as `extensions[name]`; the handler types them
+   * precisely, Wasp only forwards them.
    */
-  clientRoute: string;
+  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
+  /**
+   * Serializable handler options, passed verbatim to the handler's server and
+   * client factories. Must survive a JSON round-trip; the compiler checks.
+   */
+  options?: unknown;
+  /**
+   * Marks a manifest as constructed by `defineAuthSchemeManifest` rather
+   * than hand-crafted. Adapters never set this themselves.
+   */
+  readonly __waspAuthSchemeManifest: true;
 }
 
 /**
@@ -872,15 +814,45 @@ export interface Page extends BaseSpecElement<"page"> {
   /** React component rendered for this page. */
   component: Reference<AnyFunction>;
   /**
-   * If `true`, only authenticated users can access this page. Unauthenticated
-   * visitors are redirected to {@link Auth.onAuthFailedRedirectTo}.
+   * If `true`, only authenticated users can access this page, whichever
+   * provider they logged in through. Unauthenticated visitors are redirected
+   * to {@link Auth.onAuthFailedRedirectTo}.
+   *
+   * A list of auth provider ids (`["wasp"]`, `["external:clerk"]`, ...)
+   * additionally requires the session to have been minted by one of the
+   * listed providers: unauthenticated visitors are still redirected, but a
+   * user logged in through a non-listed provider sees an access-denied page
+   * instead (redirecting them to login would loop). Page-level checks are UX;
+   * the operations the page calls carry the real enforcement via
+   * {@link Query.auth}/{@link Action.auth}.
    *
    * Cannot be combined with {@link Route.prerender}.
    *
    * @default false
    */
-  authRequired?: boolean;
+  authRequired?: AuthRequirement;
 }
+
+/**
+ * Whether (and through which providers) a page or operation requires
+ * authentication: `false` = no auth, `true` = any valid session, a non-empty
+ * list of auth provider ids = only sessions minted by one of the listed
+ * providers. Ids are checked against `app.auth.providers` at build time.
+ *
+ * @category Auth
+ */
+export type AuthRequirement =
+  | boolean
+  | readonly [AuthProviderIdRef, ...AuthProviderIdRef[]];
+
+/**
+ * An auth provider id, as recorded on sessions and identities: `"wasp"` for
+ * Wasp's own auth, an external provider's manifest id (`"external:clerk"`)
+ * otherwise. Validated against the app's configured providers at build time.
+ *
+ * @category Auth
+ */
+export type AuthProviderIdRef = string;
 
 /**
  * A URL path mapped to a {@link Page}.
@@ -980,9 +952,13 @@ export interface Query extends BaseSpecElement<"query"> {
    * Whether this Query requires auth. If your app has auth enabled, this
    * defaults to `true`.
    *
+   * `true` attaches `context.user` (possibly null -- the Query decides); a
+   * list of auth provider ids is self-enforcing: no session is a 401, and a
+   * session minted by a non-listed provider is a 403.
+   *
    * Only available if your app has auth enabled.
    */
-  auth?: boolean;
+  auth?: AuthRequirement;
 }
 
 /**
@@ -1013,9 +989,13 @@ export interface Action extends BaseSpecElement<"action"> {
    * Whether this Action requires auth. If your app has auth enabled, this
    * defaults to `true`.
    *
+   * `true` attaches `context.user` (possibly null -- the Action decides); a
+   * list of auth provider ids is self-enforcing: no session is a 401, and a
+   * session minted by a non-listed provider is a 403.
+   *
    * Only available if your app has auth enabled.
    */
-  auth?: boolean;
+  auth?: AuthRequirement;
 }
 
 /**
@@ -1056,8 +1036,11 @@ export interface Api extends BaseSpecElement<"api"> {
    * authenticated user and receives `context.user`. Defaults to `true` when
    * the app has auth enabled, and `false` otherwise. Set to `false` to skip
    * parsing the JWT from the Authorization header.
+   *
+   * A list of auth provider ids is self-enforcing: no session is a 401, and
+   * a session minted by a non-listed provider is a 403.
    */
-  auth?: boolean;
+  auth?: AuthRequirement;
 }
 
 /**

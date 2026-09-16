@@ -1,0 +1,97 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Identical in all three example apps. Nothing here mentions an auth provider:
+// the provider vouches for a request, Wasp resolves that to a row in THIS table.
+model User {
+  id    String @id @default(uuid())
+  tasks Task[]
+}
+
+model Task {
+  id          String  @id @default(uuid())
+  description String
+  isDone      Boolean @default(false)
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+// ---------------------------------------------------------------------------
+// Better Auth's own tables.
+//
+// This is what makes an in-process provider HARDER to adopt than a hosted one:
+// Better Auth owns its storage, so its schema has to live in the app's Prisma
+// schema next to Wasp's. The Clerk example adds nothing here at all.
+//
+// Wasp's Auth/AuthIdentity/Session tables are still generated and still used --
+// Wasp links a Better Auth user to a local User row through
+// AuthIdentity(providerName: "better-auth", providerUserId: <BA user id>).
+// ---------------------------------------------------------------------------
+
+model BetterAuthUser {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions BetterAuthSession[]
+  accounts BetterAuthAccount[]
+
+  @@map("better_auth_user")
+}
+
+model BetterAuthSession {
+  id        String   @id
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   BetterAuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("better_auth_session")
+}
+
+model BetterAuthAccount {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userId String
+  user   BetterAuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("better_auth_account")
+}
+
+model BetterAuthVerification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("better_auth_verification")
+}

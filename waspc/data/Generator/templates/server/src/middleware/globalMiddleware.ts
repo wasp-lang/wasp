@@ -20,7 +20,9 @@ const {=& globalMiddlewareConfigFn.importAlias =} = (mc: MiddlewareConfig) => mc
 // NOTE: Remember to update the docs of these change.
 const defaultGlobalMiddlewareConfig: MiddlewareConfig = new Map([
   ['helmet', helmet()],
-  ['cors', cors({ origin: config.allowedCORSOrigins })],
+  // `credentials` lets the browser attach a cookie-carried auth credential
+  // to cross-origin requests and accept the Set-Cookie a login answers with.
+  ['cors', cors({ origin: config.allowedCORSOrigins, credentials: true })],
   ['logger', logger('dev')],
   ['express.json', express.json()],
   ['express.urlencoded', express.urlencoded()],

@@ -12,10 +12,12 @@ import {
   api,
   apiNamespace,
   app,
+  customAuthHandler,
   job,
   page,
   query,
   route,
+  waspBearer,
 } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
@@ -390,161 +392,80 @@ export function getWebSocketConfig(
   }
 }
 
-export function getAuthConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.Auth>;
-export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
+// Returns the plain spec type rather than `ConfigFor`: scheme manifests are
+// opaque values built by spec helpers, not config objects to be filled in.
+export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
   switch (scope) {
     case "minimal":
       return {
         userEntity: "User",
-        methods: getAuthMethods("minimal"),
         onAuthFailedRedirectTo: "/login",
-      } satisfies MinimalConfig<WaspSpec.Auth>;
+        schemes: {
+          test: customAuthHandler({
+            server: getRefObject("minimal", "named"),
+          }),
+        },
+      } as WaspSpec.Auth;
     case "full":
       return {
         userEntity: "User",
-        methods: getAuthMethods("full"),
         onAuthFailedRedirectTo: "/login",
-        onAuthSucceededRedirectTo: "/profile",
-        onBeforeSignup: getRefObject("full", "named"),
-        onAfterSignup: getRefObject("full", "named"),
-        onAfterEmailVerified: getRefObject("full", "named"),
-        onBeforeOAuthRedirect: getRefObject("full", "named"),
-        onBeforeLogin: getRefObject("full", "named"),
-        onAfterLogin: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.Auth>;
+        schemes: {
+          session: waspBearer({ store: "prisma", ttl: "7d" }),
+          test: customAuthHandler({
+            server: getRefObject("full", "named"),
+            capabilities: ["cookie-transport"],
+            env: {
+              server: [
+                { name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" },
+              ],
+              client: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
+            },
+            uses: ["identity-namespaces"],
+            identityNamespaces: ["passkey"],
+            credentials: { scheme: "session" },
+            userSignupFields: getRefObject("full", "named"),
+            extensions: {
+              configFn: getRefObject("full", "named"),
+              getEmailContent: getRefObject("full", "named"),
+            },
+            options: { flag: true },
+          }),
+        },
+        default: "session",
+        hooks: {
+          onBeforeSignup: getRefObject("full", "named"),
+          onAfterSignup: getRefObject("full", "named"),
+          onBeforeLogin: getRefObject("full", "named"),
+          onAfterLogin: getRefObject("full", "named"),
+        },
+        // Not `satisfies FullConfig`: scheme manifests are opaque values
+        // built by spec helpers, not config objects to be filled in fully.
+      } as WaspSpec.Auth;
     default:
       assertUnreachable(scope);
   }
 }
 
-export function getAuthMethods<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.AuthMethods>;
-export function getAuthMethods(
-  scope: ConfigScope,
-): Config<WaspSpec.AuthMethods> {
-  switch (scope) {
-    case "minimal":
-      return {} satisfies MinimalConfig<WaspSpec.AuthMethods>;
-    case "full":
-      return {
-        slack: getSocialAuthConfig("full"),
-        discord: getSocialAuthConfig("full"),
-        google: getSocialAuthConfig("full"),
-        gitHub: getSocialAuthConfig("full"),
-        keycloak: getSocialAuthConfig("full"),
-        microsoft: getSocialAuthConfig("full"),
-        email: getEmailAuthConfig("full"),
-      } satisfies FullConfig<WaspSpec.AuthMethods>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getUsernameAndPasswordConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.UsernameAndPasswordConfig>;
-export function getUsernameAndPasswordConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.UsernameAndPasswordConfig> {
-  switch (scope) {
-    case "minimal":
-      return {} satisfies MinimalConfig<WaspSpec.UsernameAndPasswordConfig>;
-    case "full":
-      return {
+/** One hand-written scheme with an inline issuer, for the mapper's scheme tests. */
+export function getSingleSchemeAuthConfig(): WaspSpec.Auth {
+  return {
+    userEntity: "User",
+    onAuthFailedRedirectTo: "/login",
+    schemes: {
+      "test-provider": customAuthHandler({
+        server: getRefObject("full", "named"),
+        capabilities: ["session-revocation"],
+        env: {
+          server: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
+          client: [],
+        },
+        credentials: { transport: "cookie", store: "signed-token", ttl: "15m" },
         userSignupFields: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.UsernameAndPasswordConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getSocialAuthConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.SocialAuthConfig>;
-export function getSocialAuthConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.SocialAuthConfig> {
-  switch (scope) {
-    case "minimal":
-      return {} satisfies MinimalConfig<WaspSpec.SocialAuthConfig>;
-    case "full":
-      return {
-        configFn: getRefObject("full", "named"),
-        userSignupFields: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.SocialAuthConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getEmailAuthConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.EmailAuthConfig>;
-export function getEmailAuthConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.EmailAuthConfig> {
-  switch (scope) {
-    case "minimal":
-      return {
-        fromField: getEmailFromField("minimal"),
-        emailVerification: getEmailVerificationConfig("minimal"),
-        passwordReset: getPasswordResetConfig("minimal"),
-      } satisfies MinimalConfig<WaspSpec.EmailAuthConfig>;
-    case "full":
-      return {
-        fromField: getEmailFromField("full"),
-        emailVerification: getEmailVerificationConfig("full"),
-        passwordReset: getPasswordResetConfig("full"),
-        userSignupFields: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.EmailAuthConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getEmailVerificationConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.EmailFlowConfig>;
-export function getEmailVerificationConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.EmailFlowConfig> {
-  switch (scope) {
-    case "minimal":
-      return {
-        clientRoute: EMAIL_VERIFY_ROUTE_NAME,
-      } satisfies MinimalConfig<WaspSpec.EmailFlowConfig>;
-    case "full":
-      return {
-        clientRoute: EMAIL_VERIFY_ROUTE_NAME,
-        getEmailContentFn: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.EmailFlowConfig>;
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getPasswordResetConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.EmailFlowConfig>;
-export function getPasswordResetConfig(
-  scope: ConfigScope,
-): Config<WaspSpec.EmailFlowConfig> {
-  switch (scope) {
-    case "minimal":
-      return {
-        clientRoute: PASSWORD_RESET_ROUTE_NAME,
-      } satisfies MinimalConfig<WaspSpec.EmailFlowConfig>;
-    case "full":
-      return {
-        clientRoute: PASSWORD_RESET_ROUTE_NAME,
-        getEmailContentFn: getRefObject("full", "named"),
-      } satisfies FullConfig<WaspSpec.EmailFlowConfig>;
-    default:
-      assertUnreachable(scope);
-  }
+        options: { flag: true, nested: { count: 1 } },
+      }),
+    },
+  };
 }
 
 export function getEmailFromField<Scope extends ConfigScope>(
@@ -648,11 +569,13 @@ export type MinimalConfig<T> =
       ? T
       : T extends Array<infer Item>
         ? Array<MinimalConfig<Item>>
-        : T extends object
-          ? keyof T extends never
-            ? EmptyObject
-            : MinimalConfigObject<T>
-          : T;
+        : T extends readonly unknown[]
+          ? T
+          : T extends object
+            ? keyof T extends never
+              ? EmptyObject
+              : MinimalConfigObject<T>
+            : T;
 
 type MinimalConfigObject<T> = {
   [K in keyof T as EmptyObject extends Pick<T, K> ? never : K]: MinimalConfig<
@@ -686,9 +609,11 @@ export type FullConfig<T> =
       ? T
       : T extends Array<infer Item>
         ? Array<FullConfig<Item>>
-        : T extends object
-          ? FullConfigObject<T>
-          : T;
+        : T extends readonly unknown[]
+          ? T
+          : T extends object
+            ? FullConfigObject<T>
+            : T;
 
 type FullConfigObject<T> = {
   [K in keyof T as IsExclusionMarker<T[K]> extends true

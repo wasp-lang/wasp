@@ -35,8 +35,15 @@ export type DeclType = Decl["declType"] | "Entity";
 
 export type Page = {
   component: ExtImport;
-  authRequired: Optional<boolean>;
+  authRequired: Optional<AuthRequirement>;
 };
+
+/**
+ * Whether (and through which providers) a page or operation requires
+ * authentication: `false` = no auth, `true` = any valid session, a list of
+ * auth provider ids = only sessions minted by one of the listed providers.
+ */
+export type AuthRequirement = boolean | string[];
 
 export type Route = {
   path: string;
@@ -51,13 +58,13 @@ export type Route = {
 export type Action = {
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
-  auth: Optional<boolean>;
+  auth: Optional<AuthRequirement>;
 };
 
 export type Query = {
   fn: ExtImport;
   entities: Optional<Ref<"Entity">[]>;
-  auth: Optional<boolean>;
+  auth: Optional<AuthRequirement>;
 };
 
 export type Job = {
@@ -82,7 +89,7 @@ export type Api = {
   middlewareConfigFn: Optional<ExtImport>;
   entities: Optional<Ref<"Entity">[]>;
   httpRoute: HttpRoute;
-  auth: Optional<boolean>;
+  auth: Optional<AuthRequirement>;
 };
 
 export type ApiNamespace = {
@@ -165,42 +172,64 @@ export type Wasp = {
 
 export type Auth = {
   userEntity: Ref<"Entity">;
-  methods: AuthMethods;
   onAuthFailedRedirectTo: string;
-  onAuthSucceededRedirectTo: Optional<string>;
+  // In declaration order; names are unique.
+  schemes: AuthScheme[];
+  // Required when more than one scheme is declared; otherwise the one scheme.
+  defaultScheme: string;
+  hooks: Optional<AuthHooksSpec>;
+};
+
+// App-level lifecycle hooks, fired at Wasp-owned choke points for every
+// scheme. Method-specific hooks belong to the handler package's own config.
+export type AuthHooksSpec = {
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
-  onAfterEmailVerified: Optional<ExtImport>;
-  onBeforeOAuthRedirect: Optional<ExtImport>;
   onBeforeLogin: Optional<ExtImport>;
   onAfterLogin: Optional<ExtImport>;
 };
 
-export type AuthMethods = {
-  usernameAndPassword: Optional<UsernameAndPasswordConfig>;
-  slack: Optional<ExternalAuthConfig>;
-  discord: Optional<ExternalAuthConfig>;
-  google: Optional<ExternalAuthConfig>;
-  gitHub: Optional<ExternalAuthConfig>;
-  keycloak: Optional<ExternalAuthConfig>;
-  microsoft: Optional<ExternalAuthConfig>;
-  email: Optional<EmailAuthConfig>;
+// A named, configured instance of an auth handler.
+export type AuthScheme = {
+  name: string;
+  handler: string;
+  server: { package: string } | { module: ExtImport };
+  clientPackage: Optional<string>;
+  routes: Optional<AuthSchemeRoutes>;
+  capabilities: string[];
+  envVars: AuthSchemeEnvVars;
+  uses: string[];
+  // Full namespace names: the scheme name plus each declared suffix, prefixed.
+  identityNamespaces: string[];
+  credentials: Optional<AuthSchemeCredentials>;
+  userSignupFields: Optional<ExtImport>;
+  setupFn: Optional<ExtImport>;
+  extensions: Record<string, ExtImport>;
+  optionsJson: Optional<string>;
 };
 
-export type UsernameAndPasswordConfig = {
-  userSignupFields: Optional<ExtImport>;
+export type AuthSchemeCredentials =
+  | { scheme: string }
+  | {
+      transport: "bearer" | "cookie";
+      store: "prisma" | "signed-token" | { module: ExtImport };
+      ttl: string;
+    };
+
+export type AuthSchemeRoutes = {
+  rawBody: Optional<boolean>;
 };
 
-export type ExternalAuthConfig = {
-  configFn: Optional<ExtImport>;
-  userSignupFields: Optional<ExtImport>;
+export type AuthSchemeEnvVars = {
+  server: AuthSchemeEnvVar[];
+  client: AuthSchemeEnvVar[];
 };
 
-export type EmailAuthConfig = {
-  userSignupFields: Optional<ExtImport>;
-  fromField: EmailFromField;
-  emailVerification: EmailVerificationConfig;
-  passwordReset: PasswordResetConfig;
+export type AuthSchemeEnvVar = {
+  name: string;
+  optional: Optional<boolean>;
+  doc: Optional<string>;
+  devDefault: Optional<string>;
 };
 
 export type EmailSender = {
@@ -218,16 +247,6 @@ export type EmailProvider =
 export type EmailFromField = {
   name: Optional<string>;
   email: string;
-};
-
-export type EmailVerificationConfig = {
-  getEmailContentFn: Optional<ExtImport>;
-  clientRoute: Ref<"Route">;
-};
-
-export type PasswordResetConfig = {
-  getEmailContentFn: Optional<ExtImport>;
-  clientRoute: Ref<"Route">;
 };
 
 export type Ref<T extends DeclType> = {

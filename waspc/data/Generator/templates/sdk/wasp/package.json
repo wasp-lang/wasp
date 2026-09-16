@@ -63,11 +63,10 @@
       ===============================================================
     =}
     "./auth": "./dist/auth/index.js",
-    {=! FIXME: Documented only in example apps, not in docs. Also re-exported through `wasp/server/auth`.=}
-    {=! FIXME: Candidate for removal? =}
-    {=! Users: validators in custom auth actions. =}
-    {=! Server: the same validators in auth provider routes. =}
-    "./auth/validation": "./dist/auth/validation.js",
+    {=# isAuthEnabled =}
+    {=! Users: which auth schemes the app runs on, as narrowable literals. =}
+    "./auth/scheme": "./dist/auth/scheme.js",
+    {=/ isAuthEnabled =}
     "./client": "./dist/client/index.js",
     "./client/api": "./dist/api/index.js",
     "./client/auth": "./dist/client/auth/index.js",
@@ -116,10 +115,21 @@
       Internal server runtime API. Undocumented.
       ===============================================================
     =}
-    "./server/auth/email": "./dist/server/auth/email/index.js",
-    "./server/auth/email/utils": "./dist/server/auth/email/utils.js",
-    "./server/auth/jwt": "./dist/server/auth/jwt.js",
-    "./server/auth/password": "./dist/server/auth/password.js",
+    {=! Server: the contract a hand-written auth handler implements. Handlers
+        live in user code, so they need to import this as a normal module. =}
+    "./server/auth/handler/types": "./dist/server/auth/handler/types.js",
+    {=! Client: the instantiated client halves of the auth schemes. =}
+    "./client/auth/schemes": "./dist/client/auth/schemes.js",
+    {=! Server: the scheme registry and its route handlers, for the framework's
+        own auth routes and for mounting schemes' routes. =}
+    "./server/auth/schemes": "./dist/server/auth/schemes.js",
+    {=! Server: the framework's credential issuer and the request/response
+        helpers the framework routes use. =}
+    "./server/auth/issuer": "./dist/server/auth/issuer.js",
+    {=! Server: dispatch for the app-level lifecycle hooks, fired at the SDK's
+        provisioning/minting choke points and from wasp-auth's OAuth callback. =}
+    "./server/auth/hookDispatch": "./dist/server/auth/hookDispatch.js",
+    "./server/auth/identityStore": "./dist/server/auth/identityStore.js",
     "./server/auth/session": "./dist/server/auth/session.js",
     "./server/auth/utils": "./dist/server/auth/utils.js",
     "./server/core/auth": "./dist/server/core/auth.js",

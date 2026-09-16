@@ -1,0 +1,1 @@
+{"version":3,"file":"prisma.d.ts","sourceRoot":"","sources":["../../../core/serialization/prisma.ts"],"names":[],"mappings":"AAEA,OAAO,mBAAmB,CAAA;AA0B1B,KAAK,YAAY,GAAG,cAAc,gCAAgC,EAAE,OAAO,CAAC;AAC5E,KAAK,eAAe,GAAG,YAAY,CAAC,YAAY,CAAC,CAAC;AAoBlD,OAAO,QAAQ,WAAW,CAAC;IACzB,UAAU,iDAAiD;QACzD,OAAO,EAAE,eAAe,CAAC;KAC1B;CACF"}

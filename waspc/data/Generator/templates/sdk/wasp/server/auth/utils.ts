@@ -1,38 +1,22 @@
 {{={= =}=}}
-import { hashPassword } from './password.js'
 import { prisma, HttpError } from '../index.js'
 import { sleep } from '../utils.js'
 import type {
   {= userEntityUpper =},
   {= authEntityUpper =},
-  {= authIdentityEntityUpper =},
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { throwValidationError } from '../../auth/validation.js'
-
-import {
-  type ProviderId,
-  type ProviderName,
-  type PossibleProviderData,
-  providerDataHasPasswordField,
-} from '../../auth/providerData.js'
-
-import type { UserSignupFields, PossibleUserFields } from '../../auth/providers/types.js'
+import type { UserSignupFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).
 export {
   createProviderId,
-  normalizeProviderUserId,
-  getProviderData,
-  getProviderDataWithPassword,
+  parseProviderData,
+  parseProviderSecrets,
   type ProviderId,
   type ProviderName,
-  type PossibleProviderData,
-  type EmailProviderData,
-  type UsernameProviderData,
-  type OAuthProviderData,
 } from '../../auth/providerData.js'
 
 // PRIVATE API
@@ -45,46 +29,6 @@ export const contextWithUserEntity = {
 // PRIVATE API
 export const authConfig = {
   failureRedirectPath: "{= failureRedirectPath =}",
-  successRedirectPath: "{= successRedirectPath =}",
-}
-
-// PUBLIC API
-export async function findAuthIdentity(providerId: ProviderId): Promise<{= authIdentityEntityUpper =} | null> {
-  return prisma.{= authIdentityEntityLower =}.findUnique({
-    where: {
-      providerName_providerUserId: providerId,
-    }
-  });
-}
-
-// PUBLIC API
-/**
- * Updates the provider data for the given auth identity.
- *
- * This function performs data sanitization and serialization.
- * Sanitization is done by hashing the password, so this function
- * expects the password received in the `providerDataUpdates`
- * **not to be hashed**.
- */
-export async function updateAuthIdentityProviderData<PN extends ProviderName>(
-  providerId: ProviderId,
-  existingProviderData: PossibleProviderData[PN],
-  providerDataUpdates: Partial<PossibleProviderData[PN]>,
-): Promise<{= authIdentityEntityUpper =}> {
-  // We are doing the sanitization here only on updates to avoid
-  // hashing the password multiple times.
-  const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
-  const newProviderData = {
-    ...existingProviderData,
-    ...sanitizedProviderDataUpdates,
-  }
-  const serializedProviderData = await serializeProviderData<PN>(newProviderData);
-  return prisma.{= authIdentityEntityLower =}.update({
-    where: {
-      providerName_providerUserId: providerId,
-    },
-    data: { providerData: serializedProviderData },
-  });
 }
 
 // PRIVATE API
@@ -109,49 +53,6 @@ export async function findAuthWithUserBy(
   return { ...result, user: result.user };
 }
 
-// PUBLIC API
-export type CreateUserResult = {= userEntityUpper =} & {
-  auth: {= authEntityUpper =} | null
-}
-
-// PUBLIC API
-export async function createUser(
-  providerId: ProviderId,
-  serializedProviderData?: string,
-  userFields?: PossibleUserFields,
-): Promise<CreateUserResult> {
-  return prisma.{= userEntityLower =}.create({
-    data: {
-      // Using any here to prevent type errors when userFields are not
-      // defined. We want Prisma to throw an error in that case.
-      ...(userFields ?? {} as any),
-      {= authFieldOnUserEntityName =}: {
-        create: {
-          {= identitiesFieldOnAuthEntityName =}: {
-              create: {
-                  providerName: providerId.providerName,
-                  providerUserId: providerId.providerUserId,
-                  providerData: serializedProviderData,
-              },
-          },
-        }
-      },
-    },
-    // We need to include the Auth entity here because we need `authId`
-    // to be able to create a session.
-    include: {
-      {= authFieldOnUserEntityName =}: true,
-    },
-  })
-}
-
-// PRIVATE API
-export async function deleteUserByAuthId(authId: string): Promise<{ count: number }> {
-  return prisma.{= userEntityLower =}.deleteMany({ where: { auth: {
-    id: authId,
-  } } })
-}
-
 // PRIVATE API
 // If an user exists, we don't want to leak information
 // about it. Pretending that we're doing some work
@@ -169,6 +70,17 @@ export async function doFakeWork(): Promise<unknown> {
 export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+    throw new HttpError(422, 'Save failed', {
+      message: `user with the same identity already exists`,
+    })
+  }
+
+  // The identity facet reports the same conflict with a contract error code
+  // (codes, not classes -- adapter packages hold their own contract copy).
+  if (
+    typeof e === 'object' && e !== null && 'code' in e &&
+    (e as { code: unknown }).code === 'wasp-auth/duplicate-identity'
+  ) {
     throw new HttpError(422, 'Save failed', {
       message: `user with the same identity already exists`,
     })
@@ -231,36 +143,10 @@ export async function validateAndGetUserFields(
       const value = await getFieldValue(sanitizedData)
       result[field] = value
     } catch (e) {
-      throwValidationError(e.message)
+      throw new HttpError(422, 'Validation failed', { message: e.message })
     }
   }
   return result;
-}
-
-// PUBLIC API
-export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<string> {
-  return serializeProviderData(
-    await ensurePasswordIsHashed(providerData)
-  );
-}
-
-function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
-  return JSON.stringify(providerData);
-}
-
-async function ensurePasswordIsHashed<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<PossibleProviderData[PN]> {
-  const data = {
-    ...providerData,
-  };
-  if (providerDataHasPasswordField(data)) {
-    data.hashedPassword = await hashPassword(data.hashedPassword);
-  }
-
-  return data;
 }
 
 // PRIVATE API

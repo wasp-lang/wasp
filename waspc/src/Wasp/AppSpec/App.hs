@@ -9,7 +9,7 @@ import Data.Data (Data)
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
-import Wasp.AppSpec.App.Auth (Auth, enabledAuthMethodNames)
+import Wasp.AppSpec.App.Auth (Auth)
 import qualified Wasp.AppSpec.App.Auth as Auth
 import Wasp.AppSpec.App.Client (Client)
 import Wasp.AppSpec.App.Db (Db)
@@ -52,6 +52,6 @@ instance Inspectable App where
     where
       inspectAuth' Nothing = []
       inspectAuth' (Just appAuth) =
-        [ ("Auth", intercalate ", " $ enabledAuthMethodNames $ Auth.methods appAuth),
+        [ ("Auth schemes", intercalate ", " $ Auth.schemeNames appAuth),
           ("User entity", refName (Auth.userEntity appAuth))
         ]

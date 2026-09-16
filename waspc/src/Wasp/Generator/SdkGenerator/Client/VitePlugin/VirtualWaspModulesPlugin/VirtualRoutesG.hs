@@ -6,15 +6,17 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (find)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
@@ -47,10 +49,14 @@ createRouteTemplateData spec (name, route) =
     [ "name" .= name,
       "isLazy" .= isRouteLazy route,
       "isAuthRequired" .= isAuthRequired,
+      "hasRequiredAuthProviderIds" .= isJust requiredProviderIds,
+      "requiredAuthProviderIdsJs" .= (makeJsArrayFromHaskellList <$> requiredProviderIds),
       "import" .= GJI.jsImportToImportJson (Just aliasedImport)
     ]
   where
-    isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
+    isAuthRequired = AuthRequirement.isAuthRequiredWithDefault False pageAuthRequired
+    requiredProviderIds = pageAuthRequired >>= AuthRequirement.requiredAuthProviderIds
+    pageAuthRequired = AS.Page.authRequired $ snd targetPage
 
     targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
     targetPage = findTargetPage spec targetPageName (AS.Route.path route)

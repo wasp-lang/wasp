@@ -33,7 +33,7 @@ const routesMapping = {
       return {
         Component:
           {=# isAuthRequired =}
-          createAuthRequiredPage(Component),
+          createAuthRequiredPage(Component{=# hasRequiredAuthProviderIds =}, { schemes: {=& requiredAuthProviderIdsJs =} }{=/ hasRequiredAuthProviderIds =}),
           {=/ isAuthRequired =}
           {=^ isAuthRequired =}
           Component,
@@ -45,7 +45,7 @@ const routesMapping = {
   {=^ isLazy =}
   {= name =}: {
     {=# isAuthRequired =}
-    Component: createAuthRequiredPage({= import.importIdentifier =}),
+    Component: createAuthRequiredPage({= import.importIdentifier =}{=# hasRequiredAuthProviderIds =}, { schemes: {=& requiredAuthProviderIdsJs =} }{=/ hasRequiredAuthProviderIds =}),
     {=/ isAuthRequired =}
     {=^ isAuthRequired =}
     Component: {= import.importIdentifier =},

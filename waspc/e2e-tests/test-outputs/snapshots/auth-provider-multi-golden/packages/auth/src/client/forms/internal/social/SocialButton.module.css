@@ -1,0 +1,33 @@
+/*
+  Using !important with some of the components is a workaround for Tailwind
+  CSS's having too much precedence.
+  https://github.com/wasp-lang/wasp/issues/1764
+*/
+
+.socialButton {
+  display: flex !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  /* NOTE(matija): icon is otherwise blue, since that
+     is link's default font color. */
+  color: inherit !important;
+  background-color: #f0f0f0 !important;
+  border-radius: 0.375rem !important;
+  border-width: 1px !important;
+  border-color: var(--color-gray600) !important;
+  font-size: 13px !important;
+  padding: 0.5rem 0.75rem !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 100ms !important;
+  text-decoration: none;
+}
+
+.socialButton:visited {
+  color: inherit !important;
+}
+
+.socialButton:hover {
+  background-color: var(--color-gray500) !important;
+  color: inherit !important;
+}

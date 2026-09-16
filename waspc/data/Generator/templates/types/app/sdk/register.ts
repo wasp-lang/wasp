@@ -21,12 +21,6 @@ declare module "wasp/types" {
     {=# webSocketFn.isDefined =}
     webSocketFn: typeof {=& webSocketFn.dynamicImportExpression =}
     {=/ webSocketFn.isDefined =}
-    {=# emailUserSignupFields.isDefined =}
-    emailUserSignupFields: typeof {=& emailUserSignupFields.dynamicImportExpression =}
-    {=/ emailUserSignupFields.isDefined =}
-    {=# usernameAndPasswordUserSignupFields.isDefined =}
-    usernameAndPasswordUserSignupFields: typeof {=& usernameAndPasswordUserSignupFields.dynamicImportExpression =}
-    {=/ usernameAndPasswordUserSignupFields.isDefined =}
     operations: {
     {=# operations =}
       '{= operationName =}': typeof {=& jsFn.dynamicImportExpression =}

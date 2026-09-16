@@ -18,6 +18,78 @@ declare module "virtual:wasp/user/features/db/prisma" {
   export const setUpPrisma: import("./server/dbClient").RegisteredPrismaSetupFn;
 }
 
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onBeforeSignup: import("./server/auth/hooks").OnBeforeSignupHook;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onAfterSignup: import("./server/auth/hooks").OnAfterSignupHook;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onBeforeLogin: import("./server/auth/hooks").OnBeforeLoginHook;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onAfterLogin: import("./server/auth/hooks").OnAfterLoginHook;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/discord" {
+  export const discordConfig: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/discord" {
+  export const discordUserSignupFields: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/email" {
+  export const emailUserSignupFields: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/email" {
+  export const getPasswordResetEmailContent: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/email" {
+  export const getVerificationEmailContent: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/github" {
+  export const gitHubConfig: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/github" {
+  export const gitHubUserSignupFields: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/google" {
+  export const googleConfig: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/google" {
+  export const googleUserSignupFields: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/microsoft" {
+  export const microsoftConfig: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/microsoft" {
+  export const microsoftUserSignupFields: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/hooks" {
+  export const onAfterEmailVerified: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/slack" {
+  export const slackConfig: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
+declare module "virtual:wasp/user/features/auth/providers/slack" {
+  export const slackUserSignupFields: import("./server/auth/provider/types").AuthProviderExtension;
+}
+
 declare module "virtual:wasp/user/features/operations/queries" {
   export const getTasks: import("./server/operations/queries/index").RegisteredGetTasks;
 }

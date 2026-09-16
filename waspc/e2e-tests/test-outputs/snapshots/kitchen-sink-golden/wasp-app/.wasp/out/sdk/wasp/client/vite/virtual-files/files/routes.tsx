@@ -110,6 +110,16 @@ const routesMapping = {
       }
     },
   },
+  OAuthCallbackRoute: {
+    lazy: async () => {
+      const Component = await import('./src/features/auth/pages/OAuthCallbackPage').then(m => m.OAuthCallbackPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
   TasksRoute: {
     lazy: async () => {
       const Component = await import('./src/features/operations/pages/TasksPage').then(m => m.TasksPage);

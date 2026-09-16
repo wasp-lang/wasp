@@ -25,12 +25,29 @@ const serverUrlSchema =
     })
   )
 
+{=# isAuthEnabled =}
+{=! Env vars the auth providers' manifests declared for the client. =}
+const authProviderEnvSchema = z.object({
+  {=# authProviderClientEnvVars =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }){=# isOptional =}.optional(){=/ isOptional =},
+  {=/ authProviderClientEnvVars =}
+});
+
+{=/ isAuthEnabled =}
 const waspDevClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
+{=# isAuthEnabled =}
+  ...authProviderEnvSchema.shape,
+{=/ isAuthEnabled =}
 });
 
 const waspProdClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
+{=# isAuthEnabled =}
+  ...authProviderEnvSchema.shape,
+{=/ isAuthEnabled =}
 });
 
 const waspClientEnvSchema = import.meta.env.MODE === "production"

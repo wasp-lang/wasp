@@ -4,6 +4,7 @@ module Wasp.AppSpec.Valid
   ( validateAppSpec,
     getApp,
     isAuthEnabled,
+    getAuthSchemes,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -13,11 +14,12 @@ where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
-import Data.List (find, groupBy, intercalate, sortBy)
+import Data.List (find, groupBy, intercalate, isPrefixOf, sortBy, tails)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
@@ -28,6 +30,7 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -35,6 +38,7 @@ import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.Identifier (isValidWaspIdentifier)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
+import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -61,8 +65,8 @@ validateAppSpec spec =
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateUserEntity spec,
-          validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
-          validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
+          validateAuthSchemes spec,
+          validateAuthRequirements spec,
           validateDummyEmailSenderIsNotUsedInProduction spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
@@ -153,19 +157,7 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   | anyPageRequiresAuth && not (isAuthEnabled spec)
   ]
   where
-    anyPageRequiresAuth = any ((== Just True) . Page.authRequired . snd) (AS.getPages spec)
-
-validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
-validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
-  case App.auth (snd $ getApp spec) of
-    Nothing -> []
-    Just auth ->
-      [ GenericValidationError
-          "Expected app.auth to use either email or username and password authentication, but not both."
-      | areBothAuthMethodsUsed
-      ]
-      where
-        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
+    anyPageRequiresAuth = any (AuthRequirement.isAuthRequiredWithDefault False . Page.authRequired . snd) (AS.getPages spec)
 
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
@@ -173,16 +165,6 @@ validateDbIsPostgresIfPgBossUsed spec =
       ("The database provider in the schema.prisma file must be \"" ++ Psl.Db.dbProviderPostgresqlStringLiteral ++ "\" since there are jobs with executor set to PgBoss.")
   | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
   ]
-
-validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
-validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
-  Nothing -> []
-  Just auth ->
-    if Auth.isEmailAuthEnabled auth && isNothing (App.emailSender app)
-      then [GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
-      else []
-  where
-    app = snd $ getApp spec
 
 validateDummyEmailSenderIsNotUsedInProduction :: AppSpec -> [ValidationError]
 validateDummyEmailSenderIsNotUsedInProduction spec =
@@ -192,6 +174,346 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
   where
     isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
     app = snd $ getApp spec
+
+-- | Coherence checks for the auth schemes: data-level properties the types
+-- cannot express -- per-scheme name, env, grant, namespace and credentials
+-- checks, and the cross-scheme properties (unique names, non-colliding env
+-- vars, disjoint namespaces, a resolvable default, acyclic credential chains).
+validateAuthSchemes :: AppSpec -> [ValidationError]
+validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
+  Nothing -> []
+  Just auth ->
+    concat
+      [ [ GenericValidationError "app.auth.schemes must declare at least one scheme."
+        | null (Auth.schemes auth)
+        ],
+        validateSchemeNamesAreUnique auth,
+        concatMap validateSchemeName (Auth.schemes auth),
+        validateDefaultScheme auth,
+        concatMap validateSchemeEnvVarsAreNotReserved (Auth.schemes auth),
+        validateSchemeEnvVarsDoNotCollide (Auth.schemes auth),
+        concatMap validateSchemeUses (Auth.schemes auth),
+        concatMap validateSchemeIdentityNamespaces (Auth.schemes auth),
+        validateIdentityNamespacesAreDisjoint (Auth.schemes auth),
+        concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.schemes auth),
+        concatMap (validateCredentialsTarget auth) (Auth.schemes auth),
+        concatMap validateSchemeRoutesDoNotCollideWithApis (Auth.schemes auth)
+      ]
+  where
+    validateSchemeNamesAreUnique auth =
+      [ GenericValidationError $
+          "app.auth.schemes declares the scheme '"
+            ++ duplicateName
+            ++ "' more than once. Identities and sessions are recorded under the scheme name, so each name may appear at most once."
+      | duplicateName <- findDuplicateElems (Auth.schemeNames auth)
+      ]
+
+    -- A scheme name is an identity namespace and a route segment. The TS
+    -- mapper enforces the same rule; this mirror covers every entry point
+    -- that does not go through it.
+    validateSchemeName scheme =
+      concat
+        [ [ GenericValidationError $
+              "Auth scheme name '"
+                ++ scheme.name
+                ++ "' must be non-empty and contain neither ':' (the identity namespace separator) nor '/' (it names the scheme's routes)."
+          | null scheme.name || any (`elem` scheme.name) [':', '/']
+          ],
+          [ GenericValidationError $
+              "Auth scheme name '"
+                ++ scheme.name
+                ++ "' collides with a framework auth route (/auth/"
+                ++ scheme.name
+                ++ "). Reserved names: "
+                ++ intercalate ", " reservedSchemeNames
+                ++ "."
+          | scheme.name `elem` reservedSchemeNames
+          ]
+        ]
+      where
+        -- The framework's own routes under /auth.
+        reservedSchemeNames = ["me", "logout", "login"]
+
+    validateDefaultScheme auth =
+      [ GenericValidationError $
+          "app.auth.default names the scheme '"
+            ++ Auth.defaultScheme auth
+            ++ "', which app.auth.schemes does not declare. Declared: "
+            ++ intercalate ", " (Auth.schemeNames auth)
+            ++ "."
+      | Auth.defaultScheme auth `notElem` Auth.schemeNames auth
+      ]
+
+    -- Handler runtimes receive exactly the env vars their manifest declared,
+    -- so a manifest declaring a framework-owned name (DATABASE_URL) would be
+    -- handed the framework's secret through the sanctioned channel. Mirrors
+    -- reservedServerEnvVarNames / reservedClientEnvVarNames in the TS spec
+    -- package (spec/src/spec/authReservedEnvVarNames.ts) and the names owned
+    -- by the generated server env schema (sdk/wasp/server/env.ts template).
+    validateSchemeEnvVarsAreNotReserved scheme =
+      reservedNameErrors "server" scheme.envVars.server reservedServerEnvVarNames
+        ++ reservedNameErrors "client" scheme.envVars.client reservedClientEnvVarNames
+      where
+        reservedNameErrors side envVars reservedNames =
+          [ GenericValidationError $
+              "Auth scheme '"
+                ++ scheme.name
+                ++ "' declares the "
+                ++ side
+                ++ " env var '"
+                ++ envVar.envVarName
+                ++ "', which Wasp owns. Framework env var names cannot be declared by handlers;"
+                ++ " pick a handler-specific name."
+          | envVar <- envVars,
+            envVar.envVarName `elem` reservedNames
+          ]
+        reservedServerEnvVarNames =
+          [ "NODE_ENV",
+            "PORT",
+            "DATABASE_URL",
+            "PG_BOSS_NEW_OPTIONS",
+            "WASP_SERVER_URL",
+            "WASP_WEB_CLIENT_URL",
+            "SMTP_HOST",
+            "SMTP_PORT",
+            "SMTP_USERNAME",
+            "SMTP_PASSWORD",
+            "SENDGRID_API_KEY",
+            "MAILGUN_API_KEY",
+            "MAILGUN_DOMAIN",
+            "MAILGUN_API_URL",
+            "RESEND_API_KEY"
+          ]
+        reservedClientEnvVarNames = ["NODE_ENV", "REACT_APP_API_URL"]
+
+    -- Grants are a closed set: the generator can only wire facets it knows,
+    -- so an unknown name must be an error, not an absent property at runtime.
+    validateSchemeUses scheme =
+      [ GenericValidationError $
+          "Auth scheme '"
+            ++ scheme.name
+            ++ "' requests the unknown runtime grant '"
+            ++ grantName
+            ++ "'. Known grants: "
+            ++ intercalate ", " knownRuntimeGrantNames
+            ++ "."
+      | grantName <- scheme.uses,
+        grantName `notElem` knownRuntimeGrantNames
+      ]
+      where
+        knownRuntimeGrantNames = ["email-send", "identity-namespaces"]
+
+    -- A scheme owns its name and anything under `name ++ ":"`; that shape is
+    -- what makes cross-scheme identity collisions impossible by construction.
+    -- Using more than the default namespace requires the 'identity-namespaces'
+    -- grant, so the power shows up in `uses`.
+    validateSchemeIdentityNamespaces scheme =
+      concat
+        [ [ GenericValidationError $
+              "Auth scheme '"
+                ++ scheme.name
+                ++ "' declares the identity namespace '"
+                ++ namespace
+                ++ "', which it does not own. A namespace must be the scheme name or '"
+                ++ scheme.name
+                ++ ":<suffix>' -- that rule is what makes cross-scheme identity collisions impossible."
+          | namespace <- scheme.identityNamespaces,
+            not (isOwnNamespace namespace)
+          ],
+          [ GenericValidationError $
+              "Auth scheme '" ++ scheme.name ++ "' declares a duplicate identity namespace."
+          | not (null (findDuplicateElems scheme.identityNamespaces))
+          ],
+          [ GenericValidationError $
+              "Auth scheme '"
+                ++ scheme.name
+                ++ "' declares identity namespaces beyond its default one, which requires the"
+                ++ " 'identity-namespaces' grant in `uses`."
+          | usesNamespacesBeyondDefault,
+            "identity-namespaces" `notElem` scheme.uses
+          ]
+        ]
+      where
+        isOwnNamespace namespace =
+          namespace == scheme.name
+            || ( (scheme.name ++ ":") `isPrefixOf` namespace
+                   && length namespace > length scheme.name + 1
+               )
+        usesNamespacesBeyondDefault =
+          scheme.identityNamespaces /= [scheme.name]
+
+    -- Belt and braces on top of the per-scheme ownership rule: even if the
+    -- shape rule ever loosens, two schemes may never share a namespace,
+    -- because identities are recorded under it.
+    validateIdentityNamespacesAreDisjoint schemes =
+      [ GenericValidationError $
+          "Auth schemes "
+            ++ intercalate " and " (map (\ownerName -> "'" ++ ownerName ++ "'") ownerNames)
+            ++ " both declare the identity namespace '"
+            ++ namespace
+            ++ "'. Identities are recorded under the namespace, so each one must belong to exactly one scheme."
+      | (namespace, ownerNames) <- duplicatedNamespacesWithOwners
+      ]
+      where
+        namespaceOwnership =
+          [ (namespace, scheme.name)
+          | scheme <- schemes,
+            namespace <- scheme.identityNamespaces
+          ]
+        duplicatedNamespacesWithOwners =
+          [ (namespace, snd <$> ownerships)
+          | ownerships@((namespace, _) : _ : _) <-
+              groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) namespaceOwnership
+          ]
+
+    -- An email-sending handler cannot ship into an app that would silently
+    -- drop its emails.
+    validateEmailSendGrantHasEmailSender spec' scheme =
+      [ GenericValidationError $
+          "Auth scheme '"
+            ++ scheme.name
+            ++ "' requests the 'email-send' grant, which requires app.emailSender to be specified."
+      | "email-send" `elem` scheme.uses,
+        isNothing (App.emailSender (snd $ getApp spec'))
+      ]
+
+    -- A credentials scheme must exist, must be able to issue credentials, and
+    -- the chain must end: a scheme cannot sign into itself, nor into a scheme
+    -- that (transitively) signs into it. The TS mapper enforces the same.
+    validateCredentialsTarget auth scheme = case Auth.credentialsScheme scheme of
+      Nothing -> []
+      Just targetName -> case find ((== targetName) . (.name)) (Auth.schemes auth) of
+        Nothing ->
+          [ GenericValidationError $
+              "Auth scheme '" ++ scheme.name ++ "' signs into '" ++ targetName ++ "', which app.auth.schemes does not declare."
+          ]
+        Just target ->
+          concat
+            [ [ GenericValidationError $
+                  "Auth scheme '"
+                    ++ scheme.name
+                    ++ "' signs into '"
+                    ++ targetName
+                    ++ "', but that scheme's handler ('"
+                    ++ target.handler
+                    ++ "') does not declare the 'sign-in' capability."
+              | not (Auth.canSignIn target)
+              ],
+              [ GenericValidationError $
+                  "Auth scheme '"
+                    ++ scheme.name
+                    ++ "' signs into '"
+                    ++ targetName
+                    ++ "', which leads back to itself. A credentials chain must end in a scheme that issues its own credentials."
+              | chainLeadsBack [scheme.name] target
+              ]
+            ]
+      where
+        chainLeadsBack seen current
+          | current.name `elem` seen = True
+          | otherwise = case Auth.credentialsScheme current >>= \n -> find ((== n) . (.name)) (Auth.schemes auth) of
+              Nothing -> False
+              Just next -> chainLeadsBack (current.name : seen) next
+
+    -- A scheme's routes mount at /auth/<name>; a user api declared under that
+    -- path would be shadowed or shadow it.
+    validateSchemeRoutesDoNotCollideWithApis scheme =
+      [ GenericValidationError $
+          "Auth scheme '" ++ scheme.name ++ "' mounts its routes at '" ++ mountPath ++ "', which collides with a declared api or apiNamespace path."
+      | isJust scheme.routes,
+        any (\apiPath -> isPathPrefixOfPath mountPath apiPath || isPathPrefixOfPath apiPath mountPath) declaredApiPaths
+      ]
+      where
+        mountPath = "/auth/" ++ scheme.name
+        declaredApiPaths =
+          (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
+            ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
+
+    -- Prefix on segment boundaries: /auth/wasp prefixes /auth/wasp/x but not
+    -- /auth/wasp-2.
+    isPathPrefixOfPath pathA pathB = splitPathSegments pathA `isPrefixOf` splitPathSegments pathB
+    splitPathSegments = filter (not . null) . foldr splitOnSlash [[]]
+      where
+        splitOnSlash '/' segments = [] : segments
+        splitOnSlash c (segment : segments) = (c : segment) : segments
+        splitOnSlash c [] = [[c]]
+
+    -- Two schemes declaring the same env var name is always an error: even
+    -- an identically named and typed variable is separate per-instance
+    -- configuration, and process.env has one global namespace.
+    validateSchemeEnvVarsDoNotCollide schemes =
+      [ GenericValidationError $
+          "Auth schemes '"
+            ++ ownerA
+            ++ "' and '"
+            ++ ownerB
+            ++ "' both declare the "
+            ++ side
+            ++ " env var '"
+            ++ envVarName
+            ++ "'. Each scheme's env vars must be uniquely named."
+      | (side, getVars) <- [("server", (.server)), ("client", (.client))],
+        ((envVarName, ownerA) : rest) <- tails (sortBy (\a b -> compare (fst a) (fst b)) [(envVar.envVarName, scheme.name) | scheme <- schemes, envVar <- getVars scheme.envVars]),
+        (otherName, ownerB) <- take 1 rest,
+        otherName == envVarName
+      ]
+
+-- | Every scheme-restricted auth requirement (@authRequired: [...]@ on a
+-- page, @auth: [...]@ on a query/action/api) must name declared schemes.
+-- Checked here rather than in the TS mapper because only the whole spec
+-- knows the scheme registry.
+validateAuthRequirements :: AppSpec -> [ValidationError]
+validateAuthRequirements spec =
+  concatMap (uncurry validateRequirement) requirementSites
+  where
+    requirementSites =
+      concat
+        [ [ ("page '" ++ name ++ "' authRequired", requirement)
+          | (name, page) <- AS.getPages spec,
+            Just requirement <- [Page.authRequired page]
+          ],
+          [ ("query '" ++ name ++ "' auth", requirement)
+          | (name, query) <- AS.getQueries spec,
+            Just requirement <- [AS.Query.auth query]
+          ],
+          [ ("action '" ++ name ++ "' auth", requirement)
+          | (name, action) <- AS.getActions spec,
+            Just requirement <- [AS.Action.auth action]
+          ],
+          [ ("api '" ++ name ++ "' auth", requirement)
+          | (name, api) <- AS.getApis spec,
+            Just requirement <- [AS.Api.auth api]
+          ]
+        ]
+
+    configuredProviderIds =
+      maybe [] Auth.schemeNames (App.auth $ snd $ getApp spec)
+
+    validateRequirement site requirement = case AuthRequirement.requiredAuthProviderIds requirement of
+      Nothing -> []
+      Just requirementProviderIds ->
+        concat
+          [ [ GenericValidationError $
+                "Expected " ++ site ++ " to list at least one auth provider id (an empty list would let nobody in). Use false to disable auth instead."
+            | null requirementProviderIds
+            ],
+            [ GenericValidationError $
+                "Expected " ++ site ++ " to list each auth provider id at most once, but '" ++ duplicateId ++ "' appears more than once."
+            | duplicateId <- findDuplicateElems requirementProviderIds
+            ],
+            [ GenericValidationError $
+                "Expected "
+                  ++ site
+                  ++ " to list configured auth provider ids, but '"
+                  ++ unknownId
+                  ++ "' is not one. "
+                  ++ if null configuredProviderIds
+                    then "The app has no auth configured (app.auth is not set)."
+                    else "Configured provider ids: " ++ intercalate ", " configuredProviderIds ++ "."
+            | unknownId <- requirementProviderIds,
+              unknownId `notElem` configuredProviderIds
+            ]
+          ]
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
@@ -489,7 +811,7 @@ validatePrerenderRoutes spec =
 
     prerenderPaths = Route.prerender
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
-    pageRequiresAuth page = Page.authRequired page == Just True
+    pageRequiresAuth page = AuthRequirement.isAuthRequiredWithDefault False (Page.authRequired page)
 
     getPage route = snd $ AS.resolveRef spec (Route.to route)
 
@@ -507,6 +829,9 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+
+getAuthSchemes :: AppSpec -> [Auth.AuthScheme]
+getAuthSchemes spec = maybe [] Auth.schemes (App.auth $ snd $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

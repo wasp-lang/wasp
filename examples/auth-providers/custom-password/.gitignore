@@ -1,0 +1,9 @@
+.wasp/
+node_modules/
+.env.server
+.env.client
+
+# Playwright
+e2e-tests/test-results/
+test-results/
+playwright-report/

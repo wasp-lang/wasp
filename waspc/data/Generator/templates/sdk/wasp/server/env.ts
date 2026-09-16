@@ -59,73 +59,19 @@ const waspCommonServerEnvSchema = z.object({
   }),
   {=/ enabledEmailSenders.isResendProviderEnabled =}
   {=/ isEmailSenderEnabled =}
-  SKIP_EMAIL_VERIFICATION_IN_DEV: z
-    .enum(['true', 'false'], {
-      error: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
-    })
-    .default('false')
-    .transform((value) => value === 'true'),
   {=# isAuthEnabled =}
-  {=# enabledAuthProviders.isGoogleAuthEnabled =}
-  GOOGLE_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_ID'),
-  }),
-  GOOGLE_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_SECRET'),
-  }),
-  {=/ enabledAuthProviders.isGoogleAuthEnabled =}
-  {=# enabledAuthProviders.isGitHubAuthEnabled =}
-  GITHUB_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_ID'),
-  }),
-  GITHUB_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_SECRET'),
-  }),
-  {=/ enabledAuthProviders.isGitHubAuthEnabled =}
-  {=# enabledAuthProviders.isSlackAuthEnabled =}
-  SLACK_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_ID'),
-  }),
-  SLACK_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_SECRET'),
-  }),
-  {=/ enabledAuthProviders.isSlackAuthEnabled =}
-  {=# enabledAuthProviders.isDiscordAuthEnabled =}
-  DISCORD_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_ID'),
-  }),
-  DISCORD_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_SECRET'),
-  }),
-  {=/ enabledAuthProviders.isDiscordAuthEnabled =}
-  {=# enabledAuthProviders.isKeycloakAuthEnabled =}
-  KEYCLOAK_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Keycloak auth provider', 'KEYCLOAK_CLIENT_ID'),
-  }),
-  KEYCLOAK_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Keycloak auth provider', 'KEYCLOAK_CLIENT_SECRET'),
-  }),
-  KEYCLOAK_REALM_URL:
-    z.string({
-      error: getRequiredEnvVarErrorMessage('Keycloak auth provider', 'KEYCLOAK_REALM_URL'),
-    })
-    .pipe(
-      z.url({
-        error: 'KEYCLOAK_REALM_URL must be a valid URL',
-      })
-    ),
-  {=/ enabledAuthProviders.isKeycloakAuthEnabled =}
-  {=# enabledAuthProviders.isMicrosoftAuthEnabled =}
-  MICROSOFT_TENANT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_TENANT_ID'),
-  }),
-  MICROSOFT_CLIENT_ID: z.string({
-    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_ID'),
-  }),
-  MICROSOFT_CLIENT_SECRET: z.string({
-    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
-  }),
-  {=/ enabledAuthProviders.isMicrosoftAuthEnabled =}
+  {=! Env vars the auth providers' manifests declared. Rendering them
+      here means a missing var fails at boot with the manifest's own
+      explanation, not at the first authenticated request. Vars with a
+      devDefault render in the dev/prod schemas below instead, so the default
+      applies only in development. =}
+  {=# authProviderServerEnvVars =}
+  {=^ hasDevDefault =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }){=# isOptional =}.optional(){=/ isOptional =},
+  {=/ hasDevDefault =}
+  {=/ authProviderServerEnvVars =}
   {=/ isAuthEnabled =}
 });
 
@@ -149,13 +95,6 @@ const clientUrlSchema =
     })
   )
 
-{=# isAuthEnabled =}
-const jwtTokenSchema = z
-  .string({
-    error: '{= jwtSecretEnvVarName =} is required',
-  })
-{=/ isAuthEnabled =}
-
 // In development, we provide default values for some environment variables
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
@@ -163,8 +102,13 @@ const waspDevServerEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
   "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
-  "{= jwtSecretEnvVarName =}": jwtTokenSchema
-    .default("DEVJWTSECRET"),
+  {=# authProviderServerEnvVars =}
+  {=# hasDevDefault =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }).default({=& devDefaultJson =}),
+  {=/ hasDevDefault =}
+  {=/ authProviderServerEnvVars =}
   {=/ isAuthEnabled =}
 });
 
@@ -173,7 +117,13 @@ const waspProdServerEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
   "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
-  "{= jwtSecretEnvVarName =}": jwtTokenSchema,
+  {=# authProviderServerEnvVars =}
+  {=# hasDevDefault =}
+  "{= name =}": z.string({
+    error: {=& errorJson =},
+  }){=# isOptional =}.optional(){=/ isOptional =},
+  {=/ hasDevDefault =}
+  {=/ authProviderServerEnvVars =}
   {=/ isAuthEnabled =}
 });
 

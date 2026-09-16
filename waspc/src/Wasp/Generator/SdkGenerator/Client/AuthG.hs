@@ -3,12 +3,13 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
   )
 where
 
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import qualified Data.Aeson as Aeson
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -16,97 +17,55 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Util ((<++>))
 
+-- | The uniform client surface (useAuth, logout, resumeSession, the adapter
+-- registry) exists for every provider mix. Provider UI (forms, sign-in
+-- buttons) comes from each provider package's own client entry.
 genClientAuth :: AppSpec -> Generator [FileDraft]
 genClientAuth spec =
   case maybeAuth of
     Nothing -> return []
     Just auth ->
       sequence
-        [ genAuthIndex auth,
-          genAuthUi auth
+        [ genFileCopy (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|]),
+          genClientAuthProvidersTs auth
         ]
-        <++> genAuthEmail auth
-        <++> genAuthUsername auth
-        <++> genAuthSlack auth
-        <++> genAuthDiscord auth
-        <++> genAuthGoogle auth
-        <++> genAuthKeycloak auth
-        <++> genAuthGitHub auth
-        <++> genAuthMicrosoft auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
-genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
-genAuthIndex auth =
+-- | The client halves of the auth providers: instantiates each adapter
+-- package's client entry with the same runtime-window discipline as the
+-- server halves, and carries the session-resume and login helpers built on
+-- them.
+genClientAuthProvidersTs :: AS.Auth.Auth -> Generator FileDraft
+genClientAuthProvidersTs auth =
   return $
     mkTmplFdWithData
-      (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (clientAuthDirInSdkTemplatesDir </> [relfile|schemes.ts|])
       tmplData
   where
-    tmplData = AuthProviders.getEnabledAuthProvidersJson auth
-
-genAuthUi :: AS.Auth.Auth -> Generator FileDraft
-genAuthUi auth =
-  return $
-    mkTmplFdWithData
-      (clientAuthDirInSdkTemplatesDir </> [relfile|ui.ts|])
-      tmplData
-  where
-    tmplData = AuthProviders.getEnabledAuthProvidersJson auth
-
-genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthEmail auth =
-  if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|email.ts|]]
-    else return []
-
-genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|username.ts|]]
-    else return []
-
-genAuthSlack :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthSlack auth =
-  if AS.Auth.isSlackAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|slack.ts|]]
-    else return []
-
-genAuthDiscord :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthDiscord auth =
-  if AS.Auth.isDiscordAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|discord.ts|]]
-    else return []
-
-genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthGoogle auth =
-  if AS.Auth.isGoogleAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|google.ts|]]
-    else return []
-
-genAuthKeycloak :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthKeycloak auth =
-  if AS.Auth.isKeycloakAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|keycloak.ts|]]
-    else return []
-
-genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthGitHub auth =
-  if AS.Auth.isGitHubAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|github.ts|]]
-    else return []
-
-genAuthMicrosoft :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthMicrosoft auth =
-  if AS.Auth.isMicrosoftAuthEnabled auth
-    then sequence [genFileCopyInClientAuth [relfile|microsoft.ts|]]
-    else return []
+    tmplData =
+      Aeson.object
+        [ "anyClientAdapters" Aeson..= (not . null $ clientAdapterProviders),
+          "defaultScheme" Aeson..= AS.Auth.defaultScheme auth,
+          "clientAdapterProviders" Aeson..= zipWith mkClientAdapterProviderTmplData [0 :: Int ..] clientAdapterProviders
+        ]
+    clientAdapterProviders =
+      [ (scheme, clientPackage)
+      | scheme <- AS.Auth.schemes auth,
+        Just clientPackage <- [AS.Auth.clientPackage scheme]
+      ]
+    mkClientAdapterProviderTmplData idx (provider, clientPackage) =
+      Aeson.object
+        [ "index" Aeson..= idx,
+          "schemeName" Aeson..= provider.name,
+          "clientPackage" Aeson..= clientPackage,
+          "hasOptions" Aeson..= maybe False (const True) provider.optionsJson,
+          "optionsJson" Aeson..= provider.optionsJson,
+          -- The client adapter runtime's env is narrowed to exactly these names.
+          "clientEnvVarNamesJs"
+            Aeson..= makeJsArrayFromHaskellList ((.envVarName) <$> provider.envVars.client)
+        ]
 
 clientAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 clientAuthDirInSdkTemplatesDir = [reldir|client/auth|]
-
-genFileCopyInClientAuth :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInClientAuth =
-  genFileCopy . (clientAuthDirInSdkTemplatesDir </>)

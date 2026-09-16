@@ -5,7 +5,7 @@ import type { ServerType } from 'wasp/server/webSocket'
 
 import { config, prisma } from 'wasp/server'
 
-import { getSessionAndUserFromSessionId } from 'wasp/server/auth/session'
+import { authenticateCredential } from 'wasp/server/auth/session'
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
 import { chatWebSocket } from '../../../../../src/features/chat/webSocket'
@@ -41,7 +41,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
   const sessionId = socket.handshake.auth.sessionId
   if (sessionId) {
     try {
-      const sessionAndUser = await getSessionAndUserFromSessionId(sessionId)
+      const sessionAndUser = await authenticateCredential(sessionId)
       const user = sessionAndUser ? makeAuthUserIfPossible(sessionAndUser.user) : null
       socket.data = {
         ...socket.data,

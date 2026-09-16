@@ -65,12 +65,10 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( depsRequiredByJobs,
     genJobsApi,
   )
-import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
-import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
@@ -85,6 +83,7 @@ import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
 import Wasp.Util ((<++>))
+import qualified Wasp.Util as Util
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
@@ -99,6 +98,19 @@ buildSdk generatedAppDir = do
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
+-- | The client HTTP wrapper. Deliberately provider-free: requests carry the
+-- Wasp session and nothing else, and the credential exchange helper exists iff
+-- auth does.
+genApiIndexTs :: AppSpec -> Generator FileDraft
+genApiIndexTs spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|api/index.ts|]
+      ( object
+          [ "isAuthEnabled" .= isAuthEnabled spec
+          ]
+      )
+
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
@@ -108,7 +120,7 @@ genSdk spec =
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|types/register.ts|],
-      C.genFileCopy [relfile|api/index.ts|],
+      genApiIndexTs spec,
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
@@ -189,6 +201,7 @@ genPackageJson spec = do
       [relfile|package.json|]
       ( object
           [ "sdkPackageName" .= C.sdkPackageName,
+            "isAuthEnabled" .= isAuthEnabled spec,
             "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
@@ -214,7 +227,6 @@ npmDepsForSdk spec =
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersionRange)
           ]
-          ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
           -- lists prisma/client as a dependency.
           -- Installing it inside .wasp/out/server/node_modules would also
@@ -290,7 +302,6 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts
         [ "isAuthEnabled" .= isAuthEnabled spec,
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
 
@@ -340,7 +351,11 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn,
+            -- The default client omits the auth identity's secret column so it
+            -- cannot cross a serialization boundary by accident.
+            "isAuthEnabled" .= isJust (AS.App.auth app),
+            "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String)
           ]
 
   return $

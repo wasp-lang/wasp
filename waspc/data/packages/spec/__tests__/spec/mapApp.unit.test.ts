@@ -11,6 +11,7 @@ import * as SpecElementMapper from "../../src/spec/mapper/specElements.js";
 import {
   api,
   app,
+  customAuthHandler,
   page,
   query,
   route,
@@ -321,7 +322,7 @@ describe("mapPage", () => {
       declName: getRefObjectDeclarationName(page.component),
       declValue: {
         component: mapRefObjectForMockProjectDir(page.component),
-        authRequired: page.authRequired,
+        authRequired: mapAuthRequirementForTest(page.authRequired),
       },
     } satisfies AppSpec.GetDeclForType<"Page">);
   }
@@ -393,7 +394,7 @@ describe("mapQuery", () => {
       declValue: {
         fn: mapRefObjectForMockProjectDir(query.fn),
         entities: query.entities?.map(ctx.resolveEntityRef),
-        auth: query.auth,
+        auth: mapAuthRequirementForTest(query.auth),
       },
     } satisfies AppSpec.GetDeclForType<"Query">);
   }
@@ -426,19 +427,38 @@ describe("mapAction", () => {
       declValue: {
         fn: mapRefObjectForMockProjectDir(action.fn),
         entities: action.entities?.map(ctx.resolveEntityRef),
-        auth: action.auth,
+        auth: mapAuthRequirementForTest(action.auth),
       },
     } satisfies AppSpec.GetDeclForType<"Action">);
   }
 });
 
 describe("mapAuth", () => {
+  test("should reject scheme names containing ':' or '/'", () => {
+    for (const name of ["wasp:email", "wasp/email", ""]) {
+      const auth = {
+        ...Fixtures.getAuthConfig("minimal"),
+        schemes: {
+          [name]: customAuthHandler({
+            server: Fixtures.getRefObject("full", "named"),
+          }),
+        },
+      };
+      const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+      expect(() => AppSpecMapper.mapAuth(auth, ctx)).toThrow(/scheme name/);
+    }
+  });
+
   test("should map minimal config correctly", () => {
     testMapAuth(Fixtures.getAuthConfig("minimal"));
   });
 
   test("should map full config correctly", () => {
     testMapAuth(Fixtures.getAuthConfig("full"));
+  });
+
+  test("should map a scheme with an inline issuer", () => {
+    testMapAuth(Fixtures.getSingleSchemeAuthConfig());
   });
 
   test("should throw if userEntity is not provided to entity parser", () => {
@@ -448,48 +468,179 @@ describe("mapAuth", () => {
     });
   });
 
-  test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
+  test("should require a default when several schemes are declared", () => {
     const auth = Fixtures.getAuthConfig("full");
-    assertDefined(auth.methods.email?.emailVerification.clientRoute);
-    testMapAuth(auth, {
-      overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
-      shouldError: true,
+    const { default: _default, ...withoutDefault } = auth;
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(withoutDefault, ctx)).toThrow(
+      /app\.auth\.default must name/,
+    );
+  });
+
+  test("should reject a default that names no declared scheme", () => {
+    const auth = { ...Fixtures.getAuthConfig("full"), default: "nope" };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(auth, ctx)).toThrow(/does not declare/);
+  });
+
+  test("should reject a credentials scheme that cannot sign in", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const withBadTarget = {
+      ...auth,
+      schemes: {
+        test: getSchemeManifest(auth),
+        other: customAuthHandler({
+          server: Fixtures.getRefObject("full", "named"),
+          credentials: { scheme: "test" },
+        }),
+      },
+      default: "test",
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(withBadTarget, ctx)).toThrow(
+      /does not declare the 'sign-in' capability/,
+    );
+  });
+
+  test("should reject a credentials chain that loops", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const looping = {
+      ...auth,
+      schemes: {
+        a: customAuthHandler({
+          server: Fixtures.getRefObject("full", "named"),
+          capabilities: ["sign-in"],
+          credentials: { scheme: "b" },
+        }),
+        b: customAuthHandler({
+          server: Fixtures.getRefObject("full", "named"),
+          capabilities: ["sign-in"],
+          credentials: { scheme: "a" },
+        }),
+      },
+      default: "a",
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(looping, ctx)).toThrow(
+      /leads back to itself/,
+    );
+  });
+
+  test("should throw on a hand-crafted manifest", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const forged = {
+      ...auth,
+      schemes: {
+        test: { ...getSchemeManifest(auth), __waspAuthSchemeManifest: false },
+      } as unknown as WaspSpec.Auth["schemes"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /hand-crafted manifest/,
+    );
+  });
+
+  // The authenticity marker is an ordinary property, so a manifest built as an
+  // object literal can carry it without ever passing defineAuthSchemeManifest's
+  // checks. These prove the mapper re-validates the substantive rules itself.
+  test("should reject a marker-forged manifest declaring a framework env var at the mapper", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const forged = {
+      ...auth,
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
+          env: { server: [{ name: "DATABASE_URL" }], client: [] },
+        },
+      } as unknown as WaspSpec.Auth["schemes"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /'DATABASE_URL', which Wasp owns/,
+    );
+  });
+
+  test("should reject a marker-forged manifest with an unknown credential transport", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const forged = {
+      ...auth,
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
+          credentials: { transport: "carrier-pigeon" },
+        },
+      } as unknown as WaspSpec.Auth["schemes"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /unknown credential transport/,
+    );
+  });
+
+  test("should map an adapter package server entry", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const withPackageEntry = {
+      ...auth,
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
+          server: { package: "@wasp.sh/auth-clerk/server" },
+          client: { package: "@wasp.sh/auth-clerk/client" },
+        },
+      } as unknown as WaspSpec.Auth["schemes"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    const result = AppSpecMapper.mapAuth(withPackageEntry, ctx);
+
+    expect(result.schemes[0]).toMatchObject({
+      name: "test",
+      server: { package: "@wasp.sh/auth-clerk/server" },
+      clientPackage: "@wasp.sh/auth-clerk/client",
     });
   });
 
-  test("should throw if passwordReset clientRoute ref is not provided when defined", () => {
-    const auth = Fixtures.getAuthConfig("full");
-    assertDefined(auth.methods.email?.passwordReset.clientRoute);
-    testMapAuth(auth, {
-      overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
-      shouldError: true,
-    });
+  test("should throw when scheme options are not JSON-serializable", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const withBadOptions = {
+      ...auth,
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
+          options: { callback: () => "not serializable" },
+        },
+      } as unknown as WaspSpec.Auth["schemes"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(withBadOptions, ctx)).toThrow(
+      /JSON serialization/,
+    );
   });
+
+  function getSchemeManifest(auth: WaspSpec.Auth): WaspSpec.AuthSchemeManifest {
+    const [manifest] = Object.values(auth.schemes);
+    assertDefined(manifest);
+    return manifest;
+  }
 
   function testMapAuth(
     auth: WaspSpec.Auth,
     options:
       | {
           overrideEntities?: string[];
-          overrideRoutes?: string[];
           shouldError: boolean | undefined;
         }
       | undefined = {
       shouldError: false,
     },
   ): void {
-    const { overrideEntities, overrideRoutes, shouldError } = options;
+    const { overrideEntities, shouldError } = options;
     const entities = overrideEntities ?? [auth.userEntity];
-    const routes =
-      overrideRoutes ??
-      [
-        auth.methods.email?.emailVerification.clientRoute,
-        auth.methods.email?.passwordReset.clientRoute,
-      ].filter((e) => e !== undefined);
-    const ctx = makeMapperContext({
-      entityNames: entities,
-      routeNames: routes,
-    });
+    const ctx = makeMapperContext({ entityNames: entities });
 
     if (shouldError) {
       expect(() => AppSpecMapper.mapAuth(auth, ctx)).toThrow();
@@ -497,290 +648,103 @@ describe("mapAuth", () => {
     }
 
     const result = AppSpecMapper.mapAuth(auth, ctx);
+    const names = Object.keys(auth.schemes);
 
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
-      methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
-      onBeforeSignup:
-        auth.onBeforeSignup &&
-        mapRefObjectForMockProjectDir(auth.onBeforeSignup),
-      onAfterSignup:
-        auth.onAfterSignup && mapRefObjectForMockProjectDir(auth.onAfterSignup),
-      onAfterEmailVerified:
-        auth.onAfterEmailVerified &&
-        mapRefObjectForMockProjectDir(auth.onAfterEmailVerified),
-      onBeforeOAuthRedirect:
-        auth.onBeforeOAuthRedirect &&
-        mapRefObjectForMockProjectDir(auth.onBeforeOAuthRedirect),
-      onBeforeLogin:
-        auth.onBeforeLogin && mapRefObjectForMockProjectDir(auth.onBeforeLogin),
-      onAfterLogin:
-        auth.onAfterLogin && mapRefObjectForMockProjectDir(auth.onAfterLogin),
+      schemes: Object.entries(auth.schemes).map(([name, manifest]) =>
+        expectedScheme(name, manifest),
+      ),
+      defaultScheme: (auth.default ?? names[0]) as string,
+      hooks: auth.hooks && {
+        onBeforeSignup:
+          auth.hooks.onBeforeSignup &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeSignup),
+        onAfterSignup:
+          auth.hooks.onAfterSignup &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterSignup),
+        onBeforeLogin:
+          auth.hooks.onBeforeLogin &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeLogin),
+        onAfterLogin:
+          auth.hooks.onAfterLogin &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterLogin),
+      },
     } satisfies AppSpec.Auth);
   }
-});
 
-describe("mapAuthMethods", () => {
-  test("should map minimal config correctly", () => {
-    testMapAuthMethods(Fixtures.getAuthMethods("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapAuthMethods(Fixtures.getAuthMethods("full"));
-  });
-
-  test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
-    const authMethods = Fixtures.getAuthMethods("full");
-    assertDefined(authMethods.email?.emailVerification.clientRoute);
-    testMapAuthMethods(authMethods, {
-      overrideRoutes: [authMethods.email.passwordReset.clientRoute],
-      shouldError: true,
+  function expectedScheme(
+    name: string,
+    manifest: WaspSpec.AuthSchemeManifest,
+  ): AppSpec.AuthScheme {
+    const mapEnvVar = (envVar: WaspSpec.EnvVarRequirement) => ({
+      name: envVar.name,
+      optional: envVar.optional,
+      doc: envVar.doc,
+      devDefault: envVar.devDefault,
     });
-  });
-
-  test("should throw if passwordReset clientRoute ref is not provided when defined", () => {
-    const authMethods = Fixtures.getAuthMethods("full");
-    assertDefined(authMethods.email?.passwordReset.clientRoute);
-    testMapAuthMethods(authMethods, {
-      overrideRoutes: [authMethods.email.emailVerification.clientRoute],
-      shouldError: true,
-    });
-  });
-
-  function testMapAuthMethods(
-    authMethods: WaspSpec.AuthMethods,
-    options:
-      | {
-          overrideRoutes?: string[];
-          shouldError: boolean | undefined;
-        }
-      | undefined = {
-      shouldError: false,
-    },
-  ): void {
-    const { overrideRoutes, shouldError } = options;
-    const routes =
-      overrideRoutes ??
-      [
-        authMethods.email?.emailVerification.clientRoute,
-        authMethods.email?.passwordReset.clientRoute,
-      ].filter((e) => e !== undefined);
-    const ctx = makeMapperContext({ routeNames: routes });
-
-    if (shouldError) {
-      expect(() => AppSpecMapper.mapAuthMethods(authMethods, ctx)).toThrow();
-      return;
-    }
-
-    const result = AppSpecMapper.mapAuthMethods(authMethods, ctx);
-
-    expect(result).toStrictEqual({
-      usernameAndPassword:
-        authMethods.usernameAndPassword &&
-        AppSpecMapper.mapUsernameAndPassword(
-          authMethods.usernameAndPassword,
-          ctx,
-        ),
-      slack:
-        authMethods.slack &&
-        AppSpecMapper.mapSocialAuth(authMethods.slack, ctx),
-      discord:
-        authMethods.discord &&
-        AppSpecMapper.mapSocialAuth(authMethods.discord, ctx),
-      google:
-        authMethods.google &&
-        AppSpecMapper.mapSocialAuth(authMethods.google, ctx),
-      gitHub:
-        authMethods.gitHub &&
-        AppSpecMapper.mapSocialAuth(authMethods.gitHub, ctx),
-      keycloak:
-        authMethods.keycloak &&
-        AppSpecMapper.mapSocialAuth(authMethods.keycloak, ctx),
-      microsoft:
-        authMethods.microsoft &&
-        AppSpecMapper.mapSocialAuth(authMethods.microsoft, ctx),
-      email:
-        authMethods.email && AppSpecMapper.mapEmailAuth(authMethods.email, ctx),
-    } satisfies AppSpec.AuthMethods);
-  }
-});
-
-describe("mapEmailAuth", () => {
-  test("should map minimal config correctly", () => {
-    testMapEmailAuth(Fixtures.getEmailAuthConfig("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapEmailAuth(Fixtures.getEmailAuthConfig("full"));
-  });
-
-  test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
-    const emailAuth = Fixtures.getEmailAuthConfig("full");
-    expect(emailAuth.emailVerification.clientRoute).toBeDefined();
-    testMapEmailAuth(emailAuth, {
-      overrideRoutes: [emailAuth.passwordReset.clientRoute],
-      shouldError: true,
-    });
-  });
-
-  test("should throw if passwordReset clientRoute ref is not provided when defined", () => {
-    const emailAuth = Fixtures.getEmailAuthConfig("full");
-    expect(emailAuth.passwordReset.clientRoute).toBeDefined();
-    testMapEmailAuth(emailAuth, {
-      overrideRoutes: [emailAuth.emailVerification.clientRoute],
-      shouldError: true,
-    });
-  });
-
-  function testMapEmailAuth(
-    emailAuth: WaspSpec.EmailAuthConfig,
-    options:
-      | {
-          overrideRoutes?: string[];
-          shouldError: boolean | undefined;
-        }
-      | undefined = {
-      shouldError: false,
-    },
-  ): void {
-    const { overrideRoutes, shouldError } = options;
-    const routes =
-      overrideRoutes ??
-      [
-        emailAuth?.emailVerification.clientRoute,
-        emailAuth?.passwordReset.clientRoute,
-      ].filter((e) => e !== undefined);
-    const ctx = makeMapperContext({ routeNames: routes });
-
-    if (shouldError) {
-      expect(() => AppSpecMapper.mapEmailAuth(emailAuth, ctx)).toThrow();
-      return;
-    }
-
-    const result = AppSpecMapper.mapEmailAuth(emailAuth, ctx);
-
-    expect(result).toStrictEqual({
+    const credentials = manifest.credentials;
+    return {
+      name,
+      handler: manifest.handler,
+      server:
+        "package" in manifest.server
+          ? { package: (manifest.server as { package: string }).package }
+          : {
+              module: mapRefObjectForMockProjectDir(
+                manifest.server as Parameters<
+                  typeof mapRefObjectForMockProjectDir
+                >[0],
+              ),
+            },
+      clientPackage: manifest.client?.package,
+      routes: manifest.routes && { rawBody: manifest.routes.rawBody },
+      capabilities: manifest.capabilities,
+      envVars: {
+        server: manifest.env.server.map(mapEnvVar),
+        client: manifest.env.client.map(mapEnvVar),
+      },
+      uses: manifest.uses ?? [],
+      identityNamespaces: [
+        name,
+        ...(manifest.identityNamespaces ?? []).map((s) => `${name}:${s}`),
+      ],
+      credentials:
+        credentials === undefined
+          ? undefined
+          : "scheme" in credentials
+            ? { scheme: credentials.scheme }
+            : {
+                transport: credentials.transport ?? "bearer",
+                store:
+                  credentials.store === undefined
+                    ? "prisma"
+                    : typeof credentials.store === "string"
+                      ? credentials.store
+                      : {
+                          module: mapRefObjectForMockProjectDir(
+                            credentials.store,
+                          ),
+                        },
+                ttl: credentials.ttl ?? "30d",
+              },
       userSignupFields:
-        emailAuth.userSignupFields &&
-        mapRefObjectForMockProjectDir(emailAuth.userSignupFields),
-      fromField: AppSpecMapper.mapEmailFromField(emailAuth.fromField),
-      emailVerification: AppSpecMapper.mapEmailFlow(
-        emailAuth.emailVerification,
-        ctx,
+        manifest.userSignupFields &&
+        mapRefObjectForMockProjectDir(manifest.userSignupFields),
+      setupFn:
+        manifest.setupFn && mapRefObjectForMockProjectDir(manifest.setupFn),
+      extensions: Object.fromEntries(
+        Object.entries(manifest.extensions ?? {}).map(([extName, ref]) => [
+          extName,
+          mapRefObjectForMockProjectDir(ref),
+        ]),
       ),
-      passwordReset: AppSpecMapper.mapEmailFlow(emailAuth.passwordReset, ctx),
-    } satisfies AppSpec.EmailAuthConfig);
-  }
-});
-
-describe("mapEmailFlow", () => {
-  test("should map minimal email verification config correctly", () => {
-    testMapEmailFlow(Fixtures.getEmailVerificationConfig("minimal"));
-  });
-
-  test("should map full email verification config correctly", () => {
-    testMapEmailFlow(Fixtures.getEmailVerificationConfig("full"));
-  });
-
-  test("should map minimal password reset config correctly", () => {
-    testMapEmailFlow(Fixtures.getPasswordResetConfig("minimal"));
-  });
-
-  test("should map full password reset config correctly", () => {
-    testMapEmailFlow(Fixtures.getPasswordResetConfig("full"));
-  });
-
-  test("should throw if clientRoute ref is not provided when defined", () => {
-    const emailFlow = Fixtures.getEmailVerificationConfig("full");
-    expect(emailFlow.clientRoute).toBeDefined();
-    testMapEmailFlow(emailFlow, {
-      overrideRoutes: [],
-      shouldError: true,
-    });
-  });
-
-  function testMapEmailFlow(
-    emailFlow: WaspSpec.EmailFlowConfig,
-    options:
-      | {
-          overrideRoutes?: string[];
-          shouldError: boolean | undefined;
-        }
-      | undefined = {
-      shouldError: false,
-    },
-  ): void {
-    const { overrideRoutes, shouldError } = options;
-    const routes = overrideRoutes ?? [emailFlow.clientRoute];
-    const ctx = makeMapperContext({ routeNames: routes });
-
-    if (shouldError) {
-      expect(() => AppSpecMapper.mapEmailFlow(emailFlow, ctx)).toThrow();
-      return;
-    }
-
-    const result = AppSpecMapper.mapEmailFlow(emailFlow, ctx);
-
-    expect(result).toStrictEqual({
-      clientRoute: ctx.resolveRouteRef(emailFlow.clientRoute),
-      getEmailContentFn:
-        emailFlow.getEmailContentFn &&
-        mapRefObjectForMockProjectDir(emailFlow.getEmailContentFn),
-    } satisfies AppSpec.EmailVerificationConfig);
-  }
-});
-
-describe("mapUsernameAndPassword", () => {
-  test("should map minimal config correctly", () => {
-    testMapUsernameAndPassword(
-      Fixtures.getUsernameAndPasswordConfig("minimal"),
-    );
-  });
-
-  test("should map full config correctly", () => {
-    testMapUsernameAndPassword(Fixtures.getUsernameAndPasswordConfig("full"));
-  });
-
-  function testMapUsernameAndPassword(
-    usernameAndPassword: WaspSpec.UsernameAndPasswordConfig,
-  ): void {
-    const ctx = makeMapperContext();
-    const result = AppSpecMapper.mapUsernameAndPassword(
-      usernameAndPassword,
-      ctx,
-    );
-
-    expect(result).toStrictEqual({
-      userSignupFields:
-        usernameAndPassword.userSignupFields &&
-        mapRefObjectForMockProjectDir(usernameAndPassword.userSignupFields),
-    } satisfies AppSpec.UsernameAndPasswordConfig);
-  }
-});
-
-describe("mapSocialAuth", () => {
-  test("should map minimal config correctly", () => {
-    testMapSocialAuth(Fixtures.getSocialAuthConfig("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapSocialAuth(Fixtures.getSocialAuthConfig("full"));
-  });
-
-  function testMapSocialAuth(socialAuth: WaspSpec.SocialAuthConfig): void {
-    const ctx = makeMapperContext();
-    const result = AppSpecMapper.mapSocialAuth(socialAuth, ctx);
-
-    expect(result).toStrictEqual({
-      configFn:
-        socialAuth.configFn &&
-        mapRefObjectForMockProjectDir(socialAuth.configFn),
-      userSignupFields:
-        socialAuth.userSignupFields &&
-        mapRefObjectForMockProjectDir(socialAuth.userSignupFields),
-    } satisfies AppSpec.ExternalAuthConfig);
+      optionsJson:
+        manifest.options === undefined
+          ? undefined
+          : JSON.stringify(manifest.options),
+    };
   }
 });
 
@@ -815,7 +779,7 @@ describe("mapApi", () => {
           mapRefObjectForMockProjectDir(api.middlewareConfigFn),
         entities: api.entities?.map(ctx.resolveEntityRef),
         httpRoute: [api.method, api.path],
-        auth: api.auth,
+        auth: mapAuthRequirementForTest(api.auth),
       },
     } satisfies AppSpec.GetDeclForType<"Api">);
   }
@@ -1141,4 +1105,13 @@ describe("mapSchedule", () => {
  */
 function assertDefined<T>(value: T | null | undefined): asserts value is T {
   expect(value).toBeDefined();
+}
+
+function mapAuthRequirementForTest(
+  authRequirement: WaspSpec.AuthRequirement | undefined,
+): AppSpec.AuthRequirement | undefined {
+  if (authRequirement === undefined || typeof authRequirement === "boolean") {
+    return authRequirement;
+  }
+  return [...authRequirement];
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { getEmail } from "wasp/auth";
+import { getEmail } from "@wasp.sh/auth/user";
 import { tasks as tasksCrud } from "wasp/client/crud";
 import { Link } from "wasp/client/router";
 import { Alert } from "../../../components/Alert";

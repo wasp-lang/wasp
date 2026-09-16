@@ -1,14 +1,6 @@
 {{={= =}=}}
-import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from '../../universal/types'
-import type { ProviderName } from '../../server/auth/utils'
-{=# isEmailUserSignupFieldsDefined =}
-import type { FromRegister } from '../../types/register'
-{=/ isEmailUserSignupFieldsDefined =}
-{=# isUsernameAndPasswordUserSignupFieldsDefined =}
-import type { FromRegister } from '../../types/register'
-{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -16,48 +8,8 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 ): T {
   return fields
 }
-{=# isEmailUserSignupFieldsDefined =}
-
-// PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<RegisteredEmailSignupFields>;
-
-type RegisteredEmailSignupFields = FromRegister<"emailUserSignupFields", {}>;
-{=/ isEmailUserSignupFieldsDefined =}
-{=# isUsernameAndPasswordUserSignupFieldsDefined =}
-
-// PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<RegisteredUsernameAndPasswordSignupFields>;
-
-type RegisteredUsernameAndPasswordSignupFields = FromRegister<"usernameAndPasswordUserSignupFields", {}>
-{=/ isUsernameAndPasswordUserSignupFieldsDefined =}
-
-/**
- * Extracts the result types from a UserSignupFields object.
- * 
- * This type transforms an object containing field getter functions
- * into an object with the same keys but whose values are the return types
- * of those functions.
- */
-type InferUserSignupFields<T extends UserSignupFields> = {
-  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> 
-    ? ReturnType<T[K]> 
-    : never
-}
 
 type UserEntityCreateInput = Prisma.{= userEntityUpper =}CreateInput
-
-// PRIVATE API
-export type ProviderConfig = {
-    // Unique provider identifier, used as part of URL paths
-    id: ProviderName;
-    displayName: string;
-    // Every provider must have a setupRouter method which returns the Express router.
-    // In this function we are flexibile to do what ever is necessary to make the provider work.
-    createRouter(provider: ProviderConfig): Router;
-};
-
-// PRIVATE API
-export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
 
 // PRIVATE API
 export type PossibleUserFields = Expand<Partial<UserEntityCreateInput>>

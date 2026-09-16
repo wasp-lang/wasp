@@ -23,9 +23,16 @@
     [
         [
             "file",
+            "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
+        ],
+        "02429623441fd63f3c97055fa93d02967dc1d68897b7cd675342e164c956fa0e"
+    ],
+    [
+        [
+            "file",
             "libs/auth/wasp.sh-lib-auth-0.26.0.tgz"
         ],
-        "0a75cefde6b47011db01906cef338dabe1a541b878a959db1a2fa8b0625a410a"
+        "35480e2a814f4c24e9bb22f8e6c0a43fbca98c1cf0612108bcf0f4c1302262f0"
     ],
     [
         [
@@ -46,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "aa06f20bfd37ead40b5d143458a0cf7d2c0acb9a28d5eac4a0ed1c503f67a0ef"
+        "fe43cefb5911f115edb12e35bd555f2a08a70d6c465e1fa21e877bf41b4fa03f"
     ],
     [
         [
@@ -109,7 +116,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "3f8db611f300550058764b1ea3c453710828d335fb909ba7069e44f6eebda416"
+        "8decb44b930469d13158870a1b59095862a031a85fc29e7005f84cb950ab61e9"
     ],
     [
         [
@@ -340,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "7e63f5649c418c88d69204313b0a31d40dce6a6037394dde01cf806d2b672eab"
+        "2e6b76d4f67e6f74366b65461f56e22643f32f6f05c8def5721a3e38e6c1e520"
     ],
     [
         [
@@ -431,7 +438,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ce7a6d191e80bd921bac0e1c0e9286c30c4658e1f500500da6ef46a420ecdd9d"
+        "c022bef24b550d7be4e693ec70e17665319325857d4cd603961e26e52215cc4c"
     ],
     [
         [
@@ -487,14 +494,14 @@
             "file",
             "sdk/wasp/server/dbClient.ts"
         ],
-        "5087f769527b1fb2c39e78b3ca155fd1bc006288ec6d1bbcea011e4fd2db698c"
+        "166f9b42aa205cb8c6a488b865a9d7467ef3ea72341776a59b44f1db17466928"
     ],
     [
         [
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "f3ef4efbc08161e36b6374937c0c11ea57c3591f79470495158b92a13a54196b"
+        "c1a2fa3baa991a09334ed67f2f1170f5d8264f8979b5753eafdee81835333114"
     ],
     [
         [
@@ -683,14 +690,14 @@
             "file",
             "server/package.json"
         ],
-        "88eb4a7854d1734ac115c8e7a6f3dfd6c58684b67e7f905cb73d022a11a54cb9"
+        "d7a5749d11b835a4a62105296a3f0d1386fca2357e0cb7f4e78c2c7d5c35ad86"
     ],
     [
         [
             "file",
             "server/rollup.config.js"
         ],
-        "ad3308f02976dc31d660543bf2840c2d71ecc611eded594d4530aeb9946e8c97"
+        "31a1a45ab63301229185f9bd8ac533a3ba8f9572b8ce6185d0aeb14d57009705"
     ],
     [
         [
@@ -704,7 +711,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
+        "4192ce251e0c67c0ca6f666f10dae501010c007c2140737de0643a18c6d8ea9d"
     ],
     [
         [

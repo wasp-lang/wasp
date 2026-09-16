@@ -12,7 +12,6 @@ declare module "wasp/types" {
     serverEnvValidationSchema: typeof import('../../../../../src/env').serverEnvValidationSchema
     clientEnvValidationSchema: typeof import('../../../../../src/env').clientEnvValidationSchema
     webSocketFn: typeof import('../../../../../src/features/chat/webSocket').chatWebSocket
-    emailUserSignupFields: typeof import('../../../../../src/features/auth/providers/email').emailUserSignupFields
     operations: {
       'getTasks': typeof import('../../../../../src/features/operations/queries').getTasks
       'getNumTasks': typeof import('../../../../../src/features/operations/queries').getNumTasks

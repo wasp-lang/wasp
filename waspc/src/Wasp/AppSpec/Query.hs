@@ -11,6 +11,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
 import GHC.Generics (Generic)
+import Wasp.AppSpec.AuthRequirement (AuthRequirement, isAuthRequiredWithDefault)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity
@@ -20,7 +21,7 @@ import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
 data Query = Query
   { fn :: ExtImport,
     entities :: Maybe [Ref Entity],
-    auth :: Maybe Bool
+    auth :: Maybe AuthRequirement
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -31,5 +32,5 @@ instance Inspectable Query where
     [ InspectionEntry "Queries" $
         [("Import", showExtImportFromProjectDir $ fn query)]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities query]]
-          ++ [("Auth", "Enabled") | auth query == Just True]
+          ++ [("Auth", "Enabled") | isAuthRequiredWithDefault False (auth query)]
     ]

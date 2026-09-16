@@ -9,6 +9,7 @@ where
 
 import Wasp.AppSpec.Action (Action)
 import qualified Wasp.AppSpec.Action as Action
+import Wasp.AppSpec.AuthRequirement (AuthRequirement)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
@@ -33,6 +34,6 @@ getEntities :: Operation -> Maybe [Ref Entity]
 getEntities (QueryOp _ query) = Query.entities query
 getEntities (ActionOp _ action) = Action.entities action
 
-getAuth :: Operation -> Maybe Bool
+getAuth :: Operation -> Maybe AuthRequirement
 getAuth (QueryOp _ query) = Query.auth query
 getAuth (ActionOp _ action) = Action.auth action

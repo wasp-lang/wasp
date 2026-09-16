@@ -5,21 +5,24 @@ module Wasp.Generator.SdkGenerator.EnvValidation
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (isJust)
+import qualified Data.Text.Lazy as TL
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
@@ -54,12 +57,12 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
+          "authProviderServerEnvVars"
+            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getAuthSchemes spec),
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
           "serverPortEnvVarName" .= Server.serverPortEnvVarName,
-          "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
@@ -76,10 +79,45 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
+          "isAuthEnabled" .= (not . null $ providers),
+          "authProviderClientEnvVars"
+            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) providers,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
+    providers = AS.Valid.getAuthSchemes spec
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
+
+-- | Env vars an auth provider's manifest declared, rendered into the
+-- generated zod schemas so a missing var fails at boot with the manifest's own
+-- explanation.
+externalProviderEnvVarsTmplData ::
+  (AS.Auth.AuthSchemeEnvVars -> [AS.Auth.AuthSchemeEnvVar]) ->
+  AS.Auth.AuthScheme ->
+  [Aeson.Value]
+externalProviderEnvVarsTmplData getVars extProvider =
+  toTmplData <$> getVars (AS.Auth.envVars extProvider)
+  where
+    toTmplData envVar =
+      object
+        [ "name" .= AS.Auth.envVarName envVar,
+          "isOptional" .= (AS.Auth.optional envVar == Just True),
+          "hasDevDefault" .= isJust (AS.Auth.devDefault envVar),
+          "devDefaultJson" .= maybe "undefined" jsStringLiteral (AS.Auth.devDefault envVar),
+          "errorJson" .= jsStringLiteral (errorMessage envVar)
+        ]
+
+    errorMessage envVar =
+      AS.Auth.envVarName envVar
+        ++ " is required by the '"
+        ++ AS.Auth.name extProvider
+        ++ "' auth scheme"
+        ++ maybe "." (": " ++) (AS.Auth.doc envVar)
+
+    -- Encoding the message as JSON yields a valid, correctly escaped JS string
+    -- literal, whatever characters the manifest's doc happens to contain.
+    jsStringLiteral :: String -> String
+    jsStringLiteral = TL.unpack . Aeson.Text.encodeToLazyText
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

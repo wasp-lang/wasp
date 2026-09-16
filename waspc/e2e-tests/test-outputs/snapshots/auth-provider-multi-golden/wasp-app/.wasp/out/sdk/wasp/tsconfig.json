@@ -1,0 +1,79 @@
+{
+  "compilerOptions": {
+    /* Basic options */
+    "target": "esnext",
+    "jsx": "preserve",
+    "lib": [
+      "esnext",
+      "dom",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "types": ["node", "react"],
+    "rootDir": ".",
+    "outDir": "dist",
+
+    /* Strictness and type checking */
+    /*
+       We keep the SDK strict, but override some of strict's options
+       because parts of the SDK code don't respect them.
+       Reference: https://github.com/wasp-lang/wasp/issues/1938
+    */
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    /* DX */
+    "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
+    "declarationMap": true, // Makes go-to-definition go to source instead of type definitions
+    "sourceMap": true, // Needed for debugging
+
+    /* Modules */
+    "module": "esnext",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    // `isolatedModules` rejects code that single-file transpilers (like esbuild)
+    // can't handle. The SDK gets bundled, so it must not rely on such code.
+    "isolatedModules": true,
+    // `verbatimModuleSyntax` makes type-only imports explicit, so single-file
+    // transpilers can drop them without having to know what they refer to.
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force", // Assume all files are modules
+    /*
+      The SDK code uses extensionless relative imports and imports its own
+      modules through the `wasp/*` package exports. TSC emits those imports
+      as-is, and only a bundler can resolve them at runtime.
+
+      The SDK output is never run directly: it's bundled into the server and
+      the client (https://github.com/wasp-lang/wasp/issues/2150), so this
+      `tsconfig.json` must resolve modules the way a bundler does.
+    */
+    "moduleResolution": "bundler",
+    /*
+       The `incremental` option enables faster SDK compilation, less Vite HMR
+       messages and it prevent unnecessary full-page reloads when using Vite HMR.
+       While this is great, we still want to dig deeper at some point to understand
+       better why Vite HMR misbehaves when the SDK is recompiled:
+       https://github.com/wasp-lang/wasp/issues/1934
+    */
+    "incremental": true,
+  },
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    // Virtual modules don't belong in the SDK runtime, they are used by the
+    // web-app runtime via Vite virtual modules. That's why we don't want the
+    // SDK to compile them.
+    "client/vite/virtual-files/files",
+    // Wasp spec files shouldn't be compiled by the SDK because they are used to
+    // configure Wasp and not part of the SDK runtime.
+    "**/*.wasp.ts",
+  ]
+}

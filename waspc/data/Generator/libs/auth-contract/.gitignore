@@ -1,0 +1,7 @@
+node_modules
+
+dist
+
+# The lib is packaged into a tarball that is copied into generated Wasp apps.
+# Tarballs are built by `./run build:libs` and shipped with the CLI, not committed.
+*.tgz

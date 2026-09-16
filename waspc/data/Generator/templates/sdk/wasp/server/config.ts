@@ -12,11 +12,6 @@ type Config = {
   frontendUrl: string;
   serverUrl: string;
   allowedCORSOrigins: (string | RegExp)[];
-  {=# isAuthEnabled =}
-  auth: {
-    jwtSecret: string;
-  }
-  {=/ isAuthEnabled =}
 }
 
 const frontendUrl = stripTrailingSlash(env['{= clientUrlEnvVarName =}'])
@@ -36,11 +31,6 @@ const config: Config = {
   isDevelopment: env.NODE_ENV === 'development',
   port: env.PORT,
   databaseUrl: env.{= databaseUrlEnvVarName =},
-  {=# isAuthEnabled =}
-  auth: {
-    jwtSecret: env["{= jwtSecretEnvVarName =}"]
-  }
-  {=/ isAuthEnabled =}
 }
 
 // PUBLIC API

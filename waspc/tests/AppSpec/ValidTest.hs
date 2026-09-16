@@ -18,11 +18,10 @@ import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
-import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -129,25 +128,10 @@ spec_AppSpecValid = do
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                AS.Auth.methods =
-                  AS.Auth.AuthMethods
-                    { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
-                      AS.Auth.discord = Nothing,
-                      AS.Auth.slack = Nothing,
-                      AS.Auth.google = Nothing,
-                      AS.Auth.gitHub = Nothing,
-                      AS.Auth.keycloak = Nothing,
-                      AS.Auth.microsoft = Nothing,
-                      AS.Auth.email = Nothing
-                    },
                 AS.Auth.onAuthFailedRedirectTo = "/",
-                AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                AS.Auth.onBeforeSignup = Nothing,
-                AS.Auth.onAfterSignup = Nothing,
-                AS.Auth.onAfterEmailVerified = Nothing,
-                AS.Auth.onBeforeOAuthRedirect = Nothing,
-                AS.Auth.onBeforeLogin = Nothing,
-                AS.Auth.onAfterLogin = Nothing
+                AS.Auth.hooks = Nothing,
+                AS.Auth.schemes = [makeTestAuthScheme "wasp"],
+                AS.Auth.defaultScheme = "wasp"
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
@@ -165,11 +149,11 @@ spec_AppSpecValid = do
 
         it "returns no error if there is no page with authRequired and app.auth is not set" $ do
           ASV.validateAppSpec (makeSpec Nothing Nothing) `shouldBe` []
-          ASV.validateAppSpec (makeSpec Nothing (Just False)) `shouldBe` []
+          ASV.validateAppSpec (makeSpec Nothing (Just AuthRequirement.AuthNotRequired)) `shouldBe` []
         it "returns no error if there is a page with authRequired and app.auth is set" $ do
-          ASV.validateAppSpec (makeSpec (Just validAppAuth) (Just True)) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (Just validAppAuth) (Just AuthRequirement.AuthRequiredForAnyProvider)) `shouldBe` []
         it "returns an error if there is a page with authRequired and app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec Nothing (Just True))
+          ASV.validateAppSpec (makeSpec Nothing (Just AuthRequirement.AuthRequiredForAnyProvider))
             `shouldBe` [ Valid.GenericValidationError
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
@@ -177,106 +161,6 @@ spec_AppSpecValid = do
           ASV.doesUserEntityContainField (makeSpec Nothing Nothing) "id" `shouldBe` Nothing
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "id" `shouldBe` Just True
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "missing" `shouldBe` Just False
-
-      describe "should validate that UsernameAndPassword and Email auth cannot used at the same time" $ do
-        let makeSpec authMethods userEntity =
-              basicAppSpec
-                { AS.decls =
-                    [ AS.Decl.makeDecl "TestApp" $
-                        basicApp
-                          { AS.App.auth =
-                              Just
-                                AS.Auth.Auth
-                                  { AS.Auth.methods = authMethods,
-                                    AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                                    AS.Auth.onBeforeSignup = Nothing,
-                                    AS.Auth.onAfterSignup = Nothing,
-                                    AS.Auth.onAfterEmailVerified = Nothing,
-                                    AS.Auth.onBeforeOAuthRedirect = Nothing,
-                                    AS.Auth.onBeforeLogin = Nothing,
-                                    AS.Auth.onAfterLogin = Nothing
-                                  },
-                            AS.App.emailSender =
-                              Just
-                                AS.EmailSender.EmailSender
-                                  { AS.EmailSender.provider = AS.EmailSender.Mailgun,
-                                    AS.EmailSender.defaultFrom = Nothing
-                                  }
-                          },
-                      AS.Decl.makeDecl userEntityName userEntity,
-                      basicPageDecl,
-                      basicRouteDecl
-                    ]
-                }
-        let emailAuthConfig =
-              AS.Auth.EmailAuthConfig
-                { AS.Auth.userSignupFields = Nothing,
-                  AS.Auth.fromField =
-                    AS.EmailSender.EmailFromField
-                      { AS.EmailSender.email = "dummy@info.com",
-                        AS.EmailSender.name = Nothing
-                      },
-                  AS.Auth.emailVerification =
-                    AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.passwordReset =
-                    AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      }
-                }
-
-        it "returns no error if app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
-
-        it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
-          ASV.validateAppSpec
-            ( makeSpec
-                ( AS.Auth.AuthMethods
-                    { usernameAndPassword =
-                        Just
-                          AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.userSignupFields = Nothing
-                            },
-                      discord = Nothing,
-                      slack = Nothing,
-                      google = Nothing,
-                      keycloak = Nothing,
-                      gitHub = Nothing,
-                      microsoft = Nothing,
-                      email = Nothing
-                    }
-                )
-                validUserEntity
-            )
-            `shouldBe` []
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
-
-        it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
-          ASV.validateAppSpec
-            ( makeSpec
-                ( AS.Auth.AuthMethods
-                    { usernameAndPassword =
-                        Just
-                          AS.Auth.UsernameAndPasswordConfig
-                            { AS.Auth.userSignupFields = Nothing
-                            },
-                      slack = Nothing,
-                      discord = Nothing,
-                      google = Nothing,
-                      keycloak = Nothing,
-                      gitHub = Nothing,
-                      microsoft = Nothing,
-                      email = Just emailAuthConfig
-                    }
-                )
-                validUserEntity
-            )
-            `shouldContain` [Valid.GenericValidationError "Expected app.auth to use either email or username and password authentication, but not both."]
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
         let makeSpec appAuth userEntity =
@@ -329,26 +213,6 @@ spec_AppSpecValid = do
                        ]
 
       describe "should validate email sender setup." $ do
-        let emailAuthConfig =
-              AS.Auth.EmailAuthConfig
-                { AS.Auth.userSignupFields = Nothing,
-                  AS.Auth.fromField =
-                    AS.EmailSender.EmailFromField
-                      { AS.EmailSender.email = "dummy@info.com",
-                        AS.EmailSender.name = Nothing
-                      },
-                  AS.Auth.emailVerification =
-                    AS.Auth.EmailVerification.EmailVerificationConfig
-                      { AS.Auth.EmailVerification.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.EmailVerification.getEmailContentFn = Nothing
-                      },
-                  AS.Auth.passwordReset =
-                    AS.Auth.PasswordReset.PasswordResetConfig
-                      { AS.Auth.PasswordReset.clientRoute = AS.Core.Ref.Ref basicRouteName,
-                        AS.Auth.PasswordReset.getEmailContentFn = Nothing
-                      }
-                }
-
         let makeSpec emailSender isProduction =
               basicAppSpec
                 { AS.buildType = if isProduction then BuildType.Production else BuildType.Development,
@@ -358,17 +222,12 @@ spec_AppSpecValid = do
                           { AS.App.auth =
                               Just
                                 AS.Auth.Auth
-                                  { AS.Auth.methods =
-                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing},
-                                    AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                                  { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
-                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
-                                    AS.Auth.onBeforeSignup = Nothing,
-                                    AS.Auth.onAfterSignup = Nothing,
-                                    AS.Auth.onAfterEmailVerified = Nothing,
-                                    AS.Auth.onBeforeOAuthRedirect = Nothing,
-                                    AS.Auth.onBeforeLogin = Nothing,
-                                    AS.Auth.onAfterLogin = Nothing
+                                    AS.Auth.hooks = Nothing,
+                                    AS.Auth.schemes =
+                                      [(makeTestAuthScheme "wasp") {AS.Auth.uses = ["email-send"]}],
+                                    AS.Auth.defaultScheme = "wasp"
                                   },
                             AS.App.emailSender = emailSender
                           },
@@ -395,15 +254,181 @@ spec_AppSpecValid = do
                   AS.EmailSender.defaultFrom = Nothing
                 }
 
-        it "returns an error if no email sender is set but email auth is used" $ do
-          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [Valid.GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
-        it "returns no error if email sender is defined while using email auth" $ do
+        it "returns an error if no email sender is set but a provider requests the email-send grant" $ do
+          ASV.validateAppSpec (makeSpec Nothing False) `shouldBe` [Valid.GenericValidationError "Auth scheme 'wasp' requests the 'email-send' grant, which requires app.emailSender to be specified."]
+        it "returns no error if email sender is defined while a provider requests the email-send grant" $ do
           ASV.validateAppSpec (makeSpec (Just mailgunEmailSender) False) `shouldBe` []
         it "returns no error if the Dummy email sender is used in development" $ do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) False) `shouldBe` []
         it "returns an error if the Dummy email sender is used when building the app" $ do
           ASV.validateAppSpec (makeSpec (Just dummyEmailSender) True)
             `shouldBe` [Valid.GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
+
+      describe "should validate auth schemes" $ do
+        let makeSpec extProvider =
+              basicAppSpec
+                { AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $
+                        basicApp
+                          { AS.App.auth =
+                              Just
+                                AS.Auth.Auth
+                                  { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.hooks = Nothing,
+                                    AS.Auth.schemes = [extProvider],
+                                    AS.Auth.defaultScheme = AS.Auth.name extProvider
+                                  }
+                          },
+                      AS.Decl.makeDecl userEntityName validUserEntity,
+                      basicPageDecl,
+                      basicRouteDecl
+                    ]
+                }
+        let basicExternalProvider = makeTestAuthScheme "test"
+        let makeEnvVar name =
+              AS.Auth.AuthSchemeEnvVar
+                { AS.Auth.envVarName = name,
+                  AS.Auth.optional = Nothing,
+                  AS.Auth.doc = Nothing,
+                  AS.Auth.devDefault = Nothing
+                }
+
+        it "returns no error for a well-formed scheme" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider) `shouldBe` []
+
+        it "returns an error when the scheme name contains a ':'" $ do
+          ASV.validateAppSpec
+            (makeSpec basicExternalProvider {AS.Auth.name = "te:st", AS.Auth.identityNamespaces = ["te:st"]})
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth scheme name 'te:st' must be non-empty and contain neither ':' (the identity"
+                             ++ " namespace separator) nor '/' (it names the scheme's routes)."
+                       ]
+
+        it "returns an error when the scheme name is a framework auth route" $ do
+          ASV.validateAppSpec
+            (makeSpec basicExternalProvider {AS.Auth.name = "me", AS.Auth.identityNamespaces = ["me"]})
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth scheme name 'me' collides with a framework auth route (/auth/me). Reserved names: me, logout, login."
+                       ]
+
+        it "returns an error when a credentials scheme is not declared" $ do
+          ASV.validateAppSpec
+            (makeSpec basicExternalProvider {AS.Auth.credentials = Just (AS.Auth.CredentialsFromScheme "session")})
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth scheme 'test' signs into 'session', which app.auth.schemes does not declare."
+                       ]
+
+        it "returns an error when a scheme signs into itself" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.capabilities = ["sign-in"],
+                    AS.Auth.credentials = Just (AS.Auth.CredentialsFromScheme "test")
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth scheme 'test' signs into 'test', which leads back to itself. A credentials chain must end in a scheme that issues its own credentials."
+                       ]
+
+        it "returns an error when a reserved server env var name is declared" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.envVars =
+                      AS.Auth.AuthSchemeEnvVars
+                        { AS.Auth.server = [makeEnvVar "DATABASE_URL"],
+                          AS.Auth.client = []
+                        }
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth scheme 'test' declares the server env var 'DATABASE_URL', which Wasp"
+                             ++ " owns. Framework env var names cannot be declared by handlers; pick a"
+                             ++ " handler-specific name."
+                       ]
+
+        it "returns an error when a reserved client env var name is declared" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.envVars =
+                      AS.Auth.AuthSchemeEnvVars
+                        { AS.Auth.server = [],
+                          AS.Auth.client = [makeEnvVar "REACT_APP_API_URL"]
+                        }
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth scheme 'test' declares the client env var 'REACT_APP_API_URL', which"
+                             ++ " Wasp owns. Framework env var names cannot be declared by handlers; pick a"
+                             ++ " handler-specific name."
+                       ]
+
+        it "returns no error for provider-specific env var names" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.envVars =
+                      AS.Auth.AuthSchemeEnvVars
+                        { AS.Auth.server = [makeEnvVar "TEST_API_SECRET"],
+                          AS.Auth.client = [makeEnvVar "REACT_APP_TEST_KEY"]
+                        }
+                  }
+            )
+            `shouldBe` []
+
+        it "returns an error for an unknown runtime grant" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["mint-gold"]})
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth scheme 'test' requests the unknown runtime grant 'mint-gold'. Known grants: email-send, identity-namespaces."
+                       ]
+
+        it "returns no error for known runtime grants" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["identity-namespaces"]})
+            `shouldBe` []
+
+        it "returns an error for an identity namespace the provider does not own" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.uses = ["identity-namespaces"],
+                    AS.Auth.identityNamespaces = ["test", "email"]
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth scheme 'test' declares the identity namespace 'email', which it"
+                             ++ " does not own. A namespace must be the scheme name or 'test:<suffix>'"
+                             ++ " -- that rule is what makes cross-scheme identity collisions impossible."
+                       ]
+
+        it "returns an error for extra namespaces without the identity-namespaces grant" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.identityNamespaces = ["test", "test:passkey"]
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth scheme 'test' declares identity namespaces beyond its default one,"
+                             ++ " which requires the 'identity-namespaces' grant in `uses`."
+                       ]
+
+        it "returns no error for extra owned namespaces with the grant" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.uses = ["identity-namespaces"],
+                    AS.Auth.identityNamespaces = ["test", "test:passkey"]
+                  }
+            )
+            `shouldBe` []
+
+        it "returns an error for the email-send grant without an email sender" $ do
+          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["email-send"]})
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth scheme 'test' requests the 'email-send' grant, which requires app.emailSender to be specified."
+                       ]
 
     describe "duplicate declarations validation" $ do
       -- Page
@@ -538,21 +563,21 @@ spec_AppSpecValid = do
       it "returns an error for prerendered route with dynamic segment" $ do
         let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" ["/photo/:photoId"] Nothing)
         length errors `shouldBe` 1
-        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
+        errors `shouldSatisfy` any ((("dynamic segments") `isInfixOf`) . show)
 
       it "returns an error for prerendered route with splat" $ do
         let errors = ASV.validateAppSpec (makeSpec "/files/*" ["/files/*"] Nothing)
         length errors `shouldBe` 1
-        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
+        errors `shouldSatisfy` any ((("dynamic segments") `isInfixOf`) . show)
 
       it "returns an error for prerendered route with optional segment" $ do
         let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" ["/photo/:id/edit?"] Nothing)
         length errors `shouldBe` 1
         -- Has both : and ?, but we just check at least one error about dynamic segments
-        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
+        errors `shouldSatisfy` any ((("dynamic segments") `isInfixOf`) . show)
 
       it "returns an error for prerendered route pointing to authRequired page" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just True))
+        let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just AuthRequirement.AuthRequiredForAnyProvider))
         -- One error from validateAppAuthIsSetIfAnyPageRequiresAuth (app.auth not set)
         -- and one from validatePrerenderRoutes (prerender + authRequired)
         any (("authRequired" `isInfixOf`) . show) errors `shouldBe` True
@@ -568,12 +593,12 @@ spec_AppSpecValid = do
       it "returns an error when a listed prerender path is itself dynamic" $ do
         let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/blog/:slug"] Nothing)
         length errors `shouldBe` 1
-        errors `shouldSatisfy` any (("dynamic segments" `isInfixOf`) . show)
+        errors `shouldSatisfy` any ((("dynamic segments") `isInfixOf`) . show)
 
       it "returns an error when a listed prerender path does not match the route pattern" $ do
         let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/not-blog/intro"] Nothing)
         length errors `shouldBe` 1
-        errors `shouldSatisfy` any (("does not match" `isInfixOf`) . show)
+        errors `shouldSatisfy` any ((("does not match") `isInfixOf`) . show)
 
     describe "declaration names validation" $ do
       let testInvalidDeclName makeDecl invalidName = it invalidName $ do
@@ -643,7 +668,6 @@ spec_AppSpecValid = do
               { AS.Wasp.version = "^" ++ show WV.waspVersion
               },
           AS.App.title = "Test App",
-          AS.App.deployment = Nothing,
           AS.App.db =
             Just $
               AS.Db.Db
@@ -811,3 +835,27 @@ spec_AppSpecValid = do
         (AS.ExtImport.ExtImportModule "Dummy")
         (fromJust $ SP.parseRelFileP "dummy/File")
         Nothing
+
+-- | A minimal, well-formed scheme with the given name.
+makeTestAuthScheme :: String -> AS.Auth.AuthScheme
+makeTestAuthScheme schemeName =
+  AS.Auth.AuthScheme
+    { AS.Auth.name = schemeName,
+      AS.Auth.handler = "@wasp.sh/auth-" ++ schemeName,
+      AS.Auth.server = AS.Auth.AuthSchemeServer (Left ("@wasp.sh/auth-" ++ schemeName)),
+      AS.Auth.clientPackage = Nothing,
+      AS.Auth.routes = Nothing,
+      AS.Auth.capabilities = [],
+      AS.Auth.envVars =
+        AS.Auth.AuthSchemeEnvVars
+          { AS.Auth.server = [],
+            AS.Auth.client = []
+          },
+      AS.Auth.uses = [],
+      AS.Auth.identityNamespaces = [schemeName],
+      AS.Auth.credentials = Nothing,
+      AS.Auth.userSignupFields = Nothing,
+      AS.Auth.setupFn = Nothing,
+      AS.Auth.extensions = M.empty,
+      AS.Auth.optionsJson = Nothing
+    }

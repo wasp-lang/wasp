@@ -1,5 +1,6 @@
 import type { Request as ExpressRequest } from 'express'
-import type { ProviderId, CreateUserResult, FindAuthWithUserResult } from './utils.js'
+import type { ProviderId, FindAuthWithUserResult } from './utils.js'
+import type { CreateUserResult } from './identityStore.js'
 import { prisma } from '../index.js'
 import type { Expand } from '../../universal/types.js'
 
@@ -12,37 +13,6 @@ export type OnBeforeSignupHook = (
 export type OnAfterSignupHook = (
   params: Expand<OnAfterSignupHookParams>,
 ) => void | Promise<void>
-
-// PUBLIC API
-/**
- * Use this type for typing your `onAfterEmailVerified` hook.
- * 
- * Wasp calls this hook exactly once, after a user successfully verifies their email during the email verification flow.
- * 
- * @example
- * ```ts
- * export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
- *   email,
- * }) => {
- *   await emailSender.send({
- *     to: email,
- *     subject: 'Welcome to our platform!',
- *     text: `Your email ${email} has been verified successfully.`
- *   })
- * }
- * ```
- */
-export type OnAfterEmailVerifiedHook = (
-  params: Expand<OnAfterEmailVerifiedHookParams>,
-) => void | Promise<void>
-
-// PUBLIC API
-/**
- * @returns Object with a URL that the OAuth flow should redirect to.
- */
-export type OnBeforeOAuthRedirectHook = (
-  params: Expand<OnBeforeOAuthRedirectHookParams>,
-) => { url: URL } | Promise<{ url: URL }>
 
 // PUBLIC API
 export type OnBeforeLoginHook = (
@@ -76,7 +46,7 @@ type OnBeforeSignupHookParams = {
   /**
    * Request object that can be used to access the user's incoming signup request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterSignupHookParams = {
@@ -96,37 +66,7 @@ type OnAfterSignupHookParams = {
   /**
    * Request object that can be used to access the user's incoming signup request.
   */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnAfterEmailVerifiedHookParams = {
-  /**
-   * The email address that was verified.
-  */
-  email: string
-  /**
-   * The user who completed email verification.
-  */
-  user: FindAuthWithUserResult['user']
-  /**
-   * Request object that can be used to access the user's incoming verification request.
-   */
-  req: ExpressRequest
-} & InternalAuthHookParams
-
-type OnBeforeOAuthRedirectHookParams = {
-  /**
-   * URL that the OAuth flow should redirect to.
-  */
-  url: URL
-  /**
-   * Unique request ID that was generated during the OAuth flow.
-  */
-  oauth: Pick<OAuthData, 'uniqueRequestId'>
-  /**
-   * Request object that can be used to access the user's incoming OAuth flow request.
-  */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 type OnBeforeLoginHookParams = {
@@ -141,7 +81,7 @@ type OnBeforeLoginHookParams = {
   /**
    * Request object that can be used to access the user's incoming login request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 type OnAfterLoginHookParams = {
@@ -161,20 +101,21 @@ type OnAfterLoginHookParams = {
   /**
    * Request object that can be used to access the user's incoming login request.
   */
-  req: ExpressRequest
+  req?: ExpressRequest
 } & InternalAuthHookParams
 
 // PUBLIC API
+/**
+ * Context the minting provider attached to a login or signup (Wasp's own
+ * auth passes its OAuth flow data: the unique request id, the provider name,
+ * the tokens). The provider package types it precisely; here it is whatever
+ * the provider handed over.
+ */
 export type OAuthData = {
   /**
    * Unique request ID that was generated during the OAuth flow.
   */
   uniqueRequestId: string
-} & (
-  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
-  | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
-  | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
-  | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
-  | { providerName: 'slack'; tokens: import('arctic').SlackTokens }
-  | never
-)
+  providerName: string
+  tokens: unknown
+}

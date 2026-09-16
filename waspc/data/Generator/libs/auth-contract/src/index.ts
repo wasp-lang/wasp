@@ -1,0 +1,571 @@
+/**
+ * The contract between Wasp and an auth handler.
+ *
+ * Wasp builds everything users experience on top of this interface -- `authRequired`
+ * pages, `auth: true` operations, `context.user`, `useAuth()` -- so implementing it
+ * is all it takes to make any auth solution (Wasp's own auth, Better Auth, Clerk,
+ * ...) a Wasp auth scheme.
+ *
+ * Vocabulary, borrowed from ASP.NET:
+ *
+ * - A **handler** is the code: an `AuthHandler` object. An adapter package
+ *   implements one in its server entry and exposes it as a named
+ *   `createServerAdapter` export (see `ServerAdapterFactory`).
+ * - A **scheme** is a named, configured instance of a handler, declared in the
+ *   app's `auth.schemes` map. The scheme name is what Wasp records everywhere:
+ *   on sessions, in identity namespaces, in `authRequired` lists, in route
+ *   prefixes. One handler type can back several schemes.
+ * - A **credential** is whatever a request carries to prove identity: a cookie,
+ *   a bearer token. A handler that needs to hand one out asks Wasp for a
+ *   `Credentials` facet (see `WaspServerRuntime.credentials`).
+ */
+
+import type { IncomingMessage, ServerResponse } from "node:http";
+
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
+/**
+ * A subject of the calling scheme: the handler's own stable id for the
+ * authenticated party, in one of the scheme's declared identity namespaces.
+ *
+ * `namespace` defaults to the scheme name. The namespace-membership check is
+ * what makes acting on another scheme's user unrepresentable through the
+ * granted facets -- the identity store itself resolves any namespace string,
+ * so the guard, not the lookup, carries that guarantee.
+ */
+export type Subject = {
+  /** One of the scheme's declared identity namespaces. Default: the scheme name. */
+  namespace?: string;
+  /** The handler's stable id for the subject in that namespace. */
+  subjectId: string;
+};
+
+/**
+ * The result of successfully authenticating a request.
+ *
+ * NOTE: the primitive here is *verify*, not *fetch*. A handler turns a
+ * credential that arrived with the request into a subject. It is deliberately
+ * NOT `findById(id)`: a hosted provider (Clerk) validates a signed token and
+ * has no way to look a subject up by id on our behalf.
+ */
+export type Principal = Subject & {
+  /**
+   * Verified profile data about the subject, as far as the handler knows it:
+   * email, name, avatar, whatever the verified token or session carried.
+   *
+   * Wasp feeds this to the app's `userSignupFields` when it provisions a local
+   * user for a subject it has not seen before, and records it on the identity
+   * it creates. Omit rather than invent: an absent claim is recoverable, a
+   * made-up one is not.
+   */
+  claims?: Record<string, JsonValue>;
+
+  /**
+   * The scheme that verified the login this credential descends from, when
+   * the authenticating scheme is a credential issuer signed into by another
+   * scheme (Wasp's own auth signing into a cookie scheme, say). Defaults to
+   * the authenticating scheme itself. Recorded as `user.signedInBy`.
+   */
+  signedInBy?: string;
+
+  /**
+   * Opaque, handler-owned id of the credential that authenticated the request
+   * (a session row id, typically). Wasp hands it back to `signOut`-shaped
+   * flows and uses it for diagnostics; it never interprets its contents.
+   */
+  credentialId?: string;
+};
+
+/**
+ * The outcome of authenticating a request.
+ *
+ * Deliberately a tagged union rather than `Principal | null`: call sites
+ * read as prose, and future outcomes (an explicit "invalid credential" state,
+ * say) become additive union members instead of signature breaks.
+ */
+export type AuthenticateResult =
+  | { status: "authenticated"; principal: Principal }
+  | { status: "unauthenticated" };
+
+/**
+ * A minimal Response the framework can send: status, headers, and an optional
+ * JSON body. Kept framework-agnostic on purpose (no Express types), and small
+ * enough for a handler to build by hand.
+ */
+export type AuthResponse = {
+  status: number;
+  headers?: Record<string, string | string[]>;
+  body?: JsonValue;
+};
+
+/** What a handler receives when asked to sign a subject in. */
+export type SignInContext = {
+  /** The scheme that verified the login, pre-bound by Wasp. Never forgeable. */
+  signedInBy: string;
+  /** The incoming request, when the sign-in happens inside one. */
+  req?: unknown;
+};
+
+/** What a credential issuer produced for the browser to carry. */
+export type SignInResult = {
+  /** What to send the client: a body carrying a token, a Set-Cookie header, ... */
+  response: AuthResponse;
+  /** The issuer's own id for the credential, for later revocation. */
+  credentialId?: string;
+};
+
+/**
+ * What Wasp's internals need from an auth handler.
+ *
+ * `authenticate` is the only required operation: the request read path, the
+ * one every scheme answers. Everything else is optional, and presence IS the
+ * capability -- Wasp detects what a handler can do by which methods exist and
+ * falls back to its own defaults otherwise (a 401 for `challenge`, a 403 for
+ * `forbid`, "clear the client side" for `signOut`).
+ */
+export interface AuthHandler {
+  /**
+   * Authenticate an incoming request.
+   *
+   * Returns `{ status: "unauthenticated" }` when the request carries no valid
+   * credential. That is *not* an error -- Wasp lets unauthenticated requests
+   * through and leaves it to individual assets to decide whether they require
+   * a user.
+   *
+   * The request is a standard web `Request`. For plain HTTP traffic Wasp builds it
+   * from the incoming request, headers and all. For websocket authentication Wasp
+   * synthesizes one carrying only an `Authorization: Bearer <credential>` header --
+   * a handler that wants websocket support must be able to authenticate from
+   * headers alone.
+   */
+  authenticate(request: Request): Promise<AuthenticateResult>;
+
+  /**
+   * Issue a credential for a subject: the handler is a credential issuer other
+   * schemes can sign into (`credentials: { scheme: "<this one>" }`). The
+   * subject is one of THIS scheme's, already provisioned; Wasp guards the
+   * namespace and fires the app's login hooks before calling in.
+   */
+  signIn?(subject: Subject, context: SignInContext): Promise<SignInResult>;
+
+  /**
+   * Invalidate the credential the request carries. What to send the client
+   * (an expired cookie, nothing at all) is the handler's business.
+   */
+  signOut?(request: Request): Promise<AuthResponse>;
+
+  /**
+   * What to send a request that needs a user and has none. A cookie handler
+   * redirects to a login page; a bearer handler answers 401. Default: 401.
+   */
+  challenge?(request: Request): Promise<AuthResponse>;
+
+  /**
+   * What to send an authenticated request that is not allowed in. Default: 403.
+   */
+  forbid?(request: Request): Promise<AuthResponse>;
+}
+
+/**
+ * Runtime facets a handler may request from Wasp through its manifest's
+ * `uses` list.
+ *
+ * A closed set on purpose: the generator wires only the facets it knows, so an
+ * unknown name is a compile error rather than an absent property at runtime.
+ * Requesting a grant is also an audit surface -- a reviewer reads `uses: [...]`
+ * in the manifest and knows the handler's blast radius.
+ *
+ * Credentials are not a grant: a manifest's `credentials` field is what asks
+ * for the `credentials` facet.
+ */
+export type RuntimeGrantName = "email-send" | "identity-namespaces";
+
+/**
+ * The credentials facet: how a handler that verifies logins but cannot carry a
+ * credential across requests hands one out.
+ *
+ * Wasp builds it from the manifest's `credentials` field -- an inline issuer
+ * (`{ transport, store }`) or a sibling scheme (`{ scheme }`) -- and the
+ * handler cannot tell the two apart. `signIn` resolves the subject through the
+ * calling scheme's OWN declared namespaces, fires the app's `onBeforeLogin`
+ * (a throw vetoes) and `onAfterLogin` hooks, and stamps the calling scheme as
+ * `signedInBy` on whatever the issuer produces. Minting through this facet is
+ * the choke point that guarantees no scheme skips the app's login policy.
+ */
+export type Credentials = {
+  /**
+   * Authenticate a request against the credential this scheme hands out:
+   * the target issuer's own `authenticate`. A handler that verifies logins
+   * but carries no credential of its own forwards its `authenticate` here
+   * (ASP.NET's remote schemes forward to their sign-in scheme the same way),
+   * so `authRequired: ["<this scheme>"]` recognizes the credential it issued.
+   */
+  authenticate(request: Request): Promise<AuthenticateResult>;
+
+  signIn(
+    subject: Subject,
+    opts?: {
+      /** The incoming request, surfaced to the app's login hooks. */
+      req?: unknown;
+      /**
+       * Opaque handler context surfaced to the app's login hooks as their
+       * `context` field (OAuth tokens, typically).
+       */
+      hookContext?: unknown;
+      /**
+       * Skip the app's login hooks for THIS sign-in. Only for flows that
+       * already fired them at a more informative moment (an OAuth callback
+       * holding tokens the later redeem step no longer has).
+       */
+      skipHooks?: boolean;
+    },
+  ): Promise<SignInResult>;
+
+  /** Invalidate the credential the request carries, through the issuer. */
+  signOut(request: Request): Promise<AuthResponse>;
+
+  /**
+   * Invalidate every credential of the person behind this subject that the
+   * issuer can find (the password-rotation semantic). Wasp-side only: it does
+   * NOT call back into the calling handler, so a handler may call it from
+   * inside its own revocation path without recursion.
+   */
+  signOutEverywhere(subject: Subject): Promise<void>;
+};
+
+/**
+ * The `email-send` grant: send through the app's configured `emailSender`.
+ *
+ * Requesting it is a compile-time claim -- Wasp rejects the manifest when the
+ * app has no `emailSender` -- so an OTP or magic-link handler can never ship
+ * into an app that silently drops its emails. SMTP credentials never reach
+ * the handler; only the send capability does.
+ */
+export type WaspEmail = {
+  send(email: {
+    to: string;
+    from?: EmailFrom;
+    subject: string;
+    text: string;
+    html: string;
+  }): Promise<void>;
+  /** The app-level default sender (`app.emailSender.defaultFrom`), if configured. */
+  defaultFrom?: EmailFrom;
+};
+
+export type EmailFrom = { name?: string; email: string };
+
+/**
+ * Error codes the granted facets reject with.
+ *
+ * Codes rather than error classes on purpose: adapter packages hold their own
+ * copy of this contract, and `instanceof` does not survive package-copy
+ * boundaries (tsc unifies by name@version, Node does not).
+ */
+export type AuthContractErrorCode =
+  | "wasp-auth/duplicate-identity"
+  | "wasp-auth/identity-not-found"
+  | "wasp-auth/undeclared-namespace"
+  /**
+   * The app's onBeforeSignup/onBeforeLogin hook rejected the action by
+   * throwing. The thrown error itself is what carries this code (Wasp tags
+   * it rather than wrapping, so its message and type survive) -- a handler's
+   * routes should map it to a 4xx carrying `error.message`, not to a 500.
+   */
+  | "wasp-auth/policy-veto";
+
+/** The code of a granted-facet error, or null for any other value. */
+export function getAuthContractErrorCode(
+  error: unknown,
+): AuthContractErrorCode | null {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return null;
+  }
+  const code = (error as { code: unknown }).code;
+  return code === "wasp-auth/duplicate-identity" ||
+    code === "wasp-auth/identity-not-found" ||
+    code === "wasp-auth/undeclared-namespace" ||
+    code === "wasp-auth/policy-veto"
+    ? code
+    : null;
+}
+
+/**
+ * The facets a manifest's `uses` list grants, as types: a declared grant is a
+ * non-optional member of the handler's runtime, an undeclared one is absent.
+ * A handler annotates its factory as
+ * `ServerAdapterFactory<MyOptions, "email-send", true>` and gets exactly the
+ * surface its manifest claims.
+ */
+export type GrantedFacets<G extends RuntimeGrantName> = ("email-send" extends G
+  ? { email: WaspEmail }
+  : { email?: WaspEmail }) &
+  ("identity-namespaces" extends G
+    ? { identityNamespaces: (namespace: string) => ProviderIdentities }
+    : { identityNamespaces?: (namespace: string) => ProviderIdentities });
+
+/**
+ * Everything Wasp hands a server-side handler about the app it runs in.
+ *
+ * This is the handler's *only* window into the app: handlers must not import
+ * generated code (`wasp/...`) and must not read `process.env` themselves. Keeping
+ * the boundary here is what lets an adapter package typecheck and version
+ * independently of any particular Wasp app.
+ *
+ * `HasCredentials` mirrors whether the manifest declared `credentials`: true
+ * makes the `credentials` facet a non-optional member.
+ */
+export type WaspServerRuntime<
+  G extends RuntimeGrantName = never,
+  HasCredentials extends boolean = false,
+> = WaspServerRuntimeBase &
+  GrantedFacets<G> &
+  (HasCredentials extends true
+    ? { credentials: Credentials }
+    : { credentials?: Credentials });
+
+type WaspServerRuntimeBase = {
+  /** The name of this scheme, as declared in the app's `auth.schemes`. */
+  scheme: string;
+
+  /**
+   * Where this scheme's routes are mounted on the Wasp server:
+   * `/auth/<scheme>`. The handler's route paths are relative to it, and its
+   * redirect URIs (OAuth callbacks) are built on it.
+   */
+  mountPath: string;
+
+  /**
+   * The app's PrismaClient instance. Typed as `unknown` because the client's type
+   * is generated per app; handlers that need it narrow it themselves.
+   */
+  db: unknown;
+
+  /**
+   * The Prisma datasource provider of the app's database: `"sqlite"`,
+   * `"postgresql"`, ... Handlers that bring their own storage layer (Better
+   * Auth's prisma adapter, for one) need to know the dialect they are talking to.
+   */
+  dbProvider: string;
+
+  /**
+   * The server-side environment, already validated against the env vars the
+   * handler's manifest declared.
+   */
+  env: Record<string, string | undefined>;
+
+  /** The URL the Wasp server is reachable at. */
+  serverUrl: string;
+
+  /** The URL the Wasp client is served from. Useful for trusted-origin checks. */
+  clientUrl: string;
+
+  /**
+   * Whether the app runs in development mode. For dev-only conveniences and
+   * the `secure` flag on any cookies the handler's routes set.
+   */
+  isDevelopment: boolean;
+
+  /**
+   * The identity store, pre-bound to this scheme's name: the sanctioned
+   * channel for everything identity-shaped, with the same powers Wasp's own
+   * auth flows use.
+   *
+   * - `provision` is the eager-provisioning channel: an in-process handler
+   *   that observes its own signup moment (Better Auth can; a hosted provider
+   *   cannot) reports it here, so the local user exists from signup rather
+   *   than from the first authenticated request. Idempotent.
+   * - `data`/`secrets` accessors let a handler keep per-identity state
+   *   without touching `db`: non-secret working state in `data`, secret
+   *   material in `secrets` -- a column the app's Prisma client omits by
+   *   default, so it cannot leak through app code. Secrets are stored as
+   *   given; hashing is the handler's job.
+   */
+  identities: ProviderIdentities;
+};
+
+/**
+ * The per-scheme view of Wasp's identity store. `subjectId` is always the
+ * handler's own stable user id -- the same value {@link Principal} carries.
+ */
+export type ProviderIdentities = {
+  /** The identity (claims and non-secret data), or null if never provisioned. */
+  find(subjectId: string): Promise<{
+    authId: string;
+    claims: Record<string, JsonValue>;
+    data: Record<string, JsonValue>;
+  } | null>;
+
+  /**
+   * Idempotent create of the local user for a subject. Runs the app's
+   * `userSignupFields` over the claims, exactly like just-in-time
+   * provisioning at first authentication.
+   */
+  provision(
+    subjectId: string,
+    identity?: {
+      claims?: Record<string, JsonValue>;
+      data?: Record<string, JsonValue>;
+      secrets?: Record<string, JsonValue>;
+    },
+  ): Promise<{ authId: string } | null>;
+
+  /**
+   * Strict create of the local user for a subject: signup semantics, where
+   * `provision` is login semantics. Rejects with
+   * `wasp-auth/duplicate-identity` when the subject already exists.
+   *
+   * `getUserFields` computes the new user entity's own fields; it is a
+   * callback (not a value) so the provisioning layer controls when it runs --
+   * the app's signup veto, once it fires at this choke point, must run before
+   * any user-supplied field getters do. When omitted, the scheme's
+   * manifest-level `userSignupFields` run over the claims instead.
+   */
+  create(
+    subjectId: string,
+    identity?: {
+      claims?: Record<string, JsonValue>;
+      data?: Record<string, JsonValue>;
+      secrets?: Record<string, JsonValue>;
+    },
+    getUserFields?: () =>
+      | Promise<Record<string, JsonValue>>
+      | Record<string, JsonValue>,
+    opts?: {
+      /**
+       * Skip the app's signup hooks for THIS create. For identity writes that
+       * are not a signup (migrations, admin imports) -- the documented escape
+       * hatch, so an ordinary signup can never forget the app's veto.
+       */
+      skipHooks?: boolean;
+      /**
+       * Opaque handler context surfaced to the app's `onAfterSignup` hook as
+       * its `context` field (OAuth tokens, typically).
+       */
+      hookContext?: unknown;
+      /** The incoming request, surfaced to the app's signup hooks. */
+      req?: unknown;
+    },
+  ): Promise<{ authId: string }>;
+
+  /**
+   * Deletes the subject's identity AND its whole local user, cascading to auth
+   * data and sessions. Returns whether anything was deleted. Loud on purpose:
+   * this removes the app's business user, not just the identity row.
+   */
+  deleteUser(subjectId: string): Promise<boolean>;
+
+  /** Merges the updates into the identity's non-secret data. */
+  updateData(
+    subjectId: string,
+    updates: Record<string, JsonValue>,
+  ): Promise<void>;
+
+  /** Reads the identity's secret material. Keep the result on the server. */
+  getSecrets(subjectId: string): Promise<Record<string, JsonValue> | null>;
+
+  /** Replaces the identity's secret material. Expects it already hashed. */
+  setSecrets(
+    subjectId: string,
+    secrets: Record<string, JsonValue>,
+  ): Promise<void>;
+};
+
+/**
+ * What an adapter's server entry produces: the handler itself, plus, for
+ * handlers that own HTTP endpoints of their own (login flows, OAuth
+ * callbacks, Better Auth's `/sign-in` and friends), the Node handler Wasp
+ * should mount at the scheme's `mountPath`.
+ *
+ * One factory returns both so they are guaranteed to share one configured
+ * instance -- a handler authenticating against one configuration while its
+ * routes run another is a bug class this shape makes unrepresentable.
+ */
+export type ServerAdapter = {
+  handler: AuthHandler;
+
+  /**
+   * Node-style request handler for the scheme's own routes, mounted at
+   * `/auth/<scheme>` with the app's usual middleware around it (minus the JSON
+   * body parser when the manifest asked for raw bodies). Paths the handler
+   * sees are relative to the mount.
+   */
+  routeHandler?: (
+    req: IncomingMessage,
+    res: ServerResponse,
+  ) => void | Promise<void>;
+};
+
+/**
+ * User-code extensions Wasp delivers alongside the serializable options.
+ *
+ * `setupFn` follows the same convention as Wasp's `prismaSetupFn`: a user
+ * function the handler calls with its integration configuration, whose return
+ * value becomes the configuration to use. Every other key is a function the
+ * manifest referenced under `extensions`, under the name the handler chose;
+ * the handler types them precisely, Wasp only forwards them.
+ */
+export type ServerAdapterExtensions = {
+  setupFn?: (config: never) => unknown;
+  [name: string]: unknown;
+};
+
+/**
+ * The required shape of an adapter package's server entry: a named
+ * `createServerAdapter` export of this type. `options` is the serializable
+ * configuration the adapter's spec helper captured in `main.wasp.ts`, delivered
+ * verbatim; `extensions` carries the user-code escape hatches referenced by the
+ * manifest.
+ */
+export type ServerAdapterFactory<
+  Options = unknown,
+  Grants extends RuntimeGrantName = never,
+  HasCredentials extends boolean = false,
+> = (
+  runtime: WaspServerRuntime<Grants, HasCredentials>,
+  options: Options,
+  extensions?: ServerAdapterExtensions,
+) => ServerAdapter | Promise<ServerAdapter>;
+
+// ---------------------------------------------------------------------------
+// Credential issuers: what backs an inline `credentials: { transport, store }`.
+// Wasp ships the transports (bearer, cookie) and the stores (prisma, signed
+// token); the interfaces are public so an app can bring its own store.
+// ---------------------------------------------------------------------------
+
+/** What a credential issuer keeps per issued credential. */
+export type CredentialRecord = {
+  /** The `Auth` entity id of the person the credential belongs to. */
+  authId: string;
+  /** The scheme that verified the login. */
+  signedInBy: string;
+  issuedAt: Date;
+  expiresAt: Date;
+};
+
+/**
+ * Where a credential issuer keeps its records. The Wasp-shipped stores:
+ *
+ * - `prisma`: a row per credential in the injected `Session` model. Immediate
+ *   revocation, `signOutEverywhere` by deleting rows.
+ * - `signed-token`: the record travels inside a signed token. No table; a
+ *   token stays valid until it expires (`delete` is a no-op) and
+ *   `signOutEverywhere` works by stamping the subject, so tokens issued before
+ *   the stamp stop validating.
+ *
+ * An app can supply its own (Redis, its own Prisma model) through the
+ * manifest's `credentials.store` reference.
+ */
+export type CredentialStore = {
+  create(record: CredentialRecord): Promise<{ id: string }>;
+  /** The live record, or null when unknown, expired or revoked. */
+  get(id: string): Promise<CredentialRecord | null>;
+  delete(id: string): Promise<void>;
+  deleteAllForAuthId(authId: string): Promise<void>;
+};

@@ -3,6 +3,7 @@ module Wasp.Generator.DbGenerator.Auth
     authEntityName,
     authIdentityEntityName,
     sessionEntityName,
+    usedOneTimeCodeEntityName,
     userFieldOnAuthEntityName,
     authFieldOnUserEntityName,
     identitiesFieldOnAuthEntityName,
@@ -81,13 +82,18 @@ sessionsFieldOnAuthEntityName = "sessions"
 authFieldOnSessionEntityName :: String
 authFieldOnSessionEntityName = Util.toLowerFirst authEntityName
 
-injectAuth :: [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
-injectAuth entities (userEntityName, userEntity) = do
-  authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
+-- | Injects the framework-owned auth entities next to the user entity. The
+-- `Session` model exists only when some scheme keeps Wasp-issued credentials
+-- in the database (`credentials: { store: "prisma" }`), which is what
+-- 'injectSessionEntity' says.
+injectAuth :: Bool -> [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
+injectAuth injectSessionEntity entities (userEntityName, userEntity) = do
+  authEntity <- makeAuthEntity injectSessionEntity userEntityIdField (userEntityName, userEntity)
   authIdentityEntity <- makeAuthIdentityEntity
-  sessionEntity <- makeSessionEntity
+  sessionEntities <- if injectSessionEntity then (: []) <$> makeSessionEntity else return []
+  usedOneTimeCodeEntity <- makeUsedOneTimeCodeEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
-  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity]
+  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity] ++ sessionEntities ++ [usedOneTimeCodeEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
@@ -103,7 +109,17 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           providerName   String
           providerUserId String
 
+          // What the auth provider asserted about this identity at login (email,
+          // name, ...). Written by Wasp when the identity is provisioned and
+          // read-only for everyone else, so app code can trust its provenance.
+          providerClaims String @default("{}")
+          // Non-secret working state the provider keeps for this identity
+          // (e.g. isEmailVerified, verification timestamps).
           providerData String @default("{}")
+          // Secret material (e.g. the password hash). Omitted from the Prisma
+          // client by default so it cannot cross a serialization boundary by
+          // accident; auth internals opt back in per query.
+          providerSecrets String @default("{}")
 
           authId    ${authEntityIdTypeText}
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
@@ -115,8 +131,8 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
-makeAuthEntity :: Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parseBody authEntityPslBody of
+makeAuthEntity :: Bool -> Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
+makeAuthEntity withSessions userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parseBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -127,8 +143,17 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.par
           userId    ${userEntityIdTypeText}? ${userEntityIdFieldAttributesText}
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [${userEntityIdFieldName}], onDelete: Cascade)
           ${identitiesFieldOnAuthEntityNameText} ${authIdentityEntityNameText}[]
-          ${sessionsFieldOnAuthEntityNameText}   ${sessionEntityNameText}[]
+          credentialsInvalidatedAt DateTime?
+          ${sessionsRelationText}
         |]
+
+    -- The relation exists only when the Session model does. The
+    -- `credentialsInvalidatedAt` stamp always exists: it is how "sign out
+    -- everywhere" works for signed-token credentials, which have no rows.
+    sessionsRelationText =
+      if withSessions
+        then sessionsFieldOnAuthEntityNameText <> "   " <> sessionEntityNameText <> "[]"
+        else ""
 
     authEntityIdTypeText = T.pack authEntityIdType
     userEntityNameText = T.pack userEntityName
@@ -160,6 +185,12 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
           id        String   @id @unique
           expiresAt DateTime
 
+          // The scheme that verified the login this credential descends from
+          // ('wasp', 'clerk', ...), recorded at issue time so that
+          // `user.signedInBy` and dual sign-out know which scheme vouched
+          // for the login.
+          signedInBy String
+
           // Needs to be called `userId` for Lucia to be able to create sessions
           userId String
           // The relation needs to be named as lowercased entity name, because that's what Lucia expects.
@@ -171,6 +202,26 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
 
     authEntityNameText = T.pack authEntityName
     authFieldOnSessionEntityNameText = T.pack authFieldOnSessionEntityName
+
+usedOneTimeCodeEntityName :: String
+usedOneTimeCodeEntityName = "UsedOneTimeCode"
+
+-- | Replay protection for one-time login codes (the OAuth handback): a code
+-- is spent by inserting its row, so two concurrent redemptions are settled by
+-- the primary key, whichever server instance they hit -- the previous
+-- in-memory store was blind across instances. Rows expire with the code's
+-- short JWT lifetime; the store deletes stale ones lazily.
+makeUsedOneTimeCodeEntity :: Generator (String, AS.Entity.Entity)
+makeUsedOneTimeCodeEntity = case Psl.Parser.Model.parseBody usedOneTimeCodeEntityPslBody of
+  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ usedOneTimeCodeEntityName ++ " entity: " ++ show err
+  Right pslBody -> return (usedOneTimeCodeEntityName, AS.Entity.makeEntity pslBody)
+  where
+    usedOneTimeCodeEntityPslBody =
+      T.unpack
+        [trimming|
+          code   String   @id
+          usedAt DateTime @default(now())
+        |]
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]
 injectAuthIntoUserEntity userEntityName entities =

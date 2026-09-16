@@ -1,0 +1,37 @@
+{
+  "description": "Better Auth as a Wasp auth provider.",
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@wasp.sh/auth-contract": "file:../../../../waspc/data/Generator/libs/auth-contract",
+    "better-auth": "^1.0.0",
+    "typescript": "~6.0.3"
+  },
+  "exports": {
+    "./client": {
+      "default": "./dist/client.js",
+      "types": "./dist/client.d.ts"
+    },
+    "./server": {
+      "default": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    },
+    "./spec": {
+      "default": "./dist/spec.js",
+      "types": "./dist/spec.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "name": "@wasp.sh/auth-better-auth",
+  "peerDependencies": {
+    "@wasp.sh/auth-contract": "*",
+    "better-auth": "^1.0.0"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}

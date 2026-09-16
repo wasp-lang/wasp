@@ -8,7 +8,6 @@ import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec, getCruds, getOperations)
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
@@ -112,13 +111,9 @@ genSdkTypeAugmentation spec =
           "clientEnvValidationSchema" .= extImportToImportJson (AS.App.client app >>= AS.App.Client.envValidationSchema),
           "webSocketFn" .= extImportToImportJson (AS.App.WS.fn <$> AS.App.webSocket app),
           "prismaSetupFn" .= extImportToImportJson (AS.App.db app >>= AS.Db.prismaSetupFn),
-          "emailUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.email >>= AS.Auth.userSignupFieldsForEmailAuth),
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.usernameAndPassword >>= AS.Auth.userSignupFieldsForUsernameAuth),
           "operations" .= map mkOperationData operations,
           "cruds" .= map mkCrudData cruds
         ]
-    authMethods = AS.Auth.methods <$> maybeAuth
-    maybeAuth = AS.App.auth app
     app = snd $ getApp spec
     cruds = getCruds spec
     operations = getOperations spec

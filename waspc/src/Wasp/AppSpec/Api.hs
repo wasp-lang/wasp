@@ -14,6 +14,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List (intercalate)
 import GHC.Generics (Generic)
+import Wasp.AppSpec.AuthRequirement (AuthRequirement, isAuthRequiredWithDefault)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
@@ -25,7 +26,7 @@ data Api = Api
     middlewareConfigFn :: Maybe ExtImport,
     entities :: Maybe [Ref Entity],
     httpRoute :: (HttpMethod, String), -- (method, path), exe: (GET, "/foo/bar")
-    auth :: Maybe Bool
+    auth :: Maybe AuthRequirement
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -39,7 +40,7 @@ instance Inspectable Api where
           ("Import", showExtImportFromProjectDir $ fn api)
         ]
           ++ [("Entities", (intercalate ", " . fmap refName) entities') | Just entities' <- [entities api]]
-          ++ [("Auth", "Enabled") | auth api == Just True]
+          ++ [("Auth", "Enabled") | isAuthRequiredWithDefault False (auth api)]
     ]
 
 method :: Api -> HttpMethod

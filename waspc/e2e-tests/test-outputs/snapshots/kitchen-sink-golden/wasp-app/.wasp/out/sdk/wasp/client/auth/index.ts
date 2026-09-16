@@ -1,10 +1,6 @@
-export * from './ui'
-export * from './email'
-export * from './slack'
-export * from './discord'
-export * from './google'
-export * from './github'
-export * from './microsoft'
+// The uniform client auth surface, the same for every scheme mix. Scheme UI
+// (login forms, sign-in buttons) comes from each auth package's own client
+// entry (`@wasp.sh/auth/client` for Wasp's own auth).
 export {
   default as useAuth,
   getMe,

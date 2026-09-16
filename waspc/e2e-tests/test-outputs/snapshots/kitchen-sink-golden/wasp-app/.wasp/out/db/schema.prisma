@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+  provider        = "prisma-client-js"
 }
 
 model User {
@@ -49,30 +50,39 @@ model UppercaseTextRequest {
 }
 
 model Auth {
-  id         String         @id @default(uuid())
-  userId     Int?           @unique
-  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  identities AuthIdentity[]
-  sessions   Session[]
+  id                       String         @id @default(uuid())
+  userId                   Int?           @unique
+  user                     User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identities               AuthIdentity[]
+  credentialsInvalidatedAt DateTime?
+  sessions                 Session[]
 }
 
 model AuthIdentity {
-  providerName   String
-  providerUserId String
-  providerData   String @default("{}")
-  authId         String
-  auth           Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
+  providerName    String
+  providerUserId  String
+  providerClaims  String @default("{}")
+  providerData    String @default("{}")
+  providerSecrets String @default("{}")
+  authId          String
+  auth            Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
 }
 
 model Session {
-  id        String   @id @unique
-  expiresAt DateTime
-  userId    String
-  auth      Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  id         String   @id @unique
+  expiresAt  DateTime
+  signedInBy String
+  userId     String
+  auth       Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model UsedOneTimeCode {
+  code   String   @id
+  usedAt DateTime @default(now())
 }
 
 enum TaskVisibility {

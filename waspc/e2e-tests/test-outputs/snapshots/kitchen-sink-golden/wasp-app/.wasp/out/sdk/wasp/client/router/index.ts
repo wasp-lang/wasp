@@ -138,6 +138,19 @@ export const routes = {
         options?.hash
       ),
   },
+  OAuthCallbackRoute: {
+    to: "/oauth/callback",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/oauth/callback",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
   TasksRoute: {
     to: "/tasks",
     build: (

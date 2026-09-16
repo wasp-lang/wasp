@@ -1,0 +1,338 @@
+/** This module is a mirror implementation of FromJSON for AppSpec Decls in
+ * TypeScript. The original implemention is in Haskell (waspc).
+ *
+ * IMPORTANT: Do not change this file without updating the AppSpec in waspc.
+ */
+
+export type Decl = {
+  [Type in keyof DeclTypeToValue]: {
+    declType: Type;
+    declName: string;
+    declValue: DeclTypeToValue[Type];
+  };
+}[keyof DeclTypeToValue];
+
+export type DeclTypeToValue = {
+  App: App;
+  Page: Page;
+  Route: Route;
+  Query: Query;
+  Action: Action;
+  Job: Job;
+  Api: Api;
+  ApiNamespace: ApiNamespace;
+  Crud: Crud;
+};
+
+export type GetDeclForType<T extends Decl["declType"]> = Extract<
+  Decl,
+  { declType: T }
+>;
+
+// NOTE: Entities are defined in the schema.prisma file, but they can still be
+// referenced.
+export type DeclType = Decl["declType"] | "Entity";
+
+export type Page = {
+  component: ExtImport;
+  authRequired: Optional<AuthRequirement>;
+};
+
+/**
+ * Whether (and through which providers) a page or operation requires
+ * authentication: `false` = no auth, `true` = any valid session, a list of
+ * auth provider ids = only sessions minted by one of the listed providers.
+ */
+export type AuthRequirement = boolean | string[];
+
+export type Route = {
+  path: string;
+  to: Ref<"Page">;
+  // List of concrete static paths to prerender at build time (empty when
+  // prerendering is disabled). The public `prerender: true` shorthand is
+  // normalized to `[routePath]` by the spec mappers.
+  prerender: string[];
+  lazy: Optional<boolean>;
+};
+
+export type Action = {
+  fn: ExtImport;
+  entities: Optional<Ref<"Entity">[]>;
+  auth: Optional<AuthRequirement>;
+};
+
+export type Query = {
+  fn: ExtImport;
+  entities: Optional<Ref<"Entity">[]>;
+  auth: Optional<AuthRequirement>;
+};
+
+export type Job = {
+  executor: JobExecutor;
+  perform: Perform;
+  schedule: Optional<Schedule>;
+  entities: Optional<Ref<"Entity">[]>;
+};
+export type Schedule = {
+  cron: string;
+  args: Optional<object>;
+  executorOptions: Optional<ExecutorOptions>;
+};
+
+export type Perform = {
+  fn: ExtImport;
+  executorOptions: Optional<ExecutorOptions>;
+};
+
+export type Api = {
+  fn: ExtImport;
+  middlewareConfigFn: Optional<ExtImport>;
+  entities: Optional<Ref<"Entity">[]>;
+  httpRoute: HttpRoute;
+  auth: Optional<AuthRequirement>;
+};
+
+export type ApiNamespace = {
+  middlewareConfigFn: ExtImport;
+  path: string;
+};
+
+export type Crud = {
+  entity: Ref<"Entity">;
+  operations: CrudOperations;
+};
+
+export type App = {
+  wasp: Wasp;
+  title: string;
+  head: Optional<string[]>;
+  auth: Optional<Auth>;
+  server: Optional<Server>;
+  client: Optional<Client>;
+  db: Optional<Db>;
+  emailSender: Optional<EmailSender>;
+  webSocket: Optional<WebSocket>;
+};
+
+export type ExtImport = NamedExtImport | DefaultExtImport;
+export type ExtImportKind = ExtImport["kind"];
+export type NamedExtImport = {
+  kind: "named";
+  name: string;
+  path: `@src/${string}`;
+  alias?: string;
+};
+export type DefaultExtImport = {
+  kind: "default";
+  name: string;
+  path: `@src/${string}`;
+};
+
+export type JobExecutor = "PgBoss";
+
+export type ExecutorOptions = {
+  pgBoss: Optional<object>;
+};
+
+export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+
+export type HttpRoute = [HttpMethod, string];
+
+export type CrudOperations = {
+  get: Optional<CrudOperationOptions>;
+  getAll: Optional<CrudOperationOptions>;
+  create: Optional<CrudOperationOptions>;
+  update: Optional<CrudOperationOptions>;
+  delete: Optional<CrudOperationOptions>;
+};
+
+export type CrudOperationOptions = {
+  isPublic: Optional<boolean>;
+  overrideFn: Optional<ExtImport>;
+};
+
+export type Wasp = {
+  version: string;
+};
+
+export type Auth = {
+  userEntity: Ref<"Entity">;
+  onAuthFailedRedirectTo: string;
+  providers: AuthProvider[];
+  hooks: Optional<AuthHooksSpec>;
+};
+
+// App-level lifecycle hooks, fired at Wasp-owned choke points for every
+// provider. Method-specific hooks stay on WaspAuthProvider.
+export type AuthHooksSpec = {
+  onBeforeSignup: Optional<ExtImport>;
+  onAfterSignup: Optional<ExtImport>;
+  onBeforeLogin: Optional<ExtImport>;
+  onAfterLogin: Optional<ExtImport>;
+};
+
+// The IR mirrors the user-facing spec's discriminated union, so the impossible
+// states (auth methods next to an external provider, wasp hooks next to a
+// manifest) are unrepresentable here too.
+export type AuthProvider = WaspAuthProvider | ExternalAuthProvider;
+
+export type WaspAuthProvider = {
+  kind: "wasp";
+  methods: AuthMethods;
+  onAuthSucceededRedirectTo: Optional<string>;
+  onAfterEmailVerified: Optional<ExtImport>;
+  onBeforeOAuthRedirect: Optional<ExtImport>;
+};
+
+export type ExternalAuthProvider = {
+  kind: "external";
+} & ExternalAuthProviderSpec;
+
+export type ExternalAuthProviderSpec = {
+  providerId: string;
+  server: { package: string } | { module: ExtImport };
+  clientPackage: Optional<string>;
+  routes: Optional<ExternalProviderRoutes>;
+  capabilities: string[];
+  envVars: ExternalProviderEnvVars;
+  uses: string[];
+  identityNamespaces: string[];
+  userSignupFields: Optional<ExtImport>;
+  setupFn: Optional<ExtImport>;
+  optionsJson: Optional<string>;
+};
+
+export type ExternalProviderRoutes = {
+  basePath: string;
+  rawBody: Optional<boolean>;
+};
+
+export type ExternalProviderEnvVars = {
+  server: ExternalProviderEnvVar[];
+  client: ExternalProviderEnvVar[];
+};
+
+export type ExternalProviderEnvVar = {
+  name: string;
+  optional: Optional<boolean>;
+  doc: Optional<string>;
+  devDefault: Optional<string>;
+};
+
+export type AuthMethods = {
+  usernameAndPassword: Optional<UsernameAndPasswordConfig>;
+  slack: Optional<ExternalAuthConfig>;
+  discord: Optional<ExternalAuthConfig>;
+  google: Optional<ExternalAuthConfig>;
+  gitHub: Optional<ExternalAuthConfig>;
+  keycloak: Optional<ExternalAuthConfig>;
+  microsoft: Optional<ExternalAuthConfig>;
+  email: Optional<EmailAuthConfig>;
+};
+
+export type UsernameAndPasswordConfig = {
+  userSignupFields: Optional<ExtImport>;
+};
+
+export type ExternalAuthConfig = {
+  configFn: Optional<ExtImport>;
+  userSignupFields: Optional<ExtImport>;
+};
+
+export type EmailAuthConfig = {
+  userSignupFields: Optional<ExtImport>;
+  fromField: EmailFromField;
+  emailVerification: EmailVerificationConfig;
+  passwordReset: PasswordResetConfig;
+};
+
+export type EmailSender = {
+  provider: EmailProvider;
+  defaultFrom: Optional<EmailFromField>;
+};
+
+export type EmailProvider =
+  | "SMTP"
+  | "SendGrid"
+  | "Mailgun"
+  | "Resend"
+  | "Dummy";
+
+export type EmailFromField = {
+  name: Optional<string>;
+  email: string;
+};
+
+export type EmailVerificationConfig = {
+  getEmailContentFn: Optional<ExtImport>;
+  clientRoute: Ref<"Route">;
+};
+
+export type PasswordResetConfig = {
+  getEmailContentFn: Optional<ExtImport>;
+  clientRoute: Ref<"Route">;
+};
+
+export type Ref<T extends DeclType> = {
+  name: string;
+  declType: T;
+};
+
+export type Server = {
+  setupFn: Optional<ExtImport>;
+  middlewareConfigFn: Optional<ExtImport>;
+  envValidationSchema: Optional<ExtImport>;
+};
+
+export type Client = {
+  setupFn: Optional<ExtImport>;
+  rootComponent: Optional<ExtImport>;
+  baseDir: Optional<`/${string}`>;
+  envValidationSchema: Optional<ExtImport>;
+};
+
+export type Db = {
+  seeds: Optional<ExtImport[]>;
+  prismaSetupFn: Optional<ExtImport>;
+};
+
+export type WebSocket = {
+  fn: ExtImport;
+  autoConnect: Optional<boolean>;
+};
+
+/**
+ * We use this type for fields that are optional (Maybe) in AppSpec.
+ * We do this instead of `someField?:` because we want TypeScript to force us
+ * to explicitly set the field to `undefined`.
+ *
+ * This way, if the AppSpec changes on the Haskell side, we won't forget to
+ * implement a proper mapping in TypeScript.
+ *
+ * For example, let's say `bar` is optional (both for the user and for the app
+ * spec). This would be the correct mapping code:
+ * ```
+ * const { foo, bar } = userConfig
+ * const decl: SomeDecl = {
+ *   foo: mapForAppSpec(foo),
+ *   bar: mapForAppSpec(bar)
+ * }
+ * ```
+ * The code below is wrong. It forgets to map `bar` even though it might exist
+ * in `userConfig`:
+ * ```
+ * const { foo } = userConfig
+ * const decl: SomeDecl = {
+ *   foo: mapForAppSpec(foo),
+ * }
+ * ```
+ * If `bar` is an optional field of `SomeDecl` (`bar?: string`), TypeScript
+ * doesn't catch this error.
+ *
+ * If `bar` is a mandatory field of `SomeDecl` that can be set to `undefined`
+ * (`bar: Optional<string>`), TypeScript catches the error.
+ *
+ * Explicitly setting optional fields to `undefined` doesn't impact JSON
+ * serialization since fields set to `undefined` are treated as missing fields.
+ */
+type Optional<T> = T | undefined;

@@ -12,12 +12,15 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (maybeToList)
+import Data.List (nub)
+import qualified Data.Map as Map
+import Data.Maybe (mapMaybe, maybeToList)
 import StrongPath (File', Path, Posix, Rel, relfileP)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
@@ -96,9 +99,29 @@ getVirtualUserModules spec =
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
+      mkAuthProviderModule <$> authProviderModules,
+      mkAuthProviderUserSignupFieldsModule <$> authProviderUserSignupFields,
+      mkAuthProviderSetupFnModule <$> authProviderSetupFns,
+      maybeToList $ mkAuthHookModule "OnBeforeSignupHook" <$> (maybeAuth >>= AS.Auth.onBeforeSignup),
+      maybeToList $ mkAuthHookModule "OnAfterSignupHook" <$> (maybeAuth >>= AS.Auth.onAfterSignup),
+      maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
+      maybeToList $ mkAuthHookModule "OnAfterLoginHook" <$> (maybeAuth >>= AS.Auth.onAfterLogin),
+      mkAuthProviderExtensionModule <$> authProviderExtensions,
+      mkCredentialStoreModule <$> authCredentialStores,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
+    -- The app-level lifecycle hooks are user code consumed by the SDK's
+    -- choke points (provisioning, minting), so they reach the SDK through
+    -- virtual modules like everything else user-authored. Several hooks
+    -- typically live in one user file; TS merges the per-hook module
+    -- declarations, since each declares a different export.
+    mkAuthHookModule typeName extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/hooks|]
+        typeName
     mkClientEnvValidationSchemaModule extImport' =
       VirtualUserModule
         ClientRuntime
@@ -120,6 +143,61 @@ getVirtualUserModules spec =
         [relfileP|./server/dbClient|]
         "RegisteredPrismaSetupFn"
 
+    -- The auth provider is written in user code but consumed by the SDK's session
+    -- layer, so it reaches the SDK through a virtual module like everything else
+    -- user-authored. The SDK must not import user code directly. Unlike the
+    -- other virtual modules, it is declared with the plain contract type rather
+    -- than a Register-backed one: the SDK needs no more than `AuthProvider`,
+    -- and the adapter's exact type has no consumer.
+    mkAuthProviderModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "AuthHandler"
+
+    -- Feeds just-in-time provisioning under an external provider; consumed by
+    -- the SDK's session layer, so it goes through a virtual module too. Like
+    -- the auth provider module, it is declared with the plain contract type:
+    -- the session layer needs no more than `UserSignupFields`.
+    mkAuthProviderUserSignupFieldsModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./auth/providers/types|]
+        "UserSignupFields"
+
+    -- The user's setup function for the adapter's underlying library
+    -- (the prismaSetupFn convention); delivered to the adapter's server
+    -- factory. Declared with the plain contract type: the adapter package
+    -- types its parameter precisely, the SDK only needs *a* function.
+    mkAuthProviderSetupFnModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "AuthProviderSetupFn"
+
+    -- Every other user function an adapter's manifest references
+    -- (`extensions`): signup field getters, OAuth config functions, email
+    -- content functions, method-specific hooks. The adapter types them
+    -- precisely; the SDK only forwards them, so they are declared loosely.
+    mkAuthProviderExtensionModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "AuthProviderExtension"
+
+    -- A user-provided credential store (`credentials: { store: ref }`), consumed
+    -- by the framework's credential issuer.
+    mkCredentialStoreModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "CredentialStore"
+
     mkOperationModule operation =
       VirtualUserModule
         ServerRuntime
@@ -134,6 +212,17 @@ getVirtualUserModules spec =
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybeAuth = AS.App.auth app
+    authSchemes = maybe [] AS.Auth.schemes maybeAuth
+    authProviderModules = mapMaybe AS.Auth.serverModule authSchemes
+    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForAuthScheme authSchemes
+    authProviderSetupFns = mapMaybe AS.Auth.setupFn authSchemes
+    authProviderExtensions = concatMap (Map.elems . AS.Auth.extensions) authSchemes
+    authCredentialStores =
+      [ extImport'
+      | scheme <- authSchemes,
+        Just (_, AS.Auth.CustomStore extImport', _) <- [AS.Auth.inlineCredentials scheme]
+      ]
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
@@ -163,7 +252,11 @@ mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
 -- | Data for virtual user modules ambient module declaration.
 mkVirtualUserModulesDeclarationData :: AppSpec -> Aeson.Value
 mkVirtualUserModulesDeclarationData spec =
-  object ["virtualUserModules" .= map mkDeclarationData (getVirtualUserModules spec)]
+  -- Deduplicated: two auth providers may reference the same user file and
+  -- export (a shared `userSignupFields`, say). TypeScript merges ambient
+  -- module blocks with distinct exports on its own, but an exact duplicate
+  -- declaration would be a duplicate-identifier error.
+  object ["virtualUserModules" .= nub (map mkDeclarationData (getVirtualUserModules spec))]
   where
     mkDeclarationData virtualUserModule =
       object

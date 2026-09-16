@@ -3,71 +3,51 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { describe, expectTypeOf, test } from "vitest";
+import { customAuthHandler } from "../../src/spec/publicApi/constructors.js";
 import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
-describe("Deployment", () => {
-  test("allows an omitted mode or split mode", () => {
-    expectTypeOf<{}>().toExtend<WaspSpec.Deployment>();
-    expectTypeOf<{ mode: "split" }>().toExtend<WaspSpec.Deployment>();
-  });
-});
-
-describe("AuthMethods", () => {
-  const usernameAndPassword: Required<
-    Pick<WaspSpec.AuthMethods, "usernameAndPassword">
-  > = {
-    usernameAndPassword: {},
-  };
-
-  const email: Required<Pick<WaspSpec.AuthMethods, "email">> = {
-    email: {
-      fromField: { email: "noreply@example.com" },
-      emailVerification: { clientRoute: "/verify" },
-      passwordReset: { clientRoute: "/reset" },
-    },
-  };
-
-  const google: Required<Pick<WaspSpec.AuthMethods, "google">> = {
-    google: {},
-  };
-
-  const slack: Required<Pick<WaspSpec.AuthMethods, "slack">> = {
-    slack: {},
-  };
-
-  test("allows only usernameAndPassword", () => {
-    expectTypeOf<typeof usernameAndPassword>().toExtend<WaspSpec.AuthMethods>();
+describe("Auth schemes", () => {
+  const scheme = customAuthHandler({
+    server: { from: "./src/auth", import: "handler" } as never,
   });
 
-  test("allows only email", () => {
-    expectTypeOf<typeof email>().toExtend<WaspSpec.AuthMethods>();
+  test("accepts a manifest built by a spec helper", () => {
+    expectTypeOf<typeof scheme>().toExtend<WaspSpec.AuthSchemeManifest>();
   });
 
-  test("allows no local auth method (e.g. only a social method)", () => {
-    expectTypeOf<typeof google>().toExtend<WaspSpec.AuthMethods>();
-    expectTypeOf<typeof slack>().toExtend<WaspSpec.AuthMethods>();
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    expectTypeOf<{}>().toExtend<WaspSpec.AuthMethods>();
+  // The two tests below pin excess-property checking on literals: writing a
+  // handler-package field directly on `auth` must be flagged at the site
+  // where users actually write it (an object literal), which
+  // `@ts-expect-error` asserts. Plain assignability cannot catch extra
+  // properties.
+  test("forbids the old flat shape: methods on auth itself", () => {
+    const _invalid: WaspSpec.Auth = {
+      userEntity: "User",
+      onAuthFailedRedirectTo: "/login",
+      schemes: { test: scheme },
+      // @ts-expect-error -- methods belong to the auth package's spec helper
+      methods: { usernameAndPassword: {} },
+    };
   });
 
-  test("allows a social method together with one local method", () => {
-    expectTypeOf<
-      typeof google & typeof usernameAndPassword
-    >().toExtend<WaspSpec.AuthMethods>();
-    expectTypeOf<
-      typeof google & typeof email
-    >().toExtend<WaspSpec.AuthMethods>();
+  test("forbids bare hook fields on auth itself (they live under auth.hooks)", () => {
+    const _invalid: WaspSpec.Auth = {
+      userEntity: "User",
+      onAuthFailedRedirectTo: "/login",
+      schemes: { test: scheme },
+      // @ts-expect-error -- lifecycle hooks live under auth.hooks
+      onBeforeSignup: () => undefined,
+    };
   });
 
-  test("forbids usernameAndPassword and email at the same time", () => {
-    expectTypeOf<
-      typeof usernameAndPassword & typeof email
-    >().not.toExtend<WaspSpec.AuthMethods>();
-  });
-
-  test("forbids usernameAndPassword and email even alongside a social method", () => {
-    expectTypeOf<
-      typeof google & typeof usernameAndPassword & typeof email
-    >().not.toExtend<WaspSpec.AuthMethods>();
+  test("forbids a manifest without the authenticity marker", () => {
+    expectTypeOf<{
+      kind: "scheme";
+      contractVersion: 2;
+      handler: "@wasp.sh/auth-clerk";
+      server: { package: "@wasp.sh/auth-clerk/server" };
+      capabilities: string[];
+      env: { server: []; client: [] };
+    }>().not.toExtend<WaspSpec.AuthSchemeManifest>();
   });
 });
