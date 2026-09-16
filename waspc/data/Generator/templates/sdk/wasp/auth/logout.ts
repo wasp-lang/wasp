@@ -1,34 +1,28 @@
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
-import { api, getLastAuthProviderId, removeLocalUserData } from '../api/index.js'
-import { clientAuthAdapters } from '../client/auth/providers.js'
+import { api, getLastAuthScheme, removeLocalUserData } from '../api/index.js'
+import { clientAuthAdapters } from '../client/auth/schemes.js'
 import { invalidateAndRemoveQueries } from '../client/operations/internal/resources.js'
 
 // PUBLIC API
 export default async function logout(): Promise<void> {
   // Read before the server call: teardown below clears local storage.
-  const sessionProviderId = getLastAuthProviderId()
+  const lastScheme = getLastAuthScheme()
   try {
-    // Server first: dual sign-out needs the Wasp session header, and the
-    // session row's recorded minting provider tells the server which
-    // provider's own session to revoke alongside Wasp's.
+    // Server first: the scheme that authenticated the request invalidates
+    // the credential it carries (a session row, a cookie).
     await api.post('/auth/logout')
-    // Then the MINTING provider's adapter clears its own client-side state
-    // (Clerk's signOut(), a token store's clear()), so that provider's browser
-    // session ends too. Other providers' sessions are deliberately left alone:
-    // they did not vouch for this login.
-    if (sessionProviderId !== null) {
-      // Widened lookup type: in an app without external providers the registry
-      // is `{}` and indexing it types as `never`.
+    // Then the adapter of the scheme that signed in clears its own
+    // client-side state (Clerk's signOut(), a token store's clear()).
+    if (lastScheme !== null) {
       const adapter = (
         clientAuthAdapters as Partial<Record<string, ClientAuthAdapter>>
-      )[sessionProviderId]
+      )[lastScheme]
       await adapter?.onLogout?.()
     }
   } finally {
-    // Even if the logout request fails, we still want to remove the local user
-    // data (the session id AND the last-provider marker, so nothing silently
-    // resumes after an explicit logout) in case the logout failed because of a
-    // network error and the user walked away from the computer.
+    // Even if the logout request fails, we still want to remove the local
+    // credential in case the logout failed because of a network error and
+    // the user walked away from the computer.
     removeLocalUserData()
 
     // TODO(filip): We are currently invalidating and removing  all the queries, but

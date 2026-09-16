@@ -52,6 +52,6 @@ instance Inspectable App where
     where
       inspectAuth' Nothing = []
       inspectAuth' (Just appAuth) =
-        [ ("Auth providers", intercalate ", " $ Auth.providerId <$> Auth.providers appAuth),
+        [ ("Auth schemes", intercalate ", " $ Auth.schemeNames appAuth),
           ("User entity", refName (Auth.userEntity appAuth))
         ]

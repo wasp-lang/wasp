@@ -64,8 +64,8 @@
     =}
     "./auth": "./dist/auth/index.js",
     {=# isAuthEnabled =}
-    {=! Users: which auth provider the app runs on, as narrowable literals. =}
-    "./auth/provider": "./dist/auth/provider.js",
+    {=! Users: which auth schemes the app runs on, as narrowable literals. =}
+    "./auth/scheme": "./dist/auth/scheme.js",
     {=/ isAuthEnabled =}
     "./client": "./dist/client/index.js",
     "./client/api": "./dist/api/index.js",
@@ -115,15 +115,17 @@
       Internal server runtime API. Undocumented.
       ===============================================================
     =}
-    {=! Server: the contract a custom auth provider implements. Adapters live in
-        user code, so they need to import this as a normal module. =}
-    "./server/auth/provider/types": "./dist/server/auth/provider/types.js",
-    {=! Client: the instantiated client halves of the auth providers, plus the
-        session-resume and login helpers built on them. =}
-    "./client/auth/providers": "./dist/client/auth/providers.js",
-    {=! Server: the provider registry and its route handlers, for the exchange
-        route and for mounting providers' own routes. =}
-    "./server/auth/provider": "./dist/server/auth/provider/index.js",
+    {=! Server: the contract a hand-written auth handler implements. Handlers
+        live in user code, so they need to import this as a normal module. =}
+    "./server/auth/handler/types": "./dist/server/auth/handler/types.js",
+    {=! Client: the instantiated client halves of the auth schemes. =}
+    "./client/auth/schemes": "./dist/client/auth/schemes.js",
+    {=! Server: the scheme registry and its route handlers, for the framework's
+        own auth routes and for mounting schemes' routes. =}
+    "./server/auth/schemes": "./dist/server/auth/schemes.js",
+    {=! Server: the framework's credential issuer and the request/response
+        helpers the framework routes use. =}
+    "./server/auth/issuer": "./dist/server/auth/issuer.js",
     {=! Server: dispatch for the app-level lifecycle hooks, fired at the SDK's
         provisioning/minting choke points and from wasp-auth's OAuth callback. =}
     "./server/auth/hookDispatch": "./dist/server/auth/hookDispatch.js",

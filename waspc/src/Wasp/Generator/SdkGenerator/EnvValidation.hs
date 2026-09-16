@@ -58,7 +58,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
           "authProviderServerEnvVars"
-            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getAuthProviders spec),
+            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getAuthSchemes spec),
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
@@ -84,7 +84,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
             .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) providers,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
-    providers = AS.Valid.getAuthProviders spec
+    providers = AS.Valid.getAuthSchemes spec
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec
 
@@ -92,15 +92,15 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
 -- generated zod schemas so a missing var fails at boot with the manifest's own
 -- explanation.
 externalProviderEnvVarsTmplData ::
-  (AS.Auth.AuthProviderEnvVars -> [AS.Auth.AuthProviderEnvVar]) ->
-  AS.Auth.AuthProviderSpec ->
+  (AS.Auth.AuthSchemeEnvVars -> [AS.Auth.AuthSchemeEnvVar]) ->
+  AS.Auth.AuthScheme ->
   [Aeson.Value]
 externalProviderEnvVarsTmplData getVars extProvider =
   toTmplData <$> getVars (AS.Auth.envVars extProvider)
   where
     toTmplData envVar =
       object
-        [ "name" .= AS.Auth.name envVar,
+        [ "name" .= AS.Auth.envVarName envVar,
           "isOptional" .= (AS.Auth.optional envVar == Just True),
           "hasDevDefault" .= isJust (AS.Auth.devDefault envVar),
           "devDefaultJson" .= maybe "undefined" jsStringLiteral (AS.Auth.devDefault envVar),
@@ -108,10 +108,10 @@ externalProviderEnvVarsTmplData getVars extProvider =
         ]
 
     errorMessage envVar =
-      AS.Auth.name envVar
+      AS.Auth.envVarName envVar
         ++ " is required by the '"
-        ++ AS.Auth.providerId extProvider
-        ++ "' auth provider"
+        ++ AS.Auth.name extProvider
+        ++ "' auth scheme"
         ++ maybe "." (": " ++) (AS.Auth.doc envVar)
 
     -- Encoding the message as JSON yields a valid, correctly escaped JS string

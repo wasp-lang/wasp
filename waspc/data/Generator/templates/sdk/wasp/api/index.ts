@@ -1,63 +1,85 @@
 {{={= =}=}}
 import ky, { isHTTPError } from 'ky'
-{=# isAuthEnabled =}
-import type { AuthProviderId } from '../auth/provider.js'
-{=/ isAuthEnabled =}
 import { config } from '../client/index.js'
 import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
 
-const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
-// Which provider minted the current session -- and, after the session
-// expires, which provider this browser last logged in with. Written on every
-// session mint, cleared on explicit logout (so a logout can never be silently
-// undone by session resume), deliberately NOT cleared when a session merely
-// dies (that is exactly when resume needs it).
-const WASP_APP_LAST_AUTH_PROVIDER_ID_NAME = 'lastAuthProviderId'
+// The stored key is still called "sessionId" so an existing browser session
+// survives an upgrade.
+const WASP_APP_AUTH_CREDENTIAL_NAME = 'sessionId'
+// Which scheme the current credential came from, so logout can tell that
+// scheme's client adapter to clear its own state.
+const WASP_APP_LAST_AUTH_SCHEME_NAME = 'lastAuthScheme'
 
 // PRIVATE API (sdk)
-export function setSessionId(sessionId: string, authProviderId: string): void {
-  storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
-  storage.set(WASP_APP_LAST_AUTH_PROVIDER_ID_NAME, authProviderId)
+/**
+ * Adopt a bearer credential a scheme obtained through its own routes, or drop
+ * it with `null`. Cookie-carried credentials never go through here.
+ */
+export function setCredential(credential: string | null, scheme: string): void {
+  if (credential === null) {
+    storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME)
+    apiEventsEmitter.emit('sessionId.clear')
+    return
+  }
+  storage.set(WASP_APP_AUTH_CREDENTIAL_NAME, credential)
+  storage.set(WASP_APP_LAST_AUTH_SCHEME_NAME, scheme)
   apiEventsEmitter.emit('sessionId.set')
 }
 
 // PRIVATE API (sdk)
-export function getSessionId(): string | null {
-  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as
+export function getCredential(): string | null {
+  const credential = storage.get(WASP_APP_AUTH_CREDENTIAL_NAME) as
     | string
     | undefined
-  return sessionId ?? null
+  return credential ?? null
 }
 
 // PRIVATE API (sdk)
 /**
- * The id of the auth provider that minted the current session, or, when no
- * session exists, the provider of the last login in this browser (the resume
- * marker). Null in a browser that never logged in or logged out explicitly.
+ * The scheme that issued the stored credential, or, when none is stored, the
+ * scheme of the last login in this browser. Null in a browser that never
+ * logged in or logged out explicitly.
  */
-export function getLastAuthProviderId(): string | null {
-  const providerId = storage.get(WASP_APP_LAST_AUTH_PROVIDER_ID_NAME) as
+export function getLastAuthScheme(): string | null {
+  const scheme = storage.get(WASP_APP_LAST_AUTH_SCHEME_NAME) as
     | string
     | undefined
-  return providerId ?? null
+  return scheme ?? null
 }
 
 // PRIVATE API (sdk)
-// Ends the local session but keeps the last-provider marker: called when the
-// session turns out dead (a 401), where silent resume SHOULD get a chance on
-// the next auth gate.
-export function clearSessionId(): void {
-  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
+// Drops a credential the server rejected (a 401).
+export function clearCredential(): void {
+  storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME)
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
-// Full teardown, marker included: the explicit-logout path. After this,
-// nothing resumes until the next explicit login.
+// Full teardown, marker included: the explicit-logout path.
 export function removeLocalUserData(): void {
   storage.clear()
   apiEventsEmitter.emit('sessionId.clear')
+}
+
+// The fallback credential source for requests: the default scheme's client
+// adapter, registered by the scheme registry. Consulted only when no
+// Wasp-issued bearer credential is stored.
+let credentialSource: (() => Promise<string | null>) | null = null
+
+// PRIVATE API (sdk)
+export function registerCredentialSource(source: () => Promise<string | null>): void {
+  credentialSource = source
+}
+
+// PRIVATE API (sdk)
+/** The credential the next request should carry, if any. */
+export async function getRequestCredential(): Promise<string | null> {
+  const stored = getCredential()
+  if (stored !== null) {
+    return stored
+  }
+  return credentialSource === null ? null : credentialSource()
 }
 
 // PUBLIC API
@@ -72,18 +94,17 @@ export function removeLocalUserData(): void {
  */
 export const api = ky.extend({
   prefix: config.apiUrl,
+  // Cookie-carried credentials need the browser to attach them cross-origin.
+  credentials: 'include',
   hooks: {
     beforeRequest: [
-      // Every request authenticates with Wasp's own session and nothing else:
-      // there is deliberately no provider machinery on the request path.
-      // Sessionless requests go out unauthenticated (and 401 on protected
-      // operations); silent session resume happens only at the auth gate
-      // (`createAuthRequiredPage`), addressed to the provider of the last
-      // login.
-      ({ request }) => {
-        const sessionId = getSessionId()
-        if (sessionId !== null) {
-          request.headers.set('Authorization', `Bearer ${sessionId}`)
+      // Bearer credentials ride in the Authorization header: a Wasp-issued
+      // one from local storage, else the default scheme's own (a hosted
+      // provider's token). Cookie credentials are the browser's business.
+      async ({ request }) => {
+        const credential = await getRequestCredential()
+        if (credential !== null) {
+          request.headers.set('Authorization', `Bearer ${credential}`)
         }
       },
     ],
@@ -102,65 +123,18 @@ export const api = ky.extend({
           // Without the check, we would clear the *current* valid session ID Y.
           // The check ensures we only clear the session if the *request that failed*
           // used the *same session ID that's currently stored*.
-          const failingSessionId = getSessionIdFromAuthorizationHeader(
+          const failingCredential = getCredentialFromAuthorizationHeader(
             request.headers.get('Authorization')
           )
-          const currentSessionId = getSessionId()
-          if (failingSessionId === currentSessionId) {
-            clearSessionId()
+          const currentCredential = getCredential()
+          if (failingCredential !== null && failingCredential === currentCredential) {
+            clearCredential()
           }
         }
       },
     ],
   },
 })
-{=# isAuthEnabled =}
-
-/**
- * Exchanges an auth provider's credential for a Wasp session
- * (`POST /auth/login/:providerId`). Uses plain `fetch` rather than the `api`
- * instance so the request does not recurse through the hooks above. The
- * provider id rides in the path percent-encoded, in one place.
- */
-async function fetchSessionForCredential(
-  providerId: AuthProviderId,
-  credential: string,
-): Promise<string | null> {
-  const response = await fetch(buildExchangeUrl(providerId), {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${credential}` },
-  })
-  if (!response.ok) {
-    return null
-  }
-  const { sessionId } = (await response.json()) as { sessionId: string }
-  return sessionId
-}
-
-function buildExchangeUrl(providerId: AuthProviderId): string {
-  return `${config.apiUrl}/auth/login/${encodeURIComponent(providerId)}`
-}
-
-// PUBLIC API
-/**
- * Exchanges the named auth provider's credential for a Wasp session and
- * stores it, so every subsequent API call is authenticated. The addressed
- * provider rejecting the credential is final -- there is no fallthrough to
- * other providers. Client wiring calls this once after the provider's own
- * login flow succeeds; from then on the provider is off the request path
- * until logout.
- */
-export async function exchangeCredentialForSession(
-  providerId: AuthProviderId,
-  credential: string,
-): Promise<void> {
-  const sessionId = await fetchSessionForCredential(providerId, credential)
-  if (sessionId === null) {
-    throw new Error(`Exchanging the '${providerId}' auth provider credential for a session failed.`)
-  }
-  setSessionId(sessionId, providerId)
-}
-{=/ isAuthEnabled =}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.
@@ -171,7 +145,7 @@ if (typeof window !== 'undefined') {
   // "Note: This won't work on the same page that is making the changes — it is really a way
   // for other pages on the domain using the storage to sync any changes that are made."
   window.addEventListener('storage', (event) => {
-    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_CREDENTIAL_NAME)) {
       if (!!event.newValue) {
         apiEventsEmitter.emit('sessionId.set')
       } else {
@@ -217,7 +191,7 @@ class WaspHttpError extends Error {
   }
 }
 
-function getSessionIdFromAuthorizationHeader(header: string | null): string | null {
+function getCredentialFromAuthorizationHeader(header: string | null): string | null {
   const prefix = 'Bearer '
   if (header && header.startsWith(prefix)) {
     return header.substring(prefix.length)

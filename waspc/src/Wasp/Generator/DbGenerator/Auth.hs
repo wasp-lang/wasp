@@ -82,14 +82,18 @@ sessionsFieldOnAuthEntityName = "sessions"
 authFieldOnSessionEntityName :: String
 authFieldOnSessionEntityName = Util.toLowerFirst authEntityName
 
-injectAuth :: [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
-injectAuth entities (userEntityName, userEntity) = do
-  authEntity <- makeAuthEntity userEntityIdField (userEntityName, userEntity)
+-- | Injects the framework-owned auth entities next to the user entity. The
+-- `Session` model exists only when some scheme keeps Wasp-issued credentials
+-- in the database (`credentials: { store: "prisma" }`), which is what
+-- 'injectSessionEntity' says.
+injectAuth :: Bool -> [(String, AS.Entity.Entity)] -> (String, AS.Entity.Entity) -> Generator [(String, AS.Entity.Entity)]
+injectAuth injectSessionEntity entities (userEntityName, userEntity) = do
+  authEntity <- makeAuthEntity injectSessionEntity userEntityIdField (userEntityName, userEntity)
   authIdentityEntity <- makeAuthIdentityEntity
-  sessionEntity <- makeSessionEntity
+  sessionEntities <- if injectSessionEntity then (: []) <$> makeSessionEntity else return []
   usedOneTimeCodeEntity <- makeUsedOneTimeCodeEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
-  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity, sessionEntity, usedOneTimeCodeEntity]
+  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity] ++ sessionEntities ++ [usedOneTimeCodeEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
@@ -127,8 +131,8 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
     authEntityNameText = T.pack authEntityName
     authFieldOnAuthIdentityEntityNameText = T.pack authFieldOnAuthIdentityEntityName
 
-makeAuthEntity :: Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
-makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parseBody authEntityPslBody of
+makeAuthEntity :: Bool -> Psl.Model.Field -> (String, AS.Entity.Entity) -> Generator (String, AS.Entity.Entity)
+makeAuthEntity withSessions userEntityIdField (userEntityName, _) = case Psl.Parser.Model.parseBody authEntityPslBody of
   Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ authEntityName ++ " entity: " ++ show err
   Right pslBody -> return (authEntityName, AS.Entity.makeEntity pslBody)
   where
@@ -139,8 +143,17 @@ makeAuthEntity userEntityIdField (userEntityName, _) = case Psl.Parser.Model.par
           userId    ${userEntityIdTypeText}? ${userEntityIdFieldAttributesText}
           ${userFieldOnAuthEntityNameText}      ${userEntityNameText}?    @relation(fields: [userId], references: [${userEntityIdFieldName}], onDelete: Cascade)
           ${identitiesFieldOnAuthEntityNameText} ${authIdentityEntityNameText}[]
-          ${sessionsFieldOnAuthEntityNameText}   ${sessionEntityNameText}[]
+          credentialsInvalidatedAt DateTime?
+          ${sessionsRelationText}
         |]
+
+    -- The relation exists only when the Session model does. The
+    -- `credentialsInvalidatedAt` stamp always exists: it is how "sign out
+    -- everywhere" works for signed-token credentials, which have no rows.
+    sessionsRelationText =
+      if withSessions
+        then sessionsFieldOnAuthEntityNameText <> "   " <> sessionEntityNameText <> "[]"
+        else ""
 
     authEntityIdTypeText = T.pack authEntityIdType
     userEntityNameText = T.pack userEntityName
@@ -172,18 +185,11 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
           id        String   @id @unique
           expiresAt DateTime
 
-          // Id of the auth provider that minted this session ('wasp',
-          // 'external:clerk', ...), recorded at mint time so that logout can
-          // revoke the right provider's session and user code can read which
-          // provider vouched for the login. Nullable only for rows from before
-          // the column existed; the runtime treats those as invalid.
-          providerId String?
-
-          // Set when the session was minted by exchanging an external auth
-          // provider's credential; holds the provider's own session id so that
-          // logout can revoke both sessions (dual sign-out). Null for sessions
-          // issued by Wasp's own auth.
-          providerSessionId String?
+          // The scheme that verified the login this credential descends from
+          // ('wasp', 'clerk', ...), recorded at issue time so that
+          // `user.signedInBy` and dual sign-out know which scheme vouched
+          // for the login.
+          signedInBy String
 
           // Needs to be called `userId` for Lucia to be able to create sessions
           userId String

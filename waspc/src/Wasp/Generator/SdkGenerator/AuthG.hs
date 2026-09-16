@@ -31,7 +31,7 @@ genAuth spec =
     Just auth ->
       sequence
         [ genUserTs auth,
-          genAuthProviderIdentity auth,
+          genAuthSchemeIdentity auth,
           genFileCopyInAuth [relfile|providerData.ts|],
           genFileCopyInAuth [relfile|index.ts|],
           genProvidersTypes auth,
@@ -43,24 +43,25 @@ genAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
--- | The one module that always answers "which auth providers is this app on":
--- literal ids the type system narrows, so provider-specific code can be
+-- | The one module that always answers "which auth schemes is this app on":
+-- literal names the type system narrows, so scheme-specific code can be
 -- guarded at compile time.
-genAuthProviderIdentity :: AS.Auth.Auth -> Generator FileDraft
-genAuthProviderIdentity auth =
+genAuthSchemeIdentity :: AS.Auth.Auth -> Generator FileDraft
+genAuthSchemeIdentity auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|provider.ts|])
+      (authDirInSdkTemplatesDir </> [relfile|scheme.ts|])
       tmplData
   where
     tmplData =
       object
-        [ "authProviders" .= (providerTmplData <$> AS.Auth.providers auth)
+        [ "authSchemes" .= (schemeTmplData <$> AS.Auth.schemes auth),
+          "defaultScheme" .= AS.Auth.defaultScheme auth
         ]
-    providerTmplData provider =
+    schemeTmplData scheme =
       object
-        [ "providerId" .= AS.Auth.providerId provider,
-          "capabilitiesJs" .= makeJsArrayFromHaskellList (AS.Auth.capabilities provider)
+        [ "schemeName" .= AS.Auth.name scheme,
+          "capabilitiesJs" .= makeJsArrayFromHaskellList (AS.Auth.capabilities scheme)
         ]
 
 -- | Generates React hook that Wasp developer can use in a component to get

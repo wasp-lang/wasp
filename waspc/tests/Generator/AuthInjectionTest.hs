@@ -69,7 +69,7 @@ spec_GeneratorAuthInjectionTest = do
         let authEntity = makeAuthEntity userEntityIdFieldType maybeUserEntityIdFieldNativeDbType
 
         let allEntities = [userEntity, someOtherEntity]
-        let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth allEntities userEntity
+        let (_generatorWarnings, generatorResult) = runGenerator $ injectAuth True allEntities userEntity
          in generatorResult
               `shouldBe` Right
                 [ userEntityWithInjectedRelationship,
@@ -116,6 +116,12 @@ spec_GeneratorAuthInjectionTest = do
                               [],
                           Psl.Model.ElementField $
                             Psl.Model.Field
+                              "credentialsInvalidatedAt"
+                              Psl.Model.DateTime
+                              [Psl.Model.Optional]
+                              [],
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
                               "sessions"
                               (Psl.Model.UserType "Session")
                               [Psl.Model.List]
@@ -155,8 +161,7 @@ spec_GeneratorAuthInjectionTest = do
         [trimming|
           id String @id @unique
           expiresAt DateTime
-          providerId String?
-          providerSessionId String?
+          signedInBy String
           userId String
           auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
 

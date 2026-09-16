@@ -5,7 +5,7 @@ import type {
   {= authIdentityEntityName =},
 } from '../entities/index.js'
 import { parseProviderData } from './providerData.js'
-import type { AuthProviderId } from './provider.js'
+import type { AuthSchemeName } from './scheme.js'
 
 // PUBLIC API
 export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
@@ -51,12 +51,18 @@ export type AuthUser = AuthUserData & {
  */
 export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserEntityName =}'> & {
   /**
-   * Id of the auth provider that minted the current session -- i.e. how this
-   * user logged in this time ('wasp', 'clerk', ...). A session is always
-   * minted by exactly one provider, so this is a single compile-checked
-   * literal, pinned when the session was created and never re-derived.
+   * The scheme that authenticated the current request: the one whose
+   * credential the request carried ('session', 'clerk', ...). Exactly one
+   * scheme answers a request, so this is a single compile-checked literal.
    */
-  sessionProviderId: AuthProviderId,
+  sessionScheme: AuthSchemeName,
+  /**
+   * The scheme that verified the login this request's credential descends
+   * from. Equal to `sessionScheme` unless that scheme is a credential issuer
+   * another scheme signed into (Wasp's own auth signing into a cookie
+   * scheme, say). This is what `authRequired: ["wasp"]` checks against.
+   */
+  signedInBy: AuthSchemeName,
   /**
    * Every identity of this user, across all providers and namespaces.
    */
@@ -113,7 +119,8 @@ function makeAuthUser(data: AuthUserData): AuthUser {
 // PRIVATE API
 export function createAuthUserData(
   user: CompleteUserEntityWithAuth,
-  sessionProviderId: string,
+  sessionScheme: string,
+  signedInBy: string,
 ): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
   if (!{= authFieldOnUserEntityName =}) {
@@ -128,7 +135,8 @@ This should never happen, but it did which means there is a bug in the code.`)
   }))
   return {
     ...rest,
-    sessionProviderId: sessionProviderId as AuthProviderId,
+    sessionScheme: sessionScheme as AuthSchemeName,
+    signedInBy: signedInBy as AuthSchemeName,
     identities,
   }
 }

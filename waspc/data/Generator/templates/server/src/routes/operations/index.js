@@ -2,7 +2,7 @@
 import express from 'express'
 
 {=# isAuthEnabled =}
-import auth, { requireSessionProvider } from 'wasp/server/core/auth'
+import auth, { requireSchemes } from 'wasp/server/core/auth'
 {=/ isAuthEnabled =}
 
 {=# operationRoutes =}
@@ -12,7 +12,7 @@ import auth, { requireSessionProvider } from 'wasp/server/core/auth'
 const router = express.Router()
 
 {=# operationRoutes =}
-router.post('{= routePath =}',{=# isUsingAuth =} auth,{=/ isUsingAuth =}{=# hasRequiredAuthProviderIds =} requireSessionProvider({=& requiredAuthProviderIdsJs =}),{=/ hasRequiredAuthProviderIds =} {= importIdentifier =})
+router.post('{= routePath =}',{=# isUsingAuth =} auth,{=/ isUsingAuth =}{=# hasRequiredAuthProviderIds =} requireSchemes({=& requiredAuthProviderIdsJs =}),{=/ hasRequiredAuthProviderIds =} {= importIdentifier =})
 {=/ operationRoutes =}
 
 export default router

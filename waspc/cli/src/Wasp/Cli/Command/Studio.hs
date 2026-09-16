@@ -172,6 +172,5 @@ studio = do
               .= object
                 [ "name" .= fst (AS.resolveRef spec $ AS.App.Auth.userEntity auth)
                 ],
-            "providers"
-              .= (AS.App.Auth.providerId <$> AS.App.Auth.providers auth :: [String])
+            "schemes" .= AS.App.Auth.schemeNames auth
           ]

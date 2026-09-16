@@ -4,7 +4,7 @@ module Wasp.AppSpec.Valid
   ( validateAppSpec,
     getApp,
     isAuthEnabled,
-    getAuthProviders,
+    getAuthSchemes,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -65,7 +65,7 @@ validateAppSpec spec =
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateUserEntity spec,
-          validateAuthProviders spec,
+          validateAuthSchemes spec,
           validateAuthRequirements spec,
           validateDummyEmailSenderIsNotUsedInProduction spec,
           validateDbIsPostgresIfPgBossUsed spec,
@@ -175,89 +175,97 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
     isDummyEmailSenderUsed = (AS.EmailSender.provider <$> App.emailSender app) == Just AS.EmailSender.Dummy
     app = snd $ getApp spec
 
--- | Coherence checks for the auth provider manifests: data-level properties
--- the types cannot express -- per-provider route, env, grant and namespace
--- checks, and the cross-provider properties (unique ids, non-colliding route
--- mounts, non-colliding env vars, disjoint namespaces).
-validateAuthProviders :: AppSpec -> [ValidationError]
-validateAuthProviders spec = case App.auth (snd $ getApp spec) of
+-- | Coherence checks for the auth schemes: data-level properties the types
+-- cannot express -- per-scheme name, env, grant, namespace and credentials
+-- checks, and the cross-scheme properties (unique names, non-colliding env
+-- vars, disjoint namespaces, a resolvable default, acyclic credential chains).
+validateAuthSchemes :: AppSpec -> [ValidationError]
+validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
   Just auth ->
     concat
-      [ [ GenericValidationError "app.auth.providers must contain at least one provider."
-        | null (Auth.providers auth)
+      [ [ GenericValidationError "app.auth.schemes must declare at least one scheme."
+        | null (Auth.schemes auth)
         ],
-        validateProviderIdsAreUnique auth,
-        concatMap validateProviderId (Auth.providers auth),
-        concatMap validateCookieTransportImpliesRevocation (Auth.providers auth),
-        concatMap validateRoutesBasePath (Auth.providers auth),
-        validateProviderBasePathsDoNotOverlap (Auth.providers auth),
-        validateProviderEnvVarsDoNotCollide (Auth.providers auth),
-        concatMap validateProviderEnvVarsAreNotReserved (Auth.providers auth),
-        concatMap validateProviderUses (Auth.providers auth),
-        concatMap validateProviderIdentityNamespaces (Auth.providers auth),
-        validateIdentityNamespacesAreDisjoint (Auth.providers auth),
-        concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.providers auth)
+        validateSchemeNamesAreUnique auth,
+        concatMap validateSchemeName (Auth.schemes auth),
+        validateDefaultScheme auth,
+        concatMap validateSchemeEnvVarsAreNotReserved (Auth.schemes auth),
+        validateSchemeEnvVarsDoNotCollide (Auth.schemes auth),
+        concatMap validateSchemeUses (Auth.schemes auth),
+        concatMap validateSchemeIdentityNamespaces (Auth.schemes auth),
+        validateIdentityNamespacesAreDisjoint (Auth.schemes auth),
+        concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.schemes auth),
+        concatMap (validateCredentialsTarget auth) (Auth.schemes auth),
+        concatMap validateSchemeRoutesDoNotCollideWithApis (Auth.schemes auth)
       ]
   where
-    validateProviderIdsAreUnique auth =
-      map duplicateIdError $ findDuplicateElems (Auth.providerId <$> Auth.providers auth)
+    validateSchemeNamesAreUnique auth =
+      [ GenericValidationError $
+          "app.auth.schemes declares the scheme '"
+            ++ duplicateName
+            ++ "' more than once. Identities and sessions are recorded under the scheme name, so each name may appear at most once."
+      | duplicateName <- findDuplicateElems (Auth.schemeNames auth)
+      ]
+
+    -- A scheme name is an identity namespace and a route segment. The TS
+    -- mapper enforces the same rule; this mirror covers every entry point
+    -- that does not go through it.
+    validateSchemeName scheme =
+      concat
+        [ [ GenericValidationError $
+              "Auth scheme name '"
+                ++ scheme.name
+                ++ "' must be non-empty and contain neither ':' (the identity namespace separator) nor '/' (it names the scheme's routes)."
+          | null scheme.name || any (`elem` scheme.name) [':', '/']
+          ],
+          [ GenericValidationError $
+              "Auth scheme name '"
+                ++ scheme.name
+                ++ "' collides with a framework auth route (/auth/"
+                ++ scheme.name
+                ++ "). Reserved names: "
+                ++ intercalate ", " reservedSchemeNames
+                ++ "."
+          | scheme.name `elem` reservedSchemeNames
+          ]
+        ]
       where
-        duplicateIdError duplicateId =
-          GenericValidationError $
-            "app.auth.providers contains provider id '"
-              ++ duplicateId
-              ++ "' more than once. Identities are recorded under this id, so each provider may appear"
-              ++ " at most once (provider instance ids are not configurable yet)."
+        -- The framework's own routes under /auth.
+        reservedSchemeNames = ["me", "logout", "login"]
 
-    -- A provider id names an identity namespace, and ':' separates an id from
-    -- its sub-namespaces ('wasp:email'). The TS mapper enforces the same
-    -- rule; this mirror covers every entry point that does not go through it.
-    validateProviderId extProvider =
+    validateDefaultScheme auth =
       [ GenericValidationError $
-          "Auth provider id '"
-            ++ extProvider.providerId
-            ++ "' must be non-empty and contain no ':' -- the ':' separates a provider id from its"
-            ++ " identity namespaces ('wasp:email')."
-      | null extProvider.providerId || ':' `elem` extProvider.providerId
+          "app.auth.default names the scheme '"
+            ++ Auth.defaultScheme auth
+            ++ "', which app.auth.schemes does not declare. Declared: "
+            ++ intercalate ", " (Auth.schemeNames auth)
+            ++ "."
+      | Auth.defaultScheme auth `notElem` Auth.schemeNames auth
       ]
 
-    -- A cookie-borne credential Wasp cannot revoke server-side would make
-    -- logout() a lie: the next visitor of a shared computer silently
-    -- re-authenticates.
-    validateCookieTransportImpliesRevocation extProvider =
-      [ GenericValidationError $
-          "Auth provider '"
-            ++ extProvider.providerId
-            ++ "' declares the 'cookie-transport' capability without 'session-revocation'. A provider"
-            ++ " whose credential lives in a cookie must be able to revoke sessions server-side, or"
-            ++ " logout would only appear to work."
-      | "cookie-transport" `elem` extProvider.capabilities,
-        "session-revocation" `notElem` extProvider.capabilities
-      ]
-
-    -- Adapter runtimes receive exactly the env vars their manifest declared,
+    -- Handler runtimes receive exactly the env vars their manifest declared,
     -- so a manifest declaring a framework-owned name (DATABASE_URL) would be
     -- handed the framework's secret through the sanctioned channel. Mirrors
     -- reservedServerEnvVarNames / reservedClientEnvVarNames in the TS spec
     -- package (spec/src/spec/authReservedEnvVarNames.ts) and the names owned
     -- by the generated server env schema (sdk/wasp/server/env.ts template).
-    validateProviderEnvVarsAreNotReserved extProvider =
-      reservedNameErrors "server" extProvider.envVars.server reservedServerEnvVarNames
-        ++ reservedNameErrors "client" extProvider.envVars.client reservedClientEnvVarNames
+    validateSchemeEnvVarsAreNotReserved scheme =
+      reservedNameErrors "server" scheme.envVars.server reservedServerEnvVarNames
+        ++ reservedNameErrors "client" scheme.envVars.client reservedClientEnvVarNames
       where
         reservedNameErrors side envVars reservedNames =
           [ GenericValidationError $
-              "Auth provider '"
-                ++ extProvider.providerId
+              "Auth scheme '"
+                ++ scheme.name
                 ++ "' declares the "
                 ++ side
                 ++ " env var '"
-                ++ envVar.name
-                ++ "', which Wasp owns. Framework env var names cannot be declared by providers;"
-                ++ " pick a provider-specific name."
+                ++ envVar.envVarName
+                ++ "', which Wasp owns. Framework env var names cannot be declared by handlers;"
+                ++ " pick a handler-specific name."
           | envVar <- envVars,
-            envVar.name `elem` reservedNames
+            envVar.envVarName `elem` reservedNames
           ]
         reservedServerEnvVarNames =
           [ "NODE_ENV",
@@ -280,77 +288,77 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
 
     -- Grants are a closed set: the generator can only wire facets it knows,
     -- so an unknown name must be an error, not an absent property at runtime.
-    validateProviderUses extProvider =
+    validateSchemeUses scheme =
       [ GenericValidationError $
-          "Auth provider '"
-            ++ extProvider.providerId
+          "Auth scheme '"
+            ++ scheme.name
             ++ "' requests the unknown runtime grant '"
             ++ grantName
             ++ "'. Known grants: "
             ++ intercalate ", " knownRuntimeGrantNames
             ++ "."
-      | grantName <- extProvider.uses,
+      | grantName <- scheme.uses,
         grantName `notElem` knownRuntimeGrantNames
       ]
       where
-        knownRuntimeGrantNames = ["wasp-sessions", "email-send", "identity-namespaces"]
+        knownRuntimeGrantNames = ["email-send", "identity-namespaces"]
 
-    -- A provider owns its manifest id and anything under `id ++ ":"`; that
-    -- shape is what makes cross-provider identity collisions impossible by
-    -- construction. Using more than the default namespace requires the
-    -- 'identity-namespaces' grant, so the power shows up in `uses`.
-    validateProviderIdentityNamespaces extProvider =
+    -- A scheme owns its name and anything under `name ++ ":"`; that shape is
+    -- what makes cross-scheme identity collisions impossible by construction.
+    -- Using more than the default namespace requires the 'identity-namespaces'
+    -- grant, so the power shows up in `uses`.
+    validateSchemeIdentityNamespaces scheme =
       concat
         [ [ GenericValidationError $
-              "Auth provider '"
-                ++ extProvider.providerId
+              "Auth scheme '"
+                ++ scheme.name
                 ++ "' declares the identity namespace '"
                 ++ namespace
-                ++ "', which it does not own. A namespace must be the provider id or '"
-                ++ extProvider.providerId
-                ++ ":<suffix>' -- that rule is what makes cross-provider identity collisions impossible."
-          | namespace <- extProvider.identityNamespaces,
+                ++ "', which it does not own. A namespace must be the scheme name or '"
+                ++ scheme.name
+                ++ ":<suffix>' -- that rule is what makes cross-scheme identity collisions impossible."
+          | namespace <- scheme.identityNamespaces,
             not (isOwnNamespace namespace)
           ],
           [ GenericValidationError $
-              "Auth provider '" ++ extProvider.providerId ++ "' declares a duplicate identity namespace."
-          | not (null (findDuplicateElems extProvider.identityNamespaces))
+              "Auth scheme '" ++ scheme.name ++ "' declares a duplicate identity namespace."
+          | not (null (findDuplicateElems scheme.identityNamespaces))
           ],
           [ GenericValidationError $
-              "Auth provider '"
-                ++ extProvider.providerId
+              "Auth scheme '"
+                ++ scheme.name
                 ++ "' declares identity namespaces beyond its default one, which requires the"
                 ++ " 'identity-namespaces' grant in `uses`."
           | usesNamespacesBeyondDefault,
-            "identity-namespaces" `notElem` extProvider.uses
+            "identity-namespaces" `notElem` scheme.uses
           ]
         ]
       where
         isOwnNamespace namespace =
-          namespace == extProvider.providerId
-            || ( (extProvider.providerId ++ ":") `isPrefixOf` namespace
-                   && length namespace > length extProvider.providerId + 1
+          namespace == scheme.name
+            || ( (scheme.name ++ ":") `isPrefixOf` namespace
+                   && length namespace > length scheme.name + 1
                )
         usesNamespacesBeyondDefault =
-          extProvider.identityNamespaces /= [extProvider.providerId]
+          scheme.identityNamespaces /= [scheme.name]
 
-    -- Belt and braces on top of the per-provider ownership rule: even if the
-    -- shape rule ever loosens, two providers may never share a namespace,
+    -- Belt and braces on top of the per-scheme ownership rule: even if the
+    -- shape rule ever loosens, two schemes may never share a namespace,
     -- because identities are recorded under it.
-    validateIdentityNamespacesAreDisjoint extProviders =
+    validateIdentityNamespacesAreDisjoint schemes =
       [ GenericValidationError $
-          "Auth providers "
-            ++ intercalate " and " (map (\ownerId -> "'" ++ ownerId ++ "'") ownerIds)
+          "Auth schemes "
+            ++ intercalate " and " (map (\ownerName -> "'" ++ ownerName ++ "'") ownerNames)
             ++ " both declare the identity namespace '"
             ++ namespace
-            ++ "'. Identities are recorded under the namespace, so each one must belong to exactly one provider."
-      | (namespace, ownerIds) <- duplicatedNamespacesWithOwners
+            ++ "'. Identities are recorded under the namespace, so each one must belong to exactly one scheme."
+      | (namespace, ownerNames) <- duplicatedNamespacesWithOwners
       ]
       where
         namespaceOwnership =
-          [ (namespace, extProvider.providerId)
-          | extProvider <- extProviders,
-            namespace <- extProvider.identityNamespaces
+          [ (namespace, scheme.name)
+          | scheme <- schemes,
+            namespace <- scheme.identityNamespaces
           ]
         duplicatedNamespacesWithOwners =
           [ (namespace, snd <$> ownerships)
@@ -358,44 +366,71 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
               groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) namespaceOwnership
           ]
 
-    -- An email-sending provider cannot ship into an app that would silently
+    -- An email-sending handler cannot ship into an app that would silently
     -- drop its emails.
-    validateEmailSendGrantHasEmailSender spec' extProvider =
+    validateEmailSendGrantHasEmailSender spec' scheme =
       [ GenericValidationError $
-          "Auth provider '"
-            ++ extProvider.providerId
+          "Auth scheme '"
+            ++ scheme.name
             ++ "' requests the 'email-send' grant, which requires app.emailSender to be specified."
-      | "email-send" `elem` extProvider.uses,
+      | "email-send" `elem` scheme.uses,
         isNothing (App.emailSender (snd $ getApp spec'))
       ]
 
-    validateRoutesBasePath extProvider = case Auth.routes extProvider of
+    -- A credentials scheme must exist, must be able to issue credentials, and
+    -- the chain must end: a scheme cannot sign into itself, nor into a scheme
+    -- that (transitively) signs into it. The TS mapper enforces the same.
+    validateCredentialsTarget auth scheme = case Auth.credentialsScheme scheme of
       Nothing -> []
-      Just providerRoutes ->
-        let bPath = providerRoutes.basePath
-            -- The framework's own routes. Providers may mount anywhere else
-            -- under /auth (Wasp's own auth lives at /auth/wasp).
-            reservedPathPrefixes = ["/auth/me", "/auth/logout", "/auth/login", "/operations", "/crud"]
-            declaredApiPaths =
-              (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
-                ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
-         in concat
-              [ [ GenericValidationError $
-                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath must start with '/', got: " ++ bPath
-                | not ("/" `isPrefixOf` bPath)
-                ],
-                [ GenericValidationError $
-                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a path Wasp reserves (" ++ intercalate ", " ("/auth" : reservedPathPrefixes) ++ ")."
-                | bPath == "/auth" || any (`isPathPrefixOfPath` bPath) reservedPathPrefixes
-                ],
-                [ GenericValidationError $
-                    "Auth provider '" ++ extProvider.providerId ++ "' routes basePath '" ++ bPath ++ "' collides with a declared api or apiNamespace path."
-                | any (\apiPath -> bPath `isPrefixOf` apiPath || apiPath `isPrefixOf` bPath) declaredApiPaths
-                ]
+      Just targetName -> case find ((== targetName) . (.name)) (Auth.schemes auth) of
+        Nothing ->
+          [ GenericValidationError $
+              "Auth scheme '" ++ scheme.name ++ "' signs into '" ++ targetName ++ "', which app.auth.schemes does not declare."
+          ]
+        Just target ->
+          concat
+            [ [ GenericValidationError $
+                  "Auth scheme '"
+                    ++ scheme.name
+                    ++ "' signs into '"
+                    ++ targetName
+                    ++ "', but that scheme's handler ('"
+                    ++ target.handler
+                    ++ "') does not declare the 'sign-in' capability."
+              | not (Auth.canSignIn target)
+              ],
+              [ GenericValidationError $
+                  "Auth scheme '"
+                    ++ scheme.name
+                    ++ "' signs into '"
+                    ++ targetName
+                    ++ "', which leads back to itself. A credentials chain must end in a scheme that issues its own credentials."
+              | chainLeadsBack [scheme.name] target
               ]
+            ]
+      where
+        chainLeadsBack seen current
+          | current.name `elem` seen = True
+          | otherwise = case Auth.credentialsScheme current >>= \n -> find ((== n) . (.name)) (Auth.schemes auth) of
+              Nothing -> False
+              Just next -> chainLeadsBack (current.name : seen) next
 
-    -- Prefix on segment boundaries: /better-auth prefixes /better-auth/x
-    -- but not /better-auth-2.
+    -- A scheme's routes mount at /auth/<name>; a user api declared under that
+    -- path would be shadowed or shadow it.
+    validateSchemeRoutesDoNotCollideWithApis scheme =
+      [ GenericValidationError $
+          "Auth scheme '" ++ scheme.name ++ "' mounts its routes at '" ++ mountPath ++ "', which collides with a declared api or apiNamespace path."
+      | isJust scheme.routes,
+        any (\apiPath -> isPathPrefixOfPath mountPath apiPath || isPathPrefixOfPath apiPath mountPath) declaredApiPaths
+      ]
+      where
+        mountPath = "/auth/" ++ scheme.name
+        declaredApiPaths =
+          (AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec)
+            ++ (snd . AS.Api.httpRoute . snd <$> AS.getApis spec)
+
+    -- Prefix on segment boundaries: /auth/wasp prefixes /auth/wasp/x but not
+    -- /auth/wasp-2.
     isPathPrefixOfPath pathA pathB = splitPathSegments pathA `isPrefixOf` splitPathSegments pathB
     splitPathSegments = filter (not . null) . foldr splitOnSlash [[]]
       where
@@ -403,62 +438,30 @@ validateAuthProviders spec = case App.auth (snd $ getApp spec) of
         splitOnSlash c (segment : segments) = (c : segment) : segments
         splitOnSlash c [] = [[c]]
 
-    validateProviderBasePathsDoNotOverlap extProviders =
-      [ GenericValidationError $
-          "Auth providers '"
-            ++ providerIdA
-            ++ "' and '"
-            ++ providerIdB
-            ++ "' have overlapping routes basePaths ('"
-            ++ basePathA
-            ++ "' and '"
-            ++ basePathB
-            ++ "'). Each provider's routes must mount under a distinct path."
-      | ((providerIdA, basePathA) : rest) <- tails providerBasePaths,
-        (providerIdB, basePathB) <- rest,
-        isPathPrefixOfPath basePathA basePathB || isPathPrefixOfPath basePathB basePathA
-      ]
-      where
-        providerBasePaths =
-          [ (extProvider.providerId, providerRoutes.basePath)
-          | extProvider <- extProviders,
-            Just providerRoutes <- [Auth.routes extProvider]
-          ]
-
-    -- Two providers declaring the same env var name is always an error: even
+    -- Two schemes declaring the same env var name is always an error: even
     -- an identically named and typed variable is separate per-instance
     -- configuration, and process.env has one global namespace.
-    validateProviderEnvVarsDoNotCollide extProviders =
-      envVarCollisions "server" (\extProvider -> extProvider.envVars.server)
-        ++ envVarCollisions "client" (\extProvider -> extProvider.envVars.client)
-      where
-        envVarCollisions side getEnvVars =
-          [ GenericValidationError $
-              "Auth providers "
-                ++ intercalate " and " (map (\ownerId -> "'" ++ ownerId ++ "'") ownerIds)
-                ++ " both declare the "
-                ++ side
-                ++ " env var '"
-                ++ envVarName
-                ++ "'. Providers cannot share env var names: each provider reads its own configuration."
-          | (envVarName, ownerIds) <- duplicatedVarNamesWithOwners
-          ]
-          where
-            varNameOwnership =
-              [ (envVar.name, extProvider.providerId)
-              | extProvider <- extProviders,
-                envVar <- getEnvVars extProvider
-              ]
-            duplicatedVarNamesWithOwners =
-              [ (envVarName, snd <$> ownerships)
-              | ownerships@((envVarName, _) : _ : _) <-
-                  groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) varNameOwnership
-              ]
+    validateSchemeEnvVarsDoNotCollide schemes =
+      [ GenericValidationError $
+          "Auth schemes '"
+            ++ ownerA
+            ++ "' and '"
+            ++ ownerB
+            ++ "' both declare the "
+            ++ side
+            ++ " env var '"
+            ++ envVarName
+            ++ "'. Each scheme's env vars must be uniquely named."
+      | (side, getVars) <- [("server", (.server)), ("client", (.client))],
+        ((envVarName, ownerA) : rest) <- tails (sortBy (\a b -> compare (fst a) (fst b)) [(envVar.envVarName, scheme.name) | scheme <- schemes, envVar <- getVars scheme.envVars]),
+        (otherName, ownerB) <- take 1 rest,
+        otherName == envVarName
+      ]
 
--- | Every provider-restricted auth requirement (@authRequired: [...]@ on a
--- page, @auth: [...]@ on a query/action/api) must name configured provider
--- ids. Checked here rather than in the TS mapper because only the whole spec
--- knows the provider registry.
+-- | Every scheme-restricted auth requirement (@authRequired: [...]@ on a
+-- page, @auth: [...]@ on a query/action/api) must name declared schemes.
+-- Checked here rather than in the TS mapper because only the whole spec
+-- knows the scheme registry.
 validateAuthRequirements :: AppSpec -> [ValidationError]
 validateAuthRequirements spec =
   concatMap (uncurry validateRequirement) requirementSites
@@ -484,7 +487,7 @@ validateAuthRequirements spec =
         ]
 
     configuredProviderIds =
-      maybe [] (map Auth.providerId . Auth.providers) (App.auth $ snd $ getApp spec)
+      maybe [] Auth.schemeNames (App.auth $ snd $ getApp spec)
 
     validateRequirement site requirement = case AuthRequirement.requiredAuthProviderIds requirement of
       Nothing -> []
@@ -827,8 +830,8 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
-getAuthProviders :: AppSpec -> [Auth.AuthProviderSpec]
-getAuthProviders spec = maybe [] Auth.providers (App.auth $ snd $ getApp spec)
+getAuthSchemes :: AppSpec -> [Auth.AuthScheme]
+getAuthSchemes spec = maybe [] Auth.schemes (App.auth $ snd $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

@@ -5,6 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.List (sortOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
@@ -29,9 +30,9 @@ import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
 import qualified Wasp.Util as Util
 import qualified Wasp.Util.Aeson as Util.Aeson
 
--- | The provider seam, the session layer, the identity store and the hook
--- dispatch: the provider-agnostic server auth surface. Every provider,
--- Wasp's own auth included, is an adapter instantiated in the registry.
+-- | The scheme registry, the credential issuer, the identity store and the
+-- hook dispatch: the scheme-agnostic server auth surface. Every scheme,
+-- Wasp's own auth included, is a handler instantiated in the registry.
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
   case maybeAuth of
@@ -40,8 +41,9 @@ genServerAuth spec =
       sequence
         [ genFileCopy [relfile|server/core/auth.ts|],
           genFileCopyInServerAuth [relfile|index.ts|],
-          genFileCopyInServerAuth [relfile|provider/types.ts|],
-          genAuthProviderIndexTs spec auth,
+          genFileCopyInServerAuth [relfile|handler/types.ts|],
+          genSchemesTs spec auth,
+          genIssuerTs auth,
           genSessionTs auth,
           genSessionStoreTs auth,
           genIdentityStoreTs auth,
@@ -54,7 +56,7 @@ genServerAuth spec =
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
 -- | Dispatch for the app-level lifecycle hooks (`auth.hooks`): fired from the
--- SDK's provisioning and session-minting choke points, so every provider is
+-- SDK's provisioning and credential-issuing choke points, so every scheme is
 -- covered and none can skip them.
 genHookDispatchTs :: AS.Auth.Auth -> Generator FileDraft
 genHookDispatchTs auth =
@@ -89,8 +91,11 @@ genIdentityStoreTs auth =
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
+-- | The Prisma-backed credential store over the injected Session model.
+-- Generated unconditionally so the issuer module always typechecks; the model
+-- access sits behind the flag.
 genSessionStoreTs :: AS.Auth.Auth -> Generator FileDraft
-genSessionStoreTs _ =
+genSessionStoreTs auth =
   return $
     mkTmplFdWithData
       (serverAuthDirInSdkTemplatesDir </> [relfile|sessionStore.ts|])
@@ -99,7 +104,9 @@ genSessionStoreTs _ =
     tmplData =
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
-          "sessionEntityUpper" .= (DbAuth.sessionEntityName :: String)
+          "sessionEntityUpper" .= (DbAuth.sessionEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "isPrismaStoreUsed" .= usesPrismaStore auth
         ]
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
@@ -113,32 +120,60 @@ genLuciaTs auth =
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userEntityUpper" .= (userEntityName :: String)
+          "userEntityUpper" .= (userEntityName :: String),
+          "isPrismaStoreUsed" .= usesPrismaStore auth
         ]
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
--- | The provider registry the app runs on: one entry per configured provider,
--- keyed by provider id. Adapter packages are instantiated here (each with the
--- identity store pre-bound to its own id), user-module providers are imported
--- through virtual user modules.
-genAuthProviderIndexTs :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
-genAuthProviderIndexTs spec auth =
+-- | The framework's credential issuer: bearer or cookie transport over a
+-- credential store. Backs every inline `credentials: { transport, store }`.
+genIssuerTs :: AS.Auth.Auth -> Generator FileDraft
+genIssuerTs auth =
   return $
     mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|provider/index.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|issuer.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
+          "isPrismaStoreUsed" .= usesPrismaStore auth
+        ]
+
+usesPrismaStore :: AS.Auth.Auth -> Bool
+usesPrismaStore auth =
+  any
+    ( \scheme -> case AS.Auth.inlineCredentials scheme of
+        Just (_, AS.Auth.PrismaStore, _) -> True
+        _ -> False
+    )
+    (AS.Auth.schemes auth)
+
+-- | The scheme registry the app runs on: one entry per declared scheme, in an
+-- order where every credentials target is created before the schemes that
+-- sign into it. Handler packages are instantiated here (each with the
+-- identity store pre-bound to its own name), user-module handlers are
+-- imported through virtual user modules.
+genSchemesTs :: AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genSchemesTs spec auth =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|schemes.ts|])
       tmplData
   where
     tmplData =
       object
         [ "dbProvider" .= prismaDbProviderName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "defaultScheme" .= AS.Auth.defaultScheme auth,
           -- The email-send grant can only be wired when the app has an email
           -- sender; validation guarantees no manifest requests it otherwise.
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "defaultFromJson"
             .= maybe "undefined" Util.Aeson.encodeToString (AS.EmailSender.defaultFrom =<< maybeEmailSender),
-          "authProviders" .= mkAuthProvidersTmplData auth
+          "schemes" .= mkSchemesTmplData auth
         ]
     maybeEmailSender = AS.App.emailSender $ snd $ AS.Valid.getApp spec
     prismaDbProviderName :: String
@@ -146,50 +181,87 @@ genAuthProviderIndexTs spec auth =
       AS.Db.PostgreSQL -> "postgresql"
       AS.Db.SQLite -> "sqlite"
 
--- | Per-provider template data, in declaration order. Import aliases carry
--- the provider's index so that two providers whose user modules share an
--- export name never collide in one generated file.
-mkAuthProvidersTmplData :: AS.Auth.Auth -> [Aeson.Value]
-mkAuthProvidersTmplData auth =
-  zipWith mkProviderTmplData [0 :: Int ..] (AS.Auth.providers auth)
+-- | Per-scheme template data, in dependency order (credentials targets
+-- first). Import aliases carry the scheme's declaration index so that two
+-- schemes whose user modules share an export name never collide in one
+-- generated file.
+mkSchemesTmplData :: AS.Auth.Auth -> [Aeson.Value]
+mkSchemesTmplData auth =
+  mkSchemeTmplData <$> sortOn (chainDepth . snd) indexedSchemes
   where
-    mkProviderTmplData idx provider =
+    indexedSchemes = zip [0 :: Int ..] (AS.Auth.schemes auth)
+
+    -- How many sign-in hops a scheme is away from a self-issuing one.
+    -- Validation guarantees the chain ends, so this terminates.
+    chainDepth :: AS.Auth.AuthScheme -> Int
+    chainDepth scheme = case AS.Auth.credentialsScheme scheme >>= findScheme of
+      Nothing -> 0
+      Just target -> 1 + chainDepth target
+    findScheme schemeName = lookup schemeName [(AS.Auth.name s, s) | s <- AS.Auth.schemes auth]
+
+    mkSchemeTmplData (idx, scheme) =
       object
         [ "index" .= idx,
-          "providerId" .= provider.providerId,
-          "isPackage" .= isJust (AS.Auth.serverPackage provider),
-          "serverPackage" .= AS.Auth.serverPackage provider,
-          "providerModule"
-            .= extImportToAliasedImportJson ("authProviderModule_" ++ show idx) (AS.Auth.serverModule provider),
-          -- The adapter's serializable options, spliced in verbatim -- the
+          "schemeName" .= scheme.name,
+          "handler" .= scheme.handler,
+          "isPackage" .= isJust (AS.Auth.serverPackage scheme),
+          -- The framework's own issuer handler IS the private issuer built
+          -- from the scheme's inline credentials; nothing else to construct.
+          "isFrameworkIssuer" .= (AS.Auth.serverPackage scheme == Just frameworkIssuerPackage),
+          "serverPackage" .= AS.Auth.serverPackage scheme,
+          "handlerModule"
+            .= extImportToAliasedImportJson ("authHandlerModule_" ++ show idx) (AS.Auth.serverModule scheme),
+          -- The handler's serializable options, spliced in verbatim -- the
           -- mapper already proved the text is valid JSON.
-          "optionsJson" .= fromMaybe "undefined" provider.optionsJson,
+          "optionsJson" .= fromMaybe "undefined" scheme.optionsJson,
           "setupFn"
-            .= extImportToAliasedImportJson ("authProviderSetupFn_" ++ show idx) provider.setupFn,
+            .= extImportToAliasedImportJson ("authSchemeSetupFn_" ++ show idx) scheme.setupFn,
           "userSignupFields"
             .= extImportToAliasedImportJson
-              ("authProviderUserSignupFields_" ++ show idx)
-              (AS.Auth.userSignupFieldsForAuthProvider provider),
+              ("authSchemeUserSignupFields_" ++ show idx)
+              (AS.Auth.userSignupFieldsForAuthScheme scheme),
           -- Every other user function the manifest referenced, delivered to
-          -- the adapter's server factory under the name it expects.
+          -- the handler's server factory under the name it expects.
           "extensions"
             .= [ object
-                   [ "name" .= name,
-                     "import" .= extImportToAliasedImportJson ("authProviderExtension_" ++ show idx ++ "_" ++ name) (Just extImport)
+                   [ "name" .= extName,
+                     "import" .= extImportToAliasedImportJson ("authSchemeExtension_" ++ show idx ++ "_" ++ extName) (Just extImport)
                    ]
-               | (name, extImport) <- Map.toList provider.extensions
+               | (extName, extImport) <- Map.toList scheme.extensions
                ],
           -- The manifest's compile-time claims, checked against the runtime
-          -- adapter object at boot so a wrong manifest fails loudly instead of
-          -- generating a surface the adapter cannot back.
-          "capabilitiesJs" .= makeJsArrayFromHaskellList provider.capabilities,
-          -- The adapter runtime's env is narrowed to exactly these names.
+          -- handler object at boot so a wrong manifest fails loudly instead of
+          -- generating a surface the handler cannot back.
+          "capabilitiesJs" .= makeJsArrayFromHaskellList scheme.capabilities,
+          -- The handler runtime's env is narrowed to exactly these names.
           "serverEnvVarNamesJs"
-            .= makeJsArrayFromHaskellList ((.name) <$> provider.envVars.server),
+            .= makeJsArrayFromHaskellList ((.envVarName) <$> scheme.envVars.server),
           -- The runtime facets the manifest requested; only these get wired.
-          "usesJs" .= makeJsArrayFromHaskellList provider.uses,
-          "identityNamespacesJs" .= makeJsArrayFromHaskellList provider.identityNamespaces
+          "usesJs" .= makeJsArrayFromHaskellList scheme.uses,
+          "identityNamespacesJs" .= makeJsArrayFromHaskellList scheme.identityNamespaces,
+          "hasCredentials" .= isJust scheme.credentials,
+          "credentialsScheme" .= AS.Auth.credentialsScheme scheme,
+          "inlineCredentials" .= (inlineCredentialsTmplData idx <$> AS.Auth.inlineCredentials scheme)
         ]
+
+    inlineCredentialsTmplData idx (transport, store, ttl) =
+      object
+        [ "transport" .= transportName transport,
+          "storeKind" .= storeKind store,
+          "storeModule"
+            .= extImportToAliasedImportJson
+              ("authSchemeCredentialStore_" ++ show idx)
+              (case store of AS.Auth.CustomStore extImport -> Just extImport; _ -> Nothing),
+          "ttl" .= ttl
+        ]
+    transportName AS.Auth.BearerTransport = "bearer" :: String
+    transportName AS.Auth.CookieTransport = "cookie"
+    storeKind AS.Auth.PrismaStore = "prisma" :: String
+    storeKind AS.Auth.SignedTokenStore = "signed-token"
+    storeKind (AS.Auth.CustomStore _) = "custom"
+
+frameworkIssuerPackage :: String
+frameworkIssuerPackage = "wasp/server/auth/issuer"
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
@@ -205,7 +277,7 @@ genSessionTs auth =
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-          "authProviders" .= mkAuthProvidersTmplData auth
+          "schemes" .= mkSchemesTmplData auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 

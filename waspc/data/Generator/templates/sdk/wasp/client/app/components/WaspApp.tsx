@@ -8,7 +8,7 @@ import { queryClientInitialized } from '../../operations/index'
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
 {=/ areWebSocketsUsed =}
 {=# isClientAuthAdapterUsed =}
-import { clientAuthAdapters } from '../../auth/providers'
+import { clientAuthAdapters } from '../../auth/schemes'
 
 // Each adapter's React context (Clerk's ClerkProvider, for one) wraps the
 // whole app, outside the app's own rootComponent slot. Nesting follows

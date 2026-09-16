@@ -150,9 +150,19 @@ genPrismaSchema spec = do
 -- | Returns a list of entities that should be included in the Prisma schema.
 -- We put user defined entities as well as inject auth entities into the Prisma schema.
 getEntitiesForPrismaSchema :: AppSpec -> Generator [(String, AS.Entity.Entity)]
-getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth userDefinedEntities) maybeUserEntity
+getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.injectAuth usesPrismaCredentialStore userDefinedEntities) maybeUserEntity
   where
     userDefinedEntities = getEntities spec
+
+    -- The Session model backs the "prisma" credential store; without a
+    -- scheme using it there is nothing to store.
+    usesPrismaCredentialStore =
+      any
+        ( \scheme -> case AS.Auth.inlineCredentials scheme of
+            Just (_, AS.Auth.PrismaStore, _) -> True
+            _ -> False
+        )
+        (maybe [] AS.Auth.schemes (AS.App.auth $ snd $ getApp spec))
 
     maybeUserEntity :: Maybe (String, AS.Entity.Entity)
     maybeUserEntity = do

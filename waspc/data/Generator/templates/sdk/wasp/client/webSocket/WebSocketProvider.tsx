@@ -2,7 +2,7 @@
 import { createContext, useState, useEffect, type Context, type ReactNode } from 'react'
 import { io, type Socket } from 'socket.io-client'
 
-import { getSessionId } from '../../api/index.js'
+import { getCredential } from '../../api/index.js'
 import { apiEventsEmitter } from '../../api/events.js'
 import { config } from '../index.js'
 
@@ -28,7 +28,7 @@ function refreshAuthToken() {
   // NOTE: When we figure out how `auth: true` works for Operations, we should
   // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
-    sessionId: getSessionId()
+    sessionId: getCredential()
   }
 
   if (socket.connected) {

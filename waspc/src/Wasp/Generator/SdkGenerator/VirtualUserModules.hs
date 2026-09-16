@@ -107,6 +107,7 @@ getVirtualUserModules spec =
       maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
       maybeToList $ mkAuthHookModule "OnAfterLoginHook" <$> (maybeAuth >>= AS.Auth.onAfterLogin),
       mkAuthProviderExtensionModule <$> authProviderExtensions,
+      mkCredentialStoreModule <$> authCredentialStores,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -153,7 +154,7 @@ getVirtualUserModules spec =
         ServerRuntime
         extImport'
         [relfileP|./server/auth/provider/types|]
-        "AuthProvider"
+        "AuthHandler"
 
     -- Feeds just-in-time provisioning under an external provider; consumed by
     -- the SDK's session layer, so it goes through a virtual module too. Like
@@ -188,6 +189,15 @@ getVirtualUserModules spec =
         [relfileP|./server/auth/provider/types|]
         "AuthProviderExtension"
 
+    -- A user-provided credential store (`credentials: { store: ref }`), consumed
+    -- by the framework's credential issuer.
+    mkCredentialStoreModule extImport' =
+      VirtualUserModule
+        ServerRuntime
+        extImport'
+        [relfileP|./server/auth/provider/types|]
+        "CredentialStore"
+
     mkOperationModule operation =
       VirtualUserModule
         ServerRuntime
@@ -203,11 +213,16 @@ getVirtualUserModules spec =
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuth = AS.App.auth app
-    authProviders = maybe [] AS.Auth.providers maybeAuth
-    authProviderModules = mapMaybe AS.Auth.serverModule authProviders
-    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForAuthProvider authProviders
-    authProviderSetupFns = mapMaybe AS.Auth.setupFn authProviders
-    authProviderExtensions = concatMap (Map.elems . AS.Auth.extensions) authProviders
+    authSchemes = maybe [] AS.Auth.schemes maybeAuth
+    authProviderModules = mapMaybe AS.Auth.serverModule authSchemes
+    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForAuthScheme authSchemes
+    authProviderSetupFns = mapMaybe AS.Auth.setupFn authSchemes
+    authProviderExtensions = concatMap (Map.elems . AS.Auth.extensions) authSchemes
+    authCredentialStores =
+      [ extImport'
+      | scheme <- authSchemes,
+        Just (_, AS.Auth.CustomStore extImport', _) <- [AS.Auth.inlineCredentials scheme]
+      ]
     app = snd $ getApp spec
 
 -- | Virtual user modules that end up in the client bundle.

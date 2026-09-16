@@ -41,29 +41,30 @@ genClientAuthProvidersTs :: AS.Auth.Auth -> Generator FileDraft
 genClientAuthProvidersTs auth =
   return $
     mkTmplFdWithData
-      (clientAuthDirInSdkTemplatesDir </> [relfile|providers.ts|])
+      (clientAuthDirInSdkTemplatesDir </> [relfile|schemes.ts|])
       tmplData
   where
     tmplData =
       Aeson.object
         [ "anyClientAdapters" Aeson..= (not . null $ clientAdapterProviders),
+          "defaultScheme" Aeson..= AS.Auth.defaultScheme auth,
           "clientAdapterProviders" Aeson..= zipWith mkClientAdapterProviderTmplData [0 :: Int ..] clientAdapterProviders
         ]
     clientAdapterProviders =
-      [ (provider, clientPackage)
-      | provider <- AS.Auth.providers auth,
-        Just clientPackage <- [AS.Auth.clientPackage provider]
+      [ (scheme, clientPackage)
+      | scheme <- AS.Auth.schemes auth,
+        Just clientPackage <- [AS.Auth.clientPackage scheme]
       ]
     mkClientAdapterProviderTmplData idx (provider, clientPackage) =
       Aeson.object
         [ "index" Aeson..= idx,
-          "providerId" Aeson..= provider.providerId,
+          "schemeName" Aeson..= provider.name,
           "clientPackage" Aeson..= clientPackage,
           "hasOptions" Aeson..= maybe False (const True) provider.optionsJson,
           "optionsJson" Aeson..= provider.optionsJson,
           -- The client adapter runtime's env is narrowed to exactly these names.
           "clientEnvVarNamesJs"
-            Aeson..= makeJsArrayFromHaskellList ((.name) <$> provider.envVars.client)
+            Aeson..= makeJsArrayFromHaskellList ((.envVarName) <$> provider.envVars.client)
         ]
 
 clientAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'

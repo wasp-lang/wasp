@@ -95,8 +95,8 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     clientAdapterPackages =
       nub
         [ packageNameOfSpecifier clientPackage
-        | provider <- maybe [] AS.Auth.providers (AS.App.auth $ snd $ getApp spec),
-          Just clientPackage <- [AS.Auth.clientPackage provider]
+        | scheme <- maybe [] AS.Auth.schemes (AS.App.auth $ snd $ getApp spec),
+          Just clientPackage <- [AS.Auth.clientPackage scheme]
         ]
     packageNameOfSpecifier specifier = case splitOn '/' specifier of
       (scope@('@' : _) : name : _) -> scope ++ "/" ++ name

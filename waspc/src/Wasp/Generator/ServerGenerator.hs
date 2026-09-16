@@ -309,16 +309,16 @@ genRoutesIndex spec =
     -- Routes auth providers brought along (Wasp's own auth flows, Better
     -- Auth's endpoints), each mounted at the basePath its manifest declared.
     providerRoutes =
-      [ (provider, routes)
-      | provider <- AS.Valid.getAuthProviders spec,
-        Just routes <- [AS.App.Auth.routes provider]
+      [ (scheme, routes)
+      | scheme <- AS.Valid.getAuthSchemes spec,
+        Just routes <- [AS.App.Auth.routes scheme]
       ]
-    providerRoutesTmplData idx (extProvider, providerRoutes) =
+    providerRoutesTmplData idx (scheme, schemeRoutes) =
       object
         [ "index" .= idx,
-          "providerId" .= AS.App.Auth.providerId extProvider,
-          "basePath" .= AS.App.Auth.basePath providerRoutes,
-          "rawBody" .= (AS.App.Auth.rawBody providerRoutes == Just True)
+          "schemeName" .= AS.App.Auth.name scheme,
+          "basePath" .= ("/auth/" ++ AS.App.Auth.name scheme),
+          "rawBody" .= (AS.App.Auth.rawBody schemeRoutes == Just True)
         ]
 
 operationsRouteInRootRouter :: String
@@ -386,8 +386,8 @@ genRollupConfigJs spec =
     authProviderPackageNames =
       nub
         [ packageNameOfSpecifier serverPackage
-        | provider <- AS.Valid.getAuthProviders spec,
-          Just serverPackage <- [AS.App.Auth.serverPackage provider]
+        | scheme <- AS.Valid.getAuthSchemes spec,
+          Just serverPackage <- [AS.App.Auth.serverPackage scheme]
         ]
     packageNameOfSpecifier specifier = case splitOn '/' specifier of
       (scope@('@' : _) : name : _) -> scope ++ "/" ++ name

@@ -6,7 +6,7 @@ import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 import auth from './auth/index.js'
 {=/ isAuthEnabled =}
 {=# anyAuthProviderRoutes =}
-import { authProviderRouteHandlers } from 'wasp/server/auth/provider'
+import { authSchemeRouteHandlers } from 'wasp/server/auth/schemes'
 {=/ anyAuthProviderRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
@@ -45,9 +45,9 @@ router.get('/', middleware,
 router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
 {=# authProviderRoutes =}
-// The routes provider '{= providerId =}' brought along, mounted where its
-// manifest asked (Wasp's own auth at /auth/wasp, after the framework's own
-// /auth routes above). The usual middleware stack applies{=# rawBody =}, minus the
+// The routes scheme '{= schemeName =}' brought along, mounted at
+// /auth/{= schemeName =}, after the framework's own /auth routes above. The
+// usual middleware stack applies{=# rawBody =}, minus the
 // body parsers: the provider's handler reads the raw request stream itself,
 // and a body that was already consumed would make every request to it
 // hang{=/ rawBody =}.
@@ -59,9 +59,9 @@ const authProviderMiddleware_{= index =} = globalMiddlewareConfigForExpress((mid
   return middlewareConfig
 })
 router.use('{= basePath =}', authProviderMiddleware_{= index =}, (req, res, next) => {
-  const routeHandler = authProviderRouteHandlers['{= providerId =}']
+  const routeHandler = authSchemeRouteHandlers['{= schemeName =}']
   if (routeHandler === undefined) {
-    return next(new Error("The manifest of auth provider '{= providerId =}' declares routes, but its server adapter returned no routeHandler."))
+    return next(new Error("The manifest of auth scheme '{= schemeName =}' declares routes, but its handler returned no routeHandler."))
   }
   return Promise.resolve(routeHandler(req, res)).catch(next)
 })
