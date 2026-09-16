@@ -26,6 +26,17 @@ import qualified Wasp.AppSpec.Route as Route
 spec_AppSpecFromJSON :: Spec
 spec_AppSpecFromJSON = do
   describe "Deployment" $ do
+    it "parses the single deployment mode" $ do
+      [trimming|
+          {
+            "mode": "single"
+          }
+        |]
+        `shouldDecodeTo` Just
+          ( Deployment.Deployment
+              { Deployment.mode = Just Deployment.Single
+              }
+          )
     it "parses the split deployment mode" $ do
       [trimming|
           {

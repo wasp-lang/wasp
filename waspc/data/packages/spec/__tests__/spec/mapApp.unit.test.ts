@@ -105,7 +105,7 @@ describe("convertWaspSpecToAppSpec", () => {
     const db = Fixtures.getDbConfig("full");
     const emailSender = Fixtures.getEmailSenderConfig("full");
     const webSocket = Fixtures.getWebSocketConfig("full");
-    const deployment = {};
+    const deployment = Fixtures.getDeploymentConfig("full");
     const entityNames = Fixtures.getEntities("full");
 
     const inputApp = app({
@@ -149,7 +149,7 @@ describe("convertWaspSpecToAppSpec", () => {
         declValue: {
           wasp: inputApp.wasp,
           title: inputApp.title,
-          deployment: { mode: undefined },
+          deployment: AppSpecMapper.mapDeployment(deployment),
           head: inputApp.head,
           auth: AppSpecMapper.mapAuth(authConfig, ctx),
           server: AppSpecMapper.mapServer(server, ctx),

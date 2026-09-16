@@ -11,6 +11,7 @@ import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.Valid (getDeploymentMode)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -56,7 +57,7 @@ writeWebAppCode spec dstDir sendMessage = do
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
         Right fileDrafts -> do
           synchronizeFileDraftsWithDisk dstDir fileDrafts
-          WaspInfo.persist dstDir $ AS.buildType spec
+          WaspInfo.persist dstDir (AS.buildType spec) (getDeploymentMode spec)
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
