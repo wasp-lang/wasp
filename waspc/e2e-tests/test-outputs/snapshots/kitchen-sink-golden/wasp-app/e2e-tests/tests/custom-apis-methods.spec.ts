@@ -21,12 +21,12 @@ test.describe("custom API HTTP methods", () => {
   });
 
   test("an OPTIONS api answers OPTIONS requests", async ({ request }) => {
-    const response = await request.fetch(`${WASP_SERVER_URL}/bar/baz`, {
+    const response = await request.fetch(`${WASP_SERVER_URL}/foo/baz`, {
       method: "OPTIONS",
     });
 
     expect(response.ok()).toBe(true);
-    expect(response.headers()["allow"]).toBe("OPTIONS, HEAD, GET, PATCH");
+    expect(response.headers()["allow"]).toBe("OPTIONS");
   });
 
   test("a GET api at the same path still answers GET requests", async ({

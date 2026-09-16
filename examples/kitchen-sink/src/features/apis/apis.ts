@@ -4,7 +4,7 @@ import {
   type BarBaz,
   type FooBar,
   type HeadBarBaz,
-  type OptionsBarBaz,
+  type OptionsFooBaz,
   type PatchBarBaz,
   type WebhookCallback,
 } from "wasp/server/api";
@@ -46,12 +46,12 @@ export const headBarBaz: HeadBarBaz = (_req, res, _context) => {
   res.end();
 };
 
-export const optionsBarBaz: OptionsBarBaz = (_req, res, _context) => {
-  res.setHeader("Allow", "OPTIONS, HEAD, GET, PATCH");
+export const optionsFooBaz: OptionsFooBaz = (_req, res, _context) => {
+  res.setHeader("Allow", "OPTIONS");
   res.end();
 };
 
-export const optionsBarBazMiddlewareFn: MiddlewareConfigFn = (
+export const optionsFooBazMiddlewareFn: MiddlewareConfigFn = (
   middlewareConfig,
 ) => {
   // The default CORS middleware answers every OPTIONS request on its own, so we

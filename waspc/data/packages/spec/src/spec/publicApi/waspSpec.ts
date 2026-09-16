@@ -1084,7 +1084,8 @@ export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
  * otherwise the `"GET"` api answers the HEAD requests as well.
  *
  * An `"OPTIONS"` api only gets to run if you remove or reconfigure Wasp's
- * default CORS middleware, which answers OPTIONS requests on its own.
+ * default CORS middleware, which answers OPTIONS requests on its own, both on
+ * the api itself and on any {@link apiNamespace} the api sits under.
  */
 export type HttpMethod =
   | "ALL"
