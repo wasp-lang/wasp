@@ -39,28 +39,22 @@ export default app({
 
 Read more about the supported fields in the [API Reference](#api-reference).
 
-### Choosing the HTTP Method
+:::warning HEAD and OPTIONS apis need extra care
+Express answers `HEAD` requests with the `GET` api on the same path, so a `HEAD` api only takes over if you declare it before the `GET` one.
 
-An `api` can listen on `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, or `OPTIONS`, or on `ALL` to match any method.
+Wasp's default CORS middleware answers every `OPTIONS` request on its own. For an `OPTIONS` api to run, [drop that middleware](../advanced/server-customization/middleware#2-customize-api-specific-middleware) from the route:
 
-`HEAD` and `OPTIONS` come with a catch:
+```ts title="src/apis.ts"
+export const optionsFooBarMiddlewareFn: MiddlewareConfigFn = (
+  middlewareConfig,
+) => {
+  middlewareConfig.delete("cors");
 
-- Express answers `HEAD` requests with the `GET` api on the same path, so declare your `HEAD` api before the `GET` one if you want it to take over.
-- Wasp's default CORS middleware answers every `OPTIONS` request on its own. For an `OPTIONS` api to run, drop or reconfigure that middleware for the route:
+  return middlewareConfig;
+};
+```
 
-  ```ts title="src/apis.ts" auto-js
-  import { type MiddlewareConfigFn } from "wasp/server";
-
-  export const optionsFooBarMiddlewareFn: MiddlewareConfigFn = (
-    middlewareConfig
-  ) => {
-    middlewareConfig.delete("cors");
-
-    return middlewareConfig;
-  };
-  ```
-
-  Read more in [Configuring Middleware](../advanced/server-customization/middleware).
+:::
 
 ### Defining the API's NodeJS Implementation
 
