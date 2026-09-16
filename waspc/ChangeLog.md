@@ -27,6 +27,8 @@
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 - Custom `api`s can now use the `PATCH`, `HEAD`, and `OPTIONS` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860))
 
+- Wasp now warns when a custom `api` collides with one of Wasp's own routes, since the custom `api` is not reachable. ([#4857](https://github.com/wasp-lang/wasp/pull/4857))
+
 ### 🐞 Bug fixes
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))

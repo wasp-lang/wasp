@@ -44,6 +44,14 @@ import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Valid as Valid
 import qualified Wasp.Version as WV
 
+-- Asserts on the parts of a message that matter (names, paths) instead of matching it
+-- exactly, so the tests survive small wording changes.
+shouldWarnMentioning :: [Valid.ValidationError] -> [String] -> Expectation
+shouldWarnMentioning [Valid.GenericValidationWarning message] fragments =
+  mapM_ (\fragment -> message `shouldSatisfy` (fragment `isInfixOf`)) fragments
+shouldWarnMentioning reported _ =
+  expectationFailure $ "Expected a single warning, got: " ++ show reported
+
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
   describe "validateAppSpec" $ do
@@ -492,6 +500,57 @@ spec_AppSpecValid = do
           `shouldBe` [ Valid.GenericValidationError
                          "The query 'myQuery' lists the same entity more than once in its 'entities' list: \"Task\". Please remove the duplicate entity references."
                      ]
+
+    describe "user apis and Wasp's own routes" $ do
+      let makeSpecWithDecls extraDecls = basicAppSpec {AS.decls = basicAppDecl : basicRouteDecl : extraDecls}
+      it "returns nothing for an api outside Wasp's routes" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.POST, "/webhook")])
+          `shouldBe` []
+      it "returns nothing for an api under one of Wasp's route prefixes that is not one of Wasp's routes" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.GET, "/auth/custom")])
+          `shouldBe` []
+      it "returns nothing for an api below the liveness route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.GET, "/up/db")])
+          `shouldBe` []
+      it "returns nothing for a POST api at the liveness route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.POST, "/up")])
+          `shouldBe` []
+      it "returns a warning for a POST api at an operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/get-tasks")])
+          `shouldWarnMentioning` ["myApi", "/operations/get-tasks"]
+      it "returns a warning for an ALL api at an operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.ALL, "/operations/get-tasks")])
+          `shouldWarnMentioning` ["myApi", "/operations/get-tasks"]
+      it "returns nothing for a GET api at an operation's route, since operations are POST" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.GET, "/operations/get-tasks")])
+          `shouldBe` []
+      it "returns a warning for an api at a crud operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicCrudDecl "tasks" "TestEntity", makeBasicEntityDecl "TestEntity", makeBasicApiDecl "myApi" (AS.Api.POST, "/crud/tasks/get/")])
+          `shouldWarnMentioning` ["myApi", "/crud/tasks/get/"]
+      it "returns nothing for a GET api at a crud operation's route, since crud operations are POST" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicCrudDecl "tasks" "TestEntity", makeBasicEntityDecl "TestEntity", makeBasicApiDecl "myApi" (AS.Api.GET, "/crud/tasks/get/")])
+          `shouldBe` []
+      it "returns nothing for an api at a crud operation's route that the crud does not enable" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicCrudDecl "tasks" "TestEntity", makeBasicEntityDecl "TestEntity", makeBasicApiDecl "myApi" (AS.Api.POST, "/crud/tasks/create")])
+          `shouldBe` []
+      it "returns a warning for a GET api at the liveness route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.GET, "/up")])
+          `shouldWarnMentioning` ["myApi", "/up"]
+      it "returns a warning for an ALL api at the liveness route with a trailing slash" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.ALL, "/up/")])
+          `shouldWarnMentioning` ["myApi", "/up/"]
+      it "returns a warning for a GET api at the liveness route in a different casing, since Express ignores case" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.GET, "/UP")])
+          `shouldWarnMentioning` ["myApi", "/UP", "/up"]
+      it "returns a warning for a POST api whose path pattern matches an operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name")])
+          `shouldWarnMentioning` ["myApi", "/operations/:name", "/operations/get-tasks"]
+      it "returns a warning for a POST api whose splat matches an operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/*")])
+          `shouldWarnMentioning` ["myApi", "/operations/*", "/operations/get-tasks"]
+      it "returns nothing for a POST api whose path pattern does not match any operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name/extra")])
+          `shouldBe` []
 
     describe "should validate that there's at least one 'route' declaration" $ do
       it "returns no error if there is at least one 'route' declaration" $ do

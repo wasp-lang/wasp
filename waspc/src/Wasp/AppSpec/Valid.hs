@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.AppSpec.Valid
@@ -13,6 +14,7 @@ where
 
 import Control.Monad (unless)
 import Data.Bifunctor (first)
+import Data.Char (toLower)
 import Data.List (find, groupBy, intercalate, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
@@ -45,8 +47,10 @@ import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.UrlPath (stripTrailingSlashes)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
@@ -72,6 +76,7 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
+          validateUserApisDoNotCollideWithWaspRoutes spec,
           validateUserNodeVersionRange spec,
           validateAtLeastOneRoute spec,
           validatePrerenderRoutes spec
@@ -399,6 +404,54 @@ validateWebAppBaseDir spec = case maybeBaseDir of
     startsWithSlash :: String -> Bool
     startsWithSlash ('/' : _) = True
     startsWithSlash _ = False
+
+-- | Wasp registers its own routes ahead of the user's apis, so an api whose path matches one
+-- of them, on a method Wasp's route answers, gets shadowed. We throw warnings in such cases.
+-- Express matches paths case-insensitively and ignores trailing slashes, and an api path can
+-- be a pattern (e.g. @/operations/:name@), so we match the way the generated router would.
+validateUserApisDoNotCollideWithWaspRoutes :: AppSpec -> [ValidationError]
+validateUserApisDoNotCollideWithWaspRoutes spec =
+  concatMap validateUserApi (AS.getApis spec)
+  where
+    validateUserApi (apiName, api) =
+      [ GenericValidationWarning $
+          "The api '"
+            ++ apiName
+            ++ "' has path "
+            ++ show (AS.Api.path api)
+            ++ ", which matches Wasp's own route "
+            ++ show waspRoutePath
+            ++ ", so Wasp's route would answer instead of the api."
+      | (waspRouteMethod, waspRoutePath) <- getWaspServerRoutes spec,
+        AS.Api.method api `elem` [waspRouteMethod, AS.Api.ALL],
+        doesApiPathMatchWaspRoutePath (AS.Api.path api) waspRoutePath
+      ]
+
+    doesApiPathMatchWaspRoutePath apiPathPattern waspRoutePath =
+      doesConcretePathMatchRoutePattern (normalizePath apiPathPattern) (normalizePath waspRoutePath)
+
+    normalizePath = map toLower . stripTrailingSlashes
+
+-- | Every route the server registers itself, with the method it answers on.
+-- Operations and cruds are all POST, the liveness check is GET.
+getWaspServerRoutes :: AppSpec -> [(AS.Api.HttpMethod, String)]
+getWaspServerRoutes spec =
+  (AS.Api.GET, upRoutePath) : map (AS.Api.POST,) (getWaspOperationAndCrudRoutePaths spec)
+
+-- | The path of the liveness check route the server registers.
+upRoutePath :: String
+upRoutePath = "/" ++ ServerRoutes.upRouteInRootRouter
+
+-- | The full path of every operation and CRUD route the server registers.
+getWaspOperationAndCrudRoutePaths :: AppSpec -> [String]
+getWaspOperationAndCrudRoutePaths spec =
+  [ "/" ++ ServerRoutes.operationsRouteInRootRouter ++ "/" ++ ServerRoutes.operationRouteInOperationsRouter operation
+  | operation <- AS.getOperations spec
+  ]
+    ++ [ "/" ++ ServerRoutes.makeCrudOperationFullPath crudName crudOperation
+       | (crudName, crud) <- AS.getCruds spec,
+         (crudOperation, _) <- AS.Crud.toOperationList (AS.Crud.operations crud)
+       ]
 
 validateUserNodeVersionRange :: AppSpec -> [ValidationError]
 validateUserNodeVersionRange spec =

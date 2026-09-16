@@ -5,7 +5,6 @@
 
 module Wasp.Generator.ServerGenerator
   ( genServer,
-    operationsRouteInRootRouter,
     npmDepsFromWasp,
 
     -- * Exported for testing only
@@ -45,7 +44,6 @@ import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
-import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
   ( dotenvVersionRange,
     expressTypesVersionRange,
@@ -75,6 +73,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -292,22 +291,16 @@ genRoutesIndex spec =
   where
     tmplData =
       object
-        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-          "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
-          "upRouteInRootRouter" .= (upRouteInRootRouter :: String),
+        [ "authRouteInRootRouter" .= ServerRoutes.authRouteInRootRouter,
+          "operationsRouteInRootRouter" .= ServerRoutes.operationsRouteInRootRouter,
+          "crudRouteInRootRouter" .= ServerRoutes.crudRouteInRootRouter,
+          "upRouteInRootRouter" .= ServerRoutes.upRouteInRootRouter,
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (fst $ getApp spec :: String)
         ]
-
-operationsRouteInRootRouter :: String
-operationsRouteInRootRouter = "operations"
-
--- | The liveness check, the same route Rails and Laravel use.
-upRouteInRootRouter :: String
-upRouteInRootRouter = "up"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec
