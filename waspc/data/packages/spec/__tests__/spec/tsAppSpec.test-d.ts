@@ -3,28 +3,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { describe, expectTypeOf, test } from "vitest";
-import { customAuthProvider } from "../../src/spec/publicApi/constructors.js";
+import { customAuthHandler } from "../../src/spec/publicApi/constructors.js";
 import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
-describe("Deployment", () => {
-  test("allows an omitted mode or split mode", () => {
-    expectTypeOf<{}>().toExtend<WaspSpec.Deployment>();
-    expectTypeOf<{ mode: "split" }>().toExtend<WaspSpec.Deployment>();
-  });
-});
-
-describe("Auth providers", () => {
-  const provider = customAuthProvider({
-    id: "test",
-    server: { from: "./src/auth", import: "provider" } as never,
+describe("Auth schemes", () => {
+  const scheme = customAuthHandler({
+    server: { from: "./src/auth", import: "handler" } as never,
   });
 
   test("accepts a manifest built by a spec helper", () => {
-    expectTypeOf<typeof provider>().toExtend<WaspSpec.AuthProviderConfig>();
+    expectTypeOf<typeof scheme>().toExtend<WaspSpec.AuthSchemeManifest>();
   });
 
   // The two tests below pin excess-property checking on literals: writing a
-  // provider-package field directly on `auth` must be flagged at the site
+  // handler-package field directly on `auth` must be flagged at the site
   // where users actually write it (an object literal), which
   // `@ts-expect-error` asserts. Plain assignability cannot catch extra
   // properties.
@@ -32,7 +24,7 @@ describe("Auth providers", () => {
     const _invalid: WaspSpec.Auth = {
       userEntity: "User",
       onAuthFailedRedirectTo: "/login",
-      providers: [provider],
+      schemes: { test: scheme },
       // @ts-expect-error -- methods belong to the auth package's spec helper
       methods: { usernameAndPassword: {} },
     };
@@ -42,7 +34,7 @@ describe("Auth providers", () => {
     const _invalid: WaspSpec.Auth = {
       userEntity: "User",
       onAuthFailedRedirectTo: "/login",
-      providers: [provider],
+      schemes: { test: scheme },
       // @ts-expect-error -- lifecycle hooks live under auth.hooks
       onBeforeSignup: () => undefined,
     };
@@ -50,12 +42,12 @@ describe("Auth providers", () => {
 
   test("forbids a manifest without the authenticity marker", () => {
     expectTypeOf<{
-      kind: "external";
-      contractVersion: 1;
-      id: "clerk";
+      kind: "scheme";
+      contractVersion: 2;
+      handler: "@wasp.sh/auth-clerk";
       server: { package: "@wasp.sh/auth-clerk/server" };
       capabilities: string[];
       env: { server: []; client: [] };
-    }>().not.toExtend<WaspSpec.AuthProviderConfig>();
+    }>().not.toExtend<WaspSpec.AuthSchemeManifest>();
   });
 });

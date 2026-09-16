@@ -173,12 +173,15 @@ export type Wasp = {
 export type Auth = {
   userEntity: Ref<"Entity">;
   onAuthFailedRedirectTo: string;
-  providers: AuthProvider[];
+  // In declaration order; names are unique.
+  schemes: AuthScheme[];
+  // Required when more than one scheme is declared; otherwise the one scheme.
+  defaultScheme: string;
   hooks: Optional<AuthHooksSpec>;
 };
 
 // App-level lifecycle hooks, fired at Wasp-owned choke points for every
-// provider. Method-specific hooks belong to the provider package's own config.
+// scheme. Method-specific hooks belong to the handler package's own config.
 export type AuthHooksSpec = {
   onBeforeSignup: Optional<ExtImport>;
   onAfterSignup: Optional<ExtImport>;
@@ -186,35 +189,43 @@ export type AuthHooksSpec = {
   onAfterLogin: Optional<ExtImport>;
 };
 
-// Every provider is an adapter manifest; Wasp's own auth is one of them.
-export type AuthProvider = AuthProviderSpec;
-
-export type AuthProviderSpec = {
-  providerId: string;
+// A named, configured instance of an auth handler.
+export type AuthScheme = {
+  name: string;
+  handler: string;
   server: { package: string } | { module: ExtImport };
   clientPackage: Optional<string>;
-  routes: Optional<ExternalProviderRoutes>;
+  routes: Optional<AuthSchemeRoutes>;
   capabilities: string[];
-  envVars: ExternalProviderEnvVars;
+  envVars: AuthSchemeEnvVars;
   uses: string[];
+  // Full namespace names: the scheme name plus each declared suffix, prefixed.
   identityNamespaces: string[];
+  credentials: Optional<AuthSchemeCredentials>;
   userSignupFields: Optional<ExtImport>;
   setupFn: Optional<ExtImport>;
   extensions: Record<string, ExtImport>;
   optionsJson: Optional<string>;
 };
 
-export type ExternalProviderRoutes = {
-  basePath: string;
+export type AuthSchemeCredentials =
+  | { scheme: string }
+  | {
+      transport: "bearer" | "cookie";
+      store: "prisma" | "signed-token" | { module: ExtImport };
+      ttl: string;
+    };
+
+export type AuthSchemeRoutes = {
   rawBody: Optional<boolean>;
 };
 
-export type ExternalProviderEnvVars = {
-  server: ExternalProviderEnvVar[];
-  client: ExternalProviderEnvVar[];
+export type AuthSchemeEnvVars = {
+  server: AuthSchemeEnvVar[];
+  client: AuthSchemeEnvVar[];
 };
 
-export type ExternalProviderEnvVar = {
+export type AuthSchemeEnvVar = {
   name: string;
   optional: Optional<boolean>;
   doc: Optional<string>;

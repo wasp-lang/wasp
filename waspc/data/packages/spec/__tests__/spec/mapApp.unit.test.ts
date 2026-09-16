@@ -11,7 +11,7 @@ import * as SpecElementMapper from "../../src/spec/mapper/specElements.js";
 import {
   api,
   app,
-  customAuthProvider,
+  customAuthHandler,
   page,
   query,
   route,
@@ -434,13 +434,19 @@ describe("mapAction", () => {
 });
 
 describe("mapAuth", () => {
-  test("should reject provider ids containing ':'", () => {
-    expect(() =>
-      customAuthProvider({
-        id: "wasp:email",
-        server: Fixtures.getRefObject("full", "named"),
-      }),
-    ).toThrowError(/contain no ':'/);
+  test("should reject scheme names containing ':' or '/'", () => {
+    for (const name of ["wasp:email", "wasp/email", ""]) {
+      const auth = {
+        ...Fixtures.getAuthConfig("minimal"),
+        schemes: {
+          [name]: customAuthHandler({
+            server: Fixtures.getRefObject("full", "named"),
+          }),
+        },
+      };
+      const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+      expect(() => AppSpecMapper.mapAuth(auth, ctx)).toThrow(/scheme name/);
+    }
   });
 
   test("should map minimal config correctly", () => {
@@ -451,6 +457,10 @@ describe("mapAuth", () => {
     testMapAuth(Fixtures.getAuthConfig("full"));
   });
 
+  test("should map a scheme with an inline issuer", () => {
+    testMapAuth(Fixtures.getSingleSchemeAuthConfig());
+  });
+
   test("should throw if userEntity is not provided to entity parser", () => {
     testMapAuth(Fixtures.getAuthConfig("minimal"), {
       overrideEntities: [],
@@ -458,68 +468,92 @@ describe("mapAuth", () => {
     });
   });
 
+  test("should require a default when several schemes are declared", () => {
+    const auth = Fixtures.getAuthConfig("full");
+    const { default: _default, ...withoutDefault } = auth;
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(withoutDefault, ctx)).toThrow(
+      /app\.auth\.default must name/,
+    );
+  });
+
+  test("should reject a default that names no declared scheme", () => {
+    const auth = { ...Fixtures.getAuthConfig("full"), default: "nope" };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(auth, ctx)).toThrow(/does not declare/);
+  });
+
+  test("should reject a credentials scheme that cannot sign in", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const withBadTarget = {
+      ...auth,
+      schemes: {
+        test: getSchemeManifest(auth),
+        other: customAuthHandler({
+          server: Fixtures.getRefObject("full", "named"),
+          credentials: { scheme: "test" },
+        }),
+      },
+      default: "test",
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(withBadTarget, ctx)).toThrow(
+      /does not declare the 'sign-in' capability/,
+    );
+  });
+
+  test("should reject a credentials chain that loops", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const looping = {
+      ...auth,
+      schemes: {
+        a: customAuthHandler({
+          server: Fixtures.getRefObject("full", "named"),
+          capabilities: ["sign-in"],
+          credentials: { scheme: "b" },
+        }),
+        b: customAuthHandler({
+          server: Fixtures.getRefObject("full", "named"),
+          capabilities: ["sign-in"],
+          credentials: { scheme: "a" },
+        }),
+      },
+      default: "a",
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+    expect(() => AppSpecMapper.mapAuth(looping, ctx)).toThrow(
+      /leads back to itself/,
+    );
+  });
+
   test("should throw on a hand-crafted manifest", () => {
-    const auth = Fixtures.getExternalAuthConfig();
+    const auth = Fixtures.getAuthConfig("minimal");
     const forged = {
       ...auth,
-      providers: [
-        {
-          ...getProviderManifest(auth),
-          __waspAuthProviderManifest: false,
-        },
-      ] as unknown as WaspSpec.Auth["providers"],
+      schemes: {
+        test: { ...getSchemeManifest(auth), __waspAuthSchemeManifest: false },
+      } as unknown as WaspSpec.Auth["schemes"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
     expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
-      /hand-crafted external provider manifest/,
+      /hand-crafted manifest/,
     );
   });
 
   // The authenticity marker is an ordinary property, so a manifest built as an
-  // object literal can carry it without ever passing defineAuthProviderManifest's
+  // object literal can carry it without ever passing defineAuthSchemeManifest's
   // checks. These prove the mapper re-validates the substantive rules itself.
-  test("should reject a marker-forged manifest with a ':' in the id at the mapper", () => {
-    const auth = Fixtures.getExternalAuthConfig();
-    const forged = {
-      ...auth,
-      providers: [
-        { ...getProviderManifest(auth), id: "wasp:email" },
-      ] as unknown as WaspSpec.Auth["providers"],
-    };
-    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
-
-    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(/contain no ':'/);
-  });
-
-  test("should reject a marker-forged manifest with cookie-transport but no session-revocation at the mapper", () => {
-    const auth = Fixtures.getExternalAuthConfig();
-    const forged = {
-      ...auth,
-      providers: [
-        {
-          ...getProviderManifest(auth),
-          capabilities: ["cookie-transport"],
-        },
-      ] as unknown as WaspSpec.Auth["providers"],
-    };
-    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
-
-    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
-      /'cookie-transport' capability without 'session-revocation'/,
-    );
-  });
-
   test("should reject a marker-forged manifest declaring a framework env var at the mapper", () => {
-    const auth = Fixtures.getExternalAuthConfig();
+    const auth = Fixtures.getAuthConfig("minimal");
     const forged = {
       ...auth,
-      providers: [
-        {
-          ...getProviderManifest(auth),
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
           env: { server: [{ name: "DATABASE_URL" }], client: [] },
         },
-      ] as unknown as WaspSpec.Auth["providers"],
+      } as unknown as WaspSpec.Auth["schemes"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
@@ -528,38 +562,57 @@ describe("mapAuth", () => {
     );
   });
 
+  test("should reject a marker-forged manifest with an unknown credential transport", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
+    const forged = {
+      ...auth,
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
+          credentials: { transport: "carrier-pigeon" },
+        },
+      } as unknown as WaspSpec.Auth["schemes"],
+    };
+    const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
+
+    expect(() => AppSpecMapper.mapAuth(forged, ctx)).toThrow(
+      /unknown credential transport/,
+    );
+  });
+
   test("should map an adapter package server entry", () => {
-    const auth = Fixtures.getExternalAuthConfig();
+    const auth = Fixtures.getAuthConfig("minimal");
     const withPackageEntry = {
       ...auth,
-      providers: [
-        {
-          ...getProviderManifest(auth),
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
           server: { package: "@wasp.sh/auth-clerk/server" },
           client: { package: "@wasp.sh/auth-clerk/client" },
         },
-      ] as unknown as WaspSpec.Auth["providers"],
+      } as unknown as WaspSpec.Auth["schemes"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
     const result = AppSpecMapper.mapAuth(withPackageEntry, ctx);
 
-    expect(result.providers[0]).toMatchObject({
+    expect(result.schemes[0]).toMatchObject({
+      name: "test",
       server: { package: "@wasp.sh/auth-clerk/server" },
       clientPackage: "@wasp.sh/auth-clerk/client",
     });
   });
 
-  test("should throw when provider options are not JSON-serializable", () => {
-    const auth = Fixtures.getExternalAuthConfig();
+  test("should throw when scheme options are not JSON-serializable", () => {
+    const auth = Fixtures.getAuthConfig("minimal");
     const withBadOptions = {
       ...auth,
-      providers: [
-        {
-          ...getProviderManifest(auth),
+      schemes: {
+        test: {
+          ...getSchemeManifest(auth),
           options: { callback: () => "not serializable" },
         },
-      ] as unknown as WaspSpec.Auth["providers"],
+      } as unknown as WaspSpec.Auth["schemes"],
     };
     const ctx = makeMapperContext({ entityNames: [auth.userEntity] });
 
@@ -568,11 +621,10 @@ describe("mapAuth", () => {
     );
   });
 
-  function getProviderManifest(
-    auth: WaspSpec.Auth,
-  ): WaspSpec.AuthProviderManifest {
-    const [provider] = auth.providers;
-    return provider;
+  function getSchemeManifest(auth: WaspSpec.Auth): WaspSpec.AuthSchemeManifest {
+    const [manifest] = Object.values(auth.schemes);
+    assertDefined(manifest);
+    return manifest;
   }
 
   function testMapAuth(
@@ -587,7 +639,6 @@ describe("mapAuth", () => {
     },
   ): void {
     const { overrideEntities, shouldError } = options;
-    const provider = getProviderManifest(auth);
     const entities = overrideEntities ?? [auth.userEntity];
     const ctx = makeMapperContext({ entityNames: entities });
 
@@ -597,55 +648,15 @@ describe("mapAuth", () => {
     }
 
     const result = AppSpecMapper.mapAuth(auth, ctx);
+    const names = Object.keys(auth.schemes);
 
     expect(result).toStrictEqual({
       userEntity: ctx.resolveEntityRef(auth.userEntity),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
-      providers: [
-        {
-          providerId: provider.id,
-          server: {
-            module: mapRefObjectForMockProjectDir(
-              provider.server as Parameters<
-                typeof mapRefObjectForMockProjectDir
-              >[0],
-            ),
-          },
-          clientPackage: undefined,
-          routes: undefined,
-          capabilities: provider.capabilities,
-          envVars: {
-            server: provider.env.server.map((envVar) => ({
-              name: envVar.name,
-              optional: envVar.optional,
-              doc: envVar.doc,
-              devDefault: envVar.devDefault,
-            })),
-            client: provider.env.client.map((envVar) => ({
-              name: envVar.name,
-              optional: envVar.optional,
-              doc: envVar.doc,
-              devDefault: envVar.devDefault,
-            })),
-          },
-          uses: provider.uses ?? [],
-          identityNamespaces: provider.identityNamespaces ?? [provider.id],
-          userSignupFields:
-            provider.userSignupFields &&
-            mapRefObjectForMockProjectDir(provider.userSignupFields),
-          setupFn: undefined,
-          extensions: Object.fromEntries(
-            Object.entries(provider.extensions ?? {}).map(([name, ref]) => [
-              name,
-              mapRefObjectForMockProjectDir(ref),
-            ]),
-          ),
-          optionsJson:
-            provider.options === undefined
-              ? undefined
-              : JSON.stringify(provider.options),
-        },
-      ],
+      schemes: Object.entries(auth.schemes).map(([name, manifest]) =>
+        expectedScheme(name, manifest),
+      ),
+      defaultScheme: (auth.default ?? names[0]) as string,
       hooks: auth.hooks && {
         onBeforeSignup:
           auth.hooks.onBeforeSignup &&
@@ -661,6 +672,79 @@ describe("mapAuth", () => {
           mapRefObjectForMockProjectDir(auth.hooks.onAfterLogin),
       },
     } satisfies AppSpec.Auth);
+  }
+
+  function expectedScheme(
+    name: string,
+    manifest: WaspSpec.AuthSchemeManifest,
+  ): AppSpec.AuthScheme {
+    const mapEnvVar = (envVar: WaspSpec.EnvVarRequirement) => ({
+      name: envVar.name,
+      optional: envVar.optional,
+      doc: envVar.doc,
+      devDefault: envVar.devDefault,
+    });
+    const credentials = manifest.credentials;
+    return {
+      name,
+      handler: manifest.handler,
+      server:
+        "package" in manifest.server
+          ? { package: (manifest.server as { package: string }).package }
+          : {
+              module: mapRefObjectForMockProjectDir(
+                manifest.server as Parameters<
+                  typeof mapRefObjectForMockProjectDir
+                >[0],
+              ),
+            },
+      clientPackage: manifest.client?.package,
+      routes: manifest.routes && { rawBody: manifest.routes.rawBody },
+      capabilities: manifest.capabilities,
+      envVars: {
+        server: manifest.env.server.map(mapEnvVar),
+        client: manifest.env.client.map(mapEnvVar),
+      },
+      uses: manifest.uses ?? [],
+      identityNamespaces: [
+        name,
+        ...(manifest.identityNamespaces ?? []).map((s) => `${name}:${s}`),
+      ],
+      credentials:
+        credentials === undefined
+          ? undefined
+          : "scheme" in credentials
+            ? { scheme: credentials.scheme }
+            : {
+                transport: credentials.transport ?? "bearer",
+                store:
+                  credentials.store === undefined
+                    ? "prisma"
+                    : typeof credentials.store === "string"
+                      ? credentials.store
+                      : {
+                          module: mapRefObjectForMockProjectDir(
+                            credentials.store,
+                          ),
+                        },
+                ttl: credentials.ttl ?? "30d",
+              },
+      userSignupFields:
+        manifest.userSignupFields &&
+        mapRefObjectForMockProjectDir(manifest.userSignupFields),
+      setupFn:
+        manifest.setupFn && mapRefObjectForMockProjectDir(manifest.setupFn),
+      extensions: Object.fromEntries(
+        Object.entries(manifest.extensions ?? {}).map(([extName, ref]) => [
+          extName,
+          mapRefObjectForMockProjectDir(ref),
+        ]),
+      ),
+      optionsJson:
+        manifest.options === undefined
+          ? undefined
+          : JSON.stringify(manifest.options),
+    };
   }
 });
 

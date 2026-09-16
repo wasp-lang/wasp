@@ -1,11 +1,12 @@
 /**
- * The client-side half of the auth provider contract.
+ * The client-side half of the auth contract.
  *
  * An adapter package with client-side needs (a React context to mount, a
  * credential to attach to requests) implements this in its client entry and
  * exposes it as a named `createClientAdapter` export (see
- * {@link ClientAdapterFactory}). Wasp instantiates it and wires the pieces
- * into the generated client; the app composes nothing by hand.
+ * {@link ClientAdapterFactory}). Wasp instantiates it once per scheme and
+ * wires the pieces into the generated client; the app composes nothing by
+ * hand.
  */
 
 import type { ComponentType, ReactNode } from "react";
@@ -15,8 +16,14 @@ import type { ComponentType, ReactNode } from "react";
  * its server counterpart, this is the adapter's only window into the app.
  */
 export type WaspClientRuntime = {
+  /** The name of this scheme, as declared in the app's `auth.schemes`. */
+  scheme: string;
+
   /** The URL the Wasp server is reachable at. */
   apiUrl: string;
+
+  /** Where this scheme's routes are mounted: `${apiUrl}/auth/<scheme>`. */
+  mountUrl: string;
 
   /**
    * The client-side environment, already validated against the env vars the
@@ -25,16 +32,15 @@ export type WaspClientRuntime = {
   env: Record<string, string | undefined>;
 
   /**
-   * Adopt a Wasp session this adapter obtained through its own routes (a
-   * login-code redemption, a token its server minted through the
-   * `wasp-sessions` grant).
+   * Adopt a bearer credential this scheme obtained through its own routes (a
+   * token its issuer minted), or drop it with `null`.
    *
-   * Pre-bound to this provider's id: adopting records the minting provider
-   * for logout routing and silent resume, so an adapter cannot misdirect
-   * dual sign-out by writing another provider's marker. Also refreshes the
-   * client's cached queries, so the UI reflects the new user immediately.
+   * Pre-bound to this scheme: adopting records the scheme for logout routing,
+   * so an adapter cannot misdirect sign-out to another scheme. Also refreshes
+   * the client's cached queries, so the UI reflects the new user immediately.
+   * Cookie-carried credentials never go through here; the browser holds them.
    */
-  setSession(sessionId: string): Promise<void>;
+  setCredential(credential: string | null): Promise<void>;
 };
 
 export type ClientAuthAdapter = {
@@ -47,23 +53,16 @@ export type ClientAuthAdapter = {
   Wrapper?: ComponentType<{ children: ReactNode }>;
 
   /**
-   * The provider's current credential, or `null` when there is none.
+   * The scheme's current bearer credential, or `null` when there is none.
    *
    * Pull-based on purpose: Wasp asks at the moment it needs the credential
    * rather than caching a pushed value, so a token that rotates under the
-   * adapter (short-lived JWTs) is always fresh at exchange time.
-   * Implementations should resolve only once the provider's client is loaded,
-   * so an exchange cannot race provider startup.
+   * adapter (short-lived JWTs) is always fresh at request time.
+   * Implementations should resolve only once the provider's client is loaded.
    *
-   * Wasp pulls it at exactly two points, both addressed to this adapter alone:
-   * the explicit `loginWithAuthProvider()` call, and silent session resume at
-   * the auth gate -- and resume only ever consults the provider that minted
-   * the last session. There is no ambient polling on the request path.
-   *
-   * Optional: an adapter without it is legal (method presence is the
-   * capability, as on the server contract) and simply does not participate in
-   * resume or `loginWithAuthProvider()`; logins then go through explicit
-   * `exchangeCredentialForSession()` calls.
+   * Optional: an adapter without it is legal and simply has no credential of
+   * its own to attach; the framework attaches the credential of the default
+   * scheme instead.
    */
   getCredential?(): Promise<string | null>;
 
@@ -77,8 +76,8 @@ export type ClientAuthAdapter = {
   onCredentialChange?(listener: () => void): () => void;
 
   /**
-   * Called by Wasp's `logout()` before it revokes the session server-side:
-   * the adapter's chance to clear its own client-side state (Clerk's
+   * Called by Wasp's `logout()` before it signs out server-side: the
+   * adapter's chance to clear its own client-side state (Clerk's
    * `signOut()`, a token store's `clear()`).
    */
   onLogout?(): Promise<void>;

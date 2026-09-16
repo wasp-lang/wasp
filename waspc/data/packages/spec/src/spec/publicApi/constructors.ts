@@ -9,8 +9,11 @@ import type {
   Api,
   ApiNamespace,
   App,
-  AuthProviderManifest,
   AuthRuntimeGrantName,
+  AuthSchemeManifest,
+  CredentialsConfig,
+  CredentialStore,
+  CredentialTransport,
   Crud,
   EnvVarRequirement,
   Job,
@@ -435,17 +438,17 @@ export function crud(
 }
 
 /**
- * The input accepted by {@link defineAuthProviderManifest}: everything in the
+ * The input accepted by {@link defineAuthSchemeManifest}: everything in the
  * manifest that carries information, without the fields the definition step
  * fills in itself (`kind`, `contractVersion`, the authenticity marker).
  *
  * @category Experimental
  */
-export type AuthProviderManifestInput = Omit<
-  AuthProviderManifest,
+export type AuthSchemeManifestInput = Omit<
+  AuthSchemeManifest,
   | "kind"
   | "contractVersion"
-  | "__waspAuthProviderManifest"
+  | "__waspAuthSchemeManifest"
   | "capabilities"
   | "env"
   | "uses"
@@ -460,48 +463,29 @@ export type AuthProviderManifestInput = Omit<
 };
 
 /**
- * EXPERIMENTAL. Defines an external auth provider manifest.
+ * EXPERIMENTAL. Defines an auth scheme manifest.
  *
- * This is the function auth adapter packages call from their spec helpers
- * (`clerk()`, `betterAuth()`, ...). It normalizes the manifest, validates it,
- * and stamps it as authentic -- the compiler rejects hand-crafted manifest
- * object literals so that every manifest in circulation went through these
- * checks.
+ * This is the function auth handler packages call from their spec helpers
+ * (`waspAuth()`, `clerk()`, `betterAuth()`, ...). It normalizes the manifest,
+ * validates it, and stamps it as authentic -- the compiler rejects
+ * hand-crafted manifest object literals so that every manifest in circulation
+ * went through these checks.
  *
- * App developers normally never call this directly: use an adapter package's
- * spec helper, or {@link customAuthProvider} for a hand-written adapter.
+ * App developers normally never call this directly: use a handler package's
+ * spec helper, or {@link customAuthHandler} for a hand-written handler.
  *
  * @category Experimental
  */
-export function defineAuthProviderManifest(
-  manifest: AuthProviderManifestInput,
-): AuthProviderManifest {
-  if (!isValidProviderId(manifest.id)) {
+export function defineAuthSchemeManifest(
+  manifest: AuthSchemeManifestInput,
+): AuthSchemeManifest {
+  if (typeof manifest.handler !== "string" || manifest.handler.length === 0) {
     throw new WaspSpecUserError(
-      `Auth provider id '${String(manifest.id)}' must be non-empty and contain no ':' -- the ':' separates a provider id from its identity namespaces ('wasp:email').`,
-    );
-  }
-  if (
-    manifest.routes !== undefined &&
-    !manifest.routes.basePath.startsWith("/")
-  ) {
-    throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' declares routes with a basePath that does not start with '/': '${manifest.routes.basePath}'.`,
+      "An auth scheme manifest must name its handler package (`handler`).",
     );
   }
 
   const capabilities = manifest.capabilities ?? [];
-  // The plan doc's must-enforce caveat: a cookie-borne session Wasp cannot
-  // revoke server-side would make `logout()` a lie, so the combination is
-  // rejected at definition time rather than documented.
-  if (
-    capabilities.includes("cookie-transport") &&
-    !capabilities.includes("session-revocation")
-  ) {
-    throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' declares the 'cookie-transport' capability without 'session-revocation'. A provider whose credential lives in a cookie must be able to revoke sessions server-side, or logout would only appear to work.`,
-    );
-  }
 
   // Adapters receive exactly the env vars they declared, so declaring a
   // framework-owned name would hand the adapter framework secrets (DATABASE_URL)
@@ -515,7 +499,7 @@ export function defineAuthProviderManifest(
     for (const envVar of envVars) {
       if (reservedNames.includes(envVar.name)) {
         throw new WaspSpecUserError(
-          `Auth provider '${manifest.id}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by providers; pick a provider-specific name.`,
+          `Auth handler '${manifest.handler}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by handlers; pick a handler-specific name.`,
         );
       }
     }
@@ -525,20 +509,24 @@ export function defineAuthProviderManifest(
   for (const grant of uses) {
     if (!knownRuntimeGrantNames.includes(grant)) {
       throw new WaspSpecUserError(
-        `Auth provider '${manifest.id}' requests the unknown runtime grant '${String(
+        `Auth handler '${manifest.handler}' requests the unknown runtime grant '${String(
           grant,
         )}'. Known grants: ${knownRuntimeGrantNames.join(", ")}.`,
       );
     }
   }
 
-  const identityNamespaces = manifest.identityNamespaces ?? [manifest.id];
-  validateIdentityNamespaces(manifest.id, identityNamespaces, uses);
+  const identityNamespaces = manifest.identityNamespaces ?? [];
+  validateIdentityNamespaces(manifest.handler, identityNamespaces, uses);
+
+  if (manifest.credentials !== undefined) {
+    validateCredentialsConfig(manifest.handler, manifest.credentials);
+  }
 
   return {
     ...manifest,
-    kind: "external",
-    contractVersion: 1,
+    kind: "scheme",
+    contractVersion: 2,
     capabilities,
     env: {
       server: manifest.env?.server ?? [],
@@ -547,118 +535,236 @@ export function defineAuthProviderManifest(
     uses,
     identityNamespaces,
     extensions: manifest.extensions ?? {},
-    __waspAuthProviderManifest: true,
-  } as AuthProviderManifest;
+    __waspAuthSchemeManifest: true,
+  } as AuthSchemeManifest;
 }
 
 /**
- * A provider id names an identity namespace, and ':' is the separator between
- * a provider id and its sub-namespaces ('wasp:email'), so an id cannot carry
- * one.
+ * A scheme name is an identity namespace and a route segment, so it cannot
+ * carry the namespace separator ':' or a '/'.
  */
-export function isValidProviderId(id: unknown): id is string {
-  return typeof id === "string" && id.length > 0 && !id.includes(":");
+export function isValidSchemeName(name: unknown): name is string {
+  return (
+    typeof name === "string" &&
+    name.length > 0 &&
+    !name.includes(":") &&
+    !name.includes("/")
+  );
 }
 
 const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = [
-  "wasp-sessions",
   "email-send",
   "identity-namespaces",
 ];
 
-// Shared by defineAuthProviderManifest and the mapper (which re-validates,
+// Shared by defineAuthSchemeManifest and the mapper (which re-validates,
 // because the authenticity marker is forgeable as a plain property).
 export function validateIdentityNamespaces(
-  providerId: string,
+  handler: string,
   identityNamespaces: readonly string[],
   uses: readonly string[],
 ): void {
-  for (const namespace of identityNamespaces) {
-    const isOwnNamespace =
-      namespace === providerId ||
-      (namespace.startsWith(`${providerId}:`) &&
-        namespace.length > providerId.length + 1);
-    if (!isOwnNamespace) {
+  for (const suffix of identityNamespaces) {
+    if (suffix.length === 0 || suffix.includes(":")) {
       throw new WaspSpecUserError(
-        `Auth provider '${providerId}' declares the identity namespace '${namespace}', which it does not own. A namespace must be the provider id or '${providerId}:<suffix>' -- that rule is what makes cross-provider identity collisions impossible.`,
+        `Auth handler '${handler}' declares the identity namespace suffix '${suffix}', which must be non-empty and contain no ':' -- Wasp prefixes it with the scheme name ('<scheme>:${suffix}').`,
       );
     }
   }
   if (new Set(identityNamespaces).size !== identityNamespaces.length) {
     throw new WaspSpecUserError(
-      `Auth provider '${providerId}' declares a duplicate identity namespace.`,
+      `Auth handler '${handler}' declares a duplicate identity namespace.`,
     );
   }
-  const usesBeyondDefault =
-    identityNamespaces.length > 1 ||
-    (identityNamespaces.length === 1 && identityNamespaces[0] !== providerId);
-  if (usesBeyondDefault && !uses.includes("identity-namespaces")) {
+  if (identityNamespaces.length > 0 && !uses.includes("identity-namespaces")) {
     throw new WaspSpecUserError(
-      `Auth provider '${providerId}' declares identity namespaces beyond its default one, which requires the 'identity-namespaces' grant in \`uses\`.`,
+      `Auth handler '${handler}' declares identity namespaces, which requires the 'identity-namespaces' grant in \`uses\`.`,
+    );
+  }
+}
+
+const knownCredentialTransports = ["bearer", "cookie"] as const;
+const knownCredentialStores = ["prisma", "signed-token"] as const;
+
+// Shared by defineAuthSchemeManifest and the mapper.
+export function validateCredentialsConfig(
+  handler: string,
+  credentials: CredentialsConfig,
+): void {
+  if (typeof credentials !== "object" || credentials === null) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' declares invalid credentials: expected { scheme } or { transport, store }.`,
+    );
+  }
+  if ("scheme" in credentials) {
+    if (!isValidSchemeName(credentials.scheme)) {
+      throw new WaspSpecUserError(
+        `Auth handler '${handler}' declares credentials.scheme '${String(credentials.scheme)}', which is not a valid scheme name.`,
+      );
+    }
+    return;
+  }
+  if (
+    credentials.transport !== undefined &&
+    !knownCredentialTransports.includes(credentials.transport)
+  ) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' declares the unknown credential transport '${String(credentials.transport)}'. Known: ${knownCredentialTransports.join(", ")}.`,
+    );
+  }
+  if (
+    typeof credentials.store === "string" &&
+    !(knownCredentialStores as readonly string[]).includes(credentials.store)
+  ) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' declares the unknown credential store '${credentials.store}'. Known: ${knownCredentialStores.join(", ")}, or a reference to your own store.`,
     );
   }
 }
 
 /**
- * The configuration accepted by {@link customAuthProvider}.
+ * The configuration accepted by {@link customAuthHandler}.
  *
  * @category Experimental
  *
  * @inline
  */
-export type CustomAuthProviderConfig = {
-  /**
-   * Stable identifier of the provider. Identities Wasp provisions for this
-   * provider's subjects are recorded under this name, so it must stay stable
-   * across deploys, and it must match the `id` of the `AuthProvider` object
-   * the `server` module exports.
-   */
-  id: string;
-  /** Reference to a user-code module exporting an `AuthProvider` object. */
+export type CustomAuthHandlerConfig = {
+  /** Reference to a user-code module exporting an `AuthHandler` object. */
   server: Reference<AnyObject>;
-  /** See {@link AuthProviderManifest.capabilities}. */
+  /** See {@link AuthSchemeManifest.capabilities}. */
   capabilities?: string[];
-  /** See {@link AuthProviderManifest.env}. */
+  /** See {@link AuthSchemeManifest.env}. */
   env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
-  /** See {@link AuthProviderManifest.uses}. */
+  /** See {@link AuthSchemeManifest.uses}. */
   uses?: AuthRuntimeGrantName[];
-  /** See {@link AuthProviderManifest.identityNamespaces}. */
+  /** See {@link AuthSchemeManifest.identityNamespaces}. */
   identityNamespaces?: string[];
-  /** See {@link AuthProviderManifest.userSignupFields}. */
+  /** See {@link AuthSchemeManifest.credentials}. */
+  credentials?: CredentialsConfig;
+  /** See {@link AuthSchemeManifest.userSignupFields}. */
   userSignupFields?: Reference<AnyObject>;
-  /** See {@link AuthProviderManifest.options}. */
+  /** See {@link AuthSchemeManifest.options}. */
   options?: unknown;
-  /** See {@link AuthProviderManifest.extensions}. */
+  /** See {@link AuthSchemeManifest.extensions}. */
   extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
 };
 
 /**
- * EXPERIMENTAL. Declares a hand-written external auth provider: an
- * `AuthProvider` implementation living in the app's own `src/`, referenced the
- * same way as any other user code.
+ * EXPERIMENTAL. Declares a hand-written auth handler: an `AuthHandler`
+ * implementation living in the app's own `src/`, referenced the same way as
+ * any other user code.
  *
- * This is the escape hatch under every adapter package -- anything a package
+ * This is the escape hatch under every handler package -- anything a package
  * can do, an app can do locally. Prefer a published `@wasp.sh/auth-*` (or
- * community) adapter package when one exists for your provider.
+ * community) package when one exists for your provider.
  *
  * @example
  * ```ts
- * import { customAuthProvider } from '@wasp.sh/spec'
- * import { myAuthProvider } from './src/auth/provider' with { type: 'ref' }
+ * import { customAuthHandler } from '@wasp.sh/spec'
+ * import { myAuthHandler } from './src/auth/handler' with { type: 'ref' }
  *
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   providers: [
- *     customAuthProvider({ id: "my-provider", server: myAuthProvider }),
- *   ],
+ *   schemes: {
+ *     password: customAuthHandler({ server: myAuthHandler }),
+ *   },
  * }
  * ```
  *
  * @category Experimental
  */
-export function customAuthProvider(
-  config: CustomAuthProviderConfig,
-): AuthProviderManifest {
-  return defineAuthProviderManifest(config);
+export function customAuthHandler(
+  config: CustomAuthHandlerConfig,
+): AuthSchemeManifest {
+  return defineAuthSchemeManifest({ ...config, handler: "custom" });
+}
+
+/**
+ * The configuration accepted by {@link waspBearer} and {@link waspCookie}.
+ *
+ * @category Auth
+ *
+ * @inline
+ */
+export type WaspCredentialSchemeConfig = {
+  /** See {@link CredentialStore}. Default: `"prisma"`. */
+  store?: CredentialStore;
+  /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
+  ttl?: string;
+};
+
+/**
+ * A scheme that issues Wasp bearer credentials: a token the generated client
+ * attaches to every request. Other schemes sign into it with
+ * `credentials: { scheme: "<its name>" }`; declare it standalone when several
+ * schemes should share one credential.
+ *
+ * @example
+ * ```ts
+ * schemes: {
+ *   session: waspBearer({ store: "prisma" }),
+ *   wasp: waspAuth({ methods: { email: {...} }, credentials: { scheme: "session" } }),
+ *   clerk: clerk({ credentials: { scheme: "session" } }),
+ * },
+ * default: "session",
+ * ```
+ *
+ * @category Auth
+ */
+export function waspBearer(
+  config: WaspCredentialSchemeConfig = {},
+): AuthSchemeManifest {
+  return waspCredentialScheme("bearer", config);
+}
+
+/**
+ * A scheme that issues Wasp cookie credentials: an `HttpOnly` cookie the
+ * browser attaches on its own. Same-site deployments only. See
+ * {@link waspBearer} for how other schemes sign into it.
+ *
+ * @category Auth
+ */
+export function waspCookie(
+  config: WaspCredentialSchemeConfig = {},
+): AuthSchemeManifest {
+  return waspCredentialScheme("cookie", config);
+}
+
+function waspCredentialScheme(
+  transport: CredentialTransport,
+  config: WaspCredentialSchemeConfig,
+): AuthSchemeManifest {
+  const store = config.store ?? "prisma";
+  return defineAuthSchemeManifest({
+    handler: `wasp/${transport}`,
+    server: { package: "wasp/server/auth/issuer" },
+    ...(transport === "bearer"
+      ? { client: { package: "wasp/client/auth/issuer" } }
+      : {}),
+    capabilities: [
+      "sign-in",
+      ...(transport === "cookie" ? ["cookie-transport"] : []),
+    ],
+    env: {
+      server:
+        store === "signed-token"
+          ? [
+              {
+                name: "WASP_CREDENTIAL_SECRET",
+                doc: "Signs Wasp credentials. openssl rand -base64 32",
+                devDefault: "DEVCREDENTIALSECRET",
+              },
+            ]
+          : [],
+      client: [],
+    },
+    options: {
+      transport,
+      store: typeof store === "string" ? store : "custom",
+      ttl: config.ttl ?? "30d",
+    },
+    ...(typeof store === "object" ? { extensions: { store } } : {}),
+  });
 }

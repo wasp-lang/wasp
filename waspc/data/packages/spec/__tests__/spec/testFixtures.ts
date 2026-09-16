@@ -12,11 +12,12 @@ import {
   api,
   apiNamespace,
   app,
-  customAuthProvider,
+  customAuthHandler,
   job,
   page,
   query,
   route,
+  waspBearer,
 } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
@@ -391,39 +392,38 @@ export function getWebSocketConfig(
   }
 }
 
-export function getAuthConfig<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, WaspSpec.Auth>;
-export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
+// Returns the plain spec type rather than `ConfigFor`: scheme manifests are
+// opaque values built by spec helpers, not config objects to be filled in.
+export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
   switch (scope) {
     case "minimal":
       return {
         userEntity: "User",
         onAuthFailedRedirectTo: "/login",
-        providers: [
-          customAuthProvider({
-            id: "test-provider",
+        schemes: {
+          test: customAuthHandler({
             server: getRefObject("minimal", "named"),
           }),
-        ],
-      } satisfies MinimalConfig<WaspSpec.Auth>;
+        },
+      } as WaspSpec.Auth;
     case "full":
       return {
         userEntity: "User",
         onAuthFailedRedirectTo: "/login",
-        providers: [
-          customAuthProvider({
-            id: "test-provider",
+        schemes: {
+          session: waspBearer({ store: "prisma", ttl: "7d" }),
+          test: customAuthHandler({
             server: getRefObject("full", "named"),
-            capabilities: ["session-revocation"],
+            capabilities: ["cookie-transport"],
             env: {
               server: [
                 { name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" },
               ],
               client: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
             },
-            uses: ["wasp-sessions", "identity-namespaces"],
-            identityNamespaces: ["test-provider", "test-provider:passkey"],
+            uses: ["identity-namespaces"],
+            identityNamespaces: ["passkey"],
+            credentials: { scheme: "session" },
             userSignupFields: getRefObject("full", "named"),
             extensions: {
               configFn: getRefObject("full", "named"),
@@ -431,36 +431,40 @@ export function getAuthConfig(scope: ConfigScope): Config<WaspSpec.Auth> {
             },
             options: { flag: true },
           }),
-        ],
+        },
+        default: "session",
         hooks: {
           onBeforeSignup: getRefObject("full", "named"),
           onAfterSignup: getRefObject("full", "named"),
           onBeforeLogin: getRefObject("full", "named"),
           onAfterLogin: getRefObject("full", "named"),
         },
-      } satisfies FullConfig<WaspSpec.Auth>;
+        // Not `satisfies FullConfig`: scheme manifests are opaque values
+        // built by spec helpers, not config objects to be filled in fully.
+      } as WaspSpec.Auth;
     default:
       assertUnreachable(scope);
   }
 }
 
-export function getExternalAuthConfig(): WaspSpec.Auth {
+/** One hand-written scheme with an inline issuer, for the mapper's scheme tests. */
+export function getSingleSchemeAuthConfig(): WaspSpec.Auth {
   return {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    providers: [
-      customAuthProvider({
-        id: "test-provider",
+    schemes: {
+      "test-provider": customAuthHandler({
         server: getRefObject("full", "named"),
         capabilities: ["session-revocation"],
         env: {
           server: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
           client: [],
         },
+        credentials: { transport: "cookie", store: "signed-token", ttl: "15m" },
         userSignupFields: getRefObject("full", "named"),
         options: { flag: true, nested: { count: 1 } },
       }),
-    ],
+    },
   };
 }
 

@@ -6,7 +6,8 @@ import {
   reservedServerEnvVarNames,
 } from "../authReservedEnvVarNames.js";
 import {
-  isValidProviderId,
+  isValidSchemeName,
+  validateCredentialsConfig,
   validateIdentityNamespaces,
 } from "../publicApi/constructors.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
@@ -61,29 +62,41 @@ export function mapAuth(
   auth: WaspSpec.Auth,
   ctx: AppMapperContext,
 ): AppSpec.Auth {
-  const { userEntity, onAuthFailedRedirectTo, providers, hooks } = auth;
+  const { userEntity, onAuthFailedRedirectTo, schemes, hooks } = auth;
 
-  if ("provider" in auth) {
+  if ("providers" in auth || "provider" in auth) {
     throw new WaspSpecUserError(
-      "app.auth.provider was renamed to app.auth.providers (an array of providers). Wrap your provider in an array: providers: [waspAuth({ ... })] (waspAuth comes from @wasp.sh/auth/spec).",
+      "app.auth.providers was replaced by app.auth.schemes, an object keyed by scheme name: schemes: { wasp: waspAuth({ ... }) } (waspAuth comes from @wasp.sh/auth/spec).",
+    );
+  }
+  if ("methods" in auth) {
+    throw new WaspSpecUserError(
+      "app.auth.methods moved into Wasp's auth package: schemes: { wasp: waspAuth({ methods: { ... } }) } (waspAuth comes from @wasp.sh/auth/spec).",
     );
   }
 
-  if (!Array.isArray(providers) || providers.length === 0) {
+  if (
+    typeof schemes !== "object" ||
+    schemes === null ||
+    Array.isArray(schemes) ||
+    Object.keys(schemes).length === 0
+  ) {
     throw new WaspSpecUserError(
-      "app.auth.providers must be a non-empty array of providers, each created with an auth adapter package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec) or customAuthProvider().",
+      "app.auth.schemes must be a non-empty object keyed by scheme name, each value created with an auth handler package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec), waspBearer()/waspCookie(), or customAuthHandler().",
     );
   }
 
-  const mappedProviders = providers.map((provider) =>
-    mapAuthProvider(provider, ctx),
+  const mappedSchemes = Object.entries(schemes).map(([name, manifest]) =>
+    mapAuthScheme(name, manifest, ctx),
   );
-  assertProviderIdsAreUnique(mappedProviders);
+  const defaultScheme = resolveDefaultScheme(auth, mappedSchemes);
+  validateCredentialTargets(mappedSchemes);
 
   return {
     userEntity: ctx.resolveEntityRef(userEntity),
     onAuthFailedRedirectTo,
-    providers: mappedProviders,
+    schemes: mappedSchemes,
+    defaultScheme,
     hooks: hooks && {
       onBeforeSignup:
         hooks.onBeforeSignup && ctx.parseRefObject(hooks.onBeforeSignup),
@@ -97,74 +110,106 @@ export function mapAuth(
   };
 }
 
-function mapAuthProvider(
-  provider: WaspSpec.AuthProviderConfig,
-  ctx: AppMapperContext,
-): AppSpec.AuthProvider {
-  if (
-    typeof provider !== "object" ||
-    provider === null ||
-    (provider as { kind?: unknown }).kind !== "external"
-  ) {
-    throw new WaspSpecUserError(
-      "Each entry of app.auth.providers must be created with an auth adapter package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec) or customAuthProvider().",
-    );
-  }
-  return mapAuthProviderManifest(provider, ctx);
-}
-
-// Identities (and sessions) are recorded under the provider id, so a
-// duplicate would silently merge two providers' subjects. Checked here so the
-// error carries the offending id; the Haskell validator mirrors it.
-function assertProviderIdsAreUnique(providers: AppSpec.AuthProvider[]): void {
-  const seenIds = new Set<string>();
-  for (const provider of providers) {
-    const providerId = provider.providerId;
-    if (seenIds.has(providerId)) {
+function resolveDefaultScheme(
+  auth: WaspSpec.Auth,
+  schemes: AppSpec.AuthScheme[],
+): string {
+  const names = schemes.map((scheme) => scheme.name);
+  if (auth.default !== undefined) {
+    if (!names.includes(auth.default)) {
       throw new WaspSpecUserError(
-        `app.auth.providers contains provider id '${providerId}' more than once. Identities are recorded under this id, so each provider may appear at most once (provider instance ids are not configurable yet).`,
+        `app.auth.default names the scheme '${auth.default}', which app.auth.schemes does not declare. Declared: ${names.join(", ")}.`,
       );
     }
-    seenIds.add(providerId);
+    return auth.default;
+  }
+  const [onlyScheme] = names;
+  if (names.length === 1 && onlyScheme !== undefined) {
+    return onlyScheme;
+  }
+  throw new WaspSpecUserError(
+    `app.auth declares several schemes (${names.join(", ")}), so app.auth.default must name the one that authenticates plain authRequired: true assets.`,
+  );
+}
+
+// A credentials scheme must exist, must be able to issue credentials, and the
+// chain must end: a scheme cannot sign into itself, nor into a scheme that
+// (transitively) signs into it.
+function validateCredentialTargets(schemes: AppSpec.AuthScheme[]): void {
+  const byName = new Map(schemes.map((scheme) => [scheme.name, scheme]));
+  for (const scheme of schemes) {
+    const credentials = scheme.credentials;
+    if (credentials === undefined || !("scheme" in credentials)) {
+      continue;
+    }
+    const target = byName.get(credentials.scheme);
+    if (target === undefined) {
+      throw new WaspSpecUserError(
+        `Auth scheme '${scheme.name}' signs into '${credentials.scheme}', which app.auth.schemes does not declare.`,
+      );
+    }
+    if (!target.capabilities.includes("sign-in")) {
+      throw new WaspSpecUserError(
+        `Auth scheme '${scheme.name}' signs into '${credentials.scheme}', but that scheme's handler ('${target.handler}') does not declare the 'sign-in' capability.`,
+      );
+    }
+    // Walk the chain from the target; hitting this scheme again is a cycle.
+    const seen = new Set<string>([scheme.name]);
+    let current: AppSpec.AuthScheme | undefined = target;
+    while (current !== undefined) {
+      if (seen.has(current.name)) {
+        throw new WaspSpecUserError(
+          `Auth scheme '${scheme.name}' signs into '${credentials.scheme}', which leads back to itself. A credentials chain must end in a scheme that issues its own credentials.`,
+        );
+      }
+      seen.add(current.name);
+      const next: AppSpec.AuthSchemeCredentials | undefined =
+        current.credentials;
+      current =
+        next !== undefined && "scheme" in next
+          ? byName.get(next.scheme)
+          : undefined;
+    }
   }
 }
 
-function mapAuthProviderManifest(
-  manifest: WaspSpec.AuthProviderManifest,
+function mapAuthScheme(
+  name: string,
+  manifest: WaspSpec.AuthSchemeManifest,
   ctx: AppMapperContext,
-): AppSpec.AuthProviderSpec {
-  if (manifest.__waspAuthProviderManifest !== true) {
+): AppSpec.AuthScheme {
+  if (!isValidSchemeName(name)) {
     throw new WaspSpecUserError(
-      "app.auth.providers received a hand-crafted external provider manifest. Manifests must be created through an adapter package's spec helper or customAuthProvider(), so they go through Wasp's validation.",
+      `Auth scheme name '${name}' must be non-empty and contain neither ':' (the identity namespace separator) nor '/' (it names the scheme's routes).`,
     );
   }
-
-  if (manifest.contractVersion !== 1) {
+  if (
+    typeof manifest !== "object" ||
+    manifest === null ||
+    (manifest as { kind?: unknown }).kind !== "scheme"
+  ) {
     throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' was built against auth contract version ${String(
+      `Auth scheme '${name}' must be created with an auth handler package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec), waspBearer()/waspCookie(), or customAuthHandler().`,
+    );
+  }
+  if (manifest.__waspAuthSchemeManifest !== true) {
+    throw new WaspSpecUserError(
+      `Auth scheme '${name}' received a hand-crafted manifest. Manifests must be created through a handler package's spec helper or customAuthHandler(), so they go through Wasp's validation.`,
+    );
+  }
+  if (manifest.contractVersion !== 2) {
+    throw new WaspSpecUserError(
+      `Auth scheme '${name}' (handler '${manifest.handler}') was built against auth contract version ${String(
         manifest.contractVersion,
-      )}, but this version of Wasp only supports version 1. Update Wasp, or use an adapter version matching your Wasp version.`,
+      )}, but this version of Wasp only supports version 2. Update Wasp, or use a handler version matching your Wasp version.`,
     );
   }
 
-  // The rules below repeat defineAuthProviderManifest's checks on purpose:
-  // the authenticity marker is an ordinary property, so a manifest built as an
+  // The rules below repeat defineAuthSchemeManifest's checks on purpose: the
+  // authenticity marker is an ordinary property, so a manifest built as an
   // object literal can carry it without ever passing those checks. The mapper
   // is the layer no manifest can skip; the Haskell validator mirrors these
   // rules once more for the non-TS entry points.
-  if (!isValidProviderId(manifest.id)) {
-    throw new WaspSpecUserError(
-      `Auth provider id '${manifest.id}' must be non-empty and contain no ':' -- the ':' separates a provider id from its identity namespaces ('wasp:email').`,
-    );
-  }
-  if (
-    manifest.capabilities.includes("cookie-transport") &&
-    !manifest.capabilities.includes("session-revocation")
-  ) {
-    throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' declares the 'cookie-transport' capability without 'session-revocation'. A provider whose credential lives in a cookie must be able to revoke sessions server-side, or logout would only appear to work.`,
-    );
-  }
   for (const [side, envVars, reservedNames] of [
     ["server", manifest.env.server, reservedServerEnvVarNames],
     ["client", manifest.env.client, reservedClientEnvVarNames],
@@ -172,33 +217,34 @@ function mapAuthProviderManifest(
     for (const envVar of envVars) {
       if (reservedNames.includes(envVar.name)) {
         throw new WaspSpecUserError(
-          `Auth provider '${manifest.id}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by providers; pick a provider-specific name.`,
+          `Auth scheme '${name}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by handlers; pick a handler-specific name.`,
         );
       }
     }
   }
   const uses = manifest.uses ?? [];
   for (const grant of uses) {
-    if (
-      !["wasp-sessions", "email-send", "identity-namespaces"].includes(grant)
-    ) {
+    if (!["email-send", "identity-namespaces"].includes(grant)) {
       throw new WaspSpecUserError(
-        `Auth provider '${manifest.id}' requests the unknown runtime grant '${String(
+        `Auth scheme '${name}' requests the unknown runtime grant '${String(
           grant,
-        )}'. Known grants: wasp-sessions, email-send, identity-namespaces.`,
+        )}'. Known grants: email-send, identity-namespaces.`,
       );
     }
   }
-  const identityNamespaces = manifest.identityNamespaces ?? [manifest.id];
-  validateIdentityNamespaces(manifest.id, identityNamespaces, uses);
+  const namespaceSuffixes = manifest.identityNamespaces ?? [];
+  validateIdentityNamespaces(manifest.handler, namespaceSuffixes, uses);
+  if (manifest.credentials !== undefined) {
+    validateCredentialsConfig(manifest.handler, manifest.credentials);
+  }
 
-  // Reserved for a future in which adapter packages contribute Prisma models.
-  // Erroring (rather than ignoring) means an adapter relying on them can never
+  // Reserved for a future in which handler packages contribute Prisma models.
+  // Erroring (rather than ignoring) means a handler relying on them can never
   // appear to work while its models silently don't exist.
   for (const reservedField of ["prismaModels", "manageSchema"]) {
     if (reservedField in manifest) {
       throw new WaspSpecUserError(
-        `Auth provider '${manifest.id}' sets '${reservedField}', which this version of Wasp does not support yet.`,
+        `Auth scheme '${name}' sets '${reservedField}', which this version of Wasp does not support yet.`,
       );
     }
   }
@@ -206,7 +252,8 @@ function mapAuthProviderManifest(
   const isPackageEntry = "package" in manifest.server;
 
   return {
-    providerId: manifest.id,
+    name,
+    handler: manifest.handler,
     server: isPackageEntry
       ? { package: (manifest.server as { package: string }).package }
       : {
@@ -215,34 +262,52 @@ function mapAuthProviderManifest(
           ),
         },
     clientPackage: manifest.client?.package,
-    routes: manifest.routes && {
-      basePath: manifest.routes.basePath,
-      rawBody: manifest.routes.rawBody,
-    },
+    routes: manifest.routes && { rawBody: manifest.routes.rawBody },
     capabilities: manifest.capabilities,
     envVars: {
       server: manifest.env.server.map(mapEnvVarRequirement),
       client: manifest.env.client.map(mapEnvVarRequirement),
     },
     uses,
-    identityNamespaces,
+    identityNamespaces: [
+      name,
+      ...namespaceSuffixes.map((suffix) => `${name}:${suffix}`),
+    ],
+    credentials:
+      manifest.credentials && mapCredentials(manifest.credentials, ctx),
     userSignupFields:
       manifest.userSignupFields &&
       ctx.parseRefObject(manifest.userSignupFields),
     setupFn: manifest.setupFn && ctx.parseRefObject(manifest.setupFn),
     extensions: Object.fromEntries(
-      Object.entries(manifest.extensions ?? {}).map(([name, ref]) => [
-        name,
+      Object.entries(manifest.extensions ?? {}).map(([extName, ref]) => [
+        extName,
         ctx.parseRefObject(ref),
       ]),
     ),
-    optionsJson: mapProviderOptions(manifest),
+    optionsJson: mapSchemeOptions(name, manifest),
+  };
+}
+
+function mapCredentials(
+  credentials: WaspSpec.CredentialsConfig,
+  ctx: AppMapperContext,
+): AppSpec.AuthSchemeCredentials {
+  if ("scheme" in credentials) {
+    return { scheme: credentials.scheme };
+  }
+  const store = credentials.store ?? "prisma";
+  return {
+    transport: credentials.transport ?? "bearer",
+    store:
+      typeof store === "string" ? store : { module: ctx.parseRefObject(store) },
+    ttl: credentials.ttl ?? "30d",
   };
 }
 
 function mapEnvVarRequirement(
   envVar: WaspSpec.EnvVarRequirement,
-): AppSpec.ExternalProviderEnvVar {
+): AppSpec.AuthSchemeEnvVar {
   return {
     name: envVar.name,
     optional: envVar.optional,
@@ -251,8 +316,9 @@ function mapEnvVarRequirement(
   };
 }
 
-function mapProviderOptions(
-  manifest: WaspSpec.AuthProviderManifest,
+function mapSchemeOptions(
+  name: string,
+  manifest: WaspSpec.AuthSchemeManifest,
 ): string | undefined {
   if (manifest.options === undefined) {
     return undefined;
@@ -261,15 +327,15 @@ function mapProviderOptions(
   // Options travel to the generated code as JSON, so anything that doesn't
   // survive the round-trip (functions, class instances, undefined-holed
   // arrays) would arrive silently mangled. Rejecting here turns that into an
-  // error at compile time, with `setupFn` as the documented escape
-  // hatch for non-serializable configuration.
+  // error at compile time, with `setupFn` and `extensions` as the documented
+  // escape hatches for non-serializable configuration.
   const optionsJson = JSON.stringify(manifest.options);
   if (
     optionsJson === undefined ||
     !isEqual(JSON.parse(optionsJson), manifest.options)
   ) {
     throw new WaspSpecUserError(
-      `Auth provider '${manifest.id}' has options that do not survive JSON serialization. Provider options must be plain serializable data; use setupFn for functions and other live values.`,
+      `Auth scheme '${name}' has options that do not survive JSON serialization. Handler options must be plain serializable data; use setupFn or extensions for functions and other live values.`,
     );
   }
 
