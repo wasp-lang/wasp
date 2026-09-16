@@ -11,13 +11,13 @@ export function setClientState(newRuntime, newOptions) {
 }
 export function getClientRuntime() {
     if (runtime === null) {
-        throw new Error("Wasp's auth client used before Wasp instantiated it. Is waspAuth() among app.auth.providers?");
+        throw new Error("Wasp's auth client used before Wasp instantiated it. Is waspAuth() among app.auth.schemes?");
     }
     return runtime;
 }
 export function getClientOptions() {
     if (options === null) {
-        throw new Error("Wasp's auth client used before Wasp instantiated it. Is waspAuth() among app.auth.providers?");
+        throw new Error("Wasp's auth client used before Wasp instantiated it. Is waspAuth() among app.auth.schemes?");
     }
     return options;
 }

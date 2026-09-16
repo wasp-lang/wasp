@@ -12,8 +12,8 @@ import Wasp.AppSpec (Ref)
 import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Deployment as Deployment
-import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.App.EmailSender as EmailSender
+import qualified Wasp.AppSpec.AuthRequirement as AuthRequirement
 import qualified Wasp.AppSpec.Core.Ref as Ref
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExtImport as ExtImport

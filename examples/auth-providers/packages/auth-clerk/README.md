@@ -1,6 +1,6 @@
 # @wasp.sh/auth-clerk
 
-Clerk as a Wasp auth provider. Verifies every request through Clerk; Wasp
+Clerk as a Wasp auth scheme. Verifies every request through Clerk; Wasp
 provisions and resolves local users itself.
 
 ## Install
@@ -11,7 +11,7 @@ npm install @wasp.sh/auth-clerk @clerk/clerk-react
 
 Then:
 
-1. Declare the provider in `main.wasp.ts`:
+1. Declare the scheme in `main.wasp.ts`:
 
    ```ts
    import { clerk } from "@wasp.sh/auth-clerk/spec";
@@ -19,7 +19,7 @@ Then:
    auth: {
      userEntity: "User",
      onAuthFailedRedirectTo: "/login",
-     provider: clerk(),
+     schemes: { clerk: clerk() },
    }
    ```
 

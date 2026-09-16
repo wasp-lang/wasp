@@ -3,7 +3,7 @@ import type { WaspAuthClientOptions } from "./types.js";
 /**
  * The client half of Wasp's own auth. Wasp instantiates it like any client
  * adapter; the forms and actions below then read the captured runtime
- * (`apiUrl`, the provider-bound `setSession` sink) and options.
+ * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
 export declare const createClientAdapter: ClientAdapterFactory<WaspAuthClientOptions>;
 export { login, requestPasswordReset, resetPassword, signup, verifyEmail, } from "./actions.js";

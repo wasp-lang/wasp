@@ -1,6 +1,12 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 
-import { HttpError, getBody, json, type Route } from "../http.js";
+import {
+  HttpError,
+  getBody,
+  json,
+  sendAuthResponse,
+  type Route,
+} from "../http.js";
 import { namespaceFor } from "../namespaces.js";
 import type {
   Ctx,
@@ -48,7 +54,8 @@ const defaultPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
 export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
   const emailConfig = options.methods.email!;
-  const identities = () => runtime.identityNamespaces(namespaceFor("email"));
+  const identities = () =>
+    runtime.identityNamespaces(namespaceFor(runtime, "email"));
   const { validateJWT } = makeJwt(runtime);
   const helpers = makeEmailHelpers(runtime);
   const getVerificationEmailContent =
@@ -172,11 +179,11 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
           throw createInvalidCredentialsError();
         }
 
-        const { sessionId } = await runtime.sessions.issue(
-          { namespace: namespaceFor("email"), subjectId: email },
+        const { response } = await runtime.credentials.signIn(
+          { namespace: namespaceFor(runtime, "email"), subjectId: email },
           { req },
         );
-        json(res, 200, { sessionId });
+        sendAuthResponse(res, response);
       },
     },
     {
@@ -275,10 +282,10 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
         });
         // The act of resetting the password verifies the email.
         await identities().updateData(email, { isEmailVerified: true });
-        // Changing the password invalidates all the existing sessions, so that
-        // somebody who got hold of a session can't keep using it.
-        await runtime.sessions.revokeAllForSubject({
-          namespace: namespaceFor("email"),
+        // Changing the password invalidates every existing credential, so
+        // that somebody who got hold of one can't keep using it.
+        await runtime.credentials.signOutEverywhere({
+          namespace: namespaceFor(runtime, "email"),
           subjectId: email,
         });
         json(res, 200, { success: true });

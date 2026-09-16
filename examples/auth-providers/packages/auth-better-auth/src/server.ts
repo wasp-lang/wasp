@@ -1,8 +1,8 @@
 import type {
   AuthenticateResult,
-  AuthProvider,
+  AuthHandler,
+  AuthResponse,
   ServerAdapterFactory,
-  SupportsSessionRevocation,
   WaspServerRuntime,
 } from "@wasp.sh/auth-contract";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
@@ -32,11 +32,13 @@ export type BetterAuthSetupFn = (
 ) => BetterAuthOptions;
 
 /**
- * Better Auth, expressed as a Wasp `AuthProvider`.
+ * Better Auth, expressed as a Wasp `AuthHandler`.
  *
- * One factory builds both the Better Auth instance and the provider that
+ * One factory builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
  * the `ServerAdapter` shape exists to make the alternative unrepresentable.
+ * Better Auth's own session token is the credential on every request (the
+ * client adapter stores it and Wasp attaches it), so Wasp issues nothing.
  *
  * Two settings on the instance are load-bearing for this integration:
  *
@@ -65,7 +67,7 @@ export const createServerAdapter: ServerAdapterFactory = (
     }),
     secret: runtime.env.BETTER_AUTH_SECRET,
     baseURL: runtime.serverUrl,
-    basePath: "/better-auth",
+    basePath: runtime.mountPath,
     trustedOrigins: [runtime.clientUrl],
 
     user: { modelName: "betterAuthUser" },
@@ -95,11 +97,11 @@ export const createServerAdapter: ServerAdapterFactory = (
   const auth = betterAuth({
     ...extendedConfig,
     // Re-asserted invariants: without these exact settings the integration
-    // breaks (routes are mounted at the manifest's basePath, the table names
+    // breaks (routes are mounted where Wasp mounts the scheme, the table names
     // avoid Wasp's own, the bearer plugin carries the token, and the storage
     // must be the app's database). The extension can change anything else.
     database: integrationConfig.database,
-    basePath: "/better-auth",
+    basePath: runtime.mountPath,
     // Composed, not replaced: the app's own database hooks keep running, and
     // the adapter adds the eager-provisioning report on top (see below).
     databaseHooks: withEagerProvisioning(runtime, extendedConfig.databaseHooks),
@@ -113,16 +115,9 @@ export const createServerAdapter: ServerAdapterFactory = (
     plugins: withBearerPlugin(extendedConfig.plugins),
   });
 
-  const provider: AuthProvider & SupportsSessionRevocation = {
+  const handler: AuthHandler = {
     /**
-     * Becomes `AuthIdentity.providerName` for every user provisioned through
-     * this adapter, so it must stay stable across deploys. Changing it
-     * orphans users.
-     */
-    id: "better-auth",
-
-    /**
-     * Wasp hands every adapter a standard web `Request` -- built from the
+     * Wasp hands every handler a standard web `Request` -- built from the
      * HTTP request, or synthesized with just an `Authorization` header for
      * websocket auth. Better Auth consumes its headers directly either way.
      */
@@ -137,8 +132,8 @@ export const createServerAdapter: ServerAdapterFactory = (
 
       return {
         status: "authenticated",
-        session: {
-          sessionId: session.session.id,
+        principal: {
+          credentialId: session.session.id,
           subjectId: session.user.id,
           // Verified profile data Wasp records when it provisions the local
           // user.
@@ -151,31 +146,25 @@ export const createServerAdapter: ServerAdapterFactory = (
     },
 
     /**
-     * Revokes by deleting the session row through the app's Prisma client.
-     *
-     * Better Auth's own HTTP API cannot do this: `revokeSession` takes a
-     * session *token* and needs an authenticated session in its headers to
-     * find one, and at logout time Wasp holds only the session *id*. The
-     * adapter owns the table it configured above (`betterAuthSession`), so
-     * revocation by id through the database is the honest implementation.
+     * Signs the request's Better Auth session out, through Better Auth's own
+     * API: the request carries the session token, which is all `signOut`
+     * needs.
      */
-    async revokeSession(sessionId: string): Promise<void> {
-      const db = runtime.db as {
-        betterAuthSession: {
-          deleteMany(args: { where: { id: string } }): Promise<unknown>;
-        };
-      };
-      await db.betterAuthSession.deleteMany({ where: { id: sessionId } });
+    async signOut(request: Request): Promise<AuthResponse> {
+      await auth.api.signOut({ headers: request.headers }).catch(() => {
+        // An already-expired session has nothing to sign out of.
+      });
+      return { status: 200, body: { success: true } };
     },
   };
 
   return {
-    provider,
+    handler,
 
     /**
      * Better Auth's own HTTP surface (sign-up, sign-in, sign-out, OAuth
-     * callbacks). Wasp mounts it at the manifest's `basePath` with the JSON
-     * body parser stripped (`rawBody: true`) -- `toNodeHandler` reads the raw
+     * callbacks). Wasp mounts it at `/auth/<scheme>` with the JSON body
+     * parser stripped (`rawBody: true`) -- `toNodeHandler` reads the raw
      * request stream, and an already-consumed stream hangs every request.
      */
     routeHandler: toNodeHandler(auth),

@@ -1,7 +1,7 @@
 import {
   action,
   app,
-  customAuthProvider,
+  customAuthHandler,
   page,
   query,
   route,
@@ -9,7 +9,7 @@ import {
 import { App } from "./src/App" with { type: "ref" };
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
-import { clerkAuthProvider } from "./src/auth/provider" with { type: "ref" };
+import { clerkAuthHandler } from "./src/auth/handler" with { type: "ref" };
 import { clientEnvSchema } from "./src/env" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
@@ -21,11 +21,11 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    providers: [
-      customAuthProvider({
-        id: "clerk",
-        server: clerkAuthProvider,
-        capabilities: ["session-revocation"],
+    // Clerk's own token is the credential on every request, so the scheme
+    // declares no `credentials`: Wasp issues nothing and adds no table.
+    schemes: {
+      clerk: customAuthHandler({
+        server: clerkAuthHandler,
         env: {
           server: [
             { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
@@ -42,11 +42,12 @@ export default app({
           client: [],
         },
       }),
-    ],
+    },
   },
 
   client: {
-    // Wraps the app in Clerk's provider and bridges its token to Wasp's client.
+    // Wraps the app in Clerk's provider and registers its token as the
+    // credential Wasp's client puts on every request.
     rootComponent: App,
     envValidationSchema: clientEnvSchema,
   },

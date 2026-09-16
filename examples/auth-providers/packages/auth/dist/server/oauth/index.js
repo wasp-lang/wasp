@@ -1,8 +1,8 @@
 import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 import { findAuthWithUser } from "../email/flows.js";
-import { HttpError, getBody, getUrl, isHttpErrorLike, json, redirect, } from "../http.js";
-import { DEFAULT_ROUTES_BASE_PATH, namespaceFor } from "../namespaces.js";
+import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendAuthResponse, } from "../http.js";
+import { namespaceFor } from "../namespaces.js";
 import { TimeSpan, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { makeOAuthProvider, } from "./providers.js";
 export const OAUTH_PROVIDER_NAMES = [
@@ -29,7 +29,7 @@ export function oauthRoutes(ctx) {
     }
     const jwt = makeJwt(runtime);
     const routes = enabled.flatMap((name) => {
-        const provider = makeOAuthProvider(runtime, name, `${runtime.serverUrl}${options.routesBasePath ?? DEFAULT_ROUTES_BASE_PATH}/${name}/${CALLBACK_PATH}`);
+        const provider = makeOAuthProvider(runtime, name, `${runtime.serverUrl}${runtime.mountPath}/${name}/${CALLBACK_PATH}`);
         const config = mergeDefaultAndUserConfig({ scopes: options.methods[name].requiredScopes }, ctx.extensions.configFns?.[name]);
         return [
             {
@@ -52,7 +52,7 @@ export function oauthRoutes(ctx) {
             if (typeof code !== "string") {
                 throw new HttpError(400, "Unable to login with the OAuth provider. The code is missing.");
             }
-            const { sessionId } = await jwt
+            const { response } = await jwt
                 .validateJWT(code)
                 .catch(() => {
                 throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
@@ -62,7 +62,7 @@ export function oauthRoutes(ctx) {
             if (!(await tryMarkCodeUsed(runtime, code))) {
                 throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
             }
-            json(res, 200, { sessionId });
+            sendAuthResponse(res, response);
         },
     });
     return routes;
@@ -102,7 +102,7 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
             providerName: provider.id,
             tokens,
         };
-        const identities = runtime.identityNamespaces(namespaceFor(provider.id));
+        const identities = runtime.identityNamespaces(namespaceFor(runtime, provider.id));
         const existing = await identities.find(providerUserId);
         let isNewUser = false;
         if (!existing) {
@@ -116,12 +116,16 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
                 rethrowPossibleAuthError(e);
             }
         }
-        // The session is minted HERE, where the tokens exist, so the app's login
+        // The sign-in happens HERE, where the tokens exist, so the app's login
         // hooks receive them (skipped for a fresh signup, whose signup hooks just
-        // fired -- the in-tree semantics). The one-time code then names the
-        // session, and redeeming it is a plain hand-over.
-        const { sessionId } = await runtime.sessions.issue({ namespace: namespaceFor(provider.id), subjectId: providerUserId }, { req, hookContext: oauth, skipHooks: isNewUser });
-        const oneTimeCode = await jwt.createJWT({ sessionId }, { expiresIn: new TimeSpan(1, "m") });
+        // fired -- the in-tree semantics). The one-time code then carries the
+        // credentials scheme's answer, and redeeming it replays that answer to
+        // the client: a bearer token in the body, or a Set-Cookie header.
+        const { response } = await runtime.credentials.signIn({
+            namespace: namespaceFor(runtime, provider.id),
+            subjectId: providerUserId,
+        }, { req, hookContext: oauth, skipHooks: isNewUser });
+        const oneTimeCode = await jwt.createJWT({ response }, { expiresIn: new TimeSpan(1, "m") });
         redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}#${oneTimeCode}`);
     }
     catch (error) {

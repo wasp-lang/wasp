@@ -1,31 +1,30 @@
 import { createClerkClient } from "@clerk/backend";
 import type {
   AuthenticateResult,
-  AuthProvider,
+  AuthHandler,
+  AuthResponse,
+  Principal,
   ServerAdapterFactory,
-  SupportsSessionRevocation,
-  VerifiedSession,
 } from "@wasp.sh/auth-contract";
 
 /**
- * Clerk, expressed as a Wasp `AuthProvider`.
+ * Clerk, expressed as a Wasp `AuthHandler`.
  *
- * This is about the smallest possible adapter, and Clerk is by far the least
- * work to integrate: it contributes **no Prisma models and no routes**. It only
- * ever answers "whose request is this?".
+ * This is about the smallest possible handler, and Clerk is by far the least
+ * work to integrate: it contributes **no Prisma models and no routes**. It
+ * only ever answers "whose request is this?", from Clerk's own session token,
+ * which the client adapter puts on every request. Wasp issues nothing for it.
  *
- * It is also the adapter that proves why session issuance is a separate
- * capability (`SupportsSessionIssuance`) rather than part of the base
- * interface. Clerk has **no
- * server-side password login at all** -- password verification lives on its
- * Frontend API behind a browser-held `__client` cookie, and its Backend API has
- * no endpoint that turns credentials into a session. So this adapter implements
- * `AuthProvider & SupportsSessionRevocation` and stops there: revocation yes, issuing no. A uniform `login(email, password)` could only
- * be implemented for Clerk as something that throws or silently ignores its
- * arguments; a missing capability is the honest alternative.
+ * It is also the handler that shows why `signIn` is optional on the
+ * contract. Clerk has **no server-side password login at all** -- password
+ * verification lives on its Frontend API behind a browser-held `__client`
+ * cookie, and its Backend API has no endpoint that turns credentials into a
+ * session. So no other scheme can sign into Clerk, and Clerk verifies no
+ * login of its own on the server: it authenticates and signs out, and stops
+ * there.
  *
  * Secrets come from `runtime.env`, already validated against the env vars the
- * manifest declared -- the adapter never reads `process.env` itself.
+ * manifest declared -- the handler never reads `process.env` itself.
  */
 export const createServerAdapter: ServerAdapterFactory = (runtime) => {
   const clerk = createClerkClient({
@@ -34,15 +33,23 @@ export const createServerAdapter: ServerAdapterFactory = (runtime) => {
   });
   const jwtKey = runtime.env.CLERK_JWT_KEY;
 
-  const provider: AuthProvider & SupportsSessionRevocation = {
-    /**
-     * Becomes `AuthIdentity.providerName`, so it must stay stable across
-     * deploys and package versions.
-     */
-    id: "clerk",
+  async function verify(
+    request: Request,
+  ): Promise<{ userId: string; sessionId: string; claims: unknown } | null> {
+    const requestState = await clerk.authenticateRequest(request, { jwtKey });
+    if (!requestState.isAuthenticated) {
+      return null;
+    }
+    const { userId, sessionId, sessionClaims } = requestState.toAuth();
+    if (!userId || !sessionId) {
+      return null;
+    }
+    return { userId, sessionId, claims: sessionClaims };
+  }
 
+  const handler: AuthHandler = {
     /**
-     * Wasp hands every adapter a standard web `Request` -- built from the
+     * Wasp hands every handler a standard web `Request` -- built from the
      * HTTP request, or synthesized with just an `Authorization` header for
      * websocket auth. Clerk's SDK consumes one natively, so there is nothing
      * to convert.
@@ -55,46 +62,41 @@ export const createServerAdapter: ServerAdapterFactory = (runtime) => {
      * network call; without it, Clerk fetches (and caches) the JWKS.
      */
     async authenticate(request: Request): Promise<AuthenticateResult> {
-      const requestState = await clerk.authenticateRequest(request, {
-        jwtKey,
-      });
-
-      if (!requestState.isAuthenticated) {
+      const verified = await verify(request);
+      if (verified === null) {
         return { status: "unauthenticated" };
       }
-
-      const { userId, sessionId, sessionClaims } = requestState.toAuth();
-      if (!userId || !sessionId) {
-        return { status: "unauthenticated" };
-      }
-
       return {
         status: "authenticated",
-        session: {
-          sessionId,
-          subjectId: userId,
+        principal: {
+          subjectId: verified.userId,
+          credentialId: verified.sessionId,
           // The verified JWT's claims, recorded by Wasp when it provisions the
           // local user. NOTE: Clerk's default session token carries no email --
           // add one to the token template in the Clerk dashboard if the app's
           // user entity needs it at provisioning time.
-          claims: sessionClaims as VerifiedSession["claims"],
+          claims: verified.claims as Principal["claims"],
         },
       };
     },
 
     /**
      * Clerk sessions are revocable server-side, which is what lets Wasp's
-     * `logout()` stay uniform across providers.
+     * `logout()` stay uniform across schemes.
      *
      * Worth knowing: because Clerk's session tokens are short-lived JWTs
      * verified locally, revocation is not instantaneous -- an already-issued
-     * token stays valid until it expires (~60s by default). Wasp's own auth
-     * revokes instantly. Same API, weaker guarantee.
+     * token stays valid until it expires (~60s by default). Wasp's own
+     * issuer revokes instantly. Same API, weaker guarantee.
      */
-    async revokeSession(sessionId: string): Promise<void> {
-      await clerk.sessions.revokeSession(sessionId);
+    async signOut(request: Request): Promise<AuthResponse> {
+      const verified = await verify(request);
+      if (verified !== null) {
+        await clerk.sessions.revokeSession(verified.sessionId);
+      }
+      return { status: 200, body: { success: true } };
     },
   };
 
-  return { provider };
+  return { handler };
 };

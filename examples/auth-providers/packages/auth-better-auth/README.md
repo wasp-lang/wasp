@@ -1,6 +1,6 @@
 # @wasp.sh/auth-better-auth
 
-Better Auth as a Wasp auth provider. Runs in-process, owns its own tables and
+Better Auth as a Wasp auth scheme. Runs in-process, owns its own tables and
 HTTP endpoints; Wasp provisions and resolves local users itself.
 
 ## Install
@@ -11,7 +11,7 @@ npm install @wasp.sh/auth-better-auth better-auth
 
 Then:
 
-1. Declare the provider in `main.wasp.ts`:
+1. Declare the scheme in `main.wasp.ts`:
 
    ```ts
    import { betterAuth } from "@wasp.sh/auth-better-auth/spec";
@@ -19,7 +19,7 @@ Then:
    auth: {
      userEntity: "User",
      onAuthFailedRedirectTo: "/login",
-     provider: betterAuth(), // email/password auth, ready to use
+     schemes: { "better-auth": betterAuth() }, // email/password auth, ready to use
      // or: betterAuth({ setupFn }) — your Better Auth config in full (see below)
    }
    ```

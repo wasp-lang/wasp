@@ -42,12 +42,12 @@ export const createTask: CreateTask<{ description: string }, Task> = async (
  */
 export const getAdminReport: GetAdminReport<
   void,
-  { taskCount: number; sessionProviderId: string }
+  { taskCount: number; sessionScheme: string }
 > = async (_args, context) => {
   const taskCount = await context.entities.Task.count();
   return {
     taskCount,
-    // Always "wasp" here, enforced by the provider restriction.
-    sessionProviderId: context.user!.sessionProviderId,
+    // Always "wasp" here, enforced by the scheme restriction.
+    sessionScheme: context.user!.sessionScheme,
   };
 };

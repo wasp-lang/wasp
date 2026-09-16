@@ -10,6 +10,8 @@ declare global {
     interface Request {
       user?: AuthUserData | null;
       sessionId?: string | null;
+      // The auth scheme that authenticated the request, when one did.
+      authScheme?: string | null;
     }
   }
 }

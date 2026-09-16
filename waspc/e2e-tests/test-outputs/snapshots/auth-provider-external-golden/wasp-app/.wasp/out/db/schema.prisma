@@ -23,11 +23,11 @@ model Task {
 }
 
 model Auth {
-  id         String         @id @default(uuid())
-  userId     String?        @unique
-  user       User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  identities AuthIdentity[]
-  sessions   Session[]
+  id                       String         @id @default(uuid())
+  userId                   String?        @unique
+  user                     User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identities               AuthIdentity[]
+  credentialsInvalidatedAt DateTime?
 }
 
 model AuthIdentity {
@@ -40,17 +40,6 @@ model AuthIdentity {
   auth            Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   @@id([providerName, providerUserId])
-}
-
-model Session {
-  id                String   @id @unique
-  expiresAt         DateTime
-  providerId        String?
-  providerSessionId String?
-  userId            String
-  auth              Auth     @relation(references: [id], fields: [userId], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 model UsedOneTimeCode {

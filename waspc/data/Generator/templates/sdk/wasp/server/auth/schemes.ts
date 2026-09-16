@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AuthHandler, Credentials, ProviderIdentities, RuntimeGrantName, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
@@ -15,7 +15,7 @@ import {
 import { config, prisma } from '../index.js'
 import { env as validatedEnv } from '../env.js'
 {=# isEmailSenderEnabled =}
-import { emailSender } from '../../email/index.js'
+import { emailSender } from '../email/index.js'
 {=/ isEmailSenderEnabled =}
 {=# schemes =}
 {=# isPackage =}
@@ -187,6 +187,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
     return { namespace, authId: identity.authId }
   }
   return {
+    authenticate: (request) => target.authenticate(request),
     signIn: async (subject, opts) => {
       const { namespace, authId } = await resolveSubject(subject)
       const fireHooks = opts?.skipHooks !== true
@@ -398,14 +399,19 @@ export function getAuthScheme(name: string): AuthHandler | undefined {
 /**
  * The runtime of a hand-written scheme, for app code that implements a
  * handler in `src/` and needs the identity store or credentials facet bound
- * to its own scheme.
+ * to its own scheme. The type parameters state what the scheme's manifest
+ * declared: its `uses` grants, and whether it has `credentials` (the facet
+ * is absent at runtime otherwise).
  */
-export function getSchemeRuntime(name: AuthSchemeName): WaspServerRuntime<never, false> {
+export function getSchemeRuntime<
+  Grants extends RuntimeGrantName = never,
+  HasCredentials extends boolean = false,
+>(name: AuthSchemeName): WaspServerRuntime<Grants, HasCredentials> {
   const runtime = schemeRuntimes[name]
   if (runtime === undefined) {
     throw new Error(`Auth scheme '${name}' is a handler package; its runtime is not exposed to app code.`)
   }
-  return runtime
+  return runtime as unknown as WaspServerRuntime<Grants, HasCredentials>
 }
 
 // PRIVATE API

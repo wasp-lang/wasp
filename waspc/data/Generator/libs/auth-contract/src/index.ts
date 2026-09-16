@@ -199,6 +199,15 @@ export type RuntimeGrantName = "email-send" | "identity-namespaces";
  * the choke point that guarantees no scheme skips the app's login policy.
  */
 export type Credentials = {
+  /**
+   * Authenticate a request against the credential this scheme hands out:
+   * the target issuer's own `authenticate`. A handler that verifies logins
+   * but carries no credential of its own forwards its `authenticate` here
+   * (ASP.NET's remote schemes forward to their sign-in scheme the same way),
+   * so `authRequired: ["<this scheme>"]` recognizes the credential it issued.
+   */
+  authenticate(request: Request): Promise<AuthenticateResult>;
+
   signIn(
     subject: Subject,
     opts?: {

@@ -9,14 +9,15 @@ import type { WaspAuthClientOptions } from "./types.js";
 /**
  * The client half of Wasp's own auth. Wasp instantiates it like any client
  * adapter; the forms and actions below then read the captured runtime
- * (`apiUrl`, the provider-bound `setSession` sink) and options.
+ * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
 export const createClientAdapter: ClientAdapterFactory<
   WaspAuthClientOptions
 > = (runtime, options) => {
   setClientState(runtime, options);
-  // No Wrapper, no ambient credential: sessions are adopted explicitly by
-  // the login actions through the setSession sink.
+  // No Wrapper, no ambient credential: a bearer credential is adopted
+  // explicitly by the login actions through the setCredential sink, and a
+  // cookie one never touches the client at all.
   return {};
 };
 

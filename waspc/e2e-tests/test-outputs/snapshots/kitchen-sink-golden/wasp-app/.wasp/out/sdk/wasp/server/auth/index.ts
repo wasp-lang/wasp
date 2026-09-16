@@ -14,6 +14,10 @@ export {
 
 export { createInvalidCredentialsError } from './utils.js'
 
+// The registry, for app code that implements a handler in `src/` and needs
+// its scheme's runtime (identity store, credentials facet).
+export { getSchemeRuntime } from './schemes.js'
+
 export {
   createProviderId,
   parseProviderData,

@@ -16,13 +16,13 @@ const waspCommonServerEnvSchema = z.object({
   }),
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
   "CLERK_SECRET_KEY": z.string({
-    error: "CLERK_SECRET_KEY is required by the 'clerk' auth provider: Clerk dashboard → API keys",
+    error: "CLERK_SECRET_KEY is required by the 'clerk' auth scheme: Clerk dashboard → API keys",
   }),
   "CLERK_PUBLISHABLE_KEY": z.string({
-    error: "CLERK_PUBLISHABLE_KEY is required by the 'clerk' auth provider: Clerk dashboard → API keys",
+    error: "CLERK_PUBLISHABLE_KEY is required by the 'clerk' auth scheme: Clerk dashboard → API keys",
   }),
   "CLERK_JWT_KEY": z.string({
-    error: "CLERK_JWT_KEY is required by the 'clerk' auth provider: enables networkless JWT verification",
+    error: "CLERK_JWT_KEY is required by the 'clerk' auth scheme: enables networkless JWT verification",
   }).optional(),
 });
 

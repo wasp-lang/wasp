@@ -29,40 +29,40 @@ const waspCommonServerEnvSchema = z.object({
     error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_PASSWORD'),
   }),
   "SKIP_EMAIL_VERIFICATION_IN_DEV": z.string({
-    error: "SKIP_EMAIL_VERIFICATION_IN_DEV is required by the 'wasp' auth provider: Set to 'true' to skip email verification in development",
+    error: "SKIP_EMAIL_VERIFICATION_IN_DEV is required by the 'wasp' auth scheme: Set to 'true' to skip email verification in development",
   }).optional(),
   "GOOGLE_CLIENT_ID": z.string({
-    error: "GOOGLE_CLIENT_ID is required by the 'wasp' auth provider.",
+    error: "GOOGLE_CLIENT_ID is required by the 'wasp' auth scheme.",
   }),
   "GOOGLE_CLIENT_SECRET": z.string({
-    error: "GOOGLE_CLIENT_SECRET is required by the 'wasp' auth provider.",
+    error: "GOOGLE_CLIENT_SECRET is required by the 'wasp' auth scheme.",
   }),
   "GITHUB_CLIENT_ID": z.string({
-    error: "GITHUB_CLIENT_ID is required by the 'wasp' auth provider.",
+    error: "GITHUB_CLIENT_ID is required by the 'wasp' auth scheme.",
   }),
   "GITHUB_CLIENT_SECRET": z.string({
-    error: "GITHUB_CLIENT_SECRET is required by the 'wasp' auth provider.",
+    error: "GITHUB_CLIENT_SECRET is required by the 'wasp' auth scheme.",
   }),
   "SLACK_CLIENT_ID": z.string({
-    error: "SLACK_CLIENT_ID is required by the 'wasp' auth provider.",
+    error: "SLACK_CLIENT_ID is required by the 'wasp' auth scheme.",
   }),
   "SLACK_CLIENT_SECRET": z.string({
-    error: "SLACK_CLIENT_SECRET is required by the 'wasp' auth provider.",
+    error: "SLACK_CLIENT_SECRET is required by the 'wasp' auth scheme.",
   }),
   "DISCORD_CLIENT_ID": z.string({
-    error: "DISCORD_CLIENT_ID is required by the 'wasp' auth provider.",
+    error: "DISCORD_CLIENT_ID is required by the 'wasp' auth scheme.",
   }),
   "DISCORD_CLIENT_SECRET": z.string({
-    error: "DISCORD_CLIENT_SECRET is required by the 'wasp' auth provider.",
+    error: "DISCORD_CLIENT_SECRET is required by the 'wasp' auth scheme.",
   }),
   "MICROSOFT_CLIENT_ID": z.string({
-    error: "MICROSOFT_CLIENT_ID is required by the 'wasp' auth provider.",
+    error: "MICROSOFT_CLIENT_ID is required by the 'wasp' auth scheme.",
   }),
   "MICROSOFT_CLIENT_SECRET": z.string({
-    error: "MICROSOFT_CLIENT_SECRET is required by the 'wasp' auth provider.",
+    error: "MICROSOFT_CLIENT_SECRET is required by the 'wasp' auth scheme.",
   }),
   "MICROSOFT_TENANT_ID": z.string({
-    error: "MICROSOFT_TENANT_ID is required by the 'wasp' auth provider.",
+    error: "MICROSOFT_TENANT_ID is required by the 'wasp' auth scheme.",
   }),
 });
 
@@ -93,7 +93,7 @@ const waspDevServerEnvSchema = z.object({
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
   "JWT_SECRET": z.string({
-    error: "JWT_SECRET is required by the 'wasp' auth provider: Signs email and OAuth tokens. openssl rand -base64 32",
+    error: "JWT_SECRET is required by the 'wasp' auth scheme: Signs email and OAuth tokens. openssl rand -base64 32",
   }).default("DEVJWTSECRET"),
 });
 
@@ -102,7 +102,7 @@ const waspProdServerEnvSchema = z.object({
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
   "JWT_SECRET": z.string({
-    error: "JWT_SECRET is required by the 'wasp' auth provider: Signs email and OAuth tokens. openssl rand -base64 32",
+    error: "JWT_SECRET is required by the 'wasp' auth scheme: Signs email and OAuth tokens. openssl rand -base64 32",
   }),
 });
 

@@ -54,13 +54,27 @@ export const clientAuthAdapters: Partial<Record<AuthSchemeName, ClientAuthAdapte
   {=/ clientAdapterProviders =}
 }
 
-// The default scheme's adapter is the request path's fallback credential
-// source: when no Wasp-issued credential is stored, its own credential (a
-// hosted provider's token, say) rides on every request. No other adapter is
-// ever consulted on the wire -- two live credentials never race.
-const defaultAdapter = (clientAuthAdapters as Partial<Record<string, ClientAuthAdapter>>)[defaultScheme]
-if (defaultAdapter?.getCredential !== undefined) {
-  registerCredentialSource(() => defaultAdapter.getCredential!())
+// The adapters' own credentials are the request path's fallback source:
+// when no Wasp-issued credential is stored, the first adapter (default
+// scheme first, then declaration order) that has a credential of its own
+// (a hosted provider's token, say) puts it on the request. A stored Wasp
+// credential always wins, so two live credentials never race.
+const adaptersWithCredentials = [
+  defaultScheme,
+  ...(Object.keys(clientAuthAdapters) as AuthSchemeName[]).filter((name) => name !== defaultScheme),
+]
+  .map((name) => (clientAuthAdapters as Partial<Record<string, ClientAuthAdapter>>)[name])
+  .filter((adapter): adapter is ClientAuthAdapter => adapter?.getCredential !== undefined)
+if (adaptersWithCredentials.length > 0) {
+  registerCredentialSource(async () => {
+    for (const adapter of adaptersWithCredentials) {
+      const credential = await adapter.getCredential!()
+      if (credential !== null) {
+        return credential
+      }
+    }
+    return null
+  })
 }
 
 // A login or logout inside a provider's own component (Clerk's widget)

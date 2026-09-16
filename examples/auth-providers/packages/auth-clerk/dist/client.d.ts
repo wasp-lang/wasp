@@ -10,9 +10,8 @@ import type { ClientAdapterFactory } from "@wasp.sh/auth-contract/client";
  * validated client env.
  *
  * Deliberately contains no Wasp imports. Apps wiring Clerk by hand (without
- * the packaged adapter) exchange Clerk's token for a Wasp session themselves
- * via `exchangeCredentialForSession("clerk", token)` from
- * `wasp/client/api`.
+ * the packaged adapter) register Clerk's token as a credential source
+ * themselves via `registerCredentialSource` from `wasp/client/api`.
  */
 export declare function ClerkAuthProvider({ publishableKey, afterSignOutUrl, children, }: {
     publishableKey?: string;

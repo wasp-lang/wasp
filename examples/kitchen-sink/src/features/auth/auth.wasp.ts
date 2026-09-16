@@ -47,8 +47,8 @@ import {
 export const authConfig: Auth = {
   userEntity: "User",
   onAuthFailedRedirectTo: "/login",
-  providers: [
-    waspAuth({
+  schemes: {
+    wasp: waspAuth({
       methods: {
         slack: {
           configFn: slackConfig,
@@ -89,9 +89,9 @@ export const authConfig: Auth = {
       onAuthSucceededRedirectTo: "/",
       onAfterEmailVerified,
     }),
-  ],
+  },
   // The generic lifecycle hooks are app-level: they fire at Wasp-owned choke
-  // points for EVERY provider, not just Wasp's own auth.
+  // points for EVERY scheme, not just Wasp's own auth.
   hooks: {
     onBeforeSignup,
     onAfterSignup,

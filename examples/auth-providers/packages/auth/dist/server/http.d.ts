@@ -1,3 +1,4 @@
+import type { AuthResponse } from "@wasp.sh/auth-contract";
 import type { Req, Res } from "./types.js";
 /**
  * The same wire shape Wasp's `HttpError` produces (`{ message, data }` with
@@ -17,6 +18,11 @@ export declare function isHttpErrorLike(error: unknown): error is {
     data?: unknown;
 };
 export declare function json(res: Res, status: number, payload: unknown): void;
+/**
+ * Writes the answer of a sign-in: whatever the credentials scheme decided the
+ * client should receive (a bearer token in the body, a Set-Cookie header).
+ */
+export declare function sendAuthResponse(res: Res, response: AuthResponse): void;
 export declare function redirect(res: Res, location: string): void;
 export declare function getBody(req: Req): Record<string, unknown>;
 export declare function getUrl(req: Req): URL;

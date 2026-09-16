@@ -9,8 +9,6 @@
  * structurally when it reads the app.
  */
 
-export const PROVIDER_ID = "wasp";
-export const ROUTES_BASE_PATH = "/auth/wasp";
 /** The client route the OAuth handback lands on; the app declares it. */
 export const OAUTH_CALLBACK_PATH = "/oauth/callback";
 
@@ -27,9 +25,19 @@ export type OAuthMethodName =
  * `Reference` type (from `with { type: "ref" }` imports); it stays generic so
  * the app's branded references flow through untouched.
  */
-export interface WaspAuthConfig<Ref = unknown> {
+export interface WaspAuthConfig<Ref = unknown, StoreRef = never> {
   /** Enabled authentication methods. At least one must be enabled. */
   methods: WaspAuthMethods<Ref>;
+  /**
+   * How a verified login turns into the credential the client carries
+   * afterwards. By default the scheme runs its own issuer: a bearer token
+   * whose record lives in the database (`{ transport: "bearer", store:
+   * "prisma" }`). Pick `"cookie"` for an HttpOnly cookie, `"signed-token"`
+   * for a self-contained credential without a table, or `{ scheme }` to sign
+   * into a sibling scheme (a standalone `waspBearer()` / `waspCookie()`) that
+   * several schemes share.
+   */
+  credentials?: WaspAuthCredentialsConfig<StoreRef>;
   /**
    * Route that Wasp redirects users to after a successful login or signup.
    * Only takes effect when using the built-in forms.
@@ -45,6 +53,20 @@ export interface WaspAuthConfig<Ref = unknown> {
    */
   onBeforeOAuthRedirect?: Ref;
 }
+
+/**
+ * `StoreRef` is the app's reference to its own credential store, kept
+ * separate from the function references so the two never unify into one
+ * (over-wide) type.
+ */
+export type WaspAuthCredentialsConfig<StoreRef = never> =
+  | { scheme: string }
+  | {
+      transport?: "bearer" | "cookie";
+      store?: "prisma" | "signed-token" | StoreRef;
+      /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
+      ttl?: string;
+    };
 
 export type WaspAuthMethods<Ref = unknown> = {
   usernameAndPassword?: UsernameAndPasswordConfig<Ref>;
@@ -87,20 +109,22 @@ type EnvVarRequirement = {
 
 /**
  * The manifest {@link waspAuth} produces, structurally matching
- * `AuthProviderManifest` from `@wasp.sh/spec`.
+ * `AuthSchemeManifest` from `@wasp.sh/spec`.
  */
-export type WaspAuthProviderManifest<Ref = unknown> = {
-  readonly __waspAuthProviderManifest: true;
-  kind: "external";
-  contractVersion: 1;
-  id: typeof PROVIDER_ID;
+export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
+  readonly __waspAuthSchemeManifest: true;
+  kind: "scheme";
+  contractVersion: 2;
+  handler: string;
   server: { package: string };
   client: { package: string };
-  routes: { basePath: typeof ROUTES_BASE_PATH };
+  routes: Record<string, never>;
   capabilities: string[];
   env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
-  uses: Array<"wasp-sessions" | "identity-namespaces" | "email-send">;
+  uses: Array<"identity-namespaces" | "email-send">;
+  /** Namespace suffixes; the compiler prefixes them with the scheme name. */
   identityNamespaces: string[];
+  credentials: WaspAuthCredentialsConfig<StoreRef>;
   options: WaspAuthOptions;
   extensions: Record<string, Ref>;
 };
@@ -109,7 +133,6 @@ export type WaspAuthProviderManifest<Ref = unknown> = {
 export type WaspAuthOptions = {
   onAuthSucceededRedirectTo: string;
   clientOAuthCallbackPath: string;
-  routesBasePath: string;
   methods: {
     usernameAndPassword?: Record<string, never>;
     email?: {
@@ -173,7 +196,7 @@ const oauthProviders: Record<
 };
 
 /**
- * Declares Wasp's own auth as one of the app's auth providers.
+ * Declares Wasp's own auth as one of the app's auth schemes.
  *
  * ```ts
  * import { waspAuth } from "@wasp.sh/auth/spec";
@@ -181,18 +204,19 @@ const oauthProviders: Record<
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   providers: [waspAuth({ methods: { usernameAndPassword: {} } })],
+ *   schemes: { wasp: waspAuth({ methods: { usernameAndPassword: {} } }) },
  * }
  * ```
  *
- * The manifest mounts the flows at `/auth/wasp`, records identities under
- * `wasp:<method>`, declares the env vars the enabled methods read
- * (`JWT_SECRET` for email and OAuth, the OAuth client credentials), and hands
- * every user function over as an extension.
+ * The manifest mounts the flows at `/auth/<scheme>`, records identities
+ * under `<scheme>:<method>`, declares the env vars the enabled methods read
+ * (`JWT_SECRET` for email and OAuth, the OAuth client credentials), hands
+ * out credentials through its own bearer issuer unless `credentials` says
+ * otherwise, and hands every user function over as an extension.
  */
-export function waspAuth<Ref = unknown>(
-  config: WaspAuthConfig<Ref>,
-): WaspAuthProviderManifest<Ref> {
+export function waspAuth<Ref = unknown, StoreRef = never>(
+  config: WaspAuthConfig<Ref, StoreRef>,
+): WaspAuthSchemeManifest<Ref, StoreRef> {
   const { methods } = config;
   const enabledOAuth = (
     Object.keys(oauthProviders) as OAuthMethodName[]
@@ -255,24 +279,19 @@ export function waspAuth<Ref = unknown>(
   }
 
   const identityNamespaces = [
-    PROVIDER_ID,
-    ...(methods.usernameAndPassword !== undefined
-      ? [`${PROVIDER_ID}:username`]
-      : []),
-    ...(usesEmail ? [`${PROVIDER_ID}:email`] : []),
-    ...enabledOAuth.map(
-      (method) => `${PROVIDER_ID}:${oauthProviders[method].name}`,
-    ),
+    ...(methods.usernameAndPassword !== undefined ? ["username"] : []),
+    ...(usesEmail ? ["email"] : []),
+    ...enabledOAuth.map((method) => oauthProviders[method].name),
   ];
 
   return {
-    __waspAuthProviderManifest: true,
-    kind: "external",
-    contractVersion: 1,
-    id: PROVIDER_ID,
+    __waspAuthSchemeManifest: true,
+    kind: "scheme",
+    contractVersion: 2,
+    handler: "@wasp.sh/auth",
     server: { package: "@wasp.sh/auth/server" },
     client: { package: "@wasp.sh/auth/client" },
-    routes: { basePath: ROUTES_BASE_PATH },
+    routes: {},
     capabilities: [],
     env: {
       server: [
@@ -301,15 +320,14 @@ export function waspAuth<Ref = unknown>(
       client: [],
     },
     uses: [
-      "wasp-sessions",
       "identity-namespaces",
       ...(usesEmail ? (["email-send"] as const) : []),
     ],
     identityNamespaces,
+    credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
     options: {
       onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
       clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
-      routesBasePath: ROUTES_BASE_PATH,
       methods: optionMethods,
     },
     extensions,

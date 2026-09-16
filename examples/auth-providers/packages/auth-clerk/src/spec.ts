@@ -10,7 +10,7 @@
  */
 
 /**
- * An env var the provider needs. Wasp renders these into the app's generated
+ * An env var the handler needs. Wasp renders these into the app's generated
  * env validation, so a missing var fails at boot with `doc` as the
  * explanation instead of failing at the first authenticated request.
  */
@@ -22,17 +22,17 @@ export type EnvVarRequirement = {
 
 /**
  * The manifest {@link clerk} produces, structurally matching
- * `ExternalAuthProviderManifest` from `@wasp.sh/spec`.
+ * `AuthSchemeManifest` from `@wasp.sh/spec`.
  *
  * `UserSignupFieldsRef` stays generic on purpose: the reference the app
  * passes is branded by the app's own spec copy, and naming that type here
  * would pin it to the wrong one. The caller's type flows through untouched.
  */
-export type ClerkAuthProviderManifest<UserSignupFieldsRef = never> = {
-  readonly __waspAuthProviderManifest: true;
-  kind: "external";
-  contractVersion: 1;
-  id: "clerk";
+export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
+  readonly __waspAuthSchemeManifest: true;
+  kind: "scheme";
+  contractVersion: 2;
+  handler: "@wasp.sh/auth-clerk";
   server: { package: string };
   client: { package: string };
   capabilities: string[];
@@ -46,7 +46,7 @@ export type ClerkAuthProviderManifest<UserSignupFieldsRef = never> = {
 export interface ClerkConfig<UserSignupFieldsRef = never> {
   /**
    * Populates the app's user entity when Wasp provisions a local user for a
-   * Clerk subject it has not seen before, from the claims the adapter
+   * Clerk subject it has not seen before, from the claims the handler
    * verified. Required in practice when the user entity has non-nullable
    * fields.
    *
@@ -58,7 +58,7 @@ export interface ClerkConfig<UserSignupFieldsRef = never> {
 }
 
 /**
- * Declares Clerk as the app's auth provider.
+ * Declares Clerk as one of the app's auth schemes.
  *
  * Use it in `main.wasp.ts`:
  *
@@ -68,26 +68,28 @@ export interface ClerkConfig<UserSignupFieldsRef = never> {
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   providers: [clerk()],
+ *   schemes: { clerk: clerk() },
  * }
  * ```
  *
- * Clerk contributes no Prisma models and no routes -- the manifest only names
- * the server adapter and the env vars it needs. A missing var fails at boot
- * with its `doc` string as the explanation, not at the first authenticated
- * request.
+ * Clerk's own session token is the credential on every request: the scheme
+ * declares no `credentials` of its own, so nothing is issued by Wasp and no
+ * table is added. It contributes no Prisma models and no routes -- the
+ * manifest only names the server handler, the client adapter and the env
+ * vars they need. A missing var fails at boot with its `doc` string as the
+ * explanation, not at the first authenticated request.
  */
 export function clerk<UserSignupFieldsRef = never>(
   config?: ClerkConfig<UserSignupFieldsRef>,
-): ClerkAuthProviderManifest<UserSignupFieldsRef> {
+): ClerkAuthSchemeManifest<UserSignupFieldsRef> {
   return {
-    __waspAuthProviderManifest: true,
-    kind: "external",
-    contractVersion: 1,
-    id: "clerk",
+    __waspAuthSchemeManifest: true,
+    kind: "scheme",
+    contractVersion: 2,
+    handler: "@wasp.sh/auth-clerk",
     server: { package: "@wasp.sh/auth-clerk/server" },
     client: { package: "@wasp.sh/auth-clerk/client" },
-    capabilities: ["session-revocation"],
+    capabilities: [],
     env: {
       server: [
         { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },

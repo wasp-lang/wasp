@@ -4,13 +4,19 @@ import type { OAuthProviderName } from "./types.js";
 
 /** The server path prefix the routes live under. */
 function basePath(): string {
-  return getClientOptions().routesBasePath ?? "/auth/wasp";
+  return getClientRuntime().mountUrl;
 }
 
-async function initSession(sessionId: string): Promise<void> {
-  // The provider-bound sink: records 'wasp' as the minting provider and
-  // refreshes cached queries so `useAuth` sees the new user.
-  await getClientRuntime().setSession(sessionId);
+/**
+ * Adopts what the server answered a login with: a bearer credential in the
+ * body, which the generated client stores and attaches to every request; or
+ * nothing, when the credential travels as a cookie the browser already holds.
+ * Either way the cached queries are refreshed, so `useAuth()` sees the login.
+ */
+async function adoptSignIn(body: { credential?: unknown }): Promise<void> {
+  await getClientRuntime().setCredential(
+    typeof body.credential === "string" ? body.credential : null,
+  );
 }
 
 // PUBLIC API
@@ -23,8 +29,7 @@ export async function login(
     "email" in data
       ? `${basePath()}/email/login`
       : `${basePath()}/username/login`;
-  const { sessionId } = await post<{ sessionId: string }>(path, data);
-  await initSession(sessionId);
+  await adoptSignIn(await post<{ credential?: unknown }>(path, data));
 }
 
 // PUBLIC API
@@ -78,15 +83,15 @@ export async function verifyEmail(data: {
 
 // PRIVATE API
 export async function exchangeOAuthCodeForSession(code: string): Promise<void> {
-  const { sessionId } = await post<{ sessionId: string }>(
-    `${basePath()}/exchange-code`,
-    { code },
+  await adoptSignIn(
+    await post<{ credential?: unknown }>(`${basePath()}/exchange-code`, {
+      code,
+    }),
   );
-  await initSession(sessionId);
 }
 
 export function signInUrl(provider: OAuthProviderName): string {
-  return `${getClientRuntime().apiUrl}${basePath()}/${provider}/login`;
+  return `${basePath()}/${provider}/login`;
 }
 
 export function isMethodEnabled(

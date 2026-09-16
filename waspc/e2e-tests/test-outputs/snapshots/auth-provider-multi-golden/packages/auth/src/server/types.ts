@@ -1,9 +1,21 @@
-import type { JsonValue, WaspServerRuntime } from "@wasp.sh/auth-contract";
+import type {
+  AuthResponse,
+  JsonValue,
+  WaspServerRuntime,
+} from "@wasp.sh/auth-contract";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 /** The runtime grants Wasp's own auth runs on. */
-export type WaspAuthGrants = "wasp-sessions" | "identity-namespaces";
-export type WaspAuthRuntime = WaspServerRuntime<WaspAuthGrants>;
+export type WaspAuthGrants = "identity-namespaces";
+/**
+ * The runtime window: the identity namespaces grant plus the credentials
+ * facet the manifest's `credentials` config wires (the scheme's private
+ * issuer, or a sibling scheme it signs into).
+ */
+export type WaspAuthRuntime = WaspServerRuntime<WaspAuthGrants, true>;
+
+/** The wire-level answer of a sign-in, replayed by the one-time code. */
+export type SignInResponse = AuthResponse;
 
 export type OAuthProviderName =
   | "google"
@@ -22,12 +34,6 @@ export type MethodProviderName = "username" | "email" | OAuthProviderName;
  */
 export type WaspAuthOptions = {
   onAuthSucceededRedirectTo: string;
-  /**
-   * Where the routes are mounted on the Wasp server. The compiler mounts
-   * Wasp's own auth at `/auth`; an external package mounts wherever its
-   * manifest asked. Defaults to `/auth`.
-   */
-  routesBasePath?: string;
   /** Client route the OAuth handback redirects to with the one-time code. */
   clientOAuthCallbackPath: string;
   methods: {

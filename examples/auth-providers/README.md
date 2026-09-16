@@ -1,17 +1,31 @@
-# Auth provider examples
+# Auth scheme examples
 
-Five Wasp apps that are identical except for **which auth provider verifies the request**.
+Six Wasp apps that are identical except for **which auth scheme authenticates the request**.
 
 They exist to answer one question: how much of an app's code survives swapping the auth
-provider? The answer, demonstrated rather than asserted, is _everything except the auth pages_.
+scheme? The answer, demonstrated rather than asserted, is _everything except the auth pages_.
 
-| App                | Provider                           | What it proves                                                                                     |
-| ------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `wasp-auth/`       | Wasp's own auth (`@wasp.sh/auth`)  | Wasp's own auth is an adapter package too: the compiler knows nothing about it beyond its manifest |
-| `better-auth/`     | Better Auth, in-process            | A provider that owns its own tables and routes                                                     |
-| `clerk/`           | Clerk, hosted                      | A provider with no server-side login at all, and no schema of its own                              |
-| `custom-clerk/`    | Clerk, hand-written in-app         | The `customAuthProvider()` escape hatch — no adapter package needed                                |
-| `custom-password/` | Email+password, hand-rolled in-app | A user-made provider has the same powers Wasp's own auth uses: identity store + session exchange   |
+| App                | Scheme                             | What it proves                                                                                    |
+| ------------------ | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `wasp-auth/`       | Wasp's own auth (`@wasp.sh/auth`)  | Wasp's own auth is a handler package too: the compiler knows nothing about it beyond its manifest |
+| `better-auth/`     | Better Auth, in-process            | A handler that owns its own tables, routes and credential                                         |
+| `clerk/`           | Clerk, hosted                      | A handler with no server-side login at all, whose own token is the credential                     |
+| `custom-clerk/`    | Clerk, hand-written in-app         | The `customAuthHandler()` escape hatch — no handler package needed                                |
+| `custom-password/` | Email+password, hand-rolled in-app | A user-made scheme gets Wasp-issued credentials with one line: `credentials: {}`                  |
+| `multi-provider/`  | Wasp's own auth + Clerk            | Two schemes side by side, a default, and per-asset scheme lists                                   |
+
+## Vocabulary
+
+- **Handler**: the code. An `AuthHandler` answers `authenticate(request)` and may also
+  `signIn`, `signOut`, `challenge` and `forbid`. Packages export handler factories.
+- **Scheme**: a named, configured handler in `auth.schemes`. The name prefixes the handler's
+  routes (`/auth/<scheme>/…`) and identity namespaces (`<scheme>:username`), and is what
+  `authRequired: ["<scheme>"]` and `user.sessionScheme` refer to.
+- **Credentials**: what a request carries. A handler that verifies logins but has no credential
+  of its own (Wasp's own auth, the password example) declares `credentials`: inline
+  `{ transport: "bearer" | "cookie", store: "prisma" | "signed-token" }` for a private issuer,
+  or `{ scheme }` to sign into a sibling `waspBearer()` / `waspCookie()` scheme. Handlers with
+  their own credential (Clerk, Better Auth) declare none, and Wasp issues nothing for them.
 
 ## The part that is identical in all of them
 
@@ -24,55 +38,18 @@ export const getMyTasks: GetMyTasks<void, Task[]> = async (_args, context) => {
 ```
 
 `context.user` is a row in the app's own `User` table in every app, with the app's own id type.
-It is never Clerk's `user_2abc…` string. That is the invariant the provider interface exists to
-protect, and it is the one RedwoodJS did not hold: it shipped nine auth adapters over a single
-interface but left provisioning to the developer, so `currentUser.id` ended up meaning different
-things depending on which adapter was installed.
-
-Also identical: `authRequired` on pages, `auth: true` on operations, `useAuth()`, and `logout()`.
+It is never Clerk's `user_2abc…` string. Also identical: `authRequired` on pages, `auth: true`
+on operations, `useAuth()`, and `logout()`.
 
 ## The part that differs
 
-Only how a login _happens_:
+Only how a login _happens_. `wasp-auth`, `custom-password` and `better-auth` post credentials
+to the server. `clerk` and `custom-clerk` cannot: Clerk has no server-side password endpoint,
+so those apps use Clerk's own React components and its token rides on every request.
 
-- `wasp-auth` and `better-auth` render login forms and post credentials to the server.
-- `clerk` and `custom-clerk` cannot. Clerk has no server-side password endpoint — verification
-  lives on its Frontend API behind a browser-held cookie — so those apps use Clerk's own React
-  components and hand the resulting token to Wasp.
-
-That asymmetry is why session issuance is a capability (`SupportsSessionIssuance`) layered on
-the base `AuthProvider` (verify a credential) rather than part of it. Clerk carries only the
-base plus revocation.
-
-## Sessions: Wasp mints its own, whoever verified the login
-
-Every app here runs on Wasp's own sessions (the injected `Session` table), the way Rails,
-Django, and ASP.NET Core do it. Under an external provider, the provider is consulted exactly
-twice:
-
-- **Login**: the client exchanges the provider's credential for a Wasp session
-  (`POST /auth/login`). Every request after that authenticates against Wasp's session — the
-  provider is off the hot path.
-- **Logout**: dual sign-out, ASP.NET-style. Wasp revokes its own session, and — where the
-  provider supports revocation — the provider session it was exchanged from, best-effort.
-
-The documented gap of this model (all frameworks that mint their own sessions share it):
-revoking a session **on the provider's side** does not end the Wasp session; it lives until it
-expires or the user logs out of the app.
-
-`clerk/` and `custom-clerk/` are the same provider integrated two ways: through the
-`@wasp.sh/auth-clerk` package, and hand-written in the app via `customAuthProvider()`. Diffing
-them shows exactly what an adapter package absorbs.
-
-## Wasp's own auth is a package
-
-`packages/auth` is `@wasp.sh/auth`: the username, email and OAuth flows, forms and actions
-that used to be generated by the compiler. `wasp-auth/` declares it with `waspAuth()` from
-`@wasp.sh/auth/spec` exactly the way `better-auth/` declares `betterAuth()`. Its flows mount
-at `/auth/wasp/...`, its identities live in `wasp:username`, `wasp:email`, `wasp:google`, ...,
-and `JWT_SECRET` is a variable its manifest declares, not one the framework owns. The
-framework keeps only what every provider shares: the identity store, sessions, `/auth/me`,
-`/auth/logout`, the credential exchange, and the app-level hooks.
+`authRequired: true` means the default scheme (the only scheme, or `auth.default`). A list
+(`["wasp", "clerk"]`) is tried in order: the first scheme that authenticates wins, the first
+one challenges when none does, and the winner forbids when it is not allowed.
 
 ## Running them
 
@@ -82,4 +59,5 @@ Each app is a normal Wasp app:
 cd wasp-auth && wasp db migrate-dev && wasp start
 ```
 
-`better-auth`, `clerk` and `custom-clerk` need environment variables — see each app's README.
+`better-auth`, `clerk`, `custom-clerk` and `multi-provider` need environment variables; see each
+app's README.

@@ -27,6 +27,22 @@ export function json(res, status, payload) {
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify(payload));
 }
+/**
+ * Writes the answer of a sign-in: whatever the credentials scheme decided the
+ * client should receive (a bearer token in the body, a Set-Cookie header).
+ */
+export function sendAuthResponse(res, response) {
+    res.statusCode = response.status;
+    for (const [name, value] of Object.entries(response.headers ?? {})) {
+        res.setHeader(name, value);
+    }
+    if (response.body === undefined) {
+        res.end();
+        return;
+    }
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify(response.body));
+}
 export function redirect(res, location) {
     res.statusCode = 302;
     res.setHeader("Location", location);

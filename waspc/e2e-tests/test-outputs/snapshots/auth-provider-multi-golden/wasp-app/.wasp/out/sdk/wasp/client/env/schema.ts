@@ -18,7 +18,7 @@ const serverUrlSchema =
 
 const authProviderEnvSchema = z.object({
   "REACT_APP_CLERK_PUBLISHABLE_KEY": z.string({
-    error: "REACT_APP_CLERK_PUBLISHABLE_KEY is required by the 'clerk' auth provider: Clerk dashboard → API keys (publishable key)",
+    error: "REACT_APP_CLERK_PUBLISHABLE_KEY is required by the 'clerk' auth scheme: Clerk dashboard → API keys (publishable key)",
   }),
 });
 

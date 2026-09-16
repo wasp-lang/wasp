@@ -3,11 +3,11 @@ import { expect, test } from "@playwright/test";
 /**
  * Wasp's own username & password flows, reached through the
  * package's routes: signup and login at the manifest's basePath, a session
- * attributed to the package's provider id, Wasp's own `/auth/me` and
+ * attributed to the scheme by name, Wasp's own `/auth/me` and
  * `/auth/logout` on top.
  */
 
-const PROVIDER_ID = "wasp";
+const SCHEME = "wasp";
 const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 const username = `alice-${uniqueSuffix}`;
 const password = "password1234";
@@ -36,15 +36,18 @@ test("login mints a Wasp session attributed to the package", async ({
     data: { username, password },
   });
   expect(response.status()).toBe(200);
-  const { sessionId } = (await response.json()) as { sessionId: string };
-  expect(typeof sessionId).toBe("string");
+  const { credential } = (await response.json()) as { credential: string };
+  expect(typeof credential).toBe("string");
 
   const me = await request.get("/auth/me", {
-    headers: { Authorization: `Bearer ${sessionId}` },
+    headers: { Authorization: `Bearer ${credential}` },
   });
   expect(me.status()).toBe(200);
-  const user = (await me.json()) as { json: { sessionProviderId: string } };
-  expect(user.json.sessionProviderId).toBe(PROVIDER_ID);
+  const user = (await me.json()) as {
+    json: { sessionScheme: string; signedInBy: string };
+  };
+  expect(user.json.sessionScheme).toBe(SCHEME);
+  expect(user.json.signedInBy).toBe(SCHEME);
 });
 
 test("a wrong password is a 401", async ({ request }) => {
@@ -67,15 +70,15 @@ test("logout revokes the session server-side", async ({ request }) => {
   const login = await request.post("/auth/wasp/username/login", {
     data: { username, password },
   });
-  const { sessionId } = (await login.json()) as { sessionId: string };
+  const { credential } = (await login.json()) as { credential: string };
 
   const logout = await request.post("/auth/logout", {
-    headers: { Authorization: `Bearer ${sessionId}` },
+    headers: { Authorization: `Bearer ${credential}` },
   });
   expect(logout.status()).toBe(200);
 
   const me = await request.get("/auth/me", {
-    headers: { Authorization: `Bearer ${sessionId}` },
+    headers: { Authorization: `Bearer ${credential}` },
   });
   expect(me.status()).toBe(401);
 });

@@ -3,15 +3,12 @@ import express from 'express'
 import auth from 'wasp/server/core/auth'
 import me from './me.js'
 import logout from './logout.js'
-import login from './login.js'
 
 const router = express.Router()
 
+// The framework's own auth routes. Every scheme's routes mount next to these
+// at /auth/<scheme>.
 router.get('/me', auth, me)
 router.post('/logout', auth, logout)
-// The credential exchange, addressed to one provider -- deliberately NOT
-// behind the `auth` middleware, since it is the route that establishes the
-// session in the first place.
-router.post('/login/:providerId', login)
 
 export default router

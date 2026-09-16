@@ -13,7 +13,7 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    providers: [betterAuth({ setupFn: setupBetterAuth })],
+    schemes: { "better-auth": betterAuth({ setupFn: setupBetterAuth }) },
   },
 
   spec: [

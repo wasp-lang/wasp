@@ -25,7 +25,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "1051a9a0802b866160239ef495ef2a714a37c9f32ca531d58e6d5747baea57b1"
+        "02429623441fd63f3c97055fa93d02967dc1d68897b7cd675342e164c956fa0e"
     ],
     [
         [
@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "4d1c139eed365bc473545ac7d0587f0a1b768296c7dfeee66a133ab78f4c28d2"
+        "fe43cefb5911f115edb12e35bd555f2a08a70d6c465e1fa21e877bf41b4fa03f"
     ],
     [
         [
@@ -438,7 +438,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "25cb1784ea13177438dcd9bae40e9fd9dc416cb476b4731853a208e74d2b9b7a"
+        "c022bef24b550d7be4e693ec70e17665319325857d4cd603961e26e52215cc4c"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "2985dffda5277174be4e075070ab22ce67c653980b98b78734a64faf1a87d3de"
+        "4192ce251e0c67c0ca6f666f10dae501010c007c2140737de0643a18c6d8ea9d"
     ],
     [
         [

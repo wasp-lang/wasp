@@ -20,22 +20,24 @@ export type EnvVarRequirement = {
 };
 /**
  * The manifest {@link betterAuth} produces, structurally matching
- * `ExternalAuthProviderManifest` from `@wasp.sh/spec`.
+ * `AuthSchemeManifest` from `@wasp.sh/spec`.
  *
  * `UserSignupFieldsRef` stays generic on purpose: the reference the app
  * passes is branded by the app's own spec copy, and naming that type here
  * would pin it to the wrong one. The caller's type flows through untouched.
  */
-export type BetterAuthProviderManifest<UserSignupFieldsRef = never, SetupFnRef = never> = {
-    readonly __waspAuthProviderManifest: true;
-    kind: "external";
-    contractVersion: 1;
-    id: "better-auth";
+export type BetterAuthSchemeManifest<UserSignupFieldsRef = never, SetupFnRef = never> = {
+    readonly __waspAuthSchemeManifest: true;
+    kind: "scheme";
+    contractVersion: 2;
+    handler: "@wasp.sh/auth-better-auth";
     server: {
         package: string;
     };
+    client: {
+        package: string;
+    };
     routes: {
-        basePath: "/better-auth";
         rawBody: true;
     };
     capabilities: string[];
@@ -77,7 +79,7 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never, SetupFnRef = neve
     setupFn?: SetupFnRef;
 }
 /**
- * Declares Better Auth as the app's auth provider.
+ * Declares Better Auth as one of the app's auth schemes.
  *
  * Use it in `main.wasp.ts`:
  *
@@ -87,20 +89,22 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never, SetupFnRef = neve
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   providers: [betterAuth()],  // email/password auth, ready to use
+ *   schemes: { "better-auth": betterAuth() },  // email/password auth, ready to use
  * }
  * ```
  *
- * Better Auth runs in-process and owns its own tables and HTTP endpoints, so
- * the manifest declares more than Clerk's does:
+ * Better Auth issues its own session token and verifies it on every request,
+ * so the scheme declares no `credentials`: Wasp issues nothing for it. It
+ * runs in-process and owns its own tables and HTTP endpoints, so the
+ * manifest declares more than Clerk's does:
  *
  * - `routes` mounts Better Auth's endpoints (sign-up, sign-in, OAuth
- *   callbacks) at `/better-auth` on the Wasp server. `rawBody` strips Wasp's
- *   JSON body parser there -- Better Auth's handler reads the raw request
- *   stream, and an already-consumed stream makes every request hang with no
- *   error.
+ *   callbacks) at `/auth/<scheme>` on the Wasp server. `rawBody` strips
+ *   Wasp's JSON body parser there -- Better Auth's handler reads the raw
+ *   request stream, and an already-consumed stream makes every request hang
+ *   with no error.
  * - The app's `schema.prisma` must contain the four `BetterAuth*` models the
  *   server adapter configures -- see this package's README for the block to
  *   paste in.
  */
-export declare function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(config?: BetterAuthConfig<UserSignupFieldsRef, SetupFnRef>): BetterAuthProviderManifest<UserSignupFieldsRef, SetupFnRef>;
+export declare function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(config?: BetterAuthConfig<UserSignupFieldsRef, SetupFnRef>): BetterAuthSchemeManifest<UserSignupFieldsRef, SetupFnRef>;

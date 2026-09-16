@@ -737,12 +737,11 @@ function waspCredentialScheme(
   config: WaspCredentialSchemeConfig,
 ): AuthSchemeManifest {
   const store = config.store ?? "prisma";
+  // The generated client already stores a bearer credential a sibling scheme
+  // adopts, so the issuer has no client entry of its own.
   return defineAuthSchemeManifest({
     handler: `wasp/${transport}`,
     server: { package: "wasp/server/auth/issuer" },
-    ...(transport === "bearer"
-      ? { client: { package: "wasp/client/auth/issuer" } }
-      : {}),
     capabilities: [
       "sign-in",
       ...(transport === "cookie" ? ["cookie-transport"] : []),
@@ -760,11 +759,8 @@ function waspCredentialScheme(
           : [],
       client: [],
     },
-    options: {
-      transport,
-      store: typeof store === "string" ? store : "custom",
-      ttl: config.ttl ?? "30d",
-    },
-    ...(typeof store === "object" ? { extensions: { store } } : {}),
+    // The scheme IS its issuer: the compiler reads these and builds it
+    // without a handler package in between.
+    credentials: { transport, store, ttl: config.ttl ?? "30d" },
   });
 }

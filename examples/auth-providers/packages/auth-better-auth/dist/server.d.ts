@@ -19,11 +19,13 @@ import { type BetterAuthOptions } from "better-auth";
  */
 export type BetterAuthSetupFn = (config: BetterAuthOptions) => BetterAuthOptions;
 /**
- * Better Auth, expressed as a Wasp `AuthProvider`.
+ * Better Auth, expressed as a Wasp `AuthHandler`.
  *
- * One factory builds both the Better Auth instance and the provider that
+ * One factory builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
  * the `ServerAdapter` shape exists to make the alternative unrepresentable.
+ * Better Auth's own session token is the credential on every request (the
+ * client adapter stores it and Wasp attaches it), so Wasp issues nothing.
  *
  * Two settings on the instance are load-bearing for this integration:
  *

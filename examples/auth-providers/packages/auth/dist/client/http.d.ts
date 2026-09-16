@@ -9,4 +9,4 @@ export declare class WaspAuthClientError extends Error {
     data: unknown;
     constructor(statusCode: number, message: string, data: unknown);
 }
-export declare function post<T = Record<string, unknown>>(path: string, body: unknown): Promise<T>;
+export declare function post<T = Record<string, unknown>>(url: string, body: unknown): Promise<T>;

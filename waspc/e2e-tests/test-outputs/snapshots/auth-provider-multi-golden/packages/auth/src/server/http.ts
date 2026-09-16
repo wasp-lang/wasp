@@ -1,3 +1,5 @@
+import type { AuthResponse } from "@wasp.sh/auth-contract";
+
 import type { Req, Res } from "./types.js";
 
 /**
@@ -39,6 +41,23 @@ export function json(res: Res, status: number, payload: unknown): void {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(payload));
+}
+
+/**
+ * Writes the answer of a sign-in: whatever the credentials scheme decided the
+ * client should receive (a bearer token in the body, a Set-Cookie header).
+ */
+export function sendAuthResponse(res: Res, response: AuthResponse): void {
+  res.statusCode = response.status;
+  for (const [name, value] of Object.entries(response.headers ?? {})) {
+    res.setHeader(name, value);
+  }
+  if (response.body === undefined) {
+    res.end();
+    return;
+  }
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(response.body));
 }
 
 export function redirect(res: Res, location: string): void {

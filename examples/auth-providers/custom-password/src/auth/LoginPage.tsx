@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { config } from "wasp/client";
-import { api, setSessionId } from "wasp/client/api";
+import { api, setCredential } from "wasp/client/api";
 
 /**
- * Login posts a `Basic` credential to Wasp's `POST /auth/login` exchange: the
- * provider's `authenticate` verifies it once, Wasp mints its own session, and
- * the provider is off the request path until logout. Signup posts to the
- * provider's own `api()` route.
+ * Login and signup post to the scheme's own `api()` routes. Login answers
+ * with the bearer token the scheme's private issuer minted; adopting it
+ * through `setCredential` is what makes every later request carry it, and
+ * what tells `logout()` which scheme to sign out of.
  */
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -25,23 +24,10 @@ export function LoginPage() {
         });
       }
 
-      // The exchange, addressed to this provider by id: a Basic credential
-      // in, a Wasp session out. Hand-rolled fetch because the generated
-      // `exchangeCredentialForSession` helper always sends a Bearer
-      // credential, and this provider authenticates a Basic one.
-      const response = await fetch(
-        `${config.apiUrl}/auth/login/${encodeURIComponent("password")}`,
-        {
-          method: "POST",
-          headers: { Authorization: `Basic ${btoa(`${email}:${password}`)}` },
-        },
-      );
-      if (!response.ok) {
-        setError("Invalid credentials");
-        return;
-      }
-      const { sessionId } = (await response.json()) as { sessionId: string };
-      setSessionId(sessionId, "password");
+      const { credential } = await api
+        .post("/password-auth/login", { json: { email, password } })
+        .json<{ credential: string }>();
+      setCredential(credential, "password");
       window.location.href = "/";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

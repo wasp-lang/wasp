@@ -1,5 +1,5 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
-import { HttpError, getBody, json } from "../http.js";
+import { HttpError, getBody, json, sendAuthResponse, } from "../http.js";
 import { namespaceFor } from "../namespaces.js";
 import { createInvalidCredentialsError, doFakeWork, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, normalizeEmail, } from "../validation.js";
@@ -23,7 +23,7 @@ const defaultPasswordResetEmailContent = ({ passwordResetLink, }) => ({
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
 export function emailRoutes({ runtime, options, extensions }) {
     const emailConfig = options.methods.email;
-    const identities = () => runtime.identityNamespaces(namespaceFor("email"));
+    const identities = () => runtime.identityNamespaces(namespaceFor(runtime, "email"));
     const { validateJWT } = makeJwt(runtime);
     const helpers = makeEmailHelpers(runtime);
     const getVerificationEmailContent = extensions.getVerificationEmailContent ?? defaultVerificationEmailContent;
@@ -120,8 +120,8 @@ export function emailRoutes({ runtime, options, extensions }) {
                 catch {
                     throw createInvalidCredentialsError();
                 }
-                const { sessionId } = await runtime.sessions.issue({ namespace: namespaceFor("email"), subjectId: email }, { req });
-                json(res, 200, { sessionId });
+                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "email"), subjectId: email }, { req });
+                sendAuthResponse(res, response);
             },
         },
         {
@@ -205,10 +205,10 @@ export function emailRoutes({ runtime, options, extensions }) {
                 });
                 // The act of resetting the password verifies the email.
                 await identities().updateData(email, { isEmailVerified: true });
-                // Changing the password invalidates all the existing sessions, so that
-                // somebody who got hold of a session can't keep using it.
-                await runtime.sessions.revokeAllForSubject({
-                    namespace: namespaceFor("email"),
+                // Changing the password invalidates every existing credential, so
+                // that somebody who got hold of one can't keep using it.
+                await runtime.credentials.signOutEverywhere({
+                    namespace: namespaceFor(runtime, "email"),
                     subjectId: email,
                 });
                 json(res, 200, { success: true });

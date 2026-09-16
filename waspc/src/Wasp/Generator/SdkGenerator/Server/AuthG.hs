@@ -168,6 +168,9 @@ genSchemesTs spec auth =
         [ "dbProvider" .= prismaDbProviderName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "defaultScheme" .= AS.Auth.defaultScheme auth,
+          -- Where a cookie-transport issuer sends a browser navigation that
+          -- carries no credential.
+          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           -- The email-send grant can only be wired when the app has an email
           -- sender; validation guarantees no manifest requests it otherwise.
           "isEmailSenderEnabled" .= isJust maybeEmailSender,

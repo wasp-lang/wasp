@@ -1,6 +1,6 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 
-import { getBody, json, type Route } from "./http.js";
+import { getBody, json, sendAuthResponse, type Route } from "./http.js";
 import { namespaceFor } from "./namespaces.js";
 import type { Ctx } from "./types.js";
 import {
@@ -17,7 +17,8 @@ import {
 
 /** The username & password method: `/auth/username/{login,signup}`. */
 export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
-  const identities = () => runtime.identityNamespaces(namespaceFor("username"));
+  const identities = () =>
+    runtime.identityNamespaces(namespaceFor(runtime, "username"));
 
   return [
     {
@@ -46,13 +47,14 @@ export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
           throw createInvalidCredentialsError();
         }
 
-        // The mint goes through the same `wasp-sessions` facet any adapter
-        // gets; the app's login hooks fire inside it.
-        const { sessionId } = await runtime.sessions.issue(
-          { namespace: namespaceFor("username"), subjectId: username },
+        // The sign-in goes through the credentials facet any handler gets;
+        // the app's login hooks fire inside it, and the credentials scheme
+        // decides what the client receives.
+        const { response } = await runtime.credentials.signIn(
+          { namespace: namespaceFor(runtime, "username"), subjectId: username },
           { req },
         );
-        json(res, 200, { sessionId });
+        sendAuthResponse(res, response);
       },
     },
     {

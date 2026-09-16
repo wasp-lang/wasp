@@ -5,11 +5,11 @@ import { LoginForm, SignupForm } from "@wasp.sh/auth/client";
 /**
  * One login page, two independent front doors, composed by the app.
  *
- * Wasp ships no meta-login-chrome across providers: the app decides how the
+ * Wasp ships no meta-login-chrome across schemes: the app decides how the
  * audiences are presented. Wasp's own forms post credentials to Wasp's own
- * endpoints; Clerk's component talks to Clerk's Frontend API, and completing
- * it fires a credential event the generated client exchanges for a Wasp
- * session (when none exists yet).
+ * endpoints and adopt the bearer token they get back; Clerk's component talks
+ * to Clerk's Frontend API, and its token then rides on every request through
+ * the Clerk adapter's credential source.
  */
 export function LoginPage() {
   const [isSignup, setIsSignup] = useState(false);

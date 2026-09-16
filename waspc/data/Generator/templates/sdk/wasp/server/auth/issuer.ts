@@ -188,15 +188,19 @@ function signedTokenStore(secret: string): CredentialStore {
       return { id: token }
     },
     async get(id) {
-      const validated = await jwt.validateJWT(id).catch(() => null)
-      if (validated === null) {
+      // The helper verifies the signature and expiry and returns the payload;
+      // `iat` / `exp` are the standard claims, in seconds.
+      const payload = await jwt
+        .validateJWT<{ authId?: unknown; signedInBy?: unknown; iat?: unknown; exp?: unknown }>(id)
+        .catch(() => null)
+      if (payload === null) {
         return null
       }
-      const payload = validated.payload as { authId?: unknown; signedInBy?: unknown }
       if (typeof payload.authId !== 'string' || typeof payload.signedInBy !== 'string') {
         return null
       }
-      const issuedAt = validated.issuedAt ?? new Date(0)
+      const issuedAt = typeof payload.iat === 'number' ? new Date(payload.iat * 1000) : new Date(0)
+      const expiresAt = typeof payload.exp === 'number' ? new Date(payload.exp * 1000) : new Date(0)
       const invalidatedAt = await credentialsInvalidatedAt(payload.authId)
       if (invalidatedAt !== null && issuedAt < invalidatedAt) {
         return null
@@ -205,7 +209,7 @@ function signedTokenStore(secret: string): CredentialStore {
         authId: payload.authId,
         signedInBy: payload.signedInBy,
         issuedAt,
-        expiresAt: validated.expiresAt ?? new Date(0),
+        expiresAt,
       } satisfies CredentialRecord
     },
     async delete() {},
@@ -240,7 +244,7 @@ function contractError(code: string, message: string): Error {
 /** Applies a handler's response to the Node response. */
 export function sendAuthResponse(res: import('node:http').ServerResponse, response: AuthResponse): void {
   res.statusCode = response.status
-  for (const [name, value] of Object.entries(response.headers ?? {})) {
+  for (const [name, value] of Object.entries(response.headers ?? {}) as Array<[string, string | string[]]>) {
     res.setHeader(name, value)
   }
   if (response.body !== undefined) {

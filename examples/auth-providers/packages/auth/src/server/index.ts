@@ -1,5 +1,5 @@
 import type {
-  AuthProvider,
+  AuthHandler,
   ServerAdapter,
   ServerAdapterFactory,
 } from "@wasp.sh/auth-contract";
@@ -11,7 +11,6 @@ import {
   type EmailHelpers,
 } from "./email/utils.js";
 import { makeDispatcher, type Route } from "./http.js";
-import { PROVIDER_ID } from "./namespaces.js";
 import { oauthRoutes } from "./oauth/index.js";
 import type {
   Ctx,
@@ -32,18 +31,19 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
 ];
 
 /**
- * Wasp's own authentication as an auth provider package.
+ * Wasp's own authentication as an auth handler package.
  *
- * Wasp instantiates this exactly like any adapter package: with the runtime
- * window (`wasp-sessions` and `identity-namespaces` grants, plus `email-send`
- * when the email method is on), the serializable options the spec helper
- * captured, and the user-code extensions the manifest referenced, delivered
- * through virtual modules. The route handler mounts at the manifest's
- * basePath (`/auth/wasp`).
+ * Wasp instantiates this exactly like any handler package: with the runtime
+ * window (the `identity-namespaces` grant, the credentials facet, plus
+ * `email-send` when the email method is on), the serializable options the
+ * spec helper captured, and the user-code extensions the manifest
+ * referenced, delivered through virtual modules. The route handler mounts
+ * at `/auth/<scheme>`.
  */
 export const createServerAdapter: ServerAdapterFactory<
   WaspAuthOptions,
-  WaspAuthGrants
+  WaspAuthGrants,
+  true
 > = (runtime, options, extensions): ServerAdapter => {
   const ctx: Ctx = {
     runtime,
@@ -65,18 +65,17 @@ export const createServerAdapter: ServerAdapterFactory<
     boundEmailHelpers = makeEmailHelpers(runtime);
   }
 
-  // Sessions are minted from the routes above through the `wasp-sessions`
-  // grant, and every request is then authenticated against Wasp's own session
-  // store; there is no credential to exchange, so the exchange route answers
-  // 'unauthenticated' for this provider.
-  const provider: AuthProvider = {
-    id: PROVIDER_ID,
-    async authenticate() {
-      return { status: "unauthenticated" };
-    },
+  // The routes above verify logins; the credential a request carries
+  // afterwards belongs to the credentials scheme (this scheme's private
+  // issuer by default). Authentication forwards there, the way ASP.NET's
+  // remote schemes forward to their sign-in scheme, so `authRequired`
+  // naming this scheme recognizes the credentials it handed out.
+  const handler: AuthHandler = {
+    authenticate: (request) => runtime.credentials.authenticate(request),
+    signOut: (request) => runtime.credentials.signOut(request),
   };
 
-  return { provider, routeHandler: makeDispatcher(routes) };
+  return { handler, routeHandler: makeDispatcher(routes) };
 };
 
 /**

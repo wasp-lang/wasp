@@ -14,7 +14,7 @@ const routesMapping = {
 
       return {
         Component:
-          createAuthRequiredPage(Component),
+          createAuthRequiredPage(Component, { schemes: ['wasp', 'clerk'] }),
       }
     },
   },
@@ -24,7 +24,7 @@ const routesMapping = {
 
       return {
         Component:
-          createAuthRequiredPage(Component, { providers: ['wasp'] }),
+          createAuthRequiredPage(Component, { schemes: ['wasp'] }),
       }
     },
   },

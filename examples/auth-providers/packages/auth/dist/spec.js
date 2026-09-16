@@ -8,8 +8,6 @@
  * constructed and typed structurally here, and the compiler validates it
  * structurally when it reads the app.
  */
-export const PROVIDER_ID = "wasp";
-export const ROUTES_BASE_PATH = "/auth/wasp";
 /** The client route the OAuth handback lands on; the app declares it. */
 export const OAUTH_CALLBACK_PATH = "/oauth/callback";
 const oauthProviders = {
@@ -53,7 +51,7 @@ const oauthProviders = {
     },
 };
 /**
- * Declares Wasp's own auth as one of the app's auth providers.
+ * Declares Wasp's own auth as one of the app's auth schemes.
  *
  * ```ts
  * import { waspAuth } from "@wasp.sh/auth/spec";
@@ -61,14 +59,15 @@ const oauthProviders = {
  * auth: {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
- *   providers: [waspAuth({ methods: { usernameAndPassword: {} } })],
+ *   schemes: { wasp: waspAuth({ methods: { usernameAndPassword: {} } }) },
  * }
  * ```
  *
- * The manifest mounts the flows at `/auth/wasp`, records identities under
- * `wasp:<method>`, declares the env vars the enabled methods read
- * (`JWT_SECRET` for email and OAuth, the OAuth client credentials), and hands
- * every user function over as an extension.
+ * The manifest mounts the flows at `/auth/<scheme>`, records identities
+ * under `<scheme>:<method>`, declares the env vars the enabled methods read
+ * (`JWT_SECRET` for email and OAuth, the OAuth client credentials), hands
+ * out credentials through its own bearer issuer unless `credentials` says
+ * otherwise, and hands every user function over as an extension.
  */
 export function waspAuth(config) {
     const { methods } = config;
@@ -115,21 +114,18 @@ export function waspAuth(config) {
         optionMethods[name] = { requiredScopes };
     }
     const identityNamespaces = [
-        PROVIDER_ID,
-        ...(methods.usernameAndPassword !== undefined
-            ? [`${PROVIDER_ID}:username`]
-            : []),
-        ...(usesEmail ? [`${PROVIDER_ID}:email`] : []),
-        ...enabledOAuth.map((method) => `${PROVIDER_ID}:${oauthProviders[method].name}`),
+        ...(methods.usernameAndPassword !== undefined ? ["username"] : []),
+        ...(usesEmail ? ["email"] : []),
+        ...enabledOAuth.map((method) => oauthProviders[method].name),
     ];
     return {
-        __waspAuthProviderManifest: true,
-        kind: "external",
-        contractVersion: 1,
-        id: PROVIDER_ID,
+        __waspAuthSchemeManifest: true,
+        kind: "scheme",
+        contractVersion: 2,
+        handler: "@wasp.sh/auth",
         server: { package: "@wasp.sh/auth/server" },
         client: { package: "@wasp.sh/auth/client" },
-        routes: { basePath: ROUTES_BASE_PATH },
+        routes: {},
         capabilities: [],
         env: {
             server: [
@@ -156,15 +152,14 @@ export function waspAuth(config) {
             client: [],
         },
         uses: [
-            "wasp-sessions",
             "identity-namespaces",
             ...(usesEmail ? ["email-send"] : []),
         ],
         identityNamespaces,
+        credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
         options: {
             onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
             clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
-            routesBasePath: ROUTES_BASE_PATH,
             methods: optionMethods,
         },
         extensions,

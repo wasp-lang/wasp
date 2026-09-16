@@ -14,7 +14,7 @@ export function makeEmailHelpers(runtime) {
     async function sendEmailAndSaveMetadata(email, content, metadata) {
         // Save the metadata (e.g. timestamp) first, and then send the email so
         // the user can't send multiple requests while the email is being sent.
-        const emailIdentities = runtime.identityNamespaces(namespaceFor("email"));
+        const emailIdentities = runtime.identityNamespaces(namespaceFor(runtime, "email"));
         const identity = await emailIdentities.find(email);
         if (!identity) {
             throw new Error(`User with email: ${email} not found.`);

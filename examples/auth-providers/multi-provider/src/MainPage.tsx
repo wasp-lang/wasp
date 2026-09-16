@@ -4,9 +4,9 @@ import { logout, useAuth } from "wasp/client/auth";
 import { createTask, getMyTasks, useQuery } from "wasp/client/operations";
 
 /**
- * The uniform surface, now with two providers behind it. `useAuth()` and
- * `logout()` work the same however the session was minted;
- * `user.sessionProviderId` says which provider vouched for this login.
+ * The uniform surface, now with two schemes behind it. `useAuth()` and
+ * `logout()` work the same whichever credential the request carries;
+ * `user.sessionScheme` says which scheme authenticated it.
  */
 export function MainPage() {
   const { data: user } = useAuth();
@@ -25,10 +25,10 @@ export function MainPage() {
       {/* `user.id` is this app's own User.id, never the provider's id. */}
       <p>
         Signed in as <code>{user?.id}</code> via{" "}
-        <code>{user?.sessionProviderId}</code>
+        <code>{user?.sessionScheme}</code>
       </p>
       <p>
-        <Link to="/admin">Admin report</Link> (wasp-authenticated sessions only)
+        <Link to="/admin">Admin report</Link> (wasp-authenticated requests only)
       </p>
 
       <form

@@ -10,7 +10,6 @@ export type OAuthProviderName =
 export type WaspAuthClientOptions = {
   onAuthSucceededRedirectTo: string;
   /** Where the server mounted the routes. Defaults to `/auth`. */
-  routesBasePath?: string;
   clientOAuthCallbackPath: string;
   methods: {
     usernameAndPassword?: Record<string, never>;

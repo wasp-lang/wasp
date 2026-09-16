@@ -7,12 +7,19 @@ import {
   getBody,
   getUrl,
   isHttpErrorLike,
-  json,
   redirect,
+  sendAuthResponse,
   type Route,
 } from "../http.js";
-import { DEFAULT_ROUTES_BASE_PATH, namespaceFor } from "../namespaces.js";
-import type { Ctx, OAuthData, OAuthProviderName, Req, Res } from "../types.js";
+import { namespaceFor } from "../namespaces.js";
+import type {
+  Ctx,
+  OAuthData,
+  OAuthProviderName,
+  Req,
+  Res,
+  SignInResponse,
+} from "../types.js";
 import {
   TimeSpan,
   makeJwt,
@@ -56,7 +63,7 @@ export function oauthRoutes(ctx: Ctx): Route[] {
     const provider = makeOAuthProvider(
       runtime,
       name,
-      `${runtime.serverUrl}${options.routesBasePath ?? DEFAULT_ROUTES_BASE_PATH}/${name}/${CALLBACK_PATH}`,
+      `${runtime.serverUrl}${runtime.mountPath}/${name}/${CALLBACK_PATH}`,
     );
     const config = mergeDefaultAndUserConfig(
       { scopes: options.methods[name]!.requiredScopes },
@@ -89,8 +96,8 @@ export function oauthRoutes(ctx: Ctx): Route[] {
           "Unable to login with the OAuth provider. The code is missing.",
         );
       }
-      const { sessionId } = await jwt
-        .validateJWT<{ sessionId: string }>(code)
+      const { response } = await jwt
+        .validateJWT<{ response: SignInResponse }>(code)
         .catch(() => {
           throw new HttpError(
             400,
@@ -105,7 +112,7 @@ export function oauthRoutes(ctx: Ctx): Route[] {
           "Unable to login with the OAuth provider. The code has already been used.",
         );
       }
-      json(res, 200, { sessionId });
+      sendAuthResponse(res, response);
     },
   });
 
@@ -169,7 +176,9 @@ async function callbackHandler(
       tokens,
     };
 
-    const identities = runtime.identityNamespaces(namespaceFor(provider.id));
+    const identities = runtime.identityNamespaces(
+      namespaceFor(runtime, provider.id),
+    );
     const existing = await identities.find(providerUserId);
     let isNewUser = false;
     if (!existing) {
@@ -192,16 +201,20 @@ async function callbackHandler(
       }
     }
 
-    // The session is minted HERE, where the tokens exist, so the app's login
+    // The sign-in happens HERE, where the tokens exist, so the app's login
     // hooks receive them (skipped for a fresh signup, whose signup hooks just
-    // fired -- the in-tree semantics). The one-time code then names the
-    // session, and redeeming it is a plain hand-over.
-    const { sessionId } = await runtime.sessions.issue(
-      { namespace: namespaceFor(provider.id), subjectId: providerUserId },
+    // fired -- the in-tree semantics). The one-time code then carries the
+    // credentials scheme's answer, and redeeming it replays that answer to
+    // the client: a bearer token in the body, or a Set-Cookie header.
+    const { response } = await runtime.credentials.signIn(
+      {
+        namespace: namespaceFor(runtime, provider.id),
+        subjectId: providerUserId,
+      },
       { req, hookContext: oauth, skipHooks: isNewUser },
     );
     const oneTimeCode = await jwt.createJWT(
-      { sessionId },
+      { response },
       { expiresIn: new TimeSpan(1, "m") },
     );
     redirect(

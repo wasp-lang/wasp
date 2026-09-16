@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInitialized } from '../../operations/index'
 
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
-import { clientAuthAdapters } from '../../auth/providers'
+import { clientAuthAdapters } from '../../auth/schemes'
 
 // Each adapter's React context (Clerk's ClerkProvider, for one) wraps the
 // whole app, outside the app's own rootComponent slot. Nesting follows

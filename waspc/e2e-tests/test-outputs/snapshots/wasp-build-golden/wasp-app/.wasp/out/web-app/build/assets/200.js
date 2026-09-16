@@ -223,35 +223,45 @@ function createLocalStorageDataStore(prefix) {
 var apiEventsEmitter = mitt();
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/api/index.js
-var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
-function getSessionId() {
-	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
+var WASP_APP_AUTH_CREDENTIAL_NAME = "sessionId";
+function getCredential() {
+	return storage.get(WASP_APP_AUTH_CREDENTIAL_NAME) ?? null;
 }
-function clearSessionId() {
-	storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
+function clearCredential() {
+	storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME);
 	apiEventsEmitter.emit("sessionId.clear");
+}
+var credentialSource = null;
+/** The credential the next request should carry, if any. */
+async function getRequestCredential() {
+	const stored = getCredential();
+	if (stored !== null) return stored;
+	return credentialSource === null ? null : credentialSource();
 }
 ky.extend({
 	prefix: config.apiUrl,
+	credentials: "include",
 	hooks: {
-		beforeRequest: [({ request }) => {
-			const sessionId = getSessionId();
-			if (sessionId !== null) request.headers.set("Authorization", `Bearer ${sessionId}`);
+		beforeRequest: [async ({ request }) => {
+			const credential = await getRequestCredential();
+			if (credential !== null) request.headers.set("Authorization", `Bearer ${credential}`);
 		}],
 		afterResponse: [({ request, response }) => {
 			if (response.status === 401) {
-				if (getSessionIdFromAuthorizationHeader(request.headers.get("Authorization")) === getSessionId()) clearSessionId();
+				const failingCredential = getCredentialFromAuthorizationHeader(request.headers.get("Authorization"));
+				const currentCredential = getCredential();
+				if (failingCredential !== null && failingCredential === currentCredential) clearCredential();
 			}
 		}]
 	}
 });
 if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
-	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_CREDENTIAL_NAME)) {
 		if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
 		else apiEventsEmitter.emit("sessionId.clear");
 	}
 });
-function getSessionIdFromAuthorizationHeader(header) {
+function getCredentialFromAuthorizationHeader(header) {
 	if (header && header.startsWith("Bearer ")) return header.substring(7);
 	else return null;
 }

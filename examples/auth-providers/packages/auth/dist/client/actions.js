@@ -2,20 +2,23 @@ import { post } from "./http.js";
 import { getClientOptions, getClientRuntime } from "./runtime.js";
 /** The server path prefix the routes live under. */
 function basePath() {
-    return getClientOptions().routesBasePath ?? "/auth/wasp";
+    return getClientRuntime().mountUrl;
 }
-async function initSession(sessionId) {
-    // The provider-bound sink: records 'wasp' as the minting provider and
-    // refreshes cached queries so `useAuth` sees the new user.
-    await getClientRuntime().setSession(sessionId);
+/**
+ * Adopts what the server answered a login with: a bearer credential in the
+ * body, which the generated client stores and attaches to every request; or
+ * nothing, when the credential travels as a cookie the browser already holds.
+ * Either way the cached queries are refreshed, so `useAuth()` sees the login.
+ */
+async function adoptSignIn(body) {
+    await getClientRuntime().setCredential(typeof body.credential === "string" ? body.credential : null);
 }
 // PUBLIC API
 export async function login(data) {
     const path = "email" in data
         ? `${basePath()}/email/login`
         : `${basePath()}/username/login`;
-    const { sessionId } = await post(path, data);
-    await initSession(sessionId);
+    await adoptSignIn(await post(path, data));
 }
 // PUBLIC API
 export async function signup(data) {
@@ -41,11 +44,12 @@ export async function verifyEmail(data) {
 }
 // PRIVATE API
 export async function exchangeOAuthCodeForSession(code) {
-    const { sessionId } = await post(`${basePath()}/exchange-code`, { code });
-    await initSession(sessionId);
+    await adoptSignIn(await post(`${basePath()}/exchange-code`, {
+        code,
+    }));
 }
 export function signInUrl(provider) {
-    return `${getClientRuntime().apiUrl}${basePath()}/${provider}/login`;
+    return `${basePath()}/${provider}/login`;
 }
 export function isMethodEnabled(name) {
     return getClientOptions().methods[name] !== undefined;

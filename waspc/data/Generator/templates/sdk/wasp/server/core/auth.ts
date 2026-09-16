@@ -77,7 +77,9 @@ export function requireSchemes(schemeNames: AuthSchemeName[]) {
       }
       return sendAuthResponse(res as ExpressResponse, response)
     }
-    const challenger = authSchemes[schemeNames[0]]
+    // The list is validated non-empty at compile time; the first scheme
+    // issues the challenge.
+    const challenger = authSchemes[schemeNames[0]!]
     const response = (await challenger.challenge?.(webRequest)) ?? { status: 401, body: { message: 'Invalid credentials' } }
     return sendAuthResponse(res as ExpressResponse, response)
   })
