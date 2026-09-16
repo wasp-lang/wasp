@@ -1036,6 +1036,7 @@ wasp-app/e2e-tests/tests/auth.spec.ts
 wasp-app/e2e-tests/tests/auth.ts
 wasp-app/e2e-tests/tests/catch-all-route.spec.ts
 wasp-app/e2e-tests/tests/crud.spec.ts
+wasp-app/e2e-tests/tests/custom-apis-methods.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
 wasp-app/e2e-tests/tests/custom-signup.spec.ts
 wasp-app/e2e-tests/tests/helpers.ts
