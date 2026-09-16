@@ -1,6 +1,6 @@
 import type { Request as ExpressRequest } from 'express'
 import type { ProviderId, FindAuthWithUserResult } from './utils.js'
-import { CreateUserResult } from './identityStore.js'
+import type { CreateUserResult } from './identityStore.js'
 import { prisma } from '../index.js'
 import type { Expand } from '../../universal/types.js'
 
