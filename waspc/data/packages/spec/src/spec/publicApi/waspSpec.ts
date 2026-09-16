@@ -1079,8 +1079,22 @@ export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
  * HTTP methods supported by an {@link Api}.
  *
  * Use `"ALL"` to match any method.
+ *
+ * A `"HEAD"` api must be declared before a `"GET"` api on the same path,
+ * otherwise the `"GET"` api answers the HEAD requests as well.
+ *
+ * An `"OPTIONS"` api only gets to run if you remove or reconfigure Wasp's
+ * default CORS middleware, which answers OPTIONS requests on its own.
  */
-export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+export type HttpMethod =
+  | "ALL"
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD"
+  | "OPTIONS";
 
 /**
  * A background job. Can be submitted ad-hoc or run on a recurring schedule.

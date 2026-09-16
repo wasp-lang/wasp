@@ -3,6 +3,8 @@ import { type MiddlewareConfigFn } from "wasp/server";
 import {
   type BarBaz,
   type FooBar,
+  type HeadBarBaz,
+  type OptionsBarBaz,
   type PatchBarBaz,
   type WebhookCallback,
 } from "wasp/server/api";
@@ -37,6 +39,26 @@ export const barBaz: BarBaz = (_req, res, _context) => {
 
 export const patchBarBaz: PatchBarBaz = (req, res, _context) => {
   res.json({ msg: `Patched with ${JSON.stringify(req.body)}` });
+};
+
+export const headBarBaz: HeadBarBaz = (_req, res, _context) => {
+  res.setHeader("X-Api-Handler", "headBarBaz");
+  res.end();
+};
+
+export const optionsBarBaz: OptionsBarBaz = (_req, res, _context) => {
+  res.setHeader("Allow", "OPTIONS, HEAD, GET, PATCH");
+  res.end();
+};
+
+export const optionsBarBazMiddlewareFn: MiddlewareConfigFn = (
+  middlewareConfig,
+) => {
+  // The default CORS middleware answers every OPTIONS request on its own, so we
+  // drop it to let our handler do the answering.
+  middlewareConfig.delete("cors");
+
+  return middlewareConfig;
 };
 
 export const barNamespaceMiddlewareFn: MiddlewareConfigFn = (
