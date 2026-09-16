@@ -23,6 +23,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genEmailSenderApi :: AppSpec -> Generator [FileDraft]
 genEmailSenderApi spec = case maybeEmailSender of
@@ -85,8 +86,8 @@ genCoreHelpers emailSender =
       object
         [ "defaultFromField"
             .= object
-              [ "email" .= fromMaybe "" maybeEmail,
-                "name" .= fromMaybe "" maybeName,
+              [ "email" .= makeJsStringLiteral (fromMaybe "" maybeEmail),
+                "name" .= makeJsStringLiteral (fromMaybe "" maybeName),
                 "isNameDefined" .= isJust maybeName
               ],
           "isDefaultFromFieldDefined" .= isDefaultFromFieldDefined

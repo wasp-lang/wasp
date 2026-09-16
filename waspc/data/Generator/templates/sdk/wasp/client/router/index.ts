@@ -11,17 +11,17 @@ import type {
 export const routes = {
   {=# routes =}
   {= name =}: {
-    to: "{= urlPath =}",
+    to: {=& urlPath =},
     {=# hasUrlParams =}
     build: (
       options: OptionalRouteOptions
-      & { params: {{=# urlParams =}"{= name =}"{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
+      & { params: {{=# urlParams =}{=& name =}{=# isOptional =}?{=/ isOptional =}: ParamValue;{=/ urlParams =}}}
       {=# hasOptionalStaticSegments =}
-      & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
+      & { path: ExpandRouteOnOptionalStaticSegments<{=& urlPath =}> }
       {=/ hasOptionalStaticSegments =}
     ) => interpolatePath(
         {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
-        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}{=& urlPath =},{=/ hasOptionalStaticSegments =}
         options.params,
         options?.search,
         options?.hash
@@ -32,11 +32,11 @@ export const routes = {
       options?:
       OptionalRouteOptions
       {=# hasOptionalStaticSegments =}
-      & { path: ExpandRouteOnOptionalStaticSegments<"{= urlPath =}"> }
+      & { path: ExpandRouteOnOptionalStaticSegments<{=& urlPath =}> }
       {=/ hasOptionalStaticSegments =}
     ) => interpolatePath(
         {=# hasOptionalStaticSegments =}options.path,{=/ hasOptionalStaticSegments =}
-        {=^ hasOptionalStaticSegments =}"{= urlPath =}",{=/ hasOptionalStaticSegments =}
+        {=^ hasOptionalStaticSegments =}{=& urlPath =},{=/ hasOptionalStaticSegments =}
         undefined,
         options?.search,
         options?.hash

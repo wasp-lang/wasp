@@ -3,16 +3,16 @@ import { initializeQueryClient } from "wasp/client/operations";
 
 import { createAuthRequiredPage } from "wasp/client/app"
 
-import { App as App_ext } from './src/App'
+import { App as App_ext } from "./src/App"
 
-import { clientSetup as clientSetup_ext } from './src/clientSetup'
+import { clientSetup as clientSetup_ext } from "./src/clientSetup"
 
-import { EagerPage } from './src/features/lazy-loading/pages/EagerPage'
+import { EagerPage } from "./src/features/lazy-loading/pages/EagerPage"
 
 const routesMapping = {
   HomeRoute: {
     lazy: async () => {
-      const Component = await import('./src/pages/HomePage').then(m => m.HomePage);
+      const Component = await import("./src/pages/HomePage").then(m => m.HomePage);
 
       return {
         Component:
@@ -22,7 +22,7 @@ const routesMapping = {
   },
   CatchAllRoute: {
     lazy: async () => {
-      const Component = await import('./src/pages/CatchAllPage').then(m => m.CatchAllPage);
+      const Component = await import("./src/pages/CatchAllPage").then(m => m.CatchAllPage);
 
       return {
         Component:
@@ -32,7 +32,7 @@ const routesMapping = {
   },
   SignupRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/Signup').then(m => m.default);
+      const Component = await import("./src/features/auth/pages/Signup").then(m => m.default);
 
       return {
         Component:
@@ -42,7 +42,7 @@ const routesMapping = {
   },
   LoginRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/Login').then(m => m.default);
+      const Component = await import("./src/features/auth/pages/Login").then(m => m.default);
 
       return {
         Component:
@@ -52,7 +52,7 @@ const routesMapping = {
   },
   PasswordResetRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset);
+      const Component = await import("./src/features/auth/pages/PasswordReset").then(m => m.PasswordReset);
 
       return {
         Component:
@@ -62,7 +62,7 @@ const routesMapping = {
   },
   EmailVerificationRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification);
+      const Component = await import("./src/features/auth/pages/EmailVerification").then(m => m.EmailVerification);
 
       return {
         Component:
@@ -72,7 +72,7 @@ const routesMapping = {
   },
   RequestPasswordResetRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/RequestPasswordReset').then(m => m.RequestPasswordReset);
+      const Component = await import("./src/features/auth/pages/RequestPasswordReset").then(m => m.RequestPasswordReset);
 
       return {
         Component:
@@ -82,7 +82,7 @@ const routesMapping = {
   },
   ProfileRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/ProfilePage').then(m => m.ProfilePage);
+      const Component = await import("./src/features/auth/pages/ProfilePage").then(m => m.ProfilePage);
 
       return {
         Component:
@@ -92,7 +92,7 @@ const routesMapping = {
   },
   ManualSignupRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/ManualSignupPage').then(m => m.ManualSignupPage);
+      const Component = await import("./src/features/auth/pages/ManualSignupPage").then(m => m.ManualSignupPage);
 
       return {
         Component:
@@ -102,7 +102,7 @@ const routesMapping = {
   },
   CustomSignupRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/auth/pages/CustomSignupPage').then(m => m.CustomSignupPage);
+      const Component = await import("./src/features/auth/pages/CustomSignupPage").then(m => m.CustomSignupPage);
 
       return {
         Component:
@@ -112,7 +112,7 @@ const routesMapping = {
   },
   TasksRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/operations/pages/TasksPage').then(m => m.TasksPage);
+      const Component = await import("./src/features/operations/pages/TasksPage").then(m => m.TasksPage);
 
       return {
         Component:
@@ -122,7 +122,7 @@ const routesMapping = {
   },
   TaskRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/operations/pages/TaskDetailPage').then(m => m.TaskDetailPage);
+      const Component = await import("./src/features/operations/pages/TaskDetailPage").then(m => m.TaskDetailPage);
 
       return {
         Component:
@@ -132,7 +132,7 @@ const routesMapping = {
   },
   SerializationRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/operations/pages/SerializationPage').then(m => m.SerializationPage);
+      const Component = await import("./src/features/operations/pages/SerializationPage").then(m => m.SerializationPage);
 
       return {
         Component:
@@ -142,7 +142,7 @@ const routesMapping = {
   },
   JobsRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/jobs/pages/JobsPage').then(m => m.JobsPage);
+      const Component = await import("./src/features/jobs/pages/JobsPage").then(m => m.JobsPage);
 
       return {
         Component:
@@ -152,7 +152,7 @@ const routesMapping = {
   },
   ApisRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/apis/pages/ApisPage').then(m => m.ApisPage);
+      const Component = await import("./src/features/apis/pages/ApisPage").then(m => m.ApisPage);
 
       return {
         Component:
@@ -162,7 +162,7 @@ const routesMapping = {
   },
   CrudListRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/crud/pages/ListPage').then(m => m.ListPage);
+      const Component = await import("./src/features/crud/pages/ListPage").then(m => m.ListPage);
 
       return {
         Component:
@@ -172,7 +172,7 @@ const routesMapping = {
   },
   CrudDetailRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/crud/pages/DetailPage').then(m => m.DetailPage);
+      const Component = await import("./src/features/crud/pages/DetailPage").then(m => m.DetailPage);
 
       return {
         Component:
@@ -182,7 +182,7 @@ const routesMapping = {
   },
   StreamingRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/streaming/pages/StreamingTestPage').then(m => m.StreamingTestPage);
+      const Component = await import("./src/features/streaming/pages/StreamingTestPage").then(m => m.StreamingTestPage);
 
       return {
         Component:
@@ -192,7 +192,7 @@ const routesMapping = {
   },
   ChatRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/chat/pages/ChatPage').then(m => m.ChatPage);
+      const Component = await import("./src/features/chat/pages/ChatPage").then(m => m.ChatPage);
 
       return {
         Component:
@@ -205,7 +205,7 @@ const routesMapping = {
   },
   LazyRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/lazy-loading/pages/LazyPage').then(m => m.LazyPage);
+      const Component = await import("./src/features/lazy-loading/pages/LazyPage").then(m => m.LazyPage);
 
       return {
         Component:
@@ -215,7 +215,7 @@ const routesMapping = {
   },
   PrerenderRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/prerender/pages/PrerenderPage').then(m => m.PrerenderPage);
+      const Component = await import("./src/features/prerender/pages/PrerenderPage").then(m => m.PrerenderPage);
 
       return {
         Component:
@@ -225,7 +225,7 @@ const routesMapping = {
   },
   PrerenderInstancesRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/prerender/pages/PrerenderInstancesPage').then(m => m.PrerenderInstancesPage);
+      const Component = await import("./src/features/prerender/pages/PrerenderInstancesPage").then(m => m.PrerenderInstancesPage);
 
       return {
         Component:
@@ -235,7 +235,7 @@ const routesMapping = {
   },
   HydrationMismatchRoute: {
     lazy: async () => {
-      const Component = await import('./src/features/prerender/pages/HydrationMismatchPage').then(m => m.HydrationMismatchPage);
+      const Component = await import("./src/features/prerender/pages/HydrationMismatchPage").then(m => m.HydrationMismatchPage);
 
       return {
         Component:
