@@ -5,6 +5,7 @@ import {
   barNamespaceMiddlewareFn,
   fooBar,
   fooBarMiddlewareFn,
+  patchBarBaz,
   webhookCallback,
   webhookCallbackMiddlewareFn,
 } from "./apis" with { type: "ref" };
@@ -20,6 +21,7 @@ export const apisSpec: Spec = [
     middlewareConfigFn: barNamespaceMiddlewareFn,
   }),
   api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
+  api("PATCH", "/bar/baz", patchBarBaz, { auth: false }),
   api("POST", "/webhook/callback", webhookCallback, {
     middlewareConfigFn: webhookCallbackMiddlewareFn,
     auth: false,

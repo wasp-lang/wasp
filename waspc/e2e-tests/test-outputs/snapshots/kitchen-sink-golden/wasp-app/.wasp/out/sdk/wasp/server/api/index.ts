@@ -43,6 +43,22 @@ export type BarBaz<
     ReqQuery,
     Locals
   >
+export type PatchBarBaz<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
 export type WebhookCallback<
   P extends ExpressParams = ExpressParams,
   ResBody = any,
