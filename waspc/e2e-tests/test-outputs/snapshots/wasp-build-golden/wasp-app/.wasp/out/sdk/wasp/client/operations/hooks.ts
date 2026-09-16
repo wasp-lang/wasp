@@ -1,14 +1,14 @@
 import {
-  QueryClient,
-  QueryKey,
+  type QueryClient,
+  type QueryKey,
   useQuery as rqUseQuery,
   useMutation,
-  UseMutationOptions,
+  type UseMutationOptions,
   useQueryClient,
-  UseQueryResult,
+  type UseQueryResult,
 } from "@tanstack/react-query";
 import { makeQueryCacheKey } from "./queries/core";
-import { Action, Query } from "./rpc";
+import type { Action, Query } from "./rpc";
 export { configureQueryClient } from "./queryClient";
 
 // PUBLIC API

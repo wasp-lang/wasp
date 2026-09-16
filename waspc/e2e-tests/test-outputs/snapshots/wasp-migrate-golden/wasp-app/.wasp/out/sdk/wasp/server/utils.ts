@@ -1,4 +1,4 @@
-import { Response, RequestHandler } from 'express'
+import type { Response, RequestHandler } from 'express'
 
 
 // This is explicitly how Express expects extensions to their

@@ -90,7 +90,7 @@
                 },
                 {
                     "name": "@wasp.sh/wasp-app-runner",
-                    "version": "^0.0.16"
+                    "version": "^0.0.17"
                 },
                 {
                     "name": "prisma",

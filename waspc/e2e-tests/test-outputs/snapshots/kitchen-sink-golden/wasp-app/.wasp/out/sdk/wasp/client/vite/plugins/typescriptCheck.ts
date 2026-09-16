@@ -1,4 +1,4 @@
-import { type Plugin } from 'vite'
+import type { Plugin } from 'vite'
 import { spawn } from 'node:child_process'
 
 interface TypeScriptCheckOptions {

@@ -15,11 +15,9 @@ import System.IO.Error (catchIOError, tryIOError)
 import qualified System.Info
 import System.Process (readProcessWithExitCode)
 import qualified Wasp.Node.Version as NodeVersion
-import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (trim)
 import Wasp.Util.GitRev (gitRevDescription)
-import qualified Wasp.Util.Network.Socket as Socket
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -47,15 +45,9 @@ checks =
     ("System", checkSystem),
     ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
     ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
-    ("Docker", checkDocker >> return "running"),
-    makePortCheck "Dev database" Dev.Postgres.defaultDevPort
+    ("Docker", checkDocker >> return "running")
   ]
   where
-    makePortCheck name port =
-      ( name ++ " port (" ++ show port ++ ")",
-        checkPortIsFree port >> return "free"
-      )
-
     makeToolVersionCheck name minVersion getCurrentVersion =
       checkToolExists name
         >> checkToolVersion minVersion getCurrentVersion
@@ -116,12 +108,3 @@ checkToolExists toolName =
     >>= \case
       Just _ -> return ()
       Nothing -> throwError "not found in PATH"
-
-checkPortIsFree :: Int -> Check ()
-checkPortIsFree port =
-  liftIO (checkIfLocalPortIsInuse port)
-    >>= \case
-      True -> throwError "in use"
-      False -> return ()
-  where
-    checkIfLocalPortIsInuse = Socket.checkIfPortIsInUse . Socket.makeLocalHostSocketAddress . fromIntegral

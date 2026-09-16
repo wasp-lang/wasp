@@ -17,11 +17,13 @@
 
 - `wasp start` and `wasp build start` now accept `--client-port <port>` and `--server-port <port>` arguments to choose the ports your app runs on. ([#4585](https://github.com/wasp-lang/wasp/pull/4585))
 - `wasp start` will also intelligently choose ports, so that you can run multiple apps in your system simultaneously. ([#4586](https://github.com/wasp-lang/wasp/pull/4586))
+- You can now run dev databases for multiple Wasp projects in parallel: `wasp start db` looks for a first port instead of failing when the default one is taken, and `wasp start` automatically finds the port the database ended up on. ([#4571](https://github.com/wasp-lang/wasp/pull/4571))
 - Wasp now pins newly created Fly.io and Railway databases to PostgreSQL 18. Added `--db-volume-mount-path` to `wasp deploy railway launch` and `wasp deploy railway setup` for custom database images that store data elsewhere. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Added the `--db-vm-memory`, `--db-vm-cpus`, and `--db-vm-cpu-kind` options to `wasp deploy fly launch` and `wasp deploy fly create-db`. ([#4642](https://github.com/wasp-lang/wasp/pull/4642))
 - Now Wasp fails more gracefully when multiple commands are running in the same project. ([#4504](https://github.com/wasp-lang/wasp/pull/4504))
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
+- You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
 
 ### 🐞 Bug fixes
 
@@ -40,6 +42,8 @@
 - Password reset now rejects an invalid or expired token before it looks at the new password, so someone without a valid reset link can no longer probe your app's password rules. ([#4657](https://github.com/wasp-lang/wasp/pull/4657))
 - `onBeforeSignup` now runs before `userSignupFields` on every signup method: email, username and password, and OAuth. ([#4659](https://github.com/wasp-lang/wasp/pull/4659))
 - Improved the wording of some CLI messages. ([#4717](https://github.com/wasp-lang/wasp/pull/4717))
+- Email validation now accepts internationalized addresses such as `jürgen@münchen.de`, accepts addresses typed in uppercase, and no longer accepts a string that merely contains an address somewhere inside it. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
+- The email verification email now goes to the address Wasp stores (emails are stored lowercased) instead of the address exactly as typed, so it matches where the password reset email is sent. ([#1392](https://github.com/wasp-lang/wasp/issues/1392))
 
 ## 0.25.0
 

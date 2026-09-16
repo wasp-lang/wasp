@@ -76,7 +76,7 @@ makeBuildStartConfig appSpec args projectDir' = do
         "No env vars specified"
         $ "You called "
           ++ styleCode "wasp build start"
-          ++ " without specifying any environment variables for the started apps (client and server). This is likely a mistake, as all apps require some env vars: https://wasp.sh/docs/project/env-vars.\n\n"
+          ++ " without specifying any environment variables for the started apps (client and server). This is likely a mistake, as all apps require some env vars: https://wasp.sh/docs/advanced/env-vars.\n\n"
           ++ "To faithfully simulate the production environment, "
           ++ styleCode "wasp build start"
           ++ " won't automatically read your "

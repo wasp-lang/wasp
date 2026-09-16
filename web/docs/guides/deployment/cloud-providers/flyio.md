@@ -4,7 +4,7 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Fly.io
@@ -13,7 +13,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ## Manual Deployment <Server /> <Database />
 
@@ -37,7 +37,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out

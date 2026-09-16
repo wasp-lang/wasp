@@ -1,6 +1,6 @@
 import * as z from "zod"
 import { ensureEnvSchema } from "../env/validation"
-import { FromRegister } from "../types/register";
+import type { FromRegister } from "../types/register";
 import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from 'virtual:wasp/user/env'
 
 export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;

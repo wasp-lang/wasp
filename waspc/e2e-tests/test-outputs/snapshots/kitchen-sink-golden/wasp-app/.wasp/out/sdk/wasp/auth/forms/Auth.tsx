@@ -4,10 +4,10 @@ import styles from './Auth.module.css'
 import './internal/auth-styles.css'
 import { tokenObjToCSSVars } from "./internal/util"
 
-import {
-  type State,
-  type CustomizationOptions,
-  type AdditionalSignupFields,
+import type {
+  State,
+  CustomizationOptions,
+  AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { MessageError, MessageSuccess } from './internal/Message'

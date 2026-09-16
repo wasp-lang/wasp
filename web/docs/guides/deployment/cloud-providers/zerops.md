@@ -4,7 +4,7 @@ comments: true
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Zerops
@@ -239,4 +239,4 @@ Use the hostname `db` (the service hostname), not a public host — that only wo
 - [Zerops YAML preprocessor](https://docs.zerops.io/references/import-yaml/pre-processor)
 - [Zerops zerops.yaml specification](https://docs.zerops.io/zerops-yaml/specification)
 - [Wasp env vars](../../../deployment/env-vars.md)
-- [Cloud provider deployment overview](../../../deployment/deployment-methods/cloud-providers.md)
+- [Cloud provider deployment overview](../../../deployment/methods/cloud-providers.md)

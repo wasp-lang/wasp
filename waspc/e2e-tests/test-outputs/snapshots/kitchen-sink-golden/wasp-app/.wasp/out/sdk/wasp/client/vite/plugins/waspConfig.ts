@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { type PluginOption } from "vite";
+import type { PluginOption } from "vite";
 import { defaultExclude } from "vitest/config";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.

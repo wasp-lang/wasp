@@ -643,6 +643,7 @@ spec_AppSpecValid = do
               { AS.Wasp.version = "^" ++ show WV.waspVersion
               },
           AS.App.title = "Test App",
+          AS.App.deployment = Nothing,
           AS.App.db =
             Just $
               AS.Db.Db

@@ -3,11 +3,11 @@ comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
-import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
+import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock";
 
 # Coolify
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Coolify: new Date("2026-01-30") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Coolify: "4.0.0-beta.462" }} />
 
 ## Deploy Wasp with Coolify
 

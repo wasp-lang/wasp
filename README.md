@@ -46,12 +46,12 @@ Build your app in a day and deploy it with a single CLI command!
 
 ### Features
 
-- [🔒 Full-stack Auth](https://wasp.sh/docs/auth/overview)
-- [🖇️ RPC (Client <-> Server)](https://wasp.sh/docs/data-model/operations/overview)
-- [🚀 Simple Deployment](https://wasp.sh/docs/deployment/deployment-methods/overview)
-- [⚙ ️Jobs](https://wasp.sh/docs/advanced/jobs)
-- [✉️ Email Sending](https://wasp.sh/docs/advanced/email)
-- [🛟 Full-stack Type Safety](https://wasp.sh/docs/general/typescript)
+- [🔒 Full-stack Auth](https://wasp.sh/docs/features/auth/overview)
+- [🖇️ RPC (Client <-> Server)](https://wasp.sh/docs/features/data/operations/overview)
+- [🚀 Simple Deployment](https://wasp.sh/docs/deployment/methods/overview)
+- [⚙ ️Jobs](https://wasp.sh/docs/features/jobs)
+- [✉️ Email Sending](https://wasp.sh/docs/features/email)
+- [🛟 Full-stack Type Safety](https://wasp.sh/docs/features/spec)
 - ...
 
 ### Code example
@@ -145,7 +145,7 @@ If you have a Wasp application running in production, we'd love to send some swa
 
 ## AI Agent Plugins
 
-Wasp has official AI agent plugins to help you kickstart your next Wasp project. You can use them with your favorite AI-assisted coding tool (Cursor, Claude Code, etc.) to get a better result and development experience. Check out the [Wasp Agent Plugins](https://wasp.sh/docs/wasp-ai/coding-agent-plugin) page for more details.
+Wasp has official AI agent plugins to help you kickstart your next Wasp project. You can use them with your favorite AI-assisted coding tool (Cursor, Claude Code, etc.) to get a better result and development experience. Check out the [Wasp Agent Plugins](https://wasp.sh/docs/getting-started/agent-integration) page for more details.
 
 ## Project status
 
@@ -159,9 +159,9 @@ React + TanStack Query, Node.js + Express.js, and Prisma.
 
 ## Contributing
 
-Any way you want to contribute is a good way :)!
+We welcome contributions! Small, obvious fixes (typos, broken links, docs corrections, small bugs where the fix is clear and comes with a test) are welcome directly as PRs.
 
-You can share feedback, help with the docs, examples, work on the specific Wasp features, contribute to the CLI core, etc.
+For anything bigger (new features, refactors, changes in behavior), please talk to us first, in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or on [Discord](https://discord.wasp.run/wasp-dev), so we can agree on the approach before you write code.
 
 Check out [CONTRIBUTING](CONTRIBUTING.md) for more details.
 

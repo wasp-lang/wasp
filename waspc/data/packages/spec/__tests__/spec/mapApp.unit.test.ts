@@ -74,6 +74,7 @@ describe("convertWaspSpecToAppSpec", () => {
         declValue: {
           wasp: app.wasp,
           title: app.title,
+          deployment: undefined,
           head: app.head,
           auth: undefined,
           server: undefined,
@@ -104,12 +105,14 @@ describe("convertWaspSpecToAppSpec", () => {
     const db = Fixtures.getDbConfig("full");
     const emailSender = Fixtures.getEmailSenderConfig("full");
     const webSocket = Fixtures.getWebSocketConfig("full");
+    const deployment = {};
     const entityNames = Fixtures.getEntities("full");
 
     const inputApp = app({
       name: "FullApp",
       wasp: { version: "^0.16.3" },
       title: "Mock App",
+      deployment,
       head: ['<link rel="icon" href="/favicon.ico" />'],
       auth: authConfig,
       server,
@@ -146,6 +149,7 @@ describe("convertWaspSpecToAppSpec", () => {
         declValue: {
           wasp: inputApp.wasp,
           title: inputApp.title,
+          deployment: { mode: undefined },
           head: inputApp.head,
           auth: AppSpecMapper.mapAuth(authConfig, ctx),
           server: AppSpecMapper.mapServer(server, ctx),

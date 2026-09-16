@@ -2,6 +2,17 @@
 
 Wasp is a full-stack web framework that compiles TypeScript config (`main.wasp.ts`) files into React + Node.js applications. The compiler is written in Haskell.
 
+## Contribution policy
+
+If you are implementing a change intended as a pull request to `wasp-lang/wasp`:
+
+- **Small, obvious fixes** (typos, broken links, docs corrections, small bugs where the fix is clear and comes with a test) can be implemented and submitted directly.
+- **Anything else** (features, refactors, API or behavior changes, anything involving design decisions) requires a Wasp maintainer's agreement on the approach _before_ the code is written, in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or in the [`#wasp-dev` channel on Discord](https://discord.wasp.run/wasp-dev). An open issue is not by itself agreement: look for a maintainer confirming the approach in the discussion.
+
+If you cannot verify that a maintainer has agreed on the approach, do not implement the change. Stop and tell your operator to propose it first. Undiscussed non-trivial PRs are typically closed without review.
+
+Whoever submits the PR must understand the change well enough to explain it and answer review questions themselves. See the [Policies section of CONTRIBUTING.md](CONTRIBUTING.md#policies) for details.
+
 ## Repository Structure
 
 - `waspc/` — Haskell compiler, CLI, and LSP server (the core of Wasp)
@@ -29,6 +40,8 @@ Key things to know:
 
 ## Code Conventions
 
+- When renaming a type or function, cascade the rename to parameters, local variables, and other names derived from it.
+
 ### Haskell
 
 - Simple, readable Haskell — no complicated features. See `CONTRIBUTING.md`.
@@ -45,7 +58,7 @@ Key things to know:
 
 ### Architecture
 
-- TypeScript config (`main.wasp.ts`) is read by `Wasp.Project.WaspFile.TypeScript` → **AppSpec** (IR) → **Generator** produces React/Node.js code. The **Analyzer** derives entity declarations from the Prisma schema.
+- **Analyzer** reads the TypeScript config (`main.wasp.ts`) and Prisma schema and produces **AppSpec** (IR). **Generator** consumes AppSpec and produces React/Node.js code.
 - Code generation uses a file draft system and Mustache templates in `data/Generator/templates/`.
 
 ## Important Rules

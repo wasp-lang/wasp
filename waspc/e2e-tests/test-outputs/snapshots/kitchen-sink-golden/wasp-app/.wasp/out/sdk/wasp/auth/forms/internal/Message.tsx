@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from "react";
+import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from "react";
 import styles from "./Message.module.css";
 import "./auth-styles.css";
 import { clsx } from "./util";

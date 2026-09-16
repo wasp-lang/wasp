@@ -1,10 +1,10 @@
 import { hashPassword } from './password.js'
 import { prisma, HttpError } from '../index.js'
 import { sleep } from '../utils.js'
-import {
-  type User,
-  type Auth,
-  type AuthIdentity,
+import type {
+  User,
+  Auth,
+  AuthIdentity,
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
@@ -17,7 +17,7 @@ import {
   providerDataHasPasswordField,
 } from '../../auth/providerData.js'
 
-import { type UserSignupFields, type PossibleUserFields } from '../../auth/providers/types.js'
+import type { UserSignupFields, PossibleUserFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).

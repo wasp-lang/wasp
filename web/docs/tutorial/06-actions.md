@@ -1,5 +1,5 @@
 ---
-title: 6. Modifying Data
+title: 6. Modifying data
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
