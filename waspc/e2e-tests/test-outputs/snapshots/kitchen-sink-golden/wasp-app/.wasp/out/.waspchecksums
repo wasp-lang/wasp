@@ -571,7 +571,7 @@
             "file",
             "sdk/wasp/client/index.ts"
         ],
-        "16396b1f24e6774e0ff751b001e9a2a2221e3f20cb18b17d3f477981f617c947"
+        "94b24bcafb867d82cc0acf844595f93f41358a0fa22e53d13fd746bc04235085"
     ],
     [
         [
@@ -704,7 +704,7 @@
             "file",
             "sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "17afab21ee299925862262a4c9dfbe2b7e35c4820bb10a6b2291318318b8144a"
+        "1dede682c9e8a17a1c8154a669e5373da127a99d4245140358137ce4e6817d57"
     ],
     [
         [
@@ -921,7 +921,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "9520083f6a70e729fa7cbe119e309947cc893f14dd057ef4a3b44a67fcdeafbc"
+        "d3b4367cf14929222c82157aa0f4bb7dc270527b41741801591545fef7edcd12"
     ],
     [
         [
@@ -1845,7 +1845,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "0c99779417d78e123be732b4aaa7aaa8cd9405b8ad3198e3e1450a6d8e3bba51"
+        "833667819c590ec27974447d1d36ccdaf063273a519ee706cd8dabcb0be9a6f4"
     ],
     [
         [
