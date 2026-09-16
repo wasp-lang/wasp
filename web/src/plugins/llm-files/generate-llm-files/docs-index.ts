@@ -7,7 +7,16 @@ import { stripTrailingSlash } from "../helpers";
 import { adaptMarkdownForLlmsFullFiles } from "./adapt-markdown";
 import type { LlmFilesContext } from "./context";
 
-const SIDEBAR_CATEGORIES_TO_IGNORE = new Set(["Miscellaneous"]);
+/**
+ * Docs that are about the project rather than about building with Wasp.
+ * They'd only add noise to the `llms*.txt` files.
+ */
+const SIDEBAR_DOC_IDS_TO_IGNORE = new Set([
+  "telemetry",
+  "contributing",
+  "vision",
+  "contact",
+]);
 
 /**
  * An index of all markdown docs that we want to be part
@@ -116,26 +125,29 @@ function buildSidebarItems(
   return indexItems;
 }
 
-/**
- * Docusaurus keeps sidebar doc entries as bare `{ type: "doc", id }`, so we
- * join each against the version's docs to recover its permalink and title.
- */
 function resolveSidebarItem(
   context: LlmFilesContext,
   sidebarItem: LoadedSidebarItem,
   docsById: DocsById,
 ): IndexItem | null {
   switch (sidebarItem.type) {
-    case "category":
-      if (SIDEBAR_CATEGORIES_TO_IGNORE.has(sidebarItem.label)) {
-        return null;
-      }
+    case "category": {
       const items = buildSidebarItems(context, sidebarItem.items, docsById);
+      // A category can link to a doc (e.g. an "Overview" page). That doc isn't
+      // in `items`, so we have to prepend it ourselves or we'd lose it.
+      const linkedDoc =
+        sidebarItem.link?.type === "doc"
+          ? resolveDocById(context, sidebarItem.link.id, docsById)
+          : null;
+      if (linkedDoc) {
+        items.unshift(linkedDoc);
+      }
       if (items.length === 0) {
         // A category without any items, shouldn't really happen.
         return null;
       }
       return { type: "category", title: sidebarItem.label, items };
+    }
 
     case "link":
       if (!sidebarItem.href.startsWith("/")) {
@@ -147,14 +159,12 @@ function resolveSidebarItem(
 
     case "doc":
     case "ref":
-      const doc = docsById.get(sidebarItem.id);
-      if (!doc) {
-        // This should be unreachable.
-        throw new Error(`Sidebar references unknown doc id: ${sidebarItem.id}`);
-      }
-      const title =
-        sidebarItem.label ?? doc.frontMatter.sidebar_label ?? doc.title;
-      return resolveIndexDoc(context, doc.permalink, title);
+      return resolveDocById(
+        context,
+        sidebarItem.id,
+        docsById,
+        sidebarItem.label,
+      );
 
     case "html":
       return null;
@@ -165,6 +175,28 @@ function resolveSidebarItem(
         `Unhandled Docusaurus sidebar item: ${JSON.stringify(sidebarItem, undefined, 2)}`,
       );
   }
+}
+
+/**
+ * Docusaurus keeps sidebar doc entries as bare doc ids, so we join each against
+ * the version's docs to recover its permalink and title.
+ */
+function resolveDocById(
+  context: LlmFilesContext,
+  docId: string,
+  docsById: DocsById,
+  label?: string,
+): IndexDoc | null {
+  if (SIDEBAR_DOC_IDS_TO_IGNORE.has(docId)) {
+    return null;
+  }
+  const doc = docsById.get(docId);
+  if (!doc) {
+    // This should be unreachable.
+    throw new Error(`Sidebar references unknown doc id: ${docId}`);
+  }
+  const title = label ?? doc.frontMatter.sidebar_label ?? doc.title;
+  return resolveIndexDoc(context, doc.permalink, title);
 }
 
 /**

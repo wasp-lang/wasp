@@ -34,7 +34,7 @@ import type {
  * the file's default export. The Wasp compiler reads this default export to
  * generate your app.
  *
- * See the [Wasp Spec docs](https://wasp.sh/docs/general/spec) for the full
+ * See the [Wasp Spec docs](https://wasp.sh/docs/features/spec) for the full
  * shape of the configuration.
  *
  * @example
@@ -76,8 +76,8 @@ export type AppConfig = Omit<App, "kind">;
  *
  * A page is a React component rendered by a {@link route}.
  *
- * See [Routing](https://wasp.sh/docs/advanced/routing) and the
- * [Auth overview](https://wasp.sh/docs/auth/overview#protecting-a-page-with-authrequired)
+ * See [Routing](https://wasp.sh/docs/features/routes) and the
+ * [Auth overview](https://wasp.sh/docs/features/auth/overview#protecting-a-page-with-authrequired)
  * for protecting pages with `authRequired`.
  *
  * @example
@@ -171,7 +171,7 @@ export type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
  * delegates into `context.entities` and invalidate the client cache when
  * related actions modify them.
  *
- * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
+ * See [Queries](https://wasp.sh/docs/features/data/operations/queries).
  *
  * @example
  * ```ts
@@ -191,7 +191,7 @@ export type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
  * Reference to the Query's NodeJS implementation.
  *
  * See [the
- * docs](https://wasp.sh/docs/data-model/operations/queries#implementing-queries)
+ * docs](https://wasp.sh/docs/features/data/operations/queries#implementing-queries)
  * for details on the implementation and its context.
  *
  * {@include ./referenceImports.md}
@@ -222,7 +222,7 @@ export type QueryConfig = Omit<Query, "kind" | "fn">;
  * called from the client and the server. Listing entities in `config.entities`
  * lets Wasp invalidate related query caches when this action runs.
  *
- * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
+ * See [Actions](https://wasp.sh/docs/features/data/operations/actions).
  *
  * @example
  * ```ts
@@ -239,7 +239,7 @@ export type QueryConfig = Omit<Query, "kind" | "fn">;
  * @param fn
  * Reference to the Action's NodeJS implementation.
  *
- * See [the docs](https://wasp.sh/docs/data-model/operations/actions#implementing-actions) for details on the implementation and its context.
+ * See [the docs](https://wasp.sh/docs/features/data/operations/actions#implementing-actions) for details on the implementation and its context.
  *
  * {@include ./referenceImports.md}
  * @param config
@@ -268,7 +268,7 @@ export type ActionConfig = Omit<Action, "kind" | "fn">;
  * them for webhooks, file uploads, or any HTTP interaction that doesn't fit
  * the {@link query}/{@link action} model.
  *
- * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
+ * See [Custom HTTP API Endpoints](https://wasp.sh/docs/features/apis).
  *
  * @example
  * ```ts
@@ -315,7 +315,7 @@ export type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
  * CORS) for a group of related endpoints.
  *
  * See the
- * [per-path middleware section](https://wasp.sh/docs/advanced/middleware-config#3-customize-per-path-middleware).
+ * [per-path middleware section](https://wasp.sh/docs/advanced/server-customization/middleware#3-customize-per-path-middleware).
  *
  * @example
  * ```ts
@@ -358,7 +358,7 @@ export type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
  * function as the first argument and configure the executor and schedule
  * in `config`.
  *
- * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
+ * See [Recurring Jobs](https://wasp.sh/docs/features/jobs).
  *
  * @example
  * ```ts
@@ -403,7 +403,7 @@ export type JobConfig = Omit<Job, "kind" | "fn">;
  * `operations` can be enabled with defaults (an empty object), made public
  * via `isPublic`, or replaced by a custom implementation via `overrideFn`.
  *
- * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
+ * See [Automatic CRUD](https://wasp.sh/docs/features/data/crud).
  *
  * @example
  * ```ts

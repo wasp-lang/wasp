@@ -72,10 +72,7 @@ instance ToJSON AuthHooksSpec where
   toJSON = Aeson.genericToJSON authHooksSpecJsonOptions
 
 -- | One authentication provider of the app: an adapter package's manifest, as
--- declared in the spec. The classic wasp DSL cannot express providers at all
--- (they are constructed by spec helpers like @waspAuth()@, which only exist
--- in the TypeScript spec), so "Wasp.Analyzer.StdTypeDefinitions.App.AuthProvider"
--- reports as much.
+-- declared in the spec.
 type AuthProvider = AuthProviderSpec
 
 -- | An auth provider, as declared by its manifest in the spec.

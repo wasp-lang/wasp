@@ -3,6 +3,7 @@ import { useAuthContext } from "@wasp.sh/lib-auth/browser";
 import { useForm } from "react-hook-form";
 import { requestPasswordReset } from "../../../actions.js";
 import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton, } from "../Form.js";
+import { emailFieldRules, emailInputProps } from "../emailField.js";
 export const ForgotPasswordForm = () => {
     const { register, handleSubmit, reset, formState: { errors }, } = useForm();
     const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useAuthContext();
@@ -23,5 +24,5 @@ export const ForgotPasswordForm = () => {
             setIsLoading(false);
         }
     };
-    return (_jsxs(Form, { onSubmit: handleSubmit(onSubmit), children: [_jsxs(FormItemGroup, { children: [_jsx(FormLabel, { children: "E-mail" }), _jsx(FormInput, { ...register("email", { required: "Email is required" }), type: "email", disabled: isLoading }), errors.email && _jsx(FormError, { children: errors.email.message })] }), _jsx(FormItemGroup, { children: _jsx(SubmitButton, { type: "submit", disabled: isLoading, children: "Send password reset email" }) })] }));
+    return (_jsxs(Form, { onSubmit: handleSubmit(onSubmit), children: [_jsxs(FormItemGroup, { children: [_jsx(FormLabel, { children: "E-mail" }), _jsx(FormInput, { ...register("email", emailFieldRules), ...emailInputProps, disabled: isLoading }), errors.email && _jsx(FormError, { children: errors.email.message })] }), _jsx(FormItemGroup, { children: _jsx(SubmitButton, { type: "submit", disabled: isLoading, children: "Send password reset email" }) })] }));
 };

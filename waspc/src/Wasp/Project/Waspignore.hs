@@ -38,7 +38,7 @@ waspIgnorePathInWaspProjectDir = [relfile|.waspignore|]
 
 -- | These patterns are ignored by every 'WaspignoreFile'
 defaultIgnorePatterns :: [Pattern]
-defaultIgnorePatterns = map compile [".waspignore"]
+defaultIgnorePatterns = [compile ".waspignore"]
 
 -- | Parses a string to a 'WaspignoreFile'.
 --

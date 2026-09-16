@@ -49,5 +49,5 @@ method = fst . httpRoute
 path :: Api -> String
 path = snd . httpRoute
 
-data HttpMethod = ALL | GET | POST | PUT | DELETE
+data HttpMethod = ALL | GET | POST | PUT | PATCH | DELETE | HEAD | OPTIONS
   deriving (Show, Eq, Ord, Data, Generic, FromJSON, ToJSON)

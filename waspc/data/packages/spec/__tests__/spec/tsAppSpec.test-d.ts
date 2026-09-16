@@ -6,6 +6,13 @@ import { describe, expectTypeOf, test } from "vitest";
 import { customAuthProvider } from "../../src/spec/publicApi/constructors.js";
 import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
+describe("Deployment", () => {
+  test("allows an omitted mode or split mode", () => {
+    expectTypeOf<{}>().toExtend<WaspSpec.Deployment>();
+    expectTypeOf<{ mode: "split" }>().toExtend<WaspSpec.Deployment>();
+  });
+});
+
 describe("Auth providers", () => {
   const provider = customAuthProvider({
     id: "test",

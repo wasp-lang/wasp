@@ -362,7 +362,7 @@ action createMeme {
 }
 ```
 
-An [Action is a type of Wasp Operation](https://wasp.sh/docs/data-model/operations/actions) that changes some state on the backend. It’s essentially a NodeJS function that gets called on the server, but Wasp takes care of setting it all up for you.
+An [Action is a type of Wasp Operation](https://wasp.sh/docs/features/data/operations/actions) that changes some state on the backend. It’s essentially a NodeJS function that gets called on the server, but Wasp takes care of setting it all up for you.
 
 This means you don't have to worry about building an HTTP API for the Action, managing server-side request handling, or even dealing with client-side response handling and caching. Instead, you just write the business logic!
 
@@ -838,7 +838,7 @@ Awesome!
 
 #### Defining our Daily Cron Job
 
-Now, to create an automatically [recurring cron job in Wasp](https://wasp.sh/docs/advanced/jobs) is really easy.
+Now, to create an automatically [recurring cron job in Wasp](https://wasp.sh/docs/features/jobs) is really easy.
 
 First, go to your `main.wasp` file and add:
 

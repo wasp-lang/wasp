@@ -1,4 +1,4 @@
-import { type Plugin } from 'vite'
+import type { Plugin } from 'vite'
 import path from 'path'
 
 export function detectServerImports(): Plugin {

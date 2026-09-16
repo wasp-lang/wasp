@@ -105,6 +105,7 @@ export type Crud = {
 export type App = {
   wasp: Wasp;
   title: string;
+  deployment: Optional<Deployment>;
   head: Optional<string[]>;
   auth: Optional<Auth>;
   server: Optional<Server>;
@@ -113,6 +114,12 @@ export type App = {
   emailSender: Optional<EmailSender>;
   webSocket: Optional<WebSocket>;
 };
+
+export type Deployment = {
+  mode: Optional<DeploymentMode>;
+};
+
+export type DeploymentMode = "split";
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export type ExtImportKind = ExtImport["kind"];
@@ -134,7 +141,15 @@ export type ExecutorOptions = {
   pgBoss: Optional<object>;
 };
 
-export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod =
+  | "ALL"
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD"
+  | "OPTIONS";
 
 export type HttpRoute = [HttpMethod, string];
 

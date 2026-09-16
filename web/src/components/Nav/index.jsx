@@ -1,7 +1,7 @@
 import Link from "@docusaurus/Link";
 import { useRef, useState } from "react";
 import Transition from "../../lib/Transition";
-import BuzzAnnouncement from "./BuzzAnnouncement";
+import Announcement from "./Announcement";
 import Logo from "./Logo";
 
 const Nav = () => {
@@ -44,7 +44,7 @@ const Nav = () => {
 
   return (
     <>
-      <BuzzAnnouncement />
+      <Announcement />
       <div className="sticky top-0 z-50">
         <nav className="border-b border-wasp-g3 bg-wasp-bg">
           <div className="relative mx-auto flex h-16 items-center justify-between lg:container lg:px-16">

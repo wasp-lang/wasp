@@ -20,7 +20,7 @@ export const ChatPage = () => {
     setMessages((priorMessages) => [...priorMessages, msg]),
   );
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     socket.emit("chatMessage", text);

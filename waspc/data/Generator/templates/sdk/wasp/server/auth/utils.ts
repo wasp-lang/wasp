@@ -1,13 +1,13 @@
 {{={= =}=}}
 import { prisma, HttpError } from '../index.js'
 import { sleep } from '../utils.js'
-import {
-  type {= userEntityUpper =},
-  type {= authEntityUpper =},
+import type {
+  {= userEntityUpper =},
+  {= authEntityUpper =},
 } from '../../entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { type UserSignupFields } from '../../auth/providers/types.js'
+import type { UserSignupFields } from '../../auth/providers/types.js'
 
 // Runtime-agnostic provider data code, re-exported here because it's part of
 // the server-side auth API surface (e.g. through `wasp/server/auth`).

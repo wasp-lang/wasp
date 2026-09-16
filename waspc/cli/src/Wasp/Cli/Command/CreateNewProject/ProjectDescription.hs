@@ -16,7 +16,7 @@ import Data.Maybe (isNothing)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path', (</>))
 import StrongPath.Path (toPathAbsDir)
-import Wasp.Analyzer.AST (isValidWaspIdentifier)
+import Wasp.AppSpec.Identifier (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( NewProjectArgs (..),
@@ -100,7 +100,7 @@ parseWaspProjectNameIntoAppName projectName
   | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
   | otherwise =
       Left . intercalate "\n" $
-        [ "The project's name is not in the valid format! The project's name:",
+        [ "The project's name is not in a valid format! The project's name:",
           indent 2 "- must start with a letter or an underscore",
           indent 2 "- must contain only letters, numbers, dashes, or underscores",
           indent 2 "- must not be a Wasp keyword"
@@ -136,7 +136,9 @@ obtainAvailableTemplateOutputDirPath projectName = do
     ensureTemplateOutputDirDoesNotExist projectDirName absTemplateOutputDir = do
       whenM (doesDirExist $ toPathAbsDir absTemplateOutputDir) $
         throwProjectCreationError $
-          "Directory \"" ++ projectDirName ++ "\" is not empty."
+          "Directory `"
+            ++ projectDirName
+            ++ "` already exists. Choose a different name or delete the directory first."
 
 mkNewProjectDescription :: String -> NewProjectAppName -> Path' Abs (Dir TemplateOutputDir) -> StarterTemplate -> NewProjectDescription
 mkNewProjectDescription projectName appName absTemplateOutputDir template =

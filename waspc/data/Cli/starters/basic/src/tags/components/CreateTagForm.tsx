@@ -1,4 +1,3 @@
-import { FormEvent } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { createTag } from "wasp/client/operations";
 import { Input } from "../../shared/components/Input";
@@ -90,8 +89,8 @@ export function CreateTagForm({ id, onTagCreated }: CreateTagFormProps) {
  *
  * @see https://github.com/react-hook-form/documentation/issues/916
  */
-function stopPropagate(callback: (event: FormEvent<HTMLFormElement>) => void) {
-  return (e: FormEvent<HTMLFormElement>) => {
+function stopPropagate(callback: (event: React.SubmitEvent<HTMLFormElement>) => void) {
+  return (e: React.SubmitEvent<HTMLFormElement>) => {
     e.stopPropagation();
     callback(e);
   };

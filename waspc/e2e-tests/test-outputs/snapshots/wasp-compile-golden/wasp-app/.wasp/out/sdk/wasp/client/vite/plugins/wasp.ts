@@ -1,5 +1,6 @@
-import { type PluginOption } from "vite";
-import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
+import type { PluginOption } from "vite";
+import react from "@vitejs/plugin-react";
+import type { Options as ReactOptions } from "@vitejs/plugin-react";
 import ssr from "@wasp.sh/lib-vite-ssr";
 import { validateEnv } from "./validateEnv.js";
 import { envFile } from "./envFile.js";

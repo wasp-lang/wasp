@@ -43,6 +43,8 @@ export interface App {
    * Used as the browser tab title.
    */
   title: string;
+  /** Configuration for how the app will be deployed. */
+  deployment?: Deployment;
   /**
    * Extra tags injected into the HTML `<head>`.
    *
@@ -79,6 +81,23 @@ export interface App {
 }
 
 /**
+ * Deployment configuration for the app.
+ */
+export interface Deployment {
+  /**
+   * How the client and server are deployed.
+   *
+   * @default "split"
+   */
+  mode?: DeploymentMode;
+}
+
+/**
+ * Supported app deployment modes.
+ */
+export type DeploymentMode = "split";
+
+/**
  * Wasp compiler metadata used by the app.
  */
 export interface Wasp {
@@ -93,7 +112,7 @@ export interface Wasp {
 /**
  * Authentication configuration and lifecycle hooks.
  *
- * See the [Auth overview](https://wasp.sh/docs/auth/overview) for how the
+ * See the [Auth overview](https://wasp.sh/docs/features/auth/overview) for how the
  * `User` entity is connected to auth. Auth methods (username, email, OAuth)
  * are configured on the auth provider package that implements them.
  * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
@@ -101,7 +120,7 @@ export interface Wasp {
  *
  * In TypeScript, you can type each hook implementation with its matching
  * type from `wasp/server/auth` (e.g. `OnBeforeSignupHook`). See
- * [Auth Hooks](https://wasp.sh/docs/auth/auth-hooks) for the full hook
+ * [Auth Hooks](https://wasp.sh/docs/features/auth/hooks) for the full hook
  * inputs and examples.
  *
  * @example
@@ -145,7 +164,7 @@ export interface Auth {
    * define them in the `userSignupFields` field if they need to be set during
    * the sign-up process.
    *
-   * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for how the
+   * See [Accessing User Data](https://wasp.sh/docs/features/auth/entities) for how the
    * user entity connects to the rest of the auth system.
    *
    * `userEntity` is provider-independent: whichever provider authenticates a
@@ -404,7 +423,7 @@ export interface AuthProviderManifest {
 /**
  * Server-side application configuration.
  *
- * See [Server Config](https://wasp.sh/docs/project/server-config) for usage
+ * See [Server Config](https://wasp.sh/docs/advanced/server-customization/server-config) for usage
  * details.
  *
  * @example
@@ -445,7 +464,7 @@ export interface Server {
    * Function that customizes the global Express middleware stack. Affects
    * all operations and APIs.
    *
-   * See [Configuring Middleware](https://wasp.sh/docs/advanced/middleware-config).
+   * See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
@@ -463,7 +482,7 @@ export interface Server {
    * import { serverEnvSchema } from './src/env' with { type: 'ref' }
    * ```
    *
-   * See [Env Vars](https://wasp.sh/docs/project/env-vars).
+   * See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
    */
   envValidationSchema?: Reference<ZodSchema>;
 }
@@ -471,7 +490,7 @@ export interface Server {
 /**
  * Client-side application configuration.
  *
- * See [Client Config](https://wasp.sh/docs/project/client-config) for usage
+ * See [Client Config](https://wasp.sh/docs/advanced/client-customization/client-config) for usage
  * details.
  *
  * @example
@@ -558,7 +577,7 @@ export interface Client {
    * `https://example.com/my-app`.
    *
    * Check the [Base directory
-   * docs](https://wasp.sh/docs/project/client-config#base-directory) for
+   * docs](https://wasp.sh/docs/advanced/client-customization/client-config#base-directory) for
    * important details.
    */
   baseDir?: `/${string}`;
@@ -577,7 +596,7 @@ export interface Client {
    * import { clientEnvSchema } from './src/env' with { type: 'ref' }
    * ```
    *
-   * See [Env Vars](https://wasp.sh/docs/project/env-vars).
+   * See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
    */
   envValidationSchema?: Reference<ZodSchema>;
 }
@@ -585,7 +604,7 @@ export interface Client {
 /**
  * Database configuration.
  *
- * See [Databases](https://wasp.sh/docs/data-model/databases) for seeding and
+ * See [Databases](https://wasp.sh/docs/features/data/databases) for seeding and
  * Prisma client customization.
  *
  * @example
@@ -610,7 +629,7 @@ export interface Db {
    * the name passed to `wasp db seed` matches the function's identifier in the
    * import.
    *
-   * See [Seeding the Database](https://wasp.sh/docs/data-model/databases#seeding-the-database).
+   * See [Seeding the Database](https://wasp.sh/docs/features/data/databases#seeding-the-database).
    */
   seeds?: Reference<AnyFunction>[];
   /**
@@ -643,7 +662,7 @@ export interface Db {
  * Required for the email auth flows (verification, password reset) and
  * available for sending arbitrary emails via `wasp/server/email`.
  *
- * See [Sending Emails](https://wasp.sh/docs/advanced/email).
+ * See [Sending Emails](https://wasp.sh/docs/features/email).
  *
  * @example
  * ```ts
@@ -697,7 +716,7 @@ export interface EmailFromField {
 /**
  * WebSocket configuration.
  *
- * See [Web Sockets](https://wasp.sh/docs/advanced/web-sockets) for handler
+ * See [Web Sockets](https://wasp.sh/docs/features/websockets) for handler
  * shape and client-side usage.
  *
  * @example
@@ -721,7 +740,7 @@ export interface WebSocket {
    * all app entities. If a connected socket is authenticated, Wasp stores the
    * user on `socket.data.user`.
    *
-   * See [the `websocketFn` docs](https://wasp.sh/docs/advanced/web-sockets#websocketfn).
+   * See [the `websocketFn` docs](https://wasp.sh/docs/features/websockets#websocketfn).
    */
   fn: Reference<AnyFunction>;
   /**
@@ -833,7 +852,7 @@ export type AuthProviderIdRef = string;
  *
  * Create one with the {@link route} constructor.
  *
- * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
+ * See [Routing](https://wasp.sh/docs/features/routes) for path patterns
  * (dynamic segments, optional segments, splats).
  *
  * @category Specifications
@@ -903,7 +922,7 @@ export interface Route extends BaseSpecElement<"route"> {
  *
  * Create one with the {@link query} constructor.
  *
- * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
+ * See [Queries](https://wasp.sh/docs/features/data/operations/queries).
  *
  * @category Specifications
  */
@@ -912,14 +931,14 @@ export interface Query extends BaseSpecElement<"query"> {
    * Reference to the Query's NodeJS implementation.
    *
    * See [the
-   * docs](https://wasp.sh/docs/data-model/operations/queries#implementing-queries)
+   * docs](https://wasp.sh/docs/features/data/operations/queries#implementing-queries)
    * for details on the implementation and its context.
    */
   fn: Reference<AnyFunction>;
   /**
    * A list of entities you wish to use inside your Query.
    *
-   * See [Using Entities in Queries](https://wasp.sh/docs/data-model/operations/queries#using-entities-in-queries).
+   * See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
    */
   entities?: EntityName[];
   /**
@@ -940,7 +959,7 @@ export interface Query extends BaseSpecElement<"query"> {
  *
  * Create one with the {@link action} constructor.
  *
- * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
+ * See [Actions](https://wasp.sh/docs/features/data/operations/actions).
  *
  * @category Specifications
  */
@@ -949,14 +968,14 @@ export interface Action extends BaseSpecElement<"action"> {
    * Reference to the Action's NodeJS implementation.
    *
    * See [the
-   * docs](https://wasp.sh/docs/data-model/operations/actions#implementing-actions)
+   * docs](https://wasp.sh/docs/features/data/operations/actions#implementing-actions)
    * for details on the implementation and its context.
    */
   fn: Reference<AnyFunction>;
   /**
    * A list of entities you wish to use inside your Action.
    *
-   * See [Using Entities in Actions](https://wasp.sh/docs/data-model/operations/actions#using-entities-in-actions).
+   * See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/actions#using-entities-in-actions).
    */
   entities?: EntityName[];
   /**
@@ -981,7 +1000,7 @@ export interface Action extends BaseSpecElement<"action"> {
  * `res`, and a Wasp `context`. They are useful for webhooks and any
  * non-standard HTTP interaction.
  *
- * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
+ * See [Custom HTTP API Endpoints](https://wasp.sh/docs/features/apis).
  *
  * @category Specifications
  */
@@ -995,14 +1014,14 @@ export interface Api extends BaseSpecElement<"api"> {
   /**
    * Reference to an Express middleware config function for this endpoint only.
    *
-   * See [Configuring API middleware](https://wasp.sh/docs/advanced/middleware-config#2-customize-api-specific-middleware).
+   * See [Configuring API middleware](https://wasp.sh/docs/advanced/server-customization/middleware#2-customize-api-specific-middleware).
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
    * Entities the handler operates on. Wasp injects a Prisma delegate for
    * each one into the handler's `context.entities`.
    *
-   * See [Using Entities in APIs](https://wasp.sh/docs/advanced/apis#using-entities-in-apis).
+   * See [Using Entities in APIs](https://wasp.sh/docs/features/apis#using-entities-in-apis).
    */
   entities?: EntityName[];
   /**
@@ -1036,15 +1055,30 @@ export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
  * HTTP methods supported by an {@link Api}.
  *
  * Use `"ALL"` to match any method.
+ *
+ * A `"HEAD"` api must be declared before a `"GET"` api on the same path,
+ * otherwise the `"GET"` api answers the HEAD requests as well.
+ *
+ * An `"OPTIONS"` api only gets to run if you remove or reconfigure Wasp's
+ * default CORS middleware, which answers OPTIONS requests on its own, both on
+ * the api itself and on any {@link apiNamespace} the api sits under.
  */
-export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+export type HttpMethod =
+  | "ALL"
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD"
+  | "OPTIONS";
 
 /**
  * A background job. Can be submitted ad-hoc or run on a recurring schedule.
  *
  * Create one with the {@link job} constructor.
  *
- * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
+ * See [Recurring Jobs](https://wasp.sh/docs/features/jobs).
  *
  * @category Specifications
  */
@@ -1053,7 +1087,7 @@ export interface Job extends BaseSpecElement<"job"> {
    * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
    *
-   * See [Jobs documentation](https://wasp.sh/docs/advanced/jobs#worker-api) for more details.
+   * See [Jobs documentation](https://wasp.sh/docs/features/jobs#worker-api) for more details.
    */
   fn: Reference<AnyFunction>;
   /**
@@ -1069,7 +1103,7 @@ export interface Job extends BaseSpecElement<"job"> {
    * each one into the worker's `context.entities`.
    *
    * This works like entity access in queries and actions. See
-   * [Using Entities in Queries](https://wasp.sh/docs/data-model/operations/queries#using-entities-in-queries).
+   * [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/queries#using-entities-in-queries).
    */
   entities?: EntityName[];
   /**
@@ -1132,7 +1166,7 @@ export interface ExecutorOptions {
  *
  * Create one with the {@link crud} constructor.
  *
- * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
+ * See [Automatic CRUD](https://wasp.sh/docs/features/data/crud).
  *
  * @category Specifications
  */
@@ -1157,7 +1191,7 @@ export interface Crud extends BaseSpecElement<"crud"> {
  * checks that an authenticated user is making the request.
  *
  * CRUD operations are implemented with Wasp queries and actions. See
- * [Operations](https://wasp.sh/docs/data-model/operations/overview).
+ * [Operations](https://wasp.sh/docs/features/data/operations/overview).
  */
 export interface CrudOperations {
   /**
@@ -1203,7 +1237,7 @@ export interface CrudOperationOptions {
    * one. Use this when you need custom business logic for an operation (e.g.
    * attaching `userId` on `create`).
    *
-   * See the [CRUD guide](https://wasp.sh/docs/data-model/crud#adding-crud-to-the-task-entity-)
+   * See the [CRUD guide](https://wasp.sh/docs/features/data/crud#adding-crud-to-the-task-entity-)
    * for an override example.
    *
    * The override receives the caller-provided `args` payload and a

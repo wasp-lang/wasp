@@ -1,6 +1,6 @@
 {{={= =}=}}
 import * as z from "zod"
-import { FromRegister } from "../../types/register";
+import type { FromRegister } from "../../types/register";
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
 {=/ envValidationSchema.isDefined =}
@@ -37,8 +37,7 @@ const authProviderEnvSchema = z.object({
 
 {=/ isAuthEnabled =}
 const waspDevClientEnvSchema = z.object({
-  "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default("{= defaultServerUrl =}"),
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
 {=# isAuthEnabled =}
   ...authProviderEnvSchema.shape,
 {=/ isAuthEnabled =}

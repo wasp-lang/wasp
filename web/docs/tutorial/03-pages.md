@@ -1,11 +1,11 @@
 ---
-title: 3. Pages & Routes
+title: 3. Pages and routes
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import WaspStartNote from '../\_WaspStartNote.md'
-import TypescriptServerNote from '../\_TypescriptServerNote.md'
+import WaspStartNote from '../_WaspStartNote.md'
+import TypescriptServerNote from '../_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
 
 In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
@@ -71,7 +71,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
+To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../features/routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"

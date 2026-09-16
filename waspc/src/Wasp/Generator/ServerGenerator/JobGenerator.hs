@@ -75,7 +75,7 @@ genAllJobImports spec =
         dstFile
         ( Just $
             object
-              ["jobs" .= (buildJobInfo <$> (fst <$> getJobs spec))]
+              ["jobs" .= (buildJobInfo . fst <$> getJobs spec)]
         )
   where
     buildJobInfo :: String -> Aeson.Value

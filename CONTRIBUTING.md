@@ -15,6 +15,12 @@ There are several main ways in which you can contribute to Wasp:
 - Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. Check [Ways to contribute](#ways-to-contribute) for more details.
 - Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. We'd be happy to help you find the issue you'll enjoy working on, depending on your interests and skill set! `#wasp-dev` channel is the perfect place to ping us with the task you want to do and how you plan to do it, which reduces duplicate or misdirected efforts.
 
+And before you open a PR, check if it will need agreement from the maintainers:
+
+- **Small, obvious fixes are welcome as direct PRs.** Typos, broken links, docs corrections, small bugs where the fix is clear and comes with a test.
+
+- **Everything else: talk to us before writing code.** Bigger fixes or new features always need maintainer agreement in advance. Open a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or post in the [`#wasp-dev` channel on our Discord](https://discord.wasp.run/wasp-dev), and wait for a maintainer to agree on the approach. We will usually close PRs for undiscussed non-trivial changes without reviewing them. See [Policies](#policies) below for details, including our policy on AI-assisted contributions.
+
 ## This repo
 
 We are using a monorepo approach, where one git repo contains multiple related projects.
@@ -31,22 +37,32 @@ While this document captures the general instructions for the whole repo, make s
 > [!NOTE]
 > **Developing on Windows?** Use the Bash shell bundled with [Git for Windows](https://git-scm.com/download/win) (often called "Git Bash"). Wasp's development scripts are Bash scripts and won't run in PowerShell or Command Prompt. If you develop inside WSL (Windows Subsystem for Linux), you are effectively on Linux, so follow the Linux instructions instead.
 
-We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage all the different tools needed for the Wasp repo. Everything is declared in a single file ([`mise.toml`](mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
-
-Run `mise install` from the root of the repo to install all the required tools. Then, you can access the mise-managed tools in different ways:
-
-- **(Recommended for local development)** You can set up your shell to automatically call the `mise activate` script. This will make sure that the specified tools and versions are in your `PATH` when you go into the repo. Check their installation instructions at https://mise.jdx.dev/installing-mise.html#shells.
-
-- You can also run [`mise en`](https://mise.jdx.dev/cli/en.html) to go into a one-off shell for the current project, similar to `nix-shell` or `virtualenv`.
-
-- If you don't want to add a shell hook, you can use the [Shims mode](https://mise.jdx.dev/dev-tools/shims.html), which lets you just add a single directory to your `PATH`, which will get populated with intelligent redirectors to the correct versions of the tools for the current working directory.
-
-- For one-off commands, you can use [the `mise exec` command](https://mise.jdx.dev/cli/exec.html) (or `mise x`) to run a specific command with the repo tools available, e.g. `mise x -- ghc --version`, `mise x -- node --version`, `mise x -- ./run build`, etc.
-
-You can learn more and install Mise by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
+We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. Haskell, Node, and code formatters). Mise is an all-in-one tool that makes it easy to set up and manage the development environment (tools, env vars, tasks) per project. Everything is declared in a single file ([`mise.toml`](mise.toml)), and every developer can use it to set up their environment in a consistent way. We also use it on our CI to ensure it uses the same versions of tools as well.
 
 > [!NOTE]
 > There are no hard dependencies on mise for local development, so if you prefer to use your own tooling, you can install each program separately, and use the versions specified in [`mise.toml`](mise.toml) as a reference. But then, you're in charge of making sure you have the right versions of the tools installed, and keeping them up-to-date as we upgrade them.
+
+#### Global Mise setup
+
+While you can use Mise explicitly, on demand, via `mise exec|run|en`, normally you don't want to deal with that but just have it work automatically in the background.
+Mise has detailed docs on this, but here is the summarized version of how you will most likely want to set it up:
+
+1. Of course, **install** `mise`.
+2. Set up automatic mise **activation** per dir for interactive shells by adding `eval "$($HOME/.local/bin/mise activate bash)"` to your `~/.bashrc` (If on Mac: `... zsh)"` to your `~/.zshrc`).
+   With this, when in an interactive shell, mise will automatically keep the dev environment updated for that shell based on your current directory.
+   It does so by updating its `PATH` and other env vars.
+3. Set up global mise **shims** by adding `eval "$($HOME/.local/bin/mise activate bash --shims)"` to your `~/.profile` or possibly `~/.bash_profile` (If on Mac: `... zsh --shims)"` to your `~/.zprofile`).
+   This complements the _activate_ by covering direct, non-interactive usage, which _activate_ doesn't cover.
+   E.g. if a process calls `node` directly, and not from interactive shell, it will hit a mise shim which will, based on the calling process's working directory, provide it with the correct version of `node` (or just pass it to system `node` if there is no applicable mise config).
+4. Potentially install tool-specific mise integrations/plugins, e.g. a plugin for your editor, although in most cases _activation_ + _shims_ will already do the job and you don't have to bother with this.
+
+If you are wondering why both _activate_ and _shims_: because they both serve different use cases and complement each other. _Activate_ runs once per dir change / shell activation, but can't affect the non-interactive usage (e.g. your editor executing tools non-interactively). On the other hand, _shims_ work even for non-interactive usage, but call mise on each tool call (although cheap) and also can't provide env vars for the shell (but do set them for that single tool call). Having both ensures you are well covered.
+
+Run `mise doctor` to validate that everything is setup correctly.
+
+#### Repo setup
+
+Run `mise install` from the root of the repo to install all the required tools.
 
 ### Basic commands
 
@@ -105,6 +121,12 @@ Happy hacking!
 ## Policies
 
 These are some general policies that we follow when it comes to contributions. They are not meant to be strict or exhaustive, but rather to give you a sense of what we value and expect. If you are linked here from a PR, it means that we think your contribution could be improved in some way, and following these guidelines is the best way to do it.
+
+### Discuss before you code
+
+Anything beyond a small, obvious fix needs a maintainer's agreement on the approach _before_ you write the code: features, refactors, API or behavior changes, and anything where you had to choose between approaches. Propose it in a [GitHub issue](https://github.com/wasp-lang/wasp/issues) or in the [`#wasp-dev` channel on our Discord](https://discord.wasp.run/wasp-dev). An open issue is not by itself a request for PRs: check that a maintainer has confirmed the approach in the discussion first.
+
+If a non-trivial PR arrives without that agreement, we will usually close it and ask you to start the discussion, instead of reviewing it. This is not us being unfriendly: a PR review is the wrong place to design a solution together, and we would rather spend that time helping you land something we can all agree on.
 
 ### AIs and LLMs
 

@@ -1,5 +1,5 @@
-import { type Application } from 'express'
-import { Server } from 'http'
+import type { Application } from 'express'
+import type { Server } from 'http'
 
 // PUBLIC API
 export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>

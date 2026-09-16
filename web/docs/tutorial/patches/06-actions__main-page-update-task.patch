@@ -3,8 +3,8 @@ index 6ee0dbe..54da50f 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,6 +1,6 @@
--import type { FormEvent } from "react";
-+import type { ChangeEvent, FormEvent } from "react";
+-import type { SubmitEvent } from "react";
++import type { ChangeEvent, SubmitEvent } from "react";
  import type { Task } from "wasp/entities";
 -import { createTask, getTasks, useQuery } from "wasp/client/operations";
 +import { createTask, getTasks, updateTask, useQuery } from "wasp/client/operations";

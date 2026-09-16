@@ -10,14 +10,20 @@ import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreaming
 
 import { fooBar as _waspfooBarfn } from '../../../../../../src/features/apis/apis'
 import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
+import { optionsFooBaz as _waspoptionsFooBazfn } from '../../../../../../src/features/apis/apis'
+import { optionsFooBazMiddlewareFn as _waspoptionsFooBazmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
+import { headBarBaz as _waspheadBarBazfn } from '../../../../../../src/features/apis/apis'
 import { barBaz as _waspbarBazfn } from '../../../../../../src/features/apis/apis'
+import { patchBarBaz as _wasppatchBarBazfn } from '../../../../../../src/features/apis/apis'
 import { webhookCallback as _waspwebhookCallbackfn } from '../../../../../../src/features/apis/apis'
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { streamingText as _waspstreamingTextfn } from '../../../../../../src/features/streaming/api'
 
 const idFn: MiddlewareConfigFn = x => x
 
+const _waspheadBarBazmiddlewareConfigFn = idFn
 const _waspbarBazmiddlewareConfigFn = idFn
+const _wasppatchBarBazmiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
@@ -44,6 +50,40 @@ router.all(
     }
   )
 )
+const optionsFooBazMiddleware = globalMiddlewareConfigForExpress(_waspoptionsFooBazmiddlewareConfigFn)
+router.options(
+  '/foo/baz',
+  optionsFooBazMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspoptionsFooBazfn>[0],
+      res: Parameters<typeof _waspoptionsFooBazfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspoptionsFooBazfn(req, res, context)
+    }
+  )
+)
+const headBarBazMiddleware = globalMiddlewareConfigForExpress(_waspheadBarBazmiddlewareConfigFn)
+router.head(
+  '/bar/baz',
+  headBarBazMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspheadBarBazfn>[0],
+      res: Parameters<typeof _waspheadBarBazfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspheadBarBazfn(req, res, context)
+    }
+  )
+)
 const barBazMiddleware = globalMiddlewareConfigForExpress(_waspbarBazmiddlewareConfigFn)
 router.get(
   '/bar/baz',
@@ -59,6 +99,23 @@ router.get(
         },
       }
       return _waspbarBazfn(req, res, context)
+    }
+  )
+)
+const patchBarBazMiddleware = globalMiddlewareConfigForExpress(_wasppatchBarBazmiddlewareConfigFn)
+router.patch(
+  '/bar/baz',
+  patchBarBazMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _wasppatchBarBazfn>[0],
+      res: Parameters<typeof _wasppatchBarBazfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _wasppatchBarBazfn(req, res, context)
     }
   )
 )

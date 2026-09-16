@@ -1,7 +1,7 @@
 {{={= =}=}}
-import { Request as ExpressRequest } from "express";
+import type { Request as ExpressRequest } from "express";
 
-import { type AuthUserData } from '../../auth/user.js';
+import type { AuthUserData } from '../../auth/user.js';
 
 import { canRevokeSessions, type AuthProvider, type VerifiedSession } from "./provider/types.js";
 import { getAuthProvider, authProviders } from "./provider/index.js";

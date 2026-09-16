@@ -10,7 +10,7 @@ module Wasp.Psl.Ast.Schema
   )
 where
 
-import Data.Maybe (catMaybes)
+import Data.Maybe (mapMaybe)
 import Wasp.Psl.Ast.ConfigBlock (ConfigBlock)
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.ConfigBlock
 import Wasp.Psl.Ast.Enum (Enum)
@@ -63,7 +63,7 @@ getGenerators = extractBlockOfType $ \case
 
 extractBlockOfType :: (Block -> Maybe a) -> Schema -> [WithCtx a]
 extractBlockOfType extractFn (Schema blocksWithCtx) =
-  catMaybes $ extractBlockMaybe <$> blocksWithCtx
+  mapMaybe extractBlockMaybe blocksWithCtx
   where
     extractBlockMaybe (WithCtx block context) =
       (`WithCtx` context) <$> extractFn block

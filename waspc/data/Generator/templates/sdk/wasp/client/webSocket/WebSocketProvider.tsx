@@ -1,6 +1,6 @@
 {{={= =}=}}
-import { createContext, useState, useEffect, Context, ReactNode } from 'react'
-import { io, Socket } from 'socket.io-client'
+import { createContext, useState, useEffect, type Context, type ReactNode } from 'react'
+import { io, type Socket } from 'socket.io-client'
 
 import { getSessionId } from '../../api/index.js'
 import { apiEventsEmitter } from '../../api/events.js'

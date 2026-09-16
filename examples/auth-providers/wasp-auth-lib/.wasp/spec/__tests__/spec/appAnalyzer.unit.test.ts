@@ -1,0 +1,91 @@
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { loadWaspTsSpecDefaultExport } from "../../src/spec-pipeline/loadWaspTsSpec.js";
+import { analyzeApp } from "../../src/spec/appAnalyzer.js";
+import { convertWaspSpecToAppSpec } from "../../src/spec/mapper/index.js";
+import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
+import { WaspSpecUserError } from "../../src/spec/waspSpecUserError.js";
+import * as Fixtures from "./testFixtures.js";
+
+vi.mock("../../src/spec-pipeline/loadWaspTsSpec.js", () => ({
+  loadWaspTsSpecDefaultExport: vi.fn(),
+}));
+
+const mockLoadWaspTsSpecDefaultExport = vi.mocked(loadWaspTsSpecDefaultExport);
+
+describe("analyzeApp", () => {
+  afterEach(() => vi.clearAllMocks());
+
+  test("should load and parse an app successfully", async () => {
+    await testAnalyzeApp({
+      app: Fixtures.getApp("minimal"),
+      entities: Fixtures.getEntities("minimal"),
+    });
+  });
+
+  test("should load and parse full app successfully", async () => {
+    await testAnalyzeApp({
+      app: Fixtures.getApp("full"),
+      entities: Fixtures.getEntities("full"),
+    });
+  });
+
+  test("should return an error if the default export is not defined", async () => {
+    await testAnalyzeApp({
+      app: undefined as unknown as WaspSpec.App,
+      entities: Fixtures.getEntities("minimal"),
+      options: {
+        shouldReturnError: true,
+      },
+    });
+  });
+
+  test("should return an error if the default export is not an App", async () => {
+    await testAnalyzeApp({
+      app: "not an App" as unknown as WaspSpec.App,
+      entities: Fixtures.getEntities("minimal"),
+      options: {
+        shouldReturnError: true,
+      },
+    });
+  });
+
+  async function testAnalyzeApp(input: {
+    app: WaspSpec.App;
+    entities: string[];
+    options?: {
+      shouldReturnError: boolean;
+    };
+  }): Promise<void> {
+    const {
+      app,
+      entities,
+      options: { shouldReturnError } = { shouldReturnError: false },
+    } = input;
+    mockLoadWaspTsSpecDefaultExport.mockResolvedValue(app);
+
+    const analyze = () =>
+      analyzeApp({
+        waspTsSpecPath: "main.wasp.ts",
+        tsconfigPath: "tsconfig.wasp.json",
+        projectRootDir: "/project",
+        entityNames: entities,
+      });
+
+    if (shouldReturnError) {
+      await expect(analyze()).rejects.toThrowError(WaspSpecUserError);
+    } else {
+      const result = await analyze();
+      const expected = convertWaspSpecToAppSpec(app, {
+        entityNames: entities,
+        projectRootDir: "/project",
+      });
+
+      expect(result).toEqual(expected);
+    }
+
+    expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
+      specPath: "main.wasp.ts",
+      tsconfigPath: "tsconfig.wasp.json",
+    });
+  }
+});

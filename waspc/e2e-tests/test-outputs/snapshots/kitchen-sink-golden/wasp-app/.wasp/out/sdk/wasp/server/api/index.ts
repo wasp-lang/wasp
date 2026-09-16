@@ -1,10 +1,10 @@
 
-import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
+import type { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
 
-import {
-  type _Task,
-  type Api,
-  type AuthenticatedApi,
+import type {
+  _Task,
+  Api,
+  AuthenticatedApi,
 } from '../_types'
 
 
@@ -26,6 +26,38 @@ export type FooBar<
     ReqQuery,
     Locals
   >
+export type OptionsFooBaz<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type HeadBarBaz<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
 export type BarBaz<
   P extends ExpressParams = ExpressParams,
   ResBody = any,
@@ -36,6 +68,22 @@ export type BarBaz<
   Api<
     [
       _Task,
+    ],
+    P,
+    ResBody,
+    ReqBody,
+    ReqQuery,
+    Locals
+  >
+export type PatchBarBaz<
+  P extends ExpressParams = ExpressParams,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery extends ExpressQuery = ExpressQuery,
+  Locals extends Record<string, any> = Record<string, any>
+> =
+  Api<
+    [
     ],
     P,
     ResBody,

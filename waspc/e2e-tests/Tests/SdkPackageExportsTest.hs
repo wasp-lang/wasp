@@ -6,6 +6,7 @@ import qualified Data.Aeson.Key as AesonKey
 import qualified Data.Aeson.KeyMap as AesonKeyMap
 import qualified Data.ByteString as BS
 import Data.List (isInfixOf, isSuffixOf, stripPrefix)
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import FileSystem (SnapshotType (Current), getSnapshotsDir, snapshotDirInSnapshotsDir)
 import StrongPath ((</>))
@@ -92,7 +93,7 @@ wildcardParentDir :: FilePath -> FilePath
 wildcardParentDir target = FP.dropTrailingPathSeparator $ takeWhile (/= '*') target
 
 dropPrefix :: String -> String -> String
-dropPrefix prefix value = maybe value id $ stripPrefix prefix value
+dropPrefix prefix value = fromMaybe value $ stripPrefix prefix value
 
 replaceSuffix :: String -> String -> String -> String
 replaceSuffix oldSuffix newSuffix value =

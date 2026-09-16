@@ -1,4 +1,4 @@
-import { type Plugin, type UserConfig } from 'vite'
+import type { Plugin, UserConfig } from 'vite'
 import { resolve } from 'node:path'
 import { readFile, access, constants } from 'node:fs/promises'
 import { parse as parseDotenv } from 'dotenv'

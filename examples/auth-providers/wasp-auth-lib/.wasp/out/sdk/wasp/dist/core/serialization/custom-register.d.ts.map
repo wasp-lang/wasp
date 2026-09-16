@@ -1,0 +1,1 @@
+{"version":3,"file":"custom-register.d.ts","sourceRoot":"","sources":["../../../core/serialization/custom-register.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,iDAAiD,EAAE,MAAM,WAAW,CAAA;AAgBlF,OAAO,QAAQ,WAAW,CAAC;IACzB,UAAU,iDAAiD;KAAG;CAC/D;AAED,MAAM,MAAM,2BAA2B,GAAG,iDAAiD,CAAC,MAAM,iDAAiD,CAAC,CAAA"}

@@ -2,7 +2,7 @@ import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { HttpError, getBody, json } from "../http.js";
 import { namespaceFor } from "../namespaces.js";
 import { createInvalidCredentialsError, doFakeWork, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
-import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, } from "../validation.js";
+import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, normalizeEmail, } from "../validation.js";
 import { isEmailResendAllowed, makeEmailHelpers } from "./utils.js";
 const defaultVerificationEmailContent = ({ verificationLink, }) => ({
     subject: "Verify your email",
@@ -42,7 +42,7 @@ export function emailRoutes({ runtime, options, extensions }) {
                 ensureValidEmail(fields);
                 ensurePasswordIsPresent(fields);
                 ensureValidPassword(fields);
-                const email = fields.email;
+                const email = normalizeEmail(fields.email);
                 const existingIdentity = await identities().find(email);
                 // An already-verified address responds exactly like a fresh signup
                 // (no enumeration); an unverified one is superseded after the resend
@@ -105,7 +105,7 @@ export function emailRoutes({ runtime, options, extensions }) {
                 const fields = getBody(req);
                 ensureValidEmail(fields);
                 ensurePasswordIsPresent(fields);
-                const email = fields.email;
+                const email = normalizeEmail(fields.email);
                 const identity = await identities().find(email);
                 if (!identity || !identity.data.isEmailVerified) {
                     throw createInvalidCredentialsError();
@@ -155,7 +155,7 @@ export function emailRoutes({ runtime, options, extensions }) {
             handler: async (req, res) => {
                 const args = getBody(req);
                 ensureValidEmail(args);
-                const email = args.email;
+                const email = normalizeEmail(args.email);
                 const identity = await identities().find(email);
                 // Fake work: an unknown address takes as long as a known one.
                 if (!identity) {

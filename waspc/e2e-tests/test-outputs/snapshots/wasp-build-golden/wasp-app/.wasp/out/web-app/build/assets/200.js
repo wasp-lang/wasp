@@ -143,7 +143,7 @@ function formatZodEnvError(error) {
 //#region .wasp/out/sdk/wasp/dist/client/env/schema.js
 var userClientEnvSchema = z.object({});
 var serverUrlSchema = z.string({ error: "REACT_APP_API_URL is required" }).pipe(z.url({ error: "REACT_APP_API_URL must be a valid URL" }));
-z.object({ "REACT_APP_API_URL": serverUrlSchema.default("http://localhost:3001") });
+z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var waspClientEnvSchema = z.object({ "REACT_APP_API_URL": serverUrlSchema });
 var config = { apiUrl: stripTrailingSlash(ensureEnvSchema({
 	"BASE_URL": "/",
@@ -163,7 +163,10 @@ var HttpMethod;
 	HttpMethod["Get"] = "GET";
 	HttpMethod["Post"] = "POST";
 	HttpMethod["Put"] = "PUT";
+	HttpMethod["Patch"] = "PATCH";
 	HttpMethod["Delete"] = "DELETE";
+	HttpMethod["Head"] = "HEAD";
+	HttpMethod["Options"] = "OPTIONS";
 })(HttpMethod || (HttpMethod = {}));
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {

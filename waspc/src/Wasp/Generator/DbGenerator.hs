@@ -70,7 +70,7 @@ genPrismaSchema spec = do
     AS.Db.PostgreSQL -> return Pls.Db.dbProviderPostgresqlStringLiteral
     AS.Db.SQLite ->
       if AS.isProduction spec
-        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/databases#migrating-from-sqlite-to-postgresql ."
+        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/features/data/databases#migrating-from-sqlite-to-postgresql ."
         else return Pls.Db.dbProviderSqliteStringLiteral
 
   entities <- getEntitiesForPrismaSchema spec
@@ -101,8 +101,12 @@ genPrismaSchema spec = do
     getDatasource datasourceProvider =
       Psl.Ast.ConfigBlock.overrideKeyValuePairs
         [("provider", Psl.Argument.StringExpr datasourceProvider), ("url", validDbUrlExprForPrismaSchema)]
-        -- We validated the Prisma schema so we know there is exactly one datasource block.
-        (Psl.WithCtx.getNode $ head $ Psl.Schema.getDatasources prismaSchemaAst)
+        (Psl.WithCtx.getNode theOnlyDatasource)
+
+    -- We validated the Prisma schema so we know there is exactly one datasource block.
+    theOnlyDatasource = case Psl.Schema.getDatasources prismaSchemaAst of
+      [datasource] -> datasource
+      _ -> error "Prisma schema doesn't have exactly one datasource block. This is probably a bug in the Wasp compiler, please report it."
 
     generators =
       ensureAuthPreviewFeatures . Psl.WithCtx.getNode <$> Psl.Schema.getGenerators prismaSchemaAst

@@ -65,6 +65,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
           "defaultServerPort" .= Server.defaultServerPort,
+          "serverPortEnvVarName" .= Server.serverPortEnvVarName,
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
@@ -81,7 +82,6 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
           "isAuthEnabled" .= (not . null $ providers),
           "authProviderClientEnvVars"
             .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) providers,

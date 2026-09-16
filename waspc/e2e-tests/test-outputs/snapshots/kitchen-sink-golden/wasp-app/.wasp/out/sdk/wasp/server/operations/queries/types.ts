@@ -1,10 +1,10 @@
 
-import {
-  type _Task,
-  type _UppercaseTextRequest,
-  type UnauthenticatedQueryDefinition,
-  type AuthenticatedQueryDefinition,
-  type Payload,
+import type {
+  _Task,
+  _UppercaseTextRequest,
+  UnauthenticatedQueryDefinition,
+  AuthenticatedQueryDefinition,
+  Payload,
 } from '../../_types/index.js'
 
 // PUBLIC API

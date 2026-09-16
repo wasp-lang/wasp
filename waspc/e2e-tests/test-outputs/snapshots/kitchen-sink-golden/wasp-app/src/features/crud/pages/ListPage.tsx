@@ -159,7 +159,7 @@ function TaskEdit({
     initialTaskDescription,
   );
 
-  function onSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     onUpdate({ description: editTaskDescription });
   }
@@ -198,7 +198,7 @@ function TaskCreateForm({
 }) {
   const [newTaskDescription, setNewTaskDescription] = useState("");
 
-  function onSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     onCreate({ description: newTaskDescription });
     setNewTaskDescription("");

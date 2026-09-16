@@ -44,7 +44,8 @@ import Wasp.SemanticVersion.VersionBound
   )
 
 {--
-# The `node-semver` implementation
+The `node-semver` implementation
+================================
 
 We implement the `node-semver` package differently from the original implementation.
 This comment explains:
@@ -52,7 +53,8 @@ This comment explains:
 - How can we implement this?
 - Which one did we pick and why?
 
-## How does the `node-semver` behave?
+How does the `node-semver` behave?
+----------------------------------
 
 The `node-semver` package implements three classes: `SemVer`, `Comparator`, and `Range`:
 - `SemvVer` class is an implementation of the semantic version.
@@ -88,7 +90,8 @@ This is a recurring issue with `node-semver`.
 Their documentation is not really written as a specification,
 which makes it hard to replicate the API behavior fully.
 
-## How can we implement this?
+How can we implement this?
+--------------------------
 
 So the important context is that `node-semver` has two separate domains:
 1. The core domain - `SemVer`, `Comparator`, and `Range`.
@@ -124,7 +127,8 @@ We can either:
      - The middle layer is hidden from the public API.
      - In the end, we would only differentiate on the `Comparator`, which isn't that bad.
 
-## Which one did we pick and why?
+Which one did we pick and why?
+------------------------------
 
 We picked the second option.
 

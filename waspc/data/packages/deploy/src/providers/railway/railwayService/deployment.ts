@@ -2,7 +2,7 @@ import { setTimeout } from "node:timers/promises";
 
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspSays } from "../../../common/terminal.js";
-import { createCommandWithCwd } from "../../../common/zx.js";
+import { createCommandWithCwd, tryRunJsonCommand } from "../../../common/zx.js";
 import { RailwayCliExe } from "../brandedTypes.js";
 import {
   DeploymentStatus,
@@ -61,17 +61,12 @@ async function getLatestServiceDeploymentStatus(
     options.railwayExe,
     options.waspProjectDir,
   );
-  const result = await railwayCli(
+  const serviceStatus = await tryRunJsonCommand(
+    railwayCli,
     ["service", "status", "--service", service.id, "--json"],
-    {
-      verbose: false,
-      nothrow: true,
-    },
+    RailwayCliServiceStatusSchema,
   );
-  if (result.exitCode !== 0) {
-    // Treat transient Railway CLI failures as "not ready yet".
-    return null;
-  }
-
-  return RailwayCliServiceStatusSchema.parse(result.json()).status;
+  // Treat a failed command as a transient Railway CLI failure, i.e. "not
+  // ready yet".
+  return serviceStatus?.status ?? null;
 }
