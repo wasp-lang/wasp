@@ -20,15 +20,6 @@ test.describe("custom API HTTP methods", () => {
     expect(response.headers()["x-api-handler"]).toBe("headBarBaz");
   });
 
-  test("an OPTIONS api answers OPTIONS requests", async ({ request }) => {
-    const response = await request.fetch(`${WASP_SERVER_URL}/foo/baz`, {
-      method: "OPTIONS",
-    });
-
-    expect(response.ok()).toBe(true);
-    expect(response.headers()["allow"]).toBe("OPTIONS");
-  });
-
   test("a GET api at the same path still answers GET requests", async ({
     request,
   }) => {
