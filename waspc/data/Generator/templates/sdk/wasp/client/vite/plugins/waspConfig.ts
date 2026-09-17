@@ -17,7 +17,7 @@ import { defaultExclude } from "vitest/config";
 //    appends them to whatever the user already has.
 
 const forcedOptions = {
-  base: "{= baseDir =}",
+  base: {=& baseDir =},
   envPrefix: "REACT_APP_",
   "build.outDir": "{= clientBuildDirPath =}",
   // Heads up! The env referred to by `clientPortEnvVarName` is empty during

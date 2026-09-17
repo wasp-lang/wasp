@@ -85,7 +85,10 @@ function mockRoute(
     [HttpMethod.Get]: http.get(url, responseHandler),
     [HttpMethod.Post]: http.post(url, responseHandler),
     [HttpMethod.Put]: http.put(url, responseHandler),
+    [HttpMethod.Patch]: http.patch(url, responseHandler),
     [HttpMethod.Delete]: http.delete(url, responseHandler),
+    [HttpMethod.Head]: http.head(url, responseHandler),
+    [HttpMethod.Options]: http.options(url, responseHandler),
   }
 
   server.use(handlers[route.method])

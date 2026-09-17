@@ -25,6 +25,7 @@ import Wasp.JsImport
     makeValueJsImport,
   )
 import Wasp.Project.Common (UserSrcDir, srcDirInWaspProjectDir)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 extImportToJsImport ::
   (GeneratedAppComponentSrcDir d) =>
@@ -48,7 +49,7 @@ jsImportToImportJson = maybe notDefinedImportJsonData mkImportJsonData
     mkImportJsonData jsImport =
       object
         [ "isDefined" .= True,
-          "importPath" .= getJsImportPathString jsImport,
+          "importPath" .= makeJsStringLiteral (getJsImportPathString jsImport),
           "importIdentifier" .= jsImportIdentifier,
           "importStatement" .= jsImportStatement,
           "dynamicImportExpression" .= getJsDynamicImportExpression jsImport

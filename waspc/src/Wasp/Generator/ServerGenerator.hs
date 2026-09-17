@@ -293,6 +293,7 @@ genRoutesIndex spec =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+          "upRouteInRootRouter" .= (upRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
@@ -302,6 +303,14 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+-- | Since our health check is just a simple liveness check,
+-- we use the same @/up@ route that Rails and Laravel use.
+--
+-- Health checks (@/health@ route) are much more complex,
+-- so we let users handle it themselves.
+upRouteInRootRouter :: String
+upRouteInRootRouter = "up"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

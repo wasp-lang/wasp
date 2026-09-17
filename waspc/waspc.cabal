@@ -394,6 +394,7 @@ library
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
+    Wasp.Util.Js
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
@@ -618,6 +619,7 @@ test-suite waspc-tests
     Util.DockerTest
     Util.FilePathTest
     Util.IO.RetryTest
+    Util.JsTest
     Util.Prisma
     Util.StrongPathTest
     Util.WebRouterPathTest

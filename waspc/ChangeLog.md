@@ -12,6 +12,7 @@
 - Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
+- The Wasp server's liveness check moved from `GET /` to `GET /up`. The root path is free for custom `api`s, while `/up` is now reserved by Wasp. Point health checks that probed `/` at `/up`. ([#4856](https://github.com/wasp-lang/wasp/pull/4856))
 
 ### 🎉 New Features
 
@@ -24,8 +25,11 @@
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
+- Custom `api`s can now use the `PATCH`, `HEAD`, and `OPTIONS` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860))
 
 ### 🐞 Bug fixes
+
+- Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))

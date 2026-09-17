@@ -3,7 +3,7 @@ import http from 'http'
 import app from './app.js'
 import { config } from 'wasp/server'
 
-import { serverSetup } from '../../../../src/serverSetup'
+import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 

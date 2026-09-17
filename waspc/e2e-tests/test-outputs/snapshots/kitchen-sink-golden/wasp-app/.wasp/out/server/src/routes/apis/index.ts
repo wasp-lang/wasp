@@ -5,29 +5,35 @@ import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../midd
 import auth from 'wasp/server/core/auth'
 import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 
-import { barNamespaceMiddlewareFn as _waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
-import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from '../../../../../../src/features/streaming/api'
+import { barNamespaceMiddlewareFn as _waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
+import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from "../../../../../../src/features/streaming/api"
 
-import { fooBar as _waspfooBarfn } from '../../../../../../src/features/apis/apis'
-import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
-import { barBaz as _waspbarBazfn } from '../../../../../../src/features/apis/apis'
-import { webhookCallback as _waspwebhookCallbackfn } from '../../../../../../src/features/apis/apis'
-import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
-import { streamingText as _waspstreamingTextfn } from '../../../../../../src/features/streaming/api'
+import { fooBar as _waspfooBarfn } from "../../../../../../src/features/apis/apis"
+import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
+import { optionsFooBaz as _waspoptionsFooBazfn } from "../../../../../../src/features/apis/apis"
+import { optionsFooBazMiddlewareFn as _waspoptionsFooBazmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
+import { headBarBaz as _waspheadBarBazfn } from "../../../../../../src/features/apis/apis"
+import { barBaz as _waspbarBazfn } from "../../../../../../src/features/apis/apis"
+import { patchBarBaz as _wasppatchBarBazfn } from "../../../../../../src/features/apis/apis"
+import { webhookCallback as _waspwebhookCallbackfn } from "../../../../../../src/features/apis/apis"
+import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
+import { streamingText as _waspstreamingTextfn } from "../../../../../../src/features/streaming/api"
 
 const idFn: MiddlewareConfigFn = x => x
 
+const _waspheadBarBazmiddlewareConfigFn = idFn
 const _waspbarBazmiddlewareConfigFn = idFn
+const _wasppatchBarBazmiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
 
-router.use('/bar', globalMiddlewareConfigForExpress(_waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn))
-router.use('/api/streaming-test', globalMiddlewareConfigForExpress(_waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn))
+router.use("/bar", globalMiddlewareConfigForExpress(_waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn))
+router.use("/api/streaming-test", globalMiddlewareConfigForExpress(_waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn))
 
 const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareConfigFn)
 router.all(
-  '/foo/bar',
+  "/foo/bar",
   [auth, ...fooBarMiddleware],
   defineHandler(
     (
@@ -44,9 +50,43 @@ router.all(
     }
   )
 )
+const optionsFooBazMiddleware = globalMiddlewareConfigForExpress(_waspoptionsFooBazmiddlewareConfigFn)
+router.options(
+  "/foo/baz",
+  optionsFooBazMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspoptionsFooBazfn>[0],
+      res: Parameters<typeof _waspoptionsFooBazfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspoptionsFooBazfn(req, res, context)
+    }
+  )
+)
+const headBarBazMiddleware = globalMiddlewareConfigForExpress(_waspheadBarBazmiddlewareConfigFn)
+router.head(
+  "/bar/baz",
+  headBarBazMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspheadBarBazfn>[0],
+      res: Parameters<typeof _waspheadBarBazfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspheadBarBazfn(req, res, context)
+    }
+  )
+)
 const barBazMiddleware = globalMiddlewareConfigForExpress(_waspbarBazmiddlewareConfigFn)
 router.get(
-  '/bar/baz',
+  "/bar/baz",
   barBazMiddleware,
   defineHandler(
     (
@@ -62,9 +102,26 @@ router.get(
     }
   )
 )
+const patchBarBazMiddleware = globalMiddlewareConfigForExpress(_wasppatchBarBazmiddlewareConfigFn)
+router.patch(
+  "/bar/baz",
+  patchBarBazMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _wasppatchBarBazfn>[0],
+      res: Parameters<typeof _wasppatchBarBazfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _wasppatchBarBazfn(req, res, context)
+    }
+  )
+)
 const webhookCallbackMiddleware = globalMiddlewareConfigForExpress(_waspwebhookCallbackmiddlewareConfigFn)
 router.post(
-  '/webhook/callback',
+  "/webhook/callback",
   webhookCallbackMiddleware,
   defineHandler(
     (
@@ -81,7 +138,7 @@ router.post(
 )
 const streamingTextMiddleware = globalMiddlewareConfigForExpress(_waspstreamingTextmiddlewareConfigFn)
 router.get(
-  '/api/streaming-test',
+  "/api/streaming-test",
   [auth, ...streamingTextMiddleware],
   defineHandler(
     (

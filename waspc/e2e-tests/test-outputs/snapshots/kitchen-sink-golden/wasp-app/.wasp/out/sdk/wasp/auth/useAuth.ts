@@ -31,6 +31,6 @@ function createUserGetter(): Query<void, AuthUser | null> {
   return buildAndRegisterQuery(getMe, {
     queryCacheKey: [getMeRelativePath],
     queryRoute: getMeRoute,
-    entitiesUsed: ['User'],
+    entitiesUsed: ["User"],
   })
 }

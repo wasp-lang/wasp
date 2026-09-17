@@ -18,25 +18,25 @@ import type {
 // PUBLIC API
 export const getTasks: QueryFor<RegisteredGetTasks> = createQuery<RegisteredGetTasks>(
   "operations/get-tasks",
-  ['Task'],
+  ["Task"],
 )
 
 // PUBLIC API
 export const getNumTasks: QueryFor<RegisteredGetNumTasks> = createQuery<RegisteredGetNumTasks>(
   "operations/get-num-tasks",
-  ['Task'],
+  ["Task"],
 )
 
 // PUBLIC API
 export const getTask: QueryFor<RegisteredGetTask> = createQuery<RegisteredGetTask>(
   "operations/get-task",
-  ['Task'],
+  ["Task"],
 )
 
 // PUBLIC API
 export const getOldestTask: QueryFor<RegisteredGetOldestTask> = createQuery<RegisteredGetOldestTask>(
   "operations/get-oldest-task",
-  ['Task'],
+  ["Task"],
 )
 
 // PUBLIC API
@@ -48,7 +48,7 @@ export const getSerializedObjects: QueryFor<RegisteredGetSerializedObjects> = cr
 // PUBLIC API
 export const getTextUppercaseRequests: QueryFor<RegisteredGetTextUppercaseRequests> = createQuery<RegisteredGetTextUppercaseRequests>(
   "operations/get-text-uppercase-requests",
-  ['UppercaseTextRequest'],
+  ["UppercaseTextRequest"],
 )
 
 // PUBLIC API
