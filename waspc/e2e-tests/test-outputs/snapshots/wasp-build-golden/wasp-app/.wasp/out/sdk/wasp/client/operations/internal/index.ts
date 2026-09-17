@@ -19,6 +19,6 @@ export async function callOperation(operationRoute: OperationRoute, args: any) {
 }
 
 // PRIVATE API
-export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
-  return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
+export function makeOperationRoute(operationPath: string): OperationRoute {
+  return { method: HttpMethod.Post, path: operationPath }
 }
