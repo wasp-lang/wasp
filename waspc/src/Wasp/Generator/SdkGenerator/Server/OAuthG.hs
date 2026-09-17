@@ -17,9 +17,6 @@ import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvider
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
     clientOAuthCallbackPath,
-    serverExchangeCodeForTokenHandlerPath,
-    serverOAuthCallbackHandlerPath,
-    serverOAuthLoginHandlerPath,
   )
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -29,6 +26,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -69,10 +67,11 @@ genRedirectHelper =
   where
     tmplData =
       object
-        [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
-          "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
-          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
-          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
+        [ "authRouteInRootRouter" .= ServerRoutes.authRouteInRootRouter,
+          "loginRouteInAuthProviderRouter" .= ServerRoutes.loginRouteInAuthProviderRouter,
+          "callbackRouteInAuthProviderRouter" .= ServerRoutes.callbackRouteInAuthProviderRouter,
+          "exchangeCodeRouteInAuthRouter" .= ServerRoutes.exchangeCodeRouteInAuthRouter,
+          "clientOAuthCallbackPath" .= clientOAuthCallbackPath
         ]
 
 genOAuthProvider ::

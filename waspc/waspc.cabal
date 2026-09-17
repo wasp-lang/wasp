@@ -617,6 +617,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    ServerRoutesTest
     Util.Control.MonadTest
     Util.DockerTest
     Util.FilePathTest

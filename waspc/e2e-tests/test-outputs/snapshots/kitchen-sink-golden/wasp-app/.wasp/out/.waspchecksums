@@ -809,7 +809,7 @@
             "file",
             "sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "7bbbf383104dac926e3d14cc2dc03f4b6d2aa4438cd75d945bc898cd2d4b9eb3"
+        "35573aad6202f757bc741efff25f39e337027caa6617cdb8dfb6bcb6114d3107"
     ],
     [
         [
@@ -2139,7 +2139,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "0b15b0069d02f049d4ab08271f5add429244989f0c6925b3bd8b0971d58fbb6b"
+        "d302f984e4724f68e87d243a87011f3853c179d61cf062edd4e308a5ae03ca39"
     ],
     [
         [

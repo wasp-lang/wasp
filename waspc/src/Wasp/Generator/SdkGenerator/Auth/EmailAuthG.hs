@@ -7,14 +7,6 @@ import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (emailAuthProvider)
-import Wasp.Generator.AuthProviders.Email
-  ( serverLoginUrl,
-    serverRequestPasswordResetUrl,
-    serverResetPasswordUrl,
-    serverSignupUrl,
-    serverVerifyEmailUrl,
-  )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -22,6 +14,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -49,7 +42,7 @@ genLoginAction =
       (emailAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
       tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
+    tmplData = object ["loginPath" .= ServerRoutes.getRoutePath ServerRoutes.emailLoginRoute]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
@@ -60,7 +53,7 @@ genSignupAction auth =
   where
     tmplData =
       object
-        [ "signupPath" .= serverSignupUrl emailAuthProvider,
+        [ "signupPath" .= ServerRoutes.getRoutePath ServerRoutes.emailSignupRoute,
           "isEmailUserSignupFieldsDefined" .= isJust emailUserSignupFields
         ]
     emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
@@ -75,8 +68,8 @@ genPasswordResetActions =
   where
     tmplData =
       object
-        [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
-          "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
+        [ "requestPasswordResetPath" .= ServerRoutes.getRoutePath ServerRoutes.emailRequestPasswordResetRoute,
+          "resetPasswordPath" .= ServerRoutes.getRoutePath ServerRoutes.emailResetPasswordRoute
         ]
 
 genVerifyEmailAction :: Generator FileDraft
@@ -86,7 +79,7 @@ genVerifyEmailAction =
       (emailAuthDirInSdkTemplatesDir </> [relfile|actions/verifyEmail.ts|])
       tmplData
   where
-    tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
+    tmplData = object ["verifyEmailPath" .= ServerRoutes.getRoutePath ServerRoutes.emailVerifyEmailRoute]
 
 emailAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 emailAuthDirInSdkTemplatesDir = [reldir|auth/email|]

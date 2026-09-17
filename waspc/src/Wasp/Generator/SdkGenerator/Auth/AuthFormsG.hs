@@ -15,7 +15,6 @@ import Wasp.Generator.AuthProviders
     slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
@@ -25,6 +24,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import qualified Wasp.ServerRoutes as ServerRoutes
 import Wasp.Util ((<++>))
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
@@ -148,12 +148,12 @@ genLoginSignupForm auth =
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "microsoftSignInPath" .= OAuth.serverLoginUrl microsoftAuthProvider,
+          "slackSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute slackAuthProvider),
+          "discordSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute discordAuthProvider),
+          "googleSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute googleAuthProvider),
+          "keycloakSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute keycloakAuthProvider),
+          "gitHubSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute gitHubAuthProvider),
+          "microsoftSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute microsoftAuthProvider),
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled

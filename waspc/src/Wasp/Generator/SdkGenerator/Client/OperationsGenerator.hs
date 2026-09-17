@@ -81,10 +81,7 @@ getQueryData :: (String, AS.Query.Query) -> Aeson.Value
 getQueryData (queryName, query) =
   object $
     [ "queryRoute"
-        .= ( ServerRoutes.operationsRouteInRootRouter
-               ++ "/"
-               ++ ServerRoutes.operationRouteInOperationsRouter operation
-           ),
+        .= ServerRoutes.getRoutePathWithoutLeadingSlash (ServerRoutes.operationRoute operation),
       "entitiesArray" .= makeJsArrayOfEntityNames operation
     ]
       ++ getOperationTypeData operation
@@ -95,10 +92,7 @@ getActionData :: (String, AS.Action.Action) -> Aeson.Value
 getActionData (actionName, action) =
   object $
     [ "actionRoute"
-        .= ( ServerRoutes.operationsRouteInRootRouter
-               ++ "/"
-               ++ ServerRoutes.operationRouteInOperationsRouter operation
-           ),
+        .= ServerRoutes.getRoutePathWithoutLeadingSlash (ServerRoutes.operationRoute operation),
       "entitiesArray" .= makeJsArrayOfEntityNames operation
     ]
       ++ getOperationTypeData operation

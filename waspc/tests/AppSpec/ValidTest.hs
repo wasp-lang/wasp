@@ -546,11 +546,17 @@ spec_AppSpecValid = do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name")])
           `shouldWarnMentioning` ["myApi", "/operations/:name", "/operations/get-tasks"]
       it "returns a warning for a POST api whose splat matches an operation's route" $ do
-        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/*")])
-          `shouldWarnMentioning` ["myApi", "/operations/*", "/operations/get-tasks"]
-      it "returns nothing for a POST api whose path pattern does not match any operation's route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/*splat")])
+          `shouldWarnMentioning` ["myApi", "/operations/*splat", "/operations/get-tasks"]
+      it "returns a warning for a POST api whose path pattern starts where an operation's route does, since we do not interpret patterns" $ do
         ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name/extra")])
-          `shouldBe` []
+          `shouldWarnMentioning` ["myApi", "/operations/:name/extra", "/operations/get-tasks"]
+      it "returns a single warning for an api that matches several of Wasp's routes" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicQueryDecl "getTasks", makeBasicQueryDecl "getTask", makeBasicApiDecl "myApi" (AS.Api.POST, "/operations/:name")])
+          `shouldWarnMentioning` ["myApi", "/operations/get-tasks", "and 1 more"]
+      it "returns a warning for a HEAD api at the liveness route, since Express answers HEAD with the GET route" $ do
+        ASV.validateAppSpec (makeSpecWithDecls [makeBasicApiDecl "myApi" (AS.Api.HEAD, "/up")])
+          `shouldWarnMentioning` ["myApi", "/up"]
 
     describe "should validate that there's at least one 'route' declaration" $ do
       it "returns no error if there is at least one 'route' declaration" $ do

@@ -17,7 +17,7 @@ export default function useAuth(): UseQueryResult<AuthUser | null> {
 }
 
 function createUserGetter(): Query<void, AuthUser | null> {
-  const getMeRelativePath = 'auth/me'
+  const getMeRelativePath = '{= getMeRelativePath =}'
   const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {

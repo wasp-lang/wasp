@@ -20,11 +20,11 @@ const config: ProviderConfig = {
     createRouter() {
         const router = Router();
 
-        router.post('/login', login);
+        router.post('/{= loginRouteInAuthProviderRouter =}', login);
         const signupRoute = getSignupRoute({
             userSignupFields: _waspUserSignupFields,
         });
-        router.post('/signup', signupRoute);
+        router.post('/{= signupRouteInAuthProviderRouter =}', signupRoute);
 
         return router;
     },
