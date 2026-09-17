@@ -15401,12 +15401,12 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 
 Wasp now serves a liveness check at `GET /up` in both development and production.
 
-Wasp used `/` for this before, but it behaved differently per environment:
+Wasp used `/` for liveness check before, but it behaved differently per environment:
 
 - Development: `GET /` showed Wasp's wrong-port page.
 - Production: `GET /` answered `200 OK`.
 
-Now, only the wrong-port page stays at `/` in development, registered after user `api`s, so any user `api` will win over it. In production, `GET /` is no longer set by Wasp.
+We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it. In production, `GET /` is no longer set by Wasp.
 
 This breaks the Caddy setup from the [VPS deployment guide](https://wasp.sh/docs/guides/deployment/self-hosted/vps), which probed `/`. Change its health check to `/up`:
 
