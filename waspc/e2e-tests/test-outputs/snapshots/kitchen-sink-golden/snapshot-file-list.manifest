@@ -175,6 +175,7 @@ wasp-app/.wasp/out/db/migrations/20251127110727_add_on_after_email_verified_hook
 wasp-app/.wasp/out/db/migrations/20260827175200_split_provider_data/migration.sql
 wasp-app/.wasp/out/db/migrations/20260828000000_add_session_provider_id/migration.sql
 wasp-app/.wasp/out/db/migrations/20260901211119_add_used_one_time_code/migration.sql
+wasp-app/.wasp/out/db/migrations/20260917135924_auth_schemes/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -972,6 +973,7 @@ wasp-app/migrations/20251127110727_add_on_after_email_verified_hook_call_count/m
 wasp-app/migrations/20260827175200_split_provider_data/migration.sql
 wasp-app/migrations/20260828000000_add_session_provider_id/migration.sql
 wasp-app/migrations/20260901211119_add_used_one_time_code/migration.sql
+wasp-app/migrations/20260917135924_auth_schemes/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json
