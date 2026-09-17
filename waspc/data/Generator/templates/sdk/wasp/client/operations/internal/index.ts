@@ -19,6 +19,13 @@ export async function callOperation(operationRoute: OperationRoute, args: any) {
 }
 
 // PRIVATE API
-export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
-  return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
+export function makeOperationRoute(operationPath: string): OperationRoute {
+  return { method: HttpMethod.Post, path: operationPath }
+}
+
+// PRIVATE API
+// A query's cache key is its route's path without the leading slash.
+// Users see these keys (e.g. in optimistic updates), so the format must not change.
+export function makeQueryCacheKeyFromPath(routePath: string): string[] {
+  return [routePath.replace(/^\//, '')]
 }
