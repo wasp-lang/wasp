@@ -166,7 +166,6 @@ var HttpMethod;
 	HttpMethod["Patch"] = "PATCH";
 	HttpMethod["Delete"] = "DELETE";
 	HttpMethod["Head"] = "HEAD";
-	HttpMethod["Options"] = "OPTIONS";
 })(HttpMethod || (HttpMethod = {}));
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {

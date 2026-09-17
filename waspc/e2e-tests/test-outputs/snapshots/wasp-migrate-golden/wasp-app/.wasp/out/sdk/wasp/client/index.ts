@@ -7,7 +7,6 @@ export enum HttpMethod {
 	Patch = 'PATCH',
 	Delete = 'DELETE',
 	Head = 'HEAD',
-	Options = 'OPTIONS',
 }
 
 // PUBLIC API

@@ -25,7 +25,7 @@
 - Added a `wasp show spec [--json]` command that prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. ([#4451](https://github.com/wasp-lang/wasp/pull/4451))
 - Added the `wasp show build [--json]` command to print information about the last build. ([#4625](https://github.com/wasp-lang/wasp/pull/4625))
 - You can now customize your `tsconfig.src.json` more freely: options like `strict`, `target`, and `lib` are no longer locked, `include` and `exclude` allow extra entries, etc. Wasp still requires the options it needs to compile and bundle your project. ([#4772](https://github.com/wasp-lang/wasp/pull/4772))
-- Custom `api`s can now use the `PATCH`, `HEAD`, and `OPTIONS` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860))
+- Custom `api`s can now use the `PATCH` and `HEAD` HTTP methods. ([#4852](https://github.com/wasp-lang/wasp/pull/4852), [#4860](https://github.com/wasp-lang/wasp/pull/4860), [#4867](https://github.com/wasp-lang/wasp/pull/4867))
 
 - Wasp now warns when a custom `api` collides with one of Wasp's own routes, since the custom `api` is not reachable. ([#4864](https://github.com/wasp-lang/wasp/pull/4864))
 
