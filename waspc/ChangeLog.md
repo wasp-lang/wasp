@@ -12,6 +12,7 @@
 - Wasp now manages your app's ports in development, so setting them yourself (e.g. `server.port` in `vite.config.ts`) is now an error. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
+- The Wasp server's liveness check moved from `GET /` to `GET /up`. The root path is free for custom `api`s, while `/up` is now reserved by Wasp. Point health checks that probed `/` at `/up`. ([#4856](https://github.com/wasp-lang/wasp/pull/4856))
 
 ### 🎉 New Features
 

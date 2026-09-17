@@ -294,6 +294,7 @@ genRoutesIndex spec =
       object
         [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
           "crudRouteInRootRouter" .= (CrudRoutes.crudRouteInRootRouter :: String),
+          "upRouteInRootRouter" .= (upRouteInRootRouter :: String),
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
@@ -303,6 +304,10 @@ genRoutesIndex spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+-- | The liveness check, the same route Rails and Laravel use.
+upRouteInRootRouter :: String
+upRouteInRootRouter = "up"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

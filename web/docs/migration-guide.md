@@ -215,6 +215,46 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 7. Enjoy your updated Wasp app
+### 7. Point liveness checks at `/up`
+
+Wasp now serves a liveness check at `GET /up` in both development and production.
+
+Wasp used `/` for this before, but it behaved differently per environment:
+
+- Development: `GET /` showed Wasp's wrong-port page.
+- Production: `GET /` answered `200 OK`.
+
+Now, only the wrong-port page stays at `/` in development, registered after user `api`s, so any user `api` will win over it.
+In production, `GET /` is no longer set by Wasp.
+
+This breaks the Caddy setup from the [VPS deployment guide](./guides/deployment/self-hosted/vps.md), which probed `/`. Change its health check to `/up`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```caddyfile title="Caddyfile"
+    api.myapp.com {
+        reverse_proxy localhost:3001 {
+            health_uri /
+            lb_try_duration 15s
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```caddyfile title="Caddyfile"
+    api.myapp.com {
+        reverse_proxy localhost:3001 {
+            // highlight-next-line
+            health_uri /up
+            lb_try_duration 15s
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
+
+### 8. Enjoy your updated Wasp app
 
 That's it!
