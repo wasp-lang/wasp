@@ -305,7 +305,11 @@ genRoutesIndex spec =
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
--- | The liveness check, the same route Rails and Laravel use.
+-- | Since our health check is just a simple liveness check,
+-- we use the same @/up@ route that Rails and Laravel use.
+--
+-- Health checks (@/health@ route) are much more complex,
+-- so we let users handle it themselves.
 upRouteInRootRouter :: String
 upRouteInRootRouter = "up"
 
