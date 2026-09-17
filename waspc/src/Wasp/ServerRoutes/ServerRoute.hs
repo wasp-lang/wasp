@@ -4,8 +4,7 @@ module Wasp.ServerRoutes.ServerRoute
     ServerRouteOwner (..),
     ServerRoutePath (..),
     ServerRouteHttpMethods (..),
-    makeWaspRouteInRootRouter,
-    makeWaspRouteInNestedRouter,
+    makeWaspRoute,
     getHttpMethodsRouteAnswersOn,
     makePathFromSegments,
     getRoutePath,
@@ -81,26 +80,13 @@ doRoutesOverlap routeA routeB =
 
     normalizePath = map toLower . stripTrailingSlashes
 
--- | A route that Wasp registers directly in the root router, next to the user's apis.
-makeWaspRouteInRootRouter :: ServerRouteOwner -> AS.Api.HttpMethod -> [String] -> ServerRoute
-makeWaspRouteInRootRouter routeOwner httpMethod routeSegments =
+makeWaspRoute :: ServerRouteOwner -> AS.Api.HttpMethod -> [String] -> ServerRoute
+makeWaspRoute routeOwner httpMethod routeSegments =
   ServerRoute
     { owner = routeOwner,
       httpMethods = getHttpMethodsRouteAnswersOn httpMethod,
       path = ExactPath $ makePathFromSegments routeSegments
     }
-
--- | A route that Wasp registers in a router of its own, mounted in the root router.
--- Such a router answers an `OPTIONS` request for each of its routes itself,
--- so the request never reaches the user's apis.
-makeWaspRouteInNestedRouter :: ServerRouteOwner -> AS.Api.HttpMethod -> [String] -> ServerRoute
-makeWaspRouteInNestedRouter routeOwner httpMethod routeSegments =
-  route {httpMethods = httpMethods route `addHttpMethod` AS.Api.OPTIONS}
-  where
-    route = makeWaspRouteInRootRouter routeOwner httpMethod routeSegments
-
-    addHttpMethod AnyHttpMethod _ = AnyHttpMethod
-    addHttpMethod (OnlyHttpMethods methods) method = OnlyHttpMethods $ methods ++ [method]
 
 -- | Express answers a `HEAD` request with the path's `GET` route.
 getHttpMethodsRouteAnswersOn :: AS.Api.HttpMethod -> ServerRouteHttpMethods

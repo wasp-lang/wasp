@@ -6,7 +6,7 @@ module Wasp.ServerRoutes.Liveness
 where
 
 import qualified Wasp.AppSpec.Api as AS.Api
-import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRouteInRootRouter)
+import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRoute)
 
 -- | Since our health check is just a simple liveness check,
 -- we use the same @/up@ route that Rails and Laravel use.
@@ -17,7 +17,7 @@ upRouteInRootRouter :: String
 upRouteInRootRouter = "up"
 
 upRoute :: ServerRoute
-upRoute = makeWaspRouteInRootRouter LivenessRoute AS.Api.GET [upRouteInRootRouter]
+upRoute = makeWaspRoute LivenessRoute AS.Api.GET [upRouteInRootRouter]
 
 getLivenessRoutes :: [ServerRoute]
 getLivenessRoutes = [upRoute]
