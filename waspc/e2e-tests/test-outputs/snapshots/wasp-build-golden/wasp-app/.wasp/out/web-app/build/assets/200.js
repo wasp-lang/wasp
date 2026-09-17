@@ -396,7 +396,7 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 				link.addEventListener("load", res);
 				link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
 			});
-		}));
+		}).filter((p) => p !== void 0));
 	}
 	function handlePreloadError(err) {
 		const e = new Event("vite:preloadError", { cancelable: true });
