@@ -7,7 +7,7 @@ import type {
   Query,
   QueryMetadata,
 } from '../rpc.js'
-import { callOperation, makeOperationRoute, makeQueryCacheKeyFromPath } from '../internal/index.js'
+import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
@@ -31,7 +31,7 @@ export function createQuery<BackendQuery extends GenericBackendOperation>(
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
   const queryRoute = makeOperationRoute(queryPath)
-  const queryCacheKey = makeQueryCacheKeyFromPath(queryPath)
+  const queryCacheKey = [queryPath]
 
   const queryFn = (async (queryArgs) => {
     const serverResult = await callOperation(queryRoute, queryArgs)

@@ -1,7 +1,6 @@
 {{={= =}=}}
 import { deserialize } from '../core/serialization/index.js'
 import { useQuery, buildAndRegisterQuery } from '../client/operations/index.js'
-import { makeQueryCacheKeyFromPath } from '../client/operations/internal/index.js'
 import type { QueryFunction, Query  } from '../client/operations/rpc.js'
 import { api, handleApiError } from '../api/index.js'
 import { HttpMethod } from '../client/index.js'
@@ -30,7 +29,7 @@ function createUserGetter(): Query<void, AuthUser | null> {
   }
 
   return buildAndRegisterQuery(getMe, {
-    queryCacheKey: makeQueryCacheKeyFromPath(getMeRoute.path),
+    queryCacheKey: [getMeRoute.path],
     queryRoute: getMeRoute,
     entitiesUsed: {=& entitiesGetMeDependsOn =},
   })

@@ -13,6 +13,7 @@
 - In deployed Wasp server apps, the `PORT` environment variable is now compulsory. ([#4591](https://github.com/wasp-lang/wasp/pull/4591))
 - Removed the `wasp info` command, in favor of the new `wasp show` family of commands. ([#4622](https://github.com/wasp-lang/wasp/pull/4622))
 - The Wasp server's liveness check moved from `GET /` to `GET /up`. The root path is free for custom `api`s, while `/up` is now reserved by Wasp. Point health checks that probed `/` at `/up`. ([#4856](https://github.com/wasp-lang/wasp/pull/4856))
+- Queries' cache keys now start with a slash (e.g. `["/operations/get-tasks"]` instead of `["operations/get-tasks"]`). The format of these keys is not part of the documented public API, but if your app hardcoded any of them, read them from the Query's `queryCacheKey` property instead. ([#4865](https://github.com/wasp-lang/wasp/pull/4865))
 
 ### 🎉 New Features
 
