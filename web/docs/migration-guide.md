@@ -219,7 +219,7 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 
 Wasp now serves a liveness check at `GET /up` in both development and production.
 
-Wasp used `/` for liveness check before, but it behaved differently per environment:
+Wasp used `/` for the liveness check before, but it behaved differently per environment:
 - Development: `GET /` showed Wasp's wrong-port page.
 - Production: `GET /` answered `200 OK`.
 
