@@ -34,7 +34,7 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.Email as Email
 import qualified Wasp.Generator.AuthProviders.Local as Local
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
-import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRoute)
+import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRouteInNestedRouter)
 
 authRouteInRootRouter :: String
 authRouteInRootRouter = "auth"
@@ -67,14 +67,14 @@ verifyEmailRouteInAuthProviderRouter :: String
 verifyEmailRouteInAuthProviderRouter = "verify-email"
 
 meRoute :: ServerRoute
-meRoute = makeWaspRoute AuthRoute AS.Api.GET [authRouteInRootRouter, meRouteInAuthRouter]
+meRoute = makeWaspRouteInNestedRouter AuthRoute AS.Api.GET [authRouteInRootRouter, meRouteInAuthRouter]
 
 logoutRoute :: ServerRoute
-logoutRoute = makeWaspRoute AuthRoute AS.Api.POST [authRouteInRootRouter, logoutRouteInAuthRouter]
+logoutRoute = makeWaspRouteInNestedRouter AuthRoute AS.Api.POST [authRouteInRootRouter, logoutRouteInAuthRouter]
 
 -- | Where the client trades the one-time code from an OAuth login for a session.
 exchangeCodeRoute :: ServerRoute
-exchangeCodeRoute = makeWaspRoute AuthRoute AS.Api.POST [authRouteInRootRouter, exchangeCodeRouteInAuthRouter]
+exchangeCodeRoute = makeWaspRouteInNestedRouter AuthRoute AS.Api.POST [authRouteInRootRouter, exchangeCodeRouteInAuthRouter]
 
 oAuthLoginRoute :: OAuth.OAuthAuthProvider -> ServerRoute
 oAuthLoginRoute provider = makeAuthProviderRoute (OAuth.providerId provider) AS.Api.GET loginRouteInAuthProviderRouter
@@ -112,7 +112,7 @@ makeEmailRoute = makeAuthProviderRoute (Email.providerId AuthProviders.emailAuth
 -- | The auth router mounts one router per provider, under the provider's id.
 makeAuthProviderRoute :: String -> AS.Api.HttpMethod -> String -> ServerRoute
 makeAuthProviderRoute providerId httpMethod routeInAuthProviderRouter =
-  makeWaspRoute (AuthProviderRoute providerId) httpMethod [authRouteInRootRouter, providerId, routeInAuthProviderRouter]
+  makeWaspRouteInNestedRouter (AuthProviderRoute providerId) httpMethod [authRouteInRootRouter, providerId, routeInAuthProviderRouter]
 
 getAuthRoutes :: AppSpec -> [ServerRoute]
 getAuthRoutes spec = maybe [] getRoutesOfAuth (AS.getApp (AS.decls spec) >>= AS.App.auth . snd)

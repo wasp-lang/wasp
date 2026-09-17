@@ -41,7 +41,9 @@ getStaticPathPrefix :: String -> String
 getStaticPathPrefix = makePathFromSegments . takeWhile isStaticSegment . getPathSegments
   where
     isStaticSegment = not . any (`elem` expressPatternChars)
-    expressPatternChars = ":*{}" :: String
+    -- A backslash escapes the character after it, so the path Express registers differs
+    -- from the one written. We do not unescape, we just stop treating the segment as static.
+    expressPatternChars = ":*{}\\" :: String
 
 getPathSegments :: String -> [String]
 getPathSegments = filter (not . null) . splitOn "/"

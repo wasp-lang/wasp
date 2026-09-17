@@ -10,7 +10,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRoute)
+import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRouteInNestedRouter)
 import Wasp.Util (camelToKebabCase)
 
 operationsRouteInRootRouter :: String
@@ -21,7 +21,7 @@ operationRouteInOperationsRouter = camelToKebabCase . AS.Operation.getName
 
 operationRoute :: AS.Operation.Operation -> ServerRoute
 operationRoute operation =
-  makeWaspRoute
+  makeWaspRouteInNestedRouter
     (OperationRoute $ AS.Operation.getName operation)
     AS.Api.POST
     [operationsRouteInRootRouter, operationRouteInOperationsRouter operation]

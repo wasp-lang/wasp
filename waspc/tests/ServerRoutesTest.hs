@@ -50,31 +50,31 @@ spec_ServerRoutes = do
               ]
       map showRoute (ServerRoutes.getWaspServerRoutes spec)
         `shouldBe` [ "ANY /socket.io/*",
-                     "GET,HEAD /auth/me",
-                     "POST /auth/logout",
-                     "POST /auth/exchange-code",
-                     "GET,HEAD /auth/google/login",
-                     "GET,HEAD /auth/google/callback",
-                     "GET,HEAD /auth/github/login",
-                     "GET,HEAD /auth/github/callback",
-                     "POST /auth/email/login",
-                     "POST /auth/email/signup",
-                     "POST /auth/email/request-password-reset",
-                     "POST /auth/email/reset-password",
-                     "POST /auth/email/verify-email",
-                     "POST /operations/get-tasks",
-                     "POST /crud/tasks/get",
-                     "POST /crud/tasks/delete",
+                     "GET,HEAD,OPTIONS /auth/me",
+                     "POST,OPTIONS /auth/logout",
+                     "POST,OPTIONS /auth/exchange-code",
+                     "GET,HEAD,OPTIONS /auth/google/login",
+                     "GET,HEAD,OPTIONS /auth/google/callback",
+                     "GET,HEAD,OPTIONS /auth/github/login",
+                     "GET,HEAD,OPTIONS /auth/github/callback",
+                     "POST,OPTIONS /auth/email/login",
+                     "POST,OPTIONS /auth/email/signup",
+                     "POST,OPTIONS /auth/email/request-password-reset",
+                     "POST,OPTIONS /auth/email/reset-password",
+                     "POST,OPTIONS /auth/email/verify-email",
+                     "POST,OPTIONS /operations/get-tasks",
+                     "POST,OPTIONS /crud/tasks/get",
+                     "POST,OPTIONS /crud/tasks/delete",
                      "GET,HEAD /up"
                    ]
 
     it "lists the username routes when username and password auth is used" $ do
       let spec = makeSpec basicApp {AS.App.auth = Just authWithUsernameAndPassword} []
       map showRoute (AuthRoutes.getAuthRoutes spec)
-        `shouldBe` [ "GET,HEAD /auth/me",
-                     "POST /auth/logout",
-                     "POST /auth/username/login",
-                     "POST /auth/username/signup"
+        `shouldBe` [ "GET,HEAD,OPTIONS /auth/me",
+                     "POST,OPTIONS /auth/logout",
+                     "POST,OPTIONS /auth/username/login",
+                     "POST,OPTIONS /auth/username/signup"
                    ]
 
   describe "getUserApiRoutes" $ do
