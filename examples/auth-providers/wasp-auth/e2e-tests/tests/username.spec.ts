@@ -50,6 +50,25 @@ test("login mints a Wasp session attributed to the package", async ({
   expect(user.json.signedInBy).toBe(SCHEME);
 });
 
+test("a login without remember-me is marked for the browser session only", async ({
+  request,
+}) => {
+  const response = await request.post("/auth/wasp/username/login", {
+    data: { username, password, persistent: false },
+  });
+  expect(response.status()).toBe(200);
+  const body = (await response.json()) as {
+    credential: string;
+    persistent?: boolean;
+  };
+  expect(body.persistent).toBe(false);
+
+  const me = await request.get("/auth/me", {
+    headers: { Authorization: `Bearer ${body.credential}` },
+  });
+  expect(me.status()).toBe(200);
+});
+
 test("a wrong password is a 401", async ({ request }) => {
   const response = await request.post("/auth/wasp/username/login", {
     data: { username, password: "wrong-password1" },

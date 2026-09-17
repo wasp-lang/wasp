@@ -20,6 +20,7 @@ export {
   type ProviderIdentities,
   type RuntimeGrantName,
   type SignInContext,
+  type SignInProperties,
   type SignInResult,
   type Subject,
   type WaspEmail,

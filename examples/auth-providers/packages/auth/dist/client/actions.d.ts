@@ -1,11 +1,17 @@
 import { getClientOptions } from "./runtime.js";
 import type { OAuthProviderName } from "./types.js";
-export declare function login(data: {
+/**
+ * `persistent: false` is a login without "remember me": the credential lasts
+ * for the browser session only.
+ */
+export declare function login(data: ({
     username: string;
     password: string;
 } | {
     email: string;
     password: string;
+}) & {
+    persistent?: boolean;
 }): Promise<void>;
 export declare function signup(data: ({
     username: string;

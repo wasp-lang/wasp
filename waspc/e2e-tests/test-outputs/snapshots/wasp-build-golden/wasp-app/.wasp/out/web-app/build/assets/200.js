@@ -224,11 +224,19 @@ var apiEventsEmitter = mitt();
 //#endregion
 //#region .wasp/out/sdk/wasp/dist/api/index.js
 var WASP_APP_AUTH_CREDENTIAL_NAME = "sessionId";
+var SESSION_ONLY_CREDENTIAL_KEY = storage.getPrefixedKey(WASP_APP_AUTH_CREDENTIAL_NAME);
+var browserSessionStorage = typeof window === "undefined" || !window.sessionStorage ? null : window.sessionStorage;
+function removeStoredCredential() {
+	storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME);
+	browserSessionStorage?.removeItem(SESSION_ONLY_CREDENTIAL_KEY);
+}
 function getCredential() {
+	const sessionOnlyCredential = browserSessionStorage?.getItem(SESSION_ONLY_CREDENTIAL_KEY) ?? null;
+	if (sessionOnlyCredential !== null) return sessionOnlyCredential;
 	return storage.get(WASP_APP_AUTH_CREDENTIAL_NAME) ?? null;
 }
 function clearCredential() {
-	storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME);
+	removeStoredCredential();
 	apiEventsEmitter.emit("sessionId.clear");
 }
 var credentialSource = null;

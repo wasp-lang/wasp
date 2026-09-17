@@ -25,6 +25,13 @@ export declare function json(res: Res, status: number, payload: unknown): void;
 export declare function sendAuthResponse(res: Res, response: AuthResponse): void;
 export declare function redirect(res: Res, location: string): void;
 export declare function getBody(req: Req): Record<string, unknown>;
+/**
+ * The per-sign-in properties a login request may ask for. Only "remember me"
+ * is the client's call; the lifetime stays the app's configuration.
+ */
+export declare function getSignInProperties(fields: Record<string, unknown>): {
+    persistent?: boolean;
+};
 export declare function getUrl(req: Req): URL;
 export type RouteHandler = (req: Req, res: Res) => Promise<void> | void;
 export type Route = {

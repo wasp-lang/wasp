@@ -73,6 +73,16 @@ export function getBody(req: Req): Record<string, unknown> {
     : {};
 }
 
+/**
+ * The per-sign-in properties a login request may ask for. Only "remember me"
+ * is the client's call; the lifetime stays the app's configuration.
+ */
+export function getSignInProperties(fields: Record<string, unknown>): {
+  persistent?: boolean;
+} {
+  return fields.persistent === false ? { persistent: false } : {};
+}
+
 export function getUrl(req: Req): URL {
   return new URL(req.url ?? "/", "http://placeholder");
 }

@@ -203,7 +203,10 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
           onBeforeLoginHook({ req: opts?.req as any, providerId: hookProviderId, user: auth.user }),
         )
       }
-      const result = await signInOnTarget({ namespace, subjectId: subject.subjectId }, { signedInBy: spec.scheme, req: opts?.req })
+      const result = await signInOnTarget(
+        { namespace, subjectId: subject.subjectId },
+        { signedInBy: spec.scheme, req: opts?.req, properties: opts?.properties },
+      )
       if (fireHooks) {
         await onAfterLoginHook({
           req: opts?.req as any,

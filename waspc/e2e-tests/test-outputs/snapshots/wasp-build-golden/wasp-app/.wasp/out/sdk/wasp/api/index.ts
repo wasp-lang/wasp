@@ -15,19 +15,42 @@ const WASP_APP_LAST_AUTH_SCHEME_NAME = 'lastAuthScheme'
  * Adopt a bearer credential a scheme obtained through its own routes, or drop
  * it with `null`. Cookie-carried credentials never go through here.
  */
-export function setCredential(credential: string | null, scheme: string): void {
+export function setCredential(
+  credential: string | null,
+  scheme: string,
+  options?: { persistent?: boolean },
+): void {
+  removeStoredCredential()
   if (credential === null) {
-    storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME)
     apiEventsEmitter.emit('sessionId.clear')
     return
   }
-  storage.set(WASP_APP_AUTH_CREDENTIAL_NAME, credential)
+  // A sign-in without "remember me" lives in sessionStorage: this tab only,
+  // gone when the browser session ends.
+  if (options?.persistent === false && browserSessionStorage !== null) {
+    browserSessionStorage.setItem(SESSION_ONLY_CREDENTIAL_KEY, credential)
+  } else {
+    storage.set(WASP_APP_AUTH_CREDENTIAL_NAME, credential)
+  }
   storage.set(WASP_APP_LAST_AUTH_SCHEME_NAME, scheme)
   apiEventsEmitter.emit('sessionId.set')
 }
 
+const SESSION_ONLY_CREDENTIAL_KEY = storage.getPrefixedKey(WASP_APP_AUTH_CREDENTIAL_NAME)
+const browserSessionStorage: Storage | null =
+  typeof window === 'undefined' || !window.sessionStorage ? null : window.sessionStorage
+
+function removeStoredCredential(): void {
+  storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME)
+  browserSessionStorage?.removeItem(SESSION_ONLY_CREDENTIAL_KEY)
+}
+
 // PRIVATE API (sdk)
 export function getCredential(): string | null {
+  const sessionOnlyCredential = browserSessionStorage?.getItem(SESSION_ONLY_CREDENTIAL_KEY) ?? null
+  if (sessionOnlyCredential !== null) {
+    return sessionOnlyCredential
+  }
   const credential = storage.get(WASP_APP_AUTH_CREDENTIAL_NAME) as
     | string
     | undefined
@@ -50,13 +73,14 @@ export function getLastAuthScheme(): string | null {
 // PRIVATE API (sdk)
 // Drops a credential the server rejected (a 401).
 export function clearCredential(): void {
-  storage.remove(WASP_APP_AUTH_CREDENTIAL_NAME)
+  removeStoredCredential()
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
 // Full teardown, marker included: the explicit-logout path.
 export function removeLocalUserData(): void {
+  removeStoredCredential()
   storage.clear()
   apiEventsEmitter.emit('sessionId.clear')
 }

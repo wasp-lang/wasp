@@ -1,5 +1,5 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
-import { HttpError, getBody, json, sendAuthResponse, } from "../http.js";
+import { HttpError, getBody, getSignInProperties, json, sendAuthResponse, } from "../http.js";
 import { namespaceFor } from "../namespaces.js";
 import { createInvalidCredentialsError, doFakeWork, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, normalizeEmail, } from "../validation.js";
@@ -120,7 +120,7 @@ export function emailRoutes({ runtime, options, extensions }) {
                 catch {
                     throw createInvalidCredentialsError();
                 }
-                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "email"), subjectId: email }, { req });
+                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "email"), subjectId: email }, { req, properties: getSignInProperties(fields) });
                 sendAuthResponse(res, response);
             },
         },

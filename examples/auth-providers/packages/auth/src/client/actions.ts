@@ -13,23 +13,31 @@ function basePath(): string {
  * nothing, when the credential travels as a cookie the browser already holds.
  * Either way the cached queries are refreshed, so `useAuth()` sees the login.
  */
-async function adoptSignIn(body: { credential?: unknown }): Promise<void> {
+async function adoptSignIn(body: SignInAnswer): Promise<void> {
   await getClientRuntime().setCredential(
     typeof body.credential === "string" ? body.credential : null,
+    { persistent: body.persistent !== false },
   );
 }
 
+type SignInAnswer = { credential?: unknown; persistent?: unknown };
+
 // PUBLIC API
+/**
+ * `persistent: false` is a login without "remember me": the credential lasts
+ * for the browser session only.
+ */
 export async function login(
-  data:
+  data: (
     | { username: string; password: string }
-    | { email: string; password: string },
+    | { email: string; password: string }
+  ) & { persistent?: boolean },
 ): Promise<void> {
   const path =
     "email" in data
       ? `${basePath()}/email/login`
       : `${basePath()}/username/login`;
-  await adoptSignIn(await post<{ credential?: unknown }>(path, data));
+  await adoptSignIn(await post<SignInAnswer>(path, data));
 }
 
 // PUBLIC API
@@ -84,7 +92,7 @@ export async function verifyEmail(data: {
 // PRIVATE API
 export async function exchangeOAuthCodeForSession(code: string): Promise<void> {
   await adoptSignIn(
-    await post<{ credential?: unknown }>(`${basePath()}/exchange-code`, {
+    await post<SignInAnswer>(`${basePath()}/exchange-code`, {
       code,
     }),
   );

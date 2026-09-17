@@ -38,8 +38,11 @@ function makeClientRuntime(
         (env as Record<string, string | undefined>)[name],
       ]),
     ),
-    setCredential: async (credential: string | null): Promise<void> => {
-      setCredential(credential, scheme)
+    setCredential: async (
+      credential: string | null,
+      options?: { persistent?: boolean },
+    ): Promise<void> => {
+      setCredential(credential, scheme, options)
       await invalidateAndRemoveQueries()
     },
   }

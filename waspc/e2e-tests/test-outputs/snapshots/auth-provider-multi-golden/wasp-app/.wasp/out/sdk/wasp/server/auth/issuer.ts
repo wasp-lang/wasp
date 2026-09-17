@@ -45,7 +45,7 @@ const COOKIE_NAME = 'wasp_credential'
 export function createIssuer(options: IssuerOptions): AuthHandler {
   const store = resolveStore(options)
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
-  const ttl = parseTimeSpan(options.ttl)
+  const schemeTtl = parseTimeSpan(options.ttl)
 
   return {
     async authenticate(request) {
@@ -71,6 +71,9 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
       if (identity === null) {
         throw contractError('wasp-auth/identity-not-found', 'No identity for the subject to issue a credential for.')
       }
+      // Per-sign-in properties win over the scheme's configuration.
+      const ttl = context.properties?.ttl !== undefined ? parseTimeSpan(context.properties.ttl) : schemeTtl
+      const persistent = context.properties?.persistent ?? true
       const issuedAt = new Date()
       const { id } = await store.create({
         authId: identity.authId,
@@ -78,7 +81,10 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
         issuedAt,
         expiresAt: new Date(issuedAt.getTime() + ttl.milliseconds()),
       })
-      return { response: transport.write(id), credentialId: id }
+      return {
+        response: transport.write(id, { maxAgeSeconds: ttl.seconds(), persistent }),
+        credentialId: id,
+      }
     },
 
     async signOut(request) {
@@ -104,10 +110,13 @@ export async function signOutEverywhere(options: IssuerOptions, authId: string):
 
 type Transport = {
   read(request: Request): string | null
-  write(id: string): AuthResponse
+  write(id: string, lifetime: CredentialLifetime): AuthResponse
   clear(): AuthResponse
   challenge(request: Request): AuthResponse
 }
+
+/** How long the client should keep a freshly issued credential. */
+type CredentialLifetime = { maxAgeSeconds: number; persistent: boolean }
 
 const bearerTransport: Transport = {
   read: (request) => {
@@ -116,7 +125,12 @@ const bearerTransport: Transport = {
     return header !== null && header.startsWith(prefix) ? header.substring(prefix.length) : null
   },
   // The generated client stores the credential and attaches it to every request.
-  write: (id) => ({ status: 200, body: { credential: id } }),
+  // `persistent: false` tells it to keep the credential for the browser
+  // session only.
+  write: (id, { persistent }): AuthResponse =>
+    persistent
+      ? { status: 200, body: { credential: id } }
+      : { status: 200, body: { credential: id, persistent: false } },
   clear: () => ({ status: 200, body: { success: true } }),
   challenge: () => ({ status: 401, body: { message: 'Invalid credentials' } }),
 }
@@ -134,9 +148,12 @@ function cookieTransport(options: IssuerOptions): Transport {
       }
       return null
     },
-    write: (id) => ({
+    // Without Max-Age the browser drops the cookie when its session ends.
+    write: (id, { maxAgeSeconds, persistent }) => ({
       status: 200,
-      headers: { 'Set-Cookie': `${COOKIE_NAME}=${encodeURIComponent(id)}; ${attributes}; Max-Age=${parseTimeSpan(options.ttl).seconds()}` },
+      headers: {
+        'Set-Cookie': `${COOKIE_NAME}=${encodeURIComponent(id)}; ${attributes}${persistent ? `; Max-Age=${maxAgeSeconds}` : ''}`,
+      },
       body: { success: true },
     }),
     clear: () => ({

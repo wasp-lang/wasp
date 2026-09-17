@@ -11,9 +11,13 @@ function basePath() {
  * Either way the cached queries are refreshed, so `useAuth()` sees the login.
  */
 async function adoptSignIn(body) {
-    await getClientRuntime().setCredential(typeof body.credential === "string" ? body.credential : null);
+    await getClientRuntime().setCredential(typeof body.credential === "string" ? body.credential : null, { persistent: body.persistent !== false });
 }
 // PUBLIC API
+/**
+ * `persistent: false` is a login without "remember me": the credential lasts
+ * for the browser session only.
+ */
 export async function login(data) {
     const path = "email" in data
         ? `${basePath()}/email/login`

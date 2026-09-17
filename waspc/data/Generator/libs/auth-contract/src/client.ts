@@ -39,8 +39,14 @@ export type WaspClientRuntime = {
    * so an adapter cannot misdirect sign-out to another scheme. Also refreshes
    * the client's cached queries, so the UI reflects the new user immediately.
    * Cookie-carried credentials never go through here; the browser holds them.
+   *
+   * `persistent: false` keeps the credential for the browser session only
+   * (the sign-in was made without "remember me").
    */
-  setCredential(credential: string | null): Promise<void>;
+  setCredential(
+    credential: string | null,
+    options?: { persistent?: boolean },
+  ): Promise<void>;
 };
 
 export type ClientAuthAdapter = {

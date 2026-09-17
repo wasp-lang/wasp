@@ -1,5 +1,5 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
-import { getBody, json, sendAuthResponse } from "./http.js";
+import { getBody, getSignInProperties, json, sendAuthResponse, } from "./http.js";
 import { namespaceFor } from "./namespaces.js";
 import { createInvalidCredentialsError, rethrowPossibleAuthError, validateAndGetUserFields, } from "./utils.js";
 import { ensurePasswordIsPresent, ensureValidPassword, ensureValidUsername, normalizeUsername, } from "./validation.js";
@@ -32,7 +32,7 @@ export function usernameRoutes({ runtime, extensions }) {
                 // The sign-in goes through the credentials facet any handler gets;
                 // the app's login hooks fire inside it, and the credentials scheme
                 // decides what the client receives.
-                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "username"), subjectId: username }, { req });
+                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "username"), subjectId: username }, { req, properties: getSignInProperties(fields) });
                 sendAuthResponse(res, response);
             },
         },

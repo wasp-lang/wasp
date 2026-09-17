@@ -104,8 +104,30 @@ export type AuthResponse = {
   body?: JsonValue;
 };
 
+/**
+ * Per-sign-in choices, decided by the handler that verified the login
+ * (ASP.NET's `AuthenticationProperties`). Everything is optional; an absent
+ * property means the credentials scheme's own configuration applies.
+ */
+export type SignInProperties = {
+  /**
+   * Lifetime of THIS credential, e.g. `"12h"` or `"90d"`, instead of the
+   * credentials scheme's configured `ttl`.
+   */
+  ttl?: string;
+  /**
+   * Whether the credential should outlive the browser session ("remember
+   * me"). Default: true. When false, a cookie credential is a session cookie,
+   * and a bearer credential is kept by the generated client in
+   * `sessionStorage`. The server-side lifetime is still bounded by `ttl`.
+   */
+  persistent?: boolean;
+};
+
 /** What a handler receives when asked to sign a subject in. */
 export type SignInContext = {
+  /** Per-sign-in choices of the handler that verified the login. */
+  properties?: SignInProperties;
   /** The scheme that verified the login, pre-bound by Wasp. Never forgeable. */
   signedInBy: string;
   /** The incoming request, when the sign-in happens inside one. */
@@ -211,6 +233,8 @@ export type Credentials = {
   signIn(
     subject: Subject,
     opts?: {
+      /** Per-sign-in choices: a lifetime for this credential, "remember me". */
+      properties?: SignInProperties;
       /** The incoming request, surfaced to the app's login hooks. */
       req?: unknown;
       /**

@@ -3,6 +3,7 @@ import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import {
   HttpError,
   getBody,
+  getSignInProperties,
   json,
   sendAuthResponse,
   type Route,
@@ -181,7 +182,7 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
 
         const { response } = await runtime.credentials.signIn(
           { namespace: namespaceFor(runtime, "email"), subjectId: email },
-          { req },
+          { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);
       },

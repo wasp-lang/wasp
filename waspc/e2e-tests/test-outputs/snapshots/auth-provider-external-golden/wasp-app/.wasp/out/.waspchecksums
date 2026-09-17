@@ -32,7 +32,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "02429623441fd63f3c97055fa93d02967dc1d68897b7cd675342e164c956fa0e"
+        "48fa8a69a1567d44bff3ffe8723a4333b9a7f15c8d022740aec82072fed44795"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "fe43cefb5911f115edb12e35bd555f2a08a70d6c465e1fa21e877bf41b4fa03f"
+        "6588af215cfb67250a58c93d404fa369f89819f9e24c078bbe2e59b9359b1f7c"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "sdk/wasp/client/auth/schemes.ts"
         ],
-        "42d9a36600daed35e368931969b8ad43dc413c29af7daf960b8818058e810122"
+        "c5181d6bd840215136b3650b77a6cd39dd7df81cbe6adf7f35c94d69ecf98835"
     ],
     [
         [
@@ -578,7 +578,7 @@
             "file",
             "sdk/wasp/server/auth/handler/types.ts"
         ],
-        "c73b84fe5f3eee5f588499ceed629d7129975876987205e832fa4aa3ab8514a5"
+        "1eb7898bed2958c80d7075ee3aeaf865e022661521144008cfd042d4c6c5ae3c"
     ],
     [
         [
@@ -613,7 +613,7 @@
             "file",
             "sdk/wasp/server/auth/issuer.ts"
         ],
-        "99224016ea8d3cae8a14f70b83b0af392a92ca4fc10096e59cb4b2eb541fc31b"
+        "5cbde98cc0142da02e0c7a54dbc712c928150e3b88cbb5b9650a161bab9d7062"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/server/auth/schemes.ts"
         ],
-        "0939806228dafa887fd65eefbcb497482e2bddaf7ebe3d5bd83290ba31eeaed9"
+        "1dbedc8cff759923e48b72edc5613ee1bd15b6735a07bb8d8890fda60b545782"
     ],
     [
         [

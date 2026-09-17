@@ -1,6 +1,12 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 
-import { getBody, json, sendAuthResponse, type Route } from "./http.js";
+import {
+  getBody,
+  getSignInProperties,
+  json,
+  sendAuthResponse,
+  type Route,
+} from "./http.js";
 import { namespaceFor } from "./namespaces.js";
 import type { Ctx } from "./types.js";
 import {
@@ -52,7 +58,7 @@ export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
         // decides what the client receives.
         const { response } = await runtime.credentials.signIn(
           { namespace: namespaceFor(runtime, "username"), subjectId: username },
-          { req },
+          { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);
       },
