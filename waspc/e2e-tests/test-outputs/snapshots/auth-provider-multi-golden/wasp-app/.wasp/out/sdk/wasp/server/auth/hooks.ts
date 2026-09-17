@@ -24,6 +24,18 @@ export type OnAfterLoginHook = (
   params: Expand<OnAfterLoginHookParams>,
 ) => void | Promise<void>
 
+// PUBLIC API
+/** Called before a new identity is attached to an existing account. Throw to veto. */
+export type OnBeforeLinkHook = (
+  params: Expand<OnBeforeLinkHookParams>,
+) => void | Promise<void>
+
+// PUBLIC API
+/** Called after a new identity was attached to an existing account. */
+export type OnAfterLinkHook = (
+  params: Expand<OnAfterLinkHookParams>,
+) => void | Promise<void>
+
 // PRIVATE API (used in the SDK and the server)
 export type InternalAuthHookParams = {
   /**
@@ -83,6 +95,28 @@ type OnBeforeLoginHookParams = {
   */
   req?: ExpressRequest
 } & InternalAuthHookParams
+
+type OnBeforeLinkHookParams = {
+  /**
+   * The identity being attached: its namespace and the provider's user ID.
+  */
+  providerId: ProviderId
+  /**
+   * The signed-in user the identity is being attached to.
+  */
+  user: FindAuthWithUserResult['user']
+  /**
+   * Request object of the incoming link request.
+  */
+  req?: ExpressRequest
+} & InternalAuthHookParams
+
+type OnAfterLinkHookParams = OnBeforeLinkHookParams & {
+  /**
+   * OAuth flow data, when the identity was linked through an OAuth flow.
+  */
+  oauth?: OAuthData
+}
 
 type OnAfterLoginHookParams = {
   /**

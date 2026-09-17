@@ -32,7 +32,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "48fa8a69a1567d44bff3ffe8723a4333b9a7f15c8d022740aec82072fed44795"
+        "811f66a611c712dcb02c030f2dcf1948d580d5d478b3268f281069489e08fc05"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "sdk/wasp/client/auth/schemes.ts"
         ],
-        "f19b93bd78f30ebe77b2ee62af708d58cd98733f397afb1e382ab9e51ffef023"
+        "8e3723b43f225bb1fa55b442e21f72f2aad0bad0d755f51e8d3630fe5df1e676"
     ],
     [
         [
@@ -312,7 +312,7 @@
             "file",
             "sdk/wasp/client/operations/internal/resources.js"
         ],
-        "fa3e3b77c1d6f62889b613706fff1ee92bd70aa68ae80751df05c0ac72d844a4"
+        "c4cd1e256395f669a5f6d544fee320f549a49a3c119355a9370aa84dc21daf7c"
     ],
     [
         [
@@ -634,28 +634,28 @@
             "file",
             "sdk/wasp/server/auth/hookDispatch.ts"
         ],
-        "21b3b7d0bc4a4f84e9e64f87e505a0752cb6dca657d60346a51bc038a29dc715"
+        "a063060dd37433ca9d26c1b7cda0118ffcadef1935366a933233bde4be4afb07"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "c5800b09415abdb3b463d5467228ff26883337aed9d9947de2dde373a758f424"
+        "fa00bd80087083fcf85e3f87e7ab927aa19aa456172e91bbf75e72580a51f2d4"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/identityStore.ts"
         ],
-        "c0af0fc4de033303e5211445c65814bdd9e985b7a2f345158277d9da98c9470e"
+        "f3e5cbf68fef2ad9052dd25c658dbad7edba06c6288a46aab5bfc55ffd8007d5"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/index.ts"
         ],
-        "3a7e52b71d2fc50c67fca82e8ffb0c3a45b92e0a640db6102ee32b560dd2dc54"
+        "46259d584a269f962d991ddba9ec16d4b180bf85e8c684cade6acf2f1b853079"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "sdk/wasp/server/auth/schemes.ts"
         ],
-        "ccf023b6b06760bc499fc5edef5ed25eecf137c39e593c8127020b071481c07f"
+        "5f260939a53a885a6f6b831c15da60a696d539af9520f6d41f71fe23c8180aaa"
     ],
     [
         [

@@ -9,4 +9,9 @@ export declare class WaspAuthClientError extends Error {
     data: unknown;
     constructor(statusCode: number, message: string, data: unknown);
 }
-export declare function post<T = Record<string, unknown>>(url: string, body: unknown): Promise<T>;
+/**
+ * A POST as the signed-in user. Wasp attaches the credential; this package
+ * never sees it, and can only spend it on its own routes.
+ */
+export declare function postAsUser<T = Record<string, unknown>>(url: string, body: unknown): Promise<T>;
+export declare function post<T = Record<string, unknown>>(url: string, body: unknown, fetch?: (url: string, init: RequestInit) => Promise<Response>): Promise<T>;

@@ -1,4 +1,4 @@
-import { post } from "./http.js";
+import { post, postAsUser } from "./http.js";
 import { getClientOptions, getClientRuntime } from "./runtime.js";
 /** The server path prefix the routes live under. */
 function basePath() {
@@ -57,4 +57,41 @@ export function signInUrl(provider) {
 }
 export function isMethodEnabled(name) {
     return getClientOptions().methods[name] !== undefined;
+}
+// PUBLIC API
+/** Adds a username and password to the signed-in user's account. */
+export async function linkUsername(data) {
+    await postAsUser(`${basePath()}/username/link`, data);
+    await getClientRuntime().refreshUser();
+}
+// PUBLIC API
+/**
+ * Adds an email and password to the signed-in user's account. The address
+ * must be verified through the emailed link before it can be used to log in.
+ */
+export async function linkEmail(data) {
+    await postAsUser(`${basePath()}/email/link`, data);
+    await getClientRuntime().refreshUser();
+}
+// PUBLIC API
+/**
+ * Disconnects one of `user.identities` from the signed-in user's account.
+ * Rejects (409) when it is the account's only login method.
+ */
+export async function unlink(identity) {
+    await postAsUser(`${basePath()}/unlink`, {
+        method: identity.providerName.substring(identity.providerName.indexOf(":") + 1),
+        subjectId: identity.providerUserId,
+    });
+    await getClientRuntime().refreshUser();
+}
+// PUBLIC API
+/**
+ * Sends the browser to the OAuth provider to connect it to the signed-in
+ * user's account. A navigation cannot carry a bearer credential, so the
+ * credential is first traded for a short-lived ticket.
+ */
+export async function startOAuthLink(provider) {
+    const { ticket } = await postAsUser(`${basePath()}/link-intent`, {});
+    window.location.href = `${basePath()}/${provider}/login?intent=link&ticket=${encodeURIComponent(ticket)}`;
 }

@@ -11,6 +11,11 @@ import {
   sendAuthResponse,
   type Route,
 } from "../http.js";
+import {
+  requireCurrentAuthId,
+  rethrowLinkError,
+  type LinkTicket,
+} from "../linking.js";
 import { namespaceFor } from "../namespaces.js";
 import type {
   Ctx,
@@ -74,7 +79,7 @@ export function oauthRoutes(ctx: Ctx): Route[] {
         method: "GET" as const,
         path: `/${name}/${LOGIN_PATH}`,
         handler: (req: Req, res: Res) =>
-          loginHandler(ctx, provider, config, req, res),
+          loginHandler(ctx, provider, config, jwt, req, res),
       },
       {
         method: "GET" as const,
@@ -130,6 +135,7 @@ async function loginHandler(
   ctx: Ctx,
   provider: OAuthProviderDefinition,
   config: { scopes: string[] },
+  jwt: ReturnType<typeof makeJwt>,
   req: Req,
   res: Res,
 ): Promise<void> {
@@ -138,6 +144,7 @@ async function loginHandler(
     ...(provider.oAuthType === "OAuth2WithPKCE"
       ? { codeVerifier: generateCodeVerifier() }
       : {}),
+    ...(await getLinkTicketCookie(ctx, jwt, req)),
   };
   storeOAuthState(ctx, provider, res, state);
   const redirectUrl = await provider.getAuthorizationUrl(state, config);
@@ -179,6 +186,32 @@ async function callbackHandler(
     const identities = runtime.identityNamespaces(
       namespaceFor(runtime, provider.id),
     );
+
+    // Account linking: the flow was started by a signed-in user, so the
+    // provider's identity is attached to THAT account. No credential is
+    // issued; the user keeps the one they have.
+    if (oAuthState.linkTicket !== undefined) {
+      const { linkToAuthId } = await jwt
+        .validateJWT<LinkTicket>(oAuthState.linkTicket)
+        .catch(() => {
+          throw new HttpError(400, "The link request expired. Try again.");
+        });
+      try {
+        await identities.link(
+          providerUserId,
+          {},
+          { authId: linkToAuthId, req, hookContext: oauth },
+        );
+      } catch (e) {
+        rethrowLinkError(e);
+      }
+      redirect(
+        res,
+        `${runtime.clientUrl}${options.clientOAuthCallbackPath}?linked=${provider.id}`,
+      );
+      return;
+    }
+
     const existing = await identities.find(providerUserId);
     let isNewUser = false;
     if (!existing) {
@@ -264,10 +297,46 @@ function storeOAuthState(
   );
 }
 
+/**
+ * The link intent of a login navigation, as the state cookie field that
+ * carries it to the callback. The ticket is SIGNED: a state cookie is
+ * client-controlled, and a plain account id in it could be edited to attach
+ * the provider's identity to somebody else's account.
+ */
+async function getLinkTicketCookie(
+  ctx: Ctx,
+  jwt: ReturnType<typeof makeJwt>,
+  req: Req,
+): Promise<{ linkTicket: string }> {
+  const params = getUrl(req).searchParams;
+  if (params.get("intent") !== "link") {
+    // Overwrites a ticket left behind by an abandoned link attempt, so an
+    // ordinary login is never mistaken for one.
+    return { linkTicket: "" };
+  }
+  // Bearer transport: the client traded its credential for a ticket first.
+  const ticket = params.get("ticket");
+  if (ticket !== null) {
+    await jwt.validateJWT<LinkTicket>(ticket).catch(() => {
+      throw new HttpError(400, "The link request expired. Try again.");
+    });
+    return { linkTicket: ticket };
+  }
+  // Cookie transport: the navigation itself carries the credential.
+  const linkTicket: LinkTicket = {
+    linkToAuthId: await requireCurrentAuthId(ctx, req),
+  };
+  return {
+    linkTicket: await jwt.createJWT(linkTicket, {
+      expiresIn: new TimeSpan(10, "m"),
+    }),
+  };
+}
+
 function validateAndGetOAuthState(
   provider: OAuthProviderDefinition,
   req: Req,
-): { code: string; state: string; codeVerifier?: string } {
+): { code: string; state: string; codeVerifier?: string; linkTicket?: string } {
   const url = getUrl(req);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
@@ -283,7 +352,9 @@ function validateAndGetOAuthState(
     throw new Error("Invalid state");
   if (provider.oAuthType === "OAuth2WithPKCE" && !codeVerifier)
     throw new Error("Missing code verifier");
-  return { code, state, codeVerifier };
+  const linkTicket =
+    cookies.get(cookieName(provider, "linkTicket")) || undefined;
+  return { code, state, codeVerifier, linkTicket };
 }
 
 // --- one-time-code replay protection --------------------------------------

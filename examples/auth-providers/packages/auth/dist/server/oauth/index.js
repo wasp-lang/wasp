@@ -2,6 +2,7 @@ import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 import { findAuthWithUser } from "../email/flows.js";
 import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendAuthResponse, } from "../http.js";
+import { requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
 import { namespaceFor } from "../namespaces.js";
 import { TimeSpan, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { makeOAuthProvider, } from "./providers.js";
@@ -35,7 +36,7 @@ export function oauthRoutes(ctx) {
             {
                 method: "GET",
                 path: `/${name}/${LOGIN_PATH}`,
-                handler: (req, res) => loginHandler(ctx, provider, config, req, res),
+                handler: (req, res) => loginHandler(ctx, provider, config, jwt, req, res),
             },
             {
                 method: "GET",
@@ -70,12 +71,13 @@ export function oauthRoutes(ctx) {
 function mergeDefaultAndUserConfig(defaultConfig, userConfigFn) {
     return userConfigFn ? { ...defaultConfig, ...userConfigFn() } : defaultConfig;
 }
-async function loginHandler(ctx, provider, config, req, res) {
+async function loginHandler(ctx, provider, config, jwt, req, res) {
     const state = {
         state: generateState(),
         ...(provider.oAuthType === "OAuth2WithPKCE"
             ? { codeVerifier: generateCodeVerifier() }
             : {}),
+        ...(await getLinkTicketCookie(ctx, jwt, req)),
     };
     storeOAuthState(ctx, provider, res, state);
     const redirectUrl = await provider.getAuthorizationUrl(state, config);
@@ -103,6 +105,24 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
             tokens,
         };
         const identities = runtime.identityNamespaces(namespaceFor(runtime, provider.id));
+        // Account linking: the flow was started by a signed-in user, so the
+        // provider's identity is attached to THAT account. No credential is
+        // issued; the user keeps the one they have.
+        if (oAuthState.linkTicket !== undefined) {
+            const { linkToAuthId } = await jwt
+                .validateJWT(oAuthState.linkTicket)
+                .catch(() => {
+                throw new HttpError(400, "The link request expired. Try again.");
+            });
+            try {
+                await identities.link(providerUserId, {}, { authId: linkToAuthId, req, hookContext: oauth });
+            }
+            catch (e) {
+                rethrowLinkError(e);
+            }
+            redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}?linked=${provider.id}`);
+            return;
+        }
         const existing = await identities.find(providerUserId);
         let isNewUser = false;
         if (!existing) {
@@ -153,6 +173,37 @@ function storeOAuthState(ctx, provider, res, state) {
     ].join("; ");
     res.setHeader("Set-Cookie", Object.entries(state).map(([field, value]) => `${cookieName(provider, field)}=${value}; ${attributes}`));
 }
+/**
+ * The link intent of a login navigation, as the state cookie field that
+ * carries it to the callback. The ticket is SIGNED: a state cookie is
+ * client-controlled, and a plain account id in it could be edited to attach
+ * the provider's identity to somebody else's account.
+ */
+async function getLinkTicketCookie(ctx, jwt, req) {
+    const params = getUrl(req).searchParams;
+    if (params.get("intent") !== "link") {
+        // Overwrites a ticket left behind by an abandoned link attempt, so an
+        // ordinary login is never mistaken for one.
+        return { linkTicket: "" };
+    }
+    // Bearer transport: the client traded its credential for a ticket first.
+    const ticket = params.get("ticket");
+    if (ticket !== null) {
+        await jwt.validateJWT(ticket).catch(() => {
+            throw new HttpError(400, "The link request expired. Try again.");
+        });
+        return { linkTicket: ticket };
+    }
+    // Cookie transport: the navigation itself carries the credential.
+    const linkTicket = {
+        linkToAuthId: await requireCurrentAuthId(ctx, req),
+    };
+    return {
+        linkTicket: await jwt.createJWT(linkTicket, {
+            expiresIn: new TimeSpan(10, "m"),
+        }),
+    };
+}
 function validateAndGetOAuthState(provider, req) {
     const url = getUrl(req);
     const code = url.searchParams.get("code");
@@ -168,7 +219,8 @@ function validateAndGetOAuthState(provider, req) {
         throw new Error("Invalid state");
     if (provider.oAuthType === "OAuth2WithPKCE" && !codeVerifier)
         throw new Error("Missing code verifier");
-    return { code, state, codeVerifier };
+    const linkTicket = cookies.get(cookieName(provider, "linkTicket")) || undefined;
+    return { code, state, codeVerifier, linkTicket };
 }
 // --- one-time-code replay protection --------------------------------------
 /**

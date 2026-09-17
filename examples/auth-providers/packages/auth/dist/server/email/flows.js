@@ -1,5 +1,6 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { HttpError, getBody, getSignInProperties, json, sendAuthResponse, } from "../http.js";
+import { requireCurrentAuthId, rethrowLinkError } from "../linking.js";
 import { namespaceFor } from "../namespaces.js";
 import { createInvalidCredentialsError, doFakeWork, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, normalizeEmail, } from "../validation.js";
@@ -21,7 +22,8 @@ const defaultPasswordResetEmailContent = ({ passwordResetLink, }) => ({
     `,
 });
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
-export function emailRoutes({ runtime, options, extensions }) {
+export function emailRoutes(ctx) {
+    const { runtime, options, extensions } = ctx;
     const emailConfig = options.methods.email;
     const identities = () => runtime.identityNamespaces(namespaceFor(runtime, "email"));
     const { validateJWT } = makeJwt(runtime);
@@ -33,6 +35,20 @@ export function emailRoutes({ runtime, options, extensions }) {
     const isEmailAutoVerified = runtime.isDevelopment &&
         runtime.env.SKIP_EMAIL_VERIFICATION_IN_DEV === "true";
     const fromField = emailConfig.fromField;
+    async function sendVerificationEmail(email) {
+        const verificationLink = await helpers.createEmailVerificationLink(email, emailConfig.emailVerificationClientRoute);
+        try {
+            await helpers.sendEmailVerificationEmail(email, {
+                from: fromField,
+                to: email,
+                ...getVerificationEmailContent({ verificationLink }),
+            });
+        }
+        catch (e) {
+            console.error("Failed to send email verification email:", e);
+            throw new HttpError(500, "Failed to send email verification email.");
+        }
+    }
     return [
         {
             method: "POST",
@@ -83,17 +99,40 @@ export function emailRoutes({ runtime, options, extensions }) {
                     json(res, 200, { success: true });
                     return;
                 }
-                const verificationLink = await helpers.createEmailVerificationLink(email, emailConfig.emailVerificationClientRoute);
+                await sendVerificationEmail(email);
+                json(res, 200, { success: true });
+            },
+        },
+        {
+            // Account linking: an email and password for the signed-in user. The
+            // identity starts unverified, so it cannot log in until the emailed
+            // link is followed -- the same rule as a signup.
+            method: "POST",
+            path: "/email/link",
+            handler: async (req, res) => {
+                const authId = await requireCurrentAuthId(ctx, req);
+                const fields = getBody(req);
+                ensureValidEmail(fields);
+                ensurePasswordIsPresent(fields);
+                ensureValidPassword(fields);
+                const email = normalizeEmail(fields.email);
                 try {
-                    await helpers.sendEmailVerificationEmail(email, {
-                        from: fromField,
-                        to: email,
-                        ...getVerificationEmailContent({ verificationLink }),
-                    });
+                    await identities().link(email, {
+                        data: {
+                            isEmailVerified: isEmailAutoVerified ? true : false,
+                            emailVerificationSentAt: null,
+                            passwordResetSentAt: null,
+                        },
+                        secrets: {
+                            hashedPassword: await hashPassword(fields.password),
+                        },
+                    }, { authId, req });
                 }
                 catch (e) {
-                    console.error("Failed to send email verification email:", e);
-                    throw new HttpError(500, "Failed to send email verification email.");
+                    rethrowLinkError(e);
+                }
+                if (!isEmailAutoVerified) {
+                    await sendVerificationEmail(email);
                 }
                 json(res, 200, { success: true });
             },

@@ -11,6 +11,7 @@ import {
   type EmailHelpers,
 } from "./email/utils.js";
 import { makeDispatcher, type Route } from "./http.js";
+import { linkingRoutes } from "./linking.js";
 import { oauthRoutes } from "./oauth/index.js";
 import type {
   Ctx,
@@ -59,6 +60,12 @@ export const createServerAdapter: ServerAdapterFactory<
       : []),
     ...(options.methods.email !== undefined ? emailRoutes(ctx) : []),
     ...oauthRoutes(ctx),
+    // Account linking between the enabled methods: the per-method link
+    // routes live with their methods, the shared ones here.
+    ...linkingRoutes(
+      ctx,
+      OAUTH_PROVIDER_NAMES.some((name) => options.methods[name] !== undefined),
+    ),
   ];
 
   if (options.methods.email !== undefined) {

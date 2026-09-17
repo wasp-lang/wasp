@@ -7,6 +7,7 @@ import {
   sendAuthResponse,
   type Route,
 } from "./http.js";
+import { requireCurrentAuthId, rethrowLinkError } from "./linking.js";
 import { namespaceFor } from "./namespaces.js";
 import type { Ctx } from "./types.js";
 import {
@@ -22,7 +23,8 @@ import {
 } from "./validation.js";
 
 /** The username & password method: `/auth/username/{login,signup}`. */
-export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
+export function usernameRoutes(ctx: Ctx): Route[] {
+  const { runtime, extensions } = ctx;
   const identities = () =>
     runtime.identityNamespaces(namespaceFor(runtime, "username"));
 
@@ -61,6 +63,34 @@ export function usernameRoutes({ runtime, extensions }: Ctx): Route[] {
           { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);
+      },
+    },
+    {
+      // Account linking: a username and password for the signed-in user.
+      method: "POST",
+      path: "/username/link",
+      handler: async (req, res) => {
+        const authId = await requireCurrentAuthId(ctx, req);
+        const fields = getBody(req);
+        ensureValidUsername(fields);
+        ensurePasswordIsPresent(fields);
+        ensureValidPassword(fields);
+        try {
+          // `link`, not `create`: no new user, no userSignupFields; the
+          // app's link hooks fire inside.
+          await identities().link(
+            normalizeUsername(fields.username as string),
+            {
+              secrets: {
+                hashedPassword: await hashPassword(fields.password as string),
+              },
+            },
+            { authId, req },
+          );
+        } catch (e) {
+          rethrowLinkError(e);
+        }
+        json(res, 200, { success: true });
       },
     },
     {

@@ -1,6 +1,7 @@
 import { emailRoutes } from "./email/flows.js";
 import { isEmailResendAllowed, makeEmailHelpers, } from "./email/utils.js";
 import { makeDispatcher } from "./http.js";
+import { linkingRoutes } from "./linking.js";
 import { oauthRoutes } from "./oauth/index.js";
 import { usernameRoutes } from "./username.js";
 const OAUTH_PROVIDER_NAMES = [
@@ -33,6 +34,9 @@ export const createServerAdapter = (runtime, options, extensions) => {
             : []),
         ...(options.methods.email !== undefined ? emailRoutes(ctx) : []),
         ...oauthRoutes(ctx),
+        // Account linking between the enabled methods: the per-method link
+        // routes live with their methods, the shared ones here.
+        ...linkingRoutes(ctx, OAUTH_PROVIDER_NAMES.some((name) => options.methods[name] !== undefined)),
     ];
     if (options.methods.email !== undefined) {
         boundEmailHelpers = makeEmailHelpers(runtime);

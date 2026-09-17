@@ -1,6 +1,8 @@
 {{={= =}=}}
 import { prisma } from '../index.js'
 import type {
+  OnAfterLinkHook,
+  OnBeforeLinkHook,
   OnAfterLoginHook,
   OnAfterSignupHook,
   OnBeforeLoginHook,
@@ -18,6 +20,12 @@ import type {
 {=# onAfterLoginHook.isDefined =}
 {=& onAfterLoginHook.importStatement =}
 {=/ onAfterLoginHook.isDefined =}
+{=# onBeforeLinkHook.isDefined =}
+{=& onBeforeLinkHook.importStatement =}
+{=/ onBeforeLinkHook.isDefined =}
+{=# onAfterLinkHook.isDefined =}
+{=& onAfterLinkHook.importStatement =}
+{=/ onAfterLinkHook.isDefined =}
 
 /**
  * PRIVATE API. Dispatch for the app-level auth lifecycle hooks
@@ -94,3 +102,19 @@ export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = (para
 {=^ onAfterLoginHook.isDefined =}
 export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = async (_params) => {}
 {=/ onAfterLoginHook.isDefined =}
+
+{=# onBeforeLinkHook.isDefined =}
+export const onBeforeLinkHook: InternalFunctionForHook<OnBeforeLinkHook> = (params) =>
+  {= onBeforeLinkHook.importIdentifier =}({ prisma, ...params })
+{=/ onBeforeLinkHook.isDefined =}
+{=^ onBeforeLinkHook.isDefined =}
+export const onBeforeLinkHook: InternalFunctionForHook<OnBeforeLinkHook> = async (_params) => {}
+{=/ onBeforeLinkHook.isDefined =}
+
+{=# onAfterLinkHook.isDefined =}
+export const onAfterLinkHook: InternalFunctionForHook<OnAfterLinkHook> = (params) =>
+  {= onAfterLinkHook.importIdentifier =}({ prisma, ...params })
+{=/ onAfterLinkHook.isDefined =}
+{=^ onAfterLinkHook.isDefined =}
+export const onAfterLinkHook: InternalFunctionForHook<OnAfterLinkHook> = async (_params) => {}
+{=/ onAfterLinkHook.isDefined =}

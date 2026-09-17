@@ -7,6 +7,8 @@ import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
   onAfterLoginHook,
+  onAfterLinkHook,
+  onBeforeLinkHook,
   onAfterSignupHook,
   onBeforeLoginHook,
   onBeforeSignupHook,
@@ -128,10 +130,81 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Provid
       }
       return { authId: created.auth!.id }
     },
+    link: async (subjectId, identity, opts) => {
+      await assertSchemeOwnsAccount(spec, opts.authId)
+      const existing = await store.find(subjectId)
+      if (existing !== null) {
+        if (existing.authId === opts.authId) {
+          return
+        }
+        throw linkedElsewhereError(namespace)
+      }
+      const auth = await findAuthWithUserBy({ id: opts.authId })
+      if (auth === null) {
+        throw contractError('wasp-auth/identity-not-found', 'The account to link to does not exist.')
+      }
+      const hookProviderId = makeHookProviderId(namespace, subjectId)
+      await fireVetoableHook(() =>
+        onBeforeLinkHook({ req: opts.req as any, providerId: hookProviderId, user: auth.user }),
+      )
+      try {
+        await store.linkIdentity(subjectId, identity as any, opts.authId)
+      } catch (e) {
+        // Lost a race against another link or signup of the same subject.
+        if (isUniqueConstraintViolation(e)) {
+          throw linkedElsewhereError(namespace)
+        }
+        throw e
+      }
+      await onAfterLinkHook({
+        req: opts.req as any,
+        providerId: hookProviderId,
+        user: auth.user,
+        oauth: opts.hookContext as any,
+      })
+    },
+    unlink: async (subjectId, opts) => {
+      await assertSchemeOwnsAccount(spec, opts.authId)
+      const outcome = await store.unlinkIdentity(subjectId, opts.authId)
+      if (outcome === 'not-found') {
+        throw contractError('wasp-auth/identity-not-found', `The account holds no such identity in namespace '${namespace}'.`)
+      }
+      if (outcome === 'last-identity') {
+        throw contractError('wasp-auth/last-identity', "An account's only identity cannot be unlinked.")
+      }
+    },
     updateData: (subjectId, updates) => store.updateData(subjectId, updates),
     getSecrets: (subjectId) => store.getSecrets(subjectId) as any,
     setSecrets: (subjectId, secrets) => store.setSecrets(subjectId, secrets),
     deleteUser: (subjectId) => store.deleteUser(subjectId),
+  }
+}
+
+// Says nothing about the other account on purpose: the caller proved control
+// of the identity, not the right to learn who else holds it.
+function linkedElsewhereError(namespace: string): Error {
+  return contractError(
+    'wasp-auth/identity-linked-elsewhere',
+    `The identity in namespace '${namespace}' already belongs to another account.`,
+  )
+}
+
+/**
+ * The account-linking guard: a scheme may only attach identities to (or
+ * detach them from) an account that already carries an identity in one of
+ * its OWN namespaces. Without it, a scheme could attach itself to another
+ * scheme's users.
+ */
+async function assertSchemeOwnsAccount(spec: SchemeRuntimeSpec, authId: string): Promise<void> {
+  const ownedIdentity = await prisma.authIdentity.findFirst({
+    where: { authId, providerName: { in: [...spec.identityNamespaces] } },
+    select: { providerName: true },
+  })
+  if (ownedIdentity === null) {
+    throw contractError(
+      'wasp-auth/identity-not-found',
+      `Auth scheme '${spec.scheme}' has no identity on the account it tried to link.`,
+    )
   }
 }
 

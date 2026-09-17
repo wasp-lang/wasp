@@ -19,6 +19,8 @@ module Wasp.AppSpec.App.Auth
     onAfterSignup,
     onBeforeLogin,
     onAfterLogin,
+    onBeforeLink,
+    onAfterLink,
     serverPackage,
     serverModule,
     credentialsScheme,
@@ -67,7 +69,9 @@ data AuthHooksSpec = AuthHooksSpec
   { hooksOnBeforeSignup :: Maybe ExtImport,
     hooksOnAfterSignup :: Maybe ExtImport,
     hooksOnBeforeLogin :: Maybe ExtImport,
-    hooksOnAfterLogin :: Maybe ExtImport
+    hooksOnAfterLogin :: Maybe ExtImport,
+    hooksOnBeforeLink :: Maybe ExtImport,
+    hooksOnAfterLink :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic)
 
@@ -289,6 +293,12 @@ onBeforeLogin auth = hooks auth >>= hooksOnBeforeLogin
 
 onAfterLogin :: Auth -> Maybe ExtImport
 onAfterLogin auth = hooks auth >>= hooksOnAfterLogin
+
+onBeforeLink :: Auth -> Maybe ExtImport
+onBeforeLink auth = hooks auth >>= hooksOnBeforeLink
+
+onAfterLink :: Auth -> Maybe ExtImport
+onAfterLink auth = hooks auth >>= hooksOnAfterLink
 
 -- Avoids ambiguity with the other `userSignupFields` record fields (otherwise
 -- every consumer would need DuplicateRecordFields and OverloadedRecordDot).

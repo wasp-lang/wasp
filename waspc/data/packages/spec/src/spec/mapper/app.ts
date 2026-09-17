@@ -106,6 +106,9 @@ export function mapAuth(
         hooks.onBeforeLogin && ctx.parseRefObject(hooks.onBeforeLogin),
       onAfterLogin:
         hooks.onAfterLogin && ctx.parseRefObject(hooks.onAfterLogin),
+      onBeforeLink:
+        hooks.onBeforeLink && ctx.parseRefObject(hooks.onBeforeLink),
+      onAfterLink: hooks.onAfterLink && ctx.parseRefObject(hooks.onAfterLink),
     },
   };
 }

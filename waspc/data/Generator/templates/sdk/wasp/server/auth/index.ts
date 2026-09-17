@@ -33,5 +33,7 @@ export type {
   OnAfterSignupHook,
   OnBeforeLoginHook,
   OnAfterLoginHook,
+  OnBeforeLinkHook,
+  OnAfterLinkHook,
   InternalAuthHookParams,
 } from './hooks.js'

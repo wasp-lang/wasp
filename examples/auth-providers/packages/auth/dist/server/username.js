@@ -1,10 +1,12 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { getBody, getSignInProperties, json, sendAuthResponse, } from "./http.js";
+import { requireCurrentAuthId, rethrowLinkError } from "./linking.js";
 import { namespaceFor } from "./namespaces.js";
 import { createInvalidCredentialsError, rethrowPossibleAuthError, validateAndGetUserFields, } from "./utils.js";
 import { ensurePasswordIsPresent, ensureValidPassword, ensureValidUsername, normalizeUsername, } from "./validation.js";
 /** The username & password method: `/auth/username/{login,signup}`. */
-export function usernameRoutes({ runtime, extensions }) {
+export function usernameRoutes(ctx) {
+    const { runtime, extensions } = ctx;
     const identities = () => runtime.identityNamespaces(namespaceFor(runtime, "username"));
     return [
         {
@@ -34,6 +36,31 @@ export function usernameRoutes({ runtime, extensions }) {
                 // decides what the client receives.
                 const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "username"), subjectId: username }, { req, properties: getSignInProperties(fields) });
                 sendAuthResponse(res, response);
+            },
+        },
+        {
+            // Account linking: a username and password for the signed-in user.
+            method: "POST",
+            path: "/username/link",
+            handler: async (req, res) => {
+                const authId = await requireCurrentAuthId(ctx, req);
+                const fields = getBody(req);
+                ensureValidUsername(fields);
+                ensurePasswordIsPresent(fields);
+                ensureValidPassword(fields);
+                try {
+                    // `link`, not `create`: no new user, no userSignupFields; the
+                    // app's link hooks fire inside.
+                    await identities().link(normalizeUsername(fields.username), {
+                        secrets: {
+                            hashedPassword: await hashPassword(fields.password),
+                        },
+                    }, { authId, req });
+                }
+                catch (e) {
+                    rethrowLinkError(e);
+                }
+                json(res, 200, { success: true });
             },
         },
         {

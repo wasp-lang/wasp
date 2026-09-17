@@ -1,5 +1,7 @@
 import { prisma } from '../index.js'
 import type {
+  OnAfterLinkHook,
+  OnBeforeLinkHook,
   OnAfterLoginHook,
   OnAfterSignupHook,
   OnBeforeLoginHook,
@@ -65,3 +67,7 @@ export const onBeforeLoginHook: InternalFunctionForHook<OnBeforeLoginHook> = (pa
 
 export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = (params) =>
   onAfterLoginHook_ext({ prisma, ...params })
+
+export const onBeforeLinkHook: InternalFunctionForHook<OnBeforeLinkHook> = async (_params) => {}
+
+export const onAfterLinkHook: InternalFunctionForHook<OnAfterLinkHook> = async (_params) => {}

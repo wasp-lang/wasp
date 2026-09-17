@@ -70,7 +70,9 @@ genHookDispatchTs auth =
         [ "onBeforeSignupHook" .= extImportToAliasedImportJson "onBeforeSignupHook_ext" (AS.Auth.onBeforeSignup auth),
           "onAfterSignupHook" .= extImportToAliasedImportJson "onAfterSignupHook_ext" (AS.Auth.onAfterSignup auth),
           "onBeforeLoginHook" .= extImportToAliasedImportJson "onBeforeLoginHook_ext" (AS.Auth.onBeforeLogin auth),
-          "onAfterLoginHook" .= extImportToAliasedImportJson "onAfterLoginHook_ext" (AS.Auth.onAfterLogin auth)
+          "onAfterLoginHook" .= extImportToAliasedImportJson "onAfterLoginHook_ext" (AS.Auth.onAfterLogin auth),
+          "onBeforeLinkHook" .= extImportToAliasedImportJson "onBeforeLinkHook_ext" (AS.Auth.onBeforeLink auth),
+          "onAfterLinkHook" .= extImportToAliasedImportJson "onAfterLinkHook_ext" (AS.Auth.onAfterLink auth)
         ]
 
 genIdentityStoreTs :: AS.Auth.Auth -> Generator FileDraft
@@ -167,6 +169,7 @@ genSchemesTs spec auth =
       object
         [ "dbProvider" .= prismaDbProviderName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
           "defaultScheme" .= AS.Auth.defaultScheme auth,
           -- Where a cookie-transport issuer sends a browser navigation that
           -- carries no credential.

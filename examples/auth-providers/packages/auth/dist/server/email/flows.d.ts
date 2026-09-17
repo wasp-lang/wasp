@@ -1,7 +1,7 @@
 import { type Route } from "../http.js";
 import type { Ctx } from "../types.js";
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
-export declare function emailRoutes({ runtime, options, extensions }: Ctx): Route[];
+export declare function emailRoutes(ctx: Ctx): Route[];
 /**
  * The business user behind an auth id, for the method-specific hooks' `user`
  * parameter. Through the app's PrismaClient: the `Auth` model and its `user`

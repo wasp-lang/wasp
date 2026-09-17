@@ -42,6 +42,15 @@ export function getActiveOptimisticUpdates(queryKey) {
   return updateHandlers.getUpdateHandlers(queryKey)
 }
 
+/**
+ * Refetches one query, by its cache key, leaving every other query alone.
+ * @param {unknown[]} queryKey
+ */
+export async function invalidateQueryByKey(queryKey) {
+  const queryClient = await queryClientInitialized
+  await queryClient.invalidateQueries({ queryKey })
+}
+
 export async function invalidateAndRemoveQueries() {
   const queryClient = await queryClientInitialized
   // If we don't reset the queries before removing them, Wasp will stay on

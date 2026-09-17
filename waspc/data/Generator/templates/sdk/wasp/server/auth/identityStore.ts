@@ -94,6 +94,31 @@ export type IdentityStore<Data extends object, Secrets extends object> = {
    * sessions). Returns whether anything was deleted.
    */
   deleteUser(providerUserId: string): Promise<boolean>;
+
+  /**
+   * Account linking: attaches a new identity to an EXISTING Auth entity,
+   * creating no user. A taken identity surfaces as Prisma's unique-constraint
+   * error (P2002).
+   */
+  linkIdentity(
+    providerUserId: string,
+    identity: {
+      claims?: Record<string, unknown>;
+      data?: Data;
+      secrets?: Secrets;
+    },
+    authId: string,
+  ): Promise<void>;
+
+  /**
+   * Detaches the identity from the Auth entity, unless it is that entity's
+   * last one. Settled in one transaction, so two concurrent unlinks cannot
+   * leave an account with no way in.
+   */
+  unlinkIdentity(
+    providerUserId: string,
+    authId: string,
+  ): Promise<'unlinked' | 'not-found' | 'last-identity'>;
 }
 
 // PUBLIC API
@@ -204,6 +229,39 @@ export function getIdentityStore(
       await prisma.{= authIdentityEntityLower =}.update({
         where: whereIdentity(providerUserId),
         data: { providerData: JSON.stringify(newData) },
+      });
+    },
+
+    async linkIdentity(providerUserId, identity, authId) {
+      await prisma.{= authIdentityEntityLower =}.create({
+        data: {
+          providerName,
+          providerUserId,
+          providerClaims: JSON.stringify(identity.claims ?? {}),
+          providerData: JSON.stringify(identity.data ?? {}),
+          providerSecrets: JSON.stringify(identity.secrets ?? {}),
+          authId,
+        },
+      });
+    },
+
+    async unlinkIdentity(providerUserId, authId) {
+      return prisma.$transaction(async (tx) => {
+        const identities = await tx.{= authIdentityEntityLower =}.findMany({
+          where: { authId },
+          select: { providerName: true, providerUserId: true },
+        });
+        const holdsIdentity = identities.some(
+          (identity) => identity.providerName === providerName && identity.providerUserId === providerUserId,
+        );
+        if (!holdsIdentity) {
+          return 'not-found' as const;
+        }
+        if (identities.length === 1) {
+          return 'last-identity' as const;
+        }
+        await tx.{= authIdentityEntityLower =}.delete({ where: whereIdentity(providerUserId) });
+        return 'unlinked' as const;
       });
     },
 

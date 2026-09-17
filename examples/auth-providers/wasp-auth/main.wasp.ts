@@ -1,6 +1,8 @@
 import { waspAuth } from "@wasp.sh/auth/spec";
 import { action, app, page, query, route } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
+import { ConnectedAccountsPage } from "./src/auth/ConnectedAccountsPage" with { type: "ref" };
+import { onBeforeLink } from "./src/auth/hooks" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
@@ -24,11 +26,19 @@ export default app({
         onAuthSucceededRedirectTo: "/",
       }),
     },
+    // App-level, like the login and signup hooks: linking is about the user,
+    // not about one handler.
+    hooks: { onBeforeLink },
   },
 
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     route("LoginRoute", "/login", page(LoginPage)),
+    route(
+      "ConnectedAccountsRoute",
+      "/accounts",
+      page(ConnectedAccountsPage, { authRequired: true }),
+    ),
     query(getMyTasks, { entities: ["Task"], auth: true }),
     action(createTask, { entities: ["Task"], auth: true }),
   ],

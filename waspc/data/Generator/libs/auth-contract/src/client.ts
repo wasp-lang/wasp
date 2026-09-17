@@ -47,6 +47,27 @@ export type WaspClientRuntime = {
     credential: string | null,
     options?: { persistent?: boolean },
   ): Promise<void>;
+} & WaspClientRuntimeRequests;
+
+export type WaspClientRuntimeRequests = {
+  /**
+   * `fetch`, with the app's current auth credential attached the way Wasp's
+   * own API client attaches it, for calling this scheme's own routes as the
+   * signed-in user. The adapter never sees the credential, and the transport
+   * (bearer token or cookie) is not its concern.
+   *
+   * Restricted to URLs under {@link WaspClientRuntime.mountUrl}: a request
+   * anywhere else is rejected, so an adapter cannot spend the user's
+   * credential against other routes or origins.
+   */
+  fetch(input: string | URL, init?: RequestInit): Promise<Response>;
+
+  /**
+   * Refetch the current user (`useAuth()`), after a change that is neither a
+   * sign-in nor a sign-out: a linked account, a changed profile claim. Other
+   * cached queries are left alone.
+   */
+  refreshUser(): Promise<void>;
 };
 
 export type ClientAuthAdapter = {

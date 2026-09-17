@@ -42,3 +42,32 @@ export declare function verifyEmail(data: {
 export declare function exchangeOAuthCodeForSession(code: string): Promise<void>;
 export declare function signInUrl(provider: OAuthProviderName): string;
 export declare function isMethodEnabled(name: keyof ReturnType<typeof getClientOptions>["methods"]): boolean;
+type LinkedIdentity = {
+    providerName: string;
+    providerUserId: string;
+};
+/** Adds a username and password to the signed-in user's account. */
+export declare function linkUsername(data: {
+    username: string;
+    password: string;
+}): Promise<void>;
+/**
+ * Adds an email and password to the signed-in user's account. The address
+ * must be verified through the emailed link before it can be used to log in.
+ */
+export declare function linkEmail(data: {
+    email: string;
+    password: string;
+}): Promise<void>;
+/**
+ * Disconnects one of `user.identities` from the signed-in user's account.
+ * Rejects (409) when it is the account's only login method.
+ */
+export declare function unlink(identity: LinkedIdentity): Promise<void>;
+/**
+ * Sends the browser to the OAuth provider to connect it to the signed-in
+ * user's account. A navigation cannot carry a bearer credential, so the
+ * credential is first traded for a short-lived ticket.
+ */
+export declare function startOAuthLink(provider: OAuthProviderName): Promise<void>;
+export {};

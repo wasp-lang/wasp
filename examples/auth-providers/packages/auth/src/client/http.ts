@@ -1,3 +1,5 @@
+import { getClientRuntime } from "./runtime.js";
+
 /**
  * The error the forms and actions throw, shaped like Wasp's client
  * `WaspHttpError`: `message` is the server's message, `data` the whole
@@ -16,9 +18,24 @@ export class WaspAuthClientError extends Error {
   }
 }
 
+/**
+ * A POST as the signed-in user. Wasp attaches the credential; this package
+ * never sees it, and can only spend it on its own routes.
+ */
+export function postAsUser<T = Record<string, unknown>>(
+  url: string,
+  body: unknown,
+): Promise<T> {
+  return post<T>(url, body, getClientRuntime().fetch);
+}
+
 export async function post<T = Record<string, unknown>>(
   url: string,
   body: unknown,
+  fetch: (
+    url: string,
+    init: RequestInit,
+  ) => Promise<Response> = globalThis.fetch,
 ): Promise<T> {
   const response = await fetch(url, {
     method: "POST",

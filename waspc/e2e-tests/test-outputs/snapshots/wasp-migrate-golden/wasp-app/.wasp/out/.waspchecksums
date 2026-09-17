@@ -25,7 +25,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "48fa8a69a1567d44bff3ffe8723a4333b9a7f15c8d022740aec82072fed44795"
+        "811f66a611c712dcb02c030f2dcf1948d580d5d478b3268f281069489e08fc05"
     ],
     [
         [
@@ -193,7 +193,7 @@
             "file",
             "sdk/wasp/client/operations/internal/resources.js"
         ],
-        "fa3e3b77c1d6f62889b613706fff1ee92bd70aa68ae80751df05c0ac72d844a4"
+        "c4cd1e256395f669a5f6d544fee320f549a49a3c119355a9370aa84dc21daf7c"
     ],
     [
         [

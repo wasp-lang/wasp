@@ -1,10 +1,11 @@
 import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import {
+  getRequestCredential,
   registerCredentialSource,
   setCredential,
 } from '../../api/index.js'
-import { invalidateAndRemoveQueries } from '../operations/internal/resources.js'
+import { invalidateAndRemoveQueries, invalidateQueryByKey } from '../operations/internal/resources.js'
 import { config } from '../config.js'
 import { env } from '../env.js'
 import { createClientAdapter as createClientAdapter_0 } from '@wasp.sh/auth-clerk/client'
@@ -27,10 +28,33 @@ function makeClientRuntime(
   scheme: AuthSchemeName,
   declaredClientEnvVarNames: readonly string[],
 ) {
+  const mountUrl = `${config.apiUrl}/auth/${scheme}`
   return {
     scheme,
     apiUrl: config.apiUrl,
-    mountUrl: `${config.apiUrl}/auth/${scheme}`,
+    mountUrl,
+    // The user's credential is spent only on this scheme's own routes: the
+    // adapter never sees it, and cannot aim it at other routes or origins.
+    fetch: async (input: string | URL, init?: RequestInit): Promise<Response> => {
+      const url = new URL(String(input), window.location.href)
+      const mount = new URL(mountUrl, window.location.href)
+      const isUnderMount =
+        url.origin === mount.origin &&
+        (url.pathname === mount.pathname || url.pathname.startsWith(`${mount.pathname}/`))
+      if (!isUnderMount) {
+        throw new Error(
+          `The client adapter of auth scheme '${scheme}' tried an authenticated request to '${url.href}', outside its own routes (${mountUrl}).`,
+        )
+      }
+      const headers = new Headers(init?.headers)
+      const credential = await getRequestCredential()
+      if (credential !== null) {
+        headers.set('Authorization', `Bearer ${credential}`)
+      }
+      return fetch(url, { ...init, headers, credentials: 'include' })
+    },
+    // Only the current user: a linked account does not change anything else.
+    refreshUser: (): Promise<void> => invalidateQueryByKey(['auth/me']),
     env: Object.fromEntries(
       declaredClientEnvVarNames.map((name) => [
         name,

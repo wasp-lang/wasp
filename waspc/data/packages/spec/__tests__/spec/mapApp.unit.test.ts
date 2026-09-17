@@ -670,6 +670,12 @@ describe("mapAuth", () => {
         onAfterLogin:
           auth.hooks.onAfterLogin &&
           mapRefObjectForMockProjectDir(auth.hooks.onAfterLogin),
+        onBeforeLink:
+          auth.hooks.onBeforeLink &&
+          mapRefObjectForMockProjectDir(auth.hooks.onBeforeLink),
+        onAfterLink:
+          auth.hooks.onAfterLink &&
+          mapRefObjectForMockProjectDir(auth.hooks.onAfterLink),
       },
     } satisfies AppSpec.Auth);
   }

@@ -297,6 +297,13 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-not-found"
   | "wasp-auth/undeclared-namespace"
   /**
+   * `link` found the subject's identity already attached to a DIFFERENT
+   * account. Deliberately carries nothing about that account.
+   */
+  | "wasp-auth/identity-linked-elsewhere"
+  /** `unlink` refused to remove an account's only identity. */
+  | "wasp-auth/last-identity"
+  /**
    * The app's onBeforeSignup/onBeforeLogin hook rejected the action by
    * throwing. The thrown error itself is what carries this code (Wasp tags
    * it rather than wrapping, so its message and type survive) -- a handler's
@@ -315,6 +322,8 @@ export function getAuthContractErrorCode(
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
     code === "wasp-auth/undeclared-namespace" ||
+    code === "wasp-auth/identity-linked-elsewhere" ||
+    code === "wasp-auth/last-identity" ||
     code === "wasp-auth/policy-veto"
     ? code
     : null;
@@ -484,6 +493,43 @@ export type ProviderIdentities = {
    * this removes the app's business user, not just the identity row.
    */
   deleteUser(subjectId: string): Promise<boolean>;
+
+  /**
+   * Account linking: attach a new identity to an EXISTING account, instead of
+   * creating a user. `authId` is the account to attach to -- for a request
+   * carrying a Wasp-issued credential, the `principal.subjectId` that
+   * `runtime.credentials.authenticate` returns.
+   *
+   * Wasp checks that the account already carries an identity in one of the
+   * calling scheme's OWN namespaces (a scheme cannot attach itself to another
+   * scheme's users), fires the app's `onBeforeLink` (a throw vetoes) and
+   * `onAfterLink` hooks, and never runs `userSignupFields`: the user
+   * already exists. Idempotent when the identity is already on that account.
+   * Rejects with `wasp-auth/identity-linked-elsewhere` when it belongs to a
+   * different one.
+   */
+  link(
+    subjectId: string,
+    identity: {
+      claims?: Record<string, JsonValue>;
+      data?: Record<string, JsonValue>;
+      secrets?: Record<string, JsonValue>;
+    },
+    opts: {
+      authId: string;
+      /** The incoming request, surfaced to the app's link hooks. */
+      req?: unknown;
+      /** Opaque handler context for the link hooks (OAuth tokens, typically). */
+      hookContext?: unknown;
+    },
+  ): Promise<void>;
+
+  /**
+   * Detach the subject's identity from the account. Rejects with
+   * `wasp-auth/identity-not-found` when the account does not hold it, and
+   * with `wasp-auth/last-identity` when it is the account's only way in.
+   */
+  unlink(subjectId: string, opts: { authId: string }): Promise<void>;
 
   /** Merges the updates into the identity's non-secret data. */
   updateData(

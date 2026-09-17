@@ -8,6 +8,7 @@ import {
   sendAuthResponse,
   type Route,
 } from "../http.js";
+import { requireCurrentAuthId, rethrowLinkError } from "../linking.js";
 import { namespaceFor } from "../namespaces.js";
 import type {
   Ctx,
@@ -53,7 +54,8 @@ const defaultPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
 });
 
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
-export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
+export function emailRoutes(ctx: Ctx): Route[] {
+  const { runtime, options, extensions } = ctx;
   const emailConfig = options.methods.email!;
   const identities = () =>
     runtime.identityNamespaces(namespaceFor(runtime, "email"));
@@ -69,6 +71,23 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
     runtime.isDevelopment &&
     runtime.env.SKIP_EMAIL_VERIFICATION_IN_DEV === "true";
   const fromField = emailConfig.fromField;
+
+  async function sendVerificationEmail(email: string): Promise<void> {
+    const verificationLink = await helpers.createEmailVerificationLink(
+      email,
+      emailConfig.emailVerificationClientRoute,
+    );
+    try {
+      await helpers.sendEmailVerificationEmail(email, {
+        from: fromField,
+        to: email,
+        ...getVerificationEmailContent({ verificationLink }),
+      });
+    } catch (e) {
+      console.error("Failed to send email verification email:", e);
+      throw new HttpError(500, "Failed to send email verification email.");
+    }
+  }
 
   return [
     {
@@ -137,19 +156,43 @@ export function emailRoutes({ runtime, options, extensions }: Ctx): Route[] {
           return;
         }
 
-        const verificationLink = await helpers.createEmailVerificationLink(
-          email,
-          emailConfig.emailVerificationClientRoute,
-        );
+        await sendVerificationEmail(email);
+        json(res, 200, { success: true });
+      },
+    },
+    {
+      // Account linking: an email and password for the signed-in user. The
+      // identity starts unverified, so it cannot log in until the emailed
+      // link is followed -- the same rule as a signup.
+      method: "POST",
+      path: "/email/link",
+      handler: async (req, res) => {
+        const authId = await requireCurrentAuthId(ctx, req);
+        const fields = getBody(req);
+        ensureValidEmail(fields);
+        ensurePasswordIsPresent(fields);
+        ensureValidPassword(fields);
+        const email = normalizeEmail(fields.email as string);
         try {
-          await helpers.sendEmailVerificationEmail(email, {
-            from: fromField,
-            to: email,
-            ...getVerificationEmailContent({ verificationLink }),
-          });
+          await identities().link(
+            email,
+            {
+              data: {
+                isEmailVerified: isEmailAutoVerified ? true : false,
+                emailVerificationSentAt: null,
+                passwordResetSentAt: null,
+              },
+              secrets: {
+                hashedPassword: await hashPassword(fields.password as string),
+              },
+            },
+            { authId, req },
+          );
         } catch (e) {
-          console.error("Failed to send email verification email:", e);
-          throw new HttpError(500, "Failed to send email verification email.");
+          rethrowLinkError(e);
+        }
+        if (!isEmailAutoVerified) {
+          await sendVerificationEmail(email);
         }
         json(res, 200, { success: true });
       },

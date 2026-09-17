@@ -86,6 +86,8 @@ packages/auth/dist/server/http.d.ts
 packages/auth/dist/server/http.js
 packages/auth/dist/server/index.d.ts
 packages/auth/dist/server/index.js
+packages/auth/dist/server/linking.d.ts
+packages/auth/dist/server/linking.js
 packages/auth/dist/server/namespaces.d.ts
 packages/auth/dist/server/namespaces.js
 packages/auth/dist/server/oauth/index.d.ts
@@ -141,6 +143,7 @@ packages/auth/src/server/email/flows.ts
 packages/auth/src/server/email/utils.ts
 packages/auth/src/server/http.ts
 packages/auth/src/server/index.ts
+packages/auth/src/server/linking.ts
 packages/auth/src/server/namespaces.ts
 packages/auth/src/server/oauth/index.ts
 packages/auth/src/server/oauth/providers.ts

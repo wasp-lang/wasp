@@ -187,6 +187,8 @@ export type AuthHooksSpec = {
   onAfterSignup: Optional<ExtImport>;
   onBeforeLogin: Optional<ExtImport>;
   onAfterLogin: Optional<ExtImport>;
+  onBeforeLink: Optional<ExtImport>;
+  onAfterLink: Optional<ExtImport>;
 };
 
 // A named, configured instance of an auth handler.

@@ -229,6 +229,13 @@ export interface AuthLifecycleHooks {
   onBeforeLogin?: Reference<AnyFunction>;
   /** Called after a credential was issued for a login. */
   onAfterLogin?: Reference<AnyFunction>;
+  /**
+   * Called before a new identity is attached to an existing account (account
+   * linking). Throw to veto.
+   */
+  onBeforeLink?: Reference<AnyFunction>;
+  /** Called after a new identity was attached to an existing account. */
+  onAfterLink?: Reference<AnyFunction>;
 }
 
 /**

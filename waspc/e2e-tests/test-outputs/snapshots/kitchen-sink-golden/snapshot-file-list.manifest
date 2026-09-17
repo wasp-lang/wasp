@@ -86,6 +86,8 @@ auth-providers/packages/auth/dist/server/http.d.ts
 auth-providers/packages/auth/dist/server/http.js
 auth-providers/packages/auth/dist/server/index.d.ts
 auth-providers/packages/auth/dist/server/index.js
+auth-providers/packages/auth/dist/server/linking.d.ts
+auth-providers/packages/auth/dist/server/linking.js
 auth-providers/packages/auth/dist/server/namespaces.d.ts
 auth-providers/packages/auth/dist/server/namespaces.js
 auth-providers/packages/auth/dist/server/oauth/index.d.ts
@@ -141,6 +143,7 @@ auth-providers/packages/auth/src/server/email/flows.ts
 auth-providers/packages/auth/src/server/email/utils.ts
 auth-providers/packages/auth/src/server/http.ts
 auth-providers/packages/auth/src/server/index.ts
+auth-providers/packages/auth/src/server/linking.ts
 auth-providers/packages/auth/src/server/namespaces.ts
 auth-providers/packages/auth/src/server/oauth/index.ts
 auth-providers/packages/auth/src/server/oauth/providers.ts

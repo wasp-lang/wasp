@@ -23,10 +23,14 @@ export const createClientAdapter: ClientAdapterFactory<
 
 // PUBLIC API -- the surface `wasp/client/auth` re-exports.
 export {
+  linkEmail,
+  linkUsername,
   login,
   requestPasswordReset,
   resetPassword,
   signup,
+  startOAuthLink,
+  unlink,
   verifyEmail,
 } from "./actions.js";
 export {
