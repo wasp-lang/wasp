@@ -340,28 +340,28 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "7e63f5649c418c88d69204313b0a31d40dce6a6037394dde01cf806d2b672eab"
+        "c113a94a370aa44c8653cd570bb8b6fcc8042735872207e03806790d49df0a3a"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "91715e7d9d9b7b30c81fe61f801cc544472b8f944148a3b7aa5cff93be3fa8b8"
+        "c1f5639079fdc9860463228e7a68b5a8b82db324cee5514eb5833a7226dbd343"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "a8800054838706f2099e575b0378762a94cbb0c82a1e94d98f0e27f38cf51a44"
+        "78831294723eaff84804ca1be94b7de4610d65c695033ed29f1334a0ae470ca6"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "9a0c1f4032ce91549bbcd95630c9da24e27cbc710c95c3c9150bdcf570210b03"
+        "f5d2a0764bdf938897d1dcecd0ed62318cfbf2df0b5b21b409fa0342010b7ba4"
     ],
     [
         [

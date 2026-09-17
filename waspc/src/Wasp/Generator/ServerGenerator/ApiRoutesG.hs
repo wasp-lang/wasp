@@ -21,6 +21,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (getAliasedJsImportStmtAndIdentifier)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
@@ -51,7 +52,7 @@ genApiRoutes spec =
     getNamespaceTmplData :: (String, ApiNamespace.ApiNamespace) -> Aeson.Value
     getNamespaceTmplData (namespaceName, namespace) =
       object
-        [ "namespacePath" .= ApiNamespace.path namespace,
+        [ "namespacePath" .= makeJsStringLiteral (ApiNamespace.path namespace),
           "namespaceMiddlewareConfigFnImportStatement" .= middlewareConfigFnImport,
           "namespaceMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
@@ -63,7 +64,7 @@ genApiRoutes spec =
     getApiRoutesTmplData (apiName, api) =
       object
         [ "routeMethod" .= map toLower (show $ Api.method api),
-          "routePath" .= Api.path api,
+          "routePath" .= makeJsStringLiteral (Api.path api),
           "importStatement" .= jsImportStmt,
           "importIdentifier" .= jsImportIdentifier,
           "entities" .= getApiEntitiesObject api,

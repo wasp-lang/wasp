@@ -26,6 +26,7 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
@@ -144,7 +145,7 @@ genLoginSignupForm auth =
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+        [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,

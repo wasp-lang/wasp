@@ -44,8 +44,8 @@ export const contextWithUserEntity = {
 
 // PRIVATE API
 export const authConfig = {
-  failureRedirectPath: "{= failureRedirectPath =}",
-  successRedirectPath: "{= successRedirectPath =}",
+  failureRedirectPath: {=& failureRedirectPath =},
+  successRedirectPath: {=& successRedirectPath =},
 }
 
 // PUBLIC API

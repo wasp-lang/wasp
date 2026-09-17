@@ -6,7 +6,7 @@ import { RouterProvider } from "react-router/dom";
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
 
-import { routeObjects } from '/@wasp/routes.tsx'
+import { routeObjects } from "/@wasp/routes.tsx"
 
 const router = createBrowserRouter(routeObjects, {
   basename: "/",

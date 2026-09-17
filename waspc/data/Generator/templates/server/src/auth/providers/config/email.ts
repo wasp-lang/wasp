@@ -52,8 +52,8 @@ const _waspGetPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({ pas
 {=/ getPasswordResetEmailContent.isDefined =}
 
 const fromField: EmailFromField = {
-    name: '{= fromField.name =}',
-    email: '{= fromField.email =}',
+    name: {=& fromField.name =},
+    email: {=& fromField.email =},
 };
 
 const config: ProviderConfig = {
@@ -68,7 +68,7 @@ const config: ProviderConfig = {
         const signupRoute = defineHandler(getSignupRoute({
             userSignupFields: _waspUserSignupFields,
             fromField,
-            clientRoute: '{= emailVerificationClientRoute =}',
+            clientRoute: {=& emailVerificationClientRoute =},
             getVerificationEmailContent: _waspGetVerificationEmailContent,
             {=# isDevelopment =}
             isEmailAutoVerified: env.SKIP_EMAIL_VERIFICATION_IN_DEV,
@@ -81,7 +81,7 @@ const config: ProviderConfig = {
 
         const requestPasswordResetRoute = defineHandler(getRequestPasswordResetRoute({
             fromField,
-            clientRoute: '{= passwordResetClientRoute =}',
+            clientRoute: {=& passwordResetClientRoute =},
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,
         }));
         router.post('/request-password-reset', requestPasswordResetRoute);

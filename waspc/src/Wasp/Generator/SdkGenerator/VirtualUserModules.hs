@@ -26,6 +26,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
 import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 {-
 This module allows the SDK to use the user project values (ext imports).
@@ -156,7 +157,7 @@ mkVirtualUserModulePluginData ::
   Aeson.Value
 mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
   object
-    [ "virtualModuleId" .= getVirtualUserModuleId virtualUserModule,
+    [ "virtualModuleId" .= makeJsStringLiteral (getVirtualUserModuleId virtualUserModule),
       "importJson" .= extImportToImportJson (extImport virtualUserModule)
     ]
 
@@ -167,7 +168,7 @@ mkVirtualUserModulesDeclarationData spec =
   where
     mkDeclarationData virtualUserModule =
       object
-        [ "virtualModuleId" .= getVirtualUserModuleId virtualUserModule,
+        [ "virtualModuleId" .= makeJsStringLiteral (getVirtualUserModuleId virtualUserModule),
           "exportName" .= getVirtualUserModuleExportName virtualUserModule,
           "isDefaultExport" .= isDefaultExport virtualUserModule,
           "declaredType" .= getDeclaredTypeExpression virtualUserModule
