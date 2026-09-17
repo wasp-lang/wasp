@@ -42,7 +42,7 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
 export default prerenderApp;
 
 const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
-  basename: "{= baseDir =}",
+  basename: {=& baseDir =},
 });
 
 async function makeStaticRouterProvider(route: string) {

@@ -1,6 +1,6 @@
 import { prisma } from 'wasp/server'
 
-import { getTrueVoid } from '../../../../../src/rpcTests/operations/definitions'
+import { getTrueVoid } from "../../../../../src/rpcTests/operations/definitions"
 
 
 export default async function (args, context) {

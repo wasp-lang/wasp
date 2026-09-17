@@ -13,7 +13,7 @@ export function OAuthCallbackPage() {
   const { error, user } = useOAuthCallbackHandler();
 
   if (user !== undefined && user !== null) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={"/"} replace />;
   }
 
 

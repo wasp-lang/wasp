@@ -17,7 +17,7 @@ export const createAuthRequiredPage = (Page) => {
         if (user) {
           return <Page {...props} user={user} />
         } else {
-          return <Navigate to="{= onAuthFailedRedirectTo =}" replace />
+          return <Navigate to={{=& onAuthFailedRedirectTo =}} replace />
         }
       case 'loading':
         return (

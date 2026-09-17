@@ -47,7 +47,7 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: ['wasp', '@wasp.sh/lib-auth', '@wasp.sh/lib-vite-ssr']
+          exclude: ["wasp", "@wasp.sh/lib-auth", "@wasp.sh/lib-vite-ssr"]
         },
         server: {
           port: forcedOptions["server.port"],
@@ -89,7 +89,7 @@ export function waspConfig(): PluginOption {
         test: {
           globals: useUserValue(config.test?.globals, true),
           environment: useUserValue(config.test?.environment, "jsdom"),
-          setupFiles: ['wasp/client/test/setup'],
+          setupFiles: ["wasp/client/test/setup"],
           exclude: [
             ...defaultExclude,
             ".wasp/**/*",
