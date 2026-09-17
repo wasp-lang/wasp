@@ -22,4 +22,5 @@ spec_UrlPath = do
     it "stops at a named parameter" $ getStaticPathPrefix "/files/:id/raw" `shouldBe` "/files"
     it "stops at a wildcard" $ getStaticPathPrefix "/files/*path" `shouldBe` "/files"
     it "stops at a segment with an optional part" $ getStaticPathPrefix "/files/raw{.:ext}" `shouldBe` "/files"
+    it "stops at a segment with an escaped character" $ getStaticPathPrefix "/files/u\\p" `shouldBe` "/files"
     it "returns the root when the path starts with a pattern" $ getStaticPathPrefix "/:id" `shouldBe` "/"
