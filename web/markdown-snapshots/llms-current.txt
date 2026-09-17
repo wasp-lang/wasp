@@ -16,7 +16,7 @@
 - [7. Adding authentication](https://wasp.sh/docs/tutorial/auth.md)
 ### Features
 - [Wasp Spec (main.wasp.ts)](https://wasp.sh/docs/features/spec.md)
-- [Routes](https://wasp.sh/docs/features/routes.md)
+- [Pages and routes](https://wasp.sh/docs/features/pages-and-routes.md)
 #### Data
 - [Entities](https://wasp.sh/docs/features/data/entities.md)
 ##### Operations
@@ -54,7 +54,6 @@
 - [API routes](https://wasp.sh/docs/features/apis.md)
 ### Advanced
 - [Dependencies](https://wasp.sh/docs/advanced/dependencies.md)
-- [Type-safe links](https://wasp.sh/docs/advanced/links.md)
 - [Worktrees](https://wasp.sh/docs/advanced/git-worktrees.md)
 - [Environment variables](https://wasp.sh/docs/advanced/env-vars.md)
 - [Testing](https://wasp.sh/docs/advanced/testing.md)
