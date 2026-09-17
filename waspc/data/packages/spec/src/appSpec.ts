@@ -141,8 +141,7 @@ export type HttpMethod =
   | "PUT"
   | "PATCH"
   | "DELETE"
-  | "HEAD"
-  | "OPTIONS";
+  | "HEAD";
 
 export type HttpRoute = [HttpMethod, string];
 

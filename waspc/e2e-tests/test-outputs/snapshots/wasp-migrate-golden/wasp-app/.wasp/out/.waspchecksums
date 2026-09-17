@@ -144,7 +144,7 @@
             "file",
             "sdk/wasp/client/index.ts"
         ],
-        "94b24bcafb867d82cc0acf844595f93f41358a0fa22e53d13fd746bc04235085"
+        "8694b0f82c7786a4bf476d7d09df3cfbd7a3c8b218aa8b8ad2a3df7ea3c56080"
     ],
     [
         [
@@ -277,7 +277,7 @@
             "file",
             "sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "1dede682c9e8a17a1c8154a669e5373da127a99d4245140358137ce4e6817d57"
+        "755a0f4e6bd0d526724ce85941c258587de7c7d4841337a66cd3fd9b2438f02f"
     ],
     [
         [

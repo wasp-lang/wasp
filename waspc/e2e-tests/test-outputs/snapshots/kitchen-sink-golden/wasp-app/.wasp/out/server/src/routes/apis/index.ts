@@ -10,8 +10,6 @@ import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreaming
 
 import { fooBar as _waspfooBarfn } from "../../../../../../src/features/apis/apis"
 import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
-import { optionsFooBaz as _waspoptionsFooBazfn } from "../../../../../../src/features/apis/apis"
-import { optionsFooBazMiddlewareFn as _waspoptionsFooBazmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
 import { headBarBaz as _waspheadBarBazfn } from "../../../../../../src/features/apis/apis"
 import { barBaz as _waspbarBazfn } from "../../../../../../src/features/apis/apis"
 import { patchBarBaz as _wasppatchBarBazfn } from "../../../../../../src/features/apis/apis"
@@ -47,23 +45,6 @@ router.all(
         },
       }
       return _waspfooBarfn(req, res, context)
-    }
-  )
-)
-const optionsFooBazMiddleware = globalMiddlewareConfigForExpress(_waspoptionsFooBazmiddlewareConfigFn)
-router.options(
-  "/foo/baz",
-  optionsFooBazMiddleware,
-  defineHandler(
-    (
-      req: Parameters<typeof _waspoptionsFooBazfn>[0],
-      res: Parameters<typeof _waspoptionsFooBazfn>[1],
-    ) => {
-      const context = {
-        entities: {
-        },
-      }
-      return _waspoptionsFooBazfn(req, res, context)
     }
   )
 )
