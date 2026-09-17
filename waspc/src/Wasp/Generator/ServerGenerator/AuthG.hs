@@ -46,7 +46,7 @@ import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToAliasedImportJson)
 import qualified Wasp.JsImport as JI
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -75,8 +75,8 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     tmplData =
       object
         [ "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "meRouteInAuthRouter" .= ServerRoutes.meRouteInAuthRouter,
-          "logoutRouteInAuthRouter" .= ServerRoutes.logoutRouteInAuthRouter
+          "meRouteInAuthRouter" .= AuthRoutes.meRouteInAuthRouter,
+          "logoutRouteInAuthRouter" .= AuthRoutes.logoutRouteInAuthRouter
         ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

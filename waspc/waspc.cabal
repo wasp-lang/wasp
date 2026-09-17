@@ -387,6 +387,13 @@ library
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.ServerRoutes
+    Wasp.ServerRoutes.Auth
+    Wasp.ServerRoutes.Crud
+    Wasp.ServerRoutes.Liveness
+    Wasp.ServerRoutes.Operations
+    Wasp.ServerRoutes.ServerRoute
+    Wasp.ServerRoutes.UserApi
+    Wasp.ServerRoutes.WebSocket
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad
@@ -618,6 +625,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    ServerRoutes.ServerRouteTest
     ServerRoutesTest
     Util.Control.MonadTest
     Util.DockerTest

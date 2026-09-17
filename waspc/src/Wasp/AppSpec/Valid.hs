@@ -46,6 +46,8 @@ import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
+import qualified Wasp.ServerRoutes.UserApi as UserApiRoutes
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
@@ -409,10 +411,10 @@ validateWebAppBaseDir spec = case maybeBaseDir of
 -- the static beginning of its path, so this can warn about a pattern that would not really match.
 validateUserApisDoNotCollideWithWaspRoutes :: AppSpec -> [ValidationError]
 validateUserApisDoNotCollideWithWaspRoutes spec =
-  concat $ zipWith validateUserApi (AS.getApis spec) (ServerRoutes.getUserApiRoutes spec)
+  concat $ zipWith validateUserApi (AS.getApis spec) (UserApiRoutes.getUserApiRoutes spec)
   where
     validateUserApi (apiName, api) userApiRoute =
-      case filter (ServerRoutes.doRoutesOverlap userApiRoute) waspServerRoutes of
+      case filter (ServerRoute.doRoutesOverlap userApiRoute) waspServerRoutes of
         [] -> []
         (shadowingRoute : otherShadowingRoutes) ->
           [ GenericValidationWarning $
@@ -421,7 +423,7 @@ validateUserApisDoNotCollideWithWaspRoutes spec =
                 ++ "' has path "
                 ++ show (AS.Api.path api)
                 ++ ", which matches Wasp's own route "
-                ++ show (ServerRoutes.getRoutePath shadowingRoute)
+                ++ show (ServerRoute.getRoutePath shadowingRoute)
                 ++ showNumberOfOtherRoutes (length otherShadowingRoutes)
                 ++ ", so Wasp's route would answer instead of the api."
           ]

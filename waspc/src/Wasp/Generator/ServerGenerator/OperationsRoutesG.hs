@@ -28,7 +28,7 @@ import Wasp.JsImport
     getJsImportStmtAndIdentifier,
     makeValueJsImport,
   )
-import Wasp.ServerRoutes (operationRouteInOperationsRouter)
+import Wasp.ServerRoutes.Operations (operationRouteInOperationsRouter)
 
 genOperationsRoutes :: AppSpec -> Generator [FileDraft]
 genOperationsRoutes spec =

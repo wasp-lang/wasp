@@ -14,7 +14,8 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -42,7 +43,7 @@ genLoginAction =
       (emailAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
       tmplData
   where
-    tmplData = object ["loginPath" .= ServerRoutes.getRoutePath ServerRoutes.emailLoginRoute]
+    tmplData = object ["loginPath" .= ServerRoute.getRoutePath AuthRoutes.emailLoginRoute]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
@@ -53,7 +54,7 @@ genSignupAction auth =
   where
     tmplData =
       object
-        [ "signupPath" .= ServerRoutes.getRoutePath ServerRoutes.emailSignupRoute,
+        [ "signupPath" .= ServerRoute.getRoutePath AuthRoutes.emailSignupRoute,
           "isEmailUserSignupFieldsDefined" .= isJust emailUserSignupFields
         ]
     emailUserSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
@@ -68,8 +69,8 @@ genPasswordResetActions =
   where
     tmplData =
       object
-        [ "requestPasswordResetPath" .= ServerRoutes.getRoutePath ServerRoutes.emailRequestPasswordResetRoute,
-          "resetPasswordPath" .= ServerRoutes.getRoutePath ServerRoutes.emailResetPasswordRoute
+        [ "requestPasswordResetPath" .= ServerRoute.getRoutePath AuthRoutes.emailRequestPasswordResetRoute,
+          "resetPasswordPath" .= ServerRoute.getRoutePath AuthRoutes.emailResetPasswordRoute
         ]
 
 genVerifyEmailAction :: Generator FileDraft
@@ -79,7 +80,7 @@ genVerifyEmailAction =
       (emailAuthDirInSdkTemplatesDir </> [relfile|actions/verifyEmail.ts|])
       tmplData
   where
-    tmplData = object ["verifyEmailPath" .= ServerRoutes.getRoutePath ServerRoutes.emailVerifyEmailRoute]
+    tmplData = object ["verifyEmailPath" .= ServerRoute.getRoutePath AuthRoutes.emailVerifyEmailRoute]
 
 emailAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 emailAuthDirInSdkTemplatesDir = [reldir|auth/email|]

@@ -19,7 +19,8 @@ import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as WS
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 import Wasp.Util ((<++>))
 import Wasp.Util.Js (makeJsStringLiteral)
 
@@ -102,7 +103,7 @@ genOAuthCallbackPage auth =
       [relfile|client/app/pages/OAuthCallback.tsx|]
       ( object
           [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
-            "exchangeCodePath" .= ServerRoutes.getRoutePath ServerRoutes.exchangeCodeRoute
+            "exchangeCodePath" .= ServerRoute.getRoutePath AuthRoutes.exchangeCodeRoute
           ]
       )
 

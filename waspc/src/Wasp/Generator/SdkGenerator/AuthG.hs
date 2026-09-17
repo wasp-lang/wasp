@@ -25,7 +25,8 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -70,7 +71,7 @@ genUseAuth auth =
     tmplData =
       object
         [ "entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName],
-          "getMeRelativePath" .= ServerRoutes.getRoutePathWithoutLeadingSlash ServerRoutes.meRoute
+          "getMeRelativePath" .= ServerRoute.getRoutePathWithoutLeadingSlash AuthRoutes.meRoute
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
@@ -81,7 +82,7 @@ genLogout =
       (authDirInSdkTemplatesDir </> [relfile|logout.ts|])
       tmplData
   where
-    tmplData = object ["logoutPath" .= ServerRoutes.getRoutePath ServerRoutes.logoutRoute]
+    tmplData = object ["logoutPath" .= ServerRoute.getRoutePath AuthRoutes.logoutRoute]
 
 genUserTs :: AS.Auth.Auth -> Generator FileDraft
 genUserTs auth =

@@ -24,13 +24,15 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.Project.BuildType as BuildType
-import Wasp.ServerRoutes
+import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import Wasp.ServerRoutes.ServerRoute
   ( ServerRoute (..),
     ServerRouteHttpMethods (..),
     ServerRouteOwner (..),
     ServerRoutePath (..),
   )
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.UserApi as UserApiRoutes
 
 spec_ServerRoutes :: Spec
 spec_ServerRoutes = do
@@ -68,7 +70,7 @@ spec_ServerRoutes = do
 
     it "lists the username routes when username and password auth is used" $ do
       let spec = makeSpec basicApp {AS.App.auth = Just authWithUsernameAndPassword} []
-      map showRoute (ServerRoutes.getAuthRoutes spec)
+      map showRoute (AuthRoutes.getAuthRoutes spec)
         `shouldBe` [ "GET,HEAD /auth/me",
                      "POST /auth/logout",
                      "POST /auth/username/login",
@@ -76,7 +78,7 @@ spec_ServerRoutes = do
                    ]
 
   describe "getUserApiRoutes" $ do
-    let getApiRoutes httpRoute = ServerRoutes.getUserApiRoutes $ makeSpec basicApp [AS.Decl.makeDecl "myApi" $ makeApi httpRoute]
+    let getApiRoutes httpRoute = UserApiRoutes.getUserApiRoutes $ makeSpec basicApp [AS.Decl.makeDecl "myApi" $ makeApi httpRoute]
 
     it "spells out an api path that has no pattern in it" $ do
       getApiRoutes (AS.Api.POST, "/webhooks/stripe")
@@ -92,26 +94,6 @@ spec_ServerRoutes = do
     it "lists Wasp's routes ahead of the user's apis" $ do
       let spec = makeSpec basicApp [AS.Decl.makeDecl "myApi" $ makeApi (AS.Api.POST, "/webhook")]
       map showRoute (ServerRoutes.getServerRoutes spec) `shouldBe` ["GET,HEAD /up", "POST /webhook"]
-
-  describe "doRoutesOverlap" $ do
-    let exactRoute httpMethods = ServerRoute (UserApiRoute "a") httpMethods . ExactPath
-    let subtreeRoute httpMethods = ServerRoute (UserApiRoute "b") httpMethods . SubtreePath
-    let onlyPost = OnlyHttpMethods [AS.Api.POST]
-
-    it "is true for the same path and method" $
-      ServerRoutes.doRoutesOverlap (exactRoute onlyPost "/foo") (exactRoute onlyPost "/foo") `shouldBe` True
-    it "ignores casing and trailing slashes, as Express does" $
-      ServerRoutes.doRoutesOverlap (exactRoute onlyPost "/foo") (exactRoute onlyPost "/FOO/") `shouldBe` True
-    it "is false when the routes share no method" $
-      ServerRoutes.doRoutesOverlap (exactRoute onlyPost "/foo") (exactRoute getAndHead "/foo") `shouldBe` False
-    it "is true when one of the routes answers on any method" $
-      ServerRoutes.doRoutesOverlap (exactRoute AnyHttpMethod "/foo") (exactRoute getAndHead "/foo") `shouldBe` True
-    it "is true for a path under a subtree" $
-      ServerRoutes.doRoutesOverlap (exactRoute onlyPost "/foo/bar") (subtreeRoute onlyPost "/foo") `shouldBe` True
-    it "is false for a path that only starts with the same letters as a subtree" $
-      ServerRoutes.doRoutesOverlap (exactRoute onlyPost "/foobar") (subtreeRoute onlyPost "/foo") `shouldBe` False
-    it "is true for a subtree inside another subtree" $
-      ServerRoutes.doRoutesOverlap (subtreeRoute onlyPost "/foo/bar") (subtreeRoute onlyPost "/foo") `shouldBe` True
 
   describe "mayServerHaveRoutesUnknownToWasp" $ do
     it "is false without a server setupFn" $

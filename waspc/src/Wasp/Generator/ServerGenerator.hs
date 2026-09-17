@@ -73,7 +73,10 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.Crud as CrudRoutes
+import qualified Wasp.ServerRoutes.Liveness as LivenessRoutes
+import qualified Wasp.ServerRoutes.Operations as OperationRoutes
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -291,10 +294,10 @@ genRoutesIndex spec =
   where
     tmplData =
       object
-        [ "authRouteInRootRouter" .= ServerRoutes.authRouteInRootRouter,
-          "operationsRouteInRootRouter" .= ServerRoutes.operationsRouteInRootRouter,
-          "crudRouteInRootRouter" .= ServerRoutes.crudRouteInRootRouter,
-          "upRouteInRootRouter" .= ServerRoutes.upRouteInRootRouter,
+        [ "authRouteInRootRouter" .= AuthRoutes.authRouteInRootRouter,
+          "operationsRouteInRootRouter" .= OperationRoutes.operationsRouteInRootRouter,
+          "crudRouteInRootRouter" .= CrudRoutes.crudRouteInRootRouter,
+          "upRouteInRootRouter" .= LivenessRoutes.upRouteInRootRouter,
           "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),

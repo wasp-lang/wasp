@@ -26,7 +26,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
 import Wasp.Util ((<++>))
 
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -67,10 +67,10 @@ genRedirectHelper =
   where
     tmplData =
       object
-        [ "authRouteInRootRouter" .= ServerRoutes.authRouteInRootRouter,
-          "loginRouteInAuthProviderRouter" .= ServerRoutes.loginRouteInAuthProviderRouter,
-          "callbackRouteInAuthProviderRouter" .= ServerRoutes.callbackRouteInAuthProviderRouter,
-          "exchangeCodeRouteInAuthRouter" .= ServerRoutes.exchangeCodeRouteInAuthRouter,
+        [ "authRouteInRootRouter" .= AuthRoutes.authRouteInRootRouter,
+          "loginRouteInAuthProviderRouter" .= AuthRoutes.loginRouteInAuthProviderRouter,
+          "callbackRouteInAuthProviderRouter" .= AuthRoutes.callbackRouteInAuthProviderRouter,
+          "exchangeCodeRouteInAuthRouter" .= AuthRoutes.exchangeCodeRouteInAuthRouter,
           "clientOAuthCallbackPath" .= clientOAuthCallbackPath
         ]
 

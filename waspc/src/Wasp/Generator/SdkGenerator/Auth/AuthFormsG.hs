@@ -24,7 +24,8 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 import Wasp.Util ((<++>))
 import Wasp.Util.Js (makeJsStringLiteral)
 
@@ -149,12 +150,12 @@ genLoginSignupForm auth =
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "slackSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute slackAuthProvider),
-          "discordSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute discordAuthProvider),
-          "googleSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute googleAuthProvider),
-          "keycloakSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute keycloakAuthProvider),
-          "gitHubSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute gitHubAuthProvider),
-          "microsoftSignInPath" .= ServerRoutes.getRoutePath (ServerRoutes.oAuthLoginRoute microsoftAuthProvider),
+          "slackSignInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute slackAuthProvider),
+          "discordSignInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute discordAuthProvider),
+          "googleSignInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute googleAuthProvider),
+          "keycloakSignInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute keycloakAuthProvider),
+          "gitHubSignInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute gitHubAuthProvider),
+          "microsoftSignInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute microsoftAuthProvider),
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
