@@ -5,6 +5,7 @@ import {
 import * as arctic from 'arctic';
 
 import type { ProviderConfig } from 'wasp/auth/providers/types';
+import { HttpError } from 'wasp/server';
 
 import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
 
@@ -95,17 +96,19 @@ function validateOAuthState(
   req: ExpressRequest,
   state: OAuthStateWithCodeFor<OAuthType>
 ): void {
-  if (typeof state.code !== 'string') {
-    throw new Error('Invalid code');
+  // NOTE: `getCode` stringifies the query param, so a missing `code`
+  // arrives as the string "undefined" instead of failing the type check.
+  if (typeof state.code !== 'string' || state.code === '' || state.code === 'undefined') {
+    throw new HttpError(400, 'Unable to login with the OAuth provider. The authorization code is missing or invalid.');
   }
 
   const storedState = getOAuthCookieValue(provider, req, 'state');
   if (!state.state || !storedState || storedState !== state.state) {
-    throw new Error('Invalid state');
+    throw new HttpError(400, 'Unable to login with the OAuth provider. The state is invalid.');
   }
 
   if (isOAuthStateWithPKCE(state) && !state.codeVerifier) {
-    throw new Error('Missing code verifier');
+    throw new HttpError(400, 'Unable to login with the OAuth provider. The code verifier is missing.');
   }
 }
 
