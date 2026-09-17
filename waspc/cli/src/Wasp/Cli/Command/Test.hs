@@ -13,7 +13,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Command.Watch (WatchCompileHooks (..), watch)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import qualified Wasp.Generator
@@ -45,7 +45,12 @@ watchAndTest testRunner = withProjectLock $ do
 
   watchOrStartResult <- liftIO $ do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
-    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar
+    let watchCompileHooks =
+          WatchCompileHooks
+            { _onSuccessfulCompile = const $ return (),
+              _onFailedCompile = const $ return ()
+            }
+    let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar watchCompileHooks
 
     -- Vitest must run from the root of the project because Vite won't resolve
     -- files outside of the project root (in this case, user src/ dir which the

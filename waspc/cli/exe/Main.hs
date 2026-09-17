@@ -2,7 +2,6 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
-import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
@@ -38,6 +37,7 @@ import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
+import Wasp.Cli.ExceptionHandling (withExceptionReporting)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
@@ -45,7 +45,7 @@ import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
 main :: IO ()
-main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+main = withUtf8 $ withExceptionReporting $ do
   -- If we don't explicitly set line buffering, the output gets block-buffered
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.
@@ -112,11 +112,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     threadDelaySeconds =
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
-
-    handleInternalErrors :: E.ErrorCall -> IO ()
-    handleInternalErrors e = do
-      putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
-      exitFailure
 
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.

@@ -1,11 +1,18 @@
 module Wasp.Job.Subprocess
-  ( runChecked,
+  ( Subprocess,
+    runChecked,
     runReturningExitCode,
+    spawn,
+    wait,
+    poll,
+    stop,
+    ProcessTreeDidNotStop (..),
   )
 where
 
 import Control.Concurrent.Async (Concurrently (..))
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Resource (ReleaseKey, allocate, release)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
@@ -14,6 +21,10 @@ import System.Exit (ExitCode)
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
 import Wasp.Job (JobAction, JobOutputKind (..), getJobOutputSink, requireExitSuccess, writeJobOutput)
+import Wasp.Job.Subprocess.Managed (ProcessTreeDidNotStop (..))
+import qualified Wasp.Job.Subprocess.Managed as Managed
+
+data Subprocess = Subprocess ReleaseKey Managed.ManagedSubprocess
 
 -- | Runs the process to completion, failing the Job on a nonzero child exit.
 runChecked :: P.CreateProcess -> JobAction ()
@@ -52,3 +63,18 @@ runReturningExitCode process = do
       CP.getStreamingProcessExitCode streamingProcessHandle >>= \case
         Just _ -> return ()
         Nothing -> P.terminateProcess processHandle
+
+spawn :: P.CreateProcess -> JobAction Subprocess
+spawn createProcess = do
+  outputSink <- getJobOutputSink
+  (releaseKey, subprocess) <- allocate (Managed.start createProcess outputSink) Managed.stop
+  return $ Subprocess releaseKey subprocess
+
+wait :: Subprocess -> IO ExitCode
+wait (Subprocess _ subprocess) = Managed.waitForRootExit subprocess
+
+poll :: Subprocess -> IO (Maybe ExitCode)
+poll (Subprocess _ subprocess) = Managed.pollRootExit subprocess
+
+stop :: Subprocess -> JobAction ()
+stop (Subprocess releaseKey _) = release releaseKey

@@ -12,7 +12,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
-import Data.Either (fromLeft)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -27,6 +26,7 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
+import Wasp.Project (compileResultWarningsAndErrors)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -152,9 +152,7 @@ buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir =
-  fmap (fromLeft [])
-    <$> compileIOWithOptions options waspProjectDir buildDir
+buildIO waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
