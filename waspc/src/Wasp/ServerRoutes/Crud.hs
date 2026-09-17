@@ -11,7 +11,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRouteInNestedRouter)
+import Wasp.ServerRoutes.ServerRoute (ServerRoute, ServerRouteOwner (..), makeWaspRoute)
 
 crudRouteInRootRouter :: String
 crudRouteInRootRouter = "crud"
@@ -29,7 +29,7 @@ crudOperationRouteInCrudRouter operation = case operation of
 
 crudOperationRoute :: String -> AS.Crud.CrudOperation -> ServerRoute
 crudOperationRoute crudName crudOperation =
-  makeWaspRouteInNestedRouter
+  makeWaspRoute
     (CrudRoute crudName)
     AS.Api.POST
     [crudRouteInRootRouter, getCrudOperationRouterRoute crudName, crudOperationRouteInCrudRouter crudOperation]

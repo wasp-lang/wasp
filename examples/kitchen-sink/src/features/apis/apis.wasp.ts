@@ -6,8 +6,6 @@ import {
   fooBar,
   fooBarMiddlewareFn,
   headBarBaz,
-  optionsFooBaz,
-  optionsFooBazMiddlewareFn,
   patchBarBaz,
   webhookCallback,
   webhookCallbackMiddlewareFn,
@@ -19,12 +17,6 @@ export const apisSpec: Spec = [
   api("ALL", "/foo/bar", fooBar, {
     middlewareConfigFn: fooBarMiddlewareFn,
     entities: ["Task"],
-  }),
-  // An OPTIONS api can't live under an apiNamespace that keeps the default CORS
-  // middleware, because that middleware answers OPTIONS requests on its own.
-  api("OPTIONS", "/foo/baz", optionsFooBaz, {
-    auth: false,
-    middlewareConfigFn: optionsFooBazMiddlewareFn,
   }),
   apiNamespace("/bar", {
     middlewareConfigFn: barNamespaceMiddlewareFn,
