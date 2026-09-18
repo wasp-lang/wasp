@@ -57,6 +57,24 @@ spec_SrcTsConfig = do
             validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just jsx})})
        in map validateWithJsx ["preserve", "react-jsx"] `shouldBe` [[], []]
 
+    it "accepts any casing TypeScript accepts for enum-like compiler options" $
+      -- TypeScript parses these case-insensitively and normalizes them to
+      -- lowercase (check `tsc --showConfig`).
+      validate
+        ( validTsConfig
+            { T.compilerOptions =
+                Just
+                  ( validCompilerOptions
+                      { T._module = Just "ESNext",
+                        T.moduleResolution = Just "Bundler",
+                        T.moduleDetection = Just "Force",
+                        T.jsx = Just "React-JSX"
+                      }
+                  )
+            }
+        )
+        `shouldBe` []
+
     it "returns an error when `jsx` does not match the bundler's transform" $
       assertReturnsValidationErrorMentioningField "jsx" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.jsx = Just "react"})}
