@@ -19,6 +19,8 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
@@ -54,6 +56,6 @@ genOAuthHelpers auth =
       where
         tmplData =
           object
-            [ "signInPath" .= OAuth.serverLoginUrl provider,
+            [ "signInPath" .= ServerRoute.getRoutePath (AuthRoutes.oAuthLoginRoute provider),
               "displayName" .= OAuth.displayName provider
             ]

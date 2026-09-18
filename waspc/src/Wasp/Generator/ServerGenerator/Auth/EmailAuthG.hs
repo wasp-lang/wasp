@@ -29,6 +29,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
 import Wasp.Util ((<++>))
 import Wasp.Util.Js (makeJsStringLiteral)
 
@@ -59,7 +60,12 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
           "getVerificationEmailContent" .= getVerificationEmailContent,
           "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields,
-          "isDevelopment" .= isDevelopment
+          "isDevelopment" .= isDevelopment,
+          "loginRouteInAuthProviderRouter" .= AuthRoutes.loginRouteInAuthProviderRouter,
+          "signupRouteInAuthProviderRouter" .= AuthRoutes.signupRouteInAuthProviderRouter,
+          "requestPasswordResetRouteInAuthProviderRouter" .= AuthRoutes.requestPasswordResetRouteInAuthProviderRouter,
+          "resetPasswordRouteInAuthProviderRouter" .= AuthRoutes.resetPasswordRouteInAuthProviderRouter,
+          "verifyEmailRouteInAuthProviderRouter" .= AuthRoutes.verifyEmailRouteInAuthProviderRouter
         ]
 
     fromFieldJson =

@@ -45,6 +45,9 @@ import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
+import qualified Wasp.ServerRoutes as ServerRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
+import qualified Wasp.ServerRoutes.UserApi as UserApiRoutes
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
@@ -72,6 +75,7 @@ validateAppSpec spec =
           validateUniqueDeclarationNames spec,
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
+          validateUserApisDoNotCollideWithWaspRoutes spec,
           validateUserNodeVersionRange spec,
           validateAtLeastOneRoute spec,
           validatePrerenderRoutes spec
@@ -399,6 +403,35 @@ validateWebAppBaseDir spec = case maybeBaseDir of
     startsWithSlash :: String -> Bool
     startsWithSlash ('/' : _) = True
     startsWithSlash _ = False
+
+-- | Wasp registers its own routes ahead of the user's apis, so an api that some request
+-- could reach through one of Wasp's routes gets shadowed. We throw warnings in such cases.
+--
+-- An api whose path is an Express pattern (e.g. @/operations/:name@) claims everything under
+-- the static beginning of its path, so this can warn about a pattern that would not really match.
+validateUserApisDoNotCollideWithWaspRoutes :: AppSpec -> [ValidationError]
+validateUserApisDoNotCollideWithWaspRoutes spec =
+  concat $ zipWith validateUserApi (AS.getApis spec) (UserApiRoutes.getUserApiRoutes spec)
+  where
+    validateUserApi (apiName, api) userApiRoute =
+      case filter (ServerRoute.doRoutesOverlap userApiRoute) waspServerRoutes of
+        [] -> []
+        (shadowingRoute : otherShadowingRoutes) ->
+          [ GenericValidationWarning $
+              "The api '"
+                ++ apiName
+                ++ "' has path "
+                ++ show (AS.Api.path api)
+                ++ ", which matches Wasp's own route "
+                ++ show (ServerRoute.getRoutePath shadowingRoute)
+                ++ showNumberOfOtherRoutes (length otherShadowingRoutes)
+                ++ ", so Wasp's route would answer instead of the api."
+          ]
+
+    showNumberOfOtherRoutes 0 = ""
+    showNumberOfOtherRoutes numberOfOtherRoutes = " (and " ++ show numberOfOtherRoutes ++ " more)"
+
+    waspServerRoutes = ServerRoutes.getWaspServerRoutes spec
 
 validateUserNodeVersionRange :: AppSpec -> [ValidationError]
 validateUserNodeVersionRange spec =

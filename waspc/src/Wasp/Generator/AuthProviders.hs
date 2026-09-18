@@ -71,6 +71,20 @@ microsoftAuthProvider =
       OA._requiredScope = ["openid", "profile", "email"]
     }
 
+getEnabledOAuthProviders :: AS.Auth.Auth -> [OA.OAuthAuthProvider]
+getEnabledOAuthProviders auth =
+  [ provider
+  | (isProviderEnabled, provider) <-
+      [ (AS.Auth.isSlackAuthEnabled, slackAuthProvider),
+        (AS.Auth.isDiscordAuthEnabled, discordAuthProvider),
+        (AS.Auth.isGoogleAuthEnabled, googleAuthProvider),
+        (AS.Auth.isKeycloakAuthEnabled, keycloakAuthProvider),
+        (AS.Auth.isGitHubAuthEnabled, gitHubAuthProvider),
+        (AS.Auth.isMicrosoftAuthEnabled, microsoftAuthProvider)
+      ],
+    isProviderEnabled auth
+  ]
+
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object

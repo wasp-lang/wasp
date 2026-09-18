@@ -63,7 +63,7 @@ const config: ProviderConfig = {
         const router = Router();
 
         const loginRoute = defineHandler(getLoginRoute());
-        router.post('/login', loginRoute);
+        router.post('/{= loginRouteInAuthProviderRouter =}', loginRoute);
 
         const signupRoute = defineHandler(getSignupRoute({
             userSignupFields: _waspUserSignupFields,
@@ -77,17 +77,17 @@ const config: ProviderConfig = {
             isEmailAutoVerified: false,
             {=/ isDevelopment =}
         }));
-        router.post('/signup', signupRoute);
+        router.post('/{= signupRouteInAuthProviderRouter =}', signupRoute);
 
         const requestPasswordResetRoute = defineHandler(getRequestPasswordResetRoute({
             fromField,
             clientRoute: {=& passwordResetClientRoute =},
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,
         }));
-        router.post('/request-password-reset', requestPasswordResetRoute);
+        router.post('/{= requestPasswordResetRouteInAuthProviderRouter =}', requestPasswordResetRoute);
 
-        router.post('/reset-password', defineHandler(resetPassword));
-        router.post('/verify-email', defineHandler(verifyEmail));
+        router.post('/{= resetPasswordRouteInAuthProviderRouter =}', defineHandler(resetPassword));
+        router.post('/{= verifyEmailRouteInAuthProviderRouter =}', defineHandler(verifyEmail));
 
         return router;
     },

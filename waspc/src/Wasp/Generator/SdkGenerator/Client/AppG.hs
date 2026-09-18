@@ -19,6 +19,8 @@ import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Generator.WebSocket as WS
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 import Wasp.Util ((<++>))
 import Wasp.Util.Js (makeJsStringLiteral)
 
@@ -99,7 +101,11 @@ genOAuthCallbackPage auth =
   return $
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
-      (object ["onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth)])
+      ( object
+          [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
+            "exchangeCodePath" .= ServerRoute.getRoutePath AuthRoutes.exchangeCodeRoute
+          ]
+      )
 
 genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =

@@ -7,8 +7,6 @@ import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (localAuthProvider)
-import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -16,6 +14,8 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import qualified Wasp.ServerRoutes.Auth as AuthRoutes
+import qualified Wasp.ServerRoutes.ServerRoute as ServerRoute
 import Wasp.Util ((<++>))
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -41,7 +41,7 @@ genLoginAction =
       (localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
       tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
+    tmplData = object ["loginPath" .= ServerRoute.getRoutePath AuthRoutes.usernameLoginRoute]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
@@ -52,7 +52,7 @@ genSignupAction auth =
   where
     tmplData =
       object
-        [ "signupPath" .= serverSignupUrl localAuthProvider,
+        [ "signupPath" .= ServerRoute.getRoutePath AuthRoutes.usernameSignupRoute,
           "isUsernameAndPasswordUserSignupFieldsDefined" .= isJust usernameAndPasswordUserSignupFields
         ]
     usernameAndPasswordUserSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
