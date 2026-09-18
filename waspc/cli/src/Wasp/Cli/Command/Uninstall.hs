@@ -17,6 +17,7 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Cli.Interactive (getInteractiveLine)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -65,7 +66,7 @@ removeWaspFiles = do
           "Are you sure you want to continue? [y/N]"
         ]
 
-    answer <- getLine
+    answer <- getInteractiveLine
     when (answer /= "y") $ die "Aborted."
 
     mapM_ deleteDirectoryIfExists dirsToRemove
