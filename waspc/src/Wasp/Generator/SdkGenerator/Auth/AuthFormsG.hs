@@ -84,14 +84,12 @@ genInternalAuthComponents auth =
   where
     genFormComponent =
       sequence
-        [ genFileCopyInAuthFormsInternal [relfile|Form.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|Form.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|Form.tsx|]
         ]
 
     genMessageComponent =
       sequence
-        [ genFileCopyInAuthFormsInternal [relfile|Message.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|Message.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|Message.tsx|]
         ]
 
     genEmailComponents =
@@ -117,14 +115,12 @@ genInternalAuthComponents auth =
 
     genSocialButtonComponent =
       sequence
-        [ genFileCopyInAuthFormsInternal [relfile|social/SocialButton.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|social/SocialButton.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|social/SocialButton.tsx|]
         ]
 
     genSocialIconsComponent =
       sequence
-        [ genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.tsx|],
-          genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.tsx|]
         ]
 
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth

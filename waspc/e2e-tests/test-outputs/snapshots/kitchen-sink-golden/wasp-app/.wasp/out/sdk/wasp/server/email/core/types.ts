@@ -1,47 +1,10 @@
-// PRIVATE API
-export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider | ResendEmailProvider | DummyEmailProvider;
-
-// PRIVATE API
-export type SMTPEmailProvider = {
-  type: "smtp";
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-};
-
-// PRIVATE API
-export type SendGridProvider = {
-  type: "sendgrid";
-  apiKey: string;
-};
-
-// PRIVATE API
-export type MailgunEmailProvider = {
-  type: "mailgun";
-  apiKey: string;
-  domain: string;
-  apiUrl?: string;
-};
-
-// PRIVATE API
-export type ResendEmailProvider = {
-  type: "resend";
-  apiKey: string;
-};
-
-// PRIVATE API
-export type DummyEmailProvider = {
-  type: "dummy";
-}
+import type { SentMessageInfo, EmailFromField } from '@wasp.sh/lib-sdk-core/node'
+export { type EmailProvider, type SMTPEmailProvider, type SendGridProvider, type MailgunEmailProvider, type ResendEmailProvider, type DummyEmailProvider, type SentMessageInfo, type EmailFromField } from '@wasp.sh/lib-sdk-core/node'
 
 // PUBLIC API
 export type EmailSender = {
   send: (email: Email) => Promise<SentMessageInfo>;
 };
-
-// PUBLIC API
-export type SentMessageInfo = any;
 
 // PUBLIC API
 export type Email = {
@@ -51,9 +14,3 @@ export type Email = {
   text: string;
   html: string;
 };
-
-// PUBLIC API
-export type EmailFromField = {
-  name?: string;
-  email: string;
-}
