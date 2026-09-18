@@ -48,9 +48,18 @@ checkIfLocalPortIsTaken port =
   ifM
     (Socket.checkIfPortIsInUse socketAddress)
     (return True)
-    (Socket.checkIfPortIsAcceptingConnections socketAddress)
+    isSomebodyListeningOnIt
   where
     socketAddress = Socket.makeLocalHostSocketAddress port
+    -- The port can also be held without anybody properly listening on it, in
+    -- which case connecting to it times out instead of being refused (e.g.
+    -- `nc -l` on macOS). We can't use the port either way, so both "accepted"
+    -- and "timed out" mean taken. Probes with an indeterminate outcome (e.g.
+    -- insufficient permissions) still throw and surface as errors instead of
+    -- being misreported.
+    -- See https://github.com/wasp-lang/wasp/issues/4762.
+    isSomebodyListeningOnIt =
+      (/= Socket.ConnectRefused) <$> Socket.probeConnectResult socketAddress
 
 -- | General setting for all of our logic that checks for free ports. This is
 -- the maximum number of ports we should check for availability before giving up.
