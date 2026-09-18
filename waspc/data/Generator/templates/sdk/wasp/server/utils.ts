@@ -1,8 +1,8 @@
 {{={= =}=}}
-import { sleep } from '@wasp.sh/lib-sdk-core'
-export { sleep } from '@wasp.sh/lib-sdk-core'
 
-import type { Response, RequestHandler } from 'express'
+export { defineHandler, redirect } from '@wasp.sh/lib-sdk-core/node'
+
+export { sleep } from '@wasp.sh/lib-sdk-core'
 
 {=# isAuthEnabled =}
 import type { AuthUserData } from '../auth/user.js'
@@ -20,20 +20,4 @@ declare global {
       {=/ isAuthEnabled =}
     }
   }
-}
-
-/**
- * Simple helper to give the correct types for Express handlers.
- * We define it in the same file as our extension to Request
- * so that it is picked up by TypeScript.
- */
-export const defineHandler = <T extends RequestHandler>(
-  middleware: T
-): T => middleware
-
-export function redirect(res: Response, redirectUri: string)  {
-  return res
-    .status(302)
-    .setHeader("Location", redirectUri)
-    .end();
 }
