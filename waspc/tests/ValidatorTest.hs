@@ -61,6 +61,24 @@ spec_Validator = do
       V.eqJust True <-- Just False ~> ["Expected True but got False."]
       V.eqJust True <-- Nothing ~> ["Missing value, expected True."]
 
+    specify "eqCaseInsensitive" $ do
+      V.eqCaseInsensitive "esnext" <-- "esnext" ~> []
+      V.eqCaseInsensitive "esnext" <-- "ESNext" ~> []
+      V.eqCaseInsensitive "esnext" <-- "commonjs" ~> ["Expected \"esnext\" but got \"commonjs\"."]
+
+    specify "oneOfCaseInsensitive" $ do
+      V.oneOfCaseInsensitive ["preserve", "react-jsx"] <-- "React-JSX" ~> []
+      V.oneOfCaseInsensitive ["preserve", "react-jsx"] <-- "react" ~> ["Expected one of [\"preserve\",\"react-jsx\"] but got \"react\"."]
+
+    specify "eqJustCaseInsensitive" $ do
+      V.eqJustCaseInsensitive "esnext" <-- Just "ESNEXT" ~> []
+      V.eqJustCaseInsensitive "esnext" <-- Just "commonjs" ~> ["Expected \"esnext\" but got \"commonjs\"."]
+      V.eqJustCaseInsensitive "esnext" <-- Nothing ~> ["Missing value, expected \"esnext\"."]
+
+    specify "oneOfJustCaseInsensitive" $ do
+      V.oneOfJustCaseInsensitive ["preserve", "react-jsx"] <-- Just "PRESERVE" ~> []
+      V.oneOfJustCaseInsensitive ["preserve", "react-jsx"] <-- Nothing ~> ["Missing value, expected one of [\"preserve\",\"react-jsx\"]."]
+
     specify "containsAll" $ do
       V.containsAll (["a", "b"] :: [String])
         <-- ["a", "b"]
