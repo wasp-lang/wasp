@@ -1,3 +1,5 @@
+export { isEmailResendAllowed } from "./auth/email/resend.js";
+
 export {
   createProviderId,
   getProviderData,
@@ -75,6 +77,7 @@ export {
 } from "./serialization/types.js";
 export { colorize } from "./utils/ansiColors.js";
 export { isNotNull } from "./utils/predicates.js";
+export { sleep } from "./utils/sleep.js";
 export {
   type Exact,
   type Expand,

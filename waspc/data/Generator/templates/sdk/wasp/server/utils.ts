@@ -1,4 +1,7 @@
 {{={= =}=}}
+import { sleep } from '@wasp.sh/lib-sdk-core'
+export { sleep } from '@wasp.sh/lib-sdk-core'
+
 import type { Response, RequestHandler } from 'express'
 
 {=# isAuthEnabled =}
@@ -27,8 +30,6 @@ declare global {
 export const defineHandler = <T extends RequestHandler>(
   middleware: T
 ): T => middleware
-
-export const sleep = (ms: number): Promise<unknown> => new Promise((r) => setTimeout(r, ms))
 
 export function redirect(res: Response, redirectUri: string)  {
   return res
