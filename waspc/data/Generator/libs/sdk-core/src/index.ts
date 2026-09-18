@@ -26,6 +26,12 @@ export {
   throwValidationError,
 } from "./auth/validation.js";
 export { type ClientConfig } from "./config.js";
+export { defineEnvValidationSchema } from "./env/schema.js";
+export {
+  ensureEnvSchema,
+  formatZodEnvError,
+  getValidatedEnvOrError,
+} from "./env/validation.js";
 export { HttpMethod, type Route } from "./http.js";
 export { HttpError } from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
