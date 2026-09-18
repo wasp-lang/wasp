@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
         ],
-        "d1024cd53e826b432c9d9b896be5fd43391bbaeb7885c758220d524f679bd2f3"
+        "a9ed18608f423b62a96e4f4f187978630c3e3aa469d37f3dd41553e4c276e460"
     ],
     [
         [
@@ -151,14 +151,14 @@
             "file",
             "sdk/wasp/auth/forms/internal/Form.tsx"
         ],
-        "48fd5a32d50b8824efb93b88196578e182af55a7572e49273865689ab78a97b3"
+        "7bb90aacae3ca8def152281d56b84d7633c99723aaef49ffdc8e927a8f16f19f"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/Message.tsx"
         ],
-        "f117f37af6172dd56c4a4fa3df97acedfcb6a8c100d7dee40c269f82b5a40c53"
+        "48787bb4089a564c9a3cdde521cfe40af4f9a5b5b0aa1e545c060a74c0a4ffe2"
     ],
     [
         [
@@ -221,14 +221,14 @@
             "file",
             "sdk/wasp/auth/forms/internal/social/SocialButton.tsx"
         ],
-        "6cf0aa99b3d592c0a531b63008073bd132313bc644855bd1effe4afd7bde1db7"
+        "4c566b78b8256695eaca92fe4e65484283e6eb7aca5eaa634d76740a2b277e5a"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "da059b3ec9f52396c4210be0d559735527e83b5d4a1682615d3efe9c54a5bef4"
+        "be88b350a316111761aeac66be9c6f8b987427eb377e48edb5d4f5efe9c7d480"
     ],
     [
         [
@@ -375,7 +375,7 @@
             "file",
             "sdk/wasp/client/app/components/Loader.tsx"
         ],
-        "ec7b82c4d29320fc7585bccf9af768f76e092d82eea272b11401980a351d232c"
+        "775adfb435b145cb5cf142d7e12be3a43b5894f925e4973407995ff121454db8"
     ],
     [
         [

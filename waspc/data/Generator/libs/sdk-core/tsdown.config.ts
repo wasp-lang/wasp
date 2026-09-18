@@ -10,6 +10,8 @@ export default defineConfig({
   },
   platform: "neutral",
   css: {
+    // Load component styles automatically when importing components.
+    inject: true,
     lightningcss: {
       // Keep CSS hashes stable across checkout paths for snapshot tests.
       projectRoot: import.meta.dirname,
