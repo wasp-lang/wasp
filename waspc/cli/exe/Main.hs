@@ -52,30 +52,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   hSetBuffering stdout LineBuffering
 
   args <- getArgs
-  let commandCall = case args of
-        ("new" : newArgs) -> Command.Call.New newArgs
-        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
-        ("start" : startArgs) -> Command.Call.Start startArgs
-        ["clean"] -> Command.Call.Clean
-        ["install"] -> Command.Call.Install
-        ["compile"] -> Command.Call.Compile
-        ("db" : dbArgs) -> Command.Call.Db dbArgs
-        ["uninstall"] -> Command.Call.Uninstall
-        ["version"] -> Command.Call.Version
-        ["doctor"] -> Command.Call.Doctor
-        ["build"] -> Command.Call.Build
-        ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
-        ["telemetry"] -> Command.Call.Telemetry
-        ["deps"] -> Command.Call.Deps
-        ["dockerfile"] -> Command.Call.Dockerfile
-        ("show" : showArgs) -> Command.Call.Show showArgs
-        ["news"] -> Command.Call.News
-        ["studio"] -> Command.Call.Studio
-        ["completion"] -> Command.Call.PrintBashCompletionInstruction
-        ["completion:list"] -> Command.Call.BashCompletionListCommands
-        ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
-        _unknownCommand -> Command.Call.Unknown args
+  let commandCall = Command.Call.parseCall args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
@@ -104,6 +81,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
+    Command.Call.Help -> printUsage
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -149,6 +127,7 @@ printUsage =
         cmd   "    version               Prints current version of CLI.",
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
         cmd   "    completion            Prints help on bash completion.",
+        cmd   "    help                  Prints this usage information.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd   "    start [--client-port <port>] [--server-port <port>]",
