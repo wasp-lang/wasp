@@ -557,6 +557,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    network,
     parsec,
     strong-path,
     tasty ^>=1.5.3,
@@ -622,6 +623,7 @@ test-suite waspc-tests
     Util.FilePathTest
     Util.IO.RetryTest
     Util.JsTest
+    Util.Network.SocketTest
     Util.Prisma
     Util.StrongPathTest
     Util.WebRouterPathTest
