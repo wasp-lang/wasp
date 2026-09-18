@@ -35,6 +35,7 @@ bashCompletion = do
         "version",
         "doctor",
         "completion",
+        "help",
         "uninstall",
         "start",
         "db",
