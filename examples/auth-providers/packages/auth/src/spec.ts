@@ -121,7 +121,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
   routes: Record<string, never>;
   capabilities: string[];
   env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
-  uses: Array<"identity-namespaces" | "email-send">;
+  uses: Array<"email-send">;
   /** Namespace suffixes; the compiler prefixes them with the scheme name. */
   identityNamespaces: string[];
   credentials: WaspAuthCredentialsConfig<StoreRef>;
@@ -323,10 +323,7 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
       ],
       client: [],
     },
-    uses: [
-      "identity-namespaces",
-      ...(usesEmail ? (["email-send"] as const) : []),
-    ],
+    uses: usesEmail ? ["email-send"] : [],
     identityNamespaces,
     credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
     options: {

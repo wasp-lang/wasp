@@ -384,19 +384,14 @@ spec_AppSpecValid = do
         it "returns an error for an unknown runtime grant" $ do
           ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["mint-gold"]})
             `shouldBe` [ Valid.GenericValidationError
-                           "Auth scheme 'test' requests the unknown runtime grant 'mint-gold'. Known grants: email-send, identity-namespaces."
+                           "Auth scheme 'test' requests the unknown runtime grant 'mint-gold'. Known grants: email-send."
                        ]
-
-        it "returns no error for known runtime grants" $ do
-          ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["identity-namespaces"]})
-            `shouldBe` []
 
         it "returns an error for an identity namespace the provider does not own" $ do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.uses = ["identity-namespaces"],
-                    AS.Auth.identityNamespaces = ["test", "email"]
+                  { AS.Auth.identityNamespaces = ["test", "email"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
@@ -405,24 +400,11 @@ spec_AppSpecValid = do
                              ++ " -- that rule is what makes cross-scheme identity collisions impossible."
                        ]
 
-        it "returns an error for extra namespaces without the identity-namespaces grant" $ do
+        it "returns no error for extra owned namespaces, which need no grant" $ do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
                   { AS.Auth.identityNamespaces = ["test", "test:passkey"]
-                  }
-            )
-            `shouldBe` [ Valid.GenericValidationError $
-                           "Auth scheme 'test' declares identity namespaces beyond its default one,"
-                             ++ " which requires the 'identity-namespaces' grant in `uses`."
-                       ]
-
-        it "returns no error for extra owned namespaces with the grant" $ do
-          ASV.validateAppSpec
-            ( makeSpec
-                basicExternalProvider
-                  { AS.Auth.uses = ["identity-namespaces"],
-                    AS.Auth.identityNamespaces = ["test", "test:passkey"]
                   }
             )
             `shouldBe` []

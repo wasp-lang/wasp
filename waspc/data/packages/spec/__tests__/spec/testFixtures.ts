@@ -421,7 +421,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
               ],
               client: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
             },
-            uses: ["identity-namespaces"],
+            uses: ["email-send"],
             identityNamespaces: ["passkey"],
             credentials: { scheme: "session" },
             userSignupFields: getRefObject("full", "named"),

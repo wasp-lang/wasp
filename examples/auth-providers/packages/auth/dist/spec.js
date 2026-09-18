@@ -155,10 +155,7 @@ export function waspAuth(config) {
             ],
             client: [],
         },
-        uses: [
-            "identity-namespaces",
-            ...(usesEmail ? ["email-send"] : []),
-        ],
+        uses: usesEmail ? ["email-send"] : [],
         identityNamespaces,
         credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
         options: {

@@ -517,7 +517,7 @@ export function defineAuthSchemeManifest(
   }
 
   const identityNamespaces = manifest.identityNamespaces ?? [];
-  validateIdentityNamespaces(manifest.handler, identityNamespaces, uses);
+  validateIdentityNamespaces(manifest.handler, identityNamespaces);
 
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(manifest.handler, manifest.credentials);
@@ -552,17 +552,13 @@ export function isValidSchemeName(name: unknown): name is string {
   );
 }
 
-const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = [
-  "email-send",
-  "identity-namespaces",
-];
+const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = ["email-send"];
 
 // Shared by defineAuthSchemeManifest and the mapper (which re-validates,
 // because the authenticity marker is forgeable as a plain property).
 export function validateIdentityNamespaces(
   handler: string,
   identityNamespaces: readonly string[],
-  uses: readonly string[],
 ): void {
   for (const suffix of identityNamespaces) {
     if (suffix.length === 0 || suffix.includes(":")) {
@@ -574,11 +570,6 @@ export function validateIdentityNamespaces(
   if (new Set(identityNamespaces).size !== identityNamespaces.length) {
     throw new WaspSpecUserError(
       `Auth handler '${handler}' declares a duplicate identity namespace.`,
-    );
-  }
-  if (identityNamespaces.length > 0 && !uses.includes("identity-namespaces")) {
-    throw new WaspSpecUserError(
-      `Auth handler '${handler}' declares identity namespaces, which requires the 'identity-namespaces' grant in \`uses\`.`,
     );
   }
 }

@@ -389,12 +389,10 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
     {=# isEmailSenderEnabled =}
     ...(spec.uses.includes('email-send') ? { email: waspEmailFacet } : {}),
     {=/ isEmailSenderEnabled =}
-    ...(spec.uses.includes('identity-namespaces')
-      ? {
-          identityNamespaces: (namespace: string) =>
-            makeIdentitiesFacet(spec, resolveOwnNamespace(spec, namespace)),
-        }
-      : {}),
+    // Always present: the manifest's declared namespace list is the boundary,
+    // and `resolveOwnNamespace` rejects anything outside it.
+    identityNamespaces: (namespace: string) =>
+      makeIdentitiesFacet(spec, resolveOwnNamespace(spec, namespace)),
   }
 }
 

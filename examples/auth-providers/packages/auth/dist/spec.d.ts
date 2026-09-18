@@ -114,7 +114,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
         server: EnvVarRequirement[];
         client: EnvVarRequirement[];
     };
-    uses: Array<"identity-namespaces" | "email-send">;
+    uses: Array<"email-send">;
     /** Namespace suffixes; the compiler prefixes them with the scheme name. */
     identityNamespaces: string[];
     credentials: WaspAuthCredentialsConfig<StoreRef>;

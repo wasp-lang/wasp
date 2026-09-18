@@ -285,7 +285,7 @@ export interface EnvVarRequirement {
  *
  * @category Experimental
  */
-export type AuthRuntimeGrantName = "email-send" | "identity-namespaces";
+export type AuthRuntimeGrantName = "email-send";
 
 /**
  * The transport a Wasp-issued credential travels by.
@@ -411,8 +411,9 @@ export interface AuthSchemeManifest {
   /**
    * Extra identity namespaces the handler records identities under, as
    * suffixes: `["username", "email"]` becomes `<scheme>:username` and
-   * `<scheme>:email`. The scheme name itself is always a namespace. Declaring
-   * any requires the `"identity-namespaces"` grant in `uses`.
+   * `<scheme>:email`. The scheme name itself is always a namespace. The handler
+   * reaches them through `runtime.identityNamespaces(namespace)`, and Wasp
+   * refuses any namespace that is not declared here.
    */
   identityNamespaces?: string[];
   /**

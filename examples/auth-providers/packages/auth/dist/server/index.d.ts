@@ -1,17 +1,17 @@
 import type { ServerAuthHandlerFactory } from "@wasp.sh/auth-contract";
 import { isEmailResendAllowed, type EmailHelpers } from "./email/utils.js";
-import type { WaspAuthGrants, WaspAuthOptions } from "./types.js";
+import type { WaspAuthOptions } from "./types.js";
 /**
  * Wasp's own authentication as an auth handler package.
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
- * window (the `identity-namespaces` grant, the credentials facet, plus
- * `email-send` when the email method is on), the serializable options the
+ * window (the credentials facet, plus the `email-send` grant when the email
+ * method is on), the serializable options the
  * spec helper captured, and the user-code extensions the manifest
  * referenced, delivered through virtual modules. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export declare const createServerAuthHandler: ServerAuthHandlerFactory<WaspAuthOptions, WaspAuthGrants, true>;
+export declare const createServerAuthHandler: ServerAuthHandlerFactory<WaspAuthOptions, never, true>;
 export declare const createEmailVerificationLink: EmailHelpers["createEmailVerificationLink"];
 export declare const createPasswordResetLink: EmailHelpers["createPasswordResetLink"];
 export declare const sendEmailVerificationEmail: EmailHelpers["sendEmailVerificationEmail"];

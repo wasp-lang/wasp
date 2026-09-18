@@ -1,13 +1,12 @@
 import type { AuthResponse, JsonValue, WaspServerRuntime } from "@wasp.sh/auth-contract";
 import type { IncomingMessage, ServerResponse } from "node:http";
-/** The runtime grants Wasp's own auth runs on. */
-export type WaspAuthGrants = "identity-namespaces";
 /**
- * The runtime window: the identity namespaces grant plus the credentials
- * facet the manifest's `credentials` config wires (the scheme's private
- * issuer, or a sibling scheme it signs into).
+ * The runtime window: the base runtime plus the credentials facet the
+ * manifest's `credentials` config wires (the scheme's private issuer, or a
+ * sibling scheme it signs into). `email-send` is requested only when the
+ * email method is on, so `runtime.email` stays optional in the type.
  */
-export type WaspAuthRuntime = WaspServerRuntime<WaspAuthGrants, true>;
+export type WaspAuthRuntime = WaspServerRuntime<never, true>;
 /** The wire-level answer of a sign-in, replayed by the one-time code. */
 export type SignInResponse = AuthResponse;
 export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "keycloak" | "microsoft";

@@ -206,7 +206,7 @@ export interface AuthHandler {
  * Credentials are not a grant: a manifest's `credentials` field is what asks
  * for the `credentials` facet.
  */
-export type RuntimeGrantName = "email-send" | "identity-namespaces";
+export type RuntimeGrantName = "email-send";
 
 /**
  * The credentials facet: how a handler that verifies logins but cannot carry a
@@ -339,12 +339,9 @@ export function getAuthContractErrorCode(
  * `ServerAuthHandlerFactory<MyOptions, "email-send", true>` and gets exactly the
  * surface its manifest claims.
  */
-export type GrantedFacets<G extends RuntimeGrantName> = ("email-send" extends G
+export type GrantedFacets<G extends RuntimeGrantName> = "email-send" extends G
   ? { email: WaspEmail }
-  : { email?: WaspEmail }) &
-  ("identity-namespaces" extends G
-    ? { identityNamespaces: (namespace: string) => ProviderIdentities }
-    : { identityNamespaces?: (namespace: string) => ProviderIdentities });
+  : { email?: WaspEmail };
 
 /**
  * Everything Wasp hands a server-side handler about the app it runs in.
@@ -431,6 +428,15 @@ type WaspServerRuntimeBase = {
    *   given; hashing is the handler's job.
    */
   identities: ProviderIdentities;
+
+  /**
+   * The identity store for one of the scheme's declared namespaces
+   * (`<scheme>:email`). Always present, with no grant to request: the
+   * manifest's `identityNamespaces` list is the boundary, and a namespace
+   * that is not declared there is rejected with
+   * `wasp-auth/undeclared-namespace`.
+   */
+  identityNamespaces(namespace: string): ProviderIdentities;
 };
 
 /**

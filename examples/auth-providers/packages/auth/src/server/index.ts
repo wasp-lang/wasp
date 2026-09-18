@@ -17,7 +17,6 @@ import type {
   Ctx,
   OAuthProviderName,
   WaspAuthExtensions,
-  WaspAuthGrants,
   WaspAuthOptions,
 } from "./types.js";
 import { usernameRoutes } from "./username.js";
@@ -35,15 +34,15 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  * Wasp's own authentication as an auth handler package.
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
- * window (the `identity-namespaces` grant, the credentials facet, plus
- * `email-send` when the email method is on), the serializable options the
+ * window (the credentials facet, plus the `email-send` grant when the email
+ * method is on), the serializable options the
  * spec helper captured, and the user-code extensions the manifest
  * referenced, delivered through virtual modules. The route handler mounts
  * at `/auth/<scheme>`.
  */
 export const createServerAuthHandler: ServerAuthHandlerFactory<
   WaspAuthOptions,
-  WaspAuthGrants,
+  never,
   true
 > = (runtime, options, extensions): ServerAuthHandlerParts => {
   const ctx: Ctx = {

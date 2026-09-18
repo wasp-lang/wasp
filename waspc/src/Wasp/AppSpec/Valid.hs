@@ -301,12 +301,12 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
         grantName `notElem` knownRuntimeGrantNames
       ]
       where
-        knownRuntimeGrantNames = ["email-send", "identity-namespaces"]
+        knownRuntimeGrantNames = ["email-send"]
 
     -- A scheme owns its name and anything under `name ++ ":"`; that shape is
     -- what makes cross-scheme identity collisions impossible by construction.
-    -- Using more than the default namespace requires the 'identity-namespaces'
-    -- grant, so the power shows up in `uses`.
+    -- Declaring the namespaces is all it takes: the list itself is the
+    -- boundary the runtime enforces, so there is no separate grant for it.
     validateSchemeIdentityNamespaces scheme =
       concat
         [ [ GenericValidationError $
@@ -323,14 +323,6 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
           [ GenericValidationError $
               "Auth scheme '" ++ scheme.name ++ "' declares a duplicate identity namespace."
           | not (null (findDuplicateElems scheme.identityNamespaces))
-          ],
-          [ GenericValidationError $
-              "Auth scheme '"
-                ++ scheme.name
-                ++ "' declares identity namespaces beyond its default one, which requires the"
-                ++ " 'identity-namespaces' grant in `uses`."
-          | usesNamespacesBeyondDefault,
-            "identity-namespaces" `notElem` scheme.uses
           ]
         ]
       where
@@ -339,8 +331,6 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
             || ( (scheme.name ++ ":") `isPrefixOf` namespace
                    && length namespace > length scheme.name + 1
                )
-        usesNamespacesBeyondDefault =
-          scheme.identityNamespaces /= [scheme.name]
 
     -- Belt and braces on top of the per-scheme ownership rule: even if the
     -- shape rule ever loosens, two schemes may never share a namespace,

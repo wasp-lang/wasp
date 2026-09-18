@@ -113,7 +113,7 @@ data AuthScheme = AuthScheme
     capabilities :: [String],
     envVars :: AuthSchemeEnvVars,
     -- | Runtime facets the handler requests from Wasp ("email-send",
-    -- "identity-namespaces"). Validation rejects unknown names: the generator
+    -- so far). Validation rejects unknown names: the generator
     -- can only wire facets it knows.
     uses :: [String],
     -- | Every identity namespace this scheme records identities under: the

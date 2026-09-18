@@ -228,16 +228,16 @@ function mapAuthScheme(
   }
   const uses = manifest.uses ?? [];
   for (const grant of uses) {
-    if (!["email-send", "identity-namespaces"].includes(grant)) {
+    if (!["email-send"].includes(grant)) {
       throw new WaspSpecUserError(
         `Auth scheme '${name}' requests the unknown runtime grant '${String(
           grant,
-        )}'. Known grants: email-send, identity-namespaces.`,
+        )}'. Known grants: email-send.`,
       );
     }
   }
   const namespaceSuffixes = manifest.identityNamespaces ?? [];
-  validateIdentityNamespaces(manifest.handler, namespaceSuffixes, uses);
+  validateIdentityNamespaces(manifest.handler, namespaceSuffixes);
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(manifest.handler, manifest.credentials);
   }

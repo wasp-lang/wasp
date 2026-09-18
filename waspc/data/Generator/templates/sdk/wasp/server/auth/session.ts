@@ -158,9 +158,8 @@ async function resolveSubject(
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
   },
-  // The identity namespace to record under; callers with the
-  // 'identity-namespaces' grant multiplex several, everyone else records
-  // under the scheme name. The runtime guards membership before we get here.
+  // The identity namespace to record under; a scheme that declared several
+  // multiplexes them, everyone else records under the scheme name. The runtime guards membership before we get here.
   namespace: string = scheme,
   req?: ExpressRequest,
 ): Promise<string | null> {
