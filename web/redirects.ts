@@ -13,10 +13,10 @@ export function getRedirects({
 }): RedirectRule[] {
   // Order matters: Cloudflare applies the first matching rule, so list more
   // specific rules before more general ones.
-  const redirects: RedirectRule[] = [
+  const redirects: RedirectRule[] = withMarkdownVariants([
     ...legacyDocsRedirects,
     ...docsReorganizationRedirects,
-  ];
+  ]);
 
   if (redirectCurrentVersionToCanonical) {
     const latestWaspVersion = docsVersions[0];
@@ -140,6 +140,22 @@ const docsReorganizationRedirects: RedirectRule[] = [
   permanent("/docs/wasp-ai/coding-agent-plugin",                        "/docs/getting-started/agent-integration"),
   permanent("/docs/wasp-ai/git-worktrees",                              "/docs/advanced/git-worktrees"),
 ];
+
+/**
+ * Docs pages have markdown variants served at `<route>.md`, but a redirect
+ * rule matches only the exact path it lists, so a request for a moved page's
+ * `.md` variant would 404 instead of following the redirect. Give every rule
+ * a `.md` twin, except rules whose trailing splat already matches `.md`
+ * requests.
+ * See https://github.com/wasp-lang/wasp/issues/4842.
+ */
+function withMarkdownVariants(rules: RedirectRule[]): RedirectRule[] {
+  return rules.flatMap((rule) =>
+    rule.from.endsWith("/*")
+      ? [rule]
+      : [rule, { ...rule, from: `${rule.from}.md`, to: `${rule.to}.md` }],
+  );
+}
 
 /** Builds a permanent redirect rule (301). */
 function permanent(from: string, to: string): RedirectRule {
