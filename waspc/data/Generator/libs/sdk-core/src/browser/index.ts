@@ -3,6 +3,39 @@ export { FullPageWrapper } from "./app/FullPageWrapper.js";
 export { Loader } from "./app/Loader.js";
 export { MessageError, MessageLoading } from "./app/Message.js";
 export { apiEventsEmitter } from "./auth/events.js";
+export { emailFieldRules, emailInputProps } from "./auth/forms/emailField.js";
+export {
+  Form,
+  FormError,
+  FormInput,
+  FormItemGroup,
+  FormLabel,
+  FormTextarea,
+  SubmitButton,
+} from "./auth/forms/Form.js";
+export { type LoginSignupFormFields } from "./auth/forms/LoginSignupForm.js";
+export {
+  MessageError as FormMessageError,
+  Message,
+  MessageSuccess,
+} from "./auth/forms/Message.js";
+export { SocialButton } from "./auth/forms/social/SocialButton.js";
+export {
+  Discord,
+  GitHub,
+  Google,
+  Keycloak,
+  Microsoft,
+  Slack,
+} from "./auth/forms/social/SocialIcons.js";
+export {
+  type AdditionalSignupField,
+  type AdditionalSignupFieldRenderFn,
+  type AdditionalSignupFields,
+  type CustomizationOptions,
+  type FormState,
+} from "./auth/forms/types.js";
+export { clsx, tokenObjToCSSVars } from "./auth/forms/util.js";
 export {
   clearSessionId,
   getSessionId,
