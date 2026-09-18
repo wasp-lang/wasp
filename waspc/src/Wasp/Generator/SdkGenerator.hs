@@ -206,7 +206,6 @@ npmDepsForSdk spec =
             ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),
             ("ky", show kyVersionRange),
-            ("mitt", "3.0.0"),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
             ("@tanstack/react-query", show reactQueryVersionRange),
