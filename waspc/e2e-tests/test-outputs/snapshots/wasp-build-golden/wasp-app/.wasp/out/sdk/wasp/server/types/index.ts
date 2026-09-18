@@ -1,11 +1,1 @@
-import type { Application } from 'express'
-import type { Server } from 'http'
-
-// PUBLIC API
-export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
-
-// PRIVATE API (server)
-export type ServerSetupFnContext = {
-  app: Application,
-  server: Server,
-}
+export { type ServerSetupFn, type ServerSetupFnContext } from '@wasp.sh/lib-sdk-core/node'
