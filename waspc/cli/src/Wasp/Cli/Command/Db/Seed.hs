@@ -19,6 +19,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Cli.Interactive (getInteractiveLine)
 import Wasp.Cli.RunConfigs (makeDefaultDevRunConfigs)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
@@ -54,7 +55,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
       putStrLn "Choose a seed to run:"
       mapM_ (\(i, n) -> putStrLn $ printf " [%d] %s" i n) $ zip [1 :: Int ..] (NE.toList seedNames)
       putStrLn "Type a number (e.g. 1 or 2):"
-      chosenNumber <- getLine
+      chosenNumber <- getInteractiveLine
       case parseNumberInRange (1, length seedNames) chosenNumber of
         Right idx -> return $ seedNames NE.!! (idx - 1)
         Left errMsg -> do
