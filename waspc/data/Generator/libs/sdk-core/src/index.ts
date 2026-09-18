@@ -53,6 +53,15 @@ export {
   type FromRegisterPath,
   type Register,
 } from "./register.js";
+export { interpolatePath } from "./router/interpolatePath.js";
+export {
+  type ExpandRouteOnOptionalStaticSegments,
+  type OptionalRouteOptions,
+  type ParamValue,
+  type Params,
+  type RouteDefinitionsToRoutes,
+  type Search,
+} from "./router/types.js";
 export { type CustomSerializableJSONValue } from "./serialization/register.js";
 export {
   type JSONArray,
