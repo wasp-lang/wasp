@@ -1,5 +1,0 @@
--- CreateTable
-CREATE TABLE "UsedOneTimeCode" (
-    "code" TEXT NOT NULL PRIMARY KEY,
-    "usedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);

@@ -1,1 +1,0 @@
-{"version":3,"file":"wasp.d.ts","sourceRoot":"","sources":["../../../../client/vite/plugins/wasp.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,YAAY,EAAE,MAAM,MAAM,CAAC;AACzC,OAAc,EAAE,KAAK,OAAO,IAAI,YAAY,EAAE,MAAM,sBAAsB,CAAC;AAU3E,MAAM,WAAW,iBAAiB;IAChC,YAAY,CAAC,EAAE,YAAY,CAAC;CAC7B;AAED,wBAAgB,IAAI,CAAC,OAAO,CAAC,EAAE,iBAAiB,GAAG,YAAY,CAyB9D"}

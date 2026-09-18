@@ -1,1 +1,0 @@
-{"version":3,"file":"typescriptCheck.d.ts","sourceRoot":"","sources":["../../../../client/vite/plugins/typescriptCheck.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,MAAM,EAAE,MAAM,MAAM,CAAA;AAGlC,UAAU,sBAAsB;IAC9B,eAAe,EAAE,MAAM,CAAA;CACxB;AAED,wBAAgB,eAAe,CAAC,OAAO,EAAE,sBAAsB,GAAG,MAAM,CAQvE"}
