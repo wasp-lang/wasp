@@ -5,6 +5,8 @@ export default defineConfig({
     index: "./src/index.ts",
     browser: "./src/browser/index.ts",
     node: "./src/node/index.ts",
+    vite: "./src/node/vite/index.ts",
+    test: "./src/browser/test/index.ts",
   },
   platform: "neutral",
   css: {
