@@ -118,8 +118,13 @@ export async function getRequestCredential(): Promise<string | null> {
  */
 export const api = ky.extend({
   prefix: config.apiUrl,
-  // Cookie-carried credentials need the browser to attach them cross-origin.
+  {=# isCookieTransportUsed =}
+  // Some auth scheme's credential is a cookie, which the browser only attaches
+  // cross-origin (and only accepts from a login) in this mode. It makes the
+  // browser require `Access-Control-Allow-Credentials: true`: Wasp's default
+  // CORS middleware sends it, a custom one must set `credentials: true`.
   credentials: 'include',
+  {=/ isCookieTransportUsed =}
   hooks: {
     beforeRequest: [
       // Bearer credentials ride in the Authorization header: a Wasp-issued

@@ -440,7 +440,9 @@ describe("mapAuth", () => {
         ...Fixtures.getAuthConfig("minimal"),
         schemes: {
           [name]: customAuthHandler({
-            server: Fixtures.getRefObject("full", "named"),
+            server: {
+              authHandlerFactory: Fixtures.getRefObject("full", "named"),
+            },
           }),
         },
       };
@@ -490,7 +492,9 @@ describe("mapAuth", () => {
       schemes: {
         test: getSchemeManifest(auth),
         other: customAuthHandler({
-          server: Fixtures.getRefObject("full", "named"),
+          server: {
+            authHandlerFactory: Fixtures.getRefObject("full", "named"),
+          },
           credentials: { scheme: "test" },
         }),
       },
@@ -508,12 +512,16 @@ describe("mapAuth", () => {
       ...auth,
       schemes: {
         a: customAuthHandler({
-          server: Fixtures.getRefObject("full", "named"),
+          server: {
+            authHandlerFactory: Fixtures.getRefObject("full", "named"),
+          },
           capabilities: ["sign-in"],
           credentials: { scheme: "b" },
         }),
         b: customAuthHandler({
-          server: Fixtures.getRefObject("full", "named"),
+          server: {
+            authHandlerFactory: Fixtures.getRefObject("full", "named"),
+          },
           capabilities: ["sign-in"],
           credentials: { scheme: "a" },
         }),
@@ -551,7 +559,10 @@ describe("mapAuth", () => {
       schemes: {
         test: {
           ...getSchemeManifest(auth),
-          env: { server: [{ name: "DATABASE_URL" }], client: [] },
+          server: {
+            ...getSchemeManifest(auth).server,
+            env: [{ name: "DATABASE_URL" }],
+          },
         },
       } as unknown as WaspSpec.Auth["schemes"],
     };
@@ -580,15 +591,22 @@ describe("mapAuth", () => {
     );
   });
 
-  test("should map an adapter package server entry", () => {
+  test("should map package entries, defaulting and honouring the export name", () => {
     const auth = Fixtures.getAuthConfig("minimal");
     const withPackageEntry = {
       ...auth,
       schemes: {
         test: {
           ...getSchemeManifest(auth),
-          server: { package: "@wasp.sh/auth-clerk/server" },
-          client: { package: "@wasp.sh/auth-clerk/client" },
+          server: {
+            authHandlerFactory: { package: "@wasp.sh/auth-clerk/server" },
+          },
+          client: {
+            authHandlerFactory: {
+              package: "@wasp.sh/auth-clerk/client",
+              export: "createClerkClient",
+            },
+          },
         },
       } as unknown as WaspSpec.Auth["schemes"],
     };
@@ -598,19 +616,34 @@ describe("mapAuth", () => {
 
     expect(result.schemes[0]).toMatchObject({
       name: "test",
-      server: { package: "@wasp.sh/auth-clerk/server" },
-      client: { package: "@wasp.sh/auth-clerk/client" },
+      // The label is where the server half's code lives.
+      handler: "@wasp.sh/auth-clerk/server",
+      server: {
+        authHandlerFactory: {
+          package: "@wasp.sh/auth-clerk/server",
+          export: "createServerAuthHandler",
+        },
+      },
+      client: {
+        authHandlerFactory: {
+          package: "@wasp.sh/auth-clerk/client",
+          export: "createClerkClient",
+        },
+      },
     });
   });
 
-  test("should throw when scheme options are not JSON-serializable", () => {
+  test("should throw when a scheme's config data is not JSON-serializable", () => {
     const auth = Fixtures.getAuthConfig("minimal");
     const withBadOptions = {
       ...auth,
       schemes: {
         test: {
           ...getSchemeManifest(auth),
-          options: { callback: () => "not serializable" },
+          server: {
+            ...getSchemeManifest(auth).server,
+            config: { callback: () => "not serializable" },
+          },
         },
       } as unknown as WaspSpec.Auth["schemes"],
     };
@@ -693,30 +726,76 @@ describe("mapAuth", () => {
       devDefault: envVar.devDefault,
     });
     const credentials = manifest.credentials;
+    const expectedSide = (
+      side: "server" | "client",
+      sideManifest:
+        | WaspSpec.AuthSchemeServerSide
+        | WaspSpec.AuthSchemeClientSide,
+    ) => {
+      const entry = sideManifest.authHandlerFactory;
+      return {
+        authHandlerFactory:
+          "package" in entry
+            ? {
+                package: entry.package,
+                export:
+                  entry.export ??
+                  (side === "server"
+                    ? "createServerAuthHandler"
+                    : "createClientAuthHandler"),
+              }
+            : { module: mapRefObjectForMockProjectDir(entry) },
+        envVars: (sideManifest.env ?? []).map(mapEnvVar),
+        ...expectedConfig(side, sideManifest.config),
+      };
+    };
+    // The fixtures' configs, as the mapper must split them: data as JSON,
+    // references keyed by their JSON-encoded path.
+    function expectedConfig(
+      side: "server" | "client",
+      config: unknown,
+    ): Pick<AppSpec.AuthSchemeSide, "configJson" | "configReferences"> {
+      if (config === undefined) {
+        return { configJson: undefined, configReferences: {} };
+      }
+      const ref = mapRefObjectForMockProjectDir(
+        Fixtures.getRefObject("full", "named"),
+      );
+      const full = config as { methods?: unknown; FormFooter?: unknown };
+      if (side === "server" && full.methods !== undefined) {
+        return {
+          configJson: JSON.stringify({
+            flag: true,
+            methods: { google: { scopes: ["profile"] } },
+          }),
+          configReferences: {
+            '["methods","google","configFn"]': ref,
+            '["getEmailContent"]': ref,
+          },
+        };
+      }
+      if (side === "client" && full.FormFooter !== undefined) {
+        return {
+          configJson: JSON.stringify({ publicFlag: true }),
+          configReferences: { '["FormFooter"]': ref },
+        };
+      }
+      return { configJson: JSON.stringify(config), configReferences: {} };
+    }
+    const factoryEntry = manifest.server.authHandlerFactory;
     return {
       name,
-      handler: manifest.handler,
-      server:
-        "package" in manifest.server
-          ? { package: (manifest.server as { package: string }).package }
-          : {
-              module: mapRefObjectForMockProjectDir(
-                manifest.server as Parameters<
-                  typeof mapRefObjectForMockProjectDir
-                >[0],
-              ),
-            },
-      client:
-        manifest.client &&
-        ("package" in manifest.client
-          ? { package: manifest.client.package }
-          : { module: mapRefObjectForMockProjectDir(manifest.client) }),
-      routes: manifest.routes && { rawBody: manifest.routes.rawBody },
-      capabilities: manifest.capabilities,
-      envVars: {
-        server: manifest.env.server.map(mapEnvVar),
-        client: manifest.env.client.map(mapEnvVar),
+      // The label is where the server half's code lives.
+      handler:
+        "package" in factoryEntry
+          ? factoryEntry.package
+          : (factoryEntry as unknown as { from: string }).from,
+      server: expectedSide("server", manifest.server),
+      client: manifest.client && expectedSide("client", manifest.client),
+      routes: manifest.server.routes && {
+        rawBody: manifest.server.routes.rawBody,
       },
+      capabilities: manifest.capabilities,
       uses: manifest.uses ?? [],
       identityNamespaces: [
         name,
@@ -741,21 +820,9 @@ describe("mapAuth", () => {
                         },
                 ttl: credentials.ttl ?? "30d",
               },
-      userSignupFields:
-        manifest.userSignupFields &&
-        mapRefObjectForMockProjectDir(manifest.userSignupFields),
-      setupFn:
-        manifest.setupFn && mapRefObjectForMockProjectDir(manifest.setupFn),
-      extensions: Object.fromEntries(
-        Object.entries(manifest.extensions ?? {}).map(([extName, ref]) => [
-          extName,
-          mapRefObjectForMockProjectDir(ref),
-        ]),
-      ),
-      optionsJson:
-        manifest.options === undefined
-          ? undefined
-          : JSON.stringify(manifest.options),
+      userFieldsFromClaims:
+        manifest.userFieldsFromClaims &&
+        mapRefObjectForMockProjectDir(manifest.userFieldsFromClaims),
     };
   }
 });

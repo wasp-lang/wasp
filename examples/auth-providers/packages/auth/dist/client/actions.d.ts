@@ -1,4 +1,4 @@
-import { getClientOptions } from "./runtime.js";
+import { getClientConfig } from "./runtime.js";
 import type { OAuthProviderName } from "./types.js";
 /**
  * `persistent: false` is a login without "remember me": the credential lasts
@@ -41,7 +41,7 @@ export declare function verifyEmail(data: {
 }>;
 export declare function exchangeOAuthCodeForSession(code: string): Promise<void>;
 export declare function signInUrl(provider: OAuthProviderName): string;
-export declare function isMethodEnabled(name: keyof ReturnType<typeof getClientOptions>["methods"]): boolean;
+export declare function isMethodEnabled(name: keyof ReturnType<typeof getClientConfig>["methods"]): boolean;
 type LinkedIdentity = {
     providerName: string;
     providerUserId: string;

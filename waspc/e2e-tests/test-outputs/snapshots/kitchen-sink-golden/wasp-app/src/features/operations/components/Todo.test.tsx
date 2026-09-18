@@ -36,6 +36,8 @@ const mockTasks = [
       auth: {
         id: "1",
         userId: 1,
+        // Set by "sign out everywhere"; null for a user who never used it.
+        credentialsInvalidatedAt: null,
         _extraField: "Some string!" as const,
         identities: [
           {

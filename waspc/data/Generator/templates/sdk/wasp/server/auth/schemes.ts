@@ -1,6 +1,7 @@
 {{={= =}=}}
 import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
+import { joinSchemeConfig } from '../../auth/schemeConfig.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
@@ -23,18 +24,15 @@ import { emailSender } from '../email/index.js'
 {=# schemes =}
 {=# isPackage =}
 {=^ isFrameworkIssuer =}
-import { createServerAuthHandler as createServerAuthHandler_{= index =} } from '{= serverPackage =}'
+import { {= serverExportName =} as createServerAuthHandler_{= index =} } from '{= serverPackage =}'
 {=/ isFrameworkIssuer =}
 {=/ isPackage =}
 {=^ isPackage =}
 {=& handlerModule.importStatement =}
 {=/ isPackage =}
-{=# setupFn.isDefined =}
-{=& setupFn.importStatement =}
-{=/ setupFn.isDefined =}
-{=# extensions =}
+{=# configReferences =}
 {=& import.importStatement =}
-{=/ extensions =}
+{=/ configReferences =}
 {=# inlineCredentials =}
 {=# storeModule.isDefined =}
 {=& storeModule.importStatement =}
@@ -57,7 +55,7 @@ export const defaultScheme: AuthSchemeName = '{= defaultScheme =}'
  * its scheme name. It is a handler's *only* window into the app: handlers
  * never import generated code and never read `process.env` themselves, which
  * is what lets them version independently of any app. `provision` routes
- * through that scheme's `userSignupFields`, exactly like just-in-time
+ * through that scheme's `userFieldsFromClaims`, exactly like just-in-time
  * provisioning at first authentication. The casts are the runtime boundary:
  * the store speaks `unknown`, the contract speaks `JsonValue`, and both sides
  * of every value are plain parsed JSON.
@@ -462,17 +460,16 @@ const handlerParts_{= index =} = await Promise.resolve(
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as Parameters<typeof createServerAuthHandler_{= index =}>[0],
-    {=& optionsJson =},
-    {
-      // The user's setup function for the handler's underlying library; the
-      // handler calls it with its integration config and uses the result.
-      setupFn: {=# setupFn.isDefined =}{= setupFn.importIdentifier =}{=/ setupFn.isDefined =}{=^ setupFn.isDefined =}undefined{=/ setupFn.isDefined =},
-      // Every other user function the manifest referenced, under the name
-      // the handler expects.
-      {=# extensions =}
-      '{= name =}': {= import.importIdentifier =},
-      {=/ extensions =}
-    },
+    // The handler's `server.config`: its plain data, with every reference
+    // to app code set back at the path it was lifted from.
+    joinSchemeConfig({=& configJson =}, [
+      {=# configReferences =}
+      [{=& pathJs =}, {= import.importIdentifier =}],
+      {=/ configReferences =}
+      // Wasp never reads a handler's config, so it cannot know its type. The
+      // cast is sound by construction: this IS the object the handler's own
+      // spec helper built, carried across the compiler.
+    ]) as Parameters<typeof createServerAuthHandler_{= index =}>[1],
   ),
 )
 {=/ isFrameworkIssuer =}

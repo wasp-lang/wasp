@@ -4,7 +4,7 @@ import { Navigate, useLocation } from "react-router";
 import { confirmMerge, exchangeOAuthCodeForSession } from "./actions.js";
 import { Message, MessageError } from "./forms/internal/Message.js";
 import { useEffectOnce } from "./hooks.js";
-import { getClientOptions, getClientRuntime } from "./runtime.js";
+import { getClientConfig, getClientRuntime } from "./runtime.js";
 /**
  * The client route the OAuth handback lands on: redeems the one-time code,
  * then redirects. After an account-linking flow (`startOAuthLink`) there is
@@ -60,10 +60,10 @@ export function OAuthCallbackPage({ linkedRedirectTo, } = {}) {
                     }, children: "Merge accounts" })] }));
     }
     if (isLinked) {
-        return (_jsx(Navigate, { to: linkedRedirectTo ?? getClientOptions().onAuthSucceededRedirectTo, replace: true }));
+        return (_jsx(Navigate, { to: linkedRedirectTo ?? getClientConfig().onAuthSucceededRedirectTo, replace: true }));
     }
     if (isDone) {
-        return (_jsx(Navigate, { to: getClientOptions().onAuthSucceededRedirectTo, replace: true }));
+        return (_jsx(Navigate, { to: getClientConfig().onAuthSucceededRedirectTo, replace: true }));
     }
     if (error) {
         return _jsx(MessageError, { children: error });

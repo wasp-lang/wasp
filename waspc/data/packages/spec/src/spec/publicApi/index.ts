@@ -22,11 +22,11 @@ export type {
   AppConfig,
   AuthSchemeManifestInput,
   CustomAuthHandlerConfig,
-  WaspCredentialSchemeConfig,
   JobConfig,
   PageConfig,
   QueryConfig,
   RouteConfig,
+  WaspCredentialSchemeConfig,
 } from "./constructors.js";
 export type { Register } from "./register.js";
 export type * from "./waspSpec.js";

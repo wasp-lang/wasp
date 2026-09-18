@@ -6,8 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (sortOn)
-import qualified Data.Map as Map
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -21,6 +20,7 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Auth.SchemeSideConfig (mkSchemeSideConfigTmplData)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -210,49 +210,37 @@ mkSchemesTmplData auth =
     findScheme schemeName = lookup schemeName [(AS.Auth.name s, s) | s <- AS.Auth.schemes auth]
 
     mkSchemeTmplData (idx, scheme) =
-      object
-        [ "index" .= idx,
-          "schemeName" .= scheme.name,
-          "handler" .= scheme.handler,
-          "isPackage" .= isJust (AS.Auth.serverPackage scheme),
-          -- The framework's own issuer handler IS the private issuer built
-          -- from the scheme's inline credentials; nothing else to construct.
-          "isFrameworkIssuer" .= (AS.Auth.serverPackage scheme == Just frameworkIssuerPackage),
-          "serverPackage" .= AS.Auth.serverPackage scheme,
-          "handlerModule"
-            .= extImportToAliasedImportJson ("authHandlerModule_" ++ show idx) (AS.Auth.serverModule scheme),
-          -- The handler's serializable options, spliced in verbatim -- the
-          -- mapper already proved the text is valid JSON.
-          "optionsJson" .= fromMaybe "undefined" scheme.optionsJson,
-          "setupFn"
-            .= extImportToAliasedImportJson ("authSchemeSetupFn_" ++ show idx) scheme.setupFn,
-          "userSignupFields"
-            .= extImportToAliasedImportJson
-              ("authSchemeUserSignupFields_" ++ show idx)
-              (AS.Auth.userSignupFieldsForAuthScheme scheme),
-          -- Every other user function the manifest referenced, delivered to
-          -- the handler's server factory under the name it expects.
-          "extensions"
-            .= [ object
-                   [ "name" .= extName,
-                     "import" .= extImportToAliasedImportJson ("authSchemeExtension_" ++ show idx ++ "_" ++ extName) (Just extImport)
-                   ]
-               | (extName, extImport) <- Map.toList scheme.extensions
-               ],
-          -- The manifest's compile-time claims, checked against the runtime
-          -- handler object at boot so a wrong manifest fails loudly instead of
-          -- generating a surface the handler cannot back.
-          "capabilitiesJs" .= makeJsArrayFromHaskellList scheme.capabilities,
-          -- The handler runtime's env is narrowed to exactly these names.
-          "serverEnvVarNamesJs"
-            .= makeJsArrayFromHaskellList ((.envVarName) <$> scheme.envVars.server),
-          -- The runtime facets the manifest requested; only these get wired.
-          "usesJs" .= makeJsArrayFromHaskellList scheme.uses,
-          "identityNamespacesJs" .= makeJsArrayFromHaskellList scheme.identityNamespaces,
-          "hasCredentials" .= isJust scheme.credentials,
-          "credentialsScheme" .= AS.Auth.credentialsScheme scheme,
-          "inlineCredentials" .= (inlineCredentialsTmplData idx <$> AS.Auth.inlineCredentials scheme)
-        ]
+      object $
+        mkSchemeSideConfigTmplData ("authSchemeConfigReference_" ++ show idx) scheme.server
+          ++ [ "index" .= idx,
+               "schemeName" .= scheme.name,
+               "handler" .= scheme.handler,
+               "isPackage" .= isJust (AS.Auth.serverPackage scheme),
+               -- The framework's own issuer handler IS the private issuer built
+               -- from the scheme's inline credentials; nothing else to construct.
+               "isFrameworkIssuer" .= (AS.Auth.serverPackage scheme == Just frameworkIssuerPackage),
+               "serverPackage" .= AS.Auth.serverPackage scheme,
+               "handlerModule"
+                 .= extImportToAliasedImportJson ("authHandlerModule_" ++ show idx) (AS.Auth.serverModule scheme),
+               "serverExportName" .= AS.Auth.serverExportName scheme,
+               "userFieldsFromClaims"
+                 .= extImportToAliasedImportJson
+                   ("authSchemeUserFieldsFromClaims_" ++ show idx)
+                   scheme.userFieldsFromClaims,
+               -- The manifest's compile-time claims, checked against the runtime
+               -- handler object at boot so a wrong manifest fails loudly instead of
+               -- generating a surface the handler cannot back.
+               "capabilitiesJs" .= makeJsArrayFromHaskellList scheme.capabilities,
+               -- The handler runtime's env is narrowed to exactly these names.
+               "serverEnvVarNamesJs"
+                 .= makeJsArrayFromHaskellList ((.envVarName) <$> AS.Auth.serverEnvVars scheme),
+               -- The runtime facets the manifest requested; only these get wired.
+               "usesJs" .= makeJsArrayFromHaskellList scheme.uses,
+               "identityNamespacesJs" .= makeJsArrayFromHaskellList scheme.identityNamespaces,
+               "hasCredentials" .= isJust scheme.credentials,
+               "credentialsScheme" .= AS.Auth.credentialsScheme scheme,
+               "inlineCredentials" .= (inlineCredentialsTmplData idx <$> AS.Auth.inlineCredentials scheme)
+             ]
 
     inlineCredentialsTmplData idx (transport, store, ttl) =
       object

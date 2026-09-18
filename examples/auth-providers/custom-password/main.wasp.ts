@@ -19,17 +19,19 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    // A hand-rolled email+password scheme. `server` is a factory, the same
-    // thing a handler package exports, so it gets the scheme's runtime as an
-    // argument and brings its own routes (mounted at /auth/password).
+    // A hand-rolled email+password scheme. `server.authHandlerFactory` is the
+    // same thing a handler package exports, so it gets the scheme's runtime as
+    // an argument and brings its own routes (mounted at /auth/password).
     // `credentials: {}` asks Wasp for the default private issuer (a bearer
     // token backed by the Session table); `{ transport: "cookie" }` or
     // `{ store: "signed-token" }` would change that without touching the
     // handler.
     schemes: {
       password: customAuthHandler({
-        server: createPasswordAuthHandler,
-        routes: {},
+        server: {
+          authHandlerFactory: createPasswordAuthHandler,
+          routes: {},
+        },
         credentials: {},
       }),
     },

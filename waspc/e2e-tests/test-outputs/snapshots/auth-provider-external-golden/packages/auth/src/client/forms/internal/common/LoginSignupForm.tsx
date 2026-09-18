@@ -3,7 +3,7 @@ import { useForm, type UseFormReturn } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { isMethodEnabled, signInUrl } from "../../../actions.js";
-import { getClientOptions } from "../../../runtime.js";
+import { getClientConfig } from "../../../runtime.js";
 import type { OAuthProviderName } from "../../../types.js";
 import type {
   AdditionalSignupField,
@@ -58,7 +58,7 @@ export const LoginSignupForm = ({
 }) => {
   const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } =
     useAuthContext();
-  const options = getClientOptions();
+  const clientConfig = getClientConfig();
   const isLogin = state === "login";
   const cta = isLogin ? "Log in" : "Sign up";
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ export const LoginSignupForm = ({
     isLogin,
     onError: onErrorHandler,
     onSuccess() {
-      navigate(options.onAuthSucceededRedirectTo);
+      navigate(clientConfig.onAuthSucceededRedirectTo);
     },
   });
   const email = useEmail({
@@ -99,7 +99,7 @@ export const LoginSignupForm = ({
       );
     },
     onLoginSuccess() {
-      navigate(options.onAuthSucceededRedirectTo);
+      navigate(clientConfig.onAuthSucceededRedirectTo);
     },
   });
   const handleSubmit = isEmailEnabled

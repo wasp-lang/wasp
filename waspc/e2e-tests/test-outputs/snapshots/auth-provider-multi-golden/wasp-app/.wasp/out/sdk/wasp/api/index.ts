@@ -117,8 +117,6 @@ export async function getRequestCredential(): Promise<string | null> {
  */
 export const api = ky.extend({
   prefix: config.apiUrl,
-  // Cookie-carried credentials need the browser to attach them cross-origin.
-  credentials: 'include',
   hooks: {
     beforeRequest: [
       // Bearer credentials ride in the Authorization header: a Wasp-issued

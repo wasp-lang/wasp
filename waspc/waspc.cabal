@@ -230,6 +230,7 @@ library
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
+    Wasp.Generator.SdkGenerator.Auth.SchemeSideConfig
     Wasp.Generator.SdkGenerator.AuthG
     Wasp.Generator.SdkGenerator.Client.AppG
     Wasp.Generator.SdkGenerator.Client.AuthG

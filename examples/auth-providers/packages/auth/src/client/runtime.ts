@@ -1,6 +1,6 @@
 import type { WaspClientRuntime } from "@wasp.sh/auth-contract/client";
 
-import type { WaspAuthClientOptions } from "./types.js";
+import type { WaspAuthClientConfig } from "./types.js";
 
 /**
  * The client auth handler's window into the app, captured when Wasp instantiates
@@ -8,14 +8,14 @@ import type { WaspAuthClientOptions } from "./types.js";
  * code.
  */
 let runtime: WaspClientRuntime | null = null;
-let options: WaspAuthClientOptions | null = null;
+let config: WaspAuthClientConfig | null = null;
 
 export function setClientState(
   newRuntime: WaspClientRuntime,
-  newOptions: WaspAuthClientOptions,
+  newConfig: WaspAuthClientConfig,
 ): void {
   runtime = newRuntime;
-  options = newOptions;
+  config = newConfig;
 }
 
 export function getClientRuntime(): WaspClientRuntime {
@@ -27,11 +27,11 @@ export function getClientRuntime(): WaspClientRuntime {
   return runtime;
 }
 
-export function getClientOptions(): WaspAuthClientOptions {
-  if (options === null) {
+export function getClientConfig(): WaspAuthClientConfig {
+  if (config === null) {
     throw new Error(
       "Wasp's auth client used before Wasp instantiated it. Is waspAuth() among app.auth.schemes?",
     );
   }
-  return options;
+  return config;
 }

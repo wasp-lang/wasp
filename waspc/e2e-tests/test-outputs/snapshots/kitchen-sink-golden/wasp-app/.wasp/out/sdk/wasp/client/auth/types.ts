@@ -10,3 +10,11 @@ export type {
   ClientAuthHandler,
   WaspClientRuntime,
 } from '@wasp.sh/auth-contract/client'
+
+// PRIVATE API
+/**
+ * App code a handler's `client.config` references (a component, a callback).
+ * The handler types each precisely; the SDK only sets them back into the
+ * config it hands the factory, so their virtual modules are declared loosely.
+ */
+export type AuthHandlerConfigReference = unknown

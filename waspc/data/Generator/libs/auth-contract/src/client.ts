@@ -111,12 +111,17 @@ export type ClientAuthHandler = {
 };
 
 /**
- * The required shape of an handler package's client entry: a named
- * `createClientAuthHandler` export of this type. `options` is the serializable
- * configuration the handler's spec helper captured in `main.wasp.ts`,
- * delivered verbatim.
+ * The required shape of a handler's client half: the function Wasp calls in
+ * the browser to build it. A handler package exports it (as
+ * `createClientAuthHandler`, or under the name its manifest gives); a
+ * hand-written handler references it from `main.wasp.ts`.
+ *
+ * `config` is the manifest's `client.config`, exactly as the handler's spec
+ * helper built it: plain data mixed with the app's client code (a component,
+ * a callback), arriving live. All of it is bundled into the browser, so it
+ * never holds a secret.
  */
-export type ClientAuthHandlerFactory<Options = unknown> = (
+export type ClientAuthHandlerFactory<Config = unknown> = (
   runtime: WaspClientRuntime,
-  options: Options,
+  config: Config,
 ) => ClientAuthHandler;

@@ -8,9 +8,9 @@ module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthHooksSpec (..),
     AuthScheme (..),
-    AuthSchemeEntry (..),
+    AuthSchemeSide (..),
+    AuthHandlerFactoryEntry (..),
     AuthSchemeRoutes (..),
-    AuthSchemeEnvVars (..),
     AuthSchemeEnvVar (..),
     AuthSchemeCredentials (..),
     CredentialTransport (..),
@@ -25,11 +25,15 @@ module Wasp.AppSpec.App.Auth
     serverModule,
     clientPackage,
     clientModule,
+    serverEnvVars,
+    clientEnvVars,
+    serverExportName,
+    clientExportName,
     credentialsScheme,
     inlineCredentials,
     canSignIn,
+    isCookieTransportUsed,
     isClientAuthHandlerUsed,
-    userSignupFieldsForAuthScheme,
     schemeNames,
   )
 where
@@ -100,18 +104,16 @@ data AuthScheme = AuthScheme
     -- identity namespaces and routes are prefixed with it, and
     -- @authRequired@ lists name it.
     name :: String,
-    -- | The handler package the manifest came from (@"\@wasp.sh/auth"@,
-    -- @"custom"@). Informational.
+    -- | A label for the handler, for messages: where its server half's code
+    -- lives (a package specifier, or the path of a hand-written factory).
     handler :: String,
-    -- | Where the handler's implementation comes from.
-    -- | The scheme's server half: a @ServerAuthHandlerFactory@.
-    server :: AuthSchemeEntry,
-    -- | The scheme's client half, if it has one: a @ClientAuthHandlerFactory@.
-    client :: Maybe AuthSchemeEntry,
+    -- | The scheme's server half.
+    server :: AuthSchemeSide,
+    -- | The scheme's client half, if it has one.
+    client :: Maybe AuthSchemeSide,
     -- | Whether the handler brings its own routes, mounted at @/auth/<name>@.
     routes :: Maybe AuthSchemeRoutes,
     capabilities :: [String],
-    envVars :: AuthSchemeEnvVars,
     -- | Runtime facets the handler requests from Wasp ("email-send",
     -- so far). Validation rejects unknown names: the generator
     -- can only wire facets it knows.
@@ -123,63 +125,96 @@ data AuthScheme = AuthScheme
     -- | How the scheme hands out credentials after a login it verified;
     -- absent for schemes whose own credential authenticates every request.
     credentials :: Maybe AuthSchemeCredentials,
-    -- | Populates the user entity when Wasp provisions a local user for a
-    -- subject it has not seen before.
-    userSignupFields :: Maybe ExtImport,
-    -- | Setup function for the handler's underlying library.
-    setupFn :: Maybe ExtImport,
-    -- | Every other user function the handler calls back into, keyed by the
-    -- name the handler expects. Delivered to the handler's server factory
-    -- through virtual user modules, like every other user function.
-    extensions :: Map String ExtImport,
-    -- | The handler's serializable options, JSON-encoded.
-    optionsJson :: Maybe String
+    -- | Computes the user entity's fields from verified claims, for the one
+    -- case where WASP creates the user: a subject it has never seen shows
+    -- up already authenticated. Wasp itself calls it, which is why it is not
+    -- part of a side's config.
+    userFieldsFromClaims :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 -- | Exactly one of: a handler package's server entry (module specifier), or a
 -- user-code module implementing the handler (the hand-written escape hatch).
--- | Where one half of a scheme (server or client) lives: the module specifier
--- of a handler package's entry, or a factory in the app's own code. Both forms
--- are the same thing in different places, which is what makes a hand-written
--- handler as powerful as a packaged one.
-newtype AuthSchemeEntry = AuthSchemeEntry (Either String ExtImport)
+-- | One half of a scheme (server or client): the factory Wasp calls to build
+-- it, and what that factory receives.
+data AuthSchemeSide = AuthSchemeSide
+  { authHandlerFactory :: AuthHandlerFactoryEntry,
+    -- | Env vars this half reads; it receives exactly these.
+    envVars :: [AuthSchemeEnvVar],
+    -- | The plain-data part of this half's @config@, JSON-encoded.
+    configJson :: Maybe String,
+    -- | The references to app code lifted out of this half's @config@,
+    -- keyed by the JSON-encoded path they sat at
+    -- (@["methods","google","configFn"]@). The generated code imports each
+    -- and sets it back at its path before calling the factory.
+    configReferences :: Map String ExtImport
+  }
+  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+
+-- | Where a side's factory lives. Both forms are the same thing in different
+-- places, which is what makes a hand-written handler as powerful as a
+-- packaged one: a handler package's entry and the name it exports the
+-- factory under, or a factory in the app's own code.
+data AuthHandlerFactoryEntry
+  = PackageFactory {packageSpecifier :: String, exportName :: String}
+  | ModuleFactory ExtImport
   deriving (Show, Eq, Data, Generic)
 
-instance FromJSON AuthSchemeEntry where
-  parseJSON = Aeson.withObject "scheme entry" $ \o -> do
+instance FromJSON AuthHandlerFactoryEntry where
+  parseJSON = Aeson.withObject "authHandlerFactory" $ \o -> do
     maybePackage <- o .:? "package"
+    maybeExport <- o .:? "export"
     maybeModule <- o .:? "module"
-    case (maybePackage, maybeModule) of
-      (Just packageSpecifier, Nothing) -> pure $ AuthSchemeEntry (Left packageSpecifier)
-      (Nothing, Just extImport) -> pure $ AuthSchemeEntry (Right extImport)
-      _ -> fail "a scheme entry must contain exactly one of 'package' and 'module'"
+    case (maybePackage, maybeExport, maybeModule) of
+      (Just packageSpecifier', Just exportName', Nothing) ->
+        pure $ PackageFactory packageSpecifier' exportName'
+      (Nothing, Nothing, Just extImport) -> pure $ ModuleFactory extImport
+      _ -> fail "authHandlerFactory must be either { package, export } or { module }"
 
-instance ToJSON AuthSchemeEntry where
-  toJSON (AuthSchemeEntry (Left packageSpecifier)) =
-    Aeson.object ["package" .= packageSpecifier]
-  toJSON (AuthSchemeEntry (Right extImport)) =
+instance ToJSON AuthHandlerFactoryEntry where
+  toJSON (PackageFactory packageSpecifier' exportName') =
+    Aeson.object ["package" .= packageSpecifier', "export" .= exportName']
+  toJSON (ModuleFactory extImport) =
     Aeson.object ["module" .= extImport]
 
-entryPackage :: AuthSchemeEntry -> Maybe String
-entryPackage (AuthSchemeEntry (Left packageSpecifier)) = Just packageSpecifier
-entryPackage (AuthSchemeEntry (Right _)) = Nothing
+factoryPackage :: AuthHandlerFactoryEntry -> Maybe String
+factoryPackage (PackageFactory packageSpecifier' _) = Just packageSpecifier'
+factoryPackage (ModuleFactory _) = Nothing
 
-entryModule :: AuthSchemeEntry -> Maybe ExtImport
-entryModule (AuthSchemeEntry (Left _)) = Nothing
-entryModule (AuthSchemeEntry (Right extImport)) = Just extImport
+factoryModule :: AuthHandlerFactoryEntry -> Maybe ExtImport
+factoryModule (PackageFactory _ _) = Nothing
+factoryModule (ModuleFactory extImport) = Just extImport
 
 serverPackage :: AuthScheme -> Maybe String
-serverPackage scheme = entryPackage scheme.server
+serverPackage scheme = factoryPackage scheme.server.authHandlerFactory
 
 serverModule :: AuthScheme -> Maybe ExtImport
-serverModule scheme = entryModule scheme.server
+serverModule scheme = factoryModule scheme.server.authHandlerFactory
 
 clientPackage :: AuthScheme -> Maybe String
-clientPackage scheme = scheme.client >>= entryPackage
+clientPackage scheme = scheme.client >>= factoryPackage . (.authHandlerFactory)
+
+-- | The name a handler package exports its server factory under. Nothing for
+-- a factory in the app's own code, whose reference already names its export.
+serverExportName :: AuthScheme -> Maybe String
+serverExportName scheme = factoryExportName scheme.server.authHandlerFactory
+
+clientExportName :: AuthScheme -> Maybe String
+clientExportName scheme = scheme.client >>= factoryExportName . (.authHandlerFactory)
+
+factoryExportName :: AuthHandlerFactoryEntry -> Maybe String
+factoryExportName (PackageFactory _ exportName') = Just exportName'
+factoryExportName (ModuleFactory _) = Nothing
+
+serverEnvVars :: AuthScheme -> [AuthSchemeEnvVar]
+serverEnvVars scheme = scheme.server.envVars
+
+-- | Empty for a scheme with no client half.
+clientEnvVars :: AuthScheme -> [AuthSchemeEnvVar]
+clientEnvVars scheme = maybe [] (.envVars) scheme.client
 
 clientModule :: AuthScheme -> Maybe ExtImport
-clientModule scheme = scheme.client >>= entryModule
+clientModule scheme = scheme.client >>= factoryModule . (.authHandlerFactory)
 
 -- | How a scheme hands out credentials: by signing into a sibling scheme, or
 -- through a private Wasp issuer configured inline.
@@ -260,6 +295,25 @@ inlineCredentials scheme = case scheme.credentials of
 canSignIn :: AuthScheme -> Bool
 canSignIn scheme = "sign-in" `elem` scheme.capabilities
 
+-- | Whether any scheme's credential travels as a cookie: a Wasp issuer with
+-- the cookie transport, or a handler declaring the "cookie-transport"
+-- capability for a cookie of its own.
+--
+-- Only then does the generated client send requests with
+-- @credentials: 'include'@. That mode makes the browser REQUIRE an
+-- @Access-Control-Allow-Credentials: true@ response header, which an app that
+-- replaced the CORS middleware the documented way (@cors({ origin })@) does
+-- not send. Keeping it off for the default bearer setup is what keeps every
+-- such app working.
+isCookieTransportUsed :: Auth -> Bool
+isCookieTransportUsed = any usesCookie . schemes
+  where
+    usesCookie scheme =
+      "cookie-transport" `elem` scheme.capabilities
+        || case inlineCredentials scheme of
+          Just (CookieTransport, _, _) -> True
+          _ -> False
+
 -- | Whether any configured scheme brings a client-side auth handler entry.
 isClientAuthHandlerUsed :: Auth -> Bool
 isClientAuthHandlerUsed = any (isJust . (.client)) . schemes
@@ -271,12 +325,6 @@ data AuthSchemeRoutes = AuthSchemeRoutes
   { -- | When true, the scheme's routes are mounted without the JSON body
     -- parser, because the handler reads the raw request body itself.
     rawBody :: Maybe Bool
-  }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
-
-data AuthSchemeEnvVars = AuthSchemeEnvVars
-  { server :: [AuthSchemeEnvVar],
-    client :: [AuthSchemeEnvVar]
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -319,8 +367,3 @@ onBeforeLink auth = hooks auth >>= hooksOnBeforeLink
 
 onAfterLink :: Auth -> Maybe ExtImport
 onAfterLink auth = hooks auth >>= hooksOnAfterLink
-
--- Avoids ambiguity with the other `userSignupFields` record fields (otherwise
--- every consumer would need DuplicateRecordFields and OverloadedRecordDot).
-userSignupFieldsForAuthScheme :: AuthScheme -> Maybe ExtImport
-userSignupFieldsForAuthScheme = (.userSignupFields)

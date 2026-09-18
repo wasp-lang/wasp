@@ -3,7 +3,7 @@ import { useAuthContext } from "@wasp.sh/lib-auth/browser";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { isMethodEnabled, signInUrl } from "../../../actions.js";
-import { getClientOptions } from "../../../runtime.js";
+import { getClientConfig } from "../../../runtime.js";
 import { Form, FormError, FormInput, FormItemGroup, FormLabel, FormTextarea, SubmitButton, } from "../Form.js";
 import "../auth-styles.css";
 import { useEmail } from "../email/useEmail.js";
@@ -31,7 +31,7 @@ const socialOrder = [
 ];
 export const LoginSignupForm = ({ state, socialButtonsDirection = "horizontal", additionalSignupFields, }) => {
     const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useAuthContext();
-    const options = getClientOptions();
+    const clientConfig = getClientConfig();
     const isLogin = state === "login";
     const cta = isLogin ? "Log in" : "Sign up";
     const navigate = useNavigate();
@@ -52,7 +52,7 @@ export const LoginSignupForm = ({ state, socialButtonsDirection = "horizontal", 
         isLogin,
         onError: onErrorHandler,
         onSuccess() {
-            navigate(options.onAuthSucceededRedirectTo);
+            navigate(clientConfig.onAuthSucceededRedirectTo);
         },
     });
     const email = useEmail({
@@ -63,7 +63,7 @@ export const LoginSignupForm = ({ state, socialButtonsDirection = "horizontal", 
             setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`);
         },
         onLoginSuccess() {
-            navigate(options.onAuthSucceededRedirectTo);
+            navigate(clientConfig.onAuthSucceededRedirectTo);
         },
     });
     const handleSubmit = isEmailEnabled

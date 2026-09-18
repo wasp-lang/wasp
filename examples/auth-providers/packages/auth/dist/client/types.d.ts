@@ -1,18 +1,14 @@
 export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "keycloak" | "microsoft";
-/** The same serializable options the server auth handler receives. */
-export type WaspAuthClientOptions = {
+/**
+ * The manifest's `client.config`, as the client factory receives it. Public
+ * by construction (it is bundled into the browser), so it carries only what
+ * the forms and actions read: where to go after login, where the OAuth
+ * handback lands, and which methods are on.
+ */
+export type WaspAuthClientConfig = {
+    /** Route the built-in forms navigate to after a successful login or signup. */
     onAuthSucceededRedirectTo: string;
-    /** Where the server mounted the routes. Defaults to `/auth`. */
+    /** Client route the OAuth handback redirects to with the one-time code. */
     clientOAuthCallbackPath: string;
-    methods: {
-        usernameAndPassword?: Record<string, never>;
-        email?: {
-            fromField: {
-                name?: string;
-                email: string;
-            };
-            emailVerificationClientRoute: string;
-            passwordResetClientRoute: string;
-        };
-    } & Partial<Record<OAuthProviderName, unknown>>;
+    methods: Partial<Record<"usernameAndPassword" | "email" | OAuthProviderName, Record<string, never>>>;
 };

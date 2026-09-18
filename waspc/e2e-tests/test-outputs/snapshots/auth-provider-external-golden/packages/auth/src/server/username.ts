@@ -24,7 +24,7 @@ import {
 
 /** The username & password method: `/auth/username/{login,signup}`. */
 export function usernameRoutes(ctx: Ctx): Route[] {
-  const { runtime, extensions } = ctx;
+  const { runtime, config } = ctx;
   const identities = () =>
     runtime.identityNamespaces(namespaceFor(runtime, "username"));
 
@@ -134,7 +134,7 @@ export function usernameRoutes(ctx: Ctx): Route[] {
             (() =>
               validateAndGetUserFields(
                 fields,
-                extensions.userSignupFields?.username,
+                config.methods.usernameAndPassword?.userSignupFields,
               )) as never,
             { req },
           );

@@ -55,16 +55,17 @@ const defaultPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
 
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
 export function emailRoutes(ctx: Ctx): Route[] {
-  const { runtime, options, extensions } = ctx;
-  const emailConfig = options.methods.email!;
+  const { runtime, config } = ctx;
+  const emailConfig = config.methods.email!;
   const identities = () =>
     runtime.identityNamespaces(namespaceFor(runtime, "email"));
   const { validateJWT } = makeJwt(runtime);
   const helpers = makeEmailHelpers(runtime);
   const getVerificationEmailContent =
-    extensions.getVerificationEmailContent ?? defaultVerificationEmailContent;
+    emailConfig.getVerificationEmailContent ?? defaultVerificationEmailContent;
   const getPasswordResetEmailContent =
-    extensions.getPasswordResetEmailContent ?? defaultPasswordResetEmailContent;
+    emailConfig.getPasswordResetEmailContent ??
+    defaultPasswordResetEmailContent;
   // Wasp allows for auto-verification of emails in development mode to make
   // writing e2e tests easier.
   const isEmailAutoVerified =
@@ -143,7 +144,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
             (() =>
               validateAndGetUserFields(
                 fields,
-                extensions.userSignupFields?.email,
+                emailConfig.userSignupFields,
               )) as never,
             { req },
           );
@@ -269,9 +270,9 @@ export function emailRoutes(ctx: Ctx): Route[] {
         }
         await identities().updateData(email, { isEmailVerified: true });
 
-        if (extensions.onAfterEmailVerified) {
+        if (config.onAfterEmailVerified) {
           const auth = await findAuthWithUser(runtime, identity.authId);
-          await extensions.onAfterEmailVerified({
+          await config.onAfterEmailVerified({
             prisma: runtime.db,
             req,
             email,

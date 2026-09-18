@@ -109,38 +109,72 @@ type EnvVarRequirement = {
 
 /**
  * The manifest {@link waspAuth} produces, structurally matching
- * `AuthSchemeManifest` from `@wasp.sh/spec`.
+ * `AuthSchemeManifest` from `@wasp.sh/spec`. It is grouped by side: `server`
+ * and `client` each hold what that half of the handler receives.
  */
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 3;
-  handler: string;
-  server: { package: string };
-  client: { package: string };
-  routes: Record<string, never>;
+  contractVersion: 4;
+  server: {
+    authHandlerFactory: { package: string };
+    env: EnvVarRequirement[];
+    config: WaspAuthServerConfig<Ref>;
+    routes: Record<string, never>;
+  };
+  client: {
+    authHandlerFactory: { package: string };
+    config: WaspAuthClientConfig;
+  };
   capabilities: string[];
-  env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
-  uses: Array<"identity-namespaces" | "email-send">;
+  uses: Array<"email-send">;
   /** Namespace suffixes; the compiler prefixes them with the scheme name. */
   identityNamespaces: string[];
   credentials: WaspAuthCredentialsConfig<StoreRef>;
-  options: WaspAuthOptions;
-  extensions: Record<string, Ref>;
 };
 
-/** The serializable options the server and client auth handlers are instantiated with. */
-export type WaspAuthOptions = {
-  onAuthSucceededRedirectTo: string;
+/**
+ * What the server half receives: plain data mixed with the app's functions,
+ * each next to the method it belongs to. Here the functions are still
+ * references; Wasp carries them across the compiler and the factory gets
+ * them live, at the same paths.
+ */
+export type WaspAuthServerConfig<Ref = unknown> = {
   clientOAuthCallbackPath: string;
   methods: {
-    usernameAndPassword?: Record<string, never>;
+    usernameAndPassword?: { userSignupFields?: Ref };
     email?: {
       fromField: { name?: string; email: string };
       emailVerificationClientRoute: string;
       passwordResetClientRoute: string;
+      userSignupFields?: Ref;
+      getVerificationEmailContent?: Ref;
+      getPasswordResetEmailContent?: Ref;
     };
-  } & Partial<Record<OAuthProviderName, { requiredScopes: string[] }>>;
+  } & Partial<
+    Record<
+      OAuthProviderName,
+      { requiredScopes: string[]; userSignupFields?: Ref; configFn?: Ref }
+    >
+  >;
+  onAfterEmailVerified?: Ref;
+  onBeforeOAuthRedirect?: Ref;
+};
+
+/**
+ * What the client half receives. Public by construction (it is bundled into
+ * the browser), so it carries only what the forms and actions read: where to
+ * go after login, where the OAuth handback lands, and which methods are on.
+ */
+export type WaspAuthClientConfig = {
+  onAuthSucceededRedirectTo: string;
+  clientOAuthCallbackPath: string;
+  methods: Partial<
+    Record<
+      "usernameAndPassword" | "email" | OAuthProviderName,
+      Record<string, never>
+    >
+  >;
 };
 
 export type OAuthProviderName =
@@ -241,45 +275,46 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
     );
   }
 
-  const extensions: Record<string, Ref> = {};
-  const addExtension = (name: string, ref: Ref | undefined) => {
-    if (ref !== undefined) extensions[name] = ref;
-  };
-  addExtension(
-    "usernameUserSignupFields",
-    methods.usernameAndPassword?.userSignupFields,
-  );
-  addExtension("emailUserSignupFields", methods.email?.userSignupFields);
-  addExtension(
-    "getVerificationEmailContent",
-    methods.email?.emailVerification.getEmailContentFn,
-  );
-  addExtension(
-    "getPasswordResetEmailContent",
-    methods.email?.passwordReset.getEmailContentFn,
-  );
-  addExtension("onAfterEmailVerified", config.onAfterEmailVerified);
-  addExtension("onBeforeOAuthRedirect", config.onBeforeOAuthRedirect);
-  for (const method of enabledOAuth) {
-    const { name } = oauthProviders[method];
-    addExtension(`${name}UserSignupFields`, methods[method]?.userSignupFields);
-    addExtension(`${name}ConfigFn`, methods[method]?.configFn);
-  }
+  // A field is only present when the app gave it, so the config stays
+  // minimal and `undefined` never has to cross the compiler.
+  const given = <T extends Record<string, unknown>>(fields: T): Partial<T> =>
+    Object.fromEntries(
+      Object.entries(fields).filter(([, value]) => value !== undefined),
+    ) as Partial<T>;
 
-  const optionMethods: WaspAuthOptions["methods"] = {};
+  const serverMethods: WaspAuthServerConfig<Ref>["methods"] = {};
+  const clientMethods: WaspAuthClientConfig["methods"] = {};
   if (methods.usernameAndPassword !== undefined) {
-    optionMethods.usernameAndPassword = {};
+    serverMethods.usernameAndPassword = given({
+      userSignupFields: methods.usernameAndPassword.userSignupFields,
+    });
+    clientMethods.usernameAndPassword = {};
   }
   if (methods.email !== undefined) {
-    optionMethods.email = {
+    serverMethods.email = {
       fromField: methods.email.fromField,
       emailVerificationClientRoute: methods.email.emailVerification.clientRoute,
       passwordResetClientRoute: methods.email.passwordReset.clientRoute,
+      ...given({
+        userSignupFields: methods.email.userSignupFields,
+        getVerificationEmailContent:
+          methods.email.emailVerification.getEmailContentFn,
+        getPasswordResetEmailContent:
+          methods.email.passwordReset.getEmailContentFn,
+      }),
     };
+    clientMethods.email = {};
   }
   for (const method of enabledOAuth) {
     const { name, requiredScopes } = oauthProviders[method];
-    optionMethods[name] = { requiredScopes };
+    serverMethods[name] = {
+      requiredScopes,
+      ...given({
+        userSignupFields: methods[method]?.userSignupFields,
+        configFn: methods[method]?.configFn,
+      }),
+    };
+    clientMethods[name] = {};
   }
 
   const identityNamespaces = [
@@ -291,14 +326,10 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 3,
-    handler: "@wasp.sh/auth",
-    server: { package: "@wasp.sh/auth/server" },
-    client: { package: "@wasp.sh/auth/client" },
-    routes: {},
-    capabilities: [],
-    env: {
-      server: [
+    contractVersion: 4,
+    server: {
+      authHandlerFactory: { package: "@wasp.sh/auth/server" },
+      env: [
         ...(needsJwt
           ? [
               {
@@ -321,19 +352,27 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
           oauthProviders[method].envVars.map((name) => ({ name })),
         ),
       ],
-      client: [],
+      config: {
+        clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
+        methods: serverMethods,
+        ...given({
+          onAfterEmailVerified: config.onAfterEmailVerified,
+          onBeforeOAuthRedirect: config.onBeforeOAuthRedirect,
+        }),
+      },
+      routes: {},
     },
-    uses: [
-      "identity-namespaces",
-      ...(usesEmail ? (["email-send"] as const) : []),
-    ],
+    client: {
+      authHandlerFactory: { package: "@wasp.sh/auth/client" },
+      config: {
+        onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
+        clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
+        methods: clientMethods,
+      },
+    },
+    capabilities: [],
+    uses: usesEmail ? ["email-send"] : [],
     identityNamespaces,
     credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
-    options: {
-      onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
-      clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
-      methods: optionMethods,
-    },
-    extensions,
   };
 }

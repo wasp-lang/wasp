@@ -1,5 +1,6 @@
 import type { ClientAuthHandler } from '@wasp.sh/auth-contract/client'
 import type { AuthSchemeName } from '../../auth/scheme.js'
+import { joinSchemeConfig } from '../../auth/schemeConfig.js'
 import {
   getRequestCredential,
   registerCredentialSource,
@@ -51,7 +52,7 @@ function makeClientRuntime(
       if (credential !== null) {
         headers.set('Authorization', `Bearer ${credential}`)
       }
-      return fetch(url, { ...init, headers, credentials: 'include' })
+      return fetch(url, { ...init, headers })
     },
     // Only the current user: a linked account does not change anything else.
     refreshUser: (): Promise<void> => invalidateQueryByKey(['auth/me']),
@@ -73,7 +74,7 @@ function makeClientRuntime(
 
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
-  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), {"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{"fromField":{"name":"Wasp Kitchen Sink","email":"kitchen-sink@wasp.sh"},"emailVerificationClientRoute":"/email-verification-","passwordResetClientRoute":"/password-reset"},"google":{"requiredScopes":["profile"]},"github":{"requiredScopes":[]},"slack":{"requiredScopes":["openid"]},"discord":{"requiredScopes":["identify"]},"microsoft":{"requiredScopes":["openid","profile","email"]}}}),
+  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), joinSchemeConfig({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{},"google":{},"github":{},"slack":{},"discord":{},"microsoft":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
 }
 
 // The handlers' own credentials are the request path's fallback source:

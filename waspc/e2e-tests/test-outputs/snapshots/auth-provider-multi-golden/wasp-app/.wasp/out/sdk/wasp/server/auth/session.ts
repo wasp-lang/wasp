@@ -123,9 +123,9 @@ function isAuthEntityId(subjectId: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectId);
 }
 
-// The scheme's `userSignupFields` compute a provisioned user's own fields
+// The scheme's `userFieldsFromClaims` compute a provisioned user's own fields
 // from the claims that scheme verified. Each scheme brings its own.
-const userSignupFieldsByScheme: Partial<Record<AuthSchemeName, unknown>> = {
+const userFieldsFromClaimsByScheme: Partial<Record<AuthSchemeName, unknown>> = {
   'wasp': undefined,
   'clerk': undefined,
 }
@@ -151,9 +151,8 @@ async function resolveSubject(
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
   },
-  // The identity namespace to record under; callers with the
-  // 'identity-namespaces' grant multiplex several, everyone else records
-  // under the scheme name. The runtime guards membership before we get here.
+  // The identity namespace to record under; a scheme that declared several
+  // multiplexes them, everyone else records under the scheme name. The runtime guards membership before we get here.
   namespace: string = scheme,
   req?: ExpressRequest,
 ): Promise<string | null> {
@@ -174,7 +173,7 @@ async function resolveSubject(
     }),
   );
 
-  // The scheme's `userSignupFields` compute the new user's own fields from
+  // The scheme's `userFieldsFromClaims` compute the new user's own fields from
   // the claims the handler verified -- the only way a user entity with
   // required columns can be provisioned at all. Computed only for brand-new
   // subjects.
@@ -249,7 +248,7 @@ export async function provisionAuthUser(
 
 // PRIVATE API
 /**
- * Runs the scheme's manifest-level `userSignupFields` over verified claims,
+ * Runs the scheme's manifest-level `userFieldsFromClaims` over verified claims,
  * producing the user entity's own fields. Shared by just-in-time provisioning
  * and the identity facet's `create` (when no field getter is passed).
  */
@@ -259,6 +258,6 @@ export async function computeSchemeUserFields(
 ): Promise<Record<string, unknown>> {
   return validateAndGetUserFields(
     { ...(claims ?? {}) },
-    userSignupFieldsByScheme[scheme] as any,
+    userFieldsFromClaimsByScheme[scheme] as any,
   );
 }

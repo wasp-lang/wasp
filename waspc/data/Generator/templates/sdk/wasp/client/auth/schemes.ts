@@ -1,6 +1,7 @@
 {{={= =}=}}
 import type { ClientAuthHandler } from '@wasp.sh/auth-contract/client'
 import type { AuthSchemeName } from '../../auth/scheme.js'
+import { joinSchemeConfig } from '../../auth/schemeConfig.js'
 import {
   getRequestCredential,
   registerCredentialSource,
@@ -11,7 +12,7 @@ import { config } from '../config.js'
 import { env } from '../env.js'
 {=# clientAuthHandlerSchemes =}
 {=# isPackage =}
-import { createClientAuthHandler as createClientAuthHandler_{= index =} } from '{= clientPackage =}'
+import { {= clientExportName =} as createClientAuthHandler_{= index =} } from '{= clientPackage =}'
 {=/ isPackage =}
 {=^ isPackage =}
 {=& clientModule.importStatement =}
@@ -19,6 +20,9 @@ import { createClientAuthHandler as createClientAuthHandler_{= index =} } from '
 // exports as `createClientAuthHandler`.
 const createClientAuthHandler_{= index =} = {= clientModule.importIdentifier =}
 {=/ isPackage =}
+{=# configReferences =}
+{=& import.importStatement =}
+{=/ configReferences =}
 {=/ clientAuthHandlerSchemes =}
 
 /**
@@ -62,7 +66,13 @@ function makeClientRuntime(
       if (credential !== null) {
         headers.set('Authorization', `Bearer ${credential}`)
       }
+      {=# isCookieTransportUsed =}
+      // A cookie credential rides along, and a login's Set-Cookie is accepted.
       return fetch(url, { ...init, headers, credentials: 'include' })
+      {=/ isCookieTransportUsed =}
+      {=^ isCookieTransportUsed =}
+      return fetch(url, { ...init, headers })
+      {=/ isCookieTransportUsed =}
     },
     // Only the current user: a linked account does not change anything else.
     refreshUser: (): Promise<void> => invalidateQueryByKey(['auth/me']),
@@ -85,7 +95,7 @@ function makeClientRuntime(
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
   {=# clientAuthHandlerSchemes =}
-  '{= schemeName =}': createClientAuthHandler_{= index =}(makeClientRuntime('{= schemeName =}', {=& clientEnvVarNamesJs =}), {=# hasOptions =}{=& optionsJson =}{=/ hasOptions =}{=^ hasOptions =}undefined{=/ hasOptions =}),
+  '{= schemeName =}': createClientAuthHandler_{= index =}(makeClientRuntime('{= schemeName =}', {=& clientEnvVarNamesJs =}), joinSchemeConfig({=& configJson =}, [{=# configReferences =}[{=& pathJs =}, {= import.importIdentifier =}], {=/ configReferences =}]) as Parameters<typeof createClientAuthHandler_{= index =}>[1]),
   {=/ clientAuthHandlerSchemes =}
 }
 

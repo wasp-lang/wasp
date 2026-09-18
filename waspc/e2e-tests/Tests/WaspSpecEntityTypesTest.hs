@@ -104,7 +104,9 @@ waspSpecEntityTypesTest =
             onAuthFailedRedirectTo: "/",
             schemes: {
               test: customAuthHandler({
-                server: ref({ from: "./src/auth", import: "handler" }),
+                server: {
+                  authHandlerFactory: ref({ from: "./src/auth", import: "createHandler" }),
+                },
               }),
             },
           },

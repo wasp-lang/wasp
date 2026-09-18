@@ -13,6 +13,7 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Auth.SchemeSideConfig (mkSchemeSideConfigTmplData)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -51,29 +52,30 @@ genClientAuthProvidersTs auth =
       Aeson.object
         [ "anyClientAuthHandlers" Aeson..= (not . null $ clientAuthHandlerSchemes),
           "defaultScheme" Aeson..= AS.Auth.defaultScheme auth,
+          "isCookieTransportUsed" Aeson..= AS.Auth.isCookieTransportUsed auth,
           "clientAuthHandlerSchemes" Aeson..= zipWith mkClientAuthHandlerSchemeTmplData [0 :: Int ..] clientAuthHandlerSchemes
         ]
     -- A scheme's client half is a package entry or a factory in the app's
     -- own code; both are instantiated the same way.
     clientAuthHandlerSchemes =
-      [ scheme
+      [ (scheme, clientSide)
       | scheme <- AS.Auth.schemes auth,
-        isJust scheme.client
+        Just clientSide <- [scheme.client]
       ]
-    mkClientAuthHandlerSchemeTmplData idx provider =
-      Aeson.object
-        [ "index" Aeson..= idx,
-          "schemeName" Aeson..= provider.name,
-          "isPackage" Aeson..= isJust (AS.Auth.clientPackage provider),
-          "clientPackage" Aeson..= AS.Auth.clientPackage provider,
-          "clientModule"
-            Aeson..= extImportToAliasedImportJson ("authClientModule_" ++ show idx) (AS.Auth.clientModule provider),
-          "hasOptions" Aeson..= maybe False (const True) provider.optionsJson,
-          "optionsJson" Aeson..= provider.optionsJson,
-          -- The client auth handler runtime's env is narrowed to exactly these names.
-          "clientEnvVarNamesJs"
-            Aeson..= makeJsArrayFromHaskellList ((.envVarName) <$> provider.envVars.client)
-        ]
+    mkClientAuthHandlerSchemeTmplData idx (scheme, clientSide) =
+      Aeson.object $
+        mkSchemeSideConfigTmplData ("authClientConfigReference_" ++ show idx) clientSide
+          ++ [ "index" Aeson..= idx,
+               "schemeName" Aeson..= scheme.name,
+               "isPackage" Aeson..= isJust (AS.Auth.clientPackage scheme),
+               "clientPackage" Aeson..= AS.Auth.clientPackage scheme,
+               "clientExportName" Aeson..= AS.Auth.clientExportName scheme,
+               "clientModule"
+                 Aeson..= extImportToAliasedImportJson ("authClientModule_" ++ show idx) (AS.Auth.clientModule scheme),
+               -- The client auth handler runtime's env is narrowed to exactly these names.
+               "clientEnvVarNamesJs"
+                 Aeson..= makeJsArrayFromHaskellList ((.envVarName) <$> clientSide.envVars)
+             ]
 
 clientAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 clientAuthDirInSdkTemplatesDir = [reldir|client/auth|]

@@ -24,25 +24,25 @@ const EXCHANGE_CODE_PATH = "/exchange-code";
  * state/cookie and one-time-code machinery, on the contract's facets.
  */
 export function oauthRoutes(ctx) {
-    const { runtime, options } = ctx;
-    const enabled = OAUTH_PROVIDER_NAMES.filter((name) => options.methods[name] !== undefined);
+    const { runtime, config } = ctx;
+    const enabled = OAUTH_PROVIDER_NAMES.filter((name) => config.methods[name] !== undefined);
     if (enabled.length === 0) {
         return [];
     }
     const jwt = makeJwt(runtime);
     const routes = enabled.flatMap((name) => {
         const provider = makeOAuthProvider(runtime, name, `${runtime.serverUrl}${runtime.mountPath}/${name}/${CALLBACK_PATH}`);
-        const config = mergeDefaultAndUserConfig({ scopes: options.methods[name].requiredScopes }, ctx.extensions.configFns?.[name]);
+        const oauthConfig = mergeDefaultAndUserConfig({ scopes: config.methods[name].requiredScopes }, config.methods[name].configFn);
         return [
             {
                 method: "GET",
                 path: `/${name}/${LOGIN_PATH}`,
-                handler: (req, res) => loginHandler(ctx, provider, config, jwt, req, res),
+                handler: (req, res) => loginHandler(ctx, provider, oauthConfig, jwt, req, res),
             },
             {
                 method: "GET",
                 path: `/${name}/${CALLBACK_PATH}`,
-                handler: (req, res) => callbackHandler(ctx, provider, config, jwt, req, res),
+                handler: (req, res) => callbackHandler(ctx, provider, oauthConfig, jwt, req, res),
             },
         ];
     });
@@ -72,7 +72,7 @@ export function oauthRoutes(ctx) {
 function mergeDefaultAndUserConfig(defaultConfig, userConfigFn) {
     return userConfigFn ? { ...defaultConfig, ...userConfigFn() } : defaultConfig;
 }
-async function loginHandler(ctx, provider, config, jwt, req, res) {
+async function loginHandler(ctx, provider, oauthConfig, jwt, req, res) {
     const state = {
         state: generateState(),
         ...(provider.oAuthType === "OAuth2WithPKCE"
@@ -81,10 +81,10 @@ async function loginHandler(ctx, provider, config, jwt, req, res) {
         ...(await getLinkTicketCookie(ctx, jwt, req)),
     };
     storeOAuthState(ctx, provider, res, state);
-    const redirectUrl = await provider.getAuthorizationUrl(state, config);
+    const redirectUrl = await provider.getAuthorizationUrl(state, oauthConfig);
     let url = redirectUrl;
-    if (ctx.extensions.onBeforeOAuthRedirect) {
-        const result = (await ctx.extensions.onBeforeOAuthRedirect({
+    if (ctx.config.onBeforeOAuthRedirect) {
+        const result = (await ctx.config.onBeforeOAuthRedirect({
             prisma: ctx.runtime.db,
             req,
             url: redirectUrl,
@@ -94,12 +94,12 @@ async function loginHandler(ctx, provider, config, jwt, req, res) {
     }
     redirect(res, url.toString());
 }
-async function callbackHandler(ctx, provider, config, jwt, req, res) {
-    const { runtime, options, extensions } = ctx;
+async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
+    const { runtime, config } = ctx;
     try {
         const oAuthState = validateAndGetOAuthState(provider, req);
         const tokens = await provider.getProviderTokens(oAuthState);
-        const { providerProfile, providerUserId } = await provider.getProviderInfo(tokens, config);
+        const { providerProfile, providerUserId } = await provider.getProviderInfo(tokens, oauthConfig);
         const oauth = {
             uniqueRequestId: oAuthState.state,
             providerName: provider.id,
@@ -131,12 +131,12 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
                         fromAuthId: existing.authId,
                         intoAuthId: linkToAuthId,
                     });
-                    redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}?mergeTicket=${encodeURIComponent(mergeTicket)}`);
+                    redirect(res, `${runtime.clientUrl}${config.clientOAuthCallbackPath}?mergeTicket=${encodeURIComponent(mergeTicket)}`);
                     return;
                 }
                 rethrowLinkError(e);
             }
-            redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}?linked=${provider.id}`);
+            redirect(res, `${runtime.clientUrl}${config.clientOAuthCallbackPath}?linked=${provider.id}`);
             return;
         }
         const existing = await identities.find(providerUserId);
@@ -145,7 +145,7 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
             try {
                 // The facet's `create` fires the app's signup hooks (with the OAuth
                 // tokens as their `oauth` payload) around the atomic write.
-                await identities.create(providerUserId, {}, (() => validateAndGetUserFields({ profile: providerProfile }, extensions.userSignupFields?.[provider.id])), { req, hookContext: oauth });
+                await identities.create(providerUserId, {}, (() => validateAndGetUserFields({ profile: providerProfile }, config.methods[provider.id]?.userSignupFields)), { req, hookContext: oauth });
                 isNewUser = true;
             }
             catch (e) {
@@ -162,7 +162,7 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
             subjectId: providerUserId,
         }, { req, hookContext: oauth, skipHooks: isNewUser });
         const oneTimeCode = await jwt.createJWT({ response }, { expiresIn: new TimeSpan(1, "m") });
-        redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}#${oneTimeCode}`);
+        redirect(res, `${runtime.clientUrl}${config.clientOAuthCallbackPath}#${oneTimeCode}`);
     }
     catch (error) {
         console.error(error);
@@ -172,7 +172,7 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
                 ? `${error.message}: ${error.data.message}`
                 : error.message
             : "An unknown error occurred while trying to log in with the OAuth provider.";
-        redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}?error=${message}`);
+        redirect(res, `${runtime.clientUrl}${config.clientOAuthCallbackPath}?error=${message}`);
     }
 }
 // --- state cookies (the in-tree oauth/cookies.ts + state.ts) ---------------

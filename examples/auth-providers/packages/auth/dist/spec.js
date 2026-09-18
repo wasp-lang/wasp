@@ -86,36 +86,40 @@ export function waspAuth(config) {
     if (methods.usernameAndPassword !== undefined && usesEmail) {
         throw new Error("waspAuth(): use either usernameAndPassword or email, not both.");
     }
-    const extensions = {};
-    const addExtension = (name, ref) => {
-        if (ref !== undefined)
-            extensions[name] = ref;
-    };
-    addExtension("usernameUserSignupFields", methods.usernameAndPassword?.userSignupFields);
-    addExtension("emailUserSignupFields", methods.email?.userSignupFields);
-    addExtension("getVerificationEmailContent", methods.email?.emailVerification.getEmailContentFn);
-    addExtension("getPasswordResetEmailContent", methods.email?.passwordReset.getEmailContentFn);
-    addExtension("onAfterEmailVerified", config.onAfterEmailVerified);
-    addExtension("onBeforeOAuthRedirect", config.onBeforeOAuthRedirect);
-    for (const method of enabledOAuth) {
-        const { name } = oauthProviders[method];
-        addExtension(`${name}UserSignupFields`, methods[method]?.userSignupFields);
-        addExtension(`${name}ConfigFn`, methods[method]?.configFn);
-    }
-    const optionMethods = {};
+    // A field is only present when the app gave it, so the config stays
+    // minimal and `undefined` never has to cross the compiler.
+    const given = (fields) => Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined));
+    const serverMethods = {};
+    const clientMethods = {};
     if (methods.usernameAndPassword !== undefined) {
-        optionMethods.usernameAndPassword = {};
+        serverMethods.usernameAndPassword = given({
+            userSignupFields: methods.usernameAndPassword.userSignupFields,
+        });
+        clientMethods.usernameAndPassword = {};
     }
     if (methods.email !== undefined) {
-        optionMethods.email = {
+        serverMethods.email = {
             fromField: methods.email.fromField,
             emailVerificationClientRoute: methods.email.emailVerification.clientRoute,
             passwordResetClientRoute: methods.email.passwordReset.clientRoute,
+            ...given({
+                userSignupFields: methods.email.userSignupFields,
+                getVerificationEmailContent: methods.email.emailVerification.getEmailContentFn,
+                getPasswordResetEmailContent: methods.email.passwordReset.getEmailContentFn,
+            }),
         };
+        clientMethods.email = {};
     }
     for (const method of enabledOAuth) {
         const { name, requiredScopes } = oauthProviders[method];
-        optionMethods[name] = { requiredScopes };
+        serverMethods[name] = {
+            requiredScopes,
+            ...given({
+                userSignupFields: methods[method]?.userSignupFields,
+                configFn: methods[method]?.configFn,
+            }),
+        };
+        clientMethods[name] = {};
     }
     const identityNamespaces = [
         ...(methods.usernameAndPassword !== undefined ? ["username"] : []),
@@ -125,14 +129,10 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 3,
-        handler: "@wasp.sh/auth",
-        server: { package: "@wasp.sh/auth/server" },
-        client: { package: "@wasp.sh/auth/client" },
-        routes: {},
-        capabilities: [],
-        env: {
-            server: [
+        contractVersion: 4,
+        server: {
+            authHandlerFactory: { package: "@wasp.sh/auth/server" },
+            env: [
                 ...(needsJwt
                     ? [
                         {
@@ -153,16 +153,27 @@ export function waspAuth(config) {
                     : []),
                 ...enabledOAuth.flatMap((method) => oauthProviders[method].envVars.map((name) => ({ name }))),
             ],
-            client: [],
+            config: {
+                clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
+                methods: serverMethods,
+                ...given({
+                    onAfterEmailVerified: config.onAfterEmailVerified,
+                    onBeforeOAuthRedirect: config.onBeforeOAuthRedirect,
+                }),
+            },
+            routes: {},
         },
+        client: {
+            authHandlerFactory: { package: "@wasp.sh/auth/client" },
+            config: {
+                onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
+                clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
+                methods: clientMethods,
+            },
+        },
+        capabilities: [],
         uses: usesEmail ? ["email-send"] : [],
         identityNamespaces,
         credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
-        options: {
-            onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
-            clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
-            methods: optionMethods,
-        },
-        extensions,
     };
 }

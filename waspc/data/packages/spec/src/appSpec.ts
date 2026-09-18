@@ -196,19 +196,28 @@ export type AuthHooksSpec = {
 export type AuthScheme = {
   name: string;
   handler: string;
-  server: { package: string } | { module: ExtImport };
-  client: Optional<{ package: string } | { module: ExtImport }>;
+  server: AuthSchemeSide;
+  client: Optional<AuthSchemeSide>;
   routes: Optional<AuthSchemeRoutes>;
   capabilities: string[];
-  envVars: AuthSchemeEnvVars;
   uses: string[];
   // Full namespace names: the scheme name plus each declared suffix, prefixed.
   identityNamespaces: string[];
   credentials: Optional<AuthSchemeCredentials>;
-  userSignupFields: Optional<ExtImport>;
-  setupFn: Optional<ExtImport>;
-  extensions: Record<string, ExtImport>;
-  optionsJson: Optional<string>;
+  userFieldsFromClaims: Optional<ExtImport>;
+};
+
+// One half of a scheme: what its factory is, and what it receives.
+export type AuthSchemeSide = {
+  authHandlerFactory:
+    | { package: string; export: string }
+    | { module: ExtImport };
+  envVars: AuthSchemeEnvVar[];
+  // The side's `config`, split: its plain data as JSON, and the references
+  // lifted out of it, keyed by the JSON-encoded path they sat at. The
+  // generated code joins them back before calling the factory.
+  configJson: Optional<string>;
+  configReferences: Record<string, ExtImport>;
 };
 
 export type AuthSchemeCredentials =
@@ -221,11 +230,6 @@ export type AuthSchemeCredentials =
 
 export type AuthSchemeRoutes = {
   rawBody: Optional<boolean>;
-};
-
-export type AuthSchemeEnvVars = {
-  server: AuthSchemeEnvVar[];
-  client: AuthSchemeEnvVar[];
 };
 
 export type AuthSchemeEnvVar = {

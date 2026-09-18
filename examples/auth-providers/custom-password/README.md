@@ -6,16 +6,18 @@ auth library. A user-made scheme builds from the same primitives Wasp's own auth
 ```ts
 schemes: {
   password: customAuthHandler({
-    server: createPasswordAuthHandler,   // a factory, like a package's createServerAuthHandler
-    routes: {},                      // it brings its own, mounted at /auth/password
-    credentials: {},                 // Wasp runs a private bearer issuer for this scheme
+    server: {
+      authHandlerFactory: createPasswordAuthHandler, // like a package's createServerAuthHandler
+      routes: {},                                     // it brings its own, mounted at /auth/password
+    },
+    credentials: {}, // Wasp runs a private bearer issuer for this scheme
   }),
 },
 ```
 
 The primitives, and where this app uses them:
 
-`server` is the same thing a handler package exports, so the scheme's runtime arrives as an
+`server.authHandlerFactory` is the same thing a handler package exports, so the scheme's runtime arrives as an
 argument and the factory may return routes of its own. Everything lives in
 `src/auth/handler.ts`:
 

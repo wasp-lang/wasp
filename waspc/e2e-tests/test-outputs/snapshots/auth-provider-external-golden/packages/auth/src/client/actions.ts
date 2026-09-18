@@ -1,5 +1,5 @@
-import { WaspAuthClientError, post, postAsUser } from "./http.js";
-import { getClientOptions, getClientRuntime } from "./runtime.js";
+import { WaspAuthClientError, post } from "./http.js";
+import { getClientConfig, getClientRuntime } from "./runtime.js";
 import type { OAuthProviderName } from "./types.js";
 
 /** The server path prefix the routes live under. */
@@ -103,9 +103,9 @@ export function signInUrl(provider: OAuthProviderName): string {
 }
 
 export function isMethodEnabled(
-  name: keyof ReturnType<typeof getClientOptions>["methods"],
+  name: keyof ReturnType<typeof getClientConfig>["methods"],
 ): boolean {
-  return getClientOptions().methods[name] !== undefined;
+  return getClientConfig().methods[name] !== undefined;
 }
 
 // --- account linking --------------------------------------------------------
@@ -123,7 +123,7 @@ export type LinkResult =
 
 async function linkThrough(path: string, data: unknown): Promise<LinkResult> {
   try {
-    await postAsUser(`${basePath()}${path}`, data);
+    await post(`${basePath()}${path}`, data);
   } catch (e) {
     const mergeTicket = getMergeTicket(e);
     if (mergeTicket === null) throw e;
@@ -172,7 +172,7 @@ export function linkEmail(data: {
  * deleted. Not reversible.
  */
 export async function confirmMerge(mergeTicket: string): Promise<void> {
-  await postAsUser(`${basePath()}/merge`, { mergeTicket });
+  await post(`${basePath()}/merge`, { mergeTicket });
   await getClientRuntime().refreshUser();
 }
 
@@ -182,7 +182,7 @@ export async function confirmMerge(mergeTicket: string): Promise<void> {
  * Rejects (409) when it is the account's only login method.
  */
 export async function unlink(identity: LinkedIdentity): Promise<void> {
-  await postAsUser(`${basePath()}/unlink`, {
+  await post(`${basePath()}/unlink`, {
     method: identity.providerName.substring(
       identity.providerName.indexOf(":") + 1,
     ),
@@ -200,7 +200,7 @@ export async function unlink(identity: LinkedIdentity): Promise<void> {
 export async function startOAuthLink(
   provider: OAuthProviderName,
 ): Promise<void> {
-  const { ticket } = await postAsUser<{ ticket: string }>(
+  const { ticket } = await post<{ ticket: string }>(
     `${basePath()}/link-intent`,
     {},
   );

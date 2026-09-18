@@ -1,5 +1,5 @@
-import { WaspAuthClientError, post, postAsUser } from "./http.js";
-import { getClientOptions, getClientRuntime } from "./runtime.js";
+import { WaspAuthClientError, post } from "./http.js";
+import { getClientConfig, getClientRuntime } from "./runtime.js";
 /** The server path prefix the routes live under. */
 function basePath() {
     return getClientRuntime().mountUrl;
@@ -56,11 +56,11 @@ export function signInUrl(provider) {
     return `${basePath()}/${provider}/login`;
 }
 export function isMethodEnabled(name) {
-    return getClientOptions().methods[name] !== undefined;
+    return getClientConfig().methods[name] !== undefined;
 }
 async function linkThrough(path, data) {
     try {
-        await postAsUser(`${basePath()}${path}`, data);
+        await post(`${basePath()}${path}`, data);
     }
     catch (e) {
         const mergeTicket = getMergeTicket(e);
@@ -102,7 +102,7 @@ export function linkEmail(data) {
  * deleted. Not reversible.
  */
 export async function confirmMerge(mergeTicket) {
-    await postAsUser(`${basePath()}/merge`, { mergeTicket });
+    await post(`${basePath()}/merge`, { mergeTicket });
     await getClientRuntime().refreshUser();
 }
 // PUBLIC API
@@ -111,7 +111,7 @@ export async function confirmMerge(mergeTicket) {
  * Rejects (409) when it is the account's only login method.
  */
 export async function unlink(identity) {
-    await postAsUser(`${basePath()}/unlink`, {
+    await post(`${basePath()}/unlink`, {
         method: identity.providerName.substring(identity.providerName.indexOf(":") + 1),
         subjectId: identity.providerUserId,
     });
@@ -124,6 +124,6 @@ export async function unlink(identity) {
  * credential is first traded for a short-lived ticket.
  */
 export async function startOAuthLink(provider) {
-    const { ticket } = await postAsUser(`${basePath()}/link-intent`, {});
+    const { ticket } = await post(`${basePath()}/link-intent`, {});
     window.location.href = `${basePath()}/${provider}/login?intent=link&ticket=${encodeURIComponent(ticket)}`;
 }

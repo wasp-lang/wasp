@@ -25,11 +25,11 @@ export default app({
     schemes: {
       clerk: customAuthHandler({
         // Both halves are factories from this app's own code: the same
-        // things a handler package exports, with the same powers.
-        server: createClerkServerAuthHandler,
-        client: createClerkClientAuthHandler,
-        env: {
-          server: [
+        // things a handler package exports, with the same powers. Each side
+        // holds what that half receives.
+        server: {
+          authHandlerFactory: createClerkServerAuthHandler,
+          env: [
             { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
             {
               name: "CLERK_PUBLISHABLE_KEY",
@@ -41,9 +41,12 @@ export default app({
               doc: "enables networkless JWT verification",
             },
           ],
+        },
+        client: {
+          authHandlerFactory: createClerkClientAuthHandler,
           // Declared here, so the client half receives it as `runtime.env`
           // and the app needs no client env schema of its own for it.
-          client: [
+          env: [
             {
               name: "REACT_APP_CLERK_PUBLISHABLE_KEY",
               doc: "Clerk dashboard → API keys (publishable key)",

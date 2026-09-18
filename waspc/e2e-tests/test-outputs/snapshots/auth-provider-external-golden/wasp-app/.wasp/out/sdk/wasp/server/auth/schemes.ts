@@ -1,5 +1,6 @@
 import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
+import { joinSchemeConfig } from '../../auth/schemeConfig.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
@@ -33,7 +34,7 @@ export const defaultScheme: AuthSchemeName = 'clerk'
  * its scheme name. It is a handler's *only* window into the app: handlers
  * never import generated code and never read `process.env` themselves, which
  * is what lets them version independently of any app. `provision` routes
- * through that scheme's `userSignupFields`, exactly like just-in-time
+ * through that scheme's `userFieldsFromClaims`, exactly like just-in-time
  * provisioning at first authentication. The casts are the runtime boundary:
  * the store speaks `unknown`, the contract speaks `JsonValue`, and both sides
  * of every value are plain parsed JSON.
@@ -329,12 +330,10 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
     // Granted facets: wired only when the manifest requested them, so an
     // undeclared access fails loudly at first use rather than working by
     // accident.
-    ...(spec.uses.includes('identity-namespaces')
-      ? {
-          identityNamespaces: (namespace: string) =>
-            makeIdentitiesFacet(spec, resolveOwnNamespace(spec, namespace)),
-        }
-      : {}),
+    // Always present: the manifest's declared namespace list is the boundary,
+    // and `resolveOwnNamespace` rejects anything outside it.
+    identityNamespaces: (namespace: string) =>
+      makeIdentitiesFacet(spec, resolveOwnNamespace(spec, namespace)),
   }
 }
 
@@ -353,7 +352,7 @@ function handlerOf(name: AuthSchemeName): AuthHandler {
 }
 
 
-// ---- scheme 'clerk' (@wasp.sh/auth-clerk) ----
+// ---- scheme 'clerk' (@wasp.sh/auth-clerk/server) ----
 const spec_0: SchemeRuntimeSpec = {
   scheme: 'clerk',
   serverEnvVarNames: ['CLERK_SECRET_KEY', 'CLERK_PUBLISHABLE_KEY', 'CLERK_JWT_KEY'],
@@ -367,14 +366,13 @@ const handlerParts_0 = await Promise.resolve(
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],
-    undefined,
-    {
-      // The user's setup function for the handler's underlying library; the
-      // handler calls it with its integration config and uses the result.
-      setupFn: undefined,
-      // Every other user function the manifest referenced, under the name
-      // the handler expects.
-    },
+    // The handler's `server.config`: its plain data, with every reference
+    // to app code set back at the path it was lifted from.
+    joinSchemeConfig(undefined, [
+      // Wasp never reads a handler's config, so it cannot know its type. The
+      // cast is sound by construction: this IS the object the handler's own
+      // spec helper built, carried across the compiler.
+    ]) as Parameters<typeof createServerAuthHandler_0>[1],
   ),
 )
 registered['clerk'] = handlerParts_0

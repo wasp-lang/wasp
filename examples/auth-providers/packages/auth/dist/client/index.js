@@ -8,8 +8,8 @@ import { setClientState } from "./runtime.js";
  * handler; the forms and actions below then read the captured runtime
  * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
-export const createClientAuthHandler = (runtime, options) => {
-    setClientState(runtime, options);
+export const createClientAuthHandler = (runtime, config) => {
+    setClientState(runtime, config);
     // No Wrapper, no ambient credential: a bearer credential is adopted
     // explicitly by the login actions through the setCredential sink, and a
     // cookie one never touches the client at all.

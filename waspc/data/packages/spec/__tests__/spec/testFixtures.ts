@@ -402,7 +402,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
         onAuthFailedRedirectTo: "/login",
         schemes: {
           test: customAuthHandler({
-            server: getRefObject("minimal", "named"),
+            server: { authHandlerFactory: getRefObject("minimal", "named") },
           }),
         },
       } as WaspSpec.Auth;
@@ -413,23 +413,34 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
         schemes: {
           session: waspBearer({ store: "prisma", ttl: "7d" }),
           test: customAuthHandler({
-            server: getRefObject("full", "named"),
-            capabilities: ["cookie-transport"],
-            env: {
-              server: [
-                { name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" },
-              ],
-              client: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
+            server: {
+              authHandlerFactory: getRefObject("full", "named"),
+              env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
+              config: {
+                flag: true,
+                methods: {
+                  google: {
+                    scopes: ["profile"],
+                    configFn: getRefObject("full", "named"),
+                  },
+                },
+                getEmailContent: getRefObject("full", "named"),
+              },
+              routes: { rawBody: true },
             },
+            client: {
+              authHandlerFactory: getRefObject("full", "named"),
+              env: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
+              config: {
+                publicFlag: true,
+                FormFooter: getRefObject("full", "named"),
+              },
+            },
+            capabilities: ["cookie-transport"],
             uses: ["email-send"],
             identityNamespaces: ["passkey"],
             credentials: { scheme: "session" },
-            userSignupFields: getRefObject("full", "named"),
-            extensions: {
-              configFn: getRefObject("full", "named"),
-              getEmailContent: getRefObject("full", "named"),
-            },
-            options: { flag: true },
+            userFieldsFromClaims: getRefObject("full", "named"),
           }),
         },
         default: "session",
@@ -457,15 +468,14 @@ export function getSingleSchemeAuthConfig(): WaspSpec.Auth {
     onAuthFailedRedirectTo: "/login",
     schemes: {
       "test-provider": customAuthHandler({
-        server: getRefObject("full", "named"),
-        capabilities: ["session-revocation"],
-        env: {
-          server: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
-          client: [],
+        server: {
+          authHandlerFactory: getRefObject("full", "named"),
+          env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
+          config: { flag: true, nested: { count: 1 } },
         },
+        capabilities: ["session-revocation"],
         credentials: { transport: "cookie", store: "signed-token", ttl: "15m" },
-        userSignupFields: getRefObject("full", "named"),
-        options: { flag: true, nested: { count: 1 } },
+        userFieldsFromClaims: getRefObject("full", "named"),
       }),
     },
   };

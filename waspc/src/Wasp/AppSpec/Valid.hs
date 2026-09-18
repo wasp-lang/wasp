@@ -251,8 +251,8 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
     -- package (spec/src/spec/authReservedEnvVarNames.ts) and the names owned
     -- by the generated server env schema (sdk/wasp/server/env.ts template).
     validateSchemeEnvVarsAreNotReserved scheme =
-      reservedNameErrors "server" scheme.envVars.server reservedServerEnvVarNames
-        ++ reservedNameErrors "client" scheme.envVars.client reservedClientEnvVarNames
+      reservedNameErrors "server" (Auth.serverEnvVars scheme) reservedServerEnvVarNames
+        ++ reservedNameErrors "client" (Auth.clientEnvVars scheme) reservedClientEnvVarNames
       where
         reservedNameErrors side envVars reservedNames =
           [ GenericValidationError $
@@ -442,8 +442,8 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
             ++ " env var '"
             ++ envVarName
             ++ "'. Each scheme's env vars must be uniquely named."
-      | (side, getVars) <- [("server", (.server)), ("client", (.client))],
-        ((envVarName, ownerA) : rest) <- tails (sortBy (\a b -> compare (fst a) (fst b)) [(envVar.envVarName, scheme.name) | scheme <- schemes, envVar <- getVars scheme.envVars]),
+      | (side, getVars) <- [("server", Auth.serverEnvVars), ("client", Auth.clientEnvVars)],
+        ((envVarName, ownerA) : rest) <- tails (sortBy (\a b -> compare (fst a) (fst b)) [(envVar.envVarName, scheme.name) | scheme <- schemes, envVar <- getVars scheme]),
         (otherName, ownerB) <- take 1 rest,
         otherName == envVarName
       ]

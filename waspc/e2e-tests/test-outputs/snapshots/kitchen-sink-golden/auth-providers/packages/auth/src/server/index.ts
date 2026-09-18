@@ -13,13 +13,7 @@ import {
 import { makeDispatcher, type Route } from "./http.js";
 import { linkingRoutes } from "./linking.js";
 import { oauthRoutes } from "./oauth/index.js";
-import type {
-  Ctx,
-  OAuthProviderName,
-  WaspAuthExtensions,
-  WaspAuthGrants,
-  WaspAuthOptions,
-} from "./types.js";
+import type { Ctx, OAuthProviderName, WaspAuthServerConfig } from "./types.js";
 import { usernameRoutes } from "./username.js";
 
 const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
@@ -35,40 +29,33 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  * Wasp's own authentication as an auth handler package.
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
- * window (the `identity-namespaces` grant, the credentials facet, plus
- * `email-send` when the email method is on), the serializable options the
- * spec helper captured, and the user-code extensions the manifest
- * referenced, delivered through virtual modules. The route handler mounts
+ * window (the credentials facet, plus the `email-send` grant when the email
+ * method is on) and the `server.config` the spec helper captured, with the
+ * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
 export const createServerAuthHandler: ServerAuthHandlerFactory<
-  WaspAuthOptions,
-  WaspAuthGrants,
+  WaspAuthServerConfig,
+  never,
   true
-> = (runtime, options, extensions): ServerAuthHandlerParts => {
-  const ctx: Ctx = {
-    runtime,
-    options,
-    extensions: groupExtensions(
-      (extensions as Record<string, unknown> | undefined) ?? {},
-    ),
-  };
+> = (runtime, config): ServerAuthHandlerParts => {
+  const ctx: Ctx = { runtime, config };
 
   const routes: Route[] = [
-    ...(options.methods.usernameAndPassword !== undefined
+    ...(config.methods.usernameAndPassword !== undefined
       ? usernameRoutes(ctx)
       : []),
-    ...(options.methods.email !== undefined ? emailRoutes(ctx) : []),
+    ...(config.methods.email !== undefined ? emailRoutes(ctx) : []),
     ...oauthRoutes(ctx),
     // Account linking between the enabled methods: the per-method link
     // routes live with their methods, the shared ones here.
     ...linkingRoutes(
       ctx,
-      OAUTH_PROVIDER_NAMES.some((name) => options.methods[name] !== undefined),
+      OAUTH_PROVIDER_NAMES.some((name) => config.methods[name] !== undefined),
     ),
   ];
 
-  if (options.methods.email !== undefined) {
+  if (config.methods.email !== undefined) {
     boundEmailHelpers = makeEmailHelpers(runtime);
   }
 
@@ -84,39 +71,6 @@ export const createServerAuthHandler: ServerAuthHandlerFactory<
 
   return { handler, routeHandler: makeDispatcher(routes) };
 };
-
-/**
- * The manifest delivers user functions as a flat record keyed the way the
- * spec helper named them (`emailUserSignupFields`, `googleConfigFn`, ...);
- * the flows read them grouped by kind.
- */
-function groupExtensions(flat: Record<string, unknown>): WaspAuthExtensions {
-  const grouped: WaspAuthExtensions = {
-    userSignupFields: {},
-    configFns: {},
-    getVerificationEmailContent: flat.getVerificationEmailContent as never,
-    getPasswordResetEmailContent: flat.getPasswordResetEmailContent as never,
-    onAfterEmailVerified: flat.onAfterEmailVerified as never,
-    onBeforeOAuthRedirect: flat.onBeforeOAuthRedirect as never,
-  };
-  for (const method of [
-    "username",
-    "email",
-    ...OAUTH_PROVIDER_NAMES,
-  ] as const) {
-    const fields = flat[`${method}UserSignupFields`];
-    if (fields !== undefined) {
-      grouped.userSignupFields![method] = fields as never;
-    }
-  }
-  for (const name of OAUTH_PROVIDER_NAMES) {
-    const configFn = flat[`${name}ConfigFn`];
-    if (configFn !== undefined) {
-      grouped.configFns![name] = configFn as never;
-    }
-  }
-  return grouped;
-}
 
 // The email helpers (link builders, senders), bound to the runtime at handler
 // creation. User code imports them from `@wasp.sh/auth/server`.
@@ -151,9 +105,8 @@ export type {
   OAuthProviderName,
   OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
-  WaspAuthExtensions,
-  WaspAuthOptions,
   WaspAuthRuntime,
+  WaspAuthServerConfig,
 } from "./types.js";
 export {
   ensurePasswordIsPresent,

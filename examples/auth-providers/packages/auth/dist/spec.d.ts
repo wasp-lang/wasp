@@ -95,38 +95,45 @@ type EnvVarRequirement = {
 };
 /**
  * The manifest {@link waspAuth} produces, structurally matching
- * `AuthSchemeManifest` from `@wasp.sh/spec`.
+ * `AuthSchemeManifest` from `@wasp.sh/spec`. It is grouped by side: `server`
+ * and `client` each hold what that half of the handler receives.
  */
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 3;
-    handler: string;
+    contractVersion: 4;
     server: {
-        package: string;
+        authHandlerFactory: {
+            package: string;
+        };
+        env: EnvVarRequirement[];
+        config: WaspAuthServerConfig<Ref>;
+        routes: Record<string, never>;
     };
     client: {
-        package: string;
+        authHandlerFactory: {
+            package: string;
+        };
+        config: WaspAuthClientConfig;
     };
-    routes: Record<string, never>;
     capabilities: string[];
-    env: {
-        server: EnvVarRequirement[];
-        client: EnvVarRequirement[];
-    };
     uses: Array<"email-send">;
     /** Namespace suffixes; the compiler prefixes them with the scheme name. */
     identityNamespaces: string[];
     credentials: WaspAuthCredentialsConfig<StoreRef>;
-    options: WaspAuthOptions;
-    extensions: Record<string, Ref>;
 };
-/** The serializable options the server and client auth handlers are instantiated with. */
-export type WaspAuthOptions = {
-    onAuthSucceededRedirectTo: string;
+/**
+ * What the server half receives: plain data mixed with the app's functions,
+ * each next to the method it belongs to. Here the functions are still
+ * references; Wasp carries them across the compiler and the factory gets
+ * them live, at the same paths.
+ */
+export type WaspAuthServerConfig<Ref = unknown> = {
     clientOAuthCallbackPath: string;
     methods: {
-        usernameAndPassword?: Record<string, never>;
+        usernameAndPassword?: {
+            userSignupFields?: Ref;
+        };
         email?: {
             fromField: {
                 name?: string;
@@ -134,10 +141,27 @@ export type WaspAuthOptions = {
             };
             emailVerificationClientRoute: string;
             passwordResetClientRoute: string;
+            userSignupFields?: Ref;
+            getVerificationEmailContent?: Ref;
+            getPasswordResetEmailContent?: Ref;
         };
     } & Partial<Record<OAuthProviderName, {
         requiredScopes: string[];
+        userSignupFields?: Ref;
+        configFn?: Ref;
     }>>;
+    onAfterEmailVerified?: Ref;
+    onBeforeOAuthRedirect?: Ref;
+};
+/**
+ * What the client half receives. Public by construction (it is bundled into
+ * the browser), so it carries only what the forms and actions read: where to
+ * go after login, where the OAuth handback lands, and which methods are on.
+ */
+export type WaspAuthClientConfig = {
+    onAuthSucceededRedirectTo: string;
+    clientOAuthCallbackPath: string;
+    methods: Partial<Record<"usernameAndPassword" | "email" | OAuthProviderName, Record<string, never>>>;
 };
 export type OAuthProviderName = "google" | "github" | "keycloak" | "slack" | "discord" | "microsoft";
 /**

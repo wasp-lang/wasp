@@ -175,6 +175,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/providerData.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/scheme.ts
+wasp-app/.wasp/out/sdk/wasp/auth/schemeConfig.ts
 wasp-app/.wasp/out/sdk/wasp/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/useAuth.ts
 wasp-app/.wasp/out/sdk/wasp/auth/user.ts
@@ -265,6 +266,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/scheme.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/scheme.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/scheme.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/scheme.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/schemeConfig.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/schemeConfig.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/schemeConfig.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/schemeConfig.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/types.js

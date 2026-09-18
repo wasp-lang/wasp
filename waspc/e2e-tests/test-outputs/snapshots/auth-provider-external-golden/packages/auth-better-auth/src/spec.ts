@@ -34,15 +34,17 @@ export type BetterAuthSchemeManifest<
 > = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 3;
-  handler: "@wasp.sh/auth-better-auth";
-  server: { package: string };
-  client: { package: string };
-  routes: { rawBody: true };
+  contractVersion: 4;
+  server: {
+    authHandlerFactory: { package: string };
+    env: EnvVarRequirement[];
+    /** The app's setup function, when given; it arrives live in the factory. */
+    config: { setupFn?: SetupFnRef };
+    routes: { rawBody: true };
+  };
+  client: { authHandlerFactory: { package: string } };
   capabilities: string[];
-  env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
-  userSignupFields?: UserSignupFieldsRef;
-  setupFn?: SetupFnRef;
+  userFieldsFromClaims?: UserSignupFieldsRef;
 };
 
 /**
@@ -115,19 +117,21 @@ export function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 3,
-    handler: "@wasp.sh/auth-better-auth",
-    server: { package: "@wasp.sh/auth-better-auth/server" },
-    client: { package: "@wasp.sh/auth-better-auth/client" },
-    routes: { rawBody: true },
-    capabilities: [],
-    env: {
-      server: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
-      client: [],
+    contractVersion: 4,
+    server: {
+      authHandlerFactory: { package: "@wasp.sh/auth-better-auth/server" },
+      env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
+      config: {
+        ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
+      },
+      routes: { rawBody: true },
     },
+    client: {
+      authHandlerFactory: { package: "@wasp.sh/auth-better-auth/client" },
+    },
+    capabilities: [],
     ...(config?.userSignupFields !== undefined
-      ? { userSignupFields: config.userSignupFields }
+      ? { userFieldsFromClaims: config.userSignupFields }
       : {}),
-    ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
   };
 }

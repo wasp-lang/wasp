@@ -31,20 +31,10 @@ export {
 
 // PRIVATE API
 /**
- * The type the SDK expects of the user's `setupFn` for a handler package's
- * underlying library (the `prismaSetupFn` convention). The handler package
- * types its parameter precisely; the SDK only needs *a* function it can hand
- * to the handler's server factory.
+ * App code a handler's `server.config` references -- a signup field getter,
+ * an OAuth config function, an email content function, a setup function for
+ * the handler's underlying library. The handler types each precisely; the SDK
+ * only sets them back into the config it hands the factory, so their virtual
+ * modules are declared loosely.
  */
-export type AuthProviderSetupFn = NonNullable<
-  import('@wasp.sh/auth-contract').AuthHandlerExtensions['setupFn']
->
-
-// PRIVATE API
-/**
- * A user function a handler's manifest referenced under `extensions` -- a
- * signup field getter, an OAuth config function, an email content function,
- * a method-specific hook. The handler types each precisely; the SDK only
- * forwards them, so their virtual modules are declared loosely.
- */
-export type AuthProviderExtension = unknown
+export type AuthHandlerConfigReference = unknown

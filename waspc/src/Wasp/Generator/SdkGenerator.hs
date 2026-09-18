@@ -103,13 +103,15 @@ buildSdk generatedAppDir = do
 -- auth does.
 genApiIndexTs :: AppSpec -> Generator FileDraft
 genApiIndexTs spec =
-  return $
-    C.mkTmplFdWithData
-      [relfile|api/index.ts|]
-      ( object
-          [ "isAuthEnabled" .= isAuthEnabled spec
-          ]
-      )
+  let isCookieTransportUsed = maybe False AS.App.Auth.isCookieTransportUsed (AS.App.auth $ snd $ getApp spec)
+   in return $
+        C.mkTmplFdWithData
+          [relfile|api/index.ts|]
+          ( object
+              [ "isAuthEnabled" .= isAuthEnabled spec,
+                "isCookieTransportUsed" .= isCookieTransportUsed
+              ]
+          )
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =

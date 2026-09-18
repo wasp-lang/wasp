@@ -19,31 +19,20 @@ export class WaspAuthClientError extends Error {
 }
 
 /**
- * A POST as the signed-in user. Wasp attaches the credential; this package
- * never sees it, and can only spend it on its own routes.
+ * A POST to one of this package's own routes, through the fetch Wasp hands
+ * the client half. Wasp attaches the current credential when there is one
+ * (this package never sees it) and picks the credentials mode: cookies ride
+ * along only when the app actually uses a cookie credential, so an app with
+ * a custom CORS setup keeps working.
  */
-export function postAsUser<T = Record<string, unknown>>(
-  url: string,
-  body: unknown,
-): Promise<T> {
-  return post<T>(url, body, getClientRuntime().fetch);
-}
-
 export async function post<T = Record<string, unknown>>(
   url: string,
   body: unknown,
-  fetch: (
-    url: string,
-    init: RequestInit,
-  ) => Promise<Response> = globalThis.fetch,
 ): Promise<T> {
-  const response = await fetch(url, {
+  const response = await getClientRuntime().fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-    // A cookie-carried credential needs the browser to attach it and to
-    // accept the Set-Cookie a login answers with, across origins too.
-    credentials: "include",
   });
   const data = (await response.json().catch(() => ({}))) as Record<
     string,

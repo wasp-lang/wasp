@@ -10,8 +10,10 @@ export declare class WaspAuthClientError extends Error {
     constructor(statusCode: number, message: string, data: unknown);
 }
 /**
- * A POST as the signed-in user. Wasp attaches the credential; this package
- * never sees it, and can only spend it on its own routes.
+ * A POST to one of this package's own routes, through the fetch Wasp hands
+ * the client half. Wasp attaches the current credential when there is one
+ * (this package never sees it) and picks the credentials mode: cookies ride
+ * along only when the app actually uses a cookie credential, so an app with
+ * a custom CORS setup keeps working.
  */
-export declare function postAsUser<T = Record<string, unknown>>(url: string, body: unknown): Promise<T>;
-export declare function post<T = Record<string, unknown>>(url: string, body: unknown, fetch?: (url: string, init: RequestInit) => Promise<Response>): Promise<T>;
+export declare function post<T = Record<string, unknown>>(url: string, body: unknown): Promise<T>;

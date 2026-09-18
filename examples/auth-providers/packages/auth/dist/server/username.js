@@ -6,7 +6,7 @@ import { createInvalidCredentialsError, rethrowPossibleAuthError, validateAndGet
 import { ensurePasswordIsPresent, ensureValidPassword, ensureValidUsername, normalizeUsername, } from "./validation.js";
 /** The username & password method: `/auth/username/{login,signup}`. */
 export function usernameRoutes(ctx) {
-    const { runtime, extensions } = ctx;
+    const { runtime, config } = ctx;
     const identities = () => runtime.identityNamespaces(namespaceFor(runtime, "username"));
     return [
         {
@@ -91,7 +91,7 @@ export function usernameRoutes(ctx) {
                         secrets: {
                             hashedPassword: await hashPassword(fields.password),
                         },
-                    }, (() => validateAndGetUserFields(fields, extensions.userSignupFields?.username)), { req });
+                    }, (() => validateAndGetUserFields(fields, config.methods.usernameAndPassword?.userSignupFields)), { req });
                 }
                 catch (e) {
                     rethrowPossibleAuthError(e);

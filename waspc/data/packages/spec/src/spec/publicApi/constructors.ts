@@ -1,4 +1,4 @@
-import type { AnyFunction, AnyObject } from "../../typeUtils.js";
+import type { AnyObject } from "../../typeUtils.js";
 import {
   reservedClientEnvVarNames,
   reservedServerEnvVarNames,
@@ -10,12 +10,13 @@ import type {
   ApiNamespace,
   App,
   AuthRuntimeGrantName,
+  AuthSchemeClientSide,
   AuthSchemeManifest,
+  AuthSchemeServerSide,
   CredentialsConfig,
   CredentialStore,
   CredentialTransport,
   Crud,
-  EnvVarRequirement,
   Job,
   Page,
   Query,
@@ -446,20 +447,9 @@ export function crud(
  */
 export type AuthSchemeManifestInput = Omit<
   AuthSchemeManifest,
-  | "kind"
-  | "contractVersion"
-  | "__waspAuthSchemeManifest"
-  | "capabilities"
-  | "env"
-  | "uses"
-  | "identityNamespaces"
-  | "extensions"
+  "kind" | "contractVersion" | "__waspAuthSchemeManifest" | "capabilities"
 > & {
   capabilities?: string[];
-  env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
-  uses?: AuthRuntimeGrantName[];
-  identityNamespaces?: string[];
-  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
 };
 
 /**
@@ -479,64 +469,115 @@ export type AuthSchemeManifestInput = Omit<
 export function defineAuthSchemeManifest(
   manifest: AuthSchemeManifestInput,
 ): AuthSchemeManifest {
-  if (typeof manifest.handler !== "string" || manifest.handler.length === 0) {
+  if (typeof manifest.server !== "object" || manifest.server === null) {
     throw new WaspSpecUserError(
-      "An auth scheme manifest must name its handler package (`handler`).",
+      "An auth scheme manifest must describe its server half (`server`).",
     );
   }
-
-  const capabilities = manifest.capabilities ?? [];
+  const handler = describeAuthHandler(manifest);
+  validateAuthHandlerFactoryEntry(handler, "server", manifest.server);
+  if (manifest.client !== undefined) {
+    validateAuthHandlerFactoryEntry(handler, "client", manifest.client);
+  }
 
   // Handlers receive exactly the env vars they declared, so declaring a
   // framework-owned name would hand the handler framework secrets (DATABASE_URL)
   // through the sanctioned channel.
-  for (const [side, envVars] of [
-    ["server", manifest.env?.server ?? []],
-    ["client", manifest.env?.client ?? []],
-  ] as const) {
-    const reservedNames =
-      side === "server" ? reservedServerEnvVarNames : reservedClientEnvVarNames;
-    for (const envVar of envVars) {
-      if (reservedNames.includes(envVar.name)) {
-        throw new WaspSpecUserError(
-          `Auth handler '${manifest.handler}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by handlers; pick a handler-specific name.`,
-        );
-      }
-    }
-  }
+  validateSideEnvVars(handler, manifest);
 
-  const uses = manifest.uses ?? [];
-  for (const grant of uses) {
+  for (const grant of manifest.uses ?? []) {
     if (!knownRuntimeGrantNames.includes(grant)) {
       throw new WaspSpecUserError(
-        `Auth handler '${manifest.handler}' requests the unknown runtime grant '${String(
+        `Auth handler '${handler}' requests the unknown runtime grant '${String(
           grant,
         )}'. Known grants: ${knownRuntimeGrantNames.join(", ")}.`,
       );
     }
   }
 
-  const identityNamespaces = manifest.identityNamespaces ?? [];
-  validateIdentityNamespaces(manifest.handler, identityNamespaces);
+  validateIdentityNamespaces(handler, manifest.identityNamespaces ?? []);
 
   if (manifest.credentials !== undefined) {
-    validateCredentialsConfig(manifest.handler, manifest.credentials);
+    validateCredentialsConfig(handler, manifest.credentials);
   }
 
   return {
     ...manifest,
     kind: "scheme",
-    contractVersion: 3,
-    capabilities,
-    env: {
-      server: manifest.env?.server ?? [],
-      client: manifest.env?.client ?? [],
-    },
-    uses,
-    identityNamespaces,
-    extensions: manifest.extensions ?? {},
+    contractVersion: 4,
+    capabilities: manifest.capabilities ?? [],
     __waspAuthSchemeManifest: true,
-  } as AuthSchemeManifest;
+  };
+}
+
+/**
+ * A label for error messages: where the server half's code lives. The package
+ * specifier, or the import path of a hand-written factory -- more useful than
+ * a made-up name, and it cannot go stale.
+ */
+export function describeAuthHandler(
+  manifest: Pick<AuthSchemeManifestInput, "server">,
+): string {
+  const entry = manifest.server?.authHandlerFactory as
+    | { package?: unknown; from?: unknown }
+    | undefined;
+  if (typeof entry?.package === "string") return entry.package;
+  if (typeof entry?.from === "string") return entry.from;
+  return "unknown";
+}
+
+function validateAuthHandlerFactoryEntry(
+  handler: string,
+  side: "server" | "client",
+  sideManifest: { authHandlerFactory?: unknown },
+): void {
+  const entry = sideManifest.authHandlerFactory;
+  if (typeof entry !== "object" || entry === null) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' must say where its ${side} half lives (\`${side}.authHandlerFactory\`): { package, export? } or a reference to a factory in your code.`,
+    );
+  }
+  if ("package" in entry) {
+    const { package: packageSpecifier, export: exportName } = entry as {
+      package: unknown;
+      export?: unknown;
+    };
+    if (typeof packageSpecifier !== "string" || packageSpecifier.length === 0) {
+      throw new WaspSpecUserError(
+        `Auth handler '${handler}' has an empty ${side}.authHandlerFactory.package.`,
+      );
+    }
+    // It is interpolated into generated `import { <export> } from` code.
+    if (
+      exportName !== undefined &&
+      (typeof exportName !== "string" ||
+        !/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(exportName))
+    ) {
+      throw new WaspSpecUserError(
+        `Auth handler '${handler}' has an invalid ${side}.authHandlerFactory.export '${String(exportName)}': it must be a JavaScript identifier.`,
+      );
+    }
+  }
+}
+
+// Shared by defineAuthSchemeManifest and the mapper (which re-validates,
+// because the authenticity marker is forgeable as a plain property).
+export function validateSideEnvVars(
+  handler: string,
+  manifest: Pick<AuthSchemeManifestInput, "server" | "client">,
+): void {
+  for (const [side, envVars, reservedNames] of [
+    ["server", manifest.server.env ?? [], reservedServerEnvVarNames],
+    ["client", manifest.client?.env ?? [], reservedClientEnvVarNames],
+  ] as const) {
+    for (const envVar of envVars) {
+      if (reservedNames.includes(envVar.name)) {
+        throw new WaspSpecUserError(
+          `Auth handler '${handler}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by handlers; pick a handler-specific name.`,
+        );
+      }
+    }
+  }
 }
 
 /**
@@ -622,34 +663,28 @@ export function validateCredentialsConfig(
  */
 export type CustomAuthHandlerConfig = {
   /**
-   * Reference to a `ServerAuthHandlerFactory` in the app's own code: a function
-   * that receives the scheme's runtime and returns `{ handler, routeHandler? }`,
+   * The server half. `authHandlerFactory` is a reference to a
+   * `ServerAuthHandlerFactory` in the app's own code: a function that
+   * receives the scheme's runtime and returns `{ handler, routeHandler? }`,
    * exactly like a handler package's `createServerAuthHandler`.
    */
-  server: Reference<AnyFunction>;
+  server: AuthSchemeServerSide;
   /**
-   * Reference to a `ClientAuthHandlerFactory` in the app's own code, exactly
-   * like a handler package's `createClientAuthHandler`.
+   * The client half. `authHandlerFactory` is a reference to a
+   * `ClientAuthHandlerFactory` in the app's own code, exactly like a
+   * handler package's `createClientAuthHandler`.
    */
-  client?: Reference<AnyFunction>;
-  /** See {@link AuthSchemeManifest.routes}. Declare it when the factory returns a `routeHandler`. */
-  routes?: { rawBody?: boolean };
+  client?: AuthSchemeClientSide;
   /** See {@link AuthSchemeManifest.capabilities}. */
   capabilities?: string[];
-  /** See {@link AuthSchemeManifest.env}. */
-  env?: { server?: EnvVarRequirement[]; client?: EnvVarRequirement[] };
   /** See {@link AuthSchemeManifest.uses}. */
   uses?: AuthRuntimeGrantName[];
   /** See {@link AuthSchemeManifest.identityNamespaces}. */
   identityNamespaces?: string[];
   /** See {@link AuthSchemeManifest.credentials}. */
   credentials?: CredentialsConfig;
-  /** See {@link AuthSchemeManifest.userSignupFields}. */
-  userSignupFields?: Reference<AnyObject>;
-  /** See {@link AuthSchemeManifest.options}. */
-  options?: unknown;
-  /** See {@link AuthSchemeManifest.extensions}. */
-  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
+  /** See {@link AuthSchemeManifest.userFieldsFromClaims}. */
+  userFieldsFromClaims?: Reference<AnyObject>;
 };
 
 /**
@@ -670,7 +705,9 @@ export type CustomAuthHandlerConfig = {
  *   userEntity: "User",
  *   onAuthFailedRedirectTo: "/login",
  *   schemes: {
- *     password: customAuthHandler({ server: myAuthHandler }),
+ *     password: customAuthHandler({
+ *       server: { authHandlerFactory: createMyAuthHandler },
+ *     }),
  *   },
  * }
  * ```
@@ -680,12 +717,7 @@ export type CustomAuthHandlerConfig = {
 export function customAuthHandler(
   config: CustomAuthHandlerConfig,
 ): AuthSchemeManifest {
-  // The label shown in error messages is where the code lives: more useful
-  // than a made-up name, and it cannot go stale.
-  return defineAuthSchemeManifest({
-    ...config,
-    handler: (config.server as unknown as { from?: string }).from ?? "custom",
-  });
+  return defineAuthSchemeManifest(config);
 }
 
 /**
@@ -747,14 +779,9 @@ function waspCredentialScheme(
   // The generated client already stores a bearer credential a sibling scheme
   // adopts, so the issuer has no client entry of its own.
   return defineAuthSchemeManifest({
-    handler: `wasp/${transport}`,
-    server: { package: "wasp/server/auth/issuer" },
-    capabilities: [
-      "sign-in",
-      ...(transport === "cookie" ? ["cookie-transport"] : []),
-    ],
-    env: {
-      server:
+    server: {
+      authHandlerFactory: { package: "wasp/server/auth/issuer" },
+      env:
         store === "signed-token"
           ? [
               {
@@ -764,8 +791,11 @@ function waspCredentialScheme(
               },
             ]
           : [],
-      client: [],
     },
+    capabilities: [
+      "sign-in",
+      ...(transport === "cookie" ? ["cookie-transport"] : []),
+    ],
     // The scheme IS its issuer: the compiler reads these and builds it
     // without a handler package in between.
     credentials: { transport, store, ttl: config.ttl ?? "30d" },

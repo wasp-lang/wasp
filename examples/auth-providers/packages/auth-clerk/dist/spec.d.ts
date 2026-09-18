@@ -29,20 +29,21 @@ export type EnvVarRequirement = {
 export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 3;
-    handler: "@wasp.sh/auth-clerk";
+    contractVersion: 4;
     server: {
-        package: string;
+        authHandlerFactory: {
+            package: string;
+        };
+        env: EnvVarRequirement[];
     };
     client: {
-        package: string;
+        authHandlerFactory: {
+            package: string;
+        };
+        env: EnvVarRequirement[];
     };
     capabilities: string[];
-    env: {
-        server: EnvVarRequirement[];
-        client: EnvVarRequirement[];
-    };
-    userSignupFields?: UserSignupFieldsRef;
+    userFieldsFromClaims?: UserSignupFieldsRef;
 };
 /**
  * The configuration accepted by {@link clerk}.

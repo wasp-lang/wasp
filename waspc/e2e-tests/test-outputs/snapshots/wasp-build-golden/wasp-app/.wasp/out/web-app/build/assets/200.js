@@ -248,7 +248,6 @@ async function getRequestCredential() {
 }
 ky.extend({
 	prefix: config.apiUrl,
-	credentials: "include",
 	hooks: {
 		beforeRequest: [async ({ request }) => {
 			const credential = await getRequestCredential();

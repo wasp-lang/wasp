@@ -58,7 +58,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
       object
         [ "isAuthEnabled" .= isJust maybeAuth,
           "authProviderServerEnvVars"
-            .= concatMap (externalProviderEnvVarsTmplData (.server)) (AS.Valid.getAuthSchemes spec),
+            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.serverEnvVars) (AS.Valid.getAuthSchemes spec),
           "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
           "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
@@ -81,7 +81,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "isAuthEnabled" .= (not . null $ providers),
           "authProviderClientEnvVars"
-            .= concatMap (externalProviderEnvVarsTmplData (.client)) providers,
+            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.clientEnvVars) providers,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     providers = AS.Valid.getAuthSchemes spec
@@ -92,11 +92,11 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
 -- generated zod schemas so a missing var fails at boot with the manifest's own
 -- explanation.
 externalProviderEnvVarsTmplData ::
-  (AS.Auth.AuthSchemeEnvVars -> [AS.Auth.AuthSchemeEnvVar]) ->
+  (AS.Auth.AuthScheme -> [AS.Auth.AuthSchemeEnvVar]) ->
   AS.Auth.AuthScheme ->
   [Aeson.Value]
 externalProviderEnvVarsTmplData getVars extProvider =
-  toTmplData <$> getVars (AS.Auth.envVars extProvider)
+  toTmplData <$> getVars extProvider
   where
     toTmplData envVar =
       object

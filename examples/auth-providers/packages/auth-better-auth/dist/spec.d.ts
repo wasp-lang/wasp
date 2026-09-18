@@ -29,24 +29,27 @@ export type EnvVarRequirement = {
 export type BetterAuthSchemeManifest<UserSignupFieldsRef = never, SetupFnRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 3;
-    handler: "@wasp.sh/auth-better-auth";
+    contractVersion: 4;
     server: {
-        package: string;
+        authHandlerFactory: {
+            package: string;
+        };
+        env: EnvVarRequirement[];
+        /** The app's setup function, when given; it arrives live in the factory. */
+        config: {
+            setupFn?: SetupFnRef;
+        };
+        routes: {
+            rawBody: true;
+        };
     };
     client: {
-        package: string;
-    };
-    routes: {
-        rawBody: true;
+        authHandlerFactory: {
+            package: string;
+        };
     };
     capabilities: string[];
-    env: {
-        server: EnvVarRequirement[];
-        client: EnvVarRequirement[];
-    };
-    userSignupFields?: UserSignupFieldsRef;
-    setupFn?: SetupFnRef;
+    userFieldsFromClaims?: UserSignupFieldsRef;
 };
 /**
  * The configuration accepted by {@link betterAuth}.

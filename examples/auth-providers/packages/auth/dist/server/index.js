@@ -17,28 +17,23 @@ const OAUTH_PROVIDER_NAMES = [
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
  * window (the credentials facet, plus the `email-send` grant when the email
- * method is on), the serializable options the
- * spec helper captured, and the user-code extensions the manifest
- * referenced, delivered through virtual modules. The route handler mounts
+ * method is on) and the `server.config` the spec helper captured, with the
+ * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export const createServerAuthHandler = (runtime, options, extensions) => {
-    const ctx = {
-        runtime,
-        options,
-        extensions: groupExtensions(extensions ?? {}),
-    };
+export const createServerAuthHandler = (runtime, config) => {
+    const ctx = { runtime, config };
     const routes = [
-        ...(options.methods.usernameAndPassword !== undefined
+        ...(config.methods.usernameAndPassword !== undefined
             ? usernameRoutes(ctx)
             : []),
-        ...(options.methods.email !== undefined ? emailRoutes(ctx) : []),
+        ...(config.methods.email !== undefined ? emailRoutes(ctx) : []),
         ...oauthRoutes(ctx),
         // Account linking between the enabled methods: the per-method link
         // routes live with their methods, the shared ones here.
-        ...linkingRoutes(ctx, OAUTH_PROVIDER_NAMES.some((name) => options.methods[name] !== undefined)),
+        ...linkingRoutes(ctx, OAUTH_PROVIDER_NAMES.some((name) => config.methods[name] !== undefined)),
     ];
-    if (options.methods.email !== undefined) {
+    if (config.methods.email !== undefined) {
         boundEmailHelpers = makeEmailHelpers(runtime);
     }
     // The routes above verify logins; the credential a request carries
@@ -52,38 +47,6 @@ export const createServerAuthHandler = (runtime, options, extensions) => {
     };
     return { handler, routeHandler: makeDispatcher(routes) };
 };
-/**
- * The manifest delivers user functions as a flat record keyed the way the
- * spec helper named them (`emailUserSignupFields`, `googleConfigFn`, ...);
- * the flows read them grouped by kind.
- */
-function groupExtensions(flat) {
-    const grouped = {
-        userSignupFields: {},
-        configFns: {},
-        getVerificationEmailContent: flat.getVerificationEmailContent,
-        getPasswordResetEmailContent: flat.getPasswordResetEmailContent,
-        onAfterEmailVerified: flat.onAfterEmailVerified,
-        onBeforeOAuthRedirect: flat.onBeforeOAuthRedirect,
-    };
-    for (const method of [
-        "username",
-        "email",
-        ...OAUTH_PROVIDER_NAMES,
-    ]) {
-        const fields = flat[`${method}UserSignupFields`];
-        if (fields !== undefined) {
-            grouped.userSignupFields[method] = fields;
-        }
-    }
-    for (const name of OAUTH_PROVIDER_NAMES) {
-        const configFn = flat[`${name}ConfigFn`];
-        if (configFn !== undefined) {
-            grouped.configFns[name] = configFn;
-        }
-    }
-    return grouped;
-}
 // The email helpers (link builders, senders), bound to the runtime at handler
 // creation. User code imports them from `@wasp.sh/auth/server`.
 let boundEmailHelpers = null;

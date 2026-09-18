@@ -38,4 +38,9 @@ export type BetterAuthSetupFn = (config: BetterAuthOptions) => BetterAuthOptions
  *   these must be the *Prisma client property*, not the `@@map` name: the
  *   handler does a raw `db[modelName]` lookup with no case transformation.
  */
-export declare const createServerAuthHandler: ServerAuthHandlerFactory;
+/** The manifest's `server.config`, with the app's setup function live. */
+type BetterAuthServerConfig = {
+    setupFn?: BetterAuthSetupFn;
+};
+export declare const createServerAuthHandler: ServerAuthHandlerFactory<BetterAuthServerConfig>;
+export {};

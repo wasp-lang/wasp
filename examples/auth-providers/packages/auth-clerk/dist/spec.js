@@ -34,13 +34,10 @@ export function clerk(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 3,
-        handler: "@wasp.sh/auth-clerk",
-        server: { package: "@wasp.sh/auth-clerk/server" },
-        client: { package: "@wasp.sh/auth-clerk/client" },
-        capabilities: [],
-        env: {
-            server: [
+        contractVersion: 4,
+        server: {
+            authHandlerFactory: { package: "@wasp.sh/auth-clerk/server" },
+            env: [
                 { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
                 { name: "CLERK_PUBLISHABLE_KEY", doc: "Clerk dashboard → API keys" },
                 {
@@ -49,15 +46,21 @@ export function clerk(config) {
                     doc: "enables networkless JWT verification",
                 },
             ],
-            client: [
+        },
+        client: {
+            authHandlerFactory: { package: "@wasp.sh/auth-clerk/client" },
+            env: [
                 {
                     name: "REACT_APP_CLERK_PUBLISHABLE_KEY",
                     doc: "Clerk dashboard → API keys (publishable key)",
                 },
             ],
         },
+        capabilities: [],
+        // Clerk has no signup moment on our server: Wasp creates the user the
+        // first time it sees a Clerk subject, and runs this over the claims.
         ...(config?.userSignupFields !== undefined
-            ? { userSignupFields: config.userSignupFields }
+            ? { userFieldsFromClaims: config.userSignupFields }
             : {}),
     };
 }

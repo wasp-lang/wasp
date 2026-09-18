@@ -1,18 +1,15 @@
-import { isEqual } from "es-toolkit";
 import * as AppSpec from "../../appSpec.js";
-import type { AnyFunction } from "../../typeUtils.js";
 import {
-  reservedClientEnvVarNames,
-  reservedServerEnvVarNames,
-} from "../authReservedEnvVarNames.js";
-import {
+  describeAuthHandler,
   isValidSchemeName,
   validateCredentialsConfig,
   validateIdentityNamespaces,
+  validateSideEnvVars,
 } from "../publicApi/constructors.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { WaspSpecUserError } from "../waspSpecUserError.js";
 import { AppMapperContext } from "./context.js";
+import { splitSchemeConfig } from "./schemeConfig.js";
 
 export function mapAppSpec(
   app: WaspSpec.App,
@@ -201,31 +198,16 @@ function mapAuthScheme(
       `Auth scheme '${name}' received a hand-crafted manifest. Manifests must be created through a handler package's spec helper or customAuthHandler(), so they go through Wasp's validation.`,
     );
   }
-  if (manifest.contractVersion !== 3) {
+  const handler = describeAuthHandler(manifest);
+  if (manifest.contractVersion !== 4) {
     throw new WaspSpecUserError(
-      `Auth scheme '${name}' (handler '${manifest.handler}') was built against auth contract version ${String(
+      `Auth scheme '${name}' (handler '${handler}') was built against auth contract version ${String(
         manifest.contractVersion,
-      )}, but this version of Wasp only supports version 2. Update Wasp, or use a handler version matching your Wasp version.`,
+      )}, but this version of Wasp only supports version 4. Update Wasp, or use a handler version matching your Wasp version.`,
     );
   }
 
-  // The rules below repeat defineAuthSchemeManifest's checks on purpose: the
-  // authenticity marker is an ordinary property, so a manifest built as an
-  // object literal can carry it without ever passing those checks. The mapper
-  // is the layer no manifest can skip; the Haskell validator mirrors these
-  // rules once more for the non-TS entry points.
-  for (const [side, envVars, reservedNames] of [
-    ["server", manifest.env.server, reservedServerEnvVarNames],
-    ["client", manifest.env.client, reservedClientEnvVarNames],
-  ] as const) {
-    for (const envVar of envVars) {
-      if (reservedNames.includes(envVar.name)) {
-        throw new WaspSpecUserError(
-          `Auth scheme '${name}' declares the ${side} env var '${envVar.name}', which Wasp owns. Framework env var names cannot be declared by handlers; pick a handler-specific name.`,
-        );
-      }
-    }
-  }
+  validateSideEnvVars(handler, manifest);
   const uses = manifest.uses ?? [];
   for (const grant of uses) {
     if (!["email-send"].includes(grant)) {
@@ -237,9 +219,9 @@ function mapAuthScheme(
     }
   }
   const namespaceSuffixes = manifest.identityNamespaces ?? [];
-  validateIdentityNamespaces(manifest.handler, namespaceSuffixes);
+  validateIdentityNamespaces(handler, namespaceSuffixes);
   if (manifest.credentials !== undefined) {
-    validateCredentialsConfig(manifest.handler, manifest.credentials);
+    validateCredentialsConfig(handler, manifest.credentials);
   }
 
   // Reserved for a future in which handler packages contribute Prisma models.
@@ -255,24 +237,43 @@ function mapAuthScheme(
 
   // Both halves take the same two forms: a package entry, or a reference to
   // a factory in the app's own code.
-  const mapEntry = (
-    entry: { package: string } | WaspSpec.Reference<AnyFunction>,
-  ): { package: string } | { module: AppSpec.ExtImport } =>
-    "package" in entry
-      ? { package: entry.package }
-      : { module: ctx.parseRefObject(entry) };
+  const mapSide = (
+    side: "server" | "client",
+    sideManifest: WaspSpec.AuthSchemeServerSide | WaspSpec.AuthSchemeClientSide,
+  ): AppSpec.AuthSchemeSide => {
+    const entry = sideManifest.authHandlerFactory;
+    const config = splitSchemeConfig(name, side, sideManifest.config);
+    return {
+      // Both forms are the same thing in different places: a package entry
+      // (with the conventional export name as the default), or a factory in
+      // the app's own code.
+      authHandlerFactory:
+        "package" in entry
+          ? {
+              package: entry.package,
+              export: entry.export ?? defaultFactoryExportNames[side],
+            }
+          : { module: ctx.parseRefObject(entry) },
+      envVars: (sideManifest.env ?? []).map(mapEnvVarRequirement),
+      configJson: config.dataJson,
+      configReferences: Object.fromEntries(
+        Object.entries(config.references).map(([path, ref]) => [
+          path,
+          ctx.parseRefObject(ref),
+        ]),
+      ),
+    };
+  };
 
   return {
     name,
-    handler: manifest.handler,
-    server: mapEntry(manifest.server),
-    client: manifest.client && mapEntry(manifest.client),
-    routes: manifest.routes && { rawBody: manifest.routes.rawBody },
-    capabilities: manifest.capabilities,
-    envVars: {
-      server: manifest.env.server.map(mapEnvVarRequirement),
-      client: manifest.env.client.map(mapEnvVarRequirement),
+    handler,
+    server: mapSide("server", manifest.server),
+    client: manifest.client && mapSide("client", manifest.client),
+    routes: manifest.server.routes && {
+      rawBody: manifest.server.routes.rawBody,
     },
+    capabilities: manifest.capabilities,
     uses,
     identityNamespaces: [
       name,
@@ -280,19 +281,17 @@ function mapAuthScheme(
     ],
     credentials:
       manifest.credentials && mapCredentials(manifest.credentials, ctx),
-    userSignupFields:
-      manifest.userSignupFields &&
-      ctx.parseRefObject(manifest.userSignupFields),
-    setupFn: manifest.setupFn && ctx.parseRefObject(manifest.setupFn),
-    extensions: Object.fromEntries(
-      Object.entries(manifest.extensions ?? {}).map(([extName, ref]) => [
-        extName,
-        ctx.parseRefObject(ref),
-      ]),
-    ),
-    optionsJson: mapSchemeOptions(name, manifest),
+    userFieldsFromClaims:
+      manifest.userFieldsFromClaims &&
+      ctx.parseRefObject(manifest.userFieldsFromClaims),
   };
 }
+
+// What a handler package's entries export when the manifest names no export.
+const defaultFactoryExportNames = {
+  server: "createServerAuthHandler",
+  client: "createClientAuthHandler",
+} as const;
 
 function mapCredentials(
   credentials: WaspSpec.CredentialsConfig,
@@ -319,32 +318,6 @@ function mapEnvVarRequirement(
     doc: envVar.doc,
     devDefault: envVar.devDefault,
   };
-}
-
-function mapSchemeOptions(
-  name: string,
-  manifest: WaspSpec.AuthSchemeManifest,
-): string | undefined {
-  if (manifest.options === undefined) {
-    return undefined;
-  }
-
-  // Options travel to the generated code as JSON, so anything that doesn't
-  // survive the round-trip (functions, class instances, undefined-holed
-  // arrays) would arrive silently mangled. Rejecting here turns that into an
-  // error at compile time, with `setupFn` and `extensions` as the documented
-  // escape hatches for non-serializable configuration.
-  const optionsJson = JSON.stringify(manifest.options);
-  if (
-    optionsJson === undefined ||
-    !isEqual(JSON.parse(optionsJson), manifest.options)
-  ) {
-    throw new WaspSpecUserError(
-      `Auth scheme '${name}' has options that do not survive JSON serialization. Handler options must be plain serializable data; use setupFn or extensions for functions and other live values.`,
-    );
-  }
-
-  return optionsJson;
 }
 
 export function mapServer(

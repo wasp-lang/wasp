@@ -204,6 +204,14 @@ function isDefaultRefObject(
   );
 }
 
+/**
+ * Whether a value is a reference to user code (carries the marker the Wasp
+ * transformation stamps). Shape validation happens later, in `mapRefObject`.
+ */
+export function isRefObjectLike(value: unknown): value is RefObject {
+  return isObject(value) && hasRefObjectMarker(value);
+}
+
 function hasRefObjectMarker(value: Record<string, unknown>): boolean {
   return value.kind === "refObject";
 }

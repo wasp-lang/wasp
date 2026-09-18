@@ -99,10 +99,11 @@ getVirtualUserModules spec =
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
-      mkAuthProviderModule <$> authProviderModules,
-      mkAuthClientModule <$> authClientModules,
-      mkAuthProviderUserSignupFieldsModule <$> authProviderUserSignupFields,
-      mkAuthProviderSetupFnModule <$> authProviderSetupFns,
+      mkServerAuthHandlerFactoryModule <$> serverAuthHandlerFactories,
+      mkClientAuthHandlerFactoryModule <$> clientAuthHandlerFactories,
+      mkUserFieldsFromClaimsModule <$> userFieldsFromClaims,
+      mkServerConfigReferenceModule <$> serverConfigReferences,
+      mkClientConfigReferenceModule <$> clientConfigReferences,
       maybeToList $ mkAuthHookModule "OnBeforeSignupHook" <$> (maybeAuth >>= AS.Auth.onBeforeSignup),
       maybeToList $ mkAuthHookModule "OnAfterSignupHook" <$> (maybeAuth >>= AS.Auth.onAfterSignup),
       maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
@@ -110,7 +111,6 @@ getVirtualUserModules spec =
       maybeToList $ mkAuthHookModule "OnBeforeLinkHook" <$> (maybeAuth >>= AS.Auth.onBeforeLink),
       maybeToList $ mkAuthHookModule "OnAfterLinkHook" <$> (maybeAuth >>= AS.Auth.onAfterLink),
       maybeToList $ mkAuthHookModule "MergeUsersFn" <$> (maybeAuth >>= AS.Auth.mergeUsers),
-      mkAuthProviderExtensionModule <$> authProviderExtensions,
       mkCredentialStoreModule <$> authCredentialStores,
       map mkOperationModule (AS.getOperations spec)
     ]
@@ -153,7 +153,7 @@ getVirtualUserModules spec =
     -- other virtual modules, it is declared with the plain contract type rather
     -- than a Register-backed one: the SDK needs no more than `AuthProvider`,
     -- and the handler's exact type has no consumer.
-    mkAuthProviderModule extImport' =
+    mkServerAuthHandlerFactoryModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
@@ -162,45 +162,44 @@ getVirtualUserModules spec =
 
     -- The client half of a hand-written scheme: the same factory a handler
     -- package exports as `createClientAuthHandler`.
-    mkAuthClientModule extImport' =
+    mkClientAuthHandlerFactoryModule extImport' =
       VirtualUserModule
         ClientRuntime
         extImport'
         [relfileP|./client/auth/types|]
         "ClientAuthHandlerFactory"
 
-    -- Feeds just-in-time provisioning under an external provider; consumed by
-    -- the SDK's session layer, so it goes through a virtual module too. Like
-    -- the auth provider module, it is declared with the plain contract type:
-    -- the session layer needs no more than `UserSignupFields`.
-    mkAuthProviderUserSignupFieldsModule extImport' =
+    -- Feeds just-in-time provisioning: the one case where Wasp itself creates
+    -- the user, so the SDK's session layer consumes it. Declared with the
+    -- plain contract type: the session layer needs no more than
+    -- `UserSignupFields`.
+    mkUserFieldsFromClaimsModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./auth/providers/types|]
         "UserSignupFields"
 
-    -- The user's setup function for the handler's underlying library
-    -- (the prismaSetupFn convention); delivered to the handler's server
-    -- factory. Declared with the plain contract type: the handler package
-    -- types its parameter precisely, the SDK only needs *a* function.
-    mkAuthProviderSetupFnModule extImport' =
+    -- App code a handler's `server.config` references (signup field getters,
+    -- OAuth config functions, email content functions, a setup function for
+    -- the handler's underlying library). The handler types each precisely;
+    -- the SDK only sets them back into the config it hands the factory, so
+    -- they are declared loosely.
+    mkServerConfigReferenceModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/auth/handler/types|]
-        "AuthProviderSetupFn"
+        "AuthHandlerConfigReference"
 
-    -- Every other user function a handler's manifest references
-    -- (`extensions`): signup field getters, OAuth config functions, email
-    -- content functions, method-specific hooks. The handler types them
-    -- precisely; the SDK only forwards them, so they are declared loosely.
-    mkAuthProviderExtensionModule extImport' =
+    -- The same for a handler's `client.config` (a component, a callback).
+    -- These end up in the client bundle.
+    mkClientConfigReferenceModule extImport' =
       VirtualUserModule
-        ServerRuntime
+        ClientRuntime
         extImport'
-        [relfileP|./server/auth/handler/types|]
-        "AuthProviderExtension"
+        [relfileP|./client/auth/types|]
+        "AuthHandlerConfigReference"
 
     -- A user-provided credential store (`credentials: { store: ref }`), consumed
     -- by the framework's credential issuer.
@@ -227,11 +226,11 @@ getVirtualUserModules spec =
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuth = AS.App.auth app
     authSchemes = maybe [] AS.Auth.schemes maybeAuth
-    authProviderModules = mapMaybe AS.Auth.serverModule authSchemes
-    authClientModules = mapMaybe AS.Auth.clientModule authSchemes
-    authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForAuthScheme authSchemes
-    authProviderSetupFns = mapMaybe AS.Auth.setupFn authSchemes
-    authProviderExtensions = concatMap (Map.elems . AS.Auth.extensions) authSchemes
+    serverAuthHandlerFactories = mapMaybe AS.Auth.serverModule authSchemes
+    clientAuthHandlerFactories = mapMaybe AS.Auth.clientModule authSchemes
+    userFieldsFromClaims = mapMaybe (.userFieldsFromClaims) authSchemes
+    serverConfigReferences = concatMap (Map.elems . (.server.configReferences)) authSchemes
+    clientConfigReferences = concatMap (maybe [] (Map.elems . (.configReferences)) . (.client)) authSchemes
     authCredentialStores =
       [ extImport'
       | scheme <- authSchemes,

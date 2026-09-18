@@ -32,7 +32,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "380b0114f1214c0e6347155decef7388490614d03ae5a4025e8e7b1c8ee77120"
+        "3f098ae4c122a6b5313371c4648546b81ae5cfc32e1789ddd783f3433c9ed2c0"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "aac26b068666c4463c149fa5e78cd60a741a60f0387c0439d43f6ac66d82de53"
+        "ff1f8c59d003c4a779ccb37927e30a6dcd23152d7f92c32bd5db1d509d916227"
     ],
     [
         [
@@ -103,6 +103,13 @@
             "sdk/wasp/auth/scheme.ts"
         ],
         "e7e5b1d40450d9acaa0743a5f474871cfe5c1097fa6b422e7d6e324c6bc40566"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/schemeConfig.ts"
+        ],
+        "dee36e6cf370e77127561610bcdf7fd1fae529810612592db66380ffa7de7910"
     ],
     [
         [
@@ -207,14 +214,14 @@
             "file",
             "sdk/wasp/client/auth/schemes.ts"
         ],
-        "4923f4a21ff51918d180e7ebb299401c74ff25c131f5ea56e794f5f33568d42c"
+        "a1de7c366386b697b5f31a6890672778c22e765373be12d839ea0b035d766876"
     ],
     [
         [
             "file",
             "sdk/wasp/client/auth/types.ts"
         ],
-        "53216110bad7f9ad5ae687e56c25af258faaa7a9a51fcb6830208d7344687c50"
+        "71bb8731c37834bfe2c1694eac964c05d6ad1413103bceaa79368d440c7570a6"
     ],
     [
         [
@@ -634,7 +641,7 @@
             "file",
             "sdk/wasp/server/auth/handler/types.ts"
         ],
-        "3b00165621bf324e61b5f55b5ceb6f05b574311fd8f7aa2990e94fe1d1a96ada"
+        "042e3eb092a4fe3f620ad4365555ab8361b74a7864f3aab62b3c4f6638bc2392"
     ],
     [
         [
@@ -683,14 +690,14 @@
             "file",
             "sdk/wasp/server/auth/schemes.ts"
         ],
-        "5e85e152481d8bdc6a9d7f2a862012f924e7a3685e3a6b24991e065393a3e334"
+        "9070b26b21db24954b681f3a0502b2b9663ba0e30b2da50ec1e67a04516a5340"
     ],
     [
         [
             "file",
             "sdk/wasp/server/auth/session.ts"
         ],
-        "f0f5454836a5f29bae23c49aa37b50b356b92d357d6b49d68d25525a60c5949f"
+        "525f362294c02c72f6dfecf1c87f2c0d4271a16bea1fda2e594903934d6b7256"
     ],
     [
         [
@@ -1012,7 +1019,7 @@
             "file",
             "sdk/wasp/wasp-user-virtual-modules.d.ts"
         ],
-        "99e72ec22cb9059e70f34cebcca9d258d02a382c47de3c3d5bbba71e9282f079"
+        "2488a87fbf26b89ddb53249e7874510eed75fa66d6deea50edd1f333ed74818e"
     ],
     [
         [
@@ -1264,7 +1271,7 @@
             "file",
             "server/src/plugins/virtualUserModules.js"
         ],
-        "199d4964b1ff6e53bdb5b381676efba34f5a3752724f06dafc7e98d1bdbd8375"
+        "f75e67aa73f9089f973e4840c8a370346b123829fbc3c4ea42d256c49619f12a"
     ],
     [
         [

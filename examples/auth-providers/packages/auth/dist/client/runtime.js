@@ -4,10 +4,10 @@
  * code.
  */
 let runtime = null;
-let options = null;
-export function setClientState(newRuntime, newOptions) {
+let config = null;
+export function setClientState(newRuntime, newConfig) {
     runtime = newRuntime;
-    options = newOptions;
+    config = newConfig;
 }
 export function getClientRuntime() {
     if (runtime === null) {
@@ -15,9 +15,9 @@ export function getClientRuntime() {
     }
     return runtime;
 }
-export function getClientOptions() {
-    if (options === null) {
+export function getClientConfig() {
+    if (config === null) {
         throw new Error("Wasp's auth client used before Wasp instantiated it. Is waspAuth() among app.auth.schemes?");
     }
-    return options;
+    return config;
 }

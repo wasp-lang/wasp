@@ -297,6 +297,13 @@ export type AuthRuntimeGrantName = "email-send";
  *   deployments only; no client-side handling at all.
  *
  * @category Auth
+ *
+ * With `"cookie"`, the generated client sends every request with
+ * `credentials: "include"`, and the browser then requires the response header
+ * `Access-Control-Allow-Credentials: true`. Wasp's default CORS middleware
+ * sends it. An app with a custom CORS middleware must add it itself:
+ * `cors({ origin, credentials: true })`. With `"bearer"` (the default) nothing
+ * changes for such apps.
  */
 export type CredentialTransport = "bearer" | "cookie";
 
@@ -337,17 +344,99 @@ export type CredentialsConfig =
     };
 
 /**
- * EXPERIMENTAL. An auth scheme, described declaratively by the handler
- * package that implements it.
+ * Where one half of a scheme's code lives: the function Wasp calls to build
+ * it. Two forms of the SAME thing, differing only in where the code lives,
+ * which is what makes a hand-written handler as powerful as a packaged one.
+ * - `{ package, export? }`: a module specifier of a handler package's entry,
+ *   and the name of the factory it exports. `export` defaults to
+ *   `createServerAuthHandler` on the server and `createClientAuthHandler` on
+ *   the client; naming it lets one package entry hold several handlers.
+ * - a reference to such a function in the app's own `src/`.
+ *
+ * @category Experimental
+ */
+export type AuthHandlerFactoryEntry =
+  | { package: string; export?: string }
+  | Reference<AnyFunction>;
+
+/**
+ * Everything the SERVER half of a scheme needs. Each field sits next to the
+ * code that receives it: the factory is called as
+ * `authHandlerFactory(runtime, config)`.
+ *
+ * @category Experimental
+ */
+export interface AuthSchemeServerSide {
+  /** The server half: a `ServerAuthHandlerFactory`. See {@link AuthHandlerFactoryEntry}. */
+  authHandlerFactory: AuthHandlerFactoryEntry;
+  /**
+   * Server env vars the handler reads. Wasp renders them into the generated
+   * env validation, so a missing one fails at boot with its `doc` text. The
+   * handler then receives exactly these as `runtime.env`, and nothing else.
+   */
+  env?: EnvVarRequirement[];
+  /**
+   * The server half's own configuration, in whatever shape the handler
+   * likes: ONE object mixing plain data with references to app code (signup
+   * field getters, OAuth config functions, email content functions, a setup
+   * function for the handler's underlying library), each where it naturally
+   * belongs:
+   *
+   *   config: { methods: { google: { scopes: ["profile"], configFn: googleConfig } } }
+   *
+   * The factory receives the same object, with every reference replaced by
+   * the live function or object it names. Wasp does the plumbing: a
+   * reference cannot cross the compiler as data, so Wasp lifts each one out,
+   * imports it in the generated code, and sets it back at its path. Wasp
+   * never reads the contents; the handler types them. It never leaves the
+   * server.
+   *
+   * Everything that is not a reference must survive a JSON round-trip (the
+   * compiler checks). A reference may sit anywhere in nested objects, but
+   * not inside an array.
+   */
+  config?: unknown;
+  /**
+   * Present when the factory returns a `routeHandler`. The routes mount at
+   * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`
+   * mounts them without the JSON body parser, for handlers that read the
+   * body themselves.
+   */
+  routes?: { rawBody?: boolean };
+}
+
+/**
+ * Everything the CLIENT half of a scheme needs. The factory is called as
+ * `authHandlerFactory(runtime, config)`.
+ *
+ * @category Experimental
+ */
+export interface AuthSchemeClientSide {
+  /** The client half: a `ClientAuthHandlerFactory`. See {@link AuthHandlerFactoryEntry}. */
+  authHandlerFactory: AuthHandlerFactoryEntry;
+  /** Client env vars the handler reads; delivered as `runtime.env`. */
+  env?: EnvVarRequirement[];
+  /**
+   * The client half's own configuration: one object mixing plain data with
+   * references to app code (a component, a callback), exactly like
+   * {@link AuthSchemeServerSide.config}. PUBLIC by construction: all of it,
+   * data and referenced code alike, is bundled into the browser, so it must
+   * never hold a secret. Data both halves need is written on both sides, on
+   * purpose: there is no shared bucket, so where a value ends up is always
+   * visible where it is written.
+   */
+  config?: unknown;
+}
+
+/**
+ * EXPERIMENTAL. A self-describing declaration of an auth scheme's handler.
  *
  * Handler packages produce this from their spec helpers (`waspAuth()` from
- * `@wasp.sh/auth/spec`, `clerk()` from `@wasp.sh/auth-clerk/spec`), and
- * hand-written handlers produce it via {@link customAuthHandler}. Both go
+ * `@wasp.sh/auth/spec`, `clerk()` from `@wasp.sh/auth-clerk/spec`, ...)
  * through `defineAuthSchemeManifest`, which validates the manifest and stamps
- * it as authentic -- the compiler rejects hand-crafted object literals.
- *
- * The manifest knows nothing about the name the app gives the scheme:
- * namespaces and routes are declared relative and prefixed by Wasp.
+ * it as authentic. It is grouped by side: `server` and `client` each hold
+ * what that half of the handler receives; the remaining fields are what Wasp
+ * itself reads.
  *
  * @category Experimental
  */
@@ -359,39 +448,11 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 3;
-  /**
-   * The handler package this manifest comes from ("@wasp.sh/auth",
-   * "@wasp.sh/auth-clerk", ...). Informational: error messages and docs.
-   */
-  handler: string;
-  /**
-   * The scheme's server half: a `ServerAuthHandlerFactory`. Either the module
-   * specifier of a handler package's server entry (which must export it as
-   * `createServerAuthHandler`), or a reference to such a function in the app's
-   * own `src/`.
-   *
-   * Both forms are the SAME thing in different places, so a hand-written
-   * handler has every power a packaged one has: it receives the scheme's
-   * runtime as an argument, and may return a `routeHandler` for routes of
-   * its own.
-   */
-  server: { package: string } | Reference<AnyFunction>;
-  /**
-   * The scheme's client half: a `ClientAuthHandlerFactory`. Either the module
-   * specifier of a handler package's client entry (which must export it as
-   * `createClientAuthHandler`), or a reference to such a function in the app's
-   * own `src/`. Wasp instantiates it and wires the client side -- context
-   * wrapper, credential source, logout cleanup -- automatically.
-   */
-  client?: { package: string } | Reference<AnyFunction>;
-  /**
-   * Whether the handler brings its own HTTP routes. They mount at
-   * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`
-   * mounts them without the JSON body parser, for handlers that read the body
-   * themselves.
-   */
-  routes?: { rawBody?: boolean };
+  contractVersion: 4;
+  /** The server half. Every scheme has one. */
+  server: AuthSchemeServerSide;
+  /** The client half, when the handler needs anything in the browser. */
+  client?: AuthSchemeClientSide;
   /**
    * The handler's capabilities, as an open set of strings. Known today:
    * `"sign-in"` (other schemes may use this one as their credentials scheme),
@@ -399,13 +460,12 @@ export interface AuthSchemeManifest {
    * declare capabilities newer than the compiler.
    */
   capabilities: string[];
-  /** Env vars the handler needs, rendered into generated env validation. */
-  env: { server: EnvVarRequirement[]; client: EnvVarRequirement[] };
   /**
-   * Runtime facets the handler requests from Wasp. A declared grant appears
-   * as a member of the handler's `WaspServerRuntime`; an undeclared one is
-   * absent. Declaring `"email-send"` requires the app to configure
-   * `emailSender` (a compile error otherwise). Default: none.
+   * Runtime powers the handler requests from Wasp that need something FROM
+   * THE APP. A declared grant appears as a member of the handler's
+   * `WaspServerRuntime`; an undeclared one is absent. Declaring
+   * `"email-send"` requires the app to configure `emailSender` (a compile
+   * error otherwise). Default: none.
    */
   uses?: AuthRuntimeGrantName[];
   /**
@@ -423,31 +483,16 @@ export interface AuthSchemeManifest {
    */
   credentials?: CredentialsConfig;
   /**
-   * Populates the app's user entity when Wasp provisions a local user for a
-   * subject it has not seen before, from the claims the handler verified.
-   * Required in practice when the user entity has non-nullable fields.
+   * Computes the app's user entity fields from the claims a handler verified,
+   * for the one case where WASP creates the user: a subject it has never
+   * seen shows up already authenticated (a hosted provider's token), so no
+   * handler code is running that could do it. Wasp itself calls this, which
+   * is why it is not one of the server half's `references`.
+   *
+   * A handler that owns a signup moment passes its own getter to
+   * `identities.create` instead, and this field is then unused.
    */
-  userSignupFields?: Reference<AnyObject>;
-  /**
-   * Setup function for the handler's underlying library, following the same
-   * convention as `db.prismaSetupFn`: a reference to a user-code function the
-   * handler calls with its integration config, whose return value becomes the
-   * configuration to use.
-   */
-  setupFn?: Reference<AnyFunction>;
-  /**
-   * Any other user code the handler calls back into (signup field getters,
-   * OAuth config functions, email content functions, method-specific hooks),
-   * keyed by the name the handler expects. Each reference reaches the
-   * handler's server factory as `extensions[name]`; the handler types them
-   * precisely, Wasp only forwards them.
-   */
-  extensions?: Record<string, Reference<AnyFunction | AnyObject>>;
-  /**
-   * Serializable handler options, passed verbatim to the handler's server and
-   * client factories. Must survive a JSON round-trip; the compiler checks.
-   */
-  options?: unknown;
+  userFieldsFromClaims?: Reference<AnyObject>;
   /**
    * Marks a manifest as constructed by `defineAuthSchemeManifest` rather
    * than hand-crafted. Handlers never set this themselves.

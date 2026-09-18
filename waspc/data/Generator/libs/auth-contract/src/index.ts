@@ -474,7 +474,7 @@ export type ProviderIdentities = {
    * callback (not a value) so the provisioning layer controls when it runs --
    * the app's signup veto, once it fires at this choke point, must run before
    * any user-supplied field getters do. When omitted, the scheme's
-   * manifest-level `userSignupFields` run over the claims instead.
+   * manifest's `userFieldsFromClaims` run over the claims instead.
    */
   create(
     subjectId: string,
@@ -610,34 +610,24 @@ export type ServerAuthHandlerParts = {
 };
 
 /**
- * User-code extensions Wasp delivers alongside the serializable options.
+ * The required shape of a handler's server half: the function Wasp calls to
+ * build it. A handler package exports it (as `createServerAuthHandler`, or
+ * under the name its manifest gives); a hand-written handler references it
+ * from `main.wasp.ts`. The two are the same thing in different places.
  *
- * `setupFn` follows the same convention as Wasp's `prismaSetupFn`: a user
- * function the handler calls with its integration configuration, whose return
- * value becomes the configuration to use. Every other key is a function the
- * manifest referenced under `extensions`, under the name the handler chose;
- * the handler types them precisely, Wasp only forwards them.
- */
-export type AuthHandlerExtensions = {
-  setupFn?: (config: never) => unknown;
-  [name: string]: unknown;
-};
-
-/**
- * The required shape of an handler package's server entry: a named
- * `createServerAuthHandler` export of this type. `options` is the serializable
- * configuration the handler's spec helper captured in `main.wasp.ts`, delivered
- * verbatim; `extensions` carries the user-code escape hatches referenced by the
- * manifest.
+ * `config` is the manifest's `server.config`, exactly as the handler's spec
+ * helper built it: one object mixing plain data with the app's functions,
+ * each where it naturally belongs. Wasp carried the functions across the
+ * compiler as references and set them back, so they arrive live and callable.
+ * Wasp never reads the contents; the handler types them with `Config`.
  */
 export type ServerAuthHandlerFactory<
-  Options = unknown,
+  Config = unknown,
   Grants extends RuntimeGrantName = never,
   HasCredentials extends boolean = false,
 > = (
   runtime: WaspServerRuntime<Grants, HasCredentials>,
-  options: Options,
-  extensions?: AuthHandlerExtensions,
+  config: Config,
 ) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 
 // ---------------------------------------------------------------------------

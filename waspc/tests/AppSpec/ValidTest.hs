@@ -337,13 +337,7 @@ spec_AppSpecValid = do
         it "returns an error when a reserved server env var name is declared" $ do
           ASV.validateAppSpec
             ( makeSpec
-                basicExternalProvider
-                  { AS.Auth.envVars =
-                      AS.Auth.AuthSchemeEnvVars
-                        { AS.Auth.server = [makeEnvVar "DATABASE_URL"],
-                          AS.Auth.client = []
-                        }
-                  }
+                (withSchemeEnvVars [makeEnvVar "DATABASE_URL"] [] basicExternalProvider)
             )
             `shouldBe` [ Valid.GenericValidationError $
                            "Auth scheme 'test' declares the server env var 'DATABASE_URL', which Wasp"
@@ -354,13 +348,7 @@ spec_AppSpecValid = do
         it "returns an error when a reserved client env var name is declared" $ do
           ASV.validateAppSpec
             ( makeSpec
-                basicExternalProvider
-                  { AS.Auth.envVars =
-                      AS.Auth.AuthSchemeEnvVars
-                        { AS.Auth.server = [],
-                          AS.Auth.client = [makeEnvVar "REACT_APP_API_URL"]
-                        }
-                  }
+                (withSchemeEnvVars [] [makeEnvVar "REACT_APP_API_URL"] basicExternalProvider)
             )
             `shouldBe` [ Valid.GenericValidationError $
                            "Auth scheme 'test' declares the client env var 'REACT_APP_API_URL', which"
@@ -371,13 +359,7 @@ spec_AppSpecValid = do
         it "returns no error for provider-specific env var names" $ do
           ASV.validateAppSpec
             ( makeSpec
-                basicExternalProvider
-                  { AS.Auth.envVars =
-                      AS.Auth.AuthSchemeEnvVars
-                        { AS.Auth.server = [makeEnvVar "TEST_API_SECRET"],
-                          AS.Auth.client = [makeEnvVar "REACT_APP_TEST_KEY"]
-                        }
-                  }
+                (withSchemeEnvVars [makeEnvVar "TEST_API_SECRET"] [makeEnvVar "REACT_APP_TEST_KEY"] basicExternalProvider)
             )
             `shouldBe` []
 
@@ -827,20 +809,33 @@ makeTestAuthScheme schemeName =
   AS.Auth.AuthScheme
     { AS.Auth.name = schemeName,
       AS.Auth.handler = "@wasp.sh/auth-" ++ schemeName,
-      AS.Auth.server = AS.Auth.AuthSchemeEntry (Left ("@wasp.sh/auth-" ++ schemeName)),
+      AS.Auth.server = makeTestSchemeSide ("@wasp.sh/auth-" ++ schemeName ++ "/server") "createServerAuthHandler" [],
       AS.Auth.client = Nothing,
       AS.Auth.routes = Nothing,
       AS.Auth.capabilities = [],
-      AS.Auth.envVars =
-        AS.Auth.AuthSchemeEnvVars
-          { AS.Auth.server = [],
-            AS.Auth.client = []
-          },
       AS.Auth.uses = [],
       AS.Auth.identityNamespaces = [schemeName],
       AS.Auth.credentials = Nothing,
-      AS.Auth.userSignupFields = Nothing,
-      AS.Auth.setupFn = Nothing,
-      AS.Auth.extensions = M.empty,
-      AS.Auth.optionsJson = Nothing
+      AS.Auth.userFieldsFromClaims = Nothing
+    }
+
+-- | One half of a scheme from a handler package, with no config.
+makeTestSchemeSide :: String -> String -> [AS.Auth.AuthSchemeEnvVar] -> AS.Auth.AuthSchemeSide
+makeTestSchemeSide packageSpecifier exportName envVars =
+  AS.Auth.AuthSchemeSide
+    { AS.Auth.authHandlerFactory = AS.Auth.PackageFactory packageSpecifier exportName,
+      AS.Auth.envVars = envVars,
+      AS.Auth.configJson = Nothing,
+      AS.Auth.configReferences = M.empty
+    }
+
+-- | Sets a scheme's declared env vars. Client env vars need a client half.
+withSchemeEnvVars :: [AS.Auth.AuthSchemeEnvVar] -> [AS.Auth.AuthSchemeEnvVar] -> AS.Auth.AuthScheme -> AS.Auth.AuthScheme
+withSchemeEnvVars serverEnvVars clientEnvVars scheme =
+  scheme
+    { AS.Auth.server = (AS.Auth.server scheme) {AS.Auth.envVars = serverEnvVars},
+      AS.Auth.client =
+        if null clientEnvVars
+          then AS.Auth.client scheme
+          else Just $ makeTestSchemeSide (AS.Auth.handler scheme ++ "/client") "createClientAuthHandler" clientEnvVars
     }
