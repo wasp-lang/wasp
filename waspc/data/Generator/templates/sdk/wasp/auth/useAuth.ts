@@ -17,8 +17,7 @@ export default function useAuth(): UseQueryResult<AuthUser | null> {
 }
 
 function createUserGetter(): Query<void, AuthUser | null> {
-  const getMeRelativePath = '{= getMeRelativePath =}'
-  const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
+  const getMeRoute = { method: HttpMethod.Get, path: '{= getMePath =}' }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
       const json = await api.get(getMeRoute.path).json()
@@ -30,7 +29,7 @@ function createUserGetter(): Query<void, AuthUser | null> {
   }
 
   return buildAndRegisterQuery(getMe, {
-    queryCacheKey: [getMeRelativePath],
+    queryCacheKey: [getMeRoute.path],
     queryRoute: getMeRoute,
     entitiesUsed: {=& entitiesGetMeDependsOn =},
   })

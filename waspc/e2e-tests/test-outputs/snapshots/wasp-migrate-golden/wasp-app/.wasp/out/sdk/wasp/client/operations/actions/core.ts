@@ -8,10 +8,10 @@ import {
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
-  relativeActionRoute: string,
+  actionPath: string,
   entitiesUsed: unknown[]
 ): ActionFor<BackendAction> {
-  const actionRoute = makeOperationRoute(relativeActionRoute)
+  const actionRoute = makeOperationRoute(actionPath)
 
   async function internalAction(args, specificOptimisticUpdateDefinitions) {
     registerActionInProgress(specificOptimisticUpdateDefinitions)
