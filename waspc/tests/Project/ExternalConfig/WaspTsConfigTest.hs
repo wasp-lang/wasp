@@ -56,6 +56,25 @@ spec_WaspTsConfig = do
       validate (validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.types = Just ["node", "vitest/globals"]})})
         `shouldBe` []
 
+    it "accepts any casing TypeScript accepts for enum-like compiler options" $
+      -- TypeScript parses these case-insensitively and normalizes them to
+      -- lowercase (check `tsc --showConfig`).
+      validate
+        ( validTsConfig
+            { T.compilerOptions =
+                Just
+                  ( validCompilerOptions
+                      { T._module = Just "ESNext",
+                        T.target = Just "es2025",
+                        T.moduleResolution = Just "Bundler",
+                        T.moduleDetection = Just "Force",
+                        T.jsx = Just "Preserve"
+                      }
+                  )
+            }
+        )
+        `shouldBe` []
+
 validate :: T.TsConfig -> [String]
 validate = validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
 
