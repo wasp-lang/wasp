@@ -16,7 +16,6 @@
       "types": "./dist/browser.d.ts",
       "default": "./dist/browser.js"
     },
-    "./browser.css": "./dist/style.css",
     "./node/vite": {
       "types": "./dist/vite.d.ts",
       "default": "./dist/vite.js"
@@ -33,7 +32,7 @@
     "build": "tsdown",
     "prepare": "npm run build",
     "test": "npm run test:types && npm run test:type-exports",
-    "test:type-exports": "attw -P --profile esm-only --exclude-entrypoints ./browser.css",
+    "test:type-exports": "attw -P --profile esm-only",
     "test:types": "tsc --noEmit"
   },
   "peerDependencies": {
