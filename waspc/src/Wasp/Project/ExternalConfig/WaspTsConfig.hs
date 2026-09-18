@@ -29,13 +29,13 @@ waspTsConfigValidator =
     compilerOptionsValidator :: V.Validator T.CompilerOptions
     compilerOptionsValidator =
       V.all
-        [ V.inField ("target", T.target) $ V.eqJust "ES2025",
-          V.inField ("module", T._module) $ V.eqJust "esnext",
-          V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
-          V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
+        [ V.inField ("target", T.target) $ V.eqJustCaseInsensitive "ES2025",
+          V.inField ("module", T._module) $ V.eqJustCaseInsensitive "esnext",
+          V.inField ("moduleResolution", T.moduleResolution) $ V.eqJustCaseInsensitive "bundler",
+          V.inField ("jsx", T.jsx) $ V.eqJustCaseInsensitive "preserve",
           V.inField ("strict", T.strict) $ V.eqJust True,
           V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
-          V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
+          V.inField ("moduleDetection", T.moduleDetection) $ V.eqJustCaseInsensitive "force",
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
