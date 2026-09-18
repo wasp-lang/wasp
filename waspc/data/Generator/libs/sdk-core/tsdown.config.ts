@@ -7,6 +7,12 @@ export default defineConfig({
     node: "./src/node/index.ts",
   },
   platform: "neutral",
+  css: {
+    lightningcss: {
+      // Keep CSS hashes stable across checkout paths for snapshot tests.
+      projectRoot: import.meta.dirname,
+    },
+  },
   outDir: "dist",
   dts: { sourcemap: true },
   sourcemap: true,
