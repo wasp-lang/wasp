@@ -44,7 +44,7 @@ genWaspAppComponent spec =
       [relfile|client/app/components/WaspApp.tsx|]
       ( object
           [ "areWebSocketsUsed" .= WS.areWebSocketsUsed spec,
-            "isClientAuthAdapterUsed" .= maybe False AS.Auth.isClientAuthAdapterUsed (AS.App.auth $ snd $ getApp spec)
+            "isClientAuthHandlerUsed" .= maybe False AS.Auth.isClientAuthHandlerUsed (AS.App.auth $ snd $ getApp spec)
           ]
       )
 

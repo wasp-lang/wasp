@@ -5,7 +5,7 @@ import { createClerkClient } from "@clerk/backend";
  * This is about the smallest possible handler, and Clerk is by far the least
  * work to integrate: it contributes **no Prisma models and no routes**. It
  * only ever answers "whose request is this?", from Clerk's own session token,
- * which the client adapter puts on every request. Wasp issues nothing for it.
+ * which the client auth handler puts on every request. Wasp issues nothing for it.
  *
  * It is also the handler that shows why `signIn` is optional on the
  * contract. Clerk has **no server-side password login at all** -- password
@@ -18,7 +18,7 @@ import { createClerkClient } from "@clerk/backend";
  * Secrets come from `runtime.env`, already validated against the env vars the
  * manifest declared -- the handler never reads `process.env` itself.
  */
-export const createServerAdapter = (runtime) => {
+export const createServerAuthHandler = (runtime) => {
     const clerk = createClerkClient({
         secretKey: runtime.env.CLERK_SECRET_KEY,
         publishableKey: runtime.env.CLERK_PUBLISHABLE_KEY,

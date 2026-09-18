@@ -33,7 +33,7 @@ REACT_APP_CLERK_PUBLISHABLE_KEY=pk_test_… # same publishable key
 
 ## How it works
 
-Clerk's session token **is** the credential. The package's client adapter mounts Clerk's React
+Clerk's session token **is** the credential. The package's client auth handler mounts Clerk's React
 context, hands the current token to Wasp at request time (fresh across Clerk's ~60s rotations),
 and the server handler verifies it on every request. The scheme declares no `credentials`, so
 Wasp issues nothing and adds no `Session` table. `logout()` revokes the Clerk session

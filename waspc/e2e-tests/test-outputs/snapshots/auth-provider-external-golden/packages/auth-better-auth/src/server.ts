@@ -2,7 +2,7 @@ import type {
   AuthenticateResult,
   AuthHandler,
   AuthResponse,
-  ServerAdapterFactory,
+  ServerAuthHandlerFactory,
   WaspServerRuntime,
 } from "@wasp.sh/auth-contract";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
@@ -12,7 +12,7 @@ import { bearer } from "better-auth/plugins";
 
 /**
  * The type of the `setupFn` an app can reference from its manifest, following
- * the same convention as Wasp's `PrismaSetupFn`: it receives the adapter's
+ * the same convention as Wasp's `PrismaSetupFn`: it receives the handler's
  * integration config (database adapter, secret, base URL and path, trusted
  * origins, table name overrides, bearer transport) and returns the Better
  * Auth options to use.
@@ -23,7 +23,7 @@ import { bearer } from "better-auth/plugins";
  * Better Auth's own documentation describes. Spread the received config to
  * keep the integration settings, then add yours.
  *
- * The adapter re-asserts its load-bearing settings after calling it (base
+ * The handler re-asserts its load-bearing settings after calling it (base
  * path, `modelName` overrides, the bearer plugin, the database adapter), so
  * those cannot be broken from here -- everything else is yours.
  */
@@ -36,9 +36,9 @@ export type BetterAuthSetupFn = (
  *
  * One factory builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
- * the `ServerAdapter` shape exists to make the alternative unrepresentable.
+ * the `ServerAuthHandlerParts` shape exists to make the alternative unrepresentable.
  * Better Auth's own session token is the credential on every request (the
- * client adapter stores it and Wasp attaches it), so Wasp issues nothing.
+ * client auth handler stores it and Wasp attaches it), so Wasp issues nothing.
  *
  * Two settings on the instance are load-bearing for this integration:
  *
@@ -49,19 +49,19 @@ export type BetterAuthSetupFn = (
  * - `modelName` on every model -- Better Auth's default table names (`user`,
  *   `session`, `account`) would collide with Wasp's own generated tables. Note
  *   these must be the *Prisma client property*, not the `@@map` name: the
- *   adapter does a raw `db[modelName]` lookup with no case transformation.
+ *   handler does a raw `db[modelName]` lookup with no case transformation.
  */
-export const createServerAdapter: ServerAdapterFactory = (
+export const createServerAuthHandler: ServerAuthHandlerFactory = (
   runtime,
   _options,
   extensions,
 ) => {
-  // The integration config: everything this adapter needs to plug Better Auth
+  // The integration config: everything this handler needs to plug Better Auth
   // into a Wasp app, and nothing about which auth methods exist.
   const integrationConfig: BetterAuthOptions = {
     // The app's own PrismaClient, handed over by Wasp. `runtime.db` is typed
     // `unknown` because the client's type is generated per app; Better Auth's
-    // adapter only needs its dynamic model delegates.
+    // handler only needs its dynamic model delegates.
     database: prismaAdapter(runtime.db as never, {
       provider: runtime.dbProvider as "sqlite",
     }),
@@ -78,7 +78,7 @@ export const createServerAdapter: ServerAdapterFactory = (
     plugins: [bearer()],
   };
 
-  // Either the adapter's opinionated default or the user's explicit setup --
+  // Either the handler's opinionated default or the user's explicit setup --
   // never a mix, so the two can't fight:
   //
   // - No `setupFn`: email-and-password auth is enabled for you. Verification
@@ -103,7 +103,7 @@ export const createServerAdapter: ServerAdapterFactory = (
     database: integrationConfig.database,
     basePath: runtime.mountPath,
     // Composed, not replaced: the app's own database hooks keep running, and
-    // the adapter adds the eager-provisioning report on top (see below).
+    // the handler adds the eager-provisioning report on top (see below).
     databaseHooks: withEagerProvisioning(runtime, extendedConfig.databaseHooks),
     user: { ...extendedConfig.user, modelName: "betterAuthUser" },
     session: { ...extendedConfig.session, modelName: "betterAuthSession" },
@@ -175,7 +175,7 @@ export const createServerAdapter: ServerAdapterFactory = (
  * Composes the eager-provisioning report into the app's database hooks,
  * preserving any `user.create.after` the app's `setupFn` declared.
  *
- * Better Auth runs signup in-process, so the adapter can observe the exact
+ * Better Auth runs signup in-process, so the handler can observe the exact
  * moment one of its users comes to exist and report it to Wasp -- the local
  * `User` then exists from signup, not from the first authenticated request.
  * The call is idempotent and just-in-time provisioning remains the backstop,

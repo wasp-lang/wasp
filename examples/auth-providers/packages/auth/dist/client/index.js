@@ -5,10 +5,10 @@ import * as SocialIcons from "./forms/internal/social/SocialIcons.js";
 import { setClientState } from "./runtime.js";
 /**
  * The client half of Wasp's own auth. Wasp instantiates it like any client
- * adapter; the forms and actions below then read the captured runtime
+ * handler; the forms and actions below then read the captured runtime
  * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
-export const createClientAdapter = (runtime, options) => {
+export const createClientAuthHandler = (runtime, options) => {
     setClientState(runtime, options);
     // No Wrapper, no ambient credential: a bearer credential is adopted
     // explicitly by the login actions through the setCredential sink, and a

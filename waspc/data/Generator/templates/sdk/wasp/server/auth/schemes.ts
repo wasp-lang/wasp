@@ -23,7 +23,7 @@ import { emailSender } from '../email/index.js'
 {=# schemes =}
 {=# isPackage =}
 {=^ isFrameworkIssuer =}
-import { createServerAdapter as createServerAdapter_{= index =} } from '{= serverPackage =}'
+import { createServerAuthHandler as createServerAuthHandler_{= index =} } from '{= serverPackage =}'
 {=/ isFrameworkIssuer =}
 {=/ isPackage =}
 {=^ isPackage =}
@@ -405,11 +405,11 @@ const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void> }>> = {}
 
 function handlerOf(name: AuthSchemeName): AuthHandler {
-  const adapter = registered[name]
-  if (adapter === undefined) {
+  const handlerParts = registered[name]
+  if (handlerParts === undefined) {
     throw new Error(`Auth scheme '${name}' is not built yet; the generator ordered the schemes wrong.`)
   }
-  return adapter.handler
+  return handlerParts.handler
 }
 
 {=# schemes =}
@@ -449,21 +449,21 @@ const credentials_{= index =} = null
 {=/ hasCredentials =}
 {=# isFrameworkIssuer =}
 // waspBearer() / waspCookie(): the scheme IS its issuer.
-const adapter_{= index =} = { handler: issuer_{= index =} }
+const handlerParts_{= index =} = { handler: issuer_{= index =} }
 {=/ isFrameworkIssuer =}
 {=^ isFrameworkIssuer =}
 {=^ isPackage =}
 // A factory from the app's own code: the same thing a handler package
-// exports as `createServerAdapter`, so it is instantiated the same way and
+// exports as `createServerAuthHandler`, so it is instantiated the same way and
 // has the same powers (the runtime as an argument, routes of its own).
-const createServerAdapter_{= index =} = {= handlerModule.importIdentifier =}
+const createServerAuthHandler_{= index =} = {= handlerModule.importIdentifier =}
 {=/ isPackage =}
-const adapter_{= index =} = await Promise.resolve(
-  createServerAdapter_{= index =}(
+const handlerParts_{= index =} = await Promise.resolve(
+  createServerAuthHandler_{= index =}(
     // The cast narrows the built runtime to the grants the factory's type
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as Parameters<typeof createServerAdapter_{= index =}>[0],
+    makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as Parameters<typeof createServerAuthHandler_{= index =}>[0],
     {=& optionsJson =},
     {
       // The user's setup function for the handler's underlying library; the
@@ -478,7 +478,7 @@ const adapter_{= index =} = await Promise.resolve(
   ),
 )
 {=/ isFrameworkIssuer =}
-registered['{= schemeName =}'] = adapter_{= index =}
+registered['{= schemeName =}'] = handlerParts_{= index =}
 {=/ schemes =}
 
 // PRIVATE API
@@ -505,7 +505,7 @@ export function getAuthScheme(name: string): AuthHandler | undefined {
 export const authSchemeRouteHandlers: Partial<Record<AuthSchemeName, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
   {=# schemes =}
   {=^ isFrameworkIssuer =}
-  '{= schemeName =}': adapter_{= index =}.routeHandler,
+  '{= schemeName =}': handlerParts_{= index =}.routeHandler,
   {=/ isFrameworkIssuer =}
   {=/ schemes =}
 }

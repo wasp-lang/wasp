@@ -29,7 +29,7 @@ export type EnvVarRequirement = {
 export type BetterAuthSchemeManifest<UserSignupFieldsRef = never, SetupFnRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 2;
+    contractVersion: 3;
     handler: "@wasp.sh/auth-better-auth";
     server: {
         package: string;
@@ -54,7 +54,7 @@ export type BetterAuthSchemeManifest<UserSignupFieldsRef = never, SetupFnRef = n
 export interface BetterAuthConfig<UserSignupFieldsRef = never, SetupFnRef = never> {
     /**
      * Populates the app's user entity when Wasp provisions a local user for a
-     * Better Auth subject it has not seen before, from the claims the adapter
+     * Better Auth subject it has not seen before, from the claims the handler
      * verified (`email`, `name`). Required in practice when the user entity has
      * non-nullable fields.
      */
@@ -62,18 +62,18 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never, SetupFnRef = neve
     /**
      * Setup function for the Better Auth instance, following the same
      * convention as Wasp's `prismaSetupFn`: a reference to a function that
-     * receives the adapter's integration config (database adapter, secret,
+     * receives the handler's integration config (database adapter, secret,
      * base path, table name overrides, bearer transport) and returns the
      * Better Auth options to use.
      *
-     * Without it, the adapter enables email-and-password auth for you. **With
+     * Without it, the handler enables email-and-password auth for you. **With
      * it, nothing is enabled by default** -- the returned configuration is
      * authoritative, with plain Better Auth semantics: enable exactly what you
      * want, exactly as Better Auth's own docs describe (`emailAndPassword`,
      * `socialProviders`, `databaseHooks`, `plugins`, email callbacks, ...).
      *
      * Type it with `BetterAuthSetupFn` from `@wasp.sh/auth-better-auth/server`.
-     * The adapter re-asserts its load-bearing settings (base path, table name
+     * The handler re-asserts its load-bearing settings (base path, table name
      * overrides, the bearer plugin, the database adapter) after calling it.
      */
     setupFn?: SetupFnRef;
@@ -104,7 +104,7 @@ export interface BetterAuthConfig<UserSignupFieldsRef = never, SetupFnRef = neve
  *   request stream, and an already-consumed stream makes every request hang
  *   with no error.
  * - The app's `schema.prisma` must contain the four `BetterAuth*` models the
- *   server adapter configures -- see this package's README for the block to
+ *   server auth handler configures -- see this package's README for the block to
  *   paste in.
  */
 export declare function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(config?: BetterAuthConfig<UserSignupFieldsRef, SetupFnRef>): BetterAuthSchemeManifest<UserSignupFieldsRef, SetupFnRef>;

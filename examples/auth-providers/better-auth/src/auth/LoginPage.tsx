@@ -7,7 +7,7 @@ import { authClient } from "./authClient";
  * Better Auth CAN mint a session server-side, so this page posts credentials and
  * gets a token back. Compare the Clerk example, where that is impossible.
  *
- * Better Auth's token IS the credential: the adapter's client stores it with
+ * Better Auth's token IS the credential: the handler's client stores it with
  * Wasp, every subsequent request carries it, and the Better Auth handler
  * verifies it. Nothing here is Wasp-specific beyond the redirect.
  */

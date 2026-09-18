@@ -7,7 +7,7 @@ import { apiEventsEmitter } from './events.js'
 // survives an upgrade.
 const WASP_APP_AUTH_CREDENTIAL_NAME = 'sessionId'
 // Which scheme the current credential came from, so logout can tell that
-// scheme's client adapter to clear its own state.
+// scheme's client auth handler to clear its own state.
 const WASP_APP_LAST_AUTH_SCHEME_NAME = 'lastAuthScheme'
 
 // PRIVATE API (sdk)
@@ -86,7 +86,7 @@ export function removeLocalUserData(): void {
 }
 
 // The fallback credential source for requests: the default scheme's client
-// adapter, registered by the scheme registry. Consulted only when no
+// handler, registered by the scheme registry. Consulted only when no
 // Wasp-issued bearer credential is stored.
 let credentialSource: (() => Promise<string | null>) | null = null
 

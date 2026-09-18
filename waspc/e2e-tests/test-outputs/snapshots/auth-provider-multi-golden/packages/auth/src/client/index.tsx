@@ -1,4 +1,4 @@
-import type { ClientAdapterFactory } from "@wasp.sh/auth-contract/client";
+import type { ClientAuthHandlerFactory } from "@wasp.sh/auth-contract/client";
 
 import { signInUrl } from "./actions.js";
 import { SocialButton } from "./forms/internal/social/SocialButton.js";
@@ -8,10 +8,10 @@ import type { WaspAuthClientOptions } from "./types.js";
 
 /**
  * The client half of Wasp's own auth. Wasp instantiates it like any client
- * adapter; the forms and actions below then read the captured runtime
+ * handler; the forms and actions below then read the captured runtime
  * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
-export const createClientAdapter: ClientAdapterFactory<
+export const createClientAuthHandler: ClientAuthHandlerFactory<
   WaspAuthClientOptions
 > = (runtime, options) => {
   setClientState(runtime, options);

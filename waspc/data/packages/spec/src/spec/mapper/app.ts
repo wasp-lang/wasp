@@ -201,7 +201,7 @@ function mapAuthScheme(
       `Auth scheme '${name}' received a hand-crafted manifest. Manifests must be created through a handler package's spec helper or customAuthHandler(), so they go through Wasp's validation.`,
     );
   }
-  if (manifest.contractVersion !== 2) {
+  if (manifest.contractVersion !== 3) {
     throw new WaspSpecUserError(
       `Auth scheme '${name}' (handler '${manifest.handler}') was built against auth contract version ${String(
         manifest.contractVersion,

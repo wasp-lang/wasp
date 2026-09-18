@@ -32,7 +32,7 @@ Then:
    `openssl rand -base64 32`).
 
 3. Add Better Auth's models to `schema.prisma`. The model names are fixed --
-   the adapter configures Better Auth with these exact Prisma client
+   the handler configures Better Auth with these exact Prisma client
    properties, renamed so they cannot collide with Wasp's own `user`,
    `session` and `account` tables:
 

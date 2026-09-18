@@ -114,7 +114,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 2;
+  contractVersion: 3;
   handler: string;
   server: { package: string };
   client: { package: string };
@@ -129,7 +129,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
   extensions: Record<string, Ref>;
 };
 
-/** The serializable options the server and client adapters are instantiated with. */
+/** The serializable options the server and client auth handlers are instantiated with. */
 export type WaspAuthOptions = {
   onAuthSucceededRedirectTo: string;
   clientOAuthCallbackPath: string;
@@ -291,7 +291,7 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 2,
+    contractVersion: 3,
     handler: "@wasp.sh/auth",
     server: { package: "@wasp.sh/auth/server" },
     client: { package: "@wasp.sh/auth/client" },

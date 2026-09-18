@@ -125,7 +125,7 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 2,
+        contractVersion: 3,
         handler: "@wasp.sh/auth",
         server: { package: "@wasp.sh/auth/server" },
         client: { package: "@wasp.sh/auth/client" },

@@ -1,13 +1,13 @@
 import { createAuthClient } from "better-auth/client";
 let runtime = null;
 /**
- * The client half of the adapter, instantiated by Wasp's generated client.
+ * The client half of the handler, instantiated by Wasp's generated client.
  *
  * It only captures the runtime window: the scheme's mount URL, and the
  * credential sink that stores the Better Auth session token so Wasp attaches
  * it to every request and routes `logout()` back to this scheme.
  */
-export const createClientAdapter = (newRuntime) => {
+export const createClientAuthHandler = (newRuntime) => {
     runtime = newRuntime;
     return {};
 };

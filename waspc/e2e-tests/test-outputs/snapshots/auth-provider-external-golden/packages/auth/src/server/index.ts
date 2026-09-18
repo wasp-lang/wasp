@@ -1,7 +1,7 @@
 import type {
   AuthHandler,
-  ServerAdapter,
-  ServerAdapterFactory,
+  ServerAuthHandlerFactory,
+  ServerAuthHandlerParts,
 } from "@wasp.sh/auth-contract";
 
 import { emailRoutes } from "./email/flows.js";
@@ -41,11 +41,11 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  * referenced, delivered through virtual modules. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export const createServerAdapter: ServerAdapterFactory<
+export const createServerAuthHandler: ServerAuthHandlerFactory<
   WaspAuthOptions,
   WaspAuthGrants,
   true
-> = (runtime, options, extensions): ServerAdapter => {
+> = (runtime, options, extensions): ServerAuthHandlerParts => {
   const ctx: Ctx = {
     runtime,
     options,
@@ -118,7 +118,7 @@ function groupExtensions(flat: Record<string, unknown>): WaspAuthExtensions {
   return grouped;
 }
 
-// The email helpers (link builders, senders), bound to the runtime at adapter
+// The email helpers (link builders, senders), bound to the runtime at handler
 // creation. User code imports them from `@wasp.sh/auth/server`.
 let boundEmailHelpers: EmailHelpers | null = null;
 

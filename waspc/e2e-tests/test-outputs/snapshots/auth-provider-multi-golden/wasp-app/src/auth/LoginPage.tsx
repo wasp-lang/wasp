@@ -9,7 +9,7 @@ import { LoginForm, SignupForm } from "@wasp.sh/auth/client";
  * audiences are presented. Wasp's own forms post credentials to Wasp's own
  * endpoints and adopt the bearer token they get back; Clerk's component talks
  * to Clerk's Frontend API, and its token then rides on every request through
- * the Clerk adapter's credential source.
+ * the Clerk handler's credential source.
  */
 export function LoginPage() {
   const [isSignup, setIsSignup] = useState(false);

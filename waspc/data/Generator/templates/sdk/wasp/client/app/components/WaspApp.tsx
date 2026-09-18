@@ -7,24 +7,24 @@ import { queryClientInitialized } from '../../operations/index'
 {=# areWebSocketsUsed =}
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
 {=/ areWebSocketsUsed =}
-{=# isClientAuthAdapterUsed =}
-import { clientAuthAdapters } from '../../auth/schemes'
+{=# isClientAuthHandlerUsed =}
+import { clientAuthHandlers } from '../../auth/schemes'
 
-// Each adapter's React context (Clerk's ClerkProvider, for one) wraps the
+// Each handler's React context (Clerk's ClerkProvider, for one) wraps the
 // whole app, outside the app's own rootComponent slot. Nesting follows
 // main.wasp.ts declaration order, first listed outermost -- deterministic,
 // and presentation-only: providers are independent identity systems and must
 // not depend on each other's context.
-const clientAuthAdapterWrappers = Object.values(clientAuthAdapters)
-  .map((adapter) => adapter.Wrapper)
+const clientAuthHandlerWrappers = Object.values(clientAuthHandlers)
+  .map((clientAuthHandler) => clientAuthHandler.Wrapper)
   .filter((Wrapper) => Wrapper !== undefined)
-{=/ isClientAuthAdapterUsed =}
+{=/ isClientAuthHandlerUsed =}
 
 export function WaspApp({ children }: { children: ReactNode }) {
   const queryClient = use(queryClientInitialized)
 
-  {=# isClientAuthAdapterUsed =}
-  return clientAuthAdapterWrappers.reduceRight(
+  {=# isClientAuthHandlerUsed =}
+  return clientAuthHandlerWrappers.reduceRight(
     (wrapped, Wrapper) => <Wrapper>{wrapped}</Wrapper>,
     <QueryClientProvider client={queryClient}>
       {=# areWebSocketsUsed =}
@@ -37,8 +37,8 @@ export function WaspApp({ children }: { children: ReactNode }) {
       {=/ areWebSocketsUsed =}
     </QueryClientProvider>,
   )
-  {=/ isClientAuthAdapterUsed =}
-  {=^ isClientAuthAdapterUsed =}
+  {=/ isClientAuthHandlerUsed =}
+  {=^ isClientAuthHandlerUsed =}
   return (
     <QueryClientProvider client={queryClient}>
       {=# areWebSocketsUsed =}
@@ -51,5 +51,5 @@ export function WaspApp({ children }: { children: ReactNode }) {
       {=/ areWebSocketsUsed =}
     </QueryClientProvider>
   )
-  {=/ isClientAuthAdapterUsed =}
+  {=/ isClientAuthHandlerUsed =}
 }

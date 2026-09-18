@@ -2,7 +2,7 @@ import type { BetterAuthSetupFn } from "@wasp.sh/auth-better-auth/server";
 
 /**
  * The setup function in action -- the `prismaSetupFn` convention applied to
- * auth. It receives the adapter's integration config (database, secret, base
+ * auth. It receives the handler's integration config (database, secret, base
  * path, table names, bearer transport) and returns the Better Auth options to
  * use. From here Better Auth is yours in full, with its own semantics:
  * **nothing is enabled unless this function enables it**, which is why
@@ -16,7 +16,7 @@ import type { BetterAuthSetupFn } from "@wasp.sh/auth-better-auth/server";
  * Note the division of labor: these are *Better Auth's* hooks, running inside
  * Better Auth's flows. Wasp-level concerns stay in Wasp: populating the app's
  * own `User` row happens through the manifest's `userSignupFields`, fed by the
- * claims the adapter verified.
+ * claims the handler verified.
  */
 export const setupBetterAuth: BetterAuthSetupFn = (config) => ({
   ...config,

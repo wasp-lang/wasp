@@ -1,5 +1,5 @@
 export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "keycloak" | "microsoft";
-/** The same serializable options the server adapter receives. */
+/** The same serializable options the server auth handler receives. */
 export type WaspAuthClientOptions = {
     onAuthSucceededRedirectTo: string;
     /** Where the server mounted the routes. Defaults to `/auth`. */

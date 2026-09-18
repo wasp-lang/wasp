@@ -11,7 +11,7 @@ import { useEffect } from "react";
  * validated client env.
  *
  * Deliberately contains no Wasp imports. Apps wiring Clerk by hand (without
- * the packaged adapter) register Clerk's token as a credential source
+ * the packaged handler) register Clerk's token as a credential source
  * themselves via `registerCredentialSource` from `wasp/client/api`.
  */
 export function ClerkAuthProvider({ publishableKey, afterSignOutUrl = "/login", children, }) {
@@ -24,7 +24,7 @@ export function ClerkAuthProvider({ publishableKey, afterSignOutUrl = "/login", 
 // re-exported so apps need only this package on the client side.
 export * from "@clerk/clerk-react";
 // The channel between the React tree (where Clerk boots) and the non-React
-// adapter methods (which Wasp's generated api client calls). `getCredential`
+// handler methods (which Wasp's generated api client calls). `getCredential`
 // resolves only once Clerk is loaded, so the first authenticated request
 // cannot race provider startup -- the readiness gate the contract asks for.
 let resolveClerkInstance;
@@ -45,14 +45,14 @@ function ClerkInstanceCapture({ children }) {
     return _jsx(_Fragment, { children: children });
 }
 /**
- * The client half of the adapter, instantiated by Wasp's generated client.
+ * The client half of the handler, instantiated by Wasp's generated client.
  *
  * With this in place the app composes nothing by hand: Wasp mounts the
  * `Wrapper` around the app, pulls the current token at each request (fresh
  * across Clerk's ~60s rotations), refreshes on Clerk-side logins/logouts, and
  * `logout()` signs out of Clerk too.
  */
-export const createClientAdapter = (runtime) => ({
+export const createClientAuthHandler = (runtime) => ({
     Wrapper: ({ children }) => (_jsx(ClerkAuthProvider, { publishableKey: runtime.env.REACT_APP_CLERK_PUBLISHABLE_KEY, children: _jsx(ClerkInstanceCapture, { children: children }) })),
     async getCredential() {
         const clerk = await clerkInstance;

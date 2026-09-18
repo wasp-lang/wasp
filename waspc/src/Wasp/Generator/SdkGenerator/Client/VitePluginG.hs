@@ -78,10 +78,10 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
-          -- Client adapter packages may ship CSS (Wasp's own auth forms do);
+          -- Client handler packages may ship CSS (Wasp's own auth forms do);
           -- Vite must process them for prerendering rather than leaving them
           -- to Node's loader.
-          "ssrNoExternal" .= makeJsArrayFromHaskellList clientAdapterPackages,
+          "ssrNoExternal" .= makeJsArrayFromHaskellList clientAuthHandlerPackages,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
@@ -92,7 +92,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     -- Vite matches `ssr.noExternal` entries against package names, so the
     -- manifest's entry specifier (`@wasp.sh/auth/client`) is reduced to its
     -- package name (`@wasp.sh/auth`).
-    clientAdapterPackages =
+    clientAuthHandlerPackages =
       nub
         [ packageNameOfSpecifier clientPackage
         | scheme <- maybe [] AS.Auth.schemes (AS.App.auth $ snd $ getApp spec),

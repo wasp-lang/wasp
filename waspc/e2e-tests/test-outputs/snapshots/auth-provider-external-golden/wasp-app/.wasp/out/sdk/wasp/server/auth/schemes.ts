@@ -16,7 +16,7 @@ import {
 } from './hookDispatch.js'
 import { config, prisma } from '../index.js'
 import { env as validatedEnv } from '../env.js'
-import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth-clerk/server'
+import { createServerAuthHandler as createServerAuthHandler_0 } from '@wasp.sh/auth-clerk/server'
 
 /**
  * The scheme registry: every scheme declared in `main.wasp.ts`, instantiated
@@ -345,11 +345,11 @@ const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void> }>> = {}
 
 function handlerOf(name: AuthSchemeName): AuthHandler {
-  const adapter = registered[name]
-  if (adapter === undefined) {
+  const handlerParts = registered[name]
+  if (handlerParts === undefined) {
     throw new Error(`Auth scheme '${name}' is not built yet; the generator ordered the schemes wrong.`)
   }
-  return adapter.handler
+  return handlerParts.handler
 }
 
 
@@ -361,12 +361,12 @@ const spec_0: SchemeRuntimeSpec = {
   identityNamespaces: ['clerk'],
 }
 const credentials_0 = null
-const adapter_0 = await Promise.resolve(
-  createServerAdapter_0(
+const handlerParts_0 = await Promise.resolve(
+  createServerAuthHandler_0(
     // The cast narrows the built runtime to the grants the factory's type
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAdapter_0>[0],
+    makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],
     undefined,
     {
       // The user's setup function for the handler's underlying library; the
@@ -377,7 +377,7 @@ const adapter_0 = await Promise.resolve(
     },
   ),
 )
-registered['clerk'] = adapter_0
+registered['clerk'] = handlerParts_0
 
 // PRIVATE API
 /**
@@ -399,7 +399,7 @@ export function getAuthScheme(name: string): AuthHandler | undefined {
  * name. The server mounts each at `/auth/<scheme>`.
  */
 export const authSchemeRouteHandlers: Partial<Record<AuthSchemeName, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
-  'clerk': adapter_0.routeHandler,
+  'clerk': handlerParts_0.routeHandler,
 }
 
 /**

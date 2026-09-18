@@ -1,6 +1,6 @@
 import type {
-  ClientAdapterFactory,
-  ClientAuthAdapter,
+  ClientAuthHandler,
+  ClientAuthHandlerFactory,
   WaspClientRuntime,
 } from "@wasp.sh/auth-contract/client";
 import { createAuthClient } from "better-auth/client";
@@ -8,15 +8,15 @@ import { createAuthClient } from "better-auth/client";
 let runtime: WaspClientRuntime | null = null;
 
 /**
- * The client half of the adapter, instantiated by Wasp's generated client.
+ * The client half of the handler, instantiated by Wasp's generated client.
  *
  * It only captures the runtime window: the scheme's mount URL, and the
  * credential sink that stores the Better Auth session token so Wasp attaches
  * it to every request and routes `logout()` back to this scheme.
  */
-export const createClientAdapter: ClientAdapterFactory = (
+export const createClientAuthHandler: ClientAuthHandlerFactory = (
   newRuntime,
-): ClientAuthAdapter => {
+): ClientAuthHandler => {
   runtime = newRuntime;
   return {};
 };

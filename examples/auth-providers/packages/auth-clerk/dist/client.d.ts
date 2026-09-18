@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import type { ClientAdapterFactory } from "@wasp.sh/auth-contract/client";
+import type { ClientAuthHandlerFactory } from "@wasp.sh/auth-contract/client";
 /**
  * Wraps the app in Clerk's React context.
  *
@@ -10,7 +10,7 @@ import type { ClientAdapterFactory } from "@wasp.sh/auth-contract/client";
  * validated client env.
  *
  * Deliberately contains no Wasp imports. Apps wiring Clerk by hand (without
- * the packaged adapter) register Clerk's token as a credential source
+ * the packaged handler) register Clerk's token as a credential source
  * themselves via `registerCredentialSource` from `wasp/client/api`.
  */
 export declare function ClerkAuthProvider({ publishableKey, afterSignOutUrl, children, }: {
@@ -20,11 +20,11 @@ export declare function ClerkAuthProvider({ publishableKey, afterSignOutUrl, chi
 }): import("react").JSX.Element;
 export * from "@clerk/clerk-react";
 /**
- * The client half of the adapter, instantiated by Wasp's generated client.
+ * The client half of the handler, instantiated by Wasp's generated client.
  *
  * With this in place the app composes nothing by hand: Wasp mounts the
  * `Wrapper` around the app, pulls the current token at each request (fresh
  * across Clerk's ~60s rotations), refreshes on Clerk-side logins/logouts, and
  * `logout()` signs out of Clerk too.
  */
-export declare const createClientAdapter: ClientAdapterFactory;
+export declare const createClientAuthHandler: ClientAuthHandlerFactory;

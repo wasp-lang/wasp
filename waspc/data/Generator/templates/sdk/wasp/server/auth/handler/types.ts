@@ -19,8 +19,8 @@ export {
   type Principal,
   type ProviderIdentities,
   type RuntimeGrantName,
-  type ServerAdapter,
-  type ServerAdapterFactory,
+  type ServerAuthHandlerParts,
+  type ServerAuthHandlerFactory,
   type SignInContext,
   type SignInProperties,
   type SignInResult,
@@ -37,7 +37,7 @@ export {
  * to the handler's server factory.
  */
 export type AuthProviderSetupFn = NonNullable<
-  import('@wasp.sh/auth-contract').ServerAdapterExtensions['setupFn']
+  import('@wasp.sh/auth-contract').AuthHandlerExtensions['setupFn']
 >
 
 // PRIVATE API

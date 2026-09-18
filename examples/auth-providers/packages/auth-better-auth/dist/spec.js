@@ -34,14 +34,14 @@
  *   request stream, and an already-consumed stream makes every request hang
  *   with no error.
  * - The app's `schema.prisma` must contain the four `BetterAuth*` models the
- *   server adapter configures -- see this package's README for the block to
+ *   server auth handler configures -- see this package's README for the block to
  *   paste in.
  */
 export function betterAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 2,
+        contractVersion: 3,
         handler: "@wasp.sh/auth-better-auth",
         server: { package: "@wasp.sh/auth-better-auth/server" },
         client: { package: "@wasp.sh/auth-better-auth/client" },

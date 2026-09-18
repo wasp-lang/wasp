@@ -31,7 +31,7 @@ export type EnvVarRequirement = {
 export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 2;
+  contractVersion: 3;
   handler: "@wasp.sh/auth-clerk";
   server: { package: string };
   client: { package: string };
@@ -75,7 +75,7 @@ export interface ClerkConfig<UserSignupFieldsRef = never> {
  * Clerk's own session token is the credential on every request: the scheme
  * declares no `credentials` of its own, so nothing is issued by Wasp and no
  * table is added. It contributes no Prisma models and no routes -- the
- * manifest only names the server handler, the client adapter and the env
+ * manifest only names the server handler, the client auth handler and the env
  * vars they need. A missing var fails at boot with its `doc` string as the
  * explanation, not at the first authenticated request.
  */
@@ -85,7 +85,7 @@ export function clerk<UserSignupFieldsRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 2,
+    contractVersion: 3,
     handler: "@wasp.sh/auth-clerk",
     server: { package: "@wasp.sh/auth-clerk/server" },
     client: { package: "@wasp.sh/auth-clerk/client" },

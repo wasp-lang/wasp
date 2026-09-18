@@ -1,14 +1,14 @@
 import { hash, verify } from "@node-rs/argon2";
 import {
   getAuthContractErrorCode,
-  type ServerAdapterFactory,
+  type ServerAuthHandlerFactory,
 } from "wasp/server/auth/handler/types";
 
 /**
  * Email+password auth, hand-rolled in-app -- the proof that a hand-written
  * scheme has the same powers a handler package has, because it IS the same
- * thing: a `ServerAdapterFactory`, the function a package exports as
- * `createServerAdapter`. Pasting this file into a package needs no edits.
+ * thing: a `ServerAuthHandlerFactory`, the function a package exports as
+ * `createServerAuthHandler`. Pasting this file into a package needs no edits.
  *
  * - The runtime arrives as an argument: the identities facet for storage, and
  *   the credentials facet, because the manifest declares `credentials: {}`
@@ -22,7 +22,7 @@ import {
  * factory for `handler`, stash `runtime` in a module variable here, and read
  * it from those routes. That is plain userland; Wasp needs no API for it.
  */
-export const createPasswordAdapter: ServerAdapterFactory<
+export const createPasswordAuthHandler: ServerAuthHandlerFactory<
   unknown,
   never,
   true

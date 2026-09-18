@@ -28,7 +28,7 @@ module Wasp.AppSpec.App.Auth
     credentialsScheme,
     inlineCredentials,
     canSignIn,
-    isClientAuthAdapterUsed,
+    isClientAuthHandlerUsed,
     userSignupFieldsForAuthScheme,
     schemeNames,
   )
@@ -104,9 +104,9 @@ data AuthScheme = AuthScheme
     -- @"custom"@). Informational.
     handler :: String,
     -- | Where the handler's implementation comes from.
-    -- | The scheme's server half: a @ServerAdapterFactory@.
+    -- | The scheme's server half: a @ServerAuthHandlerFactory@.
     server :: AuthSchemeEntry,
-    -- | The scheme's client half, if it has one: a @ClientAdapterFactory@.
+    -- | The scheme's client half, if it has one: a @ClientAuthHandlerFactory@.
     client :: Maybe AuthSchemeEntry,
     -- | Whether the handler brings its own routes, mounted at @/auth/<name>@.
     routes :: Maybe AuthSchemeRoutes,
@@ -260,9 +260,9 @@ inlineCredentials scheme = case scheme.credentials of
 canSignIn :: AuthScheme -> Bool
 canSignIn scheme = "sign-in" `elem` scheme.capabilities
 
--- | Whether any configured scheme brings a client-side adapter entry.
-isClientAuthAdapterUsed :: Auth -> Bool
-isClientAuthAdapterUsed = any (isJust . (.client)) . schemes
+-- | Whether any configured scheme brings a client-side auth handler entry.
+isClientAuthHandlerUsed :: Auth -> Bool
+isClientAuthHandlerUsed = any (isJust . (.client)) . schemes
 
 schemeNames :: Auth -> [String]
 schemeNames = map (.name) . schemes

@@ -2,8 +2,8 @@ import { ClerkProvider, useClerk } from "@clerk/clerk-react";
 import { useEffect, type ReactNode } from "react";
 
 import type {
-  ClientAdapterFactory,
-  ClientAuthAdapter,
+  ClientAuthHandler,
+  ClientAuthHandlerFactory,
 } from "@wasp.sh/auth-contract/client";
 
 /**
@@ -24,7 +24,7 @@ type ViteLikeImportMeta = ImportMeta & {
  * validated client env.
  *
  * Deliberately contains no Wasp imports. Apps wiring Clerk by hand (without
- * the packaged adapter) register Clerk's token as a credential source
+ * the packaged handler) register Clerk's token as a credential source
  * themselves via `registerCredentialSource` from `wasp/client/api`.
  */
 export function ClerkAuthProvider({
@@ -53,7 +53,7 @@ export function ClerkAuthProvider({
 export * from "@clerk/clerk-react";
 
 /**
- * The subset of the loaded clerk-js instance the adapter needs. Typed locally
+ * The subset of the loaded clerk-js instance the handler needs. Typed locally
  * so this module does not depend on clerk-js internals.
  */
 type ClerkInstanceLike = {
@@ -64,7 +64,7 @@ type ClerkInstanceLike = {
 };
 
 // The channel between the React tree (where Clerk boots) and the non-React
-// adapter methods (which Wasp's generated api client calls). `getCredential`
+// handler methods (which Wasp's generated api client calls). `getCredential`
 // resolves only once Clerk is loaded, so the first authenticated request
 // cannot race provider startup -- the readiness gate the contract asks for.
 let resolveClerkInstance: (clerk: ClerkInstanceLike) => void;
@@ -94,16 +94,16 @@ function ClerkInstanceCapture({ children }: { children: ReactNode }) {
 }
 
 /**
- * The client half of the adapter, instantiated by Wasp's generated client.
+ * The client half of the handler, instantiated by Wasp's generated client.
  *
  * With this in place the app composes nothing by hand: Wasp mounts the
  * `Wrapper` around the app, pulls the current token at each request (fresh
  * across Clerk's ~60s rotations), refreshes on Clerk-side logins/logouts, and
  * `logout()` signs out of Clerk too.
  */
-export const createClientAdapter: ClientAdapterFactory = (
+export const createClientAuthHandler: ClientAuthHandlerFactory = (
   runtime,
-): ClientAuthAdapter => ({
+): ClientAuthHandler => ({
   Wrapper: ({ children }) => (
     <ClerkAuthProvider
       publishableKey={runtime.env.REACT_APP_CLERK_PUBLISHABLE_KEY}

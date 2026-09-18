@@ -6,7 +6,7 @@ auth library. A user-made scheme builds from the same primitives Wasp's own auth
 ```ts
 schemes: {
   password: customAuthHandler({
-    server: createPasswordAdapter,   // a factory, like a package's createServerAdapter
+    server: createPasswordAuthHandler,   // a factory, like a package's createServerAuthHandler
     routes: {},                      // it brings its own, mounted at /auth/password
     credentials: {},                 // Wasp runs a private bearer issuer for this scheme
   }),

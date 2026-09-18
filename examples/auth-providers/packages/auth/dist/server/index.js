@@ -22,7 +22,7 @@ const OAUTH_PROVIDER_NAMES = [
  * referenced, delivered through virtual modules. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export const createServerAdapter = (runtime, options, extensions) => {
+export const createServerAuthHandler = (runtime, options, extensions) => {
     const ctx = {
         runtime,
         options,
@@ -84,7 +84,7 @@ function groupExtensions(flat) {
     }
     return grouped;
 }
-// The email helpers (link builders, senders), bound to the runtime at adapter
+// The email helpers (link builders, senders), bound to the runtime at handler
 // creation. User code imports them from `@wasp.sh/auth/server`.
 let boundEmailHelpers = null;
 function getEmailHelpers() {

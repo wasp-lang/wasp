@@ -1,8 +1,8 @@
 /**
  * Env var names the framework owns and no auth provider manifest may declare.
  *
- * Narrowed adapter runtimes receive exactly the vars their manifest declared,
- * so without this list an adapter could declare `DATABASE_URL` and receive the
+ * Narrowed handler runtimes receive exactly the vars their manifest declared,
+ * so without this list a handler could declare `DATABASE_URL` and receive the
  * framework's secret through the sanctioned channel. The list mirrors the
  * names the generated server env schema owns (see the `env.ts` SDK template);
  * the Haskell validator (`Wasp.AppSpec.Valid`) holds the same list, and both

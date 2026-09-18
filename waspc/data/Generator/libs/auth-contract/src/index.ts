@@ -8,9 +8,9 @@
  *
  * Vocabulary, borrowed from ASP.NET:
  *
- * - A **handler** is the code: an `AuthHandler` object. An adapter package
+ * - A **handler** is the code: an `AuthHandler` object. An handler package
  *   implements one in its server entry and exposes it as a named
- *   `createServerAdapter` export (see `ServerAdapterFactory`).
+ *   `createServerAuthHandler` export (see `ServerAuthHandlerFactory`).
  * - A **scheme** is a named, configured instance of a handler, declared in the
  *   app's `auth.schemes` map. The scheme name is what Wasp records everywhere:
  *   on sessions, in identity namespaces, in `authRequired` lists, in route
@@ -288,7 +288,7 @@ export type EmailFrom = { name?: string; email: string };
 /**
  * Error codes the granted facets reject with.
  *
- * Codes rather than error classes on purpose: adapter packages hold their own
+ * Codes rather than error classes on purpose: handler packages hold their own
  * copy of this contract, and `instanceof` does not survive package-copy
  * boundaries (tsc unifies by name@version, Node does not).
  */
@@ -336,7 +336,7 @@ export function getAuthContractErrorCode(
  * The facets a manifest's `uses` list grants, as types: a declared grant is a
  * non-optional member of the handler's runtime, an undeclared one is absent.
  * A handler annotates its factory as
- * `ServerAdapterFactory<MyOptions, "email-send", true>` and gets exactly the
+ * `ServerAuthHandlerFactory<MyOptions, "email-send", true>` and gets exactly the
  * surface its manifest claims.
  */
 export type GrantedFacets<G extends RuntimeGrantName> = ("email-send" extends G
@@ -351,7 +351,7 @@ export type GrantedFacets<G extends RuntimeGrantName> = ("email-send" extends G
  *
  * This is the handler's *only* window into the app: handlers must not import
  * generated code (`wasp/...`) and must not read `process.env` themselves. Keeping
- * the boundary here is what lets an adapter package typecheck and version
+ * the boundary here is what lets an handler package typecheck and version
  * independently of any particular Wasp app.
  *
  * `HasCredentials` mirrors whether the manifest declared `credentials`: true
@@ -579,7 +579,7 @@ export type ProviderIdentities = {
 };
 
 /**
- * What an adapter's server entry produces: the handler itself, plus, for
+ * What a handler's server entry produces: the handler itself, plus, for
  * handlers that own HTTP endpoints of their own (login flows, OAuth
  * callbacks, Better Auth's `/sign-in` and friends), the Node handler Wasp
  * should mount at the scheme's `mountPath`.
@@ -588,7 +588,7 @@ export type ProviderIdentities = {
  * instance -- a handler authenticating against one configuration while its
  * routes run another is a bug class this shape makes unrepresentable.
  */
-export type ServerAdapter = {
+export type ServerAuthHandlerParts = {
   handler: AuthHandler;
 
   /**
@@ -612,27 +612,27 @@ export type ServerAdapter = {
  * manifest referenced under `extensions`, under the name the handler chose;
  * the handler types them precisely, Wasp only forwards them.
  */
-export type ServerAdapterExtensions = {
+export type AuthHandlerExtensions = {
   setupFn?: (config: never) => unknown;
   [name: string]: unknown;
 };
 
 /**
- * The required shape of an adapter package's server entry: a named
- * `createServerAdapter` export of this type. `options` is the serializable
- * configuration the adapter's spec helper captured in `main.wasp.ts`, delivered
+ * The required shape of an handler package's server entry: a named
+ * `createServerAuthHandler` export of this type. `options` is the serializable
+ * configuration the handler's spec helper captured in `main.wasp.ts`, delivered
  * verbatim; `extensions` carries the user-code escape hatches referenced by the
  * manifest.
  */
-export type ServerAdapterFactory<
+export type ServerAuthHandlerFactory<
   Options = unknown,
   Grants extends RuntimeGrantName = never,
   HasCredentials extends boolean = false,
 > = (
   runtime: WaspServerRuntime<Grants, HasCredentials>,
   options: Options,
-  extensions?: ServerAdapterExtensions,
-) => ServerAdapter | Promise<ServerAdapter>;
+  extensions?: AuthHandlerExtensions,
+) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 
 // ---------------------------------------------------------------------------
 // Credential issuers: what backs an inline `credentials: { transport, store }`.

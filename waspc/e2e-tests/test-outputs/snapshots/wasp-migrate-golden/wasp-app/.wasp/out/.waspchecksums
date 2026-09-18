@@ -25,7 +25,7 @@
             "file",
             "libs/auth-contract/wasp.sh-auth-contract-0.26.0.tgz"
         ],
-        "ce68d8cd76e94bcde780e10f0672af12e596fe4337d42c39320fc4d39a9030a9"
+        "380b0114f1214c0e6347155decef7388490614d03ae5a4025e8e7b1c8ee77120"
     ],
     [
         [
@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "6588af215cfb67250a58c93d404fa369f89819f9e24c078bbe2e59b9359b1f7c"
+        "aac26b068666c4463c149fa5e78cd60a741a60f0387c0439d43f6ac66d82de53"
     ],
     [
         [
@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "2e6b76d4f67e6f74366b65461f56e22643f32f6f05c8def5721a3e38e6c1e520"
+        "f8d6b6090f611006d7e9c18d4f7ae85aefa5a68904a77cc27830fd7ee57309f0"
     ],
     [
         [

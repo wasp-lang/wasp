@@ -1,10 +1,10 @@
 /**
  * The client-side half of the auth contract.
  *
- * An adapter package with client-side needs (a React context to mount, a
+ * An handler package with client-side needs (a React context to mount, a
  * credential to attach to requests) implements this in its client entry and
- * exposes it as a named `createClientAdapter` export (see
- * {@link ClientAdapterFactory}). Wasp instantiates it once per scheme and
+ * exposes it as a named `createClientAuthHandler` export (see
+ * {@link ClientAuthHandlerFactory}). Wasp instantiates it once per scheme and
  * wires the pieces into the generated client; the app composes nothing by
  * hand.
  */
@@ -12,8 +12,8 @@
 import type { ComponentType, ReactNode } from "react";
 
 /**
- * Everything Wasp hands a client-side adapter about the app it runs in. Like
- * its server counterpart, this is the adapter's only window into the app.
+ * Everything Wasp hands a client-side auth handler about the app it runs in. Like
+ * its server counterpart, this is the handler's only window into the app.
  */
 export type WaspClientRuntime = {
   /** The name of this scheme, as declared in the app's `auth.schemes`. */
@@ -27,7 +27,7 @@ export type WaspClientRuntime = {
 
   /**
    * The client-side environment, already validated against the env vars the
-   * adapter's manifest declared.
+   * handler's manifest declared.
    */
   env: Record<string, string | undefined>;
 
@@ -36,7 +36,7 @@ export type WaspClientRuntime = {
    * token its issuer minted), or drop it with `null`.
    *
    * Pre-bound to this scheme: adopting records the scheme for logout routing,
-   * so an adapter cannot misdirect sign-out to another scheme. Also refreshes
+   * so a handler cannot misdirect sign-out to another scheme. Also refreshes
    * the client's cached queries, so the UI reflects the new user immediately.
    * Cookie-carried credentials never go through here; the browser holds them.
    *
@@ -53,11 +53,11 @@ export type WaspClientRuntimeRequests = {
   /**
    * `fetch`, with the app's current auth credential attached the way Wasp's
    * own API client attaches it, for calling this scheme's own routes as the
-   * signed-in user. The adapter never sees the credential, and the transport
+   * signed-in user. The handler never sees the credential, and the transport
    * (bearer token or cookie) is not its concern.
    *
    * Restricted to URLs under {@link WaspClientRuntime.mountUrl}: a request
-   * anywhere else is rejected, so an adapter cannot spend the user's
+   * anywhere else is rejected, so a handler cannot spend the user's
    * credential against other routes or origins.
    */
   fetch(input: string | URL, init?: RequestInit): Promise<Response>;
@@ -70,7 +70,7 @@ export type WaspClientRuntimeRequests = {
   refreshUser(): Promise<void>;
 };
 
-export type ClientAuthAdapter = {
+export type ClientAuthHandler = {
   /**
    * Component Wasp composes around the app's tree, so every page renders
    * inside it. This is where a provider's React context lives (Clerk's
@@ -84,10 +84,10 @@ export type ClientAuthAdapter = {
    *
    * Pull-based on purpose: Wasp asks at the moment it needs the credential
    * rather than caching a pushed value, so a token that rotates under the
-   * adapter (short-lived JWTs) is always fresh at request time.
+   * handler (short-lived JWTs) is always fresh at request time.
    * Implementations should resolve only once the provider's client is loaded.
    *
-   * Optional: an adapter without it is legal and simply has no credential of
+   * Optional: a handler without it is legal and simply has no credential of
    * its own to attach; the framework attaches the credential of the default
    * scheme instead.
    */
@@ -104,19 +104,19 @@ export type ClientAuthAdapter = {
 
   /**
    * Called by Wasp's `logout()` before it signs out server-side: the
-   * adapter's chance to clear its own client-side state (Clerk's
+   * handler's chance to clear its own client-side state (Clerk's
    * `signOut()`, a token store's `clear()`).
    */
   onLogout?(): Promise<void>;
 };
 
 /**
- * The required shape of an adapter package's client entry: a named
- * `createClientAdapter` export of this type. `options` is the serializable
- * configuration the adapter's spec helper captured in `main.wasp.ts`,
+ * The required shape of an handler package's client entry: a named
+ * `createClientAuthHandler` export of this type. `options` is the serializable
+ * configuration the handler's spec helper captured in `main.wasp.ts`,
  * delivered verbatim.
  */
-export type ClientAdapterFactory<Options = unknown> = (
+export type ClientAuthHandlerFactory<Options = unknown> = (
   runtime: WaspClientRuntime,
   options: Options,
-) => ClientAuthAdapter;
+) => ClientAuthHandler;

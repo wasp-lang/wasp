@@ -8,7 +8,7 @@ import {
 } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
-import { createPasswordAdapter } from "./src/auth/handler" with { type: "ref" };
+import { createPasswordAuthHandler } from "./src/auth/handler" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
@@ -28,7 +28,7 @@ export default app({
     // handler.
     schemes: {
       password: customAuthHandler({
-        server: createPasswordAdapter,
+        server: createPasswordAuthHandler,
         routes: {},
         credentials: {},
       }),

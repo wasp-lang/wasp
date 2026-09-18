@@ -16,8 +16,8 @@ import {
 } from './hookDispatch.js'
 import { config, prisma } from '../index.js'
 import { env as validatedEnv } from '../env.js'
-import { createServerAdapter as createServerAdapter_0 } from '@wasp.sh/auth/server'
-import { createServerAdapter as createServerAdapter_1 } from '@wasp.sh/auth-clerk/server'
+import { createServerAuthHandler as createServerAuthHandler_0 } from '@wasp.sh/auth/server'
+import { createServerAuthHandler as createServerAuthHandler_1 } from '@wasp.sh/auth-clerk/server'
 
 /**
  * The scheme registry: every scheme declared in `main.wasp.ts`, instantiated
@@ -346,11 +346,11 @@ const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void> }>> = {}
 
 function handlerOf(name: AuthSchemeName): AuthHandler {
-  const adapter = registered[name]
-  if (adapter === undefined) {
+  const handlerParts = registered[name]
+  if (handlerParts === undefined) {
     throw new Error(`Auth scheme '${name}' is not built yet; the generator ordered the schemes wrong.`)
   }
-  return adapter.handler
+  return handlerParts.handler
 }
 
 
@@ -373,12 +373,12 @@ issuerOptionsByScheme['wasp'] = issuerOptions_0
 // The private issuer behind this scheme's inline `credentials`.
 const issuer_0 = createIssuer(issuerOptions_0)
 const credentials_0 = boundTo(spec_0, issuer_0, issuerOptions_0)
-const adapter_0 = await Promise.resolve(
-  createServerAdapter_0(
+const handlerParts_0 = await Promise.resolve(
+  createServerAuthHandler_0(
     // The cast narrows the built runtime to the grants the factory's type
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAdapter_0>[0],
+    makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],
     {"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}}},
     {
       // The user's setup function for the handler's underlying library; the
@@ -389,7 +389,7 @@ const adapter_0 = await Promise.resolve(
     },
   ),
 )
-registered['wasp'] = adapter_0
+registered['wasp'] = handlerParts_0
 
 // ---- scheme 'clerk' (@wasp.sh/auth-clerk) ----
 const spec_1: SchemeRuntimeSpec = {
@@ -399,12 +399,12 @@ const spec_1: SchemeRuntimeSpec = {
   identityNamespaces: ['clerk'],
 }
 const credentials_1 = null
-const adapter_1 = await Promise.resolve(
-  createServerAdapter_1(
+const handlerParts_1 = await Promise.resolve(
+  createServerAuthHandler_1(
     // The cast narrows the built runtime to the grants the factory's type
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_1, credentials_1) as Parameters<typeof createServerAdapter_1>[0],
+    makeSchemeRuntime(spec_1, credentials_1) as Parameters<typeof createServerAuthHandler_1>[0],
     undefined,
     {
       // The user's setup function for the handler's underlying library; the
@@ -415,7 +415,7 @@ const adapter_1 = await Promise.resolve(
     },
   ),
 )
-registered['clerk'] = adapter_1
+registered['clerk'] = handlerParts_1
 
 // PRIVATE API
 /**
@@ -438,8 +438,8 @@ export function getAuthScheme(name: string): AuthHandler | undefined {
  * name. The server mounts each at `/auth/<scheme>`.
  */
 export const authSchemeRouteHandlers: Partial<Record<AuthSchemeName, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
-  'wasp': adapter_0.routeHandler,
-  'clerk': adapter_1.routeHandler,
+  'wasp': handlerParts_0.routeHandler,
+  'clerk': handlerParts_1.routeHandler,
 }
 
 /**

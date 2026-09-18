@@ -1,7 +1,7 @@
 import { createBetterAuthClient } from "@wasp.sh/auth-better-auth/client";
 
 /**
- * Better Auth's own client, pointed at the routes the adapter's manifest
+ * Better Auth's own client, pointed at the routes the handler's manifest
  * mounted on the Wasp server (`/auth/better-auth`).
  *
  * This is the honest shape of the deal: Wasp does not wrap Better Auth's login
@@ -11,7 +11,7 @@ import { createBetterAuthClient } from "@wasp.sh/auth-better-auth/client";
  * carries it.
  */
 // NOTE: the explicit annotation matters. The inferred type would reference
-// types nested inside the adapter package's own node_modules, which TypeScript
+// types nested inside the handler package's own node_modules, which TypeScript
 // rejects as non-portable when it builds the app's declarations (TS2883).
 export const authClient: ReturnType<typeof createBetterAuthClient> =
   createBetterAuthClient();

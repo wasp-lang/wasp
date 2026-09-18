@@ -487,8 +487,8 @@ export function defineAuthSchemeManifest(
 
   const capabilities = manifest.capabilities ?? [];
 
-  // Adapters receive exactly the env vars they declared, so declaring a
-  // framework-owned name would hand the adapter framework secrets (DATABASE_URL)
+  // Handlers receive exactly the env vars they declared, so declaring a
+  // framework-owned name would hand the handler framework secrets (DATABASE_URL)
   // through the sanctioned channel.
   for (const [side, envVars] of [
     ["server", manifest.env?.server ?? []],
@@ -526,7 +526,7 @@ export function defineAuthSchemeManifest(
   return {
     ...manifest,
     kind: "scheme",
-    contractVersion: 2,
+    contractVersion: 3,
     capabilities,
     env: {
       server: manifest.env?.server ?? [],
@@ -631,14 +631,14 @@ export function validateCredentialsConfig(
  */
 export type CustomAuthHandlerConfig = {
   /**
-   * Reference to a `ServerAdapterFactory` in the app's own code: a function
+   * Reference to a `ServerAuthHandlerFactory` in the app's own code: a function
    * that receives the scheme's runtime and returns `{ handler, routeHandler? }`,
-   * exactly like a handler package's `createServerAdapter`.
+   * exactly like a handler package's `createServerAuthHandler`.
    */
   server: Reference<AnyFunction>;
   /**
-   * Reference to a `ClientAdapterFactory` in the app's own code, exactly
-   * like a handler package's `createClientAdapter`.
+   * Reference to a `ClientAuthHandlerFactory` in the app's own code, exactly
+   * like a handler package's `createClientAuthHandler`.
    */
   client?: Reference<AnyFunction>;
   /** See {@link AuthSchemeManifest.routes}. Declare it when the factory returns a `routeHandler`. */

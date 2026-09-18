@@ -166,7 +166,7 @@ export interface Auth {
   onAuthFailedRedirectTo: string;
   /**
    * The app's auth schemes: named, configured instances of auth handlers.
-   * Every scheme is an adapter package, Wasp's own auth included:
+   * Every scheme is an handler package, Wasp's own auth included:
    *
    * ```ts
    * import { waspAuth } from "@wasp.sh/auth/spec";
@@ -340,7 +340,7 @@ export type CredentialsConfig =
  * EXPERIMENTAL. An auth scheme, described declaratively by the handler
  * package that implements it.
  *
- * Adapter packages produce this from their spec helpers (`waspAuth()` from
+ * Handler packages produce this from their spec helpers (`waspAuth()` from
  * `@wasp.sh/auth/spec`, `clerk()` from `@wasp.sh/auth-clerk/spec`), and
  * hand-written handlers produce it via {@link customAuthHandler}. Both go
  * through `defineAuthSchemeManifest`, which validates the manifest and stamps
@@ -357,18 +357,18 @@ export interface AuthSchemeManifest {
   /**
    * Version of the auth contract the handler was built against. Wasp rejects
    * manifests with a contract version it does not support, which turns
-   * adapter/compiler version skew into a clear error.
+   * handler/compiler version skew into a clear error.
    */
-  contractVersion: 2;
+  contractVersion: 3;
   /**
    * The handler package this manifest comes from ("@wasp.sh/auth",
    * "@wasp.sh/auth-clerk", ...). Informational: error messages and docs.
    */
   handler: string;
   /**
-   * The scheme's server half: a `ServerAdapterFactory`. Either the module
+   * The scheme's server half: a `ServerAuthHandlerFactory`. Either the module
    * specifier of a handler package's server entry (which must export it as
-   * `createServerAdapter`), or a reference to such a function in the app's
+   * `createServerAuthHandler`), or a reference to such a function in the app's
    * own `src/`.
    *
    * Both forms are the SAME thing in different places, so a hand-written
@@ -378,9 +378,9 @@ export interface AuthSchemeManifest {
    */
   server: { package: string } | Reference<AnyFunction>;
   /**
-   * The scheme's client half: a `ClientAdapterFactory`. Either the module
+   * The scheme's client half: a `ClientAuthHandlerFactory`. Either the module
    * specifier of a handler package's client entry (which must export it as
-   * `createClientAdapter`), or a reference to such a function in the app's
+   * `createClientAuthHandler`), or a reference to such a function in the app's
    * own `src/`. Wasp instantiates it and wires the client side -- context
    * wrapper, credential source, logout cleanup -- automatically.
    */
@@ -395,7 +395,7 @@ export interface AuthSchemeManifest {
   /**
    * The handler's capabilities, as an open set of strings. Known today:
    * `"sign-in"` (other schemes may use this one as their credentials scheme),
-   * `"cookie-transport"`. Unknown entries are ignored, so adapters can
+   * `"cookie-transport"`. Unknown entries are ignored, so handlers can
    * declare capabilities newer than the compiler.
    */
   capabilities: string[];
@@ -449,7 +449,7 @@ export interface AuthSchemeManifest {
   options?: unknown;
   /**
    * Marks a manifest as constructed by `defineAuthSchemeManifest` rather
-   * than hand-crafted. Adapters never set this themselves.
+   * than hand-crafted. Handlers never set this themselves.
    */
   readonly __waspAuthSchemeManifest: true;
 }

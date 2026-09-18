@@ -3,8 +3,8 @@ import type { WaspClientRuntime } from "@wasp.sh/auth-contract/client";
 import type { WaspAuthClientOptions } from "./types.js";
 
 /**
- * The client adapter's window into the app, captured when Wasp instantiates
- * the adapter. Forms and actions read it; nothing here imports generated
+ * The client auth handler's window into the app, captured when Wasp instantiates
+ * the handler. Forms and actions read it; nothing here imports generated
  * code.
  */
 let runtime: WaspClientRuntime | null = null;

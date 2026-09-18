@@ -5,24 +5,24 @@ handler package: both halves are hand-written in `src/auth/` and registered with
 `customAuthHandler()`.
 
 ```ts
-import { createClerkClientAdapter } from "./src/auth/clientAdapter" with { type: "ref" };
-import { createClerkServerAdapter } from "./src/auth/handler" with { type: "ref" };
+import { createClerkClientAuthHandler } from "./src/auth/clientAuthHandler" with { type: "ref" };
+import { createClerkServerAuthHandler } from "./src/auth/handler" with { type: "ref" };
 
 auth: {
   userEntity: "User",
   onAuthFailedRedirectTo: "/login",
   schemes: {
     clerk: customAuthHandler({
-      server: createClerkServerAdapter,
-      client: createClerkClientAdapter,
+      server: createClerkServerAuthHandler,
+      client: createClerkClientAuthHandler,
       env: { server: [/* CLERK_SECRET_KEY, ... */], client: [/* REACT_APP_CLERK_PUBLISHABLE_KEY */] },
     }),
   },
 }
 ```
 
-Both are the same factories a handler package exports (`createServerAdapter`,
-`createClientAdapter`), so a hand-written scheme has the same powers: the runtime and its
+Both are the same factories a handler package exports (`createServerAuthHandler`,
+`createClientAuthHandler`), so a hand-written scheme has the same powers: the runtime and its
 declared env vars arrive as arguments, and the client half gets a `Wrapper`, a credential
 source, and logout cleanup. The app needs no root component, no env schema and no logout glue
 of its own, and `src/MainPage.tsx` is byte-for-byte the shared one.

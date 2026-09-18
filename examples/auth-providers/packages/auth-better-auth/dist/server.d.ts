@@ -1,8 +1,8 @@
-import type { ServerAdapterFactory } from "@wasp.sh/auth-contract";
+import type { ServerAuthHandlerFactory } from "@wasp.sh/auth-contract";
 import { type BetterAuthOptions } from "better-auth";
 /**
  * The type of the `setupFn` an app can reference from its manifest, following
- * the same convention as Wasp's `PrismaSetupFn`: it receives the adapter's
+ * the same convention as Wasp's `PrismaSetupFn`: it receives the handler's
  * integration config (database adapter, secret, base URL and path, trusted
  * origins, table name overrides, bearer transport) and returns the Better
  * Auth options to use.
@@ -13,7 +13,7 @@ import { type BetterAuthOptions } from "better-auth";
  * Better Auth's own documentation describes. Spread the received config to
  * keep the integration settings, then add yours.
  *
- * The adapter re-asserts its load-bearing settings after calling it (base
+ * The handler re-asserts its load-bearing settings after calling it (base
  * path, `modelName` overrides, the bearer plugin, the database adapter), so
  * those cannot be broken from here -- everything else is yours.
  */
@@ -23,9 +23,9 @@ export type BetterAuthSetupFn = (config: BetterAuthOptions) => BetterAuthOptions
  *
  * One factory builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
- * the `ServerAdapter` shape exists to make the alternative unrepresentable.
+ * the `ServerAuthHandlerParts` shape exists to make the alternative unrepresentable.
  * Better Auth's own session token is the credential on every request (the
- * client adapter stores it and Wasp attaches it), so Wasp issues nothing.
+ * client auth handler stores it and Wasp attaches it), so Wasp issues nothing.
  *
  * Two settings on the instance are load-bearing for this integration:
  *
@@ -36,6 +36,6 @@ export type BetterAuthSetupFn = (config: BetterAuthOptions) => BetterAuthOptions
  * - `modelName` on every model -- Better Auth's default table names (`user`,
  *   `session`, `account`) would collide with Wasp's own generated tables. Note
  *   these must be the *Prisma client property*, not the `@@map` name: the
- *   adapter does a raw `db[modelName]` lookup with no case transformation.
+ *   handler does a raw `db[modelName]` lookup with no case transformation.
  */
-export declare const createServerAdapter: ServerAdapterFactory;
+export declare const createServerAuthHandler: ServerAuthHandlerFactory;

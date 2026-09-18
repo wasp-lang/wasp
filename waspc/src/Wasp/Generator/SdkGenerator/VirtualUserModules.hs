@@ -152,22 +152,22 @@ getVirtualUserModules spec =
     -- user-authored. The SDK must not import user code directly. Unlike the
     -- other virtual modules, it is declared with the plain contract type rather
     -- than a Register-backed one: the SDK needs no more than `AuthProvider`,
-    -- and the adapter's exact type has no consumer.
+    -- and the handler's exact type has no consumer.
     mkAuthProviderModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/auth/handler/types|]
-        "ServerAdapterFactory"
+        "ServerAuthHandlerFactory"
 
     -- The client half of a hand-written scheme: the same factory a handler
-    -- package exports as `createClientAdapter`.
+    -- package exports as `createClientAuthHandler`.
     mkAuthClientModule extImport' =
       VirtualUserModule
         ClientRuntime
         extImport'
         [relfileP|./client/auth/types|]
-        "ClientAdapterFactory"
+        "ClientAuthHandlerFactory"
 
     -- Feeds just-in-time provisioning under an external provider; consumed by
     -- the SDK's session layer, so it goes through a virtual module too. Like
@@ -180,9 +180,9 @@ getVirtualUserModules spec =
         [relfileP|./auth/providers/types|]
         "UserSignupFields"
 
-    -- The user's setup function for the adapter's underlying library
-    -- (the prismaSetupFn convention); delivered to the adapter's server
-    -- factory. Declared with the plain contract type: the adapter package
+    -- The user's setup function for the handler's underlying library
+    -- (the prismaSetupFn convention); delivered to the handler's server
+    -- factory. Declared with the plain contract type: the handler package
     -- types its parameter precisely, the SDK only needs *a* function.
     mkAuthProviderSetupFnModule extImport' =
       VirtualUserModule
@@ -191,9 +191,9 @@ getVirtualUserModules spec =
         [relfileP|./server/auth/handler/types|]
         "AuthProviderSetupFn"
 
-    -- Every other user function an adapter's manifest references
+    -- Every other user function a handler's manifest references
     -- (`extensions`): signup field getters, OAuth config functions, email
-    -- content functions, method-specific hooks. The adapter types them
+    -- content functions, method-specific hooks. The handler types them
     -- precisely; the SDK only forwards them, so they are declared loosely.
     mkAuthProviderExtensionModule extImport' =
       VirtualUserModule

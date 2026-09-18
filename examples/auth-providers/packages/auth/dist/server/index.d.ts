@@ -1,4 +1,4 @@
-import type { ServerAdapterFactory } from "@wasp.sh/auth-contract";
+import type { ServerAuthHandlerFactory } from "@wasp.sh/auth-contract";
 import { isEmailResendAllowed, type EmailHelpers } from "./email/utils.js";
 import type { WaspAuthGrants, WaspAuthOptions } from "./types.js";
 /**
@@ -11,7 +11,7 @@ import type { WaspAuthGrants, WaspAuthOptions } from "./types.js";
  * referenced, delivered through virtual modules. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export declare const createServerAdapter: ServerAdapterFactory<WaspAuthOptions, WaspAuthGrants, true>;
+export declare const createServerAuthHandler: ServerAuthHandlerFactory<WaspAuthOptions, WaspAuthGrants, true>;
 export declare const createEmailVerificationLink: EmailHelpers["createEmailVerificationLink"];
 export declare const createPasswordResetLink: EmailHelpers["createPasswordResetLink"];
 export declare const sendEmailVerificationEmail: EmailHelpers["sendEmailVerificationEmail"];

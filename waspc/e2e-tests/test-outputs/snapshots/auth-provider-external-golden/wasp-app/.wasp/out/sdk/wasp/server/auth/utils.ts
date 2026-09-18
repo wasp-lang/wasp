@@ -75,7 +75,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
   }
 
   // The identity facet reports the same conflict with a contract error code
-  // (codes, not classes -- adapter packages hold their own contract copy).
+  // (codes, not classes -- handler packages hold their own contract copy).
   if (
     typeof e === 'object' && e !== null && 'code' in e &&
     (e as { code: unknown }).code === 'wasp-auth/duplicate-identity'

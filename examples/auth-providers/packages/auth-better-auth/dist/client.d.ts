@@ -1,12 +1,12 @@
-import type { ClientAdapterFactory } from "@wasp.sh/auth-contract/client";
+import type { ClientAuthHandlerFactory } from "@wasp.sh/auth-contract/client";
 /**
- * The client half of the adapter, instantiated by Wasp's generated client.
+ * The client half of the handler, instantiated by Wasp's generated client.
  *
  * It only captures the runtime window: the scheme's mount URL, and the
  * credential sink that stores the Better Auth session token so Wasp attaches
  * it to every request and routes `logout()` back to this scheme.
  */
-export declare const createClientAdapter: ClientAdapterFactory;
+export declare const createClientAuthHandler: ClientAuthHandlerFactory;
 /**
  * Better Auth's own client, pointed at the routes the manifest mounted on the
  * Wasp server.

@@ -1,6 +1,6 @@
 import type { EmailContent, WaspAuthRuntime } from "../types.js";
 /**
- * The email method's link and mail helpers. Bound to the runtime the adapter
+ * The email method's link and mail helpers. Bound to the runtime the handler
  * was created with (see `bindEmailHelpers`), so the SDK can re-export them
  * as the `wasp/server/auth/email` public API.
  */

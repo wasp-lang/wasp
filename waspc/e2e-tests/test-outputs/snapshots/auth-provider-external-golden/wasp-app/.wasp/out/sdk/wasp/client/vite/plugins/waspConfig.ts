@@ -62,7 +62,7 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          // Client auth adapter packages may ship CSS (Wasp's own auth forms
+          // Client auth handler packages may ship CSS (Wasp's own auth forms
           // do); Vite must process them for prerendering rather than leaving
           // them to Node's loader.
           noExternal: ['@wasp.sh/auth-clerk'],

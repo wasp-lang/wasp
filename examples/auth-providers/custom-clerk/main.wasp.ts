@@ -8,14 +8,14 @@ import {
 } from "@wasp.sh/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
-import { createClerkClientAdapter } from "./src/auth/clientAdapter" with { type: "ref" };
-import { createClerkServerAdapter } from "./src/auth/handler" with { type: "ref" };
+import { createClerkClientAuthHandler } from "./src/auth/clientAuthHandler" with { type: "ref" };
+import { createClerkServerAuthHandler } from "./src/auth/handler" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
   name: "authProviderCustomClerk",
   wasp: { version: "^0.26.0" },
-  title: "Auth providers — Custom adapter (Clerk)",
+  title: "Auth providers — Custom handler (Clerk)",
 
   auth: {
     userEntity: "User",
@@ -26,8 +26,8 @@ export default app({
       clerk: customAuthHandler({
         // Both halves are factories from this app's own code: the same
         // things a handler package exports, with the same powers.
-        server: createClerkServerAdapter,
-        client: createClerkClientAdapter,
+        server: createClerkServerAuthHandler,
+        client: createClerkClientAuthHandler,
         env: {
           server: [
             { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },

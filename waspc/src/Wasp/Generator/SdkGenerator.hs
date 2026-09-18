@@ -227,7 +227,7 @@ npmDepsForSdk spec =
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersionRange)
           ]
-          -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
+          -- Server auth deps must be installed in the SDK because "@lucia-auth/handler-prisma"
           -- lists prisma/client as a dependency.
           -- Installing it inside .wasp/out/server/node_modules would also
           -- install prisma/client in the same folder, which would cause our

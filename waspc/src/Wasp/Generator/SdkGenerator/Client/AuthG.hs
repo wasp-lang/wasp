@@ -20,7 +20,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
 
--- | The uniform client surface (useAuth, logout, resumeSession, the adapter
+-- | The uniform client surface (useAuth, logout, resumeSession, the handler
 -- registry) exists for every provider mix. Provider UI (forms, sign-in
 -- buttons) comes from each provider package's own client entry.
 genClientAuth :: AppSpec -> Generator [FileDraft]
@@ -36,7 +36,7 @@ genClientAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
--- | The client halves of the auth providers: instantiates each adapter
+-- | The client halves of the auth providers: instantiates each handler
 -- package's client entry with the same runtime-window discipline as the
 -- server halves, and carries the session-resume and login helpers built on
 -- them.
@@ -49,18 +49,18 @@ genClientAuthProvidersTs auth =
   where
     tmplData =
       Aeson.object
-        [ "anyClientAdapters" Aeson..= (not . null $ clientAdapterProviders),
+        [ "anyClientAuthHandlers" Aeson..= (not . null $ clientAuthHandlerSchemes),
           "defaultScheme" Aeson..= AS.Auth.defaultScheme auth,
-          "clientAdapterProviders" Aeson..= zipWith mkClientAdapterProviderTmplData [0 :: Int ..] clientAdapterProviders
+          "clientAuthHandlerSchemes" Aeson..= zipWith mkClientAuthHandlerSchemeTmplData [0 :: Int ..] clientAuthHandlerSchemes
         ]
     -- A scheme's client half is a package entry or a factory in the app's
     -- own code; both are instantiated the same way.
-    clientAdapterProviders =
+    clientAuthHandlerSchemes =
       [ scheme
       | scheme <- AS.Auth.schemes auth,
         isJust scheme.client
       ]
-    mkClientAdapterProviderTmplData idx provider =
+    mkClientAuthHandlerSchemeTmplData idx provider =
       Aeson.object
         [ "index" Aeson..= idx,
           "schemeName" Aeson..= provider.name,
@@ -70,7 +70,7 @@ genClientAuthProvidersTs auth =
             Aeson..= extImportToAliasedImportJson ("authClientModule_" ++ show idx) (AS.Auth.clientModule provider),
           "hasOptions" Aeson..= maybe False (const True) provider.optionsJson,
           "optionsJson" Aeson..= provider.optionsJson,
-          -- The client adapter runtime's env is narrowed to exactly these names.
+          -- The client auth handler runtime's env is narrowed to exactly these names.
           "clientEnvVarNamesJs"
             Aeson..= makeJsArrayFromHaskellList ((.envVarName) <$> provider.envVars.client)
         ]

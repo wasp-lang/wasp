@@ -1,6 +1,6 @@
-import type { ClientAuthAdapter } from '@wasp.sh/auth-contract/client'
+import type { ClientAuthHandler } from '@wasp.sh/auth-contract/client'
 import { api, getLastAuthScheme, removeLocalUserData } from '../api/index.js'
-import { clientAuthAdapters } from '../client/auth/schemes.js'
+import { clientAuthHandlers } from '../client/auth/schemes.js'
 import { invalidateAndRemoveQueries } from '../client/operations/internal/resources.js'
 
 // PUBLIC API
@@ -11,13 +11,13 @@ export default async function logout(): Promise<void> {
     // Server first: the scheme that authenticated the request invalidates
     // the credential it carries (a session row, a cookie).
     await api.post('/auth/logout')
-    // Then the adapter of the scheme that signed in clears its own
+    // Then the handler of the scheme that signed in clears its own
     // client-side state (Clerk's signOut(), a token store's clear()).
     if (lastScheme !== null) {
-      const adapter = (
-        clientAuthAdapters as Partial<Record<string, ClientAuthAdapter>>
+      const clientAuthHandler = (
+        clientAuthHandlers as Partial<Record<string, ClientAuthHandler>>
       )[lastScheme]
-      await adapter?.onLogout?.()
+      await clientAuthHandler?.onLogout?.()
     }
   } finally {
     // Even if the logout request fails, we still want to remove the local

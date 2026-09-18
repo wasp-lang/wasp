@@ -381,7 +381,7 @@ genRollupConfigJs spec =
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
 
-    -- The adapter packages' server entries (`@wasp.sh/auth/server`), reduced
+    -- The handler packages' server entries (`@wasp.sh/auth/server`), reduced
     -- to package names so every subpath of a package stays external.
     authProviderPackageNames =
       nub

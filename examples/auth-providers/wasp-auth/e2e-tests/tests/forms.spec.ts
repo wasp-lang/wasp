@@ -3,7 +3,7 @@ import { WASP_CLIENT_URL } from "../playwright.config";
 
 /**
  * The client half: the package's forms, instantiated through the client
- * adapter seam, post to the package's routes and adopt the minted session
+ * handler seam, post to the package's routes and adopt the minted session
  * through the provider-bound sink, so the auth gate lets the user through.
  */
 
