@@ -64,11 +64,12 @@ wrapViteConfigForDeterministicBuild = do
         },
       });
 
-      // Externalize any import that resolves to node_modules,
+      // Externalize JS dependencies that resolve to node_modules,
       // so the build output only contains app code, for cleaner diffs.
       function externalizeNodeModules(): Plugin {
         return {
           name: "externalize-node-modules",
+          apply: "build",
           enforce: "pre",
           async resolveId(source, importer, options) {
             if (!importer) return null;
@@ -76,7 +77,7 @@ wrapViteConfigForDeterministicBuild = do
               ...options,
               skipSelf: true,
             });
-            if (resolved && resolved.id.includes("/node_modules/")) {
+            if (resolved && resolved.id.includes("/node_modules/") && !resolved.id.endsWith(".css")) {
               // We externalize the module
               return { id: source, external: true };
             } else {
