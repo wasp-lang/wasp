@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.List (find)
+import Data.List (find, nub)
 import Data.Maybe (fromMaybe)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -20,7 +20,7 @@ import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport (applyJsImportAlias)
+import Wasp.JsImport (JsImport, applyJsImportAlias)
 
 genVirtualRoutesTsx :: AppSpec -> Generator FileDraft
 genVirtualRoutesTsx spec =
@@ -31,12 +31,20 @@ genVirtualRoutesTsx spec =
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
+          "eagerImports" .= eagerRouteImportTemplateData,
           "isAuthEnabled" .= isAuthEnabled spec,
           "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
           "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent)
         ]
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
+    -- Eager route imports are rendered at the top level of the generated
+    -- module, so importing the same page through multiple routes must emit a
+    -- single import statement. Otherwise the generated module contains
+    -- duplicate declarations and fails to parse.
+    eagerRouteImportTemplateData =
+      map (GJI.jsImportToImportJson . Just) $
+        nub [routePageImport spec route | (_, route) <- AS.getRoutes spec, not (isRouteLazy route)]
 
 isRouteLazy :: AS.Route.Route -> Bool
 isRouteLazy = fromMaybe True . AS.Route.lazy
@@ -47,15 +55,21 @@ createRouteTemplateData spec (name, route) =
     [ "name" .= name,
       "isLazy" .= isRouteLazy route,
       "isAuthRequired" .= isAuthRequired,
-      "import" .= GJI.jsImportToImportJson (Just aliasedImport)
+      "import" .= GJI.jsImportToImportJson (Just $ routePageImport spec route)
     ]
   where
     isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
 
     targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
     targetPage = findTargetPage spec targetPageName (AS.Route.path route)
+
+routePageImport :: AppSpec -> AS.Route.Route -> JsImport
+routePageImport spec route =
+  applyJsImportAlias (Just targetPageName) jsImport
+  where
+    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
+    targetPage = findTargetPage spec targetPageName (AS.Route.path route)
     jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component (snd targetPage)
-    aliasedImport = applyJsImportAlias (Just targetPageName) jsImport
 
 findTargetPage :: AppSpec -> String -> String -> (String, AS.Page.Page)
 findTargetPage spec targetPageName routePath =
