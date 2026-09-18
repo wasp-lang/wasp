@@ -29,13 +29,18 @@
   },
   "peerDependencies": {
     "@wasp.sh/lib-auth": "^0.26.0",
+    "ky": "^2.0.0",
     "superjson": "^2.2.1",
     "zod": "^4.3.6"
+  },
+  "dependencies": {
+    "mitt": "3.0.1"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
     "@types/node": "^22.17.1",
     "@wasp.sh/lib-auth": "file:../auth",
+    "ky": "^2.0.0",
     "superjson": "^2.2.1",
     "tsdown": "^0.21.5",
     "typescript": "^6.0.3",
