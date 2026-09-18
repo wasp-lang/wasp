@@ -845,8 +845,8 @@ makeTestAuthScheme schemeName =
   AS.Auth.AuthScheme
     { AS.Auth.name = schemeName,
       AS.Auth.handler = "@wasp.sh/auth-" ++ schemeName,
-      AS.Auth.server = AS.Auth.AuthSchemeServer (Left ("@wasp.sh/auth-" ++ schemeName)),
-      AS.Auth.clientPackage = Nothing,
+      AS.Auth.server = AS.Auth.AuthSchemeEntry (Left ("@wasp.sh/auth-" ++ schemeName)),
+      AS.Auth.client = Nothing,
       AS.Auth.routes = Nothing,
       AS.Auth.capabilities = [],
       AS.Auth.envVars =

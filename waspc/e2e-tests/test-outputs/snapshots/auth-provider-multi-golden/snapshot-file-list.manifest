@@ -190,6 +190,7 @@ wasp-app/.wasp/out/sdk/wasp/client/app/pages/createAuthRequiredPage.jsx
 wasp-app/.wasp/out/sdk/wasp/client/app/router.tsx
 wasp-app/.wasp/out/sdk/wasp/client/auth/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/schemes.ts
+wasp-app/.wasp/out/sdk/wasp/client/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
 wasp-app/.wasp/out/sdk/wasp/client/env/schema.ts
@@ -321,6 +322,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/auth/schemes.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/schemes.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/schemes.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/schemes.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/types.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/types.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/types.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/types.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/config.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/config.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/config.js

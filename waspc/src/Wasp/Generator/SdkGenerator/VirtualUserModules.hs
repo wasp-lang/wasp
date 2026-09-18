@@ -100,6 +100,7 @@ getVirtualUserModules spec =
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
       mkAuthProviderModule <$> authProviderModules,
+      mkAuthClientModule <$> authClientModules,
       mkAuthProviderUserSignupFieldsModule <$> authProviderUserSignupFields,
       mkAuthProviderSetupFnModule <$> authProviderSetupFns,
       maybeToList $ mkAuthHookModule "OnBeforeSignupHook" <$> (maybeAuth >>= AS.Auth.onBeforeSignup),
@@ -156,8 +157,17 @@ getVirtualUserModules spec =
       VirtualUserModule
         ServerRuntime
         extImport'
-        [relfileP|./server/auth/provider/types|]
-        "AuthHandler"
+        [relfileP|./server/auth/handler/types|]
+        "ServerAdapterFactory"
+
+    -- The client half of a hand-written scheme: the same factory a handler
+    -- package exports as `createClientAdapter`.
+    mkAuthClientModule extImport' =
+      VirtualUserModule
+        ClientRuntime
+        extImport'
+        [relfileP|./client/auth/types|]
+        "ClientAdapterFactory"
 
     -- Feeds just-in-time provisioning under an external provider; consumed by
     -- the SDK's session layer, so it goes through a virtual module too. Like
@@ -178,7 +188,7 @@ getVirtualUserModules spec =
       VirtualUserModule
         ServerRuntime
         extImport'
-        [relfileP|./server/auth/provider/types|]
+        [relfileP|./server/auth/handler/types|]
         "AuthProviderSetupFn"
 
     -- Every other user function an adapter's manifest references
@@ -189,7 +199,7 @@ getVirtualUserModules spec =
       VirtualUserModule
         ServerRuntime
         extImport'
-        [relfileP|./server/auth/provider/types|]
+        [relfileP|./server/auth/handler/types|]
         "AuthProviderExtension"
 
     -- A user-provided credential store (`credentials: { store: ref }`), consumed
@@ -198,7 +208,7 @@ getVirtualUserModules spec =
       VirtualUserModule
         ServerRuntime
         extImport'
-        [relfileP|./server/auth/provider/types|]
+        [relfileP|./server/auth/handler/types|]
         "CredentialStore"
 
     mkOperationModule operation =
@@ -218,6 +228,7 @@ getVirtualUserModules spec =
     maybeAuth = AS.App.auth app
     authSchemes = maybe [] AS.Auth.schemes maybeAuth
     authProviderModules = mapMaybe AS.Auth.serverModule authSchemes
+    authClientModules = mapMaybe AS.Auth.clientModule authSchemes
     authProviderUserSignupFields = mapMaybe AS.Auth.userSignupFieldsForAuthScheme authSchemes
     authProviderSetupFns = mapMaybe AS.Auth.setupFn authSchemes
     authProviderExtensions = concatMap (Map.elems . AS.Auth.extensions) authSchemes

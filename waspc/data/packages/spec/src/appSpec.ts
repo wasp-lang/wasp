@@ -197,7 +197,7 @@ export type AuthScheme = {
   name: string;
   handler: string;
   server: { package: string } | { module: ExtImport };
-  clientPackage: Optional<string>;
+  client: Optional<{ package: string } | { module: ExtImport }>;
   routes: Optional<AuthSchemeRoutes>;
   capabilities: string[];
   envVars: AuthSchemeEnvVars;

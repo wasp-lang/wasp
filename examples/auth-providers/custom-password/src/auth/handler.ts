@@ -1,38 +1,119 @@
-import { getSchemeRuntime } from "wasp/server/auth";
-import type { AuthHandler } from "wasp/server/auth/handler/types";
+import { hash, verify } from "@node-rs/argon2";
+import {
+  getAuthContractErrorCode,
+  type ServerAdapterFactory,
+} from "wasp/server/auth/handler/types";
 
 /**
- * Email+password auth, hand-rolled in-app -- the proof that a user-made
- * scheme has the same powers Wasp's own auth uses, byte for byte:
+ * Email+password auth, hand-rolled in-app -- the proof that a hand-written
+ * scheme has the same powers a handler package has, because it IS the same
+ * thing: a `ServerAdapterFactory`, the function a package exports as
+ * `createServerAdapter`. Pasting this file into a package needs no edits.
  *
- * - Credential storage: the identity store's `secrets` channel, in the column
- *   the Prisma client omits by default. Hashing is this app's explicit job
- *   (argon2, brought by this app -- Wasp ships no crypto to handlers).
- * - Credentials: the scheme's manifest declares `credentials: {}`, so Wasp
- *   runs a private bearer issuer for it (a token whose record lives in the
- *   `Session` table). The login route (`loginApi.ts`) verifies the password
- *   and signs the subject in through `runtime.credentials`; afterwards the
- *   request carries the issued token, and this handler recognizes it by
- *   forwarding `authenticate` to the issuer -- the way ASP.NET's remote
- *   schemes forward to their sign-in scheme.
+ * - The runtime arrives as an argument: the identities facet for storage, and
+ *   the credentials facet, because the manifest declares `credentials: {}`
+ *   (Wasp runs a private bearer issuer for this scheme).
+ * - It brings its own routes. Wasp mounts `routeHandler` at `/auth/password`,
+ *   next to every other scheme's routes.
+ * - Hashing is this app's explicit job (argon2, brought by this app -- Wasp
+ *   ships no crypto to handlers).
+ *
+ * An app that would rather write ordinary Wasp `api()` routes can: keep the
+ * factory for `handler`, stash `runtime` in a module variable here, and read
+ * it from those routes. That is plain userland; Wasp needs no API for it.
  */
-export const SCHEME = "password";
+export const createPasswordAdapter: ServerAdapterFactory<
+  unknown,
+  never,
+  true
+> = (runtime) => ({
+  // The routes below verify logins. Afterwards a request carries the token
+  // the issuer minted, and this handler recognizes it by forwarding to that
+  // issuer -- the way ASP.NET's remote schemes forward to their sign-in scheme.
+  handler: {
+    authenticate: (request) => runtime.credentials.authenticate(request),
+    signOut: (request) => runtime.credentials.signOut(request),
+  },
 
-/** The scheme's runtime window: identities and the credentials facet. */
-export function runtime() {
-  return getSchemeRuntime<never, true>(SCHEME);
-}
+  routeHandler: async (req, res) => {
+    const send = (status: number, body: unknown) => {
+      res.statusCode = status;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify(body));
+    };
+    const { email, password } = ((req as { body?: unknown }).body ?? {}) as {
+      email?: unknown;
+      password?: unknown;
+    };
 
-export const passwordAuthHandler: AuthHandler = {
-  authenticate: (request) => runtime().credentials.authenticate(request),
-  signOut: (request) => runtime().credentials.signOut(request),
-};
+    if (req.method === "POST" && req.url === "/signup") {
+      if (typeof email !== "string" || !email.includes("@")) {
+        return send(400, { message: "A valid email is required." });
+      }
+      if (typeof password !== "string" || password.length < 8) {
+        return send(400, {
+          message: "Password must be at least 8 characters long.",
+        });
+      }
+      const normalizedEmail = normalizeEmail(email);
+      try {
+        // One atomic write of User + Auth + AuthIdentity, with the app's
+        // signup hooks fired around it. The hash goes into `secrets`, the
+        // column the Prisma client omits by default.
+        await runtime.identities.create(
+          normalizedEmail,
+          {
+            claims: { email: normalizedEmail },
+            secrets: { hashedPassword: await hash(password) },
+          },
+          undefined,
+          { req },
+        );
+      } catch (e) {
+        if (getAuthContractErrorCode(e) === "wasp-auth/duplicate-identity") {
+          return send(422, {
+            message: "An account with this email already exists.",
+          });
+        }
+        throw e;
+      }
+      return send(200, { success: true });
+    }
+
+    if (req.method === "POST" && req.url === "/login") {
+      // A wrong password and an unknown email are the same 401, so the
+      // endpoint reveals no accounts.
+      if (typeof email !== "string" || typeof password !== "string") {
+        return send(401, { message: "Invalid credentials" });
+      }
+      const normalizedEmail = normalizeEmail(email);
+      const secrets = await runtime.identities.getSecrets(normalizedEmail);
+      const passwordMatches =
+        typeof secrets?.hashedPassword === "string" &&
+        (await verify(secrets.hashedPassword, password).catch(() => false));
+      if (!passwordMatches) {
+        return send(401, { message: "Invalid credentials" });
+      }
+      // The app's login hooks fire inside; the issuer decides what the
+      // client receives (here, `{ credential }`).
+      const { response } = await runtime.credentials.signIn(
+        { subjectId: normalizedEmail },
+        { req },
+      );
+      for (const [name, value] of Object.entries(response.headers ?? {})) {
+        res.setHeader(name, value);
+      }
+      return send(response.status, response.body ?? {});
+    }
+
+    send(404, { message: "Not found." });
+  },
+});
 
 /**
- * The identity key. The store normalizes only Wasp's own scheme names, so
- * casing discipline for a custom scheme is the scheme's job -- signup and
- * login must agree.
+ * The identity key. The store normalizes nothing for a custom scheme, so
+ * casing discipline is the scheme's job -- signup and login must agree.
  */
-export function normalizeEmail(email: string): string {
+function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }

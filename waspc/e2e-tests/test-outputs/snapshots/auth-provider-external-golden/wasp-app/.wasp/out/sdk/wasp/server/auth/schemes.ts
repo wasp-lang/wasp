@@ -1,4 +1,4 @@
-import type { AuthHandler, Credentials, ProviderIdentities, RuntimeGrantName, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
@@ -343,7 +343,6 @@ const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 
 // Filled in dependency order below; typed as the full map once complete.
 const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void> }>> = {}
-const schemeRuntimes: Partial<Record<AuthSchemeName, WaspServerRuntime<never, false>>> = {}
 
 function handlerOf(name: AuthSchemeName): AuthHandler {
   const adapter = registered[name]
@@ -392,25 +391,6 @@ export const authSchemes: { readonly [Name in AuthSchemeName]: AuthHandler } = {
 // PRIVATE API
 export function getAuthScheme(name: string): AuthHandler | undefined {
   return (authSchemes as Record<string, AuthHandler>)[name]
-}
-
-// PRIVATE API
-/**
- * The runtime of a hand-written scheme, for app code that implements a
- * handler in `src/` and needs the identity store or credentials facet bound
- * to its own scheme. The type parameters state what the scheme's manifest
- * declared: its `uses` grants, and whether it has `credentials` (the facet
- * is absent at runtime otherwise).
- */
-export function getSchemeRuntime<
-  Grants extends RuntimeGrantName = never,
-  HasCredentials extends boolean = false,
->(name: AuthSchemeName): WaspServerRuntime<Grants, HasCredentials> {
-  const runtime = schemeRuntimes[name]
-  if (runtime === undefined) {
-    throw new Error(`Auth scheme '${name}' is a handler package; its runtime is not exposed to app code.`)
-  }
-  return runtime as unknown as WaspServerRuntime<Grants, HasCredentials>
 }
 
 // PRIVATE API

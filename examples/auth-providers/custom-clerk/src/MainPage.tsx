@@ -1,4 +1,3 @@
-import { useClerk } from "@clerk/clerk-react";
 import { useState } from "react";
 import { logout, useAuth } from "wasp/client/auth";
 import { createTask, getMyTasks, useQuery } from "wasp/client/operations";
@@ -11,7 +10,6 @@ import { createTask, getMyTasks, useQuery } from "wasp/client/operations";
  * session differs, and that lives in each app's login page.
  */
 export function MainPage() {
-  const clerk = useClerk();
   const { data: user } = useAuth();
   const { data: tasks, isLoading, refetch } = useQuery(getMyTasks);
   const [description, setDescription] = useState("");
@@ -22,16 +20,7 @@ export function MainPage() {
     >
       <header style={{ display: "flex", justifyContent: "space-between" }}>
         <h1>Tasks</h1>
-        {/* Server-side sign-out through Wasp, then Clerk's own client
-            state -- what the packaged adapter's `onLogout` does for you. */}
-        <button
-          onClick={async () => {
-            await logout();
-            await clerk.signOut();
-          }}
-        >
-          Log out
-        </button>
+        <button onClick={logout}>Log out</button>
       </header>
 
       {/* `user.id` is this app's own User.id, never the provider's id. */}

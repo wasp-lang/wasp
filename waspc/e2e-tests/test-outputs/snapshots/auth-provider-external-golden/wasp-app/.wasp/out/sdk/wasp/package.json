@@ -46,6 +46,7 @@
     "./client/app/router": "./dist/client/app/router.jsx",
     "./client/auth": "./dist/client/auth/index.js",
     "./client/auth/schemes": "./dist/client/auth/schemes.js",
+    "./client/auth/types": "./dist/client/auth/types.js",
     "./client/crud": "./dist/client/crud/index.js",
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",

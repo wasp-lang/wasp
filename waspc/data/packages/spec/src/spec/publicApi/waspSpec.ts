@@ -366,17 +366,25 @@ export interface AuthSchemeManifest {
    */
   handler: string;
   /**
-   * The scheme's server handler: either the module specifier of an adapter
-   * package's server entry (which must export `createServerAdapter`), or a
-   * reference to a user-code module exporting an `AuthHandler`.
+   * The scheme's server half: a `ServerAdapterFactory`. Either the module
+   * specifier of a handler package's server entry (which must export it as
+   * `createServerAdapter`), or a reference to such a function in the app's
+   * own `src/`.
+   *
+   * Both forms are the SAME thing in different places, so a hand-written
+   * handler has every power a packaged one has: it receives the scheme's
+   * runtime as an argument, and may return a `routeHandler` for routes of
+   * its own.
    */
-  server: { package: string } | Reference<AnyObject>;
+  server: { package: string } | Reference<AnyFunction>;
   /**
-   * Module specifier of an adapter package's client entry (which must export
-   * `createClientAdapter`). Wasp instantiates it and wires the client side --
-   * context wrapper, credential transport, logout -- automatically.
+   * The scheme's client half: a `ClientAdapterFactory`. Either the module
+   * specifier of a handler package's client entry (which must export it as
+   * `createClientAdapter`), or a reference to such a function in the app's
+   * own `src/`. Wasp instantiates it and wires the client side -- context
+   * wrapper, credential source, logout cleanup -- automatically.
    */
-  client?: { package: string };
+  client?: { package: string } | Reference<AnyFunction>;
   /**
    * Whether the handler brings its own HTTP routes. They mount at
    * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`

@@ -120,6 +120,8 @@
     "./server/auth/handler/types": "./dist/server/auth/handler/types.js",
     {=! Client: the instantiated client halves of the auth schemes. =}
     "./client/auth/schemes": "./dist/client/auth/schemes.js",
+    {=! Client: contract types for a hand-written client factory. =}
+    "./client/auth/types": "./dist/client/auth/types.js",
     {=! Server: the scheme registry and its route handlers, for the framework's
         own auth routes and for mounting schemes' routes. =}
     "./server/auth/schemes": "./dist/server/auth/schemes.js",

@@ -15,14 +15,14 @@ const password = "password1234";
 test.describe.configure({ mode: "serial" });
 
 test("signup via the scheme's own route succeeds", async ({ request }) => {
-  const response = await request.post("/password-auth/signup", {
+  const response = await request.post("/auth/password/signup", {
     data: { email, password },
   });
   expect(response.status()).toBe(200);
 });
 
 test("duplicate signup is rejected", async ({ request }) => {
-  const response = await request.post("/password-auth/signup", {
+  const response = await request.post("/auth/password/signup", {
     data: { email, password },
   });
   expect(response.status()).toBe(422);
@@ -31,7 +31,7 @@ test("duplicate signup is rejected", async ({ request }) => {
 test("login turns a valid password into a scheme-attributed credential", async ({
   request,
 }) => {
-  const response = await request.post("/password-auth/login", {
+  const response = await request.post("/auth/password/login", {
     data: { email, password },
   });
   expect(response.status()).toBe(200);
@@ -52,7 +52,7 @@ test("login turns a valid password into a scheme-attributed credential", async (
 test("a wrong password is a hard 401, with no fallthrough", async ({
   request,
 }) => {
-  const response = await request.post("/password-auth/login", {
+  const response = await request.post("/auth/password/login", {
     data: { email, password: "wrong-password1" },
   });
   expect(response.status()).toBe(401);
@@ -61,7 +61,7 @@ test("a wrong password is a hard 401, with no fallthrough", async ({
 test("an unknown subject is a 401 indistinguishable from a wrong password", async ({
   request,
 }) => {
-  const response = await request.post("/password-auth/login", {
+  const response = await request.post("/auth/password/login", {
     data: { email: `nobody-${uniqueSuffix}@example.com`, password },
   });
   expect(response.status()).toBe(401);
@@ -84,7 +84,7 @@ test("routes of a scheme the app does not configure are a 404", async ({
 });
 
 test("logout revokes the credential server-side", async ({ request }) => {
-  const login = await request.post("/password-auth/login", {
+  const login = await request.post("/auth/password/login", {
     data: { email, password },
   });
   const { credential } = (await login.json()) as { credential: string };

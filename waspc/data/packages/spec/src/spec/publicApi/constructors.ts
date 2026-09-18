@@ -630,8 +630,19 @@ export function validateCredentialsConfig(
  * @inline
  */
 export type CustomAuthHandlerConfig = {
-  /** Reference to a user-code module exporting an `AuthHandler` object. */
-  server: Reference<AnyObject>;
+  /**
+   * Reference to a `ServerAdapterFactory` in the app's own code: a function
+   * that receives the scheme's runtime and returns `{ handler, routeHandler? }`,
+   * exactly like a handler package's `createServerAdapter`.
+   */
+  server: Reference<AnyFunction>;
+  /**
+   * Reference to a `ClientAdapterFactory` in the app's own code, exactly
+   * like a handler package's `createClientAdapter`.
+   */
+  client?: Reference<AnyFunction>;
+  /** See {@link AuthSchemeManifest.routes}. Declare it when the factory returns a `routeHandler`. */
+  routes?: { rawBody?: boolean };
   /** See {@link AuthSchemeManifest.capabilities}. */
   capabilities?: string[];
   /** See {@link AuthSchemeManifest.env}. */
@@ -678,7 +689,12 @@ export type CustomAuthHandlerConfig = {
 export function customAuthHandler(
   config: CustomAuthHandlerConfig,
 ): AuthSchemeManifest {
-  return defineAuthSchemeManifest({ ...config, handler: "custom" });
+  // The label shown in error messages is where the code lives: more useful
+  // than a made-up name, and it cannot go stale.
+  return defineAuthSchemeManifest({
+    ...config,
+    handler: (config.server as unknown as { from?: string }).from ?? "custom",
+  });
 }
 
 /**

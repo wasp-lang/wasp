@@ -19,13 +19,13 @@ export function LoginPage() {
 
     try {
       if (isSignup) {
-        await api.post("/password-auth/signup", {
+        await api.post("/auth/password/signup", {
           json: { email, password },
         });
       }
 
       const { credential } = await api
-        .post("/password-auth/login", { json: { email, password } })
+        .post("/auth/password/login", { json: { email, password } })
         .json<{ credential: string }>();
       setCredential(credential, "password");
       window.location.href = "/";

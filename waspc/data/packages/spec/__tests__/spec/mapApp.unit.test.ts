@@ -599,7 +599,7 @@ describe("mapAuth", () => {
     expect(result.schemes[0]).toMatchObject({
       name: "test",
       server: { package: "@wasp.sh/auth-clerk/server" },
-      clientPackage: "@wasp.sh/auth-clerk/client",
+      client: { package: "@wasp.sh/auth-clerk/client" },
     });
   });
 
@@ -706,7 +706,11 @@ describe("mapAuth", () => {
                 >[0],
               ),
             },
-      clientPackage: manifest.client?.package,
+      client:
+        manifest.client &&
+        ("package" in manifest.client
+          ? { package: manifest.client.package }
+          : { module: mapRefObjectForMockProjectDir(manifest.client) }),
       routes: manifest.routes && { rawBody: manifest.routes.rawBody },
       capabilities: manifest.capabilities,
       envVars: {

@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.Client.AuthG
 where
 
 import qualified Data.Aeson as Aeson
+import Data.Maybe (isJust)
 import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -17,6 +18,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
 
 -- | The uniform client surface (useAuth, logout, resumeSession, the adapter
 -- registry) exists for every provider mix. Provider UI (forms, sign-in
@@ -28,6 +30,7 @@ genClientAuth spec =
     Just auth ->
       sequence
         [ genFileCopy (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|]),
+          genFileCopy (clientAuthDirInSdkTemplatesDir </> [relfile|types.ts|]),
           genClientAuthProvidersTs auth
         ]
   where
@@ -50,16 +53,21 @@ genClientAuthProvidersTs auth =
           "defaultScheme" Aeson..= AS.Auth.defaultScheme auth,
           "clientAdapterProviders" Aeson..= zipWith mkClientAdapterProviderTmplData [0 :: Int ..] clientAdapterProviders
         ]
+    -- A scheme's client half is a package entry or a factory in the app's
+    -- own code; both are instantiated the same way.
     clientAdapterProviders =
-      [ (scheme, clientPackage)
+      [ scheme
       | scheme <- AS.Auth.schemes auth,
-        Just clientPackage <- [AS.Auth.clientPackage scheme]
+        isJust scheme.client
       ]
-    mkClientAdapterProviderTmplData idx (provider, clientPackage) =
+    mkClientAdapterProviderTmplData idx provider =
       Aeson.object
         [ "index" Aeson..= idx,
           "schemeName" Aeson..= provider.name,
-          "clientPackage" Aeson..= clientPackage,
+          "isPackage" Aeson..= isJust (AS.Auth.clientPackage provider),
+          "clientPackage" Aeson..= AS.Auth.clientPackage provider,
+          "clientModule"
+            Aeson..= extImportToAliasedImportJson ("authClientModule_" ++ show idx) (AS.Auth.clientModule provider),
           "hasOptions" Aeson..= maybe False (const True) provider.optionsJson,
           "optionsJson" Aeson..= provider.optionsJson,
           -- The client adapter runtime's env is narrowed to exactly these names.

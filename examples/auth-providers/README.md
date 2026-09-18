@@ -10,7 +10,7 @@ scheme? The answer, demonstrated rather than asserted, is _everything except the
 | `wasp-auth/`       | Wasp's own auth (`@wasp.sh/auth`)  | Wasp's own auth is a handler package too: the compiler knows nothing about it beyond its manifest |
 | `better-auth/`     | Better Auth, in-process            | A handler that owns its own tables, routes and credential                                         |
 | `clerk/`           | Clerk, hosted                      | A handler with no server-side login at all, whose own token is the credential                     |
-| `custom-clerk/`    | Clerk, hand-written in-app         | The `customAuthHandler()` escape hatch — no handler package needed                                |
+| `custom-clerk/`    | Clerk, hand-written in-app         | A hand-written handler is the same factories a package exports, with the same powers              |
 | `custom-password/` | Email+password, hand-rolled in-app | A user-made scheme gets Wasp-issued credentials with one line: `credentials: {}`                  |
 | `multi-provider/`  | Wasp's own auth + Clerk            | Two schemes side by side, a default, and per-asset scheme lists                                   |
 

@@ -19,6 +19,8 @@ export {
   type Principal,
   type ProviderIdentities,
   type RuntimeGrantName,
+  type ServerAdapter,
+  type ServerAdapterFactory,
   type SignInContext,
   type SignInProperties,
   type SignInResult,

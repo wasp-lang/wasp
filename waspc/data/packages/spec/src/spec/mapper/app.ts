@@ -1,6 +1,6 @@
 import { isEqual } from "es-toolkit";
 import * as AppSpec from "../../appSpec.js";
-import type { AnyObject } from "../../typeUtils.js";
+import type { AnyFunction } from "../../typeUtils.js";
 import {
   reservedClientEnvVarNames,
   reservedServerEnvVarNames,
@@ -253,19 +253,20 @@ function mapAuthScheme(
     }
   }
 
-  const isPackageEntry = "package" in manifest.server;
+  // Both halves take the same two forms: a package entry, or a reference to
+  // a factory in the app's own code.
+  const mapEntry = (
+    entry: { package: string } | WaspSpec.Reference<AnyFunction>,
+  ): { package: string } | { module: AppSpec.ExtImport } =>
+    "package" in entry
+      ? { package: entry.package }
+      : { module: ctx.parseRefObject(entry) };
 
   return {
     name,
     handler: manifest.handler,
-    server: isPackageEntry
-      ? { package: (manifest.server as { package: string }).package }
-      : {
-          module: ctx.parseRefObject(
-            manifest.server as WaspSpec.Reference<AnyObject>,
-          ),
-        },
-    clientPackage: manifest.client?.package,
+    server: mapEntry(manifest.server),
+    client: manifest.client && mapEntry(manifest.client),
     routes: manifest.routes && { rawBody: manifest.routes.rawBody },
     capabilities: manifest.capabilities,
     envVars: {

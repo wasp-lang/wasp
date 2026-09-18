@@ -8,7 +8,7 @@ module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthHooksSpec (..),
     AuthScheme (..),
-    AuthSchemeServer (..),
+    AuthSchemeEntry (..),
     AuthSchemeRoutes (..),
     AuthSchemeEnvVars (..),
     AuthSchemeEnvVar (..),
@@ -23,6 +23,8 @@ module Wasp.AppSpec.App.Auth
     onAfterLink,
     serverPackage,
     serverModule,
+    clientPackage,
+    clientModule,
     credentialsScheme,
     inlineCredentials,
     canSignIn,
@@ -102,9 +104,10 @@ data AuthScheme = AuthScheme
     -- @"custom"@). Informational.
     handler :: String,
     -- | Where the handler's implementation comes from.
-    server :: AuthSchemeServer,
-    -- | Module specifier of a handler package's client entry, if it has one.
-    clientPackage :: Maybe String,
+    -- | The scheme's server half: a @ServerAdapterFactory@.
+    server :: AuthSchemeEntry,
+    -- | The scheme's client half, if it has one: a @ClientAdapterFactory@.
+    client :: Maybe AuthSchemeEntry,
     -- | Whether the handler brings its own routes, mounted at @/auth/<name>@.
     routes :: Maybe AuthSchemeRoutes,
     capabilities :: [String],
@@ -136,33 +139,47 @@ data AuthScheme = AuthScheme
 
 -- | Exactly one of: a handler package's server entry (module specifier), or a
 -- user-code module implementing the handler (the hand-written escape hatch).
-newtype AuthSchemeServer = AuthSchemeServer (Either String ExtImport)
+-- | Where one half of a scheme (server or client) lives: the module specifier
+-- of a handler package's entry, or a factory in the app's own code. Both forms
+-- are the same thing in different places, which is what makes a hand-written
+-- handler as powerful as a packaged one.
+newtype AuthSchemeEntry = AuthSchemeEntry (Either String ExtImport)
   deriving (Show, Eq, Data, Generic)
 
-instance FromJSON AuthSchemeServer where
-  parseJSON = Aeson.withObject "server" $ \o -> do
+instance FromJSON AuthSchemeEntry where
+  parseJSON = Aeson.withObject "scheme entry" $ \o -> do
     maybePackage <- o .:? "package"
     maybeModule <- o .:? "module"
     case (maybePackage, maybeModule) of
-      (Just packageSpecifier, Nothing) -> pure $ AuthSchemeServer (Left packageSpecifier)
-      (Nothing, Just extImport) -> pure $ AuthSchemeServer (Right extImport)
-      _ -> fail "server must contain exactly one of 'package' and 'module'"
+      (Just packageSpecifier, Nothing) -> pure $ AuthSchemeEntry (Left packageSpecifier)
+      (Nothing, Just extImport) -> pure $ AuthSchemeEntry (Right extImport)
+      _ -> fail "a scheme entry must contain exactly one of 'package' and 'module'"
 
-instance ToJSON AuthSchemeServer where
-  toJSON (AuthSchemeServer (Left packageSpecifier)) =
+instance ToJSON AuthSchemeEntry where
+  toJSON (AuthSchemeEntry (Left packageSpecifier)) =
     Aeson.object ["package" .= packageSpecifier]
-  toJSON (AuthSchemeServer (Right extImport)) =
+  toJSON (AuthSchemeEntry (Right extImport)) =
     Aeson.object ["module" .= extImport]
 
+entryPackage :: AuthSchemeEntry -> Maybe String
+entryPackage (AuthSchemeEntry (Left packageSpecifier)) = Just packageSpecifier
+entryPackage (AuthSchemeEntry (Right _)) = Nothing
+
+entryModule :: AuthSchemeEntry -> Maybe ExtImport
+entryModule (AuthSchemeEntry (Left _)) = Nothing
+entryModule (AuthSchemeEntry (Right extImport)) = Just extImport
+
 serverPackage :: AuthScheme -> Maybe String
-serverPackage scheme = case scheme.server of
-  AuthSchemeServer (Left packageSpecifier) -> Just packageSpecifier
-  AuthSchemeServer (Right _) -> Nothing
+serverPackage scheme = entryPackage scheme.server
 
 serverModule :: AuthScheme -> Maybe ExtImport
-serverModule scheme = case scheme.server of
-  AuthSchemeServer (Left _) -> Nothing
-  AuthSchemeServer (Right extImport) -> Just extImport
+serverModule scheme = entryModule scheme.server
+
+clientPackage :: AuthScheme -> Maybe String
+clientPackage scheme = scheme.client >>= entryPackage
+
+clientModule :: AuthScheme -> Maybe ExtImport
+clientModule scheme = scheme.client >>= entryModule
 
 -- | How a scheme hands out credentials: by signing into a sibling scheme, or
 -- through a private Wasp issuer configured inline.
@@ -245,7 +262,7 @@ canSignIn scheme = "sign-in" `elem` scheme.capabilities
 
 -- | Whether any configured scheme brings a client-side adapter entry.
 isClientAuthAdapterUsed :: Auth -> Bool
-isClientAuthAdapterUsed = any (isJust . clientPackage) . schemes
+isClientAuthAdapterUsed = any (isJust . (.client)) . schemes
 
 schemeNames :: Auth -> [String]
 schemeNames = map (.name) . schemes

@@ -10,7 +10,15 @@ import { invalidateAndRemoveQueries, invalidateQueryByKey } from '../operations/
 import { config } from '../config.js'
 import { env } from '../env.js'
 {=# clientAdapterProviders =}
+{=# isPackage =}
 import { createClientAdapter as createClientAdapter_{= index =} } from '{= clientPackage =}'
+{=/ isPackage =}
+{=^ isPackage =}
+{=& clientModule.importStatement =}
+// A factory from the app's own code: the same thing a handler package
+// exports as `createClientAdapter`.
+const createClientAdapter_{= index =} = {= clientModule.importIdentifier =}
+{=/ isPackage =}
 {=/ clientAdapterProviders =}
 
 /**

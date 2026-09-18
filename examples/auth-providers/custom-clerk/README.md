@@ -1,29 +1,35 @@
 # Auth schemes — Custom handler (Clerk)
 
 Wasp authenticates every request through **Clerk**, but unlike `../clerk` this app uses no
-handler package: the handler is hand-written in `src/auth/handler.ts` and registered with
+handler package: both halves are hand-written in `src/auth/` and registered with
 `customAuthHandler()`.
 
 ```ts
-import { clerkAuthHandler } from "./src/auth/handler" with { type: "ref" };
+import { createClerkClientAdapter } from "./src/auth/clientAdapter" with { type: "ref" };
+import { createClerkServerAdapter } from "./src/auth/handler" with { type: "ref" };
 
 auth: {
   userEntity: "User",
   onAuthFailedRedirectTo: "/login",
   schemes: {
     clerk: customAuthHandler({
-      server: clerkAuthHandler,
-      env: { server: [/* CLERK_SECRET_KEY, ... */], client: [] },
+      server: createClerkServerAdapter,
+      client: createClerkClientAdapter,
+      env: { server: [/* CLERK_SECRET_KEY, ... */], client: [/* REACT_APP_CLERK_PUBLISHABLE_KEY */] },
     }),
   },
 }
 ```
 
+Both are the same factories a handler package exports (`createServerAdapter`,
+`createClientAdapter`), so a hand-written scheme has the same powers: the runtime and its
+declared env vars arrive as arguments, and the client half gets a `Wrapper`, a credential
+source, and logout cleanup. The app needs no root component, no env schema and no logout glue
+of its own, and `src/MainPage.tsx` is byte-for-byte the shared one.
+
 Clerk's own token is the credential, so the scheme declares no `credentials` and Wasp issues
-nothing. What the escape hatch costs: `handler.ts` implementing `authenticate` and `signOut`,
-plus `src/App.tsx`, which registers Clerk's token as the credential source Wasp's client puts on
-every request — what a package's client adapter would otherwise do. Diff this app against
-`../clerk` to see exactly what a handler package absorbs.
+nothing. Diff this app against `../clerk`: what a handler package absorbs is now just where
+the two files live.
 
 ## Run it
 

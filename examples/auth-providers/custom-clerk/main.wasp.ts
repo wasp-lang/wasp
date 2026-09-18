@@ -6,11 +6,10 @@ import {
   query,
   route,
 } from "@wasp.sh/spec";
-import { App } from "./src/App" with { type: "ref" };
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
-import { clerkAuthHandler } from "./src/auth/handler" with { type: "ref" };
-import { clientEnvSchema } from "./src/env" with { type: "ref" };
+import { createClerkClientAdapter } from "./src/auth/clientAdapter" with { type: "ref" };
+import { createClerkServerAdapter } from "./src/auth/handler" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
@@ -25,7 +24,10 @@ export default app({
     // declares no `credentials`: Wasp issues nothing and adds no table.
     schemes: {
       clerk: customAuthHandler({
-        server: clerkAuthHandler,
+        // Both halves are factories from this app's own code: the same
+        // things a handler package exports, with the same powers.
+        server: createClerkServerAdapter,
+        client: createClerkClientAdapter,
         env: {
           server: [
             { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
@@ -39,17 +41,17 @@ export default app({
               doc: "enables networkless JWT verification",
             },
           ],
-          client: [],
+          // Declared here, so the client half receives it as `runtime.env`
+          // and the app needs no client env schema of its own for it.
+          client: [
+            {
+              name: "REACT_APP_CLERK_PUBLISHABLE_KEY",
+              doc: "Clerk dashboard → API keys (publishable key)",
+            },
+          ],
         },
       }),
     },
-  },
-
-  client: {
-    // Wraps the app in Clerk's provider and registers its token as the
-    // credential Wasp's client puts on every request.
-    rootComponent: App,
-    envValidationSchema: clientEnvSchema,
   },
 
   spec: [

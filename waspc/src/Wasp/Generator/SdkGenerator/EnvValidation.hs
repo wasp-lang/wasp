@@ -81,7 +81,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "isAuthEnabled" .= (not . null $ providers),
           "authProviderClientEnvVars"
-            .= concatMap (externalProviderEnvVarsTmplData AS.Auth.client) providers,
+            .= concatMap (externalProviderEnvVarsTmplData (.client)) providers,
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     providers = AS.Valid.getAuthSchemes spec
