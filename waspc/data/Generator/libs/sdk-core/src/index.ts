@@ -36,6 +36,19 @@ export { HttpMethod, type Route } from "./http.js";
 export { HttpError } from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
 export {
+  makeOperationRoute,
+  type OperationRoute,
+} from "./operations/routes.js";
+export {
+  type Action,
+  type GenericBackendOperation,
+  type GenericOperationRpc,
+  type OperationRpcFor,
+  type Query,
+  type QueryFunction,
+  type QueryMetadata,
+} from "./operations/rpc.js";
+export {
   type FromRegister,
   type FromRegisterPath,
   type Register,
