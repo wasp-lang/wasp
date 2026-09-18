@@ -4,6 +4,7 @@ module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
     askForRequiredInput,
+    getInteractiveLine,
     tryGettingConfirmationWithTimeout,
     IsOption (..),
     ConfirmationError (..),
@@ -12,6 +13,7 @@ module Wasp.Cli.Interactive
 where
 
 import Control.Applicative ((<|>))
+import Control.Exception (catch, throwIO)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -19,9 +21,13 @@ import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
+import System.Exit (ExitFailure (..), exitWith)
 import System.IO (hFlush, hIsTerminalDevice, stdin, stdout)
+import System.IO.Error (isEOFError)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
+import Wasp.Cli.Common (waspScreams)
+import Wasp.Cli.Terminal (asWaspFailureMessage)
 import qualified Wasp.Util.Terminal as Term
 
 {-
@@ -160,7 +166,20 @@ repeatUntil predicate errorMessage action = do
 prompt :: IO String
 prompt = do
   putStrFlush $ Term.applyStyles [Term.Yellow] " ▸ "
-  T.unpack . T.strip . T.pack <$> getLine
+  T.unpack . T.strip . T.pack <$> getInteractiveLine
+
+-- | Like 'getLine', but when stdin reaches EOF (e.g. when the CLI runs with
+-- neither an interactive terminal nor piped input), exits with a clean,
+-- titled error instead of crashing with a raw "hGetLine: end of file"
+-- runtime error.
+getInteractiveLine :: IO String
+getInteractiveLine =
+  getLine `catch` \e ->
+    if isEOFError e
+      then do
+        waspScreams $ asWaspFailureMessage "No input received:" ++ "\nWasp CLI needs an interactive terminal or piped input to read your answer from."
+        exitWith (ExitFailure 1)
+      else throwIO e
 
 -- Explicit flush ensures prompt messages are printed immediately on all systems.
 putStrFlush :: String -> IO ()
