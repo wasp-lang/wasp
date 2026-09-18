@@ -1,3 +1,3 @@
 export type ClientConfig = {
-  apiUrl: string,
-}
+  apiUrl: string;
+};

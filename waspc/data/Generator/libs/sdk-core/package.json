@@ -26,9 +26,13 @@
     "test": "npm run test:types",
     "test:types": "tsc --noEmit"
   },
+  "peerDependencies": {
+    "superjson": "^2.2.1"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.2",
     "@types/node": "^22.17.1",
+    "superjson": "^2.2.1",
     "tsdown": "^0.21.5",
     "typescript": "^6.0.3"
   }

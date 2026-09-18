@@ -4,12 +4,12 @@
  * Once submitted, you get a SubmittedJob to track it later.
  */
 export class Job {
-  public readonly jobName: string
-  public readonly executorName: string | symbol
+  public readonly jobName: string;
+  public readonly executorName: string | symbol;
 
   constructor(jobName: string, executorName: string | symbol) {
-    this.jobName = jobName
-    this.executorName = executorName
+    this.jobName = jobName;
+    this.executorName = executorName;
   }
 }
 
@@ -18,11 +18,11 @@ export class Job {
  * It can be used by callers to track things, or call executor-specific subclass functionality.
  */
 export class SubmittedJob {
-  public readonly job: Job
-  public readonly jobId: string
+  public readonly job: Job;
+  public readonly jobId: string;
 
   constructor(job: Job, jobId: string) {
-    this.job = job
-    this.jobId = jobId
+    this.job = job;
+    this.jobId = jobId;
   }
 }
