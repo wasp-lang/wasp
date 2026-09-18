@@ -17,11 +17,9 @@ import { createAuthRequiredPage } from "wasp/client/app"
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
 
-{=# routes =}
-{=^ isLazy =}
-{=& import.importStatement =}
-{=/ isLazy =}
-{=/ routes =}
+{=# eagerImports =}
+{=& importStatement =}
+{=/ eagerImports =}
 
 const routesMapping = {
   {=# routes =}
