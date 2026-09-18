@@ -302,7 +302,7 @@ spec_AppSpecValid = do
 
         it "returns an error when the scheme name contains a ':'" $ do
           ASV.validateAppSpec
-            (makeSpec basicExternalProvider {AS.Auth.name = "te:st", AS.Auth.identityNamespaces = ["te:st"]})
+            (makeSpec basicExternalProvider {AS.Auth.name = "te:st", AS.Auth.identityNamespaces = ["te:st:default"]})
             `shouldBe` [ Valid.GenericValidationError $
                            "Auth scheme name 'te:st' must be non-empty and contain neither ':' (the identity"
                              ++ " namespace separator) nor '/' (it names the scheme's routes)."
@@ -310,7 +310,7 @@ spec_AppSpecValid = do
 
         it "returns an error when the scheme name is a framework auth route" $ do
           ASV.validateAppSpec
-            (makeSpec basicExternalProvider {AS.Auth.name = "me", AS.Auth.identityNamespaces = ["me"]})
+            (makeSpec basicExternalProvider {AS.Auth.name = "me", AS.Auth.identityNamespaces = ["me:default"]})
             `shouldBe` [ Valid.GenericValidationError
                            "Auth scheme name 'me' collides with a framework auth route (/auth/me). Reserved names: me, logout, login."
                        ]
@@ -373,12 +373,25 @@ spec_AppSpecValid = do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.identityNamespaces = ["test", "email"]
+                  { AS.Auth.identityNamespaces = ["test:default", "email"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
                            "Auth scheme 'test' declares the identity namespace 'email', which it"
-                             ++ " does not own. A namespace must be the scheme name or 'test:<suffix>'"
+                             ++ " does not own. A namespace must be 'test:<suffix>'"
+                             ++ " -- that rule is what makes cross-scheme identity collisions impossible."
+                       ]
+
+        it "returns an error for the bare scheme name as an identity namespace" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.identityNamespaces = ["test"]
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError $
+                           "Auth scheme 'test' declares the identity namespace 'test', which it"
+                             ++ " does not own. A namespace must be 'test:<suffix>'"
                              ++ " -- that rule is what makes cross-scheme identity collisions impossible."
                        ]
 
@@ -386,7 +399,7 @@ spec_AppSpecValid = do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.identityNamespaces = ["test", "test:passkey"]
+                  { AS.Auth.identityNamespaces = ["test:default", "test:passkey"]
                   }
             )
             `shouldBe` []
@@ -814,7 +827,7 @@ makeTestAuthScheme schemeName =
       AS.Auth.routes = Nothing,
       AS.Auth.capabilities = [],
       AS.Auth.uses = [],
-      AS.Auth.identityNamespaces = [schemeName],
+      AS.Auth.identityNamespaces = [schemeName ++ ":default"],
       AS.Auth.credentials = Nothing,
       AS.Auth.userFieldsFromClaims = Nothing
     }

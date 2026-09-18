@@ -34,7 +34,7 @@ export type BetterAuthSchemeManifest<
 > = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 4;
+  contractVersion: 5;
   server: {
     authHandlerFactory: { package: string };
     env: EnvVarRequirement[];
@@ -117,7 +117,7 @@ export function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 4,
+    contractVersion: 5,
     server: {
       authHandlerFactory: { package: "@wasp.sh/auth-better-auth/server" },
       env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],

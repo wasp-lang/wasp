@@ -1,13 +1,12 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { getBody, getSignInProperties, json, sendAuthResponse, } from "./http.js";
 import { offerMergeOrRethrow, requireCurrentAuthId } from "./linking.js";
-import { namespaceFor } from "./namespaces.js";
 import { createInvalidCredentialsError, rethrowPossibleAuthError, validateAndGetUserFields, } from "./utils.js";
 import { ensurePasswordIsPresent, ensureValidPassword, ensureValidUsername, normalizeUsername, } from "./validation.js";
 /** The username & password method: `/auth/username/{login,signup}`. */
 export function usernameRoutes(ctx) {
     const { runtime, config } = ctx;
-    const identities = () => runtime.identityNamespaces(namespaceFor(runtime, "username"));
+    const identities = () => runtime.identities.username;
     return [
         {
             method: "POST",
@@ -34,7 +33,7 @@ export function usernameRoutes(ctx) {
                 // The sign-in goes through the credentials facet any handler gets;
                 // the app's login hooks fire inside it, and the credentials scheme
                 // decides what the client receives.
-                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "username"), subjectId: username }, { req, properties: getSignInProperties(fields) });
+                const { response } = await runtime.credentials.signIn({ namespace: "username", subjectId: username }, { req, properties: getSignInProperties(fields) });
                 sendAuthResponse(res, response);
             },
         },

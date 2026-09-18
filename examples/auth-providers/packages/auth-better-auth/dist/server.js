@@ -132,7 +132,7 @@ function withEagerProvisioning(runtime, databaseHooks) {
                     // local user exists from the Better Auth signup moment, not from
                     // the first login exchange. Idempotent; the exchange's just-in-time
                     // provisioning remains the backstop.
-                    await runtime.identities.provision(user.id, {
+                    await runtime.identities.default.provision(user.id, {
                         claims: { email: user.email, name: user.name },
                     });
                 },

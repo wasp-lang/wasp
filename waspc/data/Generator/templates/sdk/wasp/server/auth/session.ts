@@ -99,7 +99,7 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
   const isWaspCredential = principal.signedInBy !== undefined && principal.namespace === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.subjectId);
   const authId = isWaspCredential
     ? principal.subjectId
-    : await resolveSubject(scheme, principal.subjectId, principal.claims, undefined, principal.namespace ?? scheme);
+    : await resolveSubject(scheme, principal.subjectId, principal.claims, undefined, `${scheme}:${principal.namespace ?? 'default'}`);
   if (authId === null) {
     return null;
   }
@@ -159,8 +159,8 @@ async function resolveSubject(
     secrets?: Record<string, unknown>;
   },
   // The identity namespace to record under; a scheme that declared several
-  // multiplexes them, everyone else records under the scheme name. The runtime guards membership before we get here.
-  namespace: string = scheme,
+  // multiplexes them, everyone else records under `<scheme>:default`. The runtime guards membership before we get here.
+  namespace: string = `${scheme}:default`,
   req?: ExpressRequest,
 ): Promise<string | null> {
   const identities = getIdentityStore(namespace);

@@ -504,7 +504,7 @@ export function defineAuthSchemeManifest(
   return {
     ...manifest,
     kind: "scheme",
-    contractVersion: 4,
+    contractVersion: 5,
     capabilities: manifest.capabilities ?? [],
     __waspAuthSchemeManifest: true,
   };

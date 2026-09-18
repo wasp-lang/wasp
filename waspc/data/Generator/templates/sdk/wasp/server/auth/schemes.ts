@@ -66,7 +66,7 @@ type SchemeRuntimeSpec = {
   serverEnvVarNames: readonly string[]
   /** Runtime grants the manifest requested; only these facets get wired. */
   uses: readonly string[]
-  /** Identity namespaces the manifest declared (always includes the name). */
+  /** The scheme's identity namespaces, in full (`wasp:email`); `<scheme>:default` when the manifest declared none. */
   identityNamespaces: readonly string[]
 }
 
@@ -93,8 +93,8 @@ function isUniqueConstraintViolation(e: unknown): boolean {
  * is what makes acting on another scheme's user unrepresentable through the
  * granted facets.
  */
-function resolveOwnNamespace(spec: SchemeRuntimeSpec, namespace: string | undefined): string {
-  const resolved = namespace ?? spec.scheme
+function resolveOwnNamespace(spec: SchemeRuntimeSpec, namespaceSuffix: string | undefined): string {
+  const resolved = `${spec.scheme}:${namespaceSuffix ?? 'default'}`
   if (!spec.identityNamespaces.includes(resolved)) {
     throw contractError(
       'wasp-auth/undeclared-namespace',
@@ -360,7 +360,7 @@ const waspEmailFacet: WaspEmail = (() => {
 })()
 {=/ isEmailSenderEnabled =}
 
-function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<never, false> {
+function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<never, false, string> {
   return {
     scheme: spec.scheme,
     mountPath: `/auth/${spec.scheme}`,
@@ -379,7 +379,14 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
     clientUrl: config.frontendUrl,
     isDevelopment: config.isDevelopment,
     isAccountMergingEnabled: mergeUsersFn !== null,
-    identities: makeIdentitiesFacet(spec, spec.scheme),
+    // One store per declared namespace, keyed by suffix (`identities.email`).
+    // The keys are the boundary: an undeclared namespace has no member.
+    identities: Object.fromEntries(
+      spec.identityNamespaces.map((namespace) => [
+        namespace.slice(spec.scheme.length + 1),
+        makeIdentitiesFacet(spec, namespace),
+      ]),
+    ),
     ...(credentials !== null ? { credentials } : {}),
     // Granted facets: wired only when the manifest requested them, so an
     // undeclared access fails loudly at first use rather than working by
@@ -387,10 +394,6 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
     {=# isEmailSenderEnabled =}
     ...(spec.uses.includes('email-send') ? { email: waspEmailFacet } : {}),
     {=/ isEmailSenderEnabled =}
-    // Always present: the manifest's declared namespace list is the boundary,
-    // and `resolveOwnNamespace` rejects anything outside it.
-    identityNamespaces: (namespace: string) =>
-      makeIdentitiesFacet(spec, resolveOwnNamespace(spec, namespace)),
   }
 }
 

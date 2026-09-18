@@ -60,7 +60,7 @@ export const createPasswordAuthHandler: ServerAuthHandlerFactory<
         // One atomic write of User + Auth + AuthIdentity, with the app's
         // signup hooks fired around it. The hash goes into `secrets`, the
         // column the Prisma client omits by default.
-        await runtime.identities.create(
+        await runtime.identities.default.create(
           normalizedEmail,
           {
             claims: { email: normalizedEmail },
@@ -87,7 +87,8 @@ export const createPasswordAuthHandler: ServerAuthHandlerFactory<
         return send(401, { message: "Invalid credentials" });
       }
       const normalizedEmail = normalizeEmail(email);
-      const secrets = await runtime.identities.getSecrets(normalizedEmail);
+      const secrets =
+        await runtime.identities.default.getSecrets(normalizedEmail);
       const passwordMatches =
         typeof secrets?.hashedPassword === "string" &&
         (await verify(secrets.hashedPassword, password).catch(() => false));

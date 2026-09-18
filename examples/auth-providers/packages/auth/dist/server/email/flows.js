@@ -1,7 +1,6 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { HttpError, getBody, getSignInProperties, json, sendAuthResponse, } from "../http.js";
 import { offerMergeOrRethrow, requireCurrentAuthId } from "../linking.js";
-import { namespaceFor } from "../namespaces.js";
 import { createInvalidCredentialsError, doFakeWork, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, normalizeEmail, } from "../validation.js";
 import { isEmailResendAllowed, makeEmailHelpers } from "./utils.js";
@@ -25,7 +24,7 @@ const defaultPasswordResetEmailContent = ({ passwordResetLink, }) => ({
 export function emailRoutes(ctx) {
     const { runtime, config } = ctx;
     const emailConfig = config.methods.email;
-    const identities = () => runtime.identityNamespaces(namespaceFor(runtime, "email"));
+    const identities = () => runtime.identities.email;
     const { validateJWT } = makeJwt(runtime);
     const helpers = makeEmailHelpers(runtime);
     const getVerificationEmailContent = emailConfig.getVerificationEmailContent ?? defaultVerificationEmailContent;
@@ -174,7 +173,7 @@ export function emailRoutes(ctx) {
                 catch {
                     throw createInvalidCredentialsError();
                 }
-                const { response } = await runtime.credentials.signIn({ namespace: namespaceFor(runtime, "email"), subjectId: email }, { req, properties: getSignInProperties(fields) });
+                const { response } = await runtime.credentials.signIn({ namespace: "email", subjectId: email }, { req, properties: getSignInProperties(fields) });
                 sendAuthResponse(res, response);
             },
         },
@@ -262,7 +261,7 @@ export function emailRoutes(ctx) {
                 // Changing the password invalidates every existing credential, so
                 // that somebody who got hold of one can't keep using it.
                 await runtime.credentials.signOutEverywhere({
-                    namespace: namespaceFor(runtime, "email"),
+                    namespace: "email",
                     subjectId: email,
                 });
                 json(res, 200, { success: true });

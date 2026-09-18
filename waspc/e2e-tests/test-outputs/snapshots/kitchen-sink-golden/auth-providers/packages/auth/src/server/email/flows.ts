@@ -9,7 +9,6 @@ import {
   type Route,
 } from "../http.js";
 import { offerMergeOrRethrow, requireCurrentAuthId } from "../linking.js";
-import { namespaceFor } from "../namespaces.js";
 import type {
   Ctx,
   GetPasswordResetEmailContentFn,
@@ -58,7 +57,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
   const { runtime, config } = ctx;
   const emailConfig = config.methods.email!;
   const identities = () =>
-    runtime.identityNamespaces(namespaceFor(runtime, "email"));
+    runtime.identities.email;
   const { validateJWT } = makeJwt(runtime);
   const helpers = makeEmailHelpers(runtime);
   const getVerificationEmailContent =
@@ -248,7 +247,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
         }
 
         const { response } = await runtime.credentials.signIn(
-          { namespace: namespaceFor(runtime, "email"), subjectId: email },
+          { namespace: "email", subjectId: email },
           { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);
@@ -353,7 +352,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
         // Changing the password invalidates every existing credential, so
         // that somebody who got hold of one can't keep using it.
         await runtime.credentials.signOutEverywhere({
-          namespace: namespaceFor(runtime, "email"),
+          namespace: "email",
           subjectId: email,
         });
         json(res, 200, { success: true });

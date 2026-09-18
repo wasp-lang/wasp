@@ -8,7 +8,6 @@ import {
   type Route,
 } from "./http.js";
 import { offerMergeOrRethrow, requireCurrentAuthId } from "./linking.js";
-import { namespaceFor } from "./namespaces.js";
 import type { Ctx } from "./types.js";
 import {
   createInvalidCredentialsError,
@@ -26,7 +25,7 @@ import {
 export function usernameRoutes(ctx: Ctx): Route[] {
   const { runtime, config } = ctx;
   const identities = () =>
-    runtime.identityNamespaces(namespaceFor(runtime, "username"));
+    runtime.identities.username;
 
   return [
     {
@@ -59,7 +58,7 @@ export function usernameRoutes(ctx: Ctx): Route[] {
         // the app's login hooks fire inside it, and the credentials scheme
         // decides what the client receives.
         const { response } = await runtime.credentials.signIn(
-          { namespace: namespaceFor(runtime, "username"), subjectId: username },
+          { namespace: "username", subjectId: username },
           { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);

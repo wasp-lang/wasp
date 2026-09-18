@@ -6,7 +6,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
  * sibling scheme it signs into). `email-send` is requested only when the
  * email method is on, so `runtime.email` stays optional in the type.
  */
-export type WaspAuthRuntime = WaspServerRuntime<never, true>;
+export type WaspAuthRuntime = WaspServerRuntime<never, true, MethodProviderName>;
 /** The wire-level answer of a sign-in, replayed by the one-time code. */
 export type SignInResponse = AuthResponse;
 export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "keycloak" | "microsoft";

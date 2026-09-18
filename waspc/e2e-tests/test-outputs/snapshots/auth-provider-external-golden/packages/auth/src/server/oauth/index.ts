@@ -18,7 +18,6 @@ import {
   rethrowLinkError,
   type LinkTicket,
 } from "../linking.js";
-import { namespaceFor } from "../namespaces.js";
 import type {
   Ctx,
   OAuthData,
@@ -185,9 +184,7 @@ async function callbackHandler(
       tokens,
     };
 
-    const identities = runtime.identityNamespaces(
-      namespaceFor(runtime, provider.id),
-    );
+    const identities = runtime.identities[provider.id];
 
     // Account linking: the flow was started by a signed-in user, so the
     // provider's identity is attached to THAT account. No credential is
@@ -263,7 +260,7 @@ async function callbackHandler(
     // the client: a bearer token in the body, or a Set-Cookie header.
     const { response } = await runtime.credentials.signIn(
       {
-        namespace: namespaceFor(runtime, provider.id),
+        namespace: provider.id,
         subjectId: providerUserId,
       },
       { req, hookContext: oauth, skipHooks: isNewUser },

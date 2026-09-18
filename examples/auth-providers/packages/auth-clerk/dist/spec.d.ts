@@ -29,7 +29,7 @@ export type EnvVarRequirement = {
 export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 4;
+    contractVersion: 5;
     server: {
         authHandlerFactory: {
             package: string;

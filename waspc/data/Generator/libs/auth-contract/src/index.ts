@@ -34,13 +34,14 @@ export type JsonValue =
  * A subject of the calling scheme: the handler's own stable id for the
  * authenticated party, in one of the scheme's declared identity namespaces.
  *
- * `namespace` defaults to the scheme name. The namespace-membership check is
+ * `namespace` is a declared SUFFIX (`email` for `<scheme>:email`) and defaults
+ * to `default`. The namespace-membership check is
  * what makes acting on another scheme's user unrepresentable through the
  * granted facets -- the identity store itself resolves any namespace string,
  * so the guard, not the lookup, carries that guarantee.
  */
 export type Subject = {
-  /** One of the scheme's declared identity namespaces. Default: the scheme name. */
+  /** Suffix of one of the scheme's declared identity namespaces (`email`). Default: `default`. */
   namespace?: string;
   /** The handler's stable id for the subject in that namespace. */
   subjectId: string;
@@ -357,13 +358,14 @@ export type GrantedFacets<G extends RuntimeGrantName> = "email-send" extends G
 export type WaspServerRuntime<
   G extends RuntimeGrantName = never,
   HasCredentials extends boolean = false,
-> = WaspServerRuntimeBase &
+  Namespaces extends string = "default",
+> = WaspServerRuntimeBase<Namespaces> &
   GrantedFacets<G> &
   (HasCredentials extends true
     ? { credentials: Credentials }
     : { credentials?: Credentials });
 
-type WaspServerRuntimeBase = {
+type WaspServerRuntimeBase<Namespaces extends string> = {
   /** The name of this scheme, as declared in the app's `auth.schemes`. */
   scheme: string;
 
@@ -413,9 +415,13 @@ type WaspServerRuntimeBase = {
   isAccountMergingEnabled: boolean;
 
   /**
-   * The identity store, pre-bound to this scheme's name: the sanctioned
-   * channel for everything identity-shaped, with the same powers Wasp's own
-   * auth flows use.
+   * One store per declared namespace, keyed by SUFFIX:
+   * `identities.email.find(...)`, `identities.google.create(...)`. A manifest
+   * that declares no `identityNamespaces` gets exactly one, self-assigned:
+   * `identities.default` (stored as `<scheme>:default`). There is no bare,
+   * unsuffixed store. The keys are the boundary: a namespace the manifest did
+   * not declare has no member here. Each store is the sanctioned channel for
+   * everything identity-shaped, with the same powers Wasp's own auth uses.
    *
    * - `provision` is the eager-provisioning channel: an in-process handler
    *   that observes its own signup moment (Better Auth can; a hosted provider
@@ -427,16 +433,7 @@ type WaspServerRuntimeBase = {
    *   default, so it cannot leak through app code. Secrets are stored as
    *   given; hashing is the handler's job.
    */
-  identities: ProviderIdentities;
-
-  /**
-   * The identity store for one of the scheme's declared namespaces
-   * (`<scheme>:email`). Always present, with no grant to request: the
-   * manifest's `identityNamespaces` list is the boundary, and a namespace
-   * that is not declared there is rejected with
-   * `wasp-auth/undeclared-namespace`.
-   */
-  identityNamespaces(namespace: string): ProviderIdentities;
+  identities: { readonly [Namespace in Namespaces]: ProviderIdentities };
 };
 
 /**
@@ -625,8 +622,9 @@ export type ServerAuthHandlerFactory<
   Config = unknown,
   Grants extends RuntimeGrantName = never,
   HasCredentials extends boolean = false,
+  Namespaces extends string = "default",
 > = (
-  runtime: WaspServerRuntime<Grants, HasCredentials>,
+  runtime: WaspServerRuntime<Grants, HasCredentials, Namespaces>,
   config: Config,
 ) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 

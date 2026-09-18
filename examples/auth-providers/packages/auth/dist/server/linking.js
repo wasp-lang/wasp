@@ -1,6 +1,6 @@
 import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
 import { HttpError, getBody, json } from "./http.js";
-import { namespaceFor } from "./namespaces.js";
+import { anyIdentities, identitiesOf } from "./namespaces.js";
 import { TimeSpan, makeJwt } from "./utils.js";
 const METHOD_NAMES = [
     "username",
@@ -105,11 +105,13 @@ export function linkingRoutes(ctx, hasOAuth) {
                     !METHOD_NAMES.includes(method)) {
                     throw new HttpError(400, "Expected a login method and its subject.");
                 }
+                // A method this scheme never declared has no store.
+                const methodIdentities = identitiesOf(runtime, method);
+                if (methodIdentities === undefined) {
+                    throw new HttpError(400, "This login method is not enabled.");
+                }
                 try {
-                    // The namespace guard rejects methods this scheme never declared.
-                    await runtime
-                        .identityNamespaces(namespaceFor(runtime, method))
-                        .unlink(subjectId, { authId });
+                    await methodIdentities.unlink(subjectId, { authId });
                 }
                 catch (e) {
                     rethrowLinkError(e);
@@ -138,7 +140,7 @@ export function linkingRoutes(ctx, hasOAuth) {
                 throw new HttpError(403, "This merge was started by another account.");
             }
             try {
-                await runtime.identities.merge({
+                await anyIdentities(runtime).merge({
                     fromAuthId: ticket.fromAuthId,
                     intoAuthId: ticket.intoAuthId,
                     req,

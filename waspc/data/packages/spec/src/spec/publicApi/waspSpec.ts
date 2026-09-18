@@ -448,7 +448,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 4;
+  contractVersion: 5;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */
@@ -469,11 +469,12 @@ export interface AuthSchemeManifest {
    */
   uses?: AuthRuntimeGrantName[];
   /**
-   * Extra identity namespaces the handler records identities under, as
+   * The identity namespaces the handler records identities under, as
    * suffixes: `["username", "email"]` becomes `<scheme>:username` and
-   * `<scheme>:email`. The scheme name itself is always a namespace. The handler
-   * reaches them through `runtime.identityNamespaces(namespace)`, and Wasp
-   * refuses any namespace that is not declared here.
+   * `<scheme>:email`. Omit it and the handler gets a single one, `default`
+   * (`<scheme>:default`); there is no bare, unsuffixed namespace. The handler
+   * reaches each through `runtime.identities.<suffix>`, and a namespace that
+   * is not declared here has no store.
    */
   identityNamespaces?: string[];
   /**

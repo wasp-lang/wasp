@@ -303,7 +303,7 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
       where
         knownRuntimeGrantNames = ["email-send"]
 
-    -- A scheme owns its name and anything under `name ++ ":"`; that shape is
+    -- A scheme owns anything under `name ++ ":"` (never the bare name); that shape is
     -- what makes cross-scheme identity collisions impossible by construction.
     -- Declaring the namespaces is all it takes: the list itself is the
     -- boundary the runtime enforces, so there is no separate grant for it.
@@ -314,7 +314,7 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
                 ++ scheme.name
                 ++ "' declares the identity namespace '"
                 ++ namespace
-                ++ "', which it does not own. A namespace must be the scheme name or '"
+                ++ "', which it does not own. A namespace must be '"
                 ++ scheme.name
                 ++ ":<suffix>' -- that rule is what makes cross-scheme identity collisions impossible."
           | namespace <- scheme.identityNamespaces,
@@ -327,10 +327,8 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
         ]
       where
         isOwnNamespace namespace =
-          namespace == scheme.name
-            || ( (scheme.name ++ ":") `isPrefixOf` namespace
-                   && length namespace > length scheme.name + 1
-               )
+          (scheme.name ++ ":") `isPrefixOf` namespace
+            && length namespace > length scheme.name + 1
 
     -- Belt and braces on top of the per-scheme ownership rule: even if the
     -- shape rule ever loosens, two schemes may never share a namespace,

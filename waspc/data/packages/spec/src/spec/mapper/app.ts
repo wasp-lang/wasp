@@ -199,11 +199,11 @@ function mapAuthScheme(
     );
   }
   const handler = describeAuthHandler(manifest);
-  if (manifest.contractVersion !== 4) {
+  if (manifest.contractVersion !== 5) {
     throw new WaspSpecUserError(
       `Auth scheme '${name}' (handler '${handler}') was built against auth contract version ${String(
         manifest.contractVersion,
-      )}, but this version of Wasp only supports version 4. Update Wasp, or use a handler version matching your Wasp version.`,
+      )}, but this version of Wasp only supports version 5. Update Wasp, or use a handler version matching your Wasp version.`,
     );
   }
 
@@ -275,10 +275,11 @@ function mapAuthScheme(
     },
     capabilities: manifest.capabilities,
     uses,
-    identityNamespaces: [
-      name,
-      ...namespaceSuffixes.map((suffix) => `${name}:${suffix}`),
-    ],
+    // No bare namespace: a manifest that names none gets `default`.
+    identityNamespaces: (namespaceSuffixes.length > 0
+      ? namespaceSuffixes
+      : ["default"]
+    ).map((suffix) => `${name}:${suffix}`),
     credentials:
       manifest.credentials && mapCredentials(manifest.credentials, ctx),
     userFieldsFromClaims:

@@ -101,7 +101,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 4;
+    contractVersion: 5;
     server: {
         authHandlerFactory: {
             package: string;

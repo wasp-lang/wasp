@@ -1,3 +1,4 @@
+import type { MethodProviderName } from "./types.js";
 import type {
   AuthHandler,
   ServerAuthHandlerFactory,
@@ -37,7 +38,8 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
 export const createServerAuthHandler: ServerAuthHandlerFactory<
   WaspAuthServerConfig,
   never,
-  true
+  true,
+  MethodProviderName
 > = (runtime, config): ServerAuthHandlerParts => {
   const ctx: Ctx = { runtime, config };
 

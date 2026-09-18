@@ -4,7 +4,6 @@ import { generateCodeVerifier, generateState } from "arctic";
 import { findAuthWithUser } from "../email/flows.js";
 import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendAuthResponse, } from "../http.js";
 import { createMergeTicket, requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
-import { namespaceFor } from "../namespaces.js";
 import { TimeSpan, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { makeOAuthProvider, } from "./providers.js";
 export const OAUTH_PROVIDER_NAMES = [
@@ -105,7 +104,7 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
             providerName: provider.id,
             tokens,
         };
-        const identities = runtime.identityNamespaces(namespaceFor(runtime, provider.id));
+        const identities = runtime.identities[provider.id];
         // Account linking: the flow was started by a signed-in user, so the
         // provider's identity is attached to THAT account. No credential is
         // issued; the user keeps the one they have.
@@ -158,7 +157,7 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
         // credentials scheme's answer, and redeeming it replays that answer to
         // the client: a bearer token in the body, or a Set-Cookie header.
         const { response } = await runtime.credentials.signIn({
-            namespace: namespaceFor(runtime, provider.id),
+            namespace: provider.id,
             subjectId: providerUserId,
         }, { req, hookContext: oauth, skipHooks: isNewUser });
         const oneTimeCode = await jwt.createJWT({ response }, { expiresIn: new TimeSpan(1, "m") });

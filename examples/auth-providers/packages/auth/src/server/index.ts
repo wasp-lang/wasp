@@ -3,6 +3,7 @@ import type {
   ServerAuthHandlerFactory,
   ServerAuthHandlerParts,
 } from "@wasp.sh/auth-contract";
+import type { MethodProviderName } from "./types.js";
 
 import { emailRoutes } from "./email/flows.js";
 import {
@@ -37,7 +38,8 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
 export const createServerAuthHandler: ServerAuthHandlerFactory<
   WaspAuthServerConfig,
   never,
-  true
+  true,
+  MethodProviderName
 > = (runtime, config): ServerAuthHandlerParts => {
   const ctx: Ctx = { runtime, config };
 

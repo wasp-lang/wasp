@@ -797,10 +797,10 @@ describe("mapAuth", () => {
       },
       capabilities: manifest.capabilities,
       uses: manifest.uses ?? [],
-      identityNamespaces: [
-        name,
-        ...(manifest.identityNamespaces ?? []).map((s) => `${name}:${s}`),
-      ],
+      identityNamespaces: (manifest.identityNamespaces?.length
+        ? manifest.identityNamespaces
+        : ["default"]
+      ).map((s) => `${name}:${s}`),
       credentials:
         credentials === undefined
           ? undefined
