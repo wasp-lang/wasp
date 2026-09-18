@@ -1,6 +1,6 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { getBody, getSignInProperties, json, sendAuthResponse, } from "./http.js";
-import { requireCurrentAuthId, rethrowLinkError } from "./linking.js";
+import { offerMergeOrRethrow, requireCurrentAuthId } from "./linking.js";
 import { namespaceFor } from "./namespaces.js";
 import { createInvalidCredentialsError, rethrowPossibleAuthError, validateAndGetUserFields, } from "./utils.js";
 import { ensurePasswordIsPresent, ensureValidPassword, ensureValidUsername, normalizeUsername, } from "./validation.js";
@@ -48,17 +48,29 @@ export function usernameRoutes(ctx) {
                 ensureValidUsername(fields);
                 ensurePasswordIsPresent(fields);
                 ensureValidPassword(fields);
+                const username = normalizeUsername(fields.username);
                 try {
                     // `link`, not `create`: no new user, no userSignupFields; the
                     // app's link hooks fire inside.
-                    await identities().link(normalizeUsername(fields.username), {
+                    await identities().link(username, {
                         secrets: {
                             hashedPassword: await hashPassword(fields.password),
                         },
                     }, { authId, req });
                 }
                 catch (e) {
-                    rethrowLinkError(e);
+                    // The username is taken. Knowing its password is the proof that
+                    // the other account is the caller's own, and so may be merged.
+                    await offerMergeOrRethrow(ctx, e, {
+                        intoAuthId: authId,
+                        findFromAuthId: async () => (await identities().find(username))?.authId ?? null,
+                        proveControl: async () => {
+                            const secrets = await identities().getSecrets(username);
+                            if (typeof secrets?.hashedPassword !== "string")
+                                return false;
+                            return verifyPassword(secrets.hashedPassword, fields.password).then(() => true, () => false);
+                        },
+                    });
                 }
                 json(res, 200, { success: true });
             },

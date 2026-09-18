@@ -657,6 +657,8 @@ describe("mapAuth", () => {
         expectedScheme(name, manifest),
       ),
       defaultScheme: (auth.default ?? names[0]) as string,
+      mergeUsers:
+        auth.mergeUsers && mapRefObjectForMockProjectDir(auth.mergeUsers),
       hooks: auth.hooks && {
         onBeforeSignup:
           auth.hooks.onBeforeSignup &&

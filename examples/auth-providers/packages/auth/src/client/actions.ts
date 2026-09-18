@@ -1,4 +1,4 @@
-import { post, postAsUser } from "./http.js";
+import { WaspAuthClientError, post, postAsUser } from "./http.js";
 import { getClientOptions, getClientRuntime } from "./runtime.js";
 import type { OAuthProviderName } from "./types.js";
 
@@ -112,14 +112,45 @@ export function isMethodEnabled(
 
 type LinkedIdentity = { providerName: string; providerUserId: string };
 
+/**
+ * `merge-required`: the login belongs to another account, and you just
+ * proved it is yours. Ask the user, then pass the ticket to
+ * {@link confirmMerge}. Only apps that declare `auth.mergeUsers` ever see it.
+ */
+export type LinkResult =
+  | { status: "linked" }
+  | { status: "merge-required"; mergeTicket: string };
+
+async function linkThrough(path: string, data: unknown): Promise<LinkResult> {
+  try {
+    await postAsUser(`${basePath()}${path}`, data);
+  } catch (e) {
+    const mergeTicket = getMergeTicket(e);
+    if (mergeTicket === null) throw e;
+    return { status: "merge-required", mergeTicket };
+  }
+  await getClientRuntime().refreshUser();
+  return { status: "linked" };
+}
+
+// The server answers 409 with `{ message, data: { reason, mergeTicket } }`.
+function getMergeTicket(e: unknown): string | null {
+  if (!(e instanceof WaspAuthClientError)) return null;
+  const details = (e.data as { data?: Record<string, unknown> } | undefined)
+    ?.data;
+  return details?.reason === "merge-required" &&
+    typeof details.mergeTicket === "string"
+    ? details.mergeTicket
+    : null;
+}
+
 // PUBLIC API
 /** Adds a username and password to the signed-in user's account. */
-export async function linkUsername(data: {
+export function linkUsername(data: {
   username: string;
   password: string;
-}): Promise<void> {
-  await postAsUser(`${basePath()}/username/link`, data);
-  await getClientRuntime().refreshUser();
+}): Promise<LinkResult> {
+  return linkThrough("/username/link", data);
 }
 
 // PUBLIC API
@@ -127,11 +158,21 @@ export async function linkUsername(data: {
  * Adds an email and password to the signed-in user's account. The address
  * must be verified through the emailed link before it can be used to log in.
  */
-export async function linkEmail(data: {
+export function linkEmail(data: {
   email: string;
   password: string;
-}): Promise<void> {
-  await postAsUser(`${basePath()}/email/link`, data);
+}): Promise<LinkResult> {
+  return linkThrough("/email/link", data);
+}
+
+// PUBLIC API
+/**
+ * The second step of a merge, after the user agreed: the other account's
+ * data and logins move into the signed-in one, and the other account is
+ * deleted. Not reversible.
+ */
+export async function confirmMerge(mergeTicket: string): Promise<void> {
+  await postAsUser(`${basePath()}/merge`, { mergeTicket });
   await getClientRuntime().refreshUser();
 }
 

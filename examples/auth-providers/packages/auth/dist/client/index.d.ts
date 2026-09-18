@@ -6,7 +6,8 @@ import type { WaspAuthClientOptions } from "./types.js";
  * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
 export declare const createClientAdapter: ClientAdapterFactory<WaspAuthClientOptions>;
-export { linkEmail, linkUsername, login, requestPasswordReset, resetPassword, signup, startOAuthLink, unlink, verifyEmail, } from "./actions.js";
+export { confirmMerge, linkEmail, linkUsername, login, requestPasswordReset, resetPassword, signup, startOAuthLink, unlink, verifyEmail, } from "./actions.js";
+export type { LinkResult } from "./actions.js";
 export { ForgotPasswordForm, LoginForm, ResetPasswordForm, SignupForm, VerifyEmailForm, } from "./forms/index.js";
 export { FormError, FormInput, FormItemGroup, FormLabel, FormTextarea, SubmitButton, } from "./forms/internal/Form.js";
 export type { CustomizationOptions } from "./forms/types.js";

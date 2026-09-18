@@ -1,5 +1,6 @@
 import { prisma } from '../index.js'
 import type {
+  MergeUsersFn,
   OnAfterLinkHook,
   OnBeforeLinkHook,
   OnAfterLoginHook,
@@ -71,3 +72,6 @@ export const onAfterLoginHook: InternalFunctionForHook<OnAfterLoginHook> = (para
 export const onBeforeLinkHook: InternalFunctionForHook<OnBeforeLinkHook> = async (_params) => {}
 
 export const onAfterLinkHook: InternalFunctionForHook<OnAfterLinkHook> = async (_params) => {}
+
+// The app's `auth.mergeUsers`, or null when account merging is off.
+export const mergeUsersFn: MergeUsersFn | null = null

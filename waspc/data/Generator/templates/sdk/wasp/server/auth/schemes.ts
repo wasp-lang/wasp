@@ -8,6 +8,7 @@ import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
   onAfterLoginHook,
+  mergeUsersFn,
   onAfterLinkHook,
   onBeforeLinkHook,
   onAfterSignupHook,
@@ -196,6 +197,33 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Provid
         throw contractError('wasp-auth/last-identity', "An account's only identity cannot be unlinked.")
       }
     },
+    merge: async ({ fromAuthId, intoAuthId, req }) => {
+      if (mergeUsersFn === null) {
+        throw contractError('wasp-auth/merging-disabled', 'The app declares no auth.mergeUsers, so accounts cannot be merged.')
+      }
+      const mergeUsers = mergeUsersFn
+      if (fromAuthId === intoAuthId) {
+        return
+      }
+      // The scheme must hold an identity on BOTH accounts: it proved control
+      // of each through its own logins, and cannot reach anyone else's users.
+      await assertSchemeOwnsAccount(spec, fromAuthId)
+      await assertSchemeOwnsAccount(spec, intoAuthId)
+      await prisma.$transaction(async (tx) => {
+        const from = await tx.{= authEntityLower =}.findUnique({ where: { id: fromAuthId }, include: { {= userFieldOnAuthEntityName =}: true } })
+        const into = await tx.{= authEntityLower =}.findUnique({ where: { id: intoAuthId }, include: { {= userFieldOnAuthEntityName =}: true } })
+        if (from?.{= userFieldOnAuthEntityName =} == null || into?.{= userFieldOnAuthEntityName =} == null) {
+          throw contractError('wasp-auth/identity-not-found', 'One of the accounts to merge does not exist.')
+        }
+        // The app goes first, while both rows still exist, so it can
+        // re-point whatever `from` owns.
+        await mergeUsers({ from: from.{= userFieldOnAuthEntityName =}, into: into.{= userFieldOnAuthEntityName =}, prisma: tx, req: req as any })
+        await tx.{= authIdentityEntityLower =}.updateMany({ where: { authId: fromAuthId }, data: { authId: intoAuthId } })
+        // Cascades to the old Auth entity and its credentials. A relation
+        // the app forgot to re-point fails here and rolls everything back.
+        await tx.{= userEntityLower =}.delete({ where: { id: from.{= userFieldOnAuthEntityName =}.id } })
+      })
+    },
     updateData: (subjectId, updates) => store.updateData(subjectId, updates),
     getSecrets: (subjectId) => store.getSecrets(subjectId) as any,
     setSecrets: (subjectId, secrets) => store.setSecrets(subjectId, secrets),
@@ -352,6 +380,7 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
     serverUrl: config.serverUrl,
     clientUrl: config.frontendUrl,
     isDevelopment: config.isDevelopment,
+    isAccountMergingEnabled: mergeUsersFn !== null,
     identities: makeIdentitiesFacet(spec, spec.scheme),
     ...(credentials !== null ? { credentials } : {}),
     // Granted facets: wired only when the manifest requested them, so an

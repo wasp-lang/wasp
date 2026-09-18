@@ -4,6 +4,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { ConnectedAccountsPage } from "./src/auth/ConnectedAccountsPage" with { type: "ref" };
 import { onBeforeLink } from "./src/auth/hooks" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
+import { mergeUsers } from "./src/auth/mergeUsers" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 
 export default app({
@@ -29,6 +30,9 @@ export default app({
     // App-level, like the login and signup hooks: linking is about the user,
     // not about one handler.
     hooks: { onBeforeLink },
+    // Turns account merging on. Without it, a login that belongs to another
+    // account simply cannot be linked.
+    mergeUsers,
   },
 
   spec: [

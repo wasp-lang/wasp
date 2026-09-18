@@ -73,7 +73,11 @@ export function waspAuth(config) {
     const { methods } = config;
     const enabledOAuth = Object.keys(oauthProviders).filter((name) => methods[name] !== undefined);
     const usesEmail = methods.email !== undefined;
-    const needsJwt = usesEmail || enabledOAuth.length > 0;
+    // Email and OAuth tokens need it, and so does the account-merging ticket,
+    // which any method can issue. Whether the app turns merging on
+    // (`auth.mergeUsers`) is not visible from here, so it is always declared;
+    // the dev default keeps development working without setting it.
+    const needsJwt = true;
     if (methods.usernameAndPassword === undefined &&
         !usesEmail &&
         enabledOAuth.length === 0) {

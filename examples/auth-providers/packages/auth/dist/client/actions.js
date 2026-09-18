@@ -1,4 +1,4 @@
-import { post, postAsUser } from "./http.js";
+import { WaspAuthClientError, post, postAsUser } from "./http.js";
 import { getClientOptions, getClientRuntime } from "./runtime.js";
 /** The server path prefix the routes live under. */
 function basePath() {
@@ -58,19 +58,51 @@ export function signInUrl(provider) {
 export function isMethodEnabled(name) {
     return getClientOptions().methods[name] !== undefined;
 }
+async function linkThrough(path, data) {
+    try {
+        await postAsUser(`${basePath()}${path}`, data);
+    }
+    catch (e) {
+        const mergeTicket = getMergeTicket(e);
+        if (mergeTicket === null)
+            throw e;
+        return { status: "merge-required", mergeTicket };
+    }
+    await getClientRuntime().refreshUser();
+    return { status: "linked" };
+}
+// The server answers 409 with `{ message, data: { reason, mergeTicket } }`.
+function getMergeTicket(e) {
+    if (!(e instanceof WaspAuthClientError))
+        return null;
+    const details = e.data
+        ?.data;
+    return details?.reason === "merge-required" &&
+        typeof details.mergeTicket === "string"
+        ? details.mergeTicket
+        : null;
+}
 // PUBLIC API
 /** Adds a username and password to the signed-in user's account. */
-export async function linkUsername(data) {
-    await postAsUser(`${basePath()}/username/link`, data);
-    await getClientRuntime().refreshUser();
+export function linkUsername(data) {
+    return linkThrough("/username/link", data);
 }
 // PUBLIC API
 /**
  * Adds an email and password to the signed-in user's account. The address
  * must be verified through the emailed link before it can be used to log in.
  */
-export async function linkEmail(data) {
-    await postAsUser(`${basePath()}/email/link`, data);
+export function linkEmail(data) {
+    return linkThrough("/email/link", data);
+}
+// PUBLIC API
+/**
+ * The second step of a merge, after the user agreed: the other account's
+ * data and logins move into the signed-in one, and the other account is
+ * deleted. Not reversible.
+ */
+export async function confirmMerge(mergeTicket) {
+    await postAsUser(`${basePath()}/merge`, { mergeTicket });
     await getClientRuntime().refreshUser();
 }
 // PUBLIC API

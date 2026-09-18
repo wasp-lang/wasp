@@ -46,11 +46,22 @@ type LinkedIdentity = {
     providerName: string;
     providerUserId: string;
 };
+/**
+ * `merge-required`: the login belongs to another account, and you just
+ * proved it is yours. Ask the user, then pass the ticket to
+ * {@link confirmMerge}. Only apps that declare `auth.mergeUsers` ever see it.
+ */
+export type LinkResult = {
+    status: "linked";
+} | {
+    status: "merge-required";
+    mergeTicket: string;
+};
 /** Adds a username and password to the signed-in user's account. */
 export declare function linkUsername(data: {
     username: string;
     password: string;
-}): Promise<void>;
+}): Promise<LinkResult>;
 /**
  * Adds an email and password to the signed-in user's account. The address
  * must be verified through the emailed link before it can be used to log in.
@@ -58,7 +69,13 @@ export declare function linkUsername(data: {
 export declare function linkEmail(data: {
     email: string;
     password: string;
-}): Promise<void>;
+}): Promise<LinkResult>;
+/**
+ * The second step of a merge, after the user agreed: the other account's
+ * data and logins move into the signed-in one, and the other account is
+ * deleted. Not reversible.
+ */
+export declare function confirmMerge(mergeTicket: string): Promise<void>;
 /**
  * Disconnects one of `user.identities` from the signed-in user's account.
  * Rejects (409) when it is the account's only login method.

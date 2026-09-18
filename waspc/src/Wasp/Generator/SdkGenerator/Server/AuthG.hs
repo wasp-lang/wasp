@@ -72,7 +72,8 @@ genHookDispatchTs auth =
           "onBeforeLoginHook" .= extImportToAliasedImportJson "onBeforeLoginHook_ext" (AS.Auth.onBeforeLogin auth),
           "onAfterLoginHook" .= extImportToAliasedImportJson "onAfterLoginHook_ext" (AS.Auth.onAfterLogin auth),
           "onBeforeLinkHook" .= extImportToAliasedImportJson "onBeforeLinkHook_ext" (AS.Auth.onBeforeLink auth),
-          "onAfterLinkHook" .= extImportToAliasedImportJson "onAfterLinkHook_ext" (AS.Auth.onAfterLink auth)
+          "onAfterLinkHook" .= extImportToAliasedImportJson "onAfterLinkHook_ext" (AS.Auth.onAfterLink auth),
+          "mergeUsersFn" .= extImportToAliasedImportJson "mergeUsersFn_ext" (AS.Auth.mergeUsers auth)
         ]
 
 genIdentityStoreTs :: AS.Auth.Auth -> Generator FileDraft
@@ -170,6 +171,9 @@ genSchemesTs spec auth =
         [ "dbProvider" .= prismaDbProviderName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
+          "authEntityLower" .= Util.toLowerFirst DbAuth.authEntityName,
+          "userFieldOnAuthEntityName" .= DbAuth.userFieldOnAuthEntityName,
+          "userEntityLower" .= Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth),
           "defaultScheme" .= AS.Auth.defaultScheme auth,
           -- Where a cookie-transport issuer sends a browser navigation that
           -- carries no credential.

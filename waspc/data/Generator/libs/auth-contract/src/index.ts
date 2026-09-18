@@ -303,6 +303,8 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-linked-elsewhere"
   /** `unlink` refused to remove an account's only identity. */
   | "wasp-auth/last-identity"
+  /** `merge` was called in an app that declares no `auth.mergeUsers`. */
+  | "wasp-auth/merging-disabled"
   /**
    * The app's onBeforeSignup/onBeforeLogin hook rejected the action by
    * throwing. The thrown error itself is what carries this code (Wasp tags
@@ -324,6 +326,7 @@ export function getAuthContractErrorCode(
     code === "wasp-auth/undeclared-namespace" ||
     code === "wasp-auth/identity-linked-elsewhere" ||
     code === "wasp-auth/last-identity" ||
+    code === "wasp-auth/merging-disabled" ||
     code === "wasp-auth/policy-veto"
     ? code
     : null;
@@ -404,6 +407,13 @@ type WaspServerRuntimeBase = {
    * the `secure` flag on any cookies the handler's routes set.
    */
   isDevelopment: boolean;
+
+  /**
+   * Whether the app declares `auth.mergeUsers`. A handler offers the merge
+   * step of its linking flow only when this is true; otherwise a login that
+   * belongs to another account simply cannot be linked.
+   */
+  isAccountMergingEnabled: boolean;
 
   /**
    * The identity store, pre-bound to this scheme's name: the sanctioned
@@ -530,6 +540,27 @@ export type ProviderIdentities = {
    * with `wasp-auth/last-identity` when it is the account's only way in.
    */
   unlink(subjectId: string, opts: { authId: string }): Promise<void>;
+
+  /**
+   * Account merging: make two accounts one. In a single transaction Wasp
+   * calls the app's `auth.mergeUsers` function (only the app knows how to
+   * combine its own data), moves every identity of `fromAuthId` onto
+   * `intoAuthId`, and deletes the `from` user -- which ends its credentials
+   * too. Anything throwing rolls the whole merge back.
+   *
+   * The handler must have PROVEN control of both accounts before calling
+   * this: the `into` account by its credential, the `from` account by a
+   * fresh login (a verified password, a completed OAuth flow). Wasp checks
+   * that both accounts carry an identity in the calling scheme's OWN
+   * namespaces. Rejects with `wasp-auth/merging-disabled` when the app
+   * declares no `auth.mergeUsers`.
+   */
+  merge(opts: {
+    fromAuthId: string;
+    intoAuthId: string;
+    /** The incoming request, surfaced to the app's merge function. */
+    req?: unknown;
+  }): Promise<void>;
 
   /** Merges the updates into the identity's non-secret data. */
   updateData(

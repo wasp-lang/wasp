@@ -1,8 +1,9 @@
+import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
 import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 import { findAuthWithUser } from "../email/flows.js";
 import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendAuthResponse, } from "../http.js";
-import { requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
+import { createMergeTicket, requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
 import { namespaceFor } from "../namespaces.js";
 import { TimeSpan, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { makeOAuthProvider, } from "./providers.js";
@@ -118,6 +119,21 @@ async function callbackHandler(ctx, provider, config, jwt, req, res) {
                 await identities.link(providerUserId, {}, { authId: linkToAuthId, req, hookContext: oauth });
             }
             catch (e) {
+                // The provider account belongs to another Wasp account. Completing
+                // the provider's flow just now is the proof that it is the caller's
+                // own, so with merging on, hand the client a ticket to confirm.
+                const existing = await identities.find(providerUserId);
+                if (getAuthContractErrorCode(e) ===
+                    "wasp-auth/identity-linked-elsewhere" &&
+                    runtime.isAccountMergingEnabled &&
+                    existing !== null) {
+                    const mergeTicket = await createMergeTicket(ctx, {
+                        fromAuthId: existing.authId,
+                        intoAuthId: linkToAuthId,
+                    });
+                    redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}?mergeTicket=${encodeURIComponent(mergeTicket)}`);
+                    return;
+                }
                 rethrowLinkError(e);
             }
             redirect(res, `${runtime.clientUrl}${options.clientOAuthCallbackPath}?linked=${provider.id}`);

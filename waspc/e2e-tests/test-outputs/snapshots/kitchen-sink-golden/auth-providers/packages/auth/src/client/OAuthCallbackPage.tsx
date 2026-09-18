@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate, useLocation } from "react-router";
 
-import { exchangeOAuthCodeForSession } from "./actions.js";
+import { confirmMerge, exchangeOAuthCodeForSession } from "./actions.js";
 import { Message, MessageError } from "./forms/internal/Message.js";
 import { useEffectOnce } from "./hooks.js";
 import { getClientOptions, getClientRuntime } from "./runtime.js";
@@ -20,6 +20,7 @@ export function OAuthCallbackPage({
   const [error, setError] = useState<string | null>(null);
   const [isDone, setIsDone] = useState(false);
   const [isLinked, setIsLinked] = useState(false);
+  const [mergeTicket, setMergeTicket] = useState<string | null>(null);
   const location = useLocation();
 
   useEffectOnce(() => {
@@ -28,6 +29,13 @@ export function OAuthCallbackPage({
       const errorFromRedirect = query.get("error");
       if (errorFromRedirect !== null) {
         setError(errorFromRedirect);
+        return;
+      }
+      // The provider account belongs to another account of this user: the
+      // merge needs their explicit yes, so nothing happens until they click.
+      const ticket = query.get("mergeTicket");
+      if (ticket !== null) {
+        setMergeTicket(ticket);
         return;
       }
       if (query.get("linked") !== null) {
@@ -45,6 +53,28 @@ export function OAuthCallbackPage({
     })();
   });
 
+  if (mergeTicket !== null && !isLinked) {
+    return (
+      <Message>
+        That account already belongs to another account here. Merge it into the
+        one you are signed in to? Its data moves here and it is deleted.{" "}
+        <button
+          onClick={async () => {
+            try {
+              await confirmMerge(mergeTicket);
+              setIsLinked(true);
+            } catch (e) {
+              console.error(e);
+              setMergeTicket(null);
+              setError("Merging the accounts failed.");
+            }
+          }}
+        >
+          Merge accounts
+        </button>
+      </Message>
+    );
+  }
   if (isLinked) {
     return (
       <Navigate

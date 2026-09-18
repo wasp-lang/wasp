@@ -108,6 +108,7 @@ getVirtualUserModules spec =
       maybeToList $ mkAuthHookModule "OnAfterLoginHook" <$> (maybeAuth >>= AS.Auth.onAfterLogin),
       maybeToList $ mkAuthHookModule "OnBeforeLinkHook" <$> (maybeAuth >>= AS.Auth.onBeforeLink),
       maybeToList $ mkAuthHookModule "OnAfterLinkHook" <$> (maybeAuth >>= AS.Auth.onAfterLink),
+      maybeToList $ mkAuthHookModule "MergeUsersFn" <$> (maybeAuth >>= AS.Auth.mergeUsers),
       mkAuthProviderExtensionModule <$> authProviderExtensions,
       mkCredentialStoreModule <$> authCredentialStores,
       map mkOperationModule (AS.getOperations spec)

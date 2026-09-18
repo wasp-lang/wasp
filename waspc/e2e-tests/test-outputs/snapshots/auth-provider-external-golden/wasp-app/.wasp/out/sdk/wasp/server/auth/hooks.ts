@@ -36,6 +36,24 @@ export type OnAfterLinkHook = (
   params: Expand<OnAfterLinkHookParams>,
 ) => void | Promise<void>
 
+// PUBLIC API
+/**
+ * Use this type for your `auth.mergeUsers` function. It runs inside the merge
+ * transaction, BEFORE Wasp moves the identities and deletes `from`: re-point
+ * everything `from` owns to `into`, and decide whose profile fields win.
+ * Use the given `prisma` (the transaction client) so your writes roll back
+ * with the merge. Throw to abort it.
+ */
+export type MergeUsersFn = (params: {
+  /** The user that is going away. */
+  from: FindAuthWithUserResult['user']
+  /** The surviving user: the one who is signed in. */
+  into: FindAuthWithUserResult['user']
+  /** The merge's transaction client. */
+  prisma: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+  req?: ExpressRequest
+}) => void | Promise<void>
+
 // PRIVATE API (used in the SDK and the server)
 export type InternalAuthHookParams = {
   /**

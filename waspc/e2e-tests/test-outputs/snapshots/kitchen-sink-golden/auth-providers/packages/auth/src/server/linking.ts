@@ -55,6 +55,8 @@ export function rethrowLinkError(e: unknown): never {
           reason: "linked-elsewhere",
         },
       );
+    case "wasp-auth/merging-disabled":
+      throw new HttpError(409, "This app does not support merging accounts.");
     case "wasp-auth/last-identity":
       throw new HttpError(
         409,
@@ -76,6 +78,67 @@ export function rethrowLinkError(e: unknown): never {
 }
 
 export type LinkTicket = { linkToAuthId: string };
+
+/** Names both accounts of a pending merge; only `intoAuthId` may redeem it. */
+export type MergeTicket = { fromAuthId: string; intoAuthId: string };
+
+const MERGE_TICKET_LIFETIME = new TimeSpan(10, "m");
+
+/**
+ * The link failed because the login belongs to another account. When the app
+ * turned merging on AND the caller has just proven control of that login,
+ * answer "merge required" with a signed ticket instead; the client confirms
+ * with the user and posts it to `/merge`.
+ *
+ * `proveControl` is what makes this safe: without it any signed-in user
+ * could absorb any account by naming its login. An unproven attempt falls
+ * through to the ordinary "linked elsewhere" answer, so this is no oracle
+ * for guessing another account's password.
+ */
+export async function offerMergeOrRethrow(
+  ctx: Ctx,
+  e: unknown,
+  attempt: {
+    intoAuthId: string;
+    /** The existing identity's account, or null when it cannot be found. */
+    findFromAuthId: () => Promise<string | null>;
+    proveControl: () => Promise<boolean>;
+  },
+): Promise<never> {
+  const { runtime } = ctx;
+  if (
+    getAuthContractErrorCode(e) === "wasp-auth/identity-linked-elsewhere" &&
+    runtime.isAccountMergingEnabled
+  ) {
+    const fromAuthId = await attempt.findFromAuthId();
+    if (fromAuthId !== null && (await attempt.proveControl())) {
+      throw mergeRequiredError(
+        await createMergeTicket(ctx, {
+          fromAuthId,
+          intoAuthId: attempt.intoAuthId,
+        }),
+      );
+    }
+  }
+  rethrowLinkError(e);
+}
+
+export function createMergeTicket(
+  { runtime }: Ctx,
+  ticket: MergeTicket,
+): Promise<string> {
+  return makeJwt(runtime).createJWT(ticket, {
+    expiresIn: MERGE_TICKET_LIFETIME,
+  });
+}
+
+function mergeRequiredError(mergeTicket: string): HttpError {
+  return new HttpError(
+    409,
+    "That login belongs to another account of yours. Merge the two?",
+    { reason: "merge-required", mergeTicket },
+  );
+}
 
 /**
  * Routes every method shares: `/unlink`, and `/link-intent` for the OAuth
@@ -110,6 +173,37 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       },
     },
   ];
+  routes.push({
+    // The second step of a merge: the signed-in user confirmed. Only the
+    // account the ticket was issued TO may redeem it.
+    method: "POST",
+    path: "/merge",
+    handler: async (req, res) => {
+      const authId = await requireCurrentAuthId(ctx, req);
+      const { mergeTicket } = getBody(req);
+      if (typeof mergeTicket !== "string") {
+        throw new HttpError(400, "Expected a merge ticket.");
+      }
+      const ticket = await makeJwt(runtime)
+        .validateJWT<MergeTicket>(mergeTicket)
+        .catch(() => {
+          throw new HttpError(400, "The merge request expired. Try again.");
+        });
+      if (ticket.intoAuthId !== authId) {
+        throw new HttpError(403, "This merge was started by another account.");
+      }
+      try {
+        await runtime.identities.merge({
+          fromAuthId: ticket.fromAuthId,
+          intoAuthId: ticket.intoAuthId,
+          req,
+        });
+      } catch (e) {
+        rethrowLinkError(e);
+      }
+      json(res, 200, { success: true });
+    },
+  });
   if (hasOAuth) {
     routes.push({
       method: "POST",

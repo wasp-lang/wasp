@@ -130,6 +130,7 @@ spec_AppSpecValid = do
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                 AS.Auth.onAuthFailedRedirectTo = "/",
                 AS.Auth.hooks = Nothing,
+                AS.Auth.mergeUsers = Nothing,
                 AS.Auth.schemes = [makeTestAuthScheme "wasp"],
                 AS.Auth.defaultScheme = "wasp"
               }
@@ -225,6 +226,7 @@ spec_AppSpecValid = do
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.hooks = Nothing,
+                                    AS.Auth.mergeUsers = Nothing,
                                     AS.Auth.schemes =
                                       [(makeTestAuthScheme "wasp") {AS.Auth.uses = ["email-send"]}],
                                     AS.Auth.defaultScheme = "wasp"
@@ -276,6 +278,7 @@ spec_AppSpecValid = do
                                   { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.hooks = Nothing,
+                                    AS.Auth.mergeUsers = Nothing,
                                     AS.Auth.schemes = [extProvider],
                                     AS.Auth.defaultScheme = AS.Auth.name extProvider
                                   }

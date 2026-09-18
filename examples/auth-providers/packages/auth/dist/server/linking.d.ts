@@ -12,6 +12,29 @@ export declare function rethrowLinkError(e: unknown): never;
 export type LinkTicket = {
     linkToAuthId: string;
 };
+/** Names both accounts of a pending merge; only `intoAuthId` may redeem it. */
+export type MergeTicket = {
+    fromAuthId: string;
+    intoAuthId: string;
+};
+/**
+ * The link failed because the login belongs to another account. When the app
+ * turned merging on AND the caller has just proven control of that login,
+ * answer "merge required" with a signed ticket instead; the client confirms
+ * with the user and posts it to `/merge`.
+ *
+ * `proveControl` is what makes this safe: without it any signed-in user
+ * could absorb any account by naming its login. An unproven attempt falls
+ * through to the ordinary "linked elsewhere" answer, so this is no oracle
+ * for guessing another account's password.
+ */
+export declare function offerMergeOrRethrow(ctx: Ctx, e: unknown, attempt: {
+    intoAuthId: string;
+    /** The existing identity's account, or null when it cannot be found. */
+    findFromAuthId: () => Promise<string | null>;
+    proveControl: () => Promise<boolean>;
+}): Promise<never>;
+export declare function createMergeTicket({ runtime }: Ctx, ticket: MergeTicket): Promise<string>;
 /**
  * Routes every method shares: `/unlink`, and `/link-intent` for the OAuth
  * methods. An OAuth link starts with a browser NAVIGATION, which cannot carry

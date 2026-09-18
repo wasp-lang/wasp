@@ -16,7 +16,7 @@ export const createClientAdapter = (runtime, options) => {
     return {};
 };
 // PUBLIC API -- the surface `wasp/client/auth` re-exports.
-export { linkEmail, linkUsername, login, requestPasswordReset, resetPassword, signup, startOAuthLink, unlink, verifyEmail, } from "./actions.js";
+export { confirmMerge, linkEmail, linkUsername, login, requestPasswordReset, resetPassword, signup, startOAuthLink, unlink, verifyEmail, } from "./actions.js";
 export { ForgotPasswordForm, LoginForm, ResetPasswordForm, SignupForm, VerifyEmailForm, } from "./forms/index.js";
 export { FormError, FormInput, FormItemGroup, FormLabel, FormTextarea, SubmitButton, } from "./forms/internal/Form.js";
 export { OAuthCallbackPage } from "./OAuthCallbackPage.js";

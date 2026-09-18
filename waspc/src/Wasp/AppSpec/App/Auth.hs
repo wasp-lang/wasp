@@ -58,7 +58,10 @@ data Auth = Auth
     -- provisioning, credential issuance) for EVERY scheme -- a handler can
     -- neither forget nor forge them. Method-specific hooks belong to the
     -- handler package that implements the method.
-    hooks :: Maybe AuthHooksSpec
+    hooks :: Maybe AuthHooksSpec,
+    -- | Turns account merging on: the app's function for combining two users'
+    -- data. App-level, because it concerns the user entity, not one handler.
+    mergeUsers :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 

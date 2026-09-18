@@ -178,6 +178,7 @@ export type Auth = {
   // Required when more than one scheme is declared; otherwise the one scheme.
   defaultScheme: string;
   hooks: Optional<AuthHooksSpec>;
+  mergeUsers: Optional<ExtImport>;
 };
 
 // App-level lifecycle hooks, fired at Wasp-owned choke points for every

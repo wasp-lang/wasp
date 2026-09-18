@@ -34,6 +34,7 @@ export type {
   OnBeforeLoginHook,
   OnAfterLoginHook,
   OnBeforeLinkHook,
+  MergeUsersFn,
   OnAfterLinkHook,
   InternalAuthHookParams,
 } from './hooks.js'

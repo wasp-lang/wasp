@@ -213,6 +213,18 @@ export interface Auth {
    * through its spec helper.
    */
   hooks?: AuthLifecycleHooks;
+  /**
+   * Turns account MERGING on. When a signed-in user proves control of a login
+   * that already belongs to another account, the two accounts can become
+   * one; only the app knows how to combine its own data, so it supplies this
+   * function. Wasp calls it inside the merge transaction, then moves the
+   * identities to the surviving account and deletes the other user.
+   *
+   * App-level rather than a handler option: it is about the user entity, not
+   * about one handler. Without it, a login that belongs to another account
+   * simply cannot be linked.
+   */
+  mergeUsers?: Reference<AnyFunction>;
 }
 
 /**

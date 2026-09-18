@@ -23,6 +23,7 @@ export const createClientAdapter: ClientAdapterFactory<
 
 // PUBLIC API -- the surface `wasp/client/auth` re-exports.
 export {
+  confirmMerge,
   linkEmail,
   linkUsername,
   login,
@@ -33,6 +34,7 @@ export {
   unlink,
   verifyEmail,
 } from "./actions.js";
+export type { LinkResult } from "./actions.js";
 export {
   ForgotPasswordForm,
   LoginForm,

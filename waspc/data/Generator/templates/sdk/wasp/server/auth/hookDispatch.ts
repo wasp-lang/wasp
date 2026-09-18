@@ -1,6 +1,7 @@
 {{={= =}=}}
 import { prisma } from '../index.js'
 import type {
+  MergeUsersFn,
   OnAfterLinkHook,
   OnBeforeLinkHook,
   OnAfterLoginHook,
@@ -26,6 +27,9 @@ import type {
 {=# onAfterLinkHook.isDefined =}
 {=& onAfterLinkHook.importStatement =}
 {=/ onAfterLinkHook.isDefined =}
+{=# mergeUsersFn.isDefined =}
+{=& mergeUsersFn.importStatement =}
+{=/ mergeUsersFn.isDefined =}
 
 /**
  * PRIVATE API. Dispatch for the app-level auth lifecycle hooks
@@ -118,3 +122,11 @@ export const onAfterLinkHook: InternalFunctionForHook<OnAfterLinkHook> = (params
 {=^ onAfterLinkHook.isDefined =}
 export const onAfterLinkHook: InternalFunctionForHook<OnAfterLinkHook> = async (_params) => {}
 {=/ onAfterLinkHook.isDefined =}
+
+// The app's `auth.mergeUsers`, or null when account merging is off.
+{=# mergeUsersFn.isDefined =}
+export const mergeUsersFn: MergeUsersFn | null = {= mergeUsersFn.importIdentifier =}
+{=/ mergeUsersFn.isDefined =}
+{=^ mergeUsersFn.isDefined =}
+export const mergeUsersFn: MergeUsersFn | null = null
+{=/ mergeUsersFn.isDefined =}

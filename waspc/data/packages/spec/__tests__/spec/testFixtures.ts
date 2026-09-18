@@ -441,6 +441,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
           onBeforeLink: getRefObject("full", "named"),
           onAfterLink: getRefObject("full", "named"),
         },
+        mergeUsers: getRefObject("full", "named"),
         // Not `satisfies FullConfig`: scheme manifests are opaque values
         // built by spec helpers, not config objects to be filled in fully.
       } as WaspSpec.Auth;

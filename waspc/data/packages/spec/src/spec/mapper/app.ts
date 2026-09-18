@@ -97,6 +97,7 @@ export function mapAuth(
     onAuthFailedRedirectTo,
     schemes: mappedSchemes,
     defaultScheme,
+    mergeUsers: auth.mergeUsers && ctx.parseRefObject(auth.mergeUsers),
     hooks: hooks && {
       onBeforeSignup:
         hooks.onBeforeSignup && ctx.parseRefObject(hooks.onBeforeSignup),

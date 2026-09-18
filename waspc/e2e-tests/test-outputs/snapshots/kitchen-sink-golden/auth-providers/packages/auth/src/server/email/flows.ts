@@ -8,7 +8,7 @@ import {
   sendAuthResponse,
   type Route,
 } from "../http.js";
-import { requireCurrentAuthId, rethrowLinkError } from "../linking.js";
+import { offerMergeOrRethrow, requireCurrentAuthId } from "../linking.js";
 import { namespaceFor } from "../namespaces.js";
 import type {
   Ctx,
@@ -189,7 +189,30 @@ export function emailRoutes(ctx: Ctx): Route[] {
             { authId, req },
           );
         } catch (e) {
-          rethrowLinkError(e);
+          // Proof needs the password AND a verified address: an unverified
+          // email identity may be a squatter's, not the caller's.
+          await offerMergeOrRethrow(ctx, e, {
+            intoAuthId: authId,
+            findFromAuthId: async () =>
+              (await identities().find(email))?.authId ?? null,
+            proveControl: async () => {
+              const existing = await identities().find(email);
+              const secrets = await identities().getSecrets(email);
+              if (
+                existing?.data.isEmailVerified !== true ||
+                typeof secrets?.hashedPassword !== "string"
+              ) {
+                return false;
+              }
+              return verifyPassword(
+                secrets.hashedPassword,
+                fields.password as string,
+              ).then(
+                () => true,
+                () => false,
+              );
+            },
+          });
         }
         if (!isEmailAutoVerified) {
           await sendVerificationEmail(email);

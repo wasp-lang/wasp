@@ -52,12 +52,18 @@ const waspDevServerEnvSchema = z.object({
   NODE_ENV: z.literal("development"),
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
+  "JWT_SECRET": z.string({
+    error: "JWT_SECRET is required by the 'wasp' auth scheme: Signs email and OAuth tokens. openssl rand -base64 32",
+  }).default("DEVJWTSECRET"),
 });
 
 const waspProdServerEnvSchema = z.object({
   NODE_ENV: z.literal("production"),
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
+  "JWT_SECRET": z.string({
+    error: "JWT_SECRET is required by the 'wasp' auth scheme: Signs email and OAuth tokens. openssl rand -base64 32",
+  }),
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [

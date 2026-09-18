@@ -1,3 +1,4 @@
+import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
 import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 
@@ -12,6 +13,7 @@ import {
   type Route,
 } from "../http.js";
 import {
+  createMergeTicket,
   requireCurrentAuthId,
   rethrowLinkError,
   type LinkTicket,
@@ -203,6 +205,26 @@ async function callbackHandler(
           { authId: linkToAuthId, req, hookContext: oauth },
         );
       } catch (e) {
+        // The provider account belongs to another Wasp account. Completing
+        // the provider's flow just now is the proof that it is the caller's
+        // own, so with merging on, hand the client a ticket to confirm.
+        const existing = await identities.find(providerUserId);
+        if (
+          getAuthContractErrorCode(e) ===
+            "wasp-auth/identity-linked-elsewhere" &&
+          runtime.isAccountMergingEnabled &&
+          existing !== null
+        ) {
+          const mergeTicket = await createMergeTicket(ctx, {
+            fromAuthId: existing.authId,
+            intoAuthId: linkToAuthId,
+          });
+          redirect(
+            res,
+            `${runtime.clientUrl}${options.clientOAuthCallbackPath}?mergeTicket=${encodeURIComponent(mergeTicket)}`,
+          );
+          return;
+        }
         rethrowLinkError(e);
       }
       redirect(

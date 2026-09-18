@@ -1,7 +1,7 @@
-import { jsx as _jsx } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
 import { Navigate, useLocation } from "react-router";
-import { exchangeOAuthCodeForSession } from "./actions.js";
+import { confirmMerge, exchangeOAuthCodeForSession } from "./actions.js";
 import { Message, MessageError } from "./forms/internal/Message.js";
 import { useEffectOnce } from "./hooks.js";
 import { getClientOptions, getClientRuntime } from "./runtime.js";
@@ -14,6 +14,7 @@ export function OAuthCallbackPage({ linkedRedirectTo, } = {}) {
     const [error, setError] = useState(null);
     const [isDone, setIsDone] = useState(false);
     const [isLinked, setIsLinked] = useState(false);
+    const [mergeTicket, setMergeTicket] = useState(null);
     const location = useLocation();
     useEffectOnce(() => {
         (async () => {
@@ -21,6 +22,13 @@ export function OAuthCallbackPage({ linkedRedirectTo, } = {}) {
             const errorFromRedirect = query.get("error");
             if (errorFromRedirect !== null) {
                 setError(errorFromRedirect);
+                return;
+            }
+            // The provider account belongs to another account of this user: the
+            // merge needs their explicit yes, so nothing happens until they click.
+            const ticket = query.get("mergeTicket");
+            if (ticket !== null) {
+                setMergeTicket(ticket);
                 return;
             }
             if (query.get("linked") !== null) {
@@ -38,6 +46,19 @@ export function OAuthCallbackPage({ linkedRedirectTo, } = {}) {
             }
         })();
     });
+    if (mergeTicket !== null && !isLinked) {
+        return (_jsxs(Message, { children: ["That account already belongs to another account here. Merge it into the one you are signed in to? Its data moves here and it is deleted.", " ", _jsx("button", { onClick: async () => {
+                        try {
+                            await confirmMerge(mergeTicket);
+                            setIsLinked(true);
+                        }
+                        catch (e) {
+                            console.error(e);
+                            setMergeTicket(null);
+                            setError("Merging the accounts failed.");
+                        }
+                    }, children: "Merge accounts" })] }));
+    }
     if (isLinked) {
         return (_jsx(Navigate, { to: linkedRedirectTo ?? getClientOptions().onAuthSucceededRedirectTo, replace: true }));
     }
