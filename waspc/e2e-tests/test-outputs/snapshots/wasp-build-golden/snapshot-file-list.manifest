@@ -429,6 +429,7 @@ wasp-app/.wasp/out/tsconfig.src.json
 wasp-app/.wasp/out/types/app/sdk/register.ts
 wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
 wasp-app/.wasp/out/web-app/build/200.html
+wasp-app/.wasp/out/web-app/build/assets/200.css
 wasp-app/.wasp/out/web-app/build/assets/200.js
 wasp-app/.wasp/out/web-app/build/assets/MainPage.css
 wasp-app/.wasp/out/web-app/build/assets/MainPage.js

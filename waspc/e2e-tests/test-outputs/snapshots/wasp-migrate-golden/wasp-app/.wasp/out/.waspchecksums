@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
         ],
-        "d1024cd53e826b432c9d9b896be5fd43391bbaeb7885c758220d524f679bd2f3"
+        "e492bd8c4d9dd6def122f604dd139e6a5e401fc2b5a441bd1e621d40eedc3118"
     ],
     [
         [
@@ -74,7 +74,7 @@
             "file",
             "sdk/wasp/client/app/components/Loader.tsx"
         ],
-        "ec7b82c4d29320fc7585bccf9af768f76e092d82eea272b11401980a351d232c"
+        "775adfb435b145cb5cf142d7e12be3a43b5894f925e4973407995ff121454db8"
     ],
     [
         [

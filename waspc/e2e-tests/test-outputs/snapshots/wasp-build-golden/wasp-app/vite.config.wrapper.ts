@@ -17,8 +17,7 @@ export default mergeConfig(originalConfig, {
   },
 });
 
-// Externalize JS dependencies that resolve to node_modules,
-// so the build output only contains app code, for cleaner diffs.
+// Externalize most JS dependencies to keep snapshot diffs small.
 function externalizeNodeModules(): Plugin {
   return {
     name: "externalize-node-modules",
@@ -30,6 +29,8 @@ function externalizeNodeModules(): Plugin {
         ...options,
         skipSelf: true,
       });
+      // Let Vite process core's injected CSS imports during SSR.
+      if (resolved?.id.includes("/node_modules/@wasp.sh/lib-sdk-core/")) return null;
       if (resolved && resolved.id.includes("/node_modules/") && !resolved.id.endsWith(".css")) {
         // We externalize the module
         return { id: source, external: true };

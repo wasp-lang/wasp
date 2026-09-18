@@ -16,14 +16,13 @@
       "types": "./dist/browser.d.mts",
       "default": "./dist/browser.mjs"
     },
-    "./browser.css": "./dist/style.css",
     "./node/vite": {
-      "types": "./dist/vite.d.ts",
-      "default": "./dist/vite.js"
+      "types": "./dist/vite.d.mts",
+      "default": "./dist/vite.mjs"
     },
     "./browser/test": {
-      "types": "./dist/test.d.ts",
-      "default": "./dist/test.js"
+      "types": "./dist/test.d.mts",
+      "default": "./dist/test.mjs"
     }
   },
   "files": [
