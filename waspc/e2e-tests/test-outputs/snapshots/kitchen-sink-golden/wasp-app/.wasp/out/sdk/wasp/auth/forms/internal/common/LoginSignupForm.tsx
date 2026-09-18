@@ -33,9 +33,9 @@ const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
 // PRIVATE API
-export type LoginSignupFormFields = {
-  [key: string]: string;
-}
+import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+export { type LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
+
 
 // PRIVATE API
 export const LoginSignupForm = ({

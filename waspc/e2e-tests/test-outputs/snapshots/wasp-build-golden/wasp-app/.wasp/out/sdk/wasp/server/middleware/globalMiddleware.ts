@@ -1,8 +1,1 @@
-import type { RequestHandler } from 'express'
-
-// PUBLIC API
-export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
-
-// PRIVATE API
-export type MiddlewareConfig = Map<string, RequestHandler>
-
+export { type MiddlewareConfig, type MiddlewareConfigFn } from '@wasp.sh/lib-sdk-core/node'

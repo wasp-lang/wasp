@@ -1,11 +1,11 @@
+import { PG_BOSS_EXECUTOR_NAME } from '@wasp.sh/lib-sdk-core/node'
+export { PG_BOSS_EXECUTOR_NAME } from '@wasp.sh/lib-sdk-core/node'
 import PgBoss from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
 import type { JSONValue, JSONObject } from '../../../../core/serialization/index.js'
 import type { PrismaDelegate } from '../../../_types/index.js'
 import type { JobFn } from './types.js'
-
-export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
 type JobSchedule = {
   cron: Parameters<PgBoss['schedule']>[1]

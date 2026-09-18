@@ -1,9 +1,1 @@
-export function stripTrailingSlash(url: string): string
-export function stripTrailingSlash(url: undefined): undefined
-export function stripTrailingSlash(url?: string): string | undefined {
-    return url?.replace(/\/$/, "");
-}
-
-export function getOrigin(url: string) {
-    return new URL(url).origin;
-}
+export { getOrigin, stripTrailingSlash } from '@wasp.sh/lib-sdk-core'
