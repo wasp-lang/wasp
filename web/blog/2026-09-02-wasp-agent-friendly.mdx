@@ -1,0 +1,183 @@
+---
+title: "Wasp Is Now Agent-Friendly"
+authors: [sodic]
+image: /img/wasp-agent-friendly/banner.png
+tags: [wasp, ai, agents, claude-code, fullstack]
+keywords:
+  [
+    "agent-friendly web framework",
+    "wasp ai agents",
+    "wasp claude code",
+    "ai coding agents full-stack framework",
+    "agentic web development",
+    "wasp agent workflow",
+    "full-stack framework for ai agents",
+    "wasp typescript spec agents",
+    "react node framework ai coding",
+    "llm friendly web framework",
+  ]
+description: "Wasp 0.26 makes it easy for agents to work on different tasks in your Wasp project at the same time using Git worktrees. You can now have your orchestrator run multiple worktrees and agents, each using wasp start and wasp start db without stepping on each other's toes."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+
+<ImgWithCaption
+    alt="Agents from Men in Black"
+    source="img/wasp-agent-friendly/banner.png"
+/>
+
+Wasp 0.26 improves support for agent orchestrators and Git worktrees:
+- Wasp now refuses to run two mutually exclusive commands at the same time.
+- `wasp start` and `wasp start db` now choose available ports dynamically.
+
+{/* truncate */}
+
+## Worktrees and orchestrators
+
+Before digging into the new features, let's do a quick intro on what agent orchestrators and Git worktrees even are and why they're important.
+If you know all about this, feel free to skip right to the [next section](#using-orchestrators-with-wasp).
+
+In case you're not up to speed or could use a refresher:
+- An **agent orchestrator** is a tool for coordinating agents. It helps you assign tasks to agents and keep track of their work, without juggling thirteen terminal windows and losing your mind. Examples of popular agent orchestrators are [Herdr](https://github.com/herdrdev/herdr), [Workmux](https://github.com/raine/workmux), and [Conductor](https://www.conductor.build/).
+- **[Git worktrees](https://git-scm.com/docs/git-worktree)** are a Git feature that lets you check out multiple branches of a Git project at the same time, each one in its own isolated directory.
+
+Orchestrators that use worktrees make for a perfect setup for a team of agents working on several features at the same time.
+Worktrees keep each agent in its own lane, and the orchestrator lets you easily oversee the entire operation.
+
+The typical workflow looks something like this:
+- The orchestrator gives each agent an isolated Git worktree. Inside it, the agent can edit code, run tools, test the feature, and do whatever else is necessary to get the job done.
+- The agents get to work, and you all do some back-and-forth. The orchestrator lets you know every time an agent needs your input, and you iterate until the feature is done.
+- When a feature is done, you review the diff in its worktree. If all is well, you use the orchestrator to merge it into `main` and delete the worktree.
+
+## Using orchestrators with Wasp
+
+Previous versions of Wasp had a few problems that made orchestrator workflows harder than they should have been.
+
+Wasp 0.26 finally solves these problems.
+Multiple agents can now work on a Wasp project without getting in each other's way, and without you having to do anything special.
+
+The rest of the article goes into the specific problems Wasp used to have and explains how the new version solves them.
+If you don't care about any of this and just want to get some work done, skip over to the ["How to use" section](#how-to-use-this).
+
+## What were the problems anyway?
+
+Wasp's intolerance of worktrees and orchestrators came down to:
+- Wasp commands interfering with each other inside a worktree.
+- Wasp apps in different worktrees fighting over the same ports.
+
+Let's explore both problems in more detail.
+
+### Wasp commands interfering with each other
+
+Wasp has a bunch of CLI commands (`wasp start`, `wasp build`, `wasp install`...).
+Some of those commands can't run at the same time.
+For example, `wasp build` and `wasp start` both watch the same source files and write to the same place, so running them simultaneously creates chaos.
+
+Humans usually don't do this, but the same does not apply to agents. For example:
+- Say an agent has a `wasp start` process running.
+- Then, in a different shell, it decides to call `wasp build`.
+
+Older versions of Wasp didn't handle this conflict well. `wasp build` would either silently break something in the background or fail with a cryptic error that sent the agent on a wild goose chase.
+
+Wasp 0.26 still has the same constraint, that only one of these commands can run at any given time, but it handles the situation more gracefully.
+The error now features a nice explanation together with the PID of the offending process:
+
+```
+$ wasp build
+❌ --- [Error] Wasp project is already in use: ------------------------------------
+
+Another Wasp command (PID 3011345) is already running for this project. Stop it before running this command.
+```
+
+The agent can immediately understand what's happening and decide what to do about it.
+
+### Wasp apps fighting for ports
+
+Git worktrees are like local clones of a Wasp project, and they're great for isolation.
+Setting up an agent to work in a worktree gives it:
+- Its own copy of the code.
+- Its own working directory for running commands.
+
+That might seem like everything you need to let agents independently work on different things.
+
+Well, not quite.
+
+To run a Wasp app in development mode, you must usually use **two `wasp` commands** to start **three separate processes**:
+- `wasp start db` starts a Postgres **database** in a Docker container, exposes a port on the host, and gives you a connection URL.
+- `wasp start` starts a Node backend **server** and a Vite-based **client**.
+
+Each worktree gets its own processes and its own database, and each process needs a port.
+Since the processes must know where to reach each other, Wasp must choose their ports before starting them.
+In previous versions, you could set most of the ports yourself, but you couldn't make Wasp pick an alternative if they were taken.
+
+When you were only working on a single thing, predetermined ports weren't a problem.
+The trouble began when you brought multiple agents into the picture, each with their own worktree.
+
+Because all three processes wanted to run on the same respective ports regardless of their worktree, no two agents could start their dev servers at the same time.
+Users got around this by having different port configurations depending on the worktree, but that was cumbersome and incomplete, as it didn't work for the database.
+
+With Wasp 0.26, this is no longer a problem. You can now have all the worktrees your heart desires, and run `wasp start` and `wasp start db` in each worktree with no interference.
+
+The solution seems simple enough - just get each process to dynamically choose an available port.
+The tricky part is communicating the chosen ports to the other processes in the group, like telling the server where exactly to find the database.
+
+There are quite a few ways to approach this and plenty of edge cases to consider. It's all interesting stuff, but out of scope for a feature announcement. You don't need to know how it works to use it!
+
+## How to use this?
+
+There's nothing special you need to do!
+
+Keep running `wasp start` and `wasp start db` as you've always done.
+Wasp automatically takes care of all the port machinery under the hood:
+
+```bash
+# Starts the client and the server on the first two free ports it finds.
+# It starts looking at 3000 and goes up.
+wasp start
+
+# Starts the dev database on the first free port it finds.
+# It starts looking at 5432 and goes up.
+wasp start db
+```
+
+That said, there are two things to keep in mind.
+
+First, your Wasp processes will no longer always run on the same ports (i.e., `3000` for the client, `3001` for the server, and `5432` for the dev database).
+They'll run on the first available ports starting from those, so pay attention to where Wasp tells you they're listening.
+
+Second, working in many worktrees means having many databases (remember, each worktree gets its own).
+Databases are not terribly useful without data, so we recommend you explore how to [seed them](/docs/data-model/databases#seeding-the-database).
+
+:::caution Breaking change
+Since Wasp now manages the ports and URLs in development, setting them yourself (e.g., `server.port` in `vite.config.ts` or `PORT` in `.env.server`) is an error.
+Check the [migration guide](/docs/migration-guide) for the full list of changes and how to update your project.
+:::
+
+### Bonus feature
+
+Wasp 0.26 allows you to specify the exact ports you want Wasp to use for your client and your server.
+These flags work for both `wasp start` and `wasp build start`:
+
+```bash
+wasp start --client-port 4000 --server-port 5000
+wasp build start --client-port 4000 --server-port 5000
+```
+
+If any of those ports is taken, Wasp will fail instead of looking for alternatives.
+It concludes that you care about your process running on those specific ports, so it's better to explicitly fail than silently start listening elsewhere.
+It's up to you to either free those ports up, specify different ports, or remove the port arguments.
+
+There's no such flag for the database. `wasp start db` always picks its port automatically.
+That will change soon, though. Stay tuned!
+
+## Try it out
+
+Parallel worktree support is live in Wasp 0.26. If you're not on it yet, update your Wasp CLI:
+
+```bash
+npm i -g @wasp.sh/wasp-cli
+```
+
+If you haven't set up worktrees for your Wasp project yet, the [Git worktree setup](/docs/wasp-ai/git-worktrees) guide walks you through it.
+
+We'd love to hear how it works for you - come chat with us on [Discord](https://discord.gg/rzdnErX)!
