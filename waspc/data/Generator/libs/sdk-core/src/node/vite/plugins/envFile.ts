@@ -1,0 +1,119 @@
+import { parse as parseDotenv } from "dotenv";
+import { expand, type DotenvPopulateInput } from "dotenv-expand";
+import { access, constants, readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import type { Plugin, UserConfig } from "vite";
+
+export function envFile(envFileName: string): Plugin {
+  let envFilePath!: string;
+  return {
+    name: "wasp:env-file",
+    enforce: "pre",
+    async config(config, env) {
+      const rootDir = config.root || process.cwd();
+      const envVars = await loadEnvVars({
+        rootDir,
+        envFileName,
+        // We are sure that `envPrefix` is defined because
+        // we defined it in an earlier plugin.
+        envPrefix: config.envPrefix!,
+        // We load the env file variables only in development,
+        // when building for production, users are expected to
+        // provide the environment variables inline.
+        loadDotEnvFile: env.command === "serve",
+      });
+      envFilePath = resolve(rootDir, envFileName);
+
+      const prefixedVars = Object.entries(envVars).reduce(
+        (acc, [key, value]) => {
+          acc[`import.meta.env.${key}`] = JSON.stringify(value);
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+      return {
+        // Disable Vite's default .env loading.
+        envDir: false,
+        define: prefixedVars,
+      };
+    },
+    configureServer(server) {
+      const reloadServerOnEnvFileEvent = (path: string) => {
+        if (path === envFilePath) {
+          server.restart();
+        }
+      };
+
+      server.watcher.on("add", reloadServerOnEnvFileEvent);
+      server.watcher.on("change", reloadServerOnEnvFileEvent);
+      server.watcher.on("unlink", reloadServerOnEnvFileEvent);
+    },
+    async buildStart() {
+      this.addWatchFile(envFilePath);
+    },
+  };
+}
+
+// Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
+export async function loadEnvVars({
+  rootDir,
+  envFileName,
+  envPrefix,
+  loadDotEnvFile,
+}: {
+  rootDir: string;
+  envFileName: string;
+  envPrefix: NonNullable<UserConfig["envPrefix"]>;
+  loadDotEnvFile: boolean;
+}): Promise<Record<string, string>> {
+  const envPrefixNormalized = Array.isArray(envPrefix)
+    ? envPrefix
+    : [envPrefix];
+  const env: Record<string, string> = {};
+
+  if (loadDotEnvFile) {
+    const envFilePath = resolve(rootDir, envFileName);
+    const parsed = await parseEnvFile(envFilePath, envFileName);
+
+    // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
+    // doesn't re-assign the expanded values to the global `process.env`.
+    const processEnv = { ...process.env } as DotenvPopulateInput;
+    expand({ parsed, processEnv });
+
+    // Only keys that start with prefix are exposed to client.
+    for (const [key, value] of Object.entries(parsed)) {
+      if (envPrefixNormalized.some((prefix) => key.startsWith(prefix))) {
+        env[key] = value;
+      }
+    }
+  }
+
+  // Make sure that inline env variables are prioritized over env file variables.
+  // Follows the logic Vite uses for env variables.
+  for (const key in process.env) {
+    if (envPrefixNormalized.some((prefix) => key.startsWith(prefix))) {
+      env[key] = process.env[key] as string;
+    }
+  }
+
+  return env;
+}
+
+async function parseEnvFile(
+  envFilePath: string,
+  envFileName: string,
+): Promise<Record<string, string>> {
+  try {
+    await access(envFilePath, constants.R_OK);
+  } catch {
+    return {};
+  }
+
+  try {
+    return parseDotenv(await readFile(envFilePath, "utf-8"));
+  } catch (error) {
+    console.error(`Error parsing ${envFileName}:`, error);
+    throw error;
+  }
+}
