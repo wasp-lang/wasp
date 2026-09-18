@@ -1,6 +1,7 @@
 module Wasp.Validator where
 
 import Data.Bifunctor (first)
+import Data.Char (toLower)
 import Data.Functor (void)
 import Data.List (intercalate)
 import Data.List.NonEmpty (NonEmpty)
@@ -99,6 +100,37 @@ eqJust expected =
 oneOfJust :: (Eq a, Show a) => [a] -> Validator (Maybe a)
 oneOfJust allowed =
   requiredWith ("Missing value, expected one of " ++ show allowed ++ ".") (oneOf allowed)
+
+-- | Like 'eq', but compares strings case-insensitively. Matches how TypeScript
+-- parses enum-like tsconfig values (e.g., "ESNext" is accepted and normalized
+-- to "esnext").
+eqCaseInsensitive :: String -> Validator String
+eqCaseInsensitive expected actual
+  | lower actual == lower expected = success
+  | otherwise =
+      failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
+  where
+    lower = map toLower
+
+-- | Like 'oneOf', but compares strings case-insensitively. See
+-- 'eqCaseInsensitive' for the rationale.
+oneOfCaseInsensitive :: [String] -> Validator String
+oneOfCaseInsensitive allowed actual
+  | lower actual `elem` map lower allowed = success
+  | otherwise =
+      failure $ "Expected one of " ++ show allowed ++ " but got " ++ show actual ++ "."
+  where
+    lower = map toLower
+
+-- | Like 'eqJust', but compares strings case-insensitively.
+eqJustCaseInsensitive :: String -> Validator (Maybe String)
+eqJustCaseInsensitive expected =
+  requiredWith ("Missing value, expected " ++ show expected ++ ".") (eqCaseInsensitive expected)
+
+-- | Like 'oneOfJust', but compares strings case-insensitively.
+oneOfJustCaseInsensitive :: [String] -> Validator (Maybe String)
+oneOfJustCaseInsensitive allowed =
+  requiredWith ("Missing value, expected one of " ++ show allowed ++ ".") (oneOfCaseInsensitive allowed)
 
 -- | Validates that the list contains all of the expected elements. Additional
 -- elements are allowed. Combine with 'required' or 'ifJust' to validate an
