@@ -15,7 +15,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "isolatedModules": true,
-    "allowJs": true
+    "allowJs": true,
+    "jsx": "react-jsx"
   },
   "include": ["src"]
 }
