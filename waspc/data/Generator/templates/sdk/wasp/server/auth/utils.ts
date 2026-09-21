@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { throwValidationError } from '../../auth/validation.js'
+import { throwValidationError } from '@wasp.sh/lib-sdk-core'
 export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp.sh/lib-sdk-core/node'
 
 import { ensurePasswordIsHashed } from '@wasp.sh/lib-sdk-core/node'
