@@ -11,12 +11,11 @@ import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> J.Job ()
 startServer serverRunConfig generatedAppDir = do
   let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
-  J.makeJob J.Server $
-    Node.runChecked
-      (getEnvVars serverRunConfig)
-      serverDir
-      "npm"
-      ["run", "watch"]
+  Node.runChecked
+    (getEnvVars serverRunConfig)
+    serverDir
+    "npm"
+    ["run", "watch"]

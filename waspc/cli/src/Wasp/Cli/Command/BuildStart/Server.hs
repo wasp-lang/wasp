@@ -10,27 +10,25 @@ import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
-import qualified Wasp.Job.Subprocess as Subprocess
+import qualified Wasp.Job.Process as JobProcess
 
-buildServer :: BuildStartConfig -> Job.Job
+buildServer :: BuildStartConfig -> Job.Job ()
 buildServer config =
-  Job.makeJob Job.Server $
-    Subprocess.runChecked (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
+  JobProcess.runChecked (proc "docker" ["build", "--tag", dockerImageName, dockerContextDir])
   where
     dockerContextDir = SP.fromAbsDir buildDir
     buildDir = config.buildDir
     dockerImageName = Config.dockerImageName config
 
-startServer :: BuildStartConfig -> Job.Job
+startServer :: BuildStartConfig -> Job.Job ()
 startServer config =
-  Job.makeJob Job.Server $
-    Subprocess.runChecked $
-      proc
-        "docker"
-        ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
-            <> envVarParams
-            <> [dockerImageName]
-        )
+  JobProcess.runChecked $
+    proc
+      "docker"
+      ( ["run", "--name", dockerContainerName, "--rm", "--network", "host"]
+          <> envVarParams
+          <> [dockerImageName]
+      )
   where
     envVarParams = toEnvVarParams $ getEnvVars config.serverRunConfig
     dockerContainerName = Config.dockerContainerName config

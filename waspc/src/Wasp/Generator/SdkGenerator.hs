@@ -74,7 +74,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import qualified Wasp.Job as Job
+import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Output
 import qualified Wasp.Node.Version as NodeVersion
@@ -87,9 +87,8 @@ import Wasp.Util ((<++>))
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
   exitCode <-
-    Output.runAndPrintPrefixedOutput $
-      Job.makeJob Job.Wasp $
-        Node.runChecked [] sdkRootDir "npm" ["run", "build"]
+    Output.runAndPrintPrefixedOutput Kind.Wasp $
+      Node.runChecked [] sdkRootDir "npm" ["run", "build"]
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code

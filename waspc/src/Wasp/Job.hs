@@ -1,12 +1,6 @@
 module Wasp.Job
   ( Job,
-    JobAction,
-    JobEvent (..),
-    JobEventData (..),
-    JobOutputKind (..),
-    JobKind (..),
     JobOutputSink,
-    makeJob,
     runJob,
     emitJobOutput,
     failWithExitCode,
@@ -25,35 +19,17 @@ import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.Trans.Resource (ResourceT, runResourceT)
 import Data.Text (Text)
 import System.Exit (ExitCode (..))
+import Wasp.Job.Kind (JobKind)
+import Wasp.Job.Output.Event (JobEvent (..), JobEventData (..), JobOutputKind)
 
-data Job = Job JobKind (JobAction ())
-
-type JobAction = ReaderT JobOutputSink (ExceptT JobFailure (ResourceT IO))
+type Job = ReaderT JobOutputSink (ExceptT JobFailure (ResourceT IO))
 
 newtype JobFailure = JobFailure Int
 
 type JobOutputSink = JobOutputKind -> Text -> IO ()
 
-data JobEvent = JobEvent
-  { _eventData :: JobEventData,
-    _jobKind :: JobKind
-  }
-  deriving (Show)
-
-data JobEventData
-  = JobOutput JobOutputKind Text
-  | JobExited ExitCode
-  deriving (Show)
-
-data JobOutputKind = Stdout | Stderr deriving (Show, Eq)
-
-data JobKind = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
-
-makeJob :: JobKind -> JobAction () -> Job
-makeJob = Job
-
-runJob :: Job -> Chan JobEvent -> IO ExitCode
-runJob (Job jobKind action) chan = do
+runJob :: JobKind -> Job () -> Chan JobEvent -> IO ExitCode
+runJob jobKind action chan = do
   result <-
     runResourceT $
       runExceptT $
@@ -73,23 +49,23 @@ runJob (Job jobKind action) chan = do
 jobFailureExitCode :: JobFailure -> ExitCode
 jobFailureExitCode (JobFailure exitCode) = ExitFailure exitCode
 
-emitJobOutput :: JobOutputKind -> Text -> JobAction ()
+emitJobOutput :: JobOutputKind -> Text -> Job ()
 emitJobOutput outputKind output = do
   emit <- getJobOutputSink
   liftIO $ emit outputKind output
 
-requireExitSuccess :: ExitCode -> JobAction ()
+requireExitSuccess :: ExitCode -> Job ()
 requireExitSuccess ExitSuccess = return ()
 requireExitSuccess (ExitFailure exitCode) = failWithExitCode exitCode
 
-failWithExitCode :: Int -> JobAction a
+failWithExitCode :: Int -> Job a
 failWithExitCode = throwError . JobFailure
 
-getJobOutputSink :: JobAction JobOutputSink
+getJobOutputSink :: Job JobOutputSink
 getJobOutputSink = ask
 
 -- | Stops the worker before returning, including on job failure or cancellation.
-withBackgroundOutputWorker :: ((JobOutputKind -> Text -> IO ()) -> IO ()) -> JobAction a -> JobAction a
+withBackgroundOutputWorker :: ((JobOutputKind -> Text -> IO ()) -> IO ()) -> Job a -> Job a
 withBackgroundOutputWorker worker action = do
   emit <- getJobOutputSink
   Catch.bracket

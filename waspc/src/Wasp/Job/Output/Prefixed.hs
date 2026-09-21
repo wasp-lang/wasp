@@ -16,10 +16,11 @@ import Data.Ord (comparing)
 import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import System.IO (hFlush, stderr)
-import Wasp.Job (JobKind)
-import qualified Wasp.Job as Job
-import Wasp.Job.Output.Internal (getEventContent, getEventOutHandle)
+import System.IO (hFlush)
+import Wasp.Job.Kind (JobKind)
+import qualified Wasp.Job.Kind as Kind
+import Wasp.Job.Output.Event (getEventContent, getEventOutHandle)
+import qualified Wasp.Job.Output.Event as Event
 import qualified Wasp.Util.Terminal as Term
 
 -- |
@@ -67,7 +68,7 @@ import qualified Wasp.Util.Terminal as Term
 -- If not, or there was no previous message, then we ensure there is prefix at the start of
 -- the message. This helps with situations where output from one job was interrupted by the
 -- output from another job, or when message is the very first message.
-printEventPrefixed :: Job.JobEvent -> PrefixedWriter ()
+printEventPrefixed :: Event.JobEvent -> PrefixedWriter ()
 printEventPrefixed event = do
   (PrefixedWriterState outputsWithPendingNewline lastEvent) <- get
 
@@ -86,7 +87,7 @@ printEventPrefixed event = do
 
     -- TODO: We haven't considered Windows much here, so in the future we might
     --   want to check that this works ok on Windows and tweak it a bit if not.
-    addPrefixWhereNeeded :: Maybe Job.JobEvent -> T.Text -> T.Text
+    addPrefixWhereNeeded :: Maybe Event.JobEvent -> T.Text -> T.Text
     addPrefixWhereNeeded lastEvent =
       ensureNewlineAtStartIfInterruptingAnotherOutput
         . ensurePrefixAtStartIfNotContinuingOnSameOutput
@@ -119,7 +120,7 @@ newtype PrefixedWriter a = PrefixedWriter {_runPrefixedWriter :: StateT Prefixed
 
 data PrefixedWriterState = PrefixedWriterState
   { _outputsWithPendingNewline :: !OutputsWithPendingNewline,
-    _lastEvent :: !(Maybe Job.JobEvent)
+    _lastEvent :: !(Maybe Event.JobEvent)
   }
 
 runPrefixedWriter :: PrefixedWriter a -> IO a
@@ -133,7 +134,7 @@ runPrefixedWriter pw = fst <$> runStateT (_runPrefixedWriter pw) initState
 
 -- Job message output type.
 data Output = Output
-  { _outputJobKind :: !Job.JobKind,
+  { _outputJobKind :: !Kind.JobKind,
     _outputIsStderr :: !Bool
   }
   deriving (Eq, Ord)
@@ -146,7 +147,7 @@ type OutputsWithPendingNewline = S.Set Output
 -- and in that case adds it to the set of pending newlines (while removing used pending newline).
 -- It returns this updated content and updated set of pending newlines.
 applyPendingNewline ::
-  OutputsWithPendingNewline -> Job.JobEvent -> (OutputsWithPendingNewline, T.Text)
+  OutputsWithPendingNewline -> Event.JobEvent -> (OutputsWithPendingNewline, T.Text)
 applyPendingNewline outputsWithPendingNewline event = (outputsWithPendingNewline', content')
   where
     content' = addPendingNewlineToStartIfAny $ removeTrailingNewlineIfAny content
@@ -164,14 +165,14 @@ applyPendingNewline outputsWithPendingNewline event = (outputsWithPendingNewline
     output = getEventOutput event
     content = getEventContent event
 
-getEventOutput :: Job.JobEvent -> Output
+getEventOutput :: Event.JobEvent -> Output
 getEventOutput event =
   Output
-    { _outputJobKind = Job._jobKind event,
-      _outputIsStderr = getEventOutHandle event == stderr
+    { _outputJobKind = Event._jobKind event,
+      _outputIsStderr = isStderrEvent event
     }
 
-makeEventPrefix :: Job.JobEvent -> T.Text
+makeEventPrefix :: Event.JobEvent -> T.Text
 makeEventPrefix event =
   T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
     [ [(startDelimiter, jobStyles)],
@@ -201,16 +202,21 @@ makeEventPrefix event =
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | getEventOutHandle event == stderr]
+      [("!", [Term.Red, Term.Bold]) | isStderrEvent event]
 
-    (jobName, jobStyles) = getJobNameAndStyles $ Job._jobKind event
+    (jobName, jobStyles) = getJobNameAndStyles $ Event._jobKind event
 
     getJobNameAndStyles = \case
-      Job.Wasp -> ("Wasp", [Term.Yellow])
-      Job.Server -> ("Server", [Term.Magenta])
-      Job.WebApp -> ("Client", [Term.Cyan])
-      Job.Db -> ("Db", [Term.Blue])
+      Kind.Wasp -> ("Wasp", [Term.Yellow])
+      Kind.Server -> ("Server", [Term.Magenta])
+      Kind.WebApp -> ("Client", [Term.Cyan])
+      Kind.Db -> ("Db", [Term.Blue])
 
     unstyled = (,[])
 
 type StyledText = (String, [Term.Style])
+
+isStderrEvent :: Event.JobEvent -> Bool
+isStderrEvent event = case Event._eventData event of
+  Event.JobOutput Event.Stderr _ -> True
+  _ -> False

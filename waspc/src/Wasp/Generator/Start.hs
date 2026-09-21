@@ -14,7 +14,9 @@ import Wasp.Generator.ServerGenerator.Start (startServer)
 import Wasp.Generator.WebAppGenerator.RunConfig (WebAppRunConfig)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
+import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
+import qualified Wasp.Job.Output.Event as Event
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 
@@ -27,8 +29,8 @@ start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) ->
 start (webAppRunConfig, serverRunConfig) waspProjectDir outDir onJobsQuietDown = do
   chan <- newChan
   let runStartJobs =
-        J.runJob (startServer serverRunConfig outDir) chan
-          `race` J.runJob (startWebApp webAppRunConfig waspProjectDir) chan
+        J.runJob Kind.Server (startServer serverRunConfig outDir) chan
+          `race` J.runJob Kind.WebApp (startWebApp webAppRunConfig waspProjectDir) chan
   ((serverOrWebExitCode, _), _) <-
     runStartJobs
       `concurrently` Output.printEventsPrefixedUntilExit chan
@@ -38,7 +40,7 @@ start (webAppRunConfig, serverRunConfig) waspProjectDir outDir onJobsQuietDown =
     Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
     Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
 
-listenForJobsQuietDown :: Chan J.JobEvent -> IO () -> IO ()
+listenForJobsQuietDown :: Chan Event.JobEvent -> IO () -> IO ()
 listenForJobsQuietDown jobsChan onJobsQuietDown = do
   waitForJobMsg
   waitForPeriodOfSilence

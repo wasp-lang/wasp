@@ -10,11 +10,10 @@ import qualified Wasp.Job as J
 import qualified Wasp.Job.Node as Node
 import Wasp.Project.Common (WaspProjectDir)
 
-testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job
+testWebApp :: WebAppRunConfig -> [String] -> Path' Abs (Dir WaspProjectDir) -> J.Job ()
 testWebApp clientRunConfig args waspProjectDir = do
-  J.makeJob J.WebApp $
-    Node.runChecked
-      (getEnvVars clientRunConfig)
-      waspProjectDir
-      "npx"
-      ("vitest" : args)
+  Node.runChecked
+    (getEnvVars clientRunConfig)
+    waspProjectDir
+    "npx"
+    ("vitest" : args)

@@ -12,31 +12,45 @@ import System.Exit (ExitCode (..))
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldReturn, shouldSatisfy)
 import qualified Wasp.Job as Job
+import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Output as Output
+import qualified Wasp.Job.Output.Event as Event
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_Job :: Spec
 spec_Job =
   describe "Job" $ do
+    it "uses the execution label for every event when reusing a job" $ do
+      let job = Job.emitJobOutput Event.Stdout "output"
+      let checkLabel kind = do
+            events <- newChan
+            Job.runJob kind job events `shouldReturn` ExitSuccess
+            output <- readChan events
+            exit <- readChan events
+            Event._jobKind output `shouldBe` kind
+            Event._jobKind exit `shouldBe` kind
+      checkLabel Kind.Server
+      checkLabel Kind.WebApp
+
     it "short-circuits on a required subprocess failure" $ do
       events <- newChan
       let action = do
-            Job.emitJobOutput Job.Stdout "before failure"
+            Job.emitJobOutput Event.Stdout "before failure"
             Job.requireExitSuccess $ ExitFailure 7
-            Job.emitJobOutput Job.Stdout "after failure"
+            Job.emitJobOutput Event.Stdout "after failure"
 
-      exitCode <- Job.runJob (Job.makeJob Job.Wasp action) events
+      exitCode <- Job.runJob Kind.Wasp action events
 
       exitCode `shouldBe` ExitFailure 7
       firstEvent <- readChan events
-      Job._jobKind firstEvent `shouldBe` Job.Wasp
-      case Job._eventData firstEvent of
-        Job.JobOutput Job.Stdout output -> output `shouldBe` "before failure"
+      Event._jobKind firstEvent `shouldBe` Kind.Wasp
+      case Event._eventData firstEvent of
+        Event.JobOutput Event.Stdout output -> output `shouldBe` "before failure"
         eventData -> expectationFailure $ "Expected stdout output, got: " <> show eventData
 
       secondEvent <- readChan events
-      case Job._eventData secondEvent of
-        Job.JobExited jobExitCode -> jobExitCode `shouldBe` ExitFailure 7
+      case Event._eventData secondEvent of
+        Event.JobExited jobExitCode -> jobExitCode `shouldBe` ExitFailure 7
         eventData -> expectationFailure $ "Expected JobExited, got: " <> show eventData
 
       remainingEvent <- timeout (secondsToMicroSeconds 0.1) $ readChan events
@@ -49,12 +63,12 @@ spec_Job =
             _ <- register $ writeIORef released True
             Job.requireExitSuccess $ ExitFailure 7
 
-      _ <- Job.runJob (Job.makeJob Job.Wasp action) events
+      _ <- Job.runJob Kind.Wasp action events
 
       readIORef released `shouldReturn` True
       event <- readChan events
-      case Job._eventData event of
-        Job.JobExited exitCode -> exitCode `shouldBe` ExitFailure 7
+      case Event._eventData event of
+        Event.JobExited exitCode -> exitCode `shouldBe` ExitFailure 7
         eventData -> expectationFailure $ "Expected JobExited, got: " <> show eventData
 
     it "releases resources without emitting JobExited when cancelled" $ do
@@ -66,7 +80,7 @@ spec_Job =
             liftIO $ putMVar resourceRegistered ()
             liftIO $ threadDelay $ secondsToMicroSeconds 10
 
-      Async.withAsync (Job.runJob (Job.makeJob Job.Wasp action) events) $ \job -> do
+      Async.withAsync (Job.runJob Kind.Wasp action events) $ \job -> do
         takeMVar resourceRegistered
         Async.cancel job
 
@@ -79,20 +93,20 @@ spec_runAndCaptureOutput =
   describe "runAndCaptureOutput" $ do
     it "returns all stdout and stderr chunks in emission order" $ do
       let action = do
-            Job.emitJobOutput Job.Stdout "first "
-            Job.emitJobOutput Job.Stderr "second "
-            Job.emitJobOutput Job.Stdout "last"
-      Output.runAndCaptureOutput (Job.makeJob Job.Wasp action)
+            Job.emitJobOutput Event.Stdout "first "
+            Job.emitJobOutput Event.Stderr "second "
+            Job.emitJobOutput Event.Stdout "last"
+      Output.runAndCaptureOutput Kind.Wasp action
         `shouldReturn` (ExitSuccess, "first second last")
 
     it "returns output and the failure code after releasing resources" $ do
       released <- newIORef False
       let action = do
             _ <- register $ writeIORef released True
-            Job.emitJobOutput Job.Stderr "failed"
+            Job.emitJobOutput Event.Stderr "failed"
             Job.requireExitSuccess $ ExitFailure 7
-            Job.emitJobOutput Job.Stdout "unreachable"
-      Output.runAndCaptureOutput (Job.makeJob Job.Wasp action)
+            Job.emitJobOutput Event.Stdout "unreachable"
+      Output.runAndCaptureOutput Kind.Wasp action
         `shouldReturn` (ExitFailure 7, "failed")
       readIORef released `shouldReturn` True
 
@@ -105,7 +119,7 @@ spec_withBackgroundOutputWorker =
       block <- newEmptyMVar
       let worker emit =
             bracket_
-              (emit Job.Stdout "progress" >> putMVar started ())
+              (emit Event.Stdout "progress" >> putMVar started ())
               (writeIORef stopped True)
               (takeMVar block)
           action = do
@@ -114,7 +128,7 @@ spec_withBackgroundOutputWorker =
               return (42 :: Int)
             liftIO $ result `shouldBe` 42
             liftIO $ readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput $ Job.makeJob Job.Wasp action)
+      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput Kind.Wasp action)
         `shouldReturn` Just (ExitSuccess, "progress")
 
     it "stops the worker before an enclosing action handles job failure" $ do
@@ -131,7 +145,7 @@ spec_withBackgroundOutputWorker =
               worker
               (liftIO (takeMVar started) >> Job.failWithExitCode 7)
               `catchError` \_ -> liftIO $ readIORef stopped `shouldReturn` True
-      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput $ Job.makeJob Job.Wasp action)
+      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput Kind.Wasp action)
         `shouldReturn` Just (ExitSuccess, "")
 
     it "stops the worker when the job is cancelled" $ do
@@ -146,7 +160,7 @@ spec_withBackgroundOutputWorker =
               (takeMVar block)
           action = Job.withBackgroundOutputWorker worker $ liftIO $ takeMVar block
           cancelJob =
-            Async.withAsync (Job.runJob (Job.makeJob Job.Wasp action) events) $ \job -> do
+            Async.withAsync (Job.runJob Kind.Wasp action events) $ \job -> do
               takeMVar started
               Async.cancel job
               readIORef stopped `shouldReturn` True

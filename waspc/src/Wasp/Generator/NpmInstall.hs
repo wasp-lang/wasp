@@ -18,8 +18,10 @@ import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import qualified Wasp.Job as Job
+import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
+import qualified Wasp.Job.Output.Event as Event
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
@@ -63,28 +65,27 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 installProjectNpmDependencies ::
   SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
 installProjectNpmDependencies projectDir = do
-  installExitCode <- Job.Output.runAndPrintPrefixedOutput installProjectDepsJob
+  installExitCode <- Job.Output.runAndPrintPrefixedOutput Kind.Wasp installProjectDepsJob
   return $ case installExitCode of
     ExitFailure code -> Left $ "Project setup failed with exit code " ++ show code ++ "."
     _success -> Right ()
   where
     installProjectDepsJob =
-      Job.makeJob Job.Wasp $
-        installNpmDependenciesAndReport projectDir
+      installNpmDependenciesAndReport projectDir
 
-installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.JobAction ()
+installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ()
 installNpmDependenciesAndReport projectDir = do
-  Job.emitJobOutput Job.Stdout "Starting npm install\n"
+  Job.emitJobOutput Event.Stdout "Starting npm install\n"
   Job.withBackgroundOutputWorker reportInstallationProgress $
     Node.runChecked [] projectDir "npm" ["install"]
 
-reportInstallationProgress :: (Job.JobOutputKind -> T.Text -> IO ()) -> IO ()
+reportInstallationProgress :: (Event.JobOutputKind -> T.Text -> IO ()) -> IO ()
 reportInstallationProgress emit =
   mapM_ reportMessage $ cycle possibleMessages
   where
     reportMessage message = do
       threadDelay $ secondsToMicroSeconds 5
-      emit Job.Stdout $ T.append message "\n"
+      emit Event.Stdout $ T.append message "\n"
       threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =

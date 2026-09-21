@@ -159,7 +159,6 @@ library
 
   other-modules:
     Paths_waspc
-    Wasp.Job.Output.Internal
 
   exposed-modules:
     Wasp.AppComponentUrl
@@ -318,15 +317,19 @@ library
     Wasp.Generator.WriteFileDrafts
     Wasp.Inspectable
     Wasp.Job
+    Wasp.Job.Kind
     Wasp.Job.Node
     Wasp.Job.Output
+    Wasp.Job.Output.Event
     Wasp.Job.Output.Prefixed
-    Wasp.Job.Subprocess
+    Wasp.Job.Process
     Wasp.JsImport
     Wasp.Message
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
+    Wasp.Process
+    Wasp.Process.Node
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType
@@ -591,7 +594,7 @@ test-suite waspc-tests
     Generator.MockWriteableMonad
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
-    Job.SubprocessTest
+    Job.ProcessTest
     JobTest
     JsImportTest
     Node.InternalTest

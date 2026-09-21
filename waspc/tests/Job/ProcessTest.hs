@@ -1,4 +1,4 @@
-module Job.SubprocessTest where
+module Job.ProcessTest where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Monad.IO.Class (liftIO)
@@ -9,35 +9,37 @@ import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn, shouldSatisfy)
 import qualified Wasp.Job as J
-import qualified Wasp.Job.Subprocess as Subprocess
+import qualified Wasp.Job.Kind as Kind
+import qualified Wasp.Job.Output.Event as Event
+import qualified Wasp.Job.Process as JobProcess
 import Wasp.Util (secondsToMicroSeconds)
 
-spec_runSubprocess :: Spec
-spec_runSubprocess =
-  describe "Subprocess.runChecked" $ do
+spec_runProcess :: Spec
+spec_runProcess =
+  describe "JobProcess.runChecked" $ do
     it "decodes split and incomplete UTF-8 on stdout" $
-      runSplitUtf8Process "stdout" J.Stdout `shouldReturn` "€�"
+      runSplitUtf8Process "stdout" Event.Stdout `shouldReturn` "€�"
 
     it "decodes split and incomplete UTF-8 on stderr" $
-      runSplitUtf8Process "stderr" J.Stderr `shouldReturn` "€�"
+      runSplitUtf8Process "stderr" Event.Stderr `shouldReturn` "€�"
 
     it "fails the Job on a nonzero child exit" $ do
       chan <- newChan
-      let action = Subprocess.runChecked $ P.proc "node" ["-e", "process.exit(7)"]
-      J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitFailure 7
+      let action = JobProcess.runChecked $ P.proc "node" ["-e", "process.exit(7)"]
+      J.runJob Kind.Wasp action chan `shouldReturn` ExitFailure 7
 
     it "can return a nonzero child exit for explicit handling" $ do
       chan <- newChan
       let action = do
-            exitCode <- Subprocess.runReturningExitCode $ P.proc "node" ["-e", "process.exit(7)"]
+            exitCode <- JobProcess.runReturningExitCode $ P.proc "node" ["-e", "process.exit(7)"]
             liftIO $ exitCode `shouldBe` ExitFailure 7
-      J.runJob (J.makeJob J.Wasp action) chan `shouldReturn` ExitSuccess
+      J.runJob Kind.Wasp action chan `shouldReturn` ExitSuccess
 
-runSplitUtf8Process :: String -> J.JobOutputKind -> IO T.Text
+runSplitUtf8Process :: String -> Event.JobOutputKind -> IO T.Text
 runSplitUtf8Process streamName expectedOutputKind = do
   chan <- newChan
-  let action = Subprocess.runChecked $ P.proc "node" ["-e", splitUtf8Script streamName]
-  exitCode <- J.runJob (J.makeJob J.Wasp action) chan
+  let action = JobProcess.runChecked $ P.proc "node" ["-e", splitUtf8Script streamName]
+  exitCode <- J.runJob Kind.Wasp action chan
   exitCode `shouldBe` ExitSuccess
   output <- collectOutputUntilExit expectedOutputKind chan
   remainingEvent <- timeout (secondsToMicroSeconds 0.1) $ readChan chan
@@ -52,16 +54,16 @@ splitUtf8Script streamName =
     <> streamName
     <> ".write(Buffer.from([0x82, 0xac, 0xe2])), 200);"
 
-collectOutputUntilExit :: J.JobOutputKind -> Chan J.JobEvent -> IO T.Text
+collectOutputUntilExit :: Event.JobOutputKind -> Chan Event.JobEvent -> IO T.Text
 collectOutputUntilExit expectedOutputKind chan = go []
   where
     go collected = do
       event <- readChan chan
-      J._jobKind event `shouldBe` J.Wasp
-      case J._eventData event of
-        J.JobOutput outputKind output -> do
+      Event._jobKind event `shouldBe` Kind.Wasp
+      case Event._eventData event of
+        Event.JobOutput outputKind output -> do
           outputKind `shouldBe` expectedOutputKind
           go (output : collected)
-        J.JobExited exitCode -> do
+        Event.JobExited exitCode -> do
           exitCode `shouldBe` ExitSuccess
           return $ T.concat $ reverse collected

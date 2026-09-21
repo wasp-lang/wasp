@@ -1,37 +1,33 @@
-module Wasp.Job.Subprocess
-  ( runChecked,
-    runReturningExitCode,
+module Wasp.Process
+  ( OutputStream (..),
+    run,
   )
 where
 
 import Control.Concurrent.Async (Concurrently (..))
-import Control.Monad.IO.Class (liftIO)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Conduit.Text as CT
+import qualified Data.Text
 import System.Exit (ExitCode)
+import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket, finally)
-import Wasp.Job (JobAction, JobOutputKind (..), getJobOutputSink, requireExitSuccess)
 
--- | Runs the process to completion, failing the Job on a nonzero child exit.
-runChecked :: P.CreateProcess -> JobAction ()
-runChecked process = runReturningExitCode process >>= requireExitSuccess
+data OutputStream = Stdout | Stderr deriving (Show, Eq)
 
 -- TODO(#4575):
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs the process to completion and returns its exit status for explicit handling.
-runReturningExitCode :: P.CreateProcess -> JobAction ExitCode
-runReturningExitCode process = do
-  emit <- getJobOutputSink
-  liftIO $
-    bracket
-      (CP.streamingProcess process)
-      cleanUpStreamingProcess
-      (runStreamingProcessAndStreamOutput emit)
+-- | Runs the process to completion and forwards its output.
+run :: P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
+run process emit =
+  bracket
+    (CP.streamingProcess process)
+    cleanUpStreamingProcess
+    (runStreamingProcessAndStreamOutput emit)
   where
     cleanUpStreamingProcess (_, _, _, streamingProcessHandle) =
       terminateStreamingProcess streamingProcessHandle
@@ -49,6 +45,6 @@ runReturningExitCode process = do
 
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      CP.getStreamingProcessExitCode streamingProcessHandle >>= \case
-        Just _ -> return ()
-        Nothing -> P.terminateProcess processHandle
+      if System.Info.os == "mingw32"
+        then P.terminateProcess processHandle
+        else P.interruptProcessGroupOf processHandle
