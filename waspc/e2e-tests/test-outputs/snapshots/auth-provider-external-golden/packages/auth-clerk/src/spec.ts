@@ -31,13 +31,13 @@ export type EnvVarRequirement = {
 export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 6;
+  contractVersion: 7;
   server: {
-    authHandlerFactory: { package: string };
+    authAdapter: { package: string };
     env: EnvVarRequirement[];
   };
   client: {
-    authHandlerFactory: { package: string };
+    authAdapter: { package: string };
     env: EnvVarRequirement[];
   };
   capabilities: string[];
@@ -89,9 +89,9 @@ export function clerk<UserSignupFieldsRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 6,
+    contractVersion: 7,
     server: {
-      authHandlerFactory: { package: "@wasp.sh/auth-clerk/server" },
+      authAdapter: { package: "@wasp.sh/auth-clerk/server" },
       env: [
         { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
         { name: "CLERK_PUBLISHABLE_KEY", doc: "Clerk dashboard → API keys" },
@@ -103,7 +103,7 @@ export function clerk<UserSignupFieldsRef = never>(
       ],
     },
     client: {
-      authHandlerFactory: { package: "@wasp.sh/auth-clerk/client" },
+      authAdapter: { package: "@wasp.sh/auth-clerk/client" },
       env: [
         {
           name: "REACT_APP_CLERK_PUBLISHABLE_KEY",

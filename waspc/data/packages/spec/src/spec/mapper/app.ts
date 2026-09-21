@@ -237,22 +237,22 @@ function mapAuthScheme(
   }
 
   // Both halves take the same two forms: a package entry, or a reference to
-  // a factory in the app's own code.
+  // an adapter in the app's own code.
   const mapSide = (
     side: "server" | "client",
     sideManifest: WaspSpec.AuthSchemeServerSide | WaspSpec.AuthSchemeClientSide,
   ): AppSpec.AuthSchemeSide => {
-    const entry = sideManifest.authHandlerFactory;
+    const entry = sideManifest.authAdapter;
     const handlerSpec = splitHandlerSpec(name, side, sideManifest.spec);
     return {
       // Both forms are the same thing in different places: a package entry
-      // (with the conventional export name as the default), or a factory in
+      // (with the conventional export name as the default), or an adapter in
       // the app's own code.
-      authHandlerFactory:
+      authAdapter:
         "package" in entry
           ? {
               package: entry.package,
-              export: entry.export ?? defaultFactoryExportNames[side],
+              export: entry.export ?? defaultAdapterExportNames[side],
             }
           : { module: ctx.parseRefObject(entry) },
       envVars: (sideManifest.env ?? []).map(mapEnvVarRequirement),
@@ -290,7 +290,7 @@ function mapAuthScheme(
 }
 
 // What a handler package's entries export when the manifest names no export.
-const defaultFactoryExportNames = {
+const defaultAdapterExportNames = {
   server: "createServerAuthHandler",
   client: "createClientAuthHandler",
 } as const;

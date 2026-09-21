@@ -7,7 +7,7 @@ auth library. A user-made scheme builds from the same primitives Wasp's own auth
 schemes: {
   password: customAuthHandler({
     server: {
-      authHandlerFactory: createPasswordAuthHandler, // like a package's createServerAuthHandler
+      authAdapter: createPasswordAuthHandler, // like a package's createServerAuthHandler
       routes: {},                                     // it brings its own, mounted at /auth/password
     },
     credentials: {}, // Wasp runs a private bearer issuer for this scheme
@@ -17,8 +17,8 @@ schemes: {
 
 The primitives, and where this app uses them:
 
-`server.authHandlerFactory` is the same thing a handler package exports, so the scheme's runtime arrives as an
-argument and the factory may return routes of its own. Everything lives in
+`server.authAdapter` is the same thing a handler package exports, so the scheme's runtime arrives as an
+argument and the adapter may return routes of its own. Everything lives in
 `src/auth/handler.ts`:
 
 - **The identities facet** (`runtime.identities`) — signup creates
@@ -34,7 +34,7 @@ argument and the factory may return routes of its own. Everything lives in
 other apps in this directory. Not shown here: email verification, password reset, and
 anti-enumeration timing.
 
-Prefer ordinary Wasp `api()` routes? Keep the factory for `handler`, stash `runtime` in a
+Prefer ordinary Wasp `api()` routes? Keep the adapter for `handler`, stash `runtime` in a
 module variable, and read it from those routes. That is plain userland; Wasp needs no API for it.
 
 ## Run it

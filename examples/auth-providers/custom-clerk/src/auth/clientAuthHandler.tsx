@@ -1,9 +1,9 @@
 import { ClerkProvider, useClerk } from "@clerk/clerk-react";
 import { useEffect, type ReactNode } from "react";
-import type { ClientAuthHandlerFactory } from "wasp/client/auth/types";
+import type { ClientAuthAdapter } from "wasp/client/auth/types";
 
 /**
- * Clerk's client half, hand-written in the app. A `ClientAuthHandlerFactory`, the
+ * Clerk's client half, hand-written in the app. A `ClientAuthAdapter`, the
  * function a handler package exports as `createClientAuthHandler`, so Wasp wires
  * it exactly like the packaged handler in `../clerk`:
  *
@@ -57,9 +57,7 @@ function ClerkInstanceCapture({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-export const createClerkClientAuthHandler: ClientAuthHandlerFactory = (
-  runtime,
-) => ({
+export const createClerkClientAuthHandler: ClientAuthAdapter = (runtime) => ({
   Wrapper: ({ children }) => (
     <ClerkProvider
       publishableKey={runtime.env.REACT_APP_CLERK_PUBLISHABLE_KEY ?? ""}

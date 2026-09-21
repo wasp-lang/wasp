@@ -19,7 +19,7 @@ export default app({
   auth: {
     userEntity: "User",
     onAuthFailedRedirectTo: "/login",
-    // A hand-rolled email+password scheme. `server.authHandlerFactory` is the
+    // A hand-rolled email+password scheme. `server.authAdapter` is the
     // same thing a handler package exports, so it gets the scheme's runtime as
     // an argument and brings its own routes (mounted at /auth/password).
     // `credentials: {}` asks Wasp for the default private issuer (a bearer
@@ -29,7 +29,7 @@ export default app({
     schemes: {
       password: customAuthHandler({
         server: {
-          authHandlerFactory: createPasswordAuthHandler,
+          authAdapter: createPasswordAuthHandler,
           routes: {},
         },
         credentials: {},

@@ -129,9 +129,9 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 6,
+        contractVersion: 7,
         server: {
-            authHandlerFactory: { package: "@wasp.sh/auth/server" },
+            authAdapter: { package: "@wasp.sh/auth/server" },
             env: [
                 ...(needsJwt
                     ? [
@@ -164,7 +164,7 @@ export function waspAuth(config) {
             routes: {},
         },
         client: {
-            authHandlerFactory: { package: "@wasp.sh/auth/client" },
+            authAdapter: { package: "@wasp.sh/auth/client" },
             spec: {
                 onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
                 clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,

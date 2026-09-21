@@ -14,11 +14,11 @@ auth: {
   schemes: {
     clerk: customAuthHandler({
       server: {
-        authHandlerFactory: createClerkServerAuthHandler,
+        authAdapter: createClerkServerAuthHandler,
         env: [/* CLERK_SECRET_KEY, ... */],
       },
       client: {
-        authHandlerFactory: createClerkClientAuthHandler,
+        authAdapter: createClerkClientAuthHandler,
         env: [/* REACT_APP_CLERK_PUBLISHABLE_KEY */],
       },
     }),
@@ -26,7 +26,7 @@ auth: {
 }
 ```
 
-Both are the same factories a handler package exports (`createServerAuthHandler`,
+Both are the same adapters a handler package exports (`createServerAuthHandler`,
 `createClientAuthHandler`), so a hand-written scheme has the same powers. Each side holds what that half receives: the
 runtime and its declared env vars arrive as arguments, and the client half gets a `Wrapper`, a credential
 source, and logout cleanup. The app needs no root component, no env schema and no logout glue

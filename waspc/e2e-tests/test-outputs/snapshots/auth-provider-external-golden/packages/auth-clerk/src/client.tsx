@@ -2,8 +2,8 @@ import { ClerkProvider, useClerk } from "@clerk/clerk-react";
 import { useEffect, type ReactNode } from "react";
 
 import type {
+  ClientAuthAdapter,
   ClientAuthHandler,
-  ClientAuthHandlerFactory,
 } from "@wasp.sh/auth-contract/client";
 
 /**
@@ -101,7 +101,7 @@ function ClerkInstanceCapture({ children }: { children: ReactNode }) {
  * across Clerk's ~60s rotations), refreshes on Clerk-side logins/logouts, and
  * `logout()` signs out of Clerk too.
  */
-export const createClientAuthHandler: ClientAuthHandlerFactory = (
+export const createClientAuthHandler: ClientAuthAdapter = (
   runtime,
 ): ClientAuthHandler => ({
   Wrapper: ({ children }) => (

@@ -20,7 +20,7 @@ export {
   type ProviderIdentities,
   type RuntimeGrantName,
   type ServerAuthHandlerParts,
-  type ServerAuthHandlerFactory,
+  type ServerAuthAdapter,
   type SignInContext,
   type SignInProperties,
   type SignInResult,
@@ -34,7 +34,7 @@ export {
  * App code a handler's `server.spec` references -- a signup field getter,
  * an OAuth config function, an email content function, a setup function for
  * the handler's underlying library. The handler types each precisely; the SDK
- * only sets them back into the spec it hands the factory, so their virtual
+ * only sets them back into the spec it hands the adapter, so their virtual
  * modules are declared loosely.
  */
 export type AuthHandlerSpecReference = unknown

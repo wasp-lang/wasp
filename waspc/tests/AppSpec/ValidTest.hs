@@ -836,7 +836,7 @@ makeTestAuthScheme schemeName =
 makeTestSchemeSide :: String -> String -> [AS.Auth.AuthSchemeEnvVar] -> AS.Auth.AuthSchemeSide
 makeTestSchemeSide packageSpecifier exportName envVars =
   AS.Auth.AuthSchemeSide
-    { AS.Auth.authHandlerFactory = AS.Auth.PackageFactory packageSpecifier exportName,
+    { AS.Auth.authAdapter = AS.Auth.PackageAdapter packageSpecifier exportName,
       AS.Auth.envVars = envVars,
       AS.Auth.specJson = Nothing,
       AS.Auth.specReferences = M.empty

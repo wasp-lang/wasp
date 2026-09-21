@@ -402,7 +402,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
         onAuthFailedRedirectTo: "/login",
         schemes: {
           test: customAuthHandler({
-            server: { authHandlerFactory: getRefObject("minimal", "named") },
+            server: { authAdapter: getRefObject("minimal", "named") },
           }),
         },
       } as WaspSpec.Auth;
@@ -414,7 +414,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
           session: waspBearer({ store: "prisma", ttl: "7d" }),
           test: customAuthHandler({
             server: {
-              authHandlerFactory: getRefObject("full", "named"),
+              authAdapter: getRefObject("full", "named"),
               env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
               spec: {
                 flag: true,
@@ -429,7 +429,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
               routes: { rawBody: true },
             },
             client: {
-              authHandlerFactory: getRefObject("full", "named"),
+              authAdapter: getRefObject("full", "named"),
               env: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
               spec: {
                 publicFlag: true,
@@ -469,7 +469,7 @@ export function getSingleSchemeAuthConfig(): WaspSpec.Auth {
     schemes: {
       "test-provider": customAuthHandler({
         server: {
-          authHandlerFactory: getRefObject("full", "named"),
+          authAdapter: getRefObject("full", "named"),
           env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
           spec: { flag: true, nested: { count: 1 } },
         },

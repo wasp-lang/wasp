@@ -115,15 +115,15 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 6;
+  contractVersion: 7;
   server: {
-    authHandlerFactory: { package: string };
+    authAdapter: { package: string };
     env: EnvVarRequirement[];
     spec: WaspAuthServerSpec<Ref>;
     routes: Record<string, never>;
   };
   client: {
-    authHandlerFactory: { package: string };
+    authAdapter: { package: string };
     spec: WaspAuthClientSpec;
   };
   capabilities: string[];
@@ -136,7 +136,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
 /**
  * What the server half receives: plain data mixed with the app's functions,
  * each next to the method it belongs to. Here the functions are still
- * references; Wasp carries them across the compiler and the factory gets
+ * references; Wasp carries them across the compiler and the adapter gets
  * them live, at the same paths.
  */
 export type WaspAuthServerSpec<Ref = unknown> = {
@@ -326,9 +326,9 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 6,
+    contractVersion: 7,
     server: {
-      authHandlerFactory: { package: "@wasp.sh/auth/server" },
+      authAdapter: { package: "@wasp.sh/auth/server" },
       env: [
         ...(needsJwt
           ? [
@@ -363,7 +363,7 @@ export function waspAuth<Ref = unknown, StoreRef = never>(
       routes: {},
     },
     client: {
-      authHandlerFactory: { package: "@wasp.sh/auth/client" },
+      authAdapter: { package: "@wasp.sh/auth/client" },
       spec: {
         onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
         clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,

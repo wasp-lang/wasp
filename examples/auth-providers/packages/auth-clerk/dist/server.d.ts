@@ -1,4 +1,4 @@
-import type { ServerAuthHandlerFactory } from "@wasp.sh/auth-contract";
+import type { ServerAuthAdapter } from "@wasp.sh/auth-contract";
 /**
  * Clerk, expressed as a Wasp `AuthHandler`.
  *
@@ -18,4 +18,4 @@ import type { ServerAuthHandlerFactory } from "@wasp.sh/auth-contract";
  * Secrets come from `runtime.env`, already validated against the env vars the
  * manifest declared -- the handler never reads `process.env` itself.
  */
-export declare const createServerAuthHandler: ServerAuthHandlerFactory;
+export declare const createServerAuthHandler: ServerAuthAdapter;

@@ -6,7 +6,7 @@ import { WaspSpecUserError } from "../waspSpecUserError.js";
  * A handler's `spec` is one object mixing plain data with references to
  * app code. A reference cannot cross the compiler as data, so it is lifted
  * out here, keyed by where it sat; the generated code imports each one and
- * sets it back at its path before calling the handler's factory.
+ * sets it back at its path before calling the handler's adapter.
  */
 export type SplitHandlerSpec = {
   /** The spec with every reference removed, as JSON. Undefined when there is no spec. */

@@ -105,7 +105,7 @@ waspSpecEntityTypesTest =
             schemes: {
               test: customAuthHandler({
                 server: {
-                  authHandlerFactory: ref({ from: "./src/auth", import: "createHandler" }),
+                  authAdapter: ref({ from: "./src/auth", import: "createHandler" }),
                 },
               }),
             },

@@ -16,7 +16,7 @@ import { {= clientExportName =} as createClientAuthHandler_{= index =} } from '{
 {=/ isPackage =}
 {=^ isPackage =}
 {=& clientModule.importStatement =}
-// A factory from the app's own code: the same thing a handler package
+// An adapter from the app's own code: the same thing a handler package
 // exports as `createClientAuthHandler`.
 const createClientAuthHandler_{= index =} = {= clientModule.importIdentifier =}
 {=/ isPackage =}

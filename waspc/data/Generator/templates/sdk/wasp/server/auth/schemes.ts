@@ -501,14 +501,14 @@ const handlerParts_{= index =} = { handler: issuer_{= index =} }
 {=/ isFrameworkIssuer =}
 {=^ isFrameworkIssuer =}
 {=^ isPackage =}
-// A factory from the app's own code: the same thing a handler package
+// An adapter from the app's own code: the same thing a handler package
 // exports as `createServerAuthHandler`, so it is instantiated the same way and
 // has the same powers (the runtime as an argument, routes of its own).
 const createServerAuthHandler_{= index =} = {= handlerModule.importIdentifier =}
 {=/ isPackage =}
 const handlerParts_{= index =} = await Promise.resolve(
   createServerAuthHandler_{= index =}(
-    // The cast narrows the built runtime to the grants the factory's type
+    // The cast narrows the built runtime to the grants the adapter's type
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as Parameters<typeof createServerAuthHandler_{= index =}>[0],

@@ -1,12 +1,12 @@
 // PUBLIC API
 /**
  * The client half of the contract between Wasp and an auth handler, for
- * handlers written inside the app: type a hand-written client factory as
- * `ClientAuthHandlerFactory`, exactly like a handler package's
+ * handlers written inside the app: type a hand-written client adapter as
+ * `ClientAuthAdapter`, exactly like a handler package's
  * `createClientAuthHandler`.
  */
 export type {
-  ClientAuthHandlerFactory,
+  ClientAuthAdapter,
   ClientAuthHandler,
   WaspClientRuntime,
 } from '@wasp.sh/auth-contract/client'
@@ -15,6 +15,6 @@ export type {
 /**
  * App code a handler's `client.spec` references (a component, a callback).
  * The handler types each precisely; the SDK only sets them back into the
- * spec it hands the factory, so their virtual modules are declared loosely.
+ * spec it hands the adapter, so their virtual modules are declared loosely.
  */
 export type AuthHandlerSpecReference = unknown

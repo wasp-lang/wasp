@@ -441,7 +441,7 @@ describe("mapAuth", () => {
         schemes: {
           [name]: customAuthHandler({
             server: {
-              authHandlerFactory: Fixtures.getRefObject("full", "named"),
+              authAdapter: Fixtures.getRefObject("full", "named"),
             },
           }),
         },
@@ -493,7 +493,7 @@ describe("mapAuth", () => {
         test: getSchemeManifest(auth),
         other: customAuthHandler({
           server: {
-            authHandlerFactory: Fixtures.getRefObject("full", "named"),
+            authAdapter: Fixtures.getRefObject("full", "named"),
           },
           credentials: { scheme: "test" },
         }),
@@ -513,14 +513,14 @@ describe("mapAuth", () => {
       schemes: {
         a: customAuthHandler({
           server: {
-            authHandlerFactory: Fixtures.getRefObject("full", "named"),
+            authAdapter: Fixtures.getRefObject("full", "named"),
           },
           capabilities: ["sign-in"],
           credentials: { scheme: "b" },
         }),
         b: customAuthHandler({
           server: {
-            authHandlerFactory: Fixtures.getRefObject("full", "named"),
+            authAdapter: Fixtures.getRefObject("full", "named"),
           },
           capabilities: ["sign-in"],
           credentials: { scheme: "a" },
@@ -599,10 +599,10 @@ describe("mapAuth", () => {
         test: {
           ...getSchemeManifest(auth),
           server: {
-            authHandlerFactory: { package: "@wasp.sh/auth-clerk/server" },
+            authAdapter: { package: "@wasp.sh/auth-clerk/server" },
           },
           client: {
-            authHandlerFactory: {
+            authAdapter: {
               package: "@wasp.sh/auth-clerk/client",
               export: "createClerkClient",
             },
@@ -619,13 +619,13 @@ describe("mapAuth", () => {
       // The label is where the server half's code lives.
       handler: "@wasp.sh/auth-clerk/server",
       server: {
-        authHandlerFactory: {
+        authAdapter: {
           package: "@wasp.sh/auth-clerk/server",
           export: "createServerAuthHandler",
         },
       },
       client: {
-        authHandlerFactory: {
+        authAdapter: {
           package: "@wasp.sh/auth-clerk/client",
           export: "createClerkClient",
         },
@@ -732,9 +732,9 @@ describe("mapAuth", () => {
         | WaspSpec.AuthSchemeServerSide
         | WaspSpec.AuthSchemeClientSide,
     ) => {
-      const entry = sideManifest.authHandlerFactory;
+      const entry = sideManifest.authAdapter;
       return {
-        authHandlerFactory:
+        authAdapter:
           "package" in entry
             ? {
                 package: entry.package,
@@ -782,14 +782,14 @@ describe("mapAuth", () => {
       }
       return { specJson: JSON.stringify(handlerSpec), specReferences: {} };
     }
-    const factoryEntry = manifest.server.authHandlerFactory;
+    const adapterEntry = manifest.server.authAdapter;
     return {
       name,
       // The label is where the server half's code lives.
       handler:
-        "package" in factoryEntry
-          ? factoryEntry.package
-          : (factoryEntry as unknown as { from: string }).from,
+        "package" in adapterEntry
+          ? adapterEntry.package
+          : (adapterEntry as unknown as { from: string }).from,
       server: expectedSide("server", manifest.server),
       client: manifest.client && expectedSide("client", manifest.client),
       routes: manifest.server.routes && {

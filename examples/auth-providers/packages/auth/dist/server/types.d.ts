@@ -13,7 +13,7 @@ export type SignInResponse = AuthResponse;
 export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "keycloak" | "microsoft";
 export type MethodProviderName = "username" | "email" | OAuthProviderName;
 /**
- * The manifest's `server.spec`, as the server factory receives it: what
+ * The manifest's `server.spec`, as the server adapter receives it: what
  * `waspAuth({ ... })` captured in `main.wasp.ts`, one object mixing plain
  * data with the app's functions, each next to the method it belongs to. Wasp
  * carried the functions across the compiler as references and set them back,

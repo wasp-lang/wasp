@@ -1,4 +1,4 @@
-import type { ClientAuthHandlerFactory } from "@wasp.sh/auth-contract/client";
+import type { ClientAuthAdapter } from "@wasp.sh/auth-contract/client";
 
 import { signInUrl } from "./actions.js";
 import { SocialButton } from "./forms/internal/social/SocialButton.js";
@@ -11,9 +11,10 @@ import type { WaspAuthClientSpec } from "./types.js";
  * handler; the forms and actions below then read the captured runtime
  * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
-export const createClientAuthHandler: ClientAuthHandlerFactory<
-  WaspAuthClientSpec
-> = (runtime, spec) => {
+export const createClientAuthHandler: ClientAuthAdapter<WaspAuthClientSpec> = (
+  runtime,
+  spec,
+) => {
   setClientState(runtime, spec);
   // No Wrapper, no ambient credential: a bearer credential is adopted
   // explicitly by the login actions through the setCredential sink, and a

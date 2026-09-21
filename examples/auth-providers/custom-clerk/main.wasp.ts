@@ -24,11 +24,11 @@ export default app({
     // declares no `credentials`: Wasp issues nothing and adds no table.
     schemes: {
       clerk: customAuthHandler({
-        // Both halves are factories from this app's own code: the same
+        // Both halves are adapters from this app's own code: the same
         // things a handler package exports, with the same powers. Each side
         // holds what that half receives.
         server: {
-          authHandlerFactory: createClerkServerAuthHandler,
+          authAdapter: createClerkServerAuthHandler,
           env: [
             { name: "CLERK_SECRET_KEY", doc: "Clerk dashboard → API keys" },
             {
@@ -43,7 +43,7 @@ export default app({
           ],
         },
         client: {
-          authHandlerFactory: createClerkClientAuthHandler,
+          authAdapter: createClerkClientAuthHandler,
           // Declared here, so the client half receives it as `runtime.env`
           // and the app needs no client env schema of its own for it.
           env: [

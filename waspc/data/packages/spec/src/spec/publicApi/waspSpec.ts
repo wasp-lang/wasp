@@ -348,27 +348,27 @@ export type CredentialsConfig =
  * it. Two forms of the SAME thing, differing only in where the code lives,
  * which is what makes a hand-written handler as powerful as a packaged one.
  * - `{ package, export? }`: a module specifier of a handler package's entry,
- *   and the name of the factory it exports. `export` defaults to
+ *   and the name of the adapter it exports. `export` defaults to
  *   `createServerAuthHandler` on the server and `createClientAuthHandler` on
  *   the client; naming it lets one package entry hold several handlers.
  * - a reference to such a function in the app's own `src/`.
  *
  * @category Experimental
  */
-export type AuthHandlerFactoryEntry =
+export type AuthAdapterEntry =
   | { package: string; export?: string }
   | Reference<AnyFunction>;
 
 /**
  * Everything the SERVER half of a scheme needs. Each field sits next to the
- * code that receives it: the factory is called as
- * `authHandlerFactory(runtime, spec)`.
+ * code that receives it: the adapter is called as
+ * `authAdapter(runtime, spec)`.
  *
  * @category Experimental
  */
 export interface AuthSchemeServerSide {
-  /** The server half: a `ServerAuthHandlerFactory`. See {@link AuthHandlerFactoryEntry}. */
-  authHandlerFactory: AuthHandlerFactoryEntry;
+  /** The server half: a `ServerAuthAdapter`. See {@link AuthAdapterEntry}. */
+  authAdapter: AuthAdapterEntry;
   /**
    * Server env vars the handler reads. Wasp renders them into the generated
    * env validation, so a missing one fails at boot with its `doc` text. The
@@ -384,7 +384,7 @@ export interface AuthSchemeServerSide {
    *
    *   spec: { methods: { google: { scopes: ["profile"], configFn: googleConfig } } }
    *
-   * The factory receives the same object, with every reference replaced by
+   * The adapter receives the same object, with every reference replaced by
    * the live function or object it names. Wasp does the plumbing: a
    * reference cannot cross the compiler as data, so Wasp lifts each one out,
    * imports it in the generated code, and sets it back at its path. Wasp
@@ -397,7 +397,7 @@ export interface AuthSchemeServerSide {
    */
   spec?: unknown;
   /**
-   * Present when the factory returns a `routeHandler`. The routes mount at
+   * Present when the adapter returns a `routeHandler`. The routes mount at
    * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`
    * mounts them without the JSON body parser, for handlers that read the
    * body themselves.
@@ -406,14 +406,14 @@ export interface AuthSchemeServerSide {
 }
 
 /**
- * Everything the CLIENT half of a scheme needs. The factory is called as
- * `authHandlerFactory(runtime, spec)`.
+ * Everything the CLIENT half of a scheme needs. The adapter is called as
+ * `authAdapter(runtime, spec)`.
  *
  * @category Experimental
  */
 export interface AuthSchemeClientSide {
-  /** The client half: a `ClientAuthHandlerFactory`. See {@link AuthHandlerFactoryEntry}. */
-  authHandlerFactory: AuthHandlerFactoryEntry;
+  /** The client half: a `ClientAuthAdapter`. See {@link AuthAdapterEntry}. */
+  authAdapter: AuthAdapterEntry;
   /** Client env vars the handler reads; delivered as `runtime.env`. */
   env?: EnvVarRequirement[];
   /**
@@ -448,7 +448,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 6;
+  contractVersion: 7;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */

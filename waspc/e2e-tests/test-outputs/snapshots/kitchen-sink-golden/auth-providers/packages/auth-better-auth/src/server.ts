@@ -2,7 +2,7 @@ import type {
   AuthenticateResult,
   AuthHandler,
   AuthResponse,
-  ServerAuthHandlerFactory,
+  ServerAuthAdapter,
   WaspServerRuntime,
 } from "@wasp.sh/auth-contract";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
@@ -34,7 +34,7 @@ export type BetterAuthSetupFn = (
 /**
  * Better Auth, expressed as a Wasp `AuthHandler`.
  *
- * One factory builds both the Better Auth instance and the handler that
+ * One adapter builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
  * the `ServerAuthHandlerParts` shape exists to make the alternative unrepresentable.
  * Better Auth's own session token is the credential on every request (the
@@ -54,7 +54,7 @@ export type BetterAuthSetupFn = (
 /** The manifest's `server.spec`, with the app's setup function live. */
 type BetterAuthServerSpec = { setupFn?: BetterAuthSetupFn };
 
-export const createServerAuthHandler: ServerAuthHandlerFactory<
+export const createServerAuthHandler: ServerAuthAdapter<
   BetterAuthServerSpec
 > = (runtime, spec) => {
   // The integration config: everything this handler needs to plug Better Auth

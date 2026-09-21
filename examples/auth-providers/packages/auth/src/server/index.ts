@@ -1,6 +1,6 @@
 import type {
   AuthHandler,
-  ServerAuthHandlerFactory,
+  ServerAuthAdapter,
   ServerAuthHandlerParts,
 } from "@wasp.sh/auth-contract";
 import type { MethodProviderName } from "./types.js";
@@ -35,7 +35,7 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export const createServerAuthHandler: ServerAuthHandlerFactory<
+export const createServerAuthHandler: ServerAuthAdapter<
   WaspAuthServerSpec,
   MethodProviderName
 > = (runtime, spec): ServerAuthHandlerParts => {

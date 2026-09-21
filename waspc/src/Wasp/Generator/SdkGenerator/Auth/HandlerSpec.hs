@@ -17,7 +17,7 @@ import Wasp.Generator.SdkGenerator.JsImport (extImportToAliasedImportJson)
 -- code. A reference cannot cross the compiler as data, so the spec mapper
 -- lifted each one out, keyed by the path it sat at. The generated code does
 -- the inverse: it splices the data in as a literal, imports every reference,
--- and sets each back at its path before calling the handler's factory.
+-- and sets each back at its path before calling the handler's adapter.
 --
 -- The alias prefix keeps imports from colliding when several schemes' user
 -- modules share an export name.

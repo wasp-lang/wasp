@@ -475,9 +475,9 @@ export function defineAuthSchemeManifest(
     );
   }
   const handler = describeAuthHandler(manifest);
-  validateAuthHandlerFactoryEntry(handler, "server", manifest.server);
+  validateAuthAdapterEntry(handler, "server", manifest.server);
   if (manifest.client !== undefined) {
-    validateAuthHandlerFactoryEntry(handler, "client", manifest.client);
+    validateAuthAdapterEntry(handler, "client", manifest.client);
   }
 
   // Handlers receive exactly the env vars they declared, so declaring a
@@ -516,17 +516,17 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 6 as const;
+export const supportedAuthContractVersion = 7 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
- * specifier, or the import path of a hand-written factory -- more useful than
+ * specifier, or the import path of a hand-written adapter -- more useful than
  * a made-up name, and it cannot go stale.
  */
 export function describeAuthHandler(
   manifest: Pick<AuthSchemeManifestInput, "server">,
 ): string {
-  const entry = manifest.server?.authHandlerFactory as
+  const entry = manifest.server?.authAdapter as
     | { package?: unknown; from?: unknown }
     | undefined;
   if (typeof entry?.package === "string") return entry.package;
@@ -534,15 +534,15 @@ export function describeAuthHandler(
   return "unknown";
 }
 
-function validateAuthHandlerFactoryEntry(
+function validateAuthAdapterEntry(
   handler: string,
   side: "server" | "client",
-  sideManifest: { authHandlerFactory?: unknown },
+  sideManifest: { authAdapter?: unknown },
 ): void {
-  const entry = sideManifest.authHandlerFactory;
+  const entry = sideManifest.authAdapter;
   if (typeof entry !== "object" || entry === null) {
     throw new WaspSpecUserError(
-      `Auth handler '${handler}' must say where its ${side} half lives (\`${side}.authHandlerFactory\`): { package, export? } or a reference to a factory in your code.`,
+      `Auth handler '${handler}' must say where its ${side} half lives (\`${side}.authAdapter\`): { package, export? } or a reference to an adapter in your code.`,
     );
   }
   if ("package" in entry) {
@@ -552,7 +552,7 @@ function validateAuthHandlerFactoryEntry(
     };
     if (typeof packageSpecifier !== "string" || packageSpecifier.length === 0) {
       throw new WaspSpecUserError(
-        `Auth handler '${handler}' has an empty ${side}.authHandlerFactory.package.`,
+        `Auth handler '${handler}' has an empty ${side}.authAdapter.package.`,
       );
     }
     // It is interpolated into generated `import { <export> } from` code.
@@ -562,7 +562,7 @@ function validateAuthHandlerFactoryEntry(
         !/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(exportName))
     ) {
       throw new WaspSpecUserError(
-        `Auth handler '${handler}' has an invalid ${side}.authHandlerFactory.export '${String(exportName)}': it must be a JavaScript identifier.`,
+        `Auth handler '${handler}' has an invalid ${side}.authAdapter.export '${String(exportName)}': it must be a JavaScript identifier.`,
       );
     }
   }
@@ -671,15 +671,15 @@ export function validateCredentialsConfig(
  */
 export type CustomAuthHandlerConfig = {
   /**
-   * The server half. `authHandlerFactory` is a reference to a
-   * `ServerAuthHandlerFactory` in the app's own code: a function that
+   * The server half. `authAdapter` is a reference to a
+   * `ServerAuthAdapter` in the app's own code: a function that
    * receives the scheme's runtime and returns `{ handler, routeHandler? }`,
    * exactly like a handler package's `createServerAuthHandler`.
    */
   server: AuthSchemeServerSide;
   /**
-   * The client half. `authHandlerFactory` is a reference to a
-   * `ClientAuthHandlerFactory` in the app's own code, exactly like a
+   * The client half. `authAdapter` is a reference to a
+   * `ClientAuthAdapter` in the app's own code, exactly like a
    * handler package's `createClientAuthHandler`.
    */
   client?: AuthSchemeClientSide;
@@ -714,7 +714,7 @@ export type CustomAuthHandlerConfig = {
  *   onAuthFailedRedirectTo: "/login",
  *   schemes: {
  *     password: customAuthHandler({
- *       server: { authHandlerFactory: createMyAuthHandler },
+ *       server: { authAdapter: createMyAuthHandler },
  *     }),
  *   },
  * }
@@ -788,7 +788,7 @@ function waspCredentialScheme(
   // adopts, so the issuer has no client entry of its own.
   return defineAuthSchemeManifest({
     server: {
-      authHandlerFactory: { package: "wasp/server/auth/issuer" },
+      authAdapter: { package: "wasp/server/auth/issuer" },
       env:
         store === "signed-token"
           ? [

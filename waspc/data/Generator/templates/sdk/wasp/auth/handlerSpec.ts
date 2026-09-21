@@ -1,11 +1,11 @@
 // PRIVATE API
 /**
- * Rebuilds an auth handler's `spec` for its factory.
+ * Rebuilds an auth handler's `spec` for its adapter.
  *
  * A handler's spec is one object mixing plain data with references to app
  * code. A reference cannot cross the compiler as data, so the compiler lifted
  * each one out, keyed by the path it sat at. This is the inverse: the data,
- * with every reference set back at its path, so the factory receives the
+ * with every reference set back at its path, so the adapter receives the
  * object the spec helper built -- with live functions where the references
  * were.
  *

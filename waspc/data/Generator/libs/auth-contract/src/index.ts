@@ -10,7 +10,7 @@
  *
  * - A **handler** is the code: an `AuthHandler` object. An handler package
  *   implements one in its server entry and exposes it as a named
- *   `createServerAuthHandler` export (see `ServerAuthHandlerFactory`).
+ *   `createServerAuthHandler` export (see `ServerAuthAdapter`).
  * - A **scheme** is a named, configured instance of a handler, declared in the
  *   app's `auth.schemes` map. The scheme name is what Wasp records everywhere:
  *   on sessions, in identity namespaces, in `authRequired` lists, in route
@@ -606,7 +606,7 @@ export type ProviderIdentities = {
  * callbacks, Better Auth's `/sign-in` and friends), the Node handler Wasp
  * should mount at the scheme's `mountPath`.
  *
- * One factory returns both so they are guaranteed to share one configured
+ * One adapter returns both so they are guaranteed to share one configured
  * instance -- a handler authenticating against one configuration while its
  * routes run another is a bug class this shape makes unrepresentable.
  */
@@ -636,16 +636,16 @@ export type ServerAuthHandlerParts = {
  * One object mixing plain data with the app's functions, each where it
  * naturally belongs. Wasp carried the functions across the compiler as
  * references and set them back, so they arrive live and callable. Wasp never
- * reads the contents; the handler types them with `Spec`.
+ * reads the contents; the handler types them with `ServerSpec`.
  *
  * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes.
  */
-export type ServerAuthHandlerFactory<
-  Spec = unknown,
+export type ServerAuthAdapter<
+  ServerSpec = unknown,
   Namespaces extends string = "default",
 > = (
   runtime: WaspServerRuntime<Namespaces>,
-  spec: Spec,
+  spec: ServerSpec,
 ) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 
 // ---------------------------------------------------------------------------

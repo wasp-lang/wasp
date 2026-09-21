@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import type { ClientAuthHandlerFactory } from "@wasp.sh/auth-contract/client";
+import type { ClientAuthAdapter } from "@wasp.sh/auth-contract/client";
 /**
  * Wraps the app in Clerk's React context.
  *
@@ -27,4 +27,4 @@ export * from "@clerk/clerk-react";
  * across Clerk's ~60s rotations), refreshes on Clerk-side logins/logouts, and
  * `logout()` signs out of Clerk too.
  */
-export declare const createClientAuthHandler: ClientAuthHandlerFactory;
+export declare const createClientAuthHandler: ClientAuthAdapter;

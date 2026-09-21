@@ -4,7 +4,7 @@
  * An handler package with client-side needs (a React context to mount, a
  * credential to attach to requests) implements this in its client entry and
  * exposes it as a named `createClientAuthHandler` export (see
- * {@link ClientAuthHandlerFactory}). Wasp instantiates it once per scheme and
+ * {@link ClientAuthAdapter}). Wasp instantiates it once per scheme and
  * wires the pieces into the generated client; the app composes nothing by
  * hand.
  */
@@ -121,7 +121,7 @@ export type ClientAuthHandler = {
  * a callback), arriving live. All of it is bundled into the browser, so it
  * never holds a secret.
  */
-export type ClientAuthHandlerFactory<Spec = unknown> = (
+export type ClientAuthAdapter<ClientSpec = unknown> = (
   runtime: WaspClientRuntime,
-  spec: Spec,
+  spec: ClientSpec,
 ) => ClientAuthHandler;

@@ -55,7 +55,7 @@ genClientAuthProvidersTs auth =
           "isCookieTransportUsed" Aeson..= AS.Auth.isCookieTransportUsed auth,
           "clientAuthHandlerSchemes" Aeson..= zipWith mkClientAuthHandlerSchemeTmplData [0 :: Int ..] clientAuthHandlerSchemes
         ]
-    -- A scheme's client half is a package entry or a factory in the app's
+    -- A scheme's client half is a package entry or an adapter in the app's
     -- own code; both are instantiated the same way.
     clientAuthHandlerSchemes =
       [ (scheme, clientSide)

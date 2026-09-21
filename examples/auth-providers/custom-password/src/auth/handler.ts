@@ -1,13 +1,13 @@
 import { hash, verify } from "@node-rs/argon2";
 import {
   getAuthContractErrorCode,
-  type ServerAuthHandlerFactory,
+  type ServerAuthAdapter,
 } from "wasp/server/auth/handler/types";
 
 /**
  * Email+password auth, hand-rolled in-app -- the proof that a hand-written
  * scheme has the same powers a handler package has, because it IS the same
- * thing: a `ServerAuthHandlerFactory`, the function a package exports as
+ * thing: a `ServerAuthAdapter`, the function a package exports as
  * `createServerAuthHandler`. Pasting this file into a package needs no edits.
  *
  * - The runtime arrives as an argument: the identities facet for storage, and
@@ -19,12 +19,10 @@ import {
  *   ships no crypto to handlers).
  *
  * An app that would rather write ordinary Wasp `api()` routes can: keep the
- * factory for `handler`, stash `runtime` in a module variable here, and read
+ * adapter for `handler`, stash `runtime` in a module variable here, and read
  * it from those routes. That is plain userland; Wasp needs no API for it.
  */
-export const createPasswordAuthHandler: ServerAuthHandlerFactory = (
-  runtime,
-) => ({
+export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
   // The routes below verify logins. Afterwards a request carries the token
   // the issuer minted, and this handler recognizes it by forwarding to that
   // issuer -- the way ASP.NET's remote schemes forward to their sign-in scheme.

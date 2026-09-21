@@ -463,7 +463,7 @@ const issuer_0 = createIssuer(issuerOptions_0)
 const credentials_0 = boundTo(spec_0, issuer_0, issuerOptions_0)
 const handlerParts_0 = await Promise.resolve(
   createServerAuthHandler_0(
-    // The cast narrows the built runtime to the grants the factory's type
+    // The cast narrows the built runtime to the grants the adapter's type
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],

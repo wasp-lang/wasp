@@ -207,15 +207,13 @@ export type AuthScheme = {
   userFieldsFromClaims: Optional<ExtImport>;
 };
 
-// One half of a scheme: what its factory is, and what it receives.
+// One half of a scheme: what its adapter is, and what it receives.
 export type AuthSchemeSide = {
-  authHandlerFactory:
-    | { package: string; export: string }
-    | { module: ExtImport };
+  authAdapter: { package: string; export: string } | { module: ExtImport };
   envVars: AuthSchemeEnvVar[];
   // The side's `config`, split: its plain data as JSON, and the references
   // lifted out of it, keyed by the JSON-encoded path they sat at. The
-  // generated code joins them back before calling the factory.
+  // generated code joins them back before calling the adapter.
   specJson: Optional<string>;
   specReferences: Record<string, ExtImport>;
 };

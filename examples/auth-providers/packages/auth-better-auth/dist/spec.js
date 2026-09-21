@@ -41,9 +41,9 @@ export function betterAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 6,
+        contractVersion: 7,
         server: {
-            authHandlerFactory: { package: "@wasp.sh/auth-better-auth/server" },
+            authAdapter: { package: "@wasp.sh/auth-better-auth/server" },
             env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
             spec: {
                 ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
@@ -51,7 +51,7 @@ export function betterAuth(config) {
             routes: { rawBody: true },
         },
         client: {
-            authHandlerFactory: { package: "@wasp.sh/auth-better-auth/client" },
+            authAdapter: { package: "@wasp.sh/auth-better-auth/client" },
         },
         capabilities: [],
         ...(config?.userSignupFields !== undefined

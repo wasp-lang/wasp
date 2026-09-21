@@ -101,9 +101,9 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 6;
+    contractVersion: 7;
     server: {
-        authHandlerFactory: {
+        authAdapter: {
             package: string;
         };
         env: EnvVarRequirement[];
@@ -111,7 +111,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
         routes: Record<string, never>;
     };
     client: {
-        authHandlerFactory: {
+        authAdapter: {
             package: string;
         };
         spec: WaspAuthClientSpec;
@@ -125,7 +125,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
 /**
  * What the server half receives: plain data mixed with the app's functions,
  * each next to the method it belongs to. Here the functions are still
- * references; Wasp carries them across the compiler and the factory gets
+ * references; Wasp carries them across the compiler and the adapter gets
  * them live, at the same paths.
  */
 export type WaspAuthServerSpec<Ref = unknown> = {

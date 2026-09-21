@@ -9,7 +9,7 @@ module Wasp.AppSpec.App.Auth
     AuthHooksSpec (..),
     AuthScheme (..),
     AuthSchemeSide (..),
-    AuthHandlerFactoryEntry (..),
+    AuthAdapterEntry (..),
     AuthSchemeRoutes (..),
     AuthSchemeEnvVar (..),
     AuthSchemeCredentials (..),
@@ -105,7 +105,7 @@ data AuthScheme = AuthScheme
     -- @authRequired@ lists name it.
     name :: String,
     -- | A label for the handler, for messages: where its server half's code
-    -- lives (a package specifier, or the path of a hand-written factory).
+    -- lives (a package specifier, or the path of a hand-written adapter).
     handler :: String,
     -- | The scheme's server half.
     server :: AuthSchemeSide,
@@ -135,10 +135,10 @@ data AuthScheme = AuthScheme
 
 -- | Exactly one of: a handler package's server entry (module specifier), or a
 -- user-code module implementing the handler (the hand-written escape hatch).
--- | One half of a scheme (server or client): the factory Wasp calls to build
--- it, and what that factory receives.
+-- | One half of a scheme (server or client): the adapter Wasp calls to build
+-- it, and what that adapter receives.
 data AuthSchemeSide = AuthSchemeSide
-  { authHandlerFactory :: AuthHandlerFactoryEntry,
+  { authAdapter :: AuthAdapterEntry,
     -- | Env vars this half reads; it receives exactly these.
     envVars :: [AuthSchemeEnvVar],
     -- | The plain-data part of this half's @spec@, JSON-encoded.
@@ -146,65 +146,65 @@ data AuthSchemeSide = AuthSchemeSide
     -- | The references to app code lifted out of this half's @spec@,
     -- keyed by the JSON-encoded path they sat at
     -- (@["methods","google","configFn"]@). The generated code imports each
-    -- and sets it back at its path before calling the factory.
+    -- and sets it back at its path before calling the adapter.
     specReferences :: Map String ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
--- | Where a side's factory lives. Both forms are the same thing in different
+-- | Where a side's adapter lives. Both forms are the same thing in different
 -- places, which is what makes a hand-written handler as powerful as a
 -- packaged one: a handler package's entry and the name it exports the
--- factory under, or a factory in the app's own code.
-data AuthHandlerFactoryEntry
-  = PackageFactory {packageSpecifier :: String, exportName :: String}
-  | ModuleFactory ExtImport
+-- adapter under, or an adapter in the app's own code.
+data AuthAdapterEntry
+  = PackageAdapter {packageSpecifier :: String, exportName :: String}
+  | ModuleAdapter ExtImport
   deriving (Show, Eq, Data, Generic)
 
-instance FromJSON AuthHandlerFactoryEntry where
-  parseJSON = Aeson.withObject "authHandlerFactory" $ \o -> do
+instance FromJSON AuthAdapterEntry where
+  parseJSON = Aeson.withObject "authAdapter" $ \o -> do
     maybePackage <- o .:? "package"
     maybeExport <- o .:? "export"
     maybeModule <- o .:? "module"
     case (maybePackage, maybeExport, maybeModule) of
       (Just packageSpecifier', Just exportName', Nothing) ->
-        pure $ PackageFactory packageSpecifier' exportName'
-      (Nothing, Nothing, Just extImport) -> pure $ ModuleFactory extImport
-      _ -> fail "authHandlerFactory must be either { package, export } or { module }"
+        pure $ PackageAdapter packageSpecifier' exportName'
+      (Nothing, Nothing, Just extImport) -> pure $ ModuleAdapter extImport
+      _ -> fail "authAdapter must be either { package, export } or { module }"
 
-instance ToJSON AuthHandlerFactoryEntry where
-  toJSON (PackageFactory packageSpecifier' exportName') =
+instance ToJSON AuthAdapterEntry where
+  toJSON (PackageAdapter packageSpecifier' exportName') =
     Aeson.object ["package" .= packageSpecifier', "export" .= exportName']
-  toJSON (ModuleFactory extImport) =
+  toJSON (ModuleAdapter extImport) =
     Aeson.object ["module" .= extImport]
 
-factoryPackage :: AuthHandlerFactoryEntry -> Maybe String
-factoryPackage (PackageFactory packageSpecifier' _) = Just packageSpecifier'
-factoryPackage (ModuleFactory _) = Nothing
+adapterPackage :: AuthAdapterEntry -> Maybe String
+adapterPackage (PackageAdapter packageSpecifier' _) = Just packageSpecifier'
+adapterPackage (ModuleAdapter _) = Nothing
 
-factoryModule :: AuthHandlerFactoryEntry -> Maybe ExtImport
-factoryModule (PackageFactory _ _) = Nothing
-factoryModule (ModuleFactory extImport) = Just extImport
+adapterModule :: AuthAdapterEntry -> Maybe ExtImport
+adapterModule (PackageAdapter _ _) = Nothing
+adapterModule (ModuleAdapter extImport) = Just extImport
 
 serverPackage :: AuthScheme -> Maybe String
-serverPackage scheme = factoryPackage scheme.server.authHandlerFactory
+serverPackage scheme = adapterPackage scheme.server.authAdapter
 
 serverModule :: AuthScheme -> Maybe ExtImport
-serverModule scheme = factoryModule scheme.server.authHandlerFactory
+serverModule scheme = adapterModule scheme.server.authAdapter
 
 clientPackage :: AuthScheme -> Maybe String
-clientPackage scheme = scheme.client >>= factoryPackage . (.authHandlerFactory)
+clientPackage scheme = scheme.client >>= adapterPackage . (.authAdapter)
 
--- | The name a handler package exports its server factory under. Nothing for
--- a factory in the app's own code, whose reference already names its export.
+-- | The name a handler package exports its server adapter under. Nothing for
+-- an adapter in the app's own code, whose reference already names its export.
 serverExportName :: AuthScheme -> Maybe String
-serverExportName scheme = factoryExportName scheme.server.authHandlerFactory
+serverExportName scheme = adapterExportName scheme.server.authAdapter
 
 clientExportName :: AuthScheme -> Maybe String
-clientExportName scheme = scheme.client >>= factoryExportName . (.authHandlerFactory)
+clientExportName scheme = scheme.client >>= adapterExportName . (.authAdapter)
 
-factoryExportName :: AuthHandlerFactoryEntry -> Maybe String
-factoryExportName (PackageFactory _ exportName') = Just exportName'
-factoryExportName (ModuleFactory _) = Nothing
+adapterExportName :: AuthAdapterEntry -> Maybe String
+adapterExportName (PackageAdapter _ exportName') = Just exportName'
+adapterExportName (ModuleAdapter _) = Nothing
 
 serverEnvVars :: AuthScheme -> [AuthSchemeEnvVar]
 serverEnvVars scheme = scheme.server.envVars
@@ -214,7 +214,7 @@ clientEnvVars :: AuthScheme -> [AuthSchemeEnvVar]
 clientEnvVars scheme = maybe [] (.envVars) scheme.client
 
 clientModule :: AuthScheme -> Maybe ExtImport
-clientModule scheme = scheme.client >>= factoryModule . (.authHandlerFactory)
+clientModule scheme = scheme.client >>= adapterModule . (.authAdapter)
 
 -- | How a scheme hands out credentials: by signing into a sibling scheme, or
 -- through a private Wasp issuer configured inline.

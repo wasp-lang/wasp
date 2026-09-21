@@ -99,8 +99,8 @@ getVirtualUserModules spec =
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
-      mkServerAuthHandlerFactoryModule <$> serverAuthHandlerFactories,
-      mkClientAuthHandlerFactoryModule <$> clientAuthHandlerFactories,
+      mkServerAuthAdapterModule <$> serverAuthAdapters,
+      mkClientAuthAdapterModule <$> clientAuthAdapters,
       mkUserFieldsFromClaimsModule <$> userFieldsFromClaims,
       mkServerSpecReferenceModule <$> serverSpecReferences,
       mkClientSpecReferenceModule <$> clientSpecReferences,
@@ -153,21 +153,21 @@ getVirtualUserModules spec =
     -- other virtual modules, it is declared with the plain contract type rather
     -- than a Register-backed one: the SDK needs no more than `AuthProvider`,
     -- and the handler's exact type has no consumer.
-    mkServerAuthHandlerFactoryModule extImport' =
+    mkServerAuthAdapterModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/auth/handler/types|]
-        "ServerAuthHandlerFactory"
+        "ServerAuthAdapter"
 
-    -- The client half of a hand-written scheme: the same factory a handler
+    -- The client half of a hand-written scheme: the same adapter a handler
     -- package exports as `createClientAuthHandler`.
-    mkClientAuthHandlerFactoryModule extImport' =
+    mkClientAuthAdapterModule extImport' =
       VirtualUserModule
         ClientRuntime
         extImport'
         [relfileP|./client/auth/types|]
-        "ClientAuthHandlerFactory"
+        "ClientAuthAdapter"
 
     -- Feeds just-in-time provisioning: the one case where Wasp itself creates
     -- the user, so the SDK's session layer consumes it. Declared with the
@@ -183,7 +183,7 @@ getVirtualUserModules spec =
     -- App code a handler's `server.spec` references (signup field getters,
     -- OAuth config functions, email content functions, a setup function for
     -- the handler's underlying library). The handler types each precisely;
-    -- the SDK only sets them back into the spec it hands the factory, so
+    -- the SDK only sets them back into the spec it hands the adapter, so
     -- they are declared loosely.
     mkServerSpecReferenceModule extImport' =
       VirtualUserModule
@@ -226,8 +226,8 @@ getVirtualUserModules spec =
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     maybeAuth = AS.App.auth app
     authSchemes = maybe [] AS.Auth.schemes maybeAuth
-    serverAuthHandlerFactories = mapMaybe AS.Auth.serverModule authSchemes
-    clientAuthHandlerFactories = mapMaybe AS.Auth.clientModule authSchemes
+    serverAuthAdapters = mapMaybe AS.Auth.serverModule authSchemes
+    clientAuthAdapters = mapMaybe AS.Auth.clientModule authSchemes
     userFieldsFromClaims = mapMaybe (.userFieldsFromClaims) authSchemes
     serverSpecReferences = concatMap (Map.elems . (.server.specReferences)) authSchemes
     clientSpecReferences = concatMap (maybe [] (Map.elems . (.specReferences)) . (.client)) authSchemes
