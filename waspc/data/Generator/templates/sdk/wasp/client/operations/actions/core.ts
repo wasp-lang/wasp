@@ -1,8 +1,7 @@
 import { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
-export { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
-import type { _Awaited, _ReturnType } from '@wasp.sh/lib-sdk-core'
+import { makeOperationRoute } from '@wasp.sh/lib-sdk-core'
 import type { OperationRpcFor, GenericBackendOperation } from '@wasp.sh/lib-sdk-core'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
+import { callOperation } from '../internal/index.js'
 import {
   registerActionInProgress,
   registerActionDone,
