@@ -1,7 +1,7 @@
 import { makeQueryCacheKey, buildAndRegisterQuery, type QueryFor } from '@wasp.sh/lib-sdk-core/browser'
 export { makeQueryCacheKey, buildAndRegisterQuery, type QueryFor } from '@wasp.sh/lib-sdk-core/browser'
 import type { Route } from '../../index.js'
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
+import type { _Awaited, _ReturnType } from '@wasp.sh/lib-sdk-core'
 import type {
   GenericBackendOperation,
   GenericOperationRpc,
