@@ -32,4 +32,4 @@ export {
   FormTextarea,
   FormItemGroup,
   FormLabel,
-} from '../../auth/forms/internal/Form'
+} from '@wasp.sh/lib-sdk-core/browser'

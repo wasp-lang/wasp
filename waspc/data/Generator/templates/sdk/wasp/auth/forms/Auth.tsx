@@ -2,7 +2,11 @@
 import { useState, useMemo } from 'react'
 import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/browser'
 import styles from './Auth.module.css'
-import { tokenObjToCSSVars } from "./internal/util"
+import {
+  FormMessageError as MessageError,
+  MessageSuccess,
+  tokenObjToCSSVars,
+} from '@wasp.sh/lib-sdk-core/browser'
 
 import type {
   State,
@@ -10,7 +14,6 @@ import type {
   AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
-import { MessageError, MessageSuccess } from './internal/Message'
 {=# isEmailAuthEnabled =}
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'

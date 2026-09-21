@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
-import { Message } from '../Message'
+import { Message } from '@wasp.sh/lib-sdk-core/browser'
 import { useEffectOnce } from '../../../../client/hooks.js'
 
 // PRIVATE API

@@ -2,11 +2,11 @@
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import { config } from '../../../../client/index.js'
-import { clsx } from '../util'
+import { clsx } from '@wasp.sh/lib-sdk-core/browser'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 {=# enabledProviders.isEmailAuthEnabled =}
-import { emailFieldRules, emailInputProps } from '../emailField'
+import { emailFieldRules, emailInputProps } from '@wasp.sh/lib-sdk-core/browser'
 {=/ enabledProviders.isEmailAuthEnabled =}
 import {
   Form,
@@ -16,7 +16,7 @@ import {
   FormError,
   FormTextarea,
   SubmitButton,
-} from '../Form'
+} from '@wasp.sh/lib-sdk-core/browser'
 import type {
   AdditionalSignupFields,
   AdditionalSignupField,
@@ -24,8 +24,8 @@ import type {
   FormState,
 } from '../../types'
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '../social/SocialIcons'
-import { SocialButton } from '../social/SocialButton'
+import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
+import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
