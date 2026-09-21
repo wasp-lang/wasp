@@ -9,7 +9,7 @@ import { envFile } from "./envFile.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
-import { typescriptCheck } from "./typescriptCheck.js";
+import { typescriptCheck } from "@wasp.sh/lib-sdk-core/node/vite";
 import { waspConfig } from "./waspConfig.js";
 
 
