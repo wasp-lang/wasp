@@ -1,6 +1,7 @@
 {{={= =}=}}
 import { deserialize } from '../core/serialization/index.js'
-import { useQuery, buildAndRegisterQuery } from '../client/operations/index.js'
+import { useQuery } from '@wasp.sh/lib-sdk-core/browser'
+import { buildAndRegisterQuery } from '../client/operations/index.js'
 import type { QueryFunction, Query  } from '@wasp.sh/lib-sdk-core'
 import { api, handleApiError } from '../api/index.js'
 import { HttpMethod } from '../client/index.js'
