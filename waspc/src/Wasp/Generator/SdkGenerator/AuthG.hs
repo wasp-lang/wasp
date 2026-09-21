@@ -42,8 +42,7 @@ genAuth spec =
         ]
         -- client stuff
         <++> sequence
-          [ genFileCopyInAuth [relfile|types.ts|],
-            genFileCopyInAuth [relfile|logout.ts|],
+          [ genFileCopyInAuth [relfile|logout.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth
