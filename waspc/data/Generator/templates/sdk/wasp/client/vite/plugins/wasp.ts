@@ -2,7 +2,6 @@
 import type { PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import type { WaspPluginOptions } from '@wasp.sh/lib-sdk-core/node/vite'
-export type { WaspPluginOptions } from '@wasp.sh/lib-sdk-core/node/vite'
 import ssr from "@wasp.sh/lib-vite-ssr";
 import { validateEnv } from "./validateEnv.js";
 import { envFile } from "./envFile.js";
