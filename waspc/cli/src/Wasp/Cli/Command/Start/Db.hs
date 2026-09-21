@@ -1,5 +1,7 @@
 module Wasp.Cli.Command.Start.Db
   ( start,
+    startDbArgsParser,
+    StartDbArgs (..),
   )
 where
 
@@ -66,7 +68,7 @@ start = withArguments "wasp start db" startDbArgsParser $ \args -> do
 startDbArgsParser :: Opt.Parser StartDbArgs
 startDbArgsParser =
   StartDbArgs
-    <$> portOption "port" "Port to run the dev database on"
+    <$> portOption "db-port" ("Port to run the dev database on (default: " ++ show defaultPostgresPort ++ ")")
     <*> Opt.strOption
       ( Opt.long "db-image"
           <> Opt.metavar "IMAGE"
@@ -133,29 +135,22 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
     Nothing -> startDbOnPort =<< resolveDevDbPort
   where
     resolveDevDbPort :: Command PortNumber
-    resolveDevDbPort = maybe findFreeDevDbPort assertPortIsFree requestedDbPort
-
-    assertPortIsFree :: PortNumber -> Command PortNumber
-    assertPortIsFree port = do
-      whenM (liftIO $ checkIfLocalPortIsTaken port) $
-        E.throwError $
-          CommandError
-            "Port already in use"
-            ("Port " ++ show port ++ " is already in use. Choose a different port with --port, or free up this one.")
-      return port
-
-    findFreeDevDbPort :: Command PortNumber
-    findFreeDevDbPort =
-      liftIO
-        ( findFirstFreeLocalPortInRange
-            defaultPostgresPort
-            []
-            "Free at least one of those ports by exiting the program listening on it, or choose one yourself with --port."
-        )
-        >>= either throwNoFreePortError return
-
-    throwNoFreePortError :: String -> Command a
-    throwNoFreePortError = E.throwError . CommandError "No free port"
+    resolveDevDbPort = case requestedDbPort of
+      Just port -> do
+        whenM (liftIO $ checkIfLocalPortIsTaken port) $
+          E.throwError $
+            CommandError
+              "Port already in use"
+              ("Port " ++ show port ++ " is already in use. Choose a different port with --db-port, or free up this one.")
+        return port
+      Nothing ->
+        liftIO
+          ( findFirstFreeLocalPortInRange
+              defaultPostgresPort
+              []
+              "Free at least one of those ports by exiting the program listening on it, or choose one yourself with --db-port."
+          )
+          >>= either (E.throwError . CommandError "No free port") return
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
     noteDbIsAlreadyRunningAndExit devDbSpec = do

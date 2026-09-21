@@ -155,10 +155,10 @@ printUsage =
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
               "                          If not specified, Wasp picks the first free port when the default one is taken.",
-        cmd   "    start db [--port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
+        cmd   "    start db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
-              "                          If a port is not specified, Wasp picks the first free port starting at 5432.",
+              "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
@@ -225,11 +225,11 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd $ intercalate "\n" [
-              "  start [--port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
+              "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
               "                               Starts managed development database for you.",
               "                               Optionally specify a custom port, Docker image, or Docker volume mount path.",
-              "                               If a port is not specified, Wasp picks the first free port starting at 5432."
+              "                               If the port is not specified, Wasp picks the first free port when the default one is taken."
         ],
         cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
@@ -251,7 +251,7 @@ printDbUsage =
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
               "  wasp db studio",
-              "  wasp db start --port 8080"
+              "  wasp db start --db-port 8080"
       ]
 {- ORMOLU_ENABLE -}
 
