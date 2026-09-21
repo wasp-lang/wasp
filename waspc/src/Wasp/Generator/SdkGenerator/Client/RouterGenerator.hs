@@ -23,8 +23,6 @@ genClientRouterApi :: AppSpec -> Generator [FileDraft]
 genClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genFileCopyInClientRouter [relfile|types.ts|],
-      genFileCopyInClientRouter [relfile|linkHelpers.ts|],
       genFileCopyInClientRouter [relfile|Link.tsx|],
       genFileCopyInClientRouter [relfile|NavLink.tsx|]
     ]
