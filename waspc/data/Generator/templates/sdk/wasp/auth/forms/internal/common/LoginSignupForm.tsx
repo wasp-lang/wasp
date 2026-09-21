@@ -22,7 +22,7 @@ import type {
   AdditionalSignupField,
   AdditionalSignupFieldRenderFn,
   FormState,
-} from '../../types'
+} from '@wasp.sh/lib-sdk-core/browser'
 {=# isSocialAuthEnabled =}
 import * as SocialIcons from '@wasp.sh/lib-sdk-core/browser'
 import { SocialButton } from '@wasp.sh/lib-sdk-core/browser'
@@ -65,9 +65,7 @@ const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 // know the exact shape of the form values. We are assuming that the form values
 // will be a flat object with string values.
 =}
-// PRIVATE API
 import type { LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
-export { type LoginSignupFormFields } from '@wasp.sh/lib-sdk-core/browser'
 
 
 // PRIVATE API

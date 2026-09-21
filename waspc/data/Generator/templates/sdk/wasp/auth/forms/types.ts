@@ -10,5 +10,3 @@ export enum State {
   VerifyEmail = 'verify-email',
   {=/ isEmailAuthEnabled =}
 }
-
-export { type AdditionalSignupField, type AdditionalSignupFieldRenderFn, type AdditionalSignupFields, type CustomizationOptions, type FormState } from '@wasp.sh/lib-sdk-core/browser'
