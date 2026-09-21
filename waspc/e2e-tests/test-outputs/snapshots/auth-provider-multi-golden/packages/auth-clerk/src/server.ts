@@ -4,8 +4,9 @@ import type {
   AuthHandler,
   AuthResponse,
   Principal,
-  ServerAuthAdapter,
+  ServerAuthAdapterFor,
 } from "@wasp.sh/auth-contract";
+import type { clerk as clerkSpecHelper } from "./spec.js";
 
 /**
  * Clerk, expressed as a Wasp `AuthHandler`.
@@ -26,7 +27,9 @@ import type {
  * Secrets come from `runtime.env`, already validated against the env vars the
  * manifest declared -- the handler never reads `process.env` itself.
  */
-export const createServerAuthHandler: ServerAuthAdapter = (runtime) => {
+export const createServerAuthHandler: ServerAuthAdapterFor<
+  typeof clerkSpecHelper
+> = (runtime) => {
   const clerk = createClerkClient({
     secretKey: runtime.env.CLERK_SECRET_KEY,
     publishableKey: runtime.env.CLERK_PUBLISHABLE_KEY,

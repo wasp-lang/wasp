@@ -1,12 +1,16 @@
 /**
  * The spec helper: what an app's `main.wasp.ts` imports.
  *
- * This module deliberately imports NOTHING -- not even `@wasp.sh/spec`. The
+ * This module imports nothing at runtime, and no type from `@wasp.sh/spec`. The
  * app compiles `main.wasp.ts` against its own copy of `@wasp.sh/spec`, and a
  * type that mentioned this package's copy would never be assignable to it
  * (the spec's branded types are unique per copy). So the manifest is
  * constructed and typed structurally here, and the compiler validates it
  * structurally when it reads the app.
+ *
+ * The manifest type is precise on purpose: the adapters derive their types
+ * from `typeof clerk` (`ServerAuthAdapterFor`), so the env vars listed here
+ * are exactly the keys of their `runtime.env`.
  */
 /**
  * Declares Clerk as one of the app's auth schemes.

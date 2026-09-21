@@ -419,10 +419,11 @@ const issuer_0 = createIssuer(issuerOptions_0)
 const credentials_0 = boundTo(spec_0, issuer_0, issuerOptions_0)
 const handlerParts_0 = await Promise.resolve(
   createServerAuthHandler_0(
-    // The cast narrows the built runtime to the grants the adapter's type
-    // declares; the generator wired exactly the manifest's `uses`, and the
-    // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],
+    // The cast narrows the built runtime to what the adapter's type declares
+    // (an adapter typed with `ServerAuthAdapterFor` sees only the env vars and
+    // facets of its manifest). Sound by construction: the generator wired
+    // exactly the manifest's declarations into this runtime.
+    makeSchemeRuntime(spec_0, credentials_0) as unknown as Parameters<typeof createServerAuthHandler_0>[0],
     // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
     joinHandlerSpec({"clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}}}, [
@@ -444,10 +445,11 @@ const spec_1: SchemeRuntimeSpec = {
 const credentials_1 = null
 const handlerParts_1 = await Promise.resolve(
   createServerAuthHandler_1(
-    // The cast narrows the built runtime to the grants the adapter's type
-    // declares; the generator wired exactly the manifest's `uses`, and the
-    // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_1, credentials_1) as Parameters<typeof createServerAuthHandler_1>[0],
+    // The cast narrows the built runtime to what the adapter's type declares
+    // (an adapter typed with `ServerAuthAdapterFor` sees only the env vars and
+    // facets of its manifest). Sound by construction: the generator wired
+    // exactly the manifest's declarations into this runtime.
+    makeSchemeRuntime(spec_1, credentials_1) as unknown as Parameters<typeof createServerAuthHandler_1>[0],
     // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
     joinHandlerSpec(undefined, [

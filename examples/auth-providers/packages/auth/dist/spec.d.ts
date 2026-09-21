@@ -1,24 +1,32 @@
 /**
  * The spec helper: what an app's `main.wasp.ts` imports.
  *
- * This module deliberately imports NOTHING -- not even `@wasp.sh/spec`. The
- * app compiles `main.wasp.ts` against its own copy of `@wasp.sh/spec`, and a
- * type that mentioned this package's copy would never be assignable to it
- * (the spec's branded types are unique per copy). So the manifest is
- * constructed and typed structurally here, and the compiler validates it
- * structurally when it reads the app.
+ * This module deliberately imports nothing at runtime, and no type from
+ * `@wasp.sh/spec`. The app compiles `main.wasp.ts` against its own copy of
+ * `@wasp.sh/spec`, and a type that mentioned this package's copy would never
+ * be assignable to it (the spec's branded types are unique per copy). So the
+ * manifest is constructed and typed structurally here, and the compiler
+ * validates it structurally when it reads the app.
+ *
+ * A field that takes the app's code is a `SpecReference<AppValue>`: the app
+ * passes a `with { type: "ref" }` import, and the server adapter receives
+ * `AppValue` in that place. The adapters derive all their types from
+ * `typeof waspAuth`, so the shape of the spec is written once, here.
  */
+import type { CredentialStore, SpecReference } from "@wasp.sh/auth-contract";
+import type { WaspAuthClientSpec } from "./client/types.js";
+import type { GetPasswordResetEmailContentFn, GetVerificationEmailContentFn, MethodProviderName, OAuthConfigFn, OAuthProviderName, OnAfterEmailVerifiedHook, OnBeforeOAuthRedirectHook, UserSignupFields } from "./server/types.js";
+export type { OAuthProviderName, WaspAuthClientSpec };
 /** The client route the OAuth handback lands on; the app declares it. */
 export declare const OAUTH_CALLBACK_PATH = "/oauth/callback";
 export type OAuthMethodName = "google" | "gitHub" | "keycloak" | "slack" | "discord" | "microsoft";
 /**
- * The configuration accepted by {@link waspAuth}. `Ref` is the app's own
- * `Reference` type (from `with { type: "ref" }` imports); it stays generic so
- * the app's branded references flow through untouched.
+ * The configuration accepted by {@link waspAuth}. Fields that take app code
+ * expect a `with { type: "ref" }` import of it.
  */
-export interface WaspAuthConfig<Ref = unknown, StoreRef = never> {
+export interface WaspAuthConfig {
     /** Enabled authentication methods. At least one must be enabled. */
-    methods: WaspAuthMethods<Ref>;
+    methods: WaspAuthMethods;
     /**
      * How a verified login turns into the credential the client carries
      * afterwards. By default the scheme runs its own issuer: a bearer token
@@ -28,7 +36,7 @@ export interface WaspAuthConfig<Ref = unknown, StoreRef = never> {
      * into a sibling scheme (a standalone `waspBearer()` / `waspCookie()`) that
      * several schemes share.
      */
-    credentials?: WaspAuthCredentialsConfig<StoreRef>;
+    credentials?: WaspAuthCredentialsConfig;
     /**
      * Route that Wasp redirects users to after a successful login or signup.
      * Only takes effect when using the built-in forms.
@@ -36,56 +44,52 @@ export interface WaspAuthConfig<Ref = unknown, StoreRef = never> {
      */
     onAuthSucceededRedirectTo?: string;
     /** Called once, after the user verifies their email. Receives `email` and `user`. */
-    onAfterEmailVerified?: Ref;
+    onAfterEmailVerified?: SpecReference<OnAfterEmailVerifiedHook>;
     /**
      * Called before redirecting the user to the OAuth provider. Receives the
      * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
      * the redirect URL.
      */
-    onBeforeOAuthRedirect?: Ref;
+    onBeforeOAuthRedirect?: SpecReference<OnBeforeOAuthRedirectHook>;
 }
-/**
- * `StoreRef` is the app's reference to its own credential store, kept
- * separate from the function references so the two never unify into one
- * (over-wide) type.
- */
-export type WaspAuthCredentialsConfig<StoreRef = never> = {
+export type WaspAuthCredentialsConfig = {
     scheme: string;
 } | {
     transport?: "bearer" | "cookie";
-    store?: "prisma" | "signed-token" | StoreRef;
+    /** `"prisma"` (default), `"signed-token"`, or the app's own `CredentialStore`. */
+    store?: "prisma" | "signed-token" | SpecReference<CredentialStore>;
     /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
     ttl?: string;
 };
-export type WaspAuthMethods<Ref = unknown> = {
-    usernameAndPassword?: UsernameAndPasswordConfig<Ref>;
-    email?: EmailAuthConfig<Ref>;
-} & Partial<Record<OAuthMethodName, SocialAuthConfig<Ref>>>;
-export interface UsernameAndPasswordConfig<Ref = unknown> {
+export type WaspAuthMethods = {
+    usernameAndPassword?: UsernameAndPasswordConfig;
+    email?: EmailAuthConfig;
+} & Partial<Record<OAuthMethodName, SocialAuthConfig>>;
+export interface UsernameAndPasswordConfig {
     /** Extra fields to save on the user during signup; see `defineUserSignupFields`. */
-    userSignupFields?: Ref;
+    userSignupFields?: SpecReference<UserSignupFields>;
 }
-export interface SocialAuthConfig<Ref = unknown> {
+export interface SocialAuthConfig {
     /** Extra fields to save on the user during signup, from the provider's profile. */
-    userSignupFields?: Ref;
+    userSignupFields?: SpecReference<UserSignupFields>;
     /** Function returning the OAuth config (scopes, extra params) for this provider. */
-    configFn?: Ref;
+    configFn?: SpecReference<OAuthConfigFn>;
 }
-export interface EmailAuthConfig<Ref = unknown> {
-    userSignupFields?: Ref;
+export interface EmailAuthConfig {
+    userSignupFields?: SpecReference<UserSignupFields>;
     /** The sender of the verification and password reset emails. */
     fromField: {
         name?: string;
         email: string;
     };
-    emailVerification: EmailFlowConfig<Ref>;
-    passwordReset: EmailFlowConfig<Ref>;
+    emailVerification: EmailFlowConfig<GetVerificationEmailContentFn>;
+    passwordReset: EmailFlowConfig<GetPasswordResetEmailContentFn>;
 }
-export interface EmailFlowConfig<Ref = unknown> {
+export interface EmailFlowConfig<GetEmailContentFn> {
     /** Path of the client route the emailed link points at (e.g. `"/email-verification"`). */
     clientRoute: string;
     /** Function returning the email content (subject, html, text) for this flow. */
-    getEmailContentFn?: Ref;
+    getEmailContentFn?: SpecReference<GetEmailContentFn>;
 }
 type EnvVarRequirement = {
     name: string;
@@ -98,7 +102,7 @@ type EnvVarRequirement = {
  * `AuthSchemeManifest` from `@wasp.sh/spec`. It is grouped by side: `server`
  * and `client` each hold what that half of the handler receives.
  */
-export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
+export type WaspAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
     contractVersion: 7;
@@ -106,8 +110,11 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
         authAdapter: {
             package: string;
         };
-        env: EnvVarRequirement[];
-        spec: WaspAuthServerSpec<Ref>;
+        /** Which of these an app declares depends on its enabled methods. */
+        env: Array<EnvVarRequirement & {
+            name: WaspAuthServerEnvVarName;
+        }>;
+        spec: WaspAuthManifestServerSpec;
         routes: Record<string, never>;
     };
     client: {
@@ -119,51 +126,44 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
     capabilities: string[];
     uses: Array<"email-send">;
     /** Namespace suffixes; the compiler prefixes them with the scheme name. */
-    identityNamespaces: string[];
-    credentials: WaspAuthCredentialsConfig<StoreRef>;
+    identityNamespaces: MethodProviderName[];
+    credentials: WaspAuthCredentialsConfig;
 };
 /**
- * What the server half receives: plain data mixed with the app's functions,
- * each next to the method it belongs to. Here the functions are still
- * references; Wasp carries them across the compiler and the adapter gets
- * them live, at the same paths.
+ * The manifest's `server.spec`: plain data mixed with references to the
+ * app's functions, each next to the method it belongs to. The server adapter
+ * receives the same object with the functions live (`WaspAuthServerSpec`).
  */
-export type WaspAuthServerSpec<Ref = unknown> = {
+export type WaspAuthManifestServerSpec = {
+    /** Client route the OAuth handback redirects to with the one-time code. */
     clientOAuthCallbackPath: string;
     methods: {
         usernameAndPassword?: {
-            userSignupFields?: Ref;
+            userSignupFields?: SpecReference<UserSignupFields>;
         };
         email?: {
             fromField: {
                 name?: string;
                 email: string;
             };
+            /** Client route path the emailed verification link points at. */
             emailVerificationClientRoute: string;
+            /** Client route path the emailed password-reset link points at. */
             passwordResetClientRoute: string;
-            userSignupFields?: Ref;
-            getVerificationEmailContent?: Ref;
-            getPasswordResetEmailContent?: Ref;
+            userSignupFields?: SpecReference<UserSignupFields>;
+            getVerificationEmailContent?: SpecReference<GetVerificationEmailContentFn>;
+            getPasswordResetEmailContent?: SpecReference<GetPasswordResetEmailContentFn>;
         };
-    } & Partial<Record<OAuthProviderName, {
-        requiredScopes: string[];
-        userSignupFields?: Ref;
-        configFn?: Ref;
-    }>>;
-    onAfterEmailVerified?: Ref;
-    onBeforeOAuthRedirect?: Ref;
+    } & Partial<Record<OAuthProviderName, OAuthMethodManifestServerSpec>>;
+    onAfterEmailVerified?: SpecReference<OnAfterEmailVerifiedHook>;
+    onBeforeOAuthRedirect?: SpecReference<OnBeforeOAuthRedirectHook>;
 };
-/**
- * What the client half receives. Public by construction (it is bundled into
- * the browser), so it carries only what the forms and actions read: where to
- * go after login, where the OAuth handback lands, and which methods are on.
- */
-export type WaspAuthClientSpec = {
-    onAuthSucceededRedirectTo: string;
-    clientOAuthCallbackPath: string;
-    methods: Partial<Record<"usernameAndPassword" | "email" | OAuthProviderName, Record<string, never>>>;
+export type OAuthMethodManifestServerSpec = {
+    requiredScopes: string[];
+    userSignupFields?: SpecReference<UserSignupFields>;
+    configFn?: SpecReference<OAuthConfigFn>;
 };
-export type OAuthProviderName = "google" | "github" | "keycloak" | "slack" | "discord" | "microsoft";
+export type WaspAuthServerEnvVarName = "JWT_SECRET" | "SKIP_EMAIL_VERIFICATION_IN_DEV" | "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "GITHUB_CLIENT_ID" | "GITHUB_CLIENT_SECRET" | "KEYCLOAK_CLIENT_ID" | "KEYCLOAK_CLIENT_SECRET" | "KEYCLOAK_REALM_URL" | "SLACK_CLIENT_ID" | "SLACK_CLIENT_SECRET" | "DISCORD_CLIENT_ID" | "DISCORD_CLIENT_SECRET" | "MICROSOFT_CLIENT_ID" | "MICROSOFT_CLIENT_SECRET" | "MICROSOFT_TENANT_ID";
 /**
  * Declares Wasp's own auth as one of the app's auth schemes.
  *
@@ -183,5 +183,4 @@ export type OAuthProviderName = "google" | "github" | "keycloak" | "slack" | "di
  * out credentials through its own bearer issuer unless `credentials` says
  * otherwise, and hands every user function over as an extension.
  */
-export declare function waspAuth<Ref = unknown, StoreRef = never>(config: WaspAuthConfig<Ref, StoreRef>): WaspAuthSchemeManifest<Ref, StoreRef>;
-export {};
+export declare function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest;

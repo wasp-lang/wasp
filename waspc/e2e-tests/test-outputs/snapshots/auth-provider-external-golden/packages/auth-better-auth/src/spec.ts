@@ -1,7 +1,7 @@
 /**
  * The spec helper: what an app's `main.wasp.ts` imports.
  *
- * This module deliberately imports NOTHING -- not even `@wasp.sh/spec`. The
+ * This module imports nothing at runtime, and no type from `@wasp.sh/spec`. The
  * app compiles `main.wasp.ts` against its own copy of `@wasp.sh/spec`, and a
  * type that mentioned this package's copy would never be assignable to it
  * (the spec's branded types are unique per copy). So the manifest is
@@ -9,58 +9,61 @@
  * structurally when it reads the app.
  */
 
+import type { SpecReference } from "@wasp.sh/auth-contract";
+import type { BetterAuthSetupFn } from "./server.js";
+
 /**
  * An env var the provider needs. Wasp renders these into the app's generated
  * env validation, so a missing var fails at boot with `doc` as the
  * explanation instead of failing at the first authenticated request.
  */
-export type EnvVarRequirement = {
-  name: string;
-  optional?: boolean;
+export type EnvVarRequirement<Name extends string = string> = {
+  name: Name;
   doc?: string;
 };
 
 /**
- * The manifest {@link betterAuth} produces, structurally matching
- * `AuthSchemeManifest` from `@wasp.sh/spec`.
- *
- * `UserSignupFieldsRef` stays generic on purpose: the reference the app
- * passes is branded by the app's own spec copy, and naming that type here
- * would pin it to the wrong one. The caller's type flows through untouched.
+ * Computes the app's user fields from the claims Better Auth verified: what the
+ * app's `defineUserSignupFields` returned, passed as a
+ * `with { type: "ref" }` import.
  */
-export type BetterAuthSchemeManifest<
-  UserSignupFieldsRef = never,
-  SetupFnRef = never,
-> = {
+export type UserFieldsFromClaims = SpecReference<
+  Record<string, (data: never) => unknown>
+>;
+
+/**
+ * The manifest {@link betterAuth} produces, structurally matching
+ * `AuthSchemeManifest` from `@wasp.sh/spec`. It is precise on purpose: the
+ * adapters derive their types from `typeof betterAuth`
+ * (`ServerAuthAdapterFor`).
+ */
+export type BetterAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
   contractVersion: 7;
   server: {
     authAdapter: { package: string };
-    env: EnvVarRequirement[];
+    env: [EnvVarRequirement<"BETTER_AUTH_SECRET">];
     /** The app's setup function, when given; it arrives live in the adapter. */
-    spec: { setupFn?: SetupFnRef };
+    spec: { setupFn?: SpecReference<BetterAuthSetupFn> };
     routes: { rawBody: true };
   };
   client: { authAdapter: { package: string } };
   capabilities: string[];
-  userFieldsFromClaims?: UserSignupFieldsRef;
+  userFieldsFromClaims?: UserFieldsFromClaims;
 };
 
 /**
  * The configuration accepted by {@link betterAuth}.
  */
-export interface BetterAuthConfig<
-  UserSignupFieldsRef = never,
-  SetupFnRef = never,
-> {
+export interface BetterAuthConfig {
   /**
    * Populates the app's user entity when Wasp provisions a local user for a
    * Better Auth subject it has not seen before, from the claims the handler
    * verified (`email`, `name`). Required in practice when the user entity has
    * non-nullable fields.
    */
-  userSignupFields?: UserSignupFieldsRef;
+  userSignupFields?: UserFieldsFromClaims;
 
   /**
    * Setup function for the Better Auth instance, following the same
@@ -79,7 +82,7 @@ export interface BetterAuthConfig<
    * The handler re-asserts its load-bearing settings (base path, table name
    * overrides, the bearer plugin, the database adapter) after calling it.
    */
-  setupFn?: SetupFnRef;
+  setupFn?: SpecReference<BetterAuthSetupFn>;
 }
 
 /**
@@ -111,9 +114,9 @@ export interface BetterAuthConfig<
  *   server auth handler configures -- see this package's README for the block to
  *   paste in.
  */
-export function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(
-  config?: BetterAuthConfig<UserSignupFieldsRef, SetupFnRef>,
-): BetterAuthSchemeManifest<UserSignupFieldsRef, SetupFnRef> {
+export function betterAuth(
+  config?: BetterAuthConfig,
+): BetterAuthSchemeManifest {
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",

@@ -74,7 +74,7 @@ function makeClientRuntime(
 
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
-  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), joinHandlerSpec({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{},"google":{},"github":{},"slack":{},"discord":{},"microsoft":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
+  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []) as unknown as Parameters<typeof createClientAuthHandler_0>[0], joinHandlerSpec({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{},"google":{},"github":{},"slack":{},"discord":{},"microsoft":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
 }
 
 // The handlers' own credentials are the request path's fallback source:

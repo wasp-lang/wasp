@@ -10,6 +10,7 @@
  */
 
 import type { ComponentType, ReactNode } from "react";
+import type { DeclaredEnv, LiveSpec, ManifestOf } from "./typedAdapter.js";
 
 /**
  * Everything Wasp hands a client-side auth handler about the app it runs in. Like
@@ -125,3 +126,34 @@ export type ClientAuthAdapter<ClientSpec = unknown> = (
   runtime: WaspClientRuntime,
   spec: ClientSpec,
 ) => ClientAuthHandler;
+
+/**
+ * `ClientAuthAdapter`, typed from the handler's spec helper the same way as
+ * `ServerAuthAdapterFor`: `spec` is the manifest's `client.spec`, and
+ * `runtime.env` has one key per env var in `client.env`.
+ *
+ *   export const createClientAuthHandler: ClientAuthAdapterFor<typeof myAuth> =
+ *     (runtime, spec) => { ... }
+ */
+export type ClientAuthAdapterFor<SpecHelper> = (
+  runtime: WaspClientRuntimeFor<SpecHelper>,
+  spec: ClientSpecOf<SpecHelper>,
+) => ClientAuthHandler;
+
+/** The manifest's `client.spec` with its references live: the type of the client adapter's `spec` parameter. */
+export type ClientSpecOf<SpecHelper> =
+  ManifestOf<SpecHelper> extends { client: { spec?: infer ClientSpec } }
+    ? LiveSpec<ClientSpec>
+    : unknown;
+
+/** `WaspClientRuntime` with `env` narrowed to the env vars the manifest's `client.env` declares. */
+export type WaspClientRuntimeFor<SpecHelper> = Omit<
+  WaspClientRuntime,
+  "env"
+> & {
+  env: DeclaredEnv<
+    ManifestOf<SpecHelper> extends { client: { env: infer EnvVars } }
+      ? EnvVars
+      : []
+  >;
+};

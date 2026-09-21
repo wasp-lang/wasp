@@ -2,9 +2,10 @@ import { ClerkProvider, useClerk } from "@clerk/clerk-react";
 import { useEffect, type ReactNode } from "react";
 
 import type {
-  ClientAuthAdapter,
+  ClientAuthAdapterFor,
   ClientAuthHandler,
 } from "@wasp.sh/auth-contract/client";
+import type { clerk as clerkSpecHelper } from "./spec.js";
 
 /**
  * Vite exposes client env vars on `import.meta.env`; other bundlers may not
@@ -101,9 +102,9 @@ function ClerkInstanceCapture({ children }: { children: ReactNode }) {
  * across Clerk's ~60s rotations), refreshes on Clerk-side logins/logouts, and
  * `logout()` signs out of Clerk too.
  */
-export const createClientAuthHandler: ClientAuthAdapter = (
-  runtime,
-): ClientAuthHandler => ({
+export const createClientAuthHandler: ClientAuthAdapterFor<
+  typeof clerkSpecHelper
+> = (runtime): ClientAuthHandler => ({
   Wrapper: ({ children }) => (
     <ClerkAuthProvider
       publishableKey={runtime.env.REACT_APP_CLERK_PUBLISHABLE_KEY}

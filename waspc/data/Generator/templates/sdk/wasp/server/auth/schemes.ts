@@ -508,10 +508,11 @@ const createServerAuthHandler_{= index =} = {= handlerModule.importIdentifier =}
 {=/ isPackage =}
 const handlerParts_{= index =} = await Promise.resolve(
   createServerAuthHandler_{= index =}(
-    // The cast narrows the built runtime to the grants the adapter's type
-    // declares; the generator wired exactly the manifest's `uses`, and the
-    // boot assert keeps manifest and handler honest.
-    makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as Parameters<typeof createServerAuthHandler_{= index =}>[0],
+    // The cast narrows the built runtime to what the adapter's type declares
+    // (an adapter typed with `ServerAuthAdapterFor` sees only the env vars and
+    // facets of its manifest). Sound by construction: the generator wired
+    // exactly the manifest's declarations into this runtime.
+    makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as unknown as Parameters<typeof createServerAuthHandler_{= index =}>[0],
     // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
     joinHandlerSpec({=& specJson =}, [

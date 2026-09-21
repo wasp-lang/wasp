@@ -1,9 +1,5 @@
-import type {
-  AuthHandler,
-  ServerAuthAdapter,
-  ServerAuthHandlerParts,
-} from "@wasp.sh/auth-contract";
-import type { MethodProviderName } from "./types.js";
+import type { AuthHandler, ServerAuthAdapterFor } from "@wasp.sh/auth-contract";
+import type { waspAuth } from "../spec.js";
 
 import { emailRoutes } from "./email/flows.js";
 import {
@@ -14,7 +10,7 @@ import {
 import { makeDispatcher, type Route } from "./http.js";
 import { linkingRoutes } from "./linking.js";
 import { oauthRoutes } from "./oauth/index.js";
-import type { Ctx, OAuthProviderName, WaspAuthServerSpec } from "./types.js";
+import type { Ctx, OAuthProviderName } from "./types.js";
 import { usernameRoutes } from "./username.js";
 
 const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
@@ -35,10 +31,10 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export const createServerAuthHandler: ServerAuthAdapter<
-  WaspAuthServerSpec,
-  MethodProviderName
-> = (runtime, spec): ServerAuthHandlerParts => {
+export const createServerAuthHandler: ServerAuthAdapterFor<typeof waspAuth> = (
+  runtime,
+  spec,
+) => {
   const ctx: Ctx = { runtime, spec };
 
   const routes: Route[] = [

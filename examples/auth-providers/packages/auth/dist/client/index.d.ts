@@ -1,11 +1,11 @@
-import type { ClientAuthAdapter } from "@wasp.sh/auth-contract/client";
-import type { WaspAuthClientSpec } from "./types.js";
+import type { ClientAuthAdapterFor } from "@wasp.sh/auth-contract/client";
+import type { waspAuth } from "../spec.js";
 /**
  * The client half of Wasp's own auth. Wasp instantiates it like any client
  * handler; the forms and actions below then read the captured runtime
  * (`mountUrl`, the scheme-bound `setCredential` sink) and options.
  */
-export declare const createClientAuthHandler: ClientAuthAdapter<WaspAuthClientSpec>;
+export declare const createClientAuthHandler: ClientAuthAdapterFor<typeof waspAuth>;
 export { confirmMerge, linkEmail, linkUsername, login, requestPasswordReset, resetPassword, signup, startOAuthLink, unlink, verifyEmail, } from "./actions.js";
 export type { LinkResult } from "./actions.js";
 export { ForgotPasswordForm, LoginForm, ResetPasswordForm, SignupForm, VerifyEmailForm, } from "./forms/index.js";

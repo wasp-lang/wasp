@@ -74,7 +74,7 @@ function makeClientRuntime(
 
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
-  'clerk': createClientAuthHandler_0(makeClientRuntime('clerk', ['REACT_APP_CLERK_PUBLISHABLE_KEY']), joinHandlerSpec(undefined, []) as Parameters<typeof createClientAuthHandler_0>[1]),
+  'clerk': createClientAuthHandler_0(makeClientRuntime('clerk', ['REACT_APP_CLERK_PUBLISHABLE_KEY']) as unknown as Parameters<typeof createClientAuthHandler_0>[0], joinHandlerSpec(undefined, []) as Parameters<typeof createClientAuthHandler_0>[1]),
 }
 
 // The handlers' own credentials are the request path's fallback source:

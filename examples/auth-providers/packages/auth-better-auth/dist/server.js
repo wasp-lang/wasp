@@ -2,6 +2,26 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { toNodeHandler } from "better-auth/node";
 import { bearer } from "better-auth/plugins";
+/**
+ * Better Auth, expressed as a Wasp `AuthHandler`.
+ *
+ * One adapter builds both the Better Auth instance and the handler that
+ * verifies against it, so they are guaranteed to share one configuration --
+ * the `ServerAuthHandlerParts` shape exists to make the alternative unrepresentable.
+ * Better Auth's own session token is the credential on every request (the
+ * client auth handler stores it and Wasp attaches it), so Wasp issues nothing.
+ *
+ * Two settings on the instance are load-bearing for this integration:
+ *
+ * - `bearer()` -- Wasp sends the session token in an `Authorization: Bearer`
+ *   header rather than a cookie, so the same client code works from a browser,
+ *   a native app or a script. Better Auth supports that through this plugin.
+ *
+ * - `modelName` on every model -- Better Auth's default table names (`user`,
+ *   `session`, `account`) would collide with Wasp's own generated tables. Note
+ *   these must be the *Prisma client property*, not the `@@map` name: the
+ *   handler does a raw `db[modelName]` lookup with no case transformation.
+ */
 export const createServerAuthHandler = (runtime, spec) => {
     // The integration config: everything this handler needs to plug Better Auth
     // into a Wasp app, and nothing about which auth methods exist.

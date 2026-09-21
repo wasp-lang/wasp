@@ -22,6 +22,8 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 
+export type * from "./typedAdapter.js";
+
 export type JsonValue =
   | string
   | number
@@ -639,6 +641,10 @@ export type ServerAuthHandlerParts = {
  * reads the contents; the handler types them with `ServerSpec`.
  *
  * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes.
+ *
+ * This is the loose form, typed by hand, for hand-written handlers. A package
+ * with a spec helper uses `ServerAuthAdapterFor<typeof helper>`, which derives
+ * all of this, and more, from the manifest the helper returns.
  */
 export type ServerAuthAdapter<
   ServerSpec = unknown,

@@ -1,7 +1,6 @@
-import type { ServerAuthAdapter } from "@wasp.sh/auth-contract";
-import type { MethodProviderName } from "./types.js";
+import type { ServerAuthAdapterFor } from "@wasp.sh/auth-contract";
+import type { waspAuth } from "../spec.js";
 import { isEmailResendAllowed, type EmailHelpers } from "./email/utils.js";
-import type { WaspAuthServerSpec } from "./types.js";
 /**
  * Wasp's own authentication as an auth handler package.
  *
@@ -11,7 +10,7 @@ import type { WaspAuthServerSpec } from "./types.js";
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export declare const createServerAuthHandler: ServerAuthAdapter<WaspAuthServerSpec, MethodProviderName>;
+export declare const createServerAuthHandler: ServerAuthAdapterFor<typeof waspAuth>;
 export declare const createEmailVerificationLink: EmailHelpers["createEmailVerificationLink"];
 export declare const createPasswordResetLink: EmailHelpers["createPasswordResetLink"];
 export declare const sendEmailVerificationEmail: EmailHelpers["sendEmailVerificationEmail"];

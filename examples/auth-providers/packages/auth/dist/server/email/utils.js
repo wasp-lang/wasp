@@ -20,8 +20,10 @@ export function makeEmailHelpers(runtime) {
         }
         await emailIdentities.updateData(email, metadata);
         // The manifest requests `email-send` whenever the email method is on, so
-        // this works by construction; if it ever did not, `send` itself rejects
-        // with a message naming the missing grant.
+        // this holds by construction.
+        if (!runtime.canSendEmail) {
+            throw new Error("Wasp's auth cannot send email: `email-send` not granted.");
+        }
         runtime.email.send(content).catch((e) => {
             console.error("Failed to send email", e);
         });

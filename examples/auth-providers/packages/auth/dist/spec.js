@@ -1,12 +1,17 @@
 /**
  * The spec helper: what an app's `main.wasp.ts` imports.
  *
- * This module deliberately imports NOTHING -- not even `@wasp.sh/spec`. The
- * app compiles `main.wasp.ts` against its own copy of `@wasp.sh/spec`, and a
- * type that mentioned this package's copy would never be assignable to it
- * (the spec's branded types are unique per copy). So the manifest is
- * constructed and typed structurally here, and the compiler validates it
- * structurally when it reads the app.
+ * This module deliberately imports nothing at runtime, and no type from
+ * `@wasp.sh/spec`. The app compiles `main.wasp.ts` against its own copy of
+ * `@wasp.sh/spec`, and a type that mentioned this package's copy would never
+ * be assignable to it (the spec's branded types are unique per copy). So the
+ * manifest is constructed and typed structurally here, and the compiler
+ * validates it structurally when it reads the app.
+ *
+ * A field that takes the app's code is a `SpecReference<AppValue>`: the app
+ * passes a `with { type: "ref" }` import, and the server adapter receives
+ * `AppValue` in that place. The adapters derive all their types from
+ * `typeof waspAuth`, so the shape of the spec is written once, here.
  */
 /** The client route the OAuth handback lands on; the app declares it. */
 export const OAUTH_CALLBACK_PATH = "/oauth/callback";
@@ -122,7 +127,9 @@ export function waspAuth(config) {
         clientMethods[name] = {};
     }
     const identityNamespaces = [
-        ...(methods.usernameAndPassword !== undefined ? ["username"] : []),
+        ...(methods.usernameAndPassword !== undefined
+            ? ["username"]
+            : []),
         ...(usesEmail ? ["email"] : []),
         ...enabledOAuth.map((method) => oauthProviders[method].name),
     ];

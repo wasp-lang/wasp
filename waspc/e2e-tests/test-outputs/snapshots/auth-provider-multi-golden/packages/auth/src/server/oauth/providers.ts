@@ -7,6 +7,7 @@ import {
   Slack,
 } from "arctic";
 
+import type { WaspAuthServerEnvVarName } from "../../spec.js";
 import type { OAuthProviderName, WaspAuthRuntime } from "../types.js";
 
 type ProviderInfo = { providerProfile: unknown; providerUserId: string };
@@ -44,7 +45,10 @@ async function fetchProfile(
   return (await response.json()) as Record<string, unknown>;
 }
 
-function requireEnv(runtime: WaspAuthRuntime, name: string): string {
+function requireEnv(
+  runtime: WaspAuthRuntime,
+  name: WaspAuthServerEnvVarName,
+): string {
   const value = runtime.env[name];
   if (value === undefined) {
     throw new Error(`${name} is required by Wasp's auth.`);

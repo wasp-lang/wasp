@@ -1,32 +1,42 @@
 /**
  * The spec helper: what an app's `main.wasp.ts` imports.
  *
- * This module deliberately imports NOTHING -- not even `@wasp.sh/spec`. The
+ * This module imports nothing at runtime, and no type from `@wasp.sh/spec`. The
  * app compiles `main.wasp.ts` against its own copy of `@wasp.sh/spec`, and a
  * type that mentioned this package's copy would never be assignable to it
  * (the spec's branded types are unique per copy). So the manifest is
  * constructed and typed structurally here, and the compiler validates it
  * structurally when it reads the app.
+ *
+ * The manifest type is precise on purpose: the adapters derive their types
+ * from `typeof clerk` (`ServerAuthAdapterFor`), so the env vars listed here
+ * are exactly the keys of their `runtime.env`.
  */
+import type { SpecReference } from "@wasp.sh/auth-contract";
 /**
  * An env var the handler needs. Wasp renders these into the app's generated
  * env validation, so a missing var fails at boot with `doc` as the
  * explanation instead of failing at the first authenticated request.
  */
-export type EnvVarRequirement = {
-    name: string;
-    optional?: boolean;
+export type EnvVarRequirement<Name extends string = string> = {
+    name: Name;
     doc?: string;
 };
+export type OptionalEnvVarRequirement<Name extends string = string> = EnvVarRequirement<Name> & {
+    optional: true;
+};
+/**
+ * Computes the app's user fields from the claims Clerk verified: what the
+ * app's `defineUserSignupFields` returned, passed as a
+ * `with { type: "ref" }` import.
+ */
+export type UserFieldsFromClaims = SpecReference<Record<string, (data: never) => unknown>>;
 /**
  * The manifest {@link clerk} produces, structurally matching
- * `AuthSchemeManifest` from `@wasp.sh/spec`.
- *
- * `UserSignupFieldsRef` stays generic on purpose: the reference the app
- * passes is branded by the app's own spec copy, and naming that type here
- * would pin it to the wrong one. The caller's type flows through untouched.
+ * `AuthSchemeManifest` from `@wasp.sh/spec`. `env` is a tuple, so a required
+ * var reaches the adapter as a plain `string`.
  */
-export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
+export type ClerkAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
     contractVersion: 7;
@@ -34,21 +44,25 @@ export type ClerkAuthSchemeManifest<UserSignupFieldsRef = never> = {
         authAdapter: {
             package: string;
         };
-        env: EnvVarRequirement[];
+        env: [
+            EnvVarRequirement<"CLERK_SECRET_KEY">,
+            EnvVarRequirement<"CLERK_PUBLISHABLE_KEY">,
+            OptionalEnvVarRequirement<"CLERK_JWT_KEY">
+        ];
     };
     client: {
         authAdapter: {
             package: string;
         };
-        env: EnvVarRequirement[];
+        env: [EnvVarRequirement<"REACT_APP_CLERK_PUBLISHABLE_KEY">];
     };
     capabilities: string[];
-    userFieldsFromClaims?: UserSignupFieldsRef;
+    userFieldsFromClaims?: UserFieldsFromClaims;
 };
 /**
  * The configuration accepted by {@link clerk}.
  */
-export interface ClerkConfig<UserSignupFieldsRef = never> {
+export interface ClerkConfig {
     /**
      * Populates the app's user entity when Wasp provisions a local user for a
      * Clerk subject it has not seen before, from the claims the handler
@@ -59,7 +73,7 @@ export interface ClerkConfig<UserSignupFieldsRef = never> {
      * token template in the Clerk dashboard if the app's user entity needs it
      * at provisioning time.
      */
-    userSignupFields?: UserSignupFieldsRef;
+    userSignupFields?: UserFieldsFromClaims;
 }
 /**
  * Declares Clerk as one of the app's auth schemes.
@@ -83,4 +97,4 @@ export interface ClerkConfig<UserSignupFieldsRef = never> {
  * vars they need. A missing var fails at boot with its `doc` string as the
  * explanation, not at the first authenticated request.
  */
-export declare function clerk<UserSignupFieldsRef = never>(config?: ClerkConfig<UserSignupFieldsRef>): ClerkAuthSchemeManifest<UserSignupFieldsRef>;
+export declare function clerk(config?: ClerkConfig): ClerkAuthSchemeManifest;

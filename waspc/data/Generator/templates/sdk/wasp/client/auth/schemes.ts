@@ -95,7 +95,7 @@ function makeClientRuntime(
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
   {=# clientAuthHandlerSchemes =}
-  '{= schemeName =}': createClientAuthHandler_{= index =}(makeClientRuntime('{= schemeName =}', {=& clientEnvVarNamesJs =}), joinHandlerSpec({=& specJson =}, [{=# specReferences =}[{=& pathJs =}, {= import.importIdentifier =}], {=/ specReferences =}]) as Parameters<typeof createClientAuthHandler_{= index =}>[1]),
+  '{= schemeName =}': createClientAuthHandler_{= index =}(makeClientRuntime('{= schemeName =}', {=& clientEnvVarNamesJs =}) as unknown as Parameters<typeof createClientAuthHandler_{= index =}>[0], joinHandlerSpec({=& specJson =}, [{=# specReferences =}[{=& pathJs =}, {= import.importIdentifier =}], {=/ specReferences =}]) as Parameters<typeof createClientAuthHandler_{= index =}>[1]),
   {=/ clientAuthHandlerSchemes =}
 }
 
