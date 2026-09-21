@@ -129,7 +129,7 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 5,
+        contractVersion: 6,
         server: {
             authHandlerFactory: { package: "@wasp.sh/auth/server" },
             env: [
@@ -153,7 +153,7 @@ export function waspAuth(config) {
                     : []),
                 ...enabledOAuth.flatMap((method) => oauthProviders[method].envVars.map((name) => ({ name }))),
             ],
-            config: {
+            spec: {
                 clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
                 methods: serverMethods,
                 ...given({
@@ -165,7 +165,7 @@ export function waspAuth(config) {
         },
         client: {
             authHandlerFactory: { package: "@wasp.sh/auth/client" },
-            config: {
+            spec: {
                 onAuthSucceededRedirectTo: config.onAuthSucceededRedirectTo ?? "/",
                 clientOAuthCallbackPath: OAUTH_CALLBACK_PATH,
                 methods: clientMethods,

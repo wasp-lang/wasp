@@ -31,10 +31,10 @@ export {
 
 // PRIVATE API
 /**
- * App code a handler's `server.config` references -- a signup field getter,
+ * App code a handler's `server.spec` references -- a signup field getter,
  * an OAuth config function, an email content function, a setup function for
  * the handler's underlying library. The handler types each precisely; the SDK
- * only sets them back into the config it hands the factory, so their virtual
+ * only sets them back into the spec it hands the factory, so their virtual
  * modules are declared loosely.
  */
-export type AuthHandlerConfigReference = unknown
+export type AuthHandlerSpecReference = unknown

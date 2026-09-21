@@ -38,7 +38,7 @@ genAuth spec =
           genFileCopyInAuth [relfile|providers/index.ts|],
           genFileCopyInAuth [relfile|types.ts|],
           genFileCopyInAuth [relfile|logout.ts|],
-          genFileCopyInAuth [relfile|schemeConfig.ts|],
+          genFileCopyInAuth [relfile|handlerSpec.ts|],
           genUseAuth auth
         ]
   where

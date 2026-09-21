@@ -41,11 +41,11 @@ export function betterAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 5,
+        contractVersion: 6,
         server: {
             authHandlerFactory: { package: "@wasp.sh/auth-better-auth/server" },
             env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
-            config: {
+            spec: {
                 ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
             },
             routes: { rawBody: true },

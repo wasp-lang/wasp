@@ -5,7 +5,7 @@ export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "key
  * the forms and actions read: where to go after login, where the OAuth
  * handback lands, and which methods are on.
  */
-export type WaspAuthClientConfig = {
+export type WaspAuthClientSpec = {
     /** Route the built-in forms navigate to after a successful login or signup. */
     onAuthSucceededRedirectTo: string;
     /** Client route the OAuth handback redirects to with the one-time code. */

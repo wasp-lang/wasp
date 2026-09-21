@@ -23,7 +23,7 @@ import {
 
 /** The username & password method: `/auth/username/{login,signup}`. */
 export function usernameRoutes(ctx: Ctx): Route[] {
-  const { runtime, config } = ctx;
+  const { runtime, spec } = ctx;
   const identities = () => runtime.identities.username;
 
   return [
@@ -132,7 +132,7 @@ export function usernameRoutes(ctx: Ctx): Route[] {
             (() =>
               validateAndGetUserFields(
                 fields,
-                config.methods.usernameAndPassword?.userSignupFields,
+                spec.methods.usernameAndPassword?.userSignupFields,
               )) as never,
             { req },
           );

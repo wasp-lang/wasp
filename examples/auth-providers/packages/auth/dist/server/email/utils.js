@@ -19,11 +19,9 @@ export function makeEmailHelpers(runtime) {
             throw new Error(`User with email: ${email} not found.`);
         }
         await emailIdentities.updateData(email, metadata);
-        // The `email-send` grant: present by construction, the email method
-        // requires app.emailSender.
-        if (runtime.email === undefined) {
-            throw new Error("The email auth method requires the email-send grant.");
-        }
+        // The manifest requests `email-send` whenever the email method is on, so
+        // this works by construction; if it ever did not, `send` itself rejects
+        // with a message naming the missing grant.
         runtime.email.send(content).catch((e) => {
             console.error("Failed to send email", e);
         });

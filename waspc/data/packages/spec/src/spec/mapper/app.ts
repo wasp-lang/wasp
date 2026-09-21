@@ -2,6 +2,7 @@ import * as AppSpec from "../../appSpec.js";
 import {
   describeAuthHandler,
   isValidSchemeName,
+  supportedAuthContractVersion,
   validateCredentialsConfig,
   validateIdentityNamespaces,
   validateSideEnvVars,
@@ -9,7 +10,7 @@ import {
 import * as WaspSpec from "../publicApi/waspSpec.js";
 import { WaspSpecUserError } from "../waspSpecUserError.js";
 import { AppMapperContext } from "./context.js";
-import { splitSchemeConfig } from "./schemeConfig.js";
+import { splitHandlerSpec } from "./handlerSpec.js";
 
 export function mapAppSpec(
   app: WaspSpec.App,
@@ -199,11 +200,11 @@ function mapAuthScheme(
     );
   }
   const handler = describeAuthHandler(manifest);
-  if (manifest.contractVersion !== 5) {
+  if (manifest.contractVersion !== supportedAuthContractVersion) {
     throw new WaspSpecUserError(
       `Auth scheme '${name}' (handler '${handler}') was built against auth contract version ${String(
         manifest.contractVersion,
-      )}, but this version of Wasp only supports version 5. Update Wasp, or use a handler version matching your Wasp version.`,
+      )}, but this version of Wasp only supports version ${supportedAuthContractVersion}. Update Wasp, or use a handler version matching your Wasp version.`,
     );
   }
 
@@ -242,7 +243,7 @@ function mapAuthScheme(
     sideManifest: WaspSpec.AuthSchemeServerSide | WaspSpec.AuthSchemeClientSide,
   ): AppSpec.AuthSchemeSide => {
     const entry = sideManifest.authHandlerFactory;
-    const config = splitSchemeConfig(name, side, sideManifest.config);
+    const handlerSpec = splitHandlerSpec(name, side, sideManifest.spec);
     return {
       // Both forms are the same thing in different places: a package entry
       // (with the conventional export name as the default), or a factory in
@@ -255,9 +256,9 @@ function mapAuthScheme(
             }
           : { module: ctx.parseRefObject(entry) },
       envVars: (sideManifest.env ?? []).map(mapEnvVarRequirement),
-      configJson: config.dataJson,
-      configReferences: Object.fromEntries(
-        Object.entries(config.references).map(([path, ref]) => [
+      specJson: handlerSpec.dataJson,
+      specReferences: Object.fromEntries(
+        Object.entries(handlerSpec.references).map(([path, ref]) => [
           path,
           ctx.parseRefObject(ref),
         ]),

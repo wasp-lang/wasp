@@ -19,59 +19,59 @@ declare module "virtual:wasp/user/features/db/prisma" {
 }
 
 declare module "virtual:wasp/user/features/auth/providers/discord" {
-  export const discordConfig: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const discordConfig: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/discord" {
-  export const discordUserSignupFields: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const discordUserSignupFields: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/email" {
-  export const getPasswordResetEmailContent: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const getPasswordResetEmailContent: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/email" {
-  export const getVerificationEmailContent: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const getVerificationEmailContent: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/email" {
-  export const emailUserSignupFields: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const emailUserSignupFields: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/github" {
-  export const gitHubConfig: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const gitHubConfig: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/github" {
-  export const gitHubUserSignupFields: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const gitHubUserSignupFields: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/google" {
-  export const googleConfig: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const googleConfig: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/google" {
-  export const googleUserSignupFields: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const googleUserSignupFields: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/microsoft" {
-  export const microsoftConfig: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const microsoftConfig: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/microsoft" {
-  export const microsoftUserSignupFields: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const microsoftUserSignupFields: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/slack" {
-  export const slackConfig: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const slackConfig: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/providers/slack" {
-  export const slackUserSignupFields: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const slackUserSignupFields: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/hooks" {
-  export const onAfterEmailVerified: import("./server/auth/handler/types").AuthHandlerConfigReference;
+  export const onAfterEmailVerified: import("./server/auth/handler/types").AuthHandlerSpecReference;
 }
 
 declare module "virtual:wasp/user/features/auth/hooks" {

@@ -34,12 +34,12 @@ export type BetterAuthSchemeManifest<
 > = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 5;
+  contractVersion: 6;
   server: {
     authHandlerFactory: { package: string };
     env: EnvVarRequirement[];
     /** The app's setup function, when given; it arrives live in the factory. */
-    config: { setupFn?: SetupFnRef };
+    spec: { setupFn?: SetupFnRef };
     routes: { rawBody: true };
   };
   client: { authHandlerFactory: { package: string } };
@@ -117,11 +117,11 @@ export function betterAuth<UserSignupFieldsRef = never, SetupFnRef = never>(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 5,
+    contractVersion: 6,
     server: {
       authHandlerFactory: { package: "@wasp.sh/auth-better-auth/server" },
       env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
-      config: {
+      spec: {
         ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
       },
       routes: { rawBody: true },

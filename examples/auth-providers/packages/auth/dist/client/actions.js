@@ -1,5 +1,5 @@
 import { WaspAuthClientError, post } from "./http.js";
-import { getClientConfig, getClientRuntime } from "./runtime.js";
+import { getClientRuntime, getClientSpec } from "./runtime.js";
 /** The server path prefix the routes live under. */
 function basePath() {
     return getClientRuntime().mountUrl;
@@ -56,7 +56,7 @@ export function signInUrl(provider) {
     return `${basePath()}/${provider}/login`;
 }
 export function isMethodEnabled(name) {
-    return getClientConfig().methods[name] !== undefined;
+    return getClientSpec().methods[name] !== undefined;
 }
 async function linkThrough(path, data) {
     try {

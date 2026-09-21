@@ -102,7 +102,7 @@ describe("convertWaspSpecToAppSpec", () => {
     const passwordResetRoute = Fixtures.getPasswordResetRoute();
     const authConfig = Fixtures.getAuthConfig("full");
     const server = Fixtures.getServerConfig("full");
-    const client = Fixtures.getClientConfig("full");
+    const client = Fixtures.getClientSpec("full");
     const db = Fixtures.getDbConfig("full");
     const emailSender = Fixtures.getEmailSenderConfig("full");
     const webSocket = Fixtures.getWebSocketConfig("full");
@@ -633,7 +633,7 @@ describe("mapAuth", () => {
     });
   });
 
-  test("should throw when a scheme's config data is not JSON-serializable", () => {
+  test("should throw when a scheme's spec data is not JSON-serializable", () => {
     const auth = Fixtures.getAuthConfig("minimal");
     const withBadOptions = {
       ...auth,
@@ -642,7 +642,7 @@ describe("mapAuth", () => {
           ...getSchemeManifest(auth),
           server: {
             ...getSchemeManifest(auth).server,
-            config: { callback: () => "not serializable" },
+            spec: { callback: () => "not serializable" },
           },
         },
       } as unknown as WaspSpec.Auth["schemes"],
@@ -746,29 +746,29 @@ describe("mapAuth", () => {
               }
             : { module: mapRefObjectForMockProjectDir(entry) },
         envVars: (sideManifest.env ?? []).map(mapEnvVar),
-        ...expectedConfig(side, sideManifest.config),
+        ...expectedSpec(side, sideManifest.spec),
       };
     };
-    // The fixtures' configs, as the mapper must split them: data as JSON,
+    // The fixtures' specs, as the mapper must split them: data as JSON,
     // references keyed by their JSON-encoded path.
-    function expectedConfig(
+    function expectedSpec(
       side: "server" | "client",
-      config: unknown,
-    ): Pick<AppSpec.AuthSchemeSide, "configJson" | "configReferences"> {
-      if (config === undefined) {
-        return { configJson: undefined, configReferences: {} };
+      handlerSpec: unknown,
+    ): Pick<AppSpec.AuthSchemeSide, "specJson" | "specReferences"> {
+      if (handlerSpec === undefined) {
+        return { specJson: undefined, specReferences: {} };
       }
       const ref = mapRefObjectForMockProjectDir(
         Fixtures.getRefObject("full", "named"),
       );
-      const full = config as { methods?: unknown; FormFooter?: unknown };
+      const full = handlerSpec as { methods?: unknown; FormFooter?: unknown };
       if (side === "server" && full.methods !== undefined) {
         return {
-          configJson: JSON.stringify({
+          specJson: JSON.stringify({
             flag: true,
             methods: { google: { scopes: ["profile"] } },
           }),
-          configReferences: {
+          specReferences: {
             '["methods","google","configFn"]': ref,
             '["getEmailContent"]': ref,
           },
@@ -776,11 +776,11 @@ describe("mapAuth", () => {
       }
       if (side === "client" && full.FormFooter !== undefined) {
         return {
-          configJson: JSON.stringify({ publicFlag: true }),
-          configReferences: { '["FormFooter"]': ref },
+          specJson: JSON.stringify({ publicFlag: true }),
+          specReferences: { '["FormFooter"]': ref },
         };
       }
-      return { configJson: JSON.stringify(config), configReferences: {} };
+      return { specJson: JSON.stringify(handlerSpec), specReferences: {} };
     }
     const factoryEntry = manifest.server.authHandlerFactory;
     return {
@@ -917,11 +917,11 @@ describe("mapServer", () => {
 
 describe("mapClient", () => {
   test("should map minimal config correctly", () => {
-    testMapClient(Fixtures.getClientConfig("minimal"));
+    testMapClient(Fixtures.getClientSpec("minimal"));
   });
 
   test("should map full config correctly", () => {
-    testMapClient(Fixtures.getClientConfig("full"));
+    testMapClient(Fixtures.getClientSpec("full"));
   });
 
   function testMapClient(client: WaspSpec.Client): void {

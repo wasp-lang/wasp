@@ -54,10 +54,9 @@ const defaultPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
 
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
 export function emailRoutes(ctx: Ctx): Route[] {
-  const { runtime, config } = ctx;
-  const emailConfig = config.methods.email!;
-  const identities = () =>
-    runtime.identities.email;
+  const { runtime, spec } = ctx;
+  const emailConfig = spec.methods.email!;
+  const identities = () => runtime.identities.email;
   const { validateJWT } = makeJwt(runtime);
   const helpers = makeEmailHelpers(runtime);
   const getVerificationEmailContent =
@@ -269,9 +268,9 @@ export function emailRoutes(ctx: Ctx): Route[] {
         }
         await identities().updateData(email, { isEmailVerified: true });
 
-        if (config.onAfterEmailVerified) {
+        if (spec.onAfterEmailVerified) {
           const auth = await findAuthWithUser(runtime, identity.authId);
-          await config.onAfterEmailVerified({
+          await spec.onAfterEmailVerified({
             prisma: runtime.db,
             req,
             email,

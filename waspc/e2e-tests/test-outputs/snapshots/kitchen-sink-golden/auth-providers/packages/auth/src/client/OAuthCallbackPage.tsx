@@ -4,7 +4,7 @@ import { Navigate, useLocation } from "react-router";
 import { confirmMerge, exchangeOAuthCodeForSession } from "./actions.js";
 import { Message, MessageError } from "./forms/internal/Message.js";
 import { useEffectOnce } from "./hooks.js";
-import { getClientConfig, getClientRuntime } from "./runtime.js";
+import { getClientRuntime, getClientSpec } from "./runtime.js";
 
 /**
  * The client route the OAuth handback lands on: redeems the one-time code,
@@ -78,15 +78,13 @@ export function OAuthCallbackPage({
   if (isLinked) {
     return (
       <Navigate
-        to={linkedRedirectTo ?? getClientConfig().onAuthSucceededRedirectTo}
+        to={linkedRedirectTo ?? getClientSpec().onAuthSucceededRedirectTo}
         replace
       />
     );
   }
   if (isDone) {
-    return (
-      <Navigate to={getClientConfig().onAuthSucceededRedirectTo} replace />
-    );
+    return <Navigate to={getClientSpec().onAuthSucceededRedirectTo} replace />;
   }
   if (error) {
     return <MessageError>{error}</MessageError>;

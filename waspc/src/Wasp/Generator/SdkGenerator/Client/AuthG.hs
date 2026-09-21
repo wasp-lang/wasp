@@ -13,7 +13,7 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.SchemeSideConfig (mkSchemeSideConfigTmplData)
+import Wasp.Generator.SdkGenerator.Auth.HandlerSpec (mkHandlerSpecTmplData)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -64,7 +64,7 @@ genClientAuthProvidersTs auth =
       ]
     mkClientAuthHandlerSchemeTmplData idx (scheme, clientSide) =
       Aeson.object $
-        mkSchemeSideConfigTmplData ("authClientConfigReference_" ++ show idx) clientSide
+        mkHandlerSpecTmplData ("authClientSpecReference_" ++ show idx) clientSide
           ++ [ "index" Aeson..= idx,
                "schemeName" Aeson..= scheme.name,
                "isPackage" Aeson..= isJust (AS.Auth.clientPackage scheme),

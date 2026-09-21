@@ -51,12 +51,12 @@ export type BetterAuthSetupFn = (
  *   these must be the *Prisma client property*, not the `@@map` name: the
  *   handler does a raw `db[modelName]` lookup with no case transformation.
  */
-/** The manifest's `server.config`, with the app's setup function live. */
-type BetterAuthServerConfig = { setupFn?: BetterAuthSetupFn };
+/** The manifest's `server.spec`, with the app's setup function live. */
+type BetterAuthServerSpec = { setupFn?: BetterAuthSetupFn };
 
 export const createServerAuthHandler: ServerAuthHandlerFactory<
-  BetterAuthServerConfig
-> = (runtime, config) => {
+  BetterAuthServerSpec
+> = (runtime, spec) => {
   // The integration config: everything this handler needs to plug Better Auth
   // into a Wasp app, and nothing about which auth methods exist.
   const integrationConfig: BetterAuthOptions = {
@@ -87,7 +87,7 @@ export const createServerAuthHandler: ServerAuthHandlerFactory<
   // - With a `setupFn`: the function receives the integration config and its
   //   return value is authoritative, with plain Better Auth semantics --
   //   nothing is enabled unless you enable it.
-  const setupFn = config?.setupFn;
+  const setupFn = spec?.setupFn;
   const extendedConfig = setupFn
     ? setupFn(integrationConfig)
     : {

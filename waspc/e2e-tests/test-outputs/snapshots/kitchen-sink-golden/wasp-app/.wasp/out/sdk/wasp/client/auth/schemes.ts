@@ -1,6 +1,6 @@
 import type { ClientAuthHandler } from '@wasp.sh/auth-contract/client'
 import type { AuthSchemeName } from '../../auth/scheme.js'
-import { joinSchemeConfig } from '../../auth/schemeConfig.js'
+import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import {
   getRequestCredential,
   registerCredentialSource,
@@ -74,7 +74,7 @@ function makeClientRuntime(
 
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
-  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), joinSchemeConfig({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{},"google":{},"github":{},"slack":{},"discord":{},"microsoft":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
+  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), joinHandlerSpec({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{},"google":{},"github":{},"slack":{},"discord":{},"microsoft":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
 }
 
 // The handlers' own credentials are the request path's fallback source:

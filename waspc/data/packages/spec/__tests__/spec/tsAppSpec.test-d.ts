@@ -43,7 +43,7 @@ describe("Auth schemes", () => {
   test("forbids a manifest without the authenticity marker", () => {
     expectTypeOf<{
       kind: "scheme";
-      contractVersion: 5;
+      contractVersion: 6;
       server: {
         authHandlerFactory: { package: "@wasp.sh/auth-clerk/server" };
       };

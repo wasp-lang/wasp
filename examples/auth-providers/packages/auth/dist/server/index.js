@@ -17,23 +17,23 @@ const OAUTH_PROVIDER_NAMES = [
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
  * window (the credentials facet, plus the `email-send` grant when the email
- * method is on) and the `server.config` the spec helper captured, with the
+ * method is on) and the `server.spec` the spec helper captured, with the
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
-export const createServerAuthHandler = (runtime, config) => {
-    const ctx = { runtime, config };
+export const createServerAuthHandler = (runtime, spec) => {
+    const ctx = { runtime, spec };
     const routes = [
-        ...(config.methods.usernameAndPassword !== undefined
+        ...(spec.methods.usernameAndPassword !== undefined
             ? usernameRoutes(ctx)
             : []),
-        ...(config.methods.email !== undefined ? emailRoutes(ctx) : []),
+        ...(spec.methods.email !== undefined ? emailRoutes(ctx) : []),
         ...oauthRoutes(ctx),
         // Account linking between the enabled methods: the per-method link
         // routes live with their methods, the shared ones here.
-        ...linkingRoutes(ctx, OAUTH_PROVIDER_NAMES.some((name) => config.methods[name] !== undefined)),
+        ...linkingRoutes(ctx, OAUTH_PROVIDER_NAMES.some((name) => spec.methods[name] !== undefined)),
     ];
-    if (config.methods.email !== undefined) {
+    if (spec.methods.email !== undefined) {
         boundEmailHelpers = makeEmailHelpers(runtime);
     }
     // The routes above verify logins; the credential a request carries

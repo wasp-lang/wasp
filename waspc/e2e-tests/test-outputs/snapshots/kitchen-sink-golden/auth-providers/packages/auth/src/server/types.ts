@@ -6,12 +6,13 @@ import type {
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 /**
- * The runtime window: the base runtime plus the credentials facet the
- * manifest's `credentials` config wires (the scheme's private issuer, or a
- * sibling scheme it signs into). `email-send` is requested only when the
- * email method is on, so `runtime.email` stays optional in the type.
+ * The runtime window, with `identities` keyed by this handler's methods.
+ * Every facet is always a member. `credentials` always works here, because
+ * the manifest always declares them; `email` works only when the email
+ * method is on (that is when the manifest requests `email-send`), which
+ * `runtime.canSendEmail` says.
  */
-export type WaspAuthRuntime = WaspServerRuntime<never, true, MethodProviderName>;
+export type WaspAuthRuntime = WaspServerRuntime<MethodProviderName>;
 
 /** The wire-level answer of a sign-in, replayed by the one-time code. */
 export type SignInResponse = AuthResponse;
@@ -27,13 +28,13 @@ export type OAuthProviderName =
 export type MethodProviderName = "username" | "email" | OAuthProviderName;
 
 /**
- * The manifest's `server.config`, as the server factory receives it: what
+ * The manifest's `server.spec`, as the server factory receives it: what
  * `waspAuth({ ... })` captured in `main.wasp.ts`, one object mixing plain
  * data with the app's functions, each next to the method it belongs to. Wasp
  * carried the functions across the compiler as references and set them back,
  * so they arrive live.
  */
-export type WaspAuthServerConfig = {
+export type WaspAuthServerSpec = {
   /** Client route the OAuth handback redirects to with the one-time code. */
   clientOAuthCallbackPath: string;
   methods: {
@@ -48,12 +49,12 @@ export type WaspAuthServerConfig = {
       getVerificationEmailContent?: GetVerificationEmailContentFn;
       getPasswordResetEmailContent?: GetPasswordResetEmailContentFn;
     };
-  } & Partial<Record<OAuthProviderName, OAuthMethodServerConfig>>;
+  } & Partial<Record<OAuthProviderName, OAuthMethodServerSpec>>;
   onAfterEmailVerified?: OnAfterEmailVerifiedHook;
   onBeforeOAuthRedirect?: OnBeforeOAuthRedirectHook;
 };
 
-export type OAuthMethodServerConfig = {
+export type OAuthMethodServerSpec = {
   requiredScopes: string[];
   userSignupFields?: UserSignupFields;
   configFn?: () => Record<string, unknown>;
@@ -112,7 +113,7 @@ export type OAuthData = {
 /** What every route handler in this package receives. */
 export type Ctx = {
   runtime: WaspAuthRuntime;
-  config: WaspAuthServerConfig;
+  spec: WaspAuthServerSpec;
 };
 
 export type Req = IncomingMessage & {

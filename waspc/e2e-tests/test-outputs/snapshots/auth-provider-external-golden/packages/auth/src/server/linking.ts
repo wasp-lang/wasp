@@ -162,7 +162,10 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
           throw new HttpError(400, "Expected a login method and its subject.");
         }
         // A method this scheme never declared has no store.
-        const methodIdentities = identitiesOf(runtime, method as MethodProviderName);
+        const methodIdentities = identitiesOf(
+          runtime,
+          method as MethodProviderName,
+        );
         if (methodIdentities === undefined) {
           throw new HttpError(400, "This login method is not enabled.");
         }

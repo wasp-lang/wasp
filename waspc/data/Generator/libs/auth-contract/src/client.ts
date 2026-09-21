@@ -116,12 +116,12 @@ export type ClientAuthHandler = {
  * `createClientAuthHandler`, or under the name its manifest gives); a
  * hand-written handler references it from `main.wasp.ts`.
  *
- * `config` is the manifest's `client.config`, exactly as the handler's spec
+ * `spec` is the manifest's `client.spec`, exactly as the handler's spec
  * helper built it: plain data mixed with the app's client code (a component,
  * a callback), arriving live. All of it is bundled into the browser, so it
  * never holds a secret.
  */
-export type ClientAuthHandlerFactory<Config = unknown> = (
+export type ClientAuthHandlerFactory<Spec = unknown> = (
   runtime: WaspClientRuntime,
-  config: Config,
+  spec: Spec,
 ) => ClientAuthHandler;

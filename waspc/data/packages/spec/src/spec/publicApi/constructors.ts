@@ -504,11 +504,19 @@ export function defineAuthSchemeManifest(
   return {
     ...manifest,
     kind: "scheme",
-    contractVersion: 5,
+    contractVersion: supportedAuthContractVersion,
     capabilities: manifest.capabilities ?? [],
     __waspAuthSchemeManifest: true,
   };
 }
+
+/**
+ * The one auth contract version this compiler understands. A manifest carries
+ * the version its handler was built against; the mapper rejects any other, so
+ * handler/compiler skew is a clear error instead of a silently ignored field.
+ * Used for the stamped value, the check and its message, so they cannot drift.
+ */
+export const supportedAuthContractVersion = 6 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package

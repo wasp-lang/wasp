@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { splitSchemeConfig } from "../../src/spec/mapper/schemeConfig.js";
+import { splitHandlerSpec } from "../../src/spec/mapper/handlerSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
 const ref = () => Fixtures.getRefObject("full", "named");
 
-describe("splitSchemeConfig", () => {
-  test("no config means no data and no references", () => {
-    expect(splitSchemeConfig("s", "server", undefined)).toStrictEqual({
+describe("splitHandlerSpec", () => {
+  test("no spec means no data and no references", () => {
+    expect(splitHandlerSpec("s", "server", undefined)).toStrictEqual({
       dataJson: undefined,
       references: {},
     });
@@ -15,7 +15,7 @@ describe("splitSchemeConfig", () => {
   test("lifts references out by path and leaves the data in place", () => {
     const configFn = ref();
     const getEmailContent = ref();
-    const result = splitSchemeConfig("s", "server", {
+    const result = splitHandlerSpec("s", "server", {
       redirectTo: "/",
       methods: { google: { scopes: ["profile"], configFn } },
       getEmailContent,
@@ -32,30 +32,30 @@ describe("splitSchemeConfig", () => {
 
   test("a key containing a dot is one path segment, not nesting", () => {
     const fn = ref();
-    const result = splitSchemeConfig("s", "server", { "a.b": { fn } });
+    const result = splitHandlerSpec("s", "server", { "a.b": { fn } });
     expect(Object.keys(result.references)).toStrictEqual(['["a.b","fn"]']);
   });
 
   test("rejects a reference inside an array", () => {
     expect(() =>
-      splitSchemeConfig("s", "client", { components: [ref()] }),
+      splitHandlerSpec("s", "client", { components: [ref()] }),
     ).toThrow(/reference inside an array at 'components'/);
   });
 
   test("rejects data that does not survive JSON", () => {
-    expect(() =>
-      splitSchemeConfig("s", "server", { when: new Date() }),
-    ).toThrow(/does not survive JSON serialization/);
-    expect(() => splitSchemeConfig("s", "server", { fn: () => 1 })).toThrow(
+    expect(() => splitHandlerSpec("s", "server", { when: new Date() })).toThrow(
+      /does not survive JSON serialization/,
+    );
+    expect(() => splitHandlerSpec("s", "server", { fn: () => 1 })).toThrow(
       /does not survive JSON serialization/,
     );
   });
 
-  test("rejects a config that is not a plain object", () => {
-    expect(() => splitSchemeConfig("s", "server", [1, 2])).toThrow(
+  test("rejects a spec that is not a plain object", () => {
+    expect(() => splitHandlerSpec("s", "server", [1, 2])).toThrow(
       /not a plain object/,
     );
-    expect(() => splitSchemeConfig("s", "server", ref())).toThrow(
+    expect(() => splitHandlerSpec("s", "server", ref())).toThrow(
       /not a plain object/,
     );
   });

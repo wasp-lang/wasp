@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { ClientAuthHandler } from '@wasp.sh/auth-contract/client'
 import type { AuthSchemeName } from '../../auth/scheme.js'
-import { joinSchemeConfig } from '../../auth/schemeConfig.js'
+import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import {
   getRequestCredential,
   registerCredentialSource,
@@ -20,9 +20,9 @@ import { {= clientExportName =} as createClientAuthHandler_{= index =} } from '{
 // exports as `createClientAuthHandler`.
 const createClientAuthHandler_{= index =} = {= clientModule.importIdentifier =}
 {=/ isPackage =}
-{=# configReferences =}
+{=# specReferences =}
 {=& import.importStatement =}
-{=/ configReferences =}
+{=/ specReferences =}
 {=/ clientAuthHandlerSchemes =}
 
 /**
@@ -95,7 +95,7 @@ function makeClientRuntime(
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
   {=# clientAuthHandlerSchemes =}
-  '{= schemeName =}': createClientAuthHandler_{= index =}(makeClientRuntime('{= schemeName =}', {=& clientEnvVarNamesJs =}), joinSchemeConfig({=& configJson =}, [{=# configReferences =}[{=& pathJs =}, {= import.importIdentifier =}], {=/ configReferences =}]) as Parameters<typeof createClientAuthHandler_{= index =}>[1]),
+  '{= schemeName =}': createClientAuthHandler_{= index =}(makeClientRuntime('{= schemeName =}', {=& clientEnvVarNamesJs =}), joinHandlerSpec({=& specJson =}, [{=# specReferences =}[{=& pathJs =}, {= import.importIdentifier =}], {=/ specReferences =}]) as Parameters<typeof createClientAuthHandler_{= index =}>[1]),
   {=/ clientAuthHandlerSchemes =}
 }
 

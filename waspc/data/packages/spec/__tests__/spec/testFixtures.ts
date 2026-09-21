@@ -42,7 +42,7 @@ export function getApp(scope: ConfigScope): WaspSpec.App {
         head: ['<link rel="icon" href="/favicon.ico" />'],
         auth: getAuthConfig("full"),
         server: getServerConfig("full"),
-        client: getClientConfig("full"),
+        client: getClientSpec("full"),
         db: getDbConfig("full"),
         emailSender: getEmailSenderConfig("full"),
         webSocket: getWebSocketConfig("full"),
@@ -314,10 +314,10 @@ export function getServerConfig(scope: ConfigScope): Config<WaspSpec.Server> {
   }
 }
 
-export function getClientConfig<Scope extends ConfigScope>(
+export function getClientSpec<Scope extends ConfigScope>(
   scope: Scope,
 ): ConfigFor<Scope, WaspSpec.Client>;
-export function getClientConfig(scope: ConfigScope): Config<WaspSpec.Client> {
+export function getClientSpec(scope: ConfigScope): Config<WaspSpec.Client> {
   switch (scope) {
     case "minimal":
       return {} satisfies MinimalConfig<WaspSpec.Client>;
@@ -416,7 +416,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
             server: {
               authHandlerFactory: getRefObject("full", "named"),
               env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
-              config: {
+              spec: {
                 flag: true,
                 methods: {
                   google: {
@@ -431,7 +431,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
             client: {
               authHandlerFactory: getRefObject("full", "named"),
               env: [{ name: "REACT_APP_TEST_PROVIDER_KEY" }],
-              config: {
+              spec: {
                 publicFlag: true,
                 FormFooter: getRefObject("full", "named"),
               },
@@ -471,7 +471,7 @@ export function getSingleSchemeAuthConfig(): WaspSpec.Auth {
         server: {
           authHandlerFactory: getRefObject("full", "named"),
           env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
-          config: { flag: true, nested: { count: 1 } },
+          spec: { flag: true, nested: { count: 1 } },
         },
         capabilities: ["session-revocation"],
         credentials: { transport: "cookie", store: "signed-token", ttl: "15m" },

@@ -102,8 +102,8 @@ getVirtualUserModules spec =
       mkServerAuthHandlerFactoryModule <$> serverAuthHandlerFactories,
       mkClientAuthHandlerFactoryModule <$> clientAuthHandlerFactories,
       mkUserFieldsFromClaimsModule <$> userFieldsFromClaims,
-      mkServerConfigReferenceModule <$> serverConfigReferences,
-      mkClientConfigReferenceModule <$> clientConfigReferences,
+      mkServerSpecReferenceModule <$> serverSpecReferences,
+      mkClientSpecReferenceModule <$> clientSpecReferences,
       maybeToList $ mkAuthHookModule "OnBeforeSignupHook" <$> (maybeAuth >>= AS.Auth.onBeforeSignup),
       maybeToList $ mkAuthHookModule "OnAfterSignupHook" <$> (maybeAuth >>= AS.Auth.onAfterSignup),
       maybeToList $ mkAuthHookModule "OnBeforeLoginHook" <$> (maybeAuth >>= AS.Auth.onBeforeLogin),
@@ -180,26 +180,26 @@ getVirtualUserModules spec =
         [relfileP|./auth/providers/types|]
         "UserSignupFields"
 
-    -- App code a handler's `server.config` references (signup field getters,
+    -- App code a handler's `server.spec` references (signup field getters,
     -- OAuth config functions, email content functions, a setup function for
     -- the handler's underlying library). The handler types each precisely;
-    -- the SDK only sets them back into the config it hands the factory, so
+    -- the SDK only sets them back into the spec it hands the factory, so
     -- they are declared loosely.
-    mkServerConfigReferenceModule extImport' =
+    mkServerSpecReferenceModule extImport' =
       VirtualUserModule
         ServerRuntime
         extImport'
         [relfileP|./server/auth/handler/types|]
-        "AuthHandlerConfigReference"
+        "AuthHandlerSpecReference"
 
-    -- The same for a handler's `client.config` (a component, a callback).
+    -- The same for a handler's `client.spec` (a component, a callback).
     -- These end up in the client bundle.
-    mkClientConfigReferenceModule extImport' =
+    mkClientSpecReferenceModule extImport' =
       VirtualUserModule
         ClientRuntime
         extImport'
         [relfileP|./client/auth/types|]
-        "AuthHandlerConfigReference"
+        "AuthHandlerSpecReference"
 
     -- A user-provided credential store (`credentials: { store: ref }`), consumed
     -- by the framework's credential issuer.
@@ -229,8 +229,8 @@ getVirtualUserModules spec =
     serverAuthHandlerFactories = mapMaybe AS.Auth.serverModule authSchemes
     clientAuthHandlerFactories = mapMaybe AS.Auth.clientModule authSchemes
     userFieldsFromClaims = mapMaybe (.userFieldsFromClaims) authSchemes
-    serverConfigReferences = concatMap (Map.elems . (.server.configReferences)) authSchemes
-    clientConfigReferences = concatMap (maybe [] (Map.elems . (.configReferences)) . (.client)) authSchemes
+    serverSpecReferences = concatMap (Map.elems . (.server.specReferences)) authSchemes
+    clientSpecReferences = concatMap (maybe [] (Map.elems . (.specReferences)) . (.client)) authSchemes
     authCredentialStores =
       [ extImport'
       | scheme <- authSchemes,

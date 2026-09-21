@@ -298,6 +298,11 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-not-found"
   | "wasp-auth/undeclared-namespace"
   /**
+   * A facet was used that the manifest did not declare: `credentials` without
+   * a `credentials` config, `email` without the `"email-send"` grant.
+   */
+  | "wasp-auth/undeclared-facet"
+  /**
    * `link` found the subject's identity already attached to a DIFFERENT
    * account. Deliberately carries nothing about that account.
    */
@@ -325,6 +330,7 @@ export function getAuthContractErrorCode(
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
     code === "wasp-auth/undeclared-namespace" ||
+    code === "wasp-auth/undeclared-facet" ||
     code === "wasp-auth/identity-linked-elsewhere" ||
     code === "wasp-auth/last-identity" ||
     code === "wasp-auth/merging-disabled" ||
@@ -334,17 +340,6 @@ export function getAuthContractErrorCode(
 }
 
 /**
- * The facets a manifest's `uses` list grants, as types: a declared grant is a
- * non-optional member of the handler's runtime, an undeclared one is absent.
- * A handler annotates its factory as
- * `ServerAuthHandlerFactory<MyOptions, "email-send", true>` and gets exactly the
- * surface its manifest claims.
- */
-export type GrantedFacets<G extends RuntimeGrantName> = "email-send" extends G
-  ? { email: WaspEmail }
-  : { email?: WaspEmail };
-
-/**
  * Everything Wasp hands a server-side handler about the app it runs in.
  *
  * This is the handler's *only* window into the app: handlers must not import
@@ -352,20 +347,22 @@ export type GrantedFacets<G extends RuntimeGrantName> = "email-send" extends G
  * the boundary here is what lets an handler package typecheck and version
  * independently of any particular Wasp app.
  *
- * `HasCredentials` mirrors whether the manifest declared `credentials`: true
- * makes the `credentials` facet a non-optional member.
+ * Every facet is ALWAYS a member, whatever the manifest declared. One the
+ * manifest did not ask for still exists, and rejects with
+ * `wasp-auth/undeclared-facet`, naming the scheme and the missing declaration,
+ * the moment it is used. That is deliberate:
+ * - A handler's type never has to claim what its manifest declares. Such a
+ *   claim could not be checked (the manifest is a value in the app's
+ *   `main.wasp.ts`, the handler is typed in another package), and a wrong one
+ *   used to surface as "cannot read properties of undefined" at first login.
+ * - Whether a facet is available is often the APP's decision (the email
+ *   method is on or off; a handler lets the app opt into Wasp-issued
+ *   credentials). A handler branches on `hasCredentials` / `canSendEmail`.
+ *
+ * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes;
+ * it types the keys of `identities`.
  */
-export type WaspServerRuntime<
-  G extends RuntimeGrantName = never,
-  HasCredentials extends boolean = false,
-  Namespaces extends string = "default",
-> = WaspServerRuntimeBase<Namespaces> &
-  GrantedFacets<G> &
-  (HasCredentials extends true
-    ? { credentials: Credentials }
-    : { credentials?: Credentials });
-
-type WaspServerRuntimeBase<Namespaces extends string> = {
+export type WaspServerRuntime<Namespaces extends string = "default"> = {
   /** The name of this scheme, as declared in the app's `auth.schemes`. */
   scheme: string;
 
@@ -434,6 +431,28 @@ type WaspServerRuntimeBase<Namespaces extends string> = {
    *   given; hashing is the handler's job.
    */
   identities: { readonly [Namespace in Namespaces]: ProviderIdentities };
+
+  /**
+   * How the scheme signs people in: the issuer behind the manifest's
+   * `credentials` (a private one, or a sibling scheme). Always a member; when
+   * the manifest declares no `credentials`, every method rejects with
+   * `wasp-auth/undeclared-facet`. Check {@link hasCredentials} first when that
+   * is the app's choice rather than the handler's.
+   */
+  credentials: Credentials;
+
+  /** Whether the manifest declares `credentials`, so {@link credentials} works. */
+  hasCredentials: boolean;
+
+  /**
+   * The app's configured email sender. Always a member; `send` rejects with
+   * `wasp-auth/undeclared-facet` unless the manifest requests the
+   * `"email-send"` grant in `uses`. SMTP credentials never reach the handler.
+   */
+  email: WaspEmail;
+
+  /** Whether the manifest requests `"email-send"`, so {@link email} works. */
+  canSendEmail: boolean;
 };
 
 /**
@@ -612,20 +631,21 @@ export type ServerAuthHandlerParts = {
  * under the name its manifest gives); a hand-written handler references it
  * from `main.wasp.ts`. The two are the same thing in different places.
  *
- * `config` is the manifest's `server.config`, exactly as the handler's spec
- * helper built it: one object mixing plain data with the app's functions,
- * each where it naturally belongs. Wasp carried the functions across the
- * compiler as references and set them back, so they arrive live and callable.
- * Wasp never reads the contents; the handler types them with `Config`.
+ * `spec` is the manifest's `server.spec`: the part of the app's Wasp Spec
+ * that is this handler's own, exactly as the handler's spec helper built it.
+ * One object mixing plain data with the app's functions, each where it
+ * naturally belongs. Wasp carried the functions across the compiler as
+ * references and set them back, so they arrive live and callable. Wasp never
+ * reads the contents; the handler types them with `Spec`.
+ *
+ * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes.
  */
 export type ServerAuthHandlerFactory<
-  Config = unknown,
-  Grants extends RuntimeGrantName = never,
-  HasCredentials extends boolean = false,
+  Spec = unknown,
   Namespaces extends string = "default",
 > = (
-  runtime: WaspServerRuntime<Grants, HasCredentials, Namespaces>,
-  config: Config,
+  runtime: WaspServerRuntime<Namespaces>,
+  spec: Spec,
 ) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 import { WaspAuthClientError, post } from "./http.js";
-import { getClientConfig, getClientRuntime } from "./runtime.js";
+import { getClientRuntime, getClientSpec } from "./runtime.js";
 import type { OAuthProviderName } from "./types.js";
 
 /** The server path prefix the routes live under. */
@@ -103,9 +103,9 @@ export function signInUrl(provider: OAuthProviderName): string {
 }
 
 export function isMethodEnabled(
-  name: keyof ReturnType<typeof getClientConfig>["methods"],
+  name: keyof ReturnType<typeof getClientSpec>["methods"],
 ): boolean {
-  return getClientConfig().methods[name] !== undefined;
+  return getClientSpec().methods[name] !== undefined;
 }
 
 // --- account linking --------------------------------------------------------

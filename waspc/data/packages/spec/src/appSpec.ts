@@ -216,8 +216,8 @@ export type AuthSchemeSide = {
   // The side's `config`, split: its plain data as JSON, and the references
   // lifted out of it, keyed by the JSON-encoded path they sat at. The
   // generated code joins them back before calling the factory.
-  configJson: Optional<string>;
-  configReferences: Record<string, ExtImport>;
+  specJson: Optional<string>;
+  specReferences: Record<string, ExtImport>;
 };
 
 export type AuthSchemeCredentials =

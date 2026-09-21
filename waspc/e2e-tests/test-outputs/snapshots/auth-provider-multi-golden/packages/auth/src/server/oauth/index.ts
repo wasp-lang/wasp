@@ -56,9 +56,9 @@ const EXCHANGE_CODE_PATH = "/exchange-code";
  * state/cookie and one-time-code machinery, on the contract's facets.
  */
 export function oauthRoutes(ctx: Ctx): Route[] {
-  const { runtime, config } = ctx;
+  const { runtime, spec } = ctx;
   const enabled = OAUTH_PROVIDER_NAMES.filter(
-    (name) => config.methods[name] !== undefined,
+    (name) => spec.methods[name] !== undefined,
   );
   if (enabled.length === 0) {
     return [];
@@ -72,8 +72,8 @@ export function oauthRoutes(ctx: Ctx): Route[] {
       `${runtime.serverUrl}${runtime.mountPath}/${name}/${CALLBACK_PATH}`,
     );
     const oauthConfig = mergeDefaultAndUserConfig(
-      { scopes: config.methods[name]!.requiredScopes },
-      config.methods[name]!.configFn,
+      { scopes: spec.methods[name]!.requiredScopes },
+      spec.methods[name]!.configFn,
     );
     return [
       {
@@ -150,8 +150,8 @@ async function loginHandler(
   storeOAuthState(ctx, provider, res, state);
   const redirectUrl = await provider.getAuthorizationUrl(state, oauthConfig);
   let url = redirectUrl;
-  if (ctx.config.onBeforeOAuthRedirect) {
-    const result = (await ctx.config.onBeforeOAuthRedirect({
+  if (ctx.spec.onBeforeOAuthRedirect) {
+    const result = (await ctx.spec.onBeforeOAuthRedirect({
       prisma: ctx.runtime.db,
       req,
       url: redirectUrl,
@@ -170,7 +170,7 @@ async function callbackHandler(
   req: Req,
   res: Res,
 ): Promise<void> {
-  const { runtime, config } = ctx;
+  const { runtime, spec } = ctx;
   try {
     const oAuthState = validateAndGetOAuthState(provider, req);
     const tokens = await provider.getProviderTokens(oAuthState);
@@ -218,7 +218,7 @@ async function callbackHandler(
           });
           redirect(
             res,
-            `${runtime.clientUrl}${config.clientOAuthCallbackPath}?mergeTicket=${encodeURIComponent(mergeTicket)}`,
+            `${runtime.clientUrl}${spec.clientOAuthCallbackPath}?mergeTicket=${encodeURIComponent(mergeTicket)}`,
           );
           return;
         }
@@ -226,7 +226,7 @@ async function callbackHandler(
       }
       redirect(
         res,
-        `${runtime.clientUrl}${config.clientOAuthCallbackPath}?linked=${provider.id}`,
+        `${runtime.clientUrl}${spec.clientOAuthCallbackPath}?linked=${provider.id}`,
       );
       return;
     }
@@ -243,7 +243,7 @@ async function callbackHandler(
           (() =>
             validateAndGetUserFields(
               { profile: providerProfile },
-              config.methods[provider.id]?.userSignupFields,
+              spec.methods[provider.id]?.userSignupFields,
             )) as never,
           { req, hookContext: oauth },
         );
@@ -271,7 +271,7 @@ async function callbackHandler(
     );
     redirect(
       res,
-      `${runtime.clientUrl}${config.clientOAuthCallbackPath}#${oneTimeCode}`,
+      `${runtime.clientUrl}${spec.clientOAuthCallbackPath}#${oneTimeCode}`,
     );
   } catch (error) {
     console.error(error);
@@ -283,7 +283,7 @@ async function callbackHandler(
       : "An unknown error occurred while trying to log in with the OAuth provider.";
     redirect(
       res,
-      `${runtime.clientUrl}${config.clientOAuthCallbackPath}?error=${message}`,
+      `${runtime.clientUrl}${spec.clientOAuthCallbackPath}?error=${message}`,
     );
   }
 }

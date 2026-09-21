@@ -362,7 +362,7 @@ export type AuthHandlerFactoryEntry =
 /**
  * Everything the SERVER half of a scheme needs. Each field sits next to the
  * code that receives it: the factory is called as
- * `authHandlerFactory(runtime, config)`.
+ * `authHandlerFactory(runtime, spec)`.
  *
  * @category Experimental
  */
@@ -376,13 +376,13 @@ export interface AuthSchemeServerSide {
    */
   env?: EnvVarRequirement[];
   /**
-   * The server half's own configuration, in whatever shape the handler
+   * The server half's own part of the app's Wasp Spec, in whatever shape the handler
    * likes: ONE object mixing plain data with references to app code (signup
    * field getters, OAuth config functions, email content functions, a setup
    * function for the handler's underlying library), each where it naturally
    * belongs:
    *
-   *   config: { methods: { google: { scopes: ["profile"], configFn: googleConfig } } }
+   *   spec: { methods: { google: { scopes: ["profile"], configFn: googleConfig } } }
    *
    * The factory receives the same object, with every reference replaced by
    * the live function or object it names. Wasp does the plumbing: a
@@ -395,7 +395,7 @@ export interface AuthSchemeServerSide {
    * compiler checks). A reference may sit anywhere in nested objects, but
    * not inside an array.
    */
-  config?: unknown;
+  spec?: unknown;
   /**
    * Present when the factory returns a `routeHandler`. The routes mount at
    * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`
@@ -407,7 +407,7 @@ export interface AuthSchemeServerSide {
 
 /**
  * Everything the CLIENT half of a scheme needs. The factory is called as
- * `authHandlerFactory(runtime, config)`.
+ * `authHandlerFactory(runtime, spec)`.
  *
  * @category Experimental
  */
@@ -417,15 +417,15 @@ export interface AuthSchemeClientSide {
   /** Client env vars the handler reads; delivered as `runtime.env`. */
   env?: EnvVarRequirement[];
   /**
-   * The client half's own configuration: one object mixing plain data with
+   * The client half's own part of the app's Wasp Spec: one object mixing plain data with
    * references to app code (a component, a callback), exactly like
-   * {@link AuthSchemeServerSide.config}. PUBLIC by construction: all of it,
+   * {@link AuthSchemeServerSide.spec}. PUBLIC by construction: all of it,
    * data and referenced code alike, is bundled into the browser, so it must
    * never hold a secret. Data both halves need is written on both sides, on
    * purpose: there is no shared bucket, so where a value ends up is always
    * visible where it is written.
    */
-  config?: unknown;
+  spec?: unknown;
 }
 
 /**
@@ -448,7 +448,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 5;
+  contractVersion: 6;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */

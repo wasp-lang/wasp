@@ -1,9 +1,9 @@
-import type { MethodProviderName } from "./types.js";
 import type {
   AuthHandler,
   ServerAuthHandlerFactory,
   ServerAuthHandlerParts,
 } from "@wasp.sh/auth-contract";
+import type { MethodProviderName } from "./types.js";
 
 import { emailRoutes } from "./email/flows.js";
 import {
@@ -14,7 +14,7 @@ import {
 import { makeDispatcher, type Route } from "./http.js";
 import { linkingRoutes } from "./linking.js";
 import { oauthRoutes } from "./oauth/index.js";
-import type { Ctx, OAuthProviderName, WaspAuthServerConfig } from "./types.js";
+import type { Ctx, OAuthProviderName, WaspAuthServerSpec } from "./types.js";
 import { usernameRoutes } from "./username.js";
 
 const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
@@ -31,33 +31,31 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
  * window (the credentials facet, plus the `email-send` grant when the email
- * method is on) and the `server.config` the spec helper captured, with the
+ * method is on) and the `server.spec` the spec helper captured, with the
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
  */
 export const createServerAuthHandler: ServerAuthHandlerFactory<
-  WaspAuthServerConfig,
-  never,
-  true,
+  WaspAuthServerSpec,
   MethodProviderName
-> = (runtime, config): ServerAuthHandlerParts => {
-  const ctx: Ctx = { runtime, config };
+> = (runtime, spec): ServerAuthHandlerParts => {
+  const ctx: Ctx = { runtime, spec };
 
   const routes: Route[] = [
-    ...(config.methods.usernameAndPassword !== undefined
+    ...(spec.methods.usernameAndPassword !== undefined
       ? usernameRoutes(ctx)
       : []),
-    ...(config.methods.email !== undefined ? emailRoutes(ctx) : []),
+    ...(spec.methods.email !== undefined ? emailRoutes(ctx) : []),
     ...oauthRoutes(ctx),
     // Account linking between the enabled methods: the per-method link
     // routes live with their methods, the shared ones here.
     ...linkingRoutes(
       ctx,
-      OAUTH_PROVIDER_NAMES.some((name) => config.methods[name] !== undefined),
+      OAUTH_PROVIDER_NAMES.some((name) => spec.methods[name] !== undefined),
     ),
   ];
 
-  if (config.methods.email !== undefined) {
+  if (spec.methods.email !== undefined) {
     boundEmailHelpers = makeEmailHelpers(runtime);
   }
 
@@ -108,7 +106,7 @@ export type {
   OnAfterEmailVerifiedHook,
   OnBeforeOAuthRedirectHook,
   WaspAuthRuntime,
-  WaspAuthServerConfig,
+  WaspAuthServerSpec,
 } from "./types.js";
 export {
   ensurePasswordIsPresent,

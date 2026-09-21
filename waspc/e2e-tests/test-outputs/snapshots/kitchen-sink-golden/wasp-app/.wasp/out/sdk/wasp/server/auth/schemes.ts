@@ -1,6 +1,6 @@
 import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
-import { joinSchemeConfig } from '../../auth/schemeConfig.js'
+import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
@@ -19,20 +19,20 @@ import { config, prisma } from '../index.js'
 import { env as validatedEnv } from '../env.js'
 import { emailSender } from '../email/index.js'
 import { createServerAuthHandler as createServerAuthHandler_0 } from '@wasp.sh/auth/server'
-import { discordConfig as authSchemeConfigReference_0_0 } from 'virtual:wasp/user/features/auth/providers/discord'
-import { discordUserSignupFields as authSchemeConfigReference_0_1 } from 'virtual:wasp/user/features/auth/providers/discord'
-import { getPasswordResetEmailContent as authSchemeConfigReference_0_2 } from 'virtual:wasp/user/features/auth/providers/email'
-import { getVerificationEmailContent as authSchemeConfigReference_0_3 } from 'virtual:wasp/user/features/auth/providers/email'
-import { emailUserSignupFields as authSchemeConfigReference_0_4 } from 'virtual:wasp/user/features/auth/providers/email'
-import { gitHubConfig as authSchemeConfigReference_0_5 } from 'virtual:wasp/user/features/auth/providers/github'
-import { gitHubUserSignupFields as authSchemeConfigReference_0_6 } from 'virtual:wasp/user/features/auth/providers/github'
-import { googleConfig as authSchemeConfigReference_0_7 } from 'virtual:wasp/user/features/auth/providers/google'
-import { googleUserSignupFields as authSchemeConfigReference_0_8 } from 'virtual:wasp/user/features/auth/providers/google'
-import { microsoftConfig as authSchemeConfigReference_0_9 } from 'virtual:wasp/user/features/auth/providers/microsoft'
-import { microsoftUserSignupFields as authSchemeConfigReference_0_10 } from 'virtual:wasp/user/features/auth/providers/microsoft'
-import { slackConfig as authSchemeConfigReference_0_11 } from 'virtual:wasp/user/features/auth/providers/slack'
-import { slackUserSignupFields as authSchemeConfigReference_0_12 } from 'virtual:wasp/user/features/auth/providers/slack'
-import { onAfterEmailVerified as authSchemeConfigReference_0_13 } from 'virtual:wasp/user/features/auth/hooks'
+import { discordConfig as authSchemeSpecReference_0_0 } from 'virtual:wasp/user/features/auth/providers/discord'
+import { discordUserSignupFields as authSchemeSpecReference_0_1 } from 'virtual:wasp/user/features/auth/providers/discord'
+import { getPasswordResetEmailContent as authSchemeSpecReference_0_2 } from 'virtual:wasp/user/features/auth/providers/email'
+import { getVerificationEmailContent as authSchemeSpecReference_0_3 } from 'virtual:wasp/user/features/auth/providers/email'
+import { emailUserSignupFields as authSchemeSpecReference_0_4 } from 'virtual:wasp/user/features/auth/providers/email'
+import { gitHubConfig as authSchemeSpecReference_0_5 } from 'virtual:wasp/user/features/auth/providers/github'
+import { gitHubUserSignupFields as authSchemeSpecReference_0_6 } from 'virtual:wasp/user/features/auth/providers/github'
+import { googleConfig as authSchemeSpecReference_0_7 } from 'virtual:wasp/user/features/auth/providers/google'
+import { googleUserSignupFields as authSchemeSpecReference_0_8 } from 'virtual:wasp/user/features/auth/providers/google'
+import { microsoftConfig as authSchemeSpecReference_0_9 } from 'virtual:wasp/user/features/auth/providers/microsoft'
+import { microsoftUserSignupFields as authSchemeSpecReference_0_10 } from 'virtual:wasp/user/features/auth/providers/microsoft'
+import { slackConfig as authSchemeSpecReference_0_11 } from 'virtual:wasp/user/features/auth/providers/slack'
+import { slackUserSignupFields as authSchemeSpecReference_0_12 } from 'virtual:wasp/user/features/auth/providers/slack'
+import { onAfterEmailVerified as authSchemeSpecReference_0_13 } from 'virtual:wasp/user/features/auth/hooks'
 
 /**
  * The scheme registry: every scheme declared in `main.wasp.ts`, instantiated
@@ -352,7 +352,45 @@ const waspEmailFacet: WaspEmail = (() => {
   }
 })()
 
-function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<never, false, string> {
+/**
+ * A facet the manifest did not declare. It is still a member of the runtime,
+ * so a handler's type never has to claim what its manifest declares; using it
+ * fails loudly, naming the scheme and what to declare, instead of surfacing
+ * as "cannot read properties of undefined" at the first login.
+ */
+function undeclaredFacetError(spec: SchemeRuntimeSpec, facet: string, howToDeclare: string): Error {
+  return contractError(
+    'wasp-auth/undeclared-facet',
+    `Auth scheme '${spec.scheme}' used \`runtime.${facet}\`, which its manifest does not declare. ${howToDeclare}`,
+  )
+}
+
+function undeclaredCredentials(spec: SchemeRuntimeSpec): Credentials {
+  const reject = async (): Promise<never> => {
+    throw undeclaredFacetError(
+      spec,
+      'credentials',
+      "Declare `credentials` in the manifest ({ transport, store } or { scheme }), or check `runtime.hasCredentials` first.",
+    )
+  }
+  return { authenticate: reject, signIn: reject, signOut: reject, signOutEverywhere: reject }
+}
+
+function undeclaredEmail(spec: SchemeRuntimeSpec): WaspEmail {
+  return {
+    defaultFrom: undefined,
+    send: async () => {
+      throw undeclaredFacetError(
+        spec,
+        'email',
+        "Request the 'email-send' grant in the manifest's `uses` (the app must configure an emailSender), or check `runtime.canSendEmail` first.",
+      )
+    },
+  }
+}
+
+function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<string> {
+  const canSendEmail = spec.uses.includes('email-send')
   return {
     scheme: spec.scheme,
     mountPath: `/auth/${spec.scheme}`,
@@ -379,11 +417,13 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
         makeIdentitiesFacet(spec, namespace),
       ]),
     ),
-    ...(credentials !== null ? { credentials } : {}),
-    // Granted facets: wired only when the manifest requested them, so an
-    // undeclared access fails loudly at first use rather than working by
-    // accident.
-    ...(spec.uses.includes('email-send') ? { email: waspEmailFacet } : {}),
+    // Every facet is always a member. One the manifest did not declare
+    // rejects with a clear error on use; the booleans let a handler branch
+    // when availability is the app's choice.
+    credentials: credentials ?? undeclaredCredentials(spec),
+    hasCredentials: credentials !== null,
+    email: canSendEmail ? waspEmailFacet : undeclaredEmail(spec),
+    canSendEmail,
   }
 }
 
@@ -427,24 +467,24 @@ const handlerParts_0 = await Promise.resolve(
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],
-    // The handler's `server.config`: its plain data, with every reference
+    // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
-    joinSchemeConfig({"clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{"fromField":{"name":"Wasp Kitchen Sink","email":"kitchen-sink@wasp.sh"},"emailVerificationClientRoute":"/email-verification-","passwordResetClientRoute":"/password-reset"},"google":{"requiredScopes":["profile"]},"github":{"requiredScopes":[]},"slack":{"requiredScopes":["openid"]},"discord":{"requiredScopes":["identify"]},"microsoft":{"requiredScopes":["openid","profile","email"]}}}, [
-      [["methods","discord","configFn"], authSchemeConfigReference_0_0],
-      [["methods","discord","userSignupFields"], authSchemeConfigReference_0_1],
-      [["methods","email","getPasswordResetEmailContent"], authSchemeConfigReference_0_2],
-      [["methods","email","getVerificationEmailContent"], authSchemeConfigReference_0_3],
-      [["methods","email","userSignupFields"], authSchemeConfigReference_0_4],
-      [["methods","github","configFn"], authSchemeConfigReference_0_5],
-      [["methods","github","userSignupFields"], authSchemeConfigReference_0_6],
-      [["methods","google","configFn"], authSchemeConfigReference_0_7],
-      [["methods","google","userSignupFields"], authSchemeConfigReference_0_8],
-      [["methods","microsoft","configFn"], authSchemeConfigReference_0_9],
-      [["methods","microsoft","userSignupFields"], authSchemeConfigReference_0_10],
-      [["methods","slack","configFn"], authSchemeConfigReference_0_11],
-      [["methods","slack","userSignupFields"], authSchemeConfigReference_0_12],
-      [["onAfterEmailVerified"], authSchemeConfigReference_0_13],
-      // Wasp never reads a handler's config, so it cannot know its type. The
+    joinHandlerSpec({"clientOAuthCallbackPath":"/oauth/callback","methods":{"email":{"fromField":{"name":"Wasp Kitchen Sink","email":"kitchen-sink@wasp.sh"},"emailVerificationClientRoute":"/email-verification-","passwordResetClientRoute":"/password-reset"},"google":{"requiredScopes":["profile"]},"github":{"requiredScopes":[]},"slack":{"requiredScopes":["openid"]},"discord":{"requiredScopes":["identify"]},"microsoft":{"requiredScopes":["openid","profile","email"]}}}, [
+      [["methods","discord","configFn"], authSchemeSpecReference_0_0],
+      [["methods","discord","userSignupFields"], authSchemeSpecReference_0_1],
+      [["methods","email","getPasswordResetEmailContent"], authSchemeSpecReference_0_2],
+      [["methods","email","getVerificationEmailContent"], authSchemeSpecReference_0_3],
+      [["methods","email","userSignupFields"], authSchemeSpecReference_0_4],
+      [["methods","github","configFn"], authSchemeSpecReference_0_5],
+      [["methods","github","userSignupFields"], authSchemeSpecReference_0_6],
+      [["methods","google","configFn"], authSchemeSpecReference_0_7],
+      [["methods","google","userSignupFields"], authSchemeSpecReference_0_8],
+      [["methods","microsoft","configFn"], authSchemeSpecReference_0_9],
+      [["methods","microsoft","userSignupFields"], authSchemeSpecReference_0_10],
+      [["methods","slack","configFn"], authSchemeSpecReference_0_11],
+      [["methods","slack","userSignupFields"], authSchemeSpecReference_0_12],
+      [["onAfterEmailVerified"], authSchemeSpecReference_0_13],
+      // Wasp never reads a handler's spec, so it cannot know its type. The
       // cast is sound by construction: this IS the object the handler's own
       // spec helper built, carried across the compiler.
     ]) as Parameters<typeof createServerAuthHandler_0>[1],

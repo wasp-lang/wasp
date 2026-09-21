@@ -838,8 +838,8 @@ makeTestSchemeSide packageSpecifier exportName envVars =
   AS.Auth.AuthSchemeSide
     { AS.Auth.authHandlerFactory = AS.Auth.PackageFactory packageSpecifier exportName,
       AS.Auth.envVars = envVars,
-      AS.Auth.configJson = Nothing,
-      AS.Auth.configReferences = M.empty
+      AS.Auth.specJson = Nothing,
+      AS.Auth.specReferences = M.empty
     }
 
 -- | Sets a scheme's declared env vars. Client env vars need a client half.

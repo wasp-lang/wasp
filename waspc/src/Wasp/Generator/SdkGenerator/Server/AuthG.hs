@@ -20,7 +20,7 @@ import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Auth.SchemeSideConfig (mkSchemeSideConfigTmplData)
+import Wasp.Generator.SdkGenerator.Auth.HandlerSpec (mkHandlerSpecTmplData)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -211,7 +211,7 @@ mkSchemesTmplData auth =
 
     mkSchemeTmplData (idx, scheme) =
       object $
-        mkSchemeSideConfigTmplData ("authSchemeConfigReference_" ++ show idx) scheme.server
+        mkHandlerSpecTmplData ("authSchemeSpecReference_" ++ show idx) scheme.server
           ++ [ "index" .= idx,
                "schemeName" .= scheme.name,
                "handler" .= scheme.handler,

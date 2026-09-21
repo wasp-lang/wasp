@@ -22,11 +22,9 @@ import {
  * factory for `handler`, stash `runtime` in a module variable here, and read
  * it from those routes. That is plain userland; Wasp needs no API for it.
  */
-export const createPasswordAuthHandler: ServerAuthHandlerFactory<
-  unknown,
-  never,
-  true
-> = (runtime) => ({
+export const createPasswordAuthHandler: ServerAuthHandlerFactory = (
+  runtime,
+) => ({
   // The routes below verify logins. Afterwards a request carries the token
   // the issuer minted, and this handler recognizes it by forwarding to that
   // issuer -- the way ASP.NET's remote schemes forward to their sign-in scheme.

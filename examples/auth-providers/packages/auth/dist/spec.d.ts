@@ -101,20 +101,20 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 5;
+    contractVersion: 6;
     server: {
         authHandlerFactory: {
             package: string;
         };
         env: EnvVarRequirement[];
-        config: WaspAuthServerConfig<Ref>;
+        spec: WaspAuthServerSpec<Ref>;
         routes: Record<string, never>;
     };
     client: {
         authHandlerFactory: {
             package: string;
         };
-        config: WaspAuthClientConfig;
+        spec: WaspAuthClientSpec;
     };
     capabilities: string[];
     uses: Array<"email-send">;
@@ -128,7 +128,7 @@ export type WaspAuthSchemeManifest<Ref = unknown, StoreRef = never> = {
  * references; Wasp carries them across the compiler and the factory gets
  * them live, at the same paths.
  */
-export type WaspAuthServerConfig<Ref = unknown> = {
+export type WaspAuthServerSpec<Ref = unknown> = {
     clientOAuthCallbackPath: string;
     methods: {
         usernameAndPassword?: {
@@ -158,7 +158,7 @@ export type WaspAuthServerConfig<Ref = unknown> = {
  * the browser), so it carries only what the forms and actions read: where to
  * go after login, where the OAuth handback lands, and which methods are on.
  */
-export type WaspAuthClientConfig = {
+export type WaspAuthClientSpec = {
     onAuthSucceededRedirectTo: string;
     clientOAuthCallbackPath: string;
     methods: Partial<Record<"usernameAndPassword" | "email" | OAuthProviderName, Record<string, never>>>;

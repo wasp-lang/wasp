@@ -1,6 +1,6 @@
 import type { ClientAuthHandler } from '@wasp.sh/auth-contract/client'
 import type { AuthSchemeName } from '../../auth/scheme.js'
-import { joinSchemeConfig } from '../../auth/schemeConfig.js'
+import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import {
   getRequestCredential,
   registerCredentialSource,
@@ -75,8 +75,8 @@ function makeClientRuntime(
 
 // PRIVATE API
 export const clientAuthHandlers: Partial<Record<AuthSchemeName, ClientAuthHandler>> = {
-  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), joinSchemeConfig({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
-  'clerk': createClientAuthHandler_1(makeClientRuntime('clerk', ['REACT_APP_CLERK_PUBLISHABLE_KEY']), joinSchemeConfig(undefined, []) as Parameters<typeof createClientAuthHandler_1>[1]),
+  'wasp': createClientAuthHandler_0(makeClientRuntime('wasp', []), joinHandlerSpec({"onAuthSucceededRedirectTo":"/","clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}}}, []) as Parameters<typeof createClientAuthHandler_0>[1]),
+  'clerk': createClientAuthHandler_1(makeClientRuntime('clerk', ['REACT_APP_CLERK_PUBLISHABLE_KEY']), joinHandlerSpec(undefined, []) as Parameters<typeof createClientAuthHandler_1>[1]),
 }
 
 // The handlers' own credentials are the request path's fallback source:

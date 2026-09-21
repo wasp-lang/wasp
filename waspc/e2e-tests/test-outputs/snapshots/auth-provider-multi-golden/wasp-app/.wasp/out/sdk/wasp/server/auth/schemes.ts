@@ -1,6 +1,6 @@
 import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
-import { joinSchemeConfig } from '../../auth/schemeConfig.js'
+import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
@@ -307,7 +307,46 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
 }
 
 
-function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<never, false, string> {
+/**
+ * A facet the manifest did not declare. It is still a member of the runtime,
+ * so a handler's type never has to claim what its manifest declares; using it
+ * fails loudly, naming the scheme and what to declare, instead of surfacing
+ * as "cannot read properties of undefined" at the first login.
+ */
+function undeclaredFacetError(spec: SchemeRuntimeSpec, facet: string, howToDeclare: string): Error {
+  return contractError(
+    'wasp-auth/undeclared-facet',
+    `Auth scheme '${spec.scheme}' used \`runtime.${facet}\`, which its manifest does not declare. ${howToDeclare}`,
+  )
+}
+
+function undeclaredCredentials(spec: SchemeRuntimeSpec): Credentials {
+  const reject = async (): Promise<never> => {
+    throw undeclaredFacetError(
+      spec,
+      'credentials',
+      "Declare `credentials` in the manifest ({ transport, store } or { scheme }), or check `runtime.hasCredentials` first.",
+    )
+  }
+  return { authenticate: reject, signIn: reject, signOut: reject, signOutEverywhere: reject }
+}
+
+function undeclaredEmail(spec: SchemeRuntimeSpec): WaspEmail {
+  return {
+    defaultFrom: undefined,
+    send: async () => {
+      throw undeclaredFacetError(
+        spec,
+        'email',
+        "Request the 'email-send' grant in the manifest's `uses` (the app must configure an emailSender), or check `runtime.canSendEmail` first.",
+      )
+    },
+  }
+}
+
+function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<string> {
+  // Validation rejects the grant in an app without an emailSender.
+  const canSendEmail = false
   return {
     scheme: spec.scheme,
     mountPath: `/auth/${spec.scheme}`,
@@ -334,10 +373,13 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
         makeIdentitiesFacet(spec, namespace),
       ]),
     ),
-    ...(credentials !== null ? { credentials } : {}),
-    // Granted facets: wired only when the manifest requested them, so an
-    // undeclared access fails loudly at first use rather than working by
-    // accident.
+    // Every facet is always a member. One the manifest did not declare
+    // rejects with a clear error on use; the booleans let a handler branch
+    // when availability is the app's choice.
+    credentials: credentials ?? undeclaredCredentials(spec),
+    hasCredentials: credentials !== null,
+    email: undeclaredEmail(spec),
+    canSendEmail,
   }
 }
 
@@ -381,10 +423,10 @@ const handlerParts_0 = await Promise.resolve(
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_0, credentials_0) as Parameters<typeof createServerAuthHandler_0>[0],
-    // The handler's `server.config`: its plain data, with every reference
+    // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
-    joinSchemeConfig({"clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}}}, [
-      // Wasp never reads a handler's config, so it cannot know its type. The
+    joinHandlerSpec({"clientOAuthCallbackPath":"/oauth/callback","methods":{"usernameAndPassword":{}}}, [
+      // Wasp never reads a handler's spec, so it cannot know its type. The
       // cast is sound by construction: this IS the object the handler's own
       // spec helper built, carried across the compiler.
     ]) as Parameters<typeof createServerAuthHandler_0>[1],
@@ -406,10 +448,10 @@ const handlerParts_1 = await Promise.resolve(
     // declares; the generator wired exactly the manifest's `uses`, and the
     // boot assert keeps manifest and handler honest.
     makeSchemeRuntime(spec_1, credentials_1) as Parameters<typeof createServerAuthHandler_1>[0],
-    // The handler's `server.config`: its plain data, with every reference
+    // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
-    joinSchemeConfig(undefined, [
-      // Wasp never reads a handler's config, so it cannot know its type. The
+    joinHandlerSpec(undefined, [
+      // Wasp never reads a handler's spec, so it cannot know its type. The
       // cast is sound by construction: this IS the object the handler's own
       // spec helper built, carried across the compiler.
     ]) as Parameters<typeof createServerAuthHandler_1>[1],

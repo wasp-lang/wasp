@@ -22,8 +22,8 @@ const defaultPasswordResetEmailContent = ({ passwordResetLink, }) => ({
 });
 /** The email method: `/auth/email/{signup,login,verify-email,request-password-reset,reset-password}`. */
 export function emailRoutes(ctx) {
-    const { runtime, config } = ctx;
-    const emailConfig = config.methods.email;
+    const { runtime, spec } = ctx;
+    const emailConfig = spec.methods.email;
     const identities = () => runtime.identities.email;
     const { validateJWT } = makeJwt(runtime);
     const helpers = makeEmailHelpers(runtime);
@@ -190,9 +190,9 @@ export function emailRoutes(ctx) {
                     throw new HttpError(400, "Email verification failed, invalid token");
                 }
                 await identities().updateData(email, { isEmailVerified: true });
-                if (config.onAfterEmailVerified) {
+                if (spec.onAfterEmailVerified) {
                     const auth = await findAuthWithUser(runtime, identity.authId);
-                    await config.onAfterEmailVerified({
+                    await spec.onAfterEmailVerified({
                         prisma: runtime.db,
                         req,
                         email,

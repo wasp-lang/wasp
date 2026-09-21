@@ -3,34 +3,34 @@ import { isRefObjectLike, type RefObject } from "../refObject.js";
 import { WaspSpecUserError } from "../waspSpecUserError.js";
 
 /**
- * A handler's `config` is one object mixing plain data with references to
+ * A handler's `spec` is one object mixing plain data with references to
  * app code. A reference cannot cross the compiler as data, so it is lifted
  * out here, keyed by where it sat; the generated code imports each one and
  * sets it back at its path before calling the handler's factory.
  */
-export type SplitSchemeConfig = {
-  /** The config with every reference removed, as JSON. Undefined when there is no config. */
+export type SplitHandlerSpec = {
+  /** The spec with every reference removed, as JSON. Undefined when there is no spec. */
   dataJson: string | undefined;
   /**
    * The lifted references. A key is the JSON-encoded array of path segments
-   * (`["methods","google","configFn"]`), so a config key containing a '.'
+   * (`["methods","google","configFn"]`), so a spec key containing a '.'
    * cannot be misread as nesting.
    */
   references: Record<string, RefObject>;
 };
 
-export function splitSchemeConfig(
+export function splitHandlerSpec(
   schemeName: string,
   side: "server" | "client",
-  config: unknown,
-): SplitSchemeConfig {
-  if (config === undefined) {
+  spec: unknown,
+): SplitHandlerSpec {
+  if (spec === undefined) {
     return { dataJson: undefined, references: {} };
   }
-  const where = `Auth scheme '${schemeName}' has a ${side} config`;
-  // A reference is a plain object too, but a config that IS one has no
+  const where = `Auth scheme '${schemeName}' has a ${side} spec`;
+  // A reference is a plain object too, but a spec that IS one has no
   // fields for the handler to read.
-  if (!isPlainObject(config) || isRefObjectLike(config)) {
+  if (!isPlainObject(spec) || isRefObjectLike(spec)) {
     throw new WaspSpecUserError(`${where} that is not a plain object.`);
   }
 
@@ -63,16 +63,16 @@ export function splitSchemeConfig(
     return value;
   };
 
-  const data = withoutReferences(config, []);
+  const data = withoutReferences(spec, []);
 
   // The data travels to the generated code as JSON, so anything that doesn't
   // survive the round-trip (functions, class instances, undefined-holed
   // arrays) would arrive silently mangled. Rejecting here turns that into a
-  // compile error; app code belongs in the config as a REFERENCE.
+  // compile error; app code belongs in the spec as a REFERENCE.
   const dataJson = JSON.stringify(data);
   if (dataJson === undefined || !isEqual(JSON.parse(dataJson), data)) {
     throw new WaspSpecUserError(
-      `${where} that does not survive JSON serialization. Apart from references to your code, a handler's config must be plain serializable data.`,
+      `${where} that does not survive JSON serialization. Apart from references to your code, a handler's spec must be plain serializable data.`,
     );
   }
   return { dataJson, references };

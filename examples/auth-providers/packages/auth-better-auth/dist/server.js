@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { toNodeHandler } from "better-auth/node";
 import { bearer } from "better-auth/plugins";
-export const createServerAuthHandler = (runtime, config) => {
+export const createServerAuthHandler = (runtime, spec) => {
     // The integration config: everything this handler needs to plug Better Auth
     // into a Wasp app, and nothing about which auth methods exist.
     const integrationConfig = {
@@ -30,7 +30,7 @@ export const createServerAuthHandler = (runtime, config) => {
     // - With a `setupFn`: the function receives the integration config and its
     //   return value is authoritative, with plain Better Auth semantics --
     //   nothing is enabled unless you enable it.
-    const setupFn = config?.setupFn;
+    const setupFn = spec?.setupFn;
     const extendedConfig = setupFn
         ? setupFn(integrationConfig)
         : {

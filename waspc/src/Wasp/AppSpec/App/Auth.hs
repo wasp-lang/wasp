@@ -128,7 +128,7 @@ data AuthScheme = AuthScheme
     -- | Computes the user entity's fields from verified claims, for the one
     -- case where WASP creates the user: a subject it has never seen shows
     -- up already authenticated. Wasp itself calls it, which is why it is not
-    -- part of a side's config.
+    -- part of a side's spec.
     userFieldsFromClaims :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
@@ -141,13 +141,13 @@ data AuthSchemeSide = AuthSchemeSide
   { authHandlerFactory :: AuthHandlerFactoryEntry,
     -- | Env vars this half reads; it receives exactly these.
     envVars :: [AuthSchemeEnvVar],
-    -- | The plain-data part of this half's @config@, JSON-encoded.
-    configJson :: Maybe String,
-    -- | The references to app code lifted out of this half's @config@,
+    -- | The plain-data part of this half's @spec@, JSON-encoded.
+    specJson :: Maybe String,
+    -- | The references to app code lifted out of this half's @spec@,
     -- keyed by the JSON-encoded path they sat at
     -- (@["methods","google","configFn"]@). The generated code imports each
     -- and sets it back at its path before calling the factory.
-    configReferences :: Map String ExtImport
+    specReferences :: Map String ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
