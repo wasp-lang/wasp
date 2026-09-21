@@ -3,7 +3,7 @@ import { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core
 export { type ProviderConfig, type RequestWithWasp } from '@wasp.sh/lib-sdk-core/node'
 
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from '../../universal/types'
+import type { Exact, Expand } from '@wasp.sh/lib-sdk-core'
 import type { ProviderName } from '../../server/auth/utils'
 {=# isEmailUserSignupFieldsDefined =}
 import type { FromRegister } from '../../types/register'

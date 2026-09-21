@@ -111,7 +111,6 @@ genSdk spec =
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|server/index.ts|],
-      C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
@@ -129,7 +128,6 @@ genSdk spec =
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> genUniversalDir
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -302,15 +300,6 @@ genTsConfigJson = do
       )
 
 -- todo(filip): consider reorganizing/splitting the file.
-
-genUniversalDir :: Generator [FileDraft]
-genUniversalDir =
-  sequence
-    [ C.genFileCopy [relfile|universal/url.ts|],
-      C.genFileCopy [relfile|universal/types.ts|],
-      C.genFileCopy [relfile|universal/predicates.ts|],
-      C.genFileCopy [relfile|universal/ansiColors.ts|]
-    ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec =
