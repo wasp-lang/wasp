@@ -6,10 +6,10 @@ import type { Prisma } from '@prisma/client'
 import type { Exact, Expand } from '@wasp.sh/lib-sdk-core'
 import type { ProviderName } from '../../server/auth/utils'
 {=# isEmailUserSignupFieldsDefined =}
-import type { FromRegister } from '../../types/register'
+import type { FromRegister } from '@wasp.sh/lib-sdk-core'
 {=/ isEmailUserSignupFieldsDefined =}
 {=# isUsernameAndPasswordUserSignupFieldsDefined =}
-import type { FromRegister } from '../../types/register'
+import type { FromRegister } from '@wasp.sh/lib-sdk-core'
 {=/ isUsernameAndPasswordUserSignupFieldsDefined =}
 
 // PUBLIC API

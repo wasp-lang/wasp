@@ -1,7 +1,7 @@
 {{={= =}=}}
 import * as z from "zod"
 import { ensureEnvSchema } from "../env/validation"
-import type { FromRegister } from "../types/register";
+import type { FromRegister } from "@wasp.sh/lib-sdk-core";
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
 {=/ envValidationSchema.isDefined =}
