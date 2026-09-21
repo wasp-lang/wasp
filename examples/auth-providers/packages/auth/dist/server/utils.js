@@ -102,10 +102,10 @@ export async function getHashedPassword(identities, providerUserId) {
     if (typeof legacyHashedPassword !== "string") {
         return null;
     }
-    await identities.setSecrets(providerUserId, {
-        ...secrets,
+    await identities.updateSecrets(providerUserId, {
         hashedPassword: legacyHashedPassword,
     });
+    // `null` removes the key: the hash leaves the readable column.
     await identities.updateData(providerUserId, { hashedPassword: null });
     return legacyHashedPassword;
 }

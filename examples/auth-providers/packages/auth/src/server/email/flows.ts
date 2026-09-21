@@ -344,7 +344,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
         if (!identity) {
           throw new HttpError(400, "Password reset failed, invalid token");
         }
-        await identities().setSecrets(email, {
+        await identities().updateSecrets(email, {
           hashedPassword: await hashPassword(args.password as string),
         });
         // The act of resetting the password verifies the email.

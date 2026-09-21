@@ -20,9 +20,9 @@ import { type PossibleUserFields } from '../../auth/providers/types.js'
  *
  * - `claims`  -- what the provider asserted at login; written at creation,
  *   read-only afterwards, so its provenance can be trusted.
- * - `data`    -- non-secret working state; partial updates via `updateData`.
+ * - `data`    -- non-secret working state; merged into via `updateData`.
  * - `secrets` -- secret material, in the column the Prisma client omits by
- *   default. Read and written ONLY through `getSecrets`/`setSecrets`, and
+ *   default. Read and written ONLY through `getSecrets`/`updateSecrets`, and
  *   stored as given: hashing is the caller's explicit job (see `hashPassword`
  *   in `wasp/server/auth`), never a side effect of storage.
  */
@@ -38,6 +38,10 @@ export type Identity<Data extends object> = {
   /** Provider-asserted, Wasp-recorded profile data (the `providerClaims` column, parsed). */
   claims: Record<string, unknown>;
 }
+
+// PUBLIC API
+/** Some of `T`'s keys, each with a new value or `null` to remove it. */
+export type MergePatch<T extends object> = { [Key in keyof T]?: T[Key] | null }
 
 // PUBLIC API
 export type CreateUserResult = {= userEntityUpper =} & {
@@ -86,11 +90,18 @@ export type IdentityStore<Data extends object, Secrets extends object> = {
    */
   getSecrets(providerUserId: string): Promise<Secrets | null>;
 
-  /** Replaces the identity's secret material. Expects it **already hashed**. */
-  setSecrets(providerUserId: string, secrets: Secrets): Promise<void>;
+  /**
+   * Merges the given updates into the identity's secret material, exactly
+   * like `updateData`. Expects the values **already hashed**.
+   */
+  updateSecrets(providerUserId: string, updates: MergePatch<Secrets>): Promise<void>;
 
-  /** Merges the given updates into the identity's non-secret data. */
-  updateData(providerUserId: string, updates: Partial<Data>): Promise<void>;
+  /**
+   * Merges the given updates into the identity's non-secret data. A key set
+   * to `null` is removed; every key not named is left alone. Atomic: two
+   * concurrent updates cannot lose one another.
+   */
+  updateData(providerUserId: string, updates: MergePatch<Data>): Promise<void>;
 
   /**
    * Deletes the identity's whole user (cascading to its auth data and
@@ -141,6 +152,33 @@ export function getIdentityStore(
       providerUserId,
     },
   });
+
+  // Read and write in one transaction, so two concurrent merges into the same
+  // identity cannot lose one another. A `null` value removes its key.
+  const mergeIntoColumn = (
+    providerUserId: string,
+    column: 'providerData' | 'providerSecrets',
+    updates: Record<string, unknown>,
+  ) =>
+    prisma.$transaction(async (tx) => {
+      const identity = await tx.{= authIdentityEntityLower =}.findUnique({
+        where: whereIdentity(providerUserId),
+        omit: { providerSecrets: false },
+      });
+      if (identity === null) {
+        throw new Error('Auth identity not found.');
+      }
+      const merged = { ...JSON.parse(identity[column]), ...updates };
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null) {
+          delete merged[key];
+        }
+      }
+      await tx.{= authIdentityEntityLower =}.update({
+        where: whereIdentity(providerUserId),
+        data: { [column]: JSON.stringify(merged) },
+      });
+    });
 
   return {
     async find(providerUserId) {
@@ -218,26 +256,12 @@ export function getIdentityStore(
       return identity === null ? null : JSON.parse(identity.providerSecrets);
     },
 
-    async setSecrets(providerUserId, secrets) {
-      await prisma.{= authIdentityEntityLower =}.update({
-        where: whereIdentity(providerUserId),
-        data: { providerSecrets: JSON.stringify(secrets) },
-      });
+    async updateSecrets(providerUserId, updates) {
+      await mergeIntoColumn(providerUserId, 'providerSecrets', updates);
     },
 
     async updateData(providerUserId, updates) {
-      const identity = await prisma.{= authIdentityEntityLower =}.findUnique({
-        where: whereIdentity(providerUserId),
-        select: { providerData: true },
-      });
-      if (identity === null) {
-        throw new Error('Auth identity not found.');
-      }
-      const newData = { ...JSON.parse(identity.providerData), ...updates };
-      await prisma.{= authIdentityEntityLower =}.update({
-        where: whereIdentity(providerUserId),
-        data: { providerData: JSON.stringify(newData) },
-      });
+      await mergeIntoColumn(providerUserId, 'providerData', updates);
     },
 
     async linkIdentity(providerUserId, identity, authId) {

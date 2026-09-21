@@ -76,7 +76,7 @@ test("a row from before the upgrade logs in, and its hash moves to the secrets",
   expect(JSON.parse(migrated.providerSecrets).hashedPassword).toBe(
     hashedPassword,
   );
-  expect(JSON.parse(migrated.providerData).hashedPassword).toBeNull();
+  expect("hashedPassword" in JSON.parse(migrated.providerData)).toBe(false);
 
   // And the second login reads it from where it now lives.
   const again = await request.post("/auth/wasp/username/login", {

@@ -622,7 +622,11 @@ export type IdentityStore = {
     req?: unknown;
   }): Promise<void>;
 
-  /** Merges the updates into the identity's non-secret data. */
+  /**
+   * Merges the updates into the identity's non-secret data. A key set to
+   * `null` is REMOVED; every key not named is left alone. Atomic: two
+   * concurrent updates cannot lose one another.
+   */
   updateData(
     providerUserId: string,
     updates: Record<string, JsonValue>,
@@ -631,10 +635,15 @@ export type IdentityStore = {
   /** Reads the identity's secret material. Keep the result on the server. */
   getSecrets(providerUserId: string): Promise<Record<string, JsonValue> | null>;
 
-  /** Replaces the identity's secret material. Expects it already hashed. */
-  setSecrets(
+  /**
+   * Merges the updates into the identity's secret material, exactly like
+   * `updateData`: `null` removes a key, unnamed keys are left alone. So
+   * changing a password cannot wipe a second secret (a TOTP seed) stored next
+   * to it. Expects the values already hashed.
+   */
+  updateSecrets(
     providerUserId: string,
-    secrets: Record<string, JsonValue>,
+    updates: Record<string, JsonValue>,
   ): Promise<void>;
 };
 

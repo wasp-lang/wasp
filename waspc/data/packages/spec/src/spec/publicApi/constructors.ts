@@ -516,7 +516,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 10 as const;
+export const supportedAuthContractVersion = 11 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
