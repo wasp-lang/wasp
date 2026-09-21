@@ -111,7 +111,6 @@ genSdk spec =
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|serialization/index.ts|],
-      C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
@@ -310,7 +309,6 @@ genUniversalDir =
   sequence
     [ C.genFileCopy [relfile|universal/url.ts|],
       C.genFileCopy [relfile|universal/types.ts|],
-      C.genFileCopy [relfile|universal/validators.ts|],
       C.genFileCopy [relfile|universal/predicates.ts|],
       C.genFileCopy [relfile|universal/ansiColors.ts|]
     ]
