@@ -12,11 +12,13 @@ module Wasp.Job
     failWithExitCode,
     requireExitSuccess,
     getJobOutputSink,
-    writeJobOutput,
+    withBackgroundOutputWorker,
   )
 where
 
 import Control.Concurrent (Chan, writeChan)
+import qualified Control.Concurrent.Async as Async
+import qualified Control.Monad.Catch as Catch
 import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (ReaderT, ask, runReaderT)
@@ -30,9 +32,7 @@ type JobAction = ReaderT JobOutputSink (ExceptT JobFailure (ResourceT IO))
 
 newtype JobFailure = JobFailure Int
 
-newtype JobOutputSink = JobOutputSink
-  { writeJobOutput :: JobOutputKind -> Text -> IO ()
-  }
+type JobOutputSink = JobOutputKind -> Text -> IO ()
 
 data JobEvent = JobEvent
   { _eventData :: JobEventData,
@@ -62,7 +62,7 @@ runJob (Job jobKind action) chan = do
   emitEvent $ JobExited exitCode
   return exitCode
   where
-    outputSink = JobOutputSink $ \outputKind output -> emitEvent $ JobOutput outputKind output
+    outputSink outputKind output = emitEvent $ JobOutput outputKind output
     emitEvent eventData =
       writeChan chan $
         JobEvent
@@ -75,8 +75,8 @@ jobFailureExitCode (JobFailure exitCode) = ExitFailure exitCode
 
 emitJobOutput :: JobOutputKind -> Text -> JobAction ()
 emitJobOutput outputKind output = do
-  outputSink <- getJobOutputSink
-  liftIO $ writeJobOutput outputSink outputKind output
+  emit <- getJobOutputSink
+  liftIO $ emit outputKind output
 
 requireExitSuccess :: ExitCode -> JobAction ()
 requireExitSuccess ExitSuccess = return ()
@@ -87,3 +87,12 @@ failWithExitCode = throwError . JobFailure
 
 getJobOutputSink :: JobAction JobOutputSink
 getJobOutputSink = ask
+
+-- | Stops the worker before returning, including on job failure or cancellation.
+withBackgroundOutputWorker :: ((JobOutputKind -> Text -> IO ()) -> IO ()) -> JobAction a -> JobAction a
+withBackgroundOutputWorker worker action = do
+  emit <- getJobOutputSink
+  Catch.bracket
+    (liftIO $ Async.async $ worker emit)
+    (liftIO . Async.cancel)
+    (const action)

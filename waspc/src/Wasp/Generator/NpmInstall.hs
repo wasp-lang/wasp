@@ -5,11 +5,9 @@ module Wasp.Generator.NpmInstall
 where
 
 import Control.Concurrent (threadDelay)
-import qualified Control.Concurrent.Async as Async
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Resource (allocate, release)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
@@ -19,7 +17,6 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
-import Wasp.Job (JobOutputSink, getJobOutputSink, writeJobOutput)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Job.Output
@@ -78,18 +75,16 @@ installProjectNpmDependencies projectDir = do
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.JobAction ()
 installNpmDependenciesAndReport projectDir = do
   Job.emitJobOutput Job.Stdout "Starting npm install\n"
-  outputSink <- getJobOutputSink
-  (progressReporterKey, _) <- allocate (Async.async $ reportInstallationProgress outputSink) Async.cancel
-  Node.runChecked [] projectDir "npm" ["install"]
-  release progressReporterKey
+  Job.withBackgroundOutputWorker reportInstallationProgress $
+    Node.runChecked [] projectDir "npm" ["install"]
 
-reportInstallationProgress :: JobOutputSink -> IO ()
-reportInstallationProgress outputSink =
+reportInstallationProgress :: (Job.JobOutputKind -> T.Text -> IO ()) -> IO ()
+reportInstallationProgress emit =
   mapM_ reportMessage $ cycle possibleMessages
   where
     reportMessage message = do
       threadDelay $ secondsToMicroSeconds 5
-      writeJobOutput outputSink Job.Stdout $ T.append message "\n"
+      emit Job.Stdout $ T.append message "\n"
       threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =

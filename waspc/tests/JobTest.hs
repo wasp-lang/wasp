@@ -2,6 +2,8 @@ module JobTest where
 
 import Control.Concurrent (newChan, newEmptyMVar, putMVar, readChan, takeMVar, threadDelay)
 import qualified Control.Concurrent.Async as Async
+import Control.Exception (bracket_)
+import Control.Monad.Except (catchError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (register)
 import Data.IORef (newIORef, readIORef, writeIORef)
@@ -93,3 +95,59 @@ spec_runAndCaptureOutput =
       Output.runAndCaptureOutput (Job.makeJob Job.Wasp action)
         `shouldReturn` (ExitFailure 7, "failed")
       readIORef released `shouldReturn` True
+
+spec_withBackgroundOutputWorker :: Spec
+spec_withBackgroundOutputWorker =
+  describe "withBackgroundOutputWorker" $ do
+    it "forwards output and stops the worker before returning its result" $ do
+      started <- newEmptyMVar
+      stopped <- newIORef False
+      block <- newEmptyMVar
+      let worker emit =
+            bracket_
+              (emit Job.Stdout "progress" >> putMVar started ())
+              (writeIORef stopped True)
+              (takeMVar block)
+          action = do
+            result <- Job.withBackgroundOutputWorker worker $ do
+              liftIO $ takeMVar started
+              return (42 :: Int)
+            liftIO $ result `shouldBe` 42
+            liftIO $ readIORef stopped `shouldReturn` True
+      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput $ Job.makeJob Job.Wasp action)
+        `shouldReturn` Just (ExitSuccess, "progress")
+
+    it "stops the worker before an enclosing action handles job failure" $ do
+      started <- newEmptyMVar
+      stopped <- newIORef False
+      block <- newEmptyMVar
+      let worker _ =
+            bracket_
+              (putMVar started ())
+              (writeIORef stopped True)
+              (takeMVar block)
+          action =
+            Job.withBackgroundOutputWorker
+              worker
+              (liftIO (takeMVar started) >> Job.failWithExitCode 7)
+              `catchError` \_ -> liftIO $ readIORef stopped `shouldReturn` True
+      timeout (secondsToMicroSeconds 5) (Output.runAndCaptureOutput $ Job.makeJob Job.Wasp action)
+        `shouldReturn` Just (ExitSuccess, "")
+
+    it "stops the worker when the job is cancelled" $ do
+      started <- newEmptyMVar
+      stopped <- newIORef False
+      block <- newEmptyMVar
+      events <- newChan
+      let worker _ =
+            bracket_
+              (putMVar started ())
+              (writeIORef stopped True)
+              (takeMVar block)
+          action = Job.withBackgroundOutputWorker worker $ liftIO $ takeMVar block
+          cancelJob =
+            Async.withAsync (Job.runJob (Job.makeJob Job.Wasp action) events) $ \job -> do
+              takeMVar started
+              Async.cancel job
+              readIORef stopped `shouldReturn` True
+      timeout (secondsToMicroSeconds 5) cancelJob `shouldReturn` Just ()

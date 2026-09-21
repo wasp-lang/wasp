@@ -4,9 +4,6 @@ module Wasp.Job.Output
     runAndPrintOutput,
     runAndCaptureOutput,
     printEventsPrefixedUntilExit,
-    printEvent,
-    printEventsUntilExit,
-    collectTextUntilExit,
   )
 where
 
