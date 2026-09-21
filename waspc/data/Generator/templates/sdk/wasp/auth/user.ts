@@ -8,7 +8,7 @@ import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
-} from './providerData.js'
+} from '@wasp.sh/lib-sdk-core'
 import { isNotNull, type Expand } from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
