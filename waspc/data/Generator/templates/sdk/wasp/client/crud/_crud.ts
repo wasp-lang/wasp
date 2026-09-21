@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { createAction, type ActionFor } from "../operations/actions/core";
 import { createQuery, type QueryFor } from "../operations/queries/core";
-import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers";
+import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "@wasp.sh/lib-sdk-core/browser";
 import type {
   {=# operations.Get =}
   RegisteredGetQuery,
@@ -141,4 +141,3 @@ function createCrud(): {= entityUpper =}Crud {
     {=/ operations.Delete =}
   }
 }
-

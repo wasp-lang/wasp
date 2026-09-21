@@ -8,8 +8,8 @@ import {
   initSession,
   MessageError,
   MessageLoading,
+  useEffectOnce,
 } from "@wasp.sh/lib-sdk-core/browser";
-import { useEffectOnce } from "../../hooks";
 
 const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
