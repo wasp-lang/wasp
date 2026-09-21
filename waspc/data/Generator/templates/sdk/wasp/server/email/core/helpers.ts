@@ -1,7 +1,5 @@
 {{={= =}=}}
-export { formatFromField } from '@wasp.sh/lib-sdk-core/node'
-
-import type { EmailFromField } from "./types";
+import type { EmailFromField } from '@wasp.sh/lib-sdk-core/node'
 
 {=# isDefaultFromFieldDefined =}
 // PRIVATE API
