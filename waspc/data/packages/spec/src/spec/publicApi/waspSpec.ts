@@ -279,6 +279,33 @@ export interface EnvVarRequirement {
 }
 
 /**
+ * An auth scheme's providers, one declaration per provider name.
+ *
+ * @category Experimental
+ */
+export type AuthProviderDeclarations = {
+  [providerName: string]: AuthProviderDeclaration;
+};
+
+/**
+ * What an auth handler declares about one of its providers.
+ *
+ * @category Experimental
+ */
+export type AuthProviderDeclaration = {
+  /**
+   * What a login through this provider carries besides the identity itself.
+   * Omitted: nothing. `"oauth"`: the provider's tokens, which the handler
+   * must hand to Wasp with every signup, login and link, and which the app's
+   * hooks receive.
+   */
+  kind?: AuthProviderKind;
+};
+
+/** @category Experimental */
+export type AuthProviderKind = "oauth";
+
+/**
  * Runtime facets a handler may request from Wasp (the manifest's `uses`
  * list). Mirrors `RuntimeGrantName` in `@wasp.sh/auth-contract`; a closed set,
  * because the generator can only wire facets it knows.
@@ -448,7 +475,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 12;
+  contractVersion: 13;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */
@@ -469,15 +496,15 @@ export interface AuthSchemeManifest {
    */
   uses?: AuthRuntimeGrantName[];
   /**
-   * The provider names the handler records identities under: the values of
-   * the `AuthIdentity.providerName` column, e.g. `["username", "email"]`. The
-   * scheme's name goes to the `handlerName` column next to it, so two schemes
-   * may use the same provider name. Omit it and the handler gets a single
-   * one, `default`. The handler reaches each through
-   * `runtime.identities.<providerName>`, and a provider name that is not
-   * declared here has no store.
+   * The providers the handler records identities under, keyed by provider
+   * name: the value of the `AuthIdentity.providerName` column, e.g.
+   * `{ username: {}, google: { kind: "oauth" } }`. The scheme's name goes to
+   * the `handlerName` column next to it, so two schemes may use the same
+   * provider name. Omit it and the handler gets a single provider, `default`.
+   * The handler reaches each through `runtime.identities.<providerName>`, and
+   * a provider that is not declared here has no store.
    */
-  providerNames?: string[];
+  providers?: AuthProviderDeclarations;
   /**
    * How this scheme hands out credentials after a login it verified. Absent
    * for schemes whose own credential authenticates every request (a hosted

@@ -201,13 +201,20 @@ export type AuthScheme = {
   routes: Optional<AuthSchemeRoutes>;
   capabilities: string[];
   uses: string[];
-  // The provider names, as stored in `AuthIdentity.providerName`; `["default"]` when the manifest declared none.
-  providerNames: string[];
+  // The scheme's providers, named as stored in `AuthIdentity.providerName`;
+  // just `default` when the manifest declared none.
+  providers: AuthSchemeProvider[];
   credentials: Optional<AuthSchemeCredentials>;
   userFieldsFromClaims: Optional<ExtImport>;
 };
 
 // One half of a scheme: what its adapter is, and what it receives.
+export type AuthSchemeProvider = {
+  name: string;
+  // What a login through it carries: "oauth", or nothing.
+  kind: Optional<string>;
+};
+
 export type AuthSchemeSide = {
   authAdapter: { package: string; export: string } | { module: ExtImport };
   envVars: AuthSchemeEnvVar[];

@@ -438,7 +438,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
             },
             capabilities: ["cookie-transport"],
             uses: ["email-send"],
-            providerNames: ["passkey"],
+            providers: { passkey: {}, github: { kind: "oauth" } },
             credentials: { scheme: "session" },
             userFieldsFromClaims: getRefObject("full", "named"),
           }),

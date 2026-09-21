@@ -5,6 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Aeson.Key
 import Data.List (sortOn)
 import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
@@ -236,7 +237,17 @@ mkSchemesTmplData auth =
                  .= makeJsArrayFromHaskellList ((.envVarName) <$> AS.Auth.serverEnvVars scheme),
                -- The runtime facets the manifest requested; only these get wired.
                "usesJs" .= makeJsArrayFromHaskellList scheme.uses,
-               "providerNamesJs" .= makeJsArrayFromHaskellList scheme.providerNames,
+               -- The scheme's providers, by name, as a JS object literal. The
+               -- runtime builds one identity store per name and demands the
+               -- OAuth data for every provider whose kind is "oauth".
+               "providersJs"
+                 .= Util.Aeson.encodeToString
+                   ( Aeson.object
+                       [ Aeson.Key.fromString provider.providerName
+                           .= Aeson.object ["kind" .= kind | Just kind <- [provider.providerKind]]
+                         | provider <- scheme.providers
+                       ]
+                   ),
                "hasCredentials" .= isJust scheme.credentials,
                "credentialsScheme" .= AS.Auth.credentialsScheme scheme,
                "inlineCredentials" .= (inlineCredentialsTmplData idx <$> AS.Auth.inlineCredentials scheme)

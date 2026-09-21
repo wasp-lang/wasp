@@ -6,6 +6,9 @@
 
 import type {
   CredentialsIssuer,
+  IdentityStore,
+  ProviderKind,
+  ProviderKindParam,
   RuntimeGrantName,
   ServerAuthHandlerParts,
   WaspEmail,
@@ -28,7 +31,8 @@ import type {
  *   manifest field          types
  *   ----------------------  ------------------------------------------------
  *   `server.spec`           the `spec` parameter
- *   `providerNames`    the keys of `runtime.identities`
+ *   `providers`        the keys of `runtime.identities`, and by their `kind`
+ *                           what each store's calls must carry
  *   `server.env`            the keys of `runtime.env`
  *   `credentials`           whether `runtime.credentialsIssuer` is there
  *   `uses`                  whether `runtime.email` is there
@@ -83,13 +87,28 @@ export type ServerSpecOf<SpecConstructor> =
     ? LiveSpec<ServerSpec>
     : unknown;
 
-/** The manifest's `providerNames` as a union of suffixes; `"default"` when it declares none. */
+/** The kind of every provider the manifest declares, by name; just `default` when it declares none. */
+export type ProviderKindsOf<SpecConstructor> =
+  ManifestOf<SpecConstructor> extends { providers: infer Providers }
+    ? {
+        [ProviderName in keyof Providers & string]-?: KindOf<
+          NonNullable<Providers[ProviderName]>
+        >;
+      }
+    : { default: undefined };
+
+/** One declaration's kind: the literal when it is fixed, both when the app decides, `undefined` when it has none. */
+export type KindOf<Declaration> = Declaration extends {
+  kind: infer Kind extends ProviderKind;
+}
+  ? Kind
+  : "kind" extends keyof Declaration
+    ? ProviderKindParam
+    : undefined;
+
+/** The manifest's provider names as a union; `"default"` when it declares none. */
 export type ProviderNamesOf<SpecConstructor> =
-  ManifestOf<SpecConstructor> extends {
-    providerNames: ReadonlyArray<infer ProviderName extends string>;
-  }
-    ? ProviderName
-    : "default";
+  keyof ProviderKindsOf<SpecConstructor> & string;
 
 /**
  * `WaspServerRuntime` as one particular handler sees it: the same members,
@@ -99,11 +118,22 @@ export type ProviderNamesOf<SpecConstructor> =
 export type WaspServerRuntimeFor<SpecConstructor> = Omit<
   WaspServerRuntime<ProviderNamesOf<SpecConstructor>>,
   | "env"
+  | "identities"
   | "credentialsIssuer"
   | "hasCredentialsIssuer"
   | "email"
   | "canSendEmail"
 > & {
+  /**
+   * One store per declared provider, each typed by its kind: an "oauth"
+   * provider's `create`, `provision` and `link` REQUIRE the `oauth` data, a
+   * provider without a kind does not accept it.
+   */
+  identities: {
+    readonly [ProviderName in ProviderNamesOf<SpecConstructor>]: IdentityStore<
+      Extract<ProviderKindsOf<SpecConstructor>[ProviderName], ProviderKindParam>
+    >;
+  };
   /**
    * One key per env var in the manifest's `server.env`. An undeclared name is
    * a type error. A required var is a plain `string` when `env` is typed as a
@@ -119,7 +149,7 @@ export type WaspServerRuntimeFor<SpecConstructor> = Omit<
     CredentialsDeclaration<ManifestOf<SpecConstructor>>,
     "hasCredentialsIssuer",
     "credentialsIssuer",
-    CredentialsIssuer
+    CredentialsIssuer<ProviderKindsOf<SpecConstructor>>
   > &
   Facet<
     GrantDeclaration<ManifestOf<SpecConstructor>, "email-send">,

@@ -4,7 +4,7 @@ import {
   isValidSchemeName,
   supportedAuthContractVersion,
   validateCredentialsConfig,
-  validateProviderNames,
+  validateProviders,
   validateSideEnvVars,
 } from "../publicApi/constructors.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
@@ -219,8 +219,8 @@ function mapAuthScheme(
       );
     }
   }
-  const declaredProviderNames = manifest.providerNames ?? [];
-  validateProviderNames(handler, declaredProviderNames);
+  const declaredProviders = manifest.providers ?? {};
+  validateProviders(handler, declaredProviders);
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(handler, manifest.credentials);
   }
@@ -276,9 +276,7 @@ function mapAuthScheme(
     },
     capabilities: manifest.capabilities,
     uses,
-    // No bare provider name: a manifest that names none gets `default`.
-    providerNames:
-      declaredProviderNames.length > 0 ? declaredProviderNames : ["default"],
+    providers: mapProviders(declaredProviders),
     credentials:
       manifest.credentials && mapCredentials(manifest.credentials, ctx),
     userFieldsFromClaims:
@@ -384,4 +382,16 @@ export function mapWebSocket(
     fn: ctx.parseRefObject(fn),
     autoConnect,
   };
+}
+
+// No bare handler: a manifest that declares no providers gets `default`.
+function mapProviders(
+  providers: WaspSpec.AuthProviderDeclarations,
+): AppSpec.AuthSchemeProvider[] {
+  const declaredProviders: WaspSpec.AuthProviderDeclarations =
+    Object.keys(providers).length > 0 ? providers : { default: {} };
+  return Object.entries(declaredProviders).map(([name, declaration]) => ({
+    name,
+    kind: declaration.kind,
+  }));
 }

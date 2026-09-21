@@ -2,6 +2,7 @@ import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
 import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 
+import type { OAuthLoginData } from "@wasp.sh/auth-contract";
 import { findAuthWithUser } from "../email/flows.js";
 import {
   HttpError,
@@ -20,7 +21,6 @@ import {
 } from "../linking.js";
 import type {
   Ctx,
-  OAuthData,
   OAuthProviderName,
   Req,
   Res,
@@ -178,9 +178,10 @@ async function callbackHandler(
       tokens,
       oauthConfig,
     );
-    const oauth: OAuthData = {
+    // Wasp requires this for every call below, because the manifest declares
+    // the provider with `kind: "oauth"`, and adds the provider's name to it.
+    const oauth: OAuthLoginData = {
       uniqueRequestId: oAuthState.state,
-      providerName: provider.id,
       tokens,
     };
 
@@ -199,7 +200,7 @@ async function callbackHandler(
         await identities.link(
           providerUserId,
           {},
-          { authId: linkToAuthId, req, hookContext: oauth },
+          { authId: linkToAuthId, req, oauth },
         );
       } catch (e) {
         // The provider account belongs to another Wasp account. Completing
@@ -245,7 +246,7 @@ async function callbackHandler(
               { profile: providerProfile },
               spec.methods[provider.id]?.userSignupFields,
             )) as never,
-          { req, hookContext: oauth },
+          { req, oauth },
         );
         isNewUser = true;
       } catch (e) {
@@ -263,7 +264,7 @@ async function callbackHandler(
         providerName: provider.id,
         providerUserId,
       },
-      { req, hookContext: oauth, skipHooks: isNewUser },
+      { req, oauth, skipHooks: isNewUser },
     );
     const oneTimeCode = await jwt.createJWT(
       { response },

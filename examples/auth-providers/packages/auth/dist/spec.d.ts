@@ -15,7 +15,7 @@
  */
 import type { CredentialStore, SpecReference } from "@wasp.sh/auth-contract";
 import type { WaspAuthClientSpec } from "./client/types.js";
-import type { GetPasswordResetEmailContentFn, GetVerificationEmailContentFn, MethodProviderName, OAuthConfigFn, OAuthProviderName, OnAfterEmailVerifiedHook, OnBeforeOAuthRedirectHook, UserSignupFields } from "./server/types.js";
+import type { GetPasswordResetEmailContentFn, GetVerificationEmailContentFn, OAuthConfigFn, OAuthProviderName, OnAfterEmailVerifiedHook, OnBeforeOAuthRedirectHook, UserSignupFields } from "./server/types.js";
 export type { OAuthProviderName, WaspAuthClientSpec };
 /** The client route the OAuth handback lands on; the app declares it. */
 export declare const OAUTH_CALLBACK_PATH = "/oauth/callback";
@@ -105,7 +105,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 12;
+    contractVersion: 13;
     server: {
         authAdapter: {
             package: string;
@@ -125,8 +125,18 @@ export type WaspAuthSchemeManifest = {
     };
     capabilities: string[];
     uses: Array<"email-send">;
-    /** Provider names, written short; Wasp stores them prefixed with the scheme name. */
-    providerNames: MethodProviderName[];
+    /**
+     * One provider per enabled method, under the method's name. The OAuth ones
+     * declare their kind, so every signup, login and link through them must
+     * hand the provider's tokens to Wasp.
+     */
+    providers: {
+        [ProviderName in "username" | "email"]?: Record<string, never>;
+    } & {
+        [ProviderName in OAuthProviderName]?: {
+            kind: "oauth";
+        };
+    };
     credentials: WaspAuthCredentialsConfig;
 };
 /**

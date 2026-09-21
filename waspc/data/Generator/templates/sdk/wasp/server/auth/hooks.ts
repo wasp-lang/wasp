@@ -1,6 +1,7 @@
 import type { Request as ExpressRequest } from 'express'
 import type { ProviderId, FindAuthWithUserResult } from './utils.js'
 import type { CreateUserResult } from './identityStore.js'
+import type { OAuthTokens } from './handler/types.js'
 import { prisma } from '../index.js'
 import type { Expand } from '../../universal/types.js'
 
@@ -158,10 +159,10 @@ type OnAfterLoginHookParams = {
 
 // PUBLIC API
 /**
- * Context the minting provider attached to a login or signup (Wasp's own
- * auth passes its OAuth flow data: the unique request id, the provider name,
- * the tokens). The provider package types it precisely; here it is whatever
- * the provider handed over.
+ * What a signup, login or link through an OAuth provider carries: the unique
+ * request id the app saw in `onBeforeOAuthRedirect`, the provider's name and
+ * the provider's tokens. The auth handler hands it to Wasp, which requires
+ * it for every provider declared with `kind: "oauth"`.
  */
 export type OAuthData = {
   /**
@@ -169,5 +170,5 @@ export type OAuthData = {
   */
   uniqueRequestId: string
   providerName: string
-  tokens: unknown
+  tokens: OAuthTokens
 }

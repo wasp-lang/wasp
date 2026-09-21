@@ -289,6 +289,7 @@ spec_AppSpecValid = do
                     ]
                 }
         let basicExternalProvider = makeTestAuthScheme "test"
+        let plainProvider name = AS.Auth.AuthSchemeProvider name Nothing
         let makeEnvVar name =
               AS.Auth.AuthSchemeEnvVar
                 { AS.Auth.envVarName = name,
@@ -372,7 +373,7 @@ spec_AppSpecValid = do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.providerNames = ["email", "email"]
+                  { AS.Auth.providers = [plainProvider "email", plainProvider "email"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError
@@ -383,10 +384,21 @@ spec_AppSpecValid = do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.providerNames = ["default", "passkey"]
+                  { AS.Auth.providers = [plainProvider "default", AS.Auth.AuthSchemeProvider "github" (Just "oauth")]
                   }
             )
             `shouldBe` []
+
+        it "returns an error for an unknown provider kind" $ do
+          ASV.validateAppSpec
+            ( makeSpec
+                basicExternalProvider
+                  { AS.Auth.providers = [AS.Auth.AuthSchemeProvider "badge" (Just "smartcard")]
+                  }
+            )
+            `shouldBe` [ Valid.GenericValidationError
+                           "Auth scheme 'test' declares the provider 'badge' with the unknown kind 'smartcard'. Known kinds: oauth."
+                       ]
 
         it "returns an error for the email-send grant without an email sender" $ do
           ASV.validateAppSpec (makeSpec basicExternalProvider {AS.Auth.uses = ["email-send"]})
@@ -811,7 +823,7 @@ makeTestAuthScheme schemeName =
       AS.Auth.routes = Nothing,
       AS.Auth.capabilities = [],
       AS.Auth.uses = [],
-      AS.Auth.providerNames = ["default"],
+      AS.Auth.providers = [AS.Auth.AuthSchemeProvider "default" Nothing],
       AS.Auth.credentials = Nothing,
       AS.Auth.userFieldsFromClaims = Nothing
     }

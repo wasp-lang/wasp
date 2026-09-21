@@ -1,4 +1,4 @@
-import type { AuthResponse, JsonValue, ServerSpecOf, WaspServerRuntimeFor } from "@wasp.sh/auth-contract";
+import type { AuthResponse, JsonValue, OAuthLoginData, ServerSpecOf, WaspServerRuntimeFor } from "@wasp.sh/auth-contract";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { waspAuth } from "../spec.js";
 /**
@@ -65,10 +65,9 @@ export type OnBeforeOAuthRedirectHook<Prisma = unknown> = (params: {
 } | Promise<{
     url: URL;
 }>;
-export type OAuthData = {
-    uniqueRequestId: string;
+/** What the app's hooks receive as `oauth`: the login data this package hands to Wasp, plus the provider's name. */
+export type OAuthData = OAuthLoginData & {
     providerName: OAuthProviderName;
-    tokens: unknown;
 };
 /** What every route handler in this package receives. */
 export type Ctx = {

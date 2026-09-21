@@ -6,6 +6,9 @@
 import type { ClientAuthAdapterFor } from "../client.js";
 import type {
   AuthHandler,
+  IdentityStore,
+  OAuthLoginData,
+  ServerAuthAdapter,
   ServerAuthAdapterFor,
   SpecReference,
   WaspServerRuntime,
@@ -26,7 +29,7 @@ declare function waspAuthT(p: { email?: boolean }): {
   };
   client: { spec: { methods: string[] }; env: [{ name: "REACT_APP_X" }] };
   uses: Array<"email-send">;
-  providerNames: Array<"email" | "google">;
+  providers: { email?: {}; google?: { kind: "oauth" } };
   credentials: { transport?: "bearer" | "cookie" };
 };
 export const wasp: ServerAuthAdapterFor<typeof waspAuthT> = (runtime, spec) => {
@@ -118,3 +121,100 @@ declare const appRef: {
 const referenceField: SpecReference<OAuthConfigFn> = appRef;
 // @ts-expect-error a plain function is not a reference
 const notAReference: SpecReference<OAuthConfigFn> = () => ({ scopes: [] });
+
+// ---- provider kinds: what each store call and sign-in must carry ----
+declare const oauth: OAuthLoginData;
+declare function kindsAuth(): {
+  server: { routes: {} };
+  providers: {
+    email?: {};
+    username?: {};
+    google?: { kind: "oauth" };
+    flexible: { kind?: "oauth" };
+  };
+  credentials: {};
+};
+export const kindsTyped: ServerAuthAdapterFor<typeof kindsAuth> = async (
+  runtime,
+) => {
+  const { identities, credentialsIssuer } = runtime;
+  // oauth provider: data required
+  await identities.google.create("id", {}, undefined, { oauth });
+  // @ts-expect-error missing oauth data
+  await identities.google.create("id", {}, undefined, {});
+  // @ts-expect-error missing opts altogether
+  await identities.google.create("id");
+  await identities.google.link("id", {}, { authId: "a", oauth });
+  // @ts-expect-error link without oauth data
+  await identities.google.link("id", {}, { authId: "a" });
+  await identities.google.provision("id", undefined, { oauth });
+  // plain provider: data not accepted
+  await identities.email.create("a@b.c");
+  await identities.email.create("a@b.c", {}, () => ({}), { req: 1 });
+  // @ts-expect-error a plain provider carries no oauth data
+  await identities.email.create("a@b.c", {}, undefined, { oauth });
+  await identities.email.link("a@b.c", {}, { authId: "a" });
+  // app decides: optional
+  await identities.flexible.create("x");
+  await identities.flexible.create("x", {}, undefined, { oauth });
+  // @ts-expect-error undeclared provider
+  identities.github;
+  // issuer: kind looked up from the ref's provider name
+  await credentialsIssuer.signIn(
+    { providerName: "google", providerUserId: "id" },
+    { oauth },
+  );
+  // @ts-expect-error oauth sign-in without data
+  await credentialsIssuer.signIn({
+    providerName: "google",
+    providerUserId: "id",
+  });
+  await credentialsIssuer.signIn({
+    providerName: "email",
+    providerUserId: "a@b.c",
+  });
+  await credentialsIssuer.signIn(
+    { providerName: "email", providerUserId: "a@b.c" },
+    // @ts-expect-error plain sign-in carries no oauth data
+    { oauth },
+  );
+  await credentialsIssuer.signIn({
+    // @ts-expect-error undeclared provider name
+    providerName: "github",
+    providerUserId: "x",
+  });
+  await credentialsIssuer.signOutEverywhere({
+    providerName: "email",
+    providerUserId: "a@b.c",
+  });
+  return { handler, routeHandler() {} };
+};
+// no providers declared: just `default`, plain
+declare function plainAuth(): { server: {} };
+export const kindsPlain: ServerAuthAdapterFor<typeof plainAuth> = async (
+  runtime,
+) => {
+  await runtime.identities.default.provision("user_1", { claims: {} });
+  return { handler };
+};
+// loose: everything optional, shape still checked
+export const kindsLoose: ServerAuthAdapter = async (runtime) => {
+  await runtime.identities.default.create("x");
+  await runtime.identities.default.create("x", {}, undefined, { oauth });
+  await runtime.identities.default.create("x", {}, undefined, {
+    // @ts-expect-error wrong shape
+    oauth: { tokens: 1 },
+  });
+  await runtime.credentialsIssuer.signIn({ providerUserId: "x" });
+  await runtime.credentialsIssuer.signIn(
+    { providerName: "anything", providerUserId: "x" },
+    { oauth },
+  );
+  return { handler };
+};
+// a typed runtime can be handed to code written against the loose store
+export const kindsMix: ServerAuthAdapterFor<typeof kindsAuth> = (runtime) => {
+  const anyStore: IdentityStore = runtime.identities.google;
+  void anyStore;
+  return { handler, routeHandler() {} };
+};

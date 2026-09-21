@@ -43,9 +43,9 @@ export type JsonValue =
  * handler names an identity before Wasp has provisioned it. A `providerName`
  * the manifest did not declare is rejected before any lookup.
  */
-export type AuthIdentityRef = {
-  /** One of the manifest's `providerNames` (`email`): the `providerName` column. Default: `default`. */
-  providerName?: string;
+export type AuthIdentityRef<ProviderName extends string = string> = {
+  /** One of the manifest's `providers` (`email`): the `providerName` column. Default: `default`. */
+  providerName?: ProviderName;
   /** The handler's STABLE id for the person under that provider name: an email, a provider's user id. */
   providerUserId: string;
 };
@@ -107,6 +107,70 @@ export type AuthResponse = {
   headers?: Record<string, string | string[]>;
   body?: JsonValue;
 };
+
+/** The manifest's `providers`: one declaration per provider name. */
+export type ProviderDeclarations = {
+  [providerName: string]: ProviderDeclaration;
+};
+
+/** What a handler declares about one of its providers. */
+export type ProviderDeclaration = {
+  /**
+   * What a login through this provider CARRIES besides the identity itself.
+   * Omitted: nothing (a password, a magic link, a passkey, another system's
+   * session). The kind is not a taxonomy of login methods: only a kind that
+   * brings data of its own exists, because that data is all it changes.
+   *
+   * - "oauth": the provider's tokens. Every signup, login and link through
+   *   this provider must hand them to Wasp (`oauth`, see `OAuthLoginData`),
+   *   and the app's hooks receive them. Leaving them out is a type error for
+   *   a typed adapter, and `wasp-auth/missing-oauth-data` at runtime.
+   */
+  kind?: ProviderKind;
+};
+
+/** See `ProviderDeclaration.kind`. */
+export type ProviderKind = "oauth";
+
+/** The tokens an OAuth provider handed over. A provider's extra fields ride along untyped. */
+export type OAuthTokens = {
+  accessToken: string;
+  refreshToken?: string | null;
+  idToken?: string | null;
+  accessTokenExpiresAt?: Date | null;
+};
+
+/**
+ * What a login through an `"oauth"` provider carries. The handler hands it to
+ * Wasp with every `create`, `provision`, `link` and `signIn` of such a
+ * provider, and Wasp hands it to the app's hooks as `oauth` (`OAuthData`),
+ * adding the provider's name.
+ */
+export type OAuthLoginData = {
+  /** The id the app saw in `onBeforeOAuthRedirect`, so it can match the redirect to this login. */
+  uniqueRequestId: string;
+  tokens: OAuthTokens;
+};
+
+/**
+ * A provider's kind as a type parameter: `"oauth"`, `undefined` for a
+ * provider that declares none, or BOTH for "not known here", which is the
+ * loose default a hand-written handler gets.
+ */
+export type ProviderKindParam = ProviderKind | undefined;
+
+/**
+ * The data a call must carry, by the provider's kind: REQUIRED for "oauth",
+ * not accepted for a provider without a kind, optional when the kind is not
+ * known to the type system.
+ */
+export type LoginData<Kind extends ProviderKindParam = ProviderKindParam> = [
+  Kind,
+] extends ["oauth"]
+  ? { oauth: OAuthLoginData }
+  : [Kind] extends [undefined]
+    ? { oauth?: never }
+    : { oauth?: OAuthLoginData };
 
 /**
  * Per-sign-in choices, decided by the handler that verified the login
@@ -215,6 +279,22 @@ export interface AuthHandler {
  */
 export type RuntimeGrantName = "email-send";
 
+/** The options of `CredentialsIssuer.signIn`. */
+export type SignInOpts = {
+  properties?: SignInProperties;
+  /** The incoming request, passed to the app's login hooks. */
+  req?: unknown;
+  /** Skip the login hooks: for flows that already fired them. */
+  skipHooks?: boolean;
+};
+
+/** `signIn`'s arguments after the identity: the options are REQUIRED when they must carry data. */
+export type SignInRest<Kind extends ProviderKindParam> = [Kind] extends [
+  "oauth",
+]
+  ? [opts: SignInOpts & LoginData<Kind>]
+  : [opts?: SignInOpts & LoginData<Kind>];
+
 /**
  * The credentials issuer: how a handler that verifies logins but cannot carry a
  * credential across requests hands one out.
@@ -227,7 +307,11 @@ export type RuntimeGrantName = "email-send";
  * `signedInBy` on whatever the issuer produces. Minting through this facet is
  * the choke point that guarantees no scheme skips the app's login policy.
  */
-export type CredentialsIssuer = {
+export type CredentialsIssuer<
+  Kinds extends { [providerName: string]: ProviderKindParam } = {
+    [providerName: string]: ProviderKindParam;
+  },
+> = {
   /**
    * Authenticate a request against the credential this scheme hands out:
    * the target issuer's own `authenticate`. A handler that verifies logins
@@ -237,25 +321,14 @@ export type CredentialsIssuer = {
    */
   authenticate(request: Request): Promise<AuthenticateResult>;
 
-  signIn(
-    identityRef: AuthIdentityRef,
-    opts?: {
-      /** Per-sign-in choices: a lifetime for this credential, "remember me". */
-      properties?: SignInProperties;
-      /** The incoming request, surfaced to the app's login hooks. */
-      req?: unknown;
-      /**
-       * Opaque handler context surfaced to the app's login hooks as their
-       * `context` field (OAuth tokens, typically).
-       */
-      hookContext?: unknown;
-      /**
-       * Skip the app's login hooks for THIS sign-in. Only for flows that
-       * already fired them at a more informative moment (an OAuth callback
-       * holding tokens the later redeem step no longer has).
-       */
-      skipHooks?: boolean;
-    },
+  /**
+   * Issues a credential for a login the handler just verified. The provider's
+   * kind is looked up from `identityRef.providerName`: for an "oauth"
+   * provider the options are required and carry the `oauth` data.
+   */
+  signIn<ProviderName extends keyof Kinds & string>(
+    identityRef: AuthIdentityRef<ProviderName>,
+    ...rest: SignInRest<Kinds[ProviderName]>
   ): Promise<SignInResult>;
 
   /** Invalidate the credential the request carries, through the issuer. */
@@ -267,7 +340,9 @@ export type CredentialsIssuer = {
    * NOT call back into the calling handler, so a handler may call it from
    * inside its own revocation path without recursion.
    */
-  signOutEverywhere(identityRef: AuthIdentityRef): Promise<void>;
+  signOutEverywhere(
+    identityRef: AuthIdentityRef<keyof Kinds & string>,
+  ): Promise<void>;
 
   /**
    * A one-time code: a short-lived (one minute), single-use stand-in for the
@@ -330,6 +405,8 @@ export type EmailFrom = { name?: string; email: string };
 export type AuthContractErrorCode =
   | "wasp-auth/duplicate-identity"
   | "wasp-auth/identity-not-found"
+  /** A signup, login or link through an `"oauth"` provider came without its `oauth` data. */
+  | "wasp-auth/missing-oauth-data"
   /** `credentials.createOneTimeCode` was given a request that carries no valid credential. */
   | "wasp-auth/unauthenticated"
   | "wasp-auth/undeclared-provider-name"
@@ -365,6 +442,7 @@ export function getAuthContractErrorCode(
   const code = (error as { code: unknown }).code;
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
+    code === "wasp-auth/missing-oauth-data" ||
     code === "wasp-auth/unauthenticated" ||
     code === "wasp-auth/undeclared-provider-name" ||
     code === "wasp-auth/undeclared-facet" ||
@@ -396,7 +474,7 @@ export function getAuthContractErrorCode(
  *   method is on or off; a handler lets the app opt into Wasp-issued
  *   credentials). A handler branches on `hasCredentialsIssuer` / `canSendEmail`.
  *
- * `ProviderNames` is the union of the manifest's `providerNames` suffixes;
+ * `ProviderNames` is the union of the manifest's `providers` names;
  * it types the keys of `identities`.
  */
 export type WaspServerRuntime<ProviderNames extends string = "default"> = {
@@ -451,7 +529,7 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
   /**
    * One store per declared provider name:
    * `identities.email.find(...)`, `identities.google.create(...)`. A manifest
-   * that declares no `providerNames` gets exactly one, self-assigned:
+   * that declares no `providers` gets exactly one, self-assigned:
    * `identities.default`. Every store is bound to this scheme: Wasp writes
    * its name to the identity's `handlerName` column, next to the
    * `providerName`. The keys are the boundary: a provider name the manifest did
@@ -493,166 +571,189 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
   canSendEmail: boolean;
 };
 
+/** The three channels of an identity row. */
+export type IdentityContent = {
+  /** What the handler VERIFIED about the person (email, name). Written once. */
+  claims?: Record<string, JsonValue>;
+  /** The handler's non-secret working state (`isEmailVerified`, timestamps). */
+  data?: Record<string, JsonValue>;
+  /** Secret material (a password hash), in a column the Prisma client omits by default. */
+  secrets?: Record<string, JsonValue>;
+};
+
+/** Computes the app's user fields for a signup. A callback, so the app's veto runs before it does. */
+export type GetUserFields = () =>
+  | Promise<Record<string, JsonValue>>
+  | Record<string, JsonValue>;
+
+/** The options of `IdentityStore.create`. */
+export type CreateOpts = { skipHooks?: boolean; req?: unknown };
+
+/**
+ * `create`'s arguments. For an "oauth" provider the options are required
+ * (they carry the tokens), so the two before them are given explicitly,
+ * `undefined` when there is nothing to say.
+ */
+export type CreateArgs<Kind extends ProviderKindParam> = [Kind] extends [
+  "oauth",
+]
+  ? [
+      providerUserId: string,
+      identity: IdentityContent | undefined,
+      getUserFields: GetUserFields | undefined,
+      opts: CreateOpts & LoginData<Kind>,
+    ]
+  : [
+      providerUserId: string,
+      identity?: IdentityContent,
+      getUserFields?: GetUserFields,
+      opts?: CreateOpts & LoginData<Kind>,
+    ];
+
+/** `provision`'s arguments, by the same rule as `CreateArgs`. */
+export type ProvisionArgs<Kind extends ProviderKindParam> = [Kind] extends [
+  "oauth",
+]
+  ? [
+      providerUserId: string,
+      identity: IdentityContent | undefined,
+      opts: { req?: unknown } & LoginData<Kind>,
+    ]
+  : [
+      providerUserId: string,
+      identity?: IdentityContent,
+      opts?: { req?: unknown } & LoginData<Kind>,
+    ];
+
 /**
  * The per-scheme view of Wasp's identity store. `providerUserId` is always the
  * handler's own stable user id -- the same value {@link Principal} carries.
  */
-export type IdentityStore = {
-  /** The identity (claims and non-secret data), or null if never provisioned. */
-  find(providerUserId: string): Promise<{
-    authId: string;
-    claims: Record<string, JsonValue>;
-    data: Record<string, JsonValue>;
-  } | null>;
-
-  /**
-   * Idempotent create of the local user for a subject. Runs the app's
-   * `userSignupFields` over the claims, exactly like just-in-time
-   * provisioning at first authentication.
-   */
-  provision(
-    providerUserId: string,
-    identity?: {
-      claims?: Record<string, JsonValue>;
-      data?: Record<string, JsonValue>;
-      secrets?: Record<string, JsonValue>;
-    },
-  ): Promise<{ authId: string } | null>;
-
-  /**
-   * Strict create of the local user for a subject: signup semantics, where
-   * `provision` is login semantics. Rejects with
-   * `wasp-auth/duplicate-identity` when the subject already exists.
-   *
-   * `getUserFields` computes the new user entity's own fields; it is a
-   * callback (not a value) so the provisioning layer controls when it runs --
-   * the app's signup veto, once it fires at this choke point, must run before
-   * any user-supplied field getters do. When omitted, the scheme's
-   * manifest's `userFieldsFromClaims` run over the claims instead.
-   */
-  create(
-    providerUserId: string,
-    identity?: {
-      claims?: Record<string, JsonValue>;
-      data?: Record<string, JsonValue>;
-      secrets?: Record<string, JsonValue>;
-    },
-    getUserFields?: () =>
-      | Promise<Record<string, JsonValue>>
-      | Record<string, JsonValue>,
-    opts?: {
-      /**
-       * Skip the app's signup hooks for THIS create. For identity writes that
-       * are not a signup (migrations, admin imports) -- the documented escape
-       * hatch, so an ordinary signup can never forget the app's veto.
-       */
-      skipHooks?: boolean;
-      /**
-       * Opaque handler context surfaced to the app's `onAfterSignup` hook as
-       * its `context` field (OAuth tokens, typically).
-       */
-      hookContext?: unknown;
-      /** The incoming request, surfaced to the app's signup hooks. */
-      req?: unknown;
-    },
-  ): Promise<{ authId: string }>;
-
-  /**
-   * Delete ONE identity, the handler's own decision (an unverified signup
-   * that was superseded, say). Resolves to whether there was one.
-   *
-   * The app's user goes with it ONLY when this was the account's last
-   * identity: an account nobody can log into is not kept. An account that
-   * has other identities (a linked Google login) keeps them, its user and
-   * everything the user owns. One transaction.
-   *
-   * Compare `unlink`, the person's own request, which REFUSES the last
-   * identity instead.
-   */
-  delete(providerUserId: string): Promise<boolean>;
-
-  /**
-   * Account linking: attach a new identity to an EXISTING account, instead of
-   * creating a user. `authId` is the account to attach to -- for a request
-   * carrying a Wasp-issued credential, the `principal.providerUserId` that
-   * `runtime.credentialsIssuer.authenticate` returns.
-   *
-   * Wasp checks that the account already carries an identity in one of the
-   * calling scheme's OWN provider names (a scheme cannot attach itself to another
-   * scheme's users), fires the app's `onBeforeLink` (a throw vetoes) and
-   * `onAfterLink` hooks, and never runs `userSignupFields`: the user
-   * already exists. Idempotent when the identity is already on that account.
-   * Rejects with `wasp-auth/identity-linked-elsewhere` when it belongs to a
-   * different one.
-   */
-  link(
-    providerUserId: string,
-    identity: {
-      claims?: Record<string, JsonValue>;
-      data?: Record<string, JsonValue>;
-      secrets?: Record<string, JsonValue>;
-    },
-    opts: {
+export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
+  {
+    /** The identity (claims and non-secret data), or null if never provisioned. */
+    find(providerUserId: string): Promise<{
       authId: string;
-      /** The incoming request, surfaced to the app's link hooks. */
+      claims: Record<string, JsonValue>;
+      data: Record<string, JsonValue>;
+    } | null>;
+
+    /**
+     * Idempotent create of the local user for a subject. Runs the app's
+     * `userSignupFields` over the claims, exactly like just-in-time
+     * provisioning at first authentication.
+     */
+    provision(...args: ProvisionArgs<Kind>): Promise<{ authId: string } | null>;
+
+    /**
+     * Strict create of the local user for a subject: signup semantics, where
+     * `provision` is login semantics. Rejects with
+     * `wasp-auth/duplicate-identity` when the subject already exists.
+     *
+     * `getUserFields` computes the new user entity's own fields; it is a
+     * callback (not a value) so the provisioning layer controls when it runs --
+     * the app's signup veto, once it fires at this choke point, must run before
+     * any user-supplied field getters do. When omitted, the scheme's
+     * manifest's `userFieldsFromClaims` run over the claims instead.
+     */
+    create(...args: CreateArgs<Kind>): Promise<{ authId: string }>;
+
+    /**
+     * Delete ONE identity, the handler's own decision (an unverified signup
+     * that was superseded, say). Resolves to whether there was one.
+     *
+     * The app's user goes with it ONLY when this was the account's last
+     * identity: an account nobody can log into is not kept. An account that
+     * has other identities (a linked Google login) keeps them, its user and
+     * everything the user owns. One transaction.
+     *
+     * Compare `unlink`, the person's own request, which REFUSES the last
+     * identity instead.
+     */
+    delete(providerUserId: string): Promise<boolean>;
+
+    /**
+     * Account linking: attach a new identity to an EXISTING account, instead of
+     * creating a user. `authId` is the account to attach to -- for a request
+     * carrying a Wasp-issued credential, the `principal.providerUserId` that
+     * `runtime.credentialsIssuer.authenticate` returns.
+     *
+     * Wasp checks that the account already carries an identity in one of the
+     * calling scheme's OWN provider names (a scheme cannot attach itself to another
+     * scheme's users), fires the app's `onBeforeLink` (a throw vetoes) and
+     * `onAfterLink` hooks, and never runs `userSignupFields`: the user
+     * already exists. Idempotent when the identity is already on that account.
+     * Rejects with `wasp-auth/identity-linked-elsewhere` when it belongs to a
+     * different one.
+     */
+    link(
+      providerUserId: string,
+      identity: {
+        claims?: Record<string, JsonValue>;
+        data?: Record<string, JsonValue>;
+        secrets?: Record<string, JsonValue>;
+      },
+      opts: {
+        authId: string;
+        /** The incoming request, surfaced to the app's link hooks. */
+        req?: unknown;
+      } & LoginData<Kind>,
+    ): Promise<void>;
+
+    /**
+     * Detach the subject's identity from the account. Rejects with
+     * `wasp-auth/identity-not-found` when the account does not hold it, and
+     * with `wasp-auth/last-identity` when it is the account's only way in.
+     */
+    unlink(providerUserId: string, opts: { authId: string }): Promise<void>;
+
+    /**
+     * Account merging: make two accounts one. In a single transaction Wasp
+     * calls the app's `auth.mergeUsers` function (only the app knows how to
+     * combine its own data), moves every identity of `fromAuthId` onto
+     * `intoAuthId`, and deletes the `from` user -- which ends its credentials
+     * too. Anything throwing rolls the whole merge back.
+     *
+     * The handler must have PROVEN control of both accounts before calling
+     * this: the `into` account by its credential, the `from` account by a
+     * fresh login (a verified password, a completed OAuth flow). Wasp checks
+     * that both accounts carry an identity in the calling scheme's OWN
+     * provider names. Rejects with `wasp-auth/merging-disabled` when the app
+     * declares no `auth.mergeUsers`.
+     */
+    merge(opts: {
+      fromAuthId: string;
+      intoAuthId: string;
+      /** The incoming request, surfaced to the app's merge function. */
       req?: unknown;
-      /** Opaque handler context for the link hooks (OAuth tokens, typically). */
-      hookContext?: unknown;
-    },
-  ): Promise<void>;
+    }): Promise<void>;
 
-  /**
-   * Detach the subject's identity from the account. Rejects with
-   * `wasp-auth/identity-not-found` when the account does not hold it, and
-   * with `wasp-auth/last-identity` when it is the account's only way in.
-   */
-  unlink(providerUserId: string, opts: { authId: string }): Promise<void>;
+    /**
+     * Merges the updates into the identity's non-secret data. A key set to
+     * `null` is REMOVED; every key not named is left alone. Atomic: two
+     * concurrent updates cannot lose one another.
+     */
+    updateData(
+      providerUserId: string,
+      updates: Record<string, JsonValue>,
+    ): Promise<void>;
 
-  /**
-   * Account merging: make two accounts one. In a single transaction Wasp
-   * calls the app's `auth.mergeUsers` function (only the app knows how to
-   * combine its own data), moves every identity of `fromAuthId` onto
-   * `intoAuthId`, and deletes the `from` user -- which ends its credentials
-   * too. Anything throwing rolls the whole merge back.
-   *
-   * The handler must have PROVEN control of both accounts before calling
-   * this: the `into` account by its credential, the `from` account by a
-   * fresh login (a verified password, a completed OAuth flow). Wasp checks
-   * that both accounts carry an identity in the calling scheme's OWN
-   * provider names. Rejects with `wasp-auth/merging-disabled` when the app
-   * declares no `auth.mergeUsers`.
-   */
-  merge(opts: {
-    fromAuthId: string;
-    intoAuthId: string;
-    /** The incoming request, surfaced to the app's merge function. */
-    req?: unknown;
-  }): Promise<void>;
+    /** Reads the identity's secret material. Keep the result on the server. */
+    getSecrets(
+      providerUserId: string,
+    ): Promise<Record<string, JsonValue> | null>;
 
-  /**
-   * Merges the updates into the identity's non-secret data. A key set to
-   * `null` is REMOVED; every key not named is left alone. Atomic: two
-   * concurrent updates cannot lose one another.
-   */
-  updateData(
-    providerUserId: string,
-    updates: Record<string, JsonValue>,
-  ): Promise<void>;
-
-  /** Reads the identity's secret material. Keep the result on the server. */
-  getSecrets(providerUserId: string): Promise<Record<string, JsonValue> | null>;
-
-  /**
-   * Merges the updates into the identity's secret material, exactly like
-   * `updateData`: `null` removes a key, unnamed keys are left alone. So
-   * changing a password cannot wipe a second secret (a TOTP seed) stored next
-   * to it. Expects the values already hashed.
-   */
-  updateSecrets(
-    providerUserId: string,
-    updates: Record<string, JsonValue>,
-  ): Promise<void>;
-};
+    /**
+     * Merges the updates into the identity's secret material, exactly like
+     * `updateData`: `null` removes a key, unnamed keys are left alone. So
+     * changing a password cannot wipe a second secret (a TOTP seed) stored next
+     * to it. Expects the values already hashed.
+     */
+    updateSecrets(
+      providerUserId: string,
+      updates: Record<string, JsonValue>,
+    ): Promise<void>;
+  };
 
 /**
  * What a handler's server entry produces: the handler itself, plus, for
@@ -692,7 +793,7 @@ export type ServerAuthHandlerParts = {
  * references and set them back, so they arrive live and callable. Wasp never
  * reads the contents; the handler types them with `ServerSpec`.
  *
- * `ProviderNames` is the union of the manifest's `providerNames` suffixes.
+ * `ProviderNames` is the union of the manifest's `providers` names.
  *
  * This is the loose form, typed by hand, for hand-written handlers. A package
  * with a spec constructor uses `ServerAuthAdapterFor<typeof myAuth>`, which derives

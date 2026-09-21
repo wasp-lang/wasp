@@ -9,6 +9,8 @@ import type {
   Api,
   ApiNamespace,
   App,
+  AuthProviderDeclarations,
+  AuthProviderKind,
   AuthRuntimeGrantName,
   AuthSchemeClientSide,
   AuthSchemeManifest,
@@ -495,7 +497,7 @@ export function defineAuthSchemeManifest(
     }
   }
 
-  validateProviderNames(handler, manifest.providerNames ?? []);
+  validateProviders(handler, manifest.providers ?? {});
 
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(handler, manifest.credentials);
@@ -516,7 +518,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 12 as const;
+export const supportedAuthContractVersion = 13 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
@@ -597,23 +599,30 @@ const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = ["email-send"];
 
 // Shared by defineAuthSchemeManifest and the mapper (which re-validates,
 // because the authenticity marker is forgeable as a plain property).
-export function validateProviderNames(
+export function validateProviders(
   handler: string,
-  providerNames: readonly string[],
+  providers: AuthProviderDeclarations,
 ): void {
-  for (const providerName of providerNames) {
+  for (const [providerName, declaration] of Object.entries(providers)) {
     if (providerName.length === 0) {
       throw new WaspSpecUserError(
         `Auth handler '${handler}' declares an empty provider name.`,
       );
     }
-  }
-  if (new Set(providerNames).size !== providerNames.length) {
-    throw new WaspSpecUserError(
-      `Auth handler '${handler}' declares a duplicate provider name.`,
-    );
+    if (
+      declaration.kind !== undefined &&
+      !knownProviderKinds.includes(declaration.kind)
+    ) {
+      throw new WaspSpecUserError(
+        `Auth handler '${handler}' declares the provider '${providerName}' with the unknown kind '${String(
+          declaration.kind,
+        )}'. Known kinds: ${knownProviderKinds.join(", ")}.`,
+      );
+    }
   }
 }
+
+const knownProviderKinds: readonly AuthProviderKind[] = ["oauth"];
 
 const knownCredentialTransports = ["bearer", "cookie"] as const;
 const knownCredentialStores = ["prisma", "signed-token"] as const;
@@ -679,8 +688,8 @@ export type CustomAuthHandlerConfig = {
   capabilities?: string[];
   /** See {@link AuthSchemeManifest.uses}. */
   uses?: AuthRuntimeGrantName[];
-  /** See {@link AuthSchemeManifest.providerNames}. */
-  providerNames?: string[];
+  /** See {@link AuthSchemeManifest.providers}. */
+  providers?: AuthProviderDeclarations;
   /** See {@link AuthSchemeManifest.credentials}. */
   credentials?: CredentialsConfig;
   /** See {@link AuthSchemeManifest.userFieldsFromClaims}. */

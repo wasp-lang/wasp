@@ -309,10 +309,28 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
     -- Identities are keyed by (handlerName, providerName, providerUserId), so
     -- two schemes may share a provider name; one scheme may not repeat one.
     validateSchemeProviderNames scheme =
-      [ GenericValidationError $
-          "Auth scheme '" ++ scheme.name ++ "' declares a duplicate provider name."
-      | not (null (findDuplicateElems scheme.providerNames))
-      ]
+      concat
+        [ [ GenericValidationError $
+              "Auth scheme '" ++ scheme.name ++ "' declares a duplicate provider name."
+          | not (null (findDuplicateElems (Auth.providerNames scheme)))
+          ],
+          [ GenericValidationError $
+              "Auth scheme '"
+                ++ scheme.name
+                ++ "' declares the provider '"
+                ++ provider.providerName
+                ++ "' with the unknown kind '"
+                ++ kind
+                ++ "'. Known kinds: "
+                ++ intercalate ", " knownProviderKinds
+                ++ "."
+          | provider <- scheme.providers,
+            Just kind <- [provider.providerKind],
+            kind `notElem` knownProviderKinds
+          ]
+        ]
+      where
+        knownProviderKinds = ["oauth"]
 
     -- An email-sending handler cannot ship into an app that would silently
     -- drop its emails.

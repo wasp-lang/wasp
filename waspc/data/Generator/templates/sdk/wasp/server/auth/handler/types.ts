@@ -18,6 +18,8 @@ export {
   type CredentialStore,
   type Principal,
   type IdentityStore,
+  type OAuthLoginData,
+  type OAuthTokens,
   type RuntimeGrantName,
   type ServerAuthHandlerParts,
   type ServerAuthAdapter,

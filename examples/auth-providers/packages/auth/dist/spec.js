@@ -126,17 +126,20 @@ export function waspAuth(config) {
         };
         clientMethods[name] = {};
     }
-    const providerNames = [
-        ...(methods.usernameAndPassword !== undefined
-            ? ["username"]
-            : []),
-        ...(usesEmail ? ["email"] : []),
-        ...enabledOAuth.map((method) => oauthProviders[method].name),
-    ];
+    const providers = {};
+    if (methods.usernameAndPassword !== undefined) {
+        providers.username = {};
+    }
+    if (usesEmail) {
+        providers.email = {};
+    }
+    for (const method of enabledOAuth) {
+        providers[oauthProviders[method].name] = { kind: "oauth" };
+    }
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 12,
+        contractVersion: 13,
         server: {
             authAdapter: { package: "@wasp.sh/auth/server" },
             env: [
@@ -180,7 +183,7 @@ export function waspAuth(config) {
         },
         capabilities: [],
         uses: usesEmail ? ["email-send"] : [],
-        providerNames,
+        providers,
         credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
     };
 }

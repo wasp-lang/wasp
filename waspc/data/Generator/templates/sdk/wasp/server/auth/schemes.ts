@@ -1,5 +1,6 @@
 {{={= =}=}}
-import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, OAuthLoginData, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
@@ -73,7 +74,7 @@ type SchemeRuntimeSpec = {
   /** Runtime grants the manifest requested; only these facets get wired. */
   uses: readonly string[]
   /** The scheme's provider names (`email`); `default` when the manifest declared none. */
-  providerNames: readonly string[]
+  providers: { readonly [providerName: string]: { readonly kind?: string } }
 }
 
 /**
@@ -101,7 +102,7 @@ function isUniqueConstraintViolation(e: unknown): boolean {
  */
 function resolveOwnProviderName(spec: SchemeRuntimeSpec, providerName: string | undefined): string {
   const resolved = providerName ?? 'default'
-  if (!spec.providerNames.includes(resolved)) {
+  if (!Object.hasOwn(spec.providers, resolved)) {
     throw contractError(
       'wasp-auth/undeclared-provider-name',
       `Auth scheme '${spec.scheme}' tried to use the provider name '${resolved}', which its manifest does not declare.`,
@@ -110,17 +111,41 @@ function resolveOwnProviderName(spec: SchemeRuntimeSpec, providerName: string | 
   return resolved
 }
 
+/**
+ * What the app's hooks receive as `oauth`. A provider declared with
+ * `kind: "oauth"` must come with its OAuth data on every signup, login and
+ * link: a typed adapter cannot leave it out, and this check covers the ones
+ * that are not typed. Wasp adds the provider's name.
+ */
+function resolveOAuthData(
+  spec: SchemeRuntimeSpec,
+  providerName: string,
+  oauth: OAuthLoginData | undefined,
+): OAuthData | undefined {
+  if (oauth === undefined) {
+    if (spec.providers[providerName]?.kind === 'oauth') {
+      throw contractError(
+        'wasp-auth/missing-oauth-data',
+        `Auth scheme '${spec.scheme}' declares the provider '${providerName}' with kind "oauth", so every signup, login and link through it must pass \`oauth\` ({ uniqueRequestId, tokens }).`,
+      )
+    }
+    return undefined
+  }
+  return { ...oauth, providerName }
+}
+
 /** The contract-shaped identity facet for one of the scheme's provider names. */
 function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): IdentityStore {
   const store = getIdentityStore(spec.scheme, providerName)
   return {
     find: (providerUserId) => store.find(providerUserId) as any,
-    provision: (providerUserId, identity) =>
+    provision: async (providerUserId, identity, opts) =>
       provisionAuthUser(spec.scheme, providerUserId, identity?.claims, {
         data: identity?.data,
         secrets: identity?.secrets,
-      }, providerName),
+      }, providerName, { req: opts?.req as any, oauth: resolveOAuthData(spec, providerName, opts?.oauth) }),
     create: async (providerUserId, identity, getUserFields, opts) => {
+      const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
       // The app's signup veto fires FIRST -- at this Wasp-owned choke point no
       // handler can forget it -- and only then do any user-supplied field
       // getters run (that ordering is why `getUserFields` is a lazy callback).
@@ -153,7 +178,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
           req: opts?.req as any,
           providerId: makeHookProviderId(spec.scheme, providerName, providerUserId),
           user: created,
-          oauth: opts?.hookContext as any,
+          oauth,
         })
       }
       return { authId: created.{= authFieldOnUserEntityName =}!.id }
@@ -171,6 +196,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       if (auth === null) {
         throw contractError('wasp-auth/identity-not-found', 'The account to link to does not exist.')
       }
+      const oauth = resolveOAuthData(spec, providerName, opts.oauth)
       const hookProviderId = makeHookProviderId(spec.scheme, providerName, providerUserId)
       await fireVetoableHook(() =>
         onBeforeLinkHook({ req: opts.req as any, providerId: hookProviderId, user: auth.user }),
@@ -188,7 +214,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
         req: opts.req as any,
         providerId: hookProviderId,
         user: auth.user,
-        oauth: opts.hookContext as any,
+        oauth,
       })
     },
     unlink: async (providerUserId, opts) => {
@@ -295,6 +321,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
     authenticate: (request) => target.authenticate(request),
     signIn: async (identityRef, opts) => {
       const { providerName, authId } = await resolveIdentityRef(identityRef)
+      const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
       const fireHooks = opts?.skipHooks !== true
       const hookProviderId = makeHookProviderId(spec.scheme, providerName, identityRef.providerUserId)
       let hookUser: unknown = undefined
@@ -317,7 +344,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
           req: opts?.req as any,
           providerId: hookProviderId,
           user: hookUser as any,
-          oauth: opts?.hookContext as any,
+          oauth,
         })
       }
       return result
@@ -452,7 +479,7 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     // One store per declared provider name (`identities.email`). The keys are
     // the boundary: an undeclared provider name has no member.
     identities: Object.fromEntries(
-      spec.providerNames.map((providerName) => [providerName, makeIdentitiesFacet(spec, providerName)]),
+      Object.keys(spec.providers).map((providerName) => [providerName, makeIdentitiesFacet(spec, providerName)]),
     ),
     // Every facet is always a member. One the manifest did not declare
     // rejects with a clear error on use; the booleans let a handler branch
@@ -490,7 +517,7 @@ const spec_{= index =}: SchemeRuntimeSpec = {
   scheme: '{= schemeName =}',
   serverEnvVarNames: {=& serverEnvVarNamesJs =},
   uses: {=& usesJs =},
-  providerNames: {=& providerNamesJs =},
+  providers: {=& providersJs =},
 }
 {=# inlineCredentials =}
 const issuerOptions_{= index =}: IssuerOptions = {

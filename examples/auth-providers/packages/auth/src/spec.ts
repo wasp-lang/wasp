@@ -19,7 +19,6 @@ import type { WaspAuthClientSpec } from "./client/types.js";
 import type {
   GetPasswordResetEmailContentFn,
   GetVerificationEmailContentFn,
-  MethodProviderName,
   OAuthConfigFn,
   OAuthProviderName,
   OnAfterEmailVerifiedHook,
@@ -130,7 +129,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 12;
+  contractVersion: 13;
   server: {
     authAdapter: { package: string };
     /** Which of these an app declares depends on its enabled methods. */
@@ -144,8 +143,14 @@ export type WaspAuthSchemeManifest = {
   };
   capabilities: string[];
   uses: Array<"email-send">;
-  /** Provider names, written short; Wasp stores them prefixed with the scheme name. */
-  providerNames: MethodProviderName[];
+  /**
+   * One provider per enabled method, under the method's name. The OAuth ones
+   * declare their kind, so every signup, login and link through them must
+   * hand the provider's tokens to Wasp.
+   */
+  providers: {
+    [ProviderName in "username" | "email"]?: Record<string, never>;
+  } & { [ProviderName in OAuthProviderName]?: { kind: "oauth" } };
   credentials: WaspAuthCredentialsConfig;
 };
 
@@ -334,18 +339,21 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
     clientMethods[name] = {};
   }
 
-  const providerNames: MethodProviderName[] = [
-    ...(methods.usernameAndPassword !== undefined
-      ? (["username"] as const)
-      : []),
-    ...(usesEmail ? (["email"] as const) : []),
-    ...enabledOAuth.map((method) => oauthProviders[method].name),
-  ];
+  const providers: WaspAuthSchemeManifest["providers"] = {};
+  if (methods.usernameAndPassword !== undefined) {
+    providers.username = {};
+  }
+  if (usesEmail) {
+    providers.email = {};
+  }
+  for (const method of enabledOAuth) {
+    providers[oauthProviders[method].name] = { kind: "oauth" };
+  }
 
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 12,
+    contractVersion: 13,
     server: {
       authAdapter: { package: "@wasp.sh/auth/server" },
       env: [
@@ -391,7 +399,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
     },
     capabilities: [],
     uses: usesEmail ? ["email-send"] : [],
-    providerNames,
+    providers,
     credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
   };
 }

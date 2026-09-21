@@ -12,6 +12,8 @@ module Wasp.AppSpec.App.Auth
     AuthAdapterEntry (..),
     AuthSchemeRoutes (..),
     AuthSchemeEnvVar (..),
+    AuthSchemeProvider (..),
+    providerNames,
     AuthSchemeCredentials (..),
     CredentialTransport (..),
     CredentialStore (..),
@@ -118,11 +120,11 @@ data AuthScheme = AuthScheme
     -- so far). Validation rejects unknown names: the generator
     -- can only wire facets it knows.
     uses :: [String],
-    -- | Every provider name this scheme records identities under
-    -- (@"email"@), as stored in @AuthIdentity.providerName@, or just
-    -- @"default"@ when the manifest declared none. The scheme's name goes to
-    -- the @handlerName@ column next to it.
-    providerNames :: [String],
+    -- | The providers this scheme records identities under, named as stored
+    -- in @AuthIdentity.providerName@ (@"email"@); just @"default"@ when the
+    -- manifest declared none. The scheme's name goes to the @handlerName@
+    -- column next to it.
+    providers :: [AuthSchemeProvider],
     -- | How the scheme hands out credentials after a login it verified;
     -- absent for schemes whose own credential authenticates every request.
     credentials :: Maybe AuthSchemeCredentials,
@@ -350,6 +352,33 @@ instance FromJSON AuthSchemeEnvVar where
 
 instance ToJSON AuthSchemeEnvVar where
   toJSON = Aeson.genericToJSON authSchemeEnvVarJsonOptions
+
+-- | One provider of a scheme. 'providerKind' says what a login through it
+-- carries besides the identity: @"oauth"@ (the provider's tokens, which the
+-- generated runtime then demands), or nothing.
+data AuthSchemeProvider = AuthSchemeProvider
+  { providerName :: String,
+    providerKind :: Maybe String
+  }
+  deriving (Show, Eq, Data, Generic)
+
+authSchemeProviderJsonOptions :: Aeson.Options
+authSchemeProviderJsonOptions =
+  Aeson.defaultOptions
+    { Aeson.fieldLabelModifier = \field -> case field of
+        "providerName" -> "name"
+        "providerKind" -> "kind"
+        _ -> field
+    }
+
+instance FromJSON AuthSchemeProvider where
+  parseJSON = Aeson.genericParseJSON authSchemeProviderJsonOptions
+
+instance ToJSON AuthSchemeProvider where
+  toJSON = Aeson.genericToJSON authSchemeProviderJsonOptions
+
+providerNames :: AuthScheme -> [String]
+providerNames scheme = (.providerName) <$> scheme.providers
 
 onBeforeSignup :: Auth -> Maybe ExtImport
 onBeforeSignup auth = hooks auth >>= hooksOnBeforeSignup

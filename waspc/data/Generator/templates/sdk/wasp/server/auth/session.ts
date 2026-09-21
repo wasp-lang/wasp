@@ -4,6 +4,7 @@ import type { Request as ExpressRequest } from "express";
 import type { AuthUserData } from '../../auth/user.js';
 
 import type { AuthHandler, Principal } from "./handler/types.js";
+import type { OAuthData } from "./hooks.js";
 import { authSchemes, defaultScheme } from "./schemes.js";
 import { toWebRequest } from "./issuer.js";
 
@@ -163,6 +164,8 @@ async function resolveSubject(
   // guards membership before we get here.
   providerName: string = 'default',
   req?: ExpressRequest,
+  // Present when the handler provisions through an OAuth provider.
+  oauth?: OAuthData,
 ): Promise<string | null> {
   const identities = getIdentityStore(scheme, providerName);
 
@@ -218,6 +221,7 @@ async function resolveSubject(
     req,
     providerId: makeHookProviderId(scheme, providerName, providerUserId),
     user: created,
+    oauth,
   });
 
   return created.{= authFieldOnUserEntityName =}!.id;
@@ -249,8 +253,9 @@ export async function provisionAuthUser(
     secrets?: Record<string, unknown>;
   },
   providerName?: string,
+  opts?: { req?: ExpressRequest; oauth?: OAuthData },
 ): Promise<{ authId: string } | null> {
-  const authId = await resolveSubject(scheme, providerUserId, claims, identity, providerName);
+  const authId = await resolveSubject(scheme, providerUserId, claims, identity, providerName, opts?.req, opts?.oauth);
   return authId === null ? null : { authId };
 }
 

@@ -99,9 +99,10 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
         const oAuthState = validateAndGetOAuthState(provider, req);
         const tokens = await provider.getProviderTokens(oAuthState);
         const { providerProfile, providerUserId } = await provider.getProviderInfo(tokens, oauthConfig);
+        // Wasp requires this for every call below, because the manifest declares
+        // the provider with `kind: "oauth"`, and adds the provider's name to it.
         const oauth = {
             uniqueRequestId: oAuthState.state,
-            providerName: provider.id,
             tokens,
         };
         const identities = runtime.identities[provider.id];
@@ -115,7 +116,7 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
                 throw new HttpError(400, "The link request expired. Try again.");
             });
             try {
-                await identities.link(providerUserId, {}, { authId: linkToAuthId, req, hookContext: oauth });
+                await identities.link(providerUserId, {}, { authId: linkToAuthId, req, oauth });
             }
             catch (e) {
                 // The provider account belongs to another Wasp account. Completing
@@ -144,7 +145,7 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
             try {
                 // The facet's `create` fires the app's signup hooks (with the OAuth
                 // tokens as their `oauth` payload) around the atomic write.
-                await identities.create(providerUserId, {}, (() => validateAndGetUserFields({ profile: providerProfile }, spec.methods[provider.id]?.userSignupFields)), { req, hookContext: oauth });
+                await identities.create(providerUserId, {}, (() => validateAndGetUserFields({ profile: providerProfile }, spec.methods[provider.id]?.userSignupFields)), { req, oauth });
                 isNewUser = true;
             }
             catch (e) {
@@ -159,7 +160,7 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
         const { response } = await runtime.credentialsIssuer.signIn({
             providerName: provider.id,
             providerUserId,
-        }, { req, hookContext: oauth, skipHooks: isNewUser });
+        }, { req, oauth, skipHooks: isNewUser });
         const oneTimeCode = await jwt.createJWT({ response }, { expiresIn: new TimeSpan(1, "m") });
         redirect(res, `${runtime.clientUrl}${spec.clientOAuthCallbackPath}#${oneTimeCode}`);
     }

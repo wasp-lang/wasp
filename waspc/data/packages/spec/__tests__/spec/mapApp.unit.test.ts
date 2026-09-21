@@ -797,9 +797,11 @@ describe("mapAuth", () => {
       },
       capabilities: manifest.capabilities,
       uses: manifest.uses ?? [],
-      providerNames: manifest.providerNames?.length
-        ? manifest.providerNames
-        : ["default"],
+      providers: Object.entries(
+        Object.keys(manifest.providers ?? {}).length > 0
+          ? (manifest.providers ?? {})
+          : { default: {} },
+      ).map(([name, declaration]) => ({ name, kind: declaration.kind })),
       credentials:
         credentials === undefined
           ? undefined
