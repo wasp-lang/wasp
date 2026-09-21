@@ -1,1 +1,1 @@
-export type { ProviderName } from './providerData.js'
+export type { ProviderName } from '@wasp.sh/lib-sdk-core'
