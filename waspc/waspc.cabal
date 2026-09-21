@@ -162,8 +162,7 @@ library
   other-modules:
     Paths_waspc
     Wasp.Process.System
-    Wasp.Job.Subprocess.Managed
-    Wasp.Job.Subprocess.System
+    Wasp.Process.Managed.System
 
   exposed-modules:
     Wasp.AppComponentUrl
@@ -334,6 +333,7 @@ library
     Wasp.Node.Version
     Wasp.NodePackageFFI
     Wasp.Process
+    Wasp.Process.Managed
     Wasp.Process.Node
     Wasp.Project
     Wasp.Project.Analyze
@@ -610,7 +610,7 @@ test-suite waspc-tests
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.WriteFileDraftsTest
-    Job.Subprocess.ManagedTest
+    Job.Process.ManagedTest
     Job.ProcessTest
     JobTest
     JsImportTest

@@ -1,4 +1,4 @@
-module Wasp.Job.Subprocess.Managed
+module Wasp.Process.Managed
   ( ManagedSubprocess,
     ProcessTreeDidNotStop (..),
     pollRootExit,
@@ -20,12 +20,11 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job (JobOutputKind (..), JobOutputSink, writeJobOutput)
-import qualified Wasp.Job.Subprocess.System as System
+import Wasp.Process (OutputStream (..))
+import qualified Wasp.Process.Managed.System as System
 import Wasp.Util (secondsToMicroSeconds)
 
 -- Managed subprocesses are Wasp-owned children started now and stopped later.
--- They forward output without ending their owning Job.
 data ManagedSubprocess = ManagedSubprocess
   { waitForRootExit :: IO ExitCode,
     pollRootExit :: IO (Maybe ExitCode),
@@ -38,8 +37,8 @@ data ProcessTreeDidNotStop = ProcessTreeDidNotStop
 instance Exception ProcessTreeDidNotStop where
   displayException _ = T.unpack processTreeDidNotStopMessage
 
-start :: P.CreateProcess -> JobOutputSink -> IO ManagedSubprocess
-start process outputSink = mask $ \restore -> do
+start :: P.CreateProcess -> (OutputStream -> T.Text -> IO ()) -> IO ManagedSubprocess
+start process emit = mask $ \restore -> do
   processResources@(_, _, _, processHandle) <- P.createProcess $ System.configureManagedSubprocess process
   maybeProcessGroupPid <-
     P.getPid processHandle
@@ -49,8 +48,8 @@ start process outputSink = mask $ \restore -> do
   where
     finishInitialization maybeProcessGroupPid (maybeStdin, maybeStdout, maybeStderr, processHandle) = do
       rootExitAsync <- Async.async $ P.waitForProcess processHandle
-      stdoutAsync <- Async.async $ forwardOutput outputSink maybeStdout Stdout
-      stderrAsync <- Async.async $ forwardOutput outputSink maybeStderr Stderr
+      stdoutAsync <- Async.async $ forwardOutput emit maybeStdout Stdout
+      stderrAsync <- Async.async $ forwardOutput emit maybeStderr Stderr
       stopWorkerVar <- newMVar Nothing
       let closeHandles = mapM_ closeHandleIfOpen [maybeStdin, maybeStdout, maybeStderr]
       let cleanUpOutput =
@@ -62,7 +61,7 @@ start process outputSink = mask $ \restore -> do
             case (processTreeResult, outputResult) of
               (Left exception, _) -> throwIO (exception :: SomeException)
               (Right False, _) -> do
-                writeJobOutput outputSink Stderr $ processTreeDidNotStopMessage <> "\n"
+                emit Stderr $ processTreeDidNotStopMessage <> "\n"
                 throwIO ProcessTreeDidNotStop
               (Right True, Left exception) -> throwIO (exception :: SomeException)
               (Right True, Right ()) -> return ()
@@ -98,9 +97,9 @@ drainOrCancelOutput outputAsync = do
     Just (Left exception) -> throwIO exception
     Just (Right _) -> return ()
 
-forwardOutput :: JobOutputSink -> Maybe Handle -> JobOutputKind -> IO ()
+forwardOutput :: (OutputStream -> T.Text -> IO ()) -> Maybe Handle -> OutputStream -> IO ()
 forwardOutput _ Nothing _ = return ()
-forwardOutput outputSink (Just handle) outputStream =
+forwardOutput emit (Just handle) outputStream =
   -- Chunks can split a multi-byte UTF-8 sequence, so decoding must carry
   -- partial sequences over into the next chunk.
   forwardChunks $ streamDecodeUtf8With lenientDecode
@@ -115,7 +114,7 @@ forwardOutput outputSink (Just handle) outputStream =
 
     emitOutput output =
       unless (T.null output) $
-        writeJobOutput outputSink outputStream output
+        emit outputStream output
 
     chunkSizeInBytes = 4096
 

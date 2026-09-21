@@ -1,4 +1,4 @@
-module Job.Subprocess.ManagedTest where
+module Job.Process.ManagedTest where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import qualified Control.Concurrent.Async as Async
@@ -16,7 +16,9 @@ import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldReturn, shouldSatisfy)
 import Test.Process.Util (isPortAvailable, makeTempPath, waitUntil)
 import qualified Wasp.Job as J
-import qualified Wasp.Job.Subprocess as Subprocess
+import qualified Wasp.Job.Kind as Kind
+import qualified Wasp.Job.Output.Event as Event
+import qualified Wasp.Job.Process as JobProcess
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_managedSubprocess :: Spec
@@ -26,9 +28,9 @@ spec_managedSubprocess =
       portFilePath <- makeTempPath "wasp-long-running-job-port"
       chan <- newChan
       let jobAction = do
-            subprocess <- Subprocess.spawn (nodeScript $ portOwningChildProcessScript portFilePath)
-            liftIO (Subprocess.wait subprocess) >>= J.requireExitSuccess
-      let job = J.runJob (J.makeJob J.WebApp jobAction) chan
+            subprocess <- JobProcess.spawn (nodeScript $ portOwningChildProcessScript portFilePath)
+            liftIO (JobProcess.wait subprocess) >>= J.requireExitSuccess
+      let job = J.runJob Kind.WebApp jobAction chan
       Async.withAsync
         job
         ( \jobAsync -> do
@@ -47,63 +49,63 @@ spec_managedSubprocess =
       it "kills process-group descendants after the root process exits" $ do
         portFilePath <- makeTempPath "wasp-long-running-child-port"
         let action = do
-              subprocess <- Subprocess.spawn (nodeScript $ exitingRootWithPortOwningChildScript portFilePath)
+              subprocess <- JobProcess.spawn (nodeScript $ exitingRootWithPortOwningChildScript portFilePath)
               port <- liftIO $ do
                 waitUntil "child port file" $ doesFileExist portFilePath
                 port <- readFile portFilePath
-                maybeRootExit <- timeout (secondsToMicroSeconds 5) $ Subprocess.wait subprocess
+                maybeRootExit <- timeout (secondsToMicroSeconds 5) $ JobProcess.wait subprocess
                 maybeRootExit `shouldBe` Just ExitSuccess
-                Subprocess.poll subprocess `shouldReturn` Just ExitSuccess
+                JobProcess.poll subprocess `shouldReturn` Just ExitSuccess
                 isPortAvailable port `shouldReturn` False
                 return port
               startedAt <- liftIO getCurrentTime
-              Subprocess.stop subprocess
+              JobProcess.stop subprocess
               stoppedAt <- liftIO getCurrentTime
               liftIO $ do
                 realToFrac (stoppedAt `diffUTCTime` startedAt) `shouldSatisfy` (< maxAcceptableStopSeconds)
                 isPortAvailable port `shouldReturn` True
-        void (runJobAction action) `finally` removeFileIfExists portFilePath
+        void (runJob action) `finally` removeFileIfExists portFilePath
 
     when (os /= "mingw32") $
       it "interrupts the process so it can exit gracefully before being killed" $ do
         startedFilePath <- makeTempPath "wasp-long-running-started"
         gracefulExitFilePath <- makeTempPath "wasp-long-running-graceful-exit"
         let action = do
-              subprocess <- Subprocess.spawn (nodeScript $ gracefulProcessScript startedFilePath gracefulExitFilePath)
+              subprocess <- JobProcess.spawn (nodeScript $ gracefulProcessScript startedFilePath gracefulExitFilePath)
               liftIO $ waitUntil "process start" $ doesFileExist startedFilePath
-              Subprocess.stop subprocess
+              JobProcess.stop subprocess
               liftIO $ waitUntil "graceful exit marker" $ doesFileExist gracefulExitFilePath
-        void (runJobAction action)
+        void (runJob action)
           `finally` mapM_ removeFileIfExists [startedFilePath, gracefulExitFilePath]
 
     it "kills a process that ignores graceful stop signals" $ do
       startedFilePath <- makeTempPath "wasp-long-running-stubborn"
       let action = do
-            subprocess <- Subprocess.spawn (nodeScript $ stubbornProcessScript startedFilePath)
+            subprocess <- JobProcess.spawn (nodeScript $ stubbornProcessScript startedFilePath)
             liftIO $ waitUntil "process start" $ doesFileExist startedFilePath
             startedAt <- liftIO getCurrentTime
-            Subprocess.stop subprocess
+            JobProcess.stop subprocess
             stoppedAt <- liftIO getCurrentTime
             liftIO $ do
               realToFrac (stoppedAt `diffUTCTime` startedAt) `shouldSatisfy` (< maxAcceptableStopSeconds)
-              maybeRootExit <- timeout (secondsToMicroSeconds 5) $ Subprocess.wait subprocess
+              maybeRootExit <- timeout (secondsToMicroSeconds 5) $ JobProcess.wait subprocess
               maybeRootExit `shouldSatisfy` isJust
-      void (runJobAction action) `finally` removeFileIfExists startedFilePath
+      void (runJob action) `finally` removeFileIfExists startedFilePath
 
     it "releases a descendant-owned port before stop returns" $ do
       portFilePath <- makeTempPath "wasp-long-running-port"
       let action = do
-            subprocess <- Subprocess.spawn (nodeScript $ portOwningChildProcessScript portFilePath)
+            subprocess <- JobProcess.spawn (nodeScript $ portOwningChildProcessScript portFilePath)
             port <- liftIO $ do
               waitUntil "child-owned port" $ doesFileExist portFilePath
               port <- readFile portFilePath
               isPortAvailable port `shouldReturn` False
               return port
 
-            Subprocess.stop subprocess
+            JobProcess.stop subprocess
 
             liftIO $ isPortAvailable port `shouldReturn` True
-      void (runJobAction action) `finally` removeFileIfExists portFilePath
+      void (runJob action) `finally` removeFileIfExists portFilePath
 
     it "decodes chunk-split and incomplete UTF-8 output" $ do
       let euroSignCount = 40000 :: Int
@@ -112,23 +114,23 @@ spec_managedSubprocess =
             "process.stdout.write(Buffer.concat([Buffer.from('€'.repeat("
               <> show euroSignCount
               <> ")), Buffer.from([0xe2])]));"
-      chan <- runJobAction $ do
-        subprocess <- Subprocess.spawn (nodeScript script)
-        maybeExitCode <- liftIO $ timeout (secondsToMicroSeconds 20) $ Subprocess.wait subprocess
+      chan <- runJob $ do
+        subprocess <- JobProcess.spawn (nodeScript script)
+        maybeExitCode <- liftIO $ timeout (secondsToMicroSeconds 20) $ JobProcess.wait subprocess
         case maybeExitCode of
           Nothing -> do
-            Subprocess.stop subprocess
+            JobProcess.stop subprocess
             liftIO $ expectationFailure "Timed out waiting for process exit; output forwarding likely stalled"
           Just exitCode -> do
             liftIO $ exitCode `shouldBe` ExitSuccess
-            Subprocess.stop subprocess
+            JobProcess.stop subprocess
       output <- collectQueuedOutput chan
       output `shouldBe` expectedOutput
 
-runJobAction :: J.JobAction () -> IO (Chan J.JobEvent)
-runJobAction action = do
+runJob :: J.Job () -> IO (Chan Event.JobEvent)
+runJob action = do
   chan <- newChan
-  exitCode <- J.runJob (J.makeJob J.Server action) chan
+  exitCode <- J.runJob Kind.Server action chan
   exitCode `shouldBe` ExitSuccess
   return chan
 
@@ -190,14 +192,14 @@ portOwningChildScript =
       "server.listen(0, '127.0.0.1', () => fs.writeFileSync(process.argv[1], String(server.address().port)));"
     ]
 
-collectQueuedOutput :: Chan J.JobEvent -> IO T.Text
+collectQueuedOutput :: Chan Event.JobEvent -> IO T.Text
 collectQueuedOutput chan = go []
   where
     go collected = do
       maybeMessage <- timeout (secondsToMicroSeconds 0.2) $ readChan chan
       case maybeMessage of
         Nothing -> return $ T.concat $ reverse collected
-        Just J.JobEvent {J._eventData = J.JobOutput _ output} -> go (output : collected)
+        Just Event.JobEvent {Event._eventData = Event.JobOutput _ output} -> go (output : collected)
         Just _ -> go collected
 
 jsString :: String -> String

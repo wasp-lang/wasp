@@ -24,6 +24,7 @@ import Wasp.Generator.ServerGenerator.Start
     startServer,
   )
 import qualified Wasp.Job as Job
+import qualified Wasp.Job.Kind as Kind
 import Wasp.Util (secondsToMicroSeconds)
 
 spec_ServerEffect :: Spec
@@ -53,7 +54,7 @@ spec_ServerProcessController =
         chan <- newChan
         controller <- newServerProcessController
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-        withAsync (Job.runJob (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+        withAsync (Job.runJob Kind.Server (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -129,7 +130,7 @@ spec_ServerProcessController =
         generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
         let bundleScriptPath = serverDirPath fixture </> "bundle.js"
         originalBundleScript <- readFile' bundleScriptPath
-        withAsync (Job.runJob (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+        withAsync (Job.runJob Kind.Server (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
           waitForServerStart fixture
           initialPid <- readServerPid fixture
           serverPort <- readServerPort fixture
@@ -160,7 +161,7 @@ spec_ServerProcessController =
           chan <- newChan
           controller <- newServerProcessController
           generatedAppDir <- SP.parseAbsDir $ _generatedAppDirPath fixture
-          withAsync (Job.runJob (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
+          withAsync (Job.runJob Kind.Server (startServer serverRunConfig generatedAppDir controller) chan) $ \controllerJob -> do
             waitUntil "crashed server pid file" $ doesFileExist $ serverPidFilePath fixture
             crashedPid <- readServerPid fixture
             waitUntil "leftover process port file" $ doesFileExist $ leftoverPortFilePath fixture

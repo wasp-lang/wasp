@@ -22,7 +22,8 @@ import qualified Wasp.Generator.ServerGenerator.Common as Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
-import qualified Wasp.Job.Subprocess as Subprocess
+import qualified Wasp.Job.Output.Event as Event
+import qualified Wasp.Job.Process as JobProcess
 
 newtype ServerProcessController = ServerProcessController (Chan ServerControllerCommand)
 
@@ -52,7 +53,7 @@ newtype ServerProcessId = ServerProcessId Int deriving (Eq)
 
 data ServerProcess = ServerProcess
   { _serverProcessId :: ServerProcessId,
-    _subprocess :: Subprocess.Subprocess
+    _subprocess :: JobProcess.Subprocess
   }
 
 data ServerProcessState
@@ -70,19 +71,18 @@ notifyFailedCompile :: ServerProcessController -> IO ()
 notifyFailedCompile controller =
   sendBlockingServerControllerCommand controller FailedCompile
 
-startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> Job.Job
+startServer :: ServerRunConfig -> Path' Abs (Dir GeneratedAppDir) -> ServerProcessController -> Job.Job ()
 startServer serverRunConfig generatedAppDir =
   runServerProcessController serverRunConfig serverDir
   where
     serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
 
-runServerProcessController :: ServerRunConfig -> Path' Abs (Dir ServerRootDir) -> ServerProcessController -> Job.Job
-runServerProcessController serverRunConfig serverDir controller =
-  Job.makeJob Job.Server $ do
-    -- Only the controller thread accesses these refs. Exit watchers send commands.
-    serverStateRef <- liftIO $ newIORef ServerNotRunning
-    nextServerProcessIdRef <- liftIO $ newIORef 0
-    runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
+runServerProcessController :: ServerRunConfig -> Path' Abs (Dir ServerRootDir) -> ServerProcessController -> Job.Job ()
+runServerProcessController serverRunConfig serverDir controller = do
+  -- Only the controller thread accesses these refs. Exit watchers send commands.
+  serverStateRef <- liftIO $ newIORef ServerNotRunning
+  nextServerProcessIdRef <- liftIO $ newIORef 0
+  runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef
 
 sendBlockingServerControllerCommand :: ServerProcessController -> (MVar () -> ServerControllerCommand) -> IO ()
 sendBlockingServerControllerCommand (ServerProcessController commandChan) mkCommand = do
@@ -102,12 +102,12 @@ runServerProcessControllerLoop ::
   ServerProcessController ->
   IORef ServerProcessState ->
   IORef Int ->
-  Job.JobAction ()
+  Job.Job ()
 runServerProcessControllerLoop serverRunConfig serverDir controller serverStateRef nextServerProcessIdRef = do
   handleSuccessfulCompile RebundleAndRestartServer
   processServerCommands
   where
-    processServerCommands :: Job.JobAction ()
+    processServerCommands :: Job.Job ()
     processServerCommands = do
       command <- liftIO $ readServerControllerCommand controller
       case command of
@@ -121,7 +121,7 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
 
     acknowledgeCommand done action = action `finally` liftIO (putMVar done ())
 
-    handleSuccessfulCompile :: ServerEffect -> Job.JobAction ()
+    handleSuccessfulCompile :: ServerEffect -> Job.Job ()
     handleSuccessfulCompile serverEffect = do
       reconcileExitedServerProcess
       serverState <- liftIO $ readIORef serverStateRef
@@ -134,18 +134,17 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
             ExitSuccess -> replaceServerProcess
             ExitFailure {} -> stopServerProcess
 
-    replaceServerProcess :: Job.JobAction ()
+    replaceServerProcess :: Job.Job ()
     replaceServerProcess = stopServerProcess >> startServerProcess
 
-    startServerProcess :: Job.JobAction ()
+    startServerProcess :: Job.Job ()
     startServerProcess = do
-      createProcess <- liftIO $ Node.makeCreateProcess (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
       mask_ $ do
         serverProcessId <- liftIO getNextServerProcessId
-        subprocess <- Subprocess.spawn createProcess
+        subprocess <- Node.spawn (("NODE_ENV", "development") : getEnvVars serverRunConfig) serverDir Common.devServerStartExecutable Common.devServerStartArgs
         liftIO $ writeIORef serverStateRef $ ServerRunning ServerProcess {_serverProcessId = serverProcessId, _subprocess = subprocess}
         exitWatcher <- liftIO $ async $ do
-          exitCode <- Subprocess.wait subprocess
+          exitCode <- JobProcess.wait subprocess
           writeServerControllerCommand controller $ ServerProcessExited serverProcessId exitCode
         liftIO $ link exitWatcher
 
@@ -155,16 +154,16 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
       writeIORef nextServerProcessIdRef nextServerProcessId
       return $ ServerProcessId nextServerProcessId
 
-    stopServerProcess :: Job.JobAction ()
+    stopServerProcess :: Job.Job ()
     stopServerProcess = mask_ $ do
       serverState <- liftIO $ readIORef serverStateRef
       case serverState of
         ServerNotRunning -> return ()
         ServerRunning serverProcess -> do
-          Subprocess.stop $ _subprocess serverProcess
+          JobProcess.stop $ _subprocess serverProcess
           liftIO $ writeIORef serverStateRef ServerNotRunning
 
-    handleServerProcessExited :: ServerProcessId -> ExitCode -> Job.JobAction ()
+    handleServerProcessExited :: ServerProcessId -> ExitCode -> Job.Job ()
     handleServerProcessExited serverProcessId exitCode = do
       serverState <- liftIO $ readIORef serverStateRef
       case serverState of
@@ -173,30 +172,30 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
               cleanUpExitedServerProcess serverProcess exitCode
         _ -> return ()
 
-    reconcileExitedServerProcess :: Job.JobAction ()
+    reconcileExitedServerProcess :: Job.Job ()
     reconcileExitedServerProcess = do
       serverState <- liftIO $ readIORef serverStateRef
       case serverState of
         ServerNotRunning -> return ()
         ServerRunning serverProcess ->
-          liftIO (Subprocess.poll $ _subprocess serverProcess) >>= \case
+          liftIO (JobProcess.poll $ _subprocess serverProcess) >>= \case
             Nothing -> return ()
             Just exitCode -> cleanUpExitedServerProcess serverProcess exitCode
 
-    cleanUpExitedServerProcess :: ServerProcess -> ExitCode -> Job.JobAction ()
+    cleanUpExitedServerProcess :: ServerProcess -> ExitCode -> Job.Job ()
     cleanUpExitedServerProcess serverProcess exitCode = do
       -- The root process exited on its own, but its descendants may have survived
       -- and could still hold the server port or output pipes.
-      Subprocess.stop $ _subprocess serverProcess
+      JobProcess.stop $ _subprocess serverProcess
       printServerProcessExit exitCode
       liftIO $ writeIORef serverStateRef ServerNotRunning
 
-printServerProcessExit :: ExitCode -> Job.JobAction ()
+printServerProcessExit :: ExitCode -> Job.Job ()
 printServerProcessExit exitCode =
   Job.emitJobOutput (outputStream exitCode) $ formatServerProcessExit exitCode
   where
-    outputStream ExitSuccess = Job.Stdout
-    outputStream ExitFailure {} = Job.Stderr
+    outputStream ExitSuccess = Event.Stdout
+    outputStream ExitFailure {} = Event.Stderr
 
 formatServerProcessExit :: ExitCode -> T.Text
 formatServerProcessExit ExitSuccess = "Server process exited.\n"

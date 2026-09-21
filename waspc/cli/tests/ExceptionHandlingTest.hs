@@ -6,7 +6,7 @@ import Control.Monad.Trans.Resource (ResourceCleanupException (..))
 import System.Exit (ExitCode (..))
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
 import Wasp.Cli.ExceptionHandling (formatCleanupException, withExceptionReporting)
-import Wasp.Job.Subprocess (ProcessTreeDidNotStop (..))
+import Wasp.Process.Managed (ProcessTreeDidNotStop (..))
 
 spec_formatCleanupException :: Spec
 spec_formatCleanupException =

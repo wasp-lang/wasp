@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 
-module Wasp.Job.Subprocess.System
+module Wasp.Process.Managed.System
   ( configureManagedSubprocess,
     hardStopTimeoutMicroseconds,
     killStartedProcessGroup,

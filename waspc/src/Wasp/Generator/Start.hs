@@ -29,8 +29,8 @@ start :: (WebAppRunConfig, ServerRunConfig) -> Path' Abs (Dir WaspProjectDir) ->
 start (webAppRunConfig, serverRunConfig) waspProjectDir outDir serverProcessController onJobsQuietDown = do
   chan <- newChan
   let runStartJobs =
-        J.runJob (startServer serverRunConfig outDir serverProcessController) chan
-          `race` J.runJob (startWebApp webAppRunConfig waspProjectDir) chan
+        J.runJob Kind.Server (startServer serverRunConfig outDir serverProcessController) chan
+          `race` J.runJob Kind.WebApp (startWebApp webAppRunConfig waspProjectDir) chan
   ((serverOrWebExitCode, _), _) <-
     runStartJobs
       `concurrently` Output.printEventsPrefixedUntilExit chan
