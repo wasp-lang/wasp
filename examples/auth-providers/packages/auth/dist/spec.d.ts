@@ -105,7 +105,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 8;
+    contractVersion: 9;
     server: {
         authAdapter: {
             package: string;

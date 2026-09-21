@@ -24,7 +24,7 @@ argument and the adapter may return routes of its own. Everything lives in
 - **The identities facet** (`runtime.identities`) — signup creates
   User + Auth + AuthIdentity atomically; the argon2 hash goes into the `secrets` channel, the
   asserted email into `claims`. Hashing happens in this app, explicitly.
-- **The credentials facet** — the login route verifies the password and calls
+- **The credentials issuer** — the login route verifies the password and calls
   `credentials.signIn(subject)`. The app's login hooks fire, the issuer mints a bearer token,
   and the route writes the issuer's answer (`{ credential }`) to the response.
 - **The handler** forwards `authenticate` to the same issuer, so

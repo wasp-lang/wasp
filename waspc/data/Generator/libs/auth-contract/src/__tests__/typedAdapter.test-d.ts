@@ -30,7 +30,7 @@ declare function waspAuthT(p: { email?: boolean }): {
   credentials: { transport?: "bearer" | "cookie" };
 };
 export const wasp: ServerAuthAdapterFor<typeof waspAuthT> = (runtime, spec) => {
-  runtime.credentials.signIn({ subjectId: "a" });
+  runtime.credentialsIssuer.signIn({ subjectId: "a" });
   const scopes: string[] =
     spec.google?.configFn?.().scopes ?? spec.google?.scopes ?? [];
   // @ts-expect-error the adapter gets the live function, not the reference
@@ -75,10 +75,10 @@ export const clerkA: ServerAuthAdapterFor<typeof clerkT> = (runtime) => {
   // @ts-expect-error optional
   const opt: string = runtime.env.OPT;
   // @ts-expect-error never
-  runtime.credentials;
+  runtime.credentialsIssuer;
   // @ts-expect-error never
   runtime.email;
-  const no: false = runtime.hasCredentials;
+  const no: false = runtime.hasCredentialsIssuer;
   runtime.identities.default;
   return { handler };
 };
@@ -96,8 +96,8 @@ export const ba: ServerAuthAdapterFor<typeof baT> = (runtime, spec) => {
   const s: unknown = spec;
   runtime.email.send;
   // @ts-expect-error app decides
-  runtime.credentials;
-  if (runtime.hasCredentials) runtime.credentials.signOut;
+  runtime.credentialsIssuer;
+  if (runtime.hasCredentialsIssuer) runtime.credentialsIssuer.signOut;
   return { handler };
 };
 // a fully typed runtime can be handed to code written against the loose one

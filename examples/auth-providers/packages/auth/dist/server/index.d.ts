@@ -5,7 +5,7 @@ import { isEmailResendAllowed, type EmailHelpers } from "./email/utils.js";
  * Wasp's own authentication as an auth handler package.
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
- * window (the credentials facet, plus the `email-send` grant when the email
+ * window (the credentials issuer, plus the `email-send` grant when the email
  * method is on) and the `server.spec` the spec constructor captured, with the
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.

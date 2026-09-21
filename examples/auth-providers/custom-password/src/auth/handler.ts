@@ -11,7 +11,7 @@ import {
  * `createServerAuthHandler`. Pasting this file into a package needs no edits.
  *
  * - The runtime arrives as an argument: the identities facet for storage, and
- *   the credentials facet, because the manifest declares `credentials: {}`
+ *   the credentials issuer, because the manifest declares `credentials: {}`
  *   (Wasp runs a private bearer issuer for this scheme).
  * - It brings its own routes. Wasp mounts `routeHandler` at `/auth/password`,
  *   next to every other scheme's routes.
@@ -27,8 +27,8 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
   // the issuer minted, and this handler recognizes it by forwarding to that
   // issuer -- the way ASP.NET's remote schemes forward to their sign-in scheme.
   handler: {
-    authenticate: (request) => runtime.credentials.authenticate(request),
-    signOut: (request) => runtime.credentials.signOut(request),
+    authenticate: (request) => runtime.credentialsIssuer.authenticate(request),
+    signOut: (request) => runtime.credentialsIssuer.signOut(request),
   },
 
   routeHandler: async (req, res) => {
@@ -93,7 +93,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
       }
       // The app's login hooks fire inside; the issuer decides what the
       // client receives (here, `{ credential }`).
-      const { response } = await runtime.credentials.signIn(
+      const { response } = await runtime.credentialsIssuer.signIn(
         { subjectId: normalizedEmail },
         { req },
       );
@@ -108,7 +108,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
     // one-time code here (a normal request, so the header is attached)...
     if (req.method === "POST" && req.url === "/one-time-code") {
       try {
-        const oneTimeCode = await runtime.credentials.createOneTimeCode(
+        const oneTimeCode = await runtime.credentialsIssuer.createOneTimeCode(
           new Request(`${runtime.serverUrl}${req.url}`, {
             headers: { authorization: req.headers.authorization ?? "" },
           }),
@@ -125,7 +125,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
     // ...and the navigation carries the code. It works once, for a minute.
     const url = new URL(req.url ?? "/", runtime.serverUrl);
     if (req.method === "GET" && url.pathname === "/export") {
-      const result = await runtime.credentials.redeemOneTimeCode(
+      const result = await runtime.credentialsIssuer.redeemOneTimeCode(
         url.searchParams.get("oneTimeCode") ?? "",
       );
       if (result.status !== "authenticated") {

@@ -4,8 +4,8 @@ import type { waspAuth } from "../spec.js";
 /**
  * The runtime window, typed from the manifest `waspAuth()` returns:
  * `identities` keyed by this handler's methods, `env` by the env vars it
- * declares, `credentials` always there (the manifest always declares them),
- * and `email` reachable only after checking `runtime.canSendEmail` (the
+ * declares, `credentialsIssuer` always there (the manifest always declares
+ * `credentials`), and `email` reachable only after checking `runtime.canSendEmail` (the
  * manifest requests `email-send` only when the email method is on).
  */
 export type WaspAuthRuntime = WaspServerRuntimeFor<typeof waspAuth>;

@@ -130,7 +130,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 8;
+  contractVersion: 9;
   server: {
     authAdapter: { package: string };
     /** Which of these an app declares depends on its enabled methods. */
@@ -345,7 +345,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 8,
+    contractVersion: 9,
     server: {
       authAdapter: { package: "@wasp.sh/auth/server" },
       env: [

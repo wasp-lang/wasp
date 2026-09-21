@@ -17,7 +17,7 @@
  *   prefixes. One handler type can back several schemes.
  * - A **credential** is whatever a request carries to prove identity: a cookie,
  *   a bearer token. A handler that needs to hand one out asks Wasp for a
- *   `Credentials` facet (see `WaspServerRuntime.credentials`).
+ *   `CredentialsIssuer` (see `WaspServerRuntime.credentialsIssuer`).
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -207,12 +207,12 @@ export interface AuthHandler {
  * in the manifest and knows the handler's blast radius.
  *
  * Credentials are not a grant: a manifest's `credentials` field is what asks
- * for the `credentials` facet.
+ * for the `credentialsIssuer`.
  */
 export type RuntimeGrantName = "email-send";
 
 /**
- * The credentials facet: how a handler that verifies logins but cannot carry a
+ * The credentials issuer: how a handler that verifies logins but cannot carry a
  * credential across requests hands one out.
  *
  * Wasp builds it from the manifest's `credentials` field -- an inline issuer
@@ -223,7 +223,7 @@ export type RuntimeGrantName = "email-send";
  * `signedInBy` on whatever the issuer produces. Minting through this facet is
  * the choke point that guarantees no scheme skips the app's login policy.
  */
-export type Credentials = {
+export type CredentialsIssuer = {
   /**
    * Authenticate a request against the credential this scheme hands out:
    * the target issuer's own `authenticate`. A handler that verifies logins
@@ -330,7 +330,7 @@ export type AuthContractErrorCode =
   | "wasp-auth/unauthenticated"
   | "wasp-auth/undeclared-namespace"
   /**
-   * A facet was used that the manifest did not declare: `credentials` without
+   * A facet was used that the manifest did not declare: `credentialsIssuer` without
    * a `credentials` config, `email` without the `"email-send"` grant.
    */
   | "wasp-auth/undeclared-facet"
@@ -390,7 +390,7 @@ export function getAuthContractErrorCode(
  *   used to surface as "cannot read properties of undefined" at first login.
  * - Whether a facet is available is often the APP's decision (the email
  *   method is on or off; a handler lets the app opt into Wasp-issued
- *   credentials). A handler branches on `hasCredentials` / `canSendEmail`.
+ *   credentials). A handler branches on `hasCredentialsIssuer` / `canSendEmail`.
  *
  * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes;
  * it types the keys of `identities`.
@@ -463,19 +463,19 @@ export type WaspServerRuntime<Namespaces extends string = "default"> = {
    *   default, so it cannot leak through app code. Secrets are stored as
    *   given; hashing is the handler's job.
    */
-  identities: { readonly [Namespace in Namespaces]: ProviderIdentities };
+  identities: { readonly [Namespace in Namespaces]: IdentityStore };
 
   /**
    * How the scheme signs people in: the issuer behind the manifest's
    * `credentials` (a private one, or a sibling scheme). Always a member; when
    * the manifest declares no `credentials`, every method rejects with
-   * `wasp-auth/undeclared-facet`. Check {@link hasCredentials} first when that
+   * `wasp-auth/undeclared-facet`. Check {@link hasCredentialsIssuer} first when that
    * is the app's choice rather than the handler's.
    */
-  credentials: Credentials;
+  credentialsIssuer: CredentialsIssuer;
 
-  /** Whether the manifest declares `credentials`, so {@link credentials} works. */
-  hasCredentials: boolean;
+  /** Whether the manifest declares `credentials`, so {@link credentialsIssuer} works. */
+  hasCredentialsIssuer: boolean;
 
   /**
    * The app's configured email sender. Always a member; `send` rejects with
@@ -492,7 +492,7 @@ export type WaspServerRuntime<Namespaces extends string = "default"> = {
  * The per-scheme view of Wasp's identity store. `subjectId` is always the
  * handler's own stable user id -- the same value {@link Principal} carries.
  */
-export type ProviderIdentities = {
+export type IdentityStore = {
   /** The identity (claims and non-secret data), or null if never provisioned. */
   find(subjectId: string): Promise<{
     authId: string;
@@ -563,7 +563,7 @@ export type ProviderIdentities = {
    * Account linking: attach a new identity to an EXISTING account, instead of
    * creating a user. `authId` is the account to attach to -- for a request
    * carrying a Wasp-issued credential, the `principal.subjectId` that
-   * `runtime.credentials.authenticate` returns.
+   * `runtime.credentialsIssuer.authenticate` returns.
    *
    * Wasp checks that the account already carries an identity in one of the
    * calling scheme's OWN namespaces (a scheme cannot attach itself to another

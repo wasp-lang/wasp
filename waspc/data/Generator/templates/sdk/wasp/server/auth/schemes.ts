@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { AuthHandler, Credentials, ProviderIdentities, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AuthHandler, CredentialsIssuer, IdentityStore, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
@@ -111,7 +111,7 @@ function resolveOwnNamespace(spec: SchemeRuntimeSpec, namespaceSuffix: string | 
 }
 
 /** The contract-shaped identity facet for one of the scheme's namespaces. */
-function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): ProviderIdentities {
+function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): IdentityStore {
   const store = getIdentityStore(namespace)
   return {
     find: (subjectId) => store.find(subjectId) as any,
@@ -269,13 +269,13 @@ function makeHookProviderId(namespace: string, subjectId: string): ProviderId {
 }
 
 /**
- * The credentials facet a scheme signs in through, bound to a target issuer
+ * The credentials issuer a scheme signs in through, bound to a target issuer
  * and to the calling scheme. The namespace guard, the identity lookup and
  * the app's login hooks all run here, BEFORE the target issues anything --
  * so no scheme can skip the app's login policy, and the issuer records the
  * calling scheme as `signedInBy` without ever being told a name to record.
  */
-function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptions: IssuerOptions | null): Credentials {
+function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptions: IssuerOptions | null): CredentialsIssuer {
   if (target.signIn === undefined) {
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
@@ -392,12 +392,12 @@ function undeclaredFacetError(spec: SchemeRuntimeSpec, facet: string, howToDecla
   )
 }
 
-function undeclaredCredentials(spec: SchemeRuntimeSpec): Credentials {
+function undeclaredCredentialsIssuer(spec: SchemeRuntimeSpec): CredentialsIssuer {
   const reject = async (): Promise<never> => {
     throw undeclaredFacetError(
       spec,
-      'credentials',
-      "Declare `credentials` in the manifest ({ transport, store } or { scheme }), or check `runtime.hasCredentials` first.",
+      'credentialsIssuer',
+      "Declare `credentials` in the manifest ({ transport, store } or { scheme }), or check `runtime.hasCredentialsIssuer` first.",
     )
   }
   return {
@@ -423,7 +423,7 @@ function undeclaredEmail(spec: SchemeRuntimeSpec): WaspEmail {
   }
 }
 
-function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | null): WaspServerRuntime<string> {
+function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: CredentialsIssuer | null): WaspServerRuntime<string> {
   {=# isEmailSenderEnabled =}
   const canSendEmail = spec.uses.includes('email-send')
   {=/ isEmailSenderEnabled =}
@@ -460,8 +460,8 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentials: Credentials | n
     // Every facet is always a member. One the manifest did not declare
     // rejects with a clear error on use; the booleans let a handler branch
     // when availability is the app's choice.
-    credentials: credentials ?? undeclaredCredentials(spec),
-    hasCredentials: credentials !== null,
+    credentialsIssuer: credentialsIssuer ?? undeclaredCredentialsIssuer(spec),
+    hasCredentialsIssuer: credentialsIssuer !== null,
     {=# isEmailSenderEnabled =}
     email: canSendEmail ? waspEmailFacet : undeclaredEmail(spec),
     {=/ isEmailSenderEnabled =}
@@ -512,14 +512,14 @@ const issuerOptions_{= index =}: IssuerOptions = {
 issuerOptionsByScheme['{= schemeName =}'] = issuerOptions_{= index =}
 // The private issuer behind this scheme's inline `credentials`.
 const issuer_{= index =} = createIssuer(issuerOptions_{= index =})
-const credentials_{= index =} = boundTo(spec_{= index =}, issuer_{= index =}, issuerOptions_{= index =})
+const credentialsIssuer_{= index =} = boundTo(spec_{= index =}, issuer_{= index =}, issuerOptions_{= index =})
 {=/ inlineCredentials =}
 {=# credentialsScheme =}
 // Signs into the sibling scheme '{= credentialsScheme =}', created above.
-const credentials_{= index =} = boundTo(spec_{= index =}, handlerOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
+const credentialsIssuer_{= index =} = boundTo(spec_{= index =}, handlerOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
 {=/ credentialsScheme =}
 {=^ hasCredentials =}
-const credentials_{= index =} = null
+const credentialsIssuer_{= index =} = null
 {=/ hasCredentials =}
 {=# isFrameworkIssuer =}
 // waspBearer() / waspCookie(): the scheme IS its issuer.
@@ -538,7 +538,7 @@ const handlerParts_{= index =} = await Promise.resolve(
     // (an adapter typed with `ServerAuthAdapterFor` sees only the env vars and
     // facets of its manifest). Sound by construction: the generator wired
     // exactly the manifest's declarations into this runtime.
-    makeSchemeRuntime(spec_{= index =}, credentials_{= index =}) as unknown as Parameters<typeof createServerAuthHandler_{= index =}>[0],
+    makeSchemeRuntime(spec_{= index =}, credentialsIssuer_{= index =}) as unknown as Parameters<typeof createServerAuthHandler_{= index =}>[0],
     // The handler's `server.spec`: its plain data, with every reference
     // to app code set back at the path it was lifted from.
     joinHandlerSpec({=& specJson =}, [

@@ -26,7 +26,7 @@ const OAUTH_PROVIDER_NAMES: OAuthProviderName[] = [
  * Wasp's own authentication as an auth handler package.
  *
  * Wasp instantiates this exactly like any handler package: with the runtime
- * window (the credentials facet, plus the `email-send` grant when the email
+ * window (the credentials issuer, plus the `email-send` grant when the email
  * method is on) and the `server.spec` the spec constructor captured, with the
  * app's functions live in place. The route handler mounts
  * at `/auth/<scheme>`.
@@ -61,8 +61,8 @@ export const createServerAuthHandler: ServerAuthAdapterFor<typeof waspAuth> = (
   // remote schemes forward to their sign-in scheme, so `authRequired`
   // naming this scheme recognizes the credentials it handed out.
   const handler: AuthHandler = {
-    authenticate: (request) => runtime.credentials.authenticate(request),
-    signOut: (request) => runtime.credentials.signOut(request),
+    authenticate: (request) => runtime.credentialsIssuer.authenticate(request),
+    signOut: (request) => runtime.credentialsIssuer.signOut(request),
   };
 
   return { handler, routeHandler: makeDispatcher(routes) };

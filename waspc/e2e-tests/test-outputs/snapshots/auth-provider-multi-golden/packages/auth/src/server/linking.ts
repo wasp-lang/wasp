@@ -26,7 +26,7 @@ export async function requireCurrentAuthId(
   { runtime }: Ctx,
   req: Req,
 ): Promise<string> {
-  const result = await runtime.credentials.authenticate(
+  const result = await runtime.credentialsIssuer.authenticate(
     toWebRequest(runtime, req),
   );
   if (result.status !== "authenticated") {
@@ -221,7 +221,7 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       method: "POST",
       path: "/link-intent",
       handler: async (req, res) => {
-        const oneTimeCode = await runtime.credentials
+        const oneTimeCode = await runtime.credentialsIssuer
           .createOneTimeCode(toWebRequest(runtime, req))
           .catch((e) => {
             if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {

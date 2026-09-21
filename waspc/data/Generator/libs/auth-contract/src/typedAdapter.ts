@@ -5,7 +5,7 @@
  */
 
 import type {
-  Credentials,
+  CredentialsIssuer,
   RuntimeGrantName,
   ServerAuthHandlerParts,
   WaspEmail,
@@ -30,7 +30,7 @@ import type {
  *   `server.spec`           the `spec` parameter
  *   `identityNamespaces`    the keys of `runtime.identities`
  *   `server.env`            the keys of `runtime.env`
- *   `credentials`           whether `runtime.credentials` is there
+ *   `credentials`           whether `runtime.credentialsIssuer` is there
  *   `uses`                  whether `runtime.email` is there
  *   `server.routes`         whether the adapter must return a `routeHandler`
  *
@@ -42,12 +42,12 @@ import type {
  * live functions. It does not check the app's function: in `main.wasp.ts` a
  * `with { type: "ref" }` import is a ref object, whatever it points at.
  *
- * THREE STATES, NOT A FLAG. A facet is `credentials` or `email`:
+ * THREE STATES, NOT A FLAG. A facet is `credentialsIssuer` or `email`:
  * - the manifest field is REQUIRED in the constructor's return type: the facet is
  *   always there; use it directly.
  * - the field is OPTIONAL (`credentials?:`, or `uses: Array<"email-send">`,
  *   which may be empty): the APP decides. The facet is reachable only after
- *   checking `runtime.hasCredentials` / `runtime.canSendEmail`, which narrows.
+ *   checking `runtime.hasCredentialsIssuer` / `runtime.canSendEmail`, which narrows.
  * - the field is absent: the facet is not on the type at all.
  *
  * Why this is sound where a hand-set type flag was not: the constructor's body is
@@ -98,7 +98,11 @@ export type IdentityNamespacesOf<SpecConstructor> =
  */
 export type WaspServerRuntimeFor<SpecConstructor> = Omit<
   WaspServerRuntime<IdentityNamespacesOf<SpecConstructor>>,
-  "env" | "credentials" | "hasCredentials" | "email" | "canSendEmail"
+  | "env"
+  | "credentialsIssuer"
+  | "hasCredentialsIssuer"
+  | "email"
+  | "canSendEmail"
 > & {
   /**
    * One key per env var in the manifest's `server.env`. An undeclared name is
@@ -113,9 +117,9 @@ export type WaspServerRuntimeFor<SpecConstructor> = Omit<
   >;
 } & Facet<
     CredentialsDeclaration<ManifestOf<SpecConstructor>>,
-    "hasCredentials",
-    "credentials",
-    Credentials
+    "hasCredentialsIssuer",
+    "credentialsIssuer",
+    CredentialsIssuer
   > &
   Facet<
     GrantDeclaration<ManifestOf<SpecConstructor>, "email-send">,

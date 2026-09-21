@@ -19,7 +19,7 @@ const METHOD_NAMES = [
  * cookie. For a Wasp-issued credential the principal's subject IS the Auth id.
  */
 export async function requireCurrentAuthId({ runtime }, req) {
-    const result = await runtime.credentials.authenticate(toWebRequest(runtime, req));
+    const result = await runtime.credentialsIssuer.authenticate(toWebRequest(runtime, req));
     if (result.status !== "authenticated") {
         throw new HttpError(401, "Sign in before changing your connected accounts.");
     }
@@ -163,7 +163,7 @@ export function linkingRoutes(ctx, hasOAuth) {
             method: "POST",
             path: "/link-intent",
             handler: async (req, res) => {
-                const oneTimeCode = await runtime.credentials
+                const oneTimeCode = await runtime.credentialsIssuer
                     .createOneTimeCode(toWebRequest(runtime, req))
                     .catch((e) => {
                     if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {

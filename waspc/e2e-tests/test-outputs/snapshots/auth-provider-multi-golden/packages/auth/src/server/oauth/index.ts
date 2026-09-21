@@ -258,7 +258,7 @@ async function callbackHandler(
     // fired -- the in-tree semantics). The one-time code then carries the
     // credentials scheme's answer, and redeeming it replays that answer to
     // the client: a bearer token in the body, or a Set-Cookie header.
-    const { response } = await runtime.credentials.signIn(
+    const { response } = await runtime.credentialsIssuer.signIn(
       {
         namespace: provider.id,
         subjectId: providerUserId,
@@ -354,7 +354,7 @@ async function redeemLinkOneTimeCode(
   { runtime }: Ctx,
   oneTimeCode: string,
 ): Promise<string> {
-  const result = await runtime.credentials.redeemOneTimeCode(oneTimeCode);
+  const result = await runtime.credentialsIssuer.redeemOneTimeCode(oneTimeCode);
   if (result.status !== "authenticated") {
     throw new HttpError(400, "The link request expired. Try again.");
   }

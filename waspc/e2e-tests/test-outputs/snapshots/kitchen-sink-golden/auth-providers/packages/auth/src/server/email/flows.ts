@@ -245,7 +245,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
           throw createInvalidCredentialsError();
         }
 
-        const { response } = await runtime.credentials.signIn(
+        const { response } = await runtime.credentialsIssuer.signIn(
           { namespace: "email", subjectId: email },
           { req, properties: getSignInProperties(fields) },
         );
@@ -350,7 +350,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
         await identities().updateData(email, { isEmailVerified: true });
         // Changing the password invalidates every existing credential, so
         // that somebody who got hold of one can't keep using it.
-        await runtime.credentials.signOutEverywhere({
+        await runtime.credentialsIssuer.signOutEverywhere({
           namespace: "email",
           subjectId: email,
         });

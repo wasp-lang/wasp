@@ -1,4 +1,4 @@
-import type { ProviderIdentities } from "@wasp.sh/auth-contract";
+import type { IdentityStore } from "@wasp.sh/auth-contract";
 
 import type { MethodProviderName, WaspAuthRuntime } from "./types.js";
 
@@ -12,11 +12,11 @@ import type { MethodProviderName, WaspAuthRuntime } from "./types.js";
 export function identitiesOf(
   runtime: WaspAuthRuntime,
   method: MethodProviderName,
-): ProviderIdentities | undefined {
+): IdentityStore | undefined {
   return (runtime.identities as Partial<WaspAuthRuntime["identities"]>)[method];
 }
 
 /** Account-wide operations (`merge`) are the same on every store; any will do. */
-export function anyIdentities(runtime: WaspAuthRuntime): ProviderIdentities {
+export function anyIdentities(runtime: WaspAuthRuntime): IdentityStore {
   return Object.values(runtime.identities)[0];
 }
