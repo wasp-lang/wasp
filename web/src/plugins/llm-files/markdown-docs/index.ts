@@ -11,7 +11,7 @@ import {
 
 /**
  * Base markdown variant of each page, keyed by its route
- * (e.g. "/docs/auth/overview").
+ * (e.g. "/docs/features/auth/overview").
  *
  * Base means the pure page content, without additions specific
  * to one output (e.g. the markdown docs index header).

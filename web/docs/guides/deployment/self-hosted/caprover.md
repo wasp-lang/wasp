@@ -3,11 +3,11 @@ comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
-import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
+import { SecretGeneratorBlock } from "@site/src/components/SecretGeneratorBlock";
 
 # Caprover
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: new Date("2026-01-30") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Caprover: "1.14.1" }} />
 
 ## Deploy Wasp with Caprover
 

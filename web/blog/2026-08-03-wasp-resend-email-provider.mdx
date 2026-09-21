@@ -70,7 +70,7 @@ const info = await emailSender.send({
 });
 ```
 
-And since `emailSender` is what Wasp uses under the hood for everything email-related, this also covers your [email authentication](/docs/auth/email) flows - verification emails and password resets now go through Resend too, with zero extra code.
+And since `emailSender` is what Wasp uses under the hood for everything email-related, this also covers your [email authentication](/docs/features/auth/email/overview) flows - verification emails and password resets now go through Resend too, with zero extra code.
 
 As with all Wasp providers, switching is a one-line change. Started on SMTP and want to move to Resend (or the other way around)? Change the `provider` field, swap the env variables, and everything else keeps working.
 
@@ -88,6 +88,6 @@ Resend support is live in Wasp 0.25. If you're not on it yet, update your Wasp C
 npm i -g @wasp.sh/wasp-cli
 ```
 
-Then set `provider: "Resend"`, add your API key, and send your first email. Check out the [email sending docs](/docs/advanced/email#resend) for the full reference.
+Then set `provider: "Resend"`, add your API key, and send your first email. Check out the [email sending docs](/docs/features/email#resend) for the full reference.
 
 We'd love to hear how it works for you - come chat with us on [Discord](https://discord.gg/rzdnErX)!

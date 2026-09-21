@@ -17,7 +17,7 @@ A loose CORS config can expose your API to any client on the internet. Make sure
 
 ## Prerequisites
 
-Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../introduction/quick-start.md) guide first.
+Make sure you have a Wasp project set up. If you haven't, follow the [Quick start](../../getting-started/quick-start.md) guide first.
 
 ## When You Need This
 
@@ -166,7 +166,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
     "cors",
     cors({
       origin: ["https://app.example.com", "https://admin.example.com"],
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
       maxAge: 86400, // 24 hours

@@ -1,8 +1,8 @@
 ---
-title: Testing the build locally
+title: Testing locally
 ---
 
-import { SecretGeneratorBlock } from '../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '@site/src/components/SecretGeneratorBlock'
 
 `wasp build start` lets you test your production build locally before deployment, ensuring everything works correctly before going live.
 
@@ -11,7 +11,7 @@ This command takes the output of `wasp build` and starts a local server to run i
 While it's not identical to a real production environment, it's the closest you can get to testing your deployed app without actually deploying it.
 
 :::warning This is not a deployment command
-`wasp build start` is only intended for testing your `wasp build` output locally, and is not designed for serving your app in production. For that, check out our [deployment guide](./intro.md).
+`wasp build start` is only intended for testing your `wasp build` output locally, and is not designed for serving your app in production. For that, check out our [deployment guide](./overview.md).
 :::
 
 ## Usage
@@ -28,7 +28,7 @@ wasp build start --server-env DATABASE_URL=<your-database-url> --server-env JWT_
 :::tip
 For `JWT_SECRET`, you can generate a random secret here: <SecretGeneratorBlock />.
 
-You might need to pass other environment variables as well, depending on your app's configuration. Check our [Environment variables reference](../project/env-vars.md) for more details.
+You might need to pass other environment variables as well, depending on your app's configuration. Check our [Environment variables reference](../advanced/env-vars.md) for more details.
 :::
 
 This command will:
@@ -54,7 +54,7 @@ You should treat this command as the last check before deploying your app, confi
 
 | Aspect                                   | `wasp start`        | `wasp build start`                                |
 | ---------------------------------------- | ------------------- | ------------------------------------------------- |
-| Runs your app for general production use | **No**              | **No** (check our [deployment guide](./intro.md)) |
+| Runs your app for general production use | **No**              | **No** (check our [deployment guide](./overview.md)) |
 | Intended for                             | Local development   | Local production testing                          |
 | Server environment                       | Node.js             | Node.js in a Docker container                     |
 | Client environment                       | Static server       | Static server                                     |
@@ -69,9 +69,9 @@ You should treat this command as the last check before deploying your app, confi
 
 You must manually specify any environment variables that your app needs to run in production. This is crucial because the production build may require different configurations from the development build. This helps you take note of which ones you also need to set in your deployment environment for the app to work correctly.
 
-Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](../project/env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](../project/env-vars.md).
+Environment variables include database URLs, API keys, and any other configuration settings necessary for your app to function correctly. You can usually check out your [`.env` files](../advanced/env-vars.md#dotenv-files) to see what environment variables your app expects. You can read more about environment variables in Wasp in the [environment variables guide](../advanced/env-vars.md).
 
-The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](../general/cli.md#project-commands) if you need specific ports.
+The only exception is the environment variables that configure your app's ports and URLs (`PORT`, `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, and `REACT_APP_API_URL`). Because `wasp build start` knows that it's running the app on your local workstation, it picks the ports and fills these out for you automatically. Setting them yourself makes `wasp build start` fail, so use [`--client-port` and `--server-port`](../advanced/cli.md#project-commands) if you need specific ports.
 
 ### Which values should I use when testing?
 

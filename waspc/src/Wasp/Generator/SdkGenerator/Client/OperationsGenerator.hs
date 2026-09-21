@@ -107,7 +107,7 @@ getActionData (actionName, action) =
     operation = AS.Operation.ActionOp actionName action
 
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
---   E.g. "['Task', 'Project']"
+--   E.g. "[\"Task\", \"Project\"]"
 makeJsArrayOfEntityNames :: AS.Operation.Operation -> String
 makeJsArrayOfEntityNames operation = makeJsArrayFromHaskellList entityNames
   where

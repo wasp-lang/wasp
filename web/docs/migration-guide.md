@@ -1,10 +1,9 @@
 ---
-title: From 0.25 to 0.26
+title: Migration from 0.25 to 0.26
+sidebar_label: From 0.25 to 0.26
 ---
 
-# Migration from 0.25 to 0.26
-
-import InstallInstructions from './\_install-instructions.md'
+import InstallInstructions from './_install-instructions.md'
 
 <InstallInstructions version="0.26" />
 
@@ -181,7 +180,7 @@ PORT=3001
 
 ### 5. Update your custom Dockerfile
 
-If you are using a [custom Dockerfile](./deployment/deployment-methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
+If you are using a [custom Dockerfile](./deployment/methods/overview#customizing-the-dockerfile), due to `wasp/sdk` package changes,
 you'll have to add a one new additional line to it:
 
 <Tabs sideBySide>
@@ -216,6 +215,45 @@ If you use database sizing options with `wasp deploy fly launch` or `wasp deploy
 | `--initial-cluster-size` | `--db-initial-cluster-size`        |
 | `--volume-size`         | `--db-volume-size`                 |
 
-### 7. Enjoy your updated Wasp app
+### 7. Point liveness checks at `/up`
+
+Wasp now serves a liveness check at `GET /up` in both development and production.
+
+Wasp used `/` for the liveness check before, but it behaved differently per environment:
+- Development: `GET /` showed Wasp's wrong-port page.
+- Production: `GET /` answered `200 OK`.
+
+We decided to keep the wrong-port page at `/` in development, but we register it after user `api`s, so any user `api` will win over it.
+In production, `GET /` is no longer set by Wasp.
+
+This breaks the Caddy setup from the [VPS deployment guide](./guides/deployment/self-hosted/vps.md), which probed `/`. Change its health check to `/up`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```caddyfile title="Caddyfile"
+    api.myapp.com {
+        reverse_proxy localhost:3001 {
+            health_uri /
+            lb_try_duration 15s
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```caddyfile title="Caddyfile"
+    api.myapp.com {
+        reverse_proxy localhost:3001 {
+            // highlight-next-line
+            health_uri /up
+            lb_try_duration 15s
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+If anything else in your deployment probed `GET /`, such as a platform health check or an uptime monitor, point it at `/up` too.
+
+### 8. Enjoy your updated Wasp app
 
 That's it!

@@ -139,7 +139,7 @@ export function createAuthenticatedOperation<
       throw new Error(`
         You called the operation without arguments, which is a mistake.
         Check your definition and read the docs to understand what you need to send:
-        https://wasp.sh/docs/data-model/operations/overview
+        https://wasp.sh/docs/features/data/operations/overview
         `
       )
     } else if (includesPayload(args)) {

@@ -22,6 +22,7 @@ import StrongPath.Types (Path')
 import System.FilePath (splitExtension)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toLowerFirst)
+import Wasp.Util.Js (makeJsStringLiteral)
 
 -- | Directory where the whole web app project is generated.
 data GeneratedAppDir
@@ -62,9 +63,7 @@ makeJsonWithEntityData name =
     entityNameToPrismaIdentifier = toLowerFirst
 
 makeJsArrayFromHaskellList :: [String] -> String
-makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
-  where
-    listOfJsStrings = map (\s -> "'" ++ s ++ "'") list
+makeJsArrayFromHaskellList list = "[" ++ intercalate ", " (map makeJsStringLiteral list) ++ "]"
 
 dropExtensionFromImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
 dropExtensionFromImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP

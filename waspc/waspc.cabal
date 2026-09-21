@@ -158,42 +158,6 @@ library
 
   other-modules: Paths_waspc
   exposed-modules:
-    Wasp.Analyzer
-    Wasp.Analyzer.AnalyzeError
-    Wasp.Analyzer.AST
-    Wasp.Analyzer.Ctx
-    Wasp.Analyzer.ErrorMessage
-    Wasp.Analyzer.Evaluator
-    Wasp.Analyzer.Evaluator.Bindings
-    Wasp.Analyzer.Evaluator.Evaluation
-    Wasp.Analyzer.Evaluator.Evaluation.Combinators
-    Wasp.Analyzer.Evaluator.Evaluation.Internal
-    Wasp.Analyzer.Evaluator.Evaluation.TypedDictExpr
-    Wasp.Analyzer.Evaluator.Evaluation.TypedDictExpr.Combinators
-    Wasp.Analyzer.Evaluator.Evaluation.TypedExpr
-    Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
-    Wasp.Analyzer.Evaluator.EvaluationError
-    Wasp.Analyzer.Prisma
-    Wasp.Analyzer.SourcePosition
-    Wasp.Analyzer.SourceRegion
-    Wasp.Analyzer.StdTypeDefinitions
-    Wasp.Analyzer.StdTypeDefinitions.App.Dependency
-    Wasp.Analyzer.StdTypeDefinitions.Entity
-    Wasp.Analyzer.Type
-    Wasp.Analyzer.TypeChecker
-    Wasp.Analyzer.TypeChecker.AST
-    Wasp.Analyzer.TypeChecker.Internal
-    Wasp.Analyzer.TypeChecker.Monad
-    Wasp.Analyzer.TypeChecker.TypeError
-    Wasp.Analyzer.TypeDefinitions
-    Wasp.Analyzer.TypeDefinitions.Class.HasCustomEvaluation
-    Wasp.Analyzer.TypeDefinitions.Class.IsDeclType
-    Wasp.Analyzer.TypeDefinitions.Class.IsEnumType
-    Wasp.Analyzer.TypeDefinitions.Internal
-    Wasp.Analyzer.TypeDefinitions.TH
-    Wasp.Analyzer.TypeDefinitions.TH.Common
-    Wasp.Analyzer.TypeDefinitions.TH.Decl
-    Wasp.Analyzer.TypeDefinitions.TH.Enum
     Wasp.AppComponentUrl
     Wasp.AppSpec
     Wasp.AppSpec.Action
@@ -217,8 +181,8 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
     Wasp.AppSpec.Entity
-    Wasp.AppSpec.ExternalFiles
     Wasp.AppSpec.ExtImport
+    Wasp.AppSpec.Identifier
     Wasp.AppSpec.Inspectable
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
@@ -377,7 +341,6 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalConfig.WaspTsConfig
-    Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
@@ -431,6 +394,7 @@ library
     Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
+    Wasp.Util.Js
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
@@ -592,22 +556,15 @@ test-suite waspc-tests
     mtl,
     neat-interpolation,
     parsec,
-    split,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
     text,
     time,
-    unordered-containers,
     waspc,
 
   other-modules:
-    Analyzer.Evaluation.EvaluationErrorTest
-    Analyzer.EvaluatorTest
-    Analyzer.TestUtil
-    Analyzer.TypeChecker.InternalTest
-    Analyzer.TypeCheckerTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
@@ -662,6 +619,7 @@ test-suite waspc-tests
     Util.DockerTest
     Util.FilePathTest
     Util.IO.RetryTest
+    Util.JsTest
     Util.Prisma
     Util.StrongPathTest
     Util.WebRouterPathTest

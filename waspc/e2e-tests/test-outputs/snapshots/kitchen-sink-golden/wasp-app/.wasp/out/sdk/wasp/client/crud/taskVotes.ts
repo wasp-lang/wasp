@@ -21,7 +21,7 @@ export interface TaskVoteGetAll {
 function createCrud(): TaskVoteCrud {
   const crudGetAllQuery = createQuery<RegisteredGetAllQuery>(
     'crud/taskVotes/get-all',
-    ['TaskVote']
+    ["TaskVote"]
   )
   return {
     getAll: {

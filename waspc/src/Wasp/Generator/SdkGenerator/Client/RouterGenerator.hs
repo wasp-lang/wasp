@@ -16,6 +16,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import Wasp.Util.Js (makeJsStringLiteral)
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
 genClientRouterApi :: AppSpec -> Generator [FileDraft]
@@ -41,7 +42,7 @@ createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
 createRouteTemplateData (name, route) =
   object
     [ "name" .= name,
-      "urlPath" .= path,
+      "urlPath" .= makeJsStringLiteral path,
       "urlParams" .= map mapPathParamToJson urlParams,
       "hasUrlParams" .= (not . null $ urlParams),
       "hasOptionalStaticSegments" .= (not . null $ optionalStaticSegments)
@@ -54,8 +55,8 @@ createRouteTemplateData (name, route) =
     optionalStaticSegments = [segment | (WebRouterPath.StaticSegment (WebRouterPath.OptionalStaticSegment segment)) <- routeSegments]
 
     mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
-    mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
-    mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
+    mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= makeJsStringLiteral paramName, "isOptional" .= False]
+    mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= makeJsStringLiteral paramName, "isOptional" .= True]
 
 clientRouterDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 clientRouterDirInSdkTemplatesDir = [reldir|client/router|]

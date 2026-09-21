@@ -1,26 +1,31 @@
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
+import type {
+  SidebarItemConfig,
+  SidebarItemLink,
+} from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
 import typedocSidebar from "./docs/api/typedoc-sidebar";
 
 const sidebars: SidebarsConfig = {
   docs: [
     {
       type: "category",
-      label: "Getting Started",
+      label: "Getting started",
       collapsed: false,
       collapsible: true,
       items: [
-        "introduction/introduction",
-        "introduction/quick-start",
-        "introduction/editor-setup",
+        "getting-started/introduction",
+        "getting-started/quick-start",
+        "getting-started/starter-templates",
+        "getting-started/agent-integration",
       ],
     },
     {
       type: "category",
       label: "Tutorial",
-      collapsed: false,
+      collapsed: true,
       collapsible: true,
+      link: { type: "doc", id: "tutorial/create" },
       items: [
-        "tutorial/create",
         "tutorial/project-structure",
         "tutorial/pages",
         "tutorial/entities",
@@ -30,95 +35,129 @@ const sidebars: SidebarsConfig = {
       ],
     },
     {
-      type: "link",
-      label: "Examples",
-      href: "https://github.com/wasp-lang/wasp/tree/release/examples",
-    },
-    {
       type: "category",
-      label: "Data Model",
+      label: "Features",
       collapsed: false,
       collapsible: true,
       items: [
-        "data-model/entities",
+        "features/spec",
+        // TODO: Pages docs go here: https://github.com/wasp-lang/wasp/issues/2072
+        "features/routes",
         {
           type: "category",
-          label: "Operations",
+          label: "Data",
           collapsed: true,
+          collapsible: true,
           items: [
-            "data-model/operations/overview",
-            "data-model/operations/queries",
-            "data-model/operations/actions",
+            "features/data/entities",
+            {
+              type: "category",
+              label: "Operations",
+              collapsed: true,
+              link: { type: "doc", id: "features/data/operations/overview" },
+              items: [
+                "features/data/operations/queries",
+                "features/data/operations/actions",
+              ],
+            },
+            "features/data/crud",
+            "features/data/databases",
+            "features/data/prisma-file",
           ],
         },
-        "data-model/crud",
-        "data-model/databases",
-        "data-model/prisma-file",
+        {
+          type: "category",
+          label: "Auth",
+          collapsed: true,
+          collapsible: true,
+          link: { type: "doc", id: "features/auth/overview" },
+          items: [
+            "features/auth/ui",
+            {
+              type: "category",
+              label: "Username and password",
+              collapsed: true,
+              link: {
+                type: "doc",
+                id: "features/auth/username-and-pass/overview",
+              },
+              items: ["features/auth/username-and-pass/create-your-own-ui"],
+            },
+            {
+              type: "category",
+              label: "Email",
+              collapsed: true,
+              link: { type: "doc", id: "features/auth/email/overview" },
+              items: ["features/auth/email/create-your-own-ui"],
+            },
+            {
+              type: "category",
+              label: "Social auth",
+              collapsed: true,
+              link: { type: "doc", id: "features/auth/social-auth/overview" },
+              items: [
+                "features/auth/social-auth/github",
+                "features/auth/social-auth/google",
+                "features/auth/social-auth/keycloak",
+                "features/auth/social-auth/slack",
+                "features/auth/social-auth/discord",
+                "features/auth/social-auth/microsoft",
+                "features/auth/social-auth/create-your-own-ui",
+              ],
+            },
+            "features/auth/entities",
+            "features/auth/hooks",
+            {
+              type: "category",
+              label: "Advanced",
+              collapsed: true,
+              items: ["features/auth/advanced/custom-auth-actions"],
+            },
+          ],
+        },
+        "features/email",
+        "features/jobs",
+        "features/websockets",
+        "features/apis",
       ],
     },
     {
       type: "category",
-      label: "Authentication",
+      label: "Advanced",
       collapsed: false,
       collapsible: true,
       items: [
-        "auth/overview",
-        "auth/ui",
+        "advanced/dependencies",
+        "advanced/links",
+        "advanced/git-worktrees",
+        "advanced/env-vars",
+        "advanced/testing",
+        "advanced/accessing-app-config",
+        "advanced/prerendering",
+        "advanced/seo",
         {
           type: "category",
-          label: "Username & Password",
+          label: "Client customization",
           collapsed: true,
+          collapsible: true,
           items: [
-            "auth/username-and-pass",
-            "auth/username-and-pass/create-your-own-ui",
+            "advanced/client-customization/customizing-app",
+            "advanced/client-customization/client-config",
+            "advanced/client-customization/static-assets",
+            "advanced/client-customization/custom-vite-config",
           ],
         },
         {
           type: "category",
-          label: "Email",
+          label: "Server customization",
           collapsed: true,
-          items: ["auth/email", "auth/email/create-your-own-ui"],
-        },
-        {
-          type: "category",
-          label: "Social Auth",
-          collapsed: true,
+          collapsible: true,
           items: [
-            "auth/social-auth/overview",
-            "auth/social-auth/github",
-            "auth/social-auth/google",
-            "auth/social-auth/keycloak",
-            "auth/social-auth/slack",
-            "auth/social-auth/discord",
-            "auth/social-auth/microsoft",
-            "auth/social-auth/create-your-own-ui",
+            "advanced/server-customization/server-config",
+            "advanced/server-customization/middleware",
           ],
         },
-        "auth/entities/entities",
-        "auth/auth-hooks",
-        {
-          type: "category",
-          label: "Advanced",
-          collapsed: true,
-          items: ["auth/advanced/custom-auth-actions"],
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Project Setup",
-      collapsed: false,
-      collapsible: true,
-      items: [
-        "project/starter-templates",
-        "project/customizing-app",
-        "project/client-config",
-        "project/server-config",
-        "project/static-assets",
-        "project/env-vars",
-        "project/testing",
-        "project/dependencies",
-        "project/custom-vite-config",
+        "advanced/cli",
       ],
     },
     {
@@ -126,30 +165,35 @@ const sidebars: SidebarsConfig = {
       label: "Deployment",
       collapsed: false,
       collapsible: true,
+      link: { type: "doc", id: "deployment/overview" },
       items: [
-        "deployment/intro",
         "deployment/env-vars",
         "deployment/database",
         "deployment/local-testing",
         {
           type: "category",
-          label: "Deployment Methods",
-          collapsed: true,
+          label: "Methods",
+          collapsed: false,
+          collapsible: true,
+          link: { type: "doc", id: "deployment/methods/overview" },
           items: [
-            "deployment/deployment-methods/overview",
             {
               type: "category",
               label: "Wasp Deploy",
-              collapsed: true,
+              collapsed: false,
+              collapsible: true,
+              link: {
+                type: "doc",
+                id: "deployment/methods/wasp-deploy/overview",
+              },
               items: [
-                "deployment/deployment-methods/wasp-deploy/overview",
-                "deployment/deployment-methods/wasp-deploy/fly",
-                "deployment/deployment-methods/wasp-deploy/railway",
-                "deployment/deployment-methods/wasp-deploy/ci-cd",
+                "deployment/methods/wasp-deploy/fly",
+                "deployment/methods/wasp-deploy/railway",
+                "deployment/methods/wasp-deploy/cd",
               ],
             },
-            "deployment/deployment-methods/cloud-providers",
-            "deployment/deployment-methods/self-hosted",
+            "deployment/methods/cloud-providers",
+            "deployment/methods/self-hosted",
           ],
         },
         "deployment/ci-cd",
@@ -158,127 +202,43 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "AI & Coding Agents",
-      collapsed: false,
+      label: "Migration guides",
+      collapsed: true,
       collapsible: true,
-      items: ["wasp-ai/coding-agent-plugin", "wasp-ai/git-worktrees"],
-    },
-    {
-      type: "category",
-      label: "Advanced Features",
-      collapsed: false,
-      collapsible: true,
+      link: { type: "doc", id: "migration-guide" },
       items: [
-        "advanced/email",
-        "advanced/jobs",
-        "advanced/web-sockets",
-        "advanced/accessing-app-config",
-        "advanced/apis",
-        "advanced/middleware-config",
-        "advanced/links",
-        "advanced/routing",
-        "advanced/prerendering",
-        "advanced/seo",
+        ...generateMigrationGuideLinks("0.11", [
+          "0.12",
+          "0.13",
+          "0.14",
+          "0.15",
+          "0.16",
+          "0.17",
+          "0.18",
+          "0.19",
+          "0.20",
+          "0.21",
+          "0.22",
+          "0.23",
+          "0.24",
+          "0.25",
+        ]),
       ],
     },
     {
-      type: "category",
-      label: "General",
-      collapsed: false,
-      collapsible: true,
-      items: ["general/spec", "general/cli", "general/typescript"],
+      type: "link",
+      label: "Examples",
+      href: "https://github.com/wasp-lang/wasp/tree/release/examples",
     },
+    "telemetry",
+    "contributing",
+    "vision",
     {
       type: "link",
       label: "Roadmap",
       href: "https://github.com/orgs/wasp-lang/projects/5",
     },
-    {
-      type: "category",
-      label: "Migration guides",
-      collapsed: true,
-      collapsible: true,
-      items: [
-        { type: "doc", id: "migration-guide" },
-        {
-          type: "link",
-          label: "From 0.24 to 0.25",
-          href: "/docs/0.25/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.23 to 0.24",
-          href: "/docs/0.24/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.22 to 0.23",
-          href: "/docs/0.23/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.21 to 0.22",
-          href: "/docs/0.22/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.20 to 0.21",
-          href: "/docs/0.21/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.19 to 0.20",
-          href: "/docs/0.20/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.18 to 0.19",
-          href: "/docs/0.19/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.17 to 0.18",
-          href: "/docs/0.18/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.16 to 0.17",
-          href: "/docs/0.17/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.15 to 0.16",
-          href: "/docs/0.16/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.14 to 0.15",
-          href: "/docs/0.15/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.13 to 0.14",
-          href: "/docs/0.14/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.12 to 0.13",
-          href: "/docs/0.13/migration-guide",
-        },
-        {
-          type: "link",
-          label: "From 0.11 to 0.12",
-          href: "/docs/0.12/migration-guide",
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Miscellaneous",
-      collapsed: true,
-      collapsible: true,
-      items: ["contributing", "telemetry", "vision", "contact"],
-    },
+    "contact",
   ],
   guides: [
     {
@@ -298,3 +258,21 @@ const sidebars: SidebarsConfig = {
 };
 
 export default sidebars;
+
+function generateMigrationGuideLinks(
+  earliestUndocumentedVersion: string,
+  docsVersions: string[],
+): SidebarItemConfig[] {
+  return docsVersions
+    .map((currentVersion, index, arr): SidebarItemLink => {
+      const prevVersion =
+        index == 0 ? earliestUndocumentedVersion : arr[index - 1];
+
+      return {
+        type: "link",
+        label: `From ${prevVersion} to ${currentVersion}`,
+        href: `/docs/${currentVersion}/migration-guide`,
+      };
+    })
+    .reverse();
+}

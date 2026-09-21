@@ -69,7 +69,7 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
-      navigate('/')
+      navigate("/")
     },
   });
   async function onSubmit (data) {

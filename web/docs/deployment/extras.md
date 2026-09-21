@@ -20,7 +20,7 @@ It's usually a two-step process, and it's the same for both the client and the s
 
 :::note Using `wasp deploy`?
 
-Check out how to set up custom domains with [Fly.io](./deployment-methods/wasp-deploy/fly.md#custom-domain) or [Railway](./deployment-methods/wasp-deploy/railway.md#custom-domain).
+Check out how to set up custom domains with [Fly.io](./methods/wasp-deploy/fly.md#custom-domain) or [Railway](./methods/wasp-deploy/railway.md#custom-domain).
 
 :::
 
@@ -37,7 +37,7 @@ Check out how to set up custom domains with [Fly.io](./deployment-methods/wasp-d
    ```
 
    <small>
-     Learn more about client configuration in the [env vars section](../project/env-vars.md#client-general-configuration).
+     Learn more about client configuration in the [env vars section](../advanced/env-vars.md#client-general-configuration).
    </small>
 
    #### Server domain env vars
@@ -55,7 +55,7 @@ Check out how to set up custom domains with [Fly.io](./deployment-methods/wasp-d
    ```
 
    <small>
-     Learn more about server env variables in the [env vars section](../project/env-vars.md#server-general-configuration).
+     Learn more about server env variables in the [env vars section](../advanced/env-vars.md#server-general-configuration).
    </small>
 
 ### DDoS protection and CDN recommendations
@@ -76,7 +76,7 @@ There are other CDN providers like [Fastly](https://www.fastly.com/), [Bunny](ht
 
 ### Are Wasp apps production ready?
 
-As we mentioned in the [introduction](./intro.md) section, what we call **Wasp apps** are three separate pieces: the client, the server, and the database.
+As we mentioned in the [overview](./overview.md), what we call **Wasp apps** are three separate pieces: the client, the server, and the database.
 
 For the server, we are using Node.js and the battle-tested Express.js framework. For the database, we are using PostgreSQL, which is a powerful and reliable database system. For the client, we are using React and Vite, which are both widely used and well-maintained.
 

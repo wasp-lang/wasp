@@ -27,6 +27,7 @@ import Wasp.Project.Common
   )
 import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
+import Wasp.Util.Js (makeJsStringLiteral)
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
@@ -70,7 +71,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspConfig.ts|]
     tmplData =
       object
-        [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
+        [ "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec)),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,

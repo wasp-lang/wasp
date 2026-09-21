@@ -1,5 +1,5 @@
 ---
-title: 2. Project Structure
+title: 2. Project structure
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -74,7 +74,7 @@ We'll keep it simple by placing everything in the root `src` directory.
 Many other files (e.g., `tsconfig.json`, `tsconfig.src.json`, `tsconfig.wasp.json`, `vite-env.d.ts`, etc.) help Wasp and the IDE improve your development experience with autocompletion, IntelliSense, and error reporting.
 
 The `vite.config.ts` file is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
-We won't be customizing the Vite setup in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
+We won't be customizing the Vite setup in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../advanced/client-customization/custom-vite-config.md).
 
 The `schema.prisma` file is where you define your database schema using [Prisma](https://www.prisma.io/). We'll cover this a bit later in the tutorial.
 
@@ -118,7 +118,7 @@ When `main.wasp.ts` needs to point to your React components or Node.js functions
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 ```
 
-Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../general/spec.md#reference-imports).
+Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../features/spec.md#reference-imports).
 
 ### Specifications
 
