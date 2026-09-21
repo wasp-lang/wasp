@@ -23,7 +23,7 @@ export {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureTokenIsPresent,
-} from '../../auth/validation.js'
+} from '@wasp.sh/lib-sdk-core'
 
 export type {
   OnBeforeSignupHook,
