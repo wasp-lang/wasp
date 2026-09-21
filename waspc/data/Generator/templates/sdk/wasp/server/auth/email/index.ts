@@ -1,4 +1,3 @@
-import { type GetPasswordResetEmailContentFn, type GetVerificationEmailContentFn } from '@wasp.sh/lib-sdk-core/node'
 export { type GetPasswordResetEmailContentFn, type GetVerificationEmailContentFn } from '@wasp.sh/lib-sdk-core/node'
 
 export {

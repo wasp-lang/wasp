@@ -100,6 +100,4 @@ type Context<Entities extends _Entity[]> = Expand<{
 type ContextWithUser<Entities extends _Entity[]> = Expand<
   Context<Entities> & { user?: AuthUser }
 >
-
-export type { ProviderName } from '@wasp.sh/lib-sdk-core'
 {=/ isAuthEnabled =}
