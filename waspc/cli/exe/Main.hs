@@ -251,7 +251,7 @@ printDbUsage =
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
               "  wasp db studio",
-              "  wasp start db --port 8080"
+              "  wasp db start --port 8080"
       ]
 {- ORMOLU_ENABLE -}
 
