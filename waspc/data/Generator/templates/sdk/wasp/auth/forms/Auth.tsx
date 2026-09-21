@@ -7,12 +7,12 @@ import {
   MessageSuccess,
   tokenObjToCSSVars,
 } from '@wasp.sh/lib-sdk-core/browser'
-
 import type {
-  State,
   CustomizationOptions,
   AdditionalSignupFields,
-} from './types'
+} from '@wasp.sh/lib-sdk-core/browser'
+
+import type { State } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 {=# isEmailAuthEnabled =}
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
