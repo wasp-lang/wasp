@@ -118,7 +118,7 @@ export type ClientAuthHandler = {
  * hand-written handler references it from `main.wasp.ts`.
  *
  * `spec` is the manifest's `client.spec`, exactly as the handler's spec
- * helper built it: plain data mixed with the app's client code (a component,
+ * constructor built it: plain data mixed with the app's client code (a component,
  * a callback), arriving live. All of it is bundled into the browser, so it
  * never holds a secret.
  */
@@ -128,31 +128,31 @@ export type ClientAuthAdapter<ClientSpec = unknown> = (
 ) => ClientAuthHandler;
 
 /**
- * `ClientAuthAdapter`, typed from the handler's spec helper the same way as
+ * `ClientAuthAdapter`, typed from the handler's spec constructor the same way as
  * `ServerAuthAdapterFor`: `spec` is the manifest's `client.spec`, and
  * `runtime.env` has one key per env var in `client.env`.
  *
  *   export const createClientAuthHandler: ClientAuthAdapterFor<typeof myAuth> =
  *     (runtime, spec) => { ... }
  */
-export type ClientAuthAdapterFor<SpecHelper> = (
-  runtime: WaspClientRuntimeFor<SpecHelper>,
-  spec: ClientSpecOf<SpecHelper>,
+export type ClientAuthAdapterFor<SpecConstructor> = (
+  runtime: WaspClientRuntimeFor<SpecConstructor>,
+  spec: ClientSpecOf<SpecConstructor>,
 ) => ClientAuthHandler;
 
 /** The manifest's `client.spec` with its references live: the type of the client adapter's `spec` parameter. */
-export type ClientSpecOf<SpecHelper> =
-  ManifestOf<SpecHelper> extends { client: { spec?: infer ClientSpec } }
+export type ClientSpecOf<SpecConstructor> =
+  ManifestOf<SpecConstructor> extends { client: { spec?: infer ClientSpec } }
     ? LiveSpec<ClientSpec>
     : unknown;
 
 /** `WaspClientRuntime` with `env` narrowed to the env vars the manifest's `client.env` declares. */
-export type WaspClientRuntimeFor<SpecHelper> = Omit<
+export type WaspClientRuntimeFor<SpecConstructor> = Omit<
   WaspClientRuntime,
   "env"
 > & {
   env: DeclaredEnv<
-    ManifestOf<SpecHelper> extends { client: { env: infer EnvVars } }
+    ManifestOf<SpecConstructor> extends { client: { env: infer EnvVars } }
       ? EnvVars
       : []
   >;

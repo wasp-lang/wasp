@@ -5,7 +5,7 @@ import type {
   ClientAuthAdapterFor,
   ClientAuthHandler,
 } from "@wasp.sh/auth-contract/client";
-import type { clerk as clerkSpecHelper } from "./spec.js";
+import type { clerk as clerkSpecConstructor } from "./spec.js";
 
 /**
  * Vite exposes client env vars on `import.meta.env`; other bundlers may not
@@ -103,7 +103,7 @@ function ClerkInstanceCapture({ children }: { children: ReactNode }) {
  * `logout()` signs out of Clerk too.
  */
 export const createClientAuthHandler: ClientAuthAdapterFor<
-  typeof clerkSpecHelper
+  typeof clerkSpecConstructor
 > = (runtime): ClientAuthHandler => ({
   Wrapper: ({ children }) => (
     <ClerkAuthProvider

@@ -4,9 +4,9 @@ import type {
   WaspClientRuntimeFor,
 } from "@wasp.sh/auth-contract/client";
 import { createAuthClient } from "better-auth/client";
-import type { betterAuth as betterAuthSpecHelper } from "./spec.js";
+import type { betterAuth as betterAuthSpecConstructor } from "./spec.js";
 
-type WaspClientRuntime = WaspClientRuntimeFor<typeof betterAuthSpecHelper>;
+type WaspClientRuntime = WaspClientRuntimeFor<typeof betterAuthSpecConstructor>;
 
 let runtime: WaspClientRuntime | null = null;
 
@@ -18,7 +18,7 @@ let runtime: WaspClientRuntime | null = null;
  * it to every request and routes `logout()` back to this scheme.
  */
 export const createClientAuthHandler: ClientAuthAdapterFor<
-  typeof betterAuthSpecHelper
+  typeof betterAuthSpecConstructor
 > = (newRuntime): ClientAuthHandler => {
   runtime = newRuntime;
   return {};

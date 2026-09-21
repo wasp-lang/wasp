@@ -201,23 +201,27 @@ async function getLinkTicketCookie(ctx, jwt, req) {
         // ordinary login is never mistaken for one.
         return { linkTicket: "" };
     }
-    // Bearer transport: the client traded its credential for a ticket first.
-    const ticket = params.get("ticket");
-    if (ticket !== null) {
-        await jwt.validateJWT(ticket).catch(() => {
-            throw new HttpError(400, "The link request expired. Try again.");
-        });
-        return { linkTicket: ticket };
-    }
-    // Cookie transport: the navigation itself carries the credential.
+    // The navigation carries either a one-time code the client traded its
+    // credential for, or the credential itself (a cookie). Which one is Wasp's
+    // business: `createOneTimeCode` answered null when no code was needed.
+    const oneTimeCode = params.get("oneTimeCode");
     const linkTicket = {
-        linkToAuthId: await requireCurrentAuthId(ctx, req),
+        linkToAuthId: oneTimeCode !== null
+            ? await redeemLinkOneTimeCode(ctx, oneTimeCode)
+            : await requireCurrentAuthId(ctx, req),
     };
     return {
         linkTicket: await jwt.createJWT(linkTicket, {
             expiresIn: new TimeSpan(10, "m"),
         }),
     };
+}
+async function redeemLinkOneTimeCode({ runtime }, oneTimeCode) {
+    const result = await runtime.credentials.redeemOneTimeCode(oneTimeCode);
+    if (result.status !== "authenticated") {
+        throw new HttpError(400, "The link request expired. Try again.");
+    }
+    return result.principal.subjectId;
 }
 function validateAndGetOAuthState(provider, req) {
     const url = getUrl(req);

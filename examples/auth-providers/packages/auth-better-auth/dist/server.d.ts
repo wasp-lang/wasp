@@ -1,6 +1,6 @@
 import type { ServerAuthAdapterFor } from "@wasp.sh/auth-contract";
 import { type BetterAuthOptions } from "better-auth";
-import type { betterAuth as betterAuthSpecHelper } from "./spec.js";
+import type { betterAuth as betterAuthSpecConstructor } from "./spec.js";
 /**
  * The type of the `setupFn` an app can reference from its manifest, following
  * the same convention as Wasp's `PrismaSetupFn`: it receives the handler's
@@ -39,4 +39,4 @@ export type BetterAuthSetupFn = (config: BetterAuthOptions) => BetterAuthOptions
  *   these must be the *Prisma client property*, not the `@@map` name: the
  *   handler does a raw `db[modelName]` lookup with no case transformation.
  */
-export declare const createServerAuthHandler: ServerAuthAdapterFor<typeof betterAuthSpecHelper>;
+export declare const createServerAuthHandler: ServerAuthAdapterFor<typeof betterAuthSpecConstructor>;

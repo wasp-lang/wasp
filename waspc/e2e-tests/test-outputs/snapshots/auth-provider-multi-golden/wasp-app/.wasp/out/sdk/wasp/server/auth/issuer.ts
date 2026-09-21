@@ -1,6 +1,8 @@
+import { createHash } from 'node:crypto'
 import type { IncomingMessage } from 'node:http'
 import { TimeSpan, createJWTHelpers } from '@wasp.sh/lib-auth/node'
 import type {
+  AuthenticateResult,
   AuthHandler,
   AuthResponse,
   CredentialRecord,
@@ -54,7 +56,8 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
         return { status: 'unauthenticated' }
       }
       const record = await store.get(id)
-      if (record === null) {
+      // A one-time code lives in the same store, and is never a credential.
+      if (record === null || isOneTimeCodeRecord(record)) {
         return { status: 'unauthenticated' }
       }
       return {
@@ -104,6 +107,87 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
 /** Every credential of the person behind an Auth entity, whichever scheme issued them. */
 export async function signOutEverywhere(options: IssuerOptions, authId: string): Promise<void> {
   await resolveStore(options).deleteAllForAuthId(authId)
+}
+
+// ---- one-time codes ---------------------------------------------------------
+
+// A one-time code is a record in the scheme's own credential store, so it
+// needs no secret and no table of its own, and works with every store. Two
+// things keep it from being a credential: the marker on `signedInBy`, which
+// `authenticate` refuses, and its one minute lifetime.
+const ONE_TIME_CODE_MARKER = 'one-time-code:'
+const ONE_TIME_CODE_LIFETIME = new TimeSpan(1, 'm')
+
+function isOneTimeCodeRecord(record: CredentialRecord): boolean {
+  return record.signedInBy.startsWith(ONE_TIME_CODE_MARKER)
+}
+
+// PRIVATE API
+/**
+ * A one-time code standing for the credential `request` carries, or null
+ * under the cookie transport, where a navigation carries the credential by
+ * itself.
+ */
+export async function createOneTimeCode(options: IssuerOptions, request: Request): Promise<string | null> {
+  if (options.transport === 'cookie') {
+    return null
+  }
+  const result = await createIssuer(options).authenticate(request)
+  if (result.status !== 'authenticated') {
+    throw contractError('wasp-auth/unauthenticated', 'A one-time code needs a request that carries a valid credential.')
+  }
+  const issuedAt = new Date()
+  const { id } = await resolveStore(options).create({
+    authId: result.principal.subjectId,
+    signedInBy: `${ONE_TIME_CODE_MARKER}${result.principal.signedInBy ?? options.scheme}`,
+    issuedAt,
+    expiresAt: new Date(issuedAt.getTime() + ONE_TIME_CODE_LIFETIME.milliseconds()),
+  })
+  return id
+}
+
+// PRIVATE API
+/** Who a one-time code stands for. Spends it: a second redemption is `unauthenticated`. */
+export async function redeemOneTimeCode(options: IssuerOptions, oneTimeCode: string): Promise<AuthenticateResult> {
+  const store = resolveStore(options)
+  const record = await store.get(oneTimeCode)
+  if (record === null || !isOneTimeCodeRecord(record)) {
+    return { status: 'unauthenticated' }
+  }
+  if (!(await spendOneTimeCode(oneTimeCode))) {
+    return { status: 'unauthenticated' }
+  }
+  await store.delete(oneTimeCode)
+  return {
+    status: 'authenticated',
+    principal: {
+      subjectId: record.authId,
+      signedInBy: record.signedInBy.substring(ONE_TIME_CODE_MARKER.length),
+    },
+  }
+}
+
+/**
+ * Spends a code by inserting it into `UsedOneTimeCode`: two concurrent
+ * redemptions are settled by the primary key, whichever server instance they
+ * hit. Deleting the record alone would not do: a signed-token store cannot
+ * delete. The code is stored hashed, and stale rows are removed lazily.
+ */
+async function spendOneTimeCode(oneTimeCode: string): Promise<boolean> {
+  const code = createHash('sha256').update(oneTimeCode).digest('hex')
+  await prisma.usedOneTimeCode.deleteMany({
+    where: { usedAt: { lt: new Date(Date.now() - 10 * ONE_TIME_CODE_LIFETIME.milliseconds()) } },
+  })
+  try {
+    await prisma.usedOneTimeCode.create({ data: { code } })
+    return true
+  } catch (e) {
+    // P2002 is the unique constraint: the code was spent already.
+    if (typeof e === 'object' && e !== null && (e as { code?: unknown }).code === 'P2002') {
+      return false
+    }
+    throw e
+  }
 }
 
 // ---- transports -------------------------------------------------------------

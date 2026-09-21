@@ -7,7 +7,7 @@ Better Auth, Clerk, ...) a Wasp auth scheme: an `AuthHandler`, built by a
 `ServerAuthAdapter` that receives the `WaspServerRuntime`. The client half lives
 at `@wasp.sh/auth-contract/client`: `ClientAuthAdapter` and `WaspClientRuntime`.
 
-A package with a spec helper types its adapters from it:
+A package with a spec constructor types its adapters from it:
 
 ```ts
 export const createServerAuthHandler: ServerAuthAdapterFor<typeof myAuth> = (

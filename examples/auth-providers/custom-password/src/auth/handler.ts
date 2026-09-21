@@ -103,6 +103,41 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
       return send(response.status, response.body ?? {});
     }
 
+    // A download is a browser NAVIGATION, and a navigation cannot carry the
+    // bearer credential. The client first trades its credential for a
+    // one-time code here (a normal request, so the header is attached)...
+    if (req.method === "POST" && req.url === "/one-time-code") {
+      try {
+        const oneTimeCode = await runtime.credentials.createOneTimeCode(
+          new Request(`${runtime.serverUrl}${req.url}`, {
+            headers: { authorization: req.headers.authorization ?? "" },
+          }),
+        );
+        return send(200, { oneTimeCode });
+      } catch (e) {
+        if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
+          return send(401, { message: "Invalid credentials" });
+        }
+        throw e;
+      }
+    }
+
+    // ...and the navigation carries the code. It works once, for a minute.
+    const url = new URL(req.url ?? "/", runtime.serverUrl);
+    if (req.method === "GET" && url.pathname === "/export") {
+      const result = await runtime.credentials.redeemOneTimeCode(
+        url.searchParams.get("oneTimeCode") ?? "",
+      );
+      if (result.status !== "authenticated") {
+        return send(401, { message: "Invalid credentials" });
+      }
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="account.json"',
+      );
+      return send(200, { authId: result.principal.subjectId });
+    }
+
     send(404, { message: "Not found." });
   },
 });

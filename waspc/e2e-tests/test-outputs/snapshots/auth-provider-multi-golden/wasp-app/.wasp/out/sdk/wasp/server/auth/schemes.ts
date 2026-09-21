@@ -3,7 +3,13 @@ import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
-import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
+import {
+  createIssuer,
+  createOneTimeCode,
+  redeemOneTimeCode,
+  signOutEverywhere,
+  type IssuerOptions,
+} from './issuer.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
@@ -303,7 +309,20 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
         await signOutEverywhere(targetIssuerOptions, authId)
       }
     },
+    createOneTimeCode: (request) => createOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), request),
+    redeemOneTimeCode: (oneTimeCode) => redeemOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), oneTimeCode),
   }
+}
+
+// One-time codes live in a Wasp issuer's credential store. A scheme that
+// signs into a hand-written issuer has no such store to put them in.
+function requireWaspIssuer(spec: SchemeRuntimeSpec, targetIssuerOptions: IssuerOptions | null): IssuerOptions {
+  if (targetIssuerOptions === null) {
+    throw new Error(
+      `Auth scheme '${spec.scheme}' signs into a scheme that is not a Wasp issuer, so it has no one-time codes.`,
+    )
+  }
+  return targetIssuerOptions
 }
 
 
@@ -328,7 +347,14 @@ function undeclaredCredentials(spec: SchemeRuntimeSpec): Credentials {
       "Declare `credentials` in the manifest ({ transport, store } or { scheme }), or check `runtime.hasCredentials` first.",
     )
   }
-  return { authenticate: reject, signIn: reject, signOut: reject, signOutEverywhere: reject }
+  return {
+    authenticate: reject,
+    signIn: reject,
+    signOut: reject,
+    signOutEverywhere: reject,
+    createOneTimeCode: reject,
+    redeemOneTimeCode: reject,
+  }
 }
 
 function undeclaredEmail(spec: SchemeRuntimeSpec): WaspEmail {

@@ -38,7 +38,9 @@ export declare function createMergeTicket({ runtime }: Ctx, ticket: MergeTicket)
 /**
  * Routes every method shares: `/unlink`, and `/link-intent` for the OAuth
  * methods. An OAuth link starts with a browser NAVIGATION, which cannot carry
- * a bearer credential; the client first trades its credential for a
- * short-lived signed ticket here, and the navigation carries that instead.
+ * a bearer credential; the client first trades its credential for a one-time
+ * code here, and the navigation carries that instead. Wasp issues the code,
+ * and none under a cookie credential, which a navigation carries by itself,
+ * so nothing here knows the transport.
  */
 export declare function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[];

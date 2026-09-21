@@ -1,5 +1,5 @@
 /**
- * The spec helper: what an app's `main.wasp.ts` imports.
+ * The spec constructor: what an app's `main.wasp.ts` imports.
  *
  * This module deliberately imports nothing at runtime, and no type from
  * `@wasp.sh/spec`. The app compiles `main.wasp.ts` against its own copy of
@@ -136,7 +136,7 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 7,
+        contractVersion: 8,
         server: {
             authAdapter: { package: "@wasp.sh/auth/server" },
             env: [

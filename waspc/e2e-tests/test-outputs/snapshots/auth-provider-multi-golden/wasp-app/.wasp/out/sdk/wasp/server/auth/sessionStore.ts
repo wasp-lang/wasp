@@ -1,4 +1,5 @@
 import type { CredentialStore } from './handler/types.js'
+import { prisma } from '../index.js'
 import { auth as lucia } from './lucia.js'
 
 /**
@@ -14,11 +15,22 @@ import { auth as lucia } from './lucia.js'
 export const prismaCredentialStore: CredentialStore = {
   async create(record) {
     const session = await lucia.createSession(record.authId, { signedInBy: record.signedInBy })
+    // Lucia stamps its own default lifetime on the row. The record's is the
+    // one that counts: the scheme's `ttl`, a per-sign-in `ttl`, or the one
+    // minute of a one-time code.
+    await prisma.session.update({ where: { id: session.id }, data: { expiresAt: record.expiresAt } })
     return { id: session.id }
   },
   async get(id) {
-    const { session } = await lucia.validateSession(id)
-    if (!session) {
+    // Read the row directly. Lucia's `validateSession` silently EXTENDS a
+    // session that is near its expiry to Lucia's default lifetime, which would
+    // turn a 15 minute credential into a 30 day one.
+    const session = await prisma.session.findUnique({ where: { id } })
+    if (session === null) {
+      return null
+    }
+    if (session.expiresAt <= new Date()) {
+      await prisma.session.deleteMany({ where: { id } })
       return null
     }
     return {

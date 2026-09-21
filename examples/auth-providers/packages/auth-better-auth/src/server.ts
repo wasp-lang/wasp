@@ -9,7 +9,7 @@ import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { toNodeHandler } from "better-auth/node";
 import { bearer } from "better-auth/plugins";
-import type { betterAuth as betterAuthSpecHelper } from "./spec.js";
+import type { betterAuth as betterAuthSpecConstructor } from "./spec.js";
 
 /**
  * The type of the `setupFn` an app can reference from its manifest, following
@@ -53,7 +53,7 @@ export type BetterAuthSetupFn = (
  *   handler does a raw `db[modelName]` lookup with no case transformation.
  */
 export const createServerAuthHandler: ServerAuthAdapterFor<
-  typeof betterAuthSpecHelper
+  typeof betterAuthSpecConstructor
 > = (runtime, spec) => {
   // The integration config: everything this handler needs to plug Better Auth
   // into a Wasp app, and nothing about which auth methods exist.
@@ -182,7 +182,7 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
  * login.
  */
 function withEagerProvisioning(
-  runtime: WaspServerRuntimeFor<typeof betterAuthSpecHelper>,
+  runtime: WaspServerRuntimeFor<typeof betterAuthSpecConstructor>,
   databaseHooks: BetterAuthOptions["databaseHooks"],
 ): BetterAuthOptions["databaseHooks"] {
   const existingAfterUserCreate = databaseHooks?.user?.create?.after;

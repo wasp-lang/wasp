@@ -1,6 +1,6 @@
 /**
  * Typed adapters: the types an adapter receives, derived from the manifest
- * its handler's spec helper returns. Types only; nothing here exists at
+ * its handler's spec constructor returns. Types only; nothing here exists at
  * runtime.
  */
 
@@ -15,7 +15,7 @@ import type {
 /**
  * `ServerAuthAdapter`, with everything the adapter receives typed FROM THE
  * HANDLER'S SPEC HELPER, so a package author states each fact once (in the
- * manifest the helper returns) and gets it back as types:
+ * manifest the constructor returns) and gets it back as types:
  *
  *   // spec.ts
  *   export function myAuth(props: MyAuthProps) { return { server: {...}, ... } }
@@ -23,7 +23,7 @@ import type {
  *   export const createServerAuthHandler: ServerAuthAdapterFor<typeof myAuth> =
  *     (runtime, spec) => { ... }
  *
- * What is read off the helper's RETURN TYPE, and what it types:
+ * What is read off the constructor's RETURN TYPE, and what it types:
  *
  *   manifest field          types
  *   ----------------------  ------------------------------------------------
@@ -34,58 +34,58 @@ import type {
  *   `uses`                  whether `runtime.email` is there
  *   `server.routes`         whether the adapter must return a `routeHandler`
  *
- * REFERENCES. The helper types a field that takes app code as
+ * REFERENCES. The constructor types a field that takes app code as
  * `SpecReference<AppValue>` (`configFn?: SpecReference<OAuthConfigFn>`), and
  * the adapter receives `AppValue` in that place: `spec` is typed
  * `LiveSpec<...>` of the manifest's `server.spec`. So the spec's shape is
- * written ONCE, in the helper, instead of once with references and once with
+ * written ONCE, in the constructor, instead of once with references and once with
  * live functions. It does not check the app's function: in `main.wasp.ts` a
  * `with { type: "ref" }` import is a ref object, whatever it points at.
  *
  * THREE STATES, NOT A FLAG. A facet is `credentials` or `email`:
- * - the manifest field is REQUIRED in the helper's return type: the facet is
+ * - the manifest field is REQUIRED in the constructor's return type: the facet is
  *   always there; use it directly.
  * - the field is OPTIONAL (`credentials?:`, or `uses: Array<"email-send">`,
  *   which may be empty): the APP decides. The facet is reachable only after
  *   checking `runtime.hasCredentials` / `runtime.canSendEmail`, which narrows.
  * - the field is absent: the facet is not on the type at all.
  *
- * Why this is sound where a hand-set type flag was not: the helper's body is
- * checked against its own return type, so a helper that promises
+ * Why this is sound where a hand-set type flag was not: the constructor's body is
+ * checked against its own return type, so a constructor that promises
  * `credentials` must actually return one. The types hide what would reject;
  * at runtime every facet is still a member (see `WaspServerRuntime`).
  *
  * What stays unchecked: that the adapter an app wires up belongs to this
- * helper. A package's helper names its own adapter, so that holds by
+ * constructor. A package's constructor names its own adapter, so that holds by
  * construction; a hand-written handler uses the loose `ServerAuthAdapter`.
  *
- * `SpecHelper` is the helper's type (`typeof myAuth`), or a manifest type.
- * The helper must not be generic: a type parameter would be inferred as
+ * `SpecConstructor` is the constructor's type (`typeof myAuth`), or a manifest type.
+ * The constructor must not be generic: a type parameter would be inferred as
  * `unknown`.
  */
-export type ServerAuthAdapterFor<SpecHelper> = (
-  runtime: WaspServerRuntimeFor<SpecHelper>,
-  spec: ServerSpecOf<SpecHelper>,
+export type ServerAuthAdapterFor<SpecConstructor> = (
+  runtime: WaspServerRuntimeFor<SpecConstructor>,
+  spec: ServerSpecOf<SpecConstructor>,
 ) =>
-  | ServerAuthHandlerPartsFor<SpecHelper>
-  | Promise<ServerAuthHandlerPartsFor<SpecHelper>>;
+  | ServerAuthHandlerPartsFor<SpecConstructor>
+  | Promise<ServerAuthHandlerPartsFor<SpecConstructor>>;
 
-/** The manifest type a spec helper returns (or the type itself, when given a manifest). */
-export type ManifestOf<SpecHelper> = SpecHelper extends (
+/** The manifest type a spec constructor returns (or the type itself, when given a manifest). */
+export type ManifestOf<SpecConstructor> = SpecConstructor extends (
   ...args: never[]
 ) => infer Manifest
   ? Manifest
-  : SpecHelper;
+  : SpecConstructor;
 
 /** The manifest's `server.spec` with its references live: the type of the server adapter's `spec` parameter. */
-export type ServerSpecOf<SpecHelper> =
-  ManifestOf<SpecHelper> extends { server: { spec?: infer ServerSpec } }
+export type ServerSpecOf<SpecConstructor> =
+  ManifestOf<SpecConstructor> extends { server: { spec?: infer ServerSpec } }
     ? LiveSpec<ServerSpec>
     : unknown;
 
 /** The manifest's `identityNamespaces` as a union of suffixes; `"default"` when it declares none. */
-export type IdentityNamespacesOf<SpecHelper> =
-  ManifestOf<SpecHelper> extends {
+export type IdentityNamespacesOf<SpecConstructor> =
+  ManifestOf<SpecConstructor> extends {
     identityNamespaces: ReadonlyArray<infer Namespace extends string>;
   }
     ? Namespace
@@ -96,8 +96,8 @@ export type IdentityNamespacesOf<SpecHelper> =
  * with `identities`, `env` and the two facets narrowed to what the manifest
  * declares.
  */
-export type WaspServerRuntimeFor<SpecHelper> = Omit<
-  WaspServerRuntime<IdentityNamespacesOf<SpecHelper>>,
+export type WaspServerRuntimeFor<SpecConstructor> = Omit<
+  WaspServerRuntime<IdentityNamespacesOf<SpecConstructor>>,
   "env" | "credentials" | "hasCredentials" | "email" | "canSendEmail"
 > & {
   /**
@@ -107,38 +107,38 @@ export type WaspServerRuntimeFor<SpecHelper> = Omit<
    * itself may vary per app, so every value is `string | undefined`.
    */
   env: DeclaredEnv<
-    ManifestOf<SpecHelper> extends { server: { env: infer EnvVars } }
+    ManifestOf<SpecConstructor> extends { server: { env: infer EnvVars } }
       ? EnvVars
       : []
   >;
 } & Facet<
-    CredentialsDeclaration<ManifestOf<SpecHelper>>,
+    CredentialsDeclaration<ManifestOf<SpecConstructor>>,
     "hasCredentials",
     "credentials",
     Credentials
   > &
   Facet<
-    GrantDeclaration<ManifestOf<SpecHelper>, "email-send">,
+    GrantDeclaration<ManifestOf<SpecConstructor>, "email-send">,
     "canSendEmail",
     "email",
     WaspEmail
   >;
 
 /** What the adapter must return: a `routeHandler` exactly when the manifest declares `server.routes`. */
-export type ServerAuthHandlerPartsFor<SpecHelper> = Pick<
+export type ServerAuthHandlerPartsFor<SpecConstructor> = Pick<
   ServerAuthHandlerParts,
   "handler"
 > &
-  (ManifestOf<SpecHelper> extends { server: { routes: object } }
+  (ManifestOf<SpecConstructor> extends { server: { routes: object } }
     ? Required<Pick<ServerAuthHandlerParts, "routeHandler">>
-    : ManifestOf<SpecHelper> extends { server: { routes?: object } }
+    : ManifestOf<SpecConstructor> extends { server: { routes?: object } }
       ? Pick<ServerAuthHandlerParts, "routeHandler">
       : {
           /** The manifest declares no `routes`, so Wasp would never mount it. */ routeHandler?: never;
         });
 
 /**
- * A reference to the app's code, as a spec helper types it:
+ * A reference to the app's code, as a spec constructor types it:
  * `configFn?: SpecReference<OAuthConfigFn>`. In `main.wasp.ts` the app passes a
  * `with { type: "ref" }` import there. Such an import is a ref OBJECT (Wasp
  * turns it into the real value only in the generated code), so `AppValue`

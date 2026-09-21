@@ -32,8 +32,8 @@ export type MethodProviderName = "username" | "email" | OAuthProviderName;
 /**
  * The manifest's `server.spec`, as the server adapter receives it: what
  * `waspAuth({ ... })` captured in `main.wasp.ts`, with the app's functions
- * live where the references were. Derived from the helper, so it cannot
- * drift from what the helper builds.
+ * live where the references were. Derived from the constructor, so it cannot
+ * drift from what the constructor builds.
  */
 export type WaspAuthServerSpec = ServerSpecOf<typeof waspAuth>;
 

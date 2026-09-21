@@ -99,3 +99,54 @@ test("logout revokes the credential server-side", async ({ request }) => {
   });
   expect(me.status()).toBe(401);
 });
+
+test("a one-time code stands in for the credential on a navigation, once", async ({
+  request,
+}) => {
+  const login = await request.post("/auth/password/login", {
+    data: { email, password },
+  });
+  const { credential } = (await login.json()) as { credential: string };
+  const headers = { Authorization: `Bearer ${credential}` };
+  const issued = await request.post("/auth/password/one-time-code", {
+    headers,
+  });
+  expect(issued.status()).toBe(200);
+  const { oneTimeCode } = (await issued.json()) as { oneTimeCode: string };
+  expect(typeof oneTimeCode).toBe("string");
+  expect(oneTimeCode).not.toBe(credential);
+
+  // It is not a credential: no route accepts it as a bearer token.
+  const asBearer = await request.get("/auth/me", {
+    headers: { Authorization: `Bearer ${oneTimeCode}` },
+  });
+  expect(asBearer.status()).toBe(401);
+
+  // The navigation carries no header, only the code.
+  const download = await request.get(
+    `/auth/password/export?oneTimeCode=${encodeURIComponent(oneTimeCode)}`,
+  );
+  expect(download.status()).toBe(200);
+  const { authId } = (await download.json()) as { authId: string };
+  expect(typeof authId).toBe("string");
+
+  // Spent: the same code does not work twice.
+  const replay = await request.get(
+    `/auth/password/export?oneTimeCode=${encodeURIComponent(oneTimeCode)}`,
+  );
+  expect(replay.status()).toBe(401);
+
+  // The credential it stood for is untouched.
+  expect((await request.get("/auth/me", { headers })).status()).toBe(200);
+});
+
+test("no one-time code without a credential, and a made-up code is rejected", async ({
+  request,
+}) => {
+  expect((await request.post("/auth/password/one-time-code")).status()).toBe(
+    401,
+  );
+  expect(
+    (await request.get("/auth/password/export?oneTimeCode=made-up")).status(),
+  ).toBe(401);
+});

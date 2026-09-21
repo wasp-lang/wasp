@@ -1,5 +1,5 @@
 import type { ClientAuthAdapterFor } from "@wasp.sh/auth-contract/client";
-import type { betterAuth as betterAuthSpecHelper } from "./spec.js";
+import type { betterAuth as betterAuthSpecConstructor } from "./spec.js";
 /**
  * The client half of the handler, instantiated by Wasp's generated client.
  *
@@ -7,7 +7,7 @@ import type { betterAuth as betterAuthSpecHelper } from "./spec.js";
  * credential sink that stores the Better Auth session token so Wasp attaches
  * it to every request and routes `logout()` back to this scheme.
  */
-export declare const createClientAuthHandler: ClientAuthAdapterFor<typeof betterAuthSpecHelper>;
+export declare const createClientAuthHandler: ClientAuthAdapterFor<typeof betterAuthSpecConstructor>;
 /**
  * Better Auth's own client, pointed at the routes the manifest mounted on the
  * Wasp server.

@@ -264,6 +264,34 @@ export type Credentials = {
    * inside its own revocation path without recursion.
    */
   signOutEverywhere(subject: Subject): Promise<void>;
+
+  /**
+   * A one-time code: a short-lived (one minute), single-use stand-in for the
+   * credential `request` carries, safe to put in a URL. For a browser
+   * NAVIGATION to one of the handler's own routes made as the signed-in user
+   * ("connect Google to my account"): a navigation cannot carry an
+   * `Authorization` header, so a bearer credential would not arrive.
+   *
+   * Resolves to null when no code is needed, because the credential is a
+   * cookie and the navigation carries it by itself. So the handler never has
+   * to know the transport: it puts the code in the URL when it got one.
+   * Rejects with `wasp-auth/unauthenticated` when `request` carries no valid
+   * credential.
+   *
+   * Same idea, same name and same replay protection (the `UsedOneTimeCode`
+   * model) as the one-time code that ends an OAuth login, in the other
+   * direction: that one carries a credential OUT of a navigation, this one
+   * carries it IN. A one-time code is not a credential: `authenticate` never
+   * accepts it.
+   */
+  createOneTimeCode(request: Request): Promise<string | null>;
+
+  /**
+   * Who a one-time code stands for, as `authenticate` would have answered for
+   * the request the code was created from. Spends the code: an unknown,
+   * expired or already spent one is `unauthenticated`.
+   */
+  redeemOneTimeCode(oneTimeCode: string): Promise<AuthenticateResult>;
 };
 
 /**
@@ -298,6 +326,8 @@ export type EmailFrom = { name?: string; email: string };
 export type AuthContractErrorCode =
   | "wasp-auth/duplicate-identity"
   | "wasp-auth/identity-not-found"
+  /** `credentials.createOneTimeCode` was given a request that carries no valid credential. */
+  | "wasp-auth/unauthenticated"
   | "wasp-auth/undeclared-namespace"
   /**
    * A facet was used that the manifest did not declare: `credentials` without
@@ -331,6 +361,7 @@ export function getAuthContractErrorCode(
   const code = (error as { code: unknown }).code;
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
+    code === "wasp-auth/unauthenticated" ||
     code === "wasp-auth/undeclared-namespace" ||
     code === "wasp-auth/undeclared-facet" ||
     code === "wasp-auth/identity-linked-elsewhere" ||
@@ -634,7 +665,7 @@ export type ServerAuthHandlerParts = {
  * from `main.wasp.ts`. The two are the same thing in different places.
  *
  * `spec` is the manifest's `server.spec`: the part of the app's Wasp Spec
- * that is this handler's own, exactly as the handler's spec helper built it.
+ * that is this handler's own, exactly as the handler's spec constructor built it.
  * One object mixing plain data with the app's functions, each where it
  * naturally belongs. Wasp carried the functions across the compiler as
  * references and set them back, so they arrive live and callable. Wasp never
@@ -643,8 +674,8 @@ export type ServerAuthHandlerParts = {
  * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes.
  *
  * This is the loose form, typed by hand, for hand-written handlers. A package
- * with a spec helper uses `ServerAuthAdapterFor<typeof helper>`, which derives
- * all of this, and more, from the manifest the helper returns.
+ * with a spec constructor uses `ServerAuthAdapterFor<typeof myAuth>`, which derives
+ * all of this, and more, from the manifest the constructor returns.
  */
 export type ServerAuthAdapter<
   ServerSpec = unknown,

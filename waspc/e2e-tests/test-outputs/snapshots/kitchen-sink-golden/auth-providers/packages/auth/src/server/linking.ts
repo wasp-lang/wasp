@@ -26,14 +26,8 @@ export async function requireCurrentAuthId(
   { runtime }: Ctx,
   req: Req,
 ): Promise<string> {
-  const headers = new Headers();
-  for (const [name, value] of Object.entries(req.headers)) {
-    if (value !== undefined) {
-      headers.set(name, Array.isArray(value) ? value.join(", ") : value);
-    }
-  }
   const result = await runtime.credentials.authenticate(
-    new Request(`${runtime.serverUrl}${req.url ?? "/"}`, { headers }),
+    toWebRequest(runtime, req),
   );
   if (result.status !== "authenticated") {
     throw new HttpError(
@@ -140,11 +134,24 @@ function mergeRequiredError(mergeTicket: string): HttpError {
   );
 }
 
+/** The credential-bearing part of a Node request, as the contract's facets read it. */
+function toWebRequest(runtime: Ctx["runtime"], req: Req): Request {
+  const headers = new Headers();
+  for (const [name, value] of Object.entries(req.headers)) {
+    if (value !== undefined) {
+      headers.set(name, Array.isArray(value) ? value.join(", ") : value);
+    }
+  }
+  return new Request(`${runtime.serverUrl}${req.url ?? "/"}`, { headers });
+}
+
 /**
  * Routes every method shares: `/unlink`, and `/link-intent` for the OAuth
  * methods. An OAuth link starts with a browser NAVIGATION, which cannot carry
- * a bearer credential; the client first trades its credential for a
- * short-lived signed ticket here, and the navigation carries that instead.
+ * a bearer credential; the client first trades its credential for a one-time
+ * code here, and the navigation carries that instead. Wasp issues the code,
+ * and none under a cookie credential, which a navigation carries by itself,
+ * so nothing here knows the transport.
  */
 export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
   const { runtime } = ctx;
@@ -214,14 +221,18 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       method: "POST",
       path: "/link-intent",
       handler: async (req, res) => {
-        const ticket: LinkTicket = {
-          linkToAuthId: await requireCurrentAuthId(ctx, req),
-        };
-        json(res, 200, {
-          ticket: await makeJwt(runtime).createJWT(ticket, {
-            expiresIn: new TimeSpan(10, "m"),
-          }),
-        });
+        const oneTimeCode = await runtime.credentials
+          .createOneTimeCode(toWebRequest(runtime, req))
+          .catch((e) => {
+            if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
+              throw new HttpError(
+                401,
+                "Sign in before changing your connected accounts.",
+              );
+            }
+            throw e;
+          });
+        json(res, 200, { oneTimeCode });
       },
     });
   }
