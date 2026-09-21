@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { AuthHandler, CredentialsIssuer, IdentityStore, Subject, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { computeSchemeUserFields, provisionAuthUser } from './session.js'
@@ -280,9 +280,9 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
   const signInOnTarget = target.signIn.bind(target)
-  const resolveSubject = async (subject: Subject) => {
-    const providerName = resolveOwnProviderName(spec, subject.providerName)
-    const identity = await getIdentityStore(providerName).find(subject.providerUserId)
+  const resolveIdentityRef = async (identityRef: AuthIdentityRef) => {
+    const providerName = resolveOwnProviderName(spec, identityRef.providerName)
+    const identity = await getIdentityStore(providerName).find(identityRef.providerUserId)
     if (identity === null) {
       throw contractError(
         'wasp-auth/identity-not-found',
@@ -293,10 +293,10 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
   }
   return {
     authenticate: (request) => target.authenticate(request),
-    signIn: async (subject, opts) => {
-      const { providerName, authId } = await resolveSubject(subject)
+    signIn: async (identityRef, opts) => {
+      const { providerName, authId } = await resolveIdentityRef(identityRef)
       const fireHooks = opts?.skipHooks !== true
-      const hookProviderId = makeHookProviderId(providerName, subject.providerUserId)
+      const hookProviderId = makeHookProviderId(providerName, identityRef.providerUserId)
       let hookUser: unknown = undefined
       if (fireHooks) {
         const auth = await findAuthWithUserBy({ id: authId })
@@ -309,7 +309,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
         )
       }
       const result = await signInOnTarget(
-        { providerName, providerUserId: subject.providerUserId },
+        { providerName, providerUserId: identityRef.providerUserId },
         { signedInBy: spec.scheme, req: opts?.req, properties: opts?.properties },
       )
       if (fireHooks) {
@@ -323,8 +323,8 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
       return result
     },
     signOut: (request) => target.signOut?.(request) ?? Promise.resolve({ status: 200, body: { success: true } }),
-    signOutEverywhere: async (subject) => {
-      const { authId } = await resolveSubject(subject)
+    signOutEverywhere: async (identityRef) => {
+      const { authId } = await resolveIdentityRef(identityRef)
       if (targetIssuerOptions !== null) {
         await signOutEverywhere(targetIssuerOptions, authId)
       }

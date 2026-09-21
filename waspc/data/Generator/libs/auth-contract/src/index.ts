@@ -33,19 +33,24 @@ export type JsonValue =
   | { [key: string]: JsonValue };
 
 /**
- * A subject of the calling scheme: the handler's own stable id for the
- * authenticated party, in one of the scheme's declared provider names.
+ * A reference to one `AuthIdentity` row, by its primary key
+ * (`providerName`, `providerUserId`), as a handler writes it.
  *
- * `providerName` is one of the manifest's `providerNames`, written short (`email`, stored as `<scheme>:email`), and defaults
- * to `default`. The provider name membership check is
- * what makes acting on another scheme's user unrepresentable through the
- * granted facets -- the identity store itself resolves any provider name string,
- * so the guard, not the lookup, carries that guarantee.
+ * A REFERENCE and not the key itself, for two reasons. The handler writes
+ * `providerName` short, as its manifest's `providerNames` lists it (`email`),
+ * and Wasp resolves it to the stored value (`<scheme>:email`); omitted, it is
+ * `default`. And the row need not exist yet: a handler names an identity
+ * before Wasp has provisioned it.
+ *
+ * Resolving is also the guard: a `providerName` the manifest did not declare
+ * is rejected before any lookup, which is what makes acting on another
+ * scheme's identities unrepresentable (the identity store itself would
+ * resolve any provider name).
  */
-export type Subject = {
-  /** Suffix of one of the scheme's declared provider names (`email`). Default: `default`. */
+export type AuthIdentityRef = {
+  /** One of the manifest's `providerNames`, in its short form (`email`). Default: `default`. */
   providerName?: string;
-  /** The handler's stable id for the subject under that provider name. */
+  /** The handler's STABLE id for the person under that provider name: an email, a provider's user id. */
   providerUserId: string;
 };
 
@@ -57,7 +62,7 @@ export type Subject = {
  * NOT `findById(id)`: a hosted provider (Clerk) validates a signed token and
  * has no way to look a subject up by id on our behalf.
  */
-export type Principal = Subject & {
+export type Principal = AuthIdentityRef & {
   /**
    * Verified profile data about the subject, as far as the handler knows it:
    * email, name, avatar, whatever the verified token or session carried.
@@ -177,7 +182,10 @@ export interface AuthHandler {
    * subject is one of THIS scheme's, already provisioned; Wasp guards the
    * provider name and fires the app's login hooks before calling in.
    */
-  signIn?(subject: Subject, context: SignInContext): Promise<SignInResult>;
+  signIn?(
+    identityRef: AuthIdentityRef,
+    context: SignInContext,
+  ): Promise<SignInResult>;
 
   /**
    * Invalidate the credential the request carries. What to send the client
@@ -234,7 +242,7 @@ export type CredentialsIssuer = {
   authenticate(request: Request): Promise<AuthenticateResult>;
 
   signIn(
-    subject: Subject,
+    identityRef: AuthIdentityRef,
     opts?: {
       /** Per-sign-in choices: a lifetime for this credential, "remember me". */
       properties?: SignInProperties;
@@ -263,7 +271,7 @@ export type CredentialsIssuer = {
    * NOT call back into the calling handler, so a handler may call it from
    * inside its own revocation path without recursion.
    */
-  signOutEverywhere(subject: Subject): Promise<void>;
+  signOutEverywhere(identityRef: AuthIdentityRef): Promise<void>;
 
   /**
    * A one-time code: a short-lived (one minute), single-use stand-in for the

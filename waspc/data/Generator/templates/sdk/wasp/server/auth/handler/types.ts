@@ -24,7 +24,7 @@ export {
   type SignInContext,
   type SignInProperties,
   type SignInResult,
-  type Subject,
+  type AuthIdentityRef,
   type WaspEmail,
   type WaspServerRuntime,
 } from '@wasp.sh/auth-contract'

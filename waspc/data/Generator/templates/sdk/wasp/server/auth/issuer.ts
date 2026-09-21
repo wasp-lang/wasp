@@ -10,7 +10,7 @@ import type {
   CredentialStore,
   SignInContext,
   SignInResult,
-  Subject,
+  AuthIdentityRef,
 } from './handler/types.js'
 import { prisma } from '../index.js'
 import { prismaCredentialStore } from './sessionStore.js'
@@ -67,11 +67,11 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
       }
     },
 
-    async signIn(subject: Subject, context: SignInContext): Promise<SignInResult> {
+    async signIn(identityRef: AuthIdentityRef, context: SignInContext): Promise<SignInResult> {
       // The issuer keys its records by the Auth entity id: the subject has
       // already been resolved (and its provider name guarded) by the facet that
       // called in, so this lookup cannot cross scheme boundaries.
-      const identity = await getIdentityStore(subject.providerName ?? context.signedInBy).find(subject.providerUserId)
+      const identity = await getIdentityStore(identityRef.providerName ?? context.signedInBy).find(identityRef.providerUserId)
       if (identity === null) {
         throw contractError('wasp-auth/identity-not-found', 'No identity for the subject to issue a credential for.')
       }
