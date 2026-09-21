@@ -588,17 +588,9 @@ export function validateSideEnvVars(
   }
 }
 
-/**
- * A scheme name is an provider name and a route segment, so it cannot
- * carry the provider name separator ':' or a '/'.
- */
+/** A scheme name is a route segment, so it cannot carry a '/'. */
 export function isValidSchemeName(name: unknown): name is string {
-  return (
-    typeof name === "string" &&
-    name.length > 0 &&
-    !name.includes(":") &&
-    !name.includes("/")
-  );
+  return typeof name === "string" && name.length > 0 && !name.includes("/");
 }
 
 const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = ["email-send"];
@@ -609,10 +601,10 @@ export function validateProviderNames(
   handler: string,
   providerNames: readonly string[],
 ): void {
-  for (const suffix of providerNames) {
-    if (suffix.length === 0 || suffix.includes(":")) {
+  for (const providerName of providerNames) {
+    if (providerName.length === 0) {
       throw new WaspSpecUserError(
-        `Auth handler '${handler}' declares the provider name '${suffix}', which must be non-empty and contain no ':' -- Wasp prefixes it with the scheme name ('<scheme>:${suffix}').`,
+        `Auth handler '${handler}' declares an empty provider name.`,
       );
     }
   }

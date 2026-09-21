@@ -1,7 +1,7 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { getBody, getSignInProperties, json, sendAuthResponse, } from "./http.js";
 import { offerMergeOrRethrow, requireCurrentAuthId } from "./linking.js";
-import { createInvalidCredentialsError, rethrowPossibleAuthError, validateAndGetUserFields, } from "./utils.js";
+import { createInvalidCredentialsError, getHashedPassword, rethrowPossibleAuthError, validateAndGetUserFields, } from "./utils.js";
 import { ensurePasswordIsPresent, ensureValidPassword, ensureValidUsername, normalizeUsername, } from "./validation.js";
 /** The username & password method: `/auth/username/{login,signup}`. */
 export function usernameRoutes(ctx) {
@@ -21,11 +21,11 @@ export function usernameRoutes(ctx) {
                     throw createInvalidCredentialsError();
                 }
                 try {
-                    const secrets = await identities().getSecrets(username);
-                    if (secrets === null || typeof secrets.hashedPassword !== "string") {
+                    const hashedPassword = await getHashedPassword(identities(), username);
+                    if (hashedPassword === null) {
                         throw createInvalidCredentialsError();
                     }
-                    await verifyPassword(secrets.hashedPassword, fields.password);
+                    await verifyPassword(hashedPassword, fields.password);
                 }
                 catch {
                     throw createInvalidCredentialsError();
@@ -64,10 +64,10 @@ export function usernameRoutes(ctx) {
                         intoAuthId: authId,
                         findFromAuthId: async () => (await identities().find(username))?.authId ?? null,
                         proveControl: async () => {
-                            const secrets = await identities().getSecrets(username);
-                            if (typeof secrets?.hashedPassword !== "string")
+                            const hashedPassword = await getHashedPassword(identities(), username);
+                            if (hashedPassword === null)
                                 return false;
-                            return verifyPassword(secrets.hashedPassword, fields.password).then(() => true, () => false);
+                            return verifyPassword(hashedPassword, fields.password).then(() => true, () => false);
                         },
                     });
                 }

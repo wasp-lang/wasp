@@ -106,6 +106,11 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
     authIdentityPslBody =
       T.unpack
         [trimming|
+          // The name of the auth handler the identity belongs to. The default
+          // exists ONLY to backfill rows written before this column did, when
+          // Wasp's own auth (named "wasp" unless the app renames it) was the
+          // only handler there was. Wasp always writes the column explicitly.
+          handlerName    String @default("wasp")
           providerName   String
           providerUserId String
 
@@ -124,7 +129,7 @@ makeAuthIdentityEntity = case Psl.Parser.Model.parseBody authIdentityPslBody of
           authId    ${authEntityIdTypeText}
           ${authFieldOnAuthIdentityEntityNameText}      ${authEntityNameText} @relation(fields: [authId], references: [id], onDelete: Cascade)
 
-          @@id([providerName, providerUserId])
+          @@id([handlerName, providerName, providerUserId])
         |]
 
     authEntityIdTypeText = T.pack authEntityIdType

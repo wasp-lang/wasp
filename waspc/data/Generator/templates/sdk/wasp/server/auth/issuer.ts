@@ -71,7 +71,7 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
       // The issuer keys its records by the Auth entity id: the subject has
       // already been resolved (and its provider name guarded) by the facet that
       // called in, so this lookup cannot cross scheme boundaries.
-      const identity = await getIdentityStore(identityRef.providerName ?? context.signedInBy).find(identityRef.providerUserId)
+      const identity = await getIdentityStore(context.signedInBy, identityRef.providerName ?? 'default').find(identityRef.providerUserId)
       if (identity === null) {
         throw contractError('wasp-auth/identity-not-found', 'No identity for the subject to issue a credential for.')
       }

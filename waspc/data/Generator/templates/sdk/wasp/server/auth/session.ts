@@ -99,7 +99,7 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
   const isWaspCredential = principal.signedInBy !== undefined && principal.providerName === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.providerUserId);
   const authId = isWaspCredential
     ? principal.providerUserId
-    : await resolveSubject(scheme, principal.providerUserId, principal.claims, undefined, `${scheme}:${principal.providerName ?? 'default'}`);
+    : await resolveSubject(scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default');
   if (authId === null) {
     return null;
   }
@@ -159,11 +159,12 @@ async function resolveSubject(
     secrets?: Record<string, unknown>;
   },
   // The provider name to record under; a scheme that declared several
-  // multiplexes them, everyone else records under `<scheme>:default`. The runtime guards membership before we get here.
-  providerName: string = `${scheme}:default`,
+  // multiplexes them, everyone else records under `default`. The runtime
+  // guards membership before we get here.
+  providerName: string = 'default',
   req?: ExpressRequest,
 ): Promise<string | null> {
-  const identities = getIdentityStore(providerName);
+  const identities = getIdentityStore(scheme, providerName);
 
   const existing = await identities.find(providerUserId);
   if (existing) {
@@ -176,7 +177,7 @@ async function resolveSubject(
   await fireVetoableHook(() =>
     onBeforeSignupHook({
       req,
-      providerId: makeHookProviderId(providerName, providerUserId),
+      providerId: makeHookProviderId(scheme, providerName, providerUserId),
     }),
   );
 
@@ -215,7 +216,7 @@ async function resolveSubject(
 
   await onAfterSignupHook({
     req,
-    providerId: makeHookProviderId(providerName, providerUserId),
+    providerId: makeHookProviderId(scheme, providerName, providerUserId),
     user: created,
   });
 
@@ -228,8 +229,8 @@ function isUniqueConstraintViolation(e: unknown): boolean {
   );
 }
 
-function makeHookProviderId(providerName: string, providerUserId: string): ProviderId {
-  return { providerName, providerUserId };
+function makeHookProviderId(handlerName: string, providerName: string, providerUserId: string): ProviderId {
+  return { handlerName, providerName, providerUserId };
 }
 
 // PRIVATE API

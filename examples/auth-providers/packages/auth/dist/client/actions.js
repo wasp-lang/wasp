@@ -112,7 +112,7 @@ export async function confirmMerge(mergeTicket) {
  */
 export async function unlink(identity) {
     await post(`${basePath()}/unlink`, {
-        method: identity.providerName.substring(identity.providerName.indexOf(":") + 1),
+        method: identity.providerName,
         providerUserId: identity.providerUserId,
     });
     await getClientRuntime().refreshUser();

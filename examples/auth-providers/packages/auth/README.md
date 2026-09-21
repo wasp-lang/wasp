@@ -14,8 +14,8 @@ auth: {
 }
 ```
 
-- Routes mount at `/auth/<scheme>/...`. Identities are recorded under `<scheme>:username`,
-  `<scheme>:email`, `<scheme>:google`, ...
+- Routes mount at `/auth/<scheme>/...`. Identities are recorded under the provider names
+  `username`, `email`, `google`, ..., with the scheme name as their `handlerName`.
 - `credentials` picks how a verified login turns into the credential the client carries:
   the default is a private bearer issuer backed by the `Session` table
   (`{ transport: "bearer", store: "prisma" }`); `"cookie"` and `"signed-token"` are

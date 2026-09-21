@@ -33,22 +33,18 @@ export type JsonValue =
   | { [key: string]: JsonValue };
 
 /**
- * A reference to one `AuthIdentity` row, by its primary key
- * (`providerName`, `providerUserId`), as a handler writes it.
+ * A reference to one `AuthIdentity` row, by its primary key as a handler
+ * sees it. The key is (`handlerName`, `providerName`, `providerUserId`); a
+ * handler gives the last two, and Wasp adds the first: always the calling
+ * handler's own name, never one the handler supplies. That is what makes
+ * acting on another handler's identities unrepresentable.
  *
- * A REFERENCE and not the key itself, for two reasons. The handler writes
- * `providerName` short, as its manifest's `providerNames` lists it (`email`),
- * and Wasp resolves it to the stored value (`<scheme>:email`); omitted, it is
- * `default`. And the row need not exist yet: a handler names an identity
- * before Wasp has provisioned it.
- *
- * Resolving is also the guard: a `providerName` the manifest did not declare
- * is rejected before any lookup, which is what makes acting on another
- * scheme's identities unrepresentable (the identity store itself would
- * resolve any provider name).
+ * A REFERENCE and not the key itself, because the row need not exist yet: a
+ * handler names an identity before Wasp has provisioned it. A `providerName`
+ * the manifest did not declare is rejected before any lookup.
  */
 export type AuthIdentityRef = {
-  /** One of the manifest's `providerNames`, in its short form (`email`). Default: `default`. */
+  /** One of the manifest's `providerNames` (`email`): the `providerName` column. Default: `default`. */
   providerName?: string;
   /** The handler's STABLE id for the person under that provider name: an email, a provider's user id. */
   providerUserId: string;
@@ -453,11 +449,12 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
   isAccountMergingEnabled: boolean;
 
   /**
-   * One store per declared provider name, keyed by its short form:
+   * One store per declared provider name:
    * `identities.email.find(...)`, `identities.google.create(...)`. A manifest
    * that declares no `providerNames` gets exactly one, self-assigned:
-   * `identities.default` (stored as `<scheme>:default`). There is no bare,
-   * unsuffixed store. The keys are the boundary: a provider name the manifest did
+   * `identities.default`. Every store is bound to this scheme: Wasp writes
+   * its name to the identity's `handlerName` column, next to the
+   * `providerName`. The keys are the boundary: a provider name the manifest did
    * not declare has no member here. Each store is the sanctioned channel for
    * everything identity-shaped, with the same powers Wasp's own auth uses.
    *

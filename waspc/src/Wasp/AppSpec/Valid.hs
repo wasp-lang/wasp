@@ -178,7 +178,7 @@ validateDummyEmailSenderIsNotUsedInProduction spec =
 -- | Coherence checks for the auth schemes: data-level properties the types
 -- cannot express -- per-scheme name, env, grant, provider name and credentials
 -- checks, and the cross-scheme properties (unique names, non-colliding env
--- vars, disjoint provider names, a resolvable default, acyclic credential chains).
+-- vars, no duplicate provider names, a resolvable default, acyclic credential chains).
 validateAuthSchemes :: AppSpec -> [ValidationError]
 validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
@@ -194,7 +194,6 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
         validateSchemeEnvVarsDoNotCollide (Auth.schemes auth),
         concatMap validateSchemeUses (Auth.schemes auth),
         concatMap validateSchemeProviderNames (Auth.schemes auth),
-        validateProviderNamesAreDisjoint (Auth.schemes auth),
         concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.schemes auth),
         concatMap (validateCredentialsTarget auth) (Auth.schemes auth),
         concatMap validateSchemeRoutesDoNotCollideWithApis (Auth.schemes auth)
@@ -208,7 +207,7 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
       | duplicateName <- findDuplicateElems (Auth.schemeNames auth)
       ]
 
-    -- A scheme name is an provider name and a route segment. The TS
+    -- A scheme name is a route segment. The TS
     -- mapper enforces the same rule; this mirror covers every entry point
     -- that does not go through it.
     validateSchemeName scheme =
@@ -216,8 +215,8 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
         [ [ GenericValidationError $
               "Auth scheme name '"
                 ++ scheme.name
-                ++ "' must be non-empty and contain neither ':' (the provider name separator) nor '/' (it names the scheme's routes)."
-          | null scheme.name || any (`elem` scheme.name) [':', '/']
+                ++ "' must be non-empty and must not contain '/' (it names the scheme's routes)."
+          | null scheme.name || '/' `elem` scheme.name
           ],
           [ GenericValidationError $
               "Auth scheme name '"
@@ -307,52 +306,13 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
     -- what makes cross-scheme identity collisions impossible by construction.
     -- Declaring the provider names is all it takes: the list itself is the
     -- boundary the runtime enforces, so there is no separate grant for it.
+    -- Identities are keyed by (handlerName, providerName, providerUserId), so
+    -- two schemes may share a provider name; one scheme may not repeat one.
     validateSchemeProviderNames scheme =
-      concat
-        [ [ GenericValidationError $
-              "Auth scheme '"
-                ++ scheme.name
-                ++ "' declares the provider name '"
-                ++ providerName
-                ++ "', which it does not own. A provider name must be '"
-                ++ scheme.name
-                ++ ":<suffix>' -- that rule is what makes cross-scheme identity collisions impossible."
-          | providerName <- scheme.providerNames,
-            not (isOwnProviderName providerName)
-          ],
-          [ GenericValidationError $
-              "Auth scheme '" ++ scheme.name ++ "' declares a duplicate provider name."
-          | not (null (findDuplicateElems scheme.providerNames))
-          ]
-        ]
-      where
-        isOwnProviderName providerName =
-          (scheme.name ++ ":") `isPrefixOf` providerName
-            && length providerName > length scheme.name + 1
-
-    -- Belt and braces on top of the per-scheme ownership rule: even if the
-    -- shape rule ever loosens, two schemes may never share a provider name,
-    -- because identities are recorded under it.
-    validateProviderNamesAreDisjoint schemes =
       [ GenericValidationError $
-          "Auth schemes "
-            ++ intercalate " and " (map (\ownerName -> "'" ++ ownerName ++ "'") ownerNames)
-            ++ " both declare the provider name '"
-            ++ providerName
-            ++ "'. Identities are recorded under the provider name, so each one must belong to exactly one scheme."
-      | (providerName, ownerNames) <- duplicatedProviderNamesWithOwners
+          "Auth scheme '" ++ scheme.name ++ "' declares a duplicate provider name."
+      | not (null (findDuplicateElems scheme.providerNames))
       ]
-      where
-        providerNameOwnership =
-          [ (providerName, scheme.name)
-          | scheme <- schemes,
-            providerName <- scheme.providerNames
-          ]
-        duplicatedProviderNamesWithOwners =
-          [ (providerName, snd <$> ownerships)
-          | ownerships@((providerName, _) : _ : _) <-
-              groupBy (\a b -> fst a == fst b) $ sortBy (\a b -> compare (fst a) (fst b)) providerNameOwnership
-          ]
 
     -- An email-sending handler cannot ship into an app that would silently
     -- drop its emails.

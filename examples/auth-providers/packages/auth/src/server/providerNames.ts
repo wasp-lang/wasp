@@ -3,11 +3,10 @@ import type { IdentityStore } from "@wasp.sh/auth-contract";
 import type { MethodProviderName, WaspAuthRuntime } from "./types.js";
 
 /**
- * Wasp's own auth records each method's identities under its own provider name
- * under the scheme's name: `<scheme>:username`, `<scheme>:email`,
- * `<scheme>:google`, ... The manifest (see `spec.ts`) declares exactly the
- * enabled methods as suffixes, so `runtime.identities` has one store per
- * enabled method and none for a disabled one.
+ * Wasp's own auth records each method's identities under its own provider
+ * name: `username`, `email`, `google`, ... The manifest (see `spec.ts`)
+ * declares exactly the enabled methods, so `runtime.identities` has one store
+ * per enabled method and none for a disabled one.
  */
 export function identitiesOf(
   runtime: WaspAuthRuntime,

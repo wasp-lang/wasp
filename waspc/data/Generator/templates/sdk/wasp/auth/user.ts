@@ -19,12 +19,14 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
 // PUBLIC API
 /**
  * One identity of the user, as the auth provider that owns it recorded it:
- * the provider name it lives in (`wasp:email`, `clerk`), the provider's own id
+ * the auth handler it belongs to (`wasp`, `clerk`), the provider name it
+ * lives under (`email`, `default`), the provider's own id
  * for the subject, the claims the provider verified, and its non-secret
  * working data. Provider packages ship typed views over this (Wasp's own
  * auth's `getEmail`/`getUsername`).
  */
 export type AuthUserIdentity = {
+  handlerName: string
   providerName: string
   providerUserId: string
   claims: Record<string, unknown>
@@ -87,7 +89,7 @@ export type UserEntityWithAuth = MakeUserEntityWithAuth<
   MakeAuthEntityWithIdentities<
     // It's constructed like the Complete* types, but only with the fields needed
     // for the user facing functions.
-    Pick<{= authIdentityEntityName =}, 'providerName' | 'providerUserId'>
+    Pick<{= authIdentityEntityName =}, 'handlerName' | 'providerName' | 'providerUserId'>
   >
 >
 
@@ -128,6 +130,7 @@ export function createAuthUserData(
 This should never happen, but it did which means there is a bug in the code.`)
   }
   const identities = {= authFieldOnUserEntityName =}.{= identitiesFieldOnAuthEntityName =}.map((identity) => ({
+    handlerName: identity.handlerName,
     providerName: identity.providerName,
     providerUserId: identity.providerUserId,
     claims: parseProviderData(identity.providerClaims),

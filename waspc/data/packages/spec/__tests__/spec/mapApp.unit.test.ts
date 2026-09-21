@@ -434,8 +434,8 @@ describe("mapAction", () => {
 });
 
 describe("mapAuth", () => {
-  test("should reject scheme names containing ':' or '/'", () => {
-    for (const name of ["wasp:email", "wasp/email", ""]) {
+  test("should reject empty scheme names and ones containing '/'", () => {
+    for (const name of ["wasp/email", ""]) {
       const auth = {
         ...Fixtures.getAuthConfig("minimal"),
         schemes: {
@@ -797,10 +797,9 @@ describe("mapAuth", () => {
       },
       capabilities: manifest.capabilities,
       uses: manifest.uses ?? [],
-      providerNames: (manifest.providerNames?.length
+      providerNames: manifest.providerNames?.length
         ? manifest.providerNames
-        : ["default"]
-      ).map((s) => `${name}:${s}`),
+        : ["default"],
       credentials:
         credentials === undefined
           ? undefined

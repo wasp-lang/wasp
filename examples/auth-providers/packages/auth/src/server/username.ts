@@ -11,6 +11,7 @@ import { offerMergeOrRethrow, requireCurrentAuthId } from "./linking.js";
 import type { Ctx } from "./types.js";
 import {
   createInvalidCredentialsError,
+  getHashedPassword,
   rethrowPossibleAuthError,
   validateAndGetUserFields,
 } from "./utils.js";
@@ -41,14 +42,14 @@ export function usernameRoutes(ctx: Ctx): Route[] {
           throw createInvalidCredentialsError();
         }
         try {
-          const secrets = await identities().getSecrets(username);
-          if (secrets === null || typeof secrets.hashedPassword !== "string") {
+          const hashedPassword = await getHashedPassword(
+            identities(),
+            username,
+          );
+          if (hashedPassword === null) {
             throw createInvalidCredentialsError();
           }
-          await verifyPassword(
-            secrets.hashedPassword,
-            fields.password as string,
-          );
+          await verifyPassword(hashedPassword, fields.password as string);
         } catch {
           throw createInvalidCredentialsError();
         }
@@ -94,10 +95,13 @@ export function usernameRoutes(ctx: Ctx): Route[] {
             findFromAuthId: async () =>
               (await identities().find(username))?.authId ?? null,
             proveControl: async () => {
-              const secrets = await identities().getSecrets(username);
-              if (typeof secrets?.hashedPassword !== "string") return false;
+              const hashedPassword = await getHashedPassword(
+                identities(),
+                username,
+              );
+              if (hashedPassword === null) return false;
               return verifyPassword(
-                secrets.hashedPassword,
+                hashedPassword,
                 fields.password as string,
               ).then(
                 () => true,

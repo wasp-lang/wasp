@@ -252,8 +252,8 @@ export interface AuthLifecycleHooks {
 
 /**
  * The app's auth schemes, keyed by scheme name. At least one is required.
- * A scheme name must be non-empty and contain neither `:` (the provider name
- * separator) nor `/` (it appears in route paths).
+ * A scheme name must be non-empty and must not contain `/` (it appears in
+ * route paths). It is also the `handlerName` of the scheme's identities.
  *
  * @category Auth
  */
@@ -469,12 +469,13 @@ export interface AuthSchemeManifest {
    */
   uses?: AuthRuntimeGrantName[];
   /**
-   * The provider names the handler records identities under, as
-   * suffixes: `["username", "email"]` becomes `<scheme>:username` and
-   * `<scheme>:email`. Omit it and the handler gets a single one, `default`
-   * (`<scheme>:default`); there is no bare, unprefixed provider name. The handler
-   * reaches each through `runtime.identities.<suffix>`, and a provider name that
-   * is not declared here has no store.
+   * The provider names the handler records identities under: the values of
+   * the `AuthIdentity.providerName` column, e.g. `["username", "email"]`. The
+   * scheme's name goes to the `handlerName` column next to it, so two schemes
+   * may use the same provider name. Omit it and the handler gets a single
+   * one, `default`. The handler reaches each through
+   * `runtime.identities.<providerName>`, and a provider name that is not
+   * declared here has no store.
    */
   providerNames?: string[];
   /**

@@ -17,8 +17,8 @@ export default app({
     onAuthFailedRedirectTo: "/login",
     // Wasp's own auth is a handler package like Better Auth or Clerk: the
     // compiler knows nothing about it beyond its manifest. The scheme name
-    // ('wasp') prefixes its routes (/auth/wasp/...) and provider names
-    // (wasp:username). Being the only scheme, it is the default one.
+    // ('wasp') prefixes its routes (/auth/wasp/...) and is the `handlerName`
+    // of its identities. Being the only scheme, it is the default one.
     schemes: {
       wasp: waspAuth({
         methods: {

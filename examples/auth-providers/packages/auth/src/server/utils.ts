@@ -1,4 +1,7 @@
-import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
+import {
+  getAuthContractErrorCode,
+  type IdentityStore,
+} from "@wasp.sh/auth-contract";
 import { TimeSpan, createJWTHelpers } from "@wasp.sh/lib-auth/node";
 
 import { HttpError } from "./http.js";
@@ -102,3 +105,33 @@ export function makeJwt(runtime: WaspAuthRuntime) {
 }
 
 export { TimeSpan };
+
+/**
+ * The password hash of an identity, or null when it has none.
+ *
+ * Reads it from the identity's secrets. An identity written before Wasp
+ * split secrets from data keeps its hash in `data` (the `providerData`
+ * column, which the Prisma client does not hide from app code). Such a hash
+ * is moved to the secrets on first read, so an upgraded app needs no data
+ * migration and the hash leaves the readable column.
+ */
+export async function getHashedPassword(
+  identities: IdentityStore,
+  providerUserId: string,
+): Promise<string | null> {
+  const secrets = await identities.getSecrets(providerUserId);
+  if (typeof secrets?.hashedPassword === "string") {
+    return secrets.hashedPassword;
+  }
+  const legacyHashedPassword = (await identities.find(providerUserId))?.data
+    .hashedPassword;
+  if (typeof legacyHashedPassword !== "string") {
+    return null;
+  }
+  await identities.setSecrets(providerUserId, {
+    ...secrets,
+    hashedPassword: legacyHashedPassword,
+  });
+  await identities.updateData(providerUserId, { hashedPassword: null });
+  return legacyHashedPassword;
+}

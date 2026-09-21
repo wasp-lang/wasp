@@ -1,25 +1,33 @@
 // PUBLIC API
 /**
- * The name an identity is recorded under: a provider id (`"clerk"`) or one of
- * a provider's provider names (`"wasp:email"`). Which names exist is the
- * providers' business, so this is a plain string.
+ * The provider name an identity is recorded under (`"email"`, `"google"`,
+ * `"default"`): one of the names its auth handler declares. Which names exist
+ * is the handlers' business, so this is a plain string.
  */
 export type ProviderName = string
 
 // PUBLIC API
 /**
- * ProviderId uniquely identifies an auth identity e.g. the `"wasp:email"`
- * provider name with user id "test@test.com", or the `"clerk"` provider with
- * user id "user_1234567890".
+ * ProviderId uniquely identifies an auth identity: the primary key of the
+ * `AuthIdentity` model. E.g. the `"email"` provider name of the `"wasp"` auth
+ * handler with user id "test@test.com", or the `"default"` one of the
+ * `"clerk"` handler with user id "user_1234567890".
  */
 export type ProviderId = {
+  /** The name of the auth handler the identity belongs to (`"wasp"`). */
+  handlerName: string;
   providerName: ProviderName;
   providerUserId: string;
 }
 
 // PUBLIC API
-export function createProviderId(providerName: ProviderName, providerUserId: string): ProviderId {
-  return { providerName, providerUserId }
+/** `handlerName` defaults to `"wasp"`, the name Wasp's own auth has unless the app renames it. */
+export function createProviderId(
+  providerName: ProviderName,
+  providerUserId: string,
+  handlerName: string = 'wasp',
+): ProviderId {
+  return { handlerName, providerName, providerUserId }
 }
 
 // PUBLIC API

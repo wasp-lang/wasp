@@ -69,7 +69,7 @@ const oauthProviders = {
  * ```
  *
  * The manifest mounts the flows at `/auth/<scheme>`, records identities
- * under `<scheme>:<method>`, declares the env vars the enabled methods read
+ * under the provider name of their method (`email`, `google`), declares the env vars the enabled methods read
  * (`JWT_SECRET` for email and OAuth, the OAuth client credentials), hands
  * out credentials through its own bearer issuer unless `credentials` says
  * otherwise, and hands every user function over as an extension.

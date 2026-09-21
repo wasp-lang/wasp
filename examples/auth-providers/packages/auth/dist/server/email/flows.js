@@ -1,7 +1,7 @@
 import { hashPassword, verifyPassword } from "@wasp.sh/lib-auth/node";
 import { HttpError, getBody, getSignInProperties, json, sendAuthResponse, } from "../http.js";
 import { offerMergeOrRethrow, requireCurrentAuthId } from "../linking.js";
-import { createInvalidCredentialsError, doFakeWork, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
+import { createInvalidCredentialsError, doFakeWork, getHashedPassword, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidPassword, normalizeEmail, } from "../validation.js";
 import { isEmailResendAllowed, makeEmailHelpers } from "./utils.js";
 const defaultVerificationEmailContent = ({ verificationLink, }) => ({
@@ -136,12 +136,12 @@ export function emailRoutes(ctx) {
                         findFromAuthId: async () => (await identities().find(email))?.authId ?? null,
                         proveControl: async () => {
                             const existing = await identities().find(email);
-                            const secrets = await identities().getSecrets(email);
+                            const hashedPassword = await getHashedPassword(identities(), email);
                             if (existing?.data.isEmailVerified !== true ||
-                                typeof secrets?.hashedPassword !== "string") {
+                                hashedPassword === null) {
                                 return false;
                             }
-                            return verifyPassword(secrets.hashedPassword, fields.password).then(() => true, () => false);
+                            return verifyPassword(hashedPassword, fields.password).then(() => true, () => false);
                         },
                     });
                 }
@@ -163,12 +163,12 @@ export function emailRoutes(ctx) {
                 if (!identity || !identity.data.isEmailVerified) {
                     throw createInvalidCredentialsError();
                 }
-                const secrets = await identities().getSecrets(email);
-                if (secrets === null || typeof secrets.hashedPassword !== "string") {
+                const hashedPassword = await getHashedPassword(identities(), email);
+                if (hashedPassword === null) {
                     throw createInvalidCredentialsError();
                 }
                 try {
-                    await verifyPassword(secrets.hashedPassword, fields.password);
+                    await verifyPassword(hashedPassword, fields.password);
                 }
                 catch {
                     throw createInvalidCredentialsError();

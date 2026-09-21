@@ -40,7 +40,7 @@ export const customSignup: CustomSignup<
   try {
     // The same identity store Wasp's own signup flow uses -- no raw table
     // access needed. Hashing stays the caller's explicit job.
-    await getIdentityStore("wasp:email").createIdentity(
+    await getIdentityStore("wasp", "email").createIdentity(
       args.email,
       {
         data: {

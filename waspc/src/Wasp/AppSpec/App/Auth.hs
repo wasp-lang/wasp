@@ -118,9 +118,10 @@ data AuthScheme = AuthScheme
     -- so far). Validation rejects unknown names: the generator
     -- can only wire facets it knows.
     uses :: [String],
-    -- | Every provider name this scheme records identities under: each
-    -- declared suffix prefixed with the scheme name (@"wasp:email"@), or just
-    -- @"<name>:default"@ when the manifest declared none.
+    -- | Every provider name this scheme records identities under
+    -- (@"email"@), as stored in @AuthIdentity.providerName@, or just
+    -- @"default"@ when the manifest declared none. The scheme's name goes to
+    -- the @handlerName@ column next to it.
     providerNames :: [String],
     -- | How the scheme hands out credentials after a login it verified;
     -- absent for schemes whose own credential authenticates every request.

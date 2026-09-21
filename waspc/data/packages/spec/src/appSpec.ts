@@ -201,7 +201,7 @@ export type AuthScheme = {
   routes: Optional<AuthSchemeRoutes>;
   capabilities: string[];
   uses: string[];
-  // Full provider names, as stored in `AuthIdentity.providerName`: each declared name prefixed with the scheme name.
+  // The provider names, as stored in `AuthIdentity.providerName`; `["default"]` when the manifest declared none.
   providerNames: string[];
   credentials: Optional<AuthSchemeCredentials>;
   userFieldsFromClaims: Optional<ExtImport>;

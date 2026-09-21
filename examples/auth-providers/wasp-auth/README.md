@@ -13,7 +13,7 @@ auth: {
 ```
 
 The package lives in `../packages/auth`. The compiler knows nothing about it beyond its
-manifest: the flows mount at `/auth/wasp/...`, identities live in `wasp:username`, forms come
+manifest: the flows mount at `/auth/wasp/...`, identities are recorded as `wasp` / `username`, forms come
 from `@wasp.sh/auth/client`. By default the scheme runs a private bearer issuer backed by the
 `Session` table (`credentials: { transport: "bearer", store: "prisma" }`); `"cookie"` and
 `"signed-token"` are one-line switches.

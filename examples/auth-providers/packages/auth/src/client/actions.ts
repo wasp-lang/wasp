@@ -183,9 +183,7 @@ export async function confirmMerge(mergeTicket: string): Promise<void> {
  */
 export async function unlink(identity: LinkedIdentity): Promise<void> {
   await post(`${basePath()}/unlink`, {
-    method: identity.providerName.substring(
-      identity.providerName.indexOf(":") + 1,
-    ),
+    method: identity.providerName,
     providerUserId: identity.providerUserId,
   });
   await getClientRuntime().refreshUser();

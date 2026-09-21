@@ -2,12 +2,12 @@ import { getEmail } from "@wasp.sh/auth/user";
 import { type AuthUser } from "wasp/auth";
 
 const oauthMethodLabels: Record<string, string> = {
-  "wasp:google": "Google",
-  "wasp:github": "GitHub",
-  "wasp:discord": "Discord",
-  "wasp:slack": "Slack",
-  "wasp:microsoft": "Microsoft",
-  "wasp:keycloak": "Keycloak",
+  google: "Google",
+  github: "GitHub",
+  discord: "Discord",
+  slack: "Slack",
+  microsoft: "Microsoft",
+  keycloak: "Keycloak",
 };
 
 export function getName(user?: AuthUser) {

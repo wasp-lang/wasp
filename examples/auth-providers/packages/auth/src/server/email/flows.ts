@@ -17,6 +17,7 @@ import type {
 import {
   createInvalidCredentialsError,
   doFakeWork,
+  getHashedPassword,
   makeJwt,
   rethrowPossibleAuthError,
   validateAndGetUserFields,
@@ -196,15 +197,18 @@ export function emailRoutes(ctx: Ctx): Route[] {
               (await identities().find(email))?.authId ?? null,
             proveControl: async () => {
               const existing = await identities().find(email);
-              const secrets = await identities().getSecrets(email);
+              const hashedPassword = await getHashedPassword(
+                identities(),
+                email,
+              );
               if (
                 existing?.data.isEmailVerified !== true ||
-                typeof secrets?.hashedPassword !== "string"
+                hashedPassword === null
               ) {
                 return false;
               }
               return verifyPassword(
-                secrets.hashedPassword,
+                hashedPassword,
                 fields.password as string,
               ).then(
                 () => true,
@@ -232,15 +236,12 @@ export function emailRoutes(ctx: Ctx): Route[] {
         if (!identity || !identity.data.isEmailVerified) {
           throw createInvalidCredentialsError();
         }
-        const secrets = await identities().getSecrets(email);
-        if (secrets === null || typeof secrets.hashedPassword !== "string") {
+        const hashedPassword = await getHashedPassword(identities(), email);
+        if (hashedPassword === null) {
           throw createInvalidCredentialsError();
         }
         try {
-          await verifyPassword(
-            secrets.hashedPassword,
-            fields.password as string,
-          );
+          await verifyPassword(hashedPassword, fields.password as string);
         } catch {
           throw createInvalidCredentialsError();
         }

@@ -7,7 +7,7 @@ import { createTask } from "../operations/actions.js";
 async function createUser(_prismaClient: PrismaClient, data: any) {
   // The same identity store Wasp's own signup flow uses -- no raw table
   // access needed. Hashing stays the caller's explicit job.
-  const createdUser = await getIdentityStore("wasp:username").createIdentity(
+  const createdUser = await getIdentityStore("wasp", "username").createIdentity(
     data.username,
     {
       secrets: {

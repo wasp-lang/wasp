@@ -41,7 +41,8 @@ const mockTasks = [
         _extraField: "Some string!" as const,
         identities: [
           {
-            providerName: "wasp:email",
+            handlerName: "wasp",
+            providerName: "email",
             providerUserId: "elon@tesla.com",
           },
         ],
@@ -66,7 +67,8 @@ test("handles mock data", async () => {
 const mockUser = {
   identities: [
     {
-      providerName: "wasp:email",
+      handlerName: "wasp",
+      providerName: "email",
       providerUserId: "elon@tesla.com",
       claims: {},
       data: {},

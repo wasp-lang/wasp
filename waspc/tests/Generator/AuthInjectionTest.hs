@@ -144,6 +144,7 @@ spec_GeneratorAuthInjectionTest = do
       makeEntity
         "AuthIdentity"
         [trimming|
+          handlerName String @default("wasp")
           providerName String
           providerUserId String
           providerClaims String @default("{}")
@@ -152,7 +153,7 @@ spec_GeneratorAuthInjectionTest = do
           authId String
           auth Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
 
-          @@id([providerName, providerUserId])
+          @@id([handlerName, providerName, providerUserId])
         |]
 
     sessionEntity =

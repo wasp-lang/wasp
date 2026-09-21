@@ -72,7 +72,7 @@ type SchemeRuntimeSpec = {
   serverEnvVarNames: readonly string[]
   /** Runtime grants the manifest requested; only these facets get wired. */
   uses: readonly string[]
-  /** The scheme's provider names, in full (`wasp:email`); `<scheme>:default` when the manifest declared none. */
+  /** The scheme's provider names (`email`); `default` when the manifest declared none. */
   providerNames: readonly string[]
 }
 
@@ -99,8 +99,8 @@ function isUniqueConstraintViolation(e: unknown): boolean {
  * is what makes acting on another scheme's user unrepresentable through the
  * granted facets.
  */
-function resolveOwnProviderName(spec: SchemeRuntimeSpec, localProviderName: string | undefined): string {
-  const resolved = `${spec.scheme}:${localProviderName ?? 'default'}`
+function resolveOwnProviderName(spec: SchemeRuntimeSpec, providerName: string | undefined): string {
+  const resolved = providerName ?? 'default'
   if (!spec.providerNames.includes(resolved)) {
     throw contractError(
       'wasp-auth/undeclared-provider-name',
@@ -112,7 +112,7 @@ function resolveOwnProviderName(spec: SchemeRuntimeSpec, localProviderName: stri
 
 /** The contract-shaped identity facet for one of the scheme's provider names. */
 function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): IdentityStore {
-  const store = getIdentityStore(providerName)
+  const store = getIdentityStore(spec.scheme, providerName)
   return {
     find: (providerUserId) => store.find(providerUserId) as any,
     provision: (providerUserId, identity) =>
@@ -128,7 +128,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
         await fireVetoableHook(() =>
           onBeforeSignupHook({
             req: opts?.req as any,
-            providerId: makeHookProviderId(providerName, providerUserId),
+            providerId: makeHookProviderId(spec.scheme, providerName, providerUserId),
           }),
         )
       }
@@ -151,7 +151,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       if (opts?.skipHooks !== true) {
         await onAfterSignupHook({
           req: opts?.req as any,
-          providerId: makeHookProviderId(providerName, providerUserId),
+          providerId: makeHookProviderId(spec.scheme, providerName, providerUserId),
           user: created,
           oauth: opts?.hookContext as any,
         })
@@ -171,7 +171,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       if (auth === null) {
         throw contractError('wasp-auth/identity-not-found', 'The account to link to does not exist.')
       }
-      const hookProviderId = makeHookProviderId(providerName, providerUserId)
+      const hookProviderId = makeHookProviderId(spec.scheme, providerName, providerUserId)
       await fireVetoableHook(() =>
         onBeforeLinkHook({ req: opts.req as any, providerId: hookProviderId, user: auth.user }),
       )
@@ -252,7 +252,7 @@ function linkedElsewhereError(providerName: string): Error {
  */
 async function assertSchemeOwnsAccount(spec: SchemeRuntimeSpec, authId: string): Promise<void> {
   const ownedIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
-    where: { authId, providerName: { in: [...spec.providerNames] } },
+    where: { authId, handlerName: spec.scheme },
     select: { providerName: true },
   })
   if (ownedIdentity === null) {
@@ -263,9 +263,9 @@ async function assertSchemeOwnsAccount(spec: SchemeRuntimeSpec, authId: string):
   }
 }
 
-// The hook payloads speak `ProviderId` ({ providerName, providerUserId }).
-function makeHookProviderId(providerName: string, providerUserId: string): ProviderId {
-  return { providerName, providerUserId }
+// The hook payloads speak `ProviderId` ({ handlerName, providerName, providerUserId }).
+function makeHookProviderId(handlerName: string, providerName: string, providerUserId: string): ProviderId {
+  return { handlerName, providerName, providerUserId }
 }
 
 /**
@@ -282,7 +282,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
   const signInOnTarget = target.signIn.bind(target)
   const resolveIdentityRef = async (identityRef: AuthIdentityRef) => {
     const providerName = resolveOwnProviderName(spec, identityRef.providerName)
-    const identity = await getIdentityStore(providerName).find(identityRef.providerUserId)
+    const identity = await getIdentityStore(spec.scheme, providerName).find(identityRef.providerUserId)
     if (identity === null) {
       throw contractError(
         'wasp-auth/identity-not-found',
@@ -296,7 +296,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
     signIn: async (identityRef, opts) => {
       const { providerName, authId } = await resolveIdentityRef(identityRef)
       const fireHooks = opts?.skipHooks !== true
-      const hookProviderId = makeHookProviderId(providerName, identityRef.providerUserId)
+      const hookProviderId = makeHookProviderId(spec.scheme, providerName, identityRef.providerUserId)
       let hookUser: unknown = undefined
       if (fireHooks) {
         const auth = await findAuthWithUserBy({ id: authId })
@@ -449,13 +449,10 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     clientUrl: config.frontendUrl,
     isDevelopment: config.isDevelopment,
     isAccountMergingEnabled: mergeUsersFn !== null,
-    // One store per declared provider name, keyed by its short form (`identities.email`).
-    // The keys are the boundary: an undeclared provider name has no member.
+    // One store per declared provider name (`identities.email`). The keys are
+    // the boundary: an undeclared provider name has no member.
     identities: Object.fromEntries(
-      spec.providerNames.map((providerName) => [
-        providerName.slice(spec.scheme.length + 1),
-        makeIdentitiesFacet(spec, providerName),
-      ]),
+      spec.providerNames.map((providerName) => [providerName, makeIdentitiesFacet(spec, providerName)]),
     ),
     // Every facet is always a member. One the manifest did not declare
     // rejects with a clear error on use; the booleans let a handler branch

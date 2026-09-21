@@ -15,8 +15,8 @@ export const ProfilePage = ({ user }: { user: AuthUser }) => {
   }, []);
 
   const isEmailVerified =
-    user.identities.find((identity) => identity.providerName === "wasp:email")
-      ?.data.isEmailVerified === true;
+    user.identities.find((identity) => identity.providerName === "email")?.data
+      .isEmailVerified === true;
 
   return (
     <FeatureContainer>

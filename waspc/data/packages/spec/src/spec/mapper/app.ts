@@ -182,7 +182,7 @@ function mapAuthScheme(
 ): AppSpec.AuthScheme {
   if (!isValidSchemeName(name)) {
     throw new WaspSpecUserError(
-      `Auth scheme name '${name}' must be non-empty and contain neither ':' (the provider name separator) nor '/' (it names the scheme's routes).`,
+      `Auth scheme name '${name}' must be non-empty and must not contain '/' (it names the scheme's routes).`,
     );
   }
   if (
@@ -219,8 +219,8 @@ function mapAuthScheme(
       );
     }
   }
-  const localProviderNames = manifest.providerNames ?? [];
-  validateProviderNames(handler, localProviderNames);
+  const declaredProviderNames = manifest.providerNames ?? [];
+  validateProviderNames(handler, declaredProviderNames);
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(handler, manifest.credentials);
   }
@@ -277,10 +277,8 @@ function mapAuthScheme(
     capabilities: manifest.capabilities,
     uses,
     // No bare provider name: a manifest that names none gets `default`.
-    providerNames: (localProviderNames.length > 0
-      ? localProviderNames
-      : ["default"]
-    ).map((suffix) => `${name}:${suffix}`),
+    providerNames:
+      declaredProviderNames.length > 0 ? declaredProviderNames : ["default"],
     credentials:
       manifest.credentials && mapCredentials(manifest.credentials, ctx),
     userFieldsFromClaims:

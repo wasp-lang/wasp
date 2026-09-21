@@ -11,10 +11,12 @@ import { type PossibleUserFields } from '../../auth/providers/types.js'
  * own auth and for user-made providers alike -- Wasp's auth flows go through the
  * exact same facet a hand-written provider gets, with no privileged access.
  *
- * A facet is scoped to one `providerName` (Wasp's own auth multiplexes several:
- * `email`, `username`, the OAuth providers; an external provider has exactly
- * one, its manifest id). The facet's three data channels mirror the identity's
- * three columns:
+ * A facet is scoped to one handler's one provider name: the `handlerName` and
+ * `providerName` columns of the identity (Wasp's own auth has several provider
+ * names: `email`, `username`, the OAuth providers; a handler with one kind of
+ * login has just `default`). Together with `providerUserId` they are the
+ * identity's primary key. The facet's three data channels mirror the
+ * identity's three other columns:
  *
  * - `claims`  -- what the provider asserted at login; written at creation,
  *   read-only afterwards, so its provenance can be trusted.
@@ -27,6 +29,7 @@ import { type PossibleUserFields } from '../../auth/providers/types.js'
 
 // PUBLIC API
 export type Identity<Data extends object> = {
+  handlerName: string;
   providerName: string;
   providerUserId: string;
   authId: string;
@@ -123,16 +126,17 @@ export type IdentityStore<Data extends object, Secrets extends object> = {
 
 // PUBLIC API
 /**
- * The facet for one provider name (a provider id, or one of a
- * provider's provider names like `wasp:email`). Data shapes are the provider's
- * own; normalizing the subject id (lower-casing an email, say) is the
- * provider's job before it calls in.
+ * The facet for one provider name of one auth handler (`wasp` / `email`).
+ * Data shapes are the handler's own; normalizing the provider user id
+ * (lower-casing an email, say) is the handler's job before it calls in.
  */
 export function getIdentityStore(
+  handlerName: string,
   providerName: string,
 ): IdentityStore<Record<string, unknown>, Record<string, unknown>> {
   const whereIdentity = (providerUserId: string) => ({
-    providerName_providerUserId: {
+    handlerName_providerName_providerUserId: {
+      handlerName,
       providerName,
       providerUserId,
     },
@@ -147,6 +151,7 @@ export function getIdentityStore(
         return null;
       }
       return {
+        handlerName: identity.handlerName,
         providerName: identity.providerName,
         providerUserId: identity.providerUserId,
         authId: identity.authId,
@@ -165,6 +170,9 @@ export function getIdentityStore(
             create: {
               {= identitiesFieldOnAuthEntityName =}: {
                 create: {
+                  // Always explicit: the column's default exists only to
+                  // backfill rows written before the column did.
+                  handlerName,
                   providerName,
                   providerUserId: providerUserId,
                   providerClaims: JSON.stringify(identity?.claims ?? {}),
@@ -235,6 +243,7 @@ export function getIdentityStore(
     async linkIdentity(providerUserId, identity, authId) {
       await prisma.{= authIdentityEntityLower =}.create({
         data: {
+          handlerName,
           providerName,
           providerUserId,
           providerClaims: JSON.stringify(identity.claims ?? {}),
@@ -249,10 +258,13 @@ export function getIdentityStore(
       return prisma.$transaction(async (tx) => {
         const identities = await tx.{= authIdentityEntityLower =}.findMany({
           where: { authId },
-          select: { providerName: true, providerUserId: true },
+          select: { handlerName: true, providerName: true, providerUserId: true },
         });
         const holdsIdentity = identities.some(
-          (identity) => identity.providerName === providerName && identity.providerUserId === providerUserId,
+          (identity) =>
+            identity.handlerName === handlerName &&
+            identity.providerName === providerName &&
+            identity.providerUserId === providerUserId,
         );
         if (!holdsIdentity) {
           return 'not-found' as const;
@@ -271,6 +283,7 @@ export function getIdentityStore(
           {= authFieldOnUserEntityName =}: {
             {= identitiesFieldOnAuthEntityName =}: {
               some: {
+                handlerName,
                 providerName,
                 providerUserId: providerUserId,
               },
