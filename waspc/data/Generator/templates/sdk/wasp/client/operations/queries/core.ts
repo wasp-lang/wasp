@@ -8,12 +8,12 @@ import type {
   OperationRpcFor,
   Query,
   QueryMetadata,
-} from '../rpc.js'
+} from '@wasp.sh/lib-sdk-core'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '../internal/resources'
+} from '@wasp.sh/lib-sdk-core/browser'
 
 // PRIVATE API (unsed in SDK)
 export function createQuery<BackendQuery extends GenericBackendOperation>(
