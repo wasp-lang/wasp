@@ -96,10 +96,10 @@ async function authenticateWebRequest(
  * identity store -- provisioning the local user on first sight.
  */
 async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal): Promise<AuthUserData | null> {
-  const isWaspCredential = principal.signedInBy !== undefined && principal.namespace === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.subjectId);
+  const isWaspCredential = principal.signedInBy !== undefined && principal.providerName === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.providerUserId);
   const authId = isWaspCredential
-    ? principal.subjectId
-    : await resolveSubject(scheme, principal.subjectId, principal.claims, undefined, `${scheme}:${principal.namespace ?? 'default'}`);
+    ? principal.providerUserId
+    : await resolveSubject(scheme, principal.providerUserId, principal.claims, undefined, `${scheme}:${principal.providerName ?? 'default'}`);
   if (authId === null) {
     return null;
   }
@@ -125,8 +125,8 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
 
 // Wasp-issued credentials carry the Auth entity's uuid as their subject; a
 // handler's own subject ids are whatever the provider uses.
-function isAuthEntityId(subjectId: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectId);
+function isAuthEntityId(providerUserId: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(providerUserId);
 }
 
 // The scheme's `userFieldsFromClaims` compute a provisioned user's own fields
@@ -152,20 +152,20 @@ const userFieldsFromClaimsByScheme: Partial<Record<AuthSchemeName, unknown>> = {
  */
 async function resolveSubject(
   scheme: AuthSchemeName,
-  subjectId: string,
+  providerUserId: string,
   claims: Principal['claims'],
   identity?: {
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
   },
-  // The identity namespace to record under; a scheme that declared several
+  // The provider name to record under; a scheme that declared several
   // multiplexes them, everyone else records under `<scheme>:default`. The runtime guards membership before we get here.
-  namespace: string = `${scheme}:default`,
+  providerName: string = `${scheme}:default`,
   req?: ExpressRequest,
 ): Promise<string | null> {
-  const identities = getIdentityStore(namespace);
+  const identities = getIdentityStore(providerName);
 
-  const existing = await identities.find(subjectId);
+  const existing = await identities.find(providerUserId);
   if (existing) {
     return existing.authId;
   }
@@ -176,7 +176,7 @@ async function resolveSubject(
   await fireVetoableHook(() =>
     onBeforeSignupHook({
       req,
-      providerId: makeHookProviderId(namespace, subjectId),
+      providerId: makeHookProviderId(providerName, providerUserId),
     }),
   );
 
@@ -189,7 +189,7 @@ async function resolveSubject(
   let created;
   try {
     created = await identities.createIdentity(
-      subjectId,
+      providerUserId,
       {
         // The handler-verified profile data (email, name, ...) as of the
         // moment this subject was first seen. Wasp-written and read-only
@@ -207,7 +207,7 @@ async function resolveSubject(
     // write. Its row is the winner; the loser re-reads and, deliberately, does
     // NOT fire onAfterSignup -- one signup, one hook firing.
     if (isUniqueConstraintViolation(e)) {
-      const raced = await identities.find(subjectId);
+      const raced = await identities.find(providerUserId);
       return raced === null ? null : raced.authId;
     }
     throw e;
@@ -215,7 +215,7 @@ async function resolveSubject(
 
   await onAfterSignupHook({
     req,
-    providerId: makeHookProviderId(namespace, subjectId),
+    providerId: makeHookProviderId(providerName, providerUserId),
     user: created,
   });
 
@@ -228,8 +228,8 @@ function isUniqueConstraintViolation(e: unknown): boolean {
   );
 }
 
-function makeHookProviderId(namespace: string, subjectId: string): ProviderId {
-  return { providerName: namespace, providerUserId: subjectId };
+function makeHookProviderId(providerName: string, providerUserId: string): ProviderId {
+  return { providerName, providerUserId };
 }
 
 // PRIVATE API
@@ -241,15 +241,15 @@ function makeHookProviderId(namespace: string, subjectId: string): ProviderId {
  */
 export async function provisionAuthUser(
   scheme: AuthSchemeName,
-  subjectId: string,
+  providerUserId: string,
   claims: Principal['claims'],
   identity?: {
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
   },
-  namespace?: string,
+  providerName?: string,
 ): Promise<{ authId: string } | null> {
-  const authId = await resolveSubject(scheme, subjectId, claims, identity, namespace);
+  const authId = await resolveSubject(scheme, providerUserId, claims, identity, providerName);
   return authId === null ? null : { authId };
 }
 

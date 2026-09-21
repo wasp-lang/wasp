@@ -126,7 +126,7 @@ export function waspAuth(config) {
         };
         clientMethods[name] = {};
     }
-    const identityNamespaces = [
+    const providerNames = [
         ...(methods.usernameAndPassword !== undefined
             ? ["username"]
             : []),
@@ -136,7 +136,7 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "scheme",
-        contractVersion: 9,
+        contractVersion: 10,
         server: {
             authAdapter: { package: "@wasp.sh/auth/server" },
             env: [
@@ -180,7 +180,7 @@ export function waspAuth(config) {
         },
         capabilities: [],
         uses: usesEmail ? ["email-send"] : [],
-        identityNamespaces,
+        providerNames,
         credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
     };
 }

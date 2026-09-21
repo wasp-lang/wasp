@@ -184,7 +184,7 @@ export interface Auth {
    * ```
    *
    * The key is the scheme name. Wasp records it on every session
-   * (`user.sessionScheme`), prefixes the scheme's identity namespaces and
+   * (`user.sessionScheme`), prefixes the scheme's provider names and
    * routes with it (`wasp:email`, `/auth/wasp/...`), and accepts it in
    * `authRequired` lists. Two entries may use the same handler package under
    * different names. A hand-written handler goes through
@@ -252,7 +252,7 @@ export interface AuthLifecycleHooks {
 
 /**
  * The app's auth schemes, keyed by scheme name. At least one is required.
- * A scheme name must be non-empty and contain neither `:` (the namespace
+ * A scheme name must be non-empty and contain neither `:` (the provider name
  * separator) nor `/` (it appears in route paths).
  *
  * @category Auth
@@ -448,7 +448,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 9;
+  contractVersion: 10;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */
@@ -469,14 +469,14 @@ export interface AuthSchemeManifest {
    */
   uses?: AuthRuntimeGrantName[];
   /**
-   * The identity namespaces the handler records identities under, as
+   * The provider names the handler records identities under, as
    * suffixes: `["username", "email"]` becomes `<scheme>:username` and
    * `<scheme>:email`. Omit it and the handler gets a single one, `default`
-   * (`<scheme>:default`); there is no bare, unsuffixed namespace. The handler
-   * reaches each through `runtime.identities.<suffix>`, and a namespace that
+   * (`<scheme>:default`); there is no bare, unprefixed provider name. The handler
+   * reaches each through `runtime.identities.<suffix>`, and a provider name that
    * is not declared here has no store.
    */
-  identityNamespaces?: string[];
+  providerNames?: string[];
   /**
    * How this scheme hands out credentials after a login it verified. Absent
    * for schemes whose own credential authenticates every request (a hosted

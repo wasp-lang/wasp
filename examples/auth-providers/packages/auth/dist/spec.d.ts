@@ -105,7 +105,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 9;
+    contractVersion: 10;
     server: {
         authAdapter: {
             package: string;
@@ -125,8 +125,8 @@ export type WaspAuthSchemeManifest = {
     };
     capabilities: string[];
     uses: Array<"email-send">;
-    /** Namespace suffixes; the compiler prefixes them with the scheme name. */
-    identityNamespaces: MethodProviderName[];
+    /** Provider names, written short; Wasp stores them prefixed with the scheme name. */
+    providerNames: MethodProviderName[];
     credentials: WaspAuthCredentialsConfig;
 };
 /**

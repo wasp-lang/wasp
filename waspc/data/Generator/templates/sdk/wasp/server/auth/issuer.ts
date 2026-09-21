@@ -63,15 +63,15 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
       }
       return {
         status: 'authenticated',
-        principal: { subjectId: record.authId, signedInBy: record.signedInBy, credentialId: id },
+        principal: { providerUserId: record.authId, signedInBy: record.signedInBy, credentialId: id },
       }
     },
 
     async signIn(subject: Subject, context: SignInContext): Promise<SignInResult> {
       // The issuer keys its records by the Auth entity id: the subject has
-      // already been resolved (and its namespace guarded) by the facet that
+      // already been resolved (and its provider name guarded) by the facet that
       // called in, so this lookup cannot cross scheme boundaries.
-      const identity = await getIdentityStore(subject.namespace ?? context.signedInBy).find(subject.subjectId)
+      const identity = await getIdentityStore(subject.providerName ?? context.signedInBy).find(subject.providerUserId)
       if (identity === null) {
         throw contractError('wasp-auth/identity-not-found', 'No identity for the subject to issue a credential for.')
       }
@@ -139,7 +139,7 @@ export async function createOneTimeCode(options: IssuerOptions, request: Request
   }
   const issuedAt = new Date()
   const { id } = await resolveStore(options).create({
-    authId: result.principal.subjectId,
+    authId: result.principal.providerUserId,
     signedInBy: `${ONE_TIME_CODE_MARKER}${result.principal.signedInBy ?? options.scheme}`,
     issuedAt,
     expiresAt: new Date(issuedAt.getTime() + ONE_TIME_CODE_LIFETIME.milliseconds()),
@@ -162,7 +162,7 @@ export async function redeemOneTimeCode(options: IssuerOptions, oneTimeCode: str
   return {
     status: 'authenticated',
     principal: {
-      subjectId: record.authId,
+      providerUserId: record.authId,
       signedInBy: record.signedInBy.substring(ONE_TIME_CODE_MARKER.length),
     },
   }

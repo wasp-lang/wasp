@@ -57,7 +57,7 @@ export function usernameRoutes(ctx: Ctx): Route[] {
         // the app's login hooks fire inside it, and the credentials scheme
         // decides what the client receives.
         const { response } = await runtime.credentialsIssuer.signIn(
-          { namespace: "username", subjectId: username },
+          { providerName: "username", providerUserId: username },
           { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);

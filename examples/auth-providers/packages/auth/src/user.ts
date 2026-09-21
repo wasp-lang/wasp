@@ -5,8 +5,8 @@
 
 // Identities live under `<scheme>:<method>`; the scheme name is the app's
 // choice, so the helpers match on the method suffix.
-const EMAIL_NAMESPACE_SUFFIX = ":email";
-const USERNAME_NAMESPACE_SUFFIX = ":username";
+const EMAIL_PROVIDER_NAME_SUFFIX = ":email";
+const USERNAME_PROVIDER_NAME_SUFFIX = ":username";
 
 type UserWithIdentities = {
   auth?: {
@@ -17,21 +17,23 @@ type UserWithIdentities = {
 
 // PUBLIC API
 export function getEmail(user: UserWithIdentities): string | null {
-  return findIdentity(user, EMAIL_NAMESPACE_SUFFIX)?.providerUserId ?? null;
+  return findIdentity(user, EMAIL_PROVIDER_NAME_SUFFIX)?.providerUserId ?? null;
 }
 
 // PUBLIC API
 export function getUsername(user: UserWithIdentities): string | null {
-  return findIdentity(user, USERNAME_NAMESPACE_SUFFIX)?.providerUserId ?? null;
+  return (
+    findIdentity(user, USERNAME_PROVIDER_NAME_SUFFIX)?.providerUserId ?? null
+  );
 }
 
 // `context.user` carries a flat `identities` list; a user row loaded with its
 // auth relation carries them under `auth.identities`. Both shapes are served.
-function findIdentity(user: UserWithIdentities, namespaceSuffix: string) {
+function findIdentity(user: UserWithIdentities, providerNameSuffix: string) {
   const identities = user.identities ?? user.auth?.identities ?? [];
   return (
     identities.find((identity) =>
-      identity.providerName.endsWith(namespaceSuffix),
+      identity.providerName.endsWith(providerNameSuffix),
     ) ?? null
   );
 }

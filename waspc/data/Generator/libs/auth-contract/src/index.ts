@@ -13,7 +13,7 @@
  *   `createServerAuthHandler` export (see `ServerAuthAdapter`).
  * - A **scheme** is a named, configured instance of a handler, declared in the
  *   app's `auth.schemes` map. The scheme name is what Wasp records everywhere:
- *   on sessions, in identity namespaces, in `authRequired` lists, in route
+ *   on sessions, in provider names, in `authRequired` lists, in route
  *   prefixes. One handler type can back several schemes.
  * - A **credential** is whatever a request carries to prove identity: a cookie,
  *   a bearer token. A handler that needs to hand one out asks Wasp for a
@@ -34,19 +34,19 @@ export type JsonValue =
 
 /**
  * A subject of the calling scheme: the handler's own stable id for the
- * authenticated party, in one of the scheme's declared identity namespaces.
+ * authenticated party, in one of the scheme's declared provider names.
  *
- * `namespace` is a declared SUFFIX (`email` for `<scheme>:email`) and defaults
- * to `default`. The namespace-membership check is
+ * `providerName` is one of the manifest's `providerNames`, written short (`email`, stored as `<scheme>:email`), and defaults
+ * to `default`. The provider name membership check is
  * what makes acting on another scheme's user unrepresentable through the
- * granted facets -- the identity store itself resolves any namespace string,
+ * granted facets -- the identity store itself resolves any provider name string,
  * so the guard, not the lookup, carries that guarantee.
  */
 export type Subject = {
-  /** Suffix of one of the scheme's declared identity namespaces (`email`). Default: `default`. */
-  namespace?: string;
-  /** The handler's stable id for the subject in that namespace. */
-  subjectId: string;
+  /** Suffix of one of the scheme's declared provider names (`email`). Default: `default`. */
+  providerName?: string;
+  /** The handler's stable id for the subject under that provider name. */
+  providerUserId: string;
 };
 
 /**
@@ -175,7 +175,7 @@ export interface AuthHandler {
    * Issue a credential for a subject: the handler is a credential issuer other
    * schemes can sign into (`credentials: { scheme: "<this one>" }`). The
    * subject is one of THIS scheme's, already provisioned; Wasp guards the
-   * namespace and fires the app's login hooks before calling in.
+   * provider name and fires the app's login hooks before calling in.
    */
   signIn?(subject: Subject, context: SignInContext): Promise<SignInResult>;
 
@@ -218,7 +218,7 @@ export type RuntimeGrantName = "email-send";
  * Wasp builds it from the manifest's `credentials` field -- an inline issuer
  * (`{ transport, store }`) or a sibling scheme (`{ scheme }`) -- and the
  * handler cannot tell the two apart. `signIn` resolves the subject through the
- * calling scheme's OWN declared namespaces, fires the app's `onBeforeLogin`
+ * calling scheme's OWN declared provider names, fires the app's `onBeforeLogin`
  * (a throw vetoes) and `onAfterLogin` hooks, and stamps the calling scheme as
  * `signedInBy` on whatever the issuer produces. Minting through this facet is
  * the choke point that guarantees no scheme skips the app's login policy.
@@ -328,7 +328,7 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-not-found"
   /** `credentials.createOneTimeCode` was given a request that carries no valid credential. */
   | "wasp-auth/unauthenticated"
-  | "wasp-auth/undeclared-namespace"
+  | "wasp-auth/undeclared-provider-name"
   /**
    * A facet was used that the manifest did not declare: `credentialsIssuer` without
    * a `credentials` config, `email` without the `"email-send"` grant.
@@ -362,7 +362,7 @@ export function getAuthContractErrorCode(
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
     code === "wasp-auth/unauthenticated" ||
-    code === "wasp-auth/undeclared-namespace" ||
+    code === "wasp-auth/undeclared-provider-name" ||
     code === "wasp-auth/undeclared-facet" ||
     code === "wasp-auth/identity-linked-elsewhere" ||
     code === "wasp-auth/last-identity" ||
@@ -392,10 +392,10 @@ export function getAuthContractErrorCode(
  *   method is on or off; a handler lets the app opt into Wasp-issued
  *   credentials). A handler branches on `hasCredentialsIssuer` / `canSendEmail`.
  *
- * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes;
+ * `ProviderNames` is the union of the manifest's `providerNames` suffixes;
  * it types the keys of `identities`.
  */
-export type WaspServerRuntime<Namespaces extends string = "default"> = {
+export type WaspServerRuntime<ProviderNames extends string = "default"> = {
   /** The name of this scheme, as declared in the app's `auth.schemes`. */
   scheme: string;
 
@@ -445,11 +445,11 @@ export type WaspServerRuntime<Namespaces extends string = "default"> = {
   isAccountMergingEnabled: boolean;
 
   /**
-   * One store per declared namespace, keyed by SUFFIX:
+   * One store per declared provider name, keyed by its short form:
    * `identities.email.find(...)`, `identities.google.create(...)`. A manifest
-   * that declares no `identityNamespaces` gets exactly one, self-assigned:
+   * that declares no `providerNames` gets exactly one, self-assigned:
    * `identities.default` (stored as `<scheme>:default`). There is no bare,
-   * unsuffixed store. The keys are the boundary: a namespace the manifest did
+   * unsuffixed store. The keys are the boundary: a provider name the manifest did
    * not declare has no member here. Each store is the sanctioned channel for
    * everything identity-shaped, with the same powers Wasp's own auth uses.
    *
@@ -463,7 +463,7 @@ export type WaspServerRuntime<Namespaces extends string = "default"> = {
    *   default, so it cannot leak through app code. Secrets are stored as
    *   given; hashing is the handler's job.
    */
-  identities: { readonly [Namespace in Namespaces]: IdentityStore };
+  identities: { readonly [ProviderName in ProviderNames]: IdentityStore };
 
   /**
    * How the scheme signs people in: the issuer behind the manifest's
@@ -489,12 +489,12 @@ export type WaspServerRuntime<Namespaces extends string = "default"> = {
 };
 
 /**
- * The per-scheme view of Wasp's identity store. `subjectId` is always the
+ * The per-scheme view of Wasp's identity store. `providerUserId` is always the
  * handler's own stable user id -- the same value {@link Principal} carries.
  */
 export type IdentityStore = {
   /** The identity (claims and non-secret data), or null if never provisioned. */
-  find(subjectId: string): Promise<{
+  find(providerUserId: string): Promise<{
     authId: string;
     claims: Record<string, JsonValue>;
     data: Record<string, JsonValue>;
@@ -506,7 +506,7 @@ export type IdentityStore = {
    * provisioning at first authentication.
    */
   provision(
-    subjectId: string,
+    providerUserId: string,
     identity?: {
       claims?: Record<string, JsonValue>;
       data?: Record<string, JsonValue>;
@@ -526,7 +526,7 @@ export type IdentityStore = {
    * manifest's `userFieldsFromClaims` run over the claims instead.
    */
   create(
-    subjectId: string,
+    providerUserId: string,
     identity?: {
       claims?: Record<string, JsonValue>;
       data?: Record<string, JsonValue>;
@@ -557,16 +557,16 @@ export type IdentityStore = {
    * data and sessions. Returns whether anything was deleted. Loud on purpose:
    * this removes the app's business user, not just the identity row.
    */
-  deleteUser(subjectId: string): Promise<boolean>;
+  deleteUser(providerUserId: string): Promise<boolean>;
 
   /**
    * Account linking: attach a new identity to an EXISTING account, instead of
    * creating a user. `authId` is the account to attach to -- for a request
-   * carrying a Wasp-issued credential, the `principal.subjectId` that
+   * carrying a Wasp-issued credential, the `principal.providerUserId` that
    * `runtime.credentialsIssuer.authenticate` returns.
    *
    * Wasp checks that the account already carries an identity in one of the
-   * calling scheme's OWN namespaces (a scheme cannot attach itself to another
+   * calling scheme's OWN provider names (a scheme cannot attach itself to another
    * scheme's users), fires the app's `onBeforeLink` (a throw vetoes) and
    * `onAfterLink` hooks, and never runs `userSignupFields`: the user
    * already exists. Idempotent when the identity is already on that account.
@@ -574,7 +574,7 @@ export type IdentityStore = {
    * different one.
    */
   link(
-    subjectId: string,
+    providerUserId: string,
     identity: {
       claims?: Record<string, JsonValue>;
       data?: Record<string, JsonValue>;
@@ -594,7 +594,7 @@ export type IdentityStore = {
    * `wasp-auth/identity-not-found` when the account does not hold it, and
    * with `wasp-auth/last-identity` when it is the account's only way in.
    */
-  unlink(subjectId: string, opts: { authId: string }): Promise<void>;
+  unlink(providerUserId: string, opts: { authId: string }): Promise<void>;
 
   /**
    * Account merging: make two accounts one. In a single transaction Wasp
@@ -607,7 +607,7 @@ export type IdentityStore = {
    * this: the `into` account by its credential, the `from` account by a
    * fresh login (a verified password, a completed OAuth flow). Wasp checks
    * that both accounts carry an identity in the calling scheme's OWN
-   * namespaces. Rejects with `wasp-auth/merging-disabled` when the app
+   * provider names. Rejects with `wasp-auth/merging-disabled` when the app
    * declares no `auth.mergeUsers`.
    */
   merge(opts: {
@@ -619,16 +619,16 @@ export type IdentityStore = {
 
   /** Merges the updates into the identity's non-secret data. */
   updateData(
-    subjectId: string,
+    providerUserId: string,
     updates: Record<string, JsonValue>,
   ): Promise<void>;
 
   /** Reads the identity's secret material. Keep the result on the server. */
-  getSecrets(subjectId: string): Promise<Record<string, JsonValue> | null>;
+  getSecrets(providerUserId: string): Promise<Record<string, JsonValue> | null>;
 
   /** Replaces the identity's secret material. Expects it already hashed. */
   setSecrets(
-    subjectId: string,
+    providerUserId: string,
     secrets: Record<string, JsonValue>,
   ): Promise<void>;
 };
@@ -671,7 +671,7 @@ export type ServerAuthHandlerParts = {
  * references and set them back, so they arrive live and callable. Wasp never
  * reads the contents; the handler types them with `ServerSpec`.
  *
- * `Namespaces` is the union of the manifest's `identityNamespaces` suffixes.
+ * `ProviderNames` is the union of the manifest's `providerNames` suffixes.
  *
  * This is the loose form, typed by hand, for hand-written handlers. A package
  * with a spec constructor uses `ServerAuthAdapterFor<typeof myAuth>`, which derives
@@ -679,9 +679,9 @@ export type ServerAuthHandlerParts = {
  */
 export type ServerAuthAdapter<
   ServerSpec = unknown,
-  Namespaces extends string = "default",
+  ProviderNames extends string = "default",
 > = (
-  runtime: WaspServerRuntime<Namespaces>,
+  runtime: WaspServerRuntime<ProviderNames>,
   spec: ServerSpec,
 ) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 

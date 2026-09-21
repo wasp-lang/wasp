@@ -102,7 +102,7 @@ test("unlinking removes the login but never the last one", async ({
 
   const unlinkSecond = await request.post("/auth/wasp/unlink", {
     headers,
-    data: { method: "username", subjectId: second },
+    data: { method: "username", providerUserId: second },
   });
   expect(unlinkSecond.status()).toBe(200);
 
@@ -113,7 +113,7 @@ test("unlinking removes the login but never the last one", async ({
 
   const unlinkLast = await request.post("/auth/wasp/unlink", {
     headers,
-    data: { method: "username", subjectId: first },
+    data: { method: "username", providerUserId: first },
   });
   expect(unlinkLast.status()).toBe(409);
 });
@@ -121,7 +121,7 @@ test("unlinking removes the login but never the last one", async ({
 test("someone else's login cannot be unlinked", async ({ request }) => {
   const response = await request.post("/auth/wasp/unlink", {
     headers: await login(request, first),
-    data: { method: "username", subjectId: stranger },
+    data: { method: "username", providerUserId: stranger },
   });
   expect(response.status()).toBe(404);
 });

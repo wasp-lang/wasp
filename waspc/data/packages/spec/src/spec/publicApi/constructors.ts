@@ -495,7 +495,7 @@ export function defineAuthSchemeManifest(
     }
   }
 
-  validateIdentityNamespaces(handler, manifest.identityNamespaces ?? []);
+  validateProviderNames(handler, manifest.providerNames ?? []);
 
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(handler, manifest.credentials);
@@ -516,7 +516,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 9 as const;
+export const supportedAuthContractVersion = 10 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
@@ -589,8 +589,8 @@ export function validateSideEnvVars(
 }
 
 /**
- * A scheme name is an identity namespace and a route segment, so it cannot
- * carry the namespace separator ':' or a '/'.
+ * A scheme name is an provider name and a route segment, so it cannot
+ * carry the provider name separator ':' or a '/'.
  */
 export function isValidSchemeName(name: unknown): name is string {
   return (
@@ -605,20 +605,20 @@ const knownRuntimeGrantNames: readonly AuthRuntimeGrantName[] = ["email-send"];
 
 // Shared by defineAuthSchemeManifest and the mapper (which re-validates,
 // because the authenticity marker is forgeable as a plain property).
-export function validateIdentityNamespaces(
+export function validateProviderNames(
   handler: string,
-  identityNamespaces: readonly string[],
+  providerNames: readonly string[],
 ): void {
-  for (const suffix of identityNamespaces) {
+  for (const suffix of providerNames) {
     if (suffix.length === 0 || suffix.includes(":")) {
       throw new WaspSpecUserError(
-        `Auth handler '${handler}' declares the identity namespace suffix '${suffix}', which must be non-empty and contain no ':' -- Wasp prefixes it with the scheme name ('<scheme>:${suffix}').`,
+        `Auth handler '${handler}' declares the provider name '${suffix}', which must be non-empty and contain no ':' -- Wasp prefixes it with the scheme name ('<scheme>:${suffix}').`,
       );
     }
   }
-  if (new Set(identityNamespaces).size !== identityNamespaces.length) {
+  if (new Set(providerNames).size !== providerNames.length) {
     throw new WaspSpecUserError(
-      `Auth handler '${handler}' declares a duplicate identity namespace.`,
+      `Auth handler '${handler}' declares a duplicate provider name.`,
     );
   }
 }
@@ -687,8 +687,8 @@ export type CustomAuthHandlerConfig = {
   capabilities?: string[];
   /** See {@link AuthSchemeManifest.uses}. */
   uses?: AuthRuntimeGrantName[];
-  /** See {@link AuthSchemeManifest.identityNamespaces}. */
-  identityNamespaces?: string[];
+  /** See {@link AuthSchemeManifest.providerNames}. */
+  providerNames?: string[];
   /** See {@link AuthSchemeManifest.credentials}. */
   credentials?: CredentialsConfig;
   /** See {@link AuthSchemeManifest.userFieldsFromClaims}. */

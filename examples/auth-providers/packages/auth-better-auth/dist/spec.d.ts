@@ -34,7 +34,7 @@ export type UserFieldsFromClaims = SpecReference<Record<string, (data: never) =>
 export type BetterAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 9;
+    contractVersion: 10;
     server: {
         authAdapter: {
             package: string;

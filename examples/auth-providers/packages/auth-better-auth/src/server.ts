@@ -133,7 +133,7 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
         status: "authenticated",
         principal: {
           credentialId: session.session.id,
-          subjectId: session.user.id,
+          providerUserId: session.user.id,
           // Verified profile data Wasp records when it provisions the local
           // user.
           claims: {

@@ -1,7 +1,7 @@
 // PUBLIC API
 /**
  * The name an identity is recorded under: a provider id (`"clerk"`) or one of
- * a provider's namespaces (`"wasp:email"`). Which names exist is the
+ * a provider's provider names (`"wasp:email"`). Which names exist is the
  * providers' business, so this is a plain string.
  */
 export type ProviderName = string
@@ -9,7 +9,7 @@ export type ProviderName = string
 // PUBLIC API
 /**
  * ProviderId uniquely identifies an auth identity e.g. the `"wasp:email"`
- * namespace with user id "test@test.com", or the `"clerk"` provider with
+ * provider name with user id "test@test.com", or the `"clerk"` provider with
  * user id "user_1234567890".
  */
 export type ProviderId = {

@@ -101,7 +101,7 @@ instance ToJSON AuthHooksSpec where
 -- every manifest built against a newer handler. Unknown entries are ignored.
 data AuthScheme = AuthScheme
   { -- | The scheme name: the key in @auth.schemes@. Sessions record it,
-    -- identity namespaces and routes are prefixed with it, and
+    -- provider names and routes are prefixed with it, and
     -- @authRequired@ lists name it.
     name :: String,
     -- | A label for the handler, for messages: where its server half's code
@@ -118,10 +118,10 @@ data AuthScheme = AuthScheme
     -- so far). Validation rejects unknown names: the generator
     -- can only wire facets it knows.
     uses :: [String],
-    -- | Every identity namespace this scheme records identities under: each
+    -- | Every provider name this scheme records identities under: each
     -- declared suffix prefixed with the scheme name (@"wasp:email"@), or just
     -- @"<name>:default"@ when the manifest declared none.
-    identityNamespaces :: [String],
+    providerNames :: [String],
     -- | How the scheme hands out credentials after a login it verified;
     -- absent for schemes whose own credential authenticates every request.
     credentials :: Maybe AuthSchemeCredentials,

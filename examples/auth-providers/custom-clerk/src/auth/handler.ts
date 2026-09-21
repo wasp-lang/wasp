@@ -60,7 +60,7 @@ export const createClerkServerAuthHandler: ServerAuthAdapter = (runtime) => {
         return {
           status: "authenticated",
           principal: {
-            subjectId: verified.userId,
+            providerUserId: verified.userId,
             credentialId: verified.sessionId,
             // Recorded by Wasp when it provisions the local user. NOTE:
             // Clerk's default session token carries no email -- add one to

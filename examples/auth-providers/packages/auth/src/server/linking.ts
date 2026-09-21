@@ -1,7 +1,7 @@
 import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
 
 import { HttpError, getBody, json, type Route } from "./http.js";
-import { anyIdentities, identitiesOf } from "./namespaces.js";
+import { anyIdentities, identitiesOf } from "./providerNames.js";
 import type { Ctx, MethodProviderName, Req } from "./types.js";
 import { TimeSpan, makeJwt } from "./utils.js";
 
@@ -35,7 +35,7 @@ export async function requireCurrentAuthId(
       "Sign in before changing your connected accounts.",
     );
   }
-  return result.principal.subjectId;
+  return result.principal.providerUserId;
 }
 
 /** Maps the facet's link/unlink rejections onto HTTP answers the client reads. */
@@ -161,9 +161,9 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       path: "/unlink",
       handler: async (req, res) => {
         const authId = await requireCurrentAuthId(ctx, req);
-        const { method, subjectId } = getBody(req);
+        const { method, providerUserId } = getBody(req);
         if (
-          typeof subjectId !== "string" ||
+          typeof providerUserId !== "string" ||
           !METHOD_NAMES.includes(method as MethodProviderName)
         ) {
           throw new HttpError(400, "Expected a login method and its subject.");
@@ -177,7 +177,7 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
           throw new HttpError(400, "This login method is not enabled.");
         }
         try {
-          await methodIdentities.unlink(subjectId, { authId });
+          await methodIdentities.unlink(providerUserId, { authId });
         } catch (e) {
           rethrowLinkError(e);
         }

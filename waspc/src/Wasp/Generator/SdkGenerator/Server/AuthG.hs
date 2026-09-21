@@ -236,7 +236,7 @@ mkSchemesTmplData auth =
                  .= makeJsArrayFromHaskellList ((.envVarName) <$> AS.Auth.serverEnvVars scheme),
                -- The runtime facets the manifest requested; only these get wired.
                "usesJs" .= makeJsArrayFromHaskellList scheme.uses,
-               "identityNamespacesJs" .= makeJsArrayFromHaskellList scheme.identityNamespaces,
+               "providerNamesJs" .= makeJsArrayFromHaskellList scheme.providerNames,
                "hasCredentials" .= isJust scheme.credentials,
                "credentialsScheme" .= AS.Auth.credentialsScheme scheme,
                "inlineCredentials" .= (inlineCredentialsTmplData idx <$> AS.Auth.inlineCredentials scheme)

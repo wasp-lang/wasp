@@ -28,7 +28,7 @@ import type {
  *   manifest field          types
  *   ----------------------  ------------------------------------------------
  *   `server.spec`           the `spec` parameter
- *   `identityNamespaces`    the keys of `runtime.identities`
+ *   `providerNames`    the keys of `runtime.identities`
  *   `server.env`            the keys of `runtime.env`
  *   `credentials`           whether `runtime.credentialsIssuer` is there
  *   `uses`                  whether `runtime.email` is there
@@ -83,12 +83,12 @@ export type ServerSpecOf<SpecConstructor> =
     ? LiveSpec<ServerSpec>
     : unknown;
 
-/** The manifest's `identityNamespaces` as a union of suffixes; `"default"` when it declares none. */
-export type IdentityNamespacesOf<SpecConstructor> =
+/** The manifest's `providerNames` as a union of suffixes; `"default"` when it declares none. */
+export type ProviderNamesOf<SpecConstructor> =
   ManifestOf<SpecConstructor> extends {
-    identityNamespaces: ReadonlyArray<infer Namespace extends string>;
+    providerNames: ReadonlyArray<infer ProviderName extends string>;
   }
-    ? Namespace
+    ? ProviderName
     : "default";
 
 /**
@@ -97,7 +97,7 @@ export type IdentityNamespacesOf<SpecConstructor> =
  * declares.
  */
 export type WaspServerRuntimeFor<SpecConstructor> = Omit<
-  WaspServerRuntime<IdentityNamespacesOf<SpecConstructor>>,
+  WaspServerRuntime<ProviderNamesOf<SpecConstructor>>,
   | "env"
   | "credentialsIssuer"
   | "hasCredentialsIssuer"

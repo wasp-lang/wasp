@@ -72,8 +72,8 @@ type SchemeRuntimeSpec = {
   serverEnvVarNames: readonly string[]
   /** Runtime grants the manifest requested; only these facets get wired. */
   uses: readonly string[]
-  /** The scheme's identity namespaces, in full (`wasp:email`); `<scheme>:default` when the manifest declared none. */
-  identityNamespaces: readonly string[]
+  /** The scheme's provider names, in full (`wasp:email`); `<scheme>:default` when the manifest declared none. */
+  providerNames: readonly string[]
 }
 
 /**
@@ -94,33 +94,33 @@ function isUniqueConstraintViolation(e: unknown): boolean {
 }
 
 /**
- * The namespace-membership guard, run BEFORE any store access: the identity
- * store itself resolves any namespace string, so this check (not the lookup)
+ * The provider name membership guard, run BEFORE any store access: the identity
+ * store itself resolves any provider name string, so this check (not the lookup)
  * is what makes acting on another scheme's user unrepresentable through the
  * granted facets.
  */
-function resolveOwnNamespace(spec: SchemeRuntimeSpec, namespaceSuffix: string | undefined): string {
-  const resolved = `${spec.scheme}:${namespaceSuffix ?? 'default'}`
-  if (!spec.identityNamespaces.includes(resolved)) {
+function resolveOwnProviderName(spec: SchemeRuntimeSpec, localProviderName: string | undefined): string {
+  const resolved = `${spec.scheme}:${localProviderName ?? 'default'}`
+  if (!spec.providerNames.includes(resolved)) {
     throw contractError(
-      'wasp-auth/undeclared-namespace',
-      `Auth scheme '${spec.scheme}' tried to use the identity namespace '${resolved}', which its manifest does not declare.`,
+      'wasp-auth/undeclared-provider-name',
+      `Auth scheme '${spec.scheme}' tried to use the provider name '${resolved}', which its manifest does not declare.`,
     )
   }
   return resolved
 }
 
-/** The contract-shaped identity facet for one of the scheme's namespaces. */
-function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): IdentityStore {
-  const store = getIdentityStore(namespace)
+/** The contract-shaped identity facet for one of the scheme's provider names. */
+function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): IdentityStore {
+  const store = getIdentityStore(providerName)
   return {
-    find: (subjectId) => store.find(subjectId) as any,
-    provision: (subjectId, identity) =>
-      provisionAuthUser(spec.scheme, subjectId, identity?.claims, {
+    find: (providerUserId) => store.find(providerUserId) as any,
+    provision: (providerUserId, identity) =>
+      provisionAuthUser(spec.scheme, providerUserId, identity?.claims, {
         data: identity?.data,
         secrets: identity?.secrets,
-      }, namespace),
-    create: async (subjectId, identity, getUserFields, opts) => {
+      }, providerName),
+    create: async (providerUserId, identity, getUserFields, opts) => {
       // The app's signup veto fires FIRST -- at this Wasp-owned choke point no
       // handler can forget it -- and only then do any user-supplied field
       // getters run (that ordering is why `getUserFields` is a lazy callback).
@@ -128,7 +128,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Identi
         await fireVetoableHook(() =>
           onBeforeSignupHook({
             req: opts?.req as any,
-            providerId: makeHookProviderId(namespace, subjectId),
+            providerId: makeHookProviderId(providerName, providerUserId),
           }),
         )
       }
@@ -138,12 +138,12 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Identi
           : await computeSchemeUserFields(spec.scheme, identity?.claims)
       let created
       try {
-        created = await store.createIdentity(subjectId, identity as any, userFields as any)
+        created = await store.createIdentity(providerUserId, identity as any, userFields as any)
       } catch (e) {
         if (isUniqueConstraintViolation(e)) {
           throw contractError(
             'wasp-auth/duplicate-identity',
-            `An identity for this subject already exists in namespace '${namespace}'.`,
+            `An identity for this subject already exists in provider name '${providerName}'.`,
           )
         }
         throw e
@@ -151,36 +151,36 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Identi
       if (opts?.skipHooks !== true) {
         await onAfterSignupHook({
           req: opts?.req as any,
-          providerId: makeHookProviderId(namespace, subjectId),
+          providerId: makeHookProviderId(providerName, providerUserId),
           user: created,
           oauth: opts?.hookContext as any,
         })
       }
       return { authId: created.{= authFieldOnUserEntityName =}!.id }
     },
-    link: async (subjectId, identity, opts) => {
+    link: async (providerUserId, identity, opts) => {
       await assertSchemeOwnsAccount(spec, opts.authId)
-      const existing = await store.find(subjectId)
+      const existing = await store.find(providerUserId)
       if (existing !== null) {
         if (existing.authId === opts.authId) {
           return
         }
-        throw linkedElsewhereError(namespace)
+        throw linkedElsewhereError(providerName)
       }
       const auth = await findAuthWithUserBy({ id: opts.authId })
       if (auth === null) {
         throw contractError('wasp-auth/identity-not-found', 'The account to link to does not exist.')
       }
-      const hookProviderId = makeHookProviderId(namespace, subjectId)
+      const hookProviderId = makeHookProviderId(providerName, providerUserId)
       await fireVetoableHook(() =>
         onBeforeLinkHook({ req: opts.req as any, providerId: hookProviderId, user: auth.user }),
       )
       try {
-        await store.linkIdentity(subjectId, identity as any, opts.authId)
+        await store.linkIdentity(providerUserId, identity as any, opts.authId)
       } catch (e) {
         // Lost a race against another link or signup of the same subject.
         if (isUniqueConstraintViolation(e)) {
-          throw linkedElsewhereError(namespace)
+          throw linkedElsewhereError(providerName)
         }
         throw e
       }
@@ -191,11 +191,11 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Identi
         oauth: opts.hookContext as any,
       })
     },
-    unlink: async (subjectId, opts) => {
+    unlink: async (providerUserId, opts) => {
       await assertSchemeOwnsAccount(spec, opts.authId)
-      const outcome = await store.unlinkIdentity(subjectId, opts.authId)
+      const outcome = await store.unlinkIdentity(providerUserId, opts.authId)
       if (outcome === 'not-found') {
-        throw contractError('wasp-auth/identity-not-found', `The account holds no such identity in namespace '${namespace}'.`)
+        throw contractError('wasp-auth/identity-not-found', `The account holds no such identity in provider name '${providerName}'.`)
       }
       if (outcome === 'last-identity') {
         throw contractError('wasp-auth/last-identity', "An account's only identity cannot be unlinked.")
@@ -228,31 +228,31 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, namespace: string): Identi
         await tx.{= userEntityLower =}.delete({ where: { id: from.{= userFieldOnAuthEntityName =}.id } })
       })
     },
-    updateData: (subjectId, updates) => store.updateData(subjectId, updates),
-    getSecrets: (subjectId) => store.getSecrets(subjectId) as any,
-    setSecrets: (subjectId, secrets) => store.setSecrets(subjectId, secrets),
-    deleteUser: (subjectId) => store.deleteUser(subjectId),
+    updateData: (providerUserId, updates) => store.updateData(providerUserId, updates),
+    getSecrets: (providerUserId) => store.getSecrets(providerUserId) as any,
+    setSecrets: (providerUserId, secrets) => store.setSecrets(providerUserId, secrets),
+    deleteUser: (providerUserId) => store.deleteUser(providerUserId),
   }
 }
 
 // Says nothing about the other account on purpose: the caller proved control
 // of the identity, not the right to learn who else holds it.
-function linkedElsewhereError(namespace: string): Error {
+function linkedElsewhereError(providerName: string): Error {
   return contractError(
     'wasp-auth/identity-linked-elsewhere',
-    `The identity in namespace '${namespace}' already belongs to another account.`,
+    `The identity in provider name '${providerName}' already belongs to another account.`,
   )
 }
 
 /**
  * The account-linking guard: a scheme may only attach identities to (or
  * detach them from) an account that already carries an identity in one of
- * its OWN namespaces. Without it, a scheme could attach itself to another
+ * its OWN provider names. Without it, a scheme could attach itself to another
  * scheme's users.
  */
 async function assertSchemeOwnsAccount(spec: SchemeRuntimeSpec, authId: string): Promise<void> {
   const ownedIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
-    where: { authId, providerName: { in: [...spec.identityNamespaces] } },
+    where: { authId, providerName: { in: [...spec.providerNames] } },
     select: { providerName: true },
   })
   if (ownedIdentity === null) {
@@ -264,13 +264,13 @@ async function assertSchemeOwnsAccount(spec: SchemeRuntimeSpec, authId: string):
 }
 
 // The hook payloads speak `ProviderId` ({ providerName, providerUserId }).
-function makeHookProviderId(namespace: string, subjectId: string): ProviderId {
-  return { providerName: namespace, providerUserId: subjectId }
+function makeHookProviderId(providerName: string, providerUserId: string): ProviderId {
+  return { providerName, providerUserId }
 }
 
 /**
  * The credentials issuer a scheme signs in through, bound to a target issuer
- * and to the calling scheme. The namespace guard, the identity lookup and
+ * and to the calling scheme. The provider name guard, the identity lookup and
  * the app's login hooks all run here, BEFORE the target issues anything --
  * so no scheme can skip the app's login policy, and the issuer records the
  * calling scheme as `signedInBy` without ever being told a name to record.
@@ -281,22 +281,22 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
   }
   const signInOnTarget = target.signIn.bind(target)
   const resolveSubject = async (subject: Subject) => {
-    const namespace = resolveOwnNamespace(spec, subject.namespace)
-    const identity = await getIdentityStore(namespace).find(subject.subjectId)
+    const providerName = resolveOwnProviderName(spec, subject.providerName)
+    const identity = await getIdentityStore(providerName).find(subject.providerUserId)
     if (identity === null) {
       throw contractError(
         'wasp-auth/identity-not-found',
-        `No identity for the subject in namespace '${namespace}'. Provision it before signing in.`,
+        `No identity for the subject in provider name '${providerName}'. Provision it before signing in.`,
       )
     }
-    return { namespace, authId: identity.authId }
+    return { providerName, authId: identity.authId }
   }
   return {
     authenticate: (request) => target.authenticate(request),
     signIn: async (subject, opts) => {
-      const { namespace, authId } = await resolveSubject(subject)
+      const { providerName, authId } = await resolveSubject(subject)
       const fireHooks = opts?.skipHooks !== true
-      const hookProviderId = makeHookProviderId(namespace, subject.subjectId)
+      const hookProviderId = makeHookProviderId(providerName, subject.providerUserId)
       let hookUser: unknown = undefined
       if (fireHooks) {
         const auth = await findAuthWithUserBy({ id: authId })
@@ -309,7 +309,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
         )
       }
       const result = await signInOnTarget(
-        { namespace, subjectId: subject.subjectId },
+        { providerName, providerUserId: subject.providerUserId },
         { signedInBy: spec.scheme, req: opts?.req, properties: opts?.properties },
       )
       if (fireHooks) {
@@ -449,12 +449,12 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     clientUrl: config.frontendUrl,
     isDevelopment: config.isDevelopment,
     isAccountMergingEnabled: mergeUsersFn !== null,
-    // One store per declared namespace, keyed by suffix (`identities.email`).
-    // The keys are the boundary: an undeclared namespace has no member.
+    // One store per declared provider name, keyed by its short form (`identities.email`).
+    // The keys are the boundary: an undeclared provider name has no member.
     identities: Object.fromEntries(
-      spec.identityNamespaces.map((namespace) => [
-        namespace.slice(spec.scheme.length + 1),
-        makeIdentitiesFacet(spec, namespace),
+      spec.providerNames.map((providerName) => [
+        providerName.slice(spec.scheme.length + 1),
+        makeIdentitiesFacet(spec, providerName),
       ]),
     ),
     // Every facet is always a member. One the manifest did not declare
@@ -493,7 +493,7 @@ const spec_{= index =}: SchemeRuntimeSpec = {
   scheme: '{= schemeName =}',
   serverEnvVarNames: {=& serverEnvVarNamesJs =},
   uses: {=& usesJs =},
-  identityNamespaces: {=& identityNamespacesJs =},
+  providerNames: {=& providerNamesJs =},
 }
 {=# inlineCredentials =}
 const issuerOptions_{= index =}: IssuerOptions = {

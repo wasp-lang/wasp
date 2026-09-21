@@ -130,7 +130,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 9;
+  contractVersion: 10;
   server: {
     authAdapter: { package: string };
     /** Which of these an app declares depends on its enabled methods. */
@@ -144,8 +144,8 @@ export type WaspAuthSchemeManifest = {
   };
   capabilities: string[];
   uses: Array<"email-send">;
-  /** Namespace suffixes; the compiler prefixes them with the scheme name. */
-  identityNamespaces: MethodProviderName[];
+  /** Provider names, written short; Wasp stores them prefixed with the scheme name. */
+  providerNames: MethodProviderName[];
   credentials: WaspAuthCredentialsConfig;
 };
 
@@ -334,7 +334,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
     clientMethods[name] = {};
   }
 
-  const identityNamespaces: MethodProviderName[] = [
+  const providerNames: MethodProviderName[] = [
     ...(methods.usernameAndPassword !== undefined
       ? (["username"] as const)
       : []),
@@ -345,7 +345,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 9,
+    contractVersion: 10,
     server: {
       authAdapter: { package: "@wasp.sh/auth/server" },
       env: [
@@ -391,7 +391,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
     },
     capabilities: [],
     uses: usesEmail ? ["email-send"] : [],
-    identityNamespaces,
+    providerNames,
     credentials: config.credentials ?? { transport: "bearer", store: "prisma" },
   };
 }

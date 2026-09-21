@@ -302,15 +302,15 @@ spec_AppSpecValid = do
 
         it "returns an error when the scheme name contains a ':'" $ do
           ASV.validateAppSpec
-            (makeSpec basicExternalProvider {AS.Auth.name = "te:st", AS.Auth.identityNamespaces = ["te:st:default"]})
+            (makeSpec basicExternalProvider {AS.Auth.name = "te:st", AS.Auth.providerNames = ["te:st:default"]})
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth scheme name 'te:st' must be non-empty and contain neither ':' (the identity"
-                             ++ " namespace separator) nor '/' (it names the scheme's routes)."
+                           "Auth scheme name 'te:st' must be non-empty and contain neither ':' (the provider"
+                             ++ " name separator) nor '/' (it names the scheme's routes)."
                        ]
 
         it "returns an error when the scheme name is a framework auth route" $ do
           ASV.validateAppSpec
-            (makeSpec basicExternalProvider {AS.Auth.name = "me", AS.Auth.identityNamespaces = ["me:default"]})
+            (makeSpec basicExternalProvider {AS.Auth.name = "me", AS.Auth.providerNames = ["me:default"]})
             `shouldBe` [ Valid.GenericValidationError
                            "Auth scheme name 'me' collides with a framework auth route (/auth/me). Reserved names: me, logout, login."
                        ]
@@ -369,37 +369,37 @@ spec_AppSpecValid = do
                            "Auth scheme 'test' requests the unknown runtime grant 'mint-gold'. Known grants: email-send."
                        ]
 
-        it "returns an error for an identity namespace the provider does not own" $ do
+        it "returns an error for an provider name the provider does not own" $ do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.identityNamespaces = ["test:default", "email"]
+                  { AS.Auth.providerNames = ["test:default", "email"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth scheme 'test' declares the identity namespace 'email', which it"
-                             ++ " does not own. A namespace must be 'test:<suffix>'"
+                           "Auth scheme 'test' declares the provider name 'email', which it"
+                             ++ " does not own. A provider name must be 'test:<suffix>'"
                              ++ " -- that rule is what makes cross-scheme identity collisions impossible."
                        ]
 
-        it "returns an error for the bare scheme name as an identity namespace" $ do
+        it "returns an error for the bare scheme name as an provider name" $ do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.identityNamespaces = ["test"]
+                  { AS.Auth.providerNames = ["test"]
                   }
             )
             `shouldBe` [ Valid.GenericValidationError $
-                           "Auth scheme 'test' declares the identity namespace 'test', which it"
-                             ++ " does not own. A namespace must be 'test:<suffix>'"
+                           "Auth scheme 'test' declares the provider name 'test', which it"
+                             ++ " does not own. A provider name must be 'test:<suffix>'"
                              ++ " -- that rule is what makes cross-scheme identity collisions impossible."
                        ]
 
-        it "returns no error for extra owned namespaces, which need no grant" $ do
+        it "returns no error for extra owned provider names, which need no grant" $ do
           ASV.validateAppSpec
             ( makeSpec
                 basicExternalProvider
-                  { AS.Auth.identityNamespaces = ["test:default", "test:passkey"]
+                  { AS.Auth.providerNames = ["test:default", "test:passkey"]
                   }
             )
             `shouldBe` []
@@ -827,7 +827,7 @@ makeTestAuthScheme schemeName =
       AS.Auth.routes = Nothing,
       AS.Auth.capabilities = [],
       AS.Auth.uses = [],
-      AS.Auth.identityNamespaces = [schemeName ++ ":default"],
+      AS.Auth.providerNames = [schemeName ++ ":default"],
       AS.Auth.credentials = Nothing,
       AS.Auth.userFieldsFromClaims = Nothing
     }

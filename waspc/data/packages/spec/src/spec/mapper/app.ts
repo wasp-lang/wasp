@@ -4,7 +4,7 @@ import {
   isValidSchemeName,
   supportedAuthContractVersion,
   validateCredentialsConfig,
-  validateIdentityNamespaces,
+  validateProviderNames,
   validateSideEnvVars,
 } from "../publicApi/constructors.js";
 import * as WaspSpec from "../publicApi/waspSpec.js";
@@ -182,7 +182,7 @@ function mapAuthScheme(
 ): AppSpec.AuthScheme {
   if (!isValidSchemeName(name)) {
     throw new WaspSpecUserError(
-      `Auth scheme name '${name}' must be non-empty and contain neither ':' (the identity namespace separator) nor '/' (it names the scheme's routes).`,
+      `Auth scheme name '${name}' must be non-empty and contain neither ':' (the provider name separator) nor '/' (it names the scheme's routes).`,
     );
   }
   if (
@@ -219,8 +219,8 @@ function mapAuthScheme(
       );
     }
   }
-  const namespaceSuffixes = manifest.identityNamespaces ?? [];
-  validateIdentityNamespaces(handler, namespaceSuffixes);
+  const localProviderNames = manifest.providerNames ?? [];
+  validateProviderNames(handler, localProviderNames);
   if (manifest.credentials !== undefined) {
     validateCredentialsConfig(handler, manifest.credentials);
   }
@@ -276,9 +276,9 @@ function mapAuthScheme(
     },
     capabilities: manifest.capabilities,
     uses,
-    // No bare namespace: a manifest that names none gets `default`.
-    identityNamespaces: (namespaceSuffixes.length > 0
-      ? namespaceSuffixes
+    // No bare provider name: a manifest that names none gets `default`.
+    providerNames: (localProviderNames.length > 0
+      ? localProviderNames
       : ["default"]
     ).map((suffix) => `${name}:${suffix}`),
     credentials:

@@ -246,7 +246,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
         }
 
         const { response } = await runtime.credentialsIssuer.signIn(
-          { namespace: "email", subjectId: email },
+          { providerName: "email", providerUserId: email },
           { req, properties: getSignInProperties(fields) },
         );
         sendAuthResponse(res, response);
@@ -351,8 +351,8 @@ export function emailRoutes(ctx: Ctx): Route[] {
         // Changing the password invalidates every existing credential, so
         // that somebody who got hold of one can't keep using it.
         await runtime.credentialsIssuer.signOutEverywhere({
-          namespace: "email",
-          subjectId: email,
+          providerName: "email",
+          providerUserId: email,
         });
         json(res, 200, { success: true });
       },

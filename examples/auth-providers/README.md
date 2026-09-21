@@ -19,7 +19,7 @@ scheme? The answer, demonstrated rather than asserted, is _everything except the
 - **Handler**: the code. An `AuthHandler` answers `authenticate(request)` and may also
   `signIn`, `signOut`, `challenge` and `forbid`. Packages export handler adapters.
 - **Scheme**: a named, configured handler in `auth.schemes`. The name prefixes the handler's
-  routes (`/auth/<scheme>/…`) and identity namespaces (`<scheme>:username`), and is what
+  routes (`/auth/<scheme>/…`) and provider names (`<scheme>:username`), and is what
   `authRequired: ["<scheme>"]` and `user.sessionScheme` refer to.
 - **Credentials**: what a request carries. A handler that verifies logins but has no credential
   of its own (Wasp's own auth, the password example) declares `credentials`: inline

@@ -157,8 +157,8 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
         // credentials scheme's answer, and redeeming it replays that answer to
         // the client: a bearer token in the body, or a Set-Cookie header.
         const { response } = await runtime.credentialsIssuer.signIn({
-            namespace: provider.id,
-            subjectId: providerUserId,
+            providerName: provider.id,
+            providerUserId,
         }, { req, hookContext: oauth, skipHooks: isNewUser });
         const oneTimeCode = await jwt.createJWT({ response }, { expiresIn: new TimeSpan(1, "m") });
         redirect(res, `${runtime.clientUrl}${spec.clientOAuthCallbackPath}#${oneTimeCode}`);
@@ -221,7 +221,7 @@ async function redeemLinkOneTimeCode({ runtime }, oneTimeCode) {
     if (result.status !== "authenticated") {
         throw new HttpError(400, "The link request expired. Try again.");
     }
-    return result.principal.subjectId;
+    return result.principal.providerUserId;
 }
 function validateAndGetOAuthState(provider, req) {
     const url = getUrl(req);

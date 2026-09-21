@@ -123,8 +123,8 @@ export type IdentityStore<Data extends object, Secrets extends object> = {
 
 // PUBLIC API
 /**
- * The facet for one identity namespace (a provider id, or one of a
- * provider's namespaces like `wasp:email`). Data shapes are the provider's
+ * The facet for one provider name (a provider id, or one of a
+ * provider's provider names like `wasp:email`). Data shapes are the provider's
  * own; normalizing the subject id (lower-casing an email, say) is the
  * provider's job before it calls in.
  */

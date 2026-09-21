@@ -57,7 +57,7 @@ export const createServerAuthHandler = (runtime) => {
             return {
                 status: "authenticated",
                 principal: {
-                    subjectId: verified.userId,
+                    providerUserId: verified.userId,
                     credentialId: verified.sessionId,
                     // The verified JWT's claims, recorded by Wasp when it provisions the
                     // local user. NOTE: Clerk's default session token carries no email --

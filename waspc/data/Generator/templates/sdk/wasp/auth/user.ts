@@ -19,7 +19,7 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
 // PUBLIC API
 /**
  * One identity of the user, as the auth provider that owns it recorded it:
- * the namespace it lives in (`wasp:email`, `clerk`), the provider's own id
+ * the provider name it lives in (`wasp:email`, `clerk`), the provider's own id
  * for the subject, the claims the provider verified, and its non-secret
  * working data. Provider packages ship typed views over this (Wasp's own
  * auth's `getEmail`/`getUsername`).
@@ -64,7 +64,7 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
    */
   signedInBy: AuthSchemeName,
   /**
-   * Every identity of this user, across all providers and namespaces.
+   * Every identity of this user, across all providers and provider names.
    */
   identities: AuthUserIdentity[],
 }

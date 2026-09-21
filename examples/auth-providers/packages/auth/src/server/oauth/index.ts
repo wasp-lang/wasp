@@ -260,8 +260,8 @@ async function callbackHandler(
     // the client: a bearer token in the body, or a Set-Cookie header.
     const { response } = await runtime.credentialsIssuer.signIn(
       {
-        namespace: provider.id,
-        subjectId: providerUserId,
+        providerName: provider.id,
+        providerUserId,
       },
       { req, hookContext: oauth, skipHooks: isNewUser },
     );
@@ -358,7 +358,7 @@ async function redeemLinkOneTimeCode(
   if (result.status !== "authenticated") {
     throw new HttpError(400, "The link request expired. Try again.");
   }
-  return result.principal.subjectId;
+  return result.principal.providerUserId;
 }
 
 function validateAndGetOAuthState(

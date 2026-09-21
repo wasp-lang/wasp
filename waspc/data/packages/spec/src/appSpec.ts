@@ -201,8 +201,8 @@ export type AuthScheme = {
   routes: Optional<AuthSchemeRoutes>;
   capabilities: string[];
   uses: string[];
-  // Full namespace names: the scheme name plus each declared suffix, prefixed.
-  identityNamespaces: string[];
+  // Full provider names, as stored in `AuthIdentity.providerName`: each declared name prefixed with the scheme name.
+  providerNames: string[];
   credentials: Optional<AuthSchemeCredentials>;
   userFieldsFromClaims: Optional<ExtImport>;
 };

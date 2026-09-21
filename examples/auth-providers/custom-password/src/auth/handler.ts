@@ -94,7 +94,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
       // The app's login hooks fire inside; the issuer decides what the
       // client receives (here, `{ credential }`).
       const { response } = await runtime.credentialsIssuer.signIn(
-        { subjectId: normalizedEmail },
+        { providerUserId: normalizedEmail },
         { req },
       );
       for (const [name, value] of Object.entries(response.headers ?? {})) {
@@ -135,7 +135,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
         "Content-Disposition",
         'attachment; filename="account.json"',
       );
-      return send(200, { authId: result.principal.subjectId });
+      return send(200, { authId: result.principal.providerUserId });
     }
 
     send(404, { message: "Not found." });

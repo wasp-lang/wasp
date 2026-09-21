@@ -26,11 +26,11 @@ declare function waspAuthT(p: { email?: boolean }): {
   };
   client: { spec: { methods: string[] }; env: [{ name: "REACT_APP_X" }] };
   uses: Array<"email-send">;
-  identityNamespaces: Array<"email" | "google">;
+  providerNames: Array<"email" | "google">;
   credentials: { transport?: "bearer" | "cookie" };
 };
 export const wasp: ServerAuthAdapterFor<typeof waspAuthT> = (runtime, spec) => {
-  runtime.credentialsIssuer.signIn({ subjectId: "a" });
+  runtime.credentialsIssuer.signIn({ providerUserId: "a" });
   const scopes: string[] =
     spec.google?.configFn?.().scopes ?? spec.google?.scopes ?? [];
   // @ts-expect-error the adapter gets the live function, not the reference
@@ -45,7 +45,7 @@ export const wasp: ServerAuthAdapterFor<typeof waspAuthT> = (runtime, spec) => {
   runtime.env.DATABASE_URL;
   runtime.identities.email;
   runtime.mountPath;
-  // @ts-expect-error undeclared namespace
+  // @ts-expect-error undeclared provider name
   runtime.identities.github;
   return { handler, routeHandler() {} };
 };

@@ -33,7 +33,7 @@ export function usernameRoutes(ctx) {
                 // The sign-in goes through the credentials issuer any handler gets;
                 // the app's login hooks fire inside it, and the credentials scheme
                 // decides what the client receives.
-                const { response } = await runtime.credentialsIssuer.signIn({ namespace: "username", subjectId: username }, { req, properties: getSignInProperties(fields) });
+                const { response } = await runtime.credentialsIssuer.signIn({ providerName: "username", providerUserId: username }, { req, properties: getSignInProperties(fields) });
                 sendAuthResponse(res, response);
             },
         },
