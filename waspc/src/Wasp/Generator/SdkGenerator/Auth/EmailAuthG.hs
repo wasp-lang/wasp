@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
 import Wasp.Generator.AuthProviders.Email
@@ -19,18 +19,13 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
-    genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
-      sequence
-        [ genFileCopyInEmailAuthDir [relfile|index.ts|]
-        ]
-        <++> genActions auth
+      genActions auth
   | otherwise = return []
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
@@ -90,7 +85,3 @@ genVerifyEmailAction =
 
 emailAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 emailAuthDirInSdkTemplatesDir = [reldir|auth/email|]
-
-genFileCopyInEmailAuthDir :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInEmailAuthDir =
-  genFileCopy . (emailAuthDirInSdkTemplatesDir </>)
