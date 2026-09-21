@@ -310,9 +310,7 @@ genServerExportedTypesDir = C.genFileCopy [relfile|server/types/index.ts|]
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ C.genFileCopy [relfile|server/middleware/index.ts|],
-      C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
-    ]
+    [C.genFileCopy [relfile|server/middleware/index.ts|]]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
 genServerDbClient spec = do
