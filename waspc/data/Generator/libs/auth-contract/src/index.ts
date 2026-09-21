@@ -558,11 +558,18 @@ export type IdentityStore = {
   ): Promise<{ authId: string }>;
 
   /**
-   * Deletes the subject's identity AND its whole local user, cascading to auth
-   * data and sessions. Returns whether anything was deleted. Loud on purpose:
-   * this removes the app's business user, not just the identity row.
+   * Delete ONE identity, the handler's own decision (an unverified signup
+   * that was superseded, say). Resolves to whether there was one.
+   *
+   * The app's user goes with it ONLY when this was the account's last
+   * identity: an account nobody can log into is not kept. An account that
+   * has other identities (a linked Google login) keeps them, its user and
+   * everything the user owns. One transaction.
+   *
+   * Compare `unlink`, the person's own request, which REFUSES the last
+   * identity instead.
    */
-  deleteUser(providerUserId: string): Promise<boolean>;
+  delete(providerUserId: string): Promise<boolean>;
 
   /**
    * Account linking: attach a new identity to an EXISTING account, instead of

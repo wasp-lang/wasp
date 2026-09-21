@@ -39,7 +39,7 @@ export type UserFieldsFromClaims = SpecReference<Record<string, (data: never) =>
 export type ClerkAuthSchemeManifest = {
     readonly __waspAuthSchemeManifest: true;
     kind: "scheme";
-    contractVersion: 11;
+    contractVersion: 12;
     server: {
         authAdapter: {
             package: string;

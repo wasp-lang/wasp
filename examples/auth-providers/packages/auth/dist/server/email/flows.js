@@ -74,7 +74,9 @@ export function emailRoutes(ctx) {
                         throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`);
                     }
                     try {
-                        await identities().deleteUser(email);
+                        // Only this unverified identity: an account that has other
+                        // logins linked keeps them, its user and its data.
+                        await identities().delete(email);
                     }
                     catch (e) {
                         rethrowPossibleAuthError(e);

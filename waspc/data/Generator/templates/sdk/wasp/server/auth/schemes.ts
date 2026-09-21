@@ -231,7 +231,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
     updateData: (providerUserId, updates) => store.updateData(providerUserId, updates),
     getSecrets: (providerUserId) => store.getSecrets(providerUserId) as any,
     updateSecrets: (providerUserId, updates) => store.updateSecrets(providerUserId, updates),
-    deleteUser: (providerUserId) => store.deleteUser(providerUserId),
+    delete: (providerUserId) => store.deleteIdentity(providerUserId),
   }
 }
 

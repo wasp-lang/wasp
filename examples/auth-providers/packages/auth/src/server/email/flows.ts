@@ -121,7 +121,9 @@ export function emailRoutes(ctx: Ctx): Route[] {
             );
           }
           try {
-            await identities().deleteUser(email);
+            // Only this unverified identity: an account that has other
+            // logins linked keeps them, its user and its data.
+            await identities().delete(email);
           } catch (e) {
             rethrowPossibleAuthError(e);
           }

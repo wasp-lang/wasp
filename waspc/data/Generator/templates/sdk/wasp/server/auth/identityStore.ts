@@ -104,10 +104,12 @@ export type IdentityStore<Data extends object, Secrets extends object> = {
   updateData(providerUserId: string, updates: MergePatch<Data>): Promise<void>;
 
   /**
-   * Deletes the identity's whole user (cascading to its auth data and
-   * sessions). Returns whether anything was deleted.
+   * Deletes the identity, and with it the whole user (cascading to its auth
+   * data and sessions) ONLY when it was the account's last identity: an
+   * account nobody can log into is not kept. Returns whether there was an
+   * identity to delete.
    */
-  deleteUser(providerUserId: string): Promise<boolean>;
+  deleteIdentity(providerUserId: string): Promise<boolean>;
 
   /**
    * Account linking: attaches a new identity to an EXISTING Auth entity,
@@ -301,21 +303,29 @@ export function getIdentityStore(
       });
     },
 
-    async deleteUser(providerUserId) {
-      const { count } = await prisma.{= userEntityLower =}.deleteMany({
-        where: {
-          {= authFieldOnUserEntityName =}: {
-            {= identitiesFieldOnAuthEntityName =}: {
-              some: {
-                handlerName,
-                providerName,
-                providerUserId: providerUserId,
-              },
-            },
-          },
-        },
+    async deleteIdentity(providerUserId) {
+      return prisma.$transaction(async (tx) => {
+        const identity = await tx.{= authIdentityEntityLower =}.findUnique({
+          where: whereIdentity(providerUserId),
+          select: { authId: true },
+        });
+        if (identity === null) {
+          return false;
+        }
+        const identitiesOnAccount = await tx.{= authIdentityEntityLower =}.count({
+          where: { authId: identity.authId },
+        });
+        if (identitiesOnAccount > 1) {
+          await tx.{= authIdentityEntityLower =}.delete({ where: whereIdentity(providerUserId) });
+          return true;
+        }
+        // The last identity: nobody could log into what remains, so the user
+        // goes too, cascading to its auth data and sessions.
+        await tx.{= userEntityLower =}.deleteMany({
+          where: { {= authFieldOnUserEntityName =}: { id: identity.authId } },
+        });
+        return true;
       });
-      return count > 0;
     },
   };
 }
