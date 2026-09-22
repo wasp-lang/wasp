@@ -52,10 +52,14 @@ export function usernameRoutes(ctx) {
                     // `link`, not `create`: no new user, no userSignupFields; the
                     // app's link hooks fire inside.
                     await identities().link(username, {
-                        secrets: {
-                            hashedPassword: await hashPassword(fields.password),
+                        identity: {
+                            secrets: {
+                                hashedPassword: await hashPassword(fields.password),
+                            },
                         },
-                    }, { authId, req });
+                        authId,
+                        req,
+                    });
                 }
                 catch (e) {
                     // The username is taken. Knowing its password is the proof that
@@ -87,10 +91,14 @@ export function usernameRoutes(ctx) {
                     // onBeforeSignup veto, then the lazy userSignupFields getters, then
                     // the atomic write, then onAfterSignup.
                     await identities().create(normalizeUsername(fields.username), {
-                        secrets: {
-                            hashedPassword: await hashPassword(fields.password),
+                        identity: {
+                            secrets: {
+                                hashedPassword: await hashPassword(fields.password),
+                            },
                         },
-                    }, (() => validateAndGetUserFields(fields, spec.methods.usernameAndPassword?.userSignupFields)), { req });
+                        getUserFields: (() => validateAndGetUserFields(fields, spec.methods.usernameAndPassword?.userSignupFields)),
+                        req,
+                    });
                 }
                 catch (e) {
                     rethrowPossibleAuthError(e);

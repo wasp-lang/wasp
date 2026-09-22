@@ -139,12 +139,13 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
   const store = getIdentityStore(spec.scheme, providerName)
   return {
     find: (providerUserId) => store.find(providerUserId) as any,
-    provision: async (providerUserId, identity, opts) =>
-      provisionAuthUser(spec.scheme, providerUserId, identity?.claims, {
-        data: identity?.data,
-        secrets: identity?.secrets,
+    provision: async (providerUserId, opts) =>
+      provisionAuthUser(spec.scheme, providerUserId, opts?.identity?.claims, {
+        data: opts?.identity?.data,
+        secrets: opts?.identity?.secrets,
       }, providerName, { req: opts?.req as any, oauth: resolveOAuthData(spec, providerName, opts?.oauth) }),
-    create: async (providerUserId, identity, getUserFields, opts) => {
+    create: async (providerUserId, opts) => {
+      const { identity, getUserFields } = opts ?? {}
       const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
       // The app's signup veto fires FIRST -- at this Wasp-owned choke point no
       // handler can forget it -- and only then do any user-supplied field
@@ -183,7 +184,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       }
       return { authId: created.{= authFieldOnUserEntityName =}!.id }
     },
-    link: async (providerUserId, identity, opts) => {
+    link: async (providerUserId, opts) => {
       await assertSchemeOwnsAccount(spec, opts.authId)
       const existing = await store.find(providerUserId)
       if (existing !== null) {
@@ -202,7 +203,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
         onBeforeLinkHook({ req: opts.req as any, providerId: hookProviderId, user: auth.user }),
       )
       try {
-        await store.linkIdentity(providerUserId, identity as any, opts.authId)
+        await store.linkIdentity(providerUserId, (opts.identity ?? {}) as any, opts.authId)
       } catch (e) {
         // Lost a race against another link or signup of the same subject.
         if (isUniqueConstraintViolation(e)) {

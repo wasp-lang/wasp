@@ -153,7 +153,7 @@ function withEagerProvisioning(runtime, databaseHooks) {
                     // the first login exchange. Idempotent; the exchange's just-in-time
                     // provisioning remains the backstop.
                     await runtime.identities.default.provision(user.id, {
-                        claims: { email: user.email, name: user.name },
+                        identity: { claims: { email: user.email, name: user.name } },
                     });
                 },
             },

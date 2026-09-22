@@ -288,13 +288,6 @@ export type SignInOpts = {
   skipHooks?: boolean;
 };
 
-/** `signIn`'s arguments after the identity: the options are REQUIRED when they must carry data. */
-export type SignInRest<Kind extends ProviderKindParam> = [Kind] extends [
-  "oauth",
-]
-  ? [opts: SignInOpts & LoginData<Kind>]
-  : [opts?: SignInOpts & LoginData<Kind>];
-
 /**
  * The credentials issuer: how a handler that verifies logins but cannot carry a
  * credential across requests hands one out.
@@ -328,7 +321,10 @@ export type CredentialsIssuer<
    */
   signIn<ProviderName extends keyof Kinds & string>(
     identityRef: AuthIdentityRef<ProviderName>,
-    ...rest: SignInRest<Kinds[ProviderName]>
+    ...rest: OptsArg<
+      SignInOpts & LoginData<Kinds[ProviderName]>,
+      Kinds[ProviderName]
+    >
   ): Promise<SignInResult>;
 
   /** Invalidate the credential the request carries, through the issuer. */
@@ -586,44 +582,41 @@ export type GetUserFields = () =>
   | Promise<Record<string, JsonValue>>
   | Record<string, JsonValue>;
 
-/** The options of `IdentityStore.create`. */
-export type CreateOpts = { skipHooks?: boolean; req?: unknown };
-
 /**
- * `create`'s arguments. For an "oauth" provider the options are required
- * (they carry the tokens), so the two before them are given explicitly,
- * `undefined` when there is nothing to say.
+ * One options object after the id, for every identity write. The kind of the
+ * provider decides whether it may be OMITTED: for an "oauth" provider the
+ * options carry the tokens, so they are required; otherwise `create(id)` is
+ * a complete call.
  */
-export type CreateArgs<Kind extends ProviderKindParam> = [Kind] extends [
+export type OptsArg<Opts, Kind extends ProviderKindParam> = [Kind] extends [
   "oauth",
 ]
-  ? [
-      providerUserId: string,
-      identity: IdentityContent | undefined,
-      getUserFields: GetUserFields | undefined,
-      opts: CreateOpts & LoginData<Kind>,
-    ]
-  : [
-      providerUserId: string,
-      identity?: IdentityContent,
-      getUserFields?: GetUserFields,
-      opts?: CreateOpts & LoginData<Kind>,
-    ];
+  ? [opts: Opts]
+  : [opts?: Opts];
 
-/** `provision`'s arguments, by the same rule as `CreateArgs`. */
-export type ProvisionArgs<Kind extends ProviderKindParam> = [Kind] extends [
-  "oauth",
-]
-  ? [
-      providerUserId: string,
-      identity: IdentityContent | undefined,
-      opts: { req?: unknown } & LoginData<Kind>,
-    ]
-  : [
-      providerUserId: string,
-      identity?: IdentityContent,
-      opts?: { req?: unknown } & LoginData<Kind>,
-    ];
+/** The options of `IdentityStore.create`. */
+export type CreateOpts<Kind extends ProviderKindParam> = {
+  identity?: IdentityContent;
+  /** Omitted: the manifest's `userFieldsFromClaims` run over the claims instead. */
+  getUserFields?: GetUserFields;
+  /** The incoming request, passed to the app's signup hooks. */
+  req?: unknown;
+  /** Skip the signup hooks: for identity writes that are not a signup (an import). */
+  skipHooks?: boolean;
+} & LoginData<Kind>;
+
+/** The options of `IdentityStore.provision`. */
+export type ProvisionOpts<Kind extends ProviderKindParam> = {
+  identity?: IdentityContent;
+  req?: unknown;
+} & LoginData<Kind>;
+
+/** The options of `IdentityStore.link`. `authId` names the account the identity attaches to. */
+export type LinkOpts<Kind extends ProviderKindParam> = {
+  authId: string;
+  identity?: IdentityContent;
+  req?: unknown;
+} & LoginData<Kind>;
 
 /**
  * The per-scheme view of Wasp's identity store. `providerUserId` is always the
@@ -643,20 +636,26 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
      * `userSignupFields` over the claims, exactly like just-in-time
      * provisioning at first authentication.
      */
-    provision(...args: ProvisionArgs<Kind>): Promise<{ authId: string } | null>;
+    provision(
+      providerUserId: string,
+      ...rest: OptsArg<ProvisionOpts<Kind>, Kind>
+    ): Promise<{ authId: string } | null>;
 
     /**
      * Strict create of the local user for a subject: signup semantics, where
      * `provision` is login semantics. Rejects with
      * `wasp-auth/duplicate-identity` when the subject already exists.
      *
-     * `getUserFields` computes the new user entity's own fields; it is a
+     * `opts.getUserFields` computes the new user entity's own fields; it is a
      * callback (not a value) so the provisioning layer controls when it runs --
      * the app's signup veto, once it fires at this choke point, must run before
      * any user-supplied field getters do. When omitted, the scheme's
      * manifest's `userFieldsFromClaims` run over the claims instead.
      */
-    create(...args: CreateArgs<Kind>): Promise<{ authId: string }>;
+    create(
+      providerUserId: string,
+      ...rest: OptsArg<CreateOpts<Kind>, Kind>
+    ): Promise<{ authId: string }>;
 
     /**
      * Delete ONE identity, the handler's own decision (an unverified signup
@@ -686,19 +685,7 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
      * Rejects with `wasp-auth/identity-linked-elsewhere` when it belongs to a
      * different one.
      */
-    link(
-      providerUserId: string,
-      identity: {
-        claims?: Record<string, JsonValue>;
-        data?: Record<string, JsonValue>;
-        secrets?: Record<string, JsonValue>;
-      },
-      opts: {
-        authId: string;
-        /** The incoming request, surfaced to the app's link hooks. */
-        req?: unknown;
-      } & LoginData<Kind>,
-    ): Promise<void>;
+    link(providerUserId: string, opts: LinkOpts<Kind>): Promise<void>;
 
     /**
      * Detach the subject's identity from the account. Rejects with

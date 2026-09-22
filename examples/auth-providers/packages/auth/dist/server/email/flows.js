@@ -84,15 +84,19 @@ export function emailRoutes(ctx) {
                 }
                 try {
                     await identities().create(email, {
-                        data: {
-                            isEmailVerified: isEmailAutoVerified ? true : false,
-                            emailVerificationSentAt: null,
-                            passwordResetSentAt: null,
+                        identity: {
+                            data: {
+                                isEmailVerified: isEmailAutoVerified ? true : false,
+                                emailVerificationSentAt: null,
+                                passwordResetSentAt: null,
+                            },
+                            secrets: {
+                                hashedPassword: await hashPassword(fields.password),
+                            },
                         },
-                        secrets: {
-                            hashedPassword: await hashPassword(fields.password),
-                        },
-                    }, (() => validateAndGetUserFields(fields, emailConfig.userSignupFields)), { req });
+                        getUserFields: (() => validateAndGetUserFields(fields, emailConfig.userSignupFields)),
+                        req,
+                    });
                 }
                 catch (e) {
                     rethrowPossibleAuthError(e);
@@ -120,15 +124,19 @@ export function emailRoutes(ctx) {
                 const email = normalizeEmail(fields.email);
                 try {
                     await identities().link(email, {
-                        data: {
-                            isEmailVerified: isEmailAutoVerified ? true : false,
-                            emailVerificationSentAt: null,
-                            passwordResetSentAt: null,
+                        identity: {
+                            data: {
+                                isEmailVerified: isEmailAutoVerified ? true : false,
+                                emailVerificationSentAt: null,
+                                passwordResetSentAt: null,
+                            },
+                            secrets: {
+                                hashedPassword: await hashPassword(fields.password),
+                            },
                         },
-                        secrets: {
-                            hashedPassword: await hashPassword(fields.password),
-                        },
-                    }, { authId, req });
+                        authId,
+                        req,
+                    });
                 }
                 catch (e) {
                     // Proof needs the password AND a verified address: an unverified

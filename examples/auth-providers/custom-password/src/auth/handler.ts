@@ -56,15 +56,13 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
         // One atomic write of User + Auth + AuthIdentity, with the app's
         // signup hooks fired around it. The hash goes into `secrets`, the
         // column the Prisma client omits by default.
-        await runtime.identities.default.create(
-          normalizedEmail,
-          {
+        await runtime.identities.default.create(normalizedEmail, {
+          identity: {
             claims: { email: normalizedEmail },
             secrets: { hashedPassword: await hash(password) },
           },
-          undefined,
-          { req },
-        );
+          req,
+        });
       } catch (e) {
         if (getAuthContractErrorCode(e) === "wasp-auth/duplicate-identity") {
           return send(422, {

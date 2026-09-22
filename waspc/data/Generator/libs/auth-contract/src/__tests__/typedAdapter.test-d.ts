@@ -139,24 +139,24 @@ export const kindsTyped: ServerAuthAdapterFor<typeof kindsAuth> = async (
 ) => {
   const { identities, credentialsIssuer } = runtime;
   // oauth provider: data required
-  await identities.google.create("id", {}, undefined, { oauth });
+  await identities.google.create("id", { oauth });
   // @ts-expect-error missing oauth data
-  await identities.google.create("id", {}, undefined, {});
+  await identities.google.create("id", {});
   // @ts-expect-error missing opts altogether
   await identities.google.create("id");
-  await identities.google.link("id", {}, { authId: "a", oauth });
+  await identities.google.link("id", { authId: "a", oauth });
   // @ts-expect-error link without oauth data
-  await identities.google.link("id", {}, { authId: "a" });
-  await identities.google.provision("id", undefined, { oauth });
+  await identities.google.link("id", { authId: "a" });
+  await identities.google.provision("id", { oauth });
   // plain provider: data not accepted
   await identities.email.create("a@b.c");
-  await identities.email.create("a@b.c", {}, () => ({}), { req: 1 });
+  await identities.email.create("a@b.c", { getUserFields: () => ({}), req: 1 });
   // @ts-expect-error a plain provider carries no oauth data
-  await identities.email.create("a@b.c", {}, undefined, { oauth });
-  await identities.email.link("a@b.c", {}, { authId: "a" });
+  await identities.email.create("a@b.c", { oauth });
+  await identities.email.link("a@b.c", { authId: "a" });
   // app decides: optional
   await identities.flexible.create("x");
-  await identities.flexible.create("x", {}, undefined, { oauth });
+  await identities.flexible.create("x", { oauth });
   // @ts-expect-error undeclared provider
   identities.github;
   // issuer: kind looked up from the ref's provider name
@@ -194,14 +194,16 @@ declare function plainAuth(): { server: {} };
 export const kindsPlain: ServerAuthAdapterFor<typeof plainAuth> = async (
   runtime,
 ) => {
-  await runtime.identities.default.provision("user_1", { claims: {} });
+  await runtime.identities.default.provision("user_1", {
+    identity: { claims: {} },
+  });
   return { handler };
 };
 // loose: everything optional, shape still checked
 export const kindsLoose: ServerAuthAdapter = async (runtime) => {
   await runtime.identities.default.create("x");
-  await runtime.identities.default.create("x", {}, undefined, { oauth });
-  await runtime.identities.default.create("x", {}, undefined, {
+  await runtime.identities.default.create("x", { oauth });
+  await runtime.identities.default.create("x", {
     // @ts-expect-error wrong shape
     oauth: { tokens: 1 },
   });

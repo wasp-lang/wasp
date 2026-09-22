@@ -78,15 +78,15 @@ export function usernameRoutes(ctx: Ctx): Route[] {
         try {
           // `link`, not `create`: no new user, no userSignupFields; the
           // app's link hooks fire inside.
-          await identities().link(
-            username,
-            {
+          await identities().link(username, {
+            identity: {
               secrets: {
                 hashedPassword: await hashPassword(fields.password as string),
               },
             },
-            { authId, req },
-          );
+            authId,
+            req,
+          });
         } catch (e) {
           // The username is taken. Knowing its password is the proof that
           // the other account is the caller's own, and so may be merged.
@@ -129,16 +129,18 @@ export function usernameRoutes(ctx: Ctx): Route[] {
           await identities().create(
             normalizeUsername(fields.username as string),
             {
-              secrets: {
-                hashedPassword: await hashPassword(fields.password as string),
+              identity: {
+                secrets: {
+                  hashedPassword: await hashPassword(fields.password as string),
+                },
               },
+              getUserFields: (() =>
+                validateAndGetUserFields(
+                  fields,
+                  spec.methods.usernameAndPassword?.userSignupFields,
+                )) as never,
+              req,
             },
-            (() =>
-              validateAndGetUserFields(
-                fields,
-                spec.methods.usernameAndPassword?.userSignupFields,
-              )) as never,
-            { req },
           );
         } catch (e) {
           rethrowPossibleAuthError(e);

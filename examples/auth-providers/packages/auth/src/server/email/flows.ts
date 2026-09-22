@@ -130,9 +130,8 @@ export function emailRoutes(ctx: Ctx): Route[] {
         }
 
         try {
-          await identities().create(
-            email,
-            {
+          await identities().create(email, {
+            identity: {
               data: {
                 isEmailVerified: isEmailAutoVerified ? true : false,
                 emailVerificationSentAt: null,
@@ -142,13 +141,13 @@ export function emailRoutes(ctx: Ctx): Route[] {
                 hashedPassword: await hashPassword(fields.password as string),
               },
             },
-            (() =>
+            getUserFields: (() =>
               validateAndGetUserFields(
                 fields,
                 emailConfig.userSignupFields,
               )) as never,
-            { req },
-          );
+            req,
+          });
         } catch (e) {
           rethrowPossibleAuthError(e);
         }
@@ -176,9 +175,8 @@ export function emailRoutes(ctx: Ctx): Route[] {
         ensureValidPassword(fields);
         const email = normalizeEmail(fields.email as string);
         try {
-          await identities().link(
-            email,
-            {
+          await identities().link(email, {
+            identity: {
               data: {
                 isEmailVerified: isEmailAutoVerified ? true : false,
                 emailVerificationSentAt: null,
@@ -188,8 +186,9 @@ export function emailRoutes(ctx: Ctx): Route[] {
                 hashedPassword: await hashPassword(fields.password as string),
               },
             },
-            { authId, req },
-          );
+            authId,
+            req,
+          });
         } catch (e) {
           // Proof needs the password AND a verified address: an unverified
           // email identity may be a squatter's, not the caller's.

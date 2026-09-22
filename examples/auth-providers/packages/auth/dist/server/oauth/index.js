@@ -116,7 +116,11 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
                 throw new HttpError(400, "The link request expired. Try again.");
             });
             try {
-                await identities.link(providerUserId, {}, { authId: linkToAuthId, req, oauth });
+                await identities.link(providerUserId, {
+                    authId: linkToAuthId,
+                    req,
+                    oauth,
+                });
             }
             catch (e) {
                 // The provider account belongs to another Wasp account. Completing
@@ -145,7 +149,11 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
             try {
                 // The facet's `create` fires the app's signup hooks (with the OAuth
                 // tokens as their `oauth` payload) around the atomic write.
-                await identities.create(providerUserId, {}, (() => validateAndGetUserFields({ profile: providerProfile }, spec.methods[provider.id]?.userSignupFields)), { req, oauth });
+                await identities.create(providerUserId, {
+                    getUserFields: (() => validateAndGetUserFields({ profile: providerProfile }, spec.methods[provider.id]?.userSignupFields)),
+                    req,
+                    oauth,
+                });
                 isNewUser = true;
             }
             catch (e) {
