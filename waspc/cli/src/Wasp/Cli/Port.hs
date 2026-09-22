@@ -2,12 +2,16 @@ module Wasp.Cli.Port
   ( findFirstFreeLocalPortInRange,
     findFirstFreeLocalPortAmong,
     checkIfLocalPortIsTaken,
+    assertLocalPortIsFree,
   )
 where
 
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
 import Data.List ((\\))
 import Network.Socket (PortNumber)
-import Wasp.Util (ifM)
+import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Util (ifM, whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
 findFirstFreeLocalPortInRange :: PortNumber -> [PortNumber] -> String -> IO (Either String PortNumber)
@@ -31,6 +35,13 @@ findFirstFreeLocalPortAmong (port : remainingPorts) =
     (checkIfLocalPortIsTaken port)
     (findFirstFreeLocalPortAmong remainingPorts)
     (return $ Just port)
+
+assertLocalPortIsFree :: PortNumber -> Command PortNumber
+assertLocalPortIsFree port = do
+  whenM (liftIO $ checkIfLocalPortIsTaken port) $
+    throwError $
+      CommandError "Failed to find ports" ("Port " ++ show port ++ " is already in use.")
+  return port
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
 checkIfLocalPortIsTaken port =

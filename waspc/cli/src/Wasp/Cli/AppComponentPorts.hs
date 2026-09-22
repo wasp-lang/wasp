@@ -11,8 +11,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Port (checkIfLocalPortIsTaken, findFirstFreeLocalPortInRange)
-import Wasp.Util (whenM)
+import Wasp.Cli.Port (assertLocalPortIsFree, findFirstFreeLocalPortInRange)
 
 defaultDevClientPort :: PortNumber
 defaultDevClientPort = 3000
@@ -28,7 +27,7 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
   resolvedClientPort <-
     maybe
       (findPort defaultDevClientPort (catMaybes [requestedServerPort]))
-      assertPort
+      assertLocalPortIsFree
       requestedClientPort
 
   resolvedServerPort <-
@@ -41,16 +40,11 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
           (resolvedClientPort + 1)
           []
       )
-      assertPort
+      assertLocalPortIsFree
       requestedServerPort
 
   return (resolvedClientPort, resolvedServerPort)
   where
-    assertPort port = do
-      whenM (liftIO $ checkIfLocalPortIsTaken port) $ do
-        throwResolvingError $ "Port " ++ show port ++ " is already in use."
-      return port
-
     findPort startPort portsToSkip =
       liftIO
         ( findFirstFreeLocalPortInRange
@@ -58,6 +52,9 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
             portsToSkip
             "Free up some ports, or choose them yourself with --client-port and --server-port."
         )
-        >>= either throwResolvingError return
+        >>= either throwNoFreePortError return
+
+    throwNoFreePortError :: String -> Command a
+    throwNoFreePortError = throwError . CommandError "No free port"
 
     throwResolvingError = throwError . CommandError "Failed to find ports"
