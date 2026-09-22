@@ -118,7 +118,10 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
     return null;
   }
 
-  return createAuthUserData(user, scheme, principal.signedInBy ?? scheme);
+  return createAuthUserData(user, scheme, principal.signedInBy ?? scheme, {
+    credentialIssuedAt: principal.credentialIssuedAt ?? null,
+    isCredentialFresh: principal.isCredentialFresh ?? false,
+  });
 }
 
 // Wasp-issued credentials carry the Auth entity's uuid as their subject; a

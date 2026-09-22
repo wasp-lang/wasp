@@ -231,6 +231,7 @@ export type AuthSchemeCredentials =
       transport: "bearer" | "cookie";
       store: "prisma" | "signed-token" | { module: ExtImport };
       ttl: string;
+      freshFor: string;
     };
 
 export type AuthSchemeRoutes = {

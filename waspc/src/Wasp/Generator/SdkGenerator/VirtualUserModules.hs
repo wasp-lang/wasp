@@ -234,7 +234,7 @@ getVirtualUserModules spec =
     authCredentialStores =
       [ extImport'
       | scheme <- authSchemes,
-        Just (_, AS.Auth.CustomStore extImport', _) <- [AS.Auth.inlineCredentials scheme]
+        Just (_, AS.Auth.CustomStore extImport', _, _) <- [AS.Auth.inlineCredentials scheme]
       ]
     app = snd $ getApp spec
 

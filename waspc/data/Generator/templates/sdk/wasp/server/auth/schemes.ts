@@ -531,6 +531,7 @@ const issuerOptions_{= index =}: IssuerOptions = {
   store: '{= storeKind =}',
   {=/ storeModule.isDefined =}
   ttl: '{= ttl =}',
+  freshFor: '{= freshFor =}',
   secret: (validatedEnv as Record<string, string | undefined>)['WASP_CREDENTIAL_SECRET'],
   loginPath: `${config.frontendUrl}{= failureRedirectPath =}`,
 }

@@ -518,7 +518,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 15 as const;
+export const supportedAuthContractVersion = 16 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
@@ -741,6 +741,8 @@ export type WaspCredentialSchemeConfig = {
   store?: CredentialStore;
   /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
   ttl?: string;
+  /** See {@link CredentialsConfig.freshFor}. */
+  freshFor?: string;
 };
 
 /**
@@ -807,6 +809,11 @@ function waspCredentialScheme(
     ],
     // The scheme IS its issuer: the compiler reads these and builds it
     // without a handler package in between.
-    credentials: { transport, store, ttl: config.ttl ?? "30d" },
+    credentials: {
+      transport,
+      store,
+      ttl: config.ttl ?? "30d",
+      freshFor: config.freshFor ?? "15m",
+    },
   });
 }

@@ -44,10 +44,20 @@ test("login mints a Wasp session attributed to the package", async ({
   });
   expect(me.status()).toBe(200);
   const user = (await me.json()) as {
-    json: { sessionScheme: string; signedInBy: string };
+    json: {
+      sessionScheme: string;
+      signedInBy: string;
+      credentialIssuedAt: string | null;
+      isCredentialFresh: boolean;
+    };
   };
   expect(user.json.sessionScheme).toBe(SCHEME);
   expect(user.json.signedInBy).toBe(SCHEME);
+  // A credential issued seconds ago is fresh, and says when it was issued.
+  expect(user.json.isCredentialFresh).toBe(true);
+  expect(
+    Date.now() - new Date(user.json.credentialIssuedAt!).getTime(),
+  ).toBeLessThan(60_000);
 });
 
 test("a login without remember-me is marked for the browser session only", async ({

@@ -40,7 +40,7 @@ export type UserFieldsFromClaims = SpecReference<
 export type BetterAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 15;
+  contractVersion: 16;
   server: {
     authAdapter: { package: string };
     env: [EnvVarRequirement<"BETTER_AUTH_SECRET">];
@@ -120,7 +120,7 @@ export function betterAuth(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 15,
+    contractVersion: 16,
     server: {
       authAdapter: { package: "@wasp.sh/auth-better-auth/server" },
       env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],

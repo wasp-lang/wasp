@@ -368,6 +368,11 @@ export type CredentialsConfig =
       store?: CredentialStore;
       /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
       ttl?: string;
+      /**
+       * How long after a login the credential counts as fresh, for step-up
+       * checks (`user.isCredentialFresh`). Default: 15 minutes.
+       */
+      freshFor?: string;
     };
 
 /**
@@ -475,7 +480,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 15;
+  contractVersion: 16;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */

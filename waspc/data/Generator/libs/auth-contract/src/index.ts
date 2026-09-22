@@ -84,6 +84,10 @@ export type Principal = AuthIdentityRef & {
    * flows and uses it for diagnostics; it never interprets its contents.
    */
   credentialId?: string;
+  /** When the credential was issued, if the handler knows. Wasp's own issuer always does. */
+  credentialIssuedAt?: Date;
+  /** Whether the credential is younger than its scheme's `freshFor`. Wasp's own issuer always says. */
+  isCredentialFresh?: boolean;
 };
 
 /**

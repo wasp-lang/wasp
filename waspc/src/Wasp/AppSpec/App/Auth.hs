@@ -227,7 +227,9 @@ data AuthSchemeCredentials
       { transport :: CredentialTransport,
         store :: CredentialStore,
         -- | Credential lifetime, e.g. @"30d"@.
-        ttl :: String
+        ttl :: String,
+        -- | How long after a login the credential counts as fresh, e.g. @"15m"@.
+        freshFor :: String
       }
   deriving (Show, Eq, Data, Generic)
 
@@ -241,11 +243,12 @@ instance FromJSON AuthSchemeCredentials where
           <$> o .: "transport"
           <*> o .: "store"
           <*> o .: "ttl"
+          <*> o .: "freshFor"
 
 instance ToJSON AuthSchemeCredentials where
   toJSON (CredentialsFromScheme schemeName) = Aeson.object ["scheme" .= schemeName]
-  toJSON (InlineCredentials transport' store' ttl') =
-    Aeson.object ["transport" .= transport', "store" .= store', "ttl" .= ttl']
+  toJSON (InlineCredentials transport' store' ttl' freshFor') =
+    Aeson.object ["transport" .= transport', "store" .= store', "ttl" .= ttl', "freshFor" .= freshFor']
 
 data CredentialTransport = BearerTransport | CookieTransport
   deriving (Show, Eq, Data, Generic)
@@ -289,9 +292,9 @@ credentialsScheme scheme = case scheme.credentials of
 
 -- | The private issuer this scheme is configured with, if that is how it
 -- hands out credentials.
-inlineCredentials :: AuthScheme -> Maybe (CredentialTransport, CredentialStore, String)
+inlineCredentials :: AuthScheme -> Maybe (CredentialTransport, CredentialStore, String, String)
 inlineCredentials scheme = case scheme.credentials of
-  Just (InlineCredentials transport' store' ttl') -> Just (transport', store', ttl')
+  Just (InlineCredentials transport' store' ttl' freshFor') -> Just (transport', store', ttl', freshFor')
   _ -> Nothing
 
 -- | Whether other schemes may sign into this one.
@@ -314,7 +317,7 @@ isCookieTransportUsed = any usesCookie . schemes
     usesCookie scheme =
       "cookie-transport" `elem` scheme.capabilities
         || case inlineCredentials scheme of
-          Just (CookieTransport, _, _) -> True
+          Just (CookieTransport, _, _, _) -> True
           _ -> False
 
 -- | Whether any configured scheme brings a client-side auth handler entry.

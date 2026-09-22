@@ -304,6 +304,7 @@ function mapCredentials(
     store:
       typeof store === "string" ? store : { module: ctx.parseRefObject(store) },
     ttl: credentials.ttl ?? "30d",
+    freshFor: credentials.freshFor ?? "15m",
   };
 }
 

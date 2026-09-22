@@ -66,6 +66,17 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
    */
   signedInBy: AuthSchemeName,
   /**
+   * When the request's credential was issued; null for a handler-owned
+   * credential Wasp knows nothing about.
+   */
+  credentialIssuedAt: Date | null,
+  /**
+   * Whether the credential is younger than its scheme's `freshFor`: the
+   * person logged in recently, rather than carrying a weeks-old credential.
+   * For step-up checks before sensitive changes. False when unknown.
+   */
+  isCredentialFresh: boolean,
+  /**
    * Every identity of this user, across all providers and provider names.
    */
   identities: AuthUserIdentity[],
@@ -123,6 +134,7 @@ export function createAuthUserData(
   user: CompleteUserEntityWithAuth,
   sessionScheme: string,
   signedInBy: string,
+  credential: { credentialIssuedAt: Date | null; isCredentialFresh: boolean },
 ): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
   if (!{= authFieldOnUserEntityName =}) {
@@ -140,6 +152,7 @@ This should never happen, but it did which means there is a bug in the code.`)
     ...rest,
     sessionScheme: sessionScheme as AuthSchemeName,
     signedInBy: signedInBy as AuthSchemeName,
+    ...credential,
     identities,
   }
 }

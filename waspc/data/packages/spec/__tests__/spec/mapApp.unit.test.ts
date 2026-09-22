@@ -820,6 +820,7 @@ describe("mapAuth", () => {
                           ),
                         },
                 ttl: credentials.ttl ?? "30d",
+                freshFor: credentials.freshFor ?? "15m",
               },
       userFieldsFromClaims:
         manifest.userFieldsFromClaims &&

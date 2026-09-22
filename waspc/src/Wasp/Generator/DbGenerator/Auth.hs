@@ -189,6 +189,9 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
         [trimming|
           id        String   @id @unique
           expiresAt DateTime
+          // When the credential was issued, for `user.isCredentialFresh`.
+          // The default only backfills rows written before the column did.
+          issuedAt  DateTime @default(now())
 
           // The scheme that verified the login this credential descends from
           // ('wasp', 'clerk', ...), recorded at issue time so that

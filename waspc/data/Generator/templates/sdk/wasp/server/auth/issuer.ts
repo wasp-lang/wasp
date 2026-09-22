@@ -36,6 +36,8 @@ export type IssuerOptions = {
   store: 'prisma' | 'signed-token' | CredentialStore
   /** Credential lifetime, e.g. "30d", "15m". */
   ttl: string
+  /** How long after a login the credential counts as fresh, e.g. "15m". */
+  freshFor: string
   /** Signing secret; required by the signed-token store. */
   secret?: string
   /** Where a browser navigation with no credential is sent (cookie transport). */
@@ -49,6 +51,7 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
   const store = resolveStore(options)
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
   const schemeTtl = parseTimeSpan(options.ttl)
+  const freshFor = parseTimeSpan(options.freshFor)
 
   return {
     async authenticate(request) {
@@ -63,7 +66,13 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
       }
       return {
         status: 'authenticated',
-        principal: { providerUserId: record.authId, signedInBy: record.signedInBy, credentialId: id },
+        principal: {
+          providerUserId: record.authId,
+          signedInBy: record.signedInBy,
+          credentialId: id,
+          credentialIssuedAt: record.issuedAt,
+          isCredentialFresh: Date.now() - record.issuedAt.getTime() < freshFor.milliseconds(),
+        },
       }
     },
 
