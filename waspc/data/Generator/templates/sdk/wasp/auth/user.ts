@@ -4,7 +4,7 @@ import type {
   {= authEntityName =},
   {= authIdentityEntityName =},
 } from '../entities/index.js'
-import { parseProviderData } from './providerData.js'
+import { parseProviderData, type ProviderId } from './providerData.js'
 import type { AuthSchemeName } from './scheme.js'
 
 // PUBLIC API
@@ -25,10 +25,7 @@ export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null
  * working data. Provider packages ship typed views over this (Wasp's own
  * auth's `getEmail`/`getUsername`).
  */
-export type AuthUserIdentity = {
-  handlerName: string
-  providerName: string
-  providerUserId: string
+export type AuthUserIdentity = ProviderId & {
   claims: Record<string, unknown>
   data: Record<string, unknown>
 }

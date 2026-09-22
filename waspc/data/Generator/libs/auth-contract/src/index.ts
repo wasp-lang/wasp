@@ -136,12 +136,18 @@ export type ProviderDeclaration = {
 /** See `ProviderDeclaration.kind`. */
 export type ProviderKind = "oauth";
 
-/** The tokens an OAuth provider handed over. A provider's extra fields ride along untyped. */
+/**
+ * The tokens an OAuth provider handed over. The four named fields are what
+ * every provider can give; anything else the provider returned (a token
+ * type, granted scopes, a provider-specific id) rides along under its own
+ * name, untyped.
+ */
 export type OAuthTokens = {
   accessToken: string;
   refreshToken?: string | null;
   idToken?: string | null;
   accessTokenExpiresAt?: Date | null;
+  [providerSpecificField: string]: unknown;
 };
 
 /**
