@@ -23,6 +23,9 @@ sdkOperationTypesTest =
                   waspCliCompile,
                   bundleServer,
                   return $ "sed 's/return tasks;/return [];/' ../queries.ts > " ++ queriesFile,
+                  -- Editing the consumers makes TypeScript report the initial errors.
+                  return "printf '\\n' >> src/features/operations/components/Todo.tsx",
+                  return "printf '\\n' >> src/features/operations/components/Todo.test.tsx",
                   waspCliCompile,
                   assertCommandOutputContains
                     (("! " ++) <$> bundleServer)
