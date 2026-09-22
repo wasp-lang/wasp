@@ -3,7 +3,7 @@ import type { Server } from 'socket.io'
 import type { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import type { prisma } from '../index'
-import type { FromRegister } from '../../types/register'
+import type { FromRegister } from '@wasp.sh/lib-sdk-core'
 import type { AuthUser } from '../../auth/user.js'
 
 

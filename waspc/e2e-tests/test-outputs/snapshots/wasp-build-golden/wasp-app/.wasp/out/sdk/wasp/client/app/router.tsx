@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router'
 
 
-import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
+import { DefaultRootErrorBoundary } from '@wasp.sh/lib-sdk-core/browser'
 
 import { routes } from '../router/index'
 

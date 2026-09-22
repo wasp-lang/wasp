@@ -1,5 +1,5 @@
 import { api, handleApiError } from '../../../api/index.js';
-import { SuccessResponseSchema } from '../../responseSchemas';
+import { SuccessResponseSchema } from '@wasp.sh/lib-sdk-core';
 
 // PUBLIC API
 export async function requestPasswordReset(data: { email: string; }): Promise<{ success: boolean }> {

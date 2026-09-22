@@ -1,6 +1,6 @@
 import { Slack } from 'arctic';
 
-import { defineProvider } from '../provider.js';
+import { defineProvider } from '@wasp.sh/lib-sdk-core/node';
 import { getRedirectUriForCallback } from '../redirect.js';
 import { env } from '../../../env.js';
 

@@ -1,5 +1,5 @@
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-import type { FromRegister } from '../types/register'
+import type { FromRegister } from '@wasp.sh/lib-sdk-core'
 import { setUpPrisma as setUpPrisma_ext } from "virtual:wasp/user/features/db/prisma"
 
 // PUBLIC API

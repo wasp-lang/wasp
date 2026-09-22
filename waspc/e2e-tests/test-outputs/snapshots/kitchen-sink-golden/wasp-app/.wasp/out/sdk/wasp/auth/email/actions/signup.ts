@@ -1,5 +1,5 @@
 import { api, handleApiError } from '../../../api/index.js';
-import { SuccessResponseSchema } from '../../responseSchemas';
+import { SuccessResponseSchema } from '@wasp.sh/lib-sdk-core';
 import type { UserEmailSignupFields } from '../../providers'
 
 type EmailSignupData = {

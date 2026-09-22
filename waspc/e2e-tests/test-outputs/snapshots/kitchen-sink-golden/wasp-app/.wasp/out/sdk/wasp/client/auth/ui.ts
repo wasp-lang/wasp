@@ -4,7 +4,7 @@ export { SignupForm } from '../../auth/forms/Signup'
 export { ForgotPasswordForm } from '../../auth/forms/ForgotPassword'
 export { VerifyEmailForm } from '../../auth/forms/VerifyEmail'
 export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
-export type { CustomizationOptions } from '../../auth/forms/types'
+export type { CustomizationOptions } from '@wasp.sh/lib-sdk-core/browser'
 export { SignInButton as SlackSignInButton } from '../../auth/helpers/Slack'
 export { SignInButton as DiscordSignInButton } from '../../auth/helpers/Discord'
 export { SignInButton as GoogleSignInButton } from '../../auth/helpers/Google'
@@ -16,4 +16,4 @@ export {
   FormTextarea,
   FormItemGroup,
   FormLabel,
-} from '../../auth/forms/internal/Form'
+} from '@wasp.sh/lib-sdk-core/browser'

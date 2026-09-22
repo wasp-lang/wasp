@@ -3,9 +3,11 @@ import * as React from 'react'
 import { Navigate } from 'react-router'
 import { useAuth } from '../../auth'
 
-import { Loader } from '../components/Loader'
-import { MessageError } from '../components/Message'
-import { FullPageWrapper } from '../components/FullPageWrapper'
+import {
+  FullPageWrapper,
+  Loader,
+  MessageError,
+} from '@wasp.sh/lib-sdk-core/browser'
 
 export const createAuthRequiredPage = (Page) => {
   return (props) => {

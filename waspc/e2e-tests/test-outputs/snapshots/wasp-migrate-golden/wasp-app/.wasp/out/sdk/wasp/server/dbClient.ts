@@ -1,5 +1,5 @@
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-import type { FromRegister } from '../types/register'
+import type { FromRegister } from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
 export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
