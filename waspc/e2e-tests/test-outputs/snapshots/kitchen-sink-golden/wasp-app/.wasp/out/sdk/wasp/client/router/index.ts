@@ -1,10 +1,10 @@
-import { interpolatePath } from './linkHelpers'
+import { interpolatePath } from '@wasp.sh/lib-sdk-core'
 import type {
   RouteDefinitionsToRoutes,
   OptionalRouteOptions,
   ParamValue,
   ExpandRouteOnOptionalStaticSegments,
-} from './types'
+} from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
 export const routes = {

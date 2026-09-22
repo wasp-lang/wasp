@@ -1,12 +1,11 @@
 import { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
-export { type ActionFor } from '@wasp.sh/lib-sdk-core/browser'
-import type { _Awaited, _ReturnType } from '../../../universal/types.js'
-import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
+import { makeOperationRoute } from '@wasp.sh/lib-sdk-core'
+import type { OperationRpcFor, GenericBackendOperation } from '@wasp.sh/lib-sdk-core'
+import { callOperation } from '../internal/index.js'
 import {
   registerActionInProgress,
   registerActionDone,
-} from '../internal/resources.js'
+} from '@wasp.sh/lib-sdk-core/browser'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(

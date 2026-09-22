@@ -7,5 +7,3 @@ export enum State {
   ResetPassword = 'reset-password',
   VerifyEmail = 'verify-email',
 }
-
-export { type AdditionalSignupField, type AdditionalSignupFieldRenderFn, type AdditionalSignupFields, type CustomizationOptions, type FormState } from '@wasp.sh/lib-sdk-core/browser'
