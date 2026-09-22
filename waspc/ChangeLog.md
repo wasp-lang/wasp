@@ -29,7 +29,7 @@
 
 ### 🐞 Bug fixes
 
-- Fixed TypeScript incremental compilation failing to pick up updated types.
+- Fixed TypeScript incremental compilation failing to pick up updated types. ([#4885](https://github.com/wasp-lang/wasp/pull/4885))
 
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 
