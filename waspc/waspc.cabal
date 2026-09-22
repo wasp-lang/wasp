@@ -162,7 +162,6 @@ library
   other-modules:
     Paths_waspc
     Wasp.Process.System
-    Wasp.Process.Managed.System
 
   exposed-modules:
     Wasp.AppComponentUrl

@@ -1,6 +1,5 @@
 module Wasp.Process.Managed
   ( ManagedSubprocess,
-    ProcessTreeDidNotStop (..),
     pollRootExit,
     start,
     stop,
@@ -10,7 +9,7 @@ where
 
 import Control.Concurrent (modifyMVar, newMVar)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (Exception (displayException), SomeException, finally, mask, onException, throwIO, try)
+import Control.Exception (SomeException, displayException, finally, mask, onException, throwIO, try)
 import Control.Monad (unless, void)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
@@ -20,8 +19,8 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Process (OutputStream (..))
-import qualified Wasp.Process.Managed.System as System
+import Wasp.Process (OutputStream (..), ProcessGroupDidNotStop (..))
+import qualified Wasp.Process.System as System
 import Wasp.Util (secondsToMicroSeconds)
 
 -- Managed subprocesses are Wasp-owned children started now and stopped later.
@@ -31,15 +30,9 @@ data ManagedSubprocess = ManagedSubprocess
     stop :: IO ()
   }
 
-data ProcessTreeDidNotStop = ProcessTreeDidNotStop
-  deriving (Eq, Show)
-
-instance Exception ProcessTreeDidNotStop where
-  displayException _ = T.unpack processTreeDidNotStopMessage
-
 start :: P.CreateProcess -> (OutputStream -> T.Text -> IO ()) -> IO ManagedSubprocess
 start process emit = mask $ \restore -> do
-  processResources@(_, _, _, processHandle) <- P.createProcess $ System.configureManagedSubprocess process
+  processResources@(_, _, _, processHandle) <- P.createProcess $ System.configureIsolatedProcess process
   maybeProcessGroupPid <-
     P.getPid processHandle
       `onException` emergencyCleanUp Nothing processResources
@@ -56,13 +49,13 @@ start process emit = mask $ \restore -> do
             (drainOrCancelOutput stdoutAsync `finally` drainOrCancelOutput stderrAsync)
               `finally` closeHandles
       let performStop = do
-            processTreeResult <- try $ System.stopProcessTree processHandle rootExitAsync maybeProcessGroupPid
+            processGroupResult <- try $ System.stopProcessGroup processHandle rootExitAsync maybeProcessGroupPid
             outputResult <- try cleanUpOutput
-            case (processTreeResult, outputResult) of
+            case (processGroupResult, outputResult) of
               (Left exception, _) -> throwIO (exception :: SomeException)
               (Right False, _) -> do
-                emit Stderr $ processTreeDidNotStopMessage <> "\n"
-                throwIO ProcessTreeDidNotStop
+                emit Stderr $ processGroupDidNotStopMessage <> "\n"
+                throwIO ProcessGroupDidNotStop
               (Right True, Left exception) -> throwIO (exception :: SomeException)
               (Right True, Right ()) -> return ()
       let stopOnce = mask $ \restoreStop -> do
@@ -135,5 +128,5 @@ ignoreExceptions action = void (try (void action) :: IO (Either SomeException ()
 outputDrainTimeoutMicroseconds :: Int
 outputDrainTimeoutMicroseconds = secondsToMicroSeconds 1
 
-processTreeDidNotStopMessage :: T.Text
-processTreeDidNotStopMessage = "Could not stop all development processes. A child process may still be running."
+processGroupDidNotStopMessage :: T.Text
+processGroupDidNotStopMessage = T.pack $ displayException ProcessGroupDidNotStop

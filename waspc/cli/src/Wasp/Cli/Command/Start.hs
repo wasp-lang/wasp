@@ -28,7 +28,6 @@ import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock (withProjectLock)
 import Wasp.Cli.RunConfigs (makeRunConfigs, showRunConfigUrls)
-import qualified Wasp.Cli.SignalHandling as SignalHandling
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Generator
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig (..))
@@ -71,7 +70,7 @@ start = withArguments "wasp start" startArgsParser $ \args -> withProjectLock $ 
   cliSendMessageC $ Msg.Start "Starting up generated project..."
   cliSendMessageC $ Msg.Info $ showRunConfigUrls runConfigs
 
-  watchOrStartResult <- liftIO $ SignalHandling.withGracefulTermination $ do
+  watchOrStartResult <- liftIO $ do
     -- This MVar is used to exchange information between the two processes below running in
     -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
     -- into the 'onJobsQuietDown' handler used by 'startWebApp'.

@@ -12,7 +12,7 @@ import Data.Maybe (isJust)
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
-import Wasp.Process.Managed (ProcessTreeDidNotStop)
+import Wasp.Process (ProcessGroupDidNotStop)
 
 withExceptionReporting :: IO () -> IO ()
 withExceptionReporting action =
@@ -25,7 +25,7 @@ withExceptionReporting action =
     reportInternalError :: E.ErrorCall -> IO ()
     reportInternalError = reportFailure "Internal Wasp error (bug in the compiler)" . E.displayException
 
-    reportProcessStopFailure :: ProcessTreeDidNotStop -> IO ()
+    reportProcessStopFailure :: ProcessGroupDidNotStop -> IO ()
     reportProcessStopFailure = reportFailure "Process cleanup failed" . E.displayException
 
     reportCleanupFailure :: ResourceCleanupException -> IO ()

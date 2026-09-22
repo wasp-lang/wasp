@@ -24,6 +24,7 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output.Event as Event
 import qualified Wasp.Job.Process as JobProcess
+import Wasp.Process (InputMode (NoInput))
 
 newtype ServerProcessController = ServerProcessController (Chan ServerControllerCommand)
 
@@ -129,7 +130,7 @@ runServerProcessControllerLoop serverRunConfig serverDir controller serverStateR
         (ServerRunning {}, NoServerEffect) -> return ()
         (ServerRunning {}, RestartServer) -> replaceServerProcess
         _ -> do
-          bundleExitCode <- Node.runReturningExitCode [] serverDir "npm" ["run", "bundle"]
+          bundleExitCode <- Node.runReturningExitCode NoInput [] serverDir "npm" ["run", "bundle"]
           case bundleExitCode of
             ExitSuccess -> replaceServerProcess
             ExitFailure {} -> stopServerProcess

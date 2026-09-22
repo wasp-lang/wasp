@@ -6,13 +6,13 @@ import Control.Monad.Trans.Resource (ResourceCleanupException (..))
 import System.Exit (ExitCode (..))
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
 import Wasp.Cli.ExceptionHandling (formatCleanupException, withExceptionReporting)
-import Wasp.Process.Managed (ProcessTreeDidNotStop (..))
+import Wasp.Process (ProcessGroupDidNotStop (..))
 
 spec_formatCleanupException :: Spec
 spec_formatCleanupException =
   describe "cleanup error output" $ do
-    let stopFailure = E.toException ProcessTreeDidNotStop
-        stopMessage = "Could not stop all development processes. A child process may still be running."
+    let stopFailure = E.toException ProcessGroupDidNotStop
+        stopMessage = "Could not stop the subprocess group. A child process may still be running."
 
     it "omits cancellation context when reporting cleanup failures" $
       mapM_
@@ -38,8 +38,8 @@ spec_withExceptionReporting =
             result <- E.try $ withExceptionReporting $ E.throwIO exception
             result `shouldBe` Left (ExitFailure 1)
         )
-        [ E.toException ProcessTreeDidNotStop,
-          E.toException $ ResourceCleanupException Nothing (E.toException ProcessTreeDidNotStop) []
+        [ E.toException ProcessGroupDidNotStop,
+          E.toException $ ResourceCleanupException Nothing (E.toException ProcessGroupDidNotStop) []
         ]
 
     it "preserves ordinary exit statuses" $ do
