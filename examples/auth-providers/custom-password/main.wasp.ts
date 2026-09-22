@@ -1,5 +1,6 @@
 import {
   action,
+  api,
   app,
   customAuthHandler,
   page,
@@ -10,6 +11,12 @@ import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { LoginPage } from "./src/auth/LoginPage" with { type: "ref" };
 import { createPasswordAuthHandler } from "./src/auth/handler" with { type: "ref" };
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
+import {
+  signInAs,
+  signOutEverywhereRoute,
+  signOutHere,
+  whoAmI,
+} from "./src/imperative" with { type: "ref" };
 
 export default app({
   name: "authProviderCustomPassword",
@@ -42,5 +49,12 @@ export default app({
     route("LoginRoute", "/login", page(LoginPage)),
     query(getMyTasks, { entities: ["Task"], auth: true }),
     action(createTask, { entities: ["Task"], auth: true }),
+    // The imperative auth API, from plain routes.
+    api("POST", "/api/sign-in-as", signInAs, { auth: false }),
+    api("GET", "/api/whoami", whoAmI, { auth: false }),
+    api("POST", "/api/sign-out", signOutHere, { auth: false }),
+    api("POST", "/api/sign-out-everywhere", signOutEverywhereRoute, {
+      auth: true,
+    }),
   ],
 });

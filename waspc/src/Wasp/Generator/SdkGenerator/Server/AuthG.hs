@@ -46,6 +46,7 @@ genServerAuth spec =
           genSchemesTs spec auth,
           genIssuerTs auth,
           genSessionTs auth,
+          genImperativeTs,
           genSessionStoreTs auth,
           genIdentityStoreTs auth,
           genLuciaTs auth,
@@ -290,6 +291,15 @@ genSessionTs auth =
           "schemes" .= mkSchemesTmplData auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+-- | The imperative auth API (`signIn`, `signOut`, ...) app code calls from
+-- `api()` routes.
+genImperativeTs :: Generator FileDraft
+genImperativeTs =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|imperative.ts|])
+      (object ["authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String)])
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
 genUtils auth =

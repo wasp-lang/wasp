@@ -24,6 +24,7 @@ export {
   type ServerAuthHandlerParts,
   type ServerAuthAdapter,
   type SignInContext,
+  type SignInOpts,
   type SignInProperties,
   type SignInResult,
   type AuthIdentityRef,

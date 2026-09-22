@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, OAuthLoginData, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
@@ -302,7 +302,18 @@ function makeHookProviderId(handlerName: string, providerName: string, providerU
  * so no scheme can skip the app's login policy, and the issuer records the
  * calling scheme as `signedInBy` without ever being told a name to record.
  */
-function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptions: IssuerOptions | null): CredentialsIssuer {
+/** What the imperative `signIn` needs from a scheme: issue for a known identity, hooks included. */
+type IssueSignIn = (
+  identity: { providerName: string; providerUserId: string; authId: string },
+  opts: SignInOpts | undefined,
+  oauth: OAuthData | undefined,
+) => Promise<SignInResult>
+
+function boundTo(
+  spec: SchemeRuntimeSpec,
+  target: AuthHandler,
+  targetIssuerOptions: IssuerOptions | null,
+): { facet: CredentialsIssuer; issueSignIn: IssueSignIn } {
   if (target.signIn === undefined) {
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
@@ -318,37 +329,42 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
     }
     return { providerName, authId: identity.authId }
   }
-  return {
+  // The app's login hooks fire around the target's sign-in, here, so no
+  // scheme can skip the app's login policy.
+  const issueSignIn: IssueSignIn = async ({ providerName, providerUserId, authId }, opts, oauth) => {
+    const fireHooks = opts?.skipHooks !== true
+    const hookProviderId = makeHookProviderId(spec.scheme, providerName, providerUserId)
+    let hookUser: unknown = undefined
+    if (fireHooks) {
+      const auth = await findAuthWithUserBy({ id: authId })
+      if (auth === null) {
+        throw contractError('wasp-auth/identity-not-found', 'The subject resolves to an auth entity with no user.')
+      }
+      hookUser = auth.user
+      await fireVetoableHook(() =>
+        onBeforeLoginHook({ req: opts?.req as any, providerId: hookProviderId, user: auth.user }),
+      )
+    }
+    const result = await signInOnTarget(
+      { providerName, providerUserId },
+      { signedInBy: spec.scheme, req: opts?.req, properties: opts?.properties },
+    )
+    if (fireHooks) {
+      await onAfterLoginHook({
+        req: opts?.req as any,
+        providerId: hookProviderId,
+        user: hookUser as any,
+        oauth,
+      })
+    }
+    return result
+  }
+  const facet: CredentialsIssuer = {
     authenticate: (request) => target.authenticate(request),
     signIn: async (identityRef, opts) => {
       const { providerName, authId } = await resolveIdentityRef(identityRef)
       const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
-      const fireHooks = opts?.skipHooks !== true
-      const hookProviderId = makeHookProviderId(spec.scheme, providerName, identityRef.providerUserId)
-      let hookUser: unknown = undefined
-      if (fireHooks) {
-        const auth = await findAuthWithUserBy({ id: authId })
-        if (auth === null) {
-          throw contractError('wasp-auth/identity-not-found', 'The subject resolves to an auth entity with no user.')
-        }
-        hookUser = auth.user
-        await fireVetoableHook(() =>
-          onBeforeLoginHook({ req: opts?.req as any, providerId: hookProviderId, user: auth.user }),
-        )
-      }
-      const result = await signInOnTarget(
-        { providerName, providerUserId: identityRef.providerUserId },
-        { signedInBy: spec.scheme, req: opts?.req, properties: opts?.properties },
-      )
-      if (fireHooks) {
-        await onAfterLoginHook({
-          req: opts?.req as any,
-          providerId: hookProviderId,
-          user: hookUser as any,
-          oauth,
-        })
-      }
-      return result
+      return issueSignIn({ providerName, providerUserId: identityRef.providerUserId, authId }, opts, oauth)
     },
     signOut: (request) => target.signOut?.(request) ?? Promise.resolve({ status: 200, body: { success: true } }),
     signOutEverywhere: async (identityRef) => {
@@ -360,6 +376,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: AuthHandler, targetIssuerOptio
     createOneTimeCode: (request) => createOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), request),
     redeemOneTimeCode: (oneTimeCode) => redeemOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), oneTimeCode),
   }
+  return { facet, issueSignIn }
 }
 
 // One-time codes live in a Wasp issuer's credential store. A scheme that
@@ -500,6 +517,9 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
 /** The issuer options of every scheme with inline credentials, for signOutEverywhere. */
 const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 
+/** The sign-in of every scheme that can issue credentials, for the imperative API. */
+const signInByScheme: Partial<Record<AuthSchemeName, IssueSignIn>> = {}
+
 // Filled in dependency order below; typed as the full map once complete.
 const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void> }>> = {}
 
@@ -538,11 +558,15 @@ const issuerOptions_{= index =}: IssuerOptions = {
 issuerOptionsByScheme['{= schemeName =}'] = issuerOptions_{= index =}
 // The private issuer behind this scheme's inline `credentials`.
 const issuer_{= index =} = createIssuer(issuerOptions_{= index =})
-const credentialsIssuer_{= index =} = boundTo(spec_{= index =}, issuer_{= index =}, issuerOptions_{= index =})
+const bound_{= index =} = boundTo(spec_{= index =}, issuer_{= index =}, issuerOptions_{= index =})
+const credentialsIssuer_{= index =} = bound_{= index =}.facet
+signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 {=/ inlineCredentials =}
 {=# credentialsScheme =}
 // Signs into the sibling scheme '{= credentialsScheme =}', created above.
-const credentialsIssuer_{= index =} = boundTo(spec_{= index =}, handlerOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
+const bound_{= index =} = boundTo(spec_{= index =}, handlerOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
+const credentialsIssuer_{= index =} = bound_{= index =}.facet
+signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 {=/ credentialsScheme =}
 {=^ hasCredentials =}
 const credentialsIssuer_{= index =} = null
@@ -590,6 +614,36 @@ export const authSchemes: { readonly [Name in AuthSchemeName]: AuthHandler } = {
   {=# schemes =}
   '{= schemeName =}': handlerOf('{= schemeName =}'),
   {=/ schemes =}
+}
+
+// PRIVATE API
+/**
+ * Issues a credential of `scheme` for an identity the imperative API looked
+ * up. Throws `wasp-auth/undeclared-facet` when the scheme cannot issue one.
+ */
+export function issueSignInFor(
+  scheme: AuthSchemeName,
+  identity: { providerName: string; providerUserId: string; authId: string },
+  opts: SignInOpts | undefined,
+): Promise<SignInResult> {
+  const issueSignIn = signInByScheme[scheme]
+  if (issueSignIn === undefined) {
+    throw contractError(
+      'wasp-auth/undeclared-facet',
+      `Auth scheme '${scheme}' declares no \`credentials\`, so Wasp cannot sign a user into it.`,
+    )
+  }
+  return issueSignIn(identity, opts, undefined)
+}
+
+// PRIVATE API
+/** Ends every Wasp-issued credential of the account, in every scheme that issues them. */
+export async function signOutEverywhereForAuthId(authId: string): Promise<void> {
+  for (const options of Object.values(issuerOptionsByScheme)) {
+    if (options !== undefined) {
+      await signOutEverywhere(options, authId)
+    }
+  }
 }
 
 // PRIVATE API
