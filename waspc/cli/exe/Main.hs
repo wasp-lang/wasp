@@ -38,6 +38,7 @@ import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
+import Wasp.Cli.SignalHandling (withGracefulTermination)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
@@ -45,7 +46,7 @@ import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
 main :: IO ()
-main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+main = withUtf8 . (`E.catch` handleInternalErrors) . withGracefulTermination $ do
   -- If we don't explicitly set line buffering, the output gets block-buffered
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.

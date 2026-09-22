@@ -8,10 +8,12 @@ import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..))
 import Wasp.Env (getEnvVars)
 import qualified Wasp.Job as Job
 import qualified Wasp.Job.Node as Node
+import Wasp.Process (InputMode (..))
 
 buildClient :: BuildStartConfig -> Job.Job ()
 buildClient config =
   Node.runChecked
+    NoInput
     envVars
     projectDir
     "npx"
@@ -23,6 +25,7 @@ buildClient config =
 startClient :: BuildStartConfig -> Job.Job ()
 startClient config =
   Node.runChecked
+    InheritTerminal
     envVars
     projectDir
     "npx"
