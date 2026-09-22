@@ -556,10 +556,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/job.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/job.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/job.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/job.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/pgBoss/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/pgBoss/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/jobs/core/pgBoss/index.js
@@ -676,7 +672,6 @@ wasp-app/.wasp/out/sdk/wasp/server/email/core/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/env.ts
 wasp-app/.wasp/out/sdk/wasp/server/index.ts
-wasp-app/.wasp/out/sdk/wasp/server/jobs/core/job.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts
