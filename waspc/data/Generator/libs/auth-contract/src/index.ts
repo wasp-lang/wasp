@@ -639,7 +639,7 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
     provision(
       providerUserId: string,
       ...rest: OptsArg<ProvisionOpts<Kind>, Kind>
-    ): Promise<{ authId: string } | null>;
+    ): Promise<{ authId: string }>;
 
     /**
      * Strict create of the local user for a subject: signup semantics, where

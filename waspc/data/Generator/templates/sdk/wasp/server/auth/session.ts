@@ -101,9 +101,6 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
   const authId = isWaspCredential
     ? principal.providerUserId
     : await resolveSubject(scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default');
-  if (authId === null) {
-    return null;
-  }
   const user = await prisma.{= userEntityLower =}.findFirst({
     where: { {= authFieldOnUserEntityName =}: { id: authId } },
     include: {
@@ -166,7 +163,7 @@ async function resolveSubject(
   req?: ExpressRequest,
   // Present when the handler provisions through an OAuth provider.
   oauth?: OAuthData,
-): Promise<string | null> {
+): Promise<string> {
   const identities = getIdentityStore(scheme, providerName);
 
   const existing = await identities.find(providerUserId);
@@ -212,7 +209,12 @@ async function resolveSubject(
     // NOT fire onAfterSignup -- one signup, one hook firing.
     if (isUniqueConstraintViolation(e)) {
       const raced = await identities.find(providerUserId);
-      return raced === null ? null : raced.authId;
+      if (raced === null) {
+        // The winner's row is gone again: a concurrent delete. Nothing sane
+        // to return, so say so instead of handing back "no user".
+        throw contractError('wasp-auth/identity-not-found', 'The identity vanished while it was being provisioned.');
+      }
+      return raced.authId;
     }
     throw e;
   }
@@ -225,6 +227,12 @@ async function resolveSubject(
   });
 
   return created.{= authFieldOnUserEntityName =}!.id;
+}
+
+function contractError(code: string, message: string): Error {
+  const error = new Error(message) as Error & { code: string };
+  error.code = code;
+  return error;
 }
 
 function isUniqueConstraintViolation(e: unknown): boolean {
@@ -254,9 +262,9 @@ export async function provisionAuthUser(
   },
   providerName?: string,
   opts?: { req?: ExpressRequest; oauth?: OAuthData },
-): Promise<{ authId: string } | null> {
+): Promise<{ authId: string }> {
   const authId = await resolveSubject(scheme, providerUserId, claims, identity, providerName, opts?.req, opts?.oauth);
-  return authId === null ? null : { authId };
+  return { authId };
 }
 
 // PRIVATE API
