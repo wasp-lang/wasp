@@ -25,9 +25,29 @@ spec_withGracefulTermination =
 #else
 spec_withGracefulTermination =
   describe "withGracefulTermination" $
-    it "cleans up, restores handlers, and preserves SIGINT and SIGTERM exit statuses" $ do
+    -- These scenarios replace process-wide handlers and must run sequentially.
+    it "finishes cleanup, preserves the first signal exit status, and restores handlers" $ do
       assertSignalExitAndHandlerRestoration
       assertSignalExit Signals.sigTERM (ExitFailure 143)
+      assertRepeatedSignalCleanup
+
+assertRepeatedSignalCleanup :: IO ()
+assertRepeatedSignalCleanup = do
+  cleanupFinished <- newIORef False
+  outcome <-
+    try
+      ( timeout 5000000 $
+          withGracefulTermination $
+            (Signals.raiseSignal Signals.sigTERM >> forever (threadDelay 1000000))
+              `finally` do
+                Signals.raiseSignal Signals.sigINT
+                threadDelay 100000
+                writeIORef cleanupFinished True
+      ) :: IO (Either SomeException (Maybe ()))
+  case outcome of
+    Left exception -> fromException exception `shouldBe` Just (ExitFailure 143)
+    Right _ -> expectationFailure "Expected the first signal to terminate the action"
+  readIORef cleanupFinished `shouldReturn` True
 
 assertSignalExitAndHandlerRestoration :: IO ()
 assertSignalExitAndHandlerRestoration = do

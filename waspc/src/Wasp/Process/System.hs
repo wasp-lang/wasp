@@ -10,7 +10,7 @@ where
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (SomeException, throwIO, try)
-import Control.Monad (unless, void, when)
+import Control.Monad (unless, void)
 import Control.Monad.Extra (anyM)
 import qualified Data.ByteString as BS
 import Data.Maybe (fromMaybe)
@@ -77,9 +77,11 @@ waitForAsync action timeoutMicroseconds = do
 
 #if !mingw32_HOST_OS
 signalProcessGroupIfAlive :: Signals.Signal -> P.Pid -> IO ()
-signalProcessGroupIfAlive signal processGroupPid = do
-  isAlive <- isProcessGroupAlive processGroupPid
-  when isAlive $ ignoreDeadProcessGroup $ Signals.signalProcessGroup signal processGroupPid
+signalProcessGroupIfAlive signal processGroupPid =
+  Signals.signalProcessGroup signal processGroupPid `catchIOError` \ioErr ->
+    -- On macOS, EPERM can also mean a zombie-only group. The bounded wait
+    -- must still confirm that the group has stopped.
+    unless (isDoesNotExistError ioErr || isPermissionError ioErr) $ ioError ioErr
 
 waitForProcessGroupExit :: P.Pid -> Int -> IO Bool
 waitForProcessGroupExit processGroupPid = waitForCondition $ not <$> isProcessGroupAlive processGroupPid
@@ -88,29 +90,30 @@ isProcessGroupAlive :: P.Pid -> IO Bool
 isProcessGroupAlive processGroupPid = do
   processGroupExists <-
     (Signals.signalProcessGroup Signals.nullSignal processGroupPid >> return True)
-      `catchIOError` \ioErr ->
-        if isProcessGroupGoneError ioErr
-          then return False
-          else ioError ioErr
+      `catchIOError` handleProbeError
   if not processGroupExists || not isLinux
     then return processGroupExists
     else do
-      maybeHasLiveMember <- linuxProcessGroupHasLiveMember processGroupPid
-      case maybeHasLiveMember of
-        Nothing -> return True
-        Just True -> return True
-        Just False -> do
+      hasLiveMember <- linuxProcessGroupMayHaveLiveMember processGroupPid
+      if hasLiveMember
+        then return True
+        else do
           -- A group member can fork while the first /proc snapshot is being
           -- read. Only call a zombie-only group quiescent after two scans.
           threadDelay linuxZombieConfirmationMicroseconds
-          fromMaybe True <$> linuxProcessGroupHasLiveMember processGroupPid
+          linuxProcessGroupMayHaveLiveMember processGroupPid
+  where
+    handleProbeError err
+      | isDoesNotExistError err = return False
+      | isPermissionError err = return True
+      | otherwise = ioError err
 
-linuxProcessGroupHasLiveMember :: P.Pid -> IO (Maybe Bool)
-linuxProcessGroupHasLiveMember processGroupPid = do
+linuxProcessGroupMayHaveLiveMember :: P.Pid -> IO Bool
+linuxProcessGroupMayHaveLiveMember processGroupPid = do
   procEntriesResult <- tryIOError $ listDirectory "/proc"
   case procEntriesResult of
-    Left _ -> return Nothing
-    Right procEntries -> Just <$> anyM isLiveGroupMember procEntries
+    Left _ -> return True
+    Right procEntries -> anyM isLiveGroupMember procEntries
   where
     processGroupId = show processGroupPid
 
@@ -118,15 +121,15 @@ linuxProcessGroupHasLiveMember processGroupPid = do
       case readMaybe procEntry :: Maybe Int of
         Nothing -> return False
         Just _ -> do
-          maybeProcessStateAndGroup <-
-            (parseLinuxProcStat <$> BS.readFile ("/proc" </> procEntry </> "stat"))
-              `catchIOError` const (return Nothing)
-          return $ case maybeProcessStateAndGroup of
-            Just (processState, memberProcessGroupId) ->
+          processStateAndGroup <-
+            tryIOError $ parseLinuxProcStat <$> BS.readFile ("/proc" </> procEntry </> "stat")
+          return $ case processStateAndGroup of
+            Right (Just (processState, memberProcessGroupId)) ->
               memberProcessGroupId == processGroupId
                 && processState /= "Z"
                 && processState /= "X"
-            Nothing -> False
+            Left ioErr -> not $ isDoesNotExistError ioErr
+            Right Nothing -> True
 
 parseLinuxProcStat :: BS.ByteString -> Maybe (String, String)
 parseLinuxProcStat procStat =
@@ -137,19 +140,6 @@ parseLinuxProcStat procStat =
         processState : _parentPid : processGroupId : _ -> Just (processState, processGroupId)
         _ -> Nothing
 
-ignoreDeadProcessGroup :: IO () -> IO ()
-ignoreDeadProcessGroup action =
-  action `catchIOError` \ioErr ->
-    unless (isProcessGroupGoneError ioErr) $ ioError ioErr
-
--- ESRCH means the group is fully reaped, on every platform. Signalling a
--- group whose members are all zombies succeeds on Linux (covered by the
--- /proc scan above) but fails with EPERM on macOS: its kernel skips zombies
--- and reports "no one to signal" as a permission error. We only signal
--- groups we created, so EPERM never hides a live group.
-isProcessGroupGoneError :: IOError -> Bool
-isProcessGroupGoneError ioErr =
-  isDoesNotExistError ioErr || isPermissionError ioErr
 #endif
 
 waitForCondition :: IO Bool -> Int -> IO Bool

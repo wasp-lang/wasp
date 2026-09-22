@@ -7,7 +7,7 @@ module Wasp.Process
 where
 
 import Control.Concurrent.Async (Concurrently (..), runConcurrently, withAsync)
-import Control.Exception (Exception (displayException), SomeException, bracket, finally, onException, throwIO, try)
+import Control.Exception (Exception (displayException), IOException, bracket, finally, onException, throwIO, try)
 import Control.Monad (unless, void)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.Binary as CB
@@ -91,4 +91,4 @@ closeHandles (stdinHandle, stdoutHandle, stderrHandle, _) =
   mapM_ closeHandle [stdinHandle, stdoutHandle, stderrHandle]
   where
     closeHandle Nothing = return ()
-    closeHandle (Just handle) = void (try (hClose handle) :: IO (Either SomeException ()))
+    closeHandle (Just handle) = void (try (hClose handle) :: IO (Either IOException ()))

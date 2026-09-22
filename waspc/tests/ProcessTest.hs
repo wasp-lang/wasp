@@ -4,20 +4,22 @@ module ProcessTest where
 
 import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay)
 import qualified Control.Concurrent.Async as Async
-import Control.Exception (finally)
+import Control.Exception (finally, fromException)
 import Control.Monad (when)
 import Data.IORef (modifyIORef', newIORef, readIORef)
+import Data.Maybe (isJust)
 import qualified Data.Text as T
 import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
-import Test.Process.Util (isPortAvailable, makeTempPath, waitUntil)
+import Test.Process.Util (isPortAvailable, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
 import qualified Wasp.Process as Process
 #if !mingw32_HOST_OS
 import qualified System.Posix.Process as Posix
 import System.Posix.Types (ProcessGroupID)
+import Text.Read (readMaybe)
 #endif
 
 spec_process :: Spec
@@ -33,11 +35,37 @@ spec_process = describe "Process.run" $ do
     mapM_ assertDescendantCleanup [False, True]
 
   it "forces a command that ignores graceful interruption to stop" $ do
-    ready <- newEmptyMVar
-    let script = "process.on('SIGINT', () => {}); process.on('SIGTERM', () => {}); console.log('ready'); setInterval(() => {}, 1000);"
-    Async.withAsync (Process.run Process.NoInput (node script) (\_ _ -> putMVar ready ())) $ \running -> do
-      timeout 5000000 (takeMVar ready) `shouldReturn` Just ()
-      timeout 7000000 (Async.cancel running) `shouldReturn` Just ()
+    pidPath <- makeTempPath "wasp-stubborn-process"
+    let script =
+          unlines
+            [ "const fs = require('node:fs');",
+              "process.on('SIGINT', () => {});",
+              "process.on('SIGTERM', () => {});",
+              "const pidPath = " <> show pidPath <> ";",
+              "fs.writeFileSync(pidPath + '.tmp', String(process.pid));",
+              "fs.renameSync(pidPath + '.tmp', pidPath);",
+              "setInterval(() => {}, 1000);"
+            ]
+    Async.withAsync
+      (Process.run Process.NoInput (node script) (\_ _ -> return ()))
+      ( \running -> do
+          waitUntil "stubborn process ready" $ doesFileExist pidPath
+          pid <- readProcessId pidPath
+          timeout 7000000 (Async.cancel running) `shouldReturn` Just ()
+          Async.waitCatch running >>= \case
+            Left exception -> case fromException exception of
+              Just Async.AsyncCancelled -> return ()
+              Nothing -> fail $ "Unexpected cleanup exception: " <> show exception
+            Right _ -> fail "Expected cancellation"
+          isProcessAlive pid `shouldReturn` False
+      )
+      `finally` do
+        exists <- doesFileExist pidPath
+        when exists $ do
+          readProcessId pidPath >>= killProcess
+          removeFile pidPath
+        temporaryFileExists <- doesFileExist $ pidPath <> ".tmp"
+        when temporaryFileExists $ removeFile $ pidPath <> ".tmp"
 
   it "does not stop another isolated command when one is cancelled" $ do
     firstReady <- newEmptyMVar
@@ -57,6 +85,15 @@ spec_process = describe "Process.run" $ do
     parentGroup <- Posix.getProcessGroupID
     mapM_ (assertGroup parentGroup) [Process.InheritTerminal, Process.NoInput]
 #endif
+
+spec_processId :: Spec
+spec_processId = describe "ProcessId" $ do
+  it "accepts positive process IDs through the signed 32-bit limit" $ do
+    map (isJust . parseProcessId) ["1", "2147483647"] `shouldBe` [True, True]
+
+  it "rejects empty, malformed, nonpositive, and overflowing process IDs" $ do
+    let invalidIds = ["", " ", "0", "-1", "abc", "12abc", "1.5", "2147483648", "4294967297"]
+    map parseProcessId invalidIds `shouldBe` replicate (length invalidIds) Nothing
 
 node :: String -> P.CreateProcess
 node script = P.proc "node" ["-e", script]
@@ -88,9 +125,17 @@ assertDescendantCleanup rootExits = do
 #if !mingw32_HOST_OS
 assertGroup :: ProcessGroupID -> Process.InputMode -> IO ()
 assertGroup parentGroup inputMode = do
-  output <- newIORef T.empty
-  let process = P.proc "sh" ["-c", "ps -o pgid= -p $$"]
-  Process.run inputMode process (\_ text -> modifyIORef' output (<> text)) `shouldReturn` ExitSuccess
-  group <- read . T.unpack <$> readIORef output
-  (group == parentGroup) `shouldBe` (inputMode == Process.InheritTerminal)
+  childGroup <- newEmptyMVar
+  let process = node "console.log(process.pid); setInterval(() => {}, 1000);"
+      captureGroup _ text = case readMaybe $ T.unpack text of
+        Nothing -> fail $ "Invalid child PID: " <> T.unpack text
+        Just pid -> Posix.getProcessGroupIDOf pid >>= putMVar childGroup
+  Async.withAsync (Process.run inputMode process captureGroup) $ \running -> do
+    group <- timeout 5000000 $ takeMVar childGroup
+    case inputMode of
+      Process.InheritTerminal -> group `shouldBe` Just parentGroup
+      Process.NoInput -> do
+        isJust group `shouldBe` True
+        (group == Just parentGroup) `shouldBe` False
+    Async.cancel running
 #endif
