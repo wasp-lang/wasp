@@ -151,7 +151,7 @@ usesPrismaStore :: AS.Auth.Auth -> Bool
 usesPrismaStore auth =
   any
     ( \scheme -> case AS.Auth.inlineCredentials scheme of
-        Just (_, AS.Auth.PrismaStore, _, _) -> True
+        Just (_, AS.Auth.PrismaStore, _, _, _) -> True
         _ -> False
     )
     (AS.Auth.schemes auth)
@@ -254,7 +254,7 @@ mkSchemesTmplData auth =
                "inlineCredentials" .= (inlineCredentialsTmplData idx <$> AS.Auth.inlineCredentials scheme)
              ]
 
-    inlineCredentialsTmplData idx (transport, store, ttl, freshFor) =
+    inlineCredentialsTmplData idx (transport, store, ttl, freshFor, slidingRenewal) =
       object
         [ "transport" .= transportName transport,
           "storeKind" .= storeKind store,
@@ -263,7 +263,8 @@ mkSchemesTmplData auth =
               ("authSchemeCredentialStore_" ++ show idx)
               (case store of AS.Auth.CustomStore extImport -> Just extImport; _ -> Nothing),
           "ttl" .= ttl,
-          "freshFor" .= freshFor
+          "freshFor" .= freshFor,
+          "slidingRenewal" .= slidingRenewal
         ]
     transportName AS.Auth.BearerTransport = "bearer" :: String
     transportName AS.Auth.CookieTransport = "cookie"

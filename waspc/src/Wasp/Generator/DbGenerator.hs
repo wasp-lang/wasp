@@ -159,7 +159,7 @@ getEntitiesForPrismaSchema spec = maybe (return userDefinedEntities) (DbAuth.inj
     usesPrismaCredentialStore =
       any
         ( \scheme -> case AS.Auth.inlineCredentials scheme of
-            Just (_, AS.Auth.PrismaStore, _, _) -> True
+            Just (_, AS.Auth.PrismaStore, _, _, _) -> True
             _ -> False
         )
         (maybe [] AS.Auth.schemes (AS.App.auth $ snd $ getApp spec))

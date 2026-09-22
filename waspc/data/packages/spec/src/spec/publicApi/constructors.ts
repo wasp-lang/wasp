@@ -518,7 +518,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 16 as const;
+export const supportedAuthContractVersion = 17 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
@@ -661,6 +661,14 @@ export function validateCredentialsConfig(
       `Auth handler '${handler}' declares the unknown credential store '${credentials.store}'. Known: ${knownCredentialStores.join(", ")}, or a reference to your own store.`,
     );
   }
+  if (
+    credentials.slidingRenewal !== undefined &&
+    credentials.store === "signed-token"
+  ) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' declares credentials.slidingRenewal with the "signed-token" store, which cannot extend a credential after it was issued. Use the "prisma" store or your own.`,
+    );
+  }
 }
 
 /**
@@ -743,6 +751,8 @@ export type WaspCredentialSchemeConfig = {
   ttl?: string;
   /** See {@link CredentialsConfig.freshFor}. */
   freshFor?: string;
+  /** See {@link CredentialsConfig.slidingRenewal}. */
+  slidingRenewal?: string;
 };
 
 /**
@@ -814,6 +824,9 @@ function waspCredentialScheme(
       store,
       ttl: config.ttl ?? "30d",
       freshFor: config.freshFor ?? "15m",
+      ...(config.slidingRenewal !== undefined
+        ? { slidingRenewal: config.slidingRenewal }
+        : {}),
     },
   });
 }

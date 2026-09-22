@@ -38,6 +38,8 @@ export type IssuerOptions = {
   ttl: string
   /** How long after a login the credential counts as fresh, e.g. "15m". */
   freshFor: string
+  /** Sliding renewal window, e.g. "7d"; null when a credential lives exactly its ttl. */
+  slidingRenewal: string | null
   /** Signing secret; required by the signed-token store. */
   secret?: string
   /** Where a browser navigation with no credential is sent (cookie transport). */
@@ -52,6 +54,12 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
   const schemeTtl = parseTimeSpan(options.ttl)
   const freshFor = parseTimeSpan(options.freshFor)
+  const renewBelow = options.slidingRenewal === null ? null : parseTimeSpan(options.slidingRenewal)
+  if (renewBelow !== null && store.extend === undefined) {
+    throw new Error(
+      `Auth scheme '${options.scheme}' is configured with sliding renewal, but its credential store cannot extend a credential.`,
+    )
+  }
 
   return {
     async authenticate(request) {
@@ -63,6 +71,11 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
       // A one-time code lives in the same store, and is never a credential.
       if (record === null || isOneTimeCodeRecord(record)) {
         return { status: 'unauthenticated' }
+      }
+      // Sliding renewal: an active user keeps a live credential. `issuedAt`
+      // stays, so a renewed credential is no fresher than it was.
+      if (renewBelow !== null && record.expiresAt.getTime() - Date.now() < renewBelow.milliseconds()) {
+        await store.extend!(id, new Date(Date.now() + schemeTtl.milliseconds()))
       }
       return {
         status: 'authenticated',

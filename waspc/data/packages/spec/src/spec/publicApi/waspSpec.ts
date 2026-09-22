@@ -373,6 +373,13 @@ export type CredentialsConfig =
        * checks (`user.isCredentialFresh`). Default: 15 minutes.
        */
       freshFor?: string;
+      /**
+       * Sliding renewal: a credential used with less than this much lifetime
+       * left (e.g. `"7d"`) gets a full `ttl` again. Off by default. Needs a
+       * store that can extend a credential: `"prisma"` or your own, not
+       * `"signed-token"`.
+       */
+      slidingRenewal?: string;
     };
 
 /**
@@ -480,7 +487,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 16;
+  contractVersion: 17;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */

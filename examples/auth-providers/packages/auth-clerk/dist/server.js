@@ -83,6 +83,16 @@ export const createServerAuthHandler = (runtime) => {
             }
             return { status: 200, body: { success: true } };
         },
+        /** "Log out every device": revoke each of the user's active Clerk sessions. */
+        async signOutEverywhere({ providerUserId }) {
+            const { data: sessions } = await clerk.sessions.getSessionList({
+                userId: providerUserId,
+                status: "active",
+            });
+            for (const session of sessions) {
+                await clerk.sessions.revokeSession(session.id);
+            }
+        },
     };
     return { handler };
 };

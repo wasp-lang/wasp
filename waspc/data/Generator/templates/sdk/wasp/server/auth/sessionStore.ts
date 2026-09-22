@@ -49,6 +49,9 @@ export const prismaCredentialStore: CredentialStore = {
   },
   delete: (id) => lucia.invalidateSession(id),
   deleteAllForAuthId: (authId) => lucia.invalidateUserSessions(authId),
+  async extend(id, expiresAt) {
+    await prisma.{= sessionEntityLower =}.updateMany({ where: { id }, data: { expiresAt } })
+  },
   {=/ isPrismaStoreUsed =}
   {=^ isPrismaStoreUsed =}
   // No scheme keeps credentials in the database, so the Session model does

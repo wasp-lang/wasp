@@ -155,6 +155,23 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
       });
       return { status: 200, body: { success: true } };
     },
+
+    /**
+     * "Log out every device": Better Auth keeps its sessions in its own
+     * table, keyed by its user id, which is the identity's `providerUserId`.
+     * Deleted directly through the app's Prisma client, under the model name
+     * this handler configured above.
+     */
+    async signOutEverywhere({ providerUserId }): Promise<void> {
+      const db = runtime.db as {
+        betterAuthSession: {
+          deleteMany(args: { where: { userId: string } }): Promise<unknown>;
+        };
+      };
+      await db.betterAuthSession.deleteMany({
+        where: { userId: providerUserId },
+      });
+    },
   };
 
   return {

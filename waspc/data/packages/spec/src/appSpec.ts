@@ -232,6 +232,7 @@ export type AuthSchemeCredentials =
       store: "prisma" | "signed-token" | { module: ExtImport };
       ttl: string;
       freshFor: string;
+      slidingRenewal: Optional<string>;
     };
 
 export type AuthSchemeRoutes = {

@@ -264,6 +264,14 @@ export interface AuthHandler {
   signOut?(request: Request): Promise<AuthResponse>;
 
   /**
+   * End EVERY credential of the person behind one of this handler's
+   * identities: what the imperative `signOutEverywhere(user)` calls for a
+   * handler that keeps its own credentials (Better Auth's sessions, Clerk's).
+   * Omit when Wasp issues the credentials: Wasp ends those itself.
+   */
+  signOutEverywhere?(identityRef: AuthIdentityRef): Promise<void>;
+
+  /**
    * What to send a request that needs a user and has none. A cookie handler
    * redirects to a login page; a bearer handler answers 401. Default: 401.
    */
@@ -839,4 +847,10 @@ export type CredentialStore = {
   get(id: string): Promise<CredentialRecord | null>;
   delete(id: string): Promise<void>;
   deleteAllForAuthId(authId: string): Promise<void>;
+  /**
+   * Move a credential's expiry, for sliding renewal (`credentials.slidingRenewal`).
+   * Optional: a store whose credential cannot be changed after it was issued
+   * (a signed token) omits it, and cannot be configured with sliding renewal.
+   */
+  extend?(id: string, expiresAt: Date): Promise<void>;
 };

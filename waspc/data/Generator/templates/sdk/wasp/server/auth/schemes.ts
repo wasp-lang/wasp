@@ -552,6 +552,7 @@ const issuerOptions_{= index =}: IssuerOptions = {
   {=/ storeModule.isDefined =}
   ttl: '{= ttl =}',
   freshFor: '{= freshFor =}',
+  slidingRenewal: {=# slidingRenewal =}'{= slidingRenewal =}'{=/ slidingRenewal =}{=^ slidingRenewal =}null{=/ slidingRenewal =},
   secret: (validatedEnv as Record<string, string | undefined>)['WASP_CREDENTIAL_SECRET'],
   loginPath: `${config.frontendUrl}{= failureRedirectPath =}`,
 }
@@ -637,13 +638,19 @@ export function issueSignInFor(
 }
 
 // PRIVATE API
-/** Ends every Wasp-issued credential of the account, in every scheme that issues them. */
-export async function signOutEverywhereForAuthId(authId: string): Promise<void> {
+/**
+ * Ends every Wasp-issued credential of the account, in every scheme that
+ * issues them. Resolves to whether any scheme issues credentials at all.
+ */
+export async function signOutEverywhereForAuthId(authId: string): Promise<boolean> {
+  let acted = false
   for (const options of Object.values(issuerOptionsByScheme)) {
     if (options !== undefined) {
       await signOutEverywhere(options, authId)
+      acted = true
     }
   }
+  return acted
 }
 
 // PRIVATE API

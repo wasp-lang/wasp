@@ -229,7 +229,10 @@ data AuthSchemeCredentials
         -- | Credential lifetime, e.g. @"30d"@.
         ttl :: String,
         -- | How long after a login the credential counts as fresh, e.g. @"15m"@.
-        freshFor :: String
+        freshFor :: String,
+        -- | Sliding renewal window, e.g. @"7d"@; 'Nothing' means a credential
+        -- lives exactly its 'ttl'.
+        slidingRenewal :: Maybe String
       }
   deriving (Show, Eq, Data, Generic)
 
@@ -244,11 +247,18 @@ instance FromJSON AuthSchemeCredentials where
           <*> o .: "store"
           <*> o .: "ttl"
           <*> o .: "freshFor"
+          <*> o .:? "slidingRenewal"
 
 instance ToJSON AuthSchemeCredentials where
   toJSON (CredentialsFromScheme schemeName) = Aeson.object ["scheme" .= schemeName]
-  toJSON (InlineCredentials transport' store' ttl' freshFor') =
-    Aeson.object ["transport" .= transport', "store" .= store', "ttl" .= ttl', "freshFor" .= freshFor']
+  toJSON (InlineCredentials transport' store' ttl' freshFor' slidingRenewal') =
+    Aeson.object
+      [ "transport" .= transport',
+        "store" .= store',
+        "ttl" .= ttl',
+        "freshFor" .= freshFor',
+        "slidingRenewal" .= slidingRenewal'
+      ]
 
 data CredentialTransport = BearerTransport | CookieTransport
   deriving (Show, Eq, Data, Generic)
@@ -292,9 +302,9 @@ credentialsScheme scheme = case scheme.credentials of
 
 -- | The private issuer this scheme is configured with, if that is how it
 -- hands out credentials.
-inlineCredentials :: AuthScheme -> Maybe (CredentialTransport, CredentialStore, String, String)
+inlineCredentials :: AuthScheme -> Maybe (CredentialTransport, CredentialStore, String, String, Maybe String)
 inlineCredentials scheme = case scheme.credentials of
-  Just (InlineCredentials transport' store' ttl' freshFor') -> Just (transport', store', ttl', freshFor')
+  Just (InlineCredentials transport' store' ttl' freshFor' slidingRenewal') -> Just (transport', store', ttl', freshFor', slidingRenewal')
   _ -> Nothing
 
 -- | Whether other schemes may sign into this one.
@@ -317,7 +327,7 @@ isCookieTransportUsed = any usesCookie . schemes
     usesCookie scheme =
       "cookie-transport" `elem` scheme.capabilities
         || case inlineCredentials scheme of
-          Just (CookieTransport, _, _, _) -> True
+          Just (CookieTransport, _, _, _, _) -> True
           _ -> False
 
 -- | Whether any configured scheme brings a client-side auth handler entry.
