@@ -146,7 +146,6 @@ export function emailRoutes(ctx: Ctx): Route[] {
                 fields,
                 emailConfig.userSignupFields,
               )) as never,
-            req,
           });
         } catch (e) {
           rethrowPossibleAuthError(e);
@@ -187,7 +186,6 @@ export function emailRoutes(ctx: Ctx): Route[] {
               },
             },
             authId,
-            req,
           });
         } catch (e) {
           // Proof needs the password AND a verified address: an unverified
@@ -249,9 +247,9 @@ export function emailRoutes(ctx: Ctx): Route[] {
 
         const { response } = await runtime.credentialsIssuer.signIn(
           { providerName: "email", providerUserId: email },
-          { req, properties: getSignInProperties(fields) },
+          { properties: getSignInProperties(fields) },
         );
-        sendAuthResponse(res, response);
+        await sendAuthResponse(res, response);
       },
     },
     {
@@ -274,7 +272,7 @@ export function emailRoutes(ctx: Ctx): Route[] {
           const auth = await findAuthWithUser(runtime, identity.authId);
           await spec.onAfterEmailVerified({
             prisma: runtime.db,
-            req,
+            req: req.request,
             email,
             user: auth?.user,
           });

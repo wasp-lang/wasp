@@ -80,6 +80,10 @@ export type WaspAuthCredentialsConfig =
       store?: "prisma" | "signed-token" | SpecReference<CredentialStore>;
       /** Credential lifetime, e.g. `"30d"` or `"15m"`. Default: 30 days. */
       ttl?: string;
+      /** How long after a login the credential counts as fresh. Default: `"15m"`. */
+      freshFor?: string;
+      /** Sliding renewal window, e.g. `"7d"`. Off by default. */
+      slidingRenewal?: string;
     };
 
 export type WaspAuthMethods = {
@@ -129,7 +133,7 @@ type EnvVarRequirement = {
 export type WaspAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 17;
+  contractVersion: 18;
   server: {
     authAdapter: { package: string };
     /** Which of these an app declares depends on its enabled methods. */
@@ -353,7 +357,7 @@ export function waspAuth(config: WaspAuthConfig): WaspAuthSchemeManifest {
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 17,
+    contractVersion: 18,
     server: {
       authAdapter: { package: "@wasp.sh/auth/server" },
       env: [

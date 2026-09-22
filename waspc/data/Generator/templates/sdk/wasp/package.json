@@ -125,9 +125,12 @@
     {=! Server: the scheme registry and its route handlers, for the framework's
         own auth routes and for mounting schemes' routes. =}
     "./server/auth/schemes": "./dist/server/auth/schemes.js",
-    {=! Server: the framework's credential issuer and the request/response
-        helpers the framework routes use. =}
+    {=! Server: the framework's credential issuer. =}
     "./server/auth/issuer": "./dist/server/auth/issuer.js",
+    {=! Server: the Express boundary, standard Request/Response in and out. =}
+    "./server/auth/http": "./dist/server/auth/http.js",
+    {=! Server: the request binding the framework sets per request. =}
+    "./server/requestContext": "./dist/server/requestContext.js",
     {=! Server: dispatch for the app-level lifecycle hooks, fired at the SDK's
         provisioning/minting choke points and from wasp-auth's OAuth callback. =}
     "./server/auth/hookDispatch": "./dist/server/auth/hookDispatch.js",

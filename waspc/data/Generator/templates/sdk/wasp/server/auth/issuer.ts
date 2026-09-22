@@ -1,11 +1,9 @@
 {{={= =}=}}
 import { createHash } from 'node:crypto'
-import type { IncomingMessage } from 'node:http'
 import { TimeSpan, createJWTHelpers } from '@wasp.sh/lib-auth/node'
 import type {
   AuthenticateResult,
   AuthHandler,
-  AuthResponse,
   CredentialRecord,
   CredentialStore,
   SignInContext,
@@ -122,7 +120,7 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
     },
 
     challenge: async (request) => transport.challenge(request),
-    forbid: async () => ({ status: 403, body: { message: 'Forbidden' } }),
+    forbid: async () => Response.json({ message: 'Forbidden' }, { status: 403 }),
   }
 }
 
@@ -217,9 +215,9 @@ async function spendOneTimeCode(oneTimeCode: string): Promise<boolean> {
 
 type Transport = {
   read(request: Request): string | null
-  write(id: string, lifetime: CredentialLifetime): AuthResponse
-  clear(): AuthResponse
-  challenge(request: Request): AuthResponse
+  write(id: string, lifetime: CredentialLifetime): Response
+  clear(): Response
+  challenge(request: Request): Response
 }
 
 /** How long the client should keep a freshly issued credential. */
@@ -234,12 +232,10 @@ const bearerTransport: Transport = {
   // The generated client stores the credential and attaches it to every request.
   // `persistent: false` tells it to keep the credential for the browser
   // session only.
-  write: (id, { persistent }): AuthResponse =>
-    persistent
-      ? { status: 200, body: { credential: id } }
-      : { status: 200, body: { credential: id, persistent: false } },
-  clear: () => ({ status: 200, body: { success: true } }),
-  challenge: () => ({ status: 401, body: { message: 'Invalid credentials' } }),
+  write: (id, { persistent }): Response =>
+    Response.json(persistent ? { credential: id } : { credential: id, persistent: false }),
+  clear: () => Response.json({ success: true }),
+  challenge: () => Response.json({ message: 'Invalid credentials' }, { status: 401 }),
 }
 
 function cookieTransport(options: IssuerOptions): Transport {
@@ -256,23 +252,21 @@ function cookieTransport(options: IssuerOptions): Transport {
       return null
     },
     // Without Max-Age the browser drops the cookie when its session ends.
-    write: (id, { maxAgeSeconds, persistent }) => ({
-      status: 200,
-      headers: {
-        'Set-Cookie': `${COOKIE_NAME}=${encodeURIComponent(id)}; ${attributes}${persistent ? `; Max-Age=${maxAgeSeconds}` : ''}`,
-      },
-      body: { success: true },
-    }),
-    clear: () => ({
-      status: 200,
-      headers: { 'Set-Cookie': `${COOKIE_NAME}=; ${attributes}; Max-Age=0` },
-      body: { success: true },
-    }),
+    write: (id, { maxAgeSeconds, persistent }) =>
+      Response.json(
+        { success: true },
+        {
+          headers: {
+            'Set-Cookie': `${COOKIE_NAME}=${encodeURIComponent(id)}; ${attributes}${persistent ? `; Max-Age=${maxAgeSeconds}` : ''}`,
+          },
+        },
+      ),
+    clear: () => Response.json({ success: true }, { headers: { 'Set-Cookie': `${COOKIE_NAME}=; ${attributes}; Max-Age=0` } }),
     // A browser navigation gets the login page; an API call gets a 401.
     challenge: (request) =>
       (request.headers.get('accept') ?? '').includes('text/html')
-        ? { status: 302, headers: { Location: options.loginPath } }
-        : { status: 401, body: { message: 'Invalid credentials' } },
+        ? Response.redirect(options.loginPath, 302)
+        : Response.json({ message: 'Invalid credentials' }, { status: 401 }),
   }
 }
 
@@ -361,38 +355,4 @@ function contractError(code: string, message: string): Error {
   const error = new Error(message) as Error & { code: string }
   error.code = code
   return error
-}
-
-// PRIVATE API
-/** Applies a handler's response to the Node response. */
-export function sendAuthResponse(res: import('node:http').ServerResponse, response: AuthResponse): void {
-  res.statusCode = response.status
-  for (const [name, value] of Object.entries(response.headers ?? {}) as Array<[string, string | string[]]>) {
-    res.setHeader(name, value)
-  }
-  if (response.body !== undefined) {
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify(response.body))
-  } else {
-    res.end()
-  }
-}
-
-// PRIVATE API
-/** A standard web Request built from a Node request: headers and URL only, which is all handlers read. */
-export function toWebRequest(req: IncomingMessage & { protocol?: string; originalUrl?: string }): Request {
-  const headers = new Headers()
-  for (const [key, value] of Object.entries(req.headers)) {
-    if (typeof value === 'string') {
-      headers.set(key, value)
-    } else if (Array.isArray(value)) {
-      headers.set(key, value.join(', '))
-    }
-  }
-  const host = req.headers.host ?? 'localhost'
-  const protocol = req.protocol ?? 'http'
-  return new Request(`${protocol}://${host}${req.originalUrl ?? req.url ?? '/'}`, {
-    method: req.method,
-    headers,
-  })
 }

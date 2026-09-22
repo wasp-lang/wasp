@@ -40,13 +40,13 @@ export type UserFieldsFromClaims = SpecReference<
 export type BetterAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "scheme";
-  contractVersion: 17;
+  contractVersion: 18;
   server: {
     authAdapter: { package: string };
     env: [EnvVarRequirement<"BETTER_AUTH_SECRET">];
     /** The app's setup function, when given; it arrives live in the adapter. */
     spec: { setupFn?: SpecReference<BetterAuthSetupFn> };
-    routes: { rawBody: true };
+    routes: Record<string, never>;
   };
   client: { authAdapter: { package: string } };
   capabilities: string[];
@@ -106,10 +106,8 @@ export interface BetterAuthConfig {
  * manifest declares more than Clerk's does:
  *
  * - `routes` mounts Better Auth's endpoints (sign-up, sign-in, OAuth
- *   callbacks) at `/auth/<scheme>` on the Wasp server. `rawBody` strips
- *   Wasp's JSON body parser there -- Better Auth's handler reads the raw
- *   request stream, and an already-consumed stream makes every request hang
- *   with no error.
+ *   callbacks) at `/auth/<scheme>` on the Wasp server, as standard
+ *   `Request` / `Response`, which Better Auth speaks natively.
  * - The app's `schema.prisma` must contain the four `BetterAuth*` models the
  *   server auth handler configures -- see this package's README for the block to
  *   paste in.
@@ -120,14 +118,14 @@ export function betterAuth(
   return {
     __waspAuthSchemeManifest: true,
     kind: "scheme",
-    contractVersion: 17,
+    contractVersion: 18,
     server: {
       authAdapter: { package: "@wasp.sh/auth-better-auth/server" },
       env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],
       spec: {
         ...(config?.setupFn !== undefined ? { setupFn: config.setupFn } : {}),
       },
-      routes: { rawBody: true },
+      routes: {},
     },
     client: {
       authAdapter: { package: "@wasp.sh/auth-better-auth/client" },

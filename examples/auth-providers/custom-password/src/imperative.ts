@@ -37,7 +37,7 @@ export const signInAs: SignInAs = async (req, res) => {
     return;
   }
   // Writes the credential to `res`: `{ credential }` for this bearer scheme.
-  await signIn(user, res, { req, properties: { ttl: "1h" } });
+  await signIn(user, res, { properties: { ttl: "1h" } });
 };
 
 export const whoAmI: WhoAmI = async (req, res) => {

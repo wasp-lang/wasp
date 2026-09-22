@@ -20,8 +20,6 @@
  *   `CredentialsIssuer` (see `WaspServerRuntime.credentialsIssuer`).
  */
 
-import type { IncomingMessage, ServerResponse } from "node:http";
-
 export type * from "./typedAdapter.js";
 
 export type JsonValue =
@@ -31,6 +29,16 @@ export type JsonValue =
   | null
   | JsonValue[]
   | { [key: string]: JsonValue };
+
+/**
+ * THE REQUEST BINDING
+ * Nothing in this contract takes the incoming request as an option. Wasp
+ * binds the request to the whole call chain it starts (Node's
+ * `AsyncLocalStorage`), at the one place it owns: the Express boundary. The
+ * app's hooks receive it as `req`, `merge` checks it, and a handler never
+ * threads it through. Outside a request (a job, a script) the hooks see
+ * `req: undefined`.
+ */
 
 /**
  * A reference to one `AuthIdentity` row, by its primary key as a handler
@@ -100,17 +108,6 @@ export type Principal = AuthIdentityRef & {
 export type AuthenticateResult =
   | { status: "authenticated"; principal: Principal }
   | { status: "unauthenticated" };
-
-/**
- * A minimal Response the framework can send: status, headers, and an optional
- * JSON body. Kept framework-agnostic on purpose (no Express types), and small
- * enough for a handler to build by hand.
- */
-export type AuthResponse = {
-  status: number;
-  headers?: Record<string, string | string[]>;
-  body?: JsonValue;
-};
 
 /** The manifest's `providers`: one declaration per provider name. */
 export type ProviderDeclarations = {
@@ -208,14 +205,12 @@ export type SignInContext = {
   properties?: SignInProperties;
   /** The scheme that verified the login, pre-bound by Wasp. Never forgeable. */
   signedInBy: string;
-  /** The incoming request, when the sign-in happens inside one. */
-  req?: unknown;
 };
 
 /** What a credential issuer produced for the browser to carry. */
 export type SignInResult = {
-  /** What to send the client: a body carrying a token, a Set-Cookie header, ... */
-  response: AuthResponse;
+  /** What to send the client: a body carrying a token, a Set-Cookie header, ... A standard `Response`. */
+  response: Response;
   /** The issuer's own id for the credential, for later revocation. */
   credentialId?: string;
 };
@@ -261,7 +256,7 @@ export interface AuthHandler {
    * Invalidate the credential the request carries. What to send the client
    * (an expired cookie, nothing at all) is the handler's business.
    */
-  signOut?(request: Request): Promise<AuthResponse>;
+  signOut?(request: Request): Promise<Response>;
 
   /**
    * End EVERY credential of the person behind one of this handler's
@@ -275,12 +270,12 @@ export interface AuthHandler {
    * What to send a request that needs a user and has none. A cookie handler
    * redirects to a login page; a bearer handler answers 401. Default: 401.
    */
-  challenge?(request: Request): Promise<AuthResponse>;
+  challenge?(request: Request): Promise<Response>;
 
   /**
    * What to send an authenticated request that is not allowed in. Default: 403.
    */
-  forbid?(request: Request): Promise<AuthResponse>;
+  forbid?(request: Request): Promise<Response>;
 }
 
 /**
@@ -300,8 +295,6 @@ export type RuntimeGrantName = "email-send";
 /** The options of `CredentialsIssuer.signIn`. */
 export type SignInOpts = {
   properties?: SignInProperties;
-  /** The incoming request, passed to the app's login hooks. */
-  req?: unknown;
   /** Skip the login hooks: for flows that already fired them. */
   skipHooks?: boolean;
 };
@@ -346,7 +339,7 @@ export type CredentialsIssuer<
   ): Promise<SignInResult>;
 
   /** Invalidate the credential the request carries, through the issuer. */
-  signOut(request: Request): Promise<AuthResponse>;
+  signOut(request: Request): Promise<Response>;
 
   /**
    * Invalidate every credential of the person behind this subject that the
@@ -438,6 +431,8 @@ export type AuthContractErrorCode =
   | "wasp-auth/last-identity"
   /** `merge` was called in an app that declares no `auth.mergeUsers`. */
   | "wasp-auth/merging-disabled"
+  /** `merge` was requested without a fresh credential of the surviving account. */
+  | "wasp-auth/credential-not-fresh"
   /**
    * The app's onBeforeSignup/onBeforeLogin hook rejected the action by
    * throwing. The thrown error itself is what carries this code (Wasp tags
@@ -463,6 +458,7 @@ export function getAuthContractErrorCode(
     code === "wasp-auth/identity-linked-elsewhere" ||
     code === "wasp-auth/last-identity" ||
     code === "wasp-auth/merging-disabled" ||
+    code === "wasp-auth/credential-not-fresh" ||
     code === "wasp-auth/policy-veto"
     ? code
     : null;
@@ -617,8 +613,6 @@ export type CreateOpts<Kind extends ProviderKindParam> = {
   identity?: IdentityContent;
   /** Omitted: the manifest's `userFieldsFromClaims` run over the claims instead. */
   getUserFields?: GetUserFields;
-  /** The incoming request, passed to the app's signup hooks. */
-  req?: unknown;
   /** Skip the signup hooks: for identity writes that are not a signup (an import). */
   skipHooks?: boolean;
 } & LoginData<Kind>;
@@ -626,14 +620,12 @@ export type CreateOpts<Kind extends ProviderKindParam> = {
 /** The options of `IdentityStore.provision`. */
 export type ProvisionOpts<Kind extends ProviderKindParam> = {
   identity?: IdentityContent;
-  req?: unknown;
 } & LoginData<Kind>;
 
 /** The options of `IdentityStore.link`. `authId` names the account the identity attaches to. */
 export type LinkOpts<Kind extends ProviderKindParam> = {
   authId: string;
   identity?: IdentityContent;
-  req?: unknown;
 } & LoginData<Kind>;
 
 /**
@@ -726,12 +718,7 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
      * provider names. Rejects with `wasp-auth/merging-disabled` when the app
      * declares no `auth.mergeUsers`.
      */
-    merge(opts: {
-      fromAuthId: string;
-      intoAuthId: string;
-      /** The incoming request, surfaced to the app's merge function. */
-      req?: unknown;
-    }): Promise<void>;
+    merge(opts: { fromAuthId: string; intoAuthId: string }): Promise<void>;
 
     /**
      * Merges the updates into the identity's non-secret data. A key set to
@@ -779,10 +766,7 @@ export type ServerAuthHandlerParts = {
    * body parser when the manifest asked for raw bodies). Paths the handler
    * sees are relative to the mount.
    */
-  routeHandler?: (
-    req: IncomingMessage,
-    res: ServerResponse,
-  ) => void | Promise<void>;
+  routeHandler?: (request: Request) => Response | Promise<Response>;
 };
 
 /**

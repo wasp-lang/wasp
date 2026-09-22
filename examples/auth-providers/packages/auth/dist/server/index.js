@@ -45,7 +45,7 @@ export const createServerAuthHandler = (runtime, spec) => {
         authenticate: (request) => runtime.credentialsIssuer.authenticate(request),
         signOut: (request) => runtime.credentialsIssuer.signOut(request),
     };
-    return { handler, routeHandler: makeDispatcher(routes) };
+    return { handler, routeHandler: makeDispatcher(routes, runtime.mountPath) };
 };
 // The email helpers (link builders, senders), bound to the runtime at handler
 // creation. User code imports them from `@wasp.sh/auth/server`.

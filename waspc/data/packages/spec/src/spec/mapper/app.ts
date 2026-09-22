@@ -271,9 +271,7 @@ function mapAuthScheme(
     handler,
     server: mapSide("server", manifest.server),
     client: manifest.client && mapSide("client", manifest.client),
-    routes: manifest.server.routes && {
-      rawBody: manifest.server.routes.rawBody,
-    },
+    routes: manifest.server.routes && {},
     capabilities: manifest.capabilities,
     uses,
     providers: mapProviders(declaredProviders),

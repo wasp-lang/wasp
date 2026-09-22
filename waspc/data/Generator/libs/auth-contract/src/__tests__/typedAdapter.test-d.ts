@@ -50,7 +50,7 @@ export const wasp: ServerAuthAdapterFor<typeof waspAuthT> = (runtime, spec) => {
   runtime.mountPath;
   // @ts-expect-error undeclared provider name
   runtime.identities.github;
-  return { handler, routeHandler() {} };
+  return { handler, routeHandler: () => new Response() };
 };
 // @ts-expect-error routes declared
 export const waspNoRoutes: ServerAuthAdapterFor<typeof waspAuthT> = () => ({
@@ -88,7 +88,7 @@ export const clerkA: ServerAuthAdapterFor<typeof clerkT> = (runtime) => {
 export const clerkR: ServerAuthAdapterFor<typeof clerkT> = () => ({
   handler,
   // @ts-expect-error no routes declared, so Wasp would never mount it
-  routeHandler() {},
+  routeHandler: () => new Response(),
 });
 declare function baT(): {
   server: { routes?: { rawBody: true } };
@@ -108,7 +108,7 @@ export const loose: ServerAuthAdapterFor<typeof waspAuthT> = (runtime) => {
   if (runtime.canSendEmail) {
     const r: WaspServerRuntime<"email" | "google"> = runtime;
   }
-  return { handler, routeHandler() {} };
+  return { handler, routeHandler: () => new Response() };
 };
 
 // the app side: a ref object fits a reference field, whatever copy of the spec package branded it
@@ -150,7 +150,7 @@ export const kindsTyped: ServerAuthAdapterFor<typeof kindsAuth> = async (
   await identities.google.provision("id", { oauth });
   // plain provider: data not accepted
   await identities.email.create("a@b.c");
-  await identities.email.create("a@b.c", { getUserFields: () => ({}), req: 1 });
+  await identities.email.create("a@b.c", { getUserFields: () => ({}) });
   // @ts-expect-error a plain provider carries no oauth data
   await identities.email.create("a@b.c", { oauth });
   await identities.email.link("a@b.c", { authId: "a" });
@@ -187,7 +187,7 @@ export const kindsTyped: ServerAuthAdapterFor<typeof kindsAuth> = async (
     providerName: "email",
     providerUserId: "a@b.c",
   });
-  return { handler, routeHandler() {} };
+  return { handler, routeHandler: () => new Response() };
 };
 // no providers declared: just `default`, plain
 declare function plainAuth(): { server: {} };
@@ -218,5 +218,5 @@ export const kindsLoose: ServerAuthAdapter = async (runtime) => {
 export const kindsMix: ServerAuthAdapterFor<typeof kindsAuth> = (runtime) => {
   const anyStore: IdentityStore = runtime.identities.google;
   void anyStore;
-  return { handler, routeHandler() {} };
+  return { handler, routeHandler: () => new Response() };
 };

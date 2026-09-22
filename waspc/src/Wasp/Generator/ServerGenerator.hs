@@ -313,12 +313,11 @@ genRoutesIndex spec =
       | scheme <- AS.Valid.getAuthSchemes spec,
         Just routes <- [AS.App.Auth.routes scheme]
       ]
-    providerRoutesTmplData idx (scheme, schemeRoutes) =
+    providerRoutesTmplData idx (scheme, _schemeRoutes) =
       object
         [ "index" .= idx,
           "schemeName" .= AS.App.Auth.name scheme,
-          "basePath" .= ("/auth/" ++ AS.App.Auth.name scheme),
-          "rawBody" .= (AS.App.Auth.rawBody schemeRoutes == Just True)
+          "basePath" .= ("/auth/" ++ AS.App.Auth.name scheme)
         ]
 
 operationsRouteInRootRouter :: String

@@ -426,7 +426,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
                 },
                 getEmailContent: getRefObject("full", "named"),
               },
-              routes: { rawBody: true },
+              routes: {},
             },
             client: {
               authAdapter: getRefObject("full", "named"),

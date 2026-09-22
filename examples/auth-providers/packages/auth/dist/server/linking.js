@@ -19,7 +19,7 @@ const METHOD_NAMES = [
  * cookie. For a Wasp-issued credential the principal's subject IS the Auth id.
  */
 export async function requireCurrentAuthId({ runtime }, req) {
-    const result = await runtime.credentialsIssuer.authenticate(toWebRequest(runtime, req));
+    const result = await runtime.credentialsIssuer.authenticate(req.request);
     if (result.status !== "authenticated") {
         throw new HttpError(401, "Sign in before changing your connected accounts.");
     }
@@ -34,6 +34,8 @@ export function rethrowLinkError(e) {
             });
         case "wasp-auth/merging-disabled":
             throw new HttpError(409, "This app does not support merging accounts.");
+        case "wasp-auth/credential-not-fresh":
+            throw new HttpError(403, "Log in again before merging accounts: your current login is not recent enough.", { reason: "credential-not-fresh" });
         case "wasp-auth/last-identity":
             throw new HttpError(409, "You cannot disconnect your only login method.", {
                 reason: "last-identity",
@@ -79,16 +81,6 @@ export function createMergeTicket({ runtime }, ticket) {
 }
 function mergeRequiredError(mergeTicket) {
     return new HttpError(409, "That login belongs to another account of yours. Merge the two?", { reason: "merge-required", mergeTicket });
-}
-/** The credential-bearing part of a Node request, as the contract's facets read it. */
-function toWebRequest(runtime, req) {
-    const headers = new Headers();
-    for (const [name, value] of Object.entries(req.headers)) {
-        if (value !== undefined) {
-            headers.set(name, Array.isArray(value) ? value.join(", ") : value);
-        }
-    }
-    return new Request(`${runtime.serverUrl}${req.url ?? "/"}`, { headers });
 }
 /**
  * Routes every method shares: `/unlink`, and `/link-intent` for the OAuth
@@ -149,7 +141,6 @@ export function linkingRoutes(ctx, hasOAuth) {
                 await anyIdentities(runtime).merge({
                     fromAuthId: ticket.fromAuthId,
                     intoAuthId: ticket.intoAuthId,
-                    req,
                 });
             }
             catch (e) {
@@ -164,7 +155,7 @@ export function linkingRoutes(ctx, hasOAuth) {
             path: "/link-intent",
             handler: async (req, res) => {
                 const oneTimeCode = await runtime.credentialsIssuer
-                    .createOneTimeCode(toWebRequest(runtime, req))
+                    .createOneTimeCode(req.request)
                     .catch((e) => {
                     if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
                         throw new HttpError(401, "Sign in before changing your connected accounts.");

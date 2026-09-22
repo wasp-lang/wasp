@@ -1,6 +1,6 @@
-import type { AuthResponse, JsonValue, OAuthLoginData, ServerSpecOf, WaspServerRuntimeFor } from "@wasp.sh/auth-contract";
-import type { IncomingMessage, ServerResponse } from "node:http";
+import type { JsonValue, OAuthLoginData, ServerSpecOf, WaspServerRuntimeFor } from "@wasp.sh/auth-contract";
 import type { waspAuth } from "../spec.js";
+import type { SerializedResponse } from "./http.js";
 /**
  * The runtime window, typed from the manifest `waspAuth()` returns:
  * `identities` keyed by this handler's methods, `env` by the env vars it
@@ -10,7 +10,8 @@ import type { waspAuth } from "../spec.js";
  */
 export type WaspAuthRuntime = WaspServerRuntimeFor<typeof waspAuth>;
 /** The wire-level answer of a sign-in, replayed by the one-time code. */
-export type SignInResponse = AuthResponse;
+export type SignInResponse = SerializedResponse;
+export type { Req, Res } from "./http.js";
 export type OAuthProviderName = "google" | "github" | "slack" | "discord" | "keycloak" | "microsoft";
 export type MethodProviderName = "username" | "email" | OAuthProviderName;
 /**
@@ -40,7 +41,8 @@ export type GetPasswordResetEmailContentFn = (params: {
 export type OnAfterEmailVerifiedHook<User = unknown, Prisma = unknown> = (params: {
     /** The app's Prisma client. */
     prisma: Prisma;
-    req: IncomingMessage;
+    /** The incoming request, a standard `Request`. */
+    req: Request;
     /** The email address that was verified. */
     email: string;
     /** The user who completed email verification. */
@@ -53,7 +55,8 @@ export type OnAfterEmailVerifiedHook<User = unknown, Prisma = unknown> = (params
 export type OnBeforeOAuthRedirectHook<Prisma = unknown> = (params: {
     /** The app's Prisma client. */
     prisma: Prisma;
-    req: IncomingMessage;
+    /** The incoming request, a standard `Request`. */
+    req: Request;
     /** URL that the OAuth flow should redirect to. */
     url: URL;
     /** Unique request ID that was generated during the OAuth flow. */
@@ -74,10 +77,4 @@ export type Ctx = {
     runtime: WaspAuthRuntime;
     spec: WaspAuthServerSpec;
 };
-export type Req = IncomingMessage & {
-    body?: unknown;
-    url?: string;
-    method?: string;
-};
-export type Res = ServerResponse;
 export type Json = Record<string, JsonValue>;

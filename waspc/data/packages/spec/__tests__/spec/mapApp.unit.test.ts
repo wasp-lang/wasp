@@ -792,9 +792,7 @@ describe("mapAuth", () => {
           : (adapterEntry as unknown as { from: string }).from,
       server: expectedSide("server", manifest.server),
       client: manifest.client && expectedSide("client", manifest.client),
-      routes: manifest.server.routes && {
-        rawBody: manifest.server.routes.rawBody,
-      },
+      routes: manifest.server.routes && {},
       capabilities: manifest.capabilities,
       uses: manifest.uses ?? [],
       providers: Object.entries(

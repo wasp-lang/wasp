@@ -4,9 +4,11 @@ import operations from './operations/index.js'
 import { globalMiddlewareConfigForExpress } from '../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
+import { runWithRequest } from 'wasp/server/requestContext'
 {=/ isAuthEnabled =}
 {=# anyAuthProviderRoutes =}
 import { authSchemeRouteHandlers } from 'wasp/server/auth/schemes'
+import { sendWebResponse, toWebRequest } from 'wasp/server/auth/http'
 {=/ anyAuthProviderRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
@@ -22,6 +24,12 @@ import { makeWrongPortPage } from '../views/wrong-port.js'
 
 const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
+
+{=# isAuthEnabled =}
+// The request binding: everything handling this request, however deep, can
+// read it (the auth hooks' `req`, the merge freshness check).
+router.use((req, _res, next) => runWithRequest(req, next))
+{=/ isAuthEnabled =}
 
 router.get('/', middleware,
   {=# isDevelopment =}
@@ -41,21 +49,16 @@ router.get('/', middleware,
   {=/ isDevelopment =}
 )
 
-{=# isAuthEnabled =}
-router.use('/auth', middleware, auth)
-{=/ isAuthEnabled =}
 {=# authProviderRoutes =}
 // The routes scheme '{= schemeName =}' brought along, mounted at
-// /auth/{= schemeName =}, after the framework's own /auth routes above. The
-// usual middleware stack applies{=# rawBody =}, minus the
-// body parsers: the provider's handler reads the raw request stream itself,
-// and a body that was already consumed would make every request to it
-// hang{=/ rawBody =}.
+// /auth/{= schemeName =}. BEFORE the framework's own /auth routes below, whose
+// middleware stack would parse (and so consume) the body of every /auth/*
+// request: the handler gets a standard Request with the raw body stream and
+// parses it itself. Scheme names never collide with the framework's routes
+// (`me`, `logout` are reserved).
 const authProviderMiddleware_{= index =} = globalMiddlewareConfigForExpress((middlewareConfig) => {
-  {=# rawBody =}
   middlewareConfig.delete('express.json')
   middlewareConfig.delete('express.urlencoded')
-  {=/ rawBody =}
   return middlewareConfig
 })
 router.use('{= basePath =}', authProviderMiddleware_{= index =}, (req, res, next) => {
@@ -63,9 +66,14 @@ router.use('{= basePath =}', authProviderMiddleware_{= index =}, (req, res, next
   if (routeHandler === undefined) {
     return next(new Error("The manifest of auth scheme '{= schemeName =}' declares routes, but its handler returned no routeHandler."))
   }
-  return Promise.resolve(routeHandler(req, res)).catch(next)
+  return Promise.resolve(routeHandler(toWebRequest(req, { body: true })))
+    .then((response) => sendWebResponse(res, response))
+    .catch(next)
 })
 {=/ authProviderRoutes =}
+{=# isAuthEnabled =}
+router.use('/auth', middleware, auth)
+{=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
 {=# areThereAnyCrudRoutes =}
 router.use('/{= crudRouteInRootRouter =}', middleware, rootCrudRouter)

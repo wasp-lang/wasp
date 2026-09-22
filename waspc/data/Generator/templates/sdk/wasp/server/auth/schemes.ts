@@ -3,7 +3,7 @@ import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, OA
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
-import { computeSchemeUserFields, provisionAuthUser } from './session.js'
+import { computeSchemeUserFields, provisionAuthUser, resolveAuthIdOfPrincipal } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import {
   createIssuer,
@@ -24,6 +24,8 @@ import {
   onBeforeSignupHook,
 } from './hookDispatch.js'
 import { config, prisma } from '../index.js'
+import { getCurrentRequest } from '../requestContext.js'
+import { toWebRequest } from './http.js'
 import { env as validatedEnv } from '../env.js'
 {=# isEmailSenderEnabled =}
 import { emailSender } from '../email/index.js'
@@ -143,7 +145,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       provisionAuthUser(spec.scheme, providerUserId, opts?.identity?.claims, {
         data: opts?.identity?.data,
         secrets: opts?.identity?.secrets,
-      }, providerName, { req: opts?.req as any, oauth: resolveOAuthData(spec, providerName, opts?.oauth) }),
+      }, providerName, { oauth: resolveOAuthData(spec, providerName, opts?.oauth) }),
     create: async (providerUserId, opts) => {
       const { identity, getUserFields } = opts ?? {}
       const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
@@ -153,7 +155,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       if (opts?.skipHooks !== true) {
         await fireVetoableHook(() =>
           onBeforeSignupHook({
-            req: opts?.req as any,
+            req: getCurrentRequest() as any,
             providerId: makeHookProviderId(spec.scheme, providerName, providerUserId),
           }),
         )
@@ -176,7 +178,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       }
       if (opts?.skipHooks !== true) {
         await onAfterSignupHook({
-          req: opts?.req as any,
+          req: getCurrentRequest() as any,
           providerId: makeHookProviderId(spec.scheme, providerName, providerUserId),
           user: created,
           oauth,
@@ -200,7 +202,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       const oauth = resolveOAuthData(spec, providerName, opts.oauth)
       const hookProviderId = makeHookProviderId(spec.scheme, providerName, providerUserId)
       await fireVetoableHook(() =>
-        onBeforeLinkHook({ req: opts.req as any, providerId: hookProviderId, user: auth.user }),
+        onBeforeLinkHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
       )
       try {
         await store.linkIdentity(providerUserId, (opts.identity ?? {}) as any, opts.authId)
@@ -212,7 +214,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
         throw e
       }
       await onAfterLinkHook({
-        req: opts.req as any,
+        req: getCurrentRequest() as any,
         providerId: hookProviderId,
         user: auth.user,
         oauth,
@@ -228,7 +230,7 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
         throw contractError('wasp-auth/last-identity', "An account's only identity cannot be unlinked.")
       }
     },
-    merge: async ({ fromAuthId, intoAuthId, req }) => {
+    merge: async ({ fromAuthId, intoAuthId }) => {
       if (mergeUsersFn === null) {
         throw contractError('wasp-auth/merging-disabled', 'The app declares no auth.mergeUsers, so accounts cannot be merged.')
       }
@@ -240,6 +242,10 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
       // of each through its own logins, and cannot reach anyone else's users.
       await assertSchemeOwnsAccount(spec, fromAuthId)
       await assertSchemeOwnsAccount(spec, intoAuthId)
+      // The handler proved `from` moments ago; Wasp proves `into` itself: the
+      // request must carry a FRESH credential of the surviving account.
+      const req = getCurrentRequest()
+      await assertFreshCredentialOf(spec, intoAuthId, req)
       await prisma.$transaction(async (tx) => {
         const from = await tx.{= authEntityLower =}.findUnique({ where: { id: fromAuthId }, include: { {= userFieldOnAuthEntityName =}: true } })
         const into = await tx.{= authEntityLower =}.findUnique({ where: { id: intoAuthId }, include: { {= userFieldOnAuthEntityName =}: true } })
@@ -277,6 +283,33 @@ function linkedElsewhereError(providerName: string): Error {
  * its OWN provider names. Without it, a scheme could attach itself to another
  * scheme's users.
  */
+/**
+ * A merge is a sensitive operation: the surviving account must be the one
+ * making the request, with a credential issued within `freshFor`. A stored
+ * weeks-old credential does not do; neither does a request from nobody.
+ */
+async function assertFreshCredentialOf(
+  spec: SchemeRuntimeSpec,
+  authId: string,
+  req: ReturnType<typeof getCurrentRequest>,
+): Promise<void> {
+  const notFresh = (why: string) =>
+    contractError('wasp-auth/credential-not-fresh', `Accounts can only be merged by the surviving account, with a fresh credential: ${why}`)
+  if (req === undefined) {
+    throw notFresh('the merge was not requested inside a request.')
+  }
+  const result = await handlerOf(spec.scheme).authenticate(toWebRequest(req))
+  if (result.status !== 'authenticated') {
+    throw notFresh('the request carries no valid credential.')
+  }
+  if (result.principal.isCredentialFresh !== true) {
+    throw notFresh(`the credential was issued longer than '${spec.scheme}' considers fresh ago. Log in again.`)
+  }
+  if ((await resolveAuthIdOfPrincipal(spec.scheme, result.principal)) !== authId) {
+    throw notFresh('the request is from another account than the surviving one.')
+  }
+}
+
 async function assertSchemeOwnsAccount(spec: SchemeRuntimeSpec, authId: string): Promise<void> {
   const ownedIdentity = await prisma.{= authIdentityEntityLower =}.findFirst({
     where: { authId, handlerName: spec.scheme },
@@ -342,16 +375,16 @@ function boundTo(
       }
       hookUser = auth.user
       await fireVetoableHook(() =>
-        onBeforeLoginHook({ req: opts?.req as any, providerId: hookProviderId, user: auth.user }),
+        onBeforeLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
       )
     }
     const result = await signInOnTarget(
       { providerName, providerUserId },
-      { signedInBy: spec.scheme, req: opts?.req, properties: opts?.properties },
+      { signedInBy: spec.scheme, properties: opts?.properties },
     )
     if (fireHooks) {
       await onAfterLoginHook({
-        req: opts?.req as any,
+        req: getCurrentRequest() as any,
         providerId: hookProviderId,
         user: hookUser as any,
         oauth,
@@ -366,7 +399,7 @@ function boundTo(
       const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
       return issueSignIn({ providerName, providerUserId: identityRef.providerUserId, authId }, opts, oauth)
     },
-    signOut: (request) => target.signOut?.(request) ?? Promise.resolve({ status: 200, body: { success: true } }),
+    signOut: (request) => target.signOut?.(request) ?? Promise.resolve(Response.json({ success: true })),
     signOutEverywhere: async (identityRef) => {
       const { authId } = await resolveIdentityRef(identityRef)
       if (targetIssuerOptions !== null) {
@@ -521,7 +554,7 @@ const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 const signInByScheme: Partial<Record<AuthSchemeName, IssueSignIn>> = {}
 
 // Filled in dependency order below; typed as the full map once complete.
-const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void> }>> = {}
+const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (request: Request) => Response | Promise<Response> }>> = {}
 
 function handlerOf(name: AuthSchemeName): AuthHandler {
   const handlerParts = registered[name]
@@ -660,10 +693,10 @@ export function getAuthScheme(name: string): AuthHandler | undefined {
 
 // PRIVATE API
 /**
- * Node handlers for the routes schemes brought with them, keyed by scheme
- * name. The server mounts each at `/auth/<scheme>`.
+ * The routes schemes brought with them, keyed by scheme name: standard
+ * `Request` in, `Response` out. The server mounts each at `/auth/<scheme>`.
  */
-export const authSchemeRouteHandlers: Partial<Record<AuthSchemeName, (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void | Promise<void>>> = {
+export const authSchemeRouteHandlers: Partial<Record<AuthSchemeName, (request: Request) => Response | Promise<Response>>> = {
   {=# schemes =}
   {=^ isFrameworkIssuer =}
   '{= schemeName =}': handlerParts_{= index =}.routeHandler,

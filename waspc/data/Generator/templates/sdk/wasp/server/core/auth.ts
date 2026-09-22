@@ -1,7 +1,7 @@
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { authenticateRequest } from '../auth/session.js'
 import { authSchemes, defaultScheme } from '../auth/schemes.js'
-import { sendAuthResponse, toWebRequest } from '../auth/issuer.js'
+import { sendWebResponse, toWebRequest } from '../auth/http.js'
 import { createInvalidCredentialsError } from '../auth/utils.js'
 import { defineHandler } from '../utils.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
@@ -69,18 +69,18 @@ export function requireSchemes(schemeNames: AuthSchemeName[]) {
     // Logged in, but not like this: forbid, from whichever scheme knows the user.
     if (req.user != null && req.authScheme !== null && req.authScheme !== undefined) {
       const forbidder = authSchemes[req.authScheme as AuthSchemeName]
-      const response = (await forbidder.forbid?.(webRequest)) ?? {
-        status: 403,
-        body: {
-          message: `Authenticated via '${req.authScheme}', but this requires signing in via one of: ${schemeNames.join(', ')}.`,
-        },
-      }
-      return sendAuthResponse(res as ExpressResponse, response)
+      const response =
+        (await forbidder.forbid?.(webRequest)) ??
+        Response.json(
+          { message: `Authenticated via '${req.authScheme}', but this requires signing in via one of: ${schemeNames.join(', ')}.` },
+          { status: 403 },
+        )
+      return sendWebResponse(res as ExpressResponse, response)
     }
     // The list is validated non-empty at compile time; the first scheme
     // issues the challenge.
     const challenger = authSchemes[schemeNames[0]!]
-    const response = (await challenger.challenge?.(webRequest)) ?? { status: 401, body: { message: 'Invalid credentials' } }
-    return sendAuthResponse(res as ExpressResponse, response)
+    const response = (await challenger.challenge?.(webRequest)) ?? Response.json({ message: 'Invalid credentials' }, { status: 401 })
+    return sendWebResponse(res as ExpressResponse, response)
   })
 }

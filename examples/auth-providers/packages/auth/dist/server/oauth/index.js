@@ -2,7 +2,7 @@ import { getAuthContractErrorCode } from "@wasp.sh/auth-contract";
 import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 import { findAuthWithUser } from "../email/flows.js";
-import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendAuthResponse, } from "../http.js";
+import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendSerializedResponse, serializeResponse, } from "../http.js";
 import { createMergeTicket, requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
 import { TimeSpan, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { makeOAuthProvider, } from "./providers.js";
@@ -63,7 +63,7 @@ export function oauthRoutes(ctx) {
             if (!(await tryMarkCodeUsed(runtime, code))) {
                 throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
             }
-            sendAuthResponse(res, response);
+            sendSerializedResponse(res, response);
         },
     });
     return routes;
@@ -85,7 +85,7 @@ async function loginHandler(ctx, provider, oauthConfig, jwt, req, res) {
     if (ctx.spec.onBeforeOAuthRedirect) {
         const result = (await ctx.spec.onBeforeOAuthRedirect({
             prisma: ctx.runtime.db,
-            req,
+            req: req.request,
             url: redirectUrl,
             oauth: { uniqueRequestId: state.state },
         }));
@@ -118,7 +118,6 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
             try {
                 await identities.link(providerUserId, {
                     authId: linkToAuthId,
-                    req,
                     oauth,
                 });
             }
@@ -151,7 +150,6 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
                 // tokens as their `oauth` payload) around the atomic write.
                 await identities.create(providerUserId, {
                     getUserFields: (() => validateAndGetUserFields({ profile: providerProfile }, spec.methods[provider.id]?.userSignupFields)),
-                    req,
                     oauth,
                 });
                 isNewUser = true;
@@ -168,8 +166,8 @@ async function callbackHandler(ctx, provider, oauthConfig, jwt, req, res) {
         const { response } = await runtime.credentialsIssuer.signIn({
             providerName: provider.id,
             providerUserId,
-        }, { req, oauth, skipHooks: isNewUser });
-        const oneTimeCode = await jwt.createJWT({ response }, { expiresIn: new TimeSpan(1, "m") });
+        }, { oauth, skipHooks: isNewUser });
+        const oneTimeCode = await jwt.createJWT({ response: await serializeResponse(response) }, { expiresIn: new TimeSpan(1, "m") });
         redirect(res, `${runtime.clientUrl}${spec.clientOAuthCallbackPath}#${oneTimeCode}`);
     }
     catch (error) {

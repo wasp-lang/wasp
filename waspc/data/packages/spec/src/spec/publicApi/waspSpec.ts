@@ -437,11 +437,10 @@ export interface AuthSchemeServerSide {
   spec?: unknown;
   /**
    * Present when the adapter returns a `routeHandler`. The routes mount at
-   * `/auth/<scheme>`; the handler sees paths relative to that. `rawBody`
-   * mounts them without the JSON body parser, for handlers that read the
-   * body themselves.
+   * `/auth/<scheme>` and receive standard `Request`s with the raw body: the
+   * handler parses its own bodies.
    */
-  routes?: { rawBody?: boolean };
+  routes?: Record<string, never>;
 }
 
 /**
@@ -487,7 +486,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 17;
+  contractVersion: 18;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */

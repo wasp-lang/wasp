@@ -31,18 +31,18 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
     signOut: (request) => runtime.credentialsIssuer.signOut(request),
   },
 
-  routeHandler: async (req, res) => {
-    const send = (status: number, body: unknown) => {
-      res.statusCode = status;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(body));
-    };
-    const { email, password } = ((req as { body?: unknown }).body ?? {}) as {
-      email?: unknown;
-      password?: unknown;
-    };
+  // Standard `Request` in, `Response` out. Wasp hands over the raw body, so
+  // the route parses it itself.
+  routeHandler: async (request) => {
+    const send = (status: number, body: unknown) =>
+      Response.json(body, { status });
+    const url = new URL(request.url);
+    const path = url.pathname.slice(runtime.mountPath.length);
+    const { email, password } = (
+      request.method === "POST" ? await request.json().catch(() => ({})) : {}
+    ) as { email?: unknown; password?: unknown };
 
-    if (req.method === "POST" && req.url === "/signup") {
+    if (request.method === "POST" && path === "/signup") {
       if (typeof email !== "string" || !email.includes("@")) {
         return send(400, { message: "A valid email is required." });
       }
@@ -61,7 +61,6 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
             claims: { email: normalizedEmail },
             secrets: { hashedPassword: await hash(password) },
           },
-          req,
         });
       } catch (e) {
         if (getAuthContractErrorCode(e) === "wasp-auth/duplicate-identity") {
@@ -74,7 +73,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
       return send(200, { success: true });
     }
 
-    if (req.method === "POST" && req.url === "/login") {
+    if (request.method === "POST" && path === "/login") {
       // A wrong password and an unknown email are the same 401, so the
       // endpoint reveals no accounts.
       if (typeof email !== "string" || typeof password !== "string") {
@@ -90,27 +89,20 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
         return send(401, { message: "Invalid credentials" });
       }
       // The app's login hooks fire inside; the issuer decides what the
-      // client receives (here, `{ credential }`).
-      const { response } = await runtime.credentialsIssuer.signIn(
-        { providerUserId: normalizedEmail },
-        { req },
-      );
-      for (const [name, value] of Object.entries(response.headers ?? {})) {
-        res.setHeader(name, value);
-      }
-      return send(response.status, response.body ?? {});
+      // client receives (here, `{ credential }`), as a standard Response.
+      const { response } = await runtime.credentialsIssuer.signIn({
+        providerUserId: normalizedEmail,
+      });
+      return response;
     }
 
     // A download is a browser NAVIGATION, and a navigation cannot carry the
     // bearer credential. The client first trades its credential for a
     // one-time code here (a normal request, so the header is attached)...
-    if (req.method === "POST" && req.url === "/one-time-code") {
+    if (request.method === "POST" && path === "/one-time-code") {
       try {
-        const oneTimeCode = await runtime.credentialsIssuer.createOneTimeCode(
-          new Request(`${runtime.serverUrl}${req.url}`, {
-            headers: { authorization: req.headers.authorization ?? "" },
-          }),
-        );
+        const oneTimeCode =
+          await runtime.credentialsIssuer.createOneTimeCode(request);
         return send(200, { oneTimeCode });
       } catch (e) {
         if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
@@ -121,22 +113,24 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
     }
 
     // ...and the navigation carries the code. It works once, for a minute.
-    const url = new URL(req.url ?? "/", runtime.serverUrl);
-    if (req.method === "GET" && url.pathname === "/export") {
+    if (request.method === "GET" && path === "/export") {
       const result = await runtime.credentialsIssuer.redeemOneTimeCode(
         url.searchParams.get("oneTimeCode") ?? "",
       );
       if (result.status !== "authenticated") {
         return send(401, { message: "Invalid credentials" });
       }
-      res.setHeader(
-        "Content-Disposition",
-        'attachment; filename="account.json"',
+      return Response.json(
+        { authId: result.principal.providerUserId },
+        {
+          headers: {
+            "Content-Disposition": 'attachment; filename="account.json"',
+          },
+        },
       );
-      return send(200, { authId: result.principal.providerUserId });
     }
 
-    send(404, { message: "Not found." });
+    return send(404, { message: "Not found." });
   },
 });
 

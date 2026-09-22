@@ -81,7 +81,7 @@ export const createServerAuthHandler = (runtime) => {
             if (verified !== null) {
                 await clerk.sessions.revokeSession(verified.sessionId);
             }
-            return { status: 200, body: { success: true } };
+            return Response.json({ success: true });
         },
         /** "Log out every device": revoke each of the user's active Clerk sessions. */
         async signOutEverywhere({ providerUserId }) {

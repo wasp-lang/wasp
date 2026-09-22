@@ -95,7 +95,6 @@ export function emailRoutes(ctx) {
                             },
                         },
                         getUserFields: (() => validateAndGetUserFields(fields, emailConfig.userSignupFields)),
-                        req,
                     });
                 }
                 catch (e) {
@@ -135,7 +134,6 @@ export function emailRoutes(ctx) {
                             },
                         },
                         authId,
-                        req,
                     });
                 }
                 catch (e) {
@@ -183,8 +181,8 @@ export function emailRoutes(ctx) {
                 catch {
                     throw createInvalidCredentialsError();
                 }
-                const { response } = await runtime.credentialsIssuer.signIn({ providerName: "email", providerUserId: email }, { req, properties: getSignInProperties(fields) });
-                sendAuthResponse(res, response);
+                const { response } = await runtime.credentialsIssuer.signIn({ providerName: "email", providerUserId: email }, { properties: getSignInProperties(fields) });
+                await sendAuthResponse(res, response);
             },
         },
         {
@@ -204,7 +202,7 @@ export function emailRoutes(ctx) {
                     const auth = await findAuthWithUser(runtime, identity.authId);
                     await spec.onAfterEmailVerified({
                         prisma: runtime.db,
-                        req,
+                        req: req.request,
                         email,
                         user: auth?.user,
                     });

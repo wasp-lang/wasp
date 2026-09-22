@@ -4,7 +4,7 @@ import type { AuthSchemeName } from '../../auth/scheme.js'
 import type { AuthUserData } from '../../auth/user.js'
 import type { AuthHandler, SignInProperties } from './handler/types.js'
 import { prisma } from '../index.js'
-import { sendAuthResponse, toWebRequest } from './issuer.js'
+import { sendWebResponse, toWebRequest } from './http.js'
 import { authSchemes, defaultScheme, issueSignInFor, signOutEverywhereForAuthId } from './schemes.js'
 import { authenticateRequest } from './session.js'
 import { findAuthWithUserBy } from './utils.js'
@@ -55,7 +55,7 @@ export async function authenticate(
 export async function signIn(
   user: UserRef,
   res: ExpressResponse,
-  opts?: { scheme?: AuthSchemeName; properties?: SignInProperties; req?: ExpressRequest; skipHooks?: boolean },
+  opts?: { scheme?: AuthSchemeName; properties?: SignInProperties; skipHooks?: boolean },
 ): Promise<void> {
   const scheme = opts?.scheme ?? defaultScheme
   const auth = await findAuthWithUserBy({ userId: user.id })
@@ -73,9 +73,9 @@ export async function signIn(
   const { response } = await issueSignInFor(
     scheme,
     { ...identity, authId: auth.id },
-    { req: opts?.req, properties: opts?.properties, skipHooks: opts?.skipHooks },
+    { properties: opts?.properties, skipHooks: opts?.skipHooks },
   )
-  sendAuthResponse(res, response)
+  await sendWebResponse(res, response)
 }
 
 // PUBLIC API
@@ -87,12 +87,12 @@ export async function signIn(
 export async function signOut(req: ExpressRequest, res: ExpressResponse): Promise<void> {
   const result = await authenticateRequest(req, Object.keys(authSchemes) as AuthSchemeName[])
   if (result === null) {
-    sendAuthResponse(res, { status: 200, body: { success: true } })
+    await sendWebResponse(res, Response.json({ success: true }))
     return
   }
   const handler = authSchemes[result.scheme]
-  const response = (await handler.signOut?.(toWebRequest(req))) ?? { status: 200, body: { success: true } }
-  sendAuthResponse(res, response)
+  const response = (await handler.signOut?.(toWebRequest(req))) ?? Response.json({ success: true })
+  await sendWebResponse(res, response)
 }
 
 // PUBLIC API
@@ -138,8 +138,8 @@ export async function challenge(
   opts?: { scheme?: AuthSchemeName },
 ): Promise<void> {
   const handler = authSchemes[opts?.scheme ?? defaultScheme]
-  const response = (await handler.challenge?.(toWebRequest(req))) ?? { status: 401, body: { message: 'Invalid credentials' } }
-  sendAuthResponse(res, response)
+  const response = (await handler.challenge?.(toWebRequest(req))) ?? Response.json({ message: 'Invalid credentials' }, { status: 401 })
+  await sendWebResponse(res, response)
 }
 
 // PUBLIC API
@@ -150,6 +150,6 @@ export async function forbid(
   opts?: { scheme?: AuthSchemeName },
 ): Promise<void> {
   const handler = authSchemes[opts?.scheme ?? defaultScheme]
-  const response = (await handler.forbid?.(toWebRequest(req))) ?? { status: 403, body: { message: 'Forbidden' } }
-  sendAuthResponse(res, response)
+  const response = (await handler.forbid?.(toWebRequest(req))) ?? Response.json({ message: 'Forbidden' }, { status: 403 })
+  await sendWebResponse(res, response)
 }

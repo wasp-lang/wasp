@@ -42,6 +42,8 @@ genServerAuth spec =
       sequence
         [ genFileCopy [relfile|server/core/auth.ts|],
           genFileCopyInServerAuth [relfile|index.ts|],
+          genFileCopyInServerAuth [relfile|http.ts|],
+          genFileCopy [relfile|server/requestContext.ts|],
           genFileCopyInServerAuth [relfile|handler/types.ts|],
           genSchemesTs spec auth,
           genIssuerTs auth,

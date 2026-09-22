@@ -2,7 +2,6 @@ import { createClerkClient } from "@clerk/backend";
 import type {
   AuthenticateResult,
   AuthHandler,
-  AuthResponse,
   Principal,
   ServerAuthAdapterFor,
 } from "@wasp.sh/auth-contract";
@@ -92,12 +91,12 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
      * token stays valid until it expires (~60s by default). Wasp's own
      * issuer revokes instantly. Same API, weaker guarantee.
      */
-    async signOut(request: Request): Promise<AuthResponse> {
+    async signOut(request: Request): Promise<Response> {
       const verified = await verify(request);
       if (verified !== null) {
         await clerk.sessions.revokeSession(verified.sessionId);
       }
-      return { status: 200, body: { success: true } };
+      return Response.json({ success: true });
     },
 
     /** "Log out every device": revoke each of the user's active Clerk sessions. */

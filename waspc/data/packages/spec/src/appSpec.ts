@@ -235,9 +235,8 @@ export type AuthSchemeCredentials =
       slidingRenewal: Optional<string>;
     };
 
-export type AuthSchemeRoutes = {
-  rawBody: Optional<boolean>;
-};
+// Present when the scheme brings routes; nothing to configure.
+export type AuthSchemeRoutes = Record<string, never>;
 
 export type AuthSchemeEnvVar = {
   name: string;

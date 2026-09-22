@@ -1,13 +1,11 @@
 import type {
   AuthenticateResult,
   AuthHandler,
-  AuthResponse,
   ServerAuthAdapterFor,
   WaspServerRuntimeFor,
 } from "@wasp.sh/auth-contract";
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { toNodeHandler } from "better-auth/node";
 import { bearer } from "better-auth/plugins";
 import type { betterAuth as betterAuthSpecConstructor } from "./spec.js";
 
@@ -149,11 +147,11 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
      * API: the request carries the session token, which is all `signOut`
      * needs.
      */
-    async signOut(request: Request): Promise<AuthResponse> {
+    async signOut(request: Request): Promise<Response> {
       await auth.api.signOut({ headers: request.headers }).catch(() => {
         // An already-expired session has nothing to sign out of.
       });
-      return { status: 200, body: { success: true } };
+      return Response.json({ success: true });
     },
 
     /**
@@ -179,11 +177,10 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
 
     /**
      * Better Auth's own HTTP surface (sign-up, sign-in, sign-out, OAuth
-     * callbacks). Wasp mounts it at `/auth/<scheme>` with the JSON body
-     * parser stripped (`rawBody: true`) -- `toNodeHandler` reads the raw
-     * request stream, and an already-consumed stream hangs every request.
+     * callbacks), mounted by Wasp at `/auth/<scheme>`. Better Auth speaks
+     * standard `Request` / `Response` natively, so this is its handler as is.
      */
-    routeHandler: toNodeHandler(auth),
+    routeHandler: (request) => auth.handler(request),
   };
 };
 

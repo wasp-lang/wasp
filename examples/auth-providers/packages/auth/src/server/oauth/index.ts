@@ -10,7 +10,8 @@ import {
   getUrl,
   isHttpErrorLike,
   redirect,
-  sendAuthResponse,
+  sendSerializedResponse,
+  serializeResponse,
   type Route,
 } from "../http.js";
 import {
@@ -118,7 +119,7 @@ export function oauthRoutes(ctx: Ctx): Route[] {
           "Unable to login with the OAuth provider. The code has already been used.",
         );
       }
-      sendAuthResponse(res, response);
+      sendSerializedResponse(res, response);
     },
   });
 
@@ -153,7 +154,7 @@ async function loginHandler(
   if (ctx.spec.onBeforeOAuthRedirect) {
     const result = (await ctx.spec.onBeforeOAuthRedirect({
       prisma: ctx.runtime.db,
-      req,
+      req: req.request,
       url: redirectUrl,
       oauth: { uniqueRequestId: state.state },
     })) as { url: URL } | undefined;
@@ -199,7 +200,6 @@ async function callbackHandler(
       try {
         await identities.link(providerUserId, {
           authId: linkToAuthId,
-          req,
           oauth,
         });
       } catch (e) {
@@ -244,7 +244,6 @@ async function callbackHandler(
               { profile: providerProfile },
               spec.methods[provider.id]?.userSignupFields,
             )) as never,
-          req,
           oauth,
         });
         isNewUser = true;
@@ -263,10 +262,10 @@ async function callbackHandler(
         providerName: provider.id,
         providerUserId,
       },
-      { req, oauth, skipHooks: isNewUser },
+      { oauth, skipHooks: isNewUser },
     );
     const oneTimeCode = await jwt.createJWT(
-      { response },
+      { response: await serializeResponse(response) },
       { expiresIn: new TimeSpan(1, "m") },
     );
     redirect(

@@ -26,9 +26,7 @@ export async function requireCurrentAuthId(
   { runtime }: Ctx,
   req: Req,
 ): Promise<string> {
-  const result = await runtime.credentialsIssuer.authenticate(
-    toWebRequest(runtime, req),
-  );
+  const result = await runtime.credentialsIssuer.authenticate(req.request);
   if (result.status !== "authenticated") {
     throw new HttpError(
       401,
@@ -51,6 +49,12 @@ export function rethrowLinkError(e: unknown): never {
       );
     case "wasp-auth/merging-disabled":
       throw new HttpError(409, "This app does not support merging accounts.");
+    case "wasp-auth/credential-not-fresh":
+      throw new HttpError(
+        403,
+        "Log in again before merging accounts: your current login is not recent enough.",
+        { reason: "credential-not-fresh" },
+      );
     case "wasp-auth/last-identity":
       throw new HttpError(
         409,
@@ -134,17 +138,6 @@ function mergeRequiredError(mergeTicket: string): HttpError {
   );
 }
 
-/** The credential-bearing part of a Node request, as the contract's facets read it. */
-function toWebRequest(runtime: Ctx["runtime"], req: Req): Request {
-  const headers = new Headers();
-  for (const [name, value] of Object.entries(req.headers)) {
-    if (value !== undefined) {
-      headers.set(name, Array.isArray(value) ? value.join(", ") : value);
-    }
-  }
-  return new Request(`${runtime.serverUrl}${req.url ?? "/"}`, { headers });
-}
-
 /**
  * Routes every method shares: `/unlink`, and `/link-intent` for the OAuth
  * methods. An OAuth link starts with a browser NAVIGATION, which cannot carry
@@ -208,7 +201,6 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
         await anyIdentities(runtime).merge({
           fromAuthId: ticket.fromAuthId,
           intoAuthId: ticket.intoAuthId,
-          req,
         });
       } catch (e) {
         rethrowLinkError(e);
@@ -222,7 +214,7 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       path: "/link-intent",
       handler: async (req, res) => {
         const oneTimeCode = await runtime.credentialsIssuer
-          .createOneTimeCode(toWebRequest(runtime, req))
+          .createOneTimeCode(req.request)
           .catch((e) => {
             if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
               throw new HttpError(

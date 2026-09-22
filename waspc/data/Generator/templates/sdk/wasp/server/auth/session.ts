@@ -6,7 +6,8 @@ import type { AuthUserData } from '../../auth/user.js';
 import type { AuthHandler, Principal } from "./handler/types.js";
 import type { OAuthData } from "./hooks.js";
 import { authSchemes, defaultScheme } from "./schemes.js";
-import { toWebRequest } from "./issuer.js";
+import { toWebRequest } from "./http.js";
+import { getCurrentRequest } from "../requestContext.js";
 
 import { prisma } from '../index.js';
 import { createAuthUserData } from "../../auth/user.js";
@@ -97,8 +98,7 @@ async function authenticateWebRequest(
  * identity store -- provisioning the local user on first sight.
  */
 async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal): Promise<AuthUserData | null> {
-  const isWaspCredential = principal.signedInBy !== undefined && principal.providerName === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.providerUserId);
-  const authId = isWaspCredential
+  const authId = isWaspCredentialPrincipal(principal)
     ? principal.providerUserId
     : await resolveSubject(scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default');
   const user = await prisma.{= userEntityLower =}.findFirst({
@@ -122,6 +122,26 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
     credentialIssuedAt: principal.credentialIssuedAt ?? null,
     isCredentialFresh: principal.isCredentialFresh ?? false,
   });
+}
+
+// A Wasp-issued credential names the Auth entity itself as its subject; a
+// handler's own principals name one of its identities.
+function isWaspCredentialPrincipal(principal: Principal): boolean {
+  return principal.signedInBy !== undefined && principal.providerName === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.providerUserId);
+}
+
+// PRIVATE API
+/**
+ * The account a principal stands for, WITHOUT provisioning: null when the
+ * handler's identity is not known yet. For checks, where a never-seen
+ * principal must not become a user as a side effect.
+ */
+export async function resolveAuthIdOfPrincipal(scheme: AuthSchemeName, principal: Principal): Promise<string | null> {
+  if (isWaspCredentialPrincipal(principal)) {
+    return principal.providerUserId;
+  }
+  const identity = await getIdentityStore(scheme, principal.providerName ?? 'default').find(principal.providerUserId);
+  return identity === null ? null : identity.authId;
 }
 
 // Wasp-issued credentials carry the Auth entity's uuid as their subject; a
@@ -163,10 +183,10 @@ async function resolveSubject(
   // multiplexes them, everyone else records under `default`. The runtime
   // guards membership before we get here.
   providerName: string = 'default',
-  req?: ExpressRequest,
   // Present when the handler provisions through an OAuth provider.
   oauth?: OAuthData,
 ): Promise<string> {
+  const req = getCurrentRequest();
   const identities = getIdentityStore(scheme, providerName);
 
   const existing = await identities.find(providerUserId);
@@ -264,9 +284,9 @@ export async function provisionAuthUser(
     secrets?: Record<string, unknown>;
   },
   providerName?: string,
-  opts?: { req?: ExpressRequest; oauth?: OAuthData },
+  opts?: { oauth?: OAuthData },
 ): Promise<{ authId: string }> {
-  const authId = await resolveSubject(scheme, providerUserId, claims, identity, providerName, opts?.req, opts?.oauth);
+  const authId = await resolveSubject(scheme, providerUserId, claims, identity, providerName, opts?.oauth);
   return { authId };
 }
 

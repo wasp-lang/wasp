@@ -337,12 +337,16 @@ isClientAuthHandlerUsed = any (isJust . (.client)) . schemes
 schemeNames :: Auth -> [String]
 schemeNames = map (.name) . schemes
 
+-- | The scheme brings routes of its own, mounted at @/auth/<name>@. Nothing
+-- to configure: the handler gets standard requests with the raw body.
 data AuthSchemeRoutes = AuthSchemeRoutes
-  { -- | When true, the scheme's routes are mounted without the JSON body
-    -- parser, because the handler reads the raw request body itself.
-    rawBody :: Maybe Bool
-  }
-  deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
+  deriving (Show, Eq, Data, Generic)
+
+instance FromJSON AuthSchemeRoutes where
+  parseJSON = Aeson.withObject "routes" (const (pure AuthSchemeRoutes))
+
+instance ToJSON AuthSchemeRoutes where
+  toJSON AuthSchemeRoutes = Aeson.object []
 
 -- | The field is `envVarName` rather than `name` so it does not clash with
 -- 'AuthScheme''s `name` under OverloadedRecordDot; the JSON key stays `name`.

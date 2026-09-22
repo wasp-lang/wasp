@@ -59,9 +59,9 @@ export function usernameRoutes(ctx: Ctx): Route[] {
         // decides what the client receives.
         const { response } = await runtime.credentialsIssuer.signIn(
           { providerName: "username", providerUserId: username },
-          { req, properties: getSignInProperties(fields) },
+          { properties: getSignInProperties(fields) },
         );
-        sendAuthResponse(res, response);
+        await sendAuthResponse(res, response);
       },
     },
     {
@@ -85,7 +85,6 @@ export function usernameRoutes(ctx: Ctx): Route[] {
               },
             },
             authId,
-            req,
           });
         } catch (e) {
           // The username is taken. Knowing its password is the proof that
@@ -139,7 +138,6 @@ export function usernameRoutes(ctx: Ctx): Route[] {
                   fields,
                   spec.methods.usernameAndPassword?.userSignupFields,
                 )) as never,
-              req,
             },
           );
         } catch (e) {
