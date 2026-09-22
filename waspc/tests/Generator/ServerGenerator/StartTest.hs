@@ -11,7 +11,7 @@ import System.IO (readFile')
 import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldBe, shouldNotBe, shouldReturn)
-import Test.Process.Util (isPortAvailable, isProcessAlive, killProcess, makeTempPath, trim, waitUntil)
+import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
 import Wasp.AppComponentUrl (AppComponentUrl (..))
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.RunConfig (ServerRunConfig, makeServerRunConfig)
@@ -224,7 +224,7 @@ cleanUpFixture fixture = do
   where
     killPidFromFile pidFilePath = do
       exists <- doesFileExist pidFilePath
-      when exists $ readFile' pidFilePath >>= killProcess
+      when exists $ readProcessId pidFilePath >>= killProcess
 
 loopingServerScript :: String
 loopingServerScript =
@@ -236,7 +236,8 @@ loopingServerScript =
       "const server = net.createServer();",
       "server.listen(port, '127.0.0.1', () => {",
       "  fs.writeFileSync('" <> serverPortFileName <> "', String(server.address().port));",
-      "  fs.writeFileSync('server.pid', String(process.pid));",
+      "  fs.writeFileSync('server.pid.tmp', String(process.pid));",
+      "  fs.renameSync('server.pid.tmp', 'server.pid');",
       "});",
       "const stop = () => server.close(() => process.exit(0));",
       "process.on('SIGINT', stop);",
@@ -251,8 +252,10 @@ crashingServerScript =
       "const childScript = \"const net = require('node:net'); const server = net.createServer(); server.listen(0, '127.0.0.1', () => process.send(String(server.address().port)));\";",
       "const child = spawn(process.execPath, ['-e', childScript], { stdio: ['ignore', 'inherit', 'inherit', 'ipc'] });",
       "child.once('message', (port) => {",
-      "  fs.writeFileSync('server.pid', String(process.pid));",
-      "  fs.writeFileSync('leftover.pid', String(child.pid));",
+      "  fs.writeFileSync('server.pid.tmp', String(process.pid));",
+      "  fs.renameSync('server.pid.tmp', 'server.pid');",
+      "  fs.writeFileSync('leftover.pid.tmp', String(child.pid));",
+      "  fs.renameSync('leftover.pid.tmp', 'leftover.pid');",
       "  fs.writeFileSync('leftover-port.txt', String(port));",
       "  process.exit(1);",
       "});"
@@ -299,8 +302,8 @@ waitForServerStart fixture =
         return $ processAlive && not portAvailable
       else return False
 
-readServerPid :: GeneratedAppDirFixture -> IO String
-readServerPid fixture = trim <$> readFile' (serverPidFilePath fixture)
+readServerPid :: GeneratedAppDirFixture -> IO ProcessId
+readServerPid fixture = readProcessId (serverPidFilePath fixture)
 
 readServerPort :: GeneratedAppDirFixture -> IO String
 readServerPort fixture = trim <$> readFile' (serverDirPath fixture </> serverPortFileName)
