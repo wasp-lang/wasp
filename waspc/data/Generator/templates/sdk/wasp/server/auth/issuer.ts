@@ -10,7 +10,7 @@ import type {
   SignInResult,
 } from './handler/types.js'
 import { prisma } from '../index.js'
-import { prismaCredentialStore } from './sessionStore.js'
+import { makePrismaCredentialStore } from './sessionStore.js'
 import { getIdentityStore } from './identityStore.js'
 
 /**
@@ -56,7 +56,17 @@ export type IssuedCredential = AccountPrincipal & { credentialId: string; loginS
  * with inline `credentials`. Its credential carries the account, so it
  * answers `authenticate` with the account and who verified the login.
  */
-export function createIssuer(options: IssuerOptions): CredentialHandler {
+export type IssuerHandler = CredentialHandler & {
+  /**
+   * Reissues the credential the request carries: a new id and issue time,
+   * the same account and login scheme, no hooks. Null when the request
+   * carries none of this issuer's credentials.
+   */
+  refresh(request: Request): Promise<Response | null>
+}
+
+// PRIVATE API
+export function createIssuer(options: IssuerOptions): IssuerHandler {
   const store = resolveStore(options)
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
   const schemeTtl = parseTimeSpan(options.ttl)
@@ -107,6 +117,22 @@ export function createIssuer(options: IssuerOptions): CredentialHandler {
       return credential === null
         ? { status: 'unauthenticated' }
         : { status: 'authenticated', account: credential, loginScheme: credential.loginScheme }
+    },
+
+    async refresh(request) {
+      const credential = await readCredential(request)
+      if (credential === null) {
+        return null
+      }
+      const issuedAt = new Date()
+      const { id } = await store.create({
+        authId: credential.authId,
+        loginScheme: credential.loginScheme,
+        issuedAt,
+        expiresAt: new Date(issuedAt.getTime() + schemeTtl.milliseconds()),
+      })
+      await store.delete(credential.credentialId)
+      return transport.write(id, { maxAgeSeconds: schemeTtl.seconds(), persistent: true })
     },
 
     async signIn(identity: AuthIdentityKey, properties?: SignInProperties): Promise<SignInResult> {
@@ -233,7 +259,7 @@ function resolveStore(options: IssuerOptions): CredentialStore {
     return options.store
   }
   if (options.store === 'prisma') {
-    return prismaCredentialStore
+    return makePrismaCredentialStore(options.scheme)
   }
   if (options.secret === undefined) {
     throw new Error(`The signed-token credential store of scheme '${options.scheme}' needs a signing secret.`)

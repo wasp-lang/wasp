@@ -164,6 +164,7 @@ spec_GeneratorAuthInjectionTest = do
           expiresAt DateTime
           issuedAt DateTime @default(now())
           loginScheme String
+          credentialScheme String
           userId String
           auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
 

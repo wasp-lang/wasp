@@ -18,11 +18,12 @@ const prismaAdapter = new PrismaAdapter(
  */
 export const auth = new Lucia<{
   loginScheme: string
+  credentialScheme: string
 }, {
   userId: {= userEntityUpper =}['id'] | null
 }>(prismaAdapter, {
-  getSessionAttributes({ loginScheme }) {
-    return { loginScheme };
+  getSessionAttributes({ loginScheme, credentialScheme }) {
+    return { loginScheme, credentialScheme };
   },
   getUserAttributes({ userId }) {
     return { userId };
@@ -35,6 +36,8 @@ declare module "lucia" {
     DatabaseSessionAttributes: {
       // The scheme that verified the login this credential descends from.
       loginScheme: string;
+      // The scheme whose credential the row is.
+      credentialScheme: string;
     };
     DatabaseUserAttributes: {
       userId: {= userEntityUpper =}['id'] | null

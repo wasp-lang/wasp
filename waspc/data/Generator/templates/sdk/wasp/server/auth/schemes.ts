@@ -5,7 +5,7 @@ import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { authenticateAccount, computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
-import { createIssuer, deleteCredential, keepsCredentialsInStore, signOutEverywhere, type IssuerOptions } from './issuer.js'
+import { createIssuer, deleteCredential, keepsCredentialsInStore, signOutEverywhere, type IssuerHandler, type IssuerOptions } from './issuer.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
@@ -562,7 +562,7 @@ type RouteHandler = (request: Request) => Response | Promise<Response>
 /** What Wasp holds per scheme: who recognises its credential, and its routes. */
 type SchemeParts = {
   /** Wasp's own issuer for the scheme's inline `credentials`, when it has them: an `CredentialHandler` with no login of its own. */
-  issuer: CredentialHandler | null
+  issuer: IssuerHandler | null
   /** The sibling scheme this one signs into (`credentials: { scheme }`), when it does. */
   credentialsScheme: AuthSchemeName | null
   /** The scheme's own credential handler; null when Wasp's credential is all it has. */
@@ -821,6 +821,34 @@ export function issueSignInFor(
     )
   }
   return issueSignIn(identity, opts, undefined)
+}
+
+/** Wasp's own issuer on a scheme's chain, following `credentials: { scheme }`; null when the chain has none. */
+function waspIssuerOf(name: AuthSchemeName): IssuerHandler | null {
+  const parts = partsOf(name)
+  return parts.issuer ?? (parts.credentialsScheme === null ? null : waspIssuerOf(parts.credentialsScheme))
+}
+
+// PRIVATE API
+/**
+ * Reissues the Wasp credential the request carries under `scheme`: the
+ * answer to send, or null when the request carries no Wasp credential of
+ * that scheme's chain (anonymous, or a handler-owned credential).
+ */
+export async function refreshSignInFor(scheme: AuthSchemeName, request: Request): Promise<Response | null> {
+  const issuer = waspIssuerOf(scheme)
+  return issuer === null ? null : issuer.refresh(request)
+}
+
+// PRIVATE API
+/** Whether the request carries a credential Wasp issued on `scheme`'s chain, rather than a handler's own. */
+export async function carriesWaspCredential(scheme: AuthSchemeName, request: Request): Promise<boolean> {
+  const issuer = waspIssuerOf(scheme)
+  if (issuer === null) {
+    return false
+  }
+  const result = await issuer.authenticate(request)
+  return result.status === 'authenticated'
 }
 
 // PRIVATE API

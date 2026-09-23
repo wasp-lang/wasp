@@ -15,10 +15,17 @@ import { auth as lucia } from './lucia.js'
  */
 
 // PRIVATE API
-export const prismaCredentialStore: CredentialStore = {
+/**
+ * The store of one scheme. All schemes share the `Session` table; the
+ * `credentialScheme` column keeps their rows apart, so a row never
+ * authenticates under another scheme and a per-scheme sign-out never sweeps
+ * another scheme's rows.
+ */
+export function makePrismaCredentialStore(credentialScheme: string): CredentialStore {
+  return {
   {=# isPrismaStoreUsed =}
   async create(record) {
-    const session = await lucia.createSession(record.authId, { loginScheme: record.loginScheme })
+    const session = await lucia.createSession(record.authId, { loginScheme: record.loginScheme, credentialScheme })
     // Lucia stamps its own default lifetime on the row. The record's is the
     // one that counts: the scheme's `ttl`, or a per-sign-in `ttl`.
     await prisma.{= sessionEntityLower =}.update({
@@ -32,7 +39,7 @@ export const prismaCredentialStore: CredentialStore = {
     // session that is near its expiry to Lucia's default lifetime, which would
     // turn a 15 minute credential into a 30 day one.
     const session = await prisma.{= sessionEntityLower =}.findUnique({ where: { id } })
-    if (session === null) {
+    if (session === null || session.credentialScheme !== credentialScheme) {
       return null
     }
     if (session.expiresAt <= new Date()) {
@@ -47,7 +54,9 @@ export const prismaCredentialStore: CredentialStore = {
     }
   },
   delete: (id) => lucia.invalidateSession(id),
-  deleteAllForAuthId: (authId) => lucia.invalidateUserSessions(authId),
+  async deleteAllForAuthId(authId) {
+    await prisma.{= sessionEntityLower =}.deleteMany({ where: { userId: authId, credentialScheme } })
+  },
   async extend(id, expiresAt) {
     await prisma.{= sessionEntityLower =}.updateMany({ where: { id }, data: { expiresAt } })
   },
@@ -60,6 +69,7 @@ export const prismaCredentialStore: CredentialStore = {
   delete: () => unavailable(),
   deleteAllForAuthId: () => unavailable(),
   {=/ isPrismaStoreUsed =}
+  }
 }
 {=^ isPrismaStoreUsed =}
 

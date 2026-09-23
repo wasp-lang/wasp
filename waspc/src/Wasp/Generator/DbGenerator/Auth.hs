@@ -198,6 +198,10 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
           // `user.loginScheme` and dual sign-out know which scheme vouched
           // for the login.
           loginScheme String
+          // The scheme whose credential this row is (`session`, `api`): two
+          // schemes may share this table, and a row must not authenticate
+          // under the other one, nor be swept by its sign-out.
+          credentialScheme String
 
           // Needs to be called `userId` for Lucia to be able to create sessions
           userId String

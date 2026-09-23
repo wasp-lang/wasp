@@ -83,9 +83,10 @@ test("signOutCredential ends one credential by id and leaves the rest", async ({
   const listed = await request.get("/api/sessions", { headers: first });
   expect(listed.status()).toBe(200);
   const { sessions } = (await listed.json()) as {
-    sessions: { id: string; loginScheme: string }[];
+    sessions: { id: string; loginScheme: string; credentialScheme: string }[];
   };
   expect(sessions.length).toBeGreaterThanOrEqual(2);
+  expect(sessions[0].credentialScheme).toBe("password");
   const newest = sessions[sessions.length - 1];
   expect(newest.loginScheme).toBe("password");
 
@@ -112,6 +113,77 @@ test("signOutCredential ends one credential by id and leaves the rest", async ({
       })
     ).status(),
   ).toBe(200);
+});
+
+test("refreshSignIn reissues the credential the request carries", async ({
+  request,
+}) => {
+  const { credential } = (await (
+    await request.post("/api/sign-in-as", { data: { email } })
+  ).json()) as { credential: string };
+  const refreshed = await request.post("/api/refresh", {
+    headers: { Authorization: `Bearer ${credential}` },
+  });
+  expect(refreshed.status()).toBe(200);
+  const { credential: reissued } = (await refreshed.json()) as {
+    credential: string;
+  };
+  expect(reissued).not.toBe(credential);
+  expect(
+    (
+      await request.get("/auth/me", {
+        headers: { Authorization: `Bearer ${credential}` },
+      })
+    ).status(),
+  ).toBe(401);
+  expect(
+    (
+      await request.get("/auth/me", {
+        headers: { Authorization: `Bearer ${reissued}` },
+      })
+    ).status(),
+  ).toBe(200);
+});
+
+test("signOutOthers ends every other credential and keeps the caller signed in", async ({
+  request,
+}) => {
+  const issue = async () =>
+    (
+      (await (
+        await request.post("/api/sign-in-as", { data: { email } })
+      ).json()) as { credential: string }
+    ).credential;
+  const mine = await issue();
+  const other = await issue();
+
+  const answer = await request.post("/api/sign-out-others", {
+    headers: { Authorization: `Bearer ${mine}` },
+  });
+  expect(answer.status()).toBe(200);
+  const { credential: kept } = (await answer.json()) as { credential: string };
+
+  expect(
+    (
+      await request.get("/auth/me", {
+        headers: { Authorization: `Bearer ${other}` },
+      })
+    ).status(),
+  ).toBe(401);
+  expect(
+    (
+      await request.get("/auth/me", {
+        headers: { Authorization: `Bearer ${kept}` },
+      })
+    ).status(),
+  ).toBe(200);
+  const listed = (await (
+    await request.get("/api/sessions", {
+      headers: { Authorization: `Bearer ${kept}` },
+    })
+  ).json()) as { sessions: { credentialScheme: string }[] };
+  expect(listed.sessions).toHaveLength(1);
+  expect(listed.sessions[0].credentialScheme).toBe("password");
 });
 
 test("signOutEverywhere ends every credential of the user", async ({

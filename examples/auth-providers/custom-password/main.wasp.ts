@@ -14,9 +14,11 @@ import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 import {
   signInAs,
   listSessions,
+  refreshHere,
   signOutCredentialRoute,
   signOutEverywhereRoute,
   signOutHere,
+  signOutOthersRoute,
   whoAmI,
 } from "./src/imperative" with { type: "ref" };
 
@@ -58,8 +60,11 @@ export default app({
     api("POST", "/api/sign-out-everywhere", signOutEverywhereRoute, {
       auth: true,
     }),
-    // A "your active sessions" page: list them, end one by id.
+    // A "your active sessions" page: list them, end one by id, end all but
+    // this one, or reissue this one.
     api("GET", "/api/sessions", listSessions, { auth: true }),
+    api("POST", "/api/sign-out-others", signOutOthersRoute, { auth: false }),
+    api("POST", "/api/refresh", refreshHere, { auth: false }),
     api("POST", "/api/sign-out-credential", signOutCredentialRoute, {
       auth: true,
     }),

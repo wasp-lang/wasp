@@ -48,7 +48,7 @@ genServerAuth spec =
           genSchemesTs spec auth,
           genIssuerTs auth,
           genSessionTs auth,
-          genImperativeTs,
+          genImperativeTs auth,
           genSessionStoreTs auth,
           genIdentityStoreTs auth,
           genLuciaTs auth,
@@ -298,14 +298,16 @@ genSessionTs auth =
 
 -- | The imperative auth API (`signIn`, `signOut`, ...) app code calls from
 -- `api()` routes.
-genImperativeTs :: Generator FileDraft
-genImperativeTs =
+genImperativeTs :: AS.Auth.Auth -> Generator FileDraft
+genImperativeTs auth =
   return $
     mkTmplFdWithData
       (serverAuthDirInSdkTemplatesDir </> [relfile|imperative.ts|])
       ( object
           [ "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-            "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String)
+            "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String),
+            "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
+            "isPrismaStoreUsed" .= usesPrismaStore auth
           ]
       )
 

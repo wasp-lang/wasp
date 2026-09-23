@@ -1,19 +1,23 @@
 import type {
   ListSessions,
+  RefreshHere,
   SignInAs,
   SignOutCredentialRoute,
   SignOutEverywhereRoute,
   SignOutHere,
+  SignOutOthersRoute,
   WhoAmI,
 } from "wasp/server/api";
-import { prisma } from "wasp/server";
 import {
   authenticate,
   getIdentityStore,
+  listStoredCredentials,
+  refreshSignIn,
   signIn,
   signOut,
   signOutCredential,
   signOutEverywhere,
+  signOutOthers,
 } from "wasp/server/auth";
 
 /**
@@ -65,23 +69,18 @@ export const signOutEverywhereRoute: SignOutEverywhereRoute = async (
 // credentials in the `Session` table, so they can be listed and ended one by
 // one; a signed-token scheme would have nothing to list.
 export const listSessions: ListSessions = async (_req, res, context) => {
-  const auth = await prisma.auth.findFirstOrThrow({
-    where: { userId: context.user!.id },
-    select: {
-      credentialsInvalidatedAt: true,
-      sessions: {
-        select: { id: true, issuedAt: true, loginScheme: true },
-        orderBy: { issuedAt: "asc" },
-      },
-    },
-  });
-  // `signOutEverywhere` is lazy: rows issued before the cut-off stay until
-  // they expire but can never authenticate again, so they are not "active".
-  const cutOff = auth.credentialsInvalidatedAt;
-  const sessions = auth.sessions.filter(
-    (session) => cutOff === null || session.issuedAt >= cutOff,
-  );
-  res.json({ sessions });
+  res.json({ sessions: await listStoredCredentials(context.user!) });
+};
+
+// "Password changed: log out my other devices." The caller keeps a fresh
+// credential; the answer carries it.
+export const signOutOthersRoute: SignOutOthersRoute = async (req, res) => {
+  await signOutOthers(req, res);
+};
+
+// Reissue the caller's credential: what a privilege change calls.
+export const refreshHere: RefreshHere = async (req, res) => {
+  await refreshSignIn(req, res);
 };
 
 export const signOutCredentialRoute: SignOutCredentialRoute = async (
