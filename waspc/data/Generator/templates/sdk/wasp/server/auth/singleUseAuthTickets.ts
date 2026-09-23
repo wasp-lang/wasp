@@ -7,7 +7,7 @@ import { prisma } from '../index.js'
  * Single-use auth tickets: a short-lived, single-use stand-in for an ACCOUNT, for a
  * browser navigation that cannot carry a bearer credential. Rows in Wasp's
  * own `{= singleUseAuthTicketEntityUpper =}` table, so they work for every scheme
- * whoever owns the credential, and need no secret. The code is stored hashed;
+ * whoever owns the credential, and need no secret. Only the ticket's hash is stored;
  * spending it is one guarded update, so two concurrent redemptions are
  * settled by the database whichever server instance they hit.
  */
@@ -20,7 +20,7 @@ export async function createSingleUseAuthTicket(account: { authId: string; login
   const singleUseAuthTicket = randomBytes(32).toString('base64url')
   await prisma.{= singleUseAuthTicketEntityLower =}.create({
     data: {
-      code: hashTicket(singleUseAuthTicket),
+      ticketHash: hashTicket(singleUseAuthTicket),
       authId: account.authId,
       loginScheme: account.loginScheme,
       expiresAt: new Date(Date.now() + AUTH_TICKET_LIFETIME_MS),
@@ -35,17 +35,17 @@ export async function redeemSingleUseAuthTicket(
   singleUseAuthTicket: string,
 ): Promise<(AccountPrincipal & { loginScheme: string }) | null> {
   const { count } = await prisma.{= singleUseAuthTicketEntityLower =}.updateMany({
-    where: { code: hashTicket(singleUseAuthTicket), usedAt: null, expiresAt: { gt: new Date() } },
+    where: { ticketHash: hashTicket(singleUseAuthTicket), usedAt: null, expiresAt: { gt: new Date() } },
     data: { usedAt: new Date() },
   })
   if (count === 0) {
     return null
   }
-  const record = await prisma.{= singleUseAuthTicketEntityLower =}.findUnique({ where: { code: hashTicket(singleUseAuthTicket) } })
+  const record = await prisma.{= singleUseAuthTicketEntityLower =}.findUnique({ where: { ticketHash: hashTicket(singleUseAuthTicket) } })
   if (record === null) {
     return null
   }
-  // The code stood for an account, not for a login moment: it says who,
+  // The ticket stood for an account, not for a login moment: it says who,
   // not how recently they logged in.
   return {
     authId: record.authId,

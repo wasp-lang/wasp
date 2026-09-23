@@ -250,7 +250,7 @@ makeSingleUseAuthTicketEntity = case Psl.Parser.Model.parseBody singleUseAuthTic
     singleUseAuthTicketEntityPslBody =
       T.unpack
         [trimming|
-          code       String    @id
+          ticketHash String    @id
           authId     String
           loginScheme String
           expiresAt  DateTime

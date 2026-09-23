@@ -183,7 +183,7 @@ spec_GeneratorAuthInjectionTest = do
       makeEntity
         "SingleUseAuthTicket"
         [trimming|
-          code       String    @id
+          ticketHash String    @id
           authId     String
           loginScheme String
           expiresAt  DateTime
