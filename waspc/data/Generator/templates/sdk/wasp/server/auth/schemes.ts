@@ -5,7 +5,7 @@ import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
 import { authenticateAccount, computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
-import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
+import { createIssuer, deleteCredential, keepsCredentialsInStore, signOutEverywhere, type IssuerOptions } from './issuer.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
@@ -833,6 +833,23 @@ export async function signOutEverywhereForAuthId(authId: string): Promise<boolea
   for (const options of Object.values(issuerOptionsByScheme)) {
     if (options !== undefined) {
       await signOutEverywhere(options, authId)
+      acted = true
+    }
+  }
+  return acted
+}
+
+// PRIVATE API
+/**
+ * Ends one Wasp-issued credential by id, in every scheme that keeps its
+ * credentials in a store. Resolves to whether any scheme does; a signed
+ * token has no row to delete.
+ */
+export async function signOutCredentialById(credentialId: string): Promise<boolean> {
+  let acted = false
+  for (const options of Object.values(issuerOptionsByScheme)) {
+    if (options !== undefined && keepsCredentialsInStore(options)) {
+      await deleteCredential(options, credentialId)
       acted = true
     }
   }

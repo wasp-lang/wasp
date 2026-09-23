@@ -16,7 +16,7 @@ export { createInvalidCredentialsError } from './utils.js'
 
 // The imperative API: sign a user in or out, ask who sent a request, answer
 // a challenge, from an `api()` route.
-export { authenticate, signIn, signOut, signOutEverywhere, challenge, forbid } from './imperative.js'
+export { authenticate, signIn, signOut, signOutCredential, signOutEverywhere, challenge, forbid } from './imperative.js'
 
 export {
   createProviderId,

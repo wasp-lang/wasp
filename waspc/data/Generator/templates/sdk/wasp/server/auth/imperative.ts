@@ -12,6 +12,7 @@ import {
   forbidScheme,
   credentialHandlerOf,
   issueSignInFor,
+  signOutCredentialById,
   signOutEverywhereForAuthId,
   signOutScheme,
 } from './schemes.js'
@@ -100,6 +101,24 @@ export async function signOut(req: ExpressRequest, res: ExpressResponse): Promis
     return
   }
   await sendWebResponse(res, await signOutScheme(result.scheme, toWebRequest(req)))
+}
+
+// PUBLIC API
+/**
+ * Ends ONE credential by its id, from any request: what a "your active
+ * sessions" page calls for the row the person clicked. Reaches every Wasp
+ * credential kept in a store (`Session` rows, a custom store). A signed
+ * token has no row and cannot be revoked before it expires, and a
+ * handler-owned credential is the handler's to revoke, so this throws when
+ * no scheme keeps credentials in a store at all. Unknown ids are a no-op.
+ */
+export async function signOutCredential(credentialId: string): Promise<void> {
+  const acted = await signOutCredentialById(credentialId)
+  if (!acted) {
+    throw new Error(
+      `Cannot sign out a credential by id: no auth scheme keeps its credentials in a store. A signed token cannot be revoked before it expires.`,
+    )
+  }
 }
 
 // PUBLIC API

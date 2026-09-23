@@ -1,14 +1,18 @@
 import type {
+  ListSessions,
   SignInAs,
-  SignOutHere,
+  SignOutCredentialRoute,
   SignOutEverywhereRoute,
+  SignOutHere,
   WhoAmI,
 } from "wasp/server/api";
+import { prisma } from "wasp/server";
 import {
   authenticate,
   getIdentityStore,
   signIn,
   signOut,
+  signOutCredential,
   signOutEverywhere,
 } from "wasp/server/auth";
 
@@ -54,5 +58,26 @@ export const signOutEverywhereRoute: SignOutEverywhereRoute = async (
   context,
 ) => {
   await signOutEverywhere(context.user!);
+  res.json({ success: true });
+};
+
+// The rows behind a "your active sessions" page. This scheme keeps its
+// credentials in the `Session` table, so they can be listed and ended one by
+// one; a signed-token scheme would have nothing to list.
+export const listSessions: ListSessions = async (_req, res, context) => {
+  const sessions = await prisma.session.findMany({
+    where: { auth: { userId: context.user!.id } },
+    select: { id: true, issuedAt: true, loginScheme: true },
+    orderBy: { issuedAt: "asc" },
+  });
+  res.json({ sessions });
+};
+
+export const signOutCredentialRoute: SignOutCredentialRoute = async (
+  req,
+  res,
+) => {
+  const { credentialId } = req.body as { credentialId: string };
+  await signOutCredential(credentialId);
   res.json({ success: true });
 };

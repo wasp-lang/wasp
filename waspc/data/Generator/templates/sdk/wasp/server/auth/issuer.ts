@@ -151,6 +151,18 @@ export async function signOutEverywhere(options: IssuerOptions, authId: string):
   await resolveStore(options).deleteAllForAuthId(authId)
 }
 
+// PRIVATE API
+/** Whether the issuer keeps its credentials somewhere a single one can be revoked: a signed token cannot be. */
+export function keepsCredentialsInStore(options: IssuerOptions): boolean {
+  return options.store !== 'signed-token'
+}
+
+// PRIVATE API
+/** One credential of a Wasp issuer, by id. */
+export async function deleteCredential(options: IssuerOptions, credentialId: string): Promise<void> {
+  await resolveStore(options).delete(credentialId)
+}
+
 // ---- transports -------------------------------------------------------------
 
 type Transport = {

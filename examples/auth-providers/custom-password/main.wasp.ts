@@ -13,6 +13,8 @@ import { createPasswordAuthHandler } from "./src/auth/handler" with { type: "ref
 import { createTask, getMyTasks } from "./src/operations" with { type: "ref" };
 import {
   signInAs,
+  listSessions,
+  signOutCredentialRoute,
   signOutEverywhereRoute,
   signOutHere,
   whoAmI,
@@ -54,6 +56,11 @@ export default app({
     api("GET", "/api/whoami", whoAmI, { auth: false }),
     api("POST", "/api/sign-out", signOutHere, { auth: false }),
     api("POST", "/api/sign-out-everywhere", signOutEverywhereRoute, {
+      auth: true,
+    }),
+    // A "your active sessions" page: list them, end one by id.
+    api("GET", "/api/sessions", listSessions, { auth: true }),
+    api("POST", "/api/sign-out-credential", signOutCredentialRoute, {
       auth: true,
     }),
   ],

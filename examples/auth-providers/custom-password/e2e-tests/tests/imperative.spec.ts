@@ -68,6 +68,52 @@ test("signOut ends the credential the request carries", async ({ request }) => {
   expect((await request.post("/api/sign-out")).status()).toBe(200);
 });
 
+test("signOutCredential ends one credential by id and leaves the rest", async ({
+  request,
+}) => {
+  const issue = async () =>
+    (
+      (await (
+        await request.post("/api/sign-in-as", { data: { email } })
+      ).json()) as { credential: string }
+    ).credential;
+  const first = { Authorization: `Bearer ${await issue()}` };
+  const second = { Authorization: `Bearer ${await issue()}` };
+
+  const listed = await request.get("/api/sessions", { headers: first });
+  expect(listed.status()).toBe(200);
+  const { sessions } = (await listed.json()) as {
+    sessions: { id: string; loginScheme: string }[];
+  };
+  expect(sessions.length).toBeGreaterThanOrEqual(2);
+  const newest = sessions[sessions.length - 1];
+  expect(newest.loginScheme).toBe("password");
+
+  expect(
+    (
+      await request.post("/api/sign-out-credential", {
+        headers: first,
+        data: { credentialId: newest.id },
+      })
+    ).status(),
+  ).toBe(200);
+  expect((await request.get("/auth/me", { headers: second })).status()).toBe(
+    401,
+  );
+  expect((await request.get("/auth/me", { headers: first })).status()).toBe(
+    200,
+  );
+  // An unknown id is a no-op, not an error.
+  expect(
+    (
+      await request.post("/api/sign-out-credential", {
+        headers: first,
+        data: { credentialId: "made-up" },
+      })
+    ).status(),
+  ).toBe(200);
+});
+
 test("signOutEverywhere ends every credential of the user", async ({
   request,
 }) => {
