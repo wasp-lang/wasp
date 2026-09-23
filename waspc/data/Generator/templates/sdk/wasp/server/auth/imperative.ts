@@ -10,10 +10,9 @@ import {
   challengeScheme,
   defaultScheme,
   forbidScheme,
-  credentialHandlerOf,
   issueSignInFor,
   signOutCredentialById,
-  signOutEverywhereForAuthId,
+  signOutEverywhereInScheme,
   signOutScheme,
 } from './schemes.js'
 import { authenticateRequest } from './session.js'
@@ -124,42 +123,28 @@ export async function signOutCredential(credentialId: string): Promise<void> {
 // PUBLIC API
 /**
  * Ends EVERY credential of the user ("log out every device"), whoever issued
- * it. The guarantee is a cut-off stamped on the account: from now on, Wasp
- * refuses any credential issued before this moment, Wasp's own and a
- * handler's alike, as long as the handler reports `credentialIssuedAt`.
- * On top of that, Wasp deletes its own session rows, and asks every handler
- * that implements `signOutEverywhere` (Better Auth, Clerk) to end its
- * sessions at the source too, so their side agrees. Those calls are best
- * effort: a handler that fails is logged, not surfaced, since the cut-off
- * already holds.
+ * it. Lazy, like every framework that does this: a cut-off is stamped on the
+ * account, and from then on Wasp refuses any credential issued before it,
+ * its own and a handler's alike, as long as the handler reports
+ * `credentialIssuedAt`. Nothing is deleted and no handler is called; dead
+ * rows expire on their own.
+ *
+ * With `scheme`, ends only that scheme's credentials of the user, eagerly:
+ * Wasp's own session rows of that scheme, or the handler's sessions through
+ * its `signOutEverywhere`. Throws when the scheme cannot do that: a signed
+ * token scheme (no rows; use the user-level form), a handler without
+ * `signOutEverywhere`, or a scheme with no credentials of its own.
  */
-export async function signOutEverywhere(user: UserRef): Promise<void> {
+export async function signOutEverywhere(user: UserRef, opts?: { scheme?: AuthSchemeName }): Promise<void> {
   const auth = await findAuthWithUserBy({ userId: user.id })
   if (auth === null) {
     throw new Error(`Cannot sign out everywhere: the user has no auth data.`)
   }
+  if (opts?.scheme !== undefined) {
+    await signOutEverywhereInScheme(opts.scheme, auth.id)
+    return
+  }
   await prisma.{= authEntityLower =}.update({ where: { id: auth.id }, data: { credentialsInvalidatedAt: new Date() } })
-  await signOutEverywhereForAuthId(auth.id)
-  const identities = await prisma.{= authIdentityEntityLower =}.findMany({
-    where: { authId: auth.id },
-    select: { handlerName: true, providerName: true, providerUserId: true },
-  })
-  // Best effort, and after the guarantee is already in place: a handler's
-  // revocation is a network call to its service, so a failure there is logged
-  // rather than reported as a failed sign-out, and one handler's outage does
-  // not stop the others.
-  await Promise.all(
-    identities.map(async (identity) => {
-      const credentialHandler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
-        ? credentialHandlerOf(identity.handlerName as AuthSchemeName)
-        : null
-      try {
-        await credentialHandler?.signOutEverywhere?.(identity)
-      } catch (error) {
-        console.error(`Auth scheme '${identity.handlerName}' failed to end its sessions for a signed-out user:`, error)
-      }
-    }),
-  )
 }
 
 // PUBLIC API

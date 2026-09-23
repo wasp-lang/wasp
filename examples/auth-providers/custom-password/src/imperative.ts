@@ -65,11 +65,22 @@ export const signOutEverywhereRoute: SignOutEverywhereRoute = async (
 // credentials in the `Session` table, so they can be listed and ended one by
 // one; a signed-token scheme would have nothing to list.
 export const listSessions: ListSessions = async (_req, res, context) => {
-  const sessions = await prisma.session.findMany({
-    where: { auth: { userId: context.user!.id } },
-    select: { id: true, issuedAt: true, loginScheme: true },
-    orderBy: { issuedAt: "asc" },
+  const auth = await prisma.auth.findFirstOrThrow({
+    where: { userId: context.user!.id },
+    select: {
+      credentialsInvalidatedAt: true,
+      sessions: {
+        select: { id: true, issuedAt: true, loginScheme: true },
+        orderBy: { issuedAt: "asc" },
+      },
+    },
   });
+  // `signOutEverywhere` is lazy: rows issued before the cut-off stay until
+  // they expire but can never authenticate again, so they are not "active".
+  const cutOff = auth.credentialsInvalidatedAt;
+  const sessions = auth.sessions.filter(
+    (session) => cutOff === null || session.issuedAt >= cutOff,
+  );
   res.json({ sessions });
 };
 

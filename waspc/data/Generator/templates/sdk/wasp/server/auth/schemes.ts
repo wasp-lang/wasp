@@ -825,18 +825,35 @@ export function issueSignInFor(
 
 // PRIVATE API
 /**
- * Ends every Wasp-issued credential of the account, in every scheme that
- * issues them. Resolves to whether any scheme issues credentials at all.
+ * Ends every credential of ONE scheme for the account, eagerly: the scheme's
+ * own session rows when Wasp issues them, or the handler's sessions through
+ * its `signOutEverywhere`. Throws when the scheme cannot do that.
  */
-export async function signOutEverywhereForAuthId(authId: string): Promise<boolean> {
-  let acted = false
-  for (const options of Object.values(issuerOptionsByScheme)) {
-    if (options !== undefined) {
-      await signOutEverywhere(options, authId)
-      acted = true
+export async function signOutEverywhereInScheme(scheme: AuthSchemeName, authId: string): Promise<void> {
+  const options = issuerOptionsByScheme[scheme]
+  if (options !== undefined) {
+    if (!keepsCredentialsInStore(options)) {
+      throw new Error(
+        `Auth scheme '${scheme}' issues signed tokens, which have no rows to end per scheme. signOutEverywhere(user) without a scheme ends them all.`,
+      )
     }
+    await signOutEverywhere(options, authId)
+    return
   }
-  return acted
+  const credentialHandler = credentialHandlerOf(scheme)
+  if (credentialHandler === null) {
+    throw new Error(`Auth scheme '${scheme}' has no credentials of its own; it signs into another scheme.`)
+  }
+  if (credentialHandler.signOutEverywhere === undefined) {
+    throw new Error(`Auth scheme '${scheme}' cannot end its credentials: its handler implements no signOutEverywhere.`)
+  }
+  const identities = await prisma.{= authIdentityEntityLower =}.findMany({
+    where: { authId, handlerName: scheme },
+    select: { handlerName: true, providerName: true, providerUserId: true },
+  })
+  for (const identity of identities) {
+    await credentialHandler.signOutEverywhere(identity)
+  }
 }
 
 // PRIVATE API
