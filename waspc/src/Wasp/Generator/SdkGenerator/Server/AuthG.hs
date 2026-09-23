@@ -47,7 +47,6 @@ genServerAuth spec =
           genFileCopyInServerAuth [relfile|handler/types.ts|],
           genSchemesTs spec auth,
           genIssuerTs auth,
-          genSingleUseAuthTicketsTs,
           genSessionTs auth,
           genImperativeTs,
           genSessionStoreTs auth,
@@ -133,18 +132,6 @@ genLuciaTs auth =
         ]
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
--- | Single-use auth tickets for navigations: rows in Wasp's own table.
-genSingleUseAuthTicketsTs :: Generator FileDraft
-genSingleUseAuthTicketsTs =
-  return $
-    mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|singleUseAuthTickets.ts|])
-      ( object
-          [ "singleUseAuthTicketEntityUpper" .= (DbAuth.singleUseAuthTicketEntityName :: String),
-            "singleUseAuthTicketEntityLower" .= (Util.toLowerFirst DbAuth.singleUseAuthTicketEntityName :: String)
-          ]
-      )
 
 -- | The framework's credential issuer: bearer or cookie transport over a
 -- credential store. Backs every inline `credentials: { transport, store }`.

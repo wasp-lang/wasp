@@ -15,6 +15,7 @@ import {
   type Route,
 } from "../http.js";
 import {
+  LINK_INTENT_PURPOSE,
   createMergeTicket,
   requireCurrentAuthId,
   rethrowLinkError,
@@ -332,14 +333,13 @@ async function getLinkTicketCookie(
     // ordinary login is never mistaken for one.
     return { linkTicket: "" };
   }
-  // The navigation carries either a single-use auth ticket the client traded its
-  // credential for, or the credential itself (a cookie). Which one is Wasp's
-  // business: `createSingleUseAuthTicket` answered null when no code was needed.
-  const singleUseAuthTicket = params.get("singleUseAuthTicket");
+  // The navigation carries the signed link intent the client fetched with
+  // its credential, or, under a cookie transport, the credential itself.
+  const linkIntent = params.get("linkIntent");
   const linkTicket: LinkTicket = {
     linkToAuthId:
-      singleUseAuthTicket !== null
-        ? await redeemLinkSingleUseAuthTicket(ctx, singleUseAuthTicket)
+      linkIntent !== null
+        ? await readLinkIntent(jwt, linkIntent)
         : await requireCurrentAuthId(ctx, req),
   };
   return {
@@ -349,15 +349,17 @@ async function getLinkTicketCookie(
   };
 }
 
-async function redeemLinkSingleUseAuthTicket(
-  { runtime }: Ctx,
-  singleUseAuthTicket: string,
+async function readLinkIntent(
+  jwt: ReturnType<typeof makeJwt>,
+  linkIntent: string,
 ): Promise<string> {
-  const account = await runtime.redeemSingleUseAuthTicket(singleUseAuthTicket);
-  if (account === null) {
+  const claims = await jwt
+    .validateJWT<{ purpose: string; authId: string }>(linkIntent)
+    .catch(() => null);
+  if (claims === null || claims.purpose !== LINK_INTENT_PURPOSE) {
     throw new HttpError(400, "The link request expired. Try again.");
   }
-  return account.authId;
+  return claims.authId;
 }
 
 function validateAndGetOAuthState(

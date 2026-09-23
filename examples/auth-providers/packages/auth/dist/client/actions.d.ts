@@ -84,8 +84,8 @@ export declare function unlink(identity: LinkedIdentity): Promise<void>;
 /**
  * Sends the browser to the OAuth provider to connect it to the signed-in
  * user's account. A navigation cannot carry a bearer credential, so the
- * credential is first traded for a single-use auth ticket. There is none when the
- * credential is a cookie, which the navigation carries by itself.
+ * client first fetches a short-lived signed link intent with its credential
+ * and puts that in the URL.
  */
 export declare function startOAuthLink(provider: OAuthProviderName): Promise<void>;
 export {};

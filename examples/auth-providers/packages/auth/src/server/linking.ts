@@ -34,6 +34,9 @@ export async function requireCurrentAuthId(
   return account.authId;
 }
 
+/** What the signed link intent claims to be for, so no other token of this secret can stand in for it. */
+export const LINK_INTENT_PURPOSE = "link-intent";
+
 /** Maps the facet's link/unlink rejections onto HTTP answers the client reads. */
 export function rethrowLinkError(e: unknown): never {
   switch (getAuthContractErrorCode(e)) {
@@ -211,18 +214,17 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       method: "POST",
       path: "/link-intent",
       handler: async (req, res) => {
-        const singleUseAuthTicket = await runtime
-          .createSingleUseAuthTicket(req.request)
-          .catch((e) => {
-            if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
-              throw new HttpError(
-                401,
-                "Sign in before changing your connected accounts.",
-              );
-            }
-            throw e;
-          });
-        json(res, 200, { singleUseAuthTicket });
+        // The navigation that starts an OAuth link cannot carry a bearer
+        // credential, so the client first asks here, with its credential,
+        // for a short-lived signed intent to put in the URL. The callback is
+        // bound to this browser by the link ticket cookie, so the intent
+        // needs no replay protection of its own.
+        const authId = await requireCurrentAuthId(ctx, req);
+        const linkIntent = await makeJwt(runtime).createJWT(
+          { purpose: LINK_INTENT_PURPOSE, authId },
+          { expiresIn: new TimeSpan(1, "m") },
+        );
+        json(res, 200, { linkIntent });
       },
     });
   }

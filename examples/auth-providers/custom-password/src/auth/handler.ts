@@ -92,40 +92,6 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
       return response;
     }
 
-    // A download is a browser NAVIGATION, and a navigation cannot carry the
-    // bearer credential. The client first trades its credential for a
-    // single-use auth ticket here (a normal request, so the header is attached)...
-    if (request.method === "POST" && path === "/single-use-auth-ticket") {
-      try {
-        const singleUseAuthTicket =
-          await runtime.createSingleUseAuthTicket(request);
-        return send(200, { singleUseAuthTicket });
-      } catch (e) {
-        if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
-          return send(401, { message: "Invalid credentials" });
-        }
-        throw e;
-      }
-    }
-
-    // ...and the navigation carries the code. It works once, for a minute.
-    if (request.method === "GET" && path === "/export") {
-      const account = await runtime.redeemSingleUseAuthTicket(
-        url.searchParams.get("singleUseAuthTicket") ?? "",
-      );
-      if (account === null) {
-        return send(401, { message: "Invalid credentials" });
-      }
-      return Response.json(
-        { authId: account.authId },
-        {
-          headers: {
-            "Content-Disposition": 'attachment; filename="account.json"',
-          },
-        },
-      );
-    }
-
     return send(404, { message: "Not found." });
   },
 });

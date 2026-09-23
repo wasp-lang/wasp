@@ -384,8 +384,6 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-not-found"
   /** A signup, login or link through an `"oauth"` provider came without its `oauth` data. */
   | "wasp-auth/missing-oauth-data"
-  /** `createSingleUseAuthTicket` was given a request that carries no valid credential. */
-  | "wasp-auth/unauthenticated"
   | "wasp-auth/undeclared-provider-name"
   /**
    * A facet was used that the manifest did not declare: `credentialsIssuer` without
@@ -422,7 +420,6 @@ export function getAuthContractErrorCode(
   return code === "wasp-auth/duplicate-identity" ||
     code === "wasp-auth/identity-not-found" ||
     code === "wasp-auth/missing-oauth-data" ||
-    code === "wasp-auth/unauthenticated" ||
     code === "wasp-auth/undeclared-provider-name" ||
     code === "wasp-auth/undeclared-facet" ||
     code === "wasp-auth/identity-linked-elsewhere" ||
@@ -514,34 +511,6 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
    * (linking). Null for nobody.
    */
   authenticate(request: Request): Promise<AccountPrincipal | null>;
-
-  /**
-   * A single-use auth ticket: a short-lived (one minute), single-use stand-in for the
-   * account behind the credential `request` carries, safe to put in a URL.
-   * For a browser NAVIGATION to one of the handler's own routes made as the
-   * signed-in user ("connect Google to my account", a download): a
-   * navigation cannot carry an `Authorization` header, so a bearer
-   * credential would not arrive. Works for every scheme, whoever owns the
-   * credential: Wasp keeps the codes in a table of its own.
-   *
-   * Resolves to null when no code is needed, because the request was
-   * authenticated by a Wasp cookie and the navigation carries it by itself.
-   * So the handler never has to know the transport: it puts the code in the
-   * URL when it got one. Rejects with `wasp-auth/unauthenticated` when
-   * `request` carries no valid credential.
-   *
-   * A single-use auth ticket is not a credential: it says who, not how recently they
-   * logged in, and `authenticate` never accepts it.
-   */
-  createSingleUseAuthTicket(request: Request): Promise<string | null>;
-
-  /**
-   * The account a single-use auth ticket stands for. Spends the code: an unknown,
-   * expired or already spent one is null.
-   */
-  redeemSingleUseAuthTicket(
-    singleUseAuthTicket: string,
-  ): Promise<AccountPrincipal | null>;
 
   /**
    * One store per declared provider name:

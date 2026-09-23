@@ -3,7 +3,7 @@ import { parseCookies } from "@wasp.sh/lib-auth/node";
 import { generateCodeVerifier, generateState } from "arctic";
 import { findAuthWithUser } from "../email/flows.js";
 import { HttpError, getBody, getUrl, isHttpErrorLike, redirect, sendSerializedResponse, serializeResponse, } from "../http.js";
-import { createMergeTicket, requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
+import { LINK_INTENT_PURPOSE, createMergeTicket, requireCurrentAuthId, rethrowLinkError, } from "../linking.js";
 import { TimeSpan, makeJwt, rethrowPossibleAuthError, validateAndGetUserFields, } from "../utils.js";
 import { makeOAuthProvider, } from "./providers.js";
 export const OAUTH_PROVIDER_NAMES = [
@@ -208,13 +208,12 @@ async function getLinkTicketCookie(ctx, jwt, req) {
         // ordinary login is never mistaken for one.
         return { linkTicket: "" };
     }
-    // The navigation carries either a single-use auth ticket the client traded its
-    // credential for, or the credential itself (a cookie). Which one is Wasp's
-    // business: `createSingleUseAuthTicket` answered null when no code was needed.
-    const singleUseAuthTicket = params.get("singleUseAuthTicket");
+    // The navigation carries the signed link intent the client fetched with
+    // its credential, or, under a cookie transport, the credential itself.
+    const linkIntent = params.get("linkIntent");
     const linkTicket = {
-        linkToAuthId: singleUseAuthTicket !== null
-            ? await redeemLinkSingleUseAuthTicket(ctx, singleUseAuthTicket)
+        linkToAuthId: linkIntent !== null
+            ? await readLinkIntent(jwt, linkIntent)
             : await requireCurrentAuthId(ctx, req),
     };
     return {
@@ -223,12 +222,14 @@ async function getLinkTicketCookie(ctx, jwt, req) {
         }),
     };
 }
-async function redeemLinkSingleUseAuthTicket({ runtime }, singleUseAuthTicket) {
-    const account = await runtime.redeemSingleUseAuthTicket(singleUseAuthTicket);
-    if (account === null) {
+async function readLinkIntent(jwt, linkIntent) {
+    const claims = await jwt
+        .validateJWT(linkIntent)
+        .catch(() => null);
+    if (claims === null || claims.purpose !== LINK_INTENT_PURPOSE) {
         throw new HttpError(400, "The link request expired. Try again.");
     }
-    return account.authId;
+    return claims.authId;
 }
 function validateAndGetOAuthState(provider, req) {
     const url = getUrl(req);

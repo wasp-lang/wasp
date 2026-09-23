@@ -5,6 +5,8 @@ import type { Ctx, Req } from "./types.js";
  * whatever issuer this scheme signs into, bearer or cookie.
  */
 export declare function requireCurrentAuthId({ runtime }: Ctx, req: Req): Promise<string>;
+/** What the signed link intent claims to be for, so no other token of this secret can stand in for it. */
+export declare const LINK_INTENT_PURPOSE = "link-intent";
 /** Maps the facet's link/unlink rejections onto HTTP answers the client reads. */
 export declare function rethrowLinkError(e: unknown): never;
 export type LinkTicket = {

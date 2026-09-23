@@ -4,7 +4,6 @@ module Wasp.Generator.DbGenerator.Auth
     authIdentityEntityName,
     sessionEntityName,
     usedOneTimeCodeEntityName,
-    singleUseAuthTicketEntityName,
     userFieldOnAuthEntityName,
     authFieldOnUserEntityName,
     identitiesFieldOnAuthEntityName,
@@ -93,9 +92,8 @@ injectAuth injectSessionEntity entities (userEntityName, userEntity) = do
   authIdentityEntity <- makeAuthIdentityEntity
   sessionEntities <- if injectSessionEntity then (: []) <$> makeSessionEntity else return []
   usedOneTimeCodeEntity <- makeUsedOneTimeCodeEntity
-  singleUseAuthTicketEntity <- makeSingleUseAuthTicketEntity
   let entitiesWithAuth = injectAuthIntoUserEntity userEntityName entities
-  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity] ++ sessionEntities ++ [usedOneTimeCodeEntity, singleUseAuthTicketEntity]
+  return $ entitiesWithAuth ++ [authEntity, authIdentityEntity] ++ sessionEntities ++ [usedOneTimeCodeEntity]
   where
     -- We validated the AppSpec so we are sure that the user entity has an id field.
     userEntityIdField = fromJust $ AS.Entity.getIdField userEntity
@@ -231,30 +229,6 @@ makeUsedOneTimeCodeEntity = case Psl.Parser.Model.parseBody usedOneTimeCodeEntit
         [trimming|
           code   String   @id
           usedAt DateTime @default(now())
-        |]
-
-singleUseAuthTicketEntityName :: String
-singleUseAuthTicketEntityName = "SingleUseAuthTicket"
-
--- | Wasp's single-use auth tickets: a short-lived, single-use stand-in for an account,
--- for a browser navigation that cannot carry a bearer credential
--- (`runtime.createSingleUseAuthTicket`). A table of Wasp's own, so it works for
--- every scheme whoever owns the credential. Spending a code is one update
--- guarded by @usedAt@, settled by the database across server instances. No
--- relation to @Auth@: rows live a minute and are removed lazily.
-makeSingleUseAuthTicketEntity :: Generator (String, AS.Entity.Entity)
-makeSingleUseAuthTicketEntity = case Psl.Parser.Model.parseBody singleUseAuthTicketEntityPslBody of
-  Left err -> logAndThrowGeneratorError $ GenericGeneratorError $ "Error while generating " ++ singleUseAuthTicketEntityName ++ " entity: " ++ show err
-  Right pslBody -> return (singleUseAuthTicketEntityName, AS.Entity.makeEntity pslBody)
-  where
-    singleUseAuthTicketEntityPslBody =
-      T.unpack
-        [trimming|
-          ticketHash String    @id
-          authId     String
-          loginScheme String
-          expiresAt  DateTime
-          usedAt     DateTime?
         |]
 
 injectAuthIntoUserEntity :: String -> [(String, AS.Entity.Entity)] -> [(String, AS.Entity.Entity)]

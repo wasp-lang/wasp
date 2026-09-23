@@ -121,13 +121,10 @@ export async function unlink(identity) {
 /**
  * Sends the browser to the OAuth provider to connect it to the signed-in
  * user's account. A navigation cannot carry a bearer credential, so the
- * credential is first traded for a single-use auth ticket. There is none when the
- * credential is a cookie, which the navigation carries by itself.
+ * client first fetches a short-lived signed link intent with its credential
+ * and puts that in the URL.
  */
 export async function startOAuthLink(provider) {
-    const { singleUseAuthTicket } = await post(`${basePath()}/link-intent`, {});
-    const singleUseAuthTicketParam = singleUseAuthTicket === null
-        ? ""
-        : `&singleUseAuthTicket=${encodeURIComponent(singleUseAuthTicket)}`;
-    window.location.href = `${basePath()}/${provider}/login?intent=link${singleUseAuthTicketParam}`;
+    const { linkIntent } = await post(`${basePath()}/link-intent`, {});
+    window.location.href = `${basePath()}/${provider}/login?intent=link&linkIntent=${encodeURIComponent(linkIntent)}`;
 }

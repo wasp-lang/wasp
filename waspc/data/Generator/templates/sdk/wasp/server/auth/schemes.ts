@@ -3,10 +3,9 @@ import type { AccountPrincipal, AuthenticateResult, CredentialHandler, AuthIdent
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
-import { accountOf, authenticateAccount, computeSchemeUserFields, provisionAuthUser, loginSchemeOf } from './session.js'
+import { authenticateAccount, computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
-import { createSingleUseAuthTicket, redeemSingleUseAuthTicket } from './singleUseAuthTickets.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
@@ -429,34 +428,6 @@ function issuerFacetFor(spec: SchemeRuntimeSpec, scheme: string): CredentialsIss
   return facet
 }
 
-/**
- * A single-use auth ticket for the account behind the request, for a navigation. Null
- * when the request was authenticated by a Wasp cookie: the navigation carries
- * that by itself.
- */
-async function createSingleUseAuthTicketFor(scheme: AuthSchemeName, request: Request): Promise<string | null> {
-  const authentication = await authenticateAlongChain(scheme, request)
-  if (authentication === null) {
-    throw contractError('wasp-auth/unauthenticated', 'A single-use auth ticket needs a request that carries a valid credential.')
-  }
-  if (arrivedByWaspCookie(scheme, authentication)) {
-    return null
-  }
-  const schemeAuthentication = toSchemeAuthentication(authentication)
-  const { authId } = await accountOf(schemeAuthentication)
-  return createSingleUseAuthTicket({ authId, loginScheme: loginSchemeOf(schemeAuthentication) })
-}
-
-function arrivedByWaspCookie(scheme: AuthSchemeName, authentication: ChainAuthentication): boolean {
-  return issuerOptionsOf(scheme)?.transport === 'cookie' && authentication.credentialHandler === waspIssuerOf(scheme)
-}
-
-/** Wasp's own issuer on a scheme's chain, following `credentials: { scheme }`; null when the chain has none. */
-function waspIssuerOf(name: AuthSchemeName): CredentialHandler | null {
-  const parts = partsOf(name)
-  return parts.issuer ?? (parts.credentialsScheme === null ? null : waspIssuerOf(parts.credentialsScheme))
-}
-
 {=# isEmailSenderEnabled =}
 /**
  * The `email-send` grant: the app's configured email sender, sender identity
@@ -569,8 +540,6 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     // when availability is the app's choice.
     credentialsIssuer: credentialsIssuer ?? undeclaredCredentialsIssuer(spec),
     credentialsIssuerFor: (scheme) => issuerFacetFor(spec, scheme),
-    createSingleUseAuthTicket: (request) => createSingleUseAuthTicketFor(spec.scheme as AuthSchemeName, request),
-    redeemSingleUseAuthTicket,
     hasCredentialsIssuer: credentialsIssuer !== null,
     {=# isEmailSenderEnabled =}
     email: canSendEmail ? waspEmailFacet : undeclaredEmail(spec),
@@ -635,12 +604,6 @@ function signInTargetOf(name: AuthSchemeName): CredentialHandler {
     throw new Error(`Auth scheme '${name}' has nothing to sign into.`)
   }
   return issuing.credentialHandler
-}
-
-/** The options of the Wasp issuer a scheme signs into, for the cookie check; null when it signs into a handler's own issuer. */
-function issuerOptionsOf(name: AuthSchemeName): IssuerOptions | null {
-  const parts = partsOf(name)
-  return issuerOptionsByScheme[name] ?? (parts.credentialsScheme === null ? null : issuerOptionsOf(parts.credentialsScheme))
 }
 
 {=# schemes =}
