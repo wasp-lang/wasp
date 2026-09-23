@@ -32,11 +32,18 @@ spec_process = describe "Process.run" $ do
       `shouldReturn` ExitFailure 7
     readIORef output `shouldReturn` T.replicate 200000 "x"
 
-  it "stops descendants on cancellation" $ assertDescendantCleanup False
+  it "stops descendants on cancellation" $
+    withListeningDescendant $ \running port _ -> do
+      isPortAvailable port `shouldReturn` False
+      timeout 3000000 (Async.cancel running) `shouldReturn` Just ()
+      isPortAvailable port `shouldReturn` True
 
   when (os /= "mingw32") $
     it "stops descendants after the root exits" $
-      assertDescendantCleanup True
+      withListeningDescendant $ \running port exitRoot -> do
+        exitRoot
+        timeout 3000000 (Async.wait running) `shouldReturn` Just ExitSuccess
+        isPortAvailable port `shouldReturn` True
 
   it "forces a command that ignores graceful interruption to stop" $ do
     pidPath <- makeTempPath "wasp-stubborn-process"
@@ -91,32 +98,50 @@ spec_process = describe "Process.run" $ do
 #endif
 
 node :: String -> P.CreateProcess
-node script = P.proc "node" ["-e", script]
+node script = nodeWithArgs script []
 
-assertDescendantCleanup :: Bool -> IO ()
-assertDescendantCleanup rootExits = do
+nodeWithArgs :: String -> [String] -> P.CreateProcess
+nodeWithArgs script args = P.proc "node" $ ["-e", script] <> args
+
+withListeningDescendant :: (Async.Async ExitCode -> String -> IO () -> IO ()) -> IO ()
+withListeningDescendant action = do
   portPath <- makeTempPath "wasp-isolated-child-port"
-  let child :: String
-      child = "const fs = require('node:fs'); const server = require('node:net').createServer(); server.listen(0, '127.0.0.1', () => fs.writeFileSync(process.argv[1], String(server.address().port)));"
-  let script =
-        "require('node:child_process').spawn(process.execPath, ['-e', "
-          <> show child
-          <> ", "
-          <> show portPath
-          <> "], {stdio: 'inherit'});"
-          <> if rootExits then "setTimeout(() => process.exit(0), 200);" else "setInterval(() => {}, 1000);"
+  rootExitPath <- makeTempPath "wasp-isolated-root-exit"
   Async.withAsync
-    (Process.run Process.NoInput (node script) (\_ _ -> return ()))
+    (Process.run Process.NoInput (nodeWithArgs descendantRootScript [listeningServerScript, portPath, rootExitPath]) (\_ _ -> return ()))
     ( \running -> do
         waitUntil "descendant listening" $ doesFileExist portPath
         port <- readFile portPath
-        isPortAvailable port `shouldReturn` False
-        if rootExits
-          then timeout 3000000 (Async.wait running) `shouldReturn` Just ExitSuccess
-          else timeout 3000000 (Async.cancel running) `shouldReturn` Just ()
-        isPortAvailable port `shouldReturn` True
+        action running port $ writeFile rootExitPath ""
     )
-    `finally` (doesFileExist portPath >>= \exists -> when exists $ removeFile portPath)
+    `finally` mapM_ removeIfExists [portPath, portPath <> ".tmp", rootExitPath]
+
+descendantRootScript :: String
+descendantRootScript =
+  unlines
+    [ "const fs = require('node:fs')",
+      "const { spawn } = require('node:child_process')",
+      "const [childScript, portPath, exitPath] = process.argv.slice(1)",
+      "spawn(process.execPath, ['-e', childScript, portPath], { stdio: 'inherit' })",
+      "setInterval(() => { if (fs.existsSync(exitPath)) process.exit(0) }, 10)"
+    ]
+
+listeningServerScript :: String
+listeningServerScript =
+  unlines
+    [ "const fs = require('node:fs')",
+      "const server = require('node:net').createServer()",
+      "const portPath = process.argv[1]",
+      "server.listen(0, '127.0.0.1', () => {",
+      "  fs.writeFileSync(portPath + '.tmp', String(server.address().port))",
+      "  fs.renameSync(portPath + '.tmp', portPath)",
+      "})"
+    ]
+
+removeIfExists :: FilePath -> IO ()
+removeIfExists path = do
+  exists <- doesFileExist path
+  when exists $ removeFile path
 
 #if !mingw32_HOST_OS
 assertGroup :: ProcessGroupID -> Process.InputMode -> IO ()
