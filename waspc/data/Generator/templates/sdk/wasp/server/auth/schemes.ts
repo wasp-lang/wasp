@@ -358,7 +358,12 @@ function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: C
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
   const signInOnTarget = target.signIn.bind(target)
-  const keyOf = (providerName: string, providerUserId: string): AuthIdentityKey => ({ handlerName: spec.scheme, providerName, providerUserId })
+  const keyOf = (providerName: string, providerUserId: string, authId: string): AuthIdentityKey => ({
+    handlerName: spec.scheme,
+    providerName,
+    providerUserId,
+    authId,
+  })
   const resolveIdentityRef = async (identityRef: AuthIdentityRef) => {
     const providerName = resolveOwnProviderName(spec, identityRef.providerName)
     const identity = await getIdentityStore(spec.scheme, providerName).find(identityRef.providerUserId)
@@ -386,7 +391,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: C
         onBeforeLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
       )
     }
-    const result = await signInOnTarget(keyOf(providerName, providerUserId), opts?.properties)
+    const result = await signInOnTarget(keyOf(providerName, providerUserId, authId), opts?.properties)
     if (fireHooks) {
       await onAfterLoginHook({
         req: getCurrentRequest() as any,
@@ -405,8 +410,8 @@ function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: C
     },
     signOut: (request) => target.signOut?.(request) ?? Promise.resolve(Response.json({ success: true })),
     signOutEverywhere: async (identityRef) => {
-      const { providerName } = await resolveIdentityRef(identityRef)
-      await target.signOutEverywhere?.(keyOf(providerName, identityRef.providerUserId))
+      const { providerName, authId } = await resolveIdentityRef(identityRef)
+      await target.signOutEverywhere?.(keyOf(providerName, identityRef.providerUserId, authId))
     },
   }
   return { facet, issueSignIn }
@@ -694,6 +699,13 @@ registered['{= schemeName =}'] = {
   credentialHandler: handlerParts_{= index =}.credentialHandler ?? null,
   routeHandler: handlerParts_{= index =}.routeHandler,
 }
+{=^ hasCredentials =}
+// A handler that issues its own credential can still be signed into by app
+// code (the imperative `signIn`), through the same guarded path as any issuer.
+if (handlerParts_{= index =}.credentialHandler?.signIn !== undefined) {
+  signInByScheme['{= schemeName =}'] = boundTo(spec_{= index =}, handlerParts_{= index =}.credentialHandler).issueSignIn
+}
+{=/ hasCredentials =}
 {=/ isFrameworkIssuer =}
 {=/ schemes =}
 
@@ -817,7 +829,7 @@ export function issueSignInFor(
   if (issueSignIn === undefined) {
     throw contractError(
       'wasp-auth/undeclared-facet',
-      `Auth scheme '${scheme}' declares no \`credentials\`, so Wasp cannot sign a user into it.`,
+      `Auth scheme '${scheme}' declares no \`credentials\` and its handler cannot issue one, so Wasp cannot sign a user into it.`,
     )
   }
   return issueSignIn(identity, opts, undefined)
@@ -877,7 +889,7 @@ export async function signOutEverywhereInScheme(scheme: AuthSchemeName, authId: 
   }
   const identities = await prisma.{= authIdentityEntityLower =}.findMany({
     where: { authId, handlerName: scheme },
-    select: { handlerName: true, providerName: true, providerUserId: true },
+    select: { handlerName: true, providerName: true, providerUserId: true, authId: true },
   })
   for (const identity of identities) {
     await credentialHandler.signOutEverywhere(identity)

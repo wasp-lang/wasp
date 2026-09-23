@@ -62,15 +62,19 @@ export type AuthIdentityRef<ProviderName extends string = string> = {
 };
 
 /**
- * The full primary key of an `AuthIdentity` row: what an issuer receives, so
- * it can find the identity without being told separately who verified the
- * login. Wasp fills `handlerName` with the calling scheme; a handler never
- * chooses it.
+ * The full primary key of an `AuthIdentity` row, plus the account it belongs
+ * to: what an issuer receives at `signIn` and `signOutEverywhere`. Wasp fills
+ * `handlerName` with the calling scheme and `authId` from the row; a handler
+ * never chooses either. An issuer that stores `authId` in its credential can
+ * answer `authenticate` with the account, exactly as Wasp's own issuers do;
+ * `handlerName` is what it records as the login scheme.
  */
 export type AuthIdentityKey = {
   handlerName: string;
   providerName: string;
   providerUserId: string;
+  /** The `Auth` entity id the identity belongs to. */
+  authId: string;
 };
 
 /**
@@ -117,10 +121,11 @@ export type AccountPrincipal = {
 
 /**
  * The answer to "whose request is this?" from a credential handler. An unknown
- * caller is a normal answer, not an error. A handler whose credential carries
- * Wasp's account key (Wasp's own issuers) answers with the account, and may
- * say which scheme verified the login; every other handler answers with one
- * of its identities.
+ * caller is a normal answer, not an error. An ISSUER, whose credential carries
+ * the `authId` it was given at `signIn` (Wasp's own issuers, or any handler
+ * other schemes sign into), answers with the account, and says which scheme
+ * verified the login; a handler that reads a credential of its own (Clerk,
+ * Better Auth) answers with one of its identities.
  */
 export type AuthenticateResult =
   | { status: "authenticated"; principal: IdentityPrincipal }
@@ -288,11 +293,13 @@ export interface CredentialHandler {
   signOut?(request: Request): Promise<Response>;
 
   /**
-   * End EVERY credential of the person behind one of this handler's
-   * identities: what the imperative `signOutEverywhere(user)` calls for a
-   * handler that keeps its own credentials (Better Auth's sessions, Clerk's).
-   * Wasp's own issuers implement it; a handler whose credentials Wasp
-   * issues omits it.
+   * End EVERY credential this handler issued for the account behind one of
+   * its identities, at the source (Better Auth's sessions, Clerk's). The
+   * eager, scheme-level door: reached through
+   * `runtime.credentialsIssuer.signOutEverywhere` and the imperative
+   * `signOutEverywhere(user, { scheme })`. Not what the user-level sign-out
+   * relies on: that is the cut-off, which works for any handler that reports
+   * `credentialIssuedAt`. Wasp's own issuers implement it too.
    */
   signOutEverywhere?(identity: AuthIdentityKey): Promise<void>;
 

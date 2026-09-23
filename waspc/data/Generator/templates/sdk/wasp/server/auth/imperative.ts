@@ -56,8 +56,10 @@ export async function authenticate(
  * body carrying the token for a bearer scheme (the client adopts it with
  * `setCredential`), a `Set-Cookie` header for a cookie scheme. Nothing is
  * guessed: the scheme is the identity's handler, the user is the identity's
- * account, and the app's login hooks receive that identity. A scheme that
- * declares no `credentials` (Clerk) rejects with `wasp-auth/undeclared-facet`.
+ * account, and the app's login hooks receive that identity. The credential
+ * comes from whatever the scheme's `credentials` name, or from the scheme's
+ * own `signIn` when it owns its credential (Better Auth); a scheme that can
+ * do neither (Clerk) rejects with `wasp-auth/undeclared-facet`.
  */
 export async function signIn(
   identity: ProviderId,

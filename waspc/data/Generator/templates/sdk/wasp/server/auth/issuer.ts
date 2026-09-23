@@ -11,7 +11,6 @@ import type {
 } from './handler/types.js'
 import { prisma } from '../index.js'
 import { makePrismaCredentialStore } from './sessionStore.js'
-import { getIdentityStore } from './identityStore.js'
 
 /**
  * The framework's credential issuer: what backs every
@@ -100,16 +99,6 @@ export function createIssuer(options: IssuerOptions): IssuerHandler {
         isCredentialFresh: Date.now() - record.issuedAt.getTime() < freshFor.milliseconds(),
       }
   }
-  // The facet that calls in has resolved the identity within the calling
-  // scheme and guarded its provider name, so this lookup cannot cross scheme
-  // boundaries; `handlerName` IS the calling scheme.
-  const findIdentity = async (identity: AuthIdentityKey) => {
-    const found = await getIdentityStore(identity.handlerName, identity.providerName).find(identity.providerUserId)
-    if (found === null) {
-      throw contractError('wasp-auth/identity-not-found', 'No identity to issue a credential for.')
-    }
-    return found
-  }
 
   return {
     async authenticate(request) {
@@ -135,8 +124,11 @@ export function createIssuer(options: IssuerOptions): IssuerHandler {
       return transport.write(id, { maxAgeSeconds: schemeTtl.seconds(), persistent: true })
     },
 
+    // The facet that calls in has resolved the identity within the calling
+    // scheme and guarded its provider name; `handlerName` IS the calling
+    // scheme and `authId` its account, so nothing is looked up here.
     async signIn(identity: AuthIdentityKey, properties?: SignInProperties): Promise<SignInResult> {
-      const { authId } = await findIdentity(identity)
+      const { authId } = identity
       // Per-sign-in properties win over the scheme's configuration.
       const ttl = properties?.ttl !== undefined ? parseTimeSpan(properties.ttl) : schemeTtl
       const persistent = properties?.persistent ?? true
@@ -162,8 +154,7 @@ export function createIssuer(options: IssuerOptions): IssuerHandler {
     },
 
     async signOutEverywhere(identity: AuthIdentityKey) {
-      const { authId } = await findIdentity(identity)
-      await store.deleteAllForAuthId(authId)
+      await store.deleteAllForAuthId(identity.authId)
     },
 
     challenge: async (request) => transport.challenge(request),
@@ -318,10 +309,4 @@ function parseTimeSpan(ttl: string): TimeSpan {
     throw new Error(`Invalid credential ttl '${ttl}'. Use a number with a unit: 30d, 12h, 15m, 30s.`)
   }
   return new TimeSpan(Number(match[1]), match[2] as 'ms' | 's' | 'm' | 'h' | 'd' | 'w')
-}
-
-function contractError(code: string, message: string): Error {
-  const error = new Error(message) as Error & { code: string }
-  error.code = code
-  return error
 }

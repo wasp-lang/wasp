@@ -37,7 +37,7 @@
 export function clerk(config) {
     return {
         __waspAuthSchemeManifest: true,
-        contractVersion: 29,
+        contractVersion: 30,
         server: {
             authAdapter: { package: "@wasp.sh/auth-clerk/server" },
             env: [
