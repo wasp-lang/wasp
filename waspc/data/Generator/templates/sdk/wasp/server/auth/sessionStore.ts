@@ -18,7 +18,7 @@ import { auth as lucia } from './lucia.js'
 export const prismaCredentialStore: CredentialStore = {
   {=# isPrismaStoreUsed =}
   async create(record) {
-    const session = await lucia.createSession(record.authId, { signedInBy: record.signedInBy })
+    const session = await lucia.createSession(record.authId, { loginScheme: record.loginScheme })
     // Lucia stamps its own default lifetime on the row. The record's is the
     // one that counts: the scheme's `ttl`, a per-sign-in `ttl`, or the one
     // minute of a one-time code.
@@ -42,7 +42,7 @@ export const prismaCredentialStore: CredentialStore = {
     }
     return {
       authId: session.userId,
-      signedInBy: session.signedInBy,
+      loginScheme: session.loginScheme,
       issuedAt: session.issuedAt,
       expiresAt: session.expiresAt,
     }

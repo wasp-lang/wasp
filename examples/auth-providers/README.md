@@ -20,7 +20,7 @@ scheme? The answer, demonstrated rather than asserted, is _everything except the
   `signIn`, `signOut`, `challenge` and `forbid`. Packages export handler adapters.
 - **Scheme**: a named, configured handler in `auth.schemes`. The name prefixes the handler's
   routes (`/auth/<scheme>/…`) and identities (the `handlerName` column), and is what
-  `authRequired: ["<scheme>"]` and `user.sessionScheme` refer to.
+  `authRequired: ["<scheme>"]` and `user.credentialScheme` refer to.
 - **Credentials**: what a request carries. A handler that verifies logins but has no credential
   of its own (Wasp's own auth, the password example) declares `credentials`: inline
   `{ transport: "bearer" | "cookie", store: "prisma" | "signed-token" }` for a private issuer,

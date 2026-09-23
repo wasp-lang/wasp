@@ -116,7 +116,7 @@ export type AccountPrincipal = {
  */
 export type AuthenticateResult =
   | { status: "authenticated"; principal: IdentityPrincipal }
-  | { status: "authenticated"; account: AccountPrincipal; signedInBy?: string }
+  | { status: "authenticated"; account: AccountPrincipal; loginScheme?: string }
   | { status: "unauthenticated" };
 
 /** The manifest's `providers`: one declaration per provider name. */
@@ -315,7 +315,7 @@ export type SignInOpts = {
  * handler cannot tell the two apart. `signIn` resolves the subject through the
  * calling scheme's OWN declared provider names, fires the app's `onBeforeLogin`
  * (a throw vetoes) and `onAfterLogin` hooks, and stamps the calling scheme as
- * `signedInBy` on whatever the issuer produces. Minting through this facet is
+ * `loginScheme` on whatever the issuer produces. Minting through this facet is
  * the choke point that guarantees no scheme skips the app's login policy.
  */
 export type CredentialsIssuer<
@@ -823,7 +823,7 @@ export type CredentialRecord = {
   /** The `Auth` entity id of the person the credential belongs to. */
   authId: string;
   /** The scheme that verified the login. */
-  signedInBy: string;
+  loginScheme: string;
   issuedAt: Date;
   expiresAt: Date;
 };

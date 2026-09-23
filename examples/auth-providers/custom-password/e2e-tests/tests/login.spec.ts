@@ -43,10 +43,10 @@ test("login turns a valid password into a scheme-attributed credential", async (
   });
   expect(me.status()).toBe(200);
   const user = (await me.json()) as {
-    json: { sessionScheme: string; signedInBy: string };
+    json: { credentialScheme: string; loginScheme: string };
   };
-  expect(user.json.sessionScheme).toBe(SCHEME);
-  expect(user.json.signedInBy).toBe(SCHEME);
+  expect(user.json.credentialScheme).toBe(SCHEME);
+  expect(user.json.loginScheme).toBe(SCHEME);
 });
 
 test("a wrong password is a hard 401, with no fallthrough", async ({

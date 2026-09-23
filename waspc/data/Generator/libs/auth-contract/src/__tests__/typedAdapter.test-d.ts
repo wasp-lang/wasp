@@ -237,7 +237,7 @@ export const accountAnswering: CredentialHandler = {
       credentialIssuedAt: null,
       isCredentialFresh: false,
     },
-    signedInBy: "wasp",
+    loginScheme: "wasp",
   }),
   signIn: async (identity) => {
     const verifiedBy: string = identity.handlerName;

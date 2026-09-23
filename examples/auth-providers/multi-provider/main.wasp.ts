@@ -21,7 +21,7 @@ export default app({
     // Two independent identity systems at once. No account linking: the same
     // human signing in through both gets two separate User rows. Each scheme
     // carries its own credential (Wasp's bearer token, Clerk's session
-    // token), and `user.sessionScheme` says which scheme authenticated the
+    // token), and `user.credentialScheme` says which scheme authenticated the
     // request.
     schemes: {
       wasp: waspAuth({

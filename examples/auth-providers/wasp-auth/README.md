@@ -38,7 +38,7 @@ spec signs up, logs out and logs back in through the package's forms.
 ```
 POST /auth/wasp/username/signup                 200  {"success":true}
 POST /auth/wasp/username/login                  200  {"credential":"…"}
-GET  /auth/me                                   200  sessionScheme = wasp, signedInBy = wasp
+GET  /auth/me                                   200  credentialScheme = wasp, loginScheme = wasp
 POST /auth/username/login                       404
 POST /auth/logout                               200
 GET  /auth/me      (old credential)             401

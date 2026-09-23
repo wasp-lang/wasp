@@ -42,12 +42,12 @@ export const createTask: CreateTask<{ description: string }, Task> = async (
  */
 export const getAdminReport: GetAdminReport<
   void,
-  { taskCount: number; sessionScheme: string }
+  { taskCount: number; credentialScheme: string }
 > = async (_args, context) => {
   const taskCount = await context.entities.Task.count();
   return {
     taskCount,
     // Always "wasp" here, enforced by the scheme restriction.
-    sessionScheme: context.user!.sessionScheme,
+    credentialScheme: context.user!.credentialScheme,
   };
 };

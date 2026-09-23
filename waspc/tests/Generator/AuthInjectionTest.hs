@@ -164,7 +164,7 @@ spec_GeneratorAuthInjectionTest = do
           id String @id @unique
           expiresAt DateTime
           issuedAt DateTime @default(now())
-          signedInBy String
+          loginScheme String
           userId String
           auth Auth @relation(references: [id], fields: [userId], onDelete: Cascade)
 
@@ -185,7 +185,7 @@ spec_GeneratorAuthInjectionTest = do
         [trimming|
           code       String    @id
           authId     String
-          signedInBy String
+          loginScheme String
           expiresAt  DateTime
           usedAt     DateTime?
         |]

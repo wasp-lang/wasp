@@ -45,14 +45,14 @@ test("login mints a Wasp session attributed to the package", async ({
   expect(me.status()).toBe(200);
   const user = (await me.json()) as {
     json: {
-      sessionScheme: string;
-      signedInBy: string;
+      credentialScheme: string;
+      loginScheme: string;
       credentialIssuedAt: string | null;
       isCredentialFresh: boolean;
     };
   };
-  expect(user.json.sessionScheme).toBe(SCHEME);
-  expect(user.json.signedInBy).toBe(SCHEME);
+  expect(user.json.credentialScheme).toBe(SCHEME);
+  expect(user.json.loginScheme).toBe(SCHEME);
   // A credential issued seconds ago is fresh, and says when it was issued.
   expect(user.json.isCredentialFresh).toBe(true);
   expect(

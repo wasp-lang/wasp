@@ -3,7 +3,7 @@ import type { AccountPrincipal, AuthenticateResult, CredentialHandler, AuthIdent
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
-import { accountOf, authenticateAccount, computeSchemeUserFields, provisionAuthUser, signedInByOf } from './session.js'
+import { accountOf, authenticateAccount, computeSchemeUserFields, provisionAuthUser, loginSchemeOf } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
 import { createOneTimeCode, redeemOneTimeCode } from './oneTimeCodes.js'
@@ -444,7 +444,7 @@ async function createOneTimeCodeFor(scheme: AuthSchemeName, request: Request): P
   }
   const schemeAuthentication = toSchemeAuthentication(authentication)
   const { authId } = await accountOf(schemeAuthentication)
-  return createOneTimeCode({ authId, signedInBy: signedInByOf(schemeAuthentication) })
+  return createOneTimeCode({ authId, loginScheme: loginSchemeOf(schemeAuthentication) })
 }
 
 function arrivedByWaspCookie(scheme: AuthSchemeName, authentication: ChainAuthentication): boolean {
@@ -761,7 +761,7 @@ export function credentialHandlerOf(name: AuthSchemeName): CredentialHandler | n
 // PRIVATE API
 /** Whose request this is, as one scheme sees it: an account (Wasp's own credential) or a handler's identity. */
 export type SchemeAuthentication =
-  | { kind: 'account'; scheme: AuthSchemeName; account: AccountPrincipal; signedInBy: string }
+  | { kind: 'account'; scheme: AuthSchemeName; account: AccountPrincipal; loginScheme: string }
   | { kind: 'identity'; scheme: AuthSchemeName; principal: IdentityPrincipal }
 
 type ChainAuthentication = ChainLink & { result: Extract<AuthenticateResult, { status: 'authenticated' }> }
@@ -797,7 +797,7 @@ export async function authenticateScheme(scheme: AuthSchemeName, request: Reques
 
 function toSchemeAuthentication({ scheme: owner, result }: ChainAuthentication): SchemeAuthentication {
   return 'account' in result
-    ? { kind: 'account', scheme: owner, account: result.account, signedInBy: result.signedInBy ?? owner }
+    ? { kind: 'account', scheme: owner, account: result.account, loginScheme: result.loginScheme ?? owner }
     : { kind: 'identity', scheme: owner, principal: result.principal }
 }
 

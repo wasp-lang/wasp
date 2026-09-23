@@ -184,7 +184,7 @@ export interface Auth {
    * ```
    *
    * The key is the scheme name. Wasp records it on every session
-   * (`user.sessionScheme`), prefixes the scheme's provider names and
+   * (`user.credentialScheme`), prefixes the scheme's provider names and
    * routes with it (`wasp:email`, `/auth/wasp/...`), and accepts it in
    * `authRequired` lists. Two entries may use the same handler package under
    * different names. A hand-written handler goes through
@@ -490,7 +490,7 @@ export interface AuthSchemeManifest {
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 25;
+  contractVersion: 26;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */

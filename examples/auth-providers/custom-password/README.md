@@ -55,7 +55,7 @@ POST /auth/password/signup                        200  {"success":true}
 POST /auth/password/signup   (again)              422
 POST /auth/password/login    (wrong password)     401
 POST /auth/password/login                         200  {"credential":"…"}
-GET  /auth/me                                     200  sessionScheme = password
+GET  /auth/me                                     200  credentialScheme = password
 POST /auth/logout                                 200
 GET  /auth/me      (old credential)               401
 ```

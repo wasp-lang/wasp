@@ -197,9 +197,9 @@ makeSessionEntity = case Psl.Parser.Model.parseBody sessionEntityPslBody of
 
           // The scheme that verified the login this credential descends from
           // ('wasp', 'clerk', ...), recorded at issue time so that
-          // `user.signedInBy` and dual sign-out know which scheme vouched
+          // `user.loginScheme` and dual sign-out know which scheme vouched
           // for the login.
-          signedInBy String
+          loginScheme String
 
           // Needs to be called `userId` for Lucia to be able to create sessions
           userId String
@@ -252,7 +252,7 @@ makeOneTimeCodeEntity = case Psl.Parser.Model.parseBody oneTimeCodeEntityPslBody
         [trimming|
           code       String    @id
           authId     String
-          signedInBy String
+          loginScheme String
           expiresAt  DateTime
           usedAt     DateTime?
         |]

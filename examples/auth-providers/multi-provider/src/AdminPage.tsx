@@ -19,7 +19,7 @@ export function AdminPage() {
       {report ? (
         <p>
           {report.taskCount} tasks across all users, read via a session minted
-          by <code>{report.sessionScheme}</code>.
+          by <code>{report.credentialScheme}</code>.
         </p>
       ) : null}
     </main>

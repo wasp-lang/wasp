@@ -74,7 +74,7 @@ async function authenticateWebRequest(
       continue;
     }
     const account = await accountOf(authentication);
-    const user = await loadUser(account.authId, scheme, signedInByOf(authentication), account);
+    const user = await loadUser(account.authId, scheme, loginSchemeOf(authentication), account);
     if (user === null) {
       continue;
     }
@@ -110,15 +110,15 @@ export async function accountOf(authentication: SchemeAuthentication): Promise<A
 }
 
 // PRIVATE API
-export function signedInByOf(authentication: SchemeAuthentication): string {
-  return authentication.kind === 'account' ? authentication.signedInBy : authentication.scheme;
+export function loginSchemeOf(authentication: SchemeAuthentication): string {
+  return authentication.kind === 'account' ? authentication.loginScheme : authentication.scheme;
 }
 
 /** The user data Wasp exposes as `context.user`, for an account. */
 async function loadUser(
   authId: string,
   scheme: AuthSchemeName,
-  signedInBy: string,
+  loginScheme: string,
   credential: Pick<AccountPrincipal, 'credentialIssuedAt' | 'isCredentialFresh'>,
 ): Promise<AuthUserData | null> {
   const user = await prisma.{= userEntityLower =}.findFirst({
@@ -138,7 +138,7 @@ async function loadUser(
     return null;
   }
 
-  return createAuthUserData(user, scheme, signedInBy, {
+  return createAuthUserData(user, scheme, loginScheme, {
     credentialIssuedAt: credential.credentialIssuedAt,
     isCredentialFresh: credential.isCredentialFresh,
   });

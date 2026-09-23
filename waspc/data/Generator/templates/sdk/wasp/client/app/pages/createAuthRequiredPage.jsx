@@ -27,13 +27,13 @@ export const createAuthRequiredPage = (Page, options) => {
     switch (status) {
       case 'success':
         if (user) {
-          if (requiredSchemes !== null && !requiredSchemes.includes(user.sessionScheme)) {
+          if (requiredSchemes !== null && !requiredSchemes.includes(user.credentialScheme)) {
             return (
               <FullPageWrapper className="wasp-auth-required-forbidden-wrapper">
                 <MessageError
                   subtitle={
                     <small>
-                      You are signed in via '{user.sessionScheme}', but this page requires
+                      You are signed in via '{user.credentialScheme}', but this page requires
                       signing in via {requiredSchemes.map((name) => `'${name}'`).join(' or ')}.
                     </small>
                   }

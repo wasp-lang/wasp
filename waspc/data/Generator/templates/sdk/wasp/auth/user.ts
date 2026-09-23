@@ -54,14 +54,14 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, '{= authFieldOnUserE
    * credential the request carried ('session', 'clerk', ...). Exactly one
    * scheme answers a request, so this is a single compile-checked literal.
    */
-  sessionScheme: AuthSchemeName,
+  credentialScheme: AuthSchemeName,
   /**
    * The scheme that verified the login this request's credential descends
-   * from. Equal to `sessionScheme` unless that scheme is a credential issuer
+   * from. Equal to `credentialScheme` unless that scheme is a credential issuer
    * another scheme signed into (Wasp's own auth signing into a cookie
    * scheme, say). This is what `authRequired: ["wasp"]` checks against.
    */
-  signedInBy: AuthSchemeName,
+  loginScheme: AuthSchemeName,
   /**
    * When the request's credential was issued; null for a handler-owned
    * credential Wasp knows nothing about.
@@ -129,8 +129,8 @@ function makeAuthUser(data: AuthUserData): AuthUser {
 // PRIVATE API
 export function createAuthUserData(
   user: CompleteUserEntityWithAuth,
-  sessionScheme: string,
-  signedInBy: string,
+  credentialScheme: string,
+  loginScheme: string,
   credential: { credentialIssuedAt: Date | null; isCredentialFresh: boolean },
 ): AuthUserData {
   const { {= authFieldOnUserEntityName =}, ...rest } = user
@@ -147,8 +147,8 @@ This should never happen, but it did which means there is a bug in the code.`)
   }))
   return {
     ...rest,
-    sessionScheme: sessionScheme as AuthSchemeName,
-    signedInBy: signedInBy as AuthSchemeName,
+    credentialScheme: credentialScheme as AuthSchemeName,
+    loginScheme: loginScheme as AuthSchemeName,
     ...credential,
     identities,
   }

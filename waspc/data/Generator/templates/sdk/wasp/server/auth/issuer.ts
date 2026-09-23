@@ -47,7 +47,7 @@ const COOKIE_NAME = 'wasp_credential'
 
 // PRIVATE API
 /** What a Wasp issuer knows about a credential it issued: the account, plus who verified the login. */
-export type IssuedCredential = AccountPrincipal & { credentialId: string; signedInBy: string }
+export type IssuedCredential = AccountPrincipal & { credentialId: string; loginScheme: string }
 
 // PRIVATE API
 /**
@@ -84,7 +84,7 @@ export function createIssuer(options: IssuerOptions): CredentialHandler {
       }
       return {
         authId: record.authId,
-        signedInBy: record.signedInBy,
+        loginScheme: record.loginScheme,
         credentialId: id,
         credentialIssuedAt: record.issuedAt,
         isCredentialFresh: Date.now() - record.issuedAt.getTime() < freshFor.milliseconds(),
@@ -106,7 +106,7 @@ export function createIssuer(options: IssuerOptions): CredentialHandler {
       const credential = await readCredential(request)
       return credential === null
         ? { status: 'unauthenticated' }
-        : { status: 'authenticated', account: credential, signedInBy: credential.signedInBy }
+        : { status: 'authenticated', account: credential, loginScheme: credential.loginScheme }
     },
 
     async signIn(identity: AuthIdentityKey, properties?: SignInProperties): Promise<SignInResult> {
@@ -117,7 +117,7 @@ export function createIssuer(options: IssuerOptions): CredentialHandler {
       const issuedAt = new Date()
       const { id } = await store.create({
         authId,
-        signedInBy: identity.handlerName,
+        loginScheme: identity.handlerName,
         issuedAt,
         expiresAt: new Date(issuedAt.getTime() + ttl.milliseconds()),
       })
@@ -239,7 +239,7 @@ function signedTokenStore(secret: string): CredentialStore {
   return {
     async create(record) {
       const token = await jwt.createJWT(
-        { authId: record.authId, signedInBy: record.signedInBy },
+        { authId: record.authId, loginScheme: record.loginScheme },
         { expiresIn: new TimeSpan(Math.max(1, Math.floor((record.expiresAt.getTime() - record.issuedAt.getTime()) / 1000)), 's') },
       )
       return { id: token }
@@ -248,12 +248,12 @@ function signedTokenStore(secret: string): CredentialStore {
       // The helper verifies the signature and expiry and returns the payload;
       // `iat` / `exp` are the standard claims, in seconds.
       const payload = await jwt
-        .validateJWT<{ authId?: unknown; signedInBy?: unknown; iat?: unknown; exp?: unknown }>(id)
+        .validateJWT<{ authId?: unknown; loginScheme?: unknown; iat?: unknown; exp?: unknown }>(id)
         .catch(() => null)
       if (payload === null) {
         return null
       }
-      if (typeof payload.authId !== 'string' || typeof payload.signedInBy !== 'string') {
+      if (typeof payload.authId !== 'string' || typeof payload.loginScheme !== 'string') {
         return null
       }
       const issuedAt = typeof payload.iat === 'number' ? new Date(payload.iat * 1000) : new Date(0)
@@ -264,7 +264,7 @@ function signedTokenStore(secret: string): CredentialStore {
       }
       return {
         authId: payload.authId,
-        signedInBy: payload.signedInBy,
+        loginScheme: payload.loginScheme,
         issuedAt,
         expiresAt,
       } satisfies CredentialRecord

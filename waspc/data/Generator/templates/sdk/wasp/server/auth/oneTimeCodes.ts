@@ -15,14 +15,14 @@ import { prisma } from '../index.js'
 const ONE_TIME_CODE_LIFETIME_MS = 60_000
 
 // PRIVATE API
-export async function createOneTimeCode(account: { authId: string; signedInBy: string }): Promise<string> {
+export async function createOneTimeCode(account: { authId: string; loginScheme: string }): Promise<string> {
   await deleteStaleCodes()
   const oneTimeCode = randomBytes(32).toString('base64url')
   await prisma.{= oneTimeCodeEntityLower =}.create({
     data: {
       code: hashCode(oneTimeCode),
       authId: account.authId,
-      signedInBy: account.signedInBy,
+      loginScheme: account.loginScheme,
       expiresAt: new Date(Date.now() + ONE_TIME_CODE_LIFETIME_MS),
     },
   })
@@ -33,7 +33,7 @@ export async function createOneTimeCode(account: { authId: string; signedInBy: s
 /** Who a one-time code stands for. Spends it: a second redemption is null. */
 export async function redeemOneTimeCode(
   oneTimeCode: string,
-): Promise<(AccountPrincipal & { signedInBy: string }) | null> {
+): Promise<(AccountPrincipal & { loginScheme: string }) | null> {
   const { count } = await prisma.{= oneTimeCodeEntityLower =}.updateMany({
     where: { code: hashCode(oneTimeCode), usedAt: null, expiresAt: { gt: new Date() } },
     data: { usedAt: new Date() },
@@ -49,7 +49,7 @@ export async function redeemOneTimeCode(
   // not how recently they logged in.
   return {
     authId: record.authId,
-    signedInBy: record.signedInBy,
+    loginScheme: record.loginScheme,
     credentialIssuedAt: null,
     isCredentialFresh: false,
   }

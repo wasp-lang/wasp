@@ -27,8 +27,8 @@ test("signIn issues a credential for an existing user", async ({ request }) => {
     headers: { Authorization: `Bearer ${credential}` },
   });
   expect(me.status()).toBe(200);
-  const user = (await me.json()) as { json: { signedInBy: string } };
-  expect(user.json.signedInBy).toBe("password");
+  const user = (await me.json()) as { json: { loginScheme: string } };
+  expect(user.json.loginScheme).toBe("password");
 });
 
 test("signIn refuses an unknown user", async ({ request }) => {

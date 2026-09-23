@@ -2,7 +2,7 @@
 
 Two independent identity systems in one app: Wasp's own username/password auth
 next to Clerk, with no account linking. Each scheme carries its own credential
-(Wasp's bearer token, Clerk's session token); `user.sessionScheme` says which
+(Wasp's bearer token, Clerk's session token); `user.credentialScheme` says which
 one authenticated the request.
 
 ```ts
