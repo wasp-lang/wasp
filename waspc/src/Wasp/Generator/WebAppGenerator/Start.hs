@@ -14,6 +14,8 @@ import Wasp.Project.Common (WaspProjectDir)
 
 startWebApp :: WebAppRunConfig -> Path' Abs (Dir WaspProjectDir) -> Job.Job ()
 startWebApp webAppRunConfig waspProjectDir = do
+  -- Wasp owns the shared terminal during `wasp start`, so Vite should not
+  -- interpret keystrokes as its own shortcuts.
   subprocess <- Node.spawn (getEnvVars webAppRunConfig) waspProjectDir "npx" ["vite"]
   exitCode <- liftIO $ JobProcess.wait subprocess
   Job.requireExitSuccess exitCode
