@@ -122,6 +122,7 @@ export type WaspServerRuntimeFor<SpecConstructor> = Omit<
   | "env"
   | "identities"
   | "credentialsIssuer"
+  | "credentialsIssuerFor"
   | "hasCredentialsIssuer"
   | "email"
   | "canSendEmail"
@@ -147,6 +148,10 @@ export type WaspServerRuntimeFor<SpecConstructor> = Omit<
       ? EnvVars
       : []
   >;
+  /** `WaspServerRuntime.credentialsIssuerFor`, issuing for this manifest's provider kinds. */
+  credentialsIssuerFor(
+    scheme: string,
+  ): CredentialsIssuer<ProviderKindsOf<SpecConstructor>>;
 } & Facet<
     CredentialsDeclaration<ManifestOf<SpecConstructor>>,
     "hasCredentialsIssuer",

@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { AccountPrincipal, AuthHandler, CredentialsIssuer, IdentityPrincipal, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AccountPrincipal, AuthenticateResult, AuthHandler, AuthIdentityKey, CredentialsIssuer, IdentityPrincipal, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
@@ -11,7 +11,6 @@ import {
   redeemOneTimeCode,
   signOutEverywhere,
   type IssuerOptions,
-  type WaspIssuer,
 } from './issuer.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
@@ -349,8 +348,9 @@ function makeHookProviderId(handlerName: string, providerName: string, providerU
  * The credentials issuer a scheme signs in through, bound to a target issuer
  * and to the calling scheme. The provider name guard, the identity lookup and
  * the app's login hooks all run here, BEFORE the target issues anything --
- * so no scheme can skip the app's login policy, and the issuer records the
- * calling scheme as `signedInBy` without ever being told a name to record.
+ * so no scheme can skip the app's login policy, and the issuer receives the
+ * calling scheme as the identity's `handlerName`, never a name of the
+ * handler's choosing.
  */
 /** What the imperative `signIn` needs from a scheme: issue for a known identity, hooks included. */
 type IssueSignIn = (
@@ -361,19 +361,14 @@ type IssueSignIn = (
 
 function boundTo(
   spec: SchemeRuntimeSpec,
-  target: WaspIssuer | AuthHandler,
+  target: AuthHandler,
   targetIssuerOptions: IssuerOptions | null,
 ): { facet: CredentialsIssuer; issueSignIn: IssueSignIn } {
   if (target.signIn === undefined) {
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
-  // A Wasp issuer is told who verified the login; a handler-owned issuer only
-  // gets the per-sign-in choices, since it cannot record more.
-  const signInOnTarget =
-    'kind' in target
-      ? (identityRef: AuthIdentityRef, properties: SignInOpts['properties']) =>
-          target.signIn(identityRef, { signedInBy: spec.scheme, properties })
-      : target.signIn.bind(target)
+  const signInOnTarget = target.signIn.bind(target)
+  const keyOf = (providerName: string, providerUserId: string): AuthIdentityKey => ({ handlerName: spec.scheme, providerName, providerUserId })
   const resolveIdentityRef = async (identityRef: AuthIdentityRef) => {
     const providerName = resolveOwnProviderName(spec, identityRef.providerName)
     const identity = await getIdentityStore(spec.scheme, providerName).find(identityRef.providerUserId)
@@ -401,7 +396,7 @@ function boundTo(
         onBeforeLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
       )
     }
-    const result = await signInOnTarget({ providerName, providerUserId }, opts?.properties)
+    const result = await signInOnTarget(keyOf(providerName, providerUserId), opts?.properties)
     if (fireHooks) {
       await onAfterLoginHook({
         req: getCurrentRequest() as any,
@@ -420,15 +415,29 @@ function boundTo(
     },
     signOut: (request) => target.signOut?.(request) ?? Promise.resolve(Response.json({ success: true })),
     signOutEverywhere: async (identityRef) => {
-      const { authId } = await resolveIdentityRef(identityRef)
-      if (targetIssuerOptions !== null) {
-        await signOutEverywhere(targetIssuerOptions, authId)
-      }
+      const { providerName } = await resolveIdentityRef(identityRef)
+      await target.signOutEverywhere?.(keyOf(providerName, identityRef.providerUserId))
     },
     createOneTimeCode: (request) => createOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), request),
     redeemOneTimeCode: (oneTimeCode) => redeemOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), oneTimeCode),
   }
   return { facet, issueSignIn }
+}
+
+/** The facet for signing this scheme's identities into any issuing scheme, built on first use. */
+const issuerFacetsByPair = new Map<string, CredentialsIssuer>()
+
+function issuerFacetFor(spec: SchemeRuntimeSpec, scheme: string): CredentialsIssuer {
+  const pair = `${spec.scheme} -> ${scheme}`
+  let facet = issuerFacetsByPair.get(pair)
+  if (facet === undefined) {
+    if (!authSchemeNames.includes(scheme as AuthSchemeName)) {
+      throw new Error(`Auth scheme '${spec.scheme}' asked to sign into '${scheme}', which is not one of the app's auth schemes.`)
+    }
+    facet = boundTo(spec, signInTargetOf(scheme as AuthSchemeName), issuerOptionsOf(scheme as AuthSchemeName)).facet
+    issuerFacetsByPair.set(pair, facet)
+  }
+  return facet
 }
 
 // One-time codes live in a Wasp issuer's credential store. A scheme that
@@ -555,6 +564,7 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     // rejects with a clear error on use; the booleans let a handler branch
     // when availability is the app's choice.
     credentialsIssuer: credentialsIssuer ?? undeclaredCredentialsIssuer(spec),
+    credentialsIssuerFor: (scheme) => issuerFacetFor(spec, scheme),
     hasCredentialsIssuer: credentialsIssuer !== null,
     {=# isEmailSenderEnabled =}
     email: canSendEmail ? waspEmailFacet : undeclaredEmail(spec),
@@ -576,8 +586,8 @@ type RouteHandler = (request: Request) => Response | Promise<Response>
 
 /** What Wasp holds per scheme: who recognises its credential, and its routes. */
 type SchemeParts = {
-  /** Wasp's issuer for the scheme's inline `credentials`, when it has them. */
-  issuer: WaspIssuer | null
+  /** Wasp's own issuer for the scheme's inline `credentials`, when it has them: an `AuthHandler` with no login of its own. */
+  issuer: AuthHandler | null
   /** The sibling scheme this one signs into (`credentials: { scheme }`), when it does. */
   credentialsScheme: AuthSchemeName | null
   /** A credential handler's `AuthHandler`; null for a login handler, which has none. */
@@ -596,32 +606,33 @@ function partsOf(name: AuthSchemeName): SchemeParts {
   return parts
 }
 
-/** The Wasp issuer whose credential a scheme's requests carry, following `credentials: { scheme }` chains. */
-function issuerOf(name: AuthSchemeName): WaspIssuer | null {
+type SchemeHandler = { scheme: AuthSchemeName; handler: AuthHandler }
+
+/**
+ * Every handler that may recognise a scheme's requests, in the order Wasp
+ * asks them: the credential the scheme signs into first (a sibling's chain,
+ * then Wasp's own issuer), the scheme's own credential handler last.
+ */
+function chainOf(name: AuthSchemeName): SchemeHandler[] {
   const parts = partsOf(name)
-  return parts.issuer ?? (parts.credentialsScheme === null ? null : issuerOf(parts.credentialsScheme))
+  const signedInto = parts.credentialsScheme === null ? [] : chainOf(parts.credentialsScheme)
+  const own = [parts.issuer, parts.handler].flatMap((handler) => (handler === null ? [] : [{ scheme: name, handler }]))
+  return [...signedInto, ...own]
 }
 
-/** The credential handler whose own credential a scheme's requests may carry, and which scheme it is. */
-function identityHandlerOf(name: AuthSchemeName): { scheme: AuthSchemeName; handler: AuthHandler } | null {
-  const parts = partsOf(name)
-  if (parts.handler !== null) {
-    return { scheme: name, handler: parts.handler }
-  }
-  return parts.credentialsScheme === null ? null : identityHandlerOf(parts.credentialsScheme)
-}
-
-/** What a scheme signs into: its own issuer, its own handler, or whatever the sibling it names signs into. */
-function signInTargetOf(name: AuthSchemeName): WaspIssuer | AuthHandler {
-  const parts = partsOf(name)
-  const own = parts.issuer ?? parts.handler
-  if (own !== null) {
-    return own
-  }
-  if (parts.credentialsScheme === null) {
+/** What a scheme signs into: the first handler on its chain that can issue. */
+function signInTargetOf(name: AuthSchemeName): AuthHandler {
+  const issuing = chainOf(name).find(({ handler }) => handler.signIn !== undefined)
+  if (issuing === undefined) {
     throw new Error(`Auth scheme '${name}' has nothing to sign into.`)
   }
-  return signInTargetOf(parts.credentialsScheme)
+  return issuing.handler
+}
+
+/** The options of the Wasp issuer a scheme signs into, for one-time codes; null when it signs into a handler's own issuer. */
+function issuerOptionsOf(name: AuthSchemeName): IssuerOptions | null {
+  const parts = partsOf(name)
+  return issuerOptionsByScheme[name] ?? (parts.credentialsScheme === null ? null : issuerOptionsOf(parts.credentialsScheme))
 }
 
 {=# schemes =}
@@ -739,6 +750,24 @@ export type SchemeAuthentication =
   | { kind: 'account'; scheme: AuthSchemeName; account: AccountPrincipal; signedInBy: string }
   | { kind: 'identity'; scheme: AuthSchemeName; principal: IdentityPrincipal }
 
+type ChainAuthentication = SchemeHandler & { result: Extract<AuthenticateResult, { status: 'authenticated' }> }
+
+/** The first handler on the scheme's chain that recognises the request. A handler that throws is logged and treated as `unauthenticated`. */
+async function authenticateAlongChain(scheme: AuthSchemeName, request: Request): Promise<ChainAuthentication | null> {
+  for (const link of chainOf(scheme)) {
+    const result = await Promise.resolve()
+      .then(() => link.handler.authenticate(request))
+      .catch((error) => {
+        console.error(`Auth scheme '${link.scheme}' threw while authenticating:`, error)
+        return { status: 'unauthenticated' } as const
+      })
+    if (result.status === 'authenticated') {
+      return { ...link, result }
+    }
+  }
+  return null
+}
+
 // PRIVATE API
 /**
  * Authenticates a request for one scheme: Wasp's own credential first (an
@@ -748,45 +777,42 @@ export type SchemeAuthentication =
  * `unauthenticated`: how it rejects a bad credential is its own business.
  */
 export async function authenticateScheme(scheme: AuthSchemeName, request: Request): Promise<SchemeAuthentication | null> {
-  const issuer = issuerOf(scheme)
-  if (issuer !== null) {
-    const account = await issuer.authenticate(request)
-    if (account !== null) {
-      return { kind: 'account', scheme, account, signedInBy: account.signedInBy }
-    }
+  const authentication = await authenticateAlongChain(scheme, request)
+  if (authentication === null) {
+    return null
   }
-  const owner = identityHandlerOf(scheme)
-  if (owner !== null) {
-    const result = await Promise.resolve()
-      .then(() => owner.handler.authenticate(request))
-      .catch((error) => {
-        console.error(`Auth scheme '${owner.scheme}' threw while authenticating:`, error)
-        return { status: 'unauthenticated' } as const
-      })
-    if (result.status === 'authenticated') {
-      return { kind: 'identity', scheme: owner.scheme, principal: result.principal }
-    }
-  }
-  return null
+  const { scheme: owner, result } = authentication
+  return 'account' in result
+    ? { kind: 'account', scheme: owner, account: result.account, signedInBy: result.signedInBy ?? owner }
+    : { kind: 'identity', scheme: owner, principal: result.principal }
 }
 
 // PRIVATE API
-/** Ends the credential the request carries, through whoever issued it. */
+/** Ends the credential the request carries, through the handler that recognised it. */
 export async function signOutScheme(scheme: AuthSchemeName, request: Request): Promise<Response> {
-  const issuer = issuerOf(scheme)
-  if (issuer !== null && (await issuer.authenticate(request)) !== null) {
-    return issuer.signOut(request)
+  const authentication = await authenticateAlongChain(scheme, request)
+  return (await authentication?.handler.signOut?.(request)) ?? Response.json({ success: true })
+}
+
+/** The scheme's own handler answers first, the credential it signs into after: the handler nearest the person knows where its login page is. */
+async function firstAnswerAlongChain(
+  scheme: AuthSchemeName,
+  ask: (handler: AuthHandler) => Promise<Response> | undefined,
+): Promise<Response | undefined> {
+  for (const { handler } of chainOf(scheme).reverse()) {
+    const answer = await ask(handler)
+    if (answer !== undefined) {
+      return answer
+    }
   }
-  const owner = identityHandlerOf(scheme)
-  return (await owner?.handler.signOut?.(request)) ?? Response.json({ success: true })
+  return undefined
 }
 
 // PRIVATE API
-/** "Log in first", the way the scheme says it: the handler's answer, else its issuer's (a redirect for a cookie scheme), else 401. */
+/** "Log in first", the way the scheme says it: a redirect for a cookie scheme, else 401. */
 export async function challengeScheme(scheme: AuthSchemeName, request: Request): Promise<Response> {
   return (
-    (await identityHandlerOf(scheme)?.handler.challenge?.(request)) ??
-    (await issuerOf(scheme)?.challenge(request)) ??
+    (await firstAnswerAlongChain(scheme, (handler) => handler.challenge?.(request))) ??
     Response.json({ message: 'Invalid credentials' }, { status: 401 })
   )
 }
@@ -795,8 +821,7 @@ export async function challengeScheme(scheme: AuthSchemeName, request: Request):
 /** "You may not", the way the scheme says it. Default: 403. */
 export async function forbidScheme(scheme: AuthSchemeName, request: Request): Promise<Response> {
   return (
-    (await identityHandlerOf(scheme)?.handler.forbid?.(request)) ??
-    (await issuerOf(scheme)?.forbid(request)) ??
+    (await firstAnswerAlongChain(scheme, (handler) => handler.forbid?.(request))) ??
     Response.json({ message: 'Forbidden' }, { status: 403 })
   )
 }

@@ -28,6 +28,7 @@ export {
   type SignInOpts,
   type SignInProperties,
   type SignInResult,
+  type AuthIdentityKey,
   type AuthIdentityRef,
   type WaspEmail,
   type WaspServerRuntime,

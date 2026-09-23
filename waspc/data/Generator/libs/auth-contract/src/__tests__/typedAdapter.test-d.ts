@@ -187,6 +187,13 @@ export const kindsTyped: ServerAuthAdapterFor<typeof kindsAuth> = async (
     providerName: "email",
     providerUserId: "a@b.c",
   });
+  // any issuing scheme, the same kinds
+  await runtime
+    .credentialsIssuerFor("waspBearer")
+    .signIn({ providerName: "google", providerUserId: "id" }, { oauth });
+  const anyIssuer = runtime.credentialsIssuerFor("waspBearer");
+  // @ts-expect-error oauth sign-in without data, whichever issuer
+  await anyIssuer.signIn({ providerName: "google", providerUserId: "id" });
   return { handler, routeHandler: () => new Response() };
 };
 // no providers declared: just `default`, plain
@@ -219,6 +226,24 @@ export const kindsMix: ServerAuthAdapterFor<typeof kindsAuth> = (runtime) => {
   const anyStore: IdentityStore = runtime.identities.google;
   void anyStore;
   return { handler, routeHandler: () => new Response() };
+};
+
+// a handler whose credential carries the account answers with it, and an issuer gets the full key
+export const accountAnswering: AuthHandler = {
+  authenticate: async () => ({
+    status: "authenticated",
+    account: {
+      authId: "a",
+      credentialIssuedAt: null,
+      isCredentialFresh: false,
+    },
+    signedInBy: "wasp",
+  }),
+  signIn: async (identity) => {
+    const verifiedBy: string = identity.handlerName;
+    void verifiedBy;
+    return { response: new Response() };
+  },
 };
 
 // ---- the two kinds: a login handler returns routes only, a credential handler its AuthHandler ----

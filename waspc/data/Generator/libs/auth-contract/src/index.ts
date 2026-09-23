@@ -16,8 +16,11 @@
  *   on sessions, in provider names, in `authRequired` lists, in route
  *   prefixes. One handler type can back several schemes.
  * - A **credential** is whatever a request carries to prove identity: a cookie,
- *   a bearer token. A handler that needs to hand one out asks Wasp for a
- *   `CredentialsIssuer` (see `WaspServerRuntime.credentialsIssuer`).
+ *   a bearer token. A handler that hands one out implements `signIn`; Wasp
+ *   ships two such handlers, `waspBearer()` and `waspCookie()`, and runs one
+ *   privately for every scheme with inline `credentials`. A handler that
+ *   only verifies logins asks Wasp for a `CredentialsIssuer` (see
+ *   `WaspServerRuntime.credentialsIssuer`).
  */
 
 export type * from "./typedAdapter.js";
@@ -59,6 +62,18 @@ export type AuthIdentityRef<ProviderName extends string = string> = {
 };
 
 /**
+ * The full primary key of an `AuthIdentity` row: what an issuer receives, so
+ * it can find the identity without being told separately who verified the
+ * login. Wasp fills `handlerName` with the calling scheme; a handler never
+ * chooses it.
+ */
+export type AuthIdentityKey = {
+  handlerName: string;
+  providerName: string;
+  providerUserId: string;
+};
+
+/**
  * What a CREDENTIAL handler learned from a credential it owns: which of ITS
  * identities the request is from, and what it knows about that credential.
  */
@@ -92,9 +107,16 @@ export type AccountPrincipal = {
   isCredentialFresh: boolean;
 };
 
-/** The answer to "whose request is this?" from a credential handler. An unknown caller is a normal answer, not an error. */
+/**
+ * The answer to "whose request is this?" from a credential handler. An unknown
+ * caller is a normal answer, not an error. A handler whose credential carries
+ * Wasp's account key (Wasp's own issuers) answers with the account, and may
+ * say which scheme verified the login; every other handler answers with one
+ * of its identities.
+ */
 export type AuthenticateResult =
   | { status: "authenticated"; principal: IdentityPrincipal }
+  | { status: "authenticated"; account: AccountPrincipal; signedInBy?: string }
   | { status: "unauthenticated" };
 
 /** The manifest's `providers`: one declaration per provider name. */
@@ -197,8 +219,9 @@ export type SignInResult = {
 
 /**
  * What Wasp's internals need from a CREDENTIAL handler: how Wasp recognises
- * a credential the handler owns. A login handler implements none of this;
- * Wasp recognises its own credential itself.
+ * a credential the handler owns. Wasp's own issuers are credential handlers
+ * too, with no login of their own. A login handler implements none of this;
+ * the issuer it signs into does.
  *
  * `authenticate` is the only required operation: the request read path, the
  * one every scheme answers. Everything else is optional, and presence IS the
@@ -224,13 +247,14 @@ export interface AuthHandler {
   authenticate(request: Request): Promise<AuthenticateResult>;
 
   /**
-   * Issue a credential for a subject: the handler is a credential issuer other
-   * schemes can sign into (`credentials: { scheme: "<this one>" }`). The
-   * subject is one of THIS scheme's, already provisioned; Wasp guards the
-   * provider name and fires the app's login hooks before calling in.
+   * Issue a credential for an identity: the handler is a credential issuer
+   * other schemes can sign into (`credentials: { scheme: "<this one>" }`,
+   * `runtime.credentialsIssuerFor`). The identity is the calling scheme's,
+   * already provisioned, with `handlerName` filled in by Wasp; Wasp guards
+   * the provider name and fires the app's login hooks before calling in.
    */
   signIn?(
-    identityRef: AuthIdentityRef,
+    identity: AuthIdentityKey,
     properties?: SignInProperties,
   ): Promise<SignInResult>;
 
@@ -244,9 +268,10 @@ export interface AuthHandler {
    * End EVERY credential of the person behind one of this handler's
    * identities: what the imperative `signOutEverywhere(user)` calls for a
    * handler that keeps its own credentials (Better Auth's sessions, Clerk's).
-   * Omit when Wasp issues the credentials: Wasp ends those itself.
+   * Wasp's own issuers implement it; a handler whose credentials Wasp
+   * issues omits it.
    */
-  signOutEverywhere?(identityRef: AuthIdentityRef): Promise<void>;
+  signOutEverywhere?(identity: AuthIdentityKey): Promise<void>;
 
   /**
    * What to send a request that needs a user and has none. A cookie handler
@@ -550,6 +575,15 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
 
   /** Whether the manifest declares `credentials`, so {@link credentialsIssuer} works. */
   hasCredentialsIssuer: boolean;
+
+  /**
+   * The issuer of ANY scheme whose handler implements `signIn`, for a handler
+   * that signs into a scheme other than its configured default
+   * (`credentialsIssuer`). Same facet, same guards: only this scheme's own
+   * identities, the app's login hooks included. Throws when no such scheme
+   * exists or it cannot issue.
+   */
+  credentialsIssuerFor(scheme: string): CredentialsIssuer;
 
   /**
    * The app's configured email sender. Always a member; `send` rejects with

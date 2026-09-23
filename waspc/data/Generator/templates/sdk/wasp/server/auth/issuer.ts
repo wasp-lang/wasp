@@ -3,11 +3,12 @@ import { createHash } from 'node:crypto'
 import { TimeSpan, createJWTHelpers } from '@wasp.sh/lib-auth/node'
 import type {
   AccountPrincipal,
+  AuthHandler,
+  AuthIdentityKey,
   CredentialRecord,
   CredentialStore,
   SignInProperties,
   SignInResult,
-  AuthIdentityRef,
 } from './handler/types.js'
 import { prisma } from '../index.js'
 import { prismaCredentialStore } from './sessionStore.js'
@@ -51,26 +52,12 @@ export type IssuedCredential = AccountPrincipal & { credentialId: string; signed
 
 // PRIVATE API
 /**
- * Wasp's own issuer, one per scheme that declares inline `credentials`. Not an
- * `AuthHandler`: it recognises the credential it issued and answers with the
- * ACCOUNT, never with an identity, so nothing has to pretend otherwise.
+ * Wasp's own issuer: an ordinary `AuthHandler` with no login of its own, one
+ * per `waspBearer()` / `waspCookie()` scheme and one, private, per scheme
+ * with inline `credentials`. Its credential carries the account, so it
+ * answers `authenticate` with the account and who verified the login.
  */
-export type WaspIssuer = {
-  /** Tells a Wasp issuer from an `AuthHandler` where either may stand in as a sign-in target. */
-  readonly kind: 'wasp-issuer'
-  authenticate(request: Request): Promise<IssuedCredential | null>
-  signIn(identityRef: AuthIdentityRef, context: IssueContext): Promise<SignInResult>
-  signOut(request: Request): Promise<Response>
-  challenge(request: Request): Promise<Response>
-  forbid(request: Request): Promise<Response>
-}
-
-// PRIVATE API
-/** What Wasp tells its issuer at sign-in: who verified the login (Wasp's bookkeeping, never a handler's claim) and the per-sign-in choices. */
-export type IssueContext = { signedInBy: string; properties?: SignInProperties }
-
-// PRIVATE API
-export function createIssuer(options: IssuerOptions): WaspIssuer {
+export function createIssuer(options: IssuerOptions): AuthHandler {
   const store = resolveStore(options)
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
   const schemeTtl = parseTimeSpan(options.ttl)
@@ -82,9 +69,7 @@ export function createIssuer(options: IssuerOptions): WaspIssuer {
     )
   }
 
-  return {
-    kind: 'wasp-issuer',
-    async authenticate(request) {
+  const readCredential = async (request: Request): Promise<IssuedCredential | null> => {
       const id = transport.read(request)
       if (id === null) {
         return null
@@ -106,23 +91,35 @@ export function createIssuer(options: IssuerOptions): WaspIssuer {
         credentialIssuedAt: record.issuedAt,
         isCredentialFresh: Date.now() - record.issuedAt.getTime() < freshFor.milliseconds(),
       }
+  }
+  // The facet that calls in has resolved the identity within the calling
+  // scheme and guarded its provider name, so this lookup cannot cross scheme
+  // boundaries; `handlerName` IS the calling scheme.
+  const findIdentity = async (identity: AuthIdentityKey) => {
+    const found = await getIdentityStore(identity.handlerName, identity.providerName).find(identity.providerUserId)
+    if (found === null) {
+      throw contractError('wasp-auth/identity-not-found', 'No identity to issue a credential for.')
+    }
+    return found
+  }
+
+  return {
+    async authenticate(request) {
+      const credential = await readCredential(request)
+      return credential === null
+        ? { status: 'unauthenticated' }
+        : { status: 'authenticated', account: credential, signedInBy: credential.signedInBy }
     },
 
-    async signIn(identityRef: AuthIdentityRef, context: IssueContext): Promise<SignInResult> {
-      // The issuer keys its records by the Auth entity id: the subject has
-      // already been resolved (and its provider name guarded) by the facet that
-      // called in, so this lookup cannot cross scheme boundaries.
-      const identity = await getIdentityStore(context.signedInBy, identityRef.providerName ?? 'default').find(identityRef.providerUserId)
-      if (identity === null) {
-        throw contractError('wasp-auth/identity-not-found', 'No identity for the subject to issue a credential for.')
-      }
+    async signIn(identity: AuthIdentityKey, properties?: SignInProperties): Promise<SignInResult> {
+      const { authId } = await findIdentity(identity)
       // Per-sign-in properties win over the scheme's configuration.
-      const ttl = context.properties?.ttl !== undefined ? parseTimeSpan(context.properties.ttl) : schemeTtl
-      const persistent = context.properties?.persistent ?? true
+      const ttl = properties?.ttl !== undefined ? parseTimeSpan(properties.ttl) : schemeTtl
+      const persistent = properties?.persistent ?? true
       const issuedAt = new Date()
       const { id } = await store.create({
-        authId: identity.authId,
-        signedInBy: context.signedInBy,
+        authId,
+        signedInBy: identity.handlerName,
         issuedAt,
         expiresAt: new Date(issuedAt.getTime() + ttl.milliseconds()),
       })
@@ -138,6 +135,11 @@ export function createIssuer(options: IssuerOptions): WaspIssuer {
         await store.delete(id)
       }
       return transport.clear()
+    },
+
+    async signOutEverywhere(identity: AuthIdentityKey) {
+      const { authId } = await findIdentity(identity)
+      await store.deleteAllForAuthId(authId)
     },
 
     challenge: async (request) => transport.challenge(request),
@@ -174,14 +176,14 @@ export async function createOneTimeCode(options: IssuerOptions, request: Request
   if (options.transport === 'cookie') {
     return null
   }
-  const account = await createIssuer(options).authenticate(request)
-  if (account === null) {
+  const result = await createIssuer(options).authenticate(request)
+  if (result.status !== 'authenticated' || !('account' in result)) {
     throw contractError('wasp-auth/unauthenticated', 'A one-time code needs a request that carries a valid credential.')
   }
   const issuedAt = new Date()
   const { id } = await resolveStore(options).create({
-    authId: account.authId,
-    signedInBy: `${ONE_TIME_CODE_MARKER}${account.signedInBy}`,
+    authId: result.account.authId,
+    signedInBy: `${ONE_TIME_CODE_MARKER}${result.signedInBy ?? options.scheme}`,
     issuedAt,
     expiresAt: new Date(issuedAt.getTime() + ONE_TIME_CODE_LIFETIME.milliseconds()),
   })

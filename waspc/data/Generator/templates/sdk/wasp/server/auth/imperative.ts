@@ -125,7 +125,7 @@ export async function signOutEverywhere(user: UserRef): Promise<void> {
       ? handlerOf(identity.handlerName as AuthSchemeName)
       : null
     if (handler?.signOutEverywhere !== undefined) {
-      await handler.signOutEverywhere({ providerName: identity.providerName, providerUserId: identity.providerUserId })
+      await handler.signOutEverywhere(identity)
       acted = true
     }
   }
