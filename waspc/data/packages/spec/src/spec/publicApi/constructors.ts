@@ -439,21 +439,16 @@ export function crud(
 /**
  * The input accepted by {@link defineAuthSchemeManifest}: everything in the
  * manifest that carries information, without the fields the definition step
- * fills in itself (`kind`, `contractVersion`, the authenticity marker).
+ * fills in itself (`contractVersion`, the authenticity marker).
  *
  * @category Experimental
  */
-export type AuthSchemeManifestInput = DistributiveOmit<
+export type AuthSchemeManifestInput = Omit<
   AuthSchemeManifest,
   "contractVersion" | "__waspAuthSchemeManifest" | "capabilities"
 > & {
   capabilities?: string[];
 };
-
-// `Omit` over a union keeps only the common keys; this keeps each member.
-type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
-  ? Omit<T, K>
-  : never;
 
 /**
  * EXPERIMENTAL. Defines an auth scheme manifest.
@@ -478,21 +473,6 @@ export function defineAuthSchemeManifest(
     );
   }
   const handler = describeAuthHandler(manifest);
-  if (manifest.kind !== "login" && manifest.kind !== "credential") {
-    throw new WaspSpecUserError(
-      `Auth handler '${handler}' declares the unknown kind '${String((manifest as { kind?: unknown }).kind)}'. A handler is either "login" (it verifies logins, Wasp issues the credential) or "credential" (it owns its credential).`,
-    );
-  }
-  if (manifest.kind === "login" && manifest.credentials === undefined) {
-    throw new WaspSpecUserError(
-      `Auth handler '${handler}' is a login handler, so it must declare \`credentials\`: Wasp issues the credential for the logins it verifies.`,
-    );
-  }
-  if (manifest.kind === "login" && manifest.server.routes === undefined) {
-    throw new WaspSpecUserError(
-      `Auth handler '${handler}' is a login handler, so it must declare \`server.routes\`: a login handler is its routes.`,
-    );
-  }
   validateAuthAdapterEntry(handler, "server", manifest.server);
   if (manifest.client !== undefined) {
     validateAuthAdapterEntry(handler, "client", manifest.client);
@@ -533,7 +513,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 22 as const;
+export const supportedAuthContractVersion = 23 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
@@ -791,7 +771,6 @@ function waspCredentialScheme(
   // The generated client already stores a bearer credential a sibling scheme
   // adopts, so the issuer has no client entry of its own.
   return defineAuthSchemeManifest({
-    kind: "credential",
     server: {
       authAdapter: { package: "wasp/server/auth/issuer" },
       env:

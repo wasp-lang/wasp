@@ -8,8 +8,8 @@ import type {
   AuthHandler,
   IdentityStore,
   OAuthLoginData,
+  ServerAuthAdapter,
   ServerAuthAdapterFor,
-  ServerCredentialAuthAdapter,
   SpecReference,
   WaspServerRuntime,
 } from "../index.js";
@@ -207,7 +207,7 @@ export const kindsPlain: ServerAuthAdapterFor<typeof plainAuth> = async (
   return { handler };
 };
 // loose: everything optional, shape still checked
-export const kindsLoose: ServerCredentialAuthAdapter = async (runtime) => {
+export const kindsLoose: ServerAuthAdapter = async (runtime) => {
   await runtime.identities.default.create("x");
   await runtime.identities.default.create("x", { oauth });
   await runtime.identities.default.create("x", {
@@ -246,9 +246,8 @@ export const accountAnswering: AuthHandler = {
   },
 };
 
-// ---- the two kinds: a login handler returns routes only, a credential handler its AuthHandler ----
+// ---- who owns the credential, read off `credentials`: with it a handler may be its routes alone; without it, it must return an AuthHandler ----
 declare function loginAuth(): {
-  kind: "login";
   server: { routes: {} };
   credentials: {};
 };
@@ -256,19 +255,16 @@ export const loginTyped: ServerAuthAdapterFor<typeof loginAuth> = (runtime) => {
   runtime.credentialsIssuer.signIn({ providerUserId: "x" });
   return { routeHandler: () => new Response() };
 };
-const loginParts: Awaited<ReturnType<ServerAuthAdapterFor<typeof loginAuth>>> =
-  {
-    // @ts-expect-error a login handler implements no AuthHandler: Wasp recognises its own credential
-    handler,
-    routeHandler: () => new Response(),
-  };
-void loginParts;
-declare function credentialAuth(): { kind: "credential"; server: {} };
-export const credentialTyped: ServerAuthAdapterFor<
-  typeof credentialAuth
-> = () => ({ handler });
-// @ts-expect-error a credential handler must return its AuthHandler
-const credentialWithout: Awaited<
-  ReturnType<ServerAuthAdapterFor<typeof credentialAuth>>
-> = {};
-void credentialWithout;
+// the exchange: Wasp's credential and the handler's own
+export const loginWithOwn: ServerAuthAdapterFor<typeof loginAuth> = () => ({
+  handler,
+  routeHandler: () => new Response(),
+});
+declare function bareAuth(): { server: {} };
+export const bareTyped: ServerAuthAdapterFor<typeof bareAuth> = () => ({
+  handler,
+});
+// @ts-expect-error no credentials and no handler: nothing could recognise the scheme's requests
+const bareWithout: Awaited<ReturnType<ServerAuthAdapterFor<typeof bareAuth>>> =
+  {};
+void bareWithout;

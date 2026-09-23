@@ -10,8 +10,7 @@ import type {
   ProviderKind,
   ProviderKindParam,
   RuntimeGrantName,
-  ServerCredentialAuthHandlerParts,
-  ServerLoginAuthHandlerParts,
+  ServerAuthHandlerParts,
   WaspEmail,
   WaspServerRuntime,
 } from "./index.js";
@@ -62,8 +61,7 @@ import type {
  *
  * What stays unchecked: that the adapter an app wires up belongs to this
  * constructor. A package's constructor names its own adapter, so that holds by
- * construction; a hand-written handler uses the loose `ServerLoginAuthAdapter`
- * or `ServerCredentialAuthAdapter`.
+ * construction; a hand-written handler uses the loose `ServerAuthAdapter`.
  *
  * `SpecConstructor` is the constructor's type (`typeof myAuth`), or a manifest type.
  * The constructor must not be generic: a type parameter would be inferred as
@@ -166,21 +164,22 @@ export type WaspServerRuntimeFor<SpecConstructor> = Omit<
   >;
 
 /**
- * What the adapter must return, by the manifest's `kind`: a login handler
- * returns routes only; a credential handler returns its `AuthHandler`, plus a
- * `routeHandler` exactly when the manifest declares `server.routes`.
+ * What the adapter must return, read off the manifest: an `AuthHandler` is
+ * REQUIRED when the manifest declares no `credentials` (nothing else could
+ * recognise the scheme's requests) and optional otherwise; a `routeHandler`
+ * exactly when the manifest declares `server.routes`.
  */
 export type ServerAuthHandlerPartsFor<SpecConstructor> =
-  ManifestOf<SpecConstructor> extends { kind: "login" }
-    ? ServerLoginAuthHandlerParts
-    : Pick<ServerCredentialAuthHandlerParts, "handler"> &
-        (ManifestOf<SpecConstructor> extends { server: { routes: object } }
-          ? Required<Pick<ServerCredentialAuthHandlerParts, "routeHandler">>
-          : ManifestOf<SpecConstructor> extends { server: { routes?: object } }
-            ? Pick<ServerCredentialAuthHandlerParts, "routeHandler">
-            : {
-                /** The manifest declares no `routes`, so Wasp would never mount it. */ routeHandler?: never;
-              });
+  (CredentialsDeclaration<ManifestOf<SpecConstructor>> extends "never"
+    ? Required<Pick<ServerAuthHandlerParts, "handler">>
+    : Pick<ServerAuthHandlerParts, "handler">) &
+    (ManifestOf<SpecConstructor> extends { server: { routes: object } }
+      ? Required<Pick<ServerAuthHandlerParts, "routeHandler">>
+      : ManifestOf<SpecConstructor> extends { server: { routes?: object } }
+        ? Pick<ServerAuthHandlerParts, "routeHandler">
+        : {
+            /** The manifest declares no `routes`, so Wasp would never mount it. */ routeHandler?: never;
+          });
 
 /**
  * A reference to the app's code, as a spec constructor types it:

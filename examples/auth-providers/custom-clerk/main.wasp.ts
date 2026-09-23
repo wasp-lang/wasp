@@ -24,7 +24,6 @@ export default app({
     // declares no `credentials`: Wasp issues nothing and adds no table.
     schemes: {
       clerk: customAuthHandler({
-        kind: "credential",
         // Both halves are adapters from this app's own code: the same
         // things a handler package exports, with the same powers. Each side
         // holds what that half receives.

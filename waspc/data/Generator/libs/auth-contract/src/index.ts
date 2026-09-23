@@ -779,17 +779,11 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
   };
 
 /**
- * What a LOGIN adapter returns: its routes, and nothing else. Wasp itself
- * recognises, ends and challenges for the credential it issued.
- */
-export type ServerLoginAuthHandlerParts = {
-  /** The handler's own routes (login, signup, callbacks), mounted at `/auth/<name>`. */
-  routeHandler: (request: Request) => Response | Promise<Response>;
-};
-
-/**
- * What a CREDENTIAL adapter returns: the `AuthHandler` Wasp recognises its
- * credential through, plus routes when it has any.
+ * What a server adapter returns: the `AuthHandler` Wasp recognises the
+ * handler's own credential through, and its routes. `handler` may be omitted
+ * only when the manifest declares `credentials` and the handler has no
+ * credential of its own: Wasp then recognises, ends and challenges for the
+ * credential it issued, and the handler is its routes.
  *
  * Deliberately a WRAPPER around `AuthHandler` rather than `AuthHandler` with
  * a `routeHandler` member added: `AuthHandler` stays exactly the interface
@@ -797,37 +791,27 @@ export type ServerLoginAuthHandlerParts = {
  * without mutating it, and once Wasp has full-stack modules the routes can
  * move out without touching `AuthHandler`.
  */
-export type ServerCredentialAuthHandlerParts = {
-  handler: AuthHandler;
+export type ServerAuthHandlerParts = {
+  handler?: AuthHandler;
+  /** The handler's own routes (login, signup, callbacks), mounted at `/auth/<name>`. */
   routeHandler?: (request: Request) => Response | Promise<Response>;
 };
 
 /**
- * The server adapter of a LOGIN handler: what a package exports as
- * `createServerAuthHandler`, or a hand-written handler references from
- * `main.wasp.ts`. Wasp calls it once at server start with the runtime and
- * the manifest's `server.spec` (references replaced by the live functions).
- * This is the loose form; a package with a spec constructor uses
- * `ServerAuthAdapterFor<typeof myAuth>`, which picks the kind from the manifest.
+ * The server adapter: what a package exports as `createServerAuthHandler`,
+ * or a hand-written handler references from `main.wasp.ts`. Wasp calls it
+ * once at server start with the runtime and the manifest's `server.spec`
+ * (references replaced by the live functions). This is the loose form; a
+ * package with a spec constructor uses `ServerAuthAdapterFor<typeof myAuth>`,
+ * which reads off the manifest what the adapter must return.
  */
-export type ServerLoginAuthAdapter<
+export type ServerAuthAdapter<
   ServerSpec = unknown,
   ProviderNames extends string = "default",
 > = (
   runtime: WaspServerRuntime<ProviderNames>,
   spec: ServerSpec,
-) => ServerLoginAuthHandlerParts | Promise<ServerLoginAuthHandlerParts>;
-
-/** The server adapter of a CREDENTIAL handler. See `ServerLoginAuthAdapter`. */
-export type ServerCredentialAuthAdapter<
-  ServerSpec = unknown,
-  ProviderNames extends string = "default",
-> = (
-  runtime: WaspServerRuntime<ProviderNames>,
-  spec: ServerSpec,
-) =>
-  | ServerCredentialAuthHandlerParts
-  | Promise<ServerCredentialAuthHandlerParts>;
+) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
 
 // ---------------------------------------------------------------------------
 // Credential issuers: what backs an inline `credentials: { transport, store }`.

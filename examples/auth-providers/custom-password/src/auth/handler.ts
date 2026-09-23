@@ -1,13 +1,13 @@
 import { hash, verify } from "@node-rs/argon2";
 import {
   getAuthContractErrorCode,
-  type ServerLoginAuthAdapter,
+  type ServerAuthAdapter,
 } from "wasp/server/auth/handler/types";
 
 /**
  * Email+password auth, hand-rolled in-app -- the proof that a hand-written
  * scheme has the same powers a handler package has, because it IS the same
- * thing: a `ServerLoginAuthAdapter`, the function a package exports as
+ * thing: a `ServerAuthAdapter`, the function a package exports as
  * `createServerAuthHandler`. Pasting this file into a package needs no edits.
  *
  * - The runtime arrives as an argument: the identities facet for storage, and
@@ -22,10 +22,11 @@ import {
  * adapter for `handler`, stash `runtime` in a module variable here, and read
  * it from those routes. That is plain userland; Wasp needs no API for it.
  */
-export const createPasswordAuthHandler: ServerLoginAuthAdapter = (runtime) => ({
-  // A login handler is its routes. They verify logins and hand them to Wasp's
-  // issuer; the credential a request carries afterwards is Wasp's own, and
-  // Wasp recognises it itself, so there is no AuthHandler to implement.
+export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
+  // This handler is its routes. They verify logins and hand them to Wasp's
+  // issuer (the manifest declares `credentials`); the credential a request
+  // carries afterwards is Wasp's own, and Wasp recognises it itself, so
+  // there is no AuthHandler to return.
   // Standard `Request` in, `Response` out. Wasp hands over the raw body, so
   // the route parses it itself.
   routeHandler: async (request) => {

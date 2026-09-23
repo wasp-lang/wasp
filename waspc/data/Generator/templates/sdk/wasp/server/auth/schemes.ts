@@ -719,13 +719,8 @@ registered['{= schemeName =}'] = {
   {=^ credentialsScheme =}
   credentialsScheme: null,
   {=/ credentialsScheme =}
-  {=# isLoginHandler =}
-  // A login handler implements no AuthHandler: Wasp recognises the credential it issued.
-  handler: null,
-  {=/ isLoginHandler =}
-  {=^ isLoginHandler =}
-  handler: handlerParts_{= index =}.handler,
-  {=/ isLoginHandler =}
+  // Absent when Wasp issues the credential and the handler has none of its own.
+  handler: handlerParts_{= index =}.handler ?? null,
   routeHandler: handlerParts_{= index =}.routeHandler,
 }
 {=/ isFrameworkIssuer =}
@@ -737,6 +732,17 @@ export const authSchemeNames: readonly AuthSchemeName[] = [
   '{= schemeName =}',
   {=/ schemes =}
 ]
+
+// Every scheme must be recognisable: through the credential it signs into,
+// or through a handler of its own. The types say the same for a typed
+// adapter; this covers the hand-written ones.
+for (const name of authSchemeNames) {
+  if (chainOf(name).length === 0) {
+    throw new Error(
+      `Auth scheme '${name}' declares no \`credentials\` and its adapter returned no handler, so nothing could recognise its requests.`,
+    )
+  }
+}
 
 // PRIVATE API
 /** The `AuthHandler` of a credential handler; null for a login handler. */

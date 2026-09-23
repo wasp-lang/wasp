@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -10,7 +9,6 @@ module Wasp.AppSpec.App.Auth
     AuthHooksSpec (..),
     AuthScheme (..),
     AuthSchemeSide (..),
-    AuthHandlerKind (..),
     AuthAdapterEntry (..),
     AuthSchemeRoutes (..),
     AuthSchemeEnvVar (..),
@@ -108,10 +106,6 @@ data AuthScheme = AuthScheme
     -- provider names and routes are prefixed with it, and
     -- @authRequired@ lists name it.
     name :: String,
-    -- | A login handler verifies logins and Wasp issues the credential; a
-    -- credential handler owns its credential and implements the handler
-    -- object Wasp recognises it through.
-    kind :: AuthHandlerKind,
     -- | A label for the handler, for messages: where its server half's code
     -- lives (a package specifier, or the path of a hand-written adapter).
     handler :: String,
@@ -141,19 +135,6 @@ data AuthScheme = AuthScheme
     userFieldsFromClaims :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
-
-data AuthHandlerKind = LoginHandler | CredentialHandler
-  deriving (Show, Eq, Data, Generic)
-
-instance FromJSON AuthHandlerKind where
-  parseJSON = Aeson.withText "kind" $ \case
-    "login" -> pure LoginHandler
-    "credential" -> pure CredentialHandler
-    other -> fail $ "Unknown auth handler kind: " ++ show other
-
-instance ToJSON AuthHandlerKind where
-  toJSON LoginHandler = Aeson.String "login"
-  toJSON CredentialHandler = Aeson.String "credential"
 
 -- | Exactly one of: a handler package's server entry (module specifier), or a
 -- user-code module implementing the handler (the hand-written escape hatch).

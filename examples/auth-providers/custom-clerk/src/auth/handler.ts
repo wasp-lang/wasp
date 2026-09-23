@@ -2,7 +2,7 @@ import { createClerkClient } from "@clerk/backend";
 import type {
   AuthenticateResult,
   IdentityPrincipal,
-  ServerCredentialAuthAdapter,
+  ServerAuthAdapter,
 } from "wasp/server/auth/handler/types";
 
 /**
@@ -10,7 +10,7 @@ import type {
  * `customAuthHandler()` -- the escape hatch for providers nobody has packaged
  * yet. Compare `../clerk`, where the same thing ships as an npm package.
  *
- * It is a `ServerCredentialAuthAdapter`, the function a handler package exports as
+ * It is a `ServerAuthAdapter`, the function a handler package exports as
  * `createServerAuthHandler`, so it has the same powers: the scheme's runtime
  * arrives as an argument, with exactly the env vars the manifest declared.
  * Pasting this file into a package needs no edits.
@@ -25,9 +25,7 @@ import type {
  * behind a browser-held cookie, and its Backend API cannot turn credentials
  * into a session. So this handler authenticates and signs out, and stops.
  */
-export const createClerkServerAuthHandler: ServerCredentialAuthAdapter = (
-  runtime,
-) => {
+export const createClerkServerAuthHandler: ServerAuthAdapter = (runtime) => {
   const clerk = createClerkClient({
     secretKey: runtime.env.CLERK_SECRET_KEY,
     publishableKey: runtime.env.CLERK_PUBLISHABLE_KEY,
