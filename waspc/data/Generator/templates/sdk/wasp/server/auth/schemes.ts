@@ -261,6 +261,22 @@ function makeIdentitiesFacet(spec: SchemeRuntimeSpec, providerName: string): Ide
         await tx.{= userEntityLower =}.delete({ where: { id: from.{= userFieldOnAuthEntityName =}.id } })
       })
     },
+    reportLogin: async (providerUserId, opts) => {
+      const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
+      const identity = await store.find(providerUserId)
+      if (identity === null) {
+        throw contractError('wasp-auth/identity-not-found', `No identity '${providerUserId}' in provider '${providerName}' to report a login for.`)
+      }
+      const auth = await findAuthWithUserBy({ id: identity.authId })
+      if (auth === null) {
+        throw contractError('wasp-auth/identity-not-found', 'The identity resolves to an auth entity with no user.')
+      }
+      const hookProviderId = makeHookProviderId(spec.scheme, providerName, providerUserId)
+      await fireVetoableHook(() =>
+        onBeforeLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
+      )
+      await onAfterLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user, oauth })
+    },
     updateData: (providerUserId, updates) => store.updateData(providerUserId, updates),
     getSecrets: (providerUserId) => store.getSecrets(providerUserId) as any,
     updateSecrets: (providerUserId, updates) => store.updateSecrets(providerUserId, updates),

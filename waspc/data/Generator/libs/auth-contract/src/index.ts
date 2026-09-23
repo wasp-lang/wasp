@@ -622,6 +622,9 @@ export type ProvisionOpts<Kind extends ProviderKindParam> = {
   identity?: IdentityContent;
 } & LoginData<Kind>;
 
+/** The options of `IdentityStore.reportLogin`: only what the provider's kind requires. */
+export type ReportLoginOpts<Kind extends ProviderKindParam> = LoginData<Kind>;
+
 /** The options of `IdentityStore.link`. `authId` names the account the identity attaches to. */
 export type LinkOpts<Kind extends ProviderKindParam> = {
   authId: string;
@@ -719,6 +722,19 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
      * declares no `auth.mergeUsers`.
      */
     merge(opts: { fromAuthId: string; intoAuthId: string }): Promise<void>;
+
+    /**
+     * A login through a credential the handler OWNS (Better Auth's session,
+     * Clerk's), reported so the app's login hooks fire: `onBeforeLogin` (a
+     * throw refuses the login; the handler must not create its session then)
+     * and `onAfterLogin`. A handler with Wasp credentials never calls this:
+     * `credentialsIssuer.signIn` fires them. For an "oauth" provider the
+     * tokens are required, as for `create`.
+     */
+    reportLogin(
+      providerUserId: string,
+      ...rest: OptsArg<ReportLoginOpts<Kind>, Kind>
+    ): Promise<void>;
 
     /**
      * Merges the updates into the identity's non-secret data. A key set to

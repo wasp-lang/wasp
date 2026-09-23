@@ -4,7 +4,6 @@ import type {
   SignOutEverywhereRoute,
   WhoAmI,
 } from "wasp/server/api";
-import { prisma } from "wasp/server";
 import {
   authenticate,
   getIdentityStore,
@@ -22,22 +21,21 @@ import {
 
 export const signInAs: SignInAs = async (req, res) => {
   const { email } = req.body as { email?: unknown };
-  const identity = await getIdentityStore("password", "default").find(
-    String(email),
+  const identity = {
+    handlerName: "password",
+    providerName: "default",
+    providerUserId: String(email),
+  };
+  const known = await getIdentityStore("password", "default").find(
+    identity.providerUserId,
   );
-  const auth =
-    identity &&
-    (await prisma.auth.findUnique({
-      where: { id: identity.authId },
-      include: { user: true },
-    }));
-  const user = auth?.user;
-  if (!user) {
+  if (known === null) {
     res.status(404).json({ message: "No such user." });
     return;
   }
+  // Names the identity exactly; Wasp resolves its scheme and its account.
   // Writes the credential to `res`: `{ credential }` for this bearer scheme.
-  await signIn(user, res, { properties: { ttl: "1h" } });
+  await signIn(identity, res, { properties: { ttl: "1h" } });
 };
 
 export const whoAmI: WhoAmI = async (req, res) => {

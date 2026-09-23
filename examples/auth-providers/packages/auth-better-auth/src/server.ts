@@ -101,7 +101,10 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
     basePath: runtime.mountPath,
     // Composed, not replaced: the app's own database hooks keep running, and
     // the handler adds the eager-provisioning report on top (see below).
-    databaseHooks: withEagerProvisioning(runtime, extendedConfig.databaseHooks),
+    databaseHooks: withLoginReport(
+      runtime,
+      withEagerProvisioning(runtime, extendedConfig.databaseHooks),
+    ),
     user: { ...extendedConfig.user, modelName: "betterAuthUser" },
     session: { ...extendedConfig.session, modelName: "betterAuthSession" },
     account: { ...extendedConfig.account, modelName: "betterAuthAccount" },
@@ -215,6 +218,36 @@ function withEagerProvisioning(
           await runtime.identities.default.provision(user.id, {
             identity: { claims: { email: user.email, name: user.name } },
           });
+        },
+      },
+    },
+  };
+}
+
+/**
+ * Reports every Better Auth login to Wasp, so the app's `onBeforeLogin` and
+ * `onAfterLogin` fire for Better Auth users too. Better Auth creates a
+ * session row per login; its `before` hook runs first, and a throw there (the
+ * app's veto) aborts the session, so a refused login never gets one.
+ */
+function withLoginReport(
+  runtime: WaspServerRuntimeFor<typeof betterAuthSpecConstructor>,
+  databaseHooks: BetterAuthOptions["databaseHooks"],
+): BetterAuthOptions["databaseHooks"] {
+  const existingBeforeSessionCreate = databaseHooks?.session?.create?.before;
+  return {
+    ...databaseHooks,
+    session: {
+      ...databaseHooks?.session,
+      create: {
+        ...databaseHooks?.session?.create,
+        before: async (session, context) => {
+          const result = await existingBeforeSessionCreate?.(session, context);
+          if (result === false) {
+            return false;
+          }
+          await runtime.identities.default.reportLogin(session.userId);
+          return result;
         },
       },
     },

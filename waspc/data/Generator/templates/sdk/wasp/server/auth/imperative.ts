@@ -7,7 +7,7 @@ import { prisma } from '../index.js'
 import { sendWebResponse, toWebRequest } from './http.js'
 import { authSchemes, defaultScheme, issueSignInFor, signOutEverywhereForAuthId } from './schemes.js'
 import { authenticateRequest } from './session.js'
-import { findAuthWithUserBy } from './utils.js'
+import { findAuthWithUserBy, type ProviderId } from './utils.js'
 
 /**
  * The imperative auth API: what app code calls to do by hand what the auth
@@ -40,39 +40,39 @@ export async function authenticate(
 
 // PUBLIC API
 /**
- * Signs an EXISTING user in and writes the credential to `res`: a body
- * carrying the token for a bearer scheme (the client adopts it with
- * `setCredential`), a `Set-Cookie` header for a cookie scheme. The subject
- * is a user row, never a principal the app made up, so `context.user`
- * stays a real user everywhere.
- *
- * The user is signed in AS `scheme` (default: the app's default scheme),
- * through one of the identities the user holds under it, so a user with no
- * identity in that scheme cannot be signed into it. The app's login hooks
- * fire unless `skipHooks`. A scheme that declares no `credentials` (Clerk)
- * rejects with `wasp-auth/undeclared-facet`.
+ * Signs ONE identity in, named exactly by its key (`handlerName`,
+ * `providerName`, `providerUserId`), and writes the credential to `res`: a
+ * body carrying the token for a bearer scheme (the client adopts it with
+ * `setCredential`), a `Set-Cookie` header for a cookie scheme. Nothing is
+ * guessed: the scheme is the identity's handler, the user is the identity's
+ * account, and the app's login hooks receive that identity. A scheme that
+ * declares no `credentials` (Clerk) rejects with `wasp-auth/undeclared-facet`.
  */
 export async function signIn(
-  user: UserRef,
+  identity: ProviderId,
   res: ExpressResponse,
-  opts?: { scheme?: AuthSchemeName; properties?: SignInProperties; skipHooks?: boolean },
+  opts?: { properties?: SignInProperties; skipHooks?: boolean },
 ): Promise<void> {
-  const scheme = opts?.scheme ?? defaultScheme
-  const auth = await findAuthWithUserBy({ userId: user.id })
-  if (auth === null) {
-    throw new Error(`Cannot sign in: the user has no auth data.`)
+  const scheme = identity.handlerName
+  if (!(scheme in authSchemes)) {
+    throw new Error(`Cannot sign in: '${scheme}' is not one of the app's auth schemes.`)
   }
-  const identity = await prisma.{= authIdentityEntityLower =}.findFirst({
-    where: { authId: auth.id, handlerName: scheme },
-    orderBy: [{ providerName: 'asc' }, { providerUserId: 'asc' }],
-    select: { providerName: true, providerUserId: true },
+  const row = await prisma.{= authIdentityEntityLower =}.findUnique({
+    where: {
+      handlerName_providerName_providerUserId: {
+        handlerName: identity.handlerName,
+        providerName: identity.providerName,
+        providerUserId: identity.providerUserId,
+      },
+    },
+    select: { authId: true },
   })
-  if (identity === null) {
-    throw new Error(`Cannot sign the user into auth scheme '${scheme}': the user holds no identity in it.`)
+  if (row === null) {
+    throw new Error(`Cannot sign in: no identity '${identity.providerUserId}' under provider '${identity.providerName}' of auth scheme '${scheme}'.`)
   }
   const { response } = await issueSignInFor(
-    scheme,
-    { ...identity, authId: auth.id },
+    scheme as AuthSchemeName,
+    { providerName: identity.providerName, providerUserId: identity.providerUserId, authId: row.authId },
     { properties: opts?.properties, skipHooks: opts?.skipHooks },
   )
   await sendWebResponse(res, response)
