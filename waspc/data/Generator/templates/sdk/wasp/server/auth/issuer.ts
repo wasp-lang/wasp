@@ -258,10 +258,6 @@ function signedTokenStore(secret: string): CredentialStore {
       }
       const issuedAt = typeof payload.iat === 'number' ? new Date(payload.iat * 1000) : new Date(0)
       const expiresAt = typeof payload.exp === 'number' ? new Date(payload.exp * 1000) : new Date(0)
-      const invalidatedAt = await credentialsInvalidatedAt(payload.authId)
-      if (invalidatedAt !== null && issuedAt < invalidatedAt) {
-        return null
-      }
       return {
         authId: payload.authId,
         loginScheme: payload.loginScheme,
@@ -274,11 +270,6 @@ function signedTokenStore(secret: string): CredentialStore {
       await prisma.{= authEntityLower =}.update({ where: { id: authId }, data: { credentialsInvalidatedAt: new Date() } })
     },
   }
-}
-
-async function credentialsInvalidatedAt(authId: string): Promise<Date | null> {
-  const auth = await prisma.{= authEntityLower =}.findUnique({ where: { id: authId }, select: { credentialsInvalidatedAt: true } })
-  return auth?.credentialsInvalidatedAt ?? null
 }
 
 // ---- helpers ----------------------------------------------------------------

@@ -74,9 +74,6 @@ async function authenticateWebRequest(
       continue;
     }
     const account = await accountOf(authentication);
-    if (account === null) {
-      continue;
-    }
     const user = await loadUser(account.authId, scheme, loginSchemeOf(authentication), account);
     if (user === null) {
       continue;
@@ -94,45 +91,42 @@ async function authenticateWebRequest(
  */
 export async function authenticateAccount(scheme: AuthSchemeName, request: Request): Promise<AccountPrincipal | null> {
   const authentication = await authenticateScheme(scheme, request);
-  return authentication === null ? null : accountOf(authentication);
+  if (authentication === null) {
+    return null;
+  }
+  const account = await accountOf(authentication);
+  // This path does not load the user, so the cut-off costs one read here.
+  const auth = await prisma.{= authEntityLower =}.findUnique({
+    where: { id: account.authId },
+    select: { credentialsInvalidatedAt: true },
+  });
+  return isRevoked(account, auth?.credentialsInvalidatedAt ?? null) ? null : account;
 }
 
-/**
- * The account behind an authentication, or null when the credential was
- * issued before the account's revocation cut-off (see `refuseIfRevoked`).
- */
-async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal | null> {
+async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal> {
   if (authentication.kind === 'account') {
     const { authId, credentialId, credentialIssuedAt, isCredentialFresh } = authentication.account;
-    return refuseIfRevoked({ authId, credentialId, credentialIssuedAt, isCredentialFresh });
+    return { authId, credentialId, credentialIssuedAt, isCredentialFresh };
   }
   const { principal } = authentication;
-  return refuseIfRevoked({
+  return {
     authId: await resolveSubject(authentication.scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default'),
     credentialId: principal.credentialId,
     credentialIssuedAt: principal.credentialIssuedAt ?? null,
     isCredentialFresh: principal.isCredentialFresh ?? false,
-  });
+  };
 }
 
 /**
  * The revocation cut-off, applied to every credential whoever issued it: the
  * imperative `signOutEverywhere` stamps `credentialsInvalidatedAt` on the
- * account, and a credential issued before that moment is refused here, at
- * the one place every request becomes an account. This is what makes "log
- * out everywhere" a guarantee rather than a request to each handler; a
- * handler that reports no `credentialIssuedAt` opts its credentials out.
+ * account, and a credential issued before that moment is refused, at the
+ * places a request becomes an account. This is what makes "log out
+ * everywhere" a guarantee rather than a request to each handler; a handler
+ * that reports no `credentialIssuedAt` opts its credentials out.
  */
-async function refuseIfRevoked(account: AccountPrincipal): Promise<AccountPrincipal | null> {
-  if (account.credentialIssuedAt === null) {
-    return account;
-  }
-  const auth = await prisma.{= authEntityLower =}.findUnique({
-    where: { id: account.authId },
-    select: { credentialsInvalidatedAt: true },
-  });
-  const cutOff = auth?.credentialsInvalidatedAt ?? null;
-  return cutOff !== null && account.credentialIssuedAt < cutOff ? null : account;
+function isRevoked(credential: Pick<AccountPrincipal, 'credentialIssuedAt'>, cutOff: Date | null): boolean {
+  return credential.credentialIssuedAt !== null && cutOff !== null && credential.credentialIssuedAt < cutOff;
 }
 
 function loginSchemeOf(authentication: SchemeAuthentication): string {
@@ -160,6 +154,10 @@ async function loadUser(
   // An auth entity that isn't linked to a user can't identify anyone, so we treat
   // the request as unauthenticated rather than erroring.
   if (!user) {
+    return null;
+  }
+  // The revocation cut-off, read off the `Auth` row this query already loads.
+  if (isRevoked(credential, user.{= authFieldOnUserEntityName =}?.credentialsInvalidatedAt ?? null)) {
     return null;
   }
 
