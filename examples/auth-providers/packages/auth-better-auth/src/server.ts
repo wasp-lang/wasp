@@ -135,6 +135,9 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
         principal: {
           credentialId: session.session.id,
           providerUserId: session.user.id,
+          // What lets Wasp's `signOutEverywhere` refuse this session after a
+          // cut-off, alongside Better Auth's own revocation.
+          credentialIssuedAt: session.session.createdAt,
           // Verified profile data Wasp records when it provisions the local
           // user.
           claims: {

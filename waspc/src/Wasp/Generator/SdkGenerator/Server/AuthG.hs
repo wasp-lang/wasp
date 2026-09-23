@@ -289,6 +289,7 @@ genSessionTs auth =
         [ "userEntityUpper" .= userEntityName,
           "userEntityLower" .= Util.toLowerFirst userEntityName,
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
+          "authEntityLower" .= Util.toLowerFirst DbAuth.authEntityName,
           "authIdentityEntityLower" .= Util.toLowerFirst DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "schemes" .= mkSchemesTmplData auth
@@ -302,7 +303,11 @@ genImperativeTs =
   return $
     mkTmplFdWithData
       (serverAuthDirInSdkTemplatesDir </> [relfile|imperative.ts|])
-      (object ["authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String)])
+      ( object
+          [ "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+            "authIdentityEntityLower" .= (Util.toLowerFirst DbAuth.authIdentityEntityName :: String)
+          ]
+      )
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
 genUtils auth =

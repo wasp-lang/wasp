@@ -104,18 +104,21 @@ export async function signOut(req: ExpressRequest, res: ExpressResponse): Promis
 
 // PUBLIC API
 /**
- * Ends EVERY credential of the user ("log out every device"): the Wasp-issued
- * ones in every scheme that issues them, and the handler-owned ones of every
- * handler that implements `signOutEverywhere` (Better Auth's sessions,
- * Clerk's). Throws when no scheme could act for this user, rather than
- * ending nothing in silence.
+ * Ends EVERY credential of the user ("log out every device"), whoever issued
+ * it. The guarantee is a cut-off stamped on the account: from now on, Wasp
+ * refuses any credential issued before this moment, Wasp's own and a
+ * handler's alike, as long as the handler reports `credentialIssuedAt`.
+ * On top of that, Wasp deletes its own session rows, and asks every handler
+ * that implements `signOutEverywhere` (Better Auth, Clerk) to end its
+ * sessions at the source too, so their side agrees.
  */
 export async function signOutEverywhere(user: UserRef): Promise<void> {
   const auth = await findAuthWithUserBy({ userId: user.id })
   if (auth === null) {
     throw new Error(`Cannot sign out everywhere: the user has no auth data.`)
   }
-  let acted = await signOutEverywhereForAuthId(auth.id)
+  await prisma.{= authEntityLower =}.update({ where: { id: auth.id }, data: { credentialsInvalidatedAt: new Date() } })
+  await signOutEverywhereForAuthId(auth.id)
   const identities = await prisma.{= authIdentityEntityLower =}.findMany({
     where: { authId: auth.id },
     select: { handlerName: true, providerName: true, providerUserId: true },
@@ -124,15 +127,7 @@ export async function signOutEverywhere(user: UserRef): Promise<void> {
     const credentialHandler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
       ? credentialHandlerOf(identity.handlerName as AuthSchemeName)
       : null
-    if (credentialHandler?.signOutEverywhere !== undefined) {
-      await credentialHandler.signOutEverywhere(identity)
-      acted = true
-    }
-  }
-  if (!acted) {
-    throw new Error(
-      `Cannot sign out everywhere: no auth scheme issues credentials for this user, and none of the user's handlers implements signOutEverywhere.`,
-    )
+    await credentialHandler?.signOutEverywhere?.(identity)
   }
 }
 

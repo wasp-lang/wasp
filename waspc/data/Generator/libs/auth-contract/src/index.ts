@@ -86,7 +86,15 @@ export type IdentityPrincipal = AuthIdentityRef & {
   claims?: Record<string, JsonValue>;
   /** The handler's id for THIS credential (a session id), so logout can revoke exactly this one. */
   credentialId?: string;
-  /** When the credential was issued, if the handler knows. */
+  /**
+   * When the credential was issued. What makes this handler's credentials
+   * revocable by Wasp: the imperative `signOutEverywhere(user)` records a
+   * cut-off on the account, and Wasp refuses any credential issued before
+   * it, whoever issued it, even if the handler still considers it valid.
+   * Omit it and Wasp cannot sign this handler's credentials out; only the
+   * handler's own `signOutEverywhere` can. Also what `isCredentialFresh`
+   * and step-up checks read.
+   */
   credentialIssuedAt?: Date;
   /** Whether the credential is younger than the scheme's `freshFor`, if the handler knows. */
   isCredentialFresh?: boolean;

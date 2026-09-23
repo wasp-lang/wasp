@@ -35,9 +35,12 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
   });
   const jwtKey = runtime.env.CLERK_JWT_KEY;
 
-  async function verify(
-    request: Request,
-  ): Promise<{ userId: string; sessionId: string; claims: unknown } | null> {
+  async function verify(request: Request): Promise<{
+    userId: string;
+    sessionId: string;
+    issuedAt: Date;
+    claims: unknown;
+  } | null> {
     const requestState = await clerk.authenticateRequest(request, { jwtKey });
     if (!requestState.isAuthenticated) {
       return null;
@@ -46,7 +49,12 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
     if (!userId || !sessionId) {
       return null;
     }
-    return { userId, sessionId, claims: sessionClaims };
+    return {
+      userId,
+      sessionId,
+      issuedAt: new Date(sessionClaims.iat * 1000),
+      claims: sessionClaims,
+    };
   }
 
   const credentialHandler: CredentialHandler = {
@@ -73,6 +81,9 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
         principal: {
           providerUserId: verified.userId,
           credentialId: verified.sessionId,
+          // What lets Wasp's `signOutEverywhere` refuse this token after a
+          // cut-off, even before Clerk's own revocation lands.
+          credentialIssuedAt: verified.issuedAt,
           // The verified JWT's claims, recorded by Wasp when it provisions the
           // local user. NOTE: Clerk's default session token carries no email --
           // add one to the token template in the Clerk dashboard if the app's

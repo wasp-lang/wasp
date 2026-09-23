@@ -74,6 +74,9 @@ async function authenticateWebRequest(
       continue;
     }
     const account = await accountOf(authentication);
+    if (account === null) {
+      continue;
+    }
     const user = await loadUser(account.authId, scheme, loginSchemeOf(authentication), account);
     if (user === null) {
       continue;
@@ -94,18 +97,42 @@ export async function authenticateAccount(scheme: AuthSchemeName, request: Reque
   return authentication === null ? null : accountOf(authentication);
 }
 
-async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal> {
+/**
+ * The account behind an authentication, or null when the credential was
+ * issued before the account's revocation cut-off (see `refuseIfRevoked`).
+ */
+async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal | null> {
   if (authentication.kind === 'account') {
     const { authId, credentialId, credentialIssuedAt, isCredentialFresh } = authentication.account;
-    return { authId, credentialId, credentialIssuedAt, isCredentialFresh };
+    return refuseIfRevoked({ authId, credentialId, credentialIssuedAt, isCredentialFresh });
   }
   const { principal } = authentication;
-  return {
+  return refuseIfRevoked({
     authId: await resolveSubject(authentication.scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default'),
     credentialId: principal.credentialId,
     credentialIssuedAt: principal.credentialIssuedAt ?? null,
     isCredentialFresh: principal.isCredentialFresh ?? false,
-  };
+  });
+}
+
+/**
+ * The revocation cut-off, applied to every credential whoever issued it: the
+ * imperative `signOutEverywhere` stamps `credentialsInvalidatedAt` on the
+ * account, and a credential issued before that moment is refused here, at
+ * the one place every request becomes an account. This is what makes "log
+ * out everywhere" a guarantee rather than a request to each handler; a
+ * handler that reports no `credentialIssuedAt` opts its credentials out.
+ */
+async function refuseIfRevoked(account: AccountPrincipal): Promise<AccountPrincipal | null> {
+  if (account.credentialIssuedAt === null) {
+    return account;
+  }
+  const auth = await prisma.{= authEntityLower =}.findUnique({
+    where: { id: account.authId },
+    select: { credentialsInvalidatedAt: true },
+  });
+  const cutOff = auth?.credentialsInvalidatedAt ?? null;
+  return cutOff !== null && account.credentialIssuedAt < cutOff ? null : account;
 }
 
 function loginSchemeOf(authentication: SchemeAuthentication): string {

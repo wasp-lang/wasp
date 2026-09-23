@@ -33,7 +33,12 @@ export const createServerAuthHandler = (runtime) => {
         if (!userId || !sessionId) {
             return null;
         }
-        return { userId, sessionId, claims: sessionClaims };
+        return {
+            userId,
+            sessionId,
+            issuedAt: new Date(sessionClaims.iat * 1000),
+            claims: sessionClaims,
+        };
     }
     const credentialHandler = {
         /**
@@ -59,6 +64,9 @@ export const createServerAuthHandler = (runtime) => {
                 principal: {
                     providerUserId: verified.userId,
                     credentialId: verified.sessionId,
+                    // What lets Wasp's `signOutEverywhere` refuse this token after a
+                    // cut-off, even before Clerk's own revocation lands.
+                    credentialIssuedAt: verified.issuedAt,
                     // The verified JWT's claims, recorded by Wasp when it provisions the
                     // local user. NOTE: Clerk's default session token carries no email --
                     // add one to the token template in the Clerk dashboard if the app's
