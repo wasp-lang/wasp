@@ -3,6 +3,7 @@ module Wasp.Cli.Port
     findFirstFreeLocalPortAmong,
     checkIfLocalPortIsTaken,
     assertLocalPortIsFree,
+    findLocalFreePort,
   )
 where
 
@@ -42,6 +43,13 @@ assertLocalPortIsFree port = do
     throwError $
       CommandError "Failed to find ports" ("Port " ++ show port ++ " is already in use.")
   return port
+
+findLocalFreePort :: PortNumber -> [PortNumber] -> String -> Command PortNumber
+findLocalFreePort startPort portsToSkip hint =
+  liftIO (findFirstFreeLocalPortInRange startPort portsToSkip hint)
+    >>= either throwNoFreePortError return
+  where
+    throwNoFreePortError = throwError . CommandError "No free port"
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
 checkIfLocalPortIsTaken port =
