@@ -129,7 +129,9 @@ export async function signOutCredential(credentialId: string): Promise<void> {
  * handler's alike, as long as the handler reports `credentialIssuedAt`.
  * On top of that, Wasp deletes its own session rows, and asks every handler
  * that implements `signOutEverywhere` (Better Auth, Clerk) to end its
- * sessions at the source too, so their side agrees.
+ * sessions at the source too, so their side agrees. Those calls are best
+ * effort: a handler that fails is logged, not surfaced, since the cut-off
+ * already holds.
  */
 export async function signOutEverywhere(user: UserRef): Promise<void> {
   const auth = await findAuthWithUserBy({ userId: user.id })
@@ -142,12 +144,22 @@ export async function signOutEverywhere(user: UserRef): Promise<void> {
     where: { authId: auth.id },
     select: { handlerName: true, providerName: true, providerUserId: true },
   })
-  for (const identity of identities) {
-    const credentialHandler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
-      ? credentialHandlerOf(identity.handlerName as AuthSchemeName)
-      : null
-    await credentialHandler?.signOutEverywhere?.(identity)
-  }
+  // Best effort, and after the guarantee is already in place: a handler's
+  // revocation is a network call to its service, so a failure there is logged
+  // rather than reported as a failed sign-out, and one handler's outage does
+  // not stop the others.
+  await Promise.all(
+    identities.map(async (identity) => {
+      const credentialHandler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
+        ? credentialHandlerOf(identity.handlerName as AuthSchemeName)
+        : null
+      try {
+        await credentialHandler?.signOutEverywhere?.(identity)
+      } catch (error) {
+        console.error(`Auth scheme '${identity.handlerName}' failed to end its sessions for a signed-out user:`, error)
+      }
+    }),
+  )
 }
 
 // PUBLIC API
