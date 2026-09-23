@@ -47,6 +47,7 @@ genServerAuth spec =
           genFileCopyInServerAuth [relfile|handler/types.ts|],
           genSchemesTs spec auth,
           genIssuerTs auth,
+          genOneTimeCodesTs,
           genSessionTs auth,
           genImperativeTs,
           genSessionStoreTs auth,
@@ -132,6 +133,18 @@ genLuciaTs auth =
         ]
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+-- | One-time codes for navigations: rows in Wasp's own table.
+genOneTimeCodesTs :: Generator FileDraft
+genOneTimeCodesTs =
+  return $
+    mkTmplFdWithData
+      (serverAuthDirInSdkTemplatesDir </> [relfile|oneTimeCodes.ts|])
+      ( object
+          [ "oneTimeCodeEntityUpper" .= (DbAuth.oneTimeCodeEntityName :: String),
+            "oneTimeCodeEntityLower" .= (Util.toLowerFirst DbAuth.oneTimeCodeEntityName :: String)
+          ]
+      )
 
 -- | The framework's credential issuer: bearer or cookie transport over a
 -- credential store. Backs every inline `credentials: { transport, store }`.

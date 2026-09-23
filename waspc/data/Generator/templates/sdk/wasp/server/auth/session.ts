@@ -94,7 +94,8 @@ export async function authenticateAccount(scheme: AuthSchemeName, request: Reque
   return authentication === null ? null : accountOf(authentication);
 }
 
-async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal> {
+// PRIVATE API
+export async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal> {
   if (authentication.kind === 'account') {
     const { authId, credentialId, credentialIssuedAt, isCredentialFresh } = authentication.account;
     return { authId, credentialId, credentialIssuedAt, isCredentialFresh };
@@ -108,7 +109,8 @@ async function accountOf(authentication: SchemeAuthentication): Promise<AccountP
   };
 }
 
-function signedInByOf(authentication: SchemeAuthentication): string {
+// PRIVATE API
+export function signedInByOf(authentication: SchemeAuthentication): string {
   return authentication.kind === 'account' ? authentication.signedInBy : authentication.scheme;
 }
 

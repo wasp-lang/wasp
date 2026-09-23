@@ -224,7 +224,7 @@ async function getLinkTicketCookie(ctx, jwt, req) {
     };
 }
 async function redeemLinkOneTimeCode({ runtime }, oneTimeCode) {
-    const account = await runtime.credentialsIssuer.redeemOneTimeCode(oneTimeCode);
+    const account = await runtime.redeemOneTimeCode(oneTimeCode);
     if (account === null) {
         throw new HttpError(400, "The link request expired. Try again.");
     }

@@ -3,15 +3,10 @@ import type { AccountPrincipal, AuthenticateResult, CredentialHandler, AuthIdent
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
-import { authenticateAccount, computeSchemeUserFields, provisionAuthUser } from './session.js'
+import { accountOf, authenticateAccount, computeSchemeUserFields, provisionAuthUser, signedInByOf } from './session.js'
 import { getIdentityStore } from './identityStore.js'
-import {
-  createIssuer,
-  createOneTimeCode,
-  redeemOneTimeCode,
-  signOutEverywhere,
-  type IssuerOptions,
-} from './issuer.js'
+import { createIssuer, signOutEverywhere, type IssuerOptions } from './issuer.js'
+import { createOneTimeCode, redeemOneTimeCode } from './oneTimeCodes.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
   fireVetoableHook,
@@ -359,11 +354,7 @@ type IssueSignIn = (
   oauth: OAuthData | undefined,
 ) => Promise<SignInResult>
 
-function boundTo(
-  spec: SchemeRuntimeSpec,
-  target: CredentialHandler,
-  targetIssuerOptions: IssuerOptions | null,
-): { facet: CredentialsIssuer; issueSignIn: IssueSignIn } {
+function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: CredentialsIssuer; issueSignIn: IssueSignIn } {
   if (target.signIn === undefined) {
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
@@ -418,8 +409,6 @@ function boundTo(
       const { providerName } = await resolveIdentityRef(identityRef)
       await target.signOutEverywhere?.(keyOf(providerName, identityRef.providerUserId))
     },
-    createOneTimeCode: (request) => createOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), request),
-    redeemOneTimeCode: (oneTimeCode) => redeemOneTimeCode(requireWaspIssuer(spec, targetIssuerOptions), oneTimeCode),
   }
   return { facet, issueSignIn }
 }
@@ -434,21 +423,38 @@ function issuerFacetFor(spec: SchemeRuntimeSpec, scheme: string): CredentialsIss
     if (!authSchemeNames.includes(scheme as AuthSchemeName)) {
       throw new Error(`Auth scheme '${spec.scheme}' asked to sign into '${scheme}', which is not one of the app's auth schemes.`)
     }
-    facet = boundTo(spec, signInTargetOf(scheme as AuthSchemeName), issuerOptionsOf(scheme as AuthSchemeName)).facet
+    facet = boundTo(spec, signInTargetOf(scheme as AuthSchemeName)).facet
     issuerFacetsByPair.set(pair, facet)
   }
   return facet
 }
 
-// One-time codes live in a Wasp issuer's credential store. A scheme that
-// signs into a hand-written issuer has no such store to put them in.
-function requireWaspIssuer(spec: SchemeRuntimeSpec, targetIssuerOptions: IssuerOptions | null): IssuerOptions {
-  if (targetIssuerOptions === null) {
-    throw new Error(
-      `Auth scheme '${spec.scheme}' signs into a scheme that is not a Wasp issuer, so it has no one-time codes.`,
-    )
+/**
+ * A one-time code for the account behind the request, for a navigation. Null
+ * when the request was authenticated by a Wasp cookie: the navigation carries
+ * that by itself.
+ */
+async function createOneTimeCodeFor(scheme: AuthSchemeName, request: Request): Promise<string | null> {
+  const authentication = await authenticateAlongChain(scheme, request)
+  if (authentication === null) {
+    throw contractError('wasp-auth/unauthenticated', 'A one-time code needs a request that carries a valid credential.')
   }
-  return targetIssuerOptions
+  if (arrivedByWaspCookie(scheme, authentication)) {
+    return null
+  }
+  const schemeAuthentication = toSchemeAuthentication(authentication)
+  const { authId } = await accountOf(schemeAuthentication)
+  return createOneTimeCode({ authId, signedInBy: signedInByOf(schemeAuthentication) })
+}
+
+function arrivedByWaspCookie(scheme: AuthSchemeName, authentication: ChainAuthentication): boolean {
+  return issuerOptionsOf(scheme)?.transport === 'cookie' && authentication.credentialHandler === waspIssuerOf(scheme)
+}
+
+/** Wasp's own issuer on a scheme's chain, following `credentials: { scheme }`; null when the chain has none. */
+function waspIssuerOf(name: AuthSchemeName): CredentialHandler | null {
+  const parts = partsOf(name)
+  return parts.issuer ?? (parts.credentialsScheme === null ? null : waspIssuerOf(parts.credentialsScheme))
 }
 
 {=# isEmailSenderEnabled =}
@@ -510,8 +516,6 @@ function undeclaredCredentialsIssuer(spec: SchemeRuntimeSpec): CredentialsIssuer
     signIn: reject,
     signOut: reject,
     signOutEverywhere: reject,
-    createOneTimeCode: reject,
-    redeemOneTimeCode: reject,
   }
 }
 
@@ -565,6 +569,8 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     // when availability is the app's choice.
     credentialsIssuer: credentialsIssuer ?? undeclaredCredentialsIssuer(spec),
     credentialsIssuerFor: (scheme) => issuerFacetFor(spec, scheme),
+    createOneTimeCode: (request) => createOneTimeCodeFor(spec.scheme as AuthSchemeName, request),
+    redeemOneTimeCode,
     hasCredentialsIssuer: credentialsIssuer !== null,
     {=# isEmailSenderEnabled =}
     email: canSendEmail ? waspEmailFacet : undeclaredEmail(spec),
@@ -665,13 +671,13 @@ const issuerOptions_{= index =}: IssuerOptions = {
 issuerOptionsByScheme['{= schemeName =}'] = issuerOptions_{= index =}
 // The private issuer behind this scheme's inline `credentials`.
 const issuer_{= index =} = createIssuer(issuerOptions_{= index =})
-const bound_{= index =} = boundTo(spec_{= index =}, issuer_{= index =}, issuerOptions_{= index =})
+const bound_{= index =} = boundTo(spec_{= index =}, issuer_{= index =})
 const credentialsIssuer_{= index =} = bound_{= index =}.facet
 signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 {=/ inlineCredentials =}
 {=# credentialsScheme =}
 // Signs into the sibling scheme '{= credentialsScheme =}', created above.
-const bound_{= index =} = boundTo(spec_{= index =}, signInTargetOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
+const bound_{= index =} = boundTo(spec_{= index =}, signInTargetOf('{= credentialsScheme =}'))
 const credentialsIssuer_{= index =} = bound_{= index =}.facet
 signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 {=/ credentialsScheme =}
@@ -786,10 +792,10 @@ async function authenticateAlongChain(scheme: AuthSchemeName, request: Request):
  */
 export async function authenticateScheme(scheme: AuthSchemeName, request: Request): Promise<SchemeAuthentication | null> {
   const authentication = await authenticateAlongChain(scheme, request)
-  if (authentication === null) {
-    return null
-  }
-  const { scheme: owner, result } = authentication
+  return authentication === null ? null : toSchemeAuthentication(authentication)
+}
+
+function toSchemeAuthentication({ scheme: owner, result }: ChainAuthentication): SchemeAuthentication {
   return 'account' in result
     ? { kind: 'account', scheme: owner, account: result.account, signedInBy: result.signedInBy ?? owner }
     : { kind: 'identity', scheme: owner, principal: result.principal }

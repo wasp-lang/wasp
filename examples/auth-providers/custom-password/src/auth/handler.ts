@@ -97,8 +97,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
     // one-time code here (a normal request, so the header is attached)...
     if (request.method === "POST" && path === "/one-time-code") {
       try {
-        const oneTimeCode =
-          await runtime.credentialsIssuer.createOneTimeCode(request);
+        const oneTimeCode = await runtime.createOneTimeCode(request);
         return send(200, { oneTimeCode });
       } catch (e) {
         if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
@@ -110,7 +109,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
 
     // ...and the navigation carries the code. It works once, for a minute.
     if (request.method === "GET" && path === "/export") {
-      const account = await runtime.credentialsIssuer.redeemOneTimeCode(
+      const account = await runtime.redeemOneTimeCode(
         url.searchParams.get("oneTimeCode") ?? "",
       );
       if (account === null) {

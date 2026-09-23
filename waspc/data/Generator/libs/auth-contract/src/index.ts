@@ -348,33 +348,6 @@ export type CredentialsIssuer<
   signOutEverywhere(
     identityRef: AuthIdentityRef<keyof Kinds & string>,
   ): Promise<void>;
-
-  /**
-   * A one-time code: a short-lived (one minute), single-use stand-in for the
-   * credential `request` carries, safe to put in a URL. For a browser
-   * NAVIGATION to one of the handler's own routes made as the signed-in user
-   * ("connect Google to my account"): a navigation cannot carry an
-   * `Authorization` header, so a bearer credential would not arrive.
-   *
-   * Resolves to null when no code is needed, because the credential is a
-   * cookie and the navigation carries it by itself. So the handler never has
-   * to know the transport: it puts the code in the URL when it got one.
-   * Rejects with `wasp-auth/unauthenticated` when `request` carries no valid
-   * credential.
-   *
-   * Same idea, same name and same replay protection (the `UsedOneTimeCode`
-   * model) as the one-time code that ends an OAuth login, in the other
-   * direction: that one carries a credential OUT of a navigation, this one
-   * carries it IN. A one-time code is not a credential: `authenticate` never
-   * accepts it.
-   */
-  createOneTimeCode(request: Request): Promise<string | null>;
-
-  /**
-   * The account a one-time code stands for. Spends the code: an unknown,
-   * expired or already spent one is null.
-   */
-  redeemOneTimeCode(oneTimeCode: string): Promise<AccountPrincipal | null>;
 };
 
 /**
@@ -411,7 +384,7 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-not-found"
   /** A signup, login or link through an `"oauth"` provider came without its `oauth` data. */
   | "wasp-auth/missing-oauth-data"
-  /** `credentials.createOneTimeCode` was given a request that carries no valid credential. */
+  /** `createOneTimeCode` was given a request that carries no valid credential. */
   | "wasp-auth/unauthenticated"
   | "wasp-auth/undeclared-provider-name"
   /**
@@ -541,6 +514,32 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
    * (linking). Null for nobody.
    */
   authenticate(request: Request): Promise<AccountPrincipal | null>;
+
+  /**
+   * A one-time code: a short-lived (one minute), single-use stand-in for the
+   * account behind the credential `request` carries, safe to put in a URL.
+   * For a browser NAVIGATION to one of the handler's own routes made as the
+   * signed-in user ("connect Google to my account", a download): a
+   * navigation cannot carry an `Authorization` header, so a bearer
+   * credential would not arrive. Works for every scheme, whoever owns the
+   * credential: Wasp keeps the codes in a table of its own.
+   *
+   * Resolves to null when no code is needed, because the request was
+   * authenticated by a Wasp cookie and the navigation carries it by itself.
+   * So the handler never has to know the transport: it puts the code in the
+   * URL when it got one. Rejects with `wasp-auth/unauthenticated` when
+   * `request` carries no valid credential.
+   *
+   * A one-time code is not a credential: it says who, not how recently they
+   * logged in, and `authenticate` never accepts it.
+   */
+  createOneTimeCode(request: Request): Promise<string | null>;
+
+  /**
+   * The account a one-time code stands for. Spends the code: an unknown,
+   * expired or already spent one is null.
+   */
+  redeemOneTimeCode(oneTimeCode: string): Promise<AccountPrincipal | null>;
 
   /**
    * One store per declared provider name:

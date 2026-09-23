@@ -152,7 +152,7 @@ export function linkingRoutes(ctx, hasOAuth) {
             method: "POST",
             path: "/link-intent",
             handler: async (req, res) => {
-                const oneTimeCode = await runtime.credentialsIssuer
+                const oneTimeCode = await runtime
                     .createOneTimeCode(req.request)
                     .catch((e) => {
                     if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
