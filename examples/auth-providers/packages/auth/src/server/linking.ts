@@ -211,8 +211,8 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
       method: "POST",
       path: "/link-intent",
       handler: async (req, res) => {
-        const oneTimeCode = await runtime
-          .createOneTimeCode(req.request)
+        const singleUseAuthTicket = await runtime
+          .createSingleUseAuthTicket(req.request)
           .catch((e) => {
             if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
               throw new HttpError(
@@ -222,7 +222,7 @@ export function linkingRoutes(ctx: Ctx, hasOAuth: boolean): Route[] {
             }
             throw e;
           });
-        json(res, 200, { oneTimeCode });
+        json(res, 200, { singleUseAuthTicket });
       },
     });
   }

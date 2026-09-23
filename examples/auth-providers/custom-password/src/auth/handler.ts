@@ -94,11 +94,12 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
 
     // A download is a browser NAVIGATION, and a navigation cannot carry the
     // bearer credential. The client first trades its credential for a
-    // one-time code here (a normal request, so the header is attached)...
-    if (request.method === "POST" && path === "/one-time-code") {
+    // single-use auth ticket here (a normal request, so the header is attached)...
+    if (request.method === "POST" && path === "/single-use-auth-ticket") {
       try {
-        const oneTimeCode = await runtime.createOneTimeCode(request);
-        return send(200, { oneTimeCode });
+        const singleUseAuthTicket =
+          await runtime.createSingleUseAuthTicket(request);
+        return send(200, { singleUseAuthTicket });
       } catch (e) {
         if (getAuthContractErrorCode(e) === "wasp-auth/unauthenticated") {
           return send(401, { message: "Invalid credentials" });
@@ -109,8 +110,8 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
 
     // ...and the navigation carries the code. It works once, for a minute.
     if (request.method === "GET" && path === "/export") {
-      const account = await runtime.redeemOneTimeCode(
-        url.searchParams.get("oneTimeCode") ?? "",
+      const account = await runtime.redeemSingleUseAuthTicket(
+        url.searchParams.get("singleUseAuthTicket") ?? "",
       );
       if (account === null) {
         return send(401, { message: "Invalid credentials" });

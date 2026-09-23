@@ -100,7 +100,7 @@ test("logout revokes the credential server-side", async ({ request }) => {
   expect(me.status()).toBe(401);
 });
 
-test("a one-time code stands in for the credential on a navigation, once", async ({
+test("a single-use auth ticket stands in for the credential on a navigation, once", async ({
   request,
 }) => {
   const login = await request.post("/auth/password/login", {
@@ -108,23 +108,25 @@ test("a one-time code stands in for the credential on a navigation, once", async
   });
   const { credential } = (await login.json()) as { credential: string };
   const headers = { Authorization: `Bearer ${credential}` };
-  const issued = await request.post("/auth/password/one-time-code", {
+  const issued = await request.post("/auth/password/single-use-auth-ticket", {
     headers,
   });
   expect(issued.status()).toBe(200);
-  const { oneTimeCode } = (await issued.json()) as { oneTimeCode: string };
-  expect(typeof oneTimeCode).toBe("string");
-  expect(oneTimeCode).not.toBe(credential);
+  const { singleUseAuthTicket } = (await issued.json()) as {
+    singleUseAuthTicket: string;
+  };
+  expect(typeof singleUseAuthTicket).toBe("string");
+  expect(singleUseAuthTicket).not.toBe(credential);
 
   // It is not a credential: no route accepts it as a bearer token.
   const asBearer = await request.get("/auth/me", {
-    headers: { Authorization: `Bearer ${oneTimeCode}` },
+    headers: { Authorization: `Bearer ${singleUseAuthTicket}` },
   });
   expect(asBearer.status()).toBe(401);
 
   // The navigation carries no header, only the code.
   const download = await request.get(
-    `/auth/password/export?oneTimeCode=${encodeURIComponent(oneTimeCode)}`,
+    `/auth/password/export?singleUseAuthTicket=${encodeURIComponent(singleUseAuthTicket)}`,
   );
   expect(download.status()).toBe(200);
   const { authId } = (await download.json()) as { authId: string };
@@ -132,7 +134,7 @@ test("a one-time code stands in for the credential on a navigation, once", async
 
   // Spent: the same code does not work twice.
   const replay = await request.get(
-    `/auth/password/export?oneTimeCode=${encodeURIComponent(oneTimeCode)}`,
+    `/auth/password/export?singleUseAuthTicket=${encodeURIComponent(singleUseAuthTicket)}`,
   );
   expect(replay.status()).toBe(401);
 
@@ -140,13 +142,15 @@ test("a one-time code stands in for the credential on a navigation, once", async
   expect((await request.get("/auth/me", { headers })).status()).toBe(200);
 });
 
-test("no one-time code without a credential, and a made-up code is rejected", async ({
+test("no single-use auth ticket without a credential, and a made-up code is rejected", async ({
   request,
 }) => {
-  expect((await request.post("/auth/password/one-time-code")).status()).toBe(
-    401,
-  );
   expect(
-    (await request.get("/auth/password/export?oneTimeCode=made-up")).status(),
+    (await request.post("/auth/password/single-use-auth-ticket")).status(),
+  ).toBe(401);
+  expect(
+    (
+      await request.get("/auth/password/export?singleUseAuthTicket=made-up")
+    ).status(),
   ).toBe(401);
 });

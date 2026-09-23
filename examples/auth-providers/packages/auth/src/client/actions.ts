@@ -193,19 +193,18 @@ export async function unlink(identity: LinkedIdentity): Promise<void> {
 /**
  * Sends the browser to the OAuth provider to connect it to the signed-in
  * user's account. A navigation cannot carry a bearer credential, so the
- * credential is first traded for a one-time code. There is none when the
+ * credential is first traded for a single-use auth ticket. There is none when the
  * credential is a cookie, which the navigation carries by itself.
  */
 export async function startOAuthLink(
   provider: OAuthProviderName,
 ): Promise<void> {
-  const { oneTimeCode } = await post<{ oneTimeCode: string | null }>(
-    `${basePath()}/link-intent`,
-    {},
-  );
-  const oneTimeCodeParam =
-    oneTimeCode === null
+  const { singleUseAuthTicket } = await post<{
+    singleUseAuthTicket: string | null;
+  }>(`${basePath()}/link-intent`, {});
+  const singleUseAuthTicketParam =
+    singleUseAuthTicket === null
       ? ""
-      : `&oneTimeCode=${encodeURIComponent(oneTimeCode)}`;
-  window.location.href = `${basePath()}/${provider}/login?intent=link${oneTimeCodeParam}`;
+      : `&singleUseAuthTicket=${encodeURIComponent(singleUseAuthTicket)}`;
+  window.location.href = `${basePath()}/${provider}/login?intent=link${singleUseAuthTicketParam}`;
 }

@@ -47,7 +47,7 @@ genServerAuth spec =
           genFileCopyInServerAuth [relfile|handler/types.ts|],
           genSchemesTs spec auth,
           genIssuerTs auth,
-          genOneTimeCodesTs,
+          genSingleUseAuthTicketsTs,
           genSessionTs auth,
           genImperativeTs,
           genSessionStoreTs auth,
@@ -134,15 +134,15 @@ genLuciaTs auth =
 
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
--- | One-time codes for navigations: rows in Wasp's own table.
-genOneTimeCodesTs :: Generator FileDraft
-genOneTimeCodesTs =
+-- | Single-use auth tickets for navigations: rows in Wasp's own table.
+genSingleUseAuthTicketsTs :: Generator FileDraft
+genSingleUseAuthTicketsTs =
   return $
     mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|oneTimeCodes.ts|])
+      (serverAuthDirInSdkTemplatesDir </> [relfile|singleUseAuthTickets.ts|])
       ( object
-          [ "oneTimeCodeEntityUpper" .= (DbAuth.oneTimeCodeEntityName :: String),
-            "oneTimeCodeEntityLower" .= (Util.toLowerFirst DbAuth.oneTimeCodeEntityName :: String)
+          [ "singleUseAuthTicketEntityUpper" .= (DbAuth.singleUseAuthTicketEntityName :: String),
+            "singleUseAuthTicketEntityLower" .= (Util.toLowerFirst DbAuth.singleUseAuthTicketEntityName :: String)
           ]
       )
 

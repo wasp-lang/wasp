@@ -78,7 +78,7 @@ spec_GeneratorAuthInjectionTest = do
                   authIdentityEntity,
                   sessionEntity,
                   usedOneTimeCodeEntity,
-                  oneTimeCodeEntity
+                  singleUseAuthTicketEntity
                 ]
 
     makeAuthEntity :: Psl.Model.FieldType -> Maybe Psl.Attribute.Attribute -> (String, AS.Entity.Entity)
@@ -179,9 +179,9 @@ spec_GeneratorAuthInjectionTest = do
           usedAt DateTime @default(now())
         |]
 
-    oneTimeCodeEntity =
+    singleUseAuthTicketEntity =
       makeEntity
-        "OneTimeCode"
+        "SingleUseAuthTicket"
         [trimming|
           code       String    @id
           authId     String

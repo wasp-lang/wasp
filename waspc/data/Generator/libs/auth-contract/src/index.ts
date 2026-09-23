@@ -384,7 +384,7 @@ export type AuthContractErrorCode =
   | "wasp-auth/identity-not-found"
   /** A signup, login or link through an `"oauth"` provider came without its `oauth` data. */
   | "wasp-auth/missing-oauth-data"
-  /** `createOneTimeCode` was given a request that carries no valid credential. */
+  /** `createSingleUseAuthTicket` was given a request that carries no valid credential. */
   | "wasp-auth/unauthenticated"
   | "wasp-auth/undeclared-provider-name"
   /**
@@ -516,7 +516,7 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
   authenticate(request: Request): Promise<AccountPrincipal | null>;
 
   /**
-   * A one-time code: a short-lived (one minute), single-use stand-in for the
+   * A single-use auth ticket: a short-lived (one minute), single-use stand-in for the
    * account behind the credential `request` carries, safe to put in a URL.
    * For a browser NAVIGATION to one of the handler's own routes made as the
    * signed-in user ("connect Google to my account", a download): a
@@ -530,16 +530,18 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
    * URL when it got one. Rejects with `wasp-auth/unauthenticated` when
    * `request` carries no valid credential.
    *
-   * A one-time code is not a credential: it says who, not how recently they
+   * A single-use auth ticket is not a credential: it says who, not how recently they
    * logged in, and `authenticate` never accepts it.
    */
-  createOneTimeCode(request: Request): Promise<string | null>;
+  createSingleUseAuthTicket(request: Request): Promise<string | null>;
 
   /**
-   * The account a one-time code stands for. Spends the code: an unknown,
+   * The account a single-use auth ticket stands for. Spends the code: an unknown,
    * expired or already spent one is null.
    */
-  redeemOneTimeCode(oneTimeCode: string): Promise<AccountPrincipal | null>;
+  redeemSingleUseAuthTicket(
+    singleUseAuthTicket: string,
+  ): Promise<AccountPrincipal | null>;
 
   /**
    * One store per declared provider name:

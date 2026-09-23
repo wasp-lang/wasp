@@ -208,13 +208,13 @@ async function getLinkTicketCookie(ctx, jwt, req) {
         // ordinary login is never mistaken for one.
         return { linkTicket: "" };
     }
-    // The navigation carries either a one-time code the client traded its
+    // The navigation carries either a single-use auth ticket the client traded its
     // credential for, or the credential itself (a cookie). Which one is Wasp's
-    // business: `createOneTimeCode` answered null when no code was needed.
-    const oneTimeCode = params.get("oneTimeCode");
+    // business: `createSingleUseAuthTicket` answered null when no code was needed.
+    const singleUseAuthTicket = params.get("singleUseAuthTicket");
     const linkTicket = {
-        linkToAuthId: oneTimeCode !== null
-            ? await redeemLinkOneTimeCode(ctx, oneTimeCode)
+        linkToAuthId: singleUseAuthTicket !== null
+            ? await redeemLinkSingleUseAuthTicket(ctx, singleUseAuthTicket)
             : await requireCurrentAuthId(ctx, req),
     };
     return {
@@ -223,8 +223,8 @@ async function getLinkTicketCookie(ctx, jwt, req) {
         }),
     };
 }
-async function redeemLinkOneTimeCode({ runtime }, oneTimeCode) {
-    const account = await runtime.redeemOneTimeCode(oneTimeCode);
+async function redeemLinkSingleUseAuthTicket({ runtime }, singleUseAuthTicket) {
+    const account = await runtime.redeemSingleUseAuthTicket(singleUseAuthTicket);
     if (account === null) {
         throw new HttpError(400, "The link request expired. Try again.");
     }

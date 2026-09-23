@@ -20,8 +20,7 @@ export const prismaCredentialStore: CredentialStore = {
   async create(record) {
     const session = await lucia.createSession(record.authId, { loginScheme: record.loginScheme })
     // Lucia stamps its own default lifetime on the row. The record's is the
-    // one that counts: the scheme's `ttl`, a per-sign-in `ttl`, or the one
-    // minute of a one-time code.
+    // one that counts: the scheme's `ttl`, or a per-sign-in `ttl`.
     await prisma.{= sessionEntityLower =}.update({
       where: { id: session.id },
       data: { expiresAt: record.expiresAt, issuedAt: record.issuedAt },
