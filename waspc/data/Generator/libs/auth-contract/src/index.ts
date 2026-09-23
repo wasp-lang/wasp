@@ -255,11 +255,26 @@ export interface CredentialHandler {
   authenticate(request: Request): Promise<AuthenticateResult>;
 
   /**
-   * Issue a credential for an identity: the handler is a credential issuer
-   * other schemes can sign into (`credentials: { scheme: "<this one>" }`,
-   * `runtime.credentialsIssuerFor`). The identity is the calling scheme's,
-   * already provisioned, with `handlerName` filled in by Wasp; Wasp guards
-   * the provider name and fires the app's login hooks before calling in.
+   * Issue a credential for a login some scheme verified. Implementing it is
+   * what makes this handler an ISSUER: a scheme others sign into
+   * (`credentials: { scheme: "<this one>" }`, `runtime.credentialsIssuerFor`),
+   * and what `waspBearer()` / `waspCookie()` are entirely.
+   *
+   * WHO CALLS IT: Wasp's facet, never a handler directly. When any scheme
+   * (a sibling's login route, this handler's own route, or app code through
+   * the imperative `signIn`) calls `runtime.credentialsIssuer.signIn(ref)`,
+   * Wasp resolves the ref inside THAT scheme, fires the app's login hooks,
+   * and only then calls in here.
+   *
+   * WHOSE IDENTITY: the calling scheme's, not necessarily this handler's.
+   * That is why the argument is the full row key and not a ref: a ref only
+   * means something relative to the scheme that made it, and this handler is
+   * on the other side of the call. `handlerName` is the scheme that verified
+   * the login; Wasp fills it in, so the value cannot be forged, and it is what
+   * the credential records as `loginScheme`.
+   *
+   * Omit it when the handler cannot mint a credential on the server (Clerk):
+   * nothing can sign into such a scheme, and the app's `signIn` rejects.
    */
   signIn?(
     identity: AuthIdentityKey,
