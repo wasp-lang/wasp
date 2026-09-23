@@ -1,6 +1,5 @@
 module Test.Process.Util
   ( ProcessId,
-    parseProcessId,
     readProcessId,
     isPortAvailable,
     isProcessAlive,

@@ -159,7 +159,7 @@ gracefulStopTimeoutMicroseconds :: Int
 gracefulStopTimeoutMicroseconds = secondsToMicroSeconds 0.25
 
 hardStopTimeoutMicroseconds :: Int
-hardStopTimeoutMicroseconds = secondsToMicroSeconds 5
+hardStopTimeoutMicroseconds = secondsToMicroSeconds 2
 
 pollIntervalMicroseconds :: Int
 pollIntervalMicroseconds = secondsToMicroSeconds 0.1

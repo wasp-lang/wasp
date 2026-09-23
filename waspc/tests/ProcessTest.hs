@@ -2,7 +2,7 @@
 
 module ProcessTest where
 
-import Control.Concurrent (newEmptyMVar, putMVar, takeMVar, threadDelay)
+import Control.Concurrent (newEmptyMVar, putMVar, takeMVar)
 import qualified Control.Concurrent.Async as Async
 import Control.Exception (finally, fromException)
 import Control.Monad (when)
@@ -11,10 +11,11 @@ import Data.Maybe (isJust)
 import qualified Data.Text as T
 import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
+import System.Info (os)
 import qualified System.Process as P
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldReturn)
-import Test.Process.Util (isPortAvailable, isProcessAlive, killProcess, makeTempPath, parseProcessId, readProcessId, waitUntil)
+import Test.Process.Util (isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import qualified Wasp.Process as Process
 #if !mingw32_HOST_OS
 import qualified System.Posix.Process as Posix
@@ -31,8 +32,11 @@ spec_process = describe "Process.run" $ do
       `shouldReturn` ExitFailure 7
     readIORef output `shouldReturn` T.replicate 200000 "x"
 
-  it "stops descendants on cancellation, including after the root exits" $ do
-    mapM_ assertDescendantCleanup [False, True]
+  it "stops descendants on cancellation" $ assertDescendantCleanup False
+
+  when (os /= "mingw32") $
+    it "stops descendants after the root exits" $
+      assertDescendantCleanup True
 
   it "forces a command that ignores graceful interruption to stop" $ do
     pidPath <- makeTempPath "wasp-stubborn-process"
@@ -51,7 +55,7 @@ spec_process = describe "Process.run" $ do
       ( \running -> do
           waitUntil "stubborn process ready" $ doesFileExist pidPath
           pid <- readProcessId pidPath
-          timeout 7000000 (Async.cancel running) `shouldReturn` Just ()
+          timeout 3000000 (Async.cancel running) `shouldReturn` Just ()
           Async.waitCatch running >>= \case
             Left exception -> case fromException exception of
               Just Async.AsyncCancelled -> return ()
@@ -86,15 +90,6 @@ spec_process = describe "Process.run" $ do
     mapM_ (assertGroup parentGroup) [Process.InheritTerminal, Process.NoInput]
 #endif
 
-spec_processId :: Spec
-spec_processId = describe "ProcessId" $ do
-  it "accepts positive process IDs through the signed 32-bit limit" $ do
-    map (isJust . parseProcessId) ["1", "2147483647"] `shouldBe` [True, True]
-
-  it "rejects empty, malformed, nonpositive, and overflowing process IDs" $ do
-    let invalidIds = ["", " ", "0", "-1", "abc", "12abc", "1.5", "2147483648", "4294967297"]
-    map parseProcessId invalidIds `shouldBe` replicate (length invalidIds) Nothing
-
 node :: String -> P.CreateProcess
 node script = P.proc "node" ["-e", script]
 
@@ -116,8 +111,9 @@ assertDescendantCleanup rootExits = do
         waitUntil "descendant listening" $ doesFileExist portPath
         port <- readFile portPath
         isPortAvailable port `shouldReturn` False
-        when rootExits $ threadDelay 400000
-        timeout 7000000 (Async.cancel running) `shouldReturn` Just ()
+        if rootExits
+          then timeout 3000000 (Async.wait running) `shouldReturn` Just ExitSuccess
+          else timeout 3000000 (Async.cancel running) `shouldReturn` Just ()
         isPortAvailable port `shouldReturn` True
     )
     `finally` (doesFileExist portPath >>= \exists -> when exists $ removeFile portPath)

@@ -7,8 +7,9 @@ module Wasp.Process
 where
 
 import Control.Concurrent.Async (Concurrently (..), runConcurrently, withAsync)
-import Control.Exception (Exception (displayException), IOException, bracket, finally, onException, throwIO, try)
-import Control.Monad (unless, void)
+import qualified Control.Concurrent.Async as Async
+import Control.Exception (Exception (displayException), IOException, bracketOnError, finally, onException, throwIO, try)
+import Control.Monad (unless, void, when)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
@@ -34,11 +35,15 @@ instance Exception ProcessGroupDidNotStop where
 -- | Runs the command to completion and forwards all output before returning.
 run :: InputMode -> P.CreateProcess -> (OutputStream -> Data.Text.Text -> IO ()) -> IO ExitCode
 run inputMode process emit =
-  bracket start cleanUp $ \((_, stdoutHandle, stderrHandle, processHandle), _) ->
-    runConcurrently $
-      Concurrently (forwardOutput Stdout stdoutHandle)
-        *> Concurrently (forwardOutput Stderr stderrHandle)
-        *> Concurrently (P.waitForProcess processHandle)
+  bracketOnError start cleanUp $ \resources@((_, stdoutHandle, stderrHandle, processHandle), processGroup) -> do
+    exitCode <-
+      withAsync (P.waitForProcess processHandle) $ \rootExit ->
+        runConcurrently $
+          Concurrently (forwardOutput Stdout stdoutHandle)
+            *> Concurrently (forwardOutput Stderr stderrHandle)
+            *> Concurrently (waitForRootAndStopGroup processHandle processGroup rootExit)
+    closeHandles $ fst resources
+    return exitCode
   where
     configuredProcess = case inputMode of
       NoInput -> System.configureIsolatedProcess process
@@ -64,14 +69,22 @@ run inputMode process emit =
     cleanUp (resources@(_, _, _, processHandle), processGroup) =
       ( case inputMode of
           NoInput -> withAsync (P.waitForProcess processHandle) $ \rootExit -> do
-            stopped <- System.stopProcessGroup processHandle rootExit processGroup
-            unless stopped $ throwIO ProcessGroupDidNotStop
+            ensureGroupStopped processHandle rootExit processGroup
           InheritTerminal -> do
             P.getProcessExitCode processHandle >>= \case
               Just _ -> return ()
               Nothing -> P.terminateProcess processHandle
       )
         `finally` closeHandles resources
+
+    ensureGroupStopped processHandle rootExit processGroup = do
+      stopped <- System.stopProcessGroup processHandle rootExit processGroup
+      unless stopped $ throwIO ProcessGroupDidNotStop
+
+    waitForRootAndStopGroup processHandle processGroup rootExit = do
+      exitCode <- Async.wait rootExit
+      when (inputMode == NoInput) $ ensureGroupStopped processHandle rootExit processGroup
+      return exitCode
 
     forwardOutput _ Nothing = return ()
     forwardOutput stream (Just handle) =
