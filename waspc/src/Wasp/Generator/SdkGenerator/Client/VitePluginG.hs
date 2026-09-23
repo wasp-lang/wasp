@@ -74,7 +74,9 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec)),
           "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
+          "dependenciesIncludedInOptimization" .= makeJsArrayFromHaskellList dependenciesIncludedInOptimization,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
+          "singleInstanceDependencies" .= makeJsArrayFromHaskellList singleInstanceDependencies,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
@@ -96,6 +98,23 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         -- they aren't updated even though the lib changes.
         -- Read more about libs versioning in `waspc/libs/README.md`.
         map WaspLib.packageName waspLibs
+
+    -- Wasp libraries are excluded from optimization by default, but some of their dependencies
+    -- must still be included.
+    dependenciesIncludedInOptimization =
+      singleInstanceDependencies
+        ++ [ -- @wasp.sh/lib-sdk-core and generated app code must use the same React JSX runtime.
+             "@wasp.sh/lib-sdk-core/browser > react/jsx-runtime"
+           ]
+
+    -- @wasp.sh/lib-sdk-core and generated app code must use the same instances of these dependencies.
+    -- Multiple instances break shared state such as React hooks and provider contexts.
+    singleInstanceDependencies =
+      [ "react",
+        "react-dom",
+        "@tanstack/react-query",
+        "react-router"
+      ]
 
 genEnvFilePlugin :: Generator FileDraft
 genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
