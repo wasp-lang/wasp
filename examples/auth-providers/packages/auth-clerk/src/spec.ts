@@ -44,7 +44,7 @@ export type UserFieldsFromClaims = SpecReference<
 export type ClerkAuthSchemeManifest = {
   readonly __waspAuthSchemeManifest: true;
   kind: "credential";
-  contractVersion: 20;
+  contractVersion: 21;
   server: {
     authAdapter: { package: string };
     env: [
@@ -104,7 +104,7 @@ export function clerk(config?: ClerkConfig): ClerkAuthSchemeManifest {
   return {
     __waspAuthSchemeManifest: true,
     kind: "credential",
-    contractVersion: 20,
+    contractVersion: 21,
     server: {
       authAdapter: { package: "@wasp.sh/auth-clerk/server" },
       env: [

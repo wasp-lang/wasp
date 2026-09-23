@@ -39,7 +39,7 @@ export function betterAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "credential",
-        contractVersion: 20,
+        contractVersion: 21,
         server: {
             authAdapter: { package: "@wasp.sh/auth-better-auth/server" },
             env: [{ name: "BETTER_AUTH_SECRET", doc: "openssl rand -base64 32" }],

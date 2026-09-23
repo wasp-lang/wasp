@@ -5,7 +5,7 @@ import type {
   AccountPrincipal,
   CredentialRecord,
   CredentialStore,
-  SignInContext,
+  SignInProperties,
   SignInResult,
   AuthIdentityRef,
 } from './handler/types.js'
@@ -56,12 +56,18 @@ export type IssuedCredential = AccountPrincipal & { credentialId: string; signed
  * ACCOUNT, never with an identity, so nothing has to pretend otherwise.
  */
 export type WaspIssuer = {
+  /** Tells a Wasp issuer from an `AuthHandler` where either may stand in as a sign-in target. */
+  readonly kind: 'wasp-issuer'
   authenticate(request: Request): Promise<IssuedCredential | null>
-  signIn(identityRef: AuthIdentityRef, context: SignInContext): Promise<SignInResult>
+  signIn(identityRef: AuthIdentityRef, context: IssueContext): Promise<SignInResult>
   signOut(request: Request): Promise<Response>
   challenge(request: Request): Promise<Response>
   forbid(request: Request): Promise<Response>
 }
+
+// PRIVATE API
+/** What Wasp tells its issuer at sign-in: who verified the login (Wasp's bookkeeping, never a handler's claim) and the per-sign-in choices. */
+export type IssueContext = { signedInBy: string; properties?: SignInProperties }
 
 // PRIVATE API
 export function createIssuer(options: IssuerOptions): WaspIssuer {
@@ -77,6 +83,7 @@ export function createIssuer(options: IssuerOptions): WaspIssuer {
   }
 
   return {
+    kind: 'wasp-issuer',
     async authenticate(request) {
       const id = transport.read(request)
       if (id === null) {
@@ -101,7 +108,7 @@ export function createIssuer(options: IssuerOptions): WaspIssuer {
       }
     },
 
-    async signIn(identityRef: AuthIdentityRef, context: SignInContext): Promise<SignInResult> {
+    async signIn(identityRef: AuthIdentityRef, context: IssueContext): Promise<SignInResult> {
       // The issuer keys its records by the Auth entity id: the subject has
       // already been resolved (and its provider name guarded) by the facet that
       // called in, so this lookup cannot cross scheme boundaries.

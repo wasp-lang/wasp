@@ -139,7 +139,7 @@ export function waspAuth(config) {
     return {
         __waspAuthSchemeManifest: true,
         kind: "login",
-        contractVersion: 20,
+        contractVersion: 21,
         server: {
             authAdapter: { package: "@wasp.sh/auth/server" },
             env: [

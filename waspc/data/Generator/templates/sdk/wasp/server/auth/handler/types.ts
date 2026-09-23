@@ -25,7 +25,6 @@ export {
   type ServerCredentialAuthHandlerParts,
   type ServerLoginAuthAdapter,
   type ServerCredentialAuthAdapter,
-  type SignInContext,
   type SignInOpts,
   type SignInProperties,
   type SignInResult,

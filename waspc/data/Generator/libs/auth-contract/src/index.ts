@@ -187,14 +187,6 @@ export type SignInProperties = {
   persistent?: boolean;
 };
 
-/** What a handler receives when asked to sign a subject in. */
-export type SignInContext = {
-  /** Per-sign-in choices of the handler that verified the login. */
-  properties?: SignInProperties;
-  /** The scheme that verified the login, pre-bound by Wasp. Never forgeable. */
-  signedInBy: string;
-};
-
 /** What a credential issuer produced for the browser to carry. */
 export type SignInResult = {
   /** What to send the client: a body carrying a token, a Set-Cookie header, ... A standard `Response`. */
@@ -239,7 +231,7 @@ export interface AuthHandler {
    */
   signIn?(
     identityRef: AuthIdentityRef,
-    context: SignInContext,
+    properties?: SignInProperties,
   ): Promise<SignInResult>;
 
   /**

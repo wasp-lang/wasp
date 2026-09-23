@@ -367,7 +367,13 @@ function boundTo(
   if (target.signIn === undefined) {
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
-  const signInOnTarget = target.signIn.bind(target)
+  // A Wasp issuer is told who verified the login; a handler-owned issuer only
+  // gets the per-sign-in choices, since it cannot record more.
+  const signInOnTarget =
+    'kind' in target
+      ? (identityRef: AuthIdentityRef, properties: SignInOpts['properties']) =>
+          target.signIn(identityRef, { signedInBy: spec.scheme, properties })
+      : target.signIn.bind(target)
   const resolveIdentityRef = async (identityRef: AuthIdentityRef) => {
     const providerName = resolveOwnProviderName(spec, identityRef.providerName)
     const identity = await getIdentityStore(spec.scheme, providerName).find(identityRef.providerUserId)
@@ -395,10 +401,7 @@ function boundTo(
         onBeforeLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
       )
     }
-    const result = await signInOnTarget(
-      { providerName, providerUserId },
-      { signedInBy: spec.scheme, properties: opts?.properties },
-    )
+    const result = await signInOnTarget({ providerName, providerUserId }, opts?.properties)
     if (fireHooks) {
       await onAfterLoginHook({
         req: getCurrentRequest() as any,
