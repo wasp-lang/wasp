@@ -5,7 +5,7 @@
 
 import type { ClientAuthAdapterFor } from "../client.js";
 import type {
-  AuthHandler,
+  CredentialHandler,
   IdentityStore,
   OAuthLoginData,
   ServerAuthAdapter,
@@ -14,7 +14,7 @@ import type {
   WaspServerRuntime,
 } from "../index.js";
 
-declare const handler: AuthHandler;
+declare const credentialHandler: CredentialHandler;
 type OAuthConfigFn = () => { scopes: string[] };
 declare function waspAuthT(p: { email?: boolean }): {
   server: {
@@ -50,11 +50,11 @@ export const wasp: ServerAuthAdapterFor<typeof waspAuthT> = (runtime, spec) => {
   runtime.mountPath;
   // @ts-expect-error undeclared provider name
   runtime.identities.github;
-  return { handler, routeHandler: () => new Response() };
+  return { credentialHandler, routeHandler: () => new Response() };
 };
 // @ts-expect-error routes declared
 export const waspNoRoutes: ServerAuthAdapterFor<typeof waspAuthT> = () => ({
-  handler,
+  credentialHandler,
 });
 export const waspClient: ClientAuthAdapterFor<typeof waspAuthT> = (
   runtime,
@@ -83,10 +83,10 @@ export const clerkA: ServerAuthAdapterFor<typeof clerkT> = (runtime) => {
   runtime.email;
   const no: false = runtime.hasCredentialsIssuer;
   runtime.identities.default;
-  return { handler };
+  return { credentialHandler };
 };
 export const clerkR: ServerAuthAdapterFor<typeof clerkT> = () => ({
-  handler,
+  credentialHandler,
   // @ts-expect-error no routes declared, so Wasp would never mount it
   routeHandler: () => new Response(),
 });
@@ -101,14 +101,14 @@ export const ba: ServerAuthAdapterFor<typeof baT> = (runtime, spec) => {
   // @ts-expect-error app decides
   runtime.credentialsIssuer;
   if (runtime.hasCredentialsIssuer) runtime.credentialsIssuer.signOut;
-  return { handler };
+  return { credentialHandler };
 };
 // a fully typed runtime can be handed to code written against the loose one
 export const loose: ServerAuthAdapterFor<typeof waspAuthT> = (runtime) => {
   if (runtime.canSendEmail) {
     const r: WaspServerRuntime<"email" | "google"> = runtime;
   }
-  return { handler, routeHandler: () => new Response() };
+  return { credentialHandler, routeHandler: () => new Response() };
 };
 
 // the app side: a ref object fits a reference field, whatever copy of the spec package branded it
@@ -194,7 +194,7 @@ export const kindsTyped: ServerAuthAdapterFor<typeof kindsAuth> = async (
   const anyIssuer = runtime.credentialsIssuerFor("waspBearer");
   // @ts-expect-error oauth sign-in without data, whichever issuer
   await anyIssuer.signIn({ providerName: "google", providerUserId: "id" });
-  return { handler, routeHandler: () => new Response() };
+  return { credentialHandler, routeHandler: () => new Response() };
 };
 // no providers declared: just `default`, plain
 declare function plainAuth(): { server: {} };
@@ -204,7 +204,7 @@ export const kindsPlain: ServerAuthAdapterFor<typeof plainAuth> = async (
   await runtime.identities.default.provision("user_1", {
     identity: { claims: {} },
   });
-  return { handler };
+  return { credentialHandler };
 };
 // loose: everything optional, shape still checked
 export const kindsLoose: ServerAuthAdapter = async (runtime) => {
@@ -219,17 +219,17 @@ export const kindsLoose: ServerAuthAdapter = async (runtime) => {
     { providerName: "anything", providerUserId: "x" },
     { oauth },
   );
-  return { handler };
+  return { credentialHandler };
 };
 // a typed runtime can be handed to code written against the loose store
 export const kindsMix: ServerAuthAdapterFor<typeof kindsAuth> = (runtime) => {
   const anyStore: IdentityStore = runtime.identities.google;
   void anyStore;
-  return { handler, routeHandler: () => new Response() };
+  return { credentialHandler, routeHandler: () => new Response() };
 };
 
 // a handler whose credential carries the account answers with it, and an issuer gets the full key
-export const accountAnswering: AuthHandler = {
+export const accountAnswering: CredentialHandler = {
   authenticate: async () => ({
     status: "authenticated",
     account: {
@@ -246,7 +246,7 @@ export const accountAnswering: AuthHandler = {
   },
 };
 
-// ---- who owns the credential, read off `credentials`: with it a handler may be its routes alone; without it, it must return an AuthHandler ----
+// ---- who owns the credential, read off `credentials`: with it a handler may be its routes alone; without it, it must return an CredentialHandler ----
 declare function loginAuth(): {
   server: { routes: {} };
   credentials: {};
@@ -257,12 +257,12 @@ export const loginTyped: ServerAuthAdapterFor<typeof loginAuth> = (runtime) => {
 };
 // the exchange: Wasp's credential and the handler's own
 export const loginWithOwn: ServerAuthAdapterFor<typeof loginAuth> = () => ({
-  handler,
+  credentialHandler,
   routeHandler: () => new Response(),
 });
 declare function bareAuth(): { server: {} };
 export const bareTyped: ServerAuthAdapterFor<typeof bareAuth> = () => ({
-  handler,
+  credentialHandler,
 });
 // @ts-expect-error no credentials and no handler: nothing could recognise the scheme's requests
 const bareWithout: Awaited<ReturnType<ServerAuthAdapterFor<typeof bareAuth>>> =

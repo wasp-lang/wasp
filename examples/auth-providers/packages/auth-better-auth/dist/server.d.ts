@@ -20,7 +20,7 @@ import type { betterAuth as betterAuthSpecConstructor } from "./spec.js";
  */
 export type BetterAuthSetupFn = (config: BetterAuthOptions) => BetterAuthOptions;
 /**
- * Better Auth, expressed as a Wasp `AuthHandler`.
+ * Better Auth, expressed as a Wasp `CredentialHandler`.
  *
  * One adapter builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --

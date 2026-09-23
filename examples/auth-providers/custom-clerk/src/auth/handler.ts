@@ -50,7 +50,7 @@ export const createClerkServerAuthHandler: ServerAuthAdapter = (runtime) => {
   }
 
   return {
-    handler: {
+    credentialHandler: {
       async authenticate(request: Request): Promise<AuthenticateResult> {
         const verified = await verify(request);
         if (verified === null) {

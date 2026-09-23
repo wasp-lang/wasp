@@ -1,6 +1,6 @@
 import type {
   AuthenticateResult,
-  AuthHandler,
+  CredentialHandler,
   ServerAuthAdapterFor,
   WaspServerRuntimeFor,
 } from "@wasp.sh/auth-contract";
@@ -31,7 +31,7 @@ export type BetterAuthSetupFn = (
 ) => BetterAuthOptions;
 
 /**
- * Better Auth, expressed as a Wasp `AuthHandler`.
+ * Better Auth, expressed as a Wasp `CredentialHandler`.
  *
  * One adapter builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
@@ -115,7 +115,7 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
     plugins: withBearerPlugin(extendedConfig.plugins),
   });
 
-  const handler: AuthHandler = {
+  const credentialHandler: CredentialHandler = {
     /**
      * Wasp hands every handler a standard web `Request` -- built from the
      * HTTP request, or synthesized with just an `Authorization` header for
@@ -176,7 +176,7 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
   };
 
   return {
-    handler,
+    credentialHandler,
 
     /**
      * Better Auth's own HTTP surface (sign-up, sign-in, sign-out, OAuth

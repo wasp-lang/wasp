@@ -10,7 +10,7 @@ import {
   challengeScheme,
   defaultScheme,
   forbidScheme,
-  handlerOf,
+  credentialHandlerOf,
   issueSignInFor,
   signOutEverywhereForAuthId,
   signOutScheme,
@@ -121,11 +121,11 @@ export async function signOutEverywhere(user: UserRef): Promise<void> {
     select: { handlerName: true, providerName: true, providerUserId: true },
   })
   for (const identity of identities) {
-    const handler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
-      ? handlerOf(identity.handlerName as AuthSchemeName)
+    const credentialHandler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
+      ? credentialHandlerOf(identity.handlerName as AuthSchemeName)
       : null
-    if (handler?.signOutEverywhere !== undefined) {
-      await handler.signOutEverywhere(identity)
+    if (credentialHandler?.signOutEverywhere !== undefined) {
+      await credentialHandler.signOutEverywhere(identity)
       acted = true
     }
   }

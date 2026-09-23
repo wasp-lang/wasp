@@ -1,7 +1,7 @@
 import type { ServerAuthAdapterFor } from "@wasp.sh/auth-contract";
 import type { clerk as clerkSpecConstructor } from "./spec.js";
 /**
- * Clerk, expressed as a Wasp `AuthHandler`.
+ * Clerk, expressed as a Wasp `CredentialHandler`.
  *
  * This is about the smallest possible handler, and Clerk is by far the least
  * work to integrate: it contributes **no Prisma models and no routes**. It

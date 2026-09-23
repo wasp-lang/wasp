@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { TimeSpan, createJWTHelpers } from '@wasp.sh/lib-auth/node'
 import type {
   AccountPrincipal,
-  AuthHandler,
+  CredentialHandler,
   AuthIdentityKey,
   CredentialRecord,
   CredentialStore,
@@ -52,12 +52,12 @@ export type IssuedCredential = AccountPrincipal & { credentialId: string; signed
 
 // PRIVATE API
 /**
- * Wasp's own issuer: an ordinary `AuthHandler` with no login of its own, one
+ * Wasp's own issuer: an ordinary `CredentialHandler` with no login of its own, one
  * per `waspBearer()` / `waspCookie()` scheme and one, private, per scheme
  * with inline `credentials`. Its credential carries the account, so it
  * answers `authenticate` with the account and who verified the login.
  */
-export function createIssuer(options: IssuerOptions): AuthHandler {
+export function createIssuer(options: IssuerOptions): CredentialHandler {
   const store = resolveStore(options)
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
   const schemeTtl = parseTimeSpan(options.ttl)

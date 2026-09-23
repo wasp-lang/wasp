@@ -26,7 +26,7 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
   // This handler is its routes. They verify logins and hand them to Wasp's
   // issuer (the manifest declares `credentials`); the credential a request
   // carries afterwards is Wasp's own, and Wasp recognises it itself, so
-  // there is no AuthHandler to return.
+  // there is no CredentialHandler to return.
   // Standard `Request` in, `Response` out. Wasp hands over the raw body, so
   // the route parses it itself.
   routeHandler: async (request) => {

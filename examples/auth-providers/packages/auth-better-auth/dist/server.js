@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer } from "better-auth/plugins";
 /**
- * Better Auth, expressed as a Wasp `AuthHandler`.
+ * Better Auth, expressed as a Wasp `CredentialHandler`.
  *
  * One adapter builds both the Better Auth instance and the handler that
  * verifies against it, so they are guaranteed to share one configuration --
@@ -76,7 +76,7 @@ export const createServerAuthHandler = (runtime, spec) => {
         },
         plugins: withBearerPlugin(extendedConfig.plugins),
     });
-    const handler = {
+    const credentialHandler = {
         /**
          * Wasp hands every handler a standard web `Request` -- built from the
          * HTTP request, or synthesized with just an `Authorization` header for
@@ -128,7 +128,7 @@ export const createServerAuthHandler = (runtime, spec) => {
         },
     };
     return {
-        handler,
+        credentialHandler,
         /**
          * Better Auth's own HTTP surface (sign-up, sign-in, sign-out, OAuth
          * callbacks), mounted by Wasp at `/auth/<scheme>`. Better Auth speaks

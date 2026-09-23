@@ -1,6 +1,6 @@
 import { createClerkClient } from "@clerk/backend";
 /**
- * Clerk, expressed as a Wasp `AuthHandler`.
+ * Clerk, expressed as a Wasp `CredentialHandler`.
  *
  * This is about the smallest possible handler, and Clerk is by far the least
  * work to integrate: it contributes **no Prisma models and no routes**. It
@@ -35,7 +35,7 @@ export const createServerAuthHandler = (runtime) => {
         }
         return { userId, sessionId, claims: sessionClaims };
     }
-    const handler = {
+    const credentialHandler = {
         /**
          * Wasp hands every handler a standard web `Request` -- built from the
          * HTTP request, or synthesized with just an `Authorization` header for
@@ -94,5 +94,5 @@ export const createServerAuthHandler = (runtime) => {
             }
         },
     };
-    return { handler };
+    return { credentialHandler };
 };

@@ -164,15 +164,15 @@ export type WaspServerRuntimeFor<SpecConstructor> = Omit<
   >;
 
 /**
- * What the adapter must return, read off the manifest: an `AuthHandler` is
+ * What the adapter must return, read off the manifest: an `CredentialHandler` is
  * REQUIRED when the manifest declares no `credentials` (nothing else could
  * recognise the scheme's requests) and optional otherwise; a `routeHandler`
  * exactly when the manifest declares `server.routes`.
  */
 export type ServerAuthHandlerPartsFor<SpecConstructor> =
   (CredentialsDeclaration<ManifestOf<SpecConstructor>> extends "never"
-    ? Required<Pick<ServerAuthHandlerParts, "handler">>
-    : Pick<ServerAuthHandlerParts, "handler">) &
+    ? Required<Pick<ServerAuthHandlerParts, "credentialHandler">>
+    : Pick<ServerAuthHandlerParts, "credentialHandler">) &
     (ManifestOf<SpecConstructor> extends { server: { routes: object } }
       ? Required<Pick<ServerAuthHandlerParts, "routeHandler">>
       : ManifestOf<SpecConstructor> extends { server: { routes?: object } }

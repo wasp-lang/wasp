@@ -11,7 +11,7 @@ export {
   getAuthContractErrorCode,
   type AuthContractErrorCode,
   type AuthenticateResult,
-  type AuthHandler,
+  type CredentialHandler,
   type CredentialRecord,
   type CredentialsIssuer,
   type CredentialStore,

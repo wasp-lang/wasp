@@ -8,7 +8,7 @@
  *
  * Vocabulary, borrowed from ASP.NET:
  *
- * - A **handler** is the code: an `AuthHandler` object. An handler package
+ * - A **handler** is the code: an `CredentialHandler` object. An handler package
  *   implements one in its server entry and exposes it as a named
  *   `createServerAuthHandler` export (see `ServerAuthAdapter`).
  * - A **scheme** is a named, configured instance of a handler, declared in the
@@ -229,7 +229,7 @@ export type SignInResult = {
  * falls back to its own defaults otherwise (a 401 for `challenge`, a 403 for
  * `forbid`, "clear the client side" for `signOut`).
  */
-export interface AuthHandler {
+export interface CredentialHandler {
   /**
    * Authenticate an incoming request.
    *
@@ -779,20 +779,20 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
   };
 
 /**
- * What a server adapter returns: the `AuthHandler` Wasp recognises the
- * handler's own credential through, and its routes. `handler` may be omitted
+ * What a server adapter returns: the `CredentialHandler` Wasp recognises the
+ * handler's own credential through, and its routes. `credentialHandler` may be omitted
  * only when the manifest declares `credentials` and the handler has no
  * credential of its own: Wasp then recognises, ends and challenges for the
  * credential it issued, and the handler is its routes.
  *
- * Deliberately a WRAPPER around `AuthHandler` rather than `AuthHandler` with
- * a `routeHandler` member added: `AuthHandler` stays exactly the interface
+ * Deliberately a WRAPPER around `CredentialHandler` rather than `CredentialHandler` with
+ * a `routeHandler` member added: `CredentialHandler` stays exactly the interface
  * Wasp depends on, an adapter can wrap a handler object some library built
  * without mutating it, and once Wasp has full-stack modules the routes can
- * move out without touching `AuthHandler`.
+ * move out without touching `CredentialHandler`.
  */
 export type ServerAuthHandlerParts = {
-  handler?: AuthHandler;
+  credentialHandler?: CredentialHandler;
   /** The handler's own routes (login, signup, callbacks), mounted at `/auth/<name>`. */
   routeHandler?: (request: Request) => Response | Promise<Response>;
 };
