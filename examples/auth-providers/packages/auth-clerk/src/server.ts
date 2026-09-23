@@ -2,7 +2,7 @@ import { createClerkClient } from "@clerk/backend";
 import type {
   AuthenticateResult,
   AuthHandler,
-  Principal,
+  IdentityPrincipal,
   ServerAuthAdapterFor,
 } from "@wasp.sh/auth-contract";
 import type { clerk as clerkSpecConstructor } from "./spec.js";
@@ -77,7 +77,7 @@ export const createServerAuthHandler: ServerAuthAdapterFor<
           // local user. NOTE: Clerk's default session token carries no email --
           // add one to the token template in the Clerk dashboard if the app's
           // user entity needs it at provisioning time.
-          claims: verified.claims as Principal["claims"],
+          claims: verified.claims as IdentityPrincipal["claims"],
         },
       };
     },

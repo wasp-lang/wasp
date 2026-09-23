@@ -2,10 +2,19 @@
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import type { AuthUserData } from '../../auth/user.js'
-import type { AuthHandler, SignInProperties } from './handler/types.js'
+import type { SignInProperties } from './handler/types.js'
 import { prisma } from '../index.js'
 import { sendWebResponse, toWebRequest } from './http.js'
-import { authSchemes, defaultScheme, issueSignInFor, signOutEverywhereForAuthId } from './schemes.js'
+import {
+  authSchemeNames,
+  challengeScheme,
+  defaultScheme,
+  forbidScheme,
+  handlerOf,
+  issueSignInFor,
+  signOutEverywhereForAuthId,
+  signOutScheme,
+} from './schemes.js'
 import { authenticateRequest } from './session.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 
@@ -54,7 +63,7 @@ export async function signIn(
   opts?: { properties?: SignInProperties; skipHooks?: boolean },
 ): Promise<void> {
   const scheme = identity.handlerName
-  if (!(scheme in authSchemes)) {
+  if (!authSchemeNames.includes(scheme as AuthSchemeName)) {
     throw new Error(`Cannot sign in: '${scheme}' is not one of the app's auth schemes.`)
   }
   const row = await prisma.{= authIdentityEntityLower =}.findUnique({
@@ -85,14 +94,12 @@ export async function signIn(
  * nothing for an anonymous request.
  */
 export async function signOut(req: ExpressRequest, res: ExpressResponse): Promise<void> {
-  const result = await authenticateRequest(req, Object.keys(authSchemes) as AuthSchemeName[])
+  const result = await authenticateRequest(req, authSchemeNames)
   if (result === null) {
     await sendWebResponse(res, Response.json({ success: true }))
     return
   }
-  const handler = authSchemes[result.scheme]
-  const response = (await handler.signOut?.(toWebRequest(req))) ?? Response.json({ success: true })
-  await sendWebResponse(res, response)
+  await sendWebResponse(res, await signOutScheme(result.scheme, toWebRequest(req)))
 }
 
 // PUBLIC API
@@ -114,7 +121,9 @@ export async function signOutEverywhere(user: UserRef): Promise<void> {
     select: { handlerName: true, providerName: true, providerUserId: true },
   })
   for (const identity of identities) {
-    const handler = (authSchemes as Record<string, AuthHandler>)[identity.handlerName]
+    const handler = authSchemeNames.includes(identity.handlerName as AuthSchemeName)
+      ? handlerOf(identity.handlerName as AuthSchemeName)
+      : null
     if (handler?.signOutEverywhere !== undefined) {
       await handler.signOutEverywhere({ providerName: identity.providerName, providerUserId: identity.providerUserId })
       acted = true
@@ -137,9 +146,7 @@ export async function challenge(
   res: ExpressResponse,
   opts?: { scheme?: AuthSchemeName },
 ): Promise<void> {
-  const handler = authSchemes[opts?.scheme ?? defaultScheme]
-  const response = (await handler.challenge?.(toWebRequest(req))) ?? Response.json({ message: 'Invalid credentials' }, { status: 401 })
-  await sendWebResponse(res, response)
+  await sendWebResponse(res, await challengeScheme(opts?.scheme ?? defaultScheme, toWebRequest(req)))
 }
 
 // PUBLIC API
@@ -149,7 +156,5 @@ export async function forbid(
   res: ExpressResponse,
   opts?: { scheme?: AuthSchemeName },
 ): Promise<void> {
-  const handler = authSchemes[opts?.scheme ?? defaultScheme]
-  const response = (await handler.forbid?.(toWebRequest(req))) ?? Response.json({ message: 'Forbidden' }, { status: 403 })
-  await sendWebResponse(res, response)
+  await sendWebResponse(res, await forbidScheme(opts?.scheme ?? defaultScheme, toWebRequest(req)))
 }

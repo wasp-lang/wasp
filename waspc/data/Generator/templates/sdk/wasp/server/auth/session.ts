@@ -3,9 +3,9 @@ import type { Request as ExpressRequest } from "express";
 
 import type { AuthUserData } from '../../auth/user.js';
 
-import type { AuthHandler, Principal } from "./handler/types.js";
+import type { AccountPrincipal, IdentityPrincipal } from "./handler/types.js";
 import type { OAuthData } from "./hooks.js";
-import { authSchemes, defaultScheme } from "./schemes.js";
+import { authenticateScheme, defaultScheme, type SchemeAuthentication } from "./schemes.js";
 import { toWebRequest } from "./http.js";
 import { getCurrentRequest } from "../requestContext.js";
 
@@ -69,38 +69,56 @@ async function authenticateWebRequest(
   schemeNames: readonly AuthSchemeName[],
 ): Promise<AuthenticatedRequest | null> {
   for (const scheme of schemeNames) {
-    const handler: AuthHandler = authSchemes[scheme];
-    // A handler that throws instead of returning `unauthenticated` must not
-    // take the request down: whether a bad credential is rejected by return
-    // value or by exception is the handler's internal business.
-    const result = await Promise.resolve()
-      .then(() => handler.authenticate(request))
-      .catch((error) => {
-        console.error(`Auth scheme '${scheme}' threw while authenticating:`, error);
-        return { status: 'unauthenticated' } as const;
-      });
-    if (result.status !== 'authenticated') {
+    const authentication = await authenticateScheme(scheme, request);
+    if (authentication === null) {
       continue;
     }
-    const user = await loadUserForPrincipal(scheme, result.principal);
+    const account = await accountOf(authentication);
+    const user = await loadUser(account.authId, scheme, signedInByOf(authentication), account);
     if (user === null) {
       continue;
     }
-    return { scheme, credentialId: result.principal.credentialId, user };
+    return { scheme, credentialId: account.credentialId, user };
   }
   return null;
 }
 
+// PRIVATE API
 /**
- * Turns an authenticated principal into the user data Wasp exposes as
- * `context.user`. A Wasp-issued credential names the Auth entity directly;
- * any other scheme names its own subject, which is resolved through the
- * identity store -- provisioning the local user on first sight.
+ * Whose request this is, resolved to the ACCOUNT: Wasp's own credential
+ * names it directly; a credential handler's identity is looked up, and
+ * provisioned on first sight. What `runtime.authenticate` answers with.
  */
-async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal): Promise<AuthUserData | null> {
-  const authId = isWaspCredentialPrincipal(principal)
-    ? principal.providerUserId
-    : await resolveSubject(scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default');
+export async function authenticateAccount(scheme: AuthSchemeName, request: Request): Promise<AccountPrincipal | null> {
+  const authentication = await authenticateScheme(scheme, request);
+  return authentication === null ? null : accountOf(authentication);
+}
+
+async function accountOf(authentication: SchemeAuthentication): Promise<AccountPrincipal> {
+  if (authentication.kind === 'account') {
+    const { authId, credentialId, credentialIssuedAt, isCredentialFresh } = authentication.account;
+    return { authId, credentialId, credentialIssuedAt, isCredentialFresh };
+  }
+  const { principal } = authentication;
+  return {
+    authId: await resolveSubject(authentication.scheme, principal.providerUserId, principal.claims, undefined, principal.providerName ?? 'default'),
+    credentialId: principal.credentialId,
+    credentialIssuedAt: principal.credentialIssuedAt ?? null,
+    isCredentialFresh: principal.isCredentialFresh ?? false,
+  };
+}
+
+function signedInByOf(authentication: SchemeAuthentication): string {
+  return authentication.kind === 'account' ? authentication.signedInBy : authentication.scheme;
+}
+
+/** The user data Wasp exposes as `context.user`, for an account. */
+async function loadUser(
+  authId: string,
+  scheme: AuthSchemeName,
+  signedInBy: string,
+  credential: Pick<AccountPrincipal, 'credentialIssuedAt' | 'isCredentialFresh'>,
+): Promise<AuthUserData | null> {
   const user = await prisma.{= userEntityLower =}.findFirst({
     where: { {= authFieldOnUserEntityName =}: { id: authId } },
     include: {
@@ -118,36 +136,10 @@ async function loadUserForPrincipal(scheme: AuthSchemeName, principal: Principal
     return null;
   }
 
-  return createAuthUserData(user, scheme, principal.signedInBy ?? scheme, {
-    credentialIssuedAt: principal.credentialIssuedAt ?? null,
-    isCredentialFresh: principal.isCredentialFresh ?? false,
+  return createAuthUserData(user, scheme, signedInBy, {
+    credentialIssuedAt: credential.credentialIssuedAt,
+    isCredentialFresh: credential.isCredentialFresh,
   });
-}
-
-// A Wasp-issued credential names the Auth entity itself as its subject; a
-// handler's own principals name one of its identities.
-function isWaspCredentialPrincipal(principal: Principal): boolean {
-  return principal.signedInBy !== undefined && principal.providerName === undefined && principal.credentialId !== undefined && isAuthEntityId(principal.providerUserId);
-}
-
-// PRIVATE API
-/**
- * The account a principal stands for, WITHOUT provisioning: null when the
- * handler's identity is not known yet. For checks, where a never-seen
- * principal must not become a user as a side effect.
- */
-export async function resolveAuthIdOfPrincipal(scheme: AuthSchemeName, principal: Principal): Promise<string | null> {
-  if (isWaspCredentialPrincipal(principal)) {
-    return principal.providerUserId;
-  }
-  const identity = await getIdentityStore(scheme, principal.providerName ?? 'default').find(principal.providerUserId);
-  return identity === null ? null : identity.authId;
-}
-
-// Wasp-issued credentials carry the Auth entity's uuid as their subject; a
-// handler's own subject ids are whatever the provider uses.
-function isAuthEntityId(providerUserId: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(providerUserId);
 }
 
 // The scheme's `userFieldsFromClaims` compute a provisioned user's own fields
@@ -174,7 +166,7 @@ const userFieldsFromClaimsByScheme: Partial<Record<AuthSchemeName, unknown>> = {
 async function resolveSubject(
   scheme: AuthSchemeName,
   providerUserId: string,
-  claims: Principal['claims'],
+  claims: IdentityPrincipal['claims'],
   identity?: {
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
@@ -278,7 +270,7 @@ function makeHookProviderId(handlerName: string, providerName: string, providerU
 export async function provisionAuthUser(
   scheme: AuthSchemeName,
   providerUserId: string,
-  claims: Principal['claims'],
+  claims: IdentityPrincipal['claims'],
   identity?: {
     data?: Record<string, unknown>;
     secrets?: Record<string, unknown>;
@@ -298,7 +290,7 @@ export async function provisionAuthUser(
  */
 export async function computeSchemeUserFields(
   scheme: AuthSchemeName,
-  claims: Principal['claims'],
+  claims: IdentityPrincipal['claims'],
 ): Promise<Record<string, unknown>> {
   return validateAndGetUserFields(
     { ...(claims ?? {}) },

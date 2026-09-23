@@ -188,7 +188,9 @@ function mapAuthScheme(
   if (
     typeof manifest !== "object" ||
     manifest === null ||
-    (manifest as { kind?: unknown }).kind !== "scheme"
+    !["login", "credential"].includes(
+      String((manifest as { kind?: unknown }).kind),
+    )
   ) {
     throw new WaspSpecUserError(
       `Auth scheme '${name}' must be created with an auth handler package's spec helper (e.g. waspAuth() from @wasp.sh/auth/spec), waspBearer()/waspCookie(), or customAuthHandler().`,
@@ -268,6 +270,7 @@ function mapAuthScheme(
 
   return {
     name,
+    kind: manifest.kind,
     handler,
     server: mapSide("server", manifest.server),
     client: manifest.client && mapSide("client", manifest.client),

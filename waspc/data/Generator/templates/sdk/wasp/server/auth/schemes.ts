@@ -1,9 +1,9 @@
 {{={= =}=}}
-import type { AuthHandler, CredentialsIssuer, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AccountPrincipal, AuthHandler, CredentialsIssuer, IdentityPrincipal, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
-import { computeSchemeUserFields, provisionAuthUser, resolveAuthIdOfPrincipal } from './session.js'
+import { authenticateAccount, computeSchemeUserFields, provisionAuthUser } from './session.js'
 import { getIdentityStore } from './identityStore.js'
 import {
   createIssuer,
@@ -11,6 +11,7 @@ import {
   redeemOneTimeCode,
   signOutEverywhere,
   type IssuerOptions,
+  type WaspIssuer,
 } from './issuer.js'
 import { findAuthWithUserBy, type ProviderId } from './utils.js'
 import {
@@ -314,14 +315,14 @@ async function assertFreshCredentialOf(
   if (req === undefined) {
     throw notFresh('the merge was not requested inside a request.')
   }
-  const result = await handlerOf(spec.scheme).authenticate(toWebRequest(req))
-  if (result.status !== 'authenticated') {
+  const account = await authenticateAccount(spec.scheme, toWebRequest(req))
+  if (account === null) {
     throw notFresh('the request carries no valid credential.')
   }
-  if (result.principal.isCredentialFresh !== true) {
+  if (!account.isCredentialFresh) {
     throw notFresh(`the credential was issued longer than '${spec.scheme}' considers fresh ago. Log in again.`)
   }
-  if ((await resolveAuthIdOfPrincipal(spec.scheme, result.principal)) !== authId) {
+  if (account.authId !== authId) {
     throw notFresh('the request is from another account than the surviving one.')
   }
 }
@@ -360,7 +361,7 @@ type IssueSignIn = (
 
 function boundTo(
   spec: SchemeRuntimeSpec,
-  target: AuthHandler,
+  target: WaspIssuer | AuthHandler,
   targetIssuerOptions: IssuerOptions | null,
 ): { facet: CredentialsIssuer; issueSignIn: IssueSignIn } {
   if (target.signIn === undefined) {
@@ -409,7 +410,6 @@ function boundTo(
     return result
   }
   const facet: CredentialsIssuer = {
-    authenticate: (request) => target.authenticate(request),
     signIn: async (identityRef, opts) => {
       const { providerName, authId } = await resolveIdentityRef(identityRef)
       const oauth = resolveOAuthData(spec, providerName, opts?.oauth)
@@ -495,7 +495,6 @@ function undeclaredCredentialsIssuer(spec: SchemeRuntimeSpec): CredentialsIssuer
     )
   }
   return {
-    authenticate: reject,
     signIn: reject,
     signOut: reject,
     signOutEverywhere: reject,
@@ -543,6 +542,7 @@ function makeSchemeRuntime(spec: SchemeRuntimeSpec, credentialsIssuer: Credentia
     clientUrl: config.frontendUrl,
     isDevelopment: config.isDevelopment,
     isAccountMergingEnabled: mergeUsersFn !== null,
+    authenticate: (request) => authenticateAccount(spec.scheme, request),
     // One store per declared provider name (`identities.email`). The keys are
     // the boundary: an undeclared provider name has no member.
     identities: Object.fromEntries(
@@ -569,15 +569,56 @@ const issuerOptionsByScheme: Partial<Record<AuthSchemeName, IssuerOptions>> = {}
 /** The sign-in of every scheme that can issue credentials, for the imperative API. */
 const signInByScheme: Partial<Record<AuthSchemeName, IssueSignIn>> = {}
 
-// Filled in dependency order below; typed as the full map once complete.
-const registered: Partial<Record<AuthSchemeName, { handler: AuthHandler; routeHandler?: (request: Request) => Response | Promise<Response> }>> = {}
+type RouteHandler = (request: Request) => Response | Promise<Response>
 
-function handlerOf(name: AuthSchemeName): AuthHandler {
-  const handlerParts = registered[name]
-  if (handlerParts === undefined) {
+/** What Wasp holds per scheme: who recognises its credential, and its routes. */
+type SchemeParts = {
+  /** Wasp's issuer for the scheme's inline `credentials`, when it has them. */
+  issuer: WaspIssuer | null
+  /** The sibling scheme this one signs into (`credentials: { scheme }`), when it does. */
+  credentialsScheme: AuthSchemeName | null
+  /** A credential handler's `AuthHandler`; null for a login handler, which has none. */
+  handler: AuthHandler | null
+  routeHandler?: RouteHandler
+}
+
+// Filled in dependency order below.
+const registered: Partial<Record<AuthSchemeName, SchemeParts>> = {}
+
+function partsOf(name: AuthSchemeName): SchemeParts {
+  const parts = registered[name]
+  if (parts === undefined) {
     throw new Error(`Auth scheme '${name}' is not built yet; the generator ordered the schemes wrong.`)
   }
-  return handlerParts.handler
+  return parts
+}
+
+/** The Wasp issuer whose credential a scheme's requests carry, following `credentials: { scheme }` chains. */
+function issuerOf(name: AuthSchemeName): WaspIssuer | null {
+  const parts = partsOf(name)
+  return parts.issuer ?? (parts.credentialsScheme === null ? null : issuerOf(parts.credentialsScheme))
+}
+
+/** The credential handler whose own credential a scheme's requests may carry, and which scheme it is. */
+function identityHandlerOf(name: AuthSchemeName): { scheme: AuthSchemeName; handler: AuthHandler } | null {
+  const parts = partsOf(name)
+  if (parts.handler !== null) {
+    return { scheme: name, handler: parts.handler }
+  }
+  return parts.credentialsScheme === null ? null : identityHandlerOf(parts.credentialsScheme)
+}
+
+/** What a scheme signs into: its own issuer, its own handler, or whatever the sibling it names signs into. */
+function signInTargetOf(name: AuthSchemeName): WaspIssuer | AuthHandler {
+  const parts = partsOf(name)
+  const own = parts.issuer ?? parts.handler
+  if (own !== null) {
+    return own
+  }
+  if (parts.credentialsScheme === null) {
+    throw new Error(`Auth scheme '${name}' has nothing to sign into.`)
+  }
+  return signInTargetOf(parts.credentialsScheme)
 }
 
 {=# schemes =}
@@ -614,7 +655,7 @@ signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 {=/ inlineCredentials =}
 {=# credentialsScheme =}
 // Signs into the sibling scheme '{= credentialsScheme =}', created above.
-const bound_{= index =} = boundTo(spec_{= index =}, handlerOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
+const bound_{= index =} = boundTo(spec_{= index =}, signInTargetOf('{= credentialsScheme =}'), issuerOptionsByScheme['{= credentialsScheme =}'] ?? null)
 const credentialsIssuer_{= index =} = bound_{= index =}.facet
 signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 {=/ credentialsScheme =}
@@ -622,8 +663,8 @@ signInByScheme['{= schemeName =}'] = bound_{= index =}.issueSignIn
 const credentialsIssuer_{= index =} = null
 {=/ hasCredentials =}
 {=# isFrameworkIssuer =}
-// waspBearer() / waspCookie(): the scheme IS its issuer.
-const handlerParts_{= index =} = { handler: issuer_{= index =} }
+// waspBearer() / waspCookie(): the scheme IS its issuer, and nothing else.
+registered['{= schemeName =}'] = { issuer: issuer_{= index =}, credentialsScheme: null, handler: null }
 {=/ isFrameworkIssuer =}
 {=^ isFrameworkIssuer =}
 {=^ isPackage =}
@@ -651,19 +692,110 @@ const handlerParts_{= index =} = await Promise.resolve(
     ]) as Parameters<typeof createServerAuthHandler_{= index =}>[1],
   ),
 )
+registered['{= schemeName =}'] = {
+  {=# inlineCredentials =}
+  issuer: issuer_{= index =},
+  {=/ inlineCredentials =}
+  {=^ inlineCredentials =}
+  issuer: null,
+  {=/ inlineCredentials =}
+  {=# credentialsScheme =}
+  credentialsScheme: '{= credentialsScheme =}',
+  {=/ credentialsScheme =}
+  {=^ credentialsScheme =}
+  credentialsScheme: null,
+  {=/ credentialsScheme =}
+  {=# isLoginHandler =}
+  // A login handler implements no AuthHandler: Wasp recognises the credential it issued.
+  handler: null,
+  {=/ isLoginHandler =}
+  {=^ isLoginHandler =}
+  handler: handlerParts_{= index =}.handler,
+  {=/ isLoginHandler =}
+  routeHandler: handlerParts_{= index =}.routeHandler,
+}
 {=/ isFrameworkIssuer =}
-registered['{= schemeName =}'] = handlerParts_{= index =}
 {=/ schemes =}
 
 // PRIVATE API
-/**
- * The app's auth schemes, keyed by name. Everything else in Wasp depends on
- * the `AuthHandler` interface rather than on concrete implementations.
- */
-export const authSchemes: { readonly [Name in AuthSchemeName]: AuthHandler } = {
+export const authSchemeNames: readonly AuthSchemeName[] = [
   {=# schemes =}
-  '{= schemeName =}': handlerOf('{= schemeName =}'),
+  '{= schemeName =}',
   {=/ schemes =}
+]
+
+// PRIVATE API
+/** The `AuthHandler` of a credential handler; null for a login handler. */
+export function handlerOf(name: AuthSchemeName): AuthHandler | null {
+  return partsOf(name).handler
+}
+
+// PRIVATE API
+/** Whose request this is, as one scheme sees it: an account (Wasp's own credential) or a handler's identity. */
+export type SchemeAuthentication =
+  | { kind: 'account'; scheme: AuthSchemeName; account: AccountPrincipal; signedInBy: string }
+  | { kind: 'identity'; scheme: AuthSchemeName; principal: IdentityPrincipal }
+
+// PRIVATE API
+/**
+ * Authenticates a request for one scheme: Wasp's own credential first (an
+ * account, no lookup needed), then the credential handler's `authenticate`
+ * (an identity Wasp resolves, provisioning on first sight). A handler that
+ * throws instead of answering `unauthenticated` is logged and treated as
+ * `unauthenticated`: how it rejects a bad credential is its own business.
+ */
+export async function authenticateScheme(scheme: AuthSchemeName, request: Request): Promise<SchemeAuthentication | null> {
+  const issuer = issuerOf(scheme)
+  if (issuer !== null) {
+    const account = await issuer.authenticate(request)
+    if (account !== null) {
+      return { kind: 'account', scheme, account, signedInBy: account.signedInBy }
+    }
+  }
+  const owner = identityHandlerOf(scheme)
+  if (owner !== null) {
+    const result = await Promise.resolve()
+      .then(() => owner.handler.authenticate(request))
+      .catch((error) => {
+        console.error(`Auth scheme '${owner.scheme}' threw while authenticating:`, error)
+        return { status: 'unauthenticated' } as const
+      })
+    if (result.status === 'authenticated') {
+      return { kind: 'identity', scheme: owner.scheme, principal: result.principal }
+    }
+  }
+  return null
+}
+
+// PRIVATE API
+/** Ends the credential the request carries, through whoever issued it. */
+export async function signOutScheme(scheme: AuthSchemeName, request: Request): Promise<Response> {
+  const issuer = issuerOf(scheme)
+  if (issuer !== null && (await issuer.authenticate(request)) !== null) {
+    return issuer.signOut(request)
+  }
+  const owner = identityHandlerOf(scheme)
+  return (await owner?.handler.signOut?.(request)) ?? Response.json({ success: true })
+}
+
+// PRIVATE API
+/** "Log in first", the way the scheme says it: the handler's answer, else its issuer's (a redirect for a cookie scheme), else 401. */
+export async function challengeScheme(scheme: AuthSchemeName, request: Request): Promise<Response> {
+  return (
+    (await identityHandlerOf(scheme)?.handler.challenge?.(request)) ??
+    (await issuerOf(scheme)?.challenge(request)) ??
+    Response.json({ message: 'Invalid credentials' }, { status: 401 })
+  )
+}
+
+// PRIVATE API
+/** "You may not", the way the scheme says it. Default: 403. */
+export async function forbidScheme(scheme: AuthSchemeName, request: Request): Promise<Response> {
+  return (
+    (await identityHandlerOf(scheme)?.handler.forbid?.(request)) ??
+    (await issuerOf(scheme)?.forbid(request)) ??
+    Response.json({ message: 'Forbidden' }, { status: 403 })
+  )
 }
 
 // PRIVATE API
@@ -703,11 +835,6 @@ export async function signOutEverywhereForAuthId(authId: string): Promise<boolea
 }
 
 // PRIVATE API
-export function getAuthScheme(name: string): AuthHandler | undefined {
-  return (authSchemes as Record<string, AuthHandler>)[name]
-}
-
-// PRIVATE API
 /**
  * The routes schemes brought with them, keyed by scheme name: standard
  * `Request` in, `Response` out. The server mounts each at `/auth/<scheme>`.
@@ -734,13 +861,14 @@ function assertHandlersMatchManifests(): void {
   ]
   const errors: string[] = []
   for (const manifest of manifests) {
-    const handler = authSchemes[manifest.scheme]
-    if (typeof handler.authenticate !== 'function') {
-      errors.push(`the handler of scheme '${manifest.scheme}' has no authenticate method`)
+    const parts = partsOf(manifest.scheme)
+    if (parts.issuer === null && parts.handler === null && parts.credentialsScheme === null) {
+      errors.push(`scheme '${manifest.scheme}' has nothing that could recognise a credential: no handler, no credentials`)
     }
-    if (manifest.capabilities.includes('sign-in') && typeof handler.signIn !== 'function') {
+    const signInTarget = parts.issuer ?? parts.handler
+    if (manifest.capabilities.includes('sign-in') && typeof signInTarget?.signIn !== 'function') {
       errors.push(
-        `the manifest of scheme '${manifest.scheme}' declares the 'sign-in' capability, but its handler has no signIn method`,
+        `the manifest of scheme '${manifest.scheme}' declares the 'sign-in' capability, but nothing in it can sign in`,
       )
     }
   }

@@ -478,15 +478,13 @@ export interface AuthSchemeClientSide {
  *
  * @category Experimental
  */
-export interface AuthSchemeManifest {
-  /** Discriminates the value. Always `"scheme"`. */
-  kind: "scheme";
+interface AuthSchemeManifestBase {
   /**
    * Version of the auth contract the handler was built against. Wasp rejects
    * manifests with a contract version it does not support, which turns
    * handler/compiler version skew into a clear error.
    */
-  contractVersion: 19;
+  contractVersion: 20;
   /** The server half. Every scheme has one. */
   server: AuthSchemeServerSide;
   /** The client half, when the handler needs anything in the browser. */
@@ -517,12 +515,6 @@ export interface AuthSchemeManifest {
    */
   providers?: AuthProviderDeclarations;
   /**
-   * How this scheme hands out credentials after a login it verified. Absent
-   * for schemes whose own credential authenticates every request (a hosted
-   * provider's token, a self-issuing library like Better Auth).
-   */
-  credentials?: CredentialsConfig;
-  /**
    * Computes the app's user entity fields from the claims a handler verified,
    * for the one case where WASP creates the user: a subject it has never
    * seen shows up already authenticated (a hosted provider's token), so no
@@ -539,6 +531,51 @@ export interface AuthSchemeManifest {
    */
   readonly __waspAuthSchemeManifest: true;
 }
+
+/**
+ * A LOGIN auth handler: it verifies logins (a password, an OAuth round trip)
+ * and hands the verified identity to Wasp's issuer, which issues and keeps
+ * the credential. It brings routes and implements no `AuthHandler`.
+ *
+ * @category Experimental
+ */
+export interface LoginAuthHandler extends AuthSchemeManifestBase {
+  kind: "login";
+  /**
+   * How this scheme hands out credentials after a login it verified. Absent
+   * for schemes whose own credential authenticates every request (a hosted
+   * provider's token, a self-issuing library like Better Auth).
+   */
+  credentials: CredentialsConfig;
+}
+
+/**
+ * A CREDENTIAL auth handler: it owns its credential (Clerk's token, Better
+ * Auth's session) and implements `AuthHandler` so Wasp can recognise it.
+ * Declaring `credentials` here is the exchange: the handler's own credential
+ * is traded for Wasp's, which Wasp then checks first.
+ *
+ * @category Experimental
+ */
+export interface CredentialAuthHandler extends AuthSchemeManifestBase {
+  kind: "credential";
+  /**
+   * How this scheme hands out credentials after a login it verified. Absent
+   * for schemes whose own credential authenticates every request (a hosted
+   * provider's token, a self-issuing library like Better Auth).
+   */
+  credentials?: CredentialsConfig;
+}
+
+/**
+ * What an auth handler's spec constructor returns, one of the two kinds.
+ *
+ * @category Experimental
+ */
+export type AuthSchemeManifest = LoginAuthHandler | CredentialAuthHandler;
+
+/** @category Experimental */
+export type AuthHandlerKind = AuthSchemeManifest["kind"];
 
 /**
  * Server-side application configuration.

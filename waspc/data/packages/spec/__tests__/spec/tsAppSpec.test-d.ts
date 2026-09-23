@@ -8,6 +8,7 @@ import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
 describe("Auth schemes", () => {
   const scheme = customAuthHandler({
+    kind: "credential",
     server: { from: "./src/auth", import: "handler" } as never,
   });
 
@@ -42,8 +43,8 @@ describe("Auth schemes", () => {
 
   test("forbids a manifest without the authenticity marker", () => {
     expectTypeOf<{
-      kind: "scheme";
-      contractVersion: 19;
+      kind: "credential";
+      contractVersion: 20;
       server: {
         authAdapter: { package: "@wasp.sh/auth-clerk/server" };
       };

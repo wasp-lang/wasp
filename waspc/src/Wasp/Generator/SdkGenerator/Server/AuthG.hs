@@ -220,6 +220,8 @@ mkSchemesTmplData auth =
                "schemeName" .= scheme.name,
                "handler" .= scheme.handler,
                "isPackage" .= isJust (AS.Auth.serverPackage scheme),
+               -- A login handler returns routes only; Wasp recognises its own credential.
+               "isLoginHandler" .= (scheme.kind == AS.Auth.LoginHandler),
                -- The framework's own issuer handler IS the private issuer built
                -- from the scheme's inline credentials; nothing else to construct.
                "isFrameworkIssuer" .= (AS.Auth.serverPackage scheme == Just frameworkIssuerPackage),

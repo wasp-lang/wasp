@@ -817,6 +817,7 @@ makeTestAuthScheme :: String -> AS.Auth.AuthScheme
 makeTestAuthScheme schemeName =
   AS.Auth.AuthScheme
     { AS.Auth.name = schemeName,
+      AS.Auth.kind = AS.Auth.CredentialHandler,
       AS.Auth.handler = "@wasp.sh/auth-" ++ schemeName,
       AS.Auth.server = makeTestSchemeSide ("@wasp.sh/auth-" ++ schemeName ++ "/server") "createServerAuthHandler" [],
       AS.Auth.client = Nothing,

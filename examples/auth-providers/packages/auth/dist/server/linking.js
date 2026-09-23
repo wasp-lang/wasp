@@ -13,17 +13,15 @@ const METHOD_NAMES = [
     "microsoft",
 ];
 /**
- * The account of the signed-in user making this request. Goes through the
- * credentials facet, so it works whatever issuer this scheme signs into
- * (its private one, or a sibling `waspBearer()` / `waspCookie()`), bearer or
- * cookie. For a Wasp-issued credential the principal's subject IS the Auth id.
+ * The account of the signed-in user making this request, as Wasp sees it:
+ * whatever issuer this scheme signs into, bearer or cookie.
  */
 export async function requireCurrentAuthId({ runtime }, req) {
-    const result = await runtime.credentialsIssuer.authenticate(req.request);
-    if (result.status !== "authenticated") {
+    const account = await runtime.authenticate(req.request);
+    if (account === null) {
         throw new HttpError(401, "Sign in before changing your connected accounts.");
     }
-    return result.principal.providerUserId;
+    return account.authId;
 }
 /** Maps the facet's link/unlink rejections onto HTTP answers the client reads. */
 export function rethrowLinkError(e) {

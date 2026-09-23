@@ -353,11 +353,12 @@ async function redeemLinkOneTimeCode(
   { runtime }: Ctx,
   oneTimeCode: string,
 ): Promise<string> {
-  const result = await runtime.credentialsIssuer.redeemOneTimeCode(oneTimeCode);
-  if (result.status !== "authenticated") {
+  const account =
+    await runtime.credentialsIssuer.redeemOneTimeCode(oneTimeCode);
+  if (account === null) {
     throw new HttpError(400, "The link request expired. Try again.");
   }
-  return result.principal.providerUserId;
+  return account.authId;
 }
 
 function validateAndGetOAuthState(

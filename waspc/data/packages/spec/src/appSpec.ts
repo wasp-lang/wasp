@@ -195,6 +195,8 @@ export type AuthHooksSpec = {
 // A named, configured instance of an auth handler.
 export type AuthScheme = {
   name: string;
+  // "login": verifies logins, Wasp issues the credential; "credential": owns its credential.
+  kind: "login" | "credential";
   handler: string;
   server: AuthSchemeSide;
   client: Optional<AuthSchemeSide>;

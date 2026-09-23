@@ -8,8 +8,8 @@ import type {
   AuthHandler,
   IdentityStore,
   OAuthLoginData,
-  ServerAuthAdapter,
   ServerAuthAdapterFor,
+  ServerCredentialAuthAdapter,
   SpecReference,
   WaspServerRuntime,
 } from "../index.js";
@@ -200,7 +200,7 @@ export const kindsPlain: ServerAuthAdapterFor<typeof plainAuth> = async (
   return { handler };
 };
 // loose: everything optional, shape still checked
-export const kindsLoose: ServerAuthAdapter = async (runtime) => {
+export const kindsLoose: ServerCredentialAuthAdapter = async (runtime) => {
   await runtime.identities.default.create("x");
   await runtime.identities.default.create("x", { oauth });
   await runtime.identities.default.create("x", {
@@ -220,3 +220,30 @@ export const kindsMix: ServerAuthAdapterFor<typeof kindsAuth> = (runtime) => {
   void anyStore;
   return { handler, routeHandler: () => new Response() };
 };
+
+// ---- the two kinds: a login handler returns routes only, a credential handler its AuthHandler ----
+declare function loginAuth(): {
+  kind: "login";
+  server: { routes: {} };
+  credentials: {};
+};
+export const loginTyped: ServerAuthAdapterFor<typeof loginAuth> = (runtime) => {
+  runtime.credentialsIssuer.signIn({ providerUserId: "x" });
+  return { routeHandler: () => new Response() };
+};
+const loginParts: Awaited<ReturnType<ServerAuthAdapterFor<typeof loginAuth>>> =
+  {
+    // @ts-expect-error a login handler implements no AuthHandler: Wasp recognises its own credential
+    handler,
+    routeHandler: () => new Response(),
+  };
+void loginParts;
+declare function credentialAuth(): { kind: "credential"; server: {} };
+export const credentialTyped: ServerAuthAdapterFor<
+  typeof credentialAuth
+> = () => ({ handler });
+// @ts-expect-error a credential handler must return its AuthHandler
+const credentialWithout: Awaited<
+  ReturnType<ServerAuthAdapterFor<typeof credentialAuth>>
+> = {};
+void credentialWithout;

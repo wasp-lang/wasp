@@ -2,8 +2,7 @@
 import { createHash } from 'node:crypto'
 import { TimeSpan, createJWTHelpers } from '@wasp.sh/lib-auth/node'
 import type {
-  AuthenticateResult,
-  AuthHandler,
+  AccountPrincipal,
   CredentialRecord,
   CredentialStore,
   SignInContext,
@@ -47,7 +46,25 @@ export type IssuerOptions = {
 const COOKIE_NAME = 'wasp_credential'
 
 // PRIVATE API
-export function createIssuer(options: IssuerOptions): AuthHandler {
+/** What a Wasp issuer knows about a credential it issued: the account, plus who verified the login. */
+export type IssuedCredential = AccountPrincipal & { credentialId: string; signedInBy: string }
+
+// PRIVATE API
+/**
+ * Wasp's own issuer, one per scheme that declares inline `credentials`. Not an
+ * `AuthHandler`: it recognises the credential it issued and answers with the
+ * ACCOUNT, never with an identity, so nothing has to pretend otherwise.
+ */
+export type WaspIssuer = {
+  authenticate(request: Request): Promise<IssuedCredential | null>
+  signIn(identityRef: AuthIdentityRef, context: SignInContext): Promise<SignInResult>
+  signOut(request: Request): Promise<Response>
+  challenge(request: Request): Promise<Response>
+  forbid(request: Request): Promise<Response>
+}
+
+// PRIVATE API
+export function createIssuer(options: IssuerOptions): WaspIssuer {
   const store = resolveStore(options)
   const transport = options.transport === 'cookie' ? cookieTransport(options) : bearerTransport
   const schemeTtl = parseTimeSpan(options.ttl)
@@ -63,12 +80,12 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
     async authenticate(request) {
       const id = transport.read(request)
       if (id === null) {
-        return { status: 'unauthenticated' }
+        return null
       }
       const record = await store.get(id)
       // A one-time code lives in the same store, and is never a credential.
       if (record === null || isOneTimeCodeRecord(record)) {
-        return { status: 'unauthenticated' }
+        return null
       }
       // Sliding renewal: an active user keeps a live credential. `issuedAt`
       // stays, so a renewed credential is no fresher than it was.
@@ -76,14 +93,11 @@ export function createIssuer(options: IssuerOptions): AuthHandler {
         await store.extend!(id, new Date(Date.now() + schemeTtl.milliseconds()))
       }
       return {
-        status: 'authenticated',
-        principal: {
-          providerUserId: record.authId,
-          signedInBy: record.signedInBy,
-          credentialId: id,
-          credentialIssuedAt: record.issuedAt,
-          isCredentialFresh: Date.now() - record.issuedAt.getTime() < freshFor.milliseconds(),
-        },
+        authId: record.authId,
+        signedInBy: record.signedInBy,
+        credentialId: id,
+        credentialIssuedAt: record.issuedAt,
+        isCredentialFresh: Date.now() - record.issuedAt.getTime() < freshFor.milliseconds(),
       }
     },
 
@@ -153,14 +167,14 @@ export async function createOneTimeCode(options: IssuerOptions, request: Request
   if (options.transport === 'cookie') {
     return null
   }
-  const result = await createIssuer(options).authenticate(request)
-  if (result.status !== 'authenticated') {
+  const account = await createIssuer(options).authenticate(request)
+  if (account === null) {
     throw contractError('wasp-auth/unauthenticated', 'A one-time code needs a request that carries a valid credential.')
   }
   const issuedAt = new Date()
   const { id } = await resolveStore(options).create({
-    authId: result.principal.providerUserId,
-    signedInBy: `${ONE_TIME_CODE_MARKER}${result.principal.signedInBy ?? options.scheme}`,
+    authId: account.authId,
+    signedInBy: `${ONE_TIME_CODE_MARKER}${account.signedInBy}`,
     issuedAt,
     expiresAt: new Date(issuedAt.getTime() + ONE_TIME_CODE_LIFETIME.milliseconds()),
   })
@@ -169,22 +183,24 @@ export async function createOneTimeCode(options: IssuerOptions, request: Request
 
 // PRIVATE API
 /** Who a one-time code stands for. Spends it: a second redemption is `unauthenticated`. */
-export async function redeemOneTimeCode(options: IssuerOptions, oneTimeCode: string): Promise<AuthenticateResult> {
+export async function redeemOneTimeCode(options: IssuerOptions, oneTimeCode: string): Promise<IssuedCredential | null> {
   const store = resolveStore(options)
   const record = await store.get(oneTimeCode)
   if (record === null || !isOneTimeCodeRecord(record)) {
-    return { status: 'unauthenticated' }
+    return null
   }
   if (!(await spendOneTimeCode(oneTimeCode))) {
-    return { status: 'unauthenticated' }
+    return null
   }
   await store.delete(oneTimeCode)
+  // The code stood for a credential, not for a login moment: it says who,
+  // not how recently they logged in.
   return {
-    status: 'authenticated',
-    principal: {
-      providerUserId: record.authId,
-      signedInBy: record.signedInBy.substring(ONE_TIME_CODE_MARKER.length),
-    },
+    authId: record.authId,
+    signedInBy: record.signedInBy.substring(ONE_TIME_CODE_MARKER.length),
+    credentialId: oneTimeCode,
+    credentialIssuedAt: null,
+    isCredentialFresh: false,
   }
 }
 

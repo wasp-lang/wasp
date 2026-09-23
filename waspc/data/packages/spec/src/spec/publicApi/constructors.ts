@@ -1,4 +1,3 @@
-import type { AnyObject } from "../../typeUtils.js";
 import {
   reservedClientEnvVarNames,
   reservedServerEnvVarNames,
@@ -12,9 +11,7 @@ import type {
   AuthProviderDeclarations,
   AuthProviderKind,
   AuthRuntimeGrantName,
-  AuthSchemeClientSide,
   AuthSchemeManifest,
-  AuthSchemeServerSide,
   CredentialsConfig,
   CredentialStore,
   CredentialTransport,
@@ -22,7 +19,6 @@ import type {
   Job,
   Page,
   Query,
-  Reference,
   Route,
 } from "./waspSpec.js";
 
@@ -447,12 +443,17 @@ export function crud(
  *
  * @category Experimental
  */
-export type AuthSchemeManifestInput = Omit<
+export type AuthSchemeManifestInput = DistributiveOmit<
   AuthSchemeManifest,
-  "kind" | "contractVersion" | "__waspAuthSchemeManifest" | "capabilities"
+  "contractVersion" | "__waspAuthSchemeManifest" | "capabilities"
 > & {
   capabilities?: string[];
 };
+
+// `Omit` over a union keeps only the common keys; this keeps each member.
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
+  ? Omit<T, K>
+  : never;
 
 /**
  * EXPERIMENTAL. Defines an auth scheme manifest.
@@ -477,6 +478,21 @@ export function defineAuthSchemeManifest(
     );
   }
   const handler = describeAuthHandler(manifest);
+  if (manifest.kind !== "login" && manifest.kind !== "credential") {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' declares the unknown kind '${String((manifest as { kind?: unknown }).kind)}'. A handler is either "login" (it verifies logins, Wasp issues the credential) or "credential" (it owns its credential).`,
+    );
+  }
+  if (manifest.kind === "login" && manifest.credentials === undefined) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' is a login handler, so it must declare \`credentials\`: Wasp issues the credential for the logins it verifies.`,
+    );
+  }
+  if (manifest.kind === "login" && manifest.server.routes === undefined) {
+    throw new WaspSpecUserError(
+      `Auth handler '${handler}' is a login handler, so it must declare \`server.routes\`: a login handler is its routes.`,
+    );
+  }
   validateAuthAdapterEntry(handler, "server", manifest.server);
   if (manifest.client !== undefined) {
     validateAuthAdapterEntry(handler, "client", manifest.client);
@@ -505,11 +521,10 @@ export function defineAuthSchemeManifest(
 
   return {
     ...manifest,
-    kind: "scheme",
     contractVersion: supportedAuthContractVersion,
     capabilities: manifest.capabilities ?? [],
     __waspAuthSchemeManifest: true,
-  };
+  } as AuthSchemeManifest;
 }
 
 /**
@@ -518,7 +533,7 @@ export function defineAuthSchemeManifest(
  * handler/compiler skew is a clear error instead of a silently ignored field.
  * Used for the stamped value, the check and its message, so they cannot drift.
  */
-export const supportedAuthContractVersion = 19 as const;
+export const supportedAuthContractVersion = 20 as const;
 
 /**
  * A label for error messages: where the server half's code lives. The package
@@ -678,31 +693,7 @@ export function validateCredentialsConfig(
  *
  * @inline
  */
-export type CustomAuthHandlerConfig = {
-  /**
-   * The server half. `authAdapter` is a reference to a
-   * `ServerAuthAdapter` in the app's own code: a function that
-   * receives the scheme's runtime and returns `{ handler, routeHandler? }`,
-   * exactly like a handler package's `createServerAuthHandler`.
-   */
-  server: AuthSchemeServerSide;
-  /**
-   * The client half. `authAdapter` is a reference to a
-   * `ClientAuthAdapter` in the app's own code, exactly like a
-   * handler package's `createClientAuthHandler`.
-   */
-  client?: AuthSchemeClientSide;
-  /** See {@link AuthSchemeManifest.capabilities}. */
-  capabilities?: string[];
-  /** See {@link AuthSchemeManifest.uses}. */
-  uses?: AuthRuntimeGrantName[];
-  /** See {@link AuthSchemeManifest.providers}. */
-  providers?: AuthProviderDeclarations;
-  /** See {@link AuthSchemeManifest.credentials}. */
-  credentials?: CredentialsConfig;
-  /** See {@link AuthSchemeManifest.userFieldsFromClaims}. */
-  userFieldsFromClaims?: Reference<AnyObject>;
-};
+export type CustomAuthHandlerConfig = AuthSchemeManifestInput;
 
 /**
  * EXPERIMENTAL. Declares a hand-written auth handler: an `AuthHandler`
@@ -800,6 +791,7 @@ function waspCredentialScheme(
   // The generated client already stores a bearer credential a sibling scheme
   // adopts, so the issuer has no client entry of its own.
   return defineAuthSchemeManifest({
+    kind: "credential",
     server: {
       authAdapter: { package: "wasp/server/auth/issuer" },
       env:

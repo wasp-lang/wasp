@@ -59,54 +59,42 @@ export type AuthIdentityRef<ProviderName extends string = string> = {
 };
 
 /**
- * The result of successfully authenticating a request.
- *
- * NOTE: the primitive here is *verify*, not *fetch*. A handler turns a
- * credential that arrived with the request into a subject. It is deliberately
- * NOT `findById(id)`: a hosted provider (Clerk) validates a signed token and
- * has no way to look a subject up by id on our behalf.
+ * What a CREDENTIAL handler learned from a credential it owns: which of ITS
+ * identities the request is from, and what it knows about that credential.
  */
-export type Principal = AuthIdentityRef & {
+export type IdentityPrincipal = AuthIdentityRef & {
   /**
-   * Verified profile data about the subject, as far as the handler knows it:
-   * email, name, avatar, whatever the verified token or session carried.
-   *
-   * Wasp feeds this to the app's `userSignupFields` when it provisions a local
-   * user for a subject it has not seen before, and records it on the identity
-   * it creates. Omit rather than invent: an absent claim is recoverable, a
-   * made-up one is not.
+   * Verified facts about the person (email, name), as plain JSON. Wasp stores
+   * them on the identity when it first creates the user, and hands them to
+   * the app's `userSignupFields`.
    */
   claims?: Record<string, JsonValue>;
-
-  /**
-   * The scheme that verified the login this credential descends from, when
-   * the authenticating scheme is a credential issuer signed into by another
-   * scheme (Wasp's own auth signing into a cookie scheme, say). Defaults to
-   * the authenticating scheme itself. Recorded as `user.signedInBy`.
-   */
-  signedInBy?: string;
-
-  /**
-   * Opaque, handler-owned id of the credential that authenticated the request
-   * (a session row id, typically). Wasp hands it back to `signOut`-shaped
-   * flows and uses it for diagnostics; it never interprets its contents.
-   */
+  /** The handler's id for THIS credential (a session id), so logout can revoke exactly this one. */
   credentialId?: string;
-  /** When the credential was issued, if the handler knows. Wasp's own issuer always does. */
+  /** When the credential was issued, if the handler knows. */
   credentialIssuedAt?: Date;
-  /** Whether the credential is younger than its scheme's `freshFor`. Wasp's own issuer always says. */
+  /** Whether the credential is younger than the scheme's `freshFor`, if the handler knows. */
   isCredentialFresh?: boolean;
 };
 
 /**
- * The outcome of authenticating a request.
- *
- * Deliberately a tagged union rather than `Principal | null`: call sites
- * read as prose, and future outcomes (an explicit "invalid credential" state,
- * say) become additive union members instead of signature breaks.
+ * What Wasp knows about the request's credential once it resolved it to an
+ * ACCOUNT: from its own issuer directly, or from a credential handler's
+ * `IdentityPrincipal` after provisioning. What `runtime.authenticate`
+ * returns, and what the imperative API and `merge` reason about.
  */
+export type AccountPrincipal = {
+  authId: string;
+  credentialId?: string;
+  /** Null for a handler-owned credential the handler said nothing about. */
+  credentialIssuedAt: Date | null;
+  /** False when unknown. */
+  isCredentialFresh: boolean;
+};
+
+/** The answer to "whose request is this?" from a credential handler. An unknown caller is a normal answer, not an error. */
 export type AuthenticateResult =
-  | { status: "authenticated"; principal: Principal }
+  | { status: "authenticated"; principal: IdentityPrincipal }
   | { status: "unauthenticated" };
 
 /** The manifest's `providers`: one declaration per provider name. */
@@ -216,7 +204,9 @@ export type SignInResult = {
 };
 
 /**
- * What Wasp's internals need from an auth handler.
+ * What Wasp's internals need from a CREDENTIAL handler: how Wasp recognises
+ * a credential the handler owns. A login handler implements none of this;
+ * Wasp recognises its own credential itself.
  *
  * `authenticate` is the only required operation: the request read path, the
  * one every scheme answers. Everything else is optional, and presence IS the
@@ -317,15 +307,6 @@ export type CredentialsIssuer<
   },
 > = {
   /**
-   * Authenticate a request against the credential this scheme hands out:
-   * the target issuer's own `authenticate`. A handler that verifies logins
-   * but carries no credential of its own forwards its `authenticate` here
-   * (ASP.NET's remote schemes forward to their sign-in scheme the same way),
-   * so `authRequired: ["<this scheme>"]` recognizes the credential it issued.
-   */
-  authenticate(request: Request): Promise<AuthenticateResult>;
-
-  /**
    * Issues a credential for a login the handler just verified. The provider's
    * kind is looked up from `identityRef.providerName`: for an "oauth"
    * provider the options are required and carry the `oauth` data.
@@ -373,11 +354,10 @@ export type CredentialsIssuer<
   createOneTimeCode(request: Request): Promise<string | null>;
 
   /**
-   * Who a one-time code stands for, as `authenticate` would have answered for
-   * the request the code was created from. Spends the code: an unknown,
-   * expired or already spent one is `unauthenticated`.
+   * The account a one-time code stands for. Spends the code: an unknown,
+   * expired or already spent one is null.
    */
-  redeemOneTimeCode(oneTimeCode: string): Promise<AuthenticateResult>;
+  redeemOneTimeCode(oneTimeCode: string): Promise<AccountPrincipal | null>;
 };
 
 /**
@@ -535,6 +515,15 @@ export type WaspServerRuntime<ProviderNames extends string = "default"> = {
    * belongs to another account simply cannot be linked.
    */
   isAccountMergingEnabled: boolean;
+
+  /**
+   * Who sent this request, as Wasp sees it: Wasp's own credential first, then
+   * the handler's `authenticate` (a credential handler), resolved to the
+   * ACCOUNT, provisioning a never-seen identity exactly like the middleware
+   * does. For a handler's own routes that act as the signed-in user
+   * (linking). Null for nobody.
+   */
+  authenticate(request: Request): Promise<AccountPrincipal | null>;
 
   /**
    * One store per declared provider name:
@@ -764,53 +753,55 @@ export type IdentityStore<Kind extends ProviderKindParam = ProviderKindParam> =
   };
 
 /**
- * What a handler's server entry produces: the handler itself, plus, for
- * handlers that own HTTP endpoints of their own (login flows, OAuth
- * callbacks, Better Auth's `/sign-in` and friends), the Node handler Wasp
- * should mount at the scheme's `mountPath`.
- *
- * One adapter returns both so they are guaranteed to share one configured
- * instance -- a handler authenticating against one configuration while its
- * routes run another is a bug class this shape makes unrepresentable.
+ * What a LOGIN adapter returns: its routes, and nothing else. Wasp itself
+ * recognises, ends and challenges for the credential it issued.
  */
-export type ServerAuthHandlerParts = {
-  handler: AuthHandler;
+export type ServerLoginAuthHandlerParts = {
+  /** The handler's own routes (login, signup, callbacks), mounted at `/auth/<name>`. */
+  routeHandler: (request: Request) => Response | Promise<Response>;
+};
 
-  /**
-   * Node-style request handler for the scheme's own routes, mounted at
-   * `/auth/<scheme>` with the app's usual middleware around it (minus the JSON
-   * body parser when the manifest asked for raw bodies). Paths the handler
-   * sees are relative to the mount.
-   */
+/**
+ * What a CREDENTIAL adapter returns: the `AuthHandler` Wasp recognises its
+ * credential through, plus routes when it has any.
+ *
+ * Deliberately a WRAPPER around `AuthHandler` rather than `AuthHandler` with
+ * a `routeHandler` member added: `AuthHandler` stays exactly the interface
+ * Wasp depends on, an adapter can wrap a handler object some library built
+ * without mutating it, and once Wasp has full-stack modules the routes can
+ * move out without touching `AuthHandler`.
+ */
+export type ServerCredentialAuthHandlerParts = {
+  handler: AuthHandler;
   routeHandler?: (request: Request) => Response | Promise<Response>;
 };
 
 /**
- * The required shape of a handler's server half: the function Wasp calls to
- * build it. A handler package exports it (as `createServerAuthHandler`, or
- * under the name its manifest gives); a hand-written handler references it
- * from `main.wasp.ts`. The two are the same thing in different places.
- *
- * `spec` is the manifest's `server.spec`: the part of the app's Wasp Spec
- * that is this handler's own, exactly as the handler's spec constructor built it.
- * One object mixing plain data with the app's functions, each where it
- * naturally belongs. Wasp carried the functions across the compiler as
- * references and set them back, so they arrive live and callable. Wasp never
- * reads the contents; the handler types them with `ServerSpec`.
- *
- * `ProviderNames` is the union of the manifest's `providers` names.
- *
- * This is the loose form, typed by hand, for hand-written handlers. A package
- * with a spec constructor uses `ServerAuthAdapterFor<typeof myAuth>`, which derives
- * all of this, and more, from the manifest the constructor returns.
+ * The server adapter of a LOGIN handler: what a package exports as
+ * `createServerAuthHandler`, or a hand-written handler references from
+ * `main.wasp.ts`. Wasp calls it once at server start with the runtime and
+ * the manifest's `server.spec` (references replaced by the live functions).
+ * This is the loose form; a package with a spec constructor uses
+ * `ServerAuthAdapterFor<typeof myAuth>`, which picks the kind from the manifest.
  */
-export type ServerAuthAdapter<
+export type ServerLoginAuthAdapter<
   ServerSpec = unknown,
   ProviderNames extends string = "default",
 > = (
   runtime: WaspServerRuntime<ProviderNames>,
   spec: ServerSpec,
-) => ServerAuthHandlerParts | Promise<ServerAuthHandlerParts>;
+) => ServerLoginAuthHandlerParts | Promise<ServerLoginAuthHandlerParts>;
+
+/** The server adapter of a CREDENTIAL handler. See `ServerLoginAuthAdapter`. */
+export type ServerCredentialAuthAdapter<
+  ServerSpec = unknown,
+  ProviderNames extends string = "default",
+> = (
+  runtime: WaspServerRuntime<ProviderNames>,
+  spec: ServerSpec,
+) =>
+  | ServerCredentialAuthHandlerParts
+  | Promise<ServerCredentialAuthHandlerParts>;
 
 // ---------------------------------------------------------------------------
 // Credential issuers: what backs an inline `credentials: { transport, store }`.

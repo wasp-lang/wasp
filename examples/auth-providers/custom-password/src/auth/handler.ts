@@ -1,13 +1,13 @@
 import { hash, verify } from "@node-rs/argon2";
 import {
   getAuthContractErrorCode,
-  type ServerAuthAdapter,
+  type ServerLoginAuthAdapter,
 } from "wasp/server/auth/handler/types";
 
 /**
  * Email+password auth, hand-rolled in-app -- the proof that a hand-written
  * scheme has the same powers a handler package has, because it IS the same
- * thing: a `ServerAuthAdapter`, the function a package exports as
+ * thing: a `ServerLoginAuthAdapter`, the function a package exports as
  * `createServerAuthHandler`. Pasting this file into a package needs no edits.
  *
  * - The runtime arrives as an argument: the identities facet for storage, and
@@ -22,15 +22,10 @@ import {
  * adapter for `handler`, stash `runtime` in a module variable here, and read
  * it from those routes. That is plain userland; Wasp needs no API for it.
  */
-export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
-  // The routes below verify logins. Afterwards a request carries the token
-  // the issuer minted, and this handler recognizes it by forwarding to that
-  // issuer -- the way ASP.NET's remote schemes forward to their sign-in scheme.
-  handler: {
-    authenticate: (request) => runtime.credentialsIssuer.authenticate(request),
-    signOut: (request) => runtime.credentialsIssuer.signOut(request),
-  },
-
+export const createPasswordAuthHandler: ServerLoginAuthAdapter = (runtime) => ({
+  // A login handler is its routes. They verify logins and hand them to Wasp's
+  // issuer; the credential a request carries afterwards is Wasp's own, and
+  // Wasp recognises it itself, so there is no AuthHandler to implement.
   // Standard `Request` in, `Response` out. Wasp hands over the raw body, so
   // the route parses it itself.
   routeHandler: async (request) => {
@@ -114,14 +109,14 @@ export const createPasswordAuthHandler: ServerAuthAdapter = (runtime) => ({
 
     // ...and the navigation carries the code. It works once, for a minute.
     if (request.method === "GET" && path === "/export") {
-      const result = await runtime.credentialsIssuer.redeemOneTimeCode(
+      const account = await runtime.credentialsIssuer.redeemOneTimeCode(
         url.searchParams.get("oneTimeCode") ?? "",
       );
-      if (result.status !== "authenticated") {
+      if (account === null) {
         return send(401, { message: "Invalid credentials" });
       }
       return Response.json(
-        { authId: result.principal.providerUserId },
+        { authId: account.authId },
         {
           headers: {
             "Content-Disposition": 'attachment; filename="account.json"',

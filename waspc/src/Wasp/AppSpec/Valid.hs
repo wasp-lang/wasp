@@ -194,6 +194,7 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
         validateSchemeEnvVarsDoNotCollide (Auth.schemes auth),
         concatMap validateSchemeUses (Auth.schemes auth),
         concatMap validateSchemeProviderNames (Auth.schemes auth),
+        concatMap validateLoginHandlerHasCredentials (Auth.schemes auth),
         concatMap (validateEmailSendGrantHasEmailSender spec) (Auth.schemes auth),
         concatMap (validateCredentialsTarget auth) (Auth.schemes auth),
         concatMap validateSchemeRoutesDoNotCollideWithApis (Auth.schemes auth)
@@ -205,6 +206,16 @@ validateAuthSchemes spec = case App.auth (snd $ getApp spec) of
             ++ duplicateName
             ++ "' more than once. Identities and sessions are recorded under the scheme name, so each name may appear at most once."
       | duplicateName <- findDuplicateElems (Auth.schemeNames auth)
+      ]
+
+    -- A login handler hands its verified logins to Wasp's issuer, so it must
+    -- have one. The TS constructor enforces the same; this mirror covers
+    -- every entry point that does not go through it.
+    validateLoginHandlerHasCredentials scheme =
+      [ GenericValidationError $
+          "Auth scheme '" ++ scheme.name ++ "' is a login handler, so it must declare credentials: Wasp issues the credential for the logins it verifies."
+      | scheme.kind == Auth.LoginHandler,
+        isNothing scheme.credentials
       ]
 
     -- A scheme name is a route segment. The TS

@@ -224,11 +224,11 @@ async function getLinkTicketCookie(ctx, jwt, req) {
     };
 }
 async function redeemLinkOneTimeCode({ runtime }, oneTimeCode) {
-    const result = await runtime.credentialsIssuer.redeemOneTimeCode(oneTimeCode);
-    if (result.status !== "authenticated") {
+    const account = await runtime.credentialsIssuer.redeemOneTimeCode(oneTimeCode);
+    if (account === null) {
         throw new HttpError(400, "The link request expired. Try again.");
     }
-    return result.principal.providerUserId;
+    return account.authId;
 }
 function validateAndGetOAuthState(provider, req) {
     const url = getUrl(req);

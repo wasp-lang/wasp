@@ -402,6 +402,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
         onAuthFailedRedirectTo: "/login",
         schemes: {
           test: customAuthHandler({
+            kind: "credential",
             server: { authAdapter: getRefObject("minimal", "named") },
           }),
         },
@@ -413,6 +414,7 @@ export function getAuthConfig(scope: ConfigScope): WaspSpec.Auth {
         schemes: {
           session: waspBearer({ store: "prisma", ttl: "7d" }),
           test: customAuthHandler({
+            kind: "login",
             server: {
               authAdapter: getRefObject("full", "named"),
               env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
@@ -468,7 +470,9 @@ export function getSingleSchemeAuthConfig(): WaspSpec.Auth {
     onAuthFailedRedirectTo: "/login",
     schemes: {
       "test-provider": customAuthHandler({
+        kind: "login",
         server: {
+          routes: {},
           authAdapter: getRefObject("full", "named"),
           env: [{ name: "TEST_PROVIDER_SECRET", doc: "Secret for tests" }],
           spec: { flag: true, nested: { count: 1 } },

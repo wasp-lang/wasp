@@ -35,6 +35,7 @@ export default app({
     // handler.
     schemes: {
       password: customAuthHandler({
+        kind: "login",
         server: {
           authAdapter: createPasswordAuthHandler,
           routes: {},

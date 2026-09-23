@@ -1,4 +1,4 @@
-import type { AuthHandler, ServerAuthAdapterFor } from "@wasp.sh/auth-contract";
+import type { ServerAuthAdapterFor } from "@wasp.sh/auth-contract";
 import type { waspAuth } from "../spec.js";
 
 import { emailRoutes } from "./email/flows.js";
@@ -55,17 +55,10 @@ export const createServerAuthHandler: ServerAuthAdapterFor<typeof waspAuth> = (
     boundEmailHelpers = makeEmailHelpers(runtime);
   }
 
-  // The routes above verify logins; the credential a request carries
-  // afterwards belongs to the credentials scheme (this scheme's private
-  // issuer by default). Authentication forwards there, the way ASP.NET's
-  // remote schemes forward to their sign-in scheme, so `authRequired`
-  // naming this scheme recognizes the credentials it handed out.
-  const handler: AuthHandler = {
-    authenticate: (request) => runtime.credentialsIssuer.authenticate(request),
-    signOut: (request) => runtime.credentialsIssuer.signOut(request),
-  };
-
-  return { handler, routeHandler: makeDispatcher(routes, runtime.mountPath) };
+  // A login handler is its routes: they verify logins and hand them to Wasp's
+  // issuer. The credential a request carries afterwards is Wasp's, and Wasp
+  // recognises it itself.
+  return { routeHandler: makeDispatcher(routes, runtime.mountPath) };
 };
 
 // The email helpers (link builders, senders), bound to the runtime at handler

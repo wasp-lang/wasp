@@ -440,6 +440,7 @@ describe("mapAuth", () => {
         ...Fixtures.getAuthConfig("minimal"),
         schemes: {
           [name]: customAuthHandler({
+            kind: "credential",
             server: {
               authAdapter: Fixtures.getRefObject("full", "named"),
             },
@@ -492,8 +493,10 @@ describe("mapAuth", () => {
       schemes: {
         test: getSchemeManifest(auth),
         other: customAuthHandler({
+          kind: "login",
           server: {
             authAdapter: Fixtures.getRefObject("full", "named"),
+            routes: {},
           },
           credentials: { scheme: "test" },
         }),
@@ -512,6 +515,7 @@ describe("mapAuth", () => {
       ...auth,
       schemes: {
         a: customAuthHandler({
+          kind: "credential",
           server: {
             authAdapter: Fixtures.getRefObject("full", "named"),
           },
@@ -519,6 +523,7 @@ describe("mapAuth", () => {
           credentials: { scheme: "b" },
         }),
         b: customAuthHandler({
+          kind: "credential",
           server: {
             authAdapter: Fixtures.getRefObject("full", "named"),
           },
@@ -792,6 +797,7 @@ describe("mapAuth", () => {
           : (adapterEntry as unknown as { from: string }).from,
       server: expectedSide("server", manifest.server),
       client: manifest.client && expectedSide("client", manifest.client),
+      kind: manifest.kind,
       routes: manifest.server.routes && {},
       capabilities: manifest.capabilities,
       uses: manifest.uses ?? [],

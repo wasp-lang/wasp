@@ -1,10 +1,8 @@
 import { type Route } from "./http.js";
 import type { Ctx, Req } from "./types.js";
 /**
- * The account of the signed-in user making this request. Goes through the
- * credentials facet, so it works whatever issuer this scheme signs into
- * (its private one, or a sibling `waspBearer()` / `waspCookie()`), bearer or
- * cookie. For a Wasp-issued credential the principal's subject IS the Auth id.
+ * The account of the signed-in user making this request, as Wasp sees it:
+ * whatever issuer this scheme signs into, bearer or cookie.
  */
 export declare function requireCurrentAuthId({ runtime }: Ctx, req: Req): Promise<string>;
 /** Maps the facet's link/unlink rejections onto HTTP answers the client reads. */
