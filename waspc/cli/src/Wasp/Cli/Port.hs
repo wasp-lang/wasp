@@ -43,9 +43,9 @@ resolvePort ::
   String ->
   String ->
   Command PortNumber
-resolvePort specifiedPort defaultPort portsToSkip specifiedPortTakenMessage noFreePortsMessage =
+resolvePort specifiedPort defaultPort skipPorts specifiedPortTakenMessage noFreePortsMessage =
   maybe
-    (findPort defaultPort portsToSkip)
+    (findPort defaultPort skipPorts)
     assertPort
     specifiedPort
   where
@@ -54,11 +54,11 @@ resolvePort specifiedPort defaultPort portsToSkip specifiedPortTakenMessage noFr
         throwResolvingError $ "Port " ++ show port ++ " is already in use. " ++ specifiedPortTakenMessage
       return port
 
-    findPort startPort skipPorts =
+    findPort startPort portsToSkip =
       liftIO
         ( findFirstFreeLocalPortInRange
             startPort
-            skipPorts
+            portsToSkip
             noFreePortsMessage
         )
         >>= either throwResolvingError return
