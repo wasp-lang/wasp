@@ -1,6 +1,6 @@
 # SDK Core Library
 
-App-independent code shared by generated Wasp SDKs.
+App-independent code used by the generated Wasp SDK.
 
 Entry points: `@wasp.sh/lib-sdk-core`, `@wasp.sh/lib-sdk-core/node`, and
 `@wasp.sh/lib-sdk-core/browser`.
