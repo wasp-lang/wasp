@@ -23,7 +23,7 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Port (assertLocalPortIsFree, findLocalFreePort)
+import Wasp.Cli.Port (resolvePort, useDifferentPortRemediation)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Cli.Util.PortArgument (portOption)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
@@ -132,13 +132,12 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
     Nothing -> startDbOnPort =<< resolveDevDbPort
   where
     resolveDevDbPort :: Command PortNumber
-    resolveDevDbPort = maybe findFreeDevDbPort assertLocalPortIsFree requestedDbPort
-
-    findFreeDevDbPort :: Command PortNumber
-    findFreeDevDbPort =
-      findLocalFreePort
+    resolveDevDbPort =
+      resolvePort
+        requestedDbPort
         defaultPostgresPort
         []
+        (useDifferentPortRemediation "--db-port")
         "Free at least one of those ports by exiting the program listening on it, or choose one yourself with --db-port."
 
     noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
