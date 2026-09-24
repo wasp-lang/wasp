@@ -107,8 +107,9 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
              "@wasp.sh/lib-sdk-core/browser > react/jsx-runtime"
            ]
 
-    -- @wasp.sh/lib-sdk-core and generated app code must use the same instances of these dependencies.
-    -- Multiple instances break shared state such as React hooks and provider contexts.
+    -- These packages rely on a single instance per page. Not deduping them causes runtime errors,
+    -- such as React hook rule violations, React Query QueryClient errors, and React Router
+    -- invariant errors.
     singleInstanceDependencies =
       [ "react",
         "react-dom",
