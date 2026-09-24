@@ -566,9 +566,9 @@ test-suite waspc-tests
 
   other-modules:
     AppSpec.EntityTest
-    Env.NodeDotenvParserTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
+    Env.NodeDotenvParserTest
     EnvTest
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
