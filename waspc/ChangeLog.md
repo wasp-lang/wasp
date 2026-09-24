@@ -29,7 +29,7 @@
 
 ### 🐞 Bug fixes
 
-- When an env file defines the same variable more than once, Wasp now uses the last definition (instead of previous first). ([#4895](https://github.com/wasp-lang/wasp/pull/4895))
+- Wasp now reads `.env.server` and `.env.client` files the same way your app does. When a variable is defined more than once, the last definition wins (instead of previous first), and `${VAR}` references and `$(command)` substitutions are no longer expanded or executed by Wasp. ([#4895](https://github.com/wasp-lang/wasp/pull/4895))
 - Wasp's compiler now properly escapes user input in the code it generates. ([#4855](https://github.com/wasp-lang/wasp/pull/4855))
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))

@@ -8,7 +8,7 @@ module Wasp.Project.Env
 where
 
 import StrongPath (Abs, Dir, File', Path', Rel, relfile)
-import Wasp.Env (EnvVar, parseDotEnvFile)
+import Wasp.Env (EnvVar, parseDotEnvFileLikeNodeDotenv)
 import Wasp.Project.Common (CompileWarning, WaspProjectDir, findFileInWaspProjectDir)
 
 dotEnvServer :: Path' (Rel WaspProjectDir) File'
@@ -34,7 +34,6 @@ warnIfTheDotEnvPresent waspDir = (warningMessage <$) <$> findFileInWaspProjectDi
 
 -- Reads specified dotenv file and returns its values.
 -- If file doesn't exist, returns an empty list.
--- If file can't be parsed, it will crash with an error.
 readDotEnvFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) File' ->
@@ -42,4 +41,4 @@ readDotEnvFileInWaspProjectDir ::
 readDotEnvFileInWaspProjectDir waspDir envFileInWaspDir = do
   findFileInWaspProjectDir waspDir envFileInWaspDir >>= \case
     Nothing -> return []
-    Just envFile -> parseDotEnvFile envFile
+    Just envFile -> parseDotEnvFileLikeNodeDotenv envFile

@@ -21,7 +21,7 @@ import System.Environment (getEnvironment)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
 import Wasp.Cli.Util.PathArgument (getFilePath)
-import Wasp.Env (EnvVar, EnvVarName, HasEnvVars, addEnvVarsUnique, parseDotEnvFile)
+import Wasp.Env (EnvVar, EnvVarName, HasEnvVars, addEnvVarsUnique, parseDotEnvFileLikeNodeDotenv)
 
 type EnvVarWithCtx = (EnvVarCtx, EnvVar)
 
@@ -39,7 +39,7 @@ readEnvVarArgument (EnvVarArgumentFile filePathArg) =
 
 readDotEnvFile :: String -> Path' Abs (File ()) -> IO [EnvVarWithCtx]
 readDotEnvFile fileDescription filePath =
-  fmap (EnvVarCtx {sourceDescription = "file " ++ fileDescription},) <$> parseDotEnvFile filePath
+  fmap (EnvVarCtx {sourceDescription = "file " ++ fileDescription},) <$> parseDotEnvFileLikeNodeDotenv filePath
 
 readEnvironment :: IO [EnvVarWithCtx]
 readEnvironment =

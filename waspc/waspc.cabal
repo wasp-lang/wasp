@@ -128,7 +128,6 @@ library
     containers ^>=0.7,
     cryptohash-sha256 ^>=0.11.102,
     directory ^>=1.3.8,
-    dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
     filepath ^>=1.5.4,
@@ -196,6 +195,7 @@ library
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Env
+    Wasp.Env.NodeDotenvParser
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
     Wasp.ExternalConfig.Npm.PackageJson.DepValidators
@@ -566,6 +566,7 @@ test-suite waspc-tests
 
   other-modules:
     AppSpec.EntityTest
+    Env.NodeDotenvParserTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
     EnvTest

@@ -4,8 +4,7 @@ module Wasp.Env
   ( EnvVar,
     EnvVarName,
     EnvVarValue,
-    parseDotEnvFile,
-    keepLastOccurrences,
+    parseDotEnvFileLikeNodeDotenv,
     envVarsToDotEnvContent,
     nubEnvVars,
     formatEnvVarValue,
@@ -16,15 +15,14 @@ module Wasp.Env
   )
 where
 
-import qualified Configuration.Dotenv as Dotenv
-import Control.Exception (ErrorCall (ErrorCall))
 import Data.Function (on)
 import Data.List (intercalate, nubBy)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, File, Path', fromAbsFile)
-import UnliftIO.Exception (catch, throwIO)
+import Wasp.Env.NodeDotenvParser (parseDotEnvContentLikeNodeDotenv)
 
 type EnvVar = (EnvVarName, EnvVarValue)
 
@@ -32,24 +30,12 @@ type EnvVarName = String
 
 type EnvVarValue = String
 
--- Reads the specified dotenv file and returns its values.
--- Crashes if file doesn't exist or it can't parse it.
-parseDotEnvFile :: Path' Abs (File ()) -> IO [EnvVar]
-parseDotEnvFile envFile =
-  keepLastOccurrences
-    <$> Dotenv.parseFile (fromAbsFile envFile)
-      -- Parse errors are returned from Dotenv.parseFile as ErrorCall, which Wasp compiler would
-      -- report as a bug in compiler, so we instead convert these to IOExceptions.
-      `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
-
--- | When a dotenv file defines the same env var more than once, the last
--- definition wins (e.g. in Node's @dotenv@ and Vite). The Haskell parser
--- itself does no such filtering, so we manually replicate the deduplication
--- behavior here.
-keepLastOccurrences :: [EnvVar] -> [EnvVar]
-keepLastOccurrences envVars = [(name, lastValueOf name) | (name, _) <- nubEnvVars envVars]
-  where
-    lastValueOf name = last [value | (name', value) <- envVars, name' == name]
+-- | Reads the specified dotenv file and returns its env vars, the same way
+-- the generated apps would read it with Node's @dotenv@ (see
+-- "Wasp.Env.NodeDotenvParser"). Crashes if the file doesn't exist.
+parseDotEnvFileLikeNodeDotenv :: Path' Abs (File ()) -> IO [EnvVar]
+parseDotEnvFileLikeNodeDotenv envFile =
+  parseDotEnvContentLikeNodeDotenv . T.unpack <$> T.IO.readFile (fromAbsFile envFile)
 
 -- | Formats environment variables for .env file content.
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
