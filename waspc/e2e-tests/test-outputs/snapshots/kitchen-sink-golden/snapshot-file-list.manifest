@@ -39,7 +39,6 @@ wasp-app/.wasp/out/sdk/wasp/auth/forms/Signup.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/VerifyEmail.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/Form.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/Message.tsx
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/auth-styles.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx
@@ -194,7 +193,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/Message.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/auth-styles.css
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/common/LoginSignupForm.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/common/LoginSignupForm.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/common/LoginSignupForm.jsx

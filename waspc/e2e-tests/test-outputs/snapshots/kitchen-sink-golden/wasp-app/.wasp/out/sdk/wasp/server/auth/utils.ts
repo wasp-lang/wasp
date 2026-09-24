@@ -33,17 +33,20 @@ export {
   type OAuthProviderData,
 } from '../../auth/providerData.js'
 
+// PRIVATE API
 export const contextWithUserEntity = {
   entities: {
     User: prisma.user
   }
 }
 
+// PRIVATE API
 export const authConfig = {
   failureRedirectPath: "/login",
   successRedirectPath: "/",
 }
 
+// PUBLIC API
 export async function findAuthIdentity(providerId: ProviderId): Promise<AuthIdentity | null> {
   return prisma.authIdentity.findUnique({
     where: {
@@ -195,6 +198,7 @@ function serializeProviderData<PN extends ProviderName>(providerData: PossiblePr
   return JSON.stringify(providerData);
 }
 
+// PRIVATE API
 export async function validateAndGetUserFields(
   data: {
     [key: string]: unknown
