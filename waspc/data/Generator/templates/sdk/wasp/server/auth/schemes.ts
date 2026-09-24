@@ -1,5 +1,5 @@
 {{={= =}=}}
-import type { AccountPrincipal, AuthenticateResult, CredentialHandler, AuthIdentityKey, CredentialsIssuer, IdentityPrincipal, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
+import type { AccountPrincipal, AuthenticateResult, CredentialHandler, ResolvedIdentity, CredentialsIssuer, IdentityPrincipal, IdentityStore, AuthIdentityRef, OAuthLoginData, SignInOpts, SignInResult, WaspEmail, WaspServerRuntime } from './handler/types.js'
 import type { OAuthData } from './hooks.js'
 import type { AuthSchemeName } from '../../auth/scheme.js'
 import { joinHandlerSpec } from '../../auth/handlerSpec.js'
@@ -358,7 +358,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: C
     throw new Error(`Auth scheme '${spec.scheme}' signs into a scheme whose handler cannot issue credentials.`)
   }
   const signInOnTarget = target.signIn.bind(target)
-  const keyOf = (providerName: string, providerUserId: string, authId: string): AuthIdentityKey => ({
+  const resolvedIdentityOf = (providerName: string, providerUserId: string, authId: string): ResolvedIdentity => ({
     handlerName: spec.scheme,
     providerName,
     providerUserId,
@@ -391,7 +391,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: C
         onBeforeLoginHook({ req: getCurrentRequest() as any, providerId: hookProviderId, user: auth.user }),
       )
     }
-    const result = await signInOnTarget(keyOf(providerName, providerUserId, authId), opts?.properties)
+    const result = await signInOnTarget(resolvedIdentityOf(providerName, providerUserId, authId), opts?.properties)
     if (fireHooks) {
       await onAfterLoginHook({
         req: getCurrentRequest() as any,
@@ -411,7 +411,7 @@ function boundTo(spec: SchemeRuntimeSpec, target: CredentialHandler): { facet: C
     signOut: (request) => target.signOut?.(request) ?? Promise.resolve(Response.json({ success: true })),
     signOutEverywhere: async (identityRef) => {
       const { providerName, authId } = await resolveIdentityRef(identityRef)
-      await target.signOutEverywhere?.(keyOf(providerName, identityRef.providerUserId, authId))
+      await target.signOutEverywhere?.(resolvedIdentityOf(providerName, identityRef.providerUserId, authId))
     },
   }
   return { facet, issueSignIn }

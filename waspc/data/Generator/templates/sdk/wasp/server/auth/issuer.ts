@@ -3,7 +3,7 @@ import { TimeSpan, createJWTHelpers } from '@wasp.sh/lib-auth/node'
 import type {
   AccountPrincipal,
   CredentialHandler,
-  AuthIdentityKey,
+  ResolvedIdentity,
   CredentialRecord,
   CredentialStore,
   SignInProperties,
@@ -127,7 +127,7 @@ export function createIssuer(options: IssuerOptions): IssuerHandler {
     // The facet that calls in has resolved the identity within the calling
     // scheme and guarded its provider name; `handlerName` IS the calling
     // scheme and `authId` its account, so nothing is looked up here.
-    async signIn(identity: AuthIdentityKey, properties?: SignInProperties): Promise<SignInResult> {
+    async signIn(identity: ResolvedIdentity, properties?: SignInProperties): Promise<SignInResult> {
       const { authId } = identity
       // Per-sign-in properties win over the scheme's configuration.
       const ttl = properties?.ttl !== undefined ? parseTimeSpan(properties.ttl) : schemeTtl
@@ -153,7 +153,7 @@ export function createIssuer(options: IssuerOptions): IssuerHandler {
       return transport.clear()
     },
 
-    async signOutEverywhere(identity: AuthIdentityKey) {
+    async signOutEverywhere(identity: ResolvedIdentity) {
       await store.deleteAllForAuthId(identity.authId)
     },
 

@@ -62,14 +62,16 @@ export type AuthIdentityRef<ProviderName extends string = string> = {
 };
 
 /**
- * The full primary key of an `AuthIdentity` row, plus the account it belongs
- * to: what an issuer receives at `signIn` and `signOutEverywhere`. Wasp fills
- * `handlerName` with the calling scheme and `authId` from the row; a handler
- * never chooses either. An issuer that stores `authId` in its credential can
- * answer `authenticate` with the account, exactly as Wasp's own issuers do;
- * `handlerName` is what it records as the login scheme.
+ * The outcome of Wasp resolving a sign-in request: which `AuthIdentity` row
+ * (its full primary key), which scheme verified the login (`handlerName`),
+ * and which account it belongs to (`authId`). What an issuer receives at
+ * `signIn` and `signOutEverywhere`. Wasp fills every field from its own
+ * lookup; a handler never chooses any of them. An issuer that stores
+ * `authId` in its credential can answer `authenticate` with the account,
+ * exactly as Wasp's own issuers do, and records `handlerName` as the login
+ * scheme.
  */
-export type AuthIdentityKey = {
+export type ResolvedIdentity = {
   handlerName: string;
   providerName: string;
   providerUserId: string;
@@ -272,7 +274,7 @@ export interface CredentialHandler {
    * and only then calls in here.
    *
    * WHOSE IDENTITY: the calling scheme's, not necessarily this handler's.
-   * That is why the argument is the full row key and not a ref: a ref only
+   * That is why the argument is the resolved identity and not a ref: a ref only
    * means something relative to the scheme that made it, and this handler is
    * on the other side of the call. `handlerName` is the scheme that verified
    * the login; Wasp fills it in, so the value cannot be forged, and it is what
@@ -282,7 +284,7 @@ export interface CredentialHandler {
    * nothing can sign into such a scheme, and the app's `signIn` rejects.
    */
   signIn?(
-    identity: AuthIdentityKey,
+    identity: ResolvedIdentity,
     properties?: SignInProperties,
   ): Promise<SignInResult>;
 
@@ -301,7 +303,7 @@ export interface CredentialHandler {
    * relies on: that is the cut-off, which works for any handler that reports
    * `credentialIssuedAt`. Wasp's own issuers implement it too.
    */
-  signOutEverywhere?(identity: AuthIdentityKey): Promise<void>;
+  signOutEverywhere?(identity: ResolvedIdentity): Promise<void>;
 
   /**
    * What to send a request that needs a user and has none. A cookie handler
