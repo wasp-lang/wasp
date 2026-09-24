@@ -63,6 +63,15 @@ spec_envVarCombining = do
       nubEnvVars [("A", "1"), ("B", "2")]
         `shouldBe` [("A", "1"), ("B", "2")]
 
+  describe "keepLastOccurrences" $ do
+    it "should keep the last value of an env var defined more than once, in order of first appearance" $
+      keepLastOccurrences [("A", "1"), ("B", "2"), ("A", "3"), ("C", "4"), ("A", "5")]
+        `shouldBe` [("A", "5"), ("B", "2"), ("C", "4")]
+
+    it "should leave a list without duplicates unchanged" $
+      keepLastOccurrences [("A", "1"), ("B", "2")]
+        `shouldBe` [("A", "1"), ("B", "2")]
+
   describe "findDuplicateEnvVars" $ do
     it "should return names present in both lists" $
       findDuplicateEnvVars [("A", "1"), ("B", "2")] [("B", "3"), ("C", "4"), ("A", "5")]

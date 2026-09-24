@@ -5,6 +5,7 @@ module Wasp.Env
     EnvVarName,
     EnvVarValue,
     parseDotEnvFile,
+    keepLastOccurrences,
     envVarsToDotEnvContent,
     nubEnvVars,
     formatEnvVarValue,
@@ -35,10 +36,20 @@ type EnvVarValue = String
 -- Crashes if file doesn't exist or it can't parse it.
 parseDotEnvFile :: Path' Abs (File ()) -> IO [EnvVar]
 parseDotEnvFile envFile =
-  Dotenv.parseFile (fromAbsFile envFile)
-    -- Parse errors are returned from Dotenv.parseFile as ErrorCall, which Wasp compiler would
-    -- report as a bug in compiler, so we instead convert these to IOExceptions.
-    `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
+  keepLastOccurrences
+    <$> Dotenv.parseFile (fromAbsFile envFile)
+      -- Parse errors are returned from Dotenv.parseFile as ErrorCall, which Wasp compiler would
+      -- report as a bug in compiler, so we instead convert these to IOExceptions.
+      `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
+
+-- | When a dotenv file defines the same env var more than once, the last
+-- definition wins (e.g. in Node's @dotenv@ and Vite). The Haskell parser
+-- itself does no such filtering, so we manually replicate the deduplication
+-- behavior here.
+keepLastOccurrences :: [EnvVar] -> [EnvVar]
+keepLastOccurrences envVars = [(name, lastValueOf name) | (name, _) <- nubEnvVars envVars]
+  where
+    lastValueOf name = last [value | (name', value) <- envVars, name' == name]
 
 -- | Formats environment variables for .env file content.
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
