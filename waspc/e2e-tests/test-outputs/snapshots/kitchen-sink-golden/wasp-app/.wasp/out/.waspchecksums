@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp.sh-lib-sdk-core-0.26.0.tgz"
         ],
-        "e492bd8c4d9dd6def122f604dd139e6a5e401fc2b5a441bd1e621d40eedc3118"
+        "200992b7ed8a94866b97b7947d2ba78141f446e8357afcc113634804a9199c6e"
     ],
     [
         [
@@ -109,7 +109,7 @@
             "file",
             "sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "3a516c4b84f0e825dc173b4852c0b7fe9e27ad1480b6564cf24d4e844b33eb59"
+        "aa2db62799b70a7525291e22c097d5af44146e63335d42565067a34b9b8b460a"
     ],
     [
         [
@@ -163,13 +163,6 @@
     [
         [
             "file",
-            "sdk/wasp/auth/forms/internal/auth-styles.css"
-        ],
-        "228aa6aa6bdac07cc4c7c55cc85422682f56c6b9242bac9b673bd3bab2132dc6"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.module.css"
         ],
         "ceb7e900e700da20b71487c1ad65d0d3148747990c1e2d4540b18ec001ea2bcd"
@@ -179,7 +172,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "23844d57a04af0fac4285c582c74cdd9940a7e3d01566d55b921e0f6ef443504"
+        "7545d13fe29c92f0ef47501fa1bbe744d07eee2664b9d79834ff0f75015f02c9"
     ],
     [
         [
@@ -907,7 +900,7 @@
             "file",
             "sdk/wasp/server/auth/email/utils.ts"
         ],
-        "c6c70ec977ce61bb0e74e867ecd7d68a7de5cb872148155cafb35f0b02537f23"
+        "14ae72c52790a68bbe3ceef361beff50af5b555e605c08a8fb230df70158f657"
     ],
     [
         [
@@ -1019,7 +1012,7 @@
             "file",
             "sdk/wasp/server/auth/utils.ts"
         ],
-        "86d53a242ed2644bd7a243658a2168fd52d64076e7d6652f9e9c7ed606a002af"
+        "fab26a4b57ab8049cd9e7d2ae25d60aade17cdc9bfcaf786e05dc35d9ff61bbb"
     ],
     [
         [

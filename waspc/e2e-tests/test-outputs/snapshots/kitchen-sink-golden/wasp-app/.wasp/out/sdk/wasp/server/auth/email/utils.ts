@@ -1,4 +1,5 @@
 import { isEmailResendAllowed } from '@wasp.sh/lib-sdk-core'
+// PUBLIC API
 export { isEmailResendAllowed } from '@wasp.sh/lib-sdk-core'
 
 import { createJWT, TimeSpan } from '../jwt.js'
@@ -14,6 +15,7 @@ import {
 import { config as waspServerConfig } from '../../index.js';
 import type { User, Auth } from '../../../entities/index.js'
 
+// PUBLIC API
 export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,
@@ -77,5 +79,3 @@ async function sendEmailAndSaveMetadata(
     console.error('Failed to send email', e);
   });
 }
-
-// PUBLIC API
