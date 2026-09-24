@@ -10,7 +10,7 @@ import Control.Monad.Except (throwError)
 import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Port (resolvePort, useDifferentPortRemediation)
+import Wasp.Cli.Port (resolvePort)
 
 defaultDevClientPort :: PortNumber
 defaultDevClientPort = 3000
@@ -28,15 +28,19 @@ findAppComponentPorts (requestedClientPort, requestedServerPort) = do
       requestedClientPort
       defaultDevClientPort
       (catMaybes [requestedServerPort])
-      (useDifferentPortRemediation "--client-port")
+      "Choose a different port with --client-port, or free up this one."
       noFreePortRemediation
 
   resolvedServerPort <-
     resolvePort
       requestedServerPort
+      -- We already know all ports lower than the client port are taken, so
+      -- we can start looking for a free port from the next one. This also
+      -- has the nice effect of keeping the server port close to the client
+      -- port.
       (resolvedClientPort + 1)
       []
-      (useDifferentPortRemediation "--server-port")
+      "Choose a different port with --server-port, or free up this one."
       noFreePortRemediation
 
   return (resolvedClientPort, resolvedServerPort)

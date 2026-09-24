@@ -3,7 +3,6 @@ module Wasp.Cli.Port
     findFirstFreeLocalPortAmong,
     checkIfLocalPortIsTaken,
     resolvePort,
-    useDifferentPortRemediation,
   )
 where
 
@@ -44,24 +43,27 @@ resolvePort ::
   String ->
   String ->
   Command PortNumber
-resolvePort specifiedPort defaultPort portsToSkip specifiedPortTakenRemediation noFreePortRemediation =
-  maybe (findFreePort defaultPort portsToSkip) assertPortIsFree specifiedPort
+resolvePort specifiedPort defaultPort portsToSkip specifiedPortTakenMessage noFreePortsMessage =
+  maybe
+    (findPort defaultPort portsToSkip)
+    assertPort
+    specifiedPort
   where
-    assertPortIsFree port = do
-      whenM (liftIO $ checkIfLocalPortIsTaken port) $
-        throwError $
-          CommandError
-            "Port already in use"
-            ("Port " ++ show port ++ " is already in use. " ++ specifiedPortTakenRemediation)
+    assertPort port = do
+      whenM (liftIO $ checkIfLocalPortIsTaken port) $ do
+        throwResolvingError $ "Port " ++ show port ++ " is already in use. " ++ specifiedPortTakenMessage
       return port
 
-    findFreePort startPort skipPorts =
-      liftIO (findFirstFreeLocalPortInRange startPort skipPorts noFreePortRemediation)
-        >>= either (throwError . CommandError "No free port") return
+    findPort startPort skipPorts =
+      liftIO
+        ( findFirstFreeLocalPortInRange
+            startPort
+            skipPorts
+            noFreePortsMessage
+        )
+        >>= either throwResolvingError return
 
-useDifferentPortRemediation :: String -> String
-useDifferentPortRemediation flagName =
-  "Choose a different port with " ++ flagName ++ ", or free up this one."
+    throwResolvingError = throwError . CommandError "Failed to find ports"
 
 checkIfLocalPortIsTaken :: PortNumber -> IO Bool
 checkIfLocalPortIsTaken port =
