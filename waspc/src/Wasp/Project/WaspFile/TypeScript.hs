@@ -29,6 +29,7 @@ import qualified Wasp.Job.Kind as Kind
 import qualified Wasp.Job.Node as Node
 import qualified Wasp.Job.Output as Output
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
+import Wasp.Process (InputMode (NoInput))
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -76,6 +77,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   runExitCode <-
     Output.runAndPrintPrefixedOutput Kind.Wasp $
       Node.runChecked
+        NoInput
         [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
           -- Not related to `node` itself, so we have to set it manually.
           -- It enables users to write environment specific code in the TS config.
