@@ -1,6 +1,5 @@
 import * as z from "zod"
-import { ensureEnvSchema } from "@wasp.sh/lib-sdk-core"
-import type { FromRegister } from "@wasp.sh/lib-sdk-core";
+import { ensureEnvSchema, type FromRegister } from "@wasp.sh/lib-sdk-core"
 
 export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
 type UserServerEnvSchema = RegisteredServerEnvValidationSchema;

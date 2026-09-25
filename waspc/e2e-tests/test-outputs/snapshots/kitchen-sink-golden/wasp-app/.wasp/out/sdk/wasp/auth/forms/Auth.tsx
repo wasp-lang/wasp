@@ -5,10 +5,8 @@ import {
   FormMessageError as MessageError,
   MessageSuccess,
   tokenObjToCSSVars,
-} from '@wasp.sh/lib-sdk-core/browser'
-import type {
-  CustomizationOptions,
-  AdditionalSignupFields,
+  type CustomizationOptions,
+  type AdditionalSignupFields,
 } from '@wasp.sh/lib-sdk-core/browser'
 
 import type { State } from './types'
