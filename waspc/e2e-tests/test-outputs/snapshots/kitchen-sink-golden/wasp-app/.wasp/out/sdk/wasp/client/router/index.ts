@@ -1,9 +1,9 @@
-import { interpolatePath } from '@wasp.sh/lib-sdk-core'
-import type {
-  RouteDefinitionsToRoutes,
-  OptionalRouteOptions,
-  ParamValue,
-  ExpandRouteOnOptionalStaticSegments,
+import {
+  interpolatePath,
+  type RouteDefinitionsToRoutes,
+  type OptionalRouteOptions,
+  type ParamValue,
+  type ExpandRouteOnOptionalStaticSegments,
 } from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
