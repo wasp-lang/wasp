@@ -8,8 +8,9 @@ import {
   type PossibleProviderData,
   type ProviderName,
   getProviderData,
+  isNotNull,
+  type Expand,
 } from '@wasp.sh/lib-sdk-core'
-import { isNotNull, type Expand } from '@wasp.sh/lib-sdk-core'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
