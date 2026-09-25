@@ -13,7 +13,6 @@ export {
   FormTextarea,
   SubmitButton,
 } from "./auth/forms/Form.js";
-export { type LoginSignupFormFields } from "./auth/forms/LoginSignupForm.js";
 export {
   MessageError as FormMessageError,
   Message,
@@ -34,6 +33,7 @@ export {
   type AdditionalSignupFields,
   type CustomizationOptions,
   type FormState,
+  type LoginSignupFormFields,
 } from "./auth/forms/types.js";
 export { clsx, tokenObjToCSSVars } from "./auth/forms/util.js";
 export {
