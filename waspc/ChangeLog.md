@@ -33,6 +33,7 @@
 
 - Fixed a bug that created Railway databases without a persistent volume when using `--db-image`. Existing databases are unchanged. ([#4647](https://github.com/wasp-lang/wasp/pull/4647))
 - Fixed Wasp commands failing with "resource exhausted (Too many open files)" in projects with many files under `src/`. ([#1919](https://github.com/wasp-lang/wasp/issues/1919))
+- Fixed `routes.<Route>.build()`, `<Link>`, and `<NavLink>` dropping a route param whose value is the number `0` (e.g. `/tasks/:id` with `{ id: 0 }` produced `/tasks` instead of `/tasks/0`).
 
 ### 🔧 Small improvements
 

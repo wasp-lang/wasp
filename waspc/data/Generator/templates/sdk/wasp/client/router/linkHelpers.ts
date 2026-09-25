@@ -37,7 +37,8 @@ function interpolatePathParams(path: string, params: Params) {
 }
 
 function isValidPathPart(part: any): boolean {
-  return !!part;
+  // `0` is a valid param value, so we only drop missing params and empty parts.
+  return part !== undefined && part !== null && part !== "";
 }
 
 function extractParamNameFromPathPart(paramString: string) {
