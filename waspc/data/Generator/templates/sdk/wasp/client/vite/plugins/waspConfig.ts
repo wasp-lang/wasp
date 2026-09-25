@@ -37,6 +37,8 @@ const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
     "To run the client on a different port, use `wasp build start --client-port <port>`.",
 };
 
+const singleInstanceDependencies = {=& singleInstanceDependencies =};
+
 export function waspConfig(): PluginOption {
   return {
     name: "wasp:config",
@@ -48,7 +50,8 @@ export function waspConfig(): PluginOption {
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: {=& depsExcludedFromOptimization =}
+          exclude: {=& depsExcludedFromOptimization =},
+          include: {=& dependenciesIncludedInOptimization =},
         },
         server: {
           port: forcedOptions["server.port"],
@@ -63,15 +66,7 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         resolve: {
-          // These packages rely on a single instance per page. Not deduping them
-          // causes runtime errors (e.g., hook rule violation in react, QueryClient
-          // instance error in react-query, Invariant Error in react-router).
-          dedupe: [
-            "react",
-            "react-dom",
-            "@tanstack/react-query",
-            "react-router",
-          ],
+          dedupe: singleInstanceDependencies,
           alias: [
             {
               // Vite doesn't look for `.prisma/client` imports in the `node_modules`
